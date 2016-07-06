@@ -1,0 +1,234 @@
+TITLE
+FOOT new geometry
+* ************************************************************************
+* ** start counter, drift chamber, target, vertex, magnet and
+* *** plume dimensions and distances from 0
+* ************************************************************************
+!@what.1=drift_dist-15.
+#define sc_dist -28.65
+!@what.1=+6.35-20.
+#define drift_dist -13.65
+#define targ_dim 0.2
+!@what.1=-targ_dim/2
+#define targ_dist -0.1
+!@what.1=targ_dim/2+0.5
+#define vtx_dist 0.6
+!@what.1=targ_dim/2+14.
+#define vtx4_dist 14.1
+!@what.1=vtx4_dist-mag_dim-1.5
+#define mag_dist 2.6
+#define btwmag 4.
+#define mag_dim 10.
+#define fac1 4.4
+* *** scintillator & calo block distance from 0
+!@what.1=100.
+#define calo_dist 100
+GLOBAL         9999.                                      1.
+DEFAULTS                                                              PRECISIO
+BEAM        -0.20094                 0.0     -0.48     -0.48          HEAVYION
+HI-PROPE          8.       16.
+!@what.3=-sc_dist-1
+BEAMPOS           0.        0.     27.65
+* Se si toglie il discard degli e- aggiungere soglie deltaray e pairbrem
+EMF                                                                   EMF-OFF
+DISCARD        E+&E-    PHOTON
+EMFCUT       -0.0001    0.0001                      @LASTREG
+EMFCUT       -0.0001    0.0001        1.            @LASTMAT          PROD-CUT
+IONTRANS    HEAVYION
+*
+* ====================  geometry ====================
+GEOBEGIN         0.0                 21.                              COMBNAME
+FOOT_new.geo
+GEOEND
+* *** Samario-Cobalto permanent magnet
+MATERIAL         62.                7.46                              SAMARIUM
+MATERIAL         27.                 8.9                              COBALT
+MATERIAL                             8.3                              SmCo
+COMPOUND         2.0  SAMARIUM      17.0    COBALT                    SmCo
+* *** Altro magnete permanente
+MATERIAL         60.                 6.9                              NEODYMIU
+MATERIAL          5.                2.37                              BORON
+MATERIAL         66.                8.55                              DYSPROSI
+MATERIAL         41.                8.57                              NIOBIUM
+MATERIAL                             7.6                              NdFeB
+COMPOUND       -30.0  NEODYMIU     -66.0      IRON      -1.0     BORONNdFeB
+COMPOUND        -0.5  ALUMINUM      -1.0  DYSPROSI      -1.0   NIOBIUMNdFeB
+* Epoxy (cast)
+* Chemical           H-C - C-H     CH3  H-C - C-H        H   H   H
+* Formula             //    \\     |     //    \\        |   |   |
+*          ----- O - C        C -- C -- C        C - O - C - C - C ---
+*  C  H  0            \     /      |     \     /         |   |   |
+*   18 19 3          H-C = C-H     CH3  H-C = C-H        H   O   H
+* If epoxy has silica filler, density will be in range of 1.6 - 2.0 g/cm3.
+MATERIAL                            1.18                              Epoxy
+COMPOUND        19.0  HYDROGEN      18.0    CARBON       3.0    OXYGENEpoxy
+* *** Silicon carbide
+MATERIAL                            3.22                              SiC
+COMPOUND        -1.0   SILICON      -1.0    CARBON                    SiC
+MATERIAL                          0.1288                              SiCFoam
+COMPOUND        -4.0       SiC     -96.0       AIR                    SiCFoam
+* Lutezio
+MATERIAL         71.   174.967     9.841                              LUTETIUM
+LOW-MAT     LUTETIUM       33.       75.       87.                    ARSENIC
+* Ittrio
+MATERIAL         39.  88.90585     4.469                              YTTRIUM
+* LYSO
+MATERIAL                             7.3                              LYSO
+COMPOUND         1.6  LUTETIUM       0.4   YTTRIUM       1.0   SILICONLYSO
+COMPOUND         5.0    OXYGEN                                        LYSO
+*  Bismuto
+MATERIAL         83.               9.747                              BISMUTH
+* Germanio
+MATERIAL         32.               5.323                              GERMANIU
+* BGO
+MATERIAL                            7.13                              BGO
+COMPOUND         4.0   BISMUTH       3.0  GERMANIU      12.0    OXYGENBGO
+* Scintillator - Pilot B
+*
+MATERIAL                            1.02                              PilotB
+COMPOUND        11.0  HYDROGEN      10.0    CARBON                    PilotB
+EMFRAY            4.   BLKBODY  @LASTREG
+* Barium sulfate Ba_S_O4
+MATERIAL         16.                2.07                              SULFUR
+MATERIAL         56.                 3.5                              BARIUM
+MATERIAL                             4.5                              BaSO4
+COMPOUND   -0.274212    OXYGEN -0.137368    SULFUR  -0.58842    BARIUMBaSO4
+* 221 Polyethylene, Marlex
+* Density variation of polyethylene is 0.91 - 1.05 g/cm3. "Low" density is
+*  0.920, "medium" is .93, and "high" is .95. Special polyethelene is made
+* for nuclear shielding, and this has loaded densities up to 1.08.
+* Chemical                    H    H
+* Formula :                   |    |
+*           |C H |       ---- C -- C ----
+*           | 2 4|n           |    |
+*                             H    H
+MATERIAL                            0.94                              Polyethy
+COMPOUND         4.0  HYDROGEN       2.0    CARBON                    Polyethy
+* Grafite
+MATERIAL          6.                2.26                              Graphite
+LOW-MAT     Graphite        6.       -3.      296.                    CARBON
+* 222 Mylar, Melinex
+* Chemical Formula :  H-C = C-H            H   H
+*                     /       \            |   |
+*       ---- O - C - C         C - C - O - C - C -------
+*                ||   \\     //    ||      |   |
+*  C  H 0        O    H-C - C-H    O       H   H
+*   10 8 4
+MATERIAL                             1.4                              Mylar
+COMPOUND         8.0  HYDROGEN      10.0    CARBON       4.0    OXYGENMylar
+* 104 Air dry (near sea level)
+*
+MATERIAL                       .00120484                              AIR
+COMPOUND   -1.248E-4    CARBON -0.755267  NITROGEN -0.231781    OXYGENAIR
+COMPOUND   -0.012827     ARGON                                        AIR
+* Bakelite
+MATERIAL                            1.45                              BAKELITE
+COMPOUND         9.0  HYDROGEN       9.0    CARBON       1.0    OXYGENBAKELITE
+*
+* -------1---------2---------3---------4---------5---------6---------7---------8
+* command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
+* -------1---------2---------3---------4---------5---------6---------7---------8
+*
+ASSIGNMA    BLCKHOLE   BLKBODY
+ASSIGNMA         AIR       AIR
+ASSIGNMA    POLYETHY    TARGET
+ASSIGNMA      PilotB    STARTC
+ASSIGNMA       ARGON    vp1c1a    up6c3a
+ASSIGNMA       ARGON    vp1c1b    up6c6b
+ASSIGNMA    ALUMINUM  SCHERMOa     TRIAa
+ASSIGNMA    ALUMINUM  SCHERMOb     TRIAb
+ASSIGNMA    BAKELITE   SCHEDEa
+ASSIGNMA    BAKELITE   SCHEDEb
+ASSIGNMA     SILICON      VTX1      VTX5
+ASSIGNMA      VACUUM   GapMag1   GapMag2                  1.
+ASSIGNMA      VACUUM   MagAir1   MagAir2
+ASSIGNMA        SmCo    MagPM1    MagPM2
+ASSIGNMA    ALUMINUM   MagCov1   MagCov2
+ASSIGNMA      PilotB  SCIN0101  SCIN1111
+ASSIGNMA         BGO  CALO0101  CALO1111
+* -------1---------2---------3---------4---------5---------6---------7---------8
+* command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
+* -------1---------2---------3---------4---------5---------6---------7---------8
+PHYSICS           3.                                                  EVAPORAT
+PHYSICS           1.                                                  COALESCE
+MGNFIELD                                                 0.6
+* *********************
+* *** plume lattice ***
+* *********************
+!@what.4=-1.2
+!@what.5=-2.12
+!@what.6=1000-plm_dist
+*ROT-DEFI        301.                          -1.2     -2.12         ?trRP1
+!@what.4=-1.2
+!@what.5=-2.12+1.0598
+!@what.6=1000-plm_dist-0.3
+*ROT-DEFI        302.                          -1.2   -1.0602         ?trRP2
+!@what.4=-1.2
+!@what.5=-2.12+2.1196
+!@what.6=1000-plm_dist
+*ROT-DEFI        303.                          -1.2    -4.E-4         ?trRP3
+!@what.4=-1.2
+!@what.5=-2.12+3.1794
+!@what.6=1000-plm_dist-0.3
+*ROT-DEFI        304.                          -1.2    1.0594         ?trRP4
+!@what.4=-1.2
+!@what.5=-2.12+4.2392
+!@what.6=1000-plm_dist
+*ROT-DEFI        305.                          -1.2    2.1192         ?trRP5
+!@what.4=-1.2
+!@what.5=-2.12
+!@what.6=1000-plm_dist-2
+*ROT-DEFI        306.                          -1.2     -2.12         ?trRP6
+!@what.4=-1.2
+!@what.5=-2.12+1.0598
+!@what.6=1000-plm_dist-0.3-2
+*ROT-DEFI        307.                          -1.2   -1.0602         ?trRP7
+!@what.4=-1.2
+!@what.5=-2.12+2.1196
+!@what.6=1000-plm_dist-2
+*ROT-DEFI        308.                          -1.2    -4.E-4         ?trRP8
+!@what.4=-1.2
+!@what.5=-2.12+3.1794
+!@what.6=1000-plm_dist-0.3-2
+*ROT-DEFI        309.                          -1.2    1.0594         ?trRP9
+!@what.4=-1.2
+!@what.5=-2.12+4.2392
+!@what.6=1000-plm_dist-2
+*ROT-DEFI        310.                          -1.2    2.1192         ?trRP10
+* * plume position
+!@what.4=1.2
+!@what.5=2.12
+!@what.6=plm_dist
+*ROT-DEFI        311.                           1.2      2.12  plm_distplm_pos
+* * target position along z-axis
+!@what.6=targ_dist
+*ROT-DEFI        312.                                              -0.1targ_z
+* * vertex position along z-axis
+!@what.6=vtx_dist
+*ROT-DEFI        313.                                               0.6vtx_z
+* * magnet position along z-axis
+!@what.6=mag_dist
+*ROT-DEFI        314.                                               2.6mag_z
+* * start counter position along z-axis
+!@what.6=SC_dist
+*ROT-DEFI        315.                                           SC_distSC_z
+* * drift chamber position along z-axis
+!@what.6=drift_dist
+*ROT-DEFI        316.                                            -13.65drift_z
+* *scintillator and calo position along z-axis
+!@what.6=calo_dist
+*ROT-DEFI        317.                                              100.calo_dist
+*ROT-DEFI        201.                 90.                              Rot90
+* -------1---------2---------3---------4---------5---------6---------7---------
+* command| idbflg  | FragTrg |Eth(Mev) |unused   |unused   |unused | SDUM
+* -------1---------2---------3---------4---------5---------6---------7---------
+USRICALL         0.0        1.       0.1       0.0        0.        0.
+* -------1---------2---------3---------4---------5---------6---------7---------8
+* command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
+* -------1---------2---------3---------4---------5---------6---------7---------8
+USERDUMP        100.       69.       0.0        1.                    Opt
+* -------1---------2---------3---------4---------5---------6---------7---------
+RANDOMIZ
+START           1.E4                                     0.0
+USROCALL
+STOP

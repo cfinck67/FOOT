@@ -1,0 +1,178 @@
+#ifndef _EVENT_STRUCT_HH
+#define _EVENT_STRUCT_HH
+
+
+const int MAXCROSS = 10000;
+const int MAXNUMP = 1000;
+const int MAXSC = 200;
+const int MAX1DC = 500;
+const int MAXVTX = 200;
+const int MAX2DC = 500;
+const int MAXSCINT = 1000;
+const int MAXCRY = 2000;
+
+typedef struct {
+  Int_t num_event;
+  Int_t nump;
+  Int_t idpa[MAXNUMP];
+  Int_t igen[MAXNUMP];
+  Int_t icha[MAXNUMP];
+  Int_t numreg[MAXNUMP];
+  Int_t iba[MAXNUMP];
+  Int_t idead[MAXNUMP];
+  Int_t jpa[MAXNUMP];
+  Double_t vxi[MAXNUMP];
+  Double_t vyi[MAXNUMP];
+  Double_t vzi[MAXNUMP];
+  Double_t vxf[MAXNUMP];
+  Double_t vyf[MAXNUMP];
+  Double_t vzf[MAXNUMP];
+  Double_t px[MAXNUMP];
+  Double_t py[MAXNUMP];
+  Double_t pz[MAXNUMP];
+  Double_t pxf[MAXNUMP];
+  Double_t pyf[MAXNUMP];
+  Double_t pzf[MAXNUMP];
+  Double_t amass[MAXNUMP];
+  Double_t tempo[MAXNUMP];
+  Double_t tof[MAXNUMP];
+  Double_t trlen[MAXNUMP];
+  
+  Int_t nsc;
+  Int_t idsc[MAXSC];
+  Double_t xinsc[MAXSC];
+  Double_t yinsc[MAXSC];
+  Double_t zinsc[MAXSC];
+  Double_t xoutsc[MAXSC];
+  Double_t youtsc[MAXSC];
+  Double_t zoutsc[MAXSC];
+  Double_t pxinsc[MAXSC];
+  Double_t pyinsc[MAXSC];
+  Double_t pzinsc[MAXSC];
+  Double_t pxoutsc[MAXSC];
+  Double_t pyoutsc[MAXSC];
+  Double_t pzoutsc[MAXSC];
+  Double_t desc[MAXSC];
+  Double_t alsc[MAXSC];
+  Double_t timsc[MAXSC];
+
+  Int_t n1dc;
+  Int_t id1dc[MAX1DC];
+  Int_t ipla1dc[MAX1DC];
+  Int_t icell1dc[MAX1DC];
+  Int_t iview1dc[MAX1DC];
+  Double_t xin1dc[MAX1DC];
+  Double_t yin1dc[MAX1DC];
+  Double_t zin1dc[MAX1DC];
+  Double_t xout1dc[MAX1DC];
+  Double_t yout1dc[MAX1DC];
+  Double_t zout1dc[MAX1DC];
+  Double_t pxin1dc[MAX1DC];
+  Double_t pyin1dc[MAX1DC];
+  Double_t pzin1dc[MAX1DC];
+  Double_t pxout1dc[MAX1DC];
+  Double_t pyout1dc[MAX1DC];
+  Double_t pzout1dc[MAX1DC];
+  Double_t de1dc[MAX1DC];
+  Double_t al1dc[MAX1DC];
+  Double_t tim1dc[MAX1DC];
+
+  Int_t nvtx;
+  Int_t idvtx[MAXVTX];
+  Int_t iplavtx[MAXVTX];
+  Int_t irowvtx[MAXVTX];
+  Int_t icolvtx[MAXVTX];
+  Double_t xinvtx[MAXVTX];
+  Double_t yinvtx[MAXVTX];
+  Double_t zinvtx[MAXVTX];
+  Double_t xoutvtx[MAXVTX];
+  Double_t youtvtx[MAXVTX];
+  Double_t zoutvtx[MAXVTX];
+  Double_t pxinvtx[MAXVTX];
+  Double_t pyinvtx[MAXVTX];
+  Double_t pzinvtx[MAXVTX];
+  Double_t pxoutvtx[MAXVTX];
+  Double_t pyoutvtx[MAXVTX];
+  Double_t pzoutvtx[MAXVTX];
+  Double_t devtx[MAXVTX];
+  Double_t alvtx[MAXVTX];
+  Double_t timvtx[MAXVTX];
+
+  Int_t n2dc;
+  Int_t id2dc[MAX2DC];
+  Int_t ipla2dc[MAX2DC];
+  Int_t icell2dc[MAX2DC];
+  Int_t iview2dc[MAX2DC];
+  Double_t xin2dc[MAX2DC];
+  Double_t yin2dc[MAX2DC];
+  Double_t zin2dc[MAX2DC];
+  Double_t xout2dc[MAX2DC];
+  Double_t yout2dc[MAX2DC];
+  Double_t zout2dc[MAX2DC];
+  Double_t pxin2dc[MAX2DC];
+  Double_t pyin2dc[MAX2DC];
+  Double_t pzin2dc[MAX2DC];
+  Double_t pxout2dc[MAX2DC];
+  Double_t pyout2dc[MAX2DC];
+  Double_t pzout2dc[MAX2DC];
+  Double_t de2dc[MAX2DC];
+  Double_t al2dc[MAX2DC];
+  Double_t tim2dc[MAX2DC];
+
+  Int_t nscint;
+  Int_t idscint[MAXSCINT];
+  Int_t irowscint[MAXSCINT];
+  Int_t icolscint[MAXSCINT];
+  Double_t xinscint[MAXSCINT];
+  Double_t yinscint[MAXSCINT];
+  Double_t zinscint[MAXSCINT];
+  Double_t xoutscint[MAXSCINT];
+  Double_t youtscint[MAXSCINT];
+  Double_t zoutscint[MAXSCINT];
+  Double_t pxinscint[MAXSCINT];
+  Double_t pyinscint[MAXSCINT];
+  Double_t pzinscint[MAXSCINT];
+  Double_t pxoutscint[MAXSCINT];
+  Double_t pyoutscint[MAXSCINT];
+  Double_t pzoutscint[MAXSCINT];
+  Double_t descint[MAXSCINT];
+  Double_t alscint[MAXSCINT];
+  Double_t timscint[MAXSCINT];
+
+  Int_t ncry;
+  Int_t idcry[MAXCRY];
+  Int_t irowcry[MAXCRY];
+  Int_t icolcry[MAXCRY];
+  Double_t xincry[MAXCRY];
+  Double_t yincry[MAXCRY];
+  Double_t zincry[MAXCRY];
+  Double_t xoutcry[MAXCRY];
+  Double_t youtcry[MAXCRY];
+  Double_t zoutcry[MAXCRY];
+  Double_t pxincry[MAXCRY];
+  Double_t pyincry[MAXCRY];
+  Double_t pzincry[MAXCRY];
+  Double_t pxoutcry[MAXCRY];
+  Double_t pyoutcry[MAXCRY];
+  Double_t pzoutcry[MAXCRY];
+  Double_t decry[MAXCRY];
+  Double_t alcry[MAXCRY];
+  Double_t timcry[MAXCRY];
+  
+  Int_t ncross;
+  Int_t idcross[MAXCROSS];
+  Int_t nregcross[MAXCROSS];
+  Int_t nregoldcross[MAXCROSS];
+  Double_t xcross[MAXCROSS];
+  Double_t ycross[MAXCROSS];
+  Double_t zcross[MAXCROSS];
+  Double_t pxcross[MAXCROSS];
+  Double_t pycross[MAXCROSS];
+  Double_t pzcross[MAXCROSS];
+  Double_t mcross[MAXCROSS];
+  Double_t chcross[MAXCROSS];
+  Double_t tcross[MAXCROSS];
+
+} EVENTO_STRUCT;
+
+#endif
