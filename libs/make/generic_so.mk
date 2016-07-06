@@ -18,13 +18,13 @@ AFILE      = lib$(SONAME).a
 ARCH       = $(shell root-config --arch)
 
 # for mac os user only
-#ifeq ($(ARCH),macosx)
+SOFLAGS  = -shared -Wl,-soname,$(SOFILEV)
+ifeq ($(ARCH),macosx)
 SOFLAGS = -dynamiclib -single_module -undefined dynamic_lookup  
-#SOFLAGS = -dynamiclib 
-#SOFLAGS  = -shared
-#else 
-#SOFLAGS  = -shared -Wl,-soname,$(SOFILEV)
-#endif
+endif
+ifeq ($(ARCH),macosx64)
+SOFLAGS = -dynamiclib -single_module -undefined dynamic_lookup  
+endif
 
 #
 .PHONY : libs
