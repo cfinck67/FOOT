@@ -28,7 +28,7 @@ DEFAULTS                                                              PRECISIO
 BEAM        -0.20094                 0.0     -0.48     -0.48          HEAVYION
 HI-PROPE          8.       16.
 !@what.3=-sc_dist-1
-BEAMPOS           0.        0.     27.65
+BEAMPOS           0.        0.     -40.
 * Se si toglie il discard degli e- aggiungere soglie deltaray e pairbrem
 EMF                                                                   EMF-OFF
 DISCARD        E+&E-    PHOTON
@@ -229,6 +229,6 @@ USRICALL         0.0        1.       0.1       0.0        0.        0.
 USERDUMP        100.       69.       0.0        1.                    Opt
 * -------1---------2---------3---------4---------5---------6---------7---------
 RANDOMIZ
-START           1.E6                                     0.0
+START           1.E4                                     0.0
 USROCALL
 STOP

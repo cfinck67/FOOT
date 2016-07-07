@@ -696,6 +696,12 @@ c
          end do
          write(*,*)' '
       endif
+
+      if(idbflg.gt.0) then
+         write(*,*)'TGreg= ',nregtarg,' MREG= ',MREG,
+     &        ' ICODE= ',ICODE
+      endif
+      
       IF (MREG.eq.nregtarg .AND. ICODE.EQ.101) THEN
          tarfrag = 1
          if (np.gt.2) tarfrag = 2

@@ -55,7 +55,7 @@ c
       if(idbflg.gt.0) then
          write(*,*)'ev= ',numev,' Equench= ',Eqcalo,
      &        ' Eqscint= ',Eqscint,
-     &        ' trigger= ', Trigger,
+     &        ' trigger= ', trigger,
      &        ' Eqcalo= ',Eqcalo,' Eqscint= ',Eqscint,
      &        ' Ethrdep= ',Ethrdep,' tarfrag= ',tarfrag
       endif
