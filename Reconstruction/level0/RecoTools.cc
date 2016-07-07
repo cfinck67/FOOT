@@ -93,7 +93,7 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
 void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
   fGeoTrafo = new TAGgeoTrafo();
-  TString filename = m_wd + "/geomaps/FIRST_geo.map";
+  TString filename = m_wd + "/FOOT_geo.map";
   fGeoTrafo->InitGeo(filename.Data());
 
 
@@ -106,8 +106,11 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
   //  TTree* tree = (TTree*)gDirectory->Get("EventTree");
 
+  if(m_debug) cout<<" Creating Geo "<<endl;
   Geometry *my_G = new Geometry(); 
+  if(m_debug) cout<<" Creating Sig "<<endl;
   Segnale *my_S = new Segnale(my_G); 
+  if(m_debug) cout<<" Creating Eve "<<endl;
   Evento *ev =  new Evento(my_S,my_G);
   Trigger *tr = new Trigger();
 
@@ -115,7 +118,9 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   vector < TString > RegName;
 
   //get FLUKA region number-name correspondance
-  filename = m_wd + "/../data/mc/gsi.reg";
+  if(m_debug) cout<<" Reading Geo info "<<endl;
+
+  filename = m_wd + "FOOT.reg";
   my_G->InitRegions(filename.Data());
   RegName = my_G->GetRegionNames();
   RegNumber = my_G->GetRegionNumbers();
@@ -124,6 +129,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   TAGpadGroup* pg = new TAGpadGroup();
 
   ev->FindBranches(tree,&evStr);
+
+  if(m_debug) cout<<" Found branches "<<endl;
 
   tagr->SetCampaignNumber(100);
   tagr->SetRunNumber(1);
@@ -134,8 +141,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     Setting up the detectors that we want to decode.
   */
   bool m_doEvent = kTRUE;
-  bool m_doBM = kTRUE;
-  bool m_doVertex = kTRUE;
+  bool m_doBM = kFALSE;
+  bool m_doVertex = kFALSE;
 
   if(m_doEvent) 
     FillMCEvent(&evStr);
@@ -161,7 +168,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     DisplayBeamMonitor(pg);
     
     DisplayIRMonitor(pg,&evStr);
-
   }
 
 
@@ -229,7 +235,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 	}
       }
     }
-
+    /*
     //Trigger Stuff
     tr->Reset();
     tr->ComputeTrigger(&evStr, &RegName, &RegNumber);
@@ -249,51 +255,53 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     //    tobedrawn = kTRUE;
 
     if(tr->IsWanted()) tobedrawn = kTRUE;
-
+    */
 
     //Debugging of Vertex
-    double recAngle_pl(-4), carbMCAngle_pl(-4), pixelAngle_pl(-4);
+    if(m_doVertex) {
 
-    //VTX tracks
-    TAVTntuTrack* p_vttrk = 
-      (TAVTntuTrack*) myn_vtrk->GenerateObject();
-    for(int i= 0; i<p_vttrk->GetTracksN(); i++) {
-      TAVTtrack* t_track = p_vttrk->GetTrack(i);
-      TAVTline line = t_track->GetTrackLine();
-      TVector3 angVtx = line.GetSlopeZ();
-      //      cout<<"Angolo ricostruito "<<angVtx.Theta()<<endl;
-      recAngle_pl = angVtx.Theta();
-    }
-
-    //Momentum in the track block
-    for(int iTr = 0; iTr<evStr.trn; iTr++) { 
-      if(evStr.trcha[iTr] == 6) {
-	TVector3 true_P(evStr.tripx[iTr],evStr.tripy[iTr],evStr.tripz[iTr]);
-	carbMCAngle_pl = true_P.Theta();
-	//	cout<<"size:: "<<carbMCAngle_pl-recAngle_pl<<endl;
-	((TH1D*)gDirectory->Get("ResoMCCarbons"))->Fill(carbMCAngle_pl-recAngle_pl);
-      } 
-    }
-
-    //Momentum in the pixel region
-    double selecDiff(-4); int idxSen(0); char name[200];
-    for(int iTr = 0; iTr<evStr.miSigN; iTr++) { 
-      TVector3 truepix_P(evStr.miSigpX[iTr],evStr.miSigpY[iTr],evStr.miSigpZ[iTr]);
-      if(selecDiff != truepix_P.Theta()) {
-	selecDiff = truepix_P.Theta();
-	pixelAngle_pl = truepix_P.Theta();
-	//	cout<<" "<<pixelAngle_pl<<endl;
-	if(idxSen<4) {
-	  sprintf(name,"ResoMCPixel_%d",idxSen);
-	  ((TH1D*)gDirectory->Get(name))->Fill(pixelAngle_pl-recAngle_pl);
-	}
-	idxSen++;
+      double recAngle_pl(-4), carbMCAngle_pl(-4), pixelAngle_pl(-4);
+      
+      //VTX tracks
+      TAVTntuTrack* p_vttrk = 
+	(TAVTntuTrack*) myn_vtrk->GenerateObject();
+      for(int i= 0; i<p_vttrk->GetTracksN(); i++) {
+	TAVTtrack* t_track = p_vttrk->GetTrack(i);
+	TAVTline line = t_track->GetTrackLine();
+	TVector3 angVtx = line.GetSlopeZ();
+	//      cout<<"Angolo ricostruito "<<angVtx.Theta()<<endl;
+	recAngle_pl = angVtx.Theta();
       }
-    }
-
-
-    tobedrawn = kTRUE;
-    //    if(m_debug) {
+      
+      //Momentum in the track block
+      for(int iTr = 0; iTr<evStr.trn; iTr++) { 
+	if(evStr.trcha[iTr] == 6) {
+	  TVector3 true_P(evStr.tripx[iTr],evStr.tripy[iTr],evStr.tripz[iTr]);
+	  carbMCAngle_pl = true_P.Theta();
+	  //	cout<<"size:: "<<carbMCAngle_pl-recAngle_pl<<endl;
+	  ((TH1D*)gDirectory->Get("ResoMCCarbons"))->Fill(carbMCAngle_pl-recAngle_pl);
+	} 
+      }
+      
+      //Momentum in the pixel region
+      double selecDiff(-4); int idxSen(0); char name[200];
+      for(int iTr = 0; iTr<evStr.miSigN; iTr++) { 
+	TVector3 truepix_P(evStr.miSigpX[iTr],evStr.miSigpY[iTr],evStr.miSigpZ[iTr]);
+	if(selecDiff != truepix_P.Theta()) {
+	  selecDiff = truepix_P.Theta();
+	  pixelAngle_pl = truepix_P.Theta();
+	  //	cout<<" "<<pixelAngle_pl<<endl;
+	  if(idxSen<4) {
+	    sprintf(name,"ResoMCPixel_%d",idxSen);
+	    ((TH1D*)gDirectory->Get(name))->Fill(pixelAngle_pl-recAngle_pl);
+	  }
+	  idxSen++;
+	}
+      }
+      
+      
+      tobedrawn = kTRUE;
+      //    if(m_debug) {
       double init = -100; double refx(-100);
       for (Int_t i = 0; i < evStr.miSigN; i++) {
         if(fabs(evStr.miSigX[i] - refx)>0.00001) {      
@@ -304,14 +312,15 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 	  
 	  //	  cout<<"Track Angle:: "<<ip.Theta()<<" X:: "<<ip.Unit().X()<<" Y:: "<<ip.Unit().Y()<<endl;
 	}
-
+	
       }
       //    }
+    }
 
     if (!pg->IsEmpty() && tobedrawn && !(jentry%fr)) {
       pg->Modified();
       pg->Update();
-
+      
       sprintf(flag,"plots/%s_%d","Test_MC",(int)jentry);
       pg->Print(flag);
     }

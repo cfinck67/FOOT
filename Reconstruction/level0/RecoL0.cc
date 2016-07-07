@@ -36,7 +36,7 @@ int main (int argc, char *argv[]) {
   int nTotEv = 0;
   int debug = 0; int pl_freq(100);
   int ke_display = 0;
-  TString outH("");
+  TString outH("DecodeMC_histo.root");
   bool alist(kFALSE);
   for (int i = 0; i < argc; i++){
     if(strcmp(argv[i],"-out") == 0)   { out =TString(argv[++i]);  }                        // Root file name for output

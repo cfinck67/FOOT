@@ -103,36 +103,6 @@ typedef struct {
 
 typedef struct {
 
-  /*
-//old BMON!
-// vista U (filo lungo x) 
-  Double_t  U_x[NWIRELAYER][NLAYER]; 
-  Double_t  U_y[NWIRELAYER][NLAYER]; 
-  Double_t  U_z[NWIRELAYER][NLAYER];
-  Double_t  U_cx[NWIRELAYER][NLAYER]; 
-  Double_t  U_cy[NWIRELAYER][NLAYER]; 
-  Double_t  U_cz[NWIRELAYER][NLAYER];
-  Double_t  U_rad[NWIRELAYER][NLAYER];
-  
-// vista V (filo lungo y) 
-
-  Double_t  V_x[NWIRELAYER][NLAYER]; 
-  Double_t  V_y[NWIRELAYER][NLAYER]; 
-  Double_t  V_z[NWIRELAYER][NLAYER]; 
-  Double_t  V_cx[NWIRELAYER][NLAYER]; 
-  Double_t  V_cy[NWIRELAYER][NLAYER]; 
-  Double_t  V_cz[NWIRELAYER][NLAYER]; 
-  Double_t  V_rad[NWIRELAYER][NLAYER];
-  
-  Int_t idsense[NSENSE];
-
-  Double_t UWS[3];
-  Double_t UWC[3];
-  Double_t UWD[3];
-  Double_t VWS[3];
-  Double_t VWC[3];
-  Double_t VWD[3];
-*/ 
   BEAM_PARAM Beam;
 
   GEO_BMON Bmon;
@@ -240,32 +210,6 @@ class Geometry : public TObject {
   // create genertic FLUKA card: TITLE WHAT(1-6) SDUM
   Int_t GenericCard(TString fTitle,Int_t fVerbosity,TString* fFLUKALine,TString fWHAT1,TString fWHAT2,TString fWHAT3,TString fWHAT4,TString fWHAT5,TString fWHAT6,TString fSDUM);
  
-  /* FIRST geometry parametrizations */
-  //TOF Wall parameterization for slabs, fNbOfSlats= number of slabs in each down and up part, as PLANE
-  Int_t TW_SlatParam(TString fVolName,Int_t fVerbosity,TString* fFLUKALine,Double_t fPosX,Double_t fPosY,Double_t fPosZ, Double_t fAngY,Double_t fXprime,Double_t fYprime,Double_t fZprime,Double_t fStartX,Double_t fSlatWidth,Int_t fNbOfSlats,Int_t fBS[100]);
-  //TOF Wall parameterization for slabs, fNbOfSlats= number of slabs in each down and up part, as BOX
-  Int_t TW_SlatParamBOX(TString fVolName,Int_t fVerbosity,TString* fFLUKALine
-	,Double_t fPosX,Double_t fPosY,Double_t fPosZ
-	,Double_t fAngY
-	,Double_t fXprime,Double_t fYprime,Double_t fZprime
-	,Double_t fStartX
-	,Double_t fSlatX,Double_t fSlatY,Double_t fSlatZ
-	,Double_t fSlatSpaceX
-	,Double_t fModuleSpaceX
-	,Int_t fNbOfSlats
-	,Int_t fBS[100]);
-
-  //Onion ring parameterization
-  Int_t TW_RingParam(TString fVolName,Int_t fVerbosity,TString* fFLUKALine
-	,Double_t fPosX,Double_t fPosY,Double_t fPosZ
-	,Double_t fAngY
-//	,Double_t fAngTheta
-	,Double_t fXprime,Double_t fYprime,Double_t fZprime
-	,Double_t fdR
-	,Double_t fDepth
-//	,Double_t fThicknessSpace // distance between rings
-	,Int_t fNbOfRings);
-
 
   //given a MIMOSA pad in a chip return the position in FLUKA coordinates
   TVector3 MI_Coord(Double_t Column, Double_t Row, Int_t Chip);
@@ -308,13 +252,6 @@ class Geometry : public TObject {
     void     SetVTAngles(double x_d, double y_d, double z_d);
     void     SetVTAngles(TVector3 ang);
 
-    // Kentros
-    TVector3 GetKECenter();
-    TVector3 GetKEAngles();
-    void     SetKECenter(double x_c, double y_c, double z_c);
-    void     SetKECenter(TVector3 cen);
-    void     SetKEAngles(double x_d, double y_d, double z_d);
-    void     SetKEAngles(TVector3 ang);
 
     // Alading
     TVector3 GetALCenter();
@@ -324,44 +261,6 @@ class Geometry : public TObject {
     void     SetALAngles(double x_d, double y_d, double z_d);
     void     SetALAngles(TVector3 ang);
 
-    // Music
-    TVector3 GetMUCenter();
-    TVector3 GetMUAngles();
-    void     SetMUCenter(double x_c, double y_c, double z_c);
-    void     SetMUCenter(TVector3 cen);
-    void     SetMUAngles(double x_d, double y_d, double z_d);
-    void     SetMUAngles(TVector3 ang);
-
-    // New Reference point
-    TVector3 GetNUCenter();
-    TVector3 GetNUAngles();
-    void     SetNUCenter(double x_c, double y_c, double z_c);
-    void     SetNUCenter(TVector3 cen);
-    void     SetNUAngles(double x_d, double y_d, double z_d);
-    void     SetNUAngles(TVector3 ang);
-
-    // tof Wall
-    TVector3 GetTWRCenter();
-    TVector3 GetTWRAngles();
-    void     SetTWRCenter(double x_c, double y_c, double z_c);
-    void     SetTWRCenter(TVector3 cen);
-    void     SetTWRAngles(double x_d, double y_d, double z_d);
-    void     SetTWRAngles(TVector3 ang);
-
-    TVector3 GetTWFCenter();
-    TVector3 GetTWFAngles();
-    void     SetTWFCenter(double x_c, double y_c, double z_c);
-    void     SetTWFCenter(TVector3 cen);
-    void     SetTWFAngles(double x_d, double y_d, double z_d);
-    void     SetTWFAngles(TVector3 ang);
-
-    // Veto
-    TVector3 GetVECenter();
-    TVector3 GetVEAngles();
-    void     SetVECenter(double x_c, double y_c, double z_c);
-    void     SetVECenter(TVector3 cen);
-    void     SetVEAngles(double x_d, double y_d, double z_d);
-    void     SetVEAngles(TVector3 ang);
 
     void InitVtxPlanes();
     Double_t VtPlanesZ[4];
@@ -390,13 +289,7 @@ class Geometry : public TObject {
   TVector3 m_BM_center, m_BM_angles;
   TVector3 m_TG_center, m_TG_angles;
   TVector3 m_VT_center, m_VT_angles;
-  TVector3 m_KE_center, m_KE_angles;
   TVector3 m_AL_center, m_AL_angles;
-  TVector3 m_MU_center, m_MU_angles;
-  TVector3 m_NU_center, m_NU_angles;
-  TVector3 m_TWR_center, m_TWR_angles;
-  TVector3 m_TWF_center, m_TWF_angles;
-  TVector3 m_VE_center, m_VE_angles;
   
  public:
  /*-----------------------------------------------------------------*/
