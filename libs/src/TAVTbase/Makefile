@@ -18,16 +18,15 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx \
 	         TAVTparMap.hxx TAVTparGeo.hxx  TAVTparConf.hxx TAVTparCal.hxx TAVTparTools.hxx\
-	         TAVTactDatRaw.hxx TAVTactBaseRaw.hxx \
+		TAVTactBaseRaw.hxx \
 			 TAVTactAscReader.hxx TAVTrawEvent.hxx TAVTactAscRaw.hxx\
 			 TAVTactNtuRaw.hxx TAVTactNtuMC.hxx TAVTntuCluster.hxx \
 			 TAVTntuTrack.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx\
 			 TAVTactNtuCluster.hxx TAVTactBaseNtuTrack.hxx \
 			 TAVTactNtuTrack.hxx  TAVTactNtuTrackF.hxx  TAVTactNtuTrackH.hxx TAVTactNtuPostTrack.hxx\
              TAVTntuVertex.hxx TAVTactBaseNtuVertex.hxx TAVTactNtuVertex.hxx TAVTactNtuVertexPD.hxx\
-             TAVTntuAlign.hxx TAVTalign.hxx 
-#             TAVTeventDisplay.hxx TAVTntuAlign.hxx TAVTalign.hxx 
-#             TAVTeventDisplayMC.hxx TAVTbaseEventDisplay.hxx \
+	             TAVTeventDisplayMC.hxx TAVTbaseEventDisplay.hxx 
+#	            TAVTeventDisplay.hxx TAVTntuAlign.hxx TAVTalign.hxx TAVTactDatRaw.hxx 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #
 OBJ_all    = $(CXX_all:.cxx=.o) $(TOBJ_all:.hxx=.cint.o) 
