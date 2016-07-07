@@ -1,0 +1,23 @@
+!X,Y,Z and then alpha (y ax) beta (x ax) and gamma (z ax)
+!Start counter
+S0. 0. 0. 0. 0. 0.
+!Beam Monitor (SC + 17 + BM/2)
+B0. 0. 27.5 0. 0. 0.
+!Vertex (See the IR status from WEB page of simulation or geometry)
+V0. 0. 61.0 0. 0. 0.
+!Kentros
+K0. 0. 61.25 0. 0. 0.
+!Aladin
+A0. 0. 285.54  -5.435  0. 0.
+!Music detector
+M-30.9763 0. 525.859 -5.808  0. 0.
+!music box
+N-30.9763 0. 521.759 -5.808  0. 0.
+!Front TofWall absolute coordinates of the center of TW_F
+!W-27.9226 0. 655.703 -5.808  0. 0.
+W-26.1816 0. 656.226 -5.808  0. 0.
+!rear TofWall absolute coordinates of the center of TW_B
+!R-30.0761 0. 664.028 -5.808  0. 0.
+R-28.833 0. 664.02 -5.808  0. 0.
+!Veto
+D0. 0. 0. 0. 0. 0.
