@@ -44,6 +44,9 @@ SOFLAGSS       = -shared $(ROOTGLIBS) ./libGeometry.so
 SOFLAGSV       = -shared $(ROOTGLIBS) ./libSegnale.so ./libGeometry.so 
 SOFLAGS       = -dynamiclib -shared $(ROOTGLIBS) $(TALIB) $(ELIB)
 else 
+SOFLAGSE       = -shared $(ROOTGLIBS) 
+SOFLAGSS       = -shared $(ROOTGLIBS) ./libGeometry.so  
+SOFLAGSV       = -shared $(ROOTGLIBS) ./libSegnale.so ./libGeometry.so 
 SOFLAGS  = -shared $(ROOTGLIBS) 
 endif
 
