@@ -8,7 +8,6 @@
 /*------------------------------------------+---------------------------------*/
 
 #include "Evento.h"
-#include "gsi_geo.h"
 
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"

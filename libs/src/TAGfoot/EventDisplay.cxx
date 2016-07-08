@@ -41,8 +41,8 @@
 #include "TGeoManager.h"
 #endif
 
-// First
-#include "gsi_geo.h"
+// Foot
+#include "foot_geo.h"
 #include "TAGview.hxx" 
 #include "TAGgeoTrafo.hxx"
 #include "TAGmbsEvent.hxx"

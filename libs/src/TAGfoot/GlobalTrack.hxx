@@ -28,7 +28,7 @@
 #include "TrackableParticle.hxx" 
 
 //MC info, is this needed here? Yes (MV)
-#include "gsi_geo.h"
+#include "foot_geo.h"
 
 //Global tracking classes
 #include "GlobalTrackCandidate.hxx"

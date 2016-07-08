@@ -5,8 +5,11 @@
 #include <fstream>
 #include "TObject.h"
 #include "TTree.h"
+#include "TRandom3.h"
+#include "TH1.h"
 
 #include "EventStruct.h"
+#include "foot_geo.h"
 
 using namespace std;
 
@@ -84,15 +87,21 @@ class Evento : public TObject {
 		 Double_t fpxcross, Double_t fpycross, Double_t fpzcross,
 		 Double_t fmcross, Double_t fchcross,Double_t ftcross);
 
-  int FindBranches(TTree *RootTree,EVENTO_STRUCT *eve);
+  int FindBranches(TTree *RootTree,EVENT_STRUCT *eve);
 
-  Int_t Dump();
+  Int_t EDump();
 
-  EVENTO_STRUCT Output();
+  EVENT_STRUCT Output();
 
  private:
 
-  EVENTO_STRUCT eve;
+  TRandom3 *ar3;
+  TH1D *myreso;
+  EVENT_STRUCT eve;
+
+  // 
+  TRandom3 rnd;
+  Int_t count_skip;
 
  protected:
 

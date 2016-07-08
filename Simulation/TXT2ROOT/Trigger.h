@@ -14,7 +14,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "gsi_geo.h"
+#include "foot_geo.h"
 #include "Helper.h"
 #include "Geometry.h"
 #include "Evento.h"

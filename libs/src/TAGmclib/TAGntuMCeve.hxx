@@ -59,9 +59,9 @@ class TAGntuMCeveHit : public TObject {
 
     Int_t         id;                      // identity
     Int_t         chg;                     // charge
+    Int_t         type;                    // Type
     Int_t         reg;                     // region
     Int_t         bar;                     // barionic number
-    Int_t         type;                    // Type
     Int_t         dead;                    // region in whic die
     Double_t      mass;                    // mass
     TVector3      inpos;		   // initial position

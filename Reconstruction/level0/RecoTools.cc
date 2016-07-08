@@ -50,7 +50,7 @@
 #include "TAVTactNtuTrackH.hxx"
 #include "TAVTactNtuTrackF.hxx"
 
-#include "gsi_geo.h"
+#include "foot_geo.h"
 
 #include <iostream>
 #include <vector>
@@ -111,7 +111,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   if(m_debug) cout<<" Creating Sig "<<endl;
   Segnale *my_S = new Segnale(my_G); 
   if(m_debug) cout<<" Creating Eve "<<endl;
-  Evento *ev =  new Evento(my_S,my_G);
+  Evento *ev =  new Evento();
   Trigger *tr = new Trigger();
 
   vector < Int_t > RegNumber;
@@ -203,7 +203,15 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     if(!(jentry%fr))
       cout<<"Processed:: "<<jentry<<" evts!"<<endl;
-
+    
+    
+    TAGntuMCeve*  p_ntumceve = 
+      (TAGntuMCeve*)   myn_mceve->GenerateObject();
+    
+    int nhitmc = p_ntumceve->nhit;
+    for(int i=0; i<nhitmc; i++) {
+      cout<<p_ntumceve->Hit(i)->Mass()<<endl;
+    }
     if(m_debug) {
 
       //Pixels stuff
@@ -284,6 +292,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
       }
       
       //Momentum in the pixel region
+      /*
       double selecDiff(-4); int idxSen(0); char name[200];
       for(int iTr = 0; iTr<evStr.miSigN; iTr++) { 
 	TVector3 truepix_P(evStr.miSigpX[iTr],evStr.miSigpY[iTr],evStr.miSigpZ[iTr]);
@@ -299,7 +308,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 	}
       }
       
-      
       tobedrawn = kTRUE;
       //    if(m_debug) {
       double init = -100; double refx(-100);
@@ -314,6 +322,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 	}
 	
       }
+      */
       //    }
     }
 
@@ -1464,41 +1473,6 @@ void RecoTools::bookHisto(TFile *f) {
   }
   gDirectory->cd("..");
 
-  /* Veto */  
-  gDirectory->mkdir("veto");
-  gDirectory->cd("veto");
-  h = new TH1D("firsthit","First VETO Time",500,0,500);
-  h = new TH1D("firstVETOch","First VETO Channel",5,-1.5,3.5);
-  h = new TH1D("TimeDiff01","Time Difference (ns)",200,-100,100);
-  h = new TH1D("TimeDiff21","Time Difference (ns)",200,-100,100);
-  h = new TH1D("NVeto","Number of fired petals",4,-0.5,3.5);
-  h = new TH1D("Veto_pattern","VETO scintillator pattern",3,0.5,3.5);
-  if(m_fullmoni) {
-    for(int it = 0; it<4; it++) {
-      sprintf(name,"adc_%d",it);
-      h = new TH1D(name,"Channel Charge spectra",410,0,4096);
-      h->SetXTitle("Charge (adc counts)");
-      sprintf(name,"tdc_%d",it);
-      h = new TH1D(name,"Channel Time spectra",500,0,500);
-      h->SetXTitle("Time (ns)");
-      sprintf(name,"tdc_cor_%d",it);
-      h = new TH1D(name,"Channel Time spectra corrected",2000,0,2000);
-      h->SetXTitle("Time (ns)");
-      sprintf(name,"nhit_%d",it);
-      h = new TH1D(name,"Number of hits",10,0,10);
-      h->SetXTitle("Number of hits");
-      sprintf(name,"chtime_cor_%d",it);
-      h2 = new TH2D(name,"Time vs charge correlation",410,0,4096,1000,50,250);
-      h2->SetXTitle("Time vs charge correlation");
-    }
-
-  h2 = new TH2D("Chcor01","Charge correlation 01",410,0,4096,410,0,4096);
-  h2 = new TH2D("Chcor21","Charge correlation 21",410,0,4096,410,0,4096);
-  h2 = new TH2D("Chcor20","Charge correlation 20",410,0,4096,410,0,4096);
-  h2 = new TH2D("Chcor","Charge correlation",410,0,4096,410,0,4096);
-  }
-  gDirectory->cd("..");
-
   /* Trigger */  
   gDirectory->mkdir("trigger");
   gDirectory->cd("trigger");
@@ -1529,49 +1503,6 @@ void RecoTools::bookHisto(TFile *f) {
   h = new TH1D("z_mast_kedoud","Zoom Trigger time Difference 1-3 ",100,300,500);
   gDirectory->cd("..");
 
-
-  /* Kentros */  
-  gDirectory->mkdir("kentros");
-  gDirectory->cd("kentros");
-  gDirectory->cd("..");
-
-  /* TofWall */  
-  gDirectory->mkdir("tofwall");
-  gDirectory->cd("tofwall");
-  h = new TH1D("hastdct_vs_slat","Hit that have time top info",200,0,200);
-  h = new TH1D("hastdcb_vs_slat","Hit that have time bottom info",200,0,200);
-
-  h2 = new TH2D("light_vs_slat","sqrt(adc_t*adc_b) vs slat",200,0,200,1000,0,2000);
-  h2 = new TH2D("sig_light_vs_slat","sqrt(adc_t*adc_b) vs slat",200,0,200,1000,0,2000);
-
-  h2 = new TH2D("tof_vs_adc","tof-start vs adc",512,0,5120,1000,0,2000);
-
-  //INRI stuff
-  char HNAME[50];
-
-  if(m_fullmoni) {  
-    for (Int_t SL=0; SL<200; SL++){
-      sprintf(HNAME,"h_ADC_%d_t",SL);				// top ADC
-      h = new TH1D(HNAME,HNAME,500,0.5,3400.5);
-      sprintf(HNAME,"h_TDC_%d_t",SL);				// top TDC
-      h = new TH1D(HNAME,HNAME,200,-49.9,150.1);
-      sprintf(HNAME,"h_ADC_%d_b",SL);				// bottom ADC
-      h = new TH1D(HNAME,HNAME,500,0.5,3400.5);
-      sprintf(HNAME,"h_TDC_%d_b",SL);				// bottom TDC
-      h = new TH1D(HNAME,HNAME,200,-49.9,150.1);
-      
-      sprintf(HNAME,"TDCvsADC_%d",SL);
-      h2 = new TH2D(HNAME,HNAME,800,0,800,90,-9.9,80.1);
-      sprintf(HNAME,"h_TDCdiff_%d",SL);
-      h = new TH1D(HNAME,HNAME,200,-19.9,20.1);
-      sprintf(HNAME,"h_ToF_%d",SL);
-      h = new TH1D(HNAME,HNAME,90,-9.9,80.1);
-      
-    }
-    h2 = new TH2D("hstat","stat versus slat", 200, 0.5, 200.5, 16, -0.5, 15.5);
-    h2 = new TH2D("XY","XY hit distro", 100, 0.5, 100.5, 501, -500.5, 500.5);
-  }
-  gDirectory->cd("..");
 
   return;
 }

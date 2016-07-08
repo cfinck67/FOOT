@@ -69,7 +69,7 @@ void TAVTeventDisplayMC::CreateRawAction()
    
    Geometry* my_G = new Geometry(); 
    Segnale*  my_S = new Segnale(my_G); 
-   Evento*   ev   = new Evento(my_S,my_G);
+   Evento*   ev   = new Evento();
    
    EVENT_STRUCT evStr;
    

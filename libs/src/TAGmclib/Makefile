@@ -11,7 +11,7 @@ SOMINV     = 0
 #
 TINCLFLAGS += $(shell root-config --cflags)
 INCLFLAGS  = $(filter-out -stdlib=libc++, $(TINCLFLAGS))
-INCLFLAGS += -I../TAGbase -I../ -I../../../Simulation 
+INCLFLAGS += -I../TAGbase -I../ -I../../../Simulation/TXT2ROOT
 LDLIBS    += $(shell root-config --libs) 
 #
 # Files to be included
@@ -19,8 +19,8 @@ LDLIBS    += $(shell root-config --libs)
 LINKDEFFILE = LinkDef.h
 #
 TOBJ_all   = TAGactNtuMCeve.hxx TAGntuMCeve.hxx \
-	     TAGactNtuMCmimo.hxx TAGntuMCmimo.hxx \
-	     TAGactNtuMCtof.hxx TAGntuMCtof.hxx 
+	     TAGactNtuMCmimo.hxx TAGntuMCmimo.hxx
+#	     TAGactNtuMCtof.hxx TAGntuMCtof.hxx 
 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #

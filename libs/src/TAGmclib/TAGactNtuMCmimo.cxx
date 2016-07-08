@@ -11,7 +11,7 @@
 #include "TAGroot.hxx"
 #include "TAGgeoTrafo.hxx"
 
-#include "gsi_geo.h"
+#include "foot_geo.h"
 #include "math.h"
 
 /*!
@@ -55,8 +55,11 @@ Bool_t TAGactNtuMCmimo::Action() {
   p_nturaw->Clear();
 
  //Number of hits/tracks
-  nh = fpEvtStr->miSigN;
+  //  nh = fpEvtStr->miSigN;
+  nh = fpEvtStr->nvtx;
 
+  //AS: to be re-implemented
+  /*
   for (Int_t i = 0; i < fpEvtStr->miSigN; i++) {
     
     Int_t i_id = fpEvtStr->miSigId[i];
@@ -77,7 +80,8 @@ Bool_t TAGactNtuMCmimo::Action() {
 
     
   }
-
+  */
+  
   p_nturaw->nhit  = nh;
 
   fpNtuMC->SetBit(kValid);

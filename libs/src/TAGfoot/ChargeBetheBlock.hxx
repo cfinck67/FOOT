@@ -8,7 +8,7 @@
 #include "TAGroot.hxx"
 #include "TAGgeoTrafo.hxx"
 #include "TATntuRaw.hxx"
-#include "gsi_geo.h"
+#include "foot_geo.h"
 
 using namespace std;
 

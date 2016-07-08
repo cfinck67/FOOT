@@ -111,8 +111,10 @@ Bool_t TAVTactNtuMC::Action()
   Int_t mcID(-1000);
 
    if (fDebugLevel)
-     Info("Action()","Processing n :: %2d hits \n",fpEvtStr->miSigN);
-   
+     Info("Action()","Processing n :: %2d hits \n",fpEvtStr->nvtx);
+
+   //AS  To be completely rechecked...
+   /*
    for (Int_t i = 0; i < fpEvtStr->miSigN; i++) {
      // position in global transform in local
      // missing value set to 1. cos binary
@@ -183,6 +185,7 @@ Bool_t TAVTactNtuMC::Action()
        }
      }	 
    }
+   */
    
    fpNtuRaw->SetBit(kValid);
    return kTRUE;

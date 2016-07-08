@@ -64,21 +64,22 @@ Bool_t TABMactNtuMC::Action()
     if(i<32) {
       
       //X,Y and Z needs to be placed in Local coordinates.
-      TVector3 gloc(fpEvtStr->xcamon[i],fpEvtStr->ycamon[i],fpEvtStr->zcamon[i]);
+      TVector3 gloc(fpEvtStr->xinmon[i],fpEvtStr->yinmon[i],fpEvtStr->zinmon[i]);
       TVector3 loc = fpFirstGeo->FromGlobalToBMLocal(gloc);
       locx = loc.X();
       locy = loc.Y();
       locz = loc.Z();
 
-      resolution = p_parcon->ResoEval(fpEvtStr->rdrift[i]);
-
+      //      resolution = p_parcon->ResoEval(fpEvtStr->rdrift[i]);
+      resolution = p_parcon->ResoEval(0.1);
+      //AS::: drift quantities have to be computed,
       TABMntuHit *mytmp = new((*(p_nturaw->h))[i]) 
 	TABMntuHit(fpEvtStr->idmon[i],		 fpEvtStr->iview[i],
 		   fpEvtStr->ilayer[i],          fpEvtStr->icell[i],  
 		   locx, locy,
-		   locz, fpEvtStr->pxcamon[i],
-		   fpEvtStr->pycamon[i],	 fpEvtStr->pzcamon[i],
-		   fpEvtStr->rdrift[i],		 fpEvtStr->tdrift[i],
+		   locz, fpEvtStr->pxinmon[i],
+		   fpEvtStr->pyinmon[i],	 fpEvtStr->pzinmon[i],
+		   0,		 0,
 		   fpEvtStr->timmon[i] );
       mytmp->SetSigma(resolution);
       mytmp->SetTrkAss(0);

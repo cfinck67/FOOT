@@ -48,6 +48,7 @@ TAGntuMCeveHit::TAGntuMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type,
   : id(i_id), chg(i_chg), type(i_type), reg(i_reg), bar(i_bar),dead(i_dead),
     mass(i_mass), mothid(i_mid), pileup(i_pileup)
 {
+
   inpos.SetXYZ(i_ipos.X(),i_ipos.Y(),i_ipos.Z());
   fipos.SetXYZ(i_fpos.X(),i_fpos.Y(),i_fpos.Z());
   ip.SetXYZ(i_imom.X(),i_imom.Y(),i_imom.Z());

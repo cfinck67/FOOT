@@ -5,7 +5,7 @@
 */
 
 #include <math.h>
-#include "gsi_geo.h"
+#include "foot_geo.h"
 
 #include "TROOT.h"
 #include "TString.h"

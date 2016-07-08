@@ -9,9 +9,8 @@
 
 //First
 #include "TAGroot.hxx"
-#include "TAGgeoTrafo.hxx"
 
-#include "gsi_geo.h"
+#include "foot_geo.h"
 #include "math.h"
 
 /*!
@@ -49,8 +48,6 @@ Bool_t TAGactNtuMCeve::Action() {
   Info("Action()"," Entering TAGactNtuMCeve");
   TAGntuMCeve* p_nturaw = (TAGntuMCeve*) fpNtuMC->Object();
 
-  TAGgeoTrafo* fpFirstGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-
   Int_t nh(0);
   p_nturaw->Clear();
 
@@ -58,10 +55,10 @@ Bool_t TAGactNtuMCeve::Action() {
   nh = fpEvtStr->trn;
 
   for (Int_t i = 0; i < fpEvtStr->trn; i++) {
-    
     Double_t i_mass = fpEvtStr->trmass[i];
     Int_t i_id = fpEvtStr->trid[i];
-    Int_t i_type = fpEvtStr->trtype[i];
+    //    Int_t i_type = fpEvtStr->trtype[i];
+    Int_t i_type = -999;
     Int_t i_mid = fpEvtStr->trpaid[i];
     Int_t i_chg = fpEvtStr->trcha[i];
     Int_t i_reg = fpEvtStr->trreg[i];
@@ -72,9 +69,11 @@ Bool_t TAGactNtuMCeve::Action() {
     TVector3 fpos = TVector3(fpEvtStr->trfx[i],fpEvtStr->trfy[i],fpEvtStr->trfz[i]);
     TVector3 ip = TVector3(fpEvtStr->tripx[i],fpEvtStr->tripy[i],fpEvtStr->tripz[i]);
 
-    TVector3 mothp = TVector3(fpEvtStr->trpapx[i],fpEvtStr->trpapy[i],fpEvtStr->trpapz[i]);
+    //    TVector3 mothp = TVector3(fpEvtStr->trpapx[i],fpEvtStr->trpapy[i],fpEvtStr->trpapz[i]);
+    TVector3 mothp = TVector3(-99,-99,-99);
 
-    Int_t i_pileup = fpEvtStr->trpileup[i]; // VM added 17/11/13 for pileup
+    //    Int_t i_pileup = fpEvtStr->trpileup[i]; // VM added 17/11/13 for pileup
+    Int_t i_pileup = 0; // VM added 17/11/13 for pileup
 
     Info("Action()","MCeve : %d %d %lf ",i_id,i_chg,i_mass);
 

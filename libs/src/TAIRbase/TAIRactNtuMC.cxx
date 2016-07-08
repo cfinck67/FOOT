@@ -47,16 +47,10 @@ Bool_t TAIRactNtuMC::Action()
   //The number of hits inside the Start Counter is stn
   Info("Action()","Processing n SC :: %2d hits \n",fpEvtStr->stn);
   for (Int_t i = 0; i < fpEvtStr->stn; i++) {
-    //TAIRrawHit *mytmp = 
-	new((*(p_nturaw->hir))[i]) TAIRrawHit(0,0,fpEvtStr->stSigAmp,fpEvtStr->stSigTime);
-    nhits++;
-  }
-  
-  //The number of hits inside the Start Counter is stn
-  Info("Action()","Processing n Onion :: %2d hits \n",fpEvtStr->onSigN);
-  for (Int_t i = 0; i < fpEvtStr->onSigN; i++) {
-    //TAIRrawHit *mytmp = 
-	new((*(p_nturaw->hir))[i]) TAIRrawHit(1,fpEvtStr->onSigReg[i],fpEvtStr->onSigAmp[i],fpEvtStr->onSigTim[i]);
+    //TAIRrawHit *mytmp =
+
+    //AS: to be re-checked!!
+	new((*(p_nturaw->hir))[i]) TAIRrawHit(0,0,fpEvtStr->stal[0],fpEvtStr->sttim[0]);
     nhits++;
   }
   

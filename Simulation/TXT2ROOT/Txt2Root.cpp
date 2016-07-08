@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
   static TTree *RootTree = 0;
   static Evento *pEv = 0;
 
-  EVENTO_STRUCT eve;
+  EVENT_STRUCT eve;
 
   ifstream infile;
 
@@ -97,49 +97,49 @@ int main(int argc, char *argv[])
 
   RootTree = new TTree("EventTree","gsimay");
 
-  RootTree->Branch("num_event",&eve.num_event,"num_event/I");
-  RootTree->Branch("nump",&eve.nump,"nump/I");
-  RootTree->Branch("idpa",&eve.idpa,"idpa[nump]/I");
-  RootTree->Branch("igen",&eve.igen,"igen[nump]/I");
-  RootTree->Branch("icha",&eve.icha,"icha[nump]/I");
-  RootTree->Branch("numreg",&eve.numreg,"numreg[nump]/I");
-  RootTree->Branch("iba",&eve.iba,"iba[nump]/I");
-  RootTree->Branch("idead",&eve.idead,"idead[nump]/I");
-  RootTree->Branch("jpa",&eve.jpa,"jpa[nump]/I");
-  RootTree->Branch("vxi",&eve.vxi,"vxi[nump]/D");
-  RootTree->Branch("vyi",&eve.vyi,"vyi[nump]/D");
-  RootTree->Branch("vzi",&eve.vzi,"vzi[nump]/D");
-  RootTree->Branch("vxf",&eve.vxf,"vxf[nump]/D");
-  RootTree->Branch("vyf",&eve.vyf,"vyf[nump]/D");
-  RootTree->Branch("vzf",&eve.vzf,"vzf[nump]/D");
-  RootTree->Branch("px",&eve.px,"px[nump]/D");
-  RootTree->Branch("py",&eve.py,"py[nump]/D");
-  RootTree->Branch("pz",&eve.pz,"pz[nump]/D");
-  RootTree->Branch("pxf",&eve.pxf,"pxf[nump]/D");
-  RootTree->Branch("pyf",&eve.pyf,"pyf[nump]/D");
-  RootTree->Branch("pzf",&eve.pzf,"pzf[nump]/D");
-  RootTree->Branch("amass",&eve.amass,"amass[nump]/D");
-  RootTree->Branch("tempo",&eve.tempo,"tempo[nump]/D");
-  RootTree->Branch("tof",&eve.tof,"tof[nump]/D");
-  RootTree->Branch("trlen",&eve.trlen,"trlen[nump]/D");
+  RootTree->Branch("EventNumber",&eve.EventNumber,"EventNumber/I");
+  RootTree->Branch("trn",&eve.trn,"trn/I");
+  RootTree->Branch("trid",&eve.trid,"trid[trn]/I");
+  RootTree->Branch("trgen",&eve.trgen,"trgen[trn]/I");
+  RootTree->Branch("trcha",&eve.trcha,"trcha[trn]/I");
+  RootTree->Branch("trreg",&eve.trreg,"trreg[trn]/I");
+  RootTree->Branch("trbar",&eve.trbar,"trbar[trn]/I");
+  RootTree->Branch("trdead",&eve.trdead,"trdead[trn]/I");
+  RootTree->Branch("trpaid",&eve.trpaid,"trpaid[trn]/I");
+  RootTree->Branch("trix",&eve.trix,"trix[trn]/D");
+  RootTree->Branch("triy",&eve.triy,"triy[trn]/D");
+  RootTree->Branch("triz",&eve.triz,"triz[trn]/D");
+  RootTree->Branch("trfx",&eve.trfx,"trfx[trn]/D");
+  RootTree->Branch("trfy",&eve.trfy,"trfy[trn]/D");
+  RootTree->Branch("trfz",&eve.trfz,"trfz[trn]/D");
+  RootTree->Branch("tripx",&eve.tripx,"tripx[trn]/D");
+  RootTree->Branch("tripy",&eve.tripy,"tripy[trn]/D");
+  RootTree->Branch("tripz",&eve.tripz,"tripz[trn]/D");
+  RootTree->Branch("trfpx",&eve.trfpx,"trfpx[trn]/D");
+  RootTree->Branch("trfpy",&eve.trfpy,"trfpy[trn]/D");
+  RootTree->Branch("trfpz",&eve.trfpz,"trfpz[trn]/D");
+  RootTree->Branch("trmass",&eve.trmass,"trmass[trn]/D");
+  RootTree->Branch("trtime",&eve.trtime,"trtime[trn]/D");
+  RootTree->Branch("tof",&eve.tof,"tof[trn]/D");
+  RootTree->Branch("trlen",&eve.trlen,"trlen[trn]/D");
   
-  RootTree->Branch("nsc",&eve.nsc,"nsc/I");
-  RootTree->Branch("idsc",&eve.idsc,"idsc[nsc]/I");
-  RootTree->Branch("xinsc",&eve.xinsc,"xinsc[nsc]/D");
-  RootTree->Branch("yinsc",&eve.yinsc,"yinsc[nsc]/D");
-  RootTree->Branch("zinsc",&eve.zinsc,"zinsc[nsc]/D");
-  RootTree->Branch("pxinsc",&eve.pxinsc,"pxinsc[nsc]/D");
-  RootTree->Branch("pyinsc",&eve.pyinsc,"pyinsc[nsc]/D");
-  RootTree->Branch("pzinsc",&eve.pzinsc,"pzinsc[nsc]/D");
-  RootTree->Branch("xoutsc",&eve.xoutsc,"xoutsc[nsc]/D");
-  RootTree->Branch("youtsc",&eve.youtsc,"youtsc[nsc]/D");
-  RootTree->Branch("zoutsc",&eve.zoutsc,"zoutsc[nsc]/D");
-  RootTree->Branch("pxoutsc",&eve.pxoutsc,"pxoutsc[nsc]/D");
-  RootTree->Branch("pyoutsc",&eve.pyoutsc,"pyoutsc[nsc]/D");
-  RootTree->Branch("pzoutsc",&eve.pzoutsc,"pzoutsc[nsc]/D");
-  RootTree->Branch("desc",&eve.desc,"desc[nsc]/D");
-  RootTree->Branch("alsc",&eve.alsc,"alsc[nsc]/D");
-  RootTree->Branch("timsc",&eve.timsc,"timsc[nsc]/D");
+  RootTree->Branch("stn",&eve.stn,"stn/I");
+  RootTree->Branch("stid",&eve.stid,"stid[stn]/I");
+  RootTree->Branch("stinx",&eve.stinx,"stinx[stn]/D");
+  RootTree->Branch("stiny",&eve.stiny,"stiny[stn]/D");
+  RootTree->Branch("stinz",&eve.stinz,"stinz[stn]/D");
+  RootTree->Branch("stinpx",&eve.stinpx,"stinpx[stn]/D");
+  RootTree->Branch("stinpy",&eve.stinpy,"stinpy[stn]/D");
+  RootTree->Branch("stinpz",&eve.stinpz,"stinpz[stn]/D");
+  RootTree->Branch("stoutx",&eve.stoutx,"stoutx[stn]/D");
+  RootTree->Branch("stouty",&eve.stouty,"stouty[stn]/D");
+  RootTree->Branch("stoutz",&eve.stoutz,"stoutz[stn]/D");
+  RootTree->Branch("stoutpx",&eve.stoutpx,"stoutpx[stn]/D");
+  RootTree->Branch("stoutpy",&eve.stoutpy,"stoutpy[stn]/D");
+  RootTree->Branch("stoutpz",&eve.stoutpz,"stoutpz[stn]/D");
+  RootTree->Branch("stde",&eve.stde,"stde[stn]/D");
+  RootTree->Branch("stal",&eve.stal,"stal[stn]/D");
+  RootTree->Branch("sttim",&eve.sttim,"sttim[stn]/D");
   
   RootTree->Branch("nvtx",&eve.nvtx,"nvtx/I");
   RootTree->Branch("idvtx",&eve.idvtx,"idvtx[nvtx]/I");
@@ -162,26 +162,26 @@ int main(int argc, char *argv[])
   RootTree->Branch("alvtx",&eve.alvtx,"alvtx[nvtx]/D");
   RootTree->Branch("timvtx",&eve.timvtx,"timvtx[nvtx]/D");
 
-  RootTree->Branch("n1dc",&eve.n1dc,"n1dc/I");
-  RootTree->Branch("id1dc",&eve.id1dc,"id1dc[n1dc]/I");
-  RootTree->Branch("ipla1dc",&eve.ipla1dc,"ipla1dc[n1dc]/I");
-  RootTree->Branch("iview1dc",&eve.iview1dc,"iview1dc[n1dc]/I");
-  RootTree->Branch("icell1dc",&eve.icell1dc,"icell1dc[n1dc]/I");
-  RootTree->Branch("xin1dc",&eve.xin1dc,"xin1dc[n1dc]/D");
-  RootTree->Branch("yin1dc",&eve.yin1dc,"yin1dc[n1dc]/D");
-  RootTree->Branch("zin1dc",&eve.zin1dc,"zin1dc[n1dc]/D");
-  RootTree->Branch("pxin1dc",&eve.pxin1dc,"pxin1dc[n1dc]/D");
-  RootTree->Branch("pyin1dc",&eve.pyin1dc,"pyin1dc[n1dc]/D");
-  RootTree->Branch("pzin1dc",&eve.pzin1dc,"pzin1dc[n1dc]/D");
-  RootTree->Branch("xout1dc",&eve.xout1dc,"xout1dc[n1dc]/D");
-  RootTree->Branch("yout1dc",&eve.yout1dc,"yout1dc[n1dc]/D");
-  RootTree->Branch("zout1dc",&eve.zout1dc,"zout1dc[n1dc]/D");
-  RootTree->Branch("pxout1dc",&eve.pxout1dc,"pxout1dc[n1dc]/D");
-  RootTree->Branch("pyout1dc",&eve.pyout1dc,"pyout1dc[n1dc]/D");
-  RootTree->Branch("pzout1dc",&eve.pzout1dc,"pzout1dc[n1dc]/D");
-  RootTree->Branch("de1dc",&eve.de1dc,"de1dc[n1dc]/D");
-  RootTree->Branch("al1dc",&eve.al1dc,"al1dc[n1dc]/D");
-  RootTree->Branch("tim1dc",&eve.tim1dc,"tim1dc[n1dc]/D");
+  RootTree->Branch("nmon",&eve.nmon,"nmon/I");
+  RootTree->Branch("idmon",&eve.idmon,"idmon[nmon]/I");
+  RootTree->Branch("ilayer",&eve.ilayer,"ilayer[nmon]/I");
+  RootTree->Branch("iview",&eve.iview,"iview[nmon]/I");
+  RootTree->Branch("icell",&eve.icell,"icell[nmon]/I");
+  RootTree->Branch("xinmon",&eve.xinmon,"xinmon[nmon]/D");
+  RootTree->Branch("yinmon",&eve.yinmon,"yinmon[nmon]/D");
+  RootTree->Branch("zinmon",&eve.zinmon,"zinmon[nmon]/D");
+  RootTree->Branch("pxinmon",&eve.pxinmon,"pxinmon[nmon]/D");
+  RootTree->Branch("pyinmon",&eve.pyinmon,"pyinmon[nmon]/D");
+  RootTree->Branch("pzinmon",&eve.pzinmon,"pzinmon[nmon]/D");
+  RootTree->Branch("xoutmon",&eve.xoutmon,"xoutmon[nmon]/D");
+  RootTree->Branch("youtmon",&eve.youtmon,"youtmon[nmon]/D");
+  RootTree->Branch("zoutmon",&eve.zoutmon,"zoutmon[nmon]/D");
+  RootTree->Branch("pxoutmon",&eve.pxoutmon,"pxoutmon[nmon]/D");
+  RootTree->Branch("pyoutmon",&eve.pyoutmon,"pyoutmon[nmon]/D");
+  RootTree->Branch("pzoutmon",&eve.pzoutmon,"pzoutmon[nmon]/D");
+  RootTree->Branch("demon",&eve.demon,"demon[nmon]/D");
+  RootTree->Branch("almon",&eve.almon,"almon[nmon]/D");
+  RootTree->Branch("timmon",&eve.timmon,"timmon[nmon]/D");
 
   RootTree->Branch("n2dc",&eve.n2dc,"n2dc/I");
   RootTree->Branch("id2dc",&eve.id2dc,"id2dc[n2dc]/I");
@@ -283,11 +283,11 @@ int main(int argc, char *argv[])
 	if (NumProcessed>maxevpro) break;
       }
       
-      eve.num_event = 0;
-      eve.nump      = 0;
-      eve.nsc       = 0;
+      eve.EventNumber = 0;
+      eve.trn      = 0;
+      eve.stn       = 0;
       eve.nvtx      = 0;
-      eve.n1dc      = 0;
+      eve.nmon      = 0;
       eve.n2dc      = 0;
       eve.nscint    = 0;
       eve.ncry      = 0;
@@ -298,8 +298,8 @@ int main(int argc, char *argv[])
 
       //	leggo l'header
 
-      nread= fscanf(pfile,"%d %d %d %d %d %d %d %d %d \n",&eve.num_event,
-		    &eve.nump,&eve.nsc,&eve.n1dc,&eve.nvtx,&eve.n2dc,
+      nread= fscanf(pfile,"%d %d %d %d %d %d %d %d %d \n",&eve.EventNumber,
+		    &eve.trn,&eve.stn,&eve.nmon,&eve.nvtx,&eve.n2dc,
 		    &eve.nscint,&eve.ncry,&eve.ncross);
       if(nread!=9){
 	cout<<"ReadError in ev header section: nread = "<<nread<<
@@ -310,16 +310,16 @@ int main(int argc, char *argv[])
       //	leggo il common della cinematica
 
       if(!ReadError){
-	for(int jj =0;jj<eve.nump;jj++){
+	for(int jj =0;jj<eve.trn;jj++){
 	  nread = fscanf(pfile,
 			 "%d %d %d %d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-			 &eve.idpa[jj],&eve.igen[jj],&eve.icha[jj],
-			 &eve.numreg[jj],&eve.iba[jj],&eve.idead[jj],
-			 &eve.jpa[jj],&eve.vxi[jj],
-			 &eve.vyi[jj],&eve.vzi[jj],&eve.vxf[jj],&eve.vyf[jj],
-			 &eve.vzf[jj],&eve.px[jj],&eve.py[jj],&eve.pz[jj],
-			 &eve.pxf[jj],&eve.pyf[jj],&eve.pzf[jj],&eve.amass[jj],
-			 &eve.tempo[jj],&eve.tof[jj],&eve.trlen[jj]);
+			 &eve.trid[jj],&eve.trgen[jj],&eve.trcha[jj],
+			 &eve.trreg[jj],&eve.trbar[jj],&eve.trdead[jj],
+			 &eve.trpaid[jj],&eve.trix[jj],
+			 &eve.triy[jj],&eve.triz[jj],&eve.trfx[jj],&eve.trfy[jj],
+			 &eve.trfz[jj],&eve.tripx[jj],&eve.tripy[jj],&eve.tripz[jj],
+			 &eve.trfpx[jj],&eve.trfpy[jj],&eve.trfpz[jj],&eve.trmass[jj],
+			 &eve.trtime[jj],&eve.tof[jj],&eve.trlen[jj]);
 	  if(nread!=23){
 	    cout<<"ReadError in kine section: nread = "<<nread<<
 	      " instead of 23; ev= "<<NumProcessed<<endl;
@@ -333,15 +333,15 @@ int main(int argc, char *argv[])
       //	leggo i rilasci nello start counter
 
       if(!ReadError){
-	for(int jj=0; jj<eve.nsc;jj++){
+	for(int jj=0; jj<eve.stn;jj++){
 	  nread= fscanf(pfile,
 			"%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
-			&eve.idsc[jj],
-			&eve.xinsc[jj],&eve.yinsc[jj],&eve.zinsc[jj],
-			&eve.xoutsc[jj],&eve.youtsc[jj],&eve.zoutsc[jj],
-			&eve.pxinsc[jj],&eve.pyinsc[jj],&eve.pzinsc[jj],
-			&eve.pxoutsc[jj],&eve.pyoutsc[jj],&eve.pzoutsc[jj],
-			&eve.desc[jj],&eve.alsc[jj],&eve.timsc[jj]);
+			&eve.stid[jj],
+			&eve.stinx[jj],&eve.stiny[jj],&eve.stinz[jj],
+			&eve.stoutx[jj],&eve.stouty[jj],&eve.stoutz[jj],
+			&eve.stinpx[jj],&eve.stinpy[jj],&eve.stinpz[jj],
+			&eve.stoutpx[jj],&eve.stoutpy[jj],&eve.stoutpz[jj],
+			&eve.stde[jj],&eve.stal[jj],&eve.sttim[jj]);
 	  if(nread!=16){
 	    ReadError= true;
 	    cout<<"ReadError in sc: nread = "<<nread<<
@@ -355,19 +355,19 @@ int main(int argc, char *argv[])
 
       if(!ReadError){
  
-	for(int jj=0; jj<eve.n1dc;jj++){
+	for(int jj=0; jj<eve.nmon;jj++){
 	  nread = fscanf(pfile,
 			 "%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
-			 &eve.id1dc[jj],&eve.iview1dc[jj],&eve.ipla1dc[jj],
-			 &eve.icell1dc[jj],
-			 &eve.xin1dc[jj],&eve.yin1dc[jj],&eve.zin1dc[jj],
-			 &eve.xout1dc[jj],&eve.yout1dc[jj],&eve.zout1dc[jj],
-			 &eve.pxin1dc[jj],&eve.pyin1dc[jj],&eve.pzin1dc[jj],
-			 &eve.pxout1dc[jj],&eve.pyout1dc[jj],&eve.pzout1dc[jj],
-			 &eve.de1dc[jj],&eve.al1dc[jj],&eve.tim1dc[jj]);
+			 &eve.idmon[jj],&eve.iview[jj],&eve.ilayer[jj],
+			 &eve.icell[jj],
+			 &eve.xinmon[jj],&eve.yinmon[jj],&eve.zinmon[jj],
+			 &eve.xoutmon[jj],&eve.youtmon[jj],&eve.zoutmon[jj],
+			 &eve.pxinmon[jj],&eve.pyinmon[jj],&eve.pzinmon[jj],
+			 &eve.pxoutmon[jj],&eve.pyoutmon[jj],&eve.pzoutmon[jj],
+			 &eve.demon[jj],&eve.almon[jj],&eve.timmon[jj]);
 	  if(nread!=19){
 	    ReadError = true;
-	    cout<<"ReadError in 1dc section: nread = "<<nread<<
+	    cout<<"ReadError in mon section: nread = "<<nread<<
 	      " instead of 19; ev= "<<NumProcessed<<endl;
 	    break;
 	  }
@@ -485,14 +485,14 @@ int main(int argc, char *argv[])
 	break;
       }
       else{
-	if((eve.nump<=MAXNUMP)&&(eve.nsc<=MAXSC)&&(eve.nvtx<=MAXVTX)
-	   &&(eve.n1dc<=MAX1DC)&&(eve.nscint<=MAXSCINT)&&(eve.ncry<=MAXCRY)
+	if((eve.trn<=MAXNUMP)&&(eve.stn<=MAXSC)&&(eve.nvtx<=MAXVTX)
+	   &&(eve.nmon<=MAX1DC)&&(eve.nscint<=MAXSCINT)&&(eve.ncry<=MAXCRY)
 	   &&(eve.ncross<=MAXCROSS)){
 	  RootTree->Fill() ;
 	}
 	else{
-	  cout<<ReadError<<" "<<eve.num_event<<" "<<eve.nump
-	      <<" "<<eve.nsc<<" "<<eve.n1dc<<" "<<eve.nvtx<<" "<<eve.n2dc
+	  cout<<ReadError<<" "<<eve.EventNumber<<" "<<eve.trn
+	      <<" "<<eve.stn<<" "<<eve.nmon<<" "<<eve.nvtx<<" "<<eve.n2dc
 	      <<" "<<eve.nscint<<" "<<eve.ncry<<" "<<eve.ncross<<endl;  
 	}
       }

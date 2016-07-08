@@ -22,7 +22,7 @@
 
 #include "TADIparGeo.hxx"
 
-#include "gsi_geo.h"
+#include "foot_geo.h"
 
 //##############################################################################
 

@@ -260,7 +260,7 @@ void TAGvieHorzMCIR::Paint(Option_t* option)
     }
 
     //MC truth
-    double pvx = fpEvtStr->pxcamon[0]; double pvy = fpEvtStr->pycamon[0];
+    double pvx = fpEvtStr->pxinmon[0]; double pvy = fpEvtStr->pyinmon[0];
 
     double ptra2 = pvx*pvx + pvy*pvy;
     if(ptra2>1.){
@@ -376,7 +376,7 @@ void TAGvieHorzMCIR::Paint(Option_t* option)
       }
     }//Sensors Loop
     
-
+    /*
     for (Int_t i = 0; i < fpEvtStr->miSigN; i++) {
       Double_t X_p = fpEvtStr->miSigX[i];
       //Double_t Y_p = fpEvtStr->miSigY[i];
@@ -399,9 +399,9 @@ void TAGvieHorzMCIR::Paint(Option_t* option)
       
     }
 
+    */
 
   }
-
   if (p_ntuvttr) {
     //Displays the Tracks in the VTX detector
     

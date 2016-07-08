@@ -9,7 +9,7 @@
 #include "TVector3.h"
 #include "TString.h"
 
-#include "gsi_geo.h"
+#include "foot_geo.h"
 
 using namespace std;
 

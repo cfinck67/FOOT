@@ -30,7 +30,7 @@ ELIB        += ./libSegnale.so
 ELIB        += ./libGeometry.so 
 ELIB        += ./libTrigger.so
 
-TAINCL	       = -I$(PWD)/../ -I$(PWD)/../../libs/src/TAGbase/  -I$(PWD)/../../libs/src/TAGmclib/ -I$(PWD)/../../libs/src/TAVTbase -I$(PWD)/../../libs/src/TAGfoot -I$(PWD)/../../libs/src/TABMbase -I$(PWD)/../../libs/src/TAIRbase  -I$(PWD)/../../Simulation
+TAINCL	       = -I$(PWD)/../ -I$(PWD)/../../libs/src/TAGbase/  -I$(PWD)/../../libs/src/TAGmclib/ -I$(PWD)/../../libs/src/TAVTbase -I$(PWD)/../../libs/src/TAGfoot -I$(PWD)/../../libs/src/TABMbase -I$(PWD)/../../libs/src/TAIRbase  -I$(PWD)/../../Simulation/TXT2ROOT
 
 TALIB        += ../../libs/lib/libTAGfoot.so ../../libs/lib/libTAGmclib.so 
 TALIB        += ../../libs/lib/libTAGbase.so 
@@ -47,7 +47,7 @@ else
 SOFLAGS  = -shared $(ROOTGLIBS) 
 endif
 
-TAINCL	       = -I../ -I../../libs/src/TAGbase/ -I../../libs/src/TAGmclib/ -I../../libs/src/TAGfoot -I../../libs/src/TABMbase -I../../libs/src/TAIRbase -I../../libs/src/TAVTbase -I../../Simulation
+TAINCL	       = -I../ -I../../libs/src/TAGbase/ -I../../libs/src/TAGmclib/ -I../../libs/src/TAGfoot -I../../libs/src/TABMbase -I../../libs/src/TAIRbase -I../../libs/src/TAVTbase -I../../Simulation/TXT2ROOT
 
 CXXFLAGS      = -g -Wall -fPIC
 CXXFLAGS      += $(ROOTCFLAGS)
@@ -58,10 +58,10 @@ LIBS           = $(ROOTLIBS)
 NTUPLEB = RecoTools.o 
 NTUPLEB += RecoToolsDict.o 
 
-NTUPLET = ../../Simulation/Evento.o EventoDict.o
-NTUPLES = ../../Simulation/Segnale.o SegnaleDict.o
-NTUPLEG = ../../Simulation/Geometry.o GeometryDict.o
-NTUPLEU = ../../Simulation/Trigger.o TriggerDict.o
+NTUPLET = ../../Simulation/TXT2ROOT/Evento.o EventoDict.o
+NTUPLES = ../../Simulation/TXT2ROOT/Segnale.o SegnaleDict.o
+NTUPLEG = ../../Simulation/TXT2ROOT/Geometry.o GeometryDict.o
+NTUPLEU = ../../Simulation/TXT2ROOT/Trigger.o TriggerDict.o
 
 .SUFFIXES: .cc,.C
 
@@ -82,24 +82,24 @@ libEvento:  $(NTUPLET)
 #---------------------------------------------------------------
 	$(CXX) $(SOFLAGSV) $(NTUPLET) -o libEvento.so
 
-EventoDict.cc: ../../Simulation/Evento.h
-	$(ROOTSYS)/bin/rootcint -f EventoDict.cc -c -I../ ../../Simulation/Evento.h
+EventoDict.cc: ../../Simulation/TXT2ROOT/Evento.h
+	$(ROOTSYS)/bin/rootcint -f EventoDict.cc -c -I../ ../../Simulation/TXT2ROOT/Evento.h
 
 # ================================================================================
 libSegnale:  $(NTUPLES)
 #---------------------------------------------------------------
 	$(CXX) $(SOFLAGSS) $(NTUPLES) -o libSegnale.so
 
-SegnaleDict.cc: ../../Simulation/Segnale.h
-	$(ROOTSYS)/bin/rootcint -f SegnaleDict.cc -c -I../ ../../Simulation/Segnale.h
+SegnaleDict.cc: ../../Simulation/TXT2ROOT/Segnale.h
+	$(ROOTSYS)/bin/rootcint -f SegnaleDict.cc -c -I../ ../../Simulation/TXT2ROOT/Segnale.h
 
 # ================================================================================
 libTrigger:  $(NTUPLEU) 
 #---------------------------------------------------------------
 	$(CXX) $(SOFLAGSE) $(NTUPLEU) -o libTrigger.so
 
-TriggerDict.cc: ../../Simulation/Trigger.h
-	$(ROOTSYS)/bin/rootcint -f TriggerDict.cc -c -I../ ../../Simulation/Trigger.h
+TriggerDict.cc: ../../Simulation/TXT2ROOT/Trigger.h
+	$(ROOTSYS)/bin/rootcint -f TriggerDict.cc -c -I../ ../../Simulation/TXT2ROOT/Trigger.h
 
 
 # ================================================================================
@@ -107,8 +107,8 @@ libGeometry:  $(NTUPLEG)
 #---------------------------------------------------------------
 	$(CXX) $(SOFLAGSE) $(NTUPLEG) -o libGeometry.so
 
-GeometryDict.cc: ../../Simulation/Geometry.h
-	$(ROOTSYS)/bin/rootcint -f GeometryDict.cc -c -I../ ../../Simulation/Geometry.h
+GeometryDict.cc: ../../Simulation/TXT2ROOT/Geometry.h
+	$(ROOTSYS)/bin/rootcint -f GeometryDict.cc -c -I../ ../../Simulation/TXT2ROOT/Geometry.h
 
 
 DecodeMC:  RecoL0.o libGeometry libSegnale libEvento libTrigger lib 
