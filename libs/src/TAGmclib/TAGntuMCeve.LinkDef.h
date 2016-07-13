@@ -4,7 +4,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class TAGntuMCeveHit;
-#pragma link C++ class TAGntuMCeve;
+#pragma link C++ class TAGntuMCeveHit+;
+#pragma link C++ class TAGntuMCeve+;
 
 #endif

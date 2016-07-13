@@ -40,7 +40,6 @@ class RecoTools {
   void FillMCEvent(EVENT_STRUCT *myStr);
   void FillMCBeamMonitor(EVENT_STRUCT *myStr);
   void FillMCVertex(EVENT_STRUCT *myStr);
-  void FillMCTofWall(EVENT_STRUCT *myStr);
 
   //Monitors/Displays
   void DisplayIRMonitor(TAGpadGroup* pg, EVENT_STRUCT *myStr);

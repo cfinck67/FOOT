@@ -141,7 +141,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     Setting up the detectors that we want to decode.
   */
   bool m_doEvent = kTRUE;
-  bool m_doBM = kFALSE;
+  bool m_doBM = kTRUE;
   bool m_doVertex = kFALSE;
 
   if(m_doEvent) 
@@ -192,7 +192,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     tagr->NextEvent();
 
     if(m_doBM) {
-      MonitorBM();
+      //      MonitorBM();
 
       if(m_doVertex) {
 	MonitorBMVTMat();
@@ -209,9 +209,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
       (TAGntuMCeve*)   myn_mceve->GenerateObject();
     
     int nhitmc = p_ntumceve->nhit;
-    for(int i=0; i<nhitmc; i++) {
-      cout<<p_ntumceve->Hit(i)->Mass()<<endl;
-    }
+
     if(m_debug) {
 
       //Pixels stuff

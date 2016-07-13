@@ -4,7 +4,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class TABMntuHit;
-#pragma link C++ class TABMntuRaw;
+#pragma link C++ class TABMntuHit+;
+#pragma link C++ class TABMntuRaw+;
 
 #endif
