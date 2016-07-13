@@ -167,7 +167,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   if(m_doBM) {
     DisplayBeamMonitor(pg);
     
-    DisplayIRMonitor(pg,&evStr);
+    //    DisplayIRMonitor(pg,&evStr);
   }
 
 
