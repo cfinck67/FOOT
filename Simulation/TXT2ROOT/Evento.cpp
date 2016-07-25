@@ -696,6 +696,7 @@ Int_t Evento::AddCross(Int_t fidcross, Int_t fnregcross, Int_t fnregoldcross,
 
 int Evento::FindBranches(TTree *RootTree, EVENT_STRUCT *eve){
 
+  RootTree->SetBranchAddress("EventNumber",&(eve->EventNumber));
   RootTree->SetBranchAddress("trn",&(eve->trn));
   RootTree->SetBranchAddress("trid",&(eve->trid));
   RootTree->SetBranchAddress("trgen",&(eve->trgen));

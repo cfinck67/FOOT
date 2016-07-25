@@ -74,7 +74,7 @@ c      write(*,*)"sono in mgdraw"
       endif
 c
 c************* PARTICLES AND HEAVY IONS WITH JTRACK=-2
-      IF((JTRACK.EQ.1).OR.((JTRACK.LE.-2).AND.(JTRACK.GE.-6)))THEN
+      IF((JTRACK.GE.1).OR.((JTRACK.LE.-2).AND.(JTRACK.GE.-6)))THEN
          ICPART = ICHRGE(JTRACK)
          IBPART = IBARCH(JTRACK)
          AMPART = AM(JTRACK)
@@ -85,7 +85,9 @@ c*************HEAVY IONS WITH JTRACK.LT.-6
          AMPART = AMNHEA(-JTRACK)
       ELSE
          ICPART=int(zfrttk)
-         IBPART=0
+C         IBPART=0
+C         ICPART = ICHRGE(JTRACK)
+         IBPART = IBARCH(JTRACK)
          AMPART = AM(JTRACK)
       ENDIF
 c
@@ -325,7 +327,7 @@ c     scoring at the boundaries... select the region
 c     
 c         write(*,*)'Sono in Bxdraw'
 c************* PARTICLES AND HEAVY IONS WITH JTRACK=-2
-       IF((JTRACK.EQ.1).OR.((JTRACK.LE.-2).AND.(JTRACK.GE.-6)))THEN
+       IF((JTRACK.GE.1).OR.((JTRACK.LE.-2).AND.(JTRACK.GE.-6)))THEN
          ICPART = ICHRGE(JTRACK)
          IBPART = IBARCH(JTRACK)
          AMPART = AM(JTRACK)
@@ -336,7 +338,8 @@ c************* HEAVY IONS WITH JTRACK.LT.-6
          AMPART = AMNHEA(-JTRACK)
        ELSE
          ICPART= ICHRGE(JTRACK)
-         IBPART=0
+         ICPART = ICHRGE(JTRACK)
+         IBPART = IBARCH(JTRACK)
          AMPART = AM(JTRACK)
        ENDIF
 c
@@ -457,7 +460,7 @@ Cgb
 Cgb
       if(jtrack.lt.62) then
 c************* PARTICLES AND HEAVY IONS WITH JTRACK=-2
-         IF((JTRACK.EQ.1).OR.((JTRACK.LE.-2).AND.(JTRACK.GE.-6)))THEN
+         IF((JTRACK.GE.1).OR.((JTRACK.LE.-2).AND.(JTRACK.GE.-6)))THEN
             ICPART = ICHRGE(JTRACK)
             IBPART = IBARCH(JTRACK)
             AMPART = AM(JTRACK)
@@ -468,7 +471,7 @@ c*************HEAVY IONS WITH JTRACK.LT.-6
             AMPART = AMNHEA(-JTRACK)
          ELSE
             ICPART= ICHRGE(JTRACK)
-            IBPART=0
+            IBPART = IBARCH(JTRACK)
             AMPART = AM(JTRACK)
          ENDIF
 c
