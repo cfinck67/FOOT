@@ -165,7 +165,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   //Initialize the Event Display for the Music
 
   if(m_doBM) {
-    DisplayBeamMonitor(pg);
+    //    DisplayBeamMonitor(pg);
     
     //    DisplayIRMonitor(pg,&evStr);
   }
