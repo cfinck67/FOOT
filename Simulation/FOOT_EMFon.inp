@@ -15,10 +15,10 @@ FOOT new geometry
 #define vtx_dist 0.6
 !@what.1=targ_dim/2+14.
 #define vtx4_dist 14.1
-!@what.1=vtx4_dist-mag_dim-1.5
-#define mag_dist 2.6
-#define btwmag 4.
-#define mag_dim 10.
+!@what.1=vtx4_dist-mag_dim-1.9
+#define mag_dist 5.2
+#define btwmag 5.
+#define mag_dim 7.
 #define fac1 4.4
 * *** scintillator & calo block distance from 0
 !@what.1=100.
@@ -29,7 +29,6 @@ BEAM        -0.20094                 0.0     -0.48     -0.48          HEAVYION
 HI-PROPE          8.       16.
 !@what.3=sc_dist-1
 BEAMPOS           0.        0.    -29.65
-* Se si toglie il discard degli e- aggiungere soglie deltaray e pairbrem
 EMF
 *DISCARD        E+&E-    PHOTON
 EMFCUT       -0.0001    0.0001            BLCKHOLE  @LASTMAT          PROD-CUT
@@ -45,7 +44,7 @@ EMFCUT       -0.0001    0.0001             BLKBODY  @LASTREG
 * Aria, target, startc, vertex
 EMFCUT       -0.0001    0.0001                 AIR      VTX5
 * Aria nei due magneti
-EMFCUT       -0.0001    0.0001             GapMag1   MagAir2
+EMFCUT       -0.0001    0.0001              MagAir
 * Celle prima driftc
 EMFCUT       -0.0001    0.0001              vp1c1a    up6c3a
 * Celle seconda driftc
@@ -78,7 +77,7 @@ IONTRANS    HEAVYION
 *
 * ====================  geometry ====================
 GEOBEGIN         0.0                 21.                              COMBNAME
-FOOT_new.geo
+FOOT_lastGeoSanelli.geo
 GEOEND
 * *** Samario-Cobalto permanent magnet
 MATERIAL         62.                7.46                              SAMARIUM
@@ -157,17 +156,16 @@ COMPOUND         9.0  HYDROGEN       9.0    CARBON       1.0    OXYGENBAKELITE
 *
 ASSIGNMA    BLCKHOLE   BLKBODY
 ASSIGNMA         AIR       AIR
-ASSIGNMA    POLYETHY    TARGET
+ASSIGNMA    POLYETHY    TARGET                            1.
 ASSIGNMA      PilotB    STARTC
-ASSIGNMA       ARGON    vp1c1a    up6c3a
-ASSIGNMA       ARGON    vp1c1b    up6c6b
+ASSIGNMA       ARGON    vp1c1a    up6c3a                  1.
+ASSIGNMA       ARGON    vp1c1b    up6c6b                  1.
 ASSIGNMA    ALUMINUM  SCHERMOa     TRIAa
 ASSIGNMA    ALUMINUM  SCHERMOb     TRIAb
 ASSIGNMA    BAKELITE   SCHEDEa
 ASSIGNMA    BAKELITE   SCHEDEb
-ASSIGNMA     SILICON      VTX1      VTX5
-ASSIGNMA         AIR   GapMag1   GapMag2                  1.
-ASSIGNMA         AIR   MagAir1   MagAir2
+ASSIGNMA     SILICON      VTX1      VTX5                  1.
+ASSIGNMA         AIR    MagAir                            1.
 ASSIGNMA        SmCo    MagPM1    MagPM2
 ASSIGNMA    ALUMINUM   MagCov1   MagCov2
 ASSIGNMA      PilotB  SCIN0101  SCIN1111
@@ -177,7 +175,7 @@ ASSIGNMA         BGO  CALO0101  CALO1111
 * -------1---------2---------3---------4---------5---------6---------7---------8
 PHYSICS           3.                                                  EVAPORAT
 PHYSICS           1.                                                  COALESCE
-MGNFIELD                                                 0.6
+MGNFIELD                                        0.       0.0        0.
 * -------1---------2---------3---------4---------5---------6---------7---------
 * command| idbflg  | FragTrg |Eth(Mev) |unused   |unused   |unused | SDUM
 * -------1---------2---------3---------4---------5---------6---------7---------
@@ -188,6 +186,6 @@ USRICALL         0.0        1.       0.1       0.0        0.        0.
 USERDUMP        100.       69.       0.0        1.                    Opt
 * -------1---------2---------3---------4---------5---------6---------7---------
 RANDOMIZ
-START           1.E4                                     0.0
+START           8.E3                                     0.0
 USROCALL
 STOP
