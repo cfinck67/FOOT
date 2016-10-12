@@ -107,187 +107,119 @@ inline void TAGgeoTrafo::SetVTAngles(double x_d, double y_d, double z_d)
 }
 
 
-
-inline TVector3 TAGgeoTrafo::GetKECenter()
+inline TVector3 TAGgeoTrafo::GetTWCenter()
 {
-  return m_KE_center;
+  return m_TW_center;
 }
 
-inline void TAGgeoTrafo::SetKECenter(TVector3 cen)
+inline void TAGgeoTrafo::SetTWCenter(TVector3 cen)
 {
-  m_KE_center = cen;
+  m_TW_center = cen;
   return;
 }
 
-inline void TAGgeoTrafo::SetKECenter(double x_c, double y_c, double z_c)
+inline void TAGgeoTrafo::SetTWCenter(double x_c, double y_c, double z_c)
 {
   TVector3 cen(x_c,y_c,z_c);
-  m_KE_center = cen;
+  m_TW_center = cen;
   return;
 }
 
-inline TVector3 TAGgeoTrafo::GetKEAngles()
+inline TVector3 TAGgeoTrafo::GetTWAngles()
 {
-  return m_KE_angles;
+  return m_TW_angles;
 }
 
-inline void TAGgeoTrafo::SetKEAngles(TVector3 ang)
+inline void TAGgeoTrafo::SetTWAngles(TVector3 ang)
 {
-  m_KE_angles = ang;
+  m_TW_angles = ang;
   return;
 }
 
-inline void TAGgeoTrafo::SetKEAngles(double x_d, double y_d, double z_d)
+inline void TAGgeoTrafo::SetTWAngles(double x_d, double y_d, double z_d)
 {
   TVector3 ang(x_d,y_d,z_d);
-  m_KE_angles = ang;
+  m_TW_angles = ang;
   return;
 }
 
-inline TVector3 TAGgeoTrafo::GetALCenter()
+
+
+inline TVector3 TAGgeoTrafo::GetITCenter()
 {
-  return m_AL_center;
+  return m_IT_center;
 }
 
-inline void TAGgeoTrafo::SetALCenter(TVector3 cen)
+inline void TAGgeoTrafo::SetITCenter(TVector3 cen)
 {
-  m_AL_center = cen;
+  m_IT_center = cen;
   return;
 }
 
-inline void TAGgeoTrafo::SetALCenter(double x_c, double y_c, double z_c)
+inline void TAGgeoTrafo::SetITCenter(double x_c, double y_c, double z_c)
 {
   TVector3 cen(x_c,y_c,z_c);
-  m_AL_center = cen;
+  m_IT_center = cen;
   return;
 }
 
-inline TVector3 TAGgeoTrafo::GetALAngles()
+inline TVector3 TAGgeoTrafo::GetITAngles()
 {
-  return m_AL_angles;
+  return m_IT_angles;
 }
 
-inline void TAGgeoTrafo::SetALAngles(TVector3 ang)
+inline void TAGgeoTrafo::SetITAngles(TVector3 ang)
 {
-  m_AL_angles = ang;
+  m_IT_angles = ang;
   return;
 }
 
-inline void TAGgeoTrafo::SetALAngles(double x_d, double y_d, double z_d)
+inline void TAGgeoTrafo::SetITAngles(double x_d, double y_d, double z_d)
 {
   TVector3 ang(x_d,y_d,z_d);
-  m_AL_angles = ang;
+  m_IT_angles = ang;
   return;
 }
 
-inline TVector3 TAGgeoTrafo::GetMUCenter()
+
+inline TVector3 TAGgeoTrafo::GetCACenter()
 {
-  return m_MU_center;
+  return m_CA_center;
 }
 
-inline void TAGgeoTrafo::SetMUCenter(TVector3 cen)
+inline void TAGgeoTrafo::SetCACenter(TVector3 cen)
 {
-  m_MU_center = cen;
+  m_CA_center = cen;
   return;
 }
 
-inline void TAGgeoTrafo::SetMUCenter(double x_c, double y_c, double z_c)
+inline void TAGgeoTrafo::SetCACenter(double x_c, double y_c, double z_c)
 {
   TVector3 cen(x_c,y_c,z_c);
-  m_MU_center = cen;
+  m_CA_center = cen;
   return;
 }
 
-inline TVector3 TAGgeoTrafo::GetMUAngles()
+inline TVector3 TAGgeoTrafo::GetCAAngles()
 {
-  return m_MU_angles;
+  return m_CA_angles;
 }
 
-inline void TAGgeoTrafo::SetMUAngles(TVector3 ang)
+inline void TAGgeoTrafo::SetCAAngles(TVector3 ang)
 {
-  m_MU_angles = ang;
+  m_CA_angles = ang;
   return;
 }
 
-inline void TAGgeoTrafo::SetMUAngles(double x_d, double y_d, double z_d)
+inline void TAGgeoTrafo::SetCAAngles(double x_d, double y_d, double z_d)
 {
   TVector3 ang(x_d,y_d,z_d);
-  m_MU_angles = ang;
-  return;
-}
-
-inline TVector3 TAGgeoTrafo::GetTWRCenter()
-{
-  return m_TWR_center;
-}
-
-inline void TAGgeoTrafo::SetTWRCenter(TVector3 cen)
-{
-  m_TWR_center = cen;
-  return;
-}
-
-inline void TAGgeoTrafo::SetTWRCenter(double x_c, double y_c, double z_c)
-{
-  TVector3 cen(x_c,y_c,z_c);
-  m_TWR_center = cen;
-  return;
-}
-
-inline TVector3 TAGgeoTrafo::GetTWRAngles()
-{
-  return m_TWR_angles;
-}
-
-inline void TAGgeoTrafo::SetTWRAngles(TVector3 ang)
-{
-  m_TWR_angles = ang;
-  return;
-}
-
-inline void TAGgeoTrafo::SetTWRAngles(double x_d, double y_d, double z_d)
-{
-  TVector3 ang(x_d,y_d,z_d);
-  m_TWR_angles = ang;
+  m_CA_angles = ang;
   return;
 }
 
 
-inline TVector3 TAGgeoTrafo::GetTWFCenter()
-{
-  return m_TWF_center;
-}
 
-inline void TAGgeoTrafo::SetTWFCenter(TVector3 cen)
-{
-  m_TWF_center = cen;
-  return;
-}
-
-inline void TAGgeoTrafo::SetTWFCenter(double x_c, double y_c, double z_c)
-{
-  TVector3 cen(x_c,y_c,z_c);
-  m_TWF_center = cen;
-  return;
-}
-
-inline TVector3 TAGgeoTrafo::GetTWFAngles()
-{
-  return m_TWF_angles;
-}
-
-inline void TAGgeoTrafo::SetTWFAngles(TVector3 ang)
-{
-  m_TWF_angles = ang;
-  return;
-}
-
-inline void TAGgeoTrafo::SetTWFAngles(double x_d, double y_d, double z_d)
-{
-  TVector3 ang(x_d,y_d,z_d);
-  m_TWF_angles = ang;
-  return;
-}
 
 
 

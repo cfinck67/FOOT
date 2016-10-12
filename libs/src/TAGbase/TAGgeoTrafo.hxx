@@ -21,43 +21,39 @@ class TAGgeoTrafo : public TAGaction {
     bool InitGeo(TString ifile);
     bool LoadIRGeo(TString ifile);
     bool LoadBMGeo(TString ifile);
+    bool LoadDCGeo(TString ifile);
     bool LoadVtxGeo(TString ifile);
-    bool LoadKeGeo(TString ifile);
-    bool LoadAlaGeo(TString ifile);
-    bool LoadMusGeo(TString ifile);
+    bool LoadInTrGeo(TString ifile);
     bool LoadTofGeo(TString ifile);
+    bool LoadCalGeo(TString ifile);
 
     TVector3 FromBMLocalToGlobal(TVector3 apoi);
+    TVector3 FromDCLocalToGlobal(TVector3 apoi);
     TVector3 FromVTLocalToGlobal(TVector3 apoi);
-    TVector3 FromKELocalToGlobal(TVector3 apoi);
-    TVector3 FromALLocalToGlobal(TVector3 apoi);
-    TVector3 FromMULocalToGlobal(TVector3 apoi);
-    TVector3 FromTWRLocalToGlobal(TVector3 apoi);
-    TVector3 FromTWFLocalToGlobal(TVector3 apoi);
+    TVector3 FromTWLocalToGlobal(TVector3 apoi);
+    TVector3 FromITLocalToGlobal(TVector3 apoi);
+    TVector3 FromCALocalToGlobal(TVector3 apoi);
 
+    TVector3 VecFromDCLocalToGlobal(TVector3 avec);
     TVector3 VecFromBMLocalToGlobal(TVector3 avec);
     TVector3 VecFromVTLocalToGlobal(TVector3 avec);
-    TVector3 VecFromKELocalToGlobal(TVector3 avec);
-    TVector3 VecFromALLocalToGlobal(TVector3 avec);
-    TVector3 VecFromMULocalToGlobal(TVector3 avec);
-    TVector3 VecFromTWRLocalToGlobal(TVector3 avec);
-    TVector3 VecFromTWFLocalToGlobal(TVector3 avec);
+    TVector3 VecFromTWLocalToGlobal(TVector3 avec);
+    TVector3 VecFromITLocalToGlobal(TVector3 avec);
+    TVector3 VecFromCALocalToGlobal(TVector3 avec);
 
     TVector3 FromGlobalToBMLocal(TVector3 apoi);
+    TVector3 FromGlobalToDCLocal(TVector3 apoi);
     TVector3 FromGlobalToVTLocal(TVector3 apoi);
-    TVector3 FromGlobalToKELocal(TVector3 apoi);
-    TVector3 FromGlobalToALLocal(TVector3 apoi);
-    TVector3 FromGlobalToMULocal(TVector3 apoi);
-    TVector3 FromGlobalToTWRLocal(TVector3 apoi);
-    TVector3 FromGlobalToTWFLocal(TVector3 apoi);
+    TVector3 FromGlobalToTWLocal(TVector3 apoi);
+    TVector3 FromGlobalToITLocal(TVector3 apoi);
+    TVector3 FromGlobalToCALocal(TVector3 apoi);
 
+    TVector3 VecFromGlobalToDCLocal(TVector3 avec);
     TVector3 VecFromGlobalToBMLocal(TVector3 avec);
     TVector3 VecFromGlobalToVTLocal(TVector3 avec);
-    TVector3 VecFromGlobalToKELocal(TVector3 avec);
-    TVector3 VecFromGlobalToALLocal(TVector3 avec);
-    TVector3 VecFromGlobalToMULocal(TVector3 avec);
-    TVector3 VecFromGlobalToTWRLocal(TVector3 avec);
-    TVector3 VecFromGlobalToTWFLocal(TVector3 avec);
+    TVector3 VecFromGlobalToTWLocal(TVector3 avec);
+    TVector3 VecFromGlobalToITLocal(TVector3 avec);
+    TVector3 VecFromGlobalToCALocal(TVector3 avec);
 
     //Interaction point
     TVector3 GetIP();
@@ -79,6 +75,13 @@ class TAGgeoTrafo : public TAGaction {
     void     SetBMAngles(double x_d, double y_d, double z_d);
     void     SetBMAngles(TVector3 ang);
 
+    TVector3 GetDCCenter();
+    TVector3 GetDCAngles();
+    void     SetDCCenter(double x_c, double y_c, double z_c);
+    void     SetDCCenter(TVector3 cen);
+    void     SetDCAngles(double x_d, double y_d, double z_d);
+    void     SetDCAngles(TVector3 ang);
+
     // Vertex
     TVector3 GetVTCenter();
     TVector3 GetVTAngles();
@@ -87,44 +90,29 @@ class TAGgeoTrafo : public TAGaction {
     void     SetVTAngles(double x_d, double y_d, double z_d);
     void     SetVTAngles(TVector3 ang);
 
-    // Kentros
-    TVector3 GetKECenter();
-    TVector3 GetKEAngles();
-    void     SetKECenter(double x_c, double y_c, double z_c);
-    void     SetKECenter(TVector3 cen);
-    void     SetKEAngles(double x_d, double y_d, double z_d);
-    void     SetKEAngles(TVector3 ang);
-
-    // Alading
-    TVector3 GetALCenter();
-    TVector3 GetALAngles();
-    void     SetALCenter(double x_c, double y_c, double z_c);
-    void     SetALCenter(TVector3 cen);
-    void     SetALAngles(double x_d, double y_d, double z_d);
-    void     SetALAngles(TVector3 ang);
-
-    // Music
-    TVector3 GetMUCenter();
-    TVector3 GetMUAngles();
-    void     SetMUCenter(double x_c, double y_c, double z_c);
-    void     SetMUCenter(TVector3 cen);
-    void     SetMUAngles(double x_d, double y_d, double z_d);
-    void     SetMUAngles(TVector3 ang);
+    // tof Wall
+    TVector3 GetTWCenter();
+    TVector3 GetTWAngles();
+    void     SetTWCenter(double x_c, double y_c, double z_c);
+    void     SetTWCenter(TVector3 cen);
+    void     SetTWAngles(double x_d, double y_d, double z_d);
+    void     SetTWAngles(TVector3 ang);
 
     // tof Wall
-    TVector3 GetTWRCenter();
-    TVector3 GetTWRAngles();
-    void     SetTWRCenter(double x_c, double y_c, double z_c);
-    void     SetTWRCenter(TVector3 cen);
-    void     SetTWRAngles(double x_d, double y_d, double z_d);
-    void     SetTWRAngles(TVector3 ang);
+    TVector3 GetITCenter();
+    TVector3 GetITAngles();
+    void     SetITCenter(double x_c, double y_c, double z_c);
+    void     SetITCenter(TVector3 cen);
+    void     SetITAngles(double x_d, double y_d, double z_d);
+    void     SetITAngles(TVector3 ang);
 
-    TVector3 GetTWFCenter();
-    TVector3 GetTWFAngles();
-    void     SetTWFCenter(double x_c, double y_c, double z_c);
-    void     SetTWFCenter(TVector3 cen);
-    void     SetTWFAngles(double x_d, double y_d, double z_d);
-    void     SetTWFAngles(TVector3 ang);
+    // tof Wall
+    TVector3 GetCACenter();
+    TVector3 GetCAAngles();
+    void     SetCACenter(double x_c, double y_c, double z_c);
+    void     SetCACenter(TVector3 cen);
+    void     SetCAAngles(double x_d, double y_d, double z_d);
+    void     SetCAAngles(TVector3 ang);
 
     // Veto
     TVector3 GetVECenter();
@@ -182,11 +170,10 @@ class TAGgeoTrafo : public TAGaction {
     TVector3 m_SC_center, m_SC_angles;
     TVector3 m_BM_center, m_BM_angles;
     TVector3 m_VT_center, m_VT_angles;
-    TVector3 m_KE_center, m_KE_angles;
-    TVector3 m_AL_center, m_AL_angles;
-    TVector3 m_MU_center, m_MU_angles;
-    TVector3 m_TWR_center, m_TWR_angles;
-    TVector3 m_TWF_center, m_TWF_angles;
+    TVector3 m_DC_center, m_DC_angles;
+    TVector3 m_TW_center, m_TW_angles;
+    TVector3 m_IT_center, m_IT_angles;
+    TVector3 m_CA_center, m_CA_angles;
     TVector3 m_VE_center, m_VE_angles;
    
   private:
