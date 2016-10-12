@@ -29,10 +29,15 @@ TAGntuMCeveHit::TAGntuMCeveHit()
   bar = -1000;
   dead = -1000;
   type = -1000;
+  time = -1000;
+  tof = -1000;
+  trlen = -1000;
   inpos.SetXYZ(-100.,-100.,-100);
   fipos.SetXYZ(-100.,-100.,-100);
   ip.SetXYZ(0.,0.,0);
-  mothp.SetXYZ(0.,0.,0);
+  fp.SetXYZ(0.,0.,0);
+  mothip.SetXYZ(0.,0.,0);
+  mothfp.SetXYZ(0.,0.,0);
 }
 
 //------------------------------------------+-----------------------------------
@@ -41,18 +46,25 @@ TAGntuMCeveHit::TAGntuMCeveHit()
 // VM 17/11/13 added info for pile-up
 TAGntuMCeveHit::TAGntuMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type, 
 			       Int_t i_reg, Int_t i_bar, Int_t i_dead,
-			       Double_t i_mass, TVector3 i_ipos, 
-			       TVector3 i_fpos, TVector3 i_imom, 
-			       Int_t i_mid, TVector3 i_mothmom,
-			       Int_t i_pileup)
-  : id(i_id), chg(i_chg), type(i_type), reg(i_reg), bar(i_bar),dead(i_dead),
-    mass(i_mass), mothid(i_mid), pileup(i_pileup)
+			       Double_t i_mass,  Int_t i_moth, 
+			       Double_t i_time,
+			       Double_t i_tof, Double_t i_trlen,
+			       TVector3 ipos, TVector3 fpos, 
+			       TVector3 ip,TVector3 fp,
+			       Int_t i_mid, TVector3 i_mothip,
+			       TVector3 i_mothfp,Int_t i_pileup);
+
+: id(i_id), chg(i_chg), type(i_type), reg(i_reg), bar(i_bar),dead(i_dead),
+    mass(i_mass), mothid(i_moth), time(i_time), tof(i_tof), trlen(i_trlen),
+    pileup(i_pileup)
 {
 
   inpos.SetXYZ(i_ipos.X(),i_ipos.Y(),i_ipos.Z());
   fipos.SetXYZ(i_fpos.X(),i_fpos.Y(),i_fpos.Z());
   ip.SetXYZ(i_imom.X(),i_imom.Y(),i_imom.Z());
-  mothp.SetXYZ(i_mothmom.X(),i_mothmom.Y(),i_mothmom.Z());
+  fp.SetXYZ(i_fmom.X(),i_fmom.Y(),i_fmom.Z());
+  motihp.SetXYZ(i_mothmom.X(),i_mothmom.Y(),i_mothmom.Z());
+  motihp.SetXYZ(i_mothmom.X(),i_mothmom.Y(),i_mothmom.Z());
 }
 
 //------------------------------------------+-----------------------------------
@@ -77,9 +89,34 @@ TVector3 TAGntuMCeveHit::InitP()
   return ip;
 }
 
-TVector3 TAGntuMCeveHit::MotherP()
+TVector3 TAGntuMCeveHit::FinalP()
 {
-  return mothp;
+  return fp;
+}
+
+TVector3 TAGntuMCeveHit::MotherInitP()
+{
+  return motihp;
+}
+
+TVector3 TAGntuMCeveHit::MotherFinalP()
+{
+  return mothfp;
+}
+
+Double_t  TAGntuMCeveHit::Time()
+{
+  return time;
+}
+
+Double_t  TAGntuMCeveHit::Tof()
+{
+  return tof;
+}
+
+Double_t  TAGntuMCeveHit::Trlen()
+{
+  return trlen;
 }
 
 Double_t  TAGntuMCeveHit::Mass()
@@ -146,7 +183,7 @@ void TAGntuMCeveHit::SetInitP(TVector3 mom)
   ip = mom;
   return;
 }
-
+//perchè sono uguali set initp e setmotherp?
 void TAGntuMCeveHit::SetMotherP(TVector3 mom)
 {
   mothp = mom;
