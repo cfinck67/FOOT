@@ -25,13 +25,13 @@ Evento::Evento()
   eve.ncross  = 0;
 
   for(int kk=0;kk<MAXNUMP;kk++){
-    eve.trid[kk]   = 0;
+    eve.trpaid[kk]   = 0;
     eve.trgen[kk]   = 0;
     eve.trcha[kk]   = -100;
     eve.trreg[kk] = 0;
     eve.trbar[kk]    = 0;
     eve.trdead[kk]  = 0;
-    eve.trpaid[kk]    = -100;
+    eve.trfid[kk]    = -100;
     eve.trix[kk]    = 0.;
     eve.triy[kk]    = 0.;
     eve.triz[kk]    = 0.;
@@ -208,13 +208,13 @@ Int_t Evento::Clean(){
   //  cout <<" Entro in clean"<<endl;
 
   for(int kk=0;kk<eve.trn;kk++){
-    eve.trid[kk]   = 0;
+    eve.trpaid[kk]   = 0;
     eve.trgen[kk]   = 0;
     eve.trcha[kk]   = -100;
     eve.trreg[kk] = 0;
     eve.trbar[kk]    = 0;
     eve.trdead[kk]  = 0;
-    eve.trpaid[kk]    = -100;
+    eve.trfid[kk]    = -100;
     eve.trix[kk]    = 0.;
     eve.triy[kk]    = 0.;
     eve.triz[kk]    = 0.;
@@ -403,13 +403,13 @@ Int_t Evento::AddPart(Int_t fidpa, Int_t figen,
   if(eve.trn<MAXNUMP)
     {
       eve.trn ++;
-      eve.trid[eve.trn-1] = fidpa;
+      eve.trpaid[eve.trn-1] = fidpa;
       eve.trgen[eve.trn-1] = figen;
       eve.trcha[eve.trn-1] = ficha;
       eve.trreg[eve.trn-1] = fnumreg;
       eve.trbar[eve.trn-1] = fiba;
       eve.trdead[eve.trn-1] = fidead;
-      eve.trpaid[eve.trn-1] = fjpa;
+      eve.trfid[eve.trn-1] = fjpa;
       eve.trix[eve.trn-1] = fvxi;
       eve.triy[eve.trn-1] = fvyi;
       eve.triz[eve.trn-1] = fvzi;
@@ -698,20 +698,20 @@ int Evento::FindBranches(TTree *RootTree, EVENT_STRUCT *eve){
 
   RootTree->SetBranchAddress("EventNumber",&(eve->EventNumber));
   RootTree->SetBranchAddress("trn",&(eve->trn));
-  RootTree->SetBranchAddress("trid",&(eve->trid));
+  RootTree->SetBranchAddress("trpaid",&(eve->trpaid));
   RootTree->SetBranchAddress("trgen",&(eve->trgen));
   RootTree->SetBranchAddress("trcha",&(eve->trcha));
   RootTree->SetBranchAddress("trreg",&(eve->trreg));
   RootTree->SetBranchAddress("trbar",&(eve->trbar));
   RootTree->SetBranchAddress("trdead",&(eve->trdead));
-  RootTree->SetBranchAddress("trpaid",&(eve->trpaid));
+  RootTree->SetBranchAddress("trfid",&(eve->trfid));
   RootTree->SetBranchAddress("trix",&(eve->trix));
   RootTree->SetBranchAddress("triy",&(eve->triy));
   RootTree->SetBranchAddress("triz",&(eve->triz));
   RootTree->SetBranchAddress("trfx",&(eve->trfx));
   RootTree->SetBranchAddress("trfy",&(eve->trfy));
   RootTree->SetBranchAddress("trfz",&(eve->trfz));
-  RootTree->SetBranchAddress("tripx",&(eve->tripx));
+  RootTree->SetBranchAddress("trip",&(eve->tripx));
   RootTree->SetBranchAddress("tripy",&(eve->tripy));
   RootTree->SetBranchAddress("tripz",&(eve->tripz));
   RootTree->SetBranchAddress("trfpx",&(eve->trfpx));
