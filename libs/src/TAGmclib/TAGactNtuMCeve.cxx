@@ -56,18 +56,17 @@ Bool_t TAGactNtuMCeve::Action() {
 
   for (Int_t i = 0; i < fpEvtStr->trn; i++) {
     Double_t i_mass = fpEvtStr->trmass[i];
-    Int_t i_id = fpEvtStr->trid[i];//idpa
-    //    Int_t i_type = fpEvtStr->trtype[i];
-    Int_t i_type = -999;//what is it?jpa?
-    Int_t i_mid = fpEvtStr->trpaid[i];//jpa
+    Int_t i_id = fpEvtStr->trfid[i];
+    Int_t i_mid = fpEvtStr->trpaid[i];  //mother id
     Int_t i_chg = fpEvtStr->trcha[i];
     Int_t i_reg = fpEvtStr->trreg[i];
     Int_t i_bar = fpEvtStr->trbar[i];
     Int_t i_dead = fpEvtStr->trdead[i];
     Int_t i_moth = i_mid-1;
+    Int_t i_type = -999;//useless for now
     Double_t i_time = fpEvtStr->trtime[i];
-    Double_t i_tof = fpEvtStr->trtof[i];
-    Double_t i_trlen = fpEvtStr->trtrlen[i];
+    Double_t i_tof = fpEvtStr->tof[i];
+    Double_t i_trlen = fpEvtStr->trlen[i];
 
     TVector3 ipos = TVector3(fpEvtStr->trix[i],fpEvtStr->triy[i],fpEvtStr->triz[i]);
     TVector3 fpos = TVector3(fpEvtStr->trfx[i],fpEvtStr->trfy[i],fpEvtStr->trfz[i]);

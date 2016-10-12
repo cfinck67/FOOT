@@ -711,7 +711,7 @@ int Evento::FindBranches(TTree *RootTree, EVENT_STRUCT *eve){
   RootTree->SetBranchAddress("trfx",&(eve->trfx));
   RootTree->SetBranchAddress("trfy",&(eve->trfy));
   RootTree->SetBranchAddress("trfz",&(eve->trfz));
-  RootTree->SetBranchAddress("trip",&(eve->tripx));
+  RootTree->SetBranchAddress("tripx",&(eve->tripx));
   RootTree->SetBranchAddress("tripy",&(eve->tripy));
   RootTree->SetBranchAddress("tripz",&(eve->tripz));
   RootTree->SetBranchAddress("trfpx",&(eve->trfpx));

@@ -19,23 +19,15 @@ class TAGntuMCeveHit : public TObject {
                     TAGntuMCeveHit();
 
   // VM changed 17/11/13 to add information for simulate pile-up events
-  /*
-                    TAGntuMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type, 
-                                   Int_t i_reg, Int_t i_bar, Int_t i_dead,
-				   Double_t i_mass, TVector3 i_ipos, 
-				   TVector3 i_fpos, TVector3 i_imom,
-				   Int_t i_mid, TVector3 i_mothmom,
-				   Int_t i_pileup);
-  */
-                   TAGntuMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type, 
-                                   Int_t i_reg, Int_t i_bar, Int_t i_dead,
-				   Double_t i_mass, Int_t i_moth, 
-				   Double_t i_time,
-				   Double_t i_tof, Double_t i_trlen,
-				   TVector3 ipos, TVector3 fpos, 
-				   TVector3 ip,TVector3 fp,
-				   Int_t i_mid, TVector3 i_mothip,
-				   TVector3 i_mothfp,Int_t i_pileup);
+  TAGntuMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type, 
+		 Int_t i_reg, Int_t i_bar, Int_t i_dead,
+		 Double_t i_mass, Int_t i_moth, 
+		 Double_t i_time,
+		 Double_t i_tof, Double_t i_trlen,
+		 TVector3 i_ipos, TVector3 i_fpos, 
+		 TVector3 i_ip,TVector3 i_fp,
+		 TVector3 i_mothip,
+		 TVector3 i_mothfp,Int_t i_pileup);
 
     virtual         ~TAGntuMCeveHit();
 
@@ -47,7 +39,7 @@ class TAGntuMCeveHit : public TObject {
     Int_t            Type();
     Int_t            Reg();
     Int_t            Bar();
-    Int_t            ID();
+    Int_t            FlukaID();
     Int_t            MotherID();
     Int_t            Chg();
     Int_t            Dead();
@@ -56,7 +48,6 @@ class TAGntuMCeveHit : public TObject {
     Double_t         Tof();
     TVector3         MotherInitP();
     TVector3         MotherFinalP();
-    Int_t            MotherID();
     Int_t            PileUp();    // VM 17/11/13
 
     void  SetInitPos(TVector3 pos);
@@ -66,7 +57,7 @@ class TAGntuMCeveHit : public TObject {
     void  SetFinalP(TVector3 mom);
     void  SetMotherFinalP(TVector3 mom);
     void  SetMass(double amass);
-    void  SetID(int aid);
+    void  SetFlukaID(int aid);
     void  SetDead(int adead);
     void  SetReg(int areg);
     void  SetBar(int abar);
@@ -76,21 +67,26 @@ class TAGntuMCeveHit : public TObject {
     void  SetTime(int atime);
     void  SetTof(int atof);
     void  SetTrlen(int atrlen);
-  void  SetPileUp(int pup);   // VM 17/11/13
+    void  SetPileUp(int pup);   // VM 17/11/13
 
 
-    Int_t         id;                      // identity
+    Int_t         id;                      // fluka identity
     Int_t         chg;                     // charge
     Int_t         type;                    // Type
     Int_t         reg;                     // region
     Int_t         bar;                     // barionic number
     Int_t         dead;                    // region in whic die
     Double_t      mass;                    // mass
+    Int_t         mothid;                  // mother identity
+    Double_t      time;                    // time of produ
+    Double_t      tof;                     // time of flight
+    Double_t      trlen;                   // track lenght
     TVector3      inpos;		   // initial position
     TVector3      fipos;		   // final position
     TVector3      ip;	          	   // initial momentum
-    Int_t         mothid;                  // mother identity
-    TVector3      mothp;		   // mother momentum
+    TVector3      fp;	          	   // final momentum
+    TVector3      mothip;		   // mother init momentum
+    TVector3      mothfp;		   // mother final momentum
     Int_t         pileup;                  // pile-up index =0 current event
                                          // >0 index of overlapped event
                                          // VM added 17/11/13

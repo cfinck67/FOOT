@@ -49,22 +49,22 @@ TAGntuMCeveHit::TAGntuMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type,
 			       Double_t i_mass,  Int_t i_moth, 
 			       Double_t i_time,
 			       Double_t i_tof, Double_t i_trlen,
-			       TVector3 ipos, TVector3 fpos, 
-			       TVector3 ip,TVector3 fp,
-			       Int_t i_mid, TVector3 i_mothip,
-			       TVector3 i_mothfp,Int_t i_pileup);
-
+			       TVector3 i_ipos, TVector3 i_fpos, 
+			       TVector3 i_ip,TVector3 i_fp,
+			       TVector3 i_mothip,
+			       TVector3 i_mothfp,Int_t i_pileup)
 : id(i_id), chg(i_chg), type(i_type), reg(i_reg), bar(i_bar),dead(i_dead),
-    mass(i_mass), mothid(i_moth), time(i_time), tof(i_tof), trlen(i_trlen),
-    pileup(i_pileup)
+    mass(i_mass), mothid(i_moth), time(i_time), tof(i_tof), trlen(i_trlen)
 {
 
   inpos.SetXYZ(i_ipos.X(),i_ipos.Y(),i_ipos.Z());
   fipos.SetXYZ(i_fpos.X(),i_fpos.Y(),i_fpos.Z());
-  ip.SetXYZ(i_imom.X(),i_imom.Y(),i_imom.Z());
-  fp.SetXYZ(i_fmom.X(),i_fmom.Y(),i_fmom.Z());
-  motihp.SetXYZ(i_mothmom.X(),i_mothmom.Y(),i_mothmom.Z());
-  motihp.SetXYZ(i_mothmom.X(),i_mothmom.Y(),i_mothmom.Z());
+  ip.SetXYZ(i_ip.X(),i_ip.Y(),i_ip.Z());
+  fp.SetXYZ(i_fp.X(),i_fp.Y(),i_fp.Z());
+  mothip.SetXYZ(i_mothip.X(),i_mothip.Y(),i_mothip.Z());
+  mothfp.SetXYZ(i_mothfp.X(),i_mothfp.Y(),i_mothfp.Z());
+  pileup = i_pileup;
+
 }
 
 //------------------------------------------+-----------------------------------
@@ -96,7 +96,7 @@ TVector3 TAGntuMCeveHit::FinalP()
 
 TVector3 TAGntuMCeveHit::MotherInitP()
 {
-  return motihp;
+  return mothip;
 }
 
 TVector3 TAGntuMCeveHit::MotherFinalP()
@@ -124,7 +124,7 @@ Double_t  TAGntuMCeveHit::Mass()
   return mass;
 }
 
-Int_t  TAGntuMCeveHit::ID()
+Int_t  TAGntuMCeveHit::FlukaID()
 {
   return id;
 }
@@ -183,10 +183,17 @@ void TAGntuMCeveHit::SetInitP(TVector3 mom)
   ip = mom;
   return;
 }
-//perchè sono uguali set initp e setmotherp?
-void TAGntuMCeveHit::SetMotherP(TVector3 mom)
+
+void TAGntuMCeveHit::SetMotherInitP(TVector3 mom)
 {
-  mothp = mom;
+  mothip = mom;
+  return;
+}
+
+
+void TAGntuMCeveHit::SetMotherFinalP(TVector3 mom)
+{
+  mothfp = mom;
   return;
 }
 
@@ -197,7 +204,7 @@ void TAGntuMCeveHit::SetMass(double amass)
   return;
 }
 
-void TAGntuMCeveHit::SetID(int aid)
+void TAGntuMCeveHit::SetFlukaID(int aid)
 {
   id =aid;
   return;
