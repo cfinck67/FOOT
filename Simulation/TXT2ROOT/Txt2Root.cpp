@@ -313,9 +313,9 @@ int main(int argc, char *argv[])
 	for(int jj =0;jj<eve.trn;jj++){
 	  nread = fscanf(pfile,
 			 "%d %d %d %d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-			 &eve.trid[jj],&eve.trgen[jj],&eve.trcha[jj],
+			 &eve.trid[jj],&eve.trgen[jj],&eve.trcha[jj],//trid->idpa
 			 &eve.trreg[jj],&eve.trbar[jj],&eve.trdead[jj],
-			 &eve.trpaid[jj],&eve.trix[jj],
+			 &eve.trpaid[jj],&eve.trix[jj],//trpaid->jpa
 			 &eve.triy[jj],&eve.triz[jj],&eve.trfx[jj],&eve.trfy[jj],
 			 &eve.trfz[jj],&eve.tripx[jj],&eve.tripy[jj],&eve.tripz[jj],
 			 &eve.trfpx[jj],&eve.trfpy[jj],&eve.trfpz[jj],&eve.trmass[jj],
@@ -486,8 +486,8 @@ int main(int argc, char *argv[])
       }
       else{
 	if((eve.trn<=MAXNUMP)&&(eve.stn<=MAXSC)&&(eve.nvtx<=MAXVTX)
-	   &&(eve.nmon<=MAX1DC)&&(eve.nscint<=MAXSCINT)&&(eve.ncry<=MAXCRY)
-	   &&(eve.ncross<=MAXCROSS)){
+	   &&(eve.nmon<=MAX1DC)&&(eve.n2dc<=MAX2DC)&&(eve.nscint<=MAXSCINT)
+	   &&(eve.ncry<=MAXCRY)&&(eve.ncross<=MAXCROSS)){
 	  RootTree->Fill() ;
 	}
 	else{
