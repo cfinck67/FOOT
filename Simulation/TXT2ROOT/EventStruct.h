@@ -14,13 +14,13 @@ const int MAXCRY = 2000;
 typedef struct {
   Int_t EventNumber;
   Int_t trn;
-  Int_t trid[MAXNUMP];
+  Int_t trpaid[MAXNUMP];
   Int_t trgen[MAXNUMP];
   Int_t trcha[MAXNUMP];
   Int_t trreg[MAXNUMP];
   Int_t trbar[MAXNUMP];
   Int_t trdead[MAXNUMP];
-  Int_t trpaid[MAXNUMP];
+  Int_t trfid[MAXNUMP];
   Double_t trix[MAXNUMP];
   Double_t triy[MAXNUMP];
   Double_t triz[MAXNUMP];
