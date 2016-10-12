@@ -19,33 +19,52 @@ class TAGntuMCeveHit : public TObject {
                     TAGntuMCeveHit();
 
   // VM changed 17/11/13 to add information for simulate pile-up events
+  /*
                     TAGntuMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type, 
                                    Int_t i_reg, Int_t i_bar, Int_t i_dead,
 				   Double_t i_mass, TVector3 i_ipos, 
 				   TVector3 i_fpos, TVector3 i_imom,
 				   Int_t i_mid, TVector3 i_mothmom,
 				   Int_t i_pileup);
+  */
+                   TAGntuMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type, 
+                                   Int_t i_reg, Int_t i_bar, Int_t i_dead,
+				   Double_t i_mass, Int_t i_moth, 
+				   Double_t i_time,
+				   Double_t i_tof, Double_t i_trlen,
+				   TVector3 ipos, TVector3 fpos, 
+				   TVector3 ip,TVector3 fp,
+				   Int_t i_mid, TVector3 i_mothip,
+				   TVector3 i_mothfp,Int_t i_pileup);
 
     virtual         ~TAGntuMCeveHit();
 
     TVector3         InitPos();
     TVector3         InitP();
     TVector3         FinalPos();
+    TVector3         FinalP();
     Double_t         Mass();
     Int_t            Type();
     Int_t            Reg();
     Int_t            Bar();
     Int_t            ID();
+    Int_t            MotherID();
     Int_t            Chg();
     Int_t            Dead();
-    TVector3         MotherP();
+    Double_t         Time();
+    Double_t         Trlen();
+    Double_t         Tof();
+    TVector3         MotherInitP();
+    TVector3         MotherFinalP();
     Int_t            MotherID();
     Int_t            PileUp();    // VM 17/11/13
 
     void  SetInitPos(TVector3 pos);
     void  SetInitP(TVector3 mom);
-    void  SetMotherP(TVector3 mom);
+    void  SetMotherInitP(TVector3 mom);
     void  SetFinalPos(TVector3 pos);
+    void  SetFinalP(TVector3 mom);
+    void  SetMotherFinalP(TVector3 mom);
     void  SetMass(double amass);
     void  SetID(int aid);
     void  SetDead(int adead);
@@ -54,6 +73,9 @@ class TAGntuMCeveHit : public TObject {
     void  SetType(int atyp);
     void  SetChg(int achg);
     void  SetMotherID(int aid);
+    void  SetTime(int atime);
+    void  SetTof(int atof);
+    void  SetTrlen(int atrlen);
   void  SetPileUp(int pup);   // VM 17/11/13
 
 
