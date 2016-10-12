@@ -40,6 +40,7 @@ class RecoTools {
   void FillMCEvent(EVENT_STRUCT *myStr);
   void FillMCBeamMonitor(EVENT_STRUCT *myStr);
   void FillMCVertex(EVENT_STRUCT *myStr);
+  void FillMCInteractionRegion(EVENT_STRUCT *myStr);
 
   //Monitors/Displays
   void DisplayIRMonitor(TAGpadGroup* pg, EVENT_STRUCT *myStr);
@@ -80,6 +81,8 @@ class RecoTools {
 
   //Data descriptions
  
+  TAGdataDsc* myn_irraw;
+
   TAGparaDsc* myp_bmcon;
   TAGdataDsc* myn_bmraw;
   TAGdataDsc* myn_vtraw;

@@ -23,6 +23,10 @@
 #include "TAGactNtuMCmimo.hxx"
 
 
+//Interaction region
+#include "TAIRdatRaw.hxx"
+#include "TAIRactNtuMC.hxx"
+
 //Beam Monitor
 #include "TABMparGeo.hxx"
 #include "TABMparCon.hxx"
@@ -142,6 +146,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   */
   bool m_doEvent = kTRUE;
   bool m_doBM = kTRUE;
+  bool m_doIR = kTRUE;
   bool m_doVertex = kFALSE;
 
   if(m_doEvent) 
@@ -149,6 +154,9 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
   if(m_doBM)
     FillMCBeamMonitor(&evStr);
+
+  if(m_doIR)
+    FillMCInteractionRegion(&evStr);
 
   if(m_doVertex)
     FillMCVertex(&evStr);
@@ -433,6 +441,19 @@ void RecoTools::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
   new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
 
   my_out->SetupElementBranch(myn_bmtrk,     "bmtrk.");
+
+  return;
+}
+
+void RecoTools::FillMCInteractionRegion(EVENT_STRUCT *myStr) {
+  
+  /*Ntupling the MC Beam Monitor information*/
+  myn_irraw    = new TAGdataDsc("myn_irraw", new TAIRdatRaw());
+
+  new TAIRactNtuMC("an_irraw", myn_irraw, myStr);
+
+  my_out->SetupElementBranch(myn_irraw,     "irrh.");
+
 
   return;
 }

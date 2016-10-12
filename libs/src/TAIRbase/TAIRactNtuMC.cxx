@@ -47,10 +47,8 @@ Bool_t TAIRactNtuMC::Action()
   //The number of hits inside the Start Counter is stn
   Info("Action()","Processing n SC :: %2d hits \n",fpEvtStr->stn);
   for (Int_t i = 0; i < fpEvtStr->stn; i++) {
-    //TAIRrawHit *mytmp =
-
-    //AS: to be re-checked!!
-	new((*(p_nturaw->hir))[i]) TAIRrawHit(0,0,fpEvtStr->stal[0],fpEvtStr->sttim[0]);
+    //First two numbers make sense only for data (typ, channel)
+    new((*(p_nturaw->hir))[i]) TAIRrawHit(0,0,fpEvtStr->stde[i],fpEvtStr->sttim[i]);
     nhits++;
   }
   

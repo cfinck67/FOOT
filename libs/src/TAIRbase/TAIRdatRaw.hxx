@@ -18,7 +18,7 @@ using namespace std;
 class TAIRrawHit : public TObject {
   public:
     TAIRrawHit();
-    TAIRrawHit(int det, int cha, double charge, double time);
+    TAIRrawHit(int typ, int cha, double charge, double time);
     virtual         ~TAIRrawHit();
 
     void            SetData(Int_t type, Int_t id, Double_t time, Double_t charge);
@@ -29,8 +29,8 @@ class TAIRrawHit : public TObject {
 
     void            SetTime(double time);
     void            SetCharge(double charge);
-    void            SetChID(int id);
-    void            SetType(int typ);
+    void            SetChID(int id);  //SC channel ID
+    void            SetType(int typ); //meaningless for now.
 
     ClassDef(TAIRrawHit,1)
 

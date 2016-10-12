@@ -36,11 +36,11 @@ TAIRrawHit::TAIRrawHit()
 {
 }
 
-TAIRrawHit::TAIRrawHit(int det, int cha, double charge, double time) {
+TAIRrawHit::TAIRrawHit(int typ, int cha, double charge, double time) {
 
   ir_time = time;
   ir_chg  = charge;
-  ir_typ  = det;
+  ir_typ  = typ;
   ir_chid   = cha;
 
 }
