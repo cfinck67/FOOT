@@ -1,0 +1,73 @@
+/*!
+  \file
+  \version $Id: adapted from TABMdatRaw.icc,v 1.0 2011/04/01 18:47:40 sarti Exp $
+  \brief Implementation (inline) of TADCdatRaw
+*/
+
+
+//------------------------------------------+-----------------------------------
+//! Returns cell number.
+
+inline Int_t TADCrawHit::Cell() const
+{
+  return icell;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns plane number.
+
+inline Int_t TADCrawHit::Plane() const
+{
+  return ilayer;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns plane number.
+
+inline Double_t TADCrawHit::Time() const
+{
+  return tdctime;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns plane number.
+
+inline Int_t TADCrawHit::View() const
+{
+  return iview;
+}
+
+//##############################################################################
+
+//------------------------------------------+-----------------------------------
+//! Returns number of hits.
+
+inline Int_t TADCdatRaw::NHit() const
+{
+  return (Int_t) fHitList.size();
+}
+
+//------------------------------------------+-----------------------------------
+//! Access \a i_ind 'th hit.
+
+inline const TADCrawHit& TADCdatRaw::Hit(Int_t i_ind) const
+{
+  return fHitList[i_ind];
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns number of accepted TDC values.
+
+inline Int_t TADCdatRaw::NTdc() const
+{
+  return fiNTdc;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns number of discarded FastBus values.
+
+inline Int_t TADCdatRaw::NDrop() const
+{
+  return fiNDrop;
+}
+
