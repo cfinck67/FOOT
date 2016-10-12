@@ -260,6 +260,45 @@ inline void TAGgeoTrafo::SetVEAngles(double x_d, double y_d, double z_d)
   return;
 }
 
+
+
+
+inline TVector3 TAGgeoTrafo::GetDCCenter()
+{
+  return m_DC_center;
+}
+
+inline void TAGgeoTrafo::SetDCCenter(TVector3 cen)
+{
+  m_DC_center = cen;
+  return;
+}
+
+inline void TAGgeoTrafo::SetDCCenter(double x_c, double y_c, double z_c)
+{
+  TVector3 cen(x_c,y_c,z_c);
+  m_DC_center = cen;
+  return;
+}
+
+inline TVector3 TAGgeoTrafo::GetDCAngles()
+{
+  return m_DC_angles;
+}
+
+inline void TAGgeoTrafo::SetDCAngles(TVector3 ang)
+{
+  m_DC_angles = ang;
+  return;
+}
+
+inline void TAGgeoTrafo::SetDCAngles(double x_d, double y_d, double z_d)
+{
+  TVector3 ang(x_d,y_d,z_d);
+  m_DC_angles = ang;
+  return;
+}
+
 inline TVector3 TAGgeoTrafo::GetIP()
 {
   return m_ip;

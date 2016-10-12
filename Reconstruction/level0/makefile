@@ -20,6 +20,7 @@ NGLIBB        += $(PWD)/libTrigger.so
 NGLIBB        += $(PWD)/../../libs/lib/libTAGfoot.so $(PWD)/../../libs/lib/libTAVTbase.so 
 NGLIBB        += $(PWD)/../../libs/lib/libTAGbase.so 
 NGLIBB        += $(PWD)/../../libs/lib/libTAGmclib.so
+NGLIBB        += $(PWD)/../../libs/lib/libTADCbase.so 
 NGLIBB        += $(PWD)/../../libs/lib/libTABMbase.so
 NGLIBB        += $(PWD)/../../libs/lib/libTAIRbase.so 
 
@@ -30,10 +31,11 @@ ELIB        += ./libSegnale.so
 ELIB        += ./libGeometry.so 
 ELIB        += ./libTrigger.so
 
-TAINCL	       = -I$(PWD)/../ -I$(PWD)/../../libs/src/TAGbase/  -I$(PWD)/../../libs/src/TAGmclib/ -I$(PWD)/../../libs/src/TAVTbase -I$(PWD)/../../libs/src/TAGfoot -I$(PWD)/../../libs/src/TABMbase -I$(PWD)/../../libs/src/TAIRbase  -I$(PWD)/../../Simulation/TXT2ROOT
+TAINCL	       = -I$(PWD)/../ -I$(PWD)/../../libs/src/TAGbase/  -I$(PWD)/../../libs/src/TAGmclib/ -I$(PWD)/../../libs/src/TAVTbase -I$(PWD)/../../libs/src/TAGfoot -I$(PWD)/../../libs/src/TABMbase -I$(PWD)/../../libs/src/TADCbase -I$(PWD)/../../libs/src/TAIRbase  -I$(PWD)/../../Simulation/TXT2ROOT
 
 TALIB        += ../../libs/lib/libTAGfoot.so ../../libs/lib/libTAGmclib.so 
 TALIB        += ../../libs/lib/libTAGbase.so 
+TALIB        += ../../libs/lib/libTADCbase.so 
 TALIB        += ../../libs/lib/libTABMbase.so 
 TALIB        += ../../libs/lib/libTAIRbase.so ../../libs/lib/libTAVTbase.so 
 
@@ -50,7 +52,7 @@ SOFLAGSV       = -shared $(ROOTGLIBS) ./libSegnale.so ./libGeometry.so
 SOFLAGS  = -shared $(ROOTGLIBS) 
 endif
 
-TAINCL	       = -I../ -I../../libs/src/TAGbase/ -I../../libs/src/TAGmclib/ -I../../libs/src/TAGfoot -I../../libs/src/TABMbase -I../../libs/src/TAIRbase -I../../libs/src/TAVTbase -I../../Simulation/TXT2ROOT
+TAINCL	       = -I../ -I../../libs/src/TAGbase/ -I../../libs/src/TAGmclib/ -I../../libs/src/TAGfoot -I../../libs/src/TABMbase -I../../libs/src/TADCbase -I../../libs/src/TAIRbase -I../../libs/src/TAVTbase -I../../Simulation/TXT2ROOT
 
 CXXFLAGS      = -g -Wall -fPIC
 CXXFLAGS      += $(ROOTCFLAGS)

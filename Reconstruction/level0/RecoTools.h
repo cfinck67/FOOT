@@ -39,6 +39,7 @@ class RecoTools {
   //Actions for Tupling MC info for the various subdetectors
   void FillMCEvent(EVENT_STRUCT *myStr);
   void FillMCBeamMonitor(EVENT_STRUCT *myStr);
+  void FillMCDriftChamber(EVENT_STRUCT *myStr);
   void FillMCVertex(EVENT_STRUCT *myStr);
   void FillMCInteractionRegion(EVENT_STRUCT *myStr);
 
@@ -48,6 +49,9 @@ class RecoTools {
 
   void initBMGeo(TAGparaDsc* p_bmgeo); //Beam Monitor Geometry
   void initBMCon(TAGparaDsc* beamcon);
+
+  void initDCGeo(TAGparaDsc* p_dcgeo); //Drift Chamber Geometry
+  void initDCCon(TAGparaDsc* driftcon);
 
   void bookHisto(TFile *f);
   void CalibBMVT();
@@ -73,6 +77,7 @@ class RecoTools {
 
   //Parameters
   TAGparaDsc* myp_bmgeo;
+  TAGparaDsc* myp_dcgeo;
 
   TAGparaDsc* myp_vtmap;
   TAGparaDsc* myp_vtcal;
@@ -85,11 +90,14 @@ class RecoTools {
 
   TAGparaDsc* myp_bmcon;
   TAGdataDsc* myn_bmraw;
+  TAGparaDsc* myp_dccon;
+  TAGdataDsc* myn_dcraw;
   TAGdataDsc* myn_vtraw;
   TAGdataDsc* myn_vtclus;
   TAGdataDsc* myn_vtrk;
   TAGdataDsc* myn_vtvtx;
   TAGdataDsc* myn_bmtrk;
+  TAGdataDsc* myn_dctrk;
 
   TAGdataDsc* myn_trtrk;
   TAGdataDsc* myn_trtin;
