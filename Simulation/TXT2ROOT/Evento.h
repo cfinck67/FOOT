@@ -41,14 +41,14 @@ class Evento : public TObject {
 	      Double_t fpxoutsc, Double_t fpyoutsc, Double_t fpzoutsc,
 	      Double_t fdesc, Double_t falsc, Double_t ftimsc);
 
-  Int_t Add1DC(Int_t fid1dc, Int_t fipla1dc, Int_t fiview1dc,
-                 Int_t ficell1dc,
-		 Double_t fxin1dc, Double_t fyin1dc, Double_t fzin1dc,
-		 Double_t fxout1dc, Double_t fyout1dc, Double_t fzout1dc,
-		 Double_t fpxin1dc, Double_t fpyin1dc, Double_t fpzin1dc,
-		 Double_t fpxout1dc, Double_t fpyout1dc,
-		 Double_t fpzout1dc,
-		 Double_t fde1dc, Double_t fal1dc, Double_t ftim1dc);
+  Int_t AddBM(Int_t fidbm, Int_t fiplabm, Int_t fiviewbm,
+                 Int_t ficellbm,
+		 Double_t fxinbm, Double_t fyinbm, Double_t fzinbm,
+		 Double_t fxoutbm, Double_t fyoutbm, Double_t fzoutbm,
+		 Double_t fpxinbm, Double_t fpyinbm, Double_t fpzinbm,
+		 Double_t fpxoutbm, Double_t fpyoutbm,
+		 Double_t fpzoutbm,
+		 Double_t fdebm, Double_t falbm, Double_t ftimbm);
 
   Int_t AddVtx(Int_t fidvtx, Int_t fiplavtx, Int_t firowvtx, Int_t ficolvtx,
 	       Double_t fxinvtx, Double_t fyinvtx, Double_t fzinvtx,
@@ -56,6 +56,13 @@ class Evento : public TObject {
 	       Double_t fpxinvtx, Double_t fpyinvtx, Double_t fpzinvtx,
 	       Double_t fpxoutvtx, Double_t fpyoutvtx, Double_t fpzoutvtx,
 	       Double_t fdevtx, Double_t falvtx, Double_t ftimvtx);
+  
+  Int_t AddIT(Int_t fidIT, Int_t fiplaIT, Int_t firowIT, Int_t ficolIT,
+	       Double_t fxinIT, Double_t fyinIT, Double_t fzinIT,
+	       Double_t fxoutIT, Double_t fyoutIT, Double_t fzoutIT,
+	       Double_t fpxinIT, Double_t fpyinIT, Double_t fpzinIT,
+	       Double_t fpxoutIT, Double_t fpyoutIT, Double_t fpzoutIT,
+	       Double_t fdeIT, Double_t falIT, Double_t ftimIT);
 
   Int_t Add2DC(Int_t fid2dc, Int_t fipla2dc, Int_t fiview2dc,
                  Int_t ficell2dc,

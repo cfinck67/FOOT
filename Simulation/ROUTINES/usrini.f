@@ -41,18 +41,20 @@ c
       integer nrowcry,ncolcry
       integer nrowscint,ncolscint
       integer nplavtx
-      integer n1DCpla, n1DCcell
-      integer n2DCpla, n2DCcell
+      integer nplaIT
+      integer nBMpla, nBMcell
+      integer nDCpla, nDCcell
 
       nrowcry = 11
       ncolcry = 11
       nrowscint = 11
-      ncolscint = 11
-      nplavtx = 5
-      n1DCpla = 6
-      n1DCcell = 3
-      n2DCpla = 6
-      n2DCcell = 6
+      ncolscint = 11 
+      nplavtx = 3
+      nplaIT = 2
+      nBMpla = 6
+      nBMcell = 3
+      nDCpla = 6
+      nDCcell = 6
 *
 *
 c      write(*,*)"sono in usrini"
@@ -84,6 +86,8 @@ c
       nregstartc = 0
       nregfirstvtx = 1000000
       nreglastvtx = 0
+      nregfirstIT = 1000000
+      nreglastIT = 0
       nregfirstscint = 1000000
       nreglastscint = 0
       nregfirstcry = 1000000 
@@ -107,15 +111,15 @@ c
       ik = 1
       il = 1
 
-      do nn = 1,MAX1DCREG
-         ireg2view1DC(nn) = -1
-         ireg2cell1DC(nn) = -1
-         ireg2pla1DC(nn) = -1
+      do nn = 1,MAXBMREG
+         ireg2viewBM(nn) = -1
+         ireg2cellBM(nn) = -1
+         ireg2plaBM(nn) = -1
       end do
-      do nn = 1,MAX2DCREG
-         ireg2view2DC(nn) = -1
-         ireg2cell2DC(nn) = -1
-         ireg2pla2DC(nn) = -1
+      do nn = 1,MAXDCREG
+         ireg2viewDC(nn) = -1
+         ireg2cellDC(nn) = -1
+         ireg2plaDC(nn) = -1
       end do
       do nn = 1,MAXSCINTREG
          ireg2rowscint(nn) = -1
@@ -134,13 +138,17 @@ c 3333    format(1x,A8)
          if(ierr.eq.0) then
             if(REGNAM(1:6).eq.'TARGET') nregtarg = ii
             if(REGNAM(1:3).eq.'VTX') then
-               read(REGNAM(4:4),*) plavtx
+               read(REGNAM(4:4),*) 
                if(ib.eq.1) then
                   nregfirstvtx=ii
                elseif(ib.eq.nplavtx) then
                   nreglastvtx=ii
+               elseif(ib.eq.(nplavtx+1)) then
+                  nregfirstIT=ii
+               elseif(ib.eq.(nplavtx+nplaIT)) then
+                  nreglastIT=ii
                endif
-               ib = ib + 1
+               ib = ib + 1               
             elseif(REGNAM(1:6).eq.'STARTC')then     
                nregstartc=ii
             elseif(REGNAM.eq.'AIR') then
@@ -171,24 +179,23 @@ c 3333    format(1x,A8)
                read(REGNAM(3:3),*) pladc
                read(REGNAM(5:5),*) celldc
                if (REGNAM(6:6).eq.'a')then
-c                  write(*,*)'cheppalleeeeeeeeeeeee'
-                  ireg2view1DC(ii) = 1
-c                  write(*,*)'ireg2view1DC  ',ireg2view1DC(ii)
-                  ireg2pla1DC(ii) = pladc
-                  ireg2cell1DC(ii) = celldc
+                  ireg2viewBM(ii) = 1
+c                  write(*,*)'ireg2viewBM  ',ireg2viewBM(ii)
+                  ireg2plaBM(ii) = pladc
+                  ireg2cellBM(ii) = celldc
                   if(ig.eq.1) then
                      nregFirstU1=ii
-                  elseif(ig.eq.(n1DCpla*n1DCcell)) then
+                  elseif(ig.eq.(nBMpla*nBMcell)) then
                      nregLastU1=ii
                   endif
                   ig = ig + 1
                elseif (REGNAM(6:6).eq.'b')then
-                  ireg2view2DC(ii) = 1
-                  ireg2pla2DC(ii) = pladc
-                  ireg2cell2DC(ii) = celldc
+                  ireg2viewDC(ii) = 1
+                  ireg2plaDC(ii) = pladc
+                  ireg2cellDC(ii) = celldc
                   if(ih.eq.1) then
                      nregFirstU2=ii
-                  elseif(ih.eq.(n2DCpla*n2DCcell)) then
+                  elseif(ih.eq.(nDCpla*nDCcell)) then
                      nregLastU2=ii
                   endif
                   ih = ih + 1
@@ -197,22 +204,22 @@ c                  write(*,*)'ireg2view1DC  ',ireg2view1DC(ii)
                read(REGNAM(3:3),*) pladc
                read(REGNAM(5:5),*) celldc
                if (REGNAM(6:6).eq.'a')then
-                  ireg2view1DC(ii) = 2
-                  ireg2pla1DC(ii) = pladc
-                  ireg2cell1DC(ii) = celldc
+                  ireg2viewBM(ii) = 2
+                  ireg2plaBM(ii) = pladc
+                  ireg2cellBM(ii) = celldc
                   if(ik.eq.1) then
                      nregFirstV1=ii
-                  elseif(ik.eq.(n1DCpla*n1DCcell)) then
+                  elseif(ik.eq.(nBMpla*nBMcell)) then
                      nregLastV1=ii
                   endif
                   ik = ik + 1
                elseif (REGNAM(6:6).eq.'b')then
-                  ireg2view2DC(ii) = 2
-                  ireg2pla2DC(ii) = pladc
-                  ireg2cell2DC(ii) = celldc
+                  ireg2viewDC(ii) = 2
+                  ireg2plaDC(ii) = pladc
+                  ireg2cellDC(ii) = celldc
                   if(il.eq.1) then
                      nregFirstV2=ii
-                  elseif(il.eq.(n2DCpla*n2DCcell)) then
+                  elseif(il.eq.(nDCpla*nDCcell)) then
                      nregLastV2=ii
                   endif
                   il = il + 1
@@ -226,9 +233,11 @@ c                  write(*,*)'ireg2view1DC  ',ireg2view1DC(ii)
       write(*,*)'======================================'
       write(*,*)'USRINI: idbflg =  ',idbflg
 c     
-      if(((nregtarg*nreglastvtx*nregaria*nreglastscint*nregstartc
+      if(((nregtarg*nreglastvtx*nreglastIT*nregaria*nreglastscint*
+     &     nregstartc
      &     *nreglastcry*nregLastU1*nregLastV1*nregLastU2*nregLastV2)
      &     .eq.0).or.(nregfirstvtx.eq.1000000).or.
+     &     (nregfirstIT.eq.1000000).or.
      &     (nregfirstcry.eq.1000000).or.(nregfirstscint.eq.1000000).or.
      &     (nregFirstU1.eq.1000000).or.(nregFirstV1.eq.1000000).or.
      &     (nregFirstU2.eq.1000000).or.(nregFirstV2.eq.1000000))then
@@ -240,6 +249,8 @@ c
          write(*,*)'        nregstartc         = ',nregstartc
          write(*,*)'        nregfirstvtx       = ',nregfirstvtx
          write(*,*)'        nreglastvtx        = ',nreglastvtx
+         write(*,*)'        nregfirstIT        = ',nregfirstIT
+         write(*,*)'        nreglastIT         = ',nreglastIT
          write(*,*)'        nregFirstV1        = ',nregFirstV1
          write(*,*)'        nregLastV1         = ',nregLastV1
          write(*,*)'        nregFirstU1        = ',nregFirstU1

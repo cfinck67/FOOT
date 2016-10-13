@@ -161,6 +161,27 @@ int main(int argc, char *argv[])
   RootTree->Branch("devtx",&eve.devtx,"devtx[nvtx]/D");
   RootTree->Branch("alvtx",&eve.alvtx,"alvtx[nvtx]/D");
   RootTree->Branch("timvtx",&eve.timvtx,"timvtx[nvtx]/D");
+  
+  RootTree->Branch("nIT",&eve.nIT,"nIT/I");
+  RootTree->Branch("idIT",&eve.idIT,"idIT[nIT]/I");
+  RootTree->Branch("iplaIT",&eve.iplaIT,"iplaIT[nIT]/I");
+  RootTree->Branch("irowIT",&eve.irowIT,"irowIT[nIT]/I");
+  RootTree->Branch("icolIT",&eve.icolIT,"icolIT[nIT]/I");
+  RootTree->Branch("xinIT",&eve.xinIT,"xinIT[nIT]/D");
+  RootTree->Branch("yinIT",&eve.yinIT,"yinIT[nIT]/D");
+  RootTree->Branch("zinIT",&eve.zinIT,"zinIT[nIT]/D");
+  RootTree->Branch("pxinIT",&eve.pxinIT,"pxinIT[nIT]/D");
+  RootTree->Branch("pyinIT",&eve.pyinIT,"pyinIT[nIT]/D");
+  RootTree->Branch("pzinIT",&eve.pzinIT,"pzinIT[nIT]/D");
+  RootTree->Branch("xoutIT",&eve.xoutIT,"xoutIT[nIT]/D");
+  RootTree->Branch("youtIT",&eve.youtIT,"youtIT[nIT]/D");
+  RootTree->Branch("zoutIT",&eve.zoutIT,"zoutIT[nIT]/D");
+  RootTree->Branch("pxoutIT",&eve.pxoutIT,"pxoutIT[nIT]/D");
+  RootTree->Branch("pyoutIT",&eve.pyoutIT,"pyoutIT[nIT]/D");
+  RootTree->Branch("pzoutIT",&eve.pzoutIT,"pzoutIT[nIT]/D");
+  RootTree->Branch("deIT",&eve.deIT,"deIT[nIT]/D");
+  RootTree->Branch("alIT",&eve.alIT,"alIT[nIT]/D");
+  RootTree->Branch("timIT",&eve.timIT,"timIT[nIT]/D");
 
   RootTree->Branch("nmon",&eve.nmon,"nmon/I");
   RootTree->Branch("idmon",&eve.idmon,"idmon[nmon]/I");
@@ -284,9 +305,10 @@ int main(int argc, char *argv[])
       }
       
       eve.EventNumber = 0;
-      eve.trn      = 0;
+      eve.trn       = 0;
       eve.stn       = 0;
       eve.nvtx      = 0;
+      eve.nIT       = 0;
       eve.nmon      = 0;
       eve.n2dc      = 0;
       eve.nscint    = 0;
@@ -298,12 +320,12 @@ int main(int argc, char *argv[])
 
       //	leggo l'header
 
-      nread= fscanf(pfile,"%d %d %d %d %d %d %d %d %d \n",&eve.EventNumber,
-		    &eve.trn,&eve.stn,&eve.nmon,&eve.nvtx,&eve.n2dc,
+      nread= fscanf(pfile,"%d %d %d %d %d %d %d %d %d %d \n",&eve.EventNumber,
+		    &eve.trn,&eve.stn,&eve.nmon,&eve.nvtx,&eve.nIT,&eve.n2dc,
 		    &eve.nscint,&eve.ncry,&eve.ncross);
-      if(nread!=9){
+      if(nread!=10){
 	cout<<"ReadError in ev header section: nread = "<<nread<<
-	  " instead of 9; ev= "<<NumProcessed<<endl;
+	  " instead of 10; ev= "<<NumProcessed<<endl;
 	ReadError = true;
       }
       
@@ -388,6 +410,29 @@ int main(int argc, char *argv[])
 			 &eve.pxinvtx[jj],&eve.pyinvtx[jj],&eve.pzinvtx[jj],
 			 &eve.pxoutvtx[jj],&eve.pyoutvtx[jj],&eve.pzoutvtx[jj],
 			 &eve.devtx[jj],&eve.alvtx[jj],&eve.timvtx[jj]);
+	  if(nread!=19){
+	    ReadError = true;
+	    cout<<"ReadError in vertex section: nread = "<<nread<<
+	      " instead of 19; ev= "<<NumProcessed<<endl;
+	    break;
+	  }
+	}
+      }
+
+      //	leggo i rilasci nell'inner tracker
+
+      if(!ReadError){
+ 
+	for(int jj=0; jj<eve.nIT;jj++){
+	  nread = fscanf(pfile,
+			 "%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
+			 &eve.idIT[jj],&eve.iplaIT[jj],&eve.irowIT[jj],
+			 &eve.icolIT[jj],
+			 &eve.xinIT[jj],&eve.yinIT[jj],&eve.zinIT[jj],
+			 &eve.xoutIT[jj],&eve.youtIT[jj],&eve.zoutIT[jj],
+			 &eve.pxinIT[jj],&eve.pyinIT[jj],&eve.pzinIT[jj],
+			 &eve.pxoutIT[jj],&eve.pyoutIT[jj],&eve.pzoutIT[jj],
+			 &eve.deIT[jj],&eve.alIT[jj],&eve.timIT[jj]);
 	  if(nread!=19){
 	    ReadError = true;
 	    cout<<"ReadError in vertex section: nread = "<<nread<<
@@ -485,14 +530,14 @@ int main(int argc, char *argv[])
 	break;
       }
       else{
-	if((eve.trn<=MAXNUMP)&&(eve.stn<=MAXSC)&&(eve.nvtx<=MAXVTX)
-	   &&(eve.nmon<=MAX1DC)&&(eve.n2dc<=MAX2DC)&&(eve.nscint<=MAXSCINT)
+	if((eve.trn<=MAXNUMP)&&(eve.stn<=MAXSC)&&(eve.nvtx<=MAXVTX)&&(eve.nIT<=MAXIT)
+	   &&(eve.nmon<=MAXBM)&&(eve.n2dc<=MAX2DC)&&(eve.nscint<=MAXSCINT)
 	   &&(eve.ncry<=MAXCRY)&&(eve.ncross<=MAXCROSS)){
 	  RootTree->Fill() ;
 	}
 	else{
-	  cout<<ReadError<<" "<<eve.EventNumber<<" "<<eve.trn
-	      <<" "<<eve.stn<<" "<<eve.nmon<<" "<<eve.nvtx<<" "<<eve.n2dc
+	  cout<<ReadError<<" "<<eve.EventNumber<<" "<<eve.trn<<" "<<eve.stn
+	      <<" "<<eve.nmon<<" "<<eve.nvtx<<" "<<eve.nIT<<" "<<eve.n2dc
 	      <<" "<<eve.nscint<<" "<<eve.ncry<<" "<<eve.ncross<<endl;  
 	}
       }

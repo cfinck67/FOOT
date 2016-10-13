@@ -70,37 +70,37 @@ c
      &     destartc, alstartc, timstartc, nstartc, idstartc
 
 c     *************************************************************
-c     common needed to score the hit in the first drift chambers
+c     common needed to score the hit in the beam monitor
 c     
 c     iview = x and y view(1-2)
 c     ipla  = first drift chamber plane index (1-6)
 c     icell = first drift chamber cell index (1-3)
 c      
-      integer n1DC, max1DC 
-      parameter (max1DC=2000)
-      integer id1DC (max1DC), iview1DC(max1DC),ipla1DC(max1DC),
-     &     icell1DC(max1DC) 
+      integer nBM, maxBM 
+      parameter (maxBM=2000)
+      integer idBM (maxBM), iviewBM(maxBM),iplaBM(maxBM),
+     &     icellBM(maxBM) 
 
-      real xin1DC(max1DC), xout1DC(max1DC), yin1DC(max1DC), 
-     &     yout1DC(max1DC), zin1DC(max1DC), zout1DC(max1DC)
-      real pxin1DC(max1DC), pxout1DC(max1DC), pyin1DC(max1DC), 
-     &     pyout1DC(max1DC), pzin1DC(max1DC), pzout1DC(max1DC)
-      real de1DC(max1DC), tim1DC(max1DC), al1DC(max1DC)
-      common /DC1_common/ xin1DC, xout1DC, yin1DC, yout1DC, zin1DC, 
-     &     zout1DC, pxin1DC, pxout1DC, pyin1DC, pyout1DC, pzin1DC, 
-     &     pzout1DC,de1DC, al1DC, tim1DC, n1DC, id1DC, iview1DC,
-     &     ipla1DC, icell1DC
+      real xinBM(maxBM), xoutBM(maxBM), yinBM(maxBM), 
+     &     youtBM(maxBM), zinBM(maxBM), zoutBM(maxBM)
+      real pxinBM(maxBM), pxoutBM(maxBM), pyinBM(maxBM), 
+     &     pyoutBM(maxBM), pzinBM(maxBM), pzoutBM(maxBM)
+      real deBM(maxBM), timBM(maxBM), alBM(maxBM)
+      common /BM_common/ xinBM, xoutBM, yinBM, youtBM, zinBM, 
+     &     zoutBM, pxinBM, pxoutBM, pyinBM, pyoutBM, pzinBM, 
+     &     pzoutBM,deBM, alBM, timBM, nBM, idBM, iviewBM,
+     &     iplaBM, icellBM
 c     
 c  common for the indexing of the first drift ch
 c
-      integer MAX1DCREG
-      parameter (MAX1DCREG=500)
-      integer ireg2pla1DC(MAX1DCREG), ireg2view1DC(MAX1DCREG), 
-     & ireg2cell1DC(MAX1DCREG)
-      common /DC1_index_common/ireg2pla1DC, ireg2view1DC, ireg2cell1DC
+      integer MAXBMREG
+      parameter (MAXBMREG=500)
+      integer ireg2plaBM(MAXBMREG), ireg2viewBM(MAXBMREG), 
+     & ireg2cellBM(MAXBMREG)
+      common /BM_index_common/ireg2plaBM, ireg2viewBM, ireg2cellBM
 
 c     *************************************************************
-c     common needed to score the hit in the silicon tracker
+c     common needed to score the hit in the vertex tracker
 c     
       double precision xminvtx, yminvtx, dxvtx, dyvtx
       integer xpixvtx, ypixvtx
@@ -111,11 +111,9 @@ c
       parameter (xpixvtx=1000)
       parameter (ypixvtx=1000)
 
-c     iplavtx  =  vertex plane (1-5) 
-c     icolvtx  =  vertex pixel column index (1-1000)(per 1 primi 3 piani)
-c     irowvtx  =  vertex pixel row index (1-1000)(per 1 primi 3 piani)
-c     icolvtx  =  vertex pixel column index (1-3000)(per piani 4 e 5)
-c     irowvtx  =  vertex pixel row index (1-3000)(per piani 4 e 5)
+c     iplavtx  =  vertex plane (1-3) 
+c     icolvtx  =  vertex pixel column index (1-1000)
+c     irowvtx  =  vertex pixel row index (1-1000)
 
       integer nvtx, maxvtx 
       parameter (maxvtx=2000)
@@ -131,36 +129,67 @@ c     irowvtx  =  vertex pixel row index (1-3000)(per piani 4 e 5)
      &     zinvtx, zoutvtx, pxinvtx, pxoutvtx, pyinvtx, pyoutvtx,
      &     pzinvtx, pzoutvtx, devtx, alvtx, timvtx, nvtx, idvtx,
      &     iplavtx, irowvtx, icolvtx
-      
+
 c     *************************************************************
-c     common needed to score the hit in the first drift chambers
+c     common needed to score the hit in the inner tracker
+c     
+      double precision xminIT, yminIT, dxIT, dyIT
+      integer xpixIT, ypixIT
+      parameter (xminIT=-3.)
+      parameter (yminIT=-3.)
+      parameter (dxIT=dxvtx)
+      parameter (dyIT=dyvtx)
+      parameter (xpixIT=3000)
+      parameter (ypixIT=3000)
+
+c     iplaIT  =  inner tracker plane (1-2) 
+c     icolIT  =  inner tracker pixel column index (1-3000)
+c     irowIT  =  inner tracker pixel row index (1-3000)
+
+      integer nIT, maxIT 
+      parameter (maxIT=2000)
+      integer idIT (maxIT), iplaIT(maxIT), irowIT(maxIT), 
+     &     icolIT(maxIT) 
+
+      real xinIT(maxIT), xoutIT(maxIT), yinIT(maxIT),
+     &     youtIT(maxIT), zinIT(maxIT), zoutIT(maxIT)
+      real pxinIT(maxIT), pxoutIT(maxIT), pyinIT(maxIT), 
+     &     pyoutIT(maxIT), pzinIT(maxIT), pzoutIT(maxIT)
+      real deIT(maxIT), timIT(maxIT), alIT(maxIT)
+      common /IT_common/ xinIT, xoutIT, yinIT, youtIT, 
+     &     zinIT, zoutIT, pxinIT, pxoutIT, pyinIT, pyoutIT,
+     &     pzinIT, pzoutIT, deIT, alIT, timIT, nIT, idIT,
+     &     iplaIT, irowIT, icolIT
+
+c     *************************************************************
+c     common needed to score the hit in the drift chamber
 c
 c     iview = x and y view (1-2)
 c     ipla  = second drift chamber plane index (1-6)
 c     icell = second drift chamber cell index (1-6)
 c
-      integer n2DC, max2DC 
-      parameter (max2DC=2000)
-      integer id2DC (max2DC), iview2DC(max2DC),ipla2DC(max2DC),
-     &     icell2DC(max2DC) 
+      integer nDC, maxDC 
+      parameter (maxDC=2000)
+      integer idDC (maxDC), iviewDC(maxDC),iplaDC(maxDC),
+     &     icellDC(maxDC) 
 
-      real xin2DC(max2DC), xout2DC(max2DC), yin2DC(max2DC), 
-     &     yout2DC(max2DC), zin2DC(max2DC), zout2DC(max2DC)
-      real pxin2DC(max2DC), pxout2DC(max2DC),p yin2DC(max2DC), 
-     &     pyout2DC(max2DC), pzin2DC(max2DC), pzout2DC(max2DC)
-      real de2DC(max2DC), tim2DC(max2DC), al2DC(max2DC)
-      common /DC2_common/ xin2DC, xout2DC, yin2DC, yout2DC, zin2DC, 
-     &     zout2DC, pxin2DC, pxout2DC, pyin2DC, pyout2DC, pzin2DC, 
-     &     pzout2DC,de2DC, al2DC, tim2DC, n2DC, id2DC, iview2DC,
-     &     ipla2DC, icell2DC
+      real xinDC(maxDC), xoutDC(maxDC), yinDC(maxDC), 
+     &     youtDC(maxDC), zinDC(maxDC), zoutDC(maxDC)
+      real pxinDC(maxDC), pxoutDC(maxDC),p yinDC(maxDC), 
+     &     pyoutDC(maxDC), pzinDC(maxDC), pzoutDC(maxDC)
+      real deDC(maxDC), timDC(maxDC), alDC(maxDC)
+      common /DC_common/ xinDC, xoutDC, yinDC, youtDC, zinDC, 
+     &     zoutDC, pxinDC, pxoutDC, pyinDC, pyoutDC, pzinDC, 
+     &     pzoutDC,deDC, alDC, timDC, nDC, idDC, iviewDC,
+     &     iplaDC, icellDC
 c     
 c  common for the indexing of the second drift ch
 c
-      integer MAX2DCREG
-      parameter (MAX2DCREG=500)
-      integer ireg2pla2DC(MAX2DCREG), ireg2view2DC(MAX2DCREG), 
-     & ireg2cell2DC(MAX2DC)
-      common /DC2_index_common/ireg2pla2DC, ireg2view2DC, ireg2cell2DC
+      integer MAXDCREG
+      parameter (MAXDCREG=500)
+      integer ireg2plaDC(MAXDCREG), ireg2viewDC(MAXDCREG), 
+     & ireg2cellDC(MAXDC)
+      common /DC_index_common/ireg2plaDC, ireg2viewDC, ireg2cellDC
 
 c      
 c     *************************************************************
@@ -195,7 +224,6 @@ c
 c     *************************************************************
 c     common neede to score the hit in the Calo regions
 c     
-c
 c     irowcry    =  crystal row index (1-11)
 c     icolcry    =  crystal column index (1-11)
       
@@ -240,29 +268,30 @@ c     ************************************************************
 c     Numbers of fluka region to be scored
 c     
       integer nregaria, nregfirstcry, nreglastcry,
-     &     nregfirstvtx, nreglastvtx, nregFirstU1, nreglastU1,
-     &     nregFirstV1, nregLastV1, nregFirstU2, nregLastU2,
-     &     nregFirstV2, nregLastV2,
+     &     nregfirstvtx, nreglastvtx, nregfirstIT, nreglastIT, 
+     &     nregFirstU1, nreglastU1, nregFirstV1, nregLastV1, 
+     &     nregFirstU2, nregLastU2, nregFirstV2, nregLastV2,
      &     nregstartc, nregtarg, nregfirstscint, nreglastscint
       
       common/region_common/
      &     nregaria, nregfirstcry, nreglastcry, 
-     &     nregfirstvtx, nreglastvtx, nregFirstU1, nreglastU1,
-     &     nregFirstV1, nregLastV1, nregFirstU2, nregLastU2,
-     &     nregFirstV2, nregLastV2,
+     &     nregfirstvtx, nreglastvtx, nregfirstIT, nreglastIT,
+     &     nregFirstU1, nreglastU1, nregFirstV1, nregLastV1, 
+     &     nregFirstU2, nregLastU2, nregFirstV2, nregLastV2,
      &     nregstartc, nregtarg, nregfirstscint, nreglastscint  
       
 c     ***********************************************************
 c     absolute light efficiency of material in quenched formula
 c     
       double precision abs_plastic, abs_cry,abs_vtx,abs_startc,
-     &     abs_1DC,abs_2DC
+     &     abs_BM,abs_DC,abs_IT
       parameter (abs_plastic=1.0)
       parameter (abs_cry=1.)   
       parameter (abs_vtx=1.0)
+      parameter (abs_IT=1.0)
       parameter (abs_startc=1.0)
-      parameter (abs_1DC=1.0)
-      parameter (abs_2DC=1.0)
+      parameter (abs_BM=1.0)
+      parameter (abs_DC=1.0)
 
 c     ***********************************************************
 c     interaction stack: common block for the parent particle

@@ -47,9 +47,10 @@ c
       CHARACTER*8 MLATNAM
       logical ldead
       double precision erawstartc, equenchedstartc
-      double precision eraw1DC, equenched1DC
-      double precision eraw2DC, equenched2DC
+      double precision erawBM, equenchedBM
+      double precision erawDC, equenchedDC
       double precision erawvtx, equenchedvtx
+      double precision erawIT, equenchedIT
       double precision erawscint, equenchedscint
       double precision erawcry, equenchedcry
 *
@@ -154,14 +155,14 @@ c
       endif
 
 c  *****************************************************************   
-c  inside the first drift chamber
+c  inside the beam monitor
 c
       if( (mreg.ge.nregFirstU1.and.mreg.le.nregLastU1).or.
      &     (mreg.ge.nregFirstV1.and.mreg.le.nregLastV1) )then
-         eraw1DC = 0.
+         erawBM = 0.
          IF ( MTRACK .GT. 0 )THEN
             do ii = 1,MTRACK
-               eraw1DC = eraw1DC + dtrack(ii)
+               erawBM = erawBM + dtrack(ii)
             end do
             
             IF ( LQEMGD )THEN
@@ -171,13 +172,13 @@ c
 c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nella camera a drift
 c     
                do ii = 1,mtrack
-                  equenched1DC = equenched1DC + dtquen(ii,3)
+                  equenchedBM = equenchedBM + dtquen(ii,3)
                end do
-               equenched1DC = equenched1DC*abs_1DC
+               equenchedBM = equenchedBM*abs_BM
             endif
          endif
-         if(eraw1DC.gt.0) then
-            call score_1DC(mreg,eraw1DC,equenched1DC,
+         if(erawBM.gt.0) then
+            call score_BM(mreg,erawBM,equenchedBM,
      &      xtrack(0),ytrack(0),ztrack(0),xtrack(ntrack),ytrack(ntrack),
      &      ztrack(ntrack))
          endif
@@ -212,15 +213,44 @@ c
          endif
       endif
 
+c     *************************************************************
+c     inside the inner tracker
+c
+      if( mreg.le.nreglastIT .and. mreg.ge.nregfirstIT )then
+         erawIT = 0.
+         IF ( MTRACK .GT. 0 )THEN
+            do ii = 1,MTRACK
+               erawIT = erawIT + dtrack(ii)
+            end do
+            
+            IF ( LQEMGD )THEN
+               RULLL  = ZERZER
+               CALL QUENMG ( ICODE, MREG, RULLL, DTQUEN )
+c     
+c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nel vertice
+c     
+               do ii = 1,mtrack
+                  equenchedIT = equenchedIT + dtquen(ii,3)
+               end do
+               equenchedIT = equenchedIT*abs_IT
+            endif
+         endif
+         if(erawIT.gt.0) then
+            call score_IT(mreg,erawIT,equenchedIT,
+     &      xtrack(0),ytrack(0),ztrack(0),xtrack(ntrack),ytrack(ntrack),
+     &      ztrack(ntrack))
+         endif
+      endif
+      
 c  *****************************************************************   
-c  inside the second drift chamber
+c  inside the drift chamber
 c
       if( (mreg.ge.nregFirstU2.and.mreg.le.nregLastU2).or.
      &     (mreg.ge.nregFirstV2.and.mreg.le.nregLastV2) )then
-         eraw2DC = 0.
+         erawDC = 0.
          IF ( MTRACK .GT. 0 )THEN
             do ii = 1,MTRACK
-               eraw2DC = eraw2DC + dtrack(ii)
+               erawDC = erawDC + dtrack(ii)
             end do
             
             IF ( LQEMGD )THEN
@@ -230,13 +260,13 @@ c
 c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nella camera a drift
 c     
                do ii = 1,mtrack
-                  equenched2DC = equenched2DC + dtquen(ii,3)
+                  equenchedDC = equenchedDC + dtquen(ii,3)
                end do
-               equenched2DC = equenched2DC*abs_2DC
+               equenchedDC = equenchedDC*abs_DC
             endif
          endif
-         if(eraw2DC.gt.0) then
-            call score_2DC(mreg,eraw2DC,equenched2DC,
+         if(erawDC.gt.0) then
+            call score_DC(mreg,erawDC,equenchedDC,
      &      xtrack(0),ytrack(0),ztrack(0),xtrack(ntrack),ytrack(ntrack),
      &      ztrack(ntrack))
          endif
@@ -511,14 +541,14 @@ c  inside the first drift chamber
 c
          if( (mreg.ge.nregFirstU1.and.mreg.le.nregLastU1).or.
      &        (mreg.ge.nregFirstV1.and.mreg.le.nregLastV1) ) then
-            eraw1DC = rull
-            equenched1DC=0
+            erawBM = rull
+            equenchedBM=0
             IF ( LQEMGD) THEN
                RULLL = RULL
                CALL QUENMG ( ICODE, MREG, RULL, DTQUEN )
-               equenched1DC = dtquen(1,1)*abs_1DC
+               equenchedBM = dtquen(1,1)*abs_BM
             END IF
-            call score_1DC(mreg,eraw1DC,equenched1DC,xsco,
+            call score_BM(mreg,erawBM,equenchedBM,xsco,
      &           ysco,zsco,xsco,ysco,zsco)
          endif
 c     
@@ -536,20 +566,34 @@ c
             call score_vtx(mreg,erawvtx,equenchedvtx,xsco,
      &           ysco,zsco,xsco,ysco,zsco)
          endif
-
+c     
+c  inside the inner tracker
+c
+         if( mreg.le.nreglastIT .and. mreg.ge.nregfirstIT )
+     $        then
+            erawIT = rull
+            equenchedIT=0
+            IF ( LQEMGD) THEN
+               RULLL = RULL
+               CALL QUENMG ( ICODE, MREG, RULL, DTQUEN )
+               equenchedIT = dtquen(1,1)*abs_IT
+            END IF
+            call score_IT(mreg,erawIT,equenchedIT,xsco,
+     &           ysco,zsco,xsco,ysco,zsco)
+         endif
 c     
 c  inside the second drift chamber
 c
          if( (mreg.ge.nregFirstU2 .and. mreg.le.nregLastU2).or.
      &        (mreg.ge.nregFirstV2 .and. mreg.le.nregLastV2) ) then
-            eraw2DC = rull
-            equenched2DC=0
+            erawDC = rull
+            equenchedDC=0
             IF ( LQEMGD) THEN
                RULLL = RULL
                CALL QUENMG ( ICODE, MREG, RULL, DTQUEN )
-               equenched2DC = dtquen(1,1)*abs_2DC
+               equenchedDC = dtquen(1,1)*abs_DC
             END IF
-            call score_2DC(mreg,eraw2DC,equenched2DC,xsco,
+            call score_DC(mreg,erawDC,equenchedDC,xsco,
      &           ysco,zsco,xsco,ysco,zsco)
          endif
 c     

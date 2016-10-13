@@ -106,27 +106,27 @@ c
 c
 c     first drift chamber
 c
-      n1DC = 0
-      do ii = 1,max1DC
-         id1DC(ii)     = 0
-         iview1DC(ii)  = 0
-         ipla1DC(ii) = 0
-         icell1DC(ii)  = 0
-         xin1DC(ii)    = 0.  
-         xout1DC(ii)   = 0. 
-         yin1DC(ii)    = 0. 
-         yout1DC(ii)   = 0. 
-         zin1DC(ii)    = 0.
-         zout1DC(ii)   = 0.
-         pxin1DC(ii)   = 0.  
-         pxout1DC(ii)  = 0. 
-         pyin1DC(ii)   = 0. 
-         pyout1DC(ii)  = 0. 
-         pzin1DC(ii)   = 0.
-         pzout1DC(ii)  = 0.
-         de1DC(ii)     = 0.
-         al1DC(ii)     = 0.
-         tim1DC(ii)    = 0.
+      nBM = 0
+      do ii = 1,maxBM
+         idBM(ii)     = 0
+         iviewBM(ii)  = 0
+         iplaBM(ii) = 0
+         icellBM(ii)  = 0
+         xinBM(ii)    = 0.  
+         xoutBM(ii)   = 0. 
+         yinBM(ii)    = 0. 
+         youtBM(ii)   = 0. 
+         zinBM(ii)    = 0.
+         zoutBM(ii)   = 0.
+         pxinBM(ii)   = 0.  
+         pxoutBM(ii)  = 0. 
+         pyinBM(ii)   = 0. 
+         pyoutBM(ii)  = 0. 
+         pzinBM(ii)   = 0.
+         pzoutBM(ii)  = 0.
+         deBM(ii)     = 0.
+         alBM(ii)     = 0.
+         timBM(ii)    = 0.
       end do
 c     
 c     vertex 
@@ -134,7 +134,7 @@ c
       nvtx = 0
       do ii = 1,maxvtx
          idvtx(ii)    = 0
-         iplavtx(ii)   = 0
+         iplavtx(ii)  = 0
          irowvtx(ii)  = 0
          icolvtx(ii)  = 0
          xinvtx(ii)   = 0.  
@@ -154,29 +154,54 @@ c
          timvtx(ii)   = 0.
       end do
 c     
+c     inner tracker 
+c
+      nIT = 0
+      do ii = 1,maxIT
+         idIT(ii)    = 0
+         iplaIT(ii)  = 0
+         irowIT(ii)  = 0
+         icolIT(ii)  = 0
+         xinIT(ii)   = 0.  
+         xoutIT(ii)  = 0. 
+         yinIT(ii)   = 0. 
+         youtIT(ii)  = 0. 
+         zinIT(ii)   = 0.
+         zoutIT(ii)  = 0.
+         pxinIT(ii)  = 0.  
+         pxoutIT(ii) = 0. 
+         pyinIT(ii)  = 0. 
+         pyoutIT(ii) = 0. 
+         pzinIT(ii)  = 0.
+         pzoutIT(ii) = 0.
+         deIT(ii)    = 0.
+         alIT(ii)    = 0.
+         timIT(ii)   = 0.
+      end do
+c     
 c     second drift chamber
 c
-      n2DC = 0
-      do ii = 1,max2DC
-         id2DC(ii)     = 0
-         iview2DC(ii)  = 0
-         ipla2DC(ii) = 0
-         icell2DC(ii)  = 0
-         xin2DC(ii)    = 0.  
-         xout2DC(ii)   = 0. 
-         yin2DC(ii)    = 0. 
-         yout2DC(ii)   = 0. 
-         zin2DC(ii)    = 0.
-         zout2DC(ii)   = 0.
-         pxin2DC(ii)   = 0.  
-         pxout2DC(ii)  = 0. 
-         pyin2DC(ii)   = 0. 
-         pyout2DC(ii)  = 0. 
-         pzin2DC(ii)   = 0.
-         pzout2DC(ii)  = 0.
-         de2DC(ii)     = 0.
-         al2DC(ii)     = 0.
-         tim2DC(ii)    = 0.
+      nDC = 0
+      do ii = 1,maxDC
+         idDC(ii)     = 0
+         iviewDC(ii)  = 0
+         iplaDC(ii) = 0
+         icellDC(ii)  = 0
+         xinDC(ii)    = 0.  
+         xoutDC(ii)   = 0. 
+         yinDC(ii)    = 0. 
+         youtDC(ii)   = 0. 
+         zinDC(ii)    = 0.
+         zoutDC(ii)   = 0.
+         pxinDC(ii)   = 0.  
+         pxoutDC(ii)  = 0. 
+         pyinDC(ii)   = 0. 
+         pyoutDC(ii)  = 0. 
+         pzinDC(ii)   = 0.
+         pzoutDC(ii)  = 0.
+         deDC(ii)     = 0.
+         alDC(ii)     = 0.
+         timDC(ii)    = 0.
       end do
 c
 c     scintillator

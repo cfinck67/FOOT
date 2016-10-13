@@ -55,7 +55,7 @@ c
       if(idbflg.gt.0) then
          write(*,*)'ev= ',numev,' Equench= ',Eqcalo,
      &        ' Eqscint= ',Eqscint,
-     &        ' trigger= ', trigger,
+     &        ' trigger= ', Trigger,
      &        ' Eqcalo= ',Eqcalo,' Eqscint= ',Eqscint,
      &        ' Ethrdep= ',Ethrdep,' tarfrag= ',tarfrag
       endif
@@ -63,8 +63,8 @@ c
 c
       if(trigger) then
 c
-         write(outunit,*) ncase,nump,nstartc,n1DC,nvtx,n2DC,nscint,ncry,
-     &        ncross
+         write(outunit,*) ncase,nump,nstartc,nBM,nvtx,nIT,nDC,nscint,
+     &        ncry,ncross
 c
 c     scrivo la banca delle particelle
 c
@@ -89,13 +89,13 @@ c
 c
 c     scrivo la prima camera a drift
 c         
-         do ii = 1,n1DC   
-            write(outunit,*) id1DC(ii), iview1DC(ii), ipla1DC(ii), 
-     &           icell1DC(ii), xin1DC(ii), yin1DC(ii), zin1DC(ii),
-     &           xout1DC(ii), yout1DC(ii), zout1DC(ii),
-     &           pxin1DC(ii), pyin1DC(ii), pzin1DC(ii), 
-     &           pxout1DC(ii), pyout1DC(ii), pzout1DC(ii),
-     &           de1DC(ii), al1DC(ii), tim1DC(ii)
+         do ii = 1,nBM   
+            write(outunit,*) idBM(ii), iviewBM(ii), iplaBM(ii), 
+     &           icellBM(ii), xinBM(ii), yinBM(ii), zinBM(ii),
+     &           xoutBM(ii), youtBM(ii), zoutBM(ii),
+     &           pxinBM(ii), pyinBM(ii), pzinBM(ii), 
+     &           pxoutBM(ii), pyoutBM(ii), pzoutBM(ii),
+     &           deBM(ii), alBM(ii), timBM(ii)
          end do
 c     
 c     scrivo il vertice
@@ -108,17 +108,28 @@ c
      &           pxoutvtx(ii), pyoutvtx(ii), pzoutvtx(ii),
      &           devtx(ii), alvtx(ii), timvtx(ii)
          end do
+c     
+c     scrivo l'inner tracker
+c         
+         do ii = 1,nIT
+            write(outunit,*) idIT(ii), iplaIT(ii), irowIT(ii),
+     &           icolIT(ii), xinIT(ii), yinIT(ii), zinIT(ii),
+     &           xoutIT(ii), youtIT(ii), zoutIT(ii),
+     &           pxinIT(ii), pyinIT(ii), pzinIT(ii), 
+     &           pxoutIT(ii), pyoutIT(ii), pzoutIT(ii),
+     &           deIT(ii), alIT(ii), timIT(ii)
+         end do
 c
 c     scrivo la seconda camera a drift
 c         
-         do ii = 1,n2DC   
-            write(outunit,*) id2DC(ii), iview2DC(ii),
-     &           ipla2DC(ii), icell2DC(ii), 
-     &           xin2DC(ii), yin2DC(ii), zin2DC(ii),
-     &           xout2DC(ii), yout2DC(ii), zout2DC(ii),
-     &           pxin2DC(ii), pyin2DC(ii), pzin2DC(ii), 
-     &           pxout2DC(ii), pyout2DC(ii), pzout2DC(ii),
-     &           de2DC(ii), al2DC(ii), tim2DC(ii)
+         do ii = 1,nDC   
+            write(outunit,*) idDC(ii), iviewDC(ii),
+     &           iplaDC(ii), icellDC(ii), 
+     &           xinDC(ii), yinDC(ii), zinDC(ii),
+     &           xoutDC(ii), youtDC(ii), zoutDC(ii),
+     &           pxinDC(ii), pyinDC(ii), pzinDC(ii), 
+     &           pxoutDC(ii), pyoutDC(ii), pzoutDC(ii),
+     &           deDC(ii), alDC(ii), timDC(ii)
          end do
 c
 c     scrivo lo scintillatore

@@ -177,7 +177,7 @@ c
 c
 c
 c-------------------------------------------------------------------------
-      subroutine score_1DC(mreg,eraw1DC,equenched1DC,
+      subroutine score_BM(mreg,erawBM,equenchedBM,
      &     xcordin,ycordin,zcordin,xcordout,ycordout,zcordout)
 c--------------------------------------------------------------------------
 c
@@ -185,14 +185,14 @@ c
       INCLUDE '(DIMPAR)'
       INCLUDE '(IOUNIT)'
       INCLUDE '(TRACKR)'
-      double precision eraw1DC, equenched1DC
+      double precision erawBM, equenchedBM
       include 'mgdraw.inc'
-      integer ii, n1DC_now
+      integer ii, nBM_now
       integer iview, ipla, icell
 c
-      iview = ireg2view1DC(mreg)
-      ipla  = ireg2pla1DC(mreg)
-      icell = ireg2cell1DC(mreg)
+      iview = ireg2viewBM(mreg)
+      ipla  = ireg2plaBM(mreg)
+      icell = ireg2cellBM(mreg)
 c
       if ((ipla.gt.6.or.ipla.lt.1).or.(icell.gt.6.or.icell.lt.1).or.
      &     (iview.gt.2.or.iview.lt.1)) then
@@ -202,9 +202,9 @@ c
 c     
       if(idbflg.gt.1) then
          write(*,*)' '
-         write(*,*)'---------------Score_1DC-----------------'
-         write(*,*)'idcurr= ',idcurr,' equenched1DC= ',
-     &        equenched1DC,' view= ', iview,' pla= ', ipla,
+         write(*,*)'---------------Score_BM-----------------'
+         write(*,*)'idcurr= ',idcurr,' equenchedBM= ',
+     &        equenchedBM,' view= ', iview,' pla= ', ipla,
      &       ' cell= ',icell,' mreg= ',mreg
          write(*,*)'xyz= ',xcordin,ycordin,zcordin
          write(*,*)'dtrack= ',(dtrack(ii),ii=1,mtrack)
@@ -212,50 +212,50 @@ c
 c
 c new hit in the first drift chamber?   
 c
-      n1DC_now = 0
-      do ii=1,n1DC
-         if( (id1DC(ii).eq.idcurr) .and. (iview1DC(ii).eq.iview) .and.
-     &        (ipla1DC(ii).eq.ipla) .and. (icell1DC(ii).eq.icell) )then
-            n1DC_now = ii
+      nBM_now = 0
+      do ii=1,nBM
+         if( (idBM(ii).eq.idcurr) .and. (iviewBM(ii).eq.iview) .and.
+     &        (iplaBM(ii).eq.ipla) .and. (icellBM(ii).eq.icell) )then
+            nBM_now = ii
          endif
       end do
 c
 c if ndc_now = 0 then ... new hit...
 c
-      if(n1DC_now.eq.0) then
-         if(n1DC.eq.max1DC) then
-            write(*,*)'Error: Score_1DC:'
-            write(*,*)'Maximum number of 1DC scoring exceeded: ev= ',
+      if(nBM_now.eq.0) then
+         if(nBM.eq.maxBM) then
+            write(*,*)'Error: Score_BM:'
+            write(*,*)'Maximum number of BM scoring exceeded: ev= ',
      &           ncase
             return
          endif
-         n1DC = n1DC + 1
-         n1DC_now = n1DC
-         id1DC(n1DC) = idcurr
-         xin1DC(n1DC_now)  = sngl(xcordin)
-         yin1DC(n1DC_now)  = sngl(ycordin)
-         zin1DC(n1DC_now)  = sngl(zcordin)
-         pxin1DC(n1DC_now) = sngl(ptrack*cxtrck)
-         pyin1DC(n1DC_now) = sngl(ptrack*cytrck)
-         pzin1DC(n1DC_now) = sngl(ptrack*cztrck)
-         tim1DC(n1DC_now)  = sngl(atrack)
-         iview1DC(n1DC_now) = iview
-         ipla1DC(n1DC_now)  = ipla
-         icell1DC(n1DC_now) = icell
+         nBM = nBM + 1
+         nBM_now = nBM
+         idBM(nBM) = idcurr
+         xinBM(nBM_now)  = sngl(xcordin)
+         yinBM(nBM_now)  = sngl(ycordin)
+         zinBM(nBM_now)  = sngl(zcordin)
+         pxinBM(nBM_now) = sngl(ptrack*cxtrck)
+         pyinBM(nBM_now) = sngl(ptrack*cytrck)
+         pzinBM(nBM_now) = sngl(ptrack*cztrck)
+         timBM(nBM_now)  = sngl(atrack)
+         iviewBM(nBM_now) = iview
+         iplaBM(nBM_now)  = ipla
+         icellBM(nBM_now) = icell
       endif
 c 
-      xout1DC(n1DC_now) = sngl(xcordout)
-      yout1DC(n1DC_now) = sngl(ycordout)
-      zout1DC(n1DC_now) = sngl(zcordout)
-      pxout1DC(n1DC_now) = sngl(ptrack*cxtrck)
-      pyout1DC(n1DC_now) = sngl(ptrack*cytrck)
-      pzout1DC(n1DC_now) = sngl(ptrack*cztrck)
-      de1DC(n1DC_now) = de1DC(n1DC_now) + sngl(eraw1DC)
-      al1DC(n1DC_now)=al1DC(n1DC_now)+ sngl(equenched1DC)
+      xoutBM(nBM_now) = sngl(xcordout)
+      youtBM(nBM_now) = sngl(ycordout)
+      zoutBM(nBM_now) = sngl(zcordout)
+      pxoutBM(nBM_now) = sngl(ptrack*cxtrck)
+      pyoutBM(nBM_now) = sngl(ptrack*cytrck)
+      pzoutBM(nBM_now) = sngl(ptrack*cztrck)
+      deBM(nBM_now) = deBM(nBM_now) + sngl(erawBM)
+      alBM(nBM_now)=alBM(nBM_now)+ sngl(equenchedBM)
 c
       if(idbflg.gt.1) then
-         write(*,*)'n1DC= ',n1DC_now,
-     &         ' de1DC(n1DC)= ',de1DC(n1DC_now)
+         write(*,*)'nBM= ',nBM_now,
+     &         ' deBM(nBM)= ',deBM(nBM_now)
          write(*,*)' '
       endif             
 c    
@@ -275,8 +275,6 @@ c
       include 'mgdraw.inc'
       integer mreg, ii
       integer ipla
-      integer coeff
-      coeff = 0
 c
       ipla = mreg-nregfirstvtx+1
       if (ipla.gt.5.or.ipla.lt.1) THEN
@@ -340,32 +338,27 @@ c
          pyinvtx(nvtx_now) = sngl(ptrack*cytrck)
          pzinvtx(nvtx_now) = sngl(ptrack*cztrck)
          timvtx(nvtx_now)  = sngl(atrack)
-         if (iplavtx(nvtx_now).lt.4)then
-            coeff = 1
-         elseif (iplavtx(nvtx_now).eq.4)then
-            coeff = 3
-         endif
-         if (ycordin.le.(-yminvtx*coeff)) then
-            irowvtx(nvtx_now) = int((ycordin-yminvtx*coeff)/dyvtx)+1
+         if (ycordin.le.(-yminvtx)) then
+            irowvtx(nvtx_now) = int((ycordin-yminvtx)/dyvtx)+1
          else
-            irowvtx(nvtx_now) = xpixvtx*coeff
+            irowvtx(nvtx_now) = xpixvtx
          endif
-         if (xcordin.le.(-xminvtx*coeff)) then
-            icolvtx(nvtx_now) = int((xcordin-xminvtx*coeff)/dxvtx)+1
+         if (xcordin.le.(-xminvtx)) then
+            icolvtx(nvtx_now) = int((xcordin-xminvtx)/dxvtx)+1
          else
-            icolvtx(nvtx_now) = ypixvtx*coeff
+            icolvtx(nvtx_now) = ypixvtx
          endif
-         if (irowvtx(nvtx_now).gt.(ypixvtx*coeff)
+         if (irowvtx(nvtx_now).gt.(ypixvtx)
      &        .or. irowvtx(nvtx_now).lt.1)then
             write(*,*)'WARNING! max vertex row no. exceeded: irow= ',
      &           irowvtx(nvtx_now),'yin= ',yinvtx(nvtx_now),
-     &           ' mreg= ',mreg,' coeff= ',coeff
+     &           ' mreg= ',mreg
          endif
-         if (icolvtx(nvtx_now).gt.(ypixvtx*coeff)
+         if (icolvtx(nvtx_now).gt.(ypixvtx)
      &        .or. icolvtx(nvtx_now).lt.1)then
             write(*,*)'WARNING! max vertex col no. exceeded: icol= ',
      &           icolvtx(nvtx_now),'xin= ',xinvtx(nvtx_now),
-     &           ' mreg= ',mreg,' coeff= ',coeff
+     &           ' mreg= ',mreg
          endif
       endif
 c 
@@ -395,9 +388,8 @@ c
       end
 c
 c      
-c
 c-------------------------------------------------------------------------
-      subroutine score_2DC(mreg,eraw2DC,equenched1DC,xcordin,
+      subroutine score_IT(mreg, erawIT, equenchedIT,xcordin,
      &     ycordin,zcordin,xcordout,ycordout,zcordout)
 c--------------------------------------------------------------------------
 c
@@ -405,14 +397,140 @@ c
       INCLUDE '(DIMPAR)'
       INCLUDE '(IOUNIT)'
       INCLUDE '(TRACKR)'
-      double precision eraw2DC, equenched2DC
+      double precision erawIT, equenchedIT
       include 'mgdraw.inc'
-      integer ii, n2DC_now
+      integer mreg, ii
+      integer ipla
+c
+      ipla = mreg-nregfirstIT+1
+      if (ipla.gt.5.or.ipla.lt.1) THEN
+         write(*,*) ' WARNING!!!! iplaIT= ',ipla,
+     &    '  zcordin= ',zcordin
+      ENDIF
+c      
+      nIT_now = 0
+c
+      if(idbflg.gt.1) then
+         write(*,*)' '
+         write(*,*)'---------------Score_IT-----------------'
+         write(*,*)'test ','idcurr= ',idcurr,' pla= ',
+     &        ipla, ' mreg= ',mreg,' nIT= ',nIT
+         write(*,*)'xyz= ',xcordin,ycordin,zcordin
+      endif             
+c
+c new hit in the vertex?
+c
+      if (idbflg.gt.1) then
+         write(*,*)'Check of previous hits nIT_now= ',nIT_now,
+     &        ' nIT= ',nIT
+      endif
+      do ii=1,nIT
+         if (idbflg.gt.1) then
+            write(*,*)'ii= ',ii
+            write(*,*)'idIT(ii)= ',idIT(ii),' idcurr= ',idcurr
+            write(*,*)'ipla= ',ipla
+            write(*,*)'irow(ii)= ',irowIT(ii),' icol= ',icolIT(ii)
+         endif
+         if( ( idIT(ii).eq.idcurr .and.
+     &         iplaIT(ii).eq.ipla ) .OR.
+     &        ( sngl(xcordin).eq.xinIT(ii) .and. 
+     &          sngl(ycordin).eq.yinIT(ii) .and.
+     &          sngl(zcordin).eq.zinIT(ii) )
+     &        ) then 
+            nIT_now = ii
+            if (idbflg.gt.1) then
+               write(*,*)'Previous hit found: nIT_now= ',nIT_now,
+     &              ' ii= ',ii
+            endif
+         endif
+      end do
+c
+c if nIT_now = 0 then ... new hit...
+c
+      if( nIT_now.eq.0) then
+         if(nIT.eq.maxIT) then
+            write(*,*)'Error: Score_IT:'
+            write(*,*)'Maximum hit number exceeded : ev= ',ncase
+            return
+         endif
+         nIT = nIT + 1
+         nIT_now = nIT
+         idIT(nIT) = idcurr
+         iplaIT(nIT_now) = ipla
+         xinIT(nIT_now)  = sngl(xcordin)
+         yinIT(nIT_now)  = sngl(ycordin)
+         zinIT(nIT_now)  = sngl(zcordin)
+         pxinIT(nIT_now) = sngl(ptrack*cxtrck)
+         pyinIT(nIT_now) = sngl(ptrack*cytrck)
+         pzinIT(nIT_now) = sngl(ptrack*cztrck)
+         timIT(nIT_now)  = sngl(atrack)
+         if (ycordin.le.(-yminIT)) then
+            irowIT(nIT_now) = int((ycordin-yminIT)/dyIT)+1
+         else
+            irowIT(nIT_now) = xpixIT
+         endif
+         if (xcordin.le.(-xminIT)) then
+            icolIT(nIT_now) = int((xcordin-xminIT)/dxIT)+1
+         else
+            icolIT(nIT_now) = ypixIT
+         endif
+         if (irowIT(nIT_now).gt.(ypixIT)
+     &        .or. irowIT(nIT_now).lt.1)then
+            write(*,*)'WARNING! max vertex row no. exceeded: irow= ',
+     &           irowIT(nIT_now),'yin= ',yinIT(nIT_now),
+     &           ' mreg= ',mreg
+         endif
+         if (icolIT(nIT_now).gt.(ypixIT)
+     &        .or. icolIT(nIT_now).lt.1)then
+            write(*,*)'WARNING! max vertex col no. exceeded: icol= ',
+     &           icolIT(nIT_now),'xin= ',xinIT(nIT_now),
+     &           ' mreg= ',mreg
+         endif
+      endif
+c 
+      xoutIT(nIT_now) = sngl(xcordout)
+      youtIT(nIT_now) = sngl(ycordout)
+      zoutIT(nIT_now) = sngl(zcordout)
+      pxoutIT(nIT_now) = sngl(ptrack*cxtrck)
+      pyoutIT(nIT_now) = sngl(ptrack*cytrck)
+      pzoutIT(nIT_now) = sngl(ptrack*cztrck)
+      deIT(nIT_now) = deIT(nIT_now) + sngl(erawIT)
+      alIT(nIT_now) = alIT(nIT_now) + sngl(equenchedIT)
+c
+c
+      if(idbflg.gt.1) then
+         do ii=1,nIT
+            write(*,*)'ii= ',ii
+            write(*,*)'idIT(ii)= ',idIT(ii),' idcurr= ',idcurr
+            write(*,*)'ipla= ',iplaIT(ii)
+            write(*,*)'irow(ii)= ',irowIT(ii),' icol= ',icolIT(ii)
+         enddo
+         write(*,*)'nIT_now= ',nIT_now,' nIT= ',nIT,
+     &         ' deIT(nIT)= ',deIT(nIT_now)
+         write(*,*)' '
+      endif             
+c
+      return
+      end
+c
+c
+c-------------------------------------------------------------------------
+      subroutine score_DC(mreg,erawDC,equenchedDC,xcordin,
+     &     ycordin,zcordin,xcordout,ycordout,zcordout)
+c--------------------------------------------------------------------------
+c
+      INCLUDE '(DBLPRC)'
+      INCLUDE '(DIMPAR)'
+      INCLUDE '(IOUNIT)'
+      INCLUDE '(TRACKR)'
+      double precision erawDC, equenchedDC
+      include 'mgdraw.inc'
+      integer ii, nDC_now
       integer iview, ipla, icell
 c
-      iview = ireg2view2DC(mreg)
-      ipla = ireg2pla2DC(mreg)
-      icell = ireg2cell2DC(mreg)
+      iview = ireg2viewDC(mreg)
+      ipla = ireg2plaDC(mreg)
+      icell = ireg2cellDC(mreg)
 c
       if ((ipla.gt.6.or.ipla.lt.1).or.(icell.gt.6.or.icell.lt.1).or.
      &     (iview.gt.2.or.iview.lt.1)) then
@@ -422,60 +540,60 @@ c
 c     
       if(idbflg.gt.1) then
          write(*,*)' '
-         write(*,*)'---------------Score_2DC-----------------'
-         write(*,*)'idcurr= ',idcurr,' equenched2DC= ',
-     &        equenched2DC,' view= ', iview,' pla= ', ipla,
+         write(*,*)'---------------Score_DC-----------------'
+         write(*,*)'idcurr= ',idcurr,' equenchedDC= ',
+     &        equenchedDC,' view= ', iview,' pla= ', ipla,
      &       ' cell= ',icell,' mreg= ',mreg
          write(*,*)'xyz= ',xcordin,ycordin,zcordin
          write(*,*)'dtrack= ',(dtrack(ii),ii=1,mtrack)
       endif         
 c
-c new hit in the second drift chamber?   
+c new hit in the drift chamber?   
 c
-      n2DC_now = 0
-      do ii=1,n2DC
-         if( (id2DC(ii).eq.idcurr) .and. (iview2DC(ii).eq.iview) .and.
-     &        (ipla2DC(ii).eq.ipla) .and. (icell2DC(ii).eq.icell) )then
-            n2DC_now = ii
+      nDC_now = 0
+      do ii=1,nDC
+         if( (idDC(ii).eq.idcurr) .and. (iviewDC(ii).eq.iview) .and.
+     &        (iplaDC(ii).eq.ipla) .and. (icellDC(ii).eq.icell) )then
+            nDC_now = ii
          endif
       end do
 c
 c if ndc_now = 0 then ... new hit...
 c
-      if(n2DC_now.eq.0) then
-         if(n2DC.eq.max2DC) then
-            write(*,*)'Error: Score_2DC:'
-            write(*,*)'Maximum number of 2DC scoring exceeded: ev= ',
+      if(nDC_now.eq.0) then
+         if(nDC.eq.maxDC) then
+            write(*,*)'Error: Score_DC:'
+            write(*,*)'Maximum number of DC scoring exceeded: ev= ',
      &           ncase
             return
          endif
-         n2DC = n2DC + 1
-         n2DC_now = n2DC
-         id2DC(n2DC) = idcurr
-         xin2DC(n2DC_now)  = sngl(xcordin)
-         yin2DC(n2DC_now)  = sngl(ycordin)
-         zin2DC(n2DC_now)  = sngl(zcordin)
-         pxin2DC(n2DC_now) = sngl(ptrack*cxtrck)
-         pyin2DC(n2DC_now) = sngl(ptrack*cytrck)
-         pzin2DC(n2DC_now) = sngl(ptrack*cztrck)
-         tim2DC(n2DC_now)  = sngl(atrack)
-         iview2DC(n2DC_now) = iview
-         ipla2DC(n2DC_now)   = ipla
-         icell2DC(n2DC_now) = icell
+         nDC = nDC + 1
+         nDC_now = nDC
+         idDC(nDC) = idcurr
+         xinDC(nDC_now)  = sngl(xcordin)
+         yinDC(nDC_now)  = sngl(ycordin)
+         zinDC(nDC_now)  = sngl(zcordin)
+         pxinDC(nDC_now) = sngl(ptrack*cxtrck)
+         pyinDC(nDC_now) = sngl(ptrack*cytrck)
+         pzinDC(nDC_now) = sngl(ptrack*cztrck)
+         timDC(nDC_now)  = sngl(atrack)
+         iviewDC(nDC_now) = iview
+         iplaDC(nDC_now)   = ipla
+         icellDC(nDC_now) = icell
       endif
 c 
-      xout2DC(n2DC_now) = sngl(xcordout)
-      yout2DC(n2DC_now) = sngl(ycordout)
-      zout2DC(n2DC_now) = sngl(zcordout)
-      pxout2DC(n2DC_now) = sngl(ptrack*cxtrck)
-      pyout2DC(n2DC_now) = sngl(ptrack*cytrck)
-      pzout2DC(n2DC_now) = sngl(ptrack*cztrck)
-      de2DC(n2DC_now) = de2DC(n2DC_now) + sngl(eraw2DC)
-      al2DC(n2DC_now)=al2DC(n2DC_now)+ sngl(equenched2DC)
+      xoutDC(nDC_now) = sngl(xcordout)
+      youtDC(nDC_now) = sngl(ycordout)
+      zoutDC(nDC_now) = sngl(zcordout)
+      pxoutDC(nDC_now) = sngl(ptrack*cxtrck)
+      pyoutDC(nDC_now) = sngl(ptrack*cytrck)
+      pzoutDC(nDC_now) = sngl(ptrack*cztrck)
+      deDC(nDC_now) = deDC(nDC_now) + sngl(erawDC)
+      alDC(nDC_now)=alDC(nDC_now)+ sngl(equenchedDC)
 c
       if(idbflg.gt.1) then
-         write(*,*)'n2DC= ',n2DC_now,
-     &         ' de2DC(n2DC)= ',de2DC(n2DC_now)
+         write(*,*)'nDC= ',nDC_now,
+     &         ' deDC(nDC)= ',deDC(nDC_now)
          write(*,*)' '
       endif             
 c
@@ -612,9 +730,9 @@ c
       do ii=1,ncry
          if( ((idcry(ii).eq.idcurr) .and. (irowcry(ii).eq.rowcry) .and.
      &        (icolcry(ii).eq.colcry)).or.
-     &        ( sngl(xcordin).eq.xinscint(ii) .and. 
-     &        sngl(ycordin).eq.yinscint(ii) .and.
-     &        sngl(zcordin).eq.zinscint(ii) )) then
+     &        ( sngl(xcordin).eq.xincry(ii) .and. 
+     &        sngl(ycordin).eq.yincry(ii) .and.
+     &        sngl(zcordin).eq.zincry(ii) )) then
             ncry_now = ii
          endif
       end do
