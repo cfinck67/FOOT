@@ -61,6 +61,17 @@ Bool_t TABMactNtuMC::Action()
   //The number of hits inside the BM is nmon
   Info("Action()","Processing n :: %2d hits \n",fpEvtStr->nmon);
   for (Int_t i = 0; i < fpEvtStr->nmon; i++) {
+
+    /*
+      Pre processing of INFO to compute the PCA info + rDrift and tDrift
+    */
+    /*
+      write(*,*)'PCA= ',xca(ii), yca(ii), zca(ii) 
+      write(*,*)'p at PCA= ',pxca(ii), pyca(ii), pzca(ii) 
+      write(*,*)'rdrift= ',rdrift(ii),' tdrift= ', tdrift(ii), 
+    */
+
+    //Tupling.
     if(i<32) {
       
       //X,Y and Z needs to be placed in Local coordinates.
@@ -76,10 +87,10 @@ Bool_t TABMactNtuMC::Action()
       TABMntuHit *mytmp = new((*(p_nturaw->h))[i]) 
 	TABMntuHit(fpEvtStr->idmon[i],		 fpEvtStr->iview[i],
 		   fpEvtStr->ilayer[i],          fpEvtStr->icell[i],  
-		   locx, locy,
-		   locz, fpEvtStr->pxinmon[i],
-		   fpEvtStr->pyinmon[i],	 fpEvtStr->pzinmon[i],
-		   0,		 0,
+		   locx, locy, locz, //Will become PCA
+		   fpEvtStr->pxinmon[i],
+		   fpEvtStr->pyinmon[i],	 fpEvtStr->pzinmon[i], //will become mom @ PCA
+		   0,		 0, //here' rdrift tdrif.
 		   fpEvtStr->timmon[i] );
       mytmp->SetSigma(resolution);
       mytmp->SetTrkAss(0);

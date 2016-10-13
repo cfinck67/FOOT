@@ -4,7 +4,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class TAVTcluster;
-#pragma link C++ class TAVTntuCluster;
+#pragma link C++ class TAVTcluster+;
+#pragma link C++ class TAVTntuCluster+;
 
 #endif

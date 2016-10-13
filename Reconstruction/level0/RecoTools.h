@@ -41,7 +41,10 @@ class RecoTools {
   void FillMCBeamMonitor(EVENT_STRUCT *myStr);
   void FillMCDriftChamber(EVENT_STRUCT *myStr);
   void FillMCVertex(EVENT_STRUCT *myStr);
+  void FillMCInnerTracker(EVENT_STRUCT *myStr);
   void FillMCInteractionRegion(EVENT_STRUCT *myStr);
+  void FillMCCalorimeter(EVENT_STRUCT *myStr);
+  void FillMCTofWall(EVENT_STRUCT *myStr);
 
   //Monitors/Displays
   void DisplayIRMonitor(TAGpadGroup* pg, EVENT_STRUCT *myStr);
@@ -57,6 +60,7 @@ class RecoTools {
   void CalibBMVT();
   void MonitorBMVTMat();
   void MonitorBM();
+  void AssociateHitsToParticle();
 
   TAGgeoTrafo* fGeoTrafo;
 
@@ -84,6 +88,11 @@ class RecoTools {
   TAGparaDsc* myp_vtgeo;
   TAGparaDsc* myp_vtconf;
 
+  TAGparaDsc* myp_itmap;
+  TAGparaDsc* myp_itcal;
+  TAGparaDsc* myp_itgeo;
+  TAGparaDsc* myp_itconf;
+
   //Data descriptions
  
   TAGdataDsc* myn_irraw;
@@ -99,14 +108,30 @@ class RecoTools {
   TAGdataDsc* myn_bmtrk;
   TAGdataDsc* myn_dctrk;
 
+
+  TAGdataDsc* myn_itraw;
+  TAGdataDsc* myn_itclus;
+  TAGdataDsc* myn_itrk;
+
   TAGdataDsc* myn_trtrk;
   TAGdataDsc* myn_trtin;
+
+  TAGdataDsc* myn_twraw;
+  TAGdataDsc* myn_caraw;
+
+  //Actions
 
   TAGactTreeWriter* my_out;
   TAGaction* mya_vtraw;
   TAGaction* mya_vtclus;
   TAGaction* mya_vttrack;
   TAGaction* mya_vtvtx;
+
+  TAGaction* mya_itraw;
+  TAGaction* mya_itclus;
+  TAGaction* mya_ittrack;
+
+
 
 };
 

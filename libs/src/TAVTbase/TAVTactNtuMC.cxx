@@ -114,35 +114,44 @@ Bool_t TAVTactNtuMC::Action()
      Info("Action()","Processing n :: %2d hits \n",fpEvtStr->nvtx);
 
    //AS  To be completely rechecked...
-   /*
-   for (Int_t i = 0; i < fpEvtStr->miSigN; i++) {
+   for (Int_t i = 0; i < fpEvtStr->nvtx; i++) {
+
+     /*
      // position in global transform in local
      // missing value set to 1. cos binary
      // miSigChips starts at 1 !!!
      Int_t sensorId    = pParMap->GetRealId(fpEvtStr->miSigChip[i]-1);
      //     TAVTntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., fpEvtStr->miSigRow[i], fpEvtStr->miSigCol[i]);
+     */
+     Int_t sensorId    = 0;
 
      //What About a decent post processing?
      //The column refer to Y!!!
-     int myTraw, myTcol;
+     int myTrow, myTcol;
+     myTrow = fpEvtStr->irowvtx[i];
+     myTcol = fpEvtStr->icolvtx[i];
+     /*
      myTcol = pParMap->GetPixelsNu()-fpEvtStr->miSigCol[i];
-     myTraw = pParMap->GetPixelsNv()-fpEvtStr->miSigRow[i];
-     
-     TAVTntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTraw, myTcol);
+     myTrow = pParMap->GetPixelsNv()-fpEvtStr->miSigRow[i];
+     */
+     TAVTntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol);
      //ID matching for the "trk" block
-     mcID = fpEvtStr->miSigId[i];
+     mcID = fpEvtStr->idvtx[i];
      pixel->SetMCid(mcID);
 
      //Need IDX matching
      TVector3 MCmom(0,0,0); 
      TVector3 MCpos(0,0,0); 
 
-     MCpos.SetXYZ(fpEvtStr->miSigX[i],fpEvtStr->miSigY[i],fpEvtStr->miSigZ[i]);
-     MCmom.SetXYZ(fpEvtStr->miSigpX[i],fpEvtStr->miSigpY[i],fpEvtStr->miSigpZ[i]);
+     MCpos.SetXYZ((fpEvtStr->xinvtx[i]+fpEvtStr->xoutvtx[i])/2,(fpEvtStr->yinvtx[i]+fpEvtStr->youtvtx[i])/2,(fpEvtStr->zinvtx[i]+fpEvtStr->zoutvtx[i])/2);
+     MCmom.SetXYZ((fpEvtStr->pxinvtx[i]+fpEvtStr->pxoutvtx[i])/2,(fpEvtStr->pyinvtx[i]+fpEvtStr->pyoutvtx[i])/2,(fpEvtStr->pzinvtx[i]+fpEvtStr->pzoutvtx[i])/2);
+
+     //     MCpos.SetXYZ(fpEvtStr->miSigX[i],fpEvtStr->miSigY[i],fpEvtStr->miSigZ[i]);
+     //     MCmom.SetXYZ(fpEvtStr->miSigpX[i],fpEvtStr->miSigpY[i],fpEvtStr->miSigpZ[i]);
      pixel->SetMCPosition(MCpos);
      pixel->SetMCMomentum(MCmom);
-     pixel->SetEneLoss(fpEvtStr->miSigDE[i]);  // VM added 3/11/13
-
+     pixel->SetEneLoss(fpEvtStr->devtx[i]);  // VM added 3/11/13
+     /*
      if (fDebugLevel)
        printf("Sensor %d line %d col %d\n", sensorId, fpEvtStr->miSigRow[i], fpEvtStr->miSigCol[i]);
      
@@ -151,11 +160,12 @@ Bool_t TAVTactNtuMC::Action()
        printf("Id %d X %f Y %f\n",      sensorId, pParMap->GetPositionU(fpEvtStr->miSigCol[i]), pParMap->GetPositionV(fpEvtStr->miSigRow[i]));
        printf("Id %d X %f Y %f\n",      sensorId, -pParMap->GetPositionV(fpEvtStr->miSigCol[i]), pParMap->GetPositionU(fpEvtStr->miSigRow[i]));
      }
-
-     double v = pParMap->GetPositionV(myTraw);
+     */
+     double v = pParMap->GetPositionV(myTrow);
      double u = pParMap->GetPositionU(myTcol);
      TVector3 pos(v,u,0);
      pixel->SetPosition(pos);
+   /*
 
      if(doXchk) {
        TVector3* senCen = pGeoMap->GetPosition(sensorId);
@@ -184,8 +194,8 @@ Bool_t TAVTactNtuMC::Action()
 	   fpHisRateMapQ[sensorId]->Fill(k+1);
        }
      }	 
-   }
    */
+   }
    
    fpNtuRaw->SetBit(kValid);
    return kTRUE;

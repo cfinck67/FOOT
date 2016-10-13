@@ -39,6 +39,7 @@ class TADCntuHit : public TObject {
     //Track Related Paramters
     void SetAW(TADCparGeo *f_dcgeo);
     int TrkAss() {return itrkass;};
+    Int_t GetMCId() {return iddc;};
     Double_t GetRho() {return rho;};
     Double_t GetChi2() {return ichi2;};
     Double_t GetSigma() {return sigma;};
@@ -46,6 +47,7 @@ class TADCntuHit : public TObject {
     TVector3 GetWvers() {return Wvers;};
   
     void SetTrkAss(Int_t in_ass) { itrkass = in_ass;};
+    void SetMCId(Int_t in_id) { iddc = in_id;};
     void SetRho(Double_t in_rho) { rho = in_rho;};
     void SetChi2(Double_t in_chi2) { ichi2 = in_chi2;};
     void SetPca(TVector3 in_pca) { pca = in_pca;};

@@ -54,6 +54,21 @@
 #include "TAVTactNtuTrackH.hxx"
 #include "TAVTactNtuTrackF.hxx"
 
+//Inner tracker
+#include "TAITparMap.hxx"
+#include "TAITparGeo.hxx"
+#include "TAITparConf.hxx"
+#include "TAITparCal.hxx"
+#include "TAITdatRaw.hxx"
+#include "TAITntuRaw.hxx"
+#include "TAITntuCluster.hxx"
+#include "TAITntuTrack.hxx"
+#include "TAITactNtuMC.hxx"
+#include "TAITactNtuClusterF.hxx"
+#include "TAITactNtuTrack.hxx"
+#include "TAITactNtuTrackH.hxx"
+#include "TAITactNtuTrackF.hxx"
+ 
 //Drift Chamber
 #include "TADCparGeo.hxx"
 #include "TADCparCon.hxx"
@@ -62,6 +77,16 @@
 #include "TADCactNtuMC.hxx"
 #include "TADCactNtuTrack.hxx"
 #include "TADCvieTrackFIRST.hxx"
+
+//Tof Wall (scintillator)
+#include "TATWparMap.hxx"
+#include "TATWdatRaw.hxx"
+#include "TATWactNtuMC.hxx"
+
+//Calorimeter
+#include "TACAparMap.hxx"
+#include "TACAdatRaw.hxx"
+#include "TACAactNtuMC.hxx"
 
 
 #include "foot_geo.h"
@@ -158,7 +183,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   bool m_doBM = kTRUE;
   bool m_doDC = kTRUE;
   bool m_doIR = kTRUE;
-  bool m_doVertex = kFALSE;
+  bool m_doTW = kTRUE;
+  bool m_doCA = kTRUE;
+  bool m_doInnerTracker = kTRUE;
+  bool m_doVertex = kTRUE;
 
   if(m_doEvent) 
     FillMCEvent(&evStr);
@@ -169,11 +197,20 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   if(m_doIR)
     FillMCInteractionRegion(&evStr);
 
+  if(m_doInnerTracker)
+    FillMCInnerTracker(&evStr);
+
   if(m_doVertex)
     FillMCVertex(&evStr);
 
   if(m_doDC)
     FillMCDriftChamber(&evStr);
+
+  if(m_doTW)
+    FillMCTofWall(&evStr);
+
+  if(m_doCA)
+    FillMCCalorimeter(&evStr);
 
   tagr->AddRequiredItem("my_out");
   tagr->Print();
@@ -231,6 +268,11 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
       (TAGntuMCeve*)   myn_mceve->GenerateObject();
     
     int nhitmc = p_ntumceve->nhit;
+
+    //do some MC check
+    //to be moved to framework
+    if(m_doVertex)
+      AssociateHitsToParticle();
 
     if(m_debug) {
 
@@ -371,6 +413,66 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   return;
 }
 
+
+void RecoTools::AssociateHitsToParticle() {
+
+  
+  TAGntuMCeve*  p_ntumceve = 
+    (TAGntuMCeve*)   myn_mceve->GenerateObject();
+  
+  vector<int> FragIdxs;
+  int nhitmc = p_ntumceve->nhit;
+  for(int i=0; i<nhitmc; i++){
+    TAGntuMCeveHit *myPart = p_ntumceve->Hit(i);
+
+    int part_reg = myPart->Reg();
+
+    //Require that particle is produced inside the TGT
+    if(part_reg == 3) {
+      FragIdxs.push_back(i);
+    }
+  }
+
+  //Pixels stuff
+  TAVTntuRaw*  p_nturaw = 
+    (TAVTntuRaw*)   myn_vtraw->GenerateObject();
+  
+  int tmp_vtxid(0);
+  TAVTntuHit* hit;
+
+  //inner tracker stuff
+  TAITntuRaw*  p_itnturaw = 
+    (TAITntuRaw*)   myn_itraw->GenerateObject();
+  
+  int tmp_itid(0);
+  TAITntuHit* hitIT;
+
+  for(int t_frg = 0; t_frg<FragIdxs.size(); t_frg++) {
+
+    //Check VTX pixels
+    for(int i=0; i<p_nturaw->GetPixelsN(0); i++){
+      hit = p_nturaw->GetPixel(0,i);
+      tmp_vtxid = hit->GetMCid()-1;
+      if(tmp_vtxid == FragIdxs.at(t_frg)){
+	if(m_debug) cout<<" Vtx hit associated to part "<<t_frg<<" That is a:: "<<p_ntumceve->Hit(t_frg)->FlukaID()<<"and has charge, mass:: "<<p_ntumceve->Hit(t_frg)->Chg()<<" "<<p_ntumceve->Hit(t_frg)->Mass()<<" "<<endl;
+      }
+    }
+
+    //Check IT pixels
+    for(int i=0; i<p_itnturaw->GetPixelsN(0); i++){
+      hitIT = p_itnturaw->GetPixel(0,i);
+      tmp_itid = hitIT->GetMCid()-1;
+      if(tmp_itid == FragIdxs.at(t_frg)){
+	if(m_debug) cout<<" IT hit associated to part "<<t_frg<<" That is a:: "<<p_ntumceve->Hit(t_frg)->FlukaID()<<"and has charge, mass:: "<<p_ntumceve->Hit(t_frg)->Chg()<<" "<<p_ntumceve->Hit(t_frg)->Mass()<<" "<<endl;
+      }
+    }
+
+  }//Loop on fragments
+
+  return;
+
+}
+
 void RecoTools::DisplayIRMonitor(TAGpadGroup* pg, EVENT_STRUCT *myStr) {
 
   TCanvas *c_irhview, *c_irhview_z;
@@ -484,6 +586,30 @@ void RecoTools::FillMCDriftChamber(EVENT_STRUCT *myStr) {
   return;
 }
 
+void RecoTools::FillMCTofWall(EVENT_STRUCT *myStr) {
+  
+  /*Ntupling the MC Tof Wall information*/
+  myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
+
+  new TATWactNtuMC("an_twraw", myn_twraw, myStr);
+
+  my_out->SetupElementBranch(myn_twraw,     "twrh.");
+
+  return;
+}
+
+void RecoTools::FillMCCalorimeter(EVENT_STRUCT *myStr) {
+  
+  /*Ntupling the MC Calorimeter information*/
+  myn_caraw    = new TAGdataDsc("myn_caraw", new TACAdatRaw());
+
+  new TACAactNtuMC("an_caraw", myn_caraw, myStr);
+
+  my_out->SetupElementBranch(myn_caraw,     "carh.");
+
+  return;
+}
+
 void RecoTools::FillMCInteractionRegion(EVENT_STRUCT *myStr) {
   
   /*Ntupling the MC Beam Monitor information*/
@@ -540,6 +666,46 @@ void RecoTools::FillMCVertex(EVENT_STRUCT *myStr) {
    my_out->SetupElementBranch(myn_vtclus, "vtclus.");
    my_out->SetupElementBranch(myn_vtrk, "vtTrack.");
    my_out->SetupElementBranch(myn_vtvtx, "vtVtx.");
+}
+
+
+void RecoTools::FillMCInnerTracker(EVENT_STRUCT *myStr) {
+   
+   /*Ntupling the MC Vertex information*/
+   myn_itraw    = new TAGdataDsc("itRaw", new TAITntuRaw());
+   myn_itclus   = new TAGdataDsc("itClus", new TAITntuCluster());
+   myn_itrk     = new TAGdataDsc("itTrack", new TAITntuTrack());
+
+   myp_itmap    = new TAGparaDsc("itMap", new TAITparMap());
+
+   myp_itconf  = new TAGparaDsc("itConf", new TAITparConf());
+   TAITparConf* parconf = (TAITparConf*) myp_itconf->Object();
+   TString filename = m_wd + "/config/TAITdetector.cfg";
+   parconf->FromFile(filename.Data());
+
+   myp_itgeo    = new TAGparaDsc("itGeo", new TAITparGeo());
+   TAITparGeo* geomap   = (TAITparGeo*) myp_itgeo->Object();
+   filename = m_wd + "/geomaps/TAITdetector.map";
+   geomap->FromFile(filename.Data());
+
+   myp_itcal = new TAGparaDsc("itCal", new TAITparCal());
+   TAITparCal* cal   = (TAITparCal*) myp_itcal->Object();
+   filename = m_wd + "/config/TAITdetector.cal";
+   cal->FromFile(filename.Data());
+   
+   mya_itraw   = new TAITactNtuMC("itActRaw", myn_itraw, myp_itgeo, myp_itmap, myStr);
+   mya_itclus  = new TAITactNtuClusterF("itActClus", myn_itraw, myn_itclus, myp_itconf, myp_itgeo);
+   mya_ittrack = new TAITactNtuTrack("itActTrack", myn_itclus, myn_itrk, myp_itconf, myp_itgeo, myp_itcal);
+
+   if (m_flaghisto) {
+     mya_itraw->CreateHistogram();
+     mya_itclus->CreateHistogram();
+     mya_ittrack->CreateHistogram();
+   }
+
+   my_out->SetupElementBranch(myn_itraw, "itrh.");
+   my_out->SetupElementBranch(myn_itclus, "itclus.");
+   my_out->SetupElementBranch(myn_itrk, "itTrack.");
 }
 
 
