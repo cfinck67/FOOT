@@ -1,0 +1,13 @@
+!Trigger channel and TDC board.
+T0 47  17
+!Mast trig
+T1 32  17
+!Double margh
+T2 33  17
+!Tof
+T3 34  17
+T4 35  17
+!Mast trig ken
+T5 32  16
+!Double margh
+T6 33  16
