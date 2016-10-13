@@ -1,0 +1,136 @@
+/*!
+  \file
+  \version $Id: TAIRdatRaw.icc,v 1.0 2011/04/01 18:47:40 sarti Exp $
+  \brief Implementation (inline) of TAIRdatRaw
+*/
+
+
+//------------------------------------------+-----------------------------------
+//! Returns Detector type
+
+inline Int_t TAIRrawHit::Type() const
+{
+  return ir_typ;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns channel ID
+
+inline Int_t TAIRrawHit::ChID() const
+{
+  return ir_chid;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns time from TDC
+
+inline Double_t TAIRrawHit::Time() const
+{
+  return ir_time;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns charge from QDC
+
+inline Double_t TAIRrawHit::Charge() const
+{
+  return ir_chg;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns Detector type
+
+inline void TAIRrawHit::SetType(int typ)
+{
+  ir_typ = typ;
+  return;	
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns channel ID
+
+inline void TAIRrawHit::SetChID(int id)
+{
+  ir_chid = id;
+  return;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns time from TDC
+
+inline void TAIRrawHit::SetTime(double time)
+{
+  ir_time = time;
+  return;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns charge from QDC
+
+inline void TAIRrawHit::SetCharge(double chg)
+{
+  ir_chg = chg;
+  return;
+}
+
+//##############################################################################
+
+//------------------------------------------+-----------------------------------
+//! Returns trigger time from SC
+
+inline Double_t TAIRdatRaw::TrigTime() const
+{
+  return trg_time;
+}
+
+
+//------------------------------------------+-----------------------------------
+//! Returns time from SC
+
+inline void TAIRdatRaw::SetTrigTime(double time)
+{
+  trg_time = time;
+  return;
+}
+
+
+//------------------------------------------+-----------------------------------
+//! Access \a i 'th hit
+
+inline TAIRrawHit* TAIRdatRaw::Hit(Int_t i)
+{
+  return (TAIRrawHit*) ((*hir)[i]);;
+}
+
+//------------------------------------------+-----------------------------------
+//! Read-only access \a i 'th hit
+
+inline const TAIRrawHit* TAIRdatRaw::Hit(Int_t i) const
+{
+  return (const TAIRrawHit*) ((*hir)[i]);;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns number of accepted TDC values.
+
+inline Int_t TAIRdatRaw::NTdc() const
+{
+  return fiNTdc;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns number of accepted ADC values.
+
+inline Int_t TAIRdatRaw::NAdc() const
+{
+  return fiNAdc;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns number of discarded FastBus values.
+
+inline Int_t TAIRdatRaw::NDrop() const
+{
+  return fiNDrop;
+}
+

@@ -1,0 +1,136 @@
+/*!
+  \file
+  \version $Id: TACAdatRaw.icc,v 1.0 2011/04/01 18:47:40 sarti Exp $
+  \brief Implementation (inline) of TACAdatRaw
+*/
+
+
+//------------------------------------------+-----------------------------------
+//! Returns Detector type
+
+inline Int_t TACArawHit::Type() const
+{
+  return ir_typ;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns channel ID
+
+inline Int_t TACArawHit::ChID() const
+{
+  return ir_chid;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns time from TDC
+
+inline Double_t TACArawHit::Time() const
+{
+  return ir_time;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns charge from QDC
+
+inline Double_t TACArawHit::Charge() const
+{
+  return ir_chg;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns Detector type
+
+inline void TACArawHit::SetType(int typ)
+{
+  ir_typ = typ;
+  return;	
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns channel ID
+
+inline void TACArawHit::SetChID(int id)
+{
+  ir_chid = id;
+  return;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns time from TDC
+
+inline void TACArawHit::SetTime(double time)
+{
+  ir_time = time;
+  return;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns charge from QDC
+
+inline void TACArawHit::SetCharge(double chg)
+{
+  ir_chg = chg;
+  return;
+}
+
+//##############################################################################
+
+//------------------------------------------+-----------------------------------
+//! Returns trigger time from SC
+
+inline Double_t TACAdatRaw::TrigTime() const
+{
+  return trg_time;
+}
+
+
+//------------------------------------------+-----------------------------------
+//! Returns time from SC
+
+inline void TACAdatRaw::SetTrigTime(double time)
+{
+  trg_time = time;
+  return;
+}
+
+
+//------------------------------------------+-----------------------------------
+//! Access \a i 'th hit
+
+inline TACArawHit* TACAdatRaw::Hit(Int_t i)
+{
+  return (TACArawHit*) ((*hir)[i]);;
+}
+
+//------------------------------------------+-----------------------------------
+//! Read-only access \a i 'th hit
+
+inline const TACArawHit* TACAdatRaw::Hit(Int_t i) const
+{
+  return (const TACArawHit*) ((*hir)[i]);;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns number of accepted TDC values.
+
+inline Int_t TACAdatRaw::NTdc() const
+{
+  return fiNTdc;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns number of accepted ADC values.
+
+inline Int_t TACAdatRaw::NAdc() const
+{
+  return fiNAdc;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns number of discarded FastBus values.
+
+inline Int_t TACAdatRaw::NDrop() const
+{
+  return fiNDrop;
+}
+
