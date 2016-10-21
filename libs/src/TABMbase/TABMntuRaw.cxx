@@ -65,6 +65,8 @@ void TABMntuHit::SetAW(TABMparGeo* f_bmgeo) {
   Int_t tmp_fview = 0;
   if(View()<0) tmp_fview = 1;
 
+  if(idfilo <0 || idfilo>2) idfilo = 2;
+
   A0.SetXYZ(f_bmgeo->GetX(idfilo,Plane(),tmp_fview),
 	    f_bmgeo->GetY(idfilo,Plane(),tmp_fview),
 	    f_bmgeo->GetZ(idfilo,Plane(),tmp_fview));

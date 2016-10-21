@@ -65,9 +65,13 @@ void TADCntuHit::SetAW(TADCparGeo* f_dcgeo) {
   Int_t tmp_fview = 0;
   if(View()<0) tmp_fview = 1;
 
+  //Temporary FIX
+  if(idfilo <0 || idfilo>2) idfilo = 2;
+ 
   A0.SetXYZ(f_dcgeo->GetX(idfilo,Plane(),tmp_fview),
 	    f_dcgeo->GetY(idfilo,Plane(),tmp_fview),
 	    f_dcgeo->GetZ(idfilo,Plane(),tmp_fview));
+  
   Wvers.SetXYZ(f_dcgeo->GetCX(idfilo,Plane(),tmp_fview),
 	       f_dcgeo->GetCY(idfilo,Plane(),tmp_fview),
 	       f_dcgeo->GetCZ(idfilo,Plane(),tmp_fview));
