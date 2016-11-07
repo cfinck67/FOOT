@@ -25,14 +25,17 @@ ClassImp(TABMactNtuMC);
 TABMactNtuMC::TABMactNtuMC(const char* name,
 			   TAGdataDsc* p_nturaw, 
 			   TAGparaDsc* p_parcon, 
+			   TAGparaDsc* p_pargeo, 
 			   EVENT_STRUCT* evStr)
   : TAGaction(name, "TABMactNtuMC - NTuplize ToF raw data"),
     fpNtuMC(p_nturaw),
     fpParCon(p_parcon),
+    fpParGeo(p_pargeo),
     fpEvtStr(evStr)
 {
   Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
   AddPara(p_parcon, "TABMparCon");
+  AddPara(p_pargeo, "TABMparGeo");
   AddDataOut(p_nturaw, "TABMntuRaw");
 }
 
@@ -52,11 +55,11 @@ Bool_t TABMactNtuMC::Action()
 
   TABMntuRaw* p_nturaw = (TABMntuRaw*) fpNtuMC->Object();
   TABMparCon* p_parcon = (TABMparCon*) fpParCon->Object();
+  TABMparGeo* p_pargeo = (TABMparGeo*) fpParGeo->Object();
 
 
   Int_t nhits(0);
   if (!p_nturaw->h) p_nturaw->SetupClones();
-  double locx, locy, locz;
   Double_t resolution;
   //The number of hits inside the BM is nmon
   Info("Action()","Processing n :: %2d hits \n",fpEvtStr->nmon);
@@ -74,24 +77,32 @@ Bool_t TABMactNtuMC::Action()
     //Tupling.
     if(i<32) {
       
-      //X,Y and Z needs to be placed in Local coordinates.
-      TVector3 gloc(fpEvtStr->xinmon[i],fpEvtStr->yinmon[i],fpEvtStr->zinmon[i]);
-      TVector3 loc = fpFirstGeo->FromGlobalToBMLocal(gloc);
-      locx = loc.X();
-      locy = loc.Y();
-      locz = loc.Z();
-
-      //      resolution = p_parcon->ResoEval(fpEvtStr->rdrift[i]);
-      resolution = p_parcon->ResoEval(0.1);
       //AS::: drift quantities have to be computed,
       TABMntuHit *mytmp = new((*(p_nturaw->h))[i]) 
 	TABMntuHit(fpEvtStr->idmon[i],		 fpEvtStr->iview[i],
 		   fpEvtStr->ilayer[i],          fpEvtStr->icell[i],  
-		   locx, locy, locz, //Will become PCA
-		   fpEvtStr->pxinmon[i],
-		   fpEvtStr->pyinmon[i],	 fpEvtStr->pzinmon[i], //will become mom @ PCA
-		   0,		 0, //here' rdrift tdrif.
+		   0, 0, 0, //Will become PCA that is needed @ tracking level.
+		   fpEvtStr->pxinmon[i], fpEvtStr->pyinmon[i], fpEvtStr->pzinmon[i],  //mom @ entrance in cell
+		   0, 0, //Rdrift is set later on (see FindRdrift) while tdrift has no meaning for now for MC
 		   fpEvtStr->timmon[i] );
+
+      
+      //X,Y and Z needs to be placed in Local coordinates.
+      TVector3 gloc(fpEvtStr->xinmon[i],fpEvtStr->yinmon[i],fpEvtStr->zinmon[i]);
+      TVector3 loc = fpFirstGeo->FromGlobalToBMLocal(gloc);
+
+      TVector3 gmom(fpEvtStr->pxinmon[i],fpEvtStr->pyinmon[i],fpEvtStr->pzinmon[i]);
+      TVector3 mom = fpFirstGeo->VecFromGlobalToBMLocal(gmom);
+
+      mytmp->SetAW(p_pargeo);
+
+	//Finds and sets rdrift for a given hit
+      mytmp->FindRdrift(loc,mom);
+
+      //      resolution = p_parcon->ResoEval(fpEvtStr->rdrift[i]);
+      resolution = p_parcon->ResoEval(0.1);
+
+
       mytmp->SetSigma(resolution);
       mytmp->SetTrkAss(0);
       nhits++;

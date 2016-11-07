@@ -41,9 +41,6 @@ TABMparGeo::TABMparGeo() {
   NLAYERNEW = 6;
   NSENSENEW = 3;
   
-  RSENSE = 0.003;
-  RFIELD = 0.008;
- 
   bm_step = 0.5;
   bm_cellwide = 0.8;
   bm_dplane = 0.3;
@@ -234,9 +231,6 @@ void TABMparGeo::InitGeo(){
        cx_pos[kk][il][1] = 0.;
        cy_pos[kk][il][1] = bm_SideDch[1];
        cz_pos[kk][il][1] = 0.;
-
-       bm_senserad = RSENSE;
-       bm_fieldrad = RFIELD;
 
      }
    }

@@ -44,12 +44,14 @@ class TABMntuHit : public TObject {
     Double_t GetSigma() {return sigma;};
     TVector3 GetA0() {return A0;};
     TVector3 GetWvers() {return Wvers;};
+
+    void FindRdrift(TVector3 pos, TVector3 dir);
+
   
     void SetTrkAss(Int_t in_ass) { itrkass = in_ass;};
     void SetRho(Double_t in_rho) { rho = in_rho;};
     void SetChi2(Double_t in_chi2) { ichi2 = in_chi2;};
     void SetPca(TVector3 in_pca) { pca = in_pca;};
-    void SetPcaWire(TVector3 in_pca) { pca_wire = in_pca;};
     void SetSigma(Double_t sig) {sigma = sig;};
 
   ClassDef(TABMntuHit,1)
@@ -78,8 +80,8 @@ class TABMntuHit : public TObject {
 
     Double_t  rho;
     TVector3  pca;
-    TVector3  pca_wire;
-
+    
+  
 };
 
 //##############################################################################

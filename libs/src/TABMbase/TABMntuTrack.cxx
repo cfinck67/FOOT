@@ -365,7 +365,7 @@ Int_t TABMntuTrackTr::ComputeDataWire(TABMntuHit *wr, Int_t fwire){
     wr->SetRho(sqrt( D0.Mag2() + tp*tp + tf*tf + 2*tp*D0P -2*tf*D0W 
 		     -2*prosca*tf*tp));
     wr->SetPca(R0 + tp*Pvers);
-    wr->SetPcaWire(wr->GetA0() + tf*wr->GetWvers());
+    //    wr->SetPcaWire(wr->GetA0() + tf*wr->GetWvers());
     trackrho(fwire) = wr->GetRho();
   }
   else{
@@ -643,7 +643,7 @@ Int_t TABMntuTrackTr::ComputeDataAll(TABMntuRaw *hitp){
       wr->SetRho(sqrt( D0.Mag2() + tp*tp + tf*tf + 2*tp*D0P -2*tf*D0W 
 		       -2*prosca*tf*tp));
       wr->SetPca(R0 + tp*Pvers);
-      wr->SetPcaWire(wr->GetA0() + tf*wr->GetWvers());
+      //      wr->SetPcaWire(wr->GetA0() + tf*wr->GetWvers());
       trackrho(usedH) = wr->GetRho();
     }
     else{

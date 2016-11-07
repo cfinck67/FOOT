@@ -87,9 +87,6 @@ class TABMparGeo : public TAGpara {
     Int_t NLAYERNEW;
     Int_t NSENSENEW;
 
-    Double_t  RSENSE;
-    Double_t  RFIELD;
-
     Double_t bm_step;
     Double_t bm_cellwide;
     Double_t bm_dplane;
@@ -114,11 +111,6 @@ class TABMparGeo : public TAGpara {
     Double_t  DELTAXNEW;
 
     Int_t bm_idsense[3];
-
-    Int_t bm_nlayer;
-    Int_t bm_nwirelayer;
-    Double_t bm_senserad;
-    Double_t bm_fieldrad;
 
     TVector3 bm_CenterDch;    /* Chamber center positioning */
     TVector3 bm_SideDch;      /* Chamber side dimensions */
