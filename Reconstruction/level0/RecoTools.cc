@@ -34,7 +34,7 @@
 #include "TABMntuTrack.hxx"
 #include "TABMactNtuMC.hxx"
 #include "TABMactNtuTrack.hxx"
-#include "TABMvieTrackFIRST.hxx"
+#include "TABMvieTrackFOOT.hxx"
 
 //Vertex
 #include "TAVTparMap.hxx"
@@ -120,8 +120,9 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
   m_nev = nev;
   m_flaghisto = false;
   m_fullmoni = kFALSE;
-  //  gErrorIgnoreLevel = kInfo;
-  gErrorIgnoreLevel = kError;
+  //  gErrorIgnoreLevel = kWarning;
+  gErrorIgnoreLevel = kInfo;
+  //  gErrorIgnoreLevel = kError;
   //  gErrorIgnoreLevel = kFatal;
 
   m_hf = hf;
@@ -186,7 +187,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   bool m_doTW = kTRUE;
   bool m_doCA = kTRUE;
   bool m_doInnerTracker = kTRUE;
-  bool m_doVertex = kTRUE;
+  bool m_doVertex = kFALSE;
 
   if(m_doEvent) 
     FillMCEvent(&evStr);
@@ -224,7 +225,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   //Initialize the Event Display for the Music
 
   if(m_doBM) {
-    //    DisplayBeamMonitor(pg);
+    DisplayBeamMonitor(pg);
     
     //    DisplayIRMonitor(pg,&evStr);
   }
@@ -252,7 +253,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     if(m_doBM) {
       //      MonitorBM();
-
       if(m_doVertex) {
 	MonitorBMVTMat();
       
@@ -322,10 +322,11 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
       if(m_debug) cout<<" Trk Chg:: "<<evStr.trcha[iTr]<<endl; 
     }
 
-    //    tobedrawn = kTRUE;
 
     if(tr->IsWanted()) tobedrawn = kTRUE;
     */
+
+    tobedrawn = kTRUE;
 
     //Debugging of Vertex
     if(m_doVertex) {
@@ -505,7 +506,7 @@ void RecoTools::DisplayBeamMonitor(TAGpadGroup* pg) {
   c_bmhview = new TCanvas("bmhview", "Beam Monitor - horizontal view",20,20,700,900);
   pg->AddPad(c_bmhview);
 
-  TAGview* pbmh_view = new TABMvieTrackFIRST(myn_bmtrk,
+  TAGview* pbmh_view = new TABMvieTrackFOOT(myn_bmtrk,
 					     myn_bmraw,
 					     myp_bmgeo);
   pbmh_view->Draw();
@@ -544,13 +545,13 @@ void RecoTools::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
 
   initBMCon(myp_bmcon);
 
-  new TABMactNtuMC("an_bmraw", myn_bmraw, myp_bmcon, myStr);
-
-  my_out->SetupElementBranch(myn_bmraw,     "bmrh.");
-
   myp_bmgeo  = new TAGparaDsc("p_bmgeo", new TABMparGeo());
 
   initBMGeo(myp_bmgeo);
+
+  new TABMactNtuMC("an_bmraw", myn_bmraw, myp_bmcon, myp_bmgeo, myStr);
+
+  my_out->SetupElementBranch(myn_bmraw,     "bmrh.");
 
   myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
 
@@ -575,7 +576,7 @@ void RecoTools::FillMCDriftChamber(EVENT_STRUCT *myStr) {
 
   myp_dcgeo  = new TAGparaDsc("p_dcgeo", new TADCparGeo());
 
-  initDCGeo(myp_dcgeo);
+  initDCGeo(myp_dcgeo); 
 
   myn_dctrk    = new TAGdataDsc("myn_dctrk", new TADCntuTrack());
 

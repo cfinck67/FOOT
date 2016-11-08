@@ -57,12 +57,13 @@ Bool_t TABMactNtuMC::Action()
   TABMparCon* p_parcon = (TABMparCon*) fpParCon->Object();
   TABMparGeo* p_pargeo = (TABMparGeo*) fpParGeo->Object();
 
-
+  int cell, view, lay;
   Int_t nhits(0);
   if (!p_nturaw->h) p_nturaw->SetupClones();
   Double_t resolution;
   //The number of hits inside the BM is nmon
   Info("Action()","Processing n :: %2d hits \n",fpEvtStr->nmon);
+
   for (Int_t i = 0; i < fpEvtStr->nmon; i++) {
 
     /*
@@ -74,44 +75,50 @@ Bool_t TABMactNtuMC::Action()
       write(*,*)'rdrift= ',rdrift(ii),' tdrift= ', tdrift(ii), 
     */
 
-    //Tupling.
-    if(i<32) {
-      
-      //AS::: drift quantities have to be computed,
-      TABMntuHit *mytmp = new((*(p_nturaw->h))[i]) 
-	TABMntuHit(fpEvtStr->idmon[i],		 fpEvtStr->iview[i],
-		   fpEvtStr->ilayer[i],          fpEvtStr->icell[i],  
+    //AS::: drift quantities have to be computed,
+    cell = fpEvtStr->icell[i];
+    cell += -1;
+    lay = fpEvtStr->ilayer[i];
+    lay += -1;
+    view = fpEvtStr->iview[i];
+    if(view==2) view = -1;
+    
+    if(fpEvtStr->idmon[i]-1 == 0) {
+      TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) 
+	TABMntuHit(fpEvtStr->idmon[i],		 view,
+		   lay,          cell,  
 		   0, 0, 0, //Will become PCA that is needed @ tracking level.
 		   fpEvtStr->pxinmon[i], fpEvtStr->pyinmon[i], fpEvtStr->pzinmon[i],  //mom @ entrance in cell
 		   0, 0, //Rdrift is set later on (see FindRdrift) while tdrift has no meaning for now for MC
 		   fpEvtStr->timmon[i] );
-
+      
       
       //X,Y and Z needs to be placed in Local coordinates.
       TVector3 gloc(fpEvtStr->xinmon[i],fpEvtStr->yinmon[i],fpEvtStr->zinmon[i]);
       TVector3 loc = fpFirstGeo->FromGlobalToBMLocal(gloc);
-
+      
       TVector3 gmom(fpEvtStr->pxinmon[i],fpEvtStr->pyinmon[i],fpEvtStr->pzinmon[i]);
       TVector3 mom = fpFirstGeo->VecFromGlobalToBMLocal(gmom);
-
+      
       mytmp->SetAW(p_pargeo);
-
-	//Finds and sets rdrift for a given hit
+      
+      //Finds and sets rdrift for a given hit
       mytmp->FindRdrift(loc,mom);
-
-      //      resolution = p_parcon->ResoEval(fpEvtStr->rdrift[i]);
-      resolution = p_parcon->ResoEval(0.1);
-
-
+      
+      resolution = p_parcon->ResoEval(mytmp->Dist());
+      //      resolution = p_parcon->ResoEval(0.1);
+      
+      //      cout<<"TADAH "<<mytmp->Cell()<<" "<<mytmp->Plane()<<" "<<mytmp->View()<<" "<<mytmp->Dist()<<" "<<endl;
+      
+      
       mytmp->SetSigma(resolution);
       mytmp->SetTrkAss(0);
       nhits++;
-
     }
   }
   
   p_nturaw->nhit  = nhits;
-  
+
   fpNtuMC->SetBit(kValid);
   return kTRUE;
 }

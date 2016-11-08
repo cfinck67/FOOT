@@ -85,6 +85,7 @@ void TABMparGeo::GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_
   int my_ID = GetID(cellID);
   int myview = 0; //U view is default (side view)
   if(view == -1) myview = 1; //V view (top view)
+
   h_x = x_pos[my_ID][plane][myview];
   h_y = y_pos[my_ID][plane][myview];
   h_z = z_pos[my_ID][plane][myview];

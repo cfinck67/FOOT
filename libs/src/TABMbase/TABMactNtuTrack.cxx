@@ -66,6 +66,7 @@ Bool_t TABMactNtuTrack::Action()
   if (!p_ntutrk->t) p_ntutrk->SetupClones();
 
   Int_t i_nhit = p_ntuhit->nhit;
+
   Int_t cell, plane, view, stat;
   Double_t dist;
   //Loop on all the wires
@@ -120,7 +121,6 @@ Bool_t TABMactNtuTrack::Action()
     if(HitMult[my_idx]<=1 && OccuPlane[my_view][plane]<2 && dist<0.8) {
       
       SingleHit[trackHits]=i_h;
-      // cout<< "trackhits " <<trackHits<<endl;
       
       stat = aTr.AddHit(p_hit, p_bmgeo);
       p_hit->SetTrkAss(1);

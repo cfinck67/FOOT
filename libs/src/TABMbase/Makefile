@@ -19,7 +19,7 @@ LDLIBS    += $(shell root-config --libs)
 TOBJ_all   = TABMdatRaw.hxx  TABMntuRaw.hxx \
 	     TABMparMap.hxx TABMparGeo.hxx \
 	     TABMactNtuRaw.hxx \
-	     TABMactNtuMC.hxx  TABMvieTrackFIRST.hxx \
+	     TABMactNtuMC.hxx  TABMvieTrackFOOT.hxx \
 	     TABMntuTrack.hxx TABMactNtuTrack.hxx \
 	     TABMparCon.hxx
 #           TABMactDatRaw.hxx 
