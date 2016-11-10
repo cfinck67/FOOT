@@ -5,6 +5,7 @@
 */
 
 #include <math.h>
+#include <KalmanFitterRefTrack.h>
 
 #include "TF1.h"
 #include "TABMparCon.hxx"
@@ -17,6 +18,8 @@
   \class TABMactNtuTrack TABMactNtuTrack.hxx "TABMactNtuTrack.hxx"
   \brief Track builder for Beam Monitor. **
 */
+
+using namespace genfit;
 
 ClassImp(TABMactNtuTrack);
 
@@ -38,6 +41,11 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
   AddDataIn(p_ntuhit,  "TABMntuRaw");
   AddPara(p_bmgeo,  "TABMparGeo");
   AddPara(p_bmcon,  "TABMparCon");
+
+  AbsKalmanFitter* fitter = new KalmanFitterRefTrack();
+
+
+
 }
 
 //------------------------------------------+-----------------------------------
@@ -45,6 +53,7 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
 
 TABMactNtuTrack::~TABMactNtuTrack()
 {}
+
 
 //------------------------------------------+-----------------------------------
 //! Action.
