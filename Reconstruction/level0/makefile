@@ -9,7 +9,7 @@ LD            = g++
 LDFLAGS       = -g
 
 NGLIBB         = $(ROOTGLIBS) 
-NGLIBB        += -lMinuit   -lGeom -lGeomPainter -lEve -lRGL -lGed -lEG -lTreePlayer
+NGLIBB        += -lMinuit -lGeom -lGeomPainter -lEve -lRGL -lGed -lEG -lTreePlayer -L$(PWD)/../../libs/GenFit/lib -lgenfit2
 NGLIBB        += $(PWD)/libRecoTools.so 
 #MC libs
 NGLIBB        += $(PWD)/libEvento.so 
@@ -34,7 +34,7 @@ ELIB        += ./libSegnale.so
 ELIB        += ./libGeometry.so 
 ELIB        += ./libTrigger.so
 
-TAINCL	       = -I$(PWD)/../ -I$(PWD)/../../libs/src/TAGbase/  -I$(PWD)/../../libs/src/TAGmclib/ -I$(PWD)/../../libs/src/TAVTbase -I$(PWD)/../../libs/src/TAGfoot -I$(PWD)/../../libs/src/TABMbase -I$(PWD)/../../libs/src/TADCbase -I$(PWD)/../../libs/src/TAIRbase  -I$(PWD)/../../libs/src/TAITbase  -I$(PWD)/../../libs/src/TACAbase  -I$(PWD)/../../libs/src/TATWbase  -I$(PWD)/../../Simulation/TXT2ROOT
+TAINCL	       = -I$(PWD)/../ -I$(PWD)/../../libs/src/TAGbase/  -I$(PWD)/../../libs/src/TAGmclib/ -I$(PWD)/../../libs/src/TAVTbase -I$(PWD)/../../libs/src/TAGfoot -I$(PWD)/../../libs/src/TABMbase -I$(PWD)/../../libs/src/TADCbase -I$(PWD)/../../libs/src/TAIRbase  -I$(PWD)/../../libs/src/TAITbase  -I$(PWD)/../../libs/src/TACAbase  -I$(PWD)/../../libs/src/TATWbase  -I$(PWD)/../../Simulation/TXT2ROOT -I$(PWD)/../../libs/GenFit/fitters/include -I$(PWD)/../../libs/GenFit/core/include
 
 TALIB        += ../../libs/lib/libTAGfoot.so ../../libs/lib/libTAGmclib.so 
 TALIB        += ../../libs/lib/libTAGbase.so 

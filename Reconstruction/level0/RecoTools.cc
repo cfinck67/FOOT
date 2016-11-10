@@ -121,8 +121,8 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
   m_flaghisto = false;
   m_fullmoni = kFALSE;
   //  gErrorIgnoreLevel = kWarning;
-  gErrorIgnoreLevel = kInfo;
-  //  gErrorIgnoreLevel = kError;
+  //  gErrorIgnoreLevel = kInfo;
+  gErrorIgnoreLevel = kError;
   //  gErrorIgnoreLevel = kFatal;
 
   m_hf = hf;
