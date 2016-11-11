@@ -34,7 +34,7 @@ ELIB        += ./libSegnale.so
 ELIB        += ./libGeometry.so 
 ELIB        += ./libTrigger.so
 
-TAINCL	       = -I$(PWD)/../ -I$(PWD)/../../libs/src/TAGbase/  -I$(PWD)/../../libs/src/TAGmclib/ -I$(PWD)/../../libs/src/TAVTbase -I$(PWD)/../../libs/src/TAGfoot -I$(PWD)/../../libs/src/TABMbase -I$(PWD)/../../libs/src/TADCbase -I$(PWD)/../../libs/src/TAIRbase  -I$(PWD)/../../libs/src/TAITbase  -I$(PWD)/../../libs/src/TACAbase  -I$(PWD)/../../libs/src/TATWbase  -I$(PWD)/../../Simulation/TXT2ROOT -I$(PWD)/../../libs/GenFit/fitters/include -I$(PWD)/../../libs/GenFit/core/include
+TAINCL	       = -I$(PWD)/../ -I$(PWD)/../../libs/src/TAGbase/  -I$(PWD)/../../libs/src/TAGmclib/ -I$(PWD)/../../libs/src/TAVTbase -I$(PWD)/../../libs/src/TAGfoot -I$(PWD)/../../libs/src/TABMbase -I$(PWD)/../../libs/src/TADCbase -I$(PWD)/../../libs/src/TAIRbase  -I$(PWD)/../../libs/src/TAITbase  -I$(PWD)/../../libs/src/TACAbase  -I$(PWD)/../../libs/src/TATWbase  -I$(PWD)/../../Simulation/TXT2ROOT -I$(PWD)/../../libs/GenFit/fitters/include -I$(PWD)/../../libs/GenFit/core/include -I$(PWD)/../../libs/GenFit/trackReps/include -I$(PWD)/../../libs/GenFit/fields/include -I$(PWD)/../../libs/GenFit/measurements/include 
 
 TALIB        += ../../libs/lib/libTAGfoot.so ../../libs/lib/libTAGmclib.so 
 TALIB        += ../../libs/lib/libTAGbase.so 
@@ -58,7 +58,7 @@ SOFLAGSV       = -shared $(ROOTGLIBS) ./libSegnale.so ./libGeometry.so
 SOFLAGS  = -shared $(ROOTGLIBS) 
 endif
 
-TAINCL	       = -I../ -I../../libs/src/TAGbase/ -I../../libs/src/TAGmclib/ -I../../libs/src/TAGfoot -I../../libs/src/TABMbase -I../../libs/src/TADCbase -I../../libs/src/TAIRbase -I../../libs/src/TAITbase -I../../libs/src/TACAbase -I../../libs/src/TATWbase -I../../libs/src/TAVTbase -I../../Simulation/TXT2ROOT
+TAINCL	       = -I../ -I../../libs/src/TAGbase/ -I../../libs/src/TAGmclib/ -I../../libs/src/TAGfoot -I../../libs/src/TABMbase -I../../libs/src/TADCbase -I../../libs/src/TAIRbase -I../../libs/src/TAITbase -I../../libs/src/TACAbase -I../../libs/src/TATWbase -I../../libs/src/TAVTbase -I../../Simulation/TXT2ROOT -I../../libs/GenFit/fitters/include -I../../libs/GenFit/core/include -I../../libs/GenFit/trackReps/include -I../../libs/GenFit/fields/include -I../../libs/GenFit/measurements/include 
 
 CXXFLAGS      = -g -Wall -fPIC
 CXXFLAGS      += $(ROOTCFLAGS)

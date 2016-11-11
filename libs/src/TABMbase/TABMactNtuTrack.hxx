@@ -15,6 +15,12 @@ using namespace std;
 #include "TAGparaDsc.hxx"
 #include "TABMntuTrack.hxx"
 
+#include "TGeoManager.h"
+#include <KalmanFitterRefTrack.h>
+#include <KalmanFitter.h>
+
+using namespace genfit;
+
 class TABMactNtuTrack : public TAGaction {
 public:
   explicit        TABMactNtuTrack(const char* name=0,
@@ -32,6 +38,9 @@ public:
   ClassDef(TABMactNtuTrack,0)
     
   private:
+
+  AbsKalmanFitter* f_fitter;
+  TGeoManager*    f_BMgeoMan;
   TAGdataDsc*     fpNtuTrk;		    // output data dsc
   TAGdataDsc*     fpNtuHit;		    // input data dsc
   TAGparaDsc*     fpBMGeo;		    // input data dsc

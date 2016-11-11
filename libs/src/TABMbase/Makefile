@@ -13,6 +13,8 @@ TINCLFLAGS += $(shell root-config --cflags)
 INCLFLAGS  = $(filter-out -stdlib=libc++, $(TINCLFLAGS))
 INCLFLAGS += -I../TAIRbase -I../TAGbase -I../TAGfoot -I../../../Simulation/TXT2ROOT 
 INCLFLAGS += -I../../../libs/GenFit/fitters/include -I../../../libs/GenFit/core/include
+INCLFLAGS += -I../../../libs/GenFit/trackReps/include -I../../../libs/GenFit/fields/include 
+INCLFLAGS += -I../../../libs/GenFit/measurements/include 
 LDLIBS    += $(shell root-config --libs) -L../../../libs/GenFit/lib -lgenfit2
 #
 # Files to be included

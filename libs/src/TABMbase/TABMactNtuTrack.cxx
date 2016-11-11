@@ -5,7 +5,6 @@
 */
 
 #include <math.h>
-#include <KalmanFitterRefTrack.h>
 
 #include "TF1.h"
 #include "TABMparCon.hxx"
@@ -13,13 +12,17 @@
 #include "TABMntuTrack.hxx"
 
 #include "TABMactNtuTrack.hxx"
+#include "FieldManager.h"
+#include "MaterialEffects.h"
+#include "TGeoMaterialInterface.h"
+#include "ConstField.h"
+#include "Track.h"
+#include "WireMeasurementNew.h"
 
 /*!
   \class TABMactNtuTrack TABMactNtuTrack.hxx "TABMactNtuTrack.hxx"
   \brief Track builder for Beam Monitor. **
 */
-
-using namespace genfit;
 
 ClassImp(TABMactNtuTrack);
 
@@ -42,9 +45,33 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
   AddPara(p_bmgeo,  "TABMparGeo");
   AddPara(p_bmcon,  "TABMparCon");
 
-  AbsKalmanFitter* fitter = new KalmanFitterRefTrack();
+  //  AbsKalmanFitter* fitter = new KalmanFitterRefTrack();
 
+  const int nIter = 20; // max number of iterations
+  const double dPVal = 1.E-3; // convergence criterion
 
+  f_fitter = new KalmanFitter(nIter, dPVal);
+  f_fitter->setMultipleMeasurementHandling(unweightedClosestToPredictionWire);
+
+  const double BField = 1.;       // kGauss [ --> Eq. to 0.1 T]
+
+  // init geometry and mag. field
+  /*
+  f_BMgeoMan = p_bmgeo->GetGeoManager();
+
+  TABMparGeo*   geo = (TABMparGeo*)    fpBMGeo->Object();
+  geo->AddBM("BeamMonitor");
+
+  new TGeoManager("Geometry", "Geane geometry");
+  TGeoManager::Import("/home/FOOT-T3/sartifoott3/software/libs/src/TABMbase/genfitGeom.root");
+  */
+  //Bfield is along Y in our case.
+  FieldManager::getInstance()->init(new ConstField(0.,BField,0.));
+  FieldManager::getInstance()->useCache(true, 8);
+  MaterialEffects::getInstance()->init(new TGeoMaterialInterface());
+
+  //We're going to need to load the geometry here at some point..
+  //From parGeo..
 
 }
 
@@ -52,7 +79,9 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
 //! Destructor.
 
 TABMactNtuTrack::~TABMactNtuTrack()
-{}
+{
+  delete f_fitter;
+}
 
 
 //------------------------------------------+-----------------------------------
@@ -75,6 +104,97 @@ Bool_t TABMactNtuTrack::Action()
   if (!p_ntutrk->t) p_ntutrk->SetupClones();
 
   Int_t i_nhit = p_ntuhit->nhit;
+
+  /*
+    NEW tracking
+  */
+  
+  Track* fitTrack(nullptr);
+  /*  
+  // true start values
+  TVector3 pos(0, 0, 0);
+  TVector3 mom(1.,0,0);
+  // calc helix parameters
+  const double charge = 6;
+  genfit::HelixTrackModel* helix = new genfit::HelixTrackModel(pos, mom, charge);
+  */
+
+  double sign = 1.; //Charged particles 
+  const int pdg = 2212; //proton
+  const int det_type = 1; //beam monitor
+  AbsTrackRep* rep = new RKTrackRep(sign*pdg);
+
+  //  genfit::MeasuredStateOnPlane stateRef(rep);
+  //  rep->setPosMomCov(stateRef, pos, mom, covM);
+
+  genfit::MeasuredStateOnPlane stateSmeared(rep);
+  
+  //Resolution on measurement along wire and on direction
+  const double resolution = 0.02;   // cm; resolution of generated measurements
+  TMatrixDSym covM(6);
+  for (int i = 0; i < 3; ++i)
+    covM(i,i) = resolution*resolution;
+  for (int i = 3; i < 6; ++i)
+    covM(i,i) = pow(resolution / 10 / sqrt(3), 2);
+  
+  TVector3 posM(0, 0, 0);
+  TVector3 momM(1.,0,0);
+  rep->setPosMomCov(stateSmeared, posM, momM, covM);
+
+  // fill measurements vector
+  vector<AbsMeasurement*> measurements;
+
+  double hit_reso(0.);
+  double x,y,z,cx,cy,cz;
+  //Looping on hits
+  for(Int_t i_h = 0; i_h < i_nhit; i_h++) {
+    
+    Info("Action()","create WireHit");
+
+    TABMntuHit* p_hit = p_ntuhit->Hit(i_h);
+    hit_reso = p_hit->GetSigma();
+    x = p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
+    y = p_bmgeo->GetY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
+    z = p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
+
+    cx = p_bmgeo->GetCX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
+    cy = p_bmgeo->GetCY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
+    cz = p_bmgeo->GetCZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
+
+    TVector3 wire_e1 = TVector3(x+cx/2,y+cy/2,z+cz/2);
+    TVector3 wire_e2 = TVector3(x-cx/2,y-cy/2,z-cz/2);
+
+    AbsMeasurement* measurement = new WireMeasurementNew (p_hit->Dist(), hit_reso, wire_e1, wire_e2, det_type, i_h, nullptr);
+
+    measurements.push_back(measurement);
+  }
+  
+  // create track
+  TVectorD seedState(6);
+  TMatrixDSym seedCov(6);
+  rep->get6DStateCov(stateSmeared, seedState, seedCov);
+  fitTrack = new Track(rep, seedState, seedCov); //initialized with smeared rep
+
+  // add measurements
+  for(unsigned int i=0; i<measurements.size(); ++i){
+    //    cout<<"Adding measurements :: "<<i<<endl;
+    fitTrack->insertPoint(new TrackPoint(measurements[i], fitTrack));
+    assert(fitTrack->checkConsistency());
+  }
+
+  //  cout<<"Starting the fitter"<<endl;
+  //  gGeoManager = f_BMgeoMan;
+  bool readyToFit = kFALSE;
+  if(readyToFit) {
+    f_fitter->processTrack(fitTrack, false);
+    double pval = f_fitter->getPVal(fitTrack, rep);
+  }
+  //  cout<<"Fitted with pval:: "<<pval<<endl;
+  delete fitTrack;
+
+  /*
+    OLD tracking
+  */
 
   Int_t cell, plane, view, stat;
   Double_t dist;
