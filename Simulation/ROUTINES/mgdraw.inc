@@ -33,7 +33,7 @@ c     tof           = tof of the particle
 c     trlen         = track lenght of the particle
 c     
       integer nump, maxnump
-      parameter(maxnump=1000)
+      parameter(maxnump=5000)
 
       integer idpa(maxnump), igen(maxnump)
       integer icha(maxnump), numreg(maxnump), iba(maxnump)
@@ -52,246 +52,238 @@ c
 c     *************************************************************
 c     common needed to score the hit in the start counter
 c     
-      integer nstartc, maxstartc 
-      parameter (maxstartc=2000)
-      integer idstartc (maxstartc)
+      integer nSTC, maxSTC 
+      parameter (maxSTC=2000)
+      integer idSTC (maxSTC)
 
-      real xinstartc(maxstartc), xoutstartc(maxstartc), 
-     &     yinstartc(maxstartc), youtstartc(maxstartc), 
-     &     zinstartc(maxstartc), zoutstartc(maxstartc)
-      real pxinstartc(maxstartc), pxoutstartc(maxstartc), 
-     &     pyinstartc(maxstartc), pyoutstartc(maxstartc), 
-     &     pzinstartc(maxstartc), pzoutstartc(maxstartc)
-      real destartc(maxstartc), timstartc(maxstartc), 
-     &     alstartc(maxstartc)
-      common /startc_common/ xinstartc, xoutstartc, yinstartc, 
-     &     youtstartc, zinstartc, zoutstartc, pxinstartc, pxoutstartc,
-     &     pyinstartc, pyoutstartc, pzinstartc, pzoutstartc,
-     &     destartc, alstartc, timstartc, nstartc, idstartc
+      real xinSTC(maxSTC), xoutSTC(maxSTC), 
+     &     yinSTC(maxSTC), youtSTC(maxSTC), 
+     &     zinSTC(maxSTC), zoutSTC(maxSTC)
+      real pxinSTC(maxSTC), pxoutSTC(maxSTC), 
+     &     pyinSTC(maxSTC), pyoutSTC(maxSTC), 
+     &     pzinSTC(maxSTC), pzoutSTC(maxSTC)
+      real deSTC(maxSTC), timSTC(maxSTC), 
+     &     alSTC(maxSTC)
+      common /STC_common/ xinSTC, xoutSTC, yinSTC, 
+     &     youtSTC, zinSTC, zoutSTC, pxinSTC, pxoutSTC,
+     &     pyinSTC, pyoutSTC, pzinSTC, pzoutSTC,
+     &     deSTC, alSTC, timSTC, nSTC, idSTC
 
 c     *************************************************************
 c     common needed to score the hit in the beam monitor
 c     
 c     iview = x and y view(1-2)
-c     ipla  = first drift chamber plane index (1-6)
+c     ilay  = first drift chamber layer index (1-6)
 c     icell = first drift chamber cell index (1-3)
 c      
-      integer nBM, maxBM 
-      parameter (maxBM=2000)
-      integer idBM (maxBM), iviewBM(maxBM),iplaBM(maxBM),
-     &     icellBM(maxBM) 
+      integer nBMN, maxBMN 
+      parameter (maxBMN=2000)
+      integer idBMN (maxBMN), iviewBMN(maxBMN),ilayBMN(maxBMN),
+     &     icellBMN(maxBMN) 
 
-      real xinBM(maxBM), xoutBM(maxBM), yinBM(maxBM), 
-     &     youtBM(maxBM), zinBM(maxBM), zoutBM(maxBM)
-      real pxinBM(maxBM), pxoutBM(maxBM), pyinBM(maxBM), 
-     &     pyoutBM(maxBM), pzinBM(maxBM), pzoutBM(maxBM)
-      real deBM(maxBM), timBM(maxBM), alBM(maxBM)
-      common /BM_common/ xinBM, xoutBM, yinBM, youtBM, zinBM, 
-     &     zoutBM, pxinBM, pxoutBM, pyinBM, pyoutBM, pzinBM, 
-     &     pzoutBM,deBM, alBM, timBM, nBM, idBM, iviewBM,
-     &     iplaBM, icellBM
+      real xinBMN(maxBMN), xoutBMN(maxBMN), yinBMN(maxBMN), 
+     &     youtBMN(maxBMN), zinBMN(maxBMN), zoutBMN(maxBMN)
+      real pxinBMN(maxBMN), pxoutBMN(maxBMN), pyinBMN(maxBMN), 
+     &     pyoutBMN(maxBMN), pzinBMN(maxBMN), pzoutBMN(maxBMN)
+      real deBMN(maxBMN), timBMN(maxBMN), alBMN(maxBMN)
+      common /BMN_common/ xinBMN, xoutBMN, yinBMN, youtBMN, zinBMN, 
+     &     zoutBMN, pxinBMN, pxoutBMN, pyinBMN, pyoutBMN, pzinBMN, 
+     &     pzoutBMN,deBMN, alBMN, timBMN, nBMN, idBMN, iviewBMN,
+     &     ilayBMN, icellBMN
 c     
-c  common for the indexing of the first drift ch
+c  common for the indexing of the beam monitor
 c
-      integer MAXBMREG
-      parameter (MAXBMREG=500)
-      integer ireg2plaBM(MAXBMREG), ireg2viewBM(MAXBMREG), 
-     & ireg2cellBM(MAXBMREG)
-      common /BM_index_common/ireg2plaBM, ireg2viewBM, ireg2cellBM
+      integer MAXBMNREG
+      parameter (MAXBMNREG=200)
+      integer ireg2layBMN(MAXBMNREG), ireg2viewBMN(MAXBMNREG), 
+     & ireg2cellBMN(MAXBMNREG)
+      common /BMN_index_common/ireg2layBMN, ireg2viewBMN, ireg2cellBMN
 
 c     *************************************************************
-c     common needed to score the hit in the vertex tracker
+c     common needed to score the hit in the vertex
 c     
-      double precision xminvtx, yminvtx, dxvtx, dyvtx
-      integer xpixvtx, ypixvtx
-      parameter (xminvtx=-1.)
-      parameter (yminvtx=-1.)
-      parameter (dxvtx=0.002)
-      parameter (dyvtx=0.002)
-      parameter (xpixvtx=1000)
-      parameter (ypixvtx=1000)
+      double precision xminVTX, yminVTX, dxVTX, dyVTX
+      integer xpixVTX, ypixVTX
+      parameter (xminVTX=-1.)
+      parameter (yminVTX=-1.)
+      parameter (dxVTX=0.002)
+      parameter (dyVTX=0.002)
+      parameter (xpixVTX=1000)
+      parameter (ypixVTX=1000)
 
-c     iplavtx  =  vertex plane (1-3) 
-c     icolvtx  =  vertex pixel column index (1-1000)
-c     irowvtx  =  vertex pixel row index (1-1000)
+c     ilayVTX  =  vertex layer (1-3) 
+c     icolVTX  =  vertex pixel column index (1-1000)
+c     irowVTX  =  vertex pixel row index (1-1000)
 
-      integer nvtx, maxvtx 
-      parameter (maxvtx=2000)
-      integer idvtx (maxvtx), iplavtx(maxvtx), irowvtx(maxvtx), 
-     &     icolvtx(maxvtx) 
+      integer nVTX, maxVTX 
+      parameter (maxVTX=2000)
+      integer idVTX (maxVTX), ilayVTX(maxVTX), irowVTX(maxVTX), 
+     &     icolVTX(maxVTX) 
 
-      real xinvtx(maxvtx), xoutvtx(maxvtx), yinvtx(maxvtx),
-     &     youtvtx(maxvtx), zinvtx(maxvtx), zoutvtx(maxvtx)
-      real pxinvtx(maxvtx), pxoutvtx(maxvtx), pyinvtx(maxvtx), 
-     &     pyoutvtx(maxvtx), pzinvtx(maxvtx), pzoutvtx(maxvtx)
-      real devtx(maxvtx), timvtx(maxvtx), alvtx(maxvtx)
-      common /vtx_common/ xinvtx, xoutvtx, yinvtx, youtvtx, 
-     &     zinvtx, zoutvtx, pxinvtx, pxoutvtx, pyinvtx, pyoutvtx,
-     &     pzinvtx, pzoutvtx, devtx, alvtx, timvtx, nvtx, idvtx,
-     &     iplavtx, irowvtx, icolvtx
+      real xinVTX(maxVTX), xoutVTX(maxVTX), yinVTX(maxVTX),
+     &     youtVTX(maxVTX), zinVTX(maxVTX), zoutVTX(maxVTX)
+      real pxinVTX(maxVTX), pxoutVTX(maxVTX), pyinVTX(maxVTX), 
+     &     pyoutVTX(maxVTX), pzinVTX(maxVTX), pzoutVTX(maxVTX)
+      real deVTX(maxVTX), timVTX(maxVTX), alVTX(maxVTX)
+      common /VTX_common/ xinVTX, xoutVTX, yinVTX, youtVTX, 
+     &     zinVTX, zoutVTX, pxinVTX, pxoutVTX, pyinVTX, pyoutVTX,
+     &     pzinVTX, pzoutVTX, deVTX, alVTX, timVTX, nVTX, idVTX,
+     &     ilayVTX, irowVTX, icolVTX
 
 c     *************************************************************
 c     common needed to score the hit in the inner tracker
 c     
-      double precision xminIT, yminIT, dxIT, dyIT
-      integer xpixIT, ypixIT
-      parameter (xminIT=-3.)
-      parameter (yminIT=-3.)
-      parameter (dxIT=dxvtx)
-      parameter (dyIT=dyvtx)
-      parameter (xpixIT=3000)
-      parameter (ypixIT=3000)
+      double precision xminITR, yminITR, dxITR, dyITR
+      integer xpixITR, ypixITR
+      parameter (xminITR=-3.)
+      parameter (yminITR=-3.)
+      parameter (dxITR=0.002)
+      parameter (dyITR=0.002)
+      parameter (xpixITR=3000)
+      parameter (ypixITR=3000)
 
-c     iplaIT  =  inner tracker plane (1-2) 
-c     icolIT  =  inner tracker pixel column index (1-3000)
-c     irowIT  =  inner tracker pixel row index (1-3000)
+c     ilayITR  =  vertex layer (1-2) 
+c     icolITR  =  vertex pixel column index (1-3000)
+c     irowITR  =  vertex pixel row index (1-3000)
 
-      integer nIT, maxIT 
-      parameter (maxIT=2000)
-      integer idIT (maxIT), iplaIT(maxIT), irowIT(maxIT), 
-     &     icolIT(maxIT) 
+      integer nITR, maxITR 
+      parameter (maxITR=2000)
+      integer idITR (maxITR), ilayITR(maxITR), irowITR(maxITR), 
+     &     icolITR(maxITR) 
 
-      real xinIT(maxIT), xoutIT(maxIT), yinIT(maxIT),
-     &     youtIT(maxIT), zinIT(maxIT), zoutIT(maxIT)
-      real pxinIT(maxIT), pxoutIT(maxIT), pyinIT(maxIT), 
-     &     pyoutIT(maxIT), pzinIT(maxIT), pzoutIT(maxIT)
-      real deIT(maxIT), timIT(maxIT), alIT(maxIT)
-      common /IT_common/ xinIT, xoutIT, yinIT, youtIT, 
-     &     zinIT, zoutIT, pxinIT, pxoutIT, pyinIT, pyoutIT,
-     &     pzinIT, pzoutIT, deIT, alIT, timIT, nIT, idIT,
-     &     iplaIT, irowIT, icolIT
-
+      real xinITR(maxITR), xoutITR(maxITR), yinITR(maxITR),
+     &     youtITR(maxITR), zinITR(maxITR), zoutITR(maxITR)
+      real pxinITR(maxITR), pxoutITR(maxITR), pyinITR(maxITR), 
+     &     pyoutITR(maxITR), pzinITR(maxITR), pzoutITR(maxITR)
+      real deITR(maxITR), timITR(maxITR), alITR(maxITR)
+      common /ITR_common/ xinITR, xoutITR, yinITR, youtITR, 
+     &     zinITR, zoutITR, pxinITR, pxoutITR, pyinITR, pyoutITR,
+     &     pzinITR, pzoutITR, deITR, alITR, timITR, nITR, idITR,
+     &     ilayITR, irowITR, icolITR
+      
 c     *************************************************************
-c     common needed to score the hit in the drift chamber
+c     common needed to score the hit in the second drift chamber
 c
 c     iview = x and y view (1-2)
-c     ipla  = second drift chamber plane index (1-6)
+c     ilay  = second drift chamber layer index (1-6)
 c     icell = second drift chamber cell index (1-6)
 c
-      integer nDC, maxDC 
-      parameter (maxDC=2000)
-      integer idDC (maxDC), iviewDC(maxDC),iplaDC(maxDC),
-     &     icellDC(maxDC) 
+      integer nDCH, maxDCH 
+      parameter (maxDCH=2000)
+      integer idDCH (maxDCH), iviewDCH(maxDCH), ilayDCH(maxDCH),
+     &     icellDCH(maxDCH) 
 
-      real xinDC(maxDC), xoutDC(maxDC), yinDC(maxDC), 
-     &     youtDC(maxDC), zinDC(maxDC), zoutDC(maxDC)
-      real pxinDC(maxDC), pxoutDC(maxDC),p yinDC(maxDC), 
-     &     pyoutDC(maxDC), pzinDC(maxDC), pzoutDC(maxDC)
-      real deDC(maxDC), timDC(maxDC), alDC(maxDC)
-      common /DC_common/ xinDC, xoutDC, yinDC, youtDC, zinDC, 
-     &     zoutDC, pxinDC, pxoutDC, pyinDC, pyoutDC, pzinDC, 
-     &     pzoutDC,deDC, alDC, timDC, nDC, idDC, iviewDC,
-     &     iplaDC, icellDC
+      real xinDCH(maxDCH), xoutDCH(maxDCH), yinDCH(maxDCH), 
+     &     youtDCH(maxDCH), zinDCH(maxDCH), zoutDCH(maxDCH)
+      real pxinDCH(maxDCH), pxoutDCH(maxDCH),pyinDCH(maxDCH), 
+     &     pyoutDCH(maxDCH), pzinDCH(maxDCH), pzoutDCH(maxDCH)
+      real deDCH(maxDCH), timDCH(maxDCH), alDCH(maxDCH)
+      common /DCH_common/ xinDCH, xoutDCH, yinDCH, youtDCH, zinDCH, 
+     &     zoutDCH, pxinDCH, pxoutDCH, pyinDCH, pyoutDCH, pzinDCH, 
+     &     pzoutDCH,deDCH, alDCH, timDCH, nDCH, idDCH, iviewDCH,
+     &     ilayDCH, icellDCH
 c     
-c  common for the indexing of the second drift ch
+c  common for the indexing of the second drift chamber
 c
-      integer MAXDCREG
-      parameter (MAXDCREG=500)
-      integer ireg2plaDC(MAXDCREG), ireg2viewDC(MAXDCREG), 
-     & ireg2cellDC(MAXDC)
-      common /DC_index_common/ireg2plaDC, ireg2viewDC, ireg2cellDC
+      integer MAXDCHREG
+      parameter (MAXDCHREG=200)
+      integer ireg2layDCH(MAXDCHREG), ireg2viewDCH(MAXDCHREG), 
+     & ireg2cellDCH(MAXDCH)
+      common /DCH_index_common/ireg2layDCH, ireg2viewDCH, ireg2cellDCH
 
 c      
 c     *************************************************************
 c     common needed to score the hit in the scintillator
-c
-c     irowscint = scintillator row index (1-11)
-c     icolscint = scintillator col index (1-11)
 c      
-      integer nscint, maxscint
-      parameter (maxscint=1000)
-      integer idscint(maxscint)
-      integer irowscint(maxscint), icolscint(maxscint)
-      real xinscint(maxscint), xoutscint(maxscint), yinscint(maxscint),
-     &     youtscint(maxscint), zinscint(maxscint), zoutscint(maxscint)
-      real pxinscint(maxscint), pxoutscint(maxscint),
-     &     pyinscint(maxscint), pyoutscint(maxscint),
-     &     pzinscint(maxscint), pzoutscint(maxscint)
-      real descint(maxscint),alscint(maxscint), timscint(maxscint)
-      common /scint_common/ xinscint, 
-     &     xoutscint, yinscint, youtscint, zinscint, zoutscint, 
-     &     pxinscint, pxoutscint, pyinscint, pyoutscint, pzinscint, 
-     &     pzoutscint, descint, alscint, timscint, nscint, idscint,
-     &     irowscint, icolscint
+      integer nSCN, maxSCN
+      parameter (maxSCN=1000)
+      integer idSCN(maxSCN)
+      integer istripSCN(maxSCN), iviewSCN(maxSCN)
+      real xinSCN(maxSCN), xoutSCN(maxSCN), yinSCN(maxSCN),
+     &     youtSCN(maxSCN), zinSCN(maxSCN), zoutSCN(maxSCN)
+      real pxinSCN(maxSCN), pxoutSCN(maxSCN),
+     &     pyinSCN(maxSCN), pyoutSCN(maxSCN),
+     &     pzinSCN(maxSCN), pzoutSCN(maxSCN)
+      real deSCN(maxSCN),alSCN(maxSCN), timSCN(maxSCN)
+      common /SCN_common/ xinSCN, 
+     &     xoutSCN, yinSCN, youtSCN, zinSCN, zoutSCN, 
+     &     pxinSCN, pxoutSCN, pyinSCN, pyoutSCN, pzinSCN, 
+     &     pzoutSCN, deSCN, alSCN, timSCN, nSCN, idSCN,
+     &     istripSCN, iviewSCN
 c     
-c  common for the indexing of the scint
+c  common for the indexing of the SCN
 c
-      integer MAXSCINTREG
-      parameter (MAXSCINTREG=500)
-      integer ireg2rowscint(MAXSCINTREG), ireg2colscint(MAXSCINTREG)
-      common /scint_index_common/ireg2rowscint, ireg2colscint
+       integer MAXSCNREG
+       parameter (MAXSCNREG=200)
+       integer ireg2stripSCN(MAXSCNREG),ireg2viewSCN(MAXSCNREG)
+       common /SCN_index_common/ireg2stripSCN,ireg2viewSCN
       
 c     *************************************************************
 c     common neede to score the hit in the Calo regions
 c     
-c     irowcry    =  crystal row index (1-11)
-c     icolcry    =  crystal column index (1-11)
-      
-      integer ncry, maxcry
-      parameter (maxcry=2000)
-      integer idcry(maxcry), irowcry(maxcry), icolcry(maxcry)
+      integer nCAL, maxCAL
+      parameter (maxCAL=2000)
+      integer idCAL(maxCAL),icryCAL(maxCAL)
 
-      real xincry(maxcry), xoutcry(maxcry), yincry(maxcry),
-     &     youtcry(maxcry), zincry(maxcry), zoutcry(maxcry)
-      real pxincry(maxcry), pxoutcry(maxcry), pyincry(maxcry), 
-     &     pyoutcry(maxcry), pzincry(maxcry), pzoutcry(maxcry)
-      real decry(maxcry), timcry(maxcry), alcry(maxcry)
-      common /cry_common/ xincry, xoutcry, yincry, youtcry, zincry, 
-     &     zoutcry, pxincry, pxoutcry, pyincry, pyoutcry, pzincry, 
-     &     pzoutcry, decry, alcry, timcry, ncry, idcry, irowcry, icolcry
+      real xinCAL(maxCAL), xoutCAL(maxCAL), yinCAL(maxCAL),
+     &     youtCAL(maxCAL), zinCAL(maxCAL), zoutCAL(maxCAL)
+      real pxinCAL(maxCAL), pxoutCAL(maxCAL), pyinCAL(maxCAL), 
+     &     pyoutCAL(maxCAL), pzinCAL(maxCAL), pzoutCAL(maxCAL)
+      real deCAL(maxCAL), timCAL(maxCAL), alCAL(maxCAL)
+      common /CAL_common/ xinCAL, xoutCAL, yinCAL, youtCAL, zinCAL, 
+     &     zoutCAL, pxinCAL, pxoutCAL, pyinCAL, pyoutCAL, pzinCAL, 
+     &     pzoutCAL, deCAL, alCAL, timCAL, nCAL, idCAL, icryCAL
 c     
-c  common for the indexing of the scint
+c  common for the indexing of the SCN
 c
-      integer MAXCRYREG
-      parameter (MAXCRYREG=500)
-      integer ireg2rowcry(MAXCRYREG), ireg2colcry(MAXCRYREG)
-      common /cry_index_common/ireg2rowcry, ireg2colcry
+       integer MAXCALREG
+       parameter (MAXCALREG=600)
+       integer ireg2cryCAL(MAXCALREG)
+       common /CAL_index_common/ireg2cryCAL
       
 c     *************************************************************
 c     common needed to score the boundary crossing info 
 c     and put the right pointer to the particle common of the produced electrons
 c     
-      integer ncross, maxcross
-      parameter (maxcross=10000)
-      integer idcross(maxcross), nregcross(maxcross) 
-      integer nregoldcross(maxcross), nlattcross(maxcross)
-      integer nlattoldcross(maxcross)
-      real pxcross(maxcross), pycross(maxcross), pzcross(maxcross)
-      real xcross(maxcross), ycross(maxcross), zcross(maxcross)
-      real tcross(maxcross), amacross(maxcross), chcross(maxcross)
-      common /crssing_common/ 
-     &     pxcross, pycross, pzcross, 
-     &     xcross, ycross, zcross, tcross, chcross, amacross, ncross,  
-     &     idcross, nregcross, nregoldcross, nlattcross, nlattoldcross
+      integer nCROSS, maxCROSS
+      parameter (maxCROSS=10000)
+      integer idCROSS(maxCROSS), nregCROSS(maxCROSS) 
+      integer nregoldCROSS(maxCROSS), nlattCROSS(maxCROSS)
+      integer nlattoldCROSS(maxCROSS)
+      real pxCROSS(maxCROSS), pyCROSS(maxCROSS), pzCROSS(maxCROSS)
+      real xCROSS(maxCROSS), yCROSS(maxCROSS), zCROSS(maxCROSS)
+      real tCROSS(maxCROSS), amaCROSS(maxCROSS), chCROSS(maxCROSS)
+      common /crossing_common/ 
+     &     pxCROSS, pyCROSS, pzCROSS, 
+     &     xCROSS, yCROSS, zCROSS, tCROSS, chCROSS, amaCROSS, nCROSS,  
+     &     idCROSS, nregCROSS, nregoldCROSS, nlattCROSS, nlattoldCROSS
       
 c     ************************************************************
 c     Numbers of fluka region to be scored
 c     
-      integer nregaria, nregfirstcry, nreglastcry,
-     &     nregfirstvtx, nreglastvtx, nregfirstIT, nreglastIT, 
-     &     nregFirstU1, nreglastU1, nregFirstV1, nregLastV1, 
-     &     nregFirstU2, nregLastU2, nregFirstV2, nregLastV2,
-     &     nregstartc, nregtarg, nregfirstscint, nreglastscint
+      integer  nregaria, nregSTC, nregtarg,
+     &     nregFirstBMN, nregLastBMN, nregFirstVTX, nregLastVTX,
+     &     nregFirstITR, nregLastITR, nregFirstDCH, nregLastDCH,
+     &     nregFirstSCN, nregLastSCN, nregFirstCAL, nregLastCAL
       
       common/region_common/
-     &     nregaria, nregfirstcry, nreglastcry, 
-     &     nregfirstvtx, nreglastvtx, nregfirstIT, nreglastIT,
-     &     nregFirstU1, nreglastU1, nregFirstV1, nregLastV1, 
-     &     nregFirstU2, nregLastU2, nregFirstV2, nregLastV2,
-     &     nregstartc, nregtarg, nregfirstscint, nreglastscint  
+     &     nregaria, nregSTC, nregtarg, nregFirstBMN, nregLastBMN,
+     &     nregFirstVTX, nregLastVTX, nregFirstITR, nregLastITR,
+     &     nregFirstDCH, nregLastDCH, nregFirstSCN, nregLastSCN,
+     &     nregFirstCAL, nregLastCAL
       
 c     ***********************************************************
 c     absolute light efficiency of material in quenched formula
 c     
-      double precision abs_plastic, abs_cry,abs_vtx,abs_startc,
-     &     abs_BM,abs_DC,abs_IT
-      parameter (abs_plastic=1.0)
-      parameter (abs_cry=1.)   
-      parameter (abs_vtx=1.0)
-      parameter (abs_IT=1.0)
-      parameter (abs_startc=1.0)
-      parameter (abs_BM=1.0)
-      parameter (abs_DC=1.0)
+      double precision abs_STC,abs_BMN,abs_VTX,abs_ITR,
+     &     abs_DCH, abs_SCN, abs_CAL
+      parameter (abs_STC=1.0)
+      parameter (abs_BMN=1.0)
+      parameter (abs_VTX=1.0)
+      parameter (abs_ITR=1.0)
+      parameter (abs_DCH=1.0)
+      parameter (abs_SCN=1.0)
+      parameter (abs_CAL=1.0)   
 
 c     ***********************************************************
 c     interaction stack: common block for the parent particle
@@ -304,3 +296,20 @@ c
       integer intpa(maxint),intcode(maxint)
       common /particle_stack/xint,yint,zint,intpa,intcode,
      &     idfluka,numint
+
+c     ***********************************************************
+c     geometry parameters
+c     
+      integer nlayBMN, ncellBMN, nlayDCH, ncellDCH
+      integer nlayVTX, nlayITR
+      integer nstripSCN, ncryCAL
+
+      parameter (nlayBMN = 6)
+      parameter (ncellBMN = 3)
+      parameter (nlayDCH = 6)
+      parameter (ncellDCH = 6)
+      parameter (nlayVTX = 3)
+      parameter (nlayITR = 2)
+      parameter (nstripSCN = 22)
+      parameter (ncryCAL = 360)
+      
