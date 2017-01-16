@@ -22,81 +22,80 @@ class Evento : public TObject {
 
   Int_t Clean();
 
-  Int_t SetEvent(Int_t fnumero_evento);
+  Int_t SetEvent(Int_t fEventNumber);
 
-  Int_t AddPart(Int_t fidpa, Int_t figen,
-		Int_t ficha, Int_t fnumreg, Int_t fiba,
-		Int_t fidead, Int_t fjpa,
-		Double_t fvxi, Double_t fvyi, Double_t fvzi,
-		Double_t fvxf, Double_t fvyf, Double_t fvzf,
-		Double_t fpx, Double_t fpy, Double_t fpz,
-		Double_t fpxf, Double_t fpyf, Double_t fpzf,
-		Double_t famass, Double_t ftempo,
-		Double_t ftof, Double_t ftrlen);
+  Int_t AddPart(Int_t fTRpaid, Int_t fTRgen,
+		Int_t fTRcha, Int_t fTRreg, Int_t fTRbar,
+		Int_t fTRdead, Int_t fTRfid,
+		Double_t fTRix, Double_t fTRiy, Double_t fTRiz,
+		Double_t fTRfx, Double_t fTRfy, Double_t fTRfz,
+		Double_t fTRipx, Double_t fTRipy, Double_t fTRipz,
+		Double_t fTRfpx, Double_t fTRfpy, Double_t fTRfpz,
+		Double_t fTRmass, Double_t fTRtime,
+		Double_t fTRtof, Double_t fTRtrlen);
 
-  Int_t AddSc(Int_t fidsc, 
-	      Double_t fxinsc, Double_t fyinsc, Double_t fzinsc,
-	      Double_t fxoutsc, Double_t fyoutsc, Double_t fzoutsc,
-	      Double_t fpxinsc, Double_t fpyinsc, Double_t fpzinsc,
-	      Double_t fpxoutsc, Double_t fpyoutsc, Double_t fpzoutsc,
-	      Double_t fdesc, Double_t falsc, Double_t ftimsc);
+  Int_t AddSTC(Int_t fSTCid, 
+	       Double_t fSTCxin, Double_t fSTCyin, Double_t fSTCzin,
+	       Double_t fSTCxout, Double_t fSTCyout, Double_t fSTCzout,
+	       Double_t fSTCpxin, Double_t fSTCpyin, Double_t fSTCpzin,
+	       Double_t fSTCpxout, Double_t fSTCpyout, Double_t fSTCpzout,
+	       Double_t fSTCde, Double_t fSTCal, Double_t fSTCtim);
 
-  Int_t AddBM(Int_t fidbm, Int_t fiplabm, Int_t fiviewbm,
-                 Int_t ficellbm,
-		 Double_t fxinbm, Double_t fyinbm, Double_t fzinbm,
-		 Double_t fxoutbm, Double_t fyoutbm, Double_t fzoutbm,
-		 Double_t fpxinbm, Double_t fpyinbm, Double_t fpzinbm,
-		 Double_t fpxoutbm, Double_t fpyoutbm,
-		 Double_t fpzoutbm,
-		 Double_t fdebm, Double_t falbm, Double_t ftimbm);
+  Int_t AddBMN(Int_t fBMNid, Int_t fBMNipla, Int_t fBMNiview,
+	       Int_t fBMNicell,
+	       Double_t fBMNxin, Double_t fBMNyin, Double_t fBMNzin,
+	       Double_t fBMNxout, Double_t fBMNyout, Double_t fBMNzout,
+	       Double_t fBMNpxin, Double_t fBMNpyin, Double_t fBMNpzin,
+	       Double_t fBMNpxout, Double_t fBMNpyout,
+	       Double_t fBMNpzout,
+	       Double_t fBMNde, Double_t fBMNal, Double_t fBMNtim);
 
-  Int_t AddVtx(Int_t fidvtx, Int_t fiplavtx, Int_t firowvtx, Int_t ficolvtx,
-	       Double_t fxinvtx, Double_t fyinvtx, Double_t fzinvtx,
-	       Double_t fxoutvtx, Double_t fyoutvtx, Double_t fzoutvtx,
-	       Double_t fpxinvtx, Double_t fpyinvtx, Double_t fpzinvtx,
-	       Double_t fpxoutvtx, Double_t fpyoutvtx, Double_t fpzoutvtx,
-	       Double_t fdevtx, Double_t falvtx, Double_t ftimvtx);
-  
-  Int_t AddIT(Int_t fidIT, Int_t fiplaIT, Int_t firowIT, Int_t ficolIT,
-	       Double_t fxinIT, Double_t fyinIT, Double_t fzinIT,
-	       Double_t fxoutIT, Double_t fyoutIT, Double_t fzoutIT,
-	       Double_t fpxinIT, Double_t fpyinIT, Double_t fpzinIT,
-	       Double_t fpxoutIT, Double_t fpyoutIT, Double_t fpzoutIT,
-	       Double_t fdeIT, Double_t falIT, Double_t ftimIT);
+  Int_t AddVTX(Int_t fVTXid, Int_t fVTXipla, Int_t fVTXirow, Int_t fVTXicol,
+	       Double_t fVTXxin, Double_t fVTXyin, Double_t fVTXzin,
+	       Double_t fVTXxout, Double_t fVTXyout, Double_t fVTXzout,
+	       Double_t fVTXpxin, Double_t fVTXpyin, Double_t fVTXpzin,
+	       Double_t fVTXpxout, Double_t fVTXpyout, Double_t fVTXpzout,
+	       Double_t fVTXde, Double_t fVTXal, Double_t fVTXtim);
 
-  Int_t Add2DC(Int_t fid2dc, Int_t fipla2dc, Int_t fiview2dc,
-                 Int_t ficell2dc,
-		 Double_t fxin2dc, Double_t fyin2dc, Double_t fzin2dc,
-		 Double_t fxout2dc, Double_t fyout2dc, Double_t fzout2dc,
-		 Double_t fpxin2dc, Double_t fpyin2dc, Double_t fpzin2dc,
-		 Double_t fpxout2dc, Double_t fpyout2dc,
-		 Double_t fpzout2dc,
-		 Double_t fde2dc, Double_t fal2dc, Double_t ftim2dc);
+  Int_t AddITR(Int_t fITRid, Int_t fITRipla, Int_t fITRirow, Int_t fITRicol,
+	       Double_t fITRxin, Double_t fITRyin, Double_t fITRzin,
+	       Double_t fITRxout, Double_t fITRyout, Double_t fITRzout,
+	       Double_t fITRpxin, Double_t fITRpyin, Double_t fITRpzin,
+	       Double_t fITRpxout, Double_t fITRpyoutITR, Double_t fITRpzout,
+	       Double_t fITRde, Double_t fITRal, Double_t fITRtim);
+
+  Int_t AddDCH(Int_t fDCHid, Int_t fDCHipla, Int_t fDCHiview,
+	       Int_t fDCHicell,
+	       Double_t fDCHxin, Double_t fDCHyin, Double_t fDCHzin,
+	       Double_t fDCHxout, Double_t fDCHyout, Double_t fDCHzout,
+	       Double_t fDCHpxin, Double_t fpDCHyin, Double_t fDCHpzin,
+	       Double_t fDCHpxout, Double_t fDCHpyout,
+	       Double_t fDCHpzout,
+	       Double_t fDCHde, Double_t fDCHal, Double_t fDCHtim);
  
-  Int_t AddScint(Int_t fidscint, Int_t firowscint,
-		 Int_t ficolscint,
-		 Double_t fxinscint, Double_t fyinscint, Double_t fzinscint,
-		 Double_t fxoutscint, Double_t fyoutscint, Double_t fzoutscint,
-		 Double_t fpxinscint, Double_t fpyinscint, Double_t fpzinscint,
-		 Double_t fpxoutscint, Double_t fpyoutscint,
-		 Double_t fpzoutscint,Double_t fdescint, Double_t falscint,
-		 Double_t ftimscint );
+  Int_t AddSCN(Int_t fSCNid, Int_t fSCNistrip, Int_t fSCNiview,
+	       Double_t fSCNxin, Double_t fSCNyin, Double_t fSCNzin,
+	       Double_t fSCNxout, Double_t fyout, Double_t fSCNzout,
+	       Double_t fSCNpxin, Double_t fpyin, Double_t fSCNpzin,
+	       Double_t fSCNpxout,Double_t fSCNpyout,
+	       Double_t fSCNpzout,Double_t fSCNde, Double_t fSCNal,
+	       Double_t fSCNtim );
 
-  Int_t AddCry(Int_t fidcry, Int_t firowcry, Int_t ficolcry, 
-	       Double_t fxincry, Double_t fyincry, Double_t fzincry, 
-	       Double_t fxoutcry, Double_t fyoutcry, Double_t fzoutcry, 
-	       Double_t fpxincry, Double_t fpyincry, Double_t fpzincry, 
-	       Double_t fpxoutcry, Double_t fpyoutcry, Double_t fpzoutcry,
-	       Double_t fdecry, Double_t falcry, Double_t ftimcry);
+  Int_t AddCAL(Int_t fCALid, Int_t fCALicry,
+	       Double_t fCALxin, Double_t fCALyin, Double_t fCALzin, 
+	       Double_t fCALxout, Double_t fCALyout, Double_t fCALzout, 
+	       Double_t fCALpxin, Double_t fCALpyin, Double_t fCALpzin, 
+	       Double_t fCALpxout, Double_t fpyout, Double_t fCALpzout,
+	       Double_t fCALde, Double_t fCALal, Double_t fCALtim);
   
-  Int_t AddCross(Int_t fidcross, Int_t fnregcross, Int_t fnregoldcross,
-		 Double_t fxcross, Double_t fycross, Double_t fzcross,
-		 Double_t fpxcross, Double_t fpycross, Double_t fpzcross,
-		 Double_t fmcross, Double_t fchcross,Double_t ftcross);
+  Int_t AddCROSS(Int_t fCROSSid, Int_t fCROSSnreg, Int_t fCROSSnregold,
+		 Double_t fCROSSx, Double_t fCROSSy, Double_t fCROSSz,
+		 Double_t fCROSSpx, Double_t fCROSSpy, Double_t fCROSSpz,
+		 Double_t fCROSSm, Double_t fCROSSch,Double_t fCROSSt);
 
   int FindBranches(TTree *RootTree,EVENT_STRUCT *eve);
 
-  Int_t EDump();
+  Int_t Dump();
 
   EVENT_STRUCT Output();
 

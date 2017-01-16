@@ -12,216 +12,215 @@ ClassImp(Evento);
 Evento::Evento()
 {
 
-  ar3 = new TRandom3();
-  ar3->SetSeed(12345);
+  //  ar3 = new TRandom3();
+  //  ar3->SetSeed(12345);
+  
+  eve.TRn    = 0;
+  eve.STCn    = 0;
+  eve.VTXn    = 0;
+  eve.ITRn    = 0;
+  eve.BMNn    = 0;
+  eve.DCHn    = 0;
+  eve.SCNn    = 0;
+  eve.CALn    = 0;
+  eve.CROSSn  = 0;
 
-  eve.trn     = 0;
-  eve.stn     = 0;
-  eve.nvtx    = 0;
-  eve.nIT     = 0;
-  eve.nmon    = 0;
-  eve.n2dc    = 0;
-  eve.nscint  = 0;
-  eve.ncry    = 0;
-  eve.ncross  = 0;
-
-  for(int kk=0;kk<MAXNUMP;kk++){
-    eve.trpaid[kk] = 0;
-    eve.trgen[kk]  = 0;
-    eve.trcha[kk]  = -100;
-    eve.trreg[kk]  = 0;
-    eve.trbar[kk]  = 0;
-    eve.trdead[kk] = 0;
-    eve.trfid[kk]  = -100;
-    eve.trix[kk]   = 0.;
-    eve.triy[kk]   = 0.;
-    eve.triz[kk]   = 0.;
-    eve.trfx[kk]   = 0.;
-    eve.trfy[kk]   = 0.;
-    eve.trfz[kk]   = 0.;
-    eve.tripx[kk]  = 0.;
-    eve.tripy[kk]  = 0.;
-    eve.tripz[kk]  = 0.;
-    eve.trfpx[kk]  = 0.;
-    eve.trfpy[kk]  = 0.;
-    eve.trfpz[kk]  = 0.;
-    eve.trmass[kk] = 0.;
-    eve.trtime[kk] = 0.;
-    eve.tof[kk]    = 0.;
-    eve.trlen[kk]  = 0.;
+  for(int kk=0;kk<MAXTR;kk++){
+    eve.TRpaid[kk]   = 0;
+    eve.TRgen[kk]    = 0;
+    eve.TRcha[kk]    = -100;
+    eve.TRreg[kk]    = 0;
+    eve.TRbar[kk]    = 0;
+    eve.TRdead[kk]   = 0;
+    eve.TRfid[kk]    = -100;
+    eve.TRix[kk]     = 0.;
+    eve.TRiy[kk]     = 0.;
+    eve.TRiz[kk]     = 0.;
+    eve.TRfx[kk]     = 0.;
+    eve.TRfy[kk]     = 0.;
+    eve.TRfz[kk]     = 0.;
+    eve.TRipx[kk]    = 0.;
+    eve.TRipy[kk]    = 0.;
+    eve.TRipz[kk]    = 0.;
+    eve.TRfpx[kk]    = 0.;
+    eve.TRfpy[kk]    = 0.;
+    eve.TRfpz[kk]    = 0.;
+    eve.TRmass[kk]   = 0.;
+    eve.TRtime[kk]   = 0.;
+    eve.TRtof[kk]    = 0.;
+    eve.TRtrlen[kk]  = 0.;
   }
 
-  for(int kk=0;kk<MAXSC;kk++){
-    eve.stid[kk]    = 0;
-    eve.stinx[kk]   = 0.;
-    eve.stiny[kk]   = 0.;
-    eve.stinz[kk]   = 0.;
-    eve.stoutx[kk]  = 0.;
-    eve.stouty[kk]  = 0.;
-    eve.stoutz[kk]  = 0.;
-    eve.stinpx[kk]  = 0.;
-    eve.stinpy[kk]  = 0.;
-    eve.stinpz[kk]  = 0.;
-    eve.stoutpx[kk] = 0.;
-    eve.stoutpy[kk] = 0.;
-    eve.stoutpz[kk] = 0.;
-    eve.stde[kk]    = 0.;
-    eve.stal[kk]    = 0.;
-    eve.sttim[kk]   = 0.;
+  for(int kk=0;kk<MAXSTC;kk++){
+    eve.STCid[kk]    = 0;
+    eve.STCxin[kk]   = 0.;
+    eve.STCyin[kk]   = 0.;
+    eve.STCzin[kk]   = 0.;
+    eve.STCxout[kk]  = 0.;
+    eve.STCyout[kk]  = 0.;
+    eve.STCzout[kk]  = 0.;
+    eve.STCpxin[kk]  = 0.;
+    eve.STCpyin[kk]  = 0.;
+    eve.STCpzin[kk]  = 0.;
+    eve.STCpxout[kk] = 0.;
+    eve.STCpyout[kk] = 0.;
+    eve.STCpzout[kk] = 0.;
+    eve.STCde[kk]    = 0.;
+    eve.STCal[kk]    = 0.;
+    eve.STCtim[kk]   = 0.;
+  }
+  
+  for(int kk=0;kk<MAXBMN;kk++){
+    eve.BMNid[kk]    = 0;
+    eve.BMNilay[kk]  = 0;
+    eve.BMNiview[kk] = 0;
+    eve.BMNicell[kk] = 0;
+    eve.BMNxin[kk]   = 0.;
+    eve.BMNyin[kk]   = 0.;
+    eve.BMNzin[kk]   = 0.;
+    eve.BMNxout[kk]  = 0.;
+    eve.BMNyout[kk]  = 0.;
+    eve.BMNzout[kk]  = 0.;
+    eve.BMNpxin[kk]  = 0.;
+    eve.BMNpyin[kk]  = 0.;
+    eve.BMNpzin[kk]  = 0.;
+    eve.BMNpxout[kk] = 0.;
+    eve.BMNpyout[kk] = 0.;
+    eve.BMNpzout[kk] = 0.;
+    eve.BMNde[kk]    = 0.;
+    eve.BMNal[kk]    = 0.;
+    eve.BMNtim[kk]   = 0.;
   }
   
   for(int kk=0;kk<MAXVTX;kk++){
-    eve.idvtx[kk]    = 0;
-    eve.iplavtx[kk]  = 0;
-    eve.irowvtx[kk]  = 0;
-    eve.icolvtx[kk]  = 0;
-    eve.xinvtx[kk]   = 0.;
-    eve.yinvtx[kk]   = 0.;
-    eve.zinvtx[kk]   = 0.;
-    eve.xoutvtx[kk]  = 0.;
-    eve.youtvtx[kk]  = 0.;
-    eve.zoutvtx[kk]  = 0.;
-    eve.pxinvtx[kk]  = 0.;
-    eve.pyinvtx[kk]  = 0.;
-    eve.pzinvtx[kk]  = 0.;
-    eve.pxoutvtx[kk] = 0.;
-    eve.pyoutvtx[kk] = 0.;
-    eve.pzoutvtx[kk] = 0.;
-    eve.devtx[kk]    = 0.;
-    eve.alvtx[kk]    = 0.;
-    eve.timvtx[kk]   = 0.;
+    eve.VTXid[kk]    = 0;
+    eve.VTXilay[kk]  = 0;
+    eve.VTXirow[kk]  = 0;
+    eve.VTXicol[kk]  = 0;
+    eve.VTXxin[kk]   = 0.;
+    eve.VTXyin[kk]   = 0.;
+    eve.VTXzin[kk]   = 0.;
+    eve.VTXxout[kk]  = 0.;
+    eve.VTXyout[kk]  = 0.;
+    eve.VTXzout[kk]  = 0.;
+    eve.VTXpxin[kk]  = 0.;
+    eve.VTXpyin[kk]  = 0.;
+    eve.VTXpzin[kk]  = 0.;
+    eve.VTXpxout[kk] = 0.;
+    eve.VTXpyout[kk] = 0.;
+    eve.VTXpzout[kk] = 0.;
+    eve.VTXde[kk]    = 0.;
+    eve.VTXal[kk]    = 0.;
+    eve.VTXtim[kk]   = 0.;
   }
 
-  for(int kk=0;kk<MAXIT;kk++){
-    eve.idIT[kk]    = 0;
-    eve.iplaIT[kk]  = 0;
-    eve.irowIT[kk]  = 0;
-    eve.icolIT[kk]  = 0;
-    eve.xinIT[kk]   = 0.;
-    eve.yinIT[kk]   = 0.;
-    eve.zinIT[kk]   = 0.;
-    eve.xoutIT[kk]  = 0.;
-    eve.youtIT[kk]  = 0.;
-    eve.zoutIT[kk]  = 0.;
-    eve.pxinIT[kk]  = 0.;
-    eve.pyinIT[kk]  = 0.;
-    eve.pzinIT[kk]  = 0.;
-    eve.pxoutIT[kk] = 0.;
-    eve.pyoutIT[kk] = 0.;
-    eve.pzoutIT[kk] = 0.;
-    eve.deIT[kk]    = 0.;
-    eve.alIT[kk]    = 0.;
-    eve.timIT[kk]   = 0.;
+  for(int kk=0;kk<MAXITR;kk++){
+    eve.ITRid[kk]    = 0;
+    eve.ITRilay[kk]  = 0;
+    eve.ITRirow[kk]  = 0;
+    eve.ITRicol[kk]  = 0;
+    eve.ITRxin[kk]   = 0.;
+    eve.ITRyin[kk]   = 0.;
+    eve.ITRzin[kk]   = 0.;
+    eve.ITRxout[kk]  = 0.;
+    eve.ITRyout[kk]  = 0.;
+    eve.ITRzout[kk]  = 0.;
+    eve.ITRpxin[kk]  = 0.;
+    eve.ITRpyin[kk]  = 0.;
+    eve.ITRpzin[kk]  = 0.;
+    eve.ITRpxout[kk] = 0.;
+    eve.ITRpyout[kk] = 0.;
+    eve.ITRpzout[kk] = 0.;
+    eve.ITRde[kk]    = 0.;
+    eve.ITRal[kk]    = 0.;
+    eve.ITRtim[kk]   = 0.;
+  }
+
+  for(int kk=0;kk<MAXDCH;kk++){
+    eve.DCHid[kk]    = 0;
+    eve.DCHilay[kk]  = 0;
+    eve.DCHiview[kk] = 0;
+    eve.DCHicell[kk] = 0;
+    eve.DCHxin[kk]   = 0.;
+    eve.DCHyin[kk]   = 0.;
+    eve.DCHzin[kk]   = 0.;
+    eve.DCHxout[kk]  = 0.;
+    eve.DCHyout[kk]  = 0.;
+    eve.DCHzout[kk]  = 0.;
+    eve.DCHpxin[kk]  = 0.;
+    eve.DCHpyin[kk]  = 0.;
+    eve.DCHpzin[kk]  = 0.;
+    eve.DCHpxout[kk] = 0.;
+    eve.DCHpyout[kk] = 0.;
+    eve.DCHpzout[kk] = 0.;
+    eve.DCHde[kk]    = 0.;
+    eve.DCHal[kk]    = 0.;
+    eve.DCHtim[kk]   = 0.;
   }
   
-  for(int kk=0;kk<MAXBM;kk++){
-    eve.idmon[kk]    = 0;
-    eve.ilayer[kk]   = 0;
-    eve.iview[kk]    = 0;
-    eve.icell[kk]    = 0;
-    eve.xinmon[kk]   = 0.;
-    eve.yinmon[kk]   = 0.;
-    eve.zinmon[kk]   = 0.;
-    eve.xoutmon[kk]  = 0.;
-    eve.youtmon[kk]  = 0.;
-    eve.zoutmon[kk]  = 0.;
-    eve.pxinmon[kk]  = 0.;
-    eve.pyinmon[kk]  = 0.;
-    eve.pzinmon[kk]  = 0.;
-    eve.pxoutmon[kk] = 0.;
-    eve.pyoutmon[kk] = 0.;
-    eve.pzoutmon[kk] = 0.;
-    eve.demon[kk]    = 0.;
-    eve.almon[kk]    = 0.;
-    eve.timmon[kk]   = 0.;
+  for(int kk=0;kk<MAXSCN;kk++){
+    eve.SCNid[kk]     = 0;
+    eve.SCNistrip[kk] = 0;
+    eve.SCNiview[kk]  = 0;
+    eve.SCNxin[kk]    = 0.;
+    eve.SCNyin[kk]    = 0.;
+    eve.SCNzin[kk]    = 0.;
+    eve.SCNxout[kk]   = 0.;
+    eve.SCNyout[kk]   = 0.;
+    eve.SCNzout[kk]   = 0.;
+    eve.SCNpxin[kk]   = 0.;
+    eve.SCNpyin[kk]   = 0.;
+    eve.SCNpzin[kk]   = 0.;
+    eve.SCNpxout[kk]  = 0.;
+    eve.SCNpyout[kk]  = 0.;
+    eve.SCNpzout[kk]  = 0.;
+    eve.SCNde[kk]     = 0.;
+    eve.SCNal[kk]     = 0.;
+    eve.SCNtim[kk]    = 0.;
   }
 
-  for(int kk=0;kk<MAX2DC;kk++){
-    eve.id2dc[kk]    = 0;
-    eve.ipla2dc[kk]  = 0;
-    eve.iview2dc[kk] = 0;
-    eve.icell2dc[kk] = 0;
-    eve.xin2dc[kk]   = 0.;
-    eve.yin2dc[kk]   = 0.;
-    eve.zin2dc[kk]   = 0.;
-    eve.xout2dc[kk]  = 0.;
-    eve.yout2dc[kk]  = 0.;
-    eve.zout2dc[kk]  = 0.;
-    eve.pxin2dc[kk]  = 0.;
-    eve.pyin2dc[kk]  = 0.;
-    eve.pzin2dc[kk]  = 0.;
-    eve.pxout2dc[kk] = 0.;
-    eve.pyout2dc[kk] = 0.;
-    eve.pzout2dc[kk] = 0.;
-    eve.de2dc[kk]    = 0.;
-    eve.al2dc[kk]    = 0.;
-    eve.tim2dc[kk]   = 0.;
-  }
-  
-  for(int kk=0;kk<MAXSCINT;kk++){
-    eve.idscint[kk]    = 0;
-    eve.irowscint[kk]  = 0;
-    eve.icolscint[kk]  = 0;
-    eve.xinscint[kk]   = 0.;
-    eve.yinscint[kk]   = 0.;
-    eve.zinscint[kk]   = 0.;
-    eve.xoutscint[kk]  = 0.;
-    eve.youtscint[kk]  = 0.;
-    eve.zoutscint[kk]  = 0.;
-    eve.pxinscint[kk]  = 0.;
-    eve.pyinscint[kk]  = 0.;
-    eve.pzinscint[kk]  = 0.;
-    eve.pxoutscint[kk] = 0.;
-    eve.pyoutscint[kk] = 0.;
-    eve.pzoutscint[kk] = 0.;
-    eve.descint[kk]    = 0.;
-    eve.alscint[kk]    = 0.;
-    eve.timscint[kk]   = 0.;
-  }
-
-  for(int kk=0;kk<MAXCRY;kk++){
-    eve.idcry[kk]    = 0;
-    eve.irowcry[kk]  = 0;
-    eve.icolcry[kk]  = 0;
-    eve.xincry[kk]   = 0.;
-    eve.yincry[kk]   = 0.;
-    eve.zincry[kk]   = 0.;
-    eve.xoutcry[kk]  = 0.;
-    eve.youtcry[kk]  = 0.;
-    eve.zoutcry[kk]  = 0.;
-    eve.pxincry[kk]  = 0.;
-    eve.pyincry[kk]  = 0.;
-    eve.pzincry[kk]  = 0.;
-    eve.pxoutcry[kk] = 0.;
-    eve.pyoutcry[kk] = 0.;
-    eve.pzoutcry[kk] = 0.;
-    eve.decry[kk]    = 0.;
-    eve.alcry[kk]    = 0.;
-    eve.timcry[kk]   = 0.;    
+  for(int kk=0;kk<MAXCAL;kk++){
+    eve.CALid[kk]    = 0;
+    eve.CALicry[kk]  = 0;
+    eve.CALxin[kk]   = 0.;
+    eve.CALyin[kk]   = 0.;
+    eve.CALzin[kk]   = 0.;
+    eve.CALxout[kk]  = 0.;
+    eve.CALyout[kk]  = 0.;
+    eve.CALzout[kk]  = 0.;
+    eve.CALpxin[kk]  = 0.;
+    eve.CALpyin[kk]  = 0.;
+    eve.CALpzin[kk]  = 0.;
+    eve.CALpxout[kk] = 0.;
+    eve.CALpyout[kk] = 0.;
+    eve.CALpzout[kk] = 0.;
+    eve.CALde[kk]    = 0.;
+    eve.CALal[kk]    = 0.;
+    eve.CALtim[kk]   = 0.;    
   }
 
   for(int kk=0;kk<MAXCROSS;kk++){
-    eve.idcross[kk]      = 0;
-    eve.nregcross[kk]    = 0;
-    eve.nregoldcross[kk] = 0;
-    eve.xcross[kk]       = 0.;
-    eve.ycross[kk]       = 0.;
-    eve.zcross[kk]       = 0.;
-    eve.pxcross[kk]      = 0.;
-    eve.pycross[kk]      = 0.;
-    eve.pzcross[kk]      = 0.;
-    eve.mcross[kk]       = 0.;
-    eve.chcross[kk]      = 0.;
-    eve.tcross[kk]       = 0.;
+    eve.CROSSid[kk]      = 0;
+    eve.CROSSnreg[kk]    = 0;
+    eve.CROSSnregold[kk] = 0;
+    eve.CROSSx[kk]       = 0.;
+    eve.CROSSy[kk]       = 0.;
+    eve.CROSSz[kk]       = 0.;
+    eve.CROSSpx[kk]      = 0.;
+    eve.CROSSpy[kk]      = 0.;
+    eve.CROSSpz[kk]      = 0.;
+    eve.CROSSm[kk]       = 0.;
+    eve.CROSSch[kk]      = 0.;
+    eve.CROSSt[kk]       = 0.;
   }
 
 }
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::SetEvent(Int_t fnumero_evento){
+Int_t Evento::SetEvent(Int_t fEventNumber){
   //  cout <<" Entro in SetEvent"<<endl;
-  eve.EventNumber = fnumero_evento;
+  eve.EventNumber = fEventNumber;
   return 0;
 }
 
@@ -230,248 +229,246 @@ Int_t Evento::SetEvent(Int_t fnumero_evento){
 Int_t Evento::Clean(){
   //  cout <<" Entro in clean"<<endl;
 
-  for(int kk=0;kk<eve.trn;kk++){
-    eve.trpaid[kk] = 0;
-    eve.trgen[kk]  = 0;
-    eve.trcha[kk]  = -100;
-    eve.trreg[kk]  = 0;
-    eve.trbar[kk]  = 0;
-    eve.trdead[kk] = 0;
-    eve.trfid[kk]  = -100;
-    eve.trix[kk]   = 0.;
-    eve.triy[kk]   = 0.;
-    eve.triz[kk]   = 0.;
-    eve.trfx[kk]   = 0.;
-    eve.trfy[kk]   = 0.;
-    eve.trfz[kk]   = 0.;
-    eve.tripx[kk]  = 0.;
-    eve.tripy[kk]  = 0.;
-    eve.tripz[kk]  = 0.;
-    eve.trfpx[kk]  = 0.;
-    eve.trfpy[kk]  = 0.;
-    eve.trfpz[kk]  = 0.;
-    eve.trmass[kk] = 0.;
-    eve.trtime[kk] = 0.;
-    eve.tof[kk]    = 0.;
-    eve.trlen[kk]  = 0.;
+  for(int kk=0;kk<eve.TRn;kk++){
+    eve.TRpaid[kk]  = 0;
+    eve.TRgen[kk]   = 0;
+    eve.TRcha[kk]   = -100;
+    eve.TRreg[kk]   = 0;
+    eve.TRbar[kk]   = 0;
+    eve.TRdead[kk]  = 0;
+    eve.TRfid[kk]   = -100;
+    eve.TRix[kk]    = 0.;
+    eve.TRiy[kk]    = 0.;
+    eve.TRiz[kk]    = 0.;
+    eve.TRfx[kk]    = 0.;
+    eve.TRfy[kk]    = 0.;
+    eve.TRfz[kk]    = 0.;
+    eve.TRipx[kk]   = 0.;
+    eve.TRipy[kk]   = 0.;
+    eve.TRipz[kk]   = 0.;
+    eve.TRfpx[kk]   = 0.;
+    eve.TRfpy[kk]   = 0.;
+    eve.TRfpz[kk]   = 0.;
+    eve.TRmass[kk]  = 0.;
+    eve.TRtime[kk]  = 0.;
+    eve.TRtof[kk]   = 0.;
+    eve.TRtrlen[kk] = 0.;
   }
 
-  for(int kk=0;kk<eve.stn;kk++){
-    eve.stid[kk]    = 0;
-    eve.stinx[kk]   = 0.;
-    eve.stiny[kk]   = 0.;
-    eve.stinz[kk]   = 0.;
-    eve.stoutx[kk]  = 0.;
-    eve.stouty[kk]  = 0.;
-    eve.stoutz[kk]  = 0.;
-    eve.stinpx[kk]  = 0.;
-    eve.stinpy[kk]  = 0.;
-    eve.stinpz[kk]  = 0.;
-    eve.stoutpx[kk] = 0.;
-    eve.stoutpy[kk] = 0.;
-    eve.stoutpz[kk] = 0.;
-    eve.stde[kk]    = 0.;
-    eve.stal[kk]    = 0.;
-    eve.sttim[kk]   = 0.;
-  }
-
-  for(int kk=0;kk<eve.nvtx;kk++){
-    eve.idvtx[kk]    = 0;
-    eve.iplavtx[kk]  = 0;
-    eve.irowvtx[kk]  = 0;
-    eve.icolvtx[kk]  = 0;
-    eve.xinvtx[kk]   = 0.;
-    eve.yinvtx[kk]   = 0.;
-    eve.zinvtx[kk]   = 0.;
-    eve.xoutvtx[kk]  = 0.;
-    eve.youtvtx[kk]  = 0.;
-    eve.zoutvtx[kk]  = 0.;
-    eve.pxinvtx[kk]  = 0.;
-    eve.pyinvtx[kk]  = 0.;
-    eve.pzinvtx[kk]  = 0.;
-    eve.pxoutvtx[kk] = 0.;
-    eve.pyoutvtx[kk] = 0.;
-    eve.pzoutvtx[kk] = 0.;
-    eve.devtx[kk]    = 0.;
-    eve.alvtx[kk]    = 0.;
-    eve.timvtx[kk]   = 0.;
-  }
-
-  for(int kk=0;kk<eve.nIT;kk++){
-    eve.idIT[kk]    = 0;
-    eve.iplaIT[kk]  = 0;
-    eve.irowIT[kk]  = 0;
-    eve.icolIT[kk]  = 0;
-    eve.xinIT[kk]   = 0.;
-    eve.yinIT[kk]   = 0.;
-    eve.zinIT[kk]   = 0.;
-    eve.xoutIT[kk]  = 0.;
-    eve.youtIT[kk]  = 0.;
-    eve.zoutIT[kk]  = 0.;
-    eve.pxinIT[kk]  = 0.;
-    eve.pyinIT[kk]  = 0.;
-    eve.pzinIT[kk]  = 0.;
-    eve.pxoutIT[kk] = 0.;
-    eve.pyoutIT[kk] = 0.;
-    eve.pzoutIT[kk] = 0.;
-    eve.deIT[kk]    = 0.;
-    eve.alIT[kk]    = 0.;
-    eve.timIT[kk]   = 0.;
+  for(int kk=0;kk<eve.STCn;kk++){
+    eve.STCid[kk]    = 0;
+    eve.STCxin[kk]   = 0.;
+    eve.STCyin[kk]   = 0.;
+    eve.STCzin[kk]   = 0.;
+    eve.STCxout[kk]  = 0.;
+    eve.STCyout[kk]  = 0.;
+    eve.STCzout[kk]  = 0.;
+    eve.STCpxin[kk]  = 0.;
+    eve.STCpyin[kk]  = 0.;
+    eve.STCpzin[kk]  = 0.;
+    eve.STCpxout[kk] = 0.;
+    eve.STCpyout[kk] = 0.;
+    eve.STCpzout[kk] = 0.;
+    eve.STCde[kk]    = 0.;
+    eve.STCal[kk]    = 0.;
+    eve.STCtim[kk]   = 0.;
   }
   
-  for(int kk=0;kk<eve.nmon;kk++){
-    eve.idmon[kk]    = 0;
-    eve.ilayer[kk]  = 0;
-    eve.iview[kk] = 0;
-    eve.icell[kk] = 0;
-    eve.xinmon[kk]   = 0.;
-    eve.yinmon[kk]   = 0.;
-    eve.zinmon[kk]   = 0.;
-    eve.xoutmon[kk]  = 0.;
-    eve.youtmon[kk]  = 0.;
-    eve.zoutmon[kk]  = 0.;
-    eve.pxinmon[kk]  = 0.;
-    eve.pyinmon[kk]  = 0.;
-    eve.pzinmon[kk]  = 0.;
-    eve.pxoutmon[kk] = 0.;
-    eve.pyoutmon[kk] = 0.;
-    eve.pzoutmon[kk] = 0.;
-    eve.demon[kk]    = 0.;
-    eve.almon[kk]    = 0.;
-    eve.timmon[kk]   = 0.;
+  for(int kk=0;kk<eve.BMNn;kk++){
+    eve.BMNid[kk]    = 0;
+    eve.BMNilay[kk]  = 0;
+    eve.BMNiview[kk] = 0;
+    eve.BMNicell[kk] = 0;
+    eve.BMNxin[kk]   = 0.;
+    eve.BMNyin[kk]   = 0.;
+    eve.BMNzin[kk]   = 0.;
+    eve.BMNxout[kk]  = 0.;
+    eve.BMNyout[kk]  = 0.;
+    eve.BMNzout[kk]  = 0.;
+    eve.BMNpxin[kk]  = 0.;
+    eve.BMNpyin[kk]  = 0.;
+    eve.BMNpzin[kk]  = 0.;
+    eve.BMNpxout[kk] = 0.;
+    eve.BMNpyout[kk] = 0.;
+    eve.BMNpzout[kk] = 0.;
+    eve.BMNde[kk]    = 0.;
+    eve.BMNal[kk]    = 0.;
+    eve.BMNtim[kk]   = 0.;
   }
 
-  for(int kk=0;kk<eve.n2dc;kk++){
-    eve.id2dc[kk]    = 0;
-    eve.ipla2dc[kk]  = 0;
-    eve.iview2dc[kk] = 0;
-    eve.icell2dc[kk] = 0;
-    eve.xin2dc[kk]   = 0.;
-    eve.yin2dc[kk]   = 0.;
-    eve.zin2dc[kk]   = 0.;
-    eve.xout2dc[kk]  = 0.;
-    eve.yout2dc[kk]  = 0.;
-    eve.zout2dc[kk]  = 0.;
-    eve.pxin2dc[kk]  = 0.;
-    eve.pyin2dc[kk]  = 0.;
-    eve.pzin2dc[kk]  = 0.;
-    eve.pxout2dc[kk] = 0.;
-    eve.pyout2dc[kk] = 0.;
-    eve.pzout2dc[kk] = 0.;
-    eve.de2dc[kk]    = 0.;
-    eve.al2dc[kk]    = 0.;
-    eve.tim2dc[kk]   = 0.;
+  for(int kk=0;kk<eve.VTXn;kk++){
+    eve.VTXid[kk]    = 0;
+    eve.VTXilay[kk]  = 0;
+    eve.VTXirow[kk]  = 0;
+    eve.VTXicol[kk]  = 0;
+    eve.VTXxin[kk]   = 0.;
+    eve.VTXyin[kk]   = 0.;
+    eve.VTXzin[kk]   = 0.;
+    eve.VTXxout[kk]  = 0.;
+    eve.VTXyout[kk]  = 0.;
+    eve.VTXzout[kk]  = 0.;
+    eve.VTXpxin[kk]  = 0.;
+    eve.VTXpyin[kk]  = 0.;
+    eve.VTXpzin[kk]  = 0.;
+    eve.VTXpxout[kk] = 0.;
+    eve.VTXpyout[kk] = 0.;
+    eve.VTXpzout[kk] = 0.;
+    eve.VTXde[kk]    = 0.;
+    eve.VTXal[kk]    = 0.;
+    eve.VTXtim[kk]   = 0.;
   }
 
-  for(int kk=0;kk<eve.nscint;kk++){
-    eve.idscint[kk]    = 0;
-    eve.irowscint[kk]  = 0;
-    eve.icolscint[kk]  = 0;
-    eve.xinscint[kk]   = 0.;
-    eve.yinscint[kk]   = 0.;
-    eve.zinscint[kk]   = 0.;
-    eve.xoutscint[kk]  = 0.;
-    eve.youtscint[kk]  = 0.;
-    eve.zoutscint[kk]  = 0.;
-    eve.pxinscint[kk]  = 0.;
-    eve.pyinscint[kk]  = 0.;
-    eve.pzinscint[kk]  = 0.;
-    eve.pxoutscint[kk] = 0.;
-    eve.pyoutscint[kk] = 0.;
-    eve.pzoutscint[kk] = 0.;
-    eve.descint[kk]    = 0.;
-    eve.alscint[kk]    = 0.;
-    eve.timscint[kk]   = 0.;
+  for(int kk=0;kk<eve.ITRn;kk++){
+    eve.ITRid[kk]    = 0;
+    eve.ITRilay[kk]  = 0;
+    eve.ITRirow[kk]  = 0;
+    eve.ITRicol[kk]  = 0;
+    eve.ITRxin[kk]   = 0.;
+    eve.ITRyin[kk]   = 0.;
+    eve.ITRzin[kk]   = 0.;
+    eve.ITRxout[kk]  = 0.;
+    eve.ITRyout[kk]  = 0.;
+    eve.ITRzout[kk]  = 0.;
+    eve.ITRpxin[kk]  = 0.;
+    eve.ITRpyin[kk]  = 0.;
+    eve.ITRpzin[kk]  = 0.;
+    eve.ITRpxout[kk] = 0.;
+    eve.ITRpyout[kk] = 0.;
+    eve.ITRpzout[kk] = 0.;
+    eve.ITRde[kk]    = 0.;
+    eve.ITRal[kk]    = 0.;
+    eve.ITRtim[kk]   = 0.;
+  }
+
+  for(int kk=0;kk<eve.DCHn;kk++){
+    eve.DCHid[kk]    = 0;
+    eve.DCHilay[kk]  = 0;
+    eve.DCHiview[kk] = 0;
+    eve.DCHicell[kk] = 0;
+    eve.DCHxin[kk]   = 0.;
+    eve.DCHyin[kk]   = 0.;
+    eve.DCHzin[kk]   = 0.;
+    eve.DCHxout[kk]  = 0.;
+    eve.DCHyout[kk]  = 0.;
+    eve.DCHzout[kk]  = 0.;
+    eve.DCHpxin[kk]  = 0.;
+    eve.DCHpyin[kk]  = 0.;
+    eve.DCHpzin[kk]  = 0.;
+    eve.DCHpxout[kk] = 0.;
+    eve.DCHpyout[kk] = 0.;
+    eve.DCHpzout[kk] = 0.;
+    eve.DCHde[kk]    = 0.;
+    eve.DCHal[kk]    = 0.;
+    eve.DCHtim[kk]   = 0.;
+  }
+
+  for(int kk=0;kk<eve.SCNn;kk++){
+    eve.SCNid[kk]     = 0;
+    eve.SCNistrip[kk] = 0;
+    eve.SCNiview[kk]  = 0;
+    eve.SCNxin[kk]    = 0.;
+    eve.SCNyin[kk]    = 0.;
+    eve.SCNzin[kk]    = 0.;
+    eve.SCNxout[kk]   = 0.;
+    eve.SCNyout[kk]   = 0.;
+    eve.SCNzout[kk]   = 0.;
+    eve.SCNpxin[kk]   = 0.;
+    eve.SCNpyin[kk]   = 0.;
+    eve.SCNpzin[kk]   = 0.;
+    eve.SCNpxout[kk]  = 0.;
+    eve.SCNpyout[kk]  = 0.;
+    eve.SCNpzout[kk]  = 0.;
+    eve.SCNde[kk]     = 0.;
+    eve.SCNal[kk]     = 0.;
+    eve.SCNtim[kk]    = 0.;
   }
   
-  for(int kk=0;kk<eve.ncry;kk++){
-    eve.idcry[kk]    = 0;
-    eve.irowcry[kk]  = 0;
-    eve.icolcry[kk]  = 0;
-    eve.xincry[kk]   = 0.;
-    eve.yincry[kk]   = 0.;
-    eve.zincry[kk]   = 0.;
-    eve.xoutcry[kk]  = 0.;
-    eve.youtcry[kk]  = 0.;
-    eve.zoutcry[kk]  = 0.;
-    eve.pxincry[kk]  = 0.;
-    eve.pyincry[kk]  = 0.;
-    eve.pzincry[kk]  = 0.;
-    eve.pxoutcry[kk] = 0.;
-    eve.pyoutcry[kk] = 0.;
-    eve.pzoutcry[kk] = 0.;
-    eve.decry[kk]    = 0.;
-    eve.alcry[kk]    = 0.;
-    eve.timcry[kk]   = 0.;    
+  for(int kk=0;kk<eve.CALn;kk++){
+    eve.CALid[kk]    = 0;
+    eve.CALicry[kk]  = 0;
+    eve.CALxin[kk]   = 0.;
+    eve.CALyin[kk]   = 0.;
+    eve.CALzin[kk]   = 0.;
+    eve.CALxout[kk]  = 0.;
+    eve.CALyout[kk]  = 0.;
+    eve.CALzout[kk]  = 0.;
+    eve.CALpxin[kk]  = 0.;
+    eve.CALpyin[kk]  = 0.;
+    eve.CALpzin[kk]  = 0.;
+    eve.CALpxout[kk] = 0.;
+    eve.CALpyout[kk] = 0.;
+    eve.CALpzout[kk] = 0.;
+    eve.CALde[kk]    = 0.;
+    eve.CALal[kk]    = 0.;
+    eve.CALtim[kk]   = 0.;    
   }
   
-  for(int kk=0;kk<eve.ncross;kk++){
-    eve.idcross[kk]      = 0;
-    eve.nregcross[kk]    = 0;
-    eve.nregoldcross[kk] = 0;
-    eve.xcross[kk]       = 0.;
-    eve.ycross[kk]       = 0.;
-    eve.zcross[kk]       = 0.;
-    eve.pxcross[kk]      = 0.;
-    eve.pycross[kk]      = 0.;
-    eve.pzcross[kk]      = 0.;
-    eve.mcross[kk]       = 0.;
-    eve.chcross[kk]      = 0.;
-    eve.tcross[kk]       = 0.;
+  for(int kk=0;kk<eve.CROSSn;kk++){
+    eve.CROSSid[kk]      = 0;
+    eve.CROSSnreg[kk]    = 0;
+    eve.CROSSnregold[kk] = 0;
+    eve.CROSSx[kk]       = 0.;
+    eve.CROSSy[kk]       = 0.;
+    eve.CROSSz[kk]       = 0.;
+    eve.CROSSpx[kk]      = 0.;
+    eve.CROSSpy[kk]      = 0.;
+    eve.CROSSpz[kk]      = 0.;
+    eve.CROSSm[kk]       = 0.;
+    eve.CROSSch[kk]      = 0.;
+    eve.CROSSt[kk]       = 0.;
   }
 
   eve.EventNumber = 0;
-  eve.trn         = 0;
-  eve.stn         = 0;
-  eve.nvtx        = 0;
-  eve.nIT         = 0;
-  eve.nmon        = 0;
-  eve.n2dc        = 0;
-  eve.nscint      = 0;
-  eve.ncry        = 0;
-  eve.ncross      = 0;
+  eve.TRn       = 0;
+  eve.STCn      = 0;
+  eve.VTXn      = 0;
+  eve.BMNn      = 0;
+  eve.DCHn      = 0;
+  eve.SCNn      = 0;
+  eve.CALn      = 0;
+  eve.CROSSn    = 0;
   
   return 0;
 }
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddPart(Int_t fidpa, Int_t figen, 
-		      Int_t ficha, Int_t fnumreg, Int_t fiba,
-		      Int_t fidead, Int_t fjpa,
-		      Double_t fvxi, Double_t fvyi, Double_t fvzi,
-		      Double_t fvxf, Double_t fvyf, Double_t fvzf,
-		      Double_t fpx, Double_t fpy, Double_t fpz,
-		      Double_t fpxf, Double_t fpyf, Double_t fpzf,
-		      Double_t famass, Double_t ftempo,
-		      Double_t ftof, Double_t ftrlen){
+Int_t Evento::AddPart(Int_t fTRpaid, Int_t fTRgen, 
+		      Int_t fTRcha, Int_t fTRreg, Int_t fTRbar,
+		      Int_t fTRdead, Int_t fTRfid,
+		      Double_t fTRix, Double_t fTRiy, Double_t fTRiz,
+		      Double_t fTRfx, Double_t fTRfy, Double_t fTRfz,
+		      Double_t fTRipx, Double_t fTRipy, Double_t fTRipz,
+		      Double_t fTRfpx, Double_t fTRfpy, Double_t fTRfpz,
+		      Double_t fTRmass, Double_t fTRtime,
+		      Double_t fTRtof, Double_t fTRtrlen){
 
-  if(eve.trn<MAXNUMP)
+  if(eve.TRn<MAXTR)
     {
-      eve.trn ++;
-      eve.trpaid[eve.trn-1] = fidpa;
-      eve.trgen[eve.trn-1] = figen;
-      eve.trcha[eve.trn-1] = ficha;
-      eve.trreg[eve.trn-1] = fnumreg;
-      eve.trbar[eve.trn-1] = fiba;
-      eve.trdead[eve.trn-1] = fidead;
-      eve.trfid[eve.trn-1] = fjpa;
-      eve.trix[eve.trn-1] = fvxi;
-      eve.triy[eve.trn-1] = fvyi;
-      eve.triz[eve.trn-1] = fvzi;
-      eve.trfx[eve.trn-1] = fvxf;
-      eve.trfy[eve.trn-1] = fvyf;
-      eve.trfz[eve.trn-1] = fvzf;
-      eve.tripx[eve.trn-1] = fpx;
-      eve.tripy[eve.trn-1] = fpy;
-      eve.tripz[eve.trn-1] = fpz;
-      eve.trfpx[eve.trn-1] = fpxf;
-      eve.trfpy[eve.trn-1] = fpyf;
-      eve.trfpz[eve.trn-1] = fpzf;
-      eve.trmass[eve.trn-1] = famass;
-      eve.trtime[eve.trn-1] = ftempo;
-      eve.tof[eve.trn-1] = ftof;
-      eve.trlen[eve.trn-1] = ftrlen;
+      eve.TRn ++;
+      eve.TRpaid[eve.TRn-1] = fTRpaid;
+      eve.TRgen[eve.TRn-1] = fTRgen;
+      eve.TRcha[eve.TRn-1] = fTRcha;
+      eve.TRreg[eve.TRn-1] = fTRreg;
+      eve.TRbar[eve.TRn-1] = fTRbar;
+      eve.TRdead[eve.TRn-1] = fTRdead;
+      eve.TRfid[eve.TRn-1] = fTRfid;
+      eve.TRix[eve.TRn-1] = fTRix;
+      eve.TRiy[eve.TRn-1] = fTRiy;
+      eve.TRiz[eve.TRn-1] = fTRiz;
+      eve.TRfx[eve.TRn-1] = fTRfx;
+      eve.TRfy[eve.TRn-1] = fTRfy;
+      eve.TRfz[eve.TRn-1] = fTRfz;
+      eve.TRipx[eve.TRn-1] = fTRipx;
+      eve.TRipy[eve.TRn-1] = fTRipy;
+      eve.TRipz[eve.TRn-1] = fTRipz;
+      eve.TRfpx[eve.TRn-1] = fTRfpx;
+      eve.TRfpy[eve.TRn-1] = fTRfpy;
+      eve.TRfpz[eve.TRn-1] = fTRfpz;
+      eve.TRmass[eve.TRn-1] = fTRmass;
+      eve.TRtime[eve.TRn-1] = fTRtime;
+      eve.TRtof[eve.TRn-1] = fTRtof;
+      eve.TRtrlen[eve.TRn-1] = fTRtrlen;
       return 0;
     }
   else
@@ -482,31 +479,31 @@ Int_t Evento::AddPart(Int_t fidpa, Int_t figen,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddSc(Int_t fidsc,
-		    Double_t fxinsc, Double_t fyinsc, Double_t fzinsc,
-		    Double_t fxoutsc, Double_t fyoutsc, Double_t fzoutsc, 
-		    Double_t fpxinsc, Double_t fpyinsc, Double_t fpzinsc, 
-		    Double_t fpxoutsc, Double_t fpyoutsc, Double_t fpzoutsc, 
-		    Double_t fdesc, Double_t falsc, Double_t ftimsc){
+Int_t Evento::AddSTC(Int_t fSTCid,
+		    Double_t fSTCxin, Double_t fSTCyin, Double_t fSTCzin,
+		    Double_t fSTCxout, Double_t fSTCyout, Double_t fSTCzout, 
+		    Double_t fSTCpxin, Double_t fSTCpyin, Double_t fSTCpzin, 
+		    Double_t fSTCpxout, Double_t fSTCpyout, Double_t fSTCpzout, 
+		    Double_t fSTCde, Double_t fSTCal, Double_t fSTCtim){
 
-  if(eve.stn<MAXSC) {
-    eve.stn ++;
-    eve.stid[eve.stn-1] = fidsc;
-    eve.stinx[eve.stn-1] = fxinsc;
-    eve.stiny[eve.stn-1] = fyinsc;
-    eve.stinz[eve.stn-1] = fzinsc;
-    eve.stinpx[eve.stn-1] = fpxinsc;
-    eve.stinpy[eve.stn-1] = fpyinsc;
-    eve.stinpz[eve.stn-1] = fpzinsc;
-    eve.stoutx[eve.stn-1] = fxoutsc;
-    eve.stouty[eve.stn-1] = fyoutsc;
-    eve.stoutz[eve.stn-1] = fzoutsc;
-    eve.stoutpx[eve.stn-1] = fpxoutsc;
-    eve.stoutpy[eve.stn-1] = fpyoutsc;
-    eve.stoutpz[eve.stn-1] = fpzoutsc;
-    eve.stde[eve.stn-1] = fdesc;
-    eve.stal[eve.stn-1] = falsc;
-    eve.sttim[eve.stn-1] = ftimsc;
+  if(eve.STCn<MAXSTC) {
+    eve.STCn ++;
+    eve.STCid[eve.STCn-1] = fSTCid;
+    eve.STCxin[eve.STCn-1] = fSTCxin;
+    eve.STCyin[eve.STCn-1] = fSTCyin;
+    eve.STCzin[eve.STCn-1] = fSTCzin;
+    eve.STCpxin[eve.STCn-1] = fSTCpxin;
+    eve.STCpyin[eve.STCn-1] = fSTCpyin;
+    eve.STCpzin[eve.STCn-1] = fSTCpzin;
+    eve.STCxout[eve.STCn-1] = fSTCxout;
+    eve.STCyout[eve.STCn-1] = fSTCyout;
+    eve.STCzout[eve.STCn-1] = fSTCzout;
+    eve.STCpxout[eve.STCn-1] = fSTCpxout;
+    eve.STCpyout[eve.STCn-1] = fSTCpyout;
+    eve.STCpzout[eve.STCn-1] = fSTCpzout;
+    eve.STCde[eve.STCn-1] = fSTCde;
+    eve.STCal[eve.STCn-1] = fSTCal;
+    eve.STCtim[eve.STCn-1] = fSTCtim;
     return 0;
   }
   else{
@@ -516,36 +513,35 @@ Int_t Evento::AddSc(Int_t fidsc,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddVtx(Int_t fidvtx, Int_t fiplavtx,
-		     Int_t firowvtx, Int_t ficolvtx,
-		     Double_t fxinvtx, Double_t fyinvtx, Double_t fzinvtx,
-		     Double_t fxoutvtx, Double_t fyoutvtx, Double_t fzoutvtx,
-		     Double_t fpxinvtx, Double_t fpyinvtx, Double_t fpzinvtx,
-		     Double_t fpxoutvtx, Double_t fpyoutvtx, Double_t fpzoutvtx,
-		     Double_t fdevtx, Double_t falvtx, Double_t ftimvtx){
+Int_t Evento::AddBMN(Int_t fBMNid, Int_t fBMNilay, Int_t fBMNiview,
+		     Int_t fBMNicell,
+		     Double_t fBMNxin, Double_t fBMNyin, Double_t fBMNzin,
+		     Double_t fBMNxout, Double_t fBMNyout, Double_t fBMNzout,
+		     Double_t fBMNpxin, Double_t fBMNpyin, Double_t fBMNpzin,
+		     Double_t fBMNpxout, Double_t fBMNpyout, Double_t fBMNpzout,
+		     Double_t fBMNde, Double_t fBMNal, Double_t fBMNtim){
 
-  if(eve.nvtx<MAXVTX)
-    {
-      eve.nvtx ++;
-      eve.iplavtx[eve.nvtx-1] = fiplavtx;
-      eve.idvtx[eve.nvtx-1] = fidvtx;
-      eve.irowvtx[eve.nvtx-1] = firowvtx;
-      eve.icolvtx[eve.nvtx-1] = ficolvtx;
-      eve.xinvtx[eve.nvtx-1] = fxinvtx;
-      eve.yinvtx[eve.nvtx-1] = fyinvtx;
-      eve.zinvtx[eve.nvtx-1] = fzinvtx;
-      eve.pxinvtx[eve.nvtx-1] = fpxinvtx;
-      eve.pyinvtx[eve.nvtx-1] = fpyinvtx;
-      eve.pzinvtx[eve.nvtx-1] = fpzinvtx;
-      eve.xoutvtx[eve.nvtx-1] = fxoutvtx;
-      eve.youtvtx[eve.nvtx-1] = fyoutvtx;
-      eve.zoutvtx[eve.nvtx-1] = fzoutvtx;
-      eve.pxoutvtx[eve.nvtx-1] = fpxoutvtx;
-      eve.pyoutvtx[eve.nvtx-1] = fpyoutvtx;
-      eve.pzoutvtx[eve.nvtx-1] = fpzoutvtx;
-      eve.devtx[eve.nvtx-1] = fdevtx;
-      eve.alvtx[eve.nvtx-1] = falvtx;
-      eve.timvtx[eve.nvtx-1] = ftimvtx;
+  if(eve.BMNn<MAXBMN){
+      eve.BMNn ++;
+      eve.BMNid[eve.BMNn-1] = fBMNid;
+      eve.BMNilay[eve.BMNn-1] = fBMNilay;
+      eve.BMNiview[eve.BMNn-1] = fBMNiview;
+      eve.BMNicell[eve.BMNn-1] = fBMNicell;
+      eve.BMNxin[eve.BMNn-1] = fBMNxin;
+      eve.BMNyin[eve.BMNn-1] = fBMNyin;
+      eve.BMNzin[eve.BMNn-1] = fBMNzin;
+      eve.BMNpxin[eve.BMNn-1] = fBMNpxin;
+      eve.BMNpyin[eve.BMNn-1] = fBMNpyin;
+      eve.BMNpzin[eve.BMNn-1] = fBMNpzin;
+      eve.BMNxout[eve.BMNn-1] = fBMNxout;
+      eve.BMNyout[eve.BMNn-1] = fBMNyout;
+      eve.BMNzout[eve.BMNn-1] = fBMNzout;
+      eve.BMNpxout[eve.BMNn-1] = fBMNpxout;
+      eve.BMNpyout[eve.BMNn-1] = fBMNpyout;
+      eve.BMNpzout[eve.BMNn-1] = fBMNpzout;
+      eve.BMNde[eve.BMNn-1] = fBMNde;
+      eve.BMNal[eve.BMNn-1] = fBMNal;
+      eve.BMNtim[eve.BMNn-1] = fBMNtim;
       return 0;
     }
   else
@@ -556,36 +552,35 @@ Int_t Evento::AddVtx(Int_t fidvtx, Int_t fiplavtx,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddIT(Int_t fidIT, Int_t fiplaIT,
-		     Int_t firowIT, Int_t ficolIT,
-		     Double_t fxinIT, Double_t fyinIT, Double_t fzinIT,
-		     Double_t fxoutIT, Double_t fyoutIT, Double_t fzoutIT,
-		     Double_t fpxinIT, Double_t fpyinIT, Double_t fpzinIT,
-		     Double_t fpxoutIT, Double_t fpyoutIT, Double_t fpzoutIT,
-		     Double_t fdeIT, Double_t falIT, Double_t ftimIT){
+Int_t Evento::AddVTX(Int_t fVTXid, Int_t fVTXilay,
+		     Int_t fVTXirow, Int_t fVTXicol,
+		     Double_t fVTXxin, Double_t fVTXyin, Double_t fVTXzin,
+		     Double_t fVTXxout, Double_t fVTXyout, Double_t fVTXzout,
+		     Double_t fVTXpxin, Double_t fVTXpyin, Double_t fVTXpzin,
+		     Double_t fVTXpxout, Double_t fVTXpyout, Double_t fVTXpzout,
+		     Double_t fVTXde, Double_t fVTXal, Double_t fVTXtim){
 
-  if(eve.nIT<MAXIT)
-    {
-      eve.nIT ++;
-      eve.iplaIT[eve.nIT-1] = fiplaIT;
-      eve.idIT[eve.nIT-1] = fidIT;
-      eve.irowIT[eve.nIT-1] = firowIT;
-      eve.icolIT[eve.nIT-1] = ficolIT;
-      eve.xinIT[eve.nIT-1] = fxinIT;
-      eve.yinIT[eve.nIT-1] = fyinIT;
-      eve.zinIT[eve.nIT-1] = fzinIT;
-      eve.pxinIT[eve.nIT-1] = fpxinIT;
-      eve.pyinIT[eve.nIT-1] = fpyinIT;
-      eve.pzinIT[eve.nIT-1] = fpzinIT;
-      eve.xoutIT[eve.nIT-1] = fxoutIT;
-      eve.youtIT[eve.nIT-1] = fyoutIT;
-      eve.zoutIT[eve.nIT-1] = fzoutIT;
-      eve.pxoutIT[eve.nIT-1] = fpxoutIT;
-      eve.pyoutIT[eve.nIT-1] = fpyoutIT;
-      eve.pzoutIT[eve.nIT-1] = fpzoutIT;
-      eve.deIT[eve.nIT-1] = fdeIT;
-      eve.alIT[eve.nIT-1] = falIT;
-      eve.timIT[eve.nIT-1] = ftimIT;
+  if(eve.VTXn<MAXVTX){
+      eve.VTXn ++;
+      eve.VTXilay[eve.VTXn-1] = fVTXilay;
+      eve.VTXid[eve.VTXn-1] = fVTXid;
+      eve.VTXirow[eve.VTXn-1] = fVTXirow;
+      eve.VTXicol[eve.VTXn-1] = fVTXicol;
+      eve.VTXxin[eve.VTXn-1] = fVTXxin;
+      eve.VTXyin[eve.VTXn-1] = fVTXyin;
+      eve.VTXzin[eve.VTXn-1] = fVTXzin;
+      eve.VTXpxin[eve.VTXn-1] = fVTXpxin;
+      eve.VTXpyin[eve.VTXn-1] = fVTXpyin;
+      eve.VTXpzin[eve.VTXn-1] = fVTXpzin;
+      eve.VTXxout[eve.VTXn-1] = fVTXxout;
+      eve.VTXyout[eve.VTXn-1] = fVTXyout;
+      eve.VTXzout[eve.VTXn-1] = fVTXzout;
+      eve.VTXpxout[eve.VTXn-1] = fVTXpxout;
+      eve.VTXpyout[eve.VTXn-1] = fVTXpyout;
+      eve.VTXpzout[eve.VTXn-1] = fVTXpzout;
+      eve.VTXde[eve.VTXn-1] = fVTXde;
+      eve.VTXal[eve.VTXn-1] = fVTXal;
+      eve.VTXtim[eve.VTXn-1] = fVTXtim;
       return 0;
     }
   else
@@ -596,36 +591,35 @@ Int_t Evento::AddIT(Int_t fidIT, Int_t fiplaIT,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddBM(Int_t fidbm, Int_t fiplabm, Int_t fiviewbm,
-		     Int_t ficellbm,
-		     Double_t fxinbm, Double_t fyinbm, Double_t fzinbm,
-		     Double_t fxoutbm, Double_t fyoutbm, Double_t fzoutbm,
-		     Double_t fpxinbm, Double_t fpyinbm, Double_t fpzinbm,
-		     Double_t fpxoutbm, Double_t fpyoutbm, Double_t fpzoutbm,
-		     Double_t fdebm, Double_t falbm, Double_t ftimbm){
+Int_t Evento::AddITR(Int_t fITRid, Int_t fITRilay,
+		     Int_t fITRirow, Int_t fITRicol,
+		     Double_t fITRxin, Double_t fITRyin, Double_t fITRzin,
+		     Double_t fITRxout, Double_t fITRyout, Double_t fITRzout,
+		     Double_t fITRpxin, Double_t fITRpyin, Double_t fITRpzin,
+		     Double_t fITRpxout, Double_t fITRpyout, Double_t fITRpzout,
+		     Double_t fITRde, Double_t fITRal, Double_t fITRtim){
 
-  if(eve.nmon<MAXBM)
-    {
-      eve.nmon ++;
-      eve.idmon[eve.nmon-1] = fidbm;
-      eve.ilayer[eve.nmon-1] = fiplabm;
-      eve.iview[eve.nmon-1] = fiviewbm;
-      eve.icell[eve.nmon-1] = ficellbm;
-      eve.xinmon[eve.nmon-1] = fxinbm;
-      eve.yinmon[eve.nmon-1] = fyinbm;
-      eve.zinmon[eve.nmon-1] = fzinbm;
-      eve.pxinmon[eve.nmon-1] = fpxinbm;
-      eve.pyinmon[eve.nmon-1] = fpyinbm;
-      eve.pzinmon[eve.nmon-1] = fpzinbm;
-      eve.xoutmon[eve.nmon-1] = fxoutbm;
-      eve.youtmon[eve.nmon-1] = fyoutbm;
-      eve.zoutmon[eve.nmon-1] = fzoutbm;
-      eve.pxoutmon[eve.nmon-1] = fpxoutbm;
-      eve.pyoutmon[eve.nmon-1] = fpyoutbm;
-      eve.pzoutmon[eve.nmon-1] = fpzoutbm;
-      eve.demon[eve.nmon-1] = fdebm;
-      eve.almon[eve.nmon-1] = falbm;
-      eve.timmon[eve.nmon-1] = ftimbm;
+  if(eve.ITRn<MAXITR){
+      eve.ITRn ++;
+      eve.ITRilay[eve.ITRn-1] = fITRilay;
+      eve.ITRid[eve.ITRn-1] = fITRid;
+      eve.ITRirow[eve.ITRn-1] = fITRirow;
+      eve.ITRicol[eve.ITRn-1] = fITRicol;
+      eve.ITRxin[eve.ITRn-1] = fITRxin;
+      eve.ITRyin[eve.ITRn-1] = fITRyin;
+      eve.ITRzin[eve.ITRn-1] = fITRzin;
+      eve.ITRpxin[eve.ITRn-1] = fITRpxin;
+      eve.ITRpyin[eve.ITRn-1] = fITRpyin;
+      eve.ITRpzin[eve.ITRn-1] = fITRpzin;
+      eve.ITRxout[eve.ITRn-1] = fITRxout;
+      eve.ITRyout[eve.ITRn-1] = fITRyout;
+      eve.ITRzout[eve.ITRn-1] = fITRzout;
+      eve.ITRpxout[eve.ITRn-1] = fITRpxout;
+      eve.ITRpyout[eve.ITRn-1] = fITRpyout;
+      eve.ITRpzout[eve.ITRn-1] = fITRpzout;
+      eve.ITRde[eve.ITRn-1] = fITRde;
+      eve.ITRal[eve.ITRn-1] = fITRal;
+      eve.ITRtim[eve.ITRn-1] = fITRtim;
       return 0;
     }
   else
@@ -636,36 +630,35 @@ Int_t Evento::AddBM(Int_t fidbm, Int_t fiplabm, Int_t fiviewbm,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::Add2DC(Int_t fid2dc, Int_t fipla2dc, Int_t fiview2dc,
-		     Int_t ficell2dc,
-		     Double_t fxin2dc, Double_t fyin2dc, Double_t fzin2dc,
-		     Double_t fxout2dc, Double_t fyout2dc, Double_t fzout2dc,
-		     Double_t fpxin2dc, Double_t fpyin2dc, Double_t fpzin2dc,
-		     Double_t fpxout2dc, Double_t fpyout2dc, Double_t fpzout2dc,
-		     Double_t fde2dc, Double_t fal2dc, Double_t ftim2dc){
+Int_t Evento::AddDCH(Int_t fDCHid, Int_t fDCHilay, Int_t fDCHiview,
+		     Int_t fDCHicell,
+		     Double_t fDCHxin, Double_t fDCHyin, Double_t fDCHzin,
+		     Double_t fDCHxout, Double_t fDCHyout, Double_t fDCHzout,
+		     Double_t fDCHpxin, Double_t fDCHpyin, Double_t fDCHpzin,
+		     Double_t fDCHpxout, Double_t fDCHpyout, Double_t fDCHpzout,
+		     Double_t fDCHde, Double_t fDCHal, Double_t fDCHtim){
   
-  if(eve.n2dc<MAX2DC)
-    {
-      eve.n2dc ++;
-      eve.id2dc[eve.n2dc-1] = fid2dc;
-      eve.ipla2dc[eve.n2dc-1] = fipla2dc;
-      eve.iview2dc[eve.n2dc-1] = fiview2dc;
-      eve.icell2dc[eve.n2dc-1] = ficell2dc;
-      eve.xin2dc[eve.n2dc-1] = fxin2dc;
-      eve.yin2dc[eve.n2dc-1] = fyin2dc;
-      eve.zin2dc[eve.n2dc-1] = fzin2dc;
-      eve.pxin2dc[eve.n2dc-1] = fpxin2dc;
-      eve.pyin2dc[eve.n2dc-1] = fpyin2dc;
-      eve.pzin2dc[eve.n2dc-1] = fpzin2dc;
-      eve.xout2dc[eve.n2dc-1] = fxout2dc;
-      eve.yout2dc[eve.n2dc-1] = fyout2dc;
-      eve.zout2dc[eve.n2dc-1] = fzout2dc;
-      eve.pxout2dc[eve.n2dc-1] = fpxout2dc;
-      eve.pyout2dc[eve.n2dc-1] = fpyout2dc;
-      eve.pzout2dc[eve.n2dc-1] = fpzout2dc;
-      eve.de2dc[eve.n2dc-1] = fde2dc;
-      eve.al2dc[eve.n2dc-1] = fal2dc;
-      eve.tim2dc[eve.n2dc-1] = ftim2dc;
+  if(eve.DCHn<MAXDCH){
+      eve.DCHn ++;
+      eve.DCHid[eve.DCHn-1] = fDCHid;
+      eve.DCHilay[eve.DCHn-1] = fDCHilay;
+      eve.DCHiview[eve.DCHn-1] = fDCHiview;
+      eve.DCHicell[eve.DCHn-1] = fDCHicell;
+      eve.DCHxin[eve.DCHn-1] = fDCHxin;
+      eve.DCHyin[eve.DCHn-1] = fDCHyin;
+      eve.DCHzin[eve.DCHn-1] = fDCHzin;
+      eve.DCHpxin[eve.DCHn-1] = fDCHpxin;
+      eve.DCHpyin[eve.DCHn-1] = fDCHpyin;
+      eve.DCHpzin[eve.DCHn-1] = fDCHpzin;
+      eve.DCHxout[eve.DCHn-1] = fDCHxout;
+      eve.DCHyout[eve.DCHn-1] = fDCHyout;
+      eve.DCHzout[eve.DCHn-1] = fDCHzout;
+      eve.DCHpxout[eve.DCHn-1] = fDCHpxout;
+      eve.DCHpyout[eve.DCHn-1] = fDCHpyout;
+      eve.DCHpzout[eve.DCHn-1] = fDCHpzout;
+      eve.DCHde[eve.DCHn-1] = fDCHde;
+      eve.DCHal[eve.DCHn-1] = fDCHal;
+      eve.DCHtim[eve.DCHn-1] = fDCHtim;
       return 0;
     }
   else
@@ -676,37 +669,37 @@ Int_t Evento::Add2DC(Int_t fid2dc, Int_t fipla2dc, Int_t fiview2dc,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddScint(Int_t fidscint,
-		       Int_t firowscint, Int_t ficolscint,
-		       Double_t fxinscint, Double_t fyinscint, 
-		       Double_t fzinscint,
-		       Double_t fxoutscint, Double_t fyoutscint, 
-		       Double_t fzoutscint, Double_t fpxinscint, 
-		       Double_t fpyinscint, Double_t fpzinscint, 
-		       Double_t fpxoutscint, Double_t fpyoutscint, 
-		       Double_t fpzoutscint, Double_t fdescint, 
-		       Double_t falscint, Double_t ftimscint){
+Int_t Evento::AddSCN(Int_t fSCNid,
+		       Int_t fSCNistrip, Int_t fSCNiview,
+		       Double_t fSCNxin, Double_t fSCNyin, 
+		       Double_t fSCNzin,
+		       Double_t fSCNxout, Double_t fSCNyout, 
+		       Double_t fSCNzout, Double_t fSCNpxin, 
+		       Double_t fSCNpyin, Double_t fSCNpzin, 
+		       Double_t fSCNpxout, Double_t fSCNpyout, 
+		       Double_t fSCNpzout, Double_t fSCNde, 
+		       Double_t fSCNal, Double_t fSCNtim){
 
-  if(eve.nscint<MAXSCINT) {
-    eve.nscint ++;
-    eve.idscint[eve.nscint-1] = fidscint;
-    eve.irowscint[eve.nscint-1] = firowscint;
-    eve.icolscint[eve.nscint-1] = ficolscint;
-    eve.xinscint[eve.nscint-1] = fxinscint;
-    eve.yinscint[eve.nscint-1] = fyinscint;
-    eve.zinscint[eve.nscint-1] = fzinscint;
-    eve.pxinscint[eve.nscint-1] = fpxinscint;
-    eve.pyinscint[eve.nscint-1] = fpyinscint;
-    eve.pzinscint[eve.nscint-1] = fpzinscint;
-    eve.xoutscint[eve.nscint-1] = fxoutscint;
-    eve.youtscint[eve.nscint-1] = fyoutscint;
-    eve.zoutscint[eve.nscint-1] = fzoutscint;
-    eve.pxoutscint[eve.nscint-1] = fpxoutscint;
-    eve.pyoutscint[eve.nscint-1] = fpyoutscint;
-    eve.pzoutscint[eve.nscint-1] = fpzoutscint;
-    eve.descint[eve.nscint-1] = fdescint;
-    eve.alscint[eve.nscint-1] = falscint;
-    eve.timscint[eve.nscint-1] = ftimscint;
+  if(eve.SCNn<MAXSCN){
+    eve.SCNn ++;
+    eve.SCNid[eve.SCNn-1] = fSCNid;
+    eve.SCNistrip[eve.SCNn-1] = fSCNistrip;
+    eve.SCNiview[eve.SCNn-1] = fSCNiview;
+    eve.SCNxin[eve.SCNn-1] = fSCNxin;
+    eve.SCNyin[eve.SCNn-1] = fSCNyin;
+    eve.SCNzin[eve.SCNn-1] = fSCNzin;
+    eve.SCNpxin[eve.SCNn-1] = fSCNpxin;
+    eve.SCNpyin[eve.SCNn-1] = fSCNpyin;
+    eve.SCNpzin[eve.SCNn-1] = fSCNpzin;
+    eve.SCNxout[eve.SCNn-1] = fSCNxout;
+    eve.SCNyout[eve.SCNn-1] = fSCNyout;
+    eve.SCNzout[eve.SCNn-1] = fSCNzout;
+    eve.SCNpxout[eve.SCNn-1] = fSCNpxout;
+    eve.SCNpyout[eve.SCNn-1] = fSCNpyout;
+    eve.SCNpzout[eve.SCNn-1] = fSCNpzout;
+    eve.SCNde[eve.SCNn-1] = fSCNde;
+    eve.SCNal[eve.SCNn-1] = fSCNal;
+    eve.SCNtim[eve.SCNn-1] = fSCNtim;
     return 0;
   }
   else{
@@ -716,33 +709,32 @@ Int_t Evento::AddScint(Int_t fidscint,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddCry(Int_t fidcry, Int_t firowcry, Int_t ficolcry,
-		     Double_t fxincry, Double_t fyincry,  Double_t fzincry,
-		     Double_t fxoutcry, Double_t fyoutcry, Double_t fzoutcry,
-		     Double_t fpxincry, Double_t fpyincry, Double_t fpzincry, 
-		     Double_t fpxoutcry, Double_t fpyoutcry, Double_t fpzoutcry,
-		     Double_t fdecry, Double_t falcry, Double_t ftimcry){
+Int_t Evento::AddCAL(Int_t fCALid, Int_t fCALicry, 
+		     Double_t fCALxin, Double_t fCALyin,  Double_t fCALzin,
+		     Double_t fCALxout, Double_t fCALyout, Double_t fCALzout,
+		     Double_t fCALpxin, Double_t fCALpyin, Double_t fCALpzin,
+		     Double_t fCALpxout, Double_t fCALpyout, Double_t fCALpzout,
+		     Double_t fCALde, Double_t fCALal, Double_t fCALtim){
 
-  if(eve.ncry<MAXCRY) {
-    eve.ncry ++;
-    eve.idcry[eve.ncry-1] = fidcry;
-    eve.irowcry[eve.ncry-1] = firowcry;
-    eve.icolcry[eve.ncry-1] = ficolcry;
-    eve.xincry[eve.ncry-1] = fxincry;
-    eve.yincry[eve.ncry-1] = fyincry;
-    eve.zincry[eve.ncry-1] = fzincry;
-    eve.pxincry[eve.ncry-1] = fpxincry;
-    eve.pyincry[eve.ncry-1] = fpyincry;
-    eve.pzincry[eve.ncry-1] = fpzincry;
-    eve.xoutcry[eve.ncry-1] = fxoutcry;
-    eve.youtcry[eve.ncry-1] = fyoutcry;
-    eve.zoutcry[eve.ncry-1] = fzoutcry;
-    eve.pxoutcry[eve.ncry-1] = fpxoutcry;
-    eve.pyoutcry[eve.ncry-1] = fpyoutcry;
-    eve.pzoutcry[eve.ncry-1] = fpzoutcry;
-    eve.decry[eve.ncry-1] = fdecry;
-    eve.alcry[eve.ncry-1] = falcry;
-    eve.timcry[eve.ncry-1] = ftimcry;
+  if(eve.CALn<MAXCAL){
+    eve.CALn ++;
+    eve.CALid[eve.CALn-1] = fCALid;
+    eve.CALicry[eve.CALn-1] = fCALicry;
+    eve.CALxin[eve.CALn-1] = fCALxin;
+    eve.CALyin[eve.CALn-1] = fCALyin;
+    eve.CALzin[eve.CALn-1] = fCALzin;
+    eve.CALpxin[eve.CALn-1] = fCALpxin;
+    eve.CALpyin[eve.CALn-1] = fCALpyin;
+    eve.CALpzin[eve.CALn-1] = fCALpzin;
+    eve.CALxout[eve.CALn-1] = fCALxout;
+    eve.CALyout[eve.CALn-1] = fCALyout;
+    eve.CALzout[eve.CALn-1] = fCALzout;
+    eve.CALpxout[eve.CALn-1] = fCALpxout;
+    eve.CALpyout[eve.CALn-1] = fCALpyout;
+    eve.CALpzout[eve.CALn-1] = fCALpzout;
+    eve.CALde[eve.CALn-1] = fCALde;
+    eve.CALal[eve.CALn-1] = fCALal;
+    eve.CALtim[eve.CALn-1] = fCALtim;
     return 0;
   }
   else{
@@ -752,25 +744,25 @@ Int_t Evento::AddCry(Int_t fidcry, Int_t firowcry, Int_t ficolcry,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddCross(Int_t fidcross, Int_t fnregcross, Int_t fnregoldcross,
-		       Double_t fxcross, Double_t fycross, Double_t fzcross,
-		       Double_t fpxcross, Double_t fpycross, Double_t fpzcross, 
-		       Double_t fmcross, Double_t fchcross, Double_t ftcross){
+Int_t Evento::AddCROSS(Int_t fCROSSid, Int_t fCROSSnreg, Int_t fCROSSnregold,
+		       Double_t fCROSSx, Double_t fCROSSy, Double_t fCROSSz,
+		       Double_t fCROSSpx, Double_t fCROSSpy, Double_t fCROSSpz, 
+		       Double_t fCROSSm, Double_t fCROSSch, Double_t fCROSSt){
 
-  if(eve.ncross<MAXCROSS) {
-    eve.ncross ++;
-    eve.idcross[eve.ncross-1] = fidcross;
-    eve.nregcross[eve.ncross-1] = fnregcross;
-    eve.nregoldcross[eve.ncross-1] = fnregoldcross;
-    eve.xcross[eve.ncross-1] = fxcross;
-    eve.ycross[eve.ncross-1] = fycross;
-    eve.zcross[eve.ncross-1] = fzcross;
-    eve.pxcross[eve.ncross-1] = fpxcross;
-    eve.pycross[eve.ncross-1] = fpycross;
-    eve.pzcross[eve.ncross-1] = fpzcross;
-    eve.mcross[eve.ncross-1] = fmcross;
-    eve.chcross[eve.ncross-1] = fchcross;
-    eve.tcross[eve.ncross-1] = ftcross;
+  if(eve.CROSSn<MAXCROSS) {
+    eve.CROSSn ++;
+    eve.CROSSid[eve.CROSSn-1] = fCROSSid;
+    eve.CROSSnreg[eve.CROSSn-1] = fCROSSnreg;
+    eve.CROSSnregold[eve.CROSSn-1] = fCROSSnregold;
+    eve.CROSSx[eve.CROSSn-1] = fCROSSx;
+    eve.CROSSy[eve.CROSSn-1] = fCROSSy;
+    eve.CROSSz[eve.CROSSn-1] = fCROSSz;
+    eve.CROSSpx[eve.CROSSn-1] = fCROSSpx;
+    eve.CROSSpy[eve.CROSSn-1] = fCROSSpy;
+    eve.CROSSpz[eve.CROSSn-1] = fCROSSpz;
+    eve.CROSSm[eve.CROSSn-1] = fCROSSm;
+    eve.CROSSch[eve.CROSSn-1] = fCROSSch;
+    eve.CROSSt[eve.CROSSn-1] = fCROSSt;
     return 0;
   }
   else{
@@ -782,186 +774,184 @@ Int_t Evento::AddCross(Int_t fidcross, Int_t fnregcross, Int_t fnregoldcross,
 
 int Evento::FindBranches(TTree *RootTree, EVENT_STRUCT *eve){
 
-  RootTree->SetBranchAddress("EventNumber",&(eve->EventNumber));
-  RootTree->SetBranchAddress("trn",&(eve->trn));
-  RootTree->SetBranchAddress("trpaid",&(eve->trpaid));
-  RootTree->SetBranchAddress("trgen",&(eve->trgen));
-  RootTree->SetBranchAddress("trcha",&(eve->trcha));
-  RootTree->SetBranchAddress("trreg",&(eve->trreg));
-  RootTree->SetBranchAddress("trbar",&(eve->trbar));
-  RootTree->SetBranchAddress("trdead",&(eve->trdead));
-  RootTree->SetBranchAddress("trfid",&(eve->trfid));
-  RootTree->SetBranchAddress("trix",&(eve->trix));
-  RootTree->SetBranchAddress("triy",&(eve->triy));
-  RootTree->SetBranchAddress("triz",&(eve->triz));
-  RootTree->SetBranchAddress("trfx",&(eve->trfx));
-  RootTree->SetBranchAddress("trfy",&(eve->trfy));
-  RootTree->SetBranchAddress("trfz",&(eve->trfz));
-  RootTree->SetBranchAddress("tripx",&(eve->tripx));
-  RootTree->SetBranchAddress("tripy",&(eve->tripy));
-  RootTree->SetBranchAddress("tripz",&(eve->tripz));
-  RootTree->SetBranchAddress("trfpx",&(eve->trfpx));
-  RootTree->SetBranchAddress("trfpy",&(eve->trfpy));
-  RootTree->SetBranchAddress("trfpz",&(eve->trfpz));
-  RootTree->SetBranchAddress("trmass",&(eve->trmass));
-  RootTree->SetBranchAddress("trtime",&(eve->trtime));
-  RootTree->SetBranchAddress("tof",&(eve->tof));
-  RootTree->SetBranchAddress("trlen",&(eve->trlen));
+  RootTree->SetBranchAddress("TRn",&(eve->TRn));
+  RootTree->SetBranchAddress("TRpaid",&(eve->TRpaid));
+  RootTree->SetBranchAddress("TRgen",&(eve->TRgen));
+  RootTree->SetBranchAddress("TRcha",&(eve->TRcha));
+  RootTree->SetBranchAddress("TRreg",&(eve->TRreg));
+  RootTree->SetBranchAddress("TRbar",&(eve->TRbar));
+  RootTree->SetBranchAddress("TRdead",&(eve->TRdead));
+  RootTree->SetBranchAddress("TRfid",&(eve->TRfid));
+  RootTree->SetBranchAddress("TRix",&(eve->TRix));
+  RootTree->SetBranchAddress("TRiy",&(eve->TRiy));
+  RootTree->SetBranchAddress("TRiz",&(eve->TRiz));
+  RootTree->SetBranchAddress("TRfx",&(eve->TRfx));
+  RootTree->SetBranchAddress("TRfy",&(eve->TRfy));
+  RootTree->SetBranchAddress("TRfz",&(eve->TRfz));
+  RootTree->SetBranchAddress("TRipx",&(eve->TRipx));
+  RootTree->SetBranchAddress("TRipy",&(eve->TRipy));
+  RootTree->SetBranchAddress("TRipz",&(eve->TRipz));
+  RootTree->SetBranchAddress("TRfpx",&(eve->TRfpx));
+  RootTree->SetBranchAddress("TRfpy",&(eve->TRfpy));
+  RootTree->SetBranchAddress("TRfpz",&(eve->TRfpz));
+  RootTree->SetBranchAddress("TRmass",&(eve->TRmass));
+  RootTree->SetBranchAddress("TRtime",&(eve->TRtime));
+  RootTree->SetBranchAddress("TRtof",&(eve->TRtof));
+  RootTree->SetBranchAddress("TRtrlen",&(eve->TRtrlen));
 
-  RootTree->SetBranchAddress("stn",&(eve->stn));
-  RootTree->SetBranchAddress("stid",&(eve->stid));
-  RootTree->SetBranchAddress("stinx",&(eve->stinx));
-  RootTree->SetBranchAddress("stiny",&(eve->stiny));
-  RootTree->SetBranchAddress("stinz",&(eve->stinz));
-  RootTree->SetBranchAddress("stinpx",&(eve->stinpx));
-  RootTree->SetBranchAddress("stinpy",&(eve->stinpy));
-  RootTree->SetBranchAddress("stinpz",&(eve->stinpz));
-  RootTree->SetBranchAddress("stoutx",&(eve->stoutx));
-  RootTree->SetBranchAddress("stouty",&(eve->stouty));
-  RootTree->SetBranchAddress("stoutz",&(eve->stoutz));
-  RootTree->SetBranchAddress("stoutpx",&(eve->stoutpx));
-  RootTree->SetBranchAddress("stoutpy",&(eve->stoutpy));
-  RootTree->SetBranchAddress("stoutpz",&(eve->stoutpz));
-  RootTree->SetBranchAddress("stde",&(eve->stde));
-  RootTree->SetBranchAddress("stal",&(eve->stal));
-  RootTree->SetBranchAddress("sttim",&(eve->sttim));
+  RootTree->SetBranchAddress("STCn",&(eve->STCn));
+  RootTree->SetBranchAddress("STCid",&(eve->STCid));
+  RootTree->SetBranchAddress("STCxin",&(eve->STCxin));
+  RootTree->SetBranchAddress("STCyin",&(eve->STCyin));
+  RootTree->SetBranchAddress("STCzin",&(eve->STCzin));
+  RootTree->SetBranchAddress("STCpxin",&(eve->STCpxin));
+  RootTree->SetBranchAddress("STCpyin",&(eve->STCpyin));
+  RootTree->SetBranchAddress("STCpzin",&(eve->STCpzin));
+  RootTree->SetBranchAddress("STCxout",&(eve->STCxout));
+  RootTree->SetBranchAddress("STCyout",&(eve->STCyout));
+  RootTree->SetBranchAddress("STCzout",&(eve->STCzout));
+  RootTree->SetBranchAddress("STCpxout",&(eve->STCpxout));
+  RootTree->SetBranchAddress("STCpyout",&(eve->STCpyout));
+  RootTree->SetBranchAddress("STCpzout",&(eve->STCpzout));
+  RootTree->SetBranchAddress("STCde",&(eve->STCde));
+  RootTree->SetBranchAddress("STCal",&(eve->STCal));
+  RootTree->SetBranchAddress("STCtim",&(eve->STCtim));
 
-  RootTree->SetBranchAddress("nvtx",&(eve->nvtx));
-  RootTree->SetBranchAddress("idvtx",&(eve->idvtx));
-  RootTree->SetBranchAddress("iplavtx",&(eve->iplavtx));
-  RootTree->SetBranchAddress("irowvtx",&(eve->irowvtx));
-  RootTree->SetBranchAddress("icolvtx",&(eve->icolvtx));
-  RootTree->SetBranchAddress("xinvtx",&(eve->xinvtx));
-  RootTree->SetBranchAddress("yinvtx",&(eve->yinvtx));
-  RootTree->SetBranchAddress("zinvtx",&(eve->zinvtx));
-  RootTree->SetBranchAddress("pxinvtx",&(eve->pxinvtx));
-  RootTree->SetBranchAddress("pyinvtx",&(eve->pyinvtx));
-  RootTree->SetBranchAddress("pzinvtx",&(eve->pzinvtx));
-  RootTree->SetBranchAddress("xoutvtx",&(eve->xoutvtx));
-  RootTree->SetBranchAddress("youtvtx",&(eve->youtvtx));
-  RootTree->SetBranchAddress("zoutvtx",&(eve->zoutvtx));
-  RootTree->SetBranchAddress("pxoutvtx",&(eve->pxoutvtx));
-  RootTree->SetBranchAddress("pyoutvtx",&(eve->pyoutvtx));
-  RootTree->SetBranchAddress("pzoutvtx",&(eve->pzoutvtx));
-  RootTree->SetBranchAddress("devtx",&(eve->devtx));
-  RootTree->SetBranchAddress("alvtx",&(eve->alvtx));
-  RootTree->SetBranchAddress("timvtx",&(eve->timvtx));
-
-  RootTree->SetBranchAddress("nIT",&(eve->nIT));
-  RootTree->SetBranchAddress("idIT",&(eve->idIT));
-  RootTree->SetBranchAddress("iplaIT",&(eve->iplaIT));
-  RootTree->SetBranchAddress("irowIT",&(eve->irowIT));
-  RootTree->SetBranchAddress("icolIT",&(eve->icolIT));
-  RootTree->SetBranchAddress("xinIT",&(eve->xinIT));
-  RootTree->SetBranchAddress("yinIT",&(eve->yinIT));
-  RootTree->SetBranchAddress("zinIT",&(eve->zinIT));
-  RootTree->SetBranchAddress("pxinIT",&(eve->pxinIT));
-  RootTree->SetBranchAddress("pyinIT",&(eve->pyinIT));
-  RootTree->SetBranchAddress("pzinIT",&(eve->pzinIT));
-  RootTree->SetBranchAddress("xoutIT",&(eve->xoutIT));
-  RootTree->SetBranchAddress("youtIT",&(eve->youtIT));
-  RootTree->SetBranchAddress("zoutIT",&(eve->zoutIT));
-  RootTree->SetBranchAddress("pxoutIT",&(eve->pxoutIT));
-  RootTree->SetBranchAddress("pyoutIT",&(eve->pyoutIT));
-  RootTree->SetBranchAddress("pzoutIT",&(eve->pzoutIT));
-  RootTree->SetBranchAddress("deIT",&(eve->deIT));
-  RootTree->SetBranchAddress("alIT",&(eve->alIT));
-  RootTree->SetBranchAddress("timIT",&(eve->timIT));
-
-  RootTree->SetBranchAddress("nmon",&(eve->nmon));
-  RootTree->SetBranchAddress("idmon",&(eve->idmon));
-  RootTree->SetBranchAddress("ilayer",&(eve->ilayer));
-  RootTree->SetBranchAddress("iview",&(eve->iview));
-  RootTree->SetBranchAddress("icell",&(eve->icell));
-  RootTree->SetBranchAddress("xinmon",&(eve->xinmon));
-  RootTree->SetBranchAddress("yinmon",&(eve->yinmon));
-  RootTree->SetBranchAddress("zinmon",&(eve->zinmon));
-  RootTree->SetBranchAddress("pxinmon",&(eve->pxinmon));
-  RootTree->SetBranchAddress("pyinmon",&(eve->pyinmon));
-  RootTree->SetBranchAddress("pzinmon",&(eve->pzinmon));
-  RootTree->SetBranchAddress("xoutmon",&(eve->xoutmon));
-  RootTree->SetBranchAddress("youtmon",&(eve->youtmon));
-  RootTree->SetBranchAddress("zoutmon",&(eve->zoutmon));
-  RootTree->SetBranchAddress("pxoutmon",&(eve->pxoutmon));
-  RootTree->SetBranchAddress("pyoutmon",&(eve->pyoutmon));
-  RootTree->SetBranchAddress("pzoutmon",&(eve->pzoutmon));
-  RootTree->SetBranchAddress("demon",&(eve->demon));
-  RootTree->SetBranchAddress("almon",&(eve->almon));
-  RootTree->SetBranchAddress("timmon",&(eve->timmon));
-
-  RootTree->SetBranchAddress("n2dc",&(eve->n2dc));
-  RootTree->SetBranchAddress("id2dc",&(eve->id2dc));
-  RootTree->SetBranchAddress("ipla2dc",&(eve->ipla2dc));
-  RootTree->SetBranchAddress("iview2dc",&(eve->iview2dc));
-  RootTree->SetBranchAddress("icell2dc",&(eve->icell2dc));
-  RootTree->SetBranchAddress("xin2dc",&(eve->xin2dc));
-  RootTree->SetBranchAddress("yin2dc",&(eve->yin2dc));
-  RootTree->SetBranchAddress("zin2dc",&(eve->zin2dc));
-  RootTree->SetBranchAddress("pxin2dc",&(eve->pxin2dc));
-  RootTree->SetBranchAddress("pyin2dc",&(eve->pyin2dc));
-  RootTree->SetBranchAddress("pzin2dc",&(eve->pzin2dc));
-  RootTree->SetBranchAddress("xout2dc",&(eve->xout2dc));
-  RootTree->SetBranchAddress("yout2dc",&(eve->yout2dc));
-  RootTree->SetBranchAddress("zout2dc",&(eve->zout2dc));
-  RootTree->SetBranchAddress("pxout2dc",&(eve->pxout2dc));
-  RootTree->SetBranchAddress("pyout2dc",&(eve->pyout2dc));
-  RootTree->SetBranchAddress("pzout2dc",&(eve->pzout2dc));
-  RootTree->SetBranchAddress("de2dc",&(eve->de2dc));
-  RootTree->SetBranchAddress("al2dc",&(eve->al2dc));
-  RootTree->SetBranchAddress("tim2dc",&(eve->tim2dc));
+  RootTree->SetBranchAddress("BMNn",&(eve->BMNn));
+  RootTree->SetBranchAddress("BMNid",&(eve->BMNid));
+  RootTree->SetBranchAddress("BMNilay",&(eve->BMNilay));
+  RootTree->SetBranchAddress("BMNiview",&(eve->BMNiview));
+  RootTree->SetBranchAddress("BMNicell",&(eve->BMNicell));
+  RootTree->SetBranchAddress("BMNxin",&(eve->BMNxin));
+  RootTree->SetBranchAddress("BMNyin",&(eve->BMNyin));
+  RootTree->SetBranchAddress("BMNzin",&(eve->BMNzin));
+  RootTree->SetBranchAddress("BMNpxin",&(eve->BMNpxin));
+  RootTree->SetBranchAddress("BMNpyin",&(eve->BMNpyin));
+  RootTree->SetBranchAddress("BMNpzin",&(eve->BMNpzin));
+  RootTree->SetBranchAddress("BMNxout",&(eve->BMNxout));
+  RootTree->SetBranchAddress("BMNyout",&(eve->BMNyout));
+  RootTree->SetBranchAddress("BMNzout",&(eve->BMNzout));
+  RootTree->SetBranchAddress("BMNpxout",&(eve->BMNpxout));
+  RootTree->SetBranchAddress("BMNpyout",&(eve->BMNpyout));
+  RootTree->SetBranchAddress("BMNpzout",&(eve->BMNpzout));
+  RootTree->SetBranchAddress("BMNde",&(eve->BMNde));
+  RootTree->SetBranchAddress("BMNal",&(eve->BMNal));
+  RootTree->SetBranchAddress("BMNtim",&(eve->BMNtim));
   
-  RootTree->SetBranchAddress("nscint",&(eve->nscint));
-  RootTree->SetBranchAddress("idscint",&(eve->idscint));
-  RootTree->SetBranchAddress("irowscint",&(eve->irowscint));
-  RootTree->SetBranchAddress("icolscint",&(eve->icolscint));
-  RootTree->SetBranchAddress("xinscint",&(eve->xinscint));
-  RootTree->SetBranchAddress("yinscint",&(eve->yinscint));
-  RootTree->SetBranchAddress("zinscint",&(eve->zinscint));
-  RootTree->SetBranchAddress("pxinscint",&(eve->pxinscint));
-  RootTree->SetBranchAddress("pyinscint",&(eve->pyinscint));
-  RootTree->SetBranchAddress("pzinscint",&(eve->pzinscint));
-  RootTree->SetBranchAddress("xoutscint",&(eve->xoutscint));
-  RootTree->SetBranchAddress("youtscint",&(eve->youtscint));
-  RootTree->SetBranchAddress("zoutscint",&(eve->zoutscint));
-  RootTree->SetBranchAddress("pxoutscint",&(eve->pxoutscint));
-  RootTree->SetBranchAddress("pyoutscint",&(eve->pyoutscint));
-  RootTree->SetBranchAddress("pzoutscint",&(eve->pzoutscint));
-  RootTree->SetBranchAddress("descint",&(eve->descint));
-  RootTree->SetBranchAddress("alscint",&(eve->alscint));
-  RootTree->SetBranchAddress("timscint",&(eve->timscint));
+  RootTree->SetBranchAddress("VTXn",&(eve->VTXn));
+  RootTree->SetBranchAddress("VTXid",&(eve->VTXid));
+  RootTree->SetBranchAddress("VTXilay",&(eve->VTXilay));
+  RootTree->SetBranchAddress("VTXirow",&(eve->VTXirow));
+  RootTree->SetBranchAddress("VTXicol",&(eve->VTXicol));
+  RootTree->SetBranchAddress("VTXxin",&(eve->VTXxin));
+  RootTree->SetBranchAddress("VTXyin",&(eve->VTXyin));
+  RootTree->SetBranchAddress("VTXzin",&(eve->VTXzin));
+  RootTree->SetBranchAddress("VTXpxin",&(eve->VTXpxin));
+  RootTree->SetBranchAddress("VTXpyin",&(eve->VTXpyin));
+  RootTree->SetBranchAddress("VTXpzin",&(eve->VTXpzin));
+  RootTree->SetBranchAddress("VTXxout",&(eve->VTXxout));
+  RootTree->SetBranchAddress("VTXyout",&(eve->VTXyout));
+  RootTree->SetBranchAddress("VTXzout",&(eve->VTXzout));
+  RootTree->SetBranchAddress("VTXpxout",&(eve->VTXpxout));
+  RootTree->SetBranchAddress("VTXpyout",&(eve->VTXpyout));
+  RootTree->SetBranchAddress("VTXpzout",&(eve->VTXpzout));
+  RootTree->SetBranchAddress("VTXde",&(eve->VTXde));
+  RootTree->SetBranchAddress("VTXal",&(eve->VTXal));
+  RootTree->SetBranchAddress("VTXtim",&(eve->VTXtim));
+  
+  RootTree->SetBranchAddress("ITRn",&(eve->ITRn));
+  RootTree->SetBranchAddress("ITRid",&(eve->ITRid));
+  RootTree->SetBranchAddress("ITRilay",&(eve->ITRilay));
+  RootTree->SetBranchAddress("ITRirow",&(eve->ITRirow));
+  RootTree->SetBranchAddress("ITRicol",&(eve->ITRicol));
+  RootTree->SetBranchAddress("ITRxin",&(eve->ITRxin));
+  RootTree->SetBranchAddress("ITRyin",&(eve->ITRyin));
+  RootTree->SetBranchAddress("ITRzin",&(eve->ITRzin));
+  RootTree->SetBranchAddress("ITRpxin",&(eve->ITRpxin));
+  RootTree->SetBranchAddress("ITRpyin",&(eve->ITRpyin));
+  RootTree->SetBranchAddress("ITRpzin",&(eve->ITRpzin));
+  RootTree->SetBranchAddress("ITRxout",&(eve->ITRxout));
+  RootTree->SetBranchAddress("ITRyout",&(eve->ITRyout));
+  RootTree->SetBranchAddress("ITRzout",&(eve->ITRzout));
+  RootTree->SetBranchAddress("ITRpxout",&(eve->ITRpxout));
+  RootTree->SetBranchAddress("ITRpyout",&(eve->ITRpyout));
+  RootTree->SetBranchAddress("ITRpzout",&(eve->ITRpzout));
+  RootTree->SetBranchAddress("ITRde",&(eve->ITRde));
+  RootTree->SetBranchAddress("ITRal",&(eve->ITRal));
+  RootTree->SetBranchAddress("ITRtim",&(eve->ITRtim));
 
-  RootTree->SetBranchAddress("ncry",&(eve->ncry));
-  RootTree->SetBranchAddress("idcry",&(eve->idcry));
-  RootTree->SetBranchAddress("irowcry",&(eve->irowcry));
-  RootTree->SetBranchAddress("icolcry",&(eve->icolcry));
-  RootTree->SetBranchAddress("xincry",&(eve->xincry));
-  RootTree->SetBranchAddress("yincry",&(eve->yincry));
-  RootTree->SetBranchAddress("zincry",&(eve->zincry));
-  RootTree->SetBranchAddress("pxincry",&(eve->pxincry));
-  RootTree->SetBranchAddress("pyincry",&(eve->pyincry));
-  RootTree->SetBranchAddress("pzincry",&(eve->pzincry));
-  RootTree->SetBranchAddress("xoutcry",&(eve->xoutcry));
-  RootTree->SetBranchAddress("youtcry",&(eve->youtcry));
-  RootTree->SetBranchAddress("zoutcry",&(eve->zoutcry));
-  RootTree->SetBranchAddress("pxoutcry",&(eve->pxoutcry));
-  RootTree->SetBranchAddress("pyoutcry",&(eve->pyoutcry));
-  RootTree->SetBranchAddress("pzoutcry",&(eve->pzoutcry));
-  RootTree->SetBranchAddress("decry",&(eve->decry));
-  RootTree->SetBranchAddress("alcry",&(eve->alcry));
-  RootTree->SetBranchAddress("timcry",&(eve->timcry));
+  RootTree->SetBranchAddress("DCHn",&(eve->DCHn));
+  RootTree->SetBranchAddress("DCHid",&(eve->DCHid));
+  RootTree->SetBranchAddress("DCHilay",&(eve->DCHilay));
+  RootTree->SetBranchAddress("DCHiview",&(eve->DCHiview));
+  RootTree->SetBranchAddress("DCHicell",&(eve->DCHicell));
+  RootTree->SetBranchAddress("DCHxin",&(eve->DCHxin));
+  RootTree->SetBranchAddress("DCHyin",&(eve->DCHyin));
+  RootTree->SetBranchAddress("DCHzin",&(eve->DCHzin));
+  RootTree->SetBranchAddress("DCHpxin",&(eve->DCHpxin));
+  RootTree->SetBranchAddress("DCHpyin",&(eve->DCHpyin));
+  RootTree->SetBranchAddress("DCHpzin",&(eve->DCHpzin));
+  RootTree->SetBranchAddress("DCHxout",&(eve->DCHxout));
+  RootTree->SetBranchAddress("DCHyout",&(eve->DCHyout));
+  RootTree->SetBranchAddress("DCHzout",&(eve->DCHzout));
+  RootTree->SetBranchAddress("DCHpxout",&(eve->DCHpxout));
+  RootTree->SetBranchAddress("DCHpyout",&(eve->DCHpyout));
+  RootTree->SetBranchAddress("DCHpzout",&(eve->DCHpzout));
+  RootTree->SetBranchAddress("DCHde",&(eve->DCHde));
+  RootTree->SetBranchAddress("DCHal",&(eve->DCHal));
+  RootTree->SetBranchAddress("DCHtim",&(eve->DCHtim));
+  
+  RootTree->SetBranchAddress("SCNn",&(eve->SCNn));
+  RootTree->SetBranchAddress("SCNid",&(eve->SCNid));
+  RootTree->SetBranchAddress("SCNistrip",&(eve->SCNistrip));
+  RootTree->SetBranchAddress("SCNiview",&(eve->SCNiview));
+  RootTree->SetBranchAddress("SCNxin",&(eve->SCNxin));
+  RootTree->SetBranchAddress("SCNyin",&(eve->SCNyin));
+  RootTree->SetBranchAddress("SCNzin",&(eve->SCNzin));
+  RootTree->SetBranchAddress("SCNpxin",&(eve->SCNpxin));
+  RootTree->SetBranchAddress("SCNpyin",&(eve->SCNpyin));
+  RootTree->SetBranchAddress("SCNpzin",&(eve->SCNpzin));
+  RootTree->SetBranchAddress("SCNxout",&(eve->SCNxout));
+  RootTree->SetBranchAddress("SCNyout",&(eve->SCNyout));
+  RootTree->SetBranchAddress("SCNzout",&(eve->SCNzout));
+  RootTree->SetBranchAddress("SCNpxout",&(eve->SCNpxout));
+  RootTree->SetBranchAddress("SCNpyout",&(eve->SCNpyout));
+  RootTree->SetBranchAddress("SCNpzout",&(eve->SCNpzout));
+  RootTree->SetBranchAddress("SCNde",&(eve->SCNde));
+  RootTree->SetBranchAddress("SCNal",&(eve->SCNal));
+  RootTree->SetBranchAddress("SCNtim",&(eve->SCNtim));
 
-  RootTree->SetBranchAddress("ncross",&(eve->ncross));
-  RootTree->SetBranchAddress("idcross",&(eve->idcross));
-  RootTree->SetBranchAddress("nregcross",&(eve->nregcross));
-  RootTree->SetBranchAddress("xcross",&(eve->xcross));
-  RootTree->SetBranchAddress("ycross",&(eve->ycross));
-  RootTree->SetBranchAddress("zcross",&(eve->zcross));
-  RootTree->SetBranchAddress("pxcross",&(eve->pxcross));
-  RootTree->SetBranchAddress("pycross",&(eve->pycross));
-  RootTree->SetBranchAddress("pzcross",&(eve->pzcross));
-  RootTree->SetBranchAddress("mcross",&(eve->mcross));
-  RootTree->SetBranchAddress("chcross",&(eve->chcross));
-  RootTree->SetBranchAddress("tcross",&(eve->tcross));
+  RootTree->SetBranchAddress("CALn",&(eve->CALn));
+  RootTree->SetBranchAddress("CALid",&(eve->CALid));
+  RootTree->SetBranchAddress("CALicry",&(eve->CALicry));
+  RootTree->SetBranchAddress("CALxin",&(eve->CALxin));
+  RootTree->SetBranchAddress("CALyin",&(eve->CALyin));
+  RootTree->SetBranchAddress("CALzin",&(eve->CALzin));
+  RootTree->SetBranchAddress("CALpxin",&(eve->CALpxin));
+  RootTree->SetBranchAddress("CALpyin",&(eve->CALpyin));
+  RootTree->SetBranchAddress("CALpzin",&(eve->CALpzin));
+  RootTree->SetBranchAddress("CALxout",&(eve->CALxout));
+  RootTree->SetBranchAddress("CALyout",&(eve->CALyout));
+  RootTree->SetBranchAddress("CALzout",&(eve->CALzout));
+  RootTree->SetBranchAddress("CALpxout",&(eve->CALpxout));
+  RootTree->SetBranchAddress("CALpyout",&(eve->CALpyout));
+  RootTree->SetBranchAddress("CALpzout",&(eve->CALpzout));
+  RootTree->SetBranchAddress("CALde",&(eve->CALde));
+  RootTree->SetBranchAddress("CALal",&(eve->CALal));
+  RootTree->SetBranchAddress("CALtim",&(eve->CALtim));
+
+  RootTree->SetBranchAddress("CROSSn",&(eve->CROSSn));
+  RootTree->SetBranchAddress("CROSSid",&(eve->CROSSid));
+  RootTree->SetBranchAddress("CROSSnreg",&(eve->CROSSnreg));
+  RootTree->SetBranchAddress("CROSSx",&(eve->CROSSx));
+  RootTree->SetBranchAddress("CROSSy",&(eve->CROSSy));
+  RootTree->SetBranchAddress("CROSSz",&(eve->CROSSz));
+  RootTree->SetBranchAddress("CROSSpx",&(eve->CROSSpx));
+  RootTree->SetBranchAddress("CROSSpy",&(eve->CROSSpy));
+  RootTree->SetBranchAddress("CROSSpz",&(eve->CROSSpz));
+  RootTree->SetBranchAddress("CROSSm",&(eve->CROSSm));
+  RootTree->SetBranchAddress("CROSSch",&(eve->CROSSch));
+  RootTree->SetBranchAddress("CROSSt",&(eve->CROSSt));
   return 0;
 
 }
@@ -970,7 +960,7 @@ int Evento::FindBranches(TTree *RootTree, EVENT_STRUCT *eve){
 /*-----------------------------------------------------------------*/
 
 
-Int_t Evento::EDump(){
+Int_t Evento::Dump(){
   return 0;
 
 }
