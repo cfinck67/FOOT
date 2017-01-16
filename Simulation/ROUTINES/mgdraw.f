@@ -745,7 +745,6 @@ c
      &        ' ICODE= ',ICODE
       endif
       
-      IF (MREG.eq.nregtarg .AND. ICODE.EQ.101) THEN
       IF (MREG.eq.nregtarg .AND. ICODE.EQ.101.and.
      &     LTRACK.eq.1 ) THEN
          tarfrag = 1
