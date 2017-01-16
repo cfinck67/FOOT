@@ -84,200 +84,192 @@ c
 c
 c     start counter
 c
-      nstartc = 0
-      do ii = 1,maxstartc
-         idstartc(ii)    = 0
-         xinstartc(ii)   = 0.  
-         xoutstartc(ii)  = 0. 
-         yinstartc(ii)   = 0. 
-         youtstartc(ii)  = 0. 
-         zinstartc(ii)   = 0.
-         zoutstartc(ii)  = 0.
-         pxinstartc(ii)  = 0.  
-         pxoutstartc(ii) = 0. 
-         pyinstartc(ii)  = 0. 
-         pyoutstartc(ii) = 0. 
-         pzinstartc(ii)  = 0.
-         pzoutstartc(ii) = 0.
-         destartc(ii)    = 0.
-         alstartc(ii)    = 0.
-         timstartc(ii)   = 0.
+      nSTC = 0
+      do ii = 1,maxSTC
+         idSTC(ii)    = 0
+         xinSTC(ii)   = 0.  
+         xoutSTC(ii)  = 0. 
+         yinSTC(ii)   = 0. 
+         youtSTC(ii)  = 0. 
+         zinSTC(ii)   = 0.
+         zoutSTC(ii)  = 0.
+         pxinSTC(ii)  = 0.  
+         pxoutSTC(ii) = 0. 
+         pyinSTC(ii)  = 0. 
+         pyoutSTC(ii) = 0. 
+         pzinSTC(ii)  = 0.
+         pzoutSTC(ii) = 0.
+         deSTC(ii)    = 0.
+         alSTC(ii)    = 0.
+         timSTC(ii)   = 0.
       end do
 c
-c     first drift chamber
+c     beam monitor
 c
-      nBM = 0
-      do ii = 1,maxBM
-         idBM(ii)     = 0
-         iviewBM(ii)  = 0
-         iplaBM(ii) = 0
-         icellBM(ii)  = 0
-         xinBM(ii)    = 0.  
-         xoutBM(ii)   = 0. 
-         yinBM(ii)    = 0. 
-         youtBM(ii)   = 0. 
-         zinBM(ii)    = 0.
-         zoutBM(ii)   = 0.
-         pxinBM(ii)   = 0.  
-         pxoutBM(ii)  = 0. 
-         pyinBM(ii)   = 0. 
-         pyoutBM(ii)  = 0. 
-         pzinBM(ii)   = 0.
-         pzoutBM(ii)  = 0.
-         deBM(ii)     = 0.
-         alBM(ii)     = 0.
-         timBM(ii)    = 0.
+      nBMN = 0
+      do ii = 1,maxBMN
+         idBMN(ii)     = 0
+         iviewBMN(ii)  = 0
+         ilayBMN(ii)   = 0
+         icellBMN(ii)  = 0
+         xinBMN(ii)    = 0.  
+         xoutBMN(ii)   = 0. 
+         yinBMN(ii)    = 0. 
+         youtBMN(ii)   = 0. 
+         zinBMN(ii)    = 0.
+         zoutBMN(ii)   = 0.
+         pxinBMN(ii)   = 0.  
+         pxoutBMN(ii)  = 0. 
+         pyinBMN(ii)   = 0. 
+         pyoutBMN(ii)  = 0. 
+         pzinBMN(ii)   = 0.
+         pzoutBMN(ii)  = 0.
+         deBMN(ii)     = 0.
+         alBMN(ii)     = 0.
+         timBMN(ii)    = 0.
       end do
 c     
 c     vertex 
 c
-      nvtx = 0
-      do ii = 1,maxvtx
-         idvtx(ii)    = 0
-         iplavtx(ii)  = 0
-         irowvtx(ii)  = 0
-         icolvtx(ii)  = 0
-         xinvtx(ii)   = 0.  
-         xoutvtx(ii)  = 0. 
-         yinvtx(ii)   = 0. 
-         youtvtx(ii)  = 0. 
-         zinvtx(ii)   = 0.
-         zoutvtx(ii)  = 0.
-         pxinvtx(ii)  = 0.  
-         pxoutvtx(ii) = 0. 
-         pyinvtx(ii)  = 0. 
-         pyoutvtx(ii) = 0. 
-         pzinvtx(ii)  = 0.
-         pzoutvtx(ii) = 0.
-         devtx(ii)    = 0.
-         alvtx(ii)    = 0.
-         timvtx(ii)   = 0.
+      nVTX = 0
+      do ii = 1,maxVTX
+         idVTX(ii)    = 0
+         ilayVTX(ii)  = 0
+         irowVTX(ii)  = 0
+         icolVTX(ii)  = 0
+         xinVTX(ii)   = 0.  
+         xoutVTX(ii)  = 0. 
+         yinVTX(ii)   = 0. 
+         youtVTX(ii)  = 0. 
+         zinVTX(ii)   = 0.
+         zoutVTX(ii)  = 0.
+         pxinVTX(ii)  = 0.  
+         pxoutVTX(ii) = 0. 
+         pyinVTX(ii)  = 0. 
+         pyoutVTX(ii) = 0. 
+         pzinVTX(ii)  = 0.
+         pzoutVTX(ii) = 0.
+         deVTX(ii)    = 0.
+         alVTX(ii)    = 0.
+         timVTX(ii)   = 0.
       end do
 c     
 c     inner tracker 
 c
-      nIT = 0
-      do ii = 1,maxIT
-         idIT(ii)    = 0
-         iplaIT(ii)  = 0
-         irowIT(ii)  = 0
-         icolIT(ii)  = 0
-         xinIT(ii)   = 0.  
-         xoutIT(ii)  = 0. 
-         yinIT(ii)   = 0. 
-         youtIT(ii)  = 0. 
-         zinIT(ii)   = 0.
-         zoutIT(ii)  = 0.
-         pxinIT(ii)  = 0.  
-         pxoutIT(ii) = 0. 
-         pyinIT(ii)  = 0. 
-         pyoutIT(ii) = 0. 
-         pzinIT(ii)  = 0.
-         pzoutIT(ii) = 0.
-         deIT(ii)    = 0.
-         alIT(ii)    = 0.
-         timIT(ii)   = 0.
+      nITR = 0
+      do ii = 1,maxITR
+         idITR(ii)    = 0
+         ilayITR(ii)  = 0
+         irowITR(ii)  = 0
+         icolITR(ii)  = 0
+         xinITR(ii)   = 0.  
+         xoutITR(ii)  = 0. 
+         yinITR(ii)   = 0. 
+         youtITR(ii)  = 0. 
+         zinITR(ii)   = 0.
+         zoutITR(ii)  = 0.
+         pxinITR(ii)  = 0.  
+         pxoutITR(ii) = 0. 
+         pyinITR(ii)  = 0. 
+         pyoutITR(ii) = 0. 
+         pzinITR(ii)  = 0.
+         pzoutITR(ii) = 0.
+         deITR(ii)    = 0.
+         alITR(ii)    = 0.
+         timITR(ii)   = 0.
       end do
 c     
 c     second drift chamber
 c
-      nDC = 0
-      do ii = 1,maxDC
-         idDC(ii)     = 0
-         iviewDC(ii)  = 0
-         iplaDC(ii) = 0
-         icellDC(ii)  = 0
-         xinDC(ii)    = 0.  
-         xoutDC(ii)   = 0. 
-         yinDC(ii)    = 0. 
-         youtDC(ii)   = 0. 
-         zinDC(ii)    = 0.
-         zoutDC(ii)   = 0.
-         pxinDC(ii)   = 0.  
-         pxoutDC(ii)  = 0. 
-         pyinDC(ii)   = 0. 
-         pyoutDC(ii)  = 0. 
-         pzinDC(ii)   = 0.
-         pzoutDC(ii)  = 0.
-         deDC(ii)     = 0.
-         alDC(ii)     = 0.
-         timDC(ii)    = 0.
+      nDCH = 0
+      do ii = 1,maxDCH
+         idDCH(ii)     = 0
+         iviewDCH(ii)  = 0
+         ilayDCH(ii)   = 0
+         icellDCH(ii)  = 0
+         xinDCH(ii)    = 0.  
+         xoutDCH(ii)   = 0. 
+         yinDCH(ii)    = 0. 
+         youtDCH(ii)   = 0. 
+         zinDCH(ii)    = 0.
+         zoutDCH(ii)   = 0.
+         pxinDCH(ii)   = 0.  
+         pxoutDCH(ii)  = 0. 
+         pyinDCH(ii)   = 0. 
+         pyoutDCH(ii)  = 0. 
+         pzinDCH(ii)   = 0.
+         pzoutDCH(ii)  = 0.
+         deDCH(ii)     = 0.
+         alDCH(ii)     = 0.
+         timDCH(ii)    = 0.
       end do
 c
 c     scintillator
 c      
-      nscint = 0
-      do ii= 1, maxscint
-         idscint(ii)    = 0
-         irowscint(ii)  = 0
-         icolscint(ii)  = 0
-         xinscint(ii)   = 0.
-         yinscint(ii)   = 0.
-         zinscint(ii)   = 0.
-         pxinscint(ii)  = 0.
-         pyinscint(ii)  = 0.
-         pzinscint(ii)  = 0.
-         timscint(ii)   = 0.
-         xoutscint(ii)  = 0. 
-         youtscint(ii)  = 0.
-         zoutscint(ii)  = 0.
-         pxoutscint(ii) = 0.
-         pyoutscint(ii) = 0.
-         pzoutscint(ii) = 0.
-         descint(ii)    = 0.
-         alscint(ii)    = 0.
+      nSCN = 0
+      do ii= 1, maxSCN
+         idSCN(ii)     = 0
+         istripSCN(ii) = 0
+         iviewSCN(ii)   = 0
+         xinSCN(ii)    = 0.
+         yinSCN(ii)    = 0.
+         zinSCN(ii)    = 0.
+         pxinSCN(ii)   = 0.
+         pyinSCN(ii)   = 0.
+         pzinSCN(ii)   = 0.
+         timSCN(ii)    = 0.
+         xoutSCN(ii)   = 0. 
+         youtSCN(ii)   = 0.
+         zoutSCN(ii)   = 0.
+         pxoutSCN(ii)  = 0.
+         pyoutSCN(ii)  = 0.
+         pzoutSCN(ii)  = 0.
+         deSCN(ii)     = 0.
+         alSCN(ii)     = 0.
       enddo
 c
 c     calorimeter
 c      
-      ncry = 0
-      do ii= 1, maxcry
-         idcry(ii)    = 0
-         irowcry(ii)  = 0
-         icolcry(ii)  = 0
-         xincry(ii)   = 0.
-         yincry(ii)   = 0.
-         zincry(ii)   = 0.
-         pxincry(ii)  = 0.
-         pyincry(ii)  = 0.
-         pzincry(ii)  = 0.
-         timcry(ii)   = 0.
-         xoutcry(ii)  = 0. 
-         youtcry(ii)  = 0.
-         zoutcry(ii)  = 0.
-         pxoutcry(ii) = 0.
-         pyoutcry(ii) = 0.
-         pzoutcry(ii) = 0.
-         decry(ii)    = 0.
-         alcry(ii)    = 0.
+      nCAL = 0
+      do ii= 1, maxCAL
+         idCAL(ii)    = 0
+         icryCAL(ii)    = 0
+         xinCAL(ii)   = 0.
+         yinCAL(ii)   = 0.
+         zinCAL(ii)   = 0.
+         pxinCAL(ii)  = 0.
+         pyinCAL(ii)  = 0.
+         pzinCAL(ii)  = 0.
+         timCAL(ii)   = 0.
+         xoutCAL(ii)  = 0. 
+         youtCAL(ii)  = 0.
+         zoutCAL(ii)  = 0.
+         pxoutCAL(ii) = 0.
+         pyoutCAL(ii) = 0.
+         pzoutCAL(ii) = 0.
+         deCAL(ii)    = 0.
+         alCAL(ii)    = 0.
       enddo
 c
 c     crossings
 c      
-      ncross = 0
-      do ii= 1, nmaxcross
-         idcross(ii)       = 0
-         nregcross(ii)     = 0
-         nregoldcross(ii)  = 0
-         nlattcross(ii)    = 0
-         nlattoldcross(ii) = 0
-         pxcross(ii)       = 0.
-         pycross(ii)       = 0.
-         pzcross(ii)       = 0.
-         xcross(ii)        = 0.
-         ycross(ii)        = 0.
-         zcross(ii)        = 0.
-         tcross(ii)        = 0.
-         chcross(ii)       = 0.
-         amacross(ii)      = 0.
+      nCROSS = 0
+      do ii= 1, nmaxCROSS
+         idCROSS(ii)       = 0
+         nregCROSS(ii)     = 0
+         nregoldCROSS(ii)  = 0
+         pxCROSS(ii)       = 0.
+         pyCROSS(ii)       = 0.
+         pzCROSS(ii)       = 0.
+         xCROSS(ii)        = 0.
+         yCROSS(ii)        = 0.
+         zCROSS(ii)        = 0.
+         tCROSS(ii)        = 0.
+         chCROSS(ii)       = 0.
+         amaCROSS(ii)      = 0.
       end do
-      ncross = 0
 c
-c     root event initialization
 c
-c     CALL myusrein(NCASE)
-c
-
       RETURN
 *=== End of subroutine Usrein =========================================*
       END

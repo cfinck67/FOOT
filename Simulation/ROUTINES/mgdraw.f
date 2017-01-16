@@ -44,15 +44,15 @@ c
       DIMENSION DTQUEN ( MXTRCK, MAXQMG )
       integer  ICPART, IBPART 
       character*8 NEWREGNAM,MREGNAM
-      CHARACTER*8 MLATNAM
+*      CHARACTER*8 MLATNAM
       logical ldead
-      double precision erawstartc, equenchedstartc
-      double precision erawBM, equenchedBM
-      double precision erawDC, equenchedDC
-      double precision erawvtx, equenchedvtx
-      double precision erawIT, equenchedIT
-      double precision erawscint, equenchedscint
-      double precision erawcry, equenchedcry
+      double precision erawSTC, equenchedSTC
+      double precision erawBMN, equenchedBMN
+      double precision erawDCH, equenchedDCH
+      double precision erawVTX, equenchedVTX
+      double precision erawITR, equenchedITR
+      double precision erawSCN, equenchedSCN
+      double precision erawCAL, equenchedCAL
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -95,7 +95,7 @@ c
 c**************************************************************
       CALL GEOR2N(MREG,MREGNAM,IERR)
       CALL GEON2R(MREGNAM,MREG,IERR)
-      CALL GEOL2N(MLATTC,MLATNAM,IRTLAT,IERR)
+*      CALL GEOL2N(MLATTC,MLATNAM,IRTLAT,IERR)
 c      write(*,*) jtrack, mreg,' ',MREGNAM, MLATTC
 c
       if(idbflg.gt.1) then
@@ -128,27 +128,27 @@ c
 c  *****************************************************************   
 c  inside the start counter
 c
-      if( mreg.eq.nregstartc )then
-         erawstartc = 0.
+      if( mreg.eq.nregSTC )then
+         erawSTC = 0.
          IF ( MTRACK .GT. 0 )THEN
             do ii = 1,MTRACK
-               erawstartc = erawstartc + dtrack(ii)
+               erawSTC = erawSTC + dtrack(ii)
             end do
             
             IF ( LQEMGD )THEN
                RULLL  = ZERZER
                CALL QUENMG ( ICODE, MREG, RULLL, DTQUEN )
 c     
-c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nello startc
+c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nello start counter
 c     
                do ii = 1,mtrack
-                  equenchedstartc = equenchedstartc + dtquen(ii,3)
+                  equenchedSTC = equenchedSTC + dtquen(ii,3)
                end do
-               equenchedstartc = equenchedstartc*abs_startc
+               equenchedSTC = equenchedSTC*abs_STC
             endif
          endif
-         if(erawstartc.gt.0) then
-            call score_startc(mreg,erawstartc,equenchedstartc,
+         if(erawSTC.gt.0) then
+            call score_STC(mreg,erawSTC,equenchedSTC,
      &      xtrack(0),ytrack(0),ztrack(0),xtrack(ntrack),ytrack(ntrack),
      &      ztrack(ntrack))
          endif
@@ -157,28 +157,27 @@ c
 c  *****************************************************************   
 c  inside the beam monitor
 c
-      if( (mreg.ge.nregFirstU1.and.mreg.le.nregLastU1).or.
-     &     (mreg.ge.nregFirstV1.and.mreg.le.nregLastV1) )then
-         erawBM = 0.
+      if( mreg.ge.nregFirstBMN.and.mreg.le.nregLastBMN )then
+         erawBMN = 0.
          IF ( MTRACK .GT. 0 )THEN
             do ii = 1,MTRACK
-               erawBM = erawBM + dtrack(ii)
+               erawBMN = erawBMN + dtrack(ii)
             end do
             
             IF ( LQEMGD )THEN
                RULLL  = ZERZER
                CALL QUENMG ( ICODE, MREG, RULLL, DTQUEN )
 c     
-c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nella camera a drift
+c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nel beam monitor
 c     
                do ii = 1,mtrack
-                  equenchedBM = equenchedBM + dtquen(ii,3)
+                  equenchedBMN = equenchedBMN + dtquen(ii,3)
                end do
-               equenchedBM = equenchedBM*abs_BM
+               equenchedBMN = equenchedBMN*abs_BMN
             endif
          endif
-         if(erawBM.gt.0) then
-            call score_BM(mreg,erawBM,equenchedBM,
+         if(erawBMN.gt.0) then
+            call score_BMN(mreg,erawBMN,equenchedBMN,
      &      xtrack(0),ytrack(0),ztrack(0),xtrack(ntrack),ytrack(ntrack),
      &      ztrack(ntrack))
          endif
@@ -187,11 +186,11 @@ c
 c     *************************************************************
 c     inside the vertex
 c
-      if( mreg.le.nreglastvtx .and. mreg.ge.nregfirstvtx )then
-         erawvtx = 0.
+      if( mreg.le.nregLastVTX .and. mreg.ge.nregFirstVTX )then
+         erawVTX = 0.
          IF ( MTRACK .GT. 0 )THEN
             do ii = 1,MTRACK
-               erawvtx = erawvtx + dtrack(ii)
+               erawVTX = erawVTX + dtrack(ii)
             end do
             
             IF ( LQEMGD )THEN
@@ -201,13 +200,13 @@ c
 c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nel vertice
 c     
                do ii = 1,mtrack
-                  equenchedvtx = equenchedvtx + dtquen(ii,3)
+                  equenchedVTX = equenchedVTX + dtquen(ii,3)
                end do
-               equenchedvtx = equenchedvtx*abs_vtx
+               equenchedVTX = equenchedVTX*abs_VTX
             endif
          endif
-         if(erawvtx.gt.0) then
-            call score_vtx(mreg,erawvtx,equenchedvtx,
+         if(erawVTX.gt.0) then
+            call score_VTX(mreg,erawVTX,equenchedVTX,
      &      xtrack(0),ytrack(0),ztrack(0),xtrack(ntrack),ytrack(ntrack),
      &      ztrack(ntrack))
          endif
@@ -216,41 +215,40 @@ c
 c     *************************************************************
 c     inside the inner tracker
 c
-      if( mreg.le.nreglastIT .and. mreg.ge.nregfirstIT )then
-         erawIT = 0.
+      if( mreg.le.nregLastITR .and. mreg.ge.nregFirstITR )then
+         erawITR = 0.
          IF ( MTRACK .GT. 0 )THEN
             do ii = 1,MTRACK
-               erawIT = erawIT + dtrack(ii)
+               erawITR = erawITR + dtrack(ii)
             end do
             
             IF ( LQEMGD )THEN
                RULLL  = ZERZER
                CALL QUENMG ( ICODE, MREG, RULLL, DTQUEN )
 c     
-c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nel vertice
+c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nell'inner tracker
 c     
                do ii = 1,mtrack
-                  equenchedIT = equenchedIT + dtquen(ii,3)
+                  equenchedITR = equenchedITR + dtquen(ii,3)
                end do
-               equenchedIT = equenchedIT*abs_IT
+               equenchedITR = equenchedITR*abs_ITR
             endif
          endif
-         if(erawIT.gt.0) then
-            call score_IT(mreg,erawIT,equenchedIT,
+         if(erawITR.gt.0) then
+            call score_ITR(mreg,erawITR,equenchedITR,
      &      xtrack(0),ytrack(0),ztrack(0),xtrack(ntrack),ytrack(ntrack),
      &      ztrack(ntrack))
          endif
       endif
-      
+
 c  *****************************************************************   
-c  inside the drift chamber
+c  inside the second drift chamber
 c
-      if( (mreg.ge.nregFirstU2.and.mreg.le.nregLastU2).or.
-     &     (mreg.ge.nregFirstV2.and.mreg.le.nregLastV2) )then
-         erawDC = 0.
+      if( mreg.ge.nregFirstDCH.and.mreg.le.nregLastDCH )then
+         erawDCH = 0.
          IF ( MTRACK .GT. 0 )THEN
             do ii = 1,MTRACK
-               erawDC = erawDC + dtrack(ii)
+               erawDCH = erawDCH + dtrack(ii)
             end do
             
             IF ( LQEMGD )THEN
@@ -260,13 +258,13 @@ c
 c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nella camera a drift
 c     
                do ii = 1,mtrack
-                  equenchedDC = equenchedDC + dtquen(ii,3)
+                  equenchedDCH = equenchedDCH + dtquen(ii,3)
                end do
-               equenchedDC = equenchedDC*abs_DC
+               equenchedDCH = equenchedDCH*abs_DCH
             endif
          endif
-         if(erawDC.gt.0) then
-            call score_DC(mreg,erawDC,equenchedDC,
+         if(erawDCH.gt.0) then
+            call score_DCH(mreg,erawDCH,equenchedDCH,
      &      xtrack(0),ytrack(0),ztrack(0),xtrack(ntrack),ytrack(ntrack),
      &      ztrack(ntrack))
          endif
@@ -275,12 +273,12 @@ c
 c     **********************************************************
 c     Inside the scintillator
 c
-      if( mreg.le.nreglastscint .and. mreg.ge.nregfirstscint ) then
-c         equenchedscint= 0.
-         erawscint = 0.
+      if( mreg.le.nregLastSCN .and. mreg.ge.nregFirstSCN ) then
+c         equenchedSCN= 0.
+         erawSCN = 0.
          IF ( MTRACK .GT. 0 )THEN
             do ii = 1,MTRACK
-               erawscint = erawscint + dtrack(ii)
+               erawSCN = erawSCN + dtrack(ii)
             end do
             IF ( LQEMGD )THEN
                RULLL  = ZERZER
@@ -289,14 +287,14 @@ c
 c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nello scintillatore
 c     
                do ii = 1,mtrack
-                  equenchedscint = equenchedscint + dtquen(ii,3)
+                  equenchedSCN = equenchedSCN + dtquen(ii,3)
                end do
-               equenchedscint = equenchedscint*abs_plastic
+               equenchedSCN = equenchedSCN*abs_plastic
             endif
 
          END IF
-         if(erawscint.gt.0) then
-            call score_scint(mreg,erawscint,equenchedscint,xtrack(0),
+         if(erawSCN.gt.0) then
+            call score_SCN(mreg,erawSCN,equenchedSCN,xtrack(0),
      &           ytrack(0),
      &           ztrack(0),xtrack(ntrack),ytrack(ntrack),ztrack(ntrack))
          endif
@@ -305,26 +303,26 @@ c
 c     *************************************************************
 c     inside the calorimeter
 c      
-      if( mreg.le.nreglastcry .and. mreg.ge.nregfirstcry )then
-         erawcry = 0.
+      if( mreg.le.nregLastCAL .and. mreg.ge.nregFirstCAL )then
+         erawCAL = 0.
          IF ( MTRACK .GT. 0 )THEN
             do ii = 1,MTRACK
-               erawcry = erawcry + dtrack(ii)
+               erawCAL = erawCAL + dtrack(ii)
             end do
             IF ( LQEMGD )THEN
                RULLL  = ZERZER
                CALL QUENMG ( ICODE, MREG, RULLL, DTQUEN )
 c     
-c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato
+c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nel calorimetro
 c     
                do ii = 1,mtrack
-                  equenchedcry = equenchedcry + dtquen(ii,3)
+                  equenchedCAL = equenchedCAL + dtquen(ii,3)
                end do
-               equenchedcry = equenchedcry*abs_cry
+               equenchedCAL = equenchedCAL*abs_CAL
             endif
          endif
-         if(erawcry.gt.0) then
-            call score_cry(mreg,erawcry,equenchedcry,xtrack(0),
+         if(erawCAL.gt.0) then
+            call score_CAL(mreg,erawCAL,equenchedCAL,xtrack(0),
      &           ytrack(0), ztrack(0),xtrack(ntrack),ytrack(ntrack),
      &           ztrack(ntrack))
          endif
@@ -378,12 +376,13 @@ c
       if(idbflg.gt.0) then
          call GEOR2N ( newreg, NEWREGNAM, IERR ) 
          call GEOR2N ( mreg, MREGNAM, IERR ) 
-         CALL GEOL2N ( MLATTC,MLATNAM,IRTLAT,IERR )
+*         CALL GEOL2N ( MLATTC,MLATNAM,IRTLAT,IERR )
          write(*,*)' '
          write(*,*)'------------- bxdraw: Ev =',ncase,' -------------'
          write(*,*)'jtrack = ',jtrack,' icode = ',icode
-         write(*,*)'da -> ',mregnam,'a -> = ',newregnam, ' lat_idx = ',
-     &        MLATTC
+*         write(*,*)'da -> ',mregnam,'a -> = ',newregnam, ' lat_idx = ',
+*     &        MLATTC
+         write(*,*)'da -> ',mregnam,'a -> = ',newregnam
 
          if(idbflg.gt.0) then
             write(*,*)'zfrttk = ',zfrttk,' icpart = ',icpart,
@@ -522,106 +521,103 @@ c            write(*,*)'***********************************************'
       endif 
       if (rull.ne.0) then
 c     
-c  inside the start counter
+c     inside the start counter
 c
-         if( mreg.eq.nregstartc ) then
-            erawstartc = rull
-            equenchedstartc=0
+         if( mreg.eq.nregSTC ) then
+            erawSTC = rull
+            equenchedSTC=0
             IF ( LQEMGD) THEN
                RULLL = RULL
                CALL QUENMG ( ICODE, MREG, RULL, DTQUEN )
-               equenchedstartc = dtquen(1,1)*abs_startc
+               equenchedSTC = dtquen(1,1)*abs_STC
             END IF
-            call score_startc(mreg,erawstartc,equenchedstartc,xsco,
+            call score_STC(mreg,erawSTC,equenchedSTC,xsco,
      &           ysco,zsco,xsco,ysco,zsco)
          endif
-
 c     
-c  inside the first drift chamber
+c     inside the beam monitor
 c
-         if( (mreg.ge.nregFirstU1.and.mreg.le.nregLastU1).or.
-     &        (mreg.ge.nregFirstV1.and.mreg.le.nregLastV1) ) then
-            erawBM = rull
-            equenchedBM=0
+         if( mreg.ge.nregFirstBMN.and.mreg.le.nregLastBMN ) then
+            erawBMN = rull
+            equenchedBMN=0
             IF ( LQEMGD) THEN
                RULLL = RULL
                CALL QUENMG ( ICODE, MREG, RULL, DTQUEN )
-               equenchedBM = dtquen(1,1)*abs_BM
+               equenchedBMN = dtquen(1,1)*abs_BMN
             END IF
-            call score_BM(mreg,erawBM,equenchedBM,xsco,
+            call score_BMN(mreg,erawBMN,equenchedBMN,xsco,
      &           ysco,zsco,xsco,ysco,zsco)
          endif
 c     
-c  inside the vertex
+c     inside the vertex
 c
-         if( mreg.le.nreglastvtx .and. mreg.ge.nregfirstvtx )
+         if( mreg.le.nregLastVTX .and. mreg.ge.nregFirstVTX )
      $        then
-            erawvtx = rull
-            equenchedvtx=0
+            erawVTX = rull
+            equenchedVTX=0
             IF ( LQEMGD) THEN
                RULLL = RULL
                CALL QUENMG ( ICODE, MREG, RULL, DTQUEN )
-               equenchedvtx = dtquen(1,1)*abs_vtx
+               equenchedVTX = dtquen(1,1)*abs_VTX
             END IF
-            call score_vtx(mreg,erawvtx,equenchedvtx,xsco,
+            call score_VTX(mreg,erawVTX,equenchedVTX,xsco,
      &           ysco,zsco,xsco,ysco,zsco)
-         endif
+         endif         
 c     
-c  inside the inner tracker
+c     inside the inner tracker
 c
-         if( mreg.le.nreglastIT .and. mreg.ge.nregfirstIT )
+         if( mreg.le.nregLastITR .and. mreg.ge.nregFirstITR )
      $        then
-            erawIT = rull
-            equenchedIT=0
+            erawITR = rull
+            equenchedITR=0
             IF ( LQEMGD) THEN
                RULLL = RULL
                CALL QUENMG ( ICODE, MREG, RULL, DTQUEN )
-               equenchedIT = dtquen(1,1)*abs_IT
+               equenchedITR = dtquen(1,1)*abs_ITR
             END IF
-            call score_IT(mreg,erawIT,equenchedIT,xsco,
+            call score_ITR(mreg,erawITR,equenchedITR,xsco,
      &           ysco,zsco,xsco,ysco,zsco)
          endif
 c     
-c  inside the second drift chamber
+c     inside the second drift chamber
 c
-         if( (mreg.ge.nregFirstU2 .and. mreg.le.nregLastU2).or.
-     &        (mreg.ge.nregFirstV2 .and. mreg.le.nregLastV2) ) then
-            erawDC = rull
-            equenchedDC=0
+         if( mreg.ge.nregFirstDCH .and. mreg.le.nregLastDCH ) then
+            erawDCH = rull
+            equenchedDCH=0
             IF ( LQEMGD) THEN
                RULLL = RULL
                CALL QUENMG ( ICODE, MREG, RULL, DTQUEN )
-               equenchedDC = dtquen(1,1)*abs_DC
+               equenchedDCH = dtquen(1,1)*abs_DCH
             END IF
-            call score_DC(mreg,erawDC,equenchedDC,xsco,
+            call score_DCH(mreg,erawDCH,equenchedDCH,xsco,
      &           ysco,zsco,xsco,ysco,zsco)
          endif
 c     
-c  inside the Scint
+c     inside the scintillator
 c
-         if ( mreg.le.nreglastscint .and. mreg.ge.nregfirstscint ) then
-            erawscint = rull
-            equenchedscint=0
+         if ( mreg.le.nregLastSCN .and. mreg.ge.nregFirstSCN ) then
+            erawSCN = rull
+            equenchedSCN=0
             IF ( LQEMGD) THEN
                RULLL = RULL
                CALL QUENMG ( ICODE, MREG, RULL, DTQUEN )
-               equenchedscint = dtquen(1,1)*abs_scint
+               equenchedSCN = dtquen(1,1)*abs_SCN
             END IF
-            call score_scint(mreg,erawscint,equenchedscint,xsco,ysco,
+            call score_SCN(mreg,erawSCN,equenchedSCN,xsco,ysco,
      &           zsco,xsco,ysco,zsco)
          endif
 c
-c     inside the Calorimeter
+c     inside the calorimeter
 c
-         if( mreg.le.nreglastcry .and. mreg.ge.nregfirstcry )then
-            erawcry = rull
-            equenchedcry = 0
+         if( mreg.le.nregLastCAL .and. mreg.ge.nregFirstCAL )then
+            erawCAL = rull
+            equenchedCAL = 0
             IF ( LQEMGD )THEN
                RULLL  = RULL
                CALL QUENMG ( ICODE, MREG, RULLL, DTQUEN )
-               equenchedcry = dtquen(1,1)*abs_cry
+               equenchedCAL = dtquen(1,1)*abs_CAL
             END IF
-            call score_cry(mreg,erawcry,equenchedcry,xsco,ysco,
+            call score_CAL(mreg,erawCAL,equenchedCAL,xsco,ysco,
      &           zsco,xsco,ysco,zsco)
          endif
       endif
@@ -721,7 +717,7 @@ c
          write(*,*)' '
          write(*,*)'------------- usdraw: Ev =',ncase,' -------------'
          write(*,*)' Fluka index= ',ISPUSR(MKBMX2),' idcurr= ',idcurr,
-     &        'jtrack = ',jtrack,' icode = ',icode
+     &        'jtrack = ',jtrack,' icode = ',icode, ' ltrack = ',ltrack
          write(*,*)'regione = ',mregnam, 'x,y,z = ',XSCO,YSCO,ZSCO
          if(idbflg.gt.2) then
             write(*,*)'zfrttk = ',zfrttk,' icpart = ',icpart,',m = ',
@@ -750,6 +746,8 @@ c
       endif
       
       IF (MREG.eq.nregtarg .AND. ICODE.EQ.101) THEN
+      IF (MREG.eq.nregtarg .AND. ICODE.EQ.101.and.
+     &     LTRACK.eq.1 ) THEN
          tarfrag = 1
          if (np.gt.2) tarfrag = 2
          if (npheav.gt.0) tarfrag = 3

@@ -32,28 +32,28 @@ c
 c
 c      
 c----------------------------------------------------
-      subroutine dump_common_scint() 
+      subroutine dump_common_SCN() 
 c-----------------------------------------------------
 c
       integer ii
       include 'mgdraw.inc'
 c
       write(*,*)' '
-      write(*,*)'------- dump_common_scint ---------'
+      write(*,*)'------- dump_common_SCN ---------'
       write(*,*)' '
 c
-      write(*,*)'numero rilasci in scint: ',nscint
-      do ii = 1,nscint
-         write(*,*)'rilascio numero= ',ii,' part id= ',idscint(ii)
-         write(*,*)'x,y,z  in= ',xinscint(ii),yinscint(ii),zinscint(ii)
-         write(*,*)'x,y,z out= ',xoutscint(ii),youtscint(ii),
-     &        zoutscint(ii)
-         write(*,*)'px,py,pz  in= ',pxinscint(ii),pyinscint(ii),
-     &        pzinscint(ii)
-         write(*,*)'px,py,pz out= ',pxoutscint(ii),pyoutscint(ii),
-     &        pzoutscint(ii)
-         write(*,*)'de= ',descint(ii),' al= ',alscint(ii),
-     &        ' time= ',timscint(ii)
+      write(*,*)'numero rilasci in SCN: ',nSCN
+      do ii = 1,nSCN
+         write(*,*)'rilascio numero= ',ii,' part id= ',idSCN(ii)
+         write(*,*)'x,y,z  in= ',xinSCN(ii),yinSCN(ii),zinSCN(ii)
+         write(*,*)'x,y,z out= ',xoutSCN(ii),youtSCN(ii),
+     &        zoutSCN(ii)
+         write(*,*)'px,py,pz  in= ',pxinSCN(ii),pyinSCN(ii),
+     &        pzinSCN(ii)
+         write(*,*)'px,py,pz out= ',pxoutSCN(ii),pyoutSCN(ii),
+     &        pzoutSCN(ii)
+         write(*,*)'de= ',deSCN(ii),' al= ',alSCN(ii),
+     &        ' time= ',timSCN(ii)
          write(*,*)
       end do
 c
@@ -62,25 +62,25 @@ c
 c
 c     
 c----------------------------------------------------
-      subroutine dump_common_cross() 
+      subroutine dump_common_CROSS() 
 c-----------------------------------------------------
 c
       integer ii
       include 'mgdraw.inc'
 c
       write(*,*)' '
-      write(*,*)'------- dump_common_cross ---------'
+      write(*,*)'------- dump_common_CROSS ---------'
       write(*,*)' '
 c
-      write(*,*)'numero crossing: ',ncross
-      do ii = 1,ncross
-         write(*,*)'crossing = ',ii,' part id = ',idcross(ii)
-         write(*,*)'x,y,z = ',xcross(ii),ycross(ii),zcross(ii)
-         write(*,*)'px,py,pz  in = ',pxcross(ii),pycross(ii),
-     &        pzcross(ii)
-         write(*,*)'reg = ',nregcross(ii),' regold = ',nregoldcross(ii),
-     &        ' m = ',amacross(ii),' time = ',tcross(ii),
-     &        ' cha= ',chcross(ii)
+      write(*,*)'numero crossing: ',nCROSS
+      do ii = 1,nCROSS
+         write(*,*)'crossing = ',ii,' part id = ',idCROSS(ii)
+         write(*,*)'x,y,z = ',xCROSS(ii),yCROSS(ii),zCROSS(ii)
+         write(*,*)'px,py,pz  in = ',pxCROSS(ii),pyCROSS(ii),
+     &        pzCROSS(ii)
+         write(*,*)'reg = ',nregCROSS(ii),' regold = ',nregoldCROSS(ii),
+     &        ' m = ',amaCROSS(ii),' time = ',tCROSS(ii),
+     &        ' cha= ',chCROSS(ii)
          write(*,*)
       end do      
 c     
@@ -102,9 +102,9 @@ c
 c         
          call dump_common_part()
 c
-         call dump_common_scint()
+         call dump_common_SCN()
 c
-         call dump_common_cross()
+         call dump_common_CROSS()
 c         
       endif
 c
@@ -113,7 +113,7 @@ c
 c
 c      
 c-------------------------------------------------------------------------
-      subroutine score_startc(mreg,erawstartc,equenchedstartc,xcordin,
+      subroutine score_STC(mreg,erawSTC,equenchedSTC,xcordin,
      &     ycordin,zcordin,xcordout,ycordout,zcordout)
 c--------------------------------------------------------------------------
 c
@@ -121,54 +121,58 @@ c
       INCLUDE '(DIMPAR)'
       INCLUDE '(IOUNIT)'
       INCLUDE '(TRACKR)'
-      double precision erawstartc, equenchedstartc
+      double precision erawSTC, equenchedSTC
       include 'mgdraw.inc'
-      integer ii, nstartc_now
+      integer ii, nSTC_now
 c
       if(idbflg.gt.1) then
          write(*,*)' '
-         write(*,*)'---------------Score_startc-----------------'
-         write(*,*)'idcurr= ',idcurr,' equenchedstartc= ',
-     &        equenchedstartc
+         write(*,*)'---------------Score_STC-----------------'
+         write(*,*)'idcurr= ',idcurr,' equenchedSTC= ',
+     &        equenchedSTC
          write(*,*)'dtrack= ',(dtrack(ii),ii=1,mtrack)
       endif             
 c
-      nstartc_now = 0
-      do ii=1,nstartc
-         if(idstartc(ii).eq.idcurr) nstartc_now = ii
+c new hit in the start counter?
+c
+      nSTC_now = 0
+      do ii=1,nSTC
+         if(idSTC(ii).eq.idcurr) nSTC_now = ii
       end do
 c
-      if(nstartc_now.eq.0) then
-         if(nstartc.eq.maxstartc) then
-            write(*,*)'Error: Score_startc:'
-            write(*,*)'Maximum number of startc scoring exceeded: ev= ',
+c if nSTC_now = 0 then ... new hit...
+c
+      if(nSTC_now.eq.0) then
+         if(nSTC.eq.maxSTC) then
+            write(*,*)'Error: Score_STC:'
+            write(*,*)'Maximum number of STC scoring exceeded: ev= ',
      &           ncase
             return
          endif
-         nstartc = nstartc + 1
-         nstartc_now = nstartc
-         idstartc(nstartc) = idcurr
-         xinstartc(nstartc_now)  = sngl(xcordin)
-         yinstartc(nstartc_now)  = sngl(ycordin)
-         zinstartc(nstartc_now)  = sngl(zcordin)
-         pxinstartc(nstartc_now) = sngl(ptrack*cxtrck)
-         pyinstartc(nstartc_now) = sngl(ptrack*cytrck)
-         pzinstartc(nstartc_now) = sngl(ptrack*cztrck)
-         timstartc(nstartc_now)  = sngl(atrack)
+         nSTC = nSTC + 1
+         nSTC_now = nSTC
+         idSTC(nSTC) = idcurr
+         xinSTC(nSTC_now)  = sngl(xcordin)
+         yinSTC(nSTC_now)  = sngl(ycordin)
+         zinSTC(nSTC_now)  = sngl(zcordin)
+         pxinSTC(nSTC_now) = sngl(ptrack*cxtrck)
+         pyinSTC(nSTC_now) = sngl(ptrack*cytrck)
+         pzinSTC(nSTC_now) = sngl(ptrack*cztrck)
+         timSTC(nSTC_now)  = sngl(atrack)
       endif
 c 
-      xoutstartc(nstartc_now) = sngl(xcordout)
-      youtstartc(nstartc_now) = sngl(ycordout)
-      zoutstartc(nstartc_now) = sngl(zcordout)
-      pxoutstartc(nstartc_now) = sngl(ptrack*cxtrck)
-      pyoutstartc(nstartc_now) = sngl(ptrack*cytrck)
-      pzoutstartc(nstartc_now) = sngl(ptrack*cztrck)
-      destartc(nstartc_now) = destartc(nstartc_now) + sngl(erawstartc)
-      alstartc(nstartc_now)=alstartc(nstartc_now)+ sngl(equenchedstartc)
+      xoutSTC(nSTC_now) = sngl(xcordout)
+      youtSTC(nSTC_now) = sngl(ycordout)
+      zoutSTC(nSTC_now) = sngl(zcordout)
+      pxoutSTC(nSTC_now) = sngl(ptrack*cxtrck)
+      pyoutSTC(nSTC_now) = sngl(ptrack*cytrck)
+      pzoutSTC(nSTC_now) = sngl(ptrack*cztrck)
+      deSTC(nSTC_now) = deSTC(nSTC_now) + sngl(erawSTC)
+      alSTC(nSTC_now)=alSTC(nSTC_now)+ sngl(equenchedSTC)
 c
       if(idbflg.gt.1) then
-         write(*,*)'nstartc= ',nstartc_now,
-     &         ' destartc(nstartc)= ',destartc(nstartc_now)
+         write(*,*)'nSTC= ',nSTC_now,
+     &         ' deSTC(nSTC)= ',deSTC(nSTC_now)
          write(*,*)' '
       endif             
 c
@@ -177,7 +181,7 @@ c
 c
 c
 c-------------------------------------------------------------------------
-      subroutine score_BM(mreg,erawBM,equenchedBM,
+      subroutine score_BMN(mreg,erawBMN,equenchedBMN,
      &     xcordin,ycordin,zcordin,xcordout,ycordout,zcordout)
 c--------------------------------------------------------------------------
 c
@@ -185,77 +189,77 @@ c
       INCLUDE '(DIMPAR)'
       INCLUDE '(IOUNIT)'
       INCLUDE '(TRACKR)'
-      double precision erawBM, equenchedBM
+      double precision erawBMN, equenchedBMN
       include 'mgdraw.inc'
-      integer ii, nBM_now
-      integer iview, ipla, icell
+      integer ii, nBMN_now
+      integer iview, ilay, icell
 c
-      iview = ireg2viewBM(mreg)
-      ipla  = ireg2plaBM(mreg)
-      icell = ireg2cellBM(mreg)
+      iview = ireg2viewBMN(mreg)
+      ilay  = ireg2layBMN(mreg)
+      icell = ireg2cellBMN(mreg)
 c
-      if ((ipla.gt.6.or.ipla.lt.1).or.(icell.gt.6.or.icell.lt.1).or.
-     &     (iview.gt.2.or.iview.lt.1)) then
-         write(*,*) ' WARNING!!!! ipla, iview, icell, mreg '
-         write(*,*) ipla, iview, icell, mreg
+      if ((ilay.ge.nlayBMN.or.ilay.lt.0).or.
+     &     (icell.ge.ncellBMN.or.icell.lt.0).or.
+     &     (iview.ne.1.and.iview.ne.-1)) then
+         write(*,*) ' WARNING!!!! ilay, iview, icell, mreg '
+         write(*,*) ilay, iview, icell, mreg
       endif
 c     
       if(idbflg.gt.1) then
          write(*,*)' '
-         write(*,*)'---------------Score_BM-----------------'
-         write(*,*)'idcurr= ',idcurr,' equenchedBM= ',
-     &        equenchedBM,' view= ', iview,' pla= ', ipla,
+         write(*,*)'---------------Score_BMN-----------------'
+         write(*,*)'idcurr= ',idcurr,' equenchedBMN= ',
+     &        equenchedBMN,' view= ', iview,' lay= ', ilay,
      &       ' cell= ',icell,' mreg= ',mreg
          write(*,*)'xyz= ',xcordin,ycordin,zcordin
          write(*,*)'dtrack= ',(dtrack(ii),ii=1,mtrack)
       endif         
 c
-c new hit in the first drift chamber?   
+c new hit in the beam monitor?
 c
-      nBM_now = 0
-      do ii=1,nBM
-         if( (idBM(ii).eq.idcurr) .and. (iviewBM(ii).eq.iview) .and.
-     &        (iplaBM(ii).eq.ipla) .and. (icellBM(ii).eq.icell) )then
-            nBM_now = ii
+      nBMN_now = 0
+      do ii=1,nBMN
+         if( (idBMN(ii).eq.idcurr) .and. (iviewBMN(ii).eq.iview) .and.
+     &        (ilayBMN(ii).eq.ilay) .and. (icellBMN(ii).eq.icell) )then
+            nBMN_now = ii
          endif
       end do
 c
-c if ndc_now = 0 then ... new hit...
+c if nBMN_now = 0 then ... new hit...
 c
-      if(nBM_now.eq.0) then
-         if(nBM.eq.maxBM) then
-            write(*,*)'Error: Score_BM:'
-            write(*,*)'Maximum number of BM scoring exceeded: ev= ',
+      if(nBMN_now.eq.0) then
+         if(nBMN.eq.maxBMN) then
+            write(*,*)'Error: Score_BMN:'
+            write(*,*)'Maximum number of BMN scoring exceeded: ev= ',
      &           ncase
             return
          endif
-         nBM = nBM + 1
-         nBM_now = nBM
-         idBM(nBM) = idcurr
-         xinBM(nBM_now)  = sngl(xcordin)
-         yinBM(nBM_now)  = sngl(ycordin)
-         zinBM(nBM_now)  = sngl(zcordin)
-         pxinBM(nBM_now) = sngl(ptrack*cxtrck)
-         pyinBM(nBM_now) = sngl(ptrack*cytrck)
-         pzinBM(nBM_now) = sngl(ptrack*cztrck)
-         timBM(nBM_now)  = sngl(atrack)
-         iviewBM(nBM_now) = iview
-         iplaBM(nBM_now)  = ipla
-         icellBM(nBM_now) = icell
+         nBMN = nBMN + 1
+         nBMN_now = nBMN
+         idBMN(nBMN) = idcurr
+         xinBMN(nBMN_now)  = sngl(xcordin)
+         yinBMN(nBMN_now)  = sngl(ycordin)
+         zinBMN(nBMN_now)  = sngl(zcordin)
+         pxinBMN(nBMN_now) = sngl(ptrack*cxtrck)
+         pyinBMN(nBMN_now) = sngl(ptrack*cytrck)
+         pzinBMN(nBMN_now) = sngl(ptrack*cztrck)
+         timBMN(nBMN_now)  = sngl(atrack)
+         iviewBMN(nBMN_now) = iview
+         ilayBMN(nBMN_now)  = ilay
+         icellBMN(nBMN_now) = icell
       endif
 c 
-      xoutBM(nBM_now) = sngl(xcordout)
-      youtBM(nBM_now) = sngl(ycordout)
-      zoutBM(nBM_now) = sngl(zcordout)
-      pxoutBM(nBM_now) = sngl(ptrack*cxtrck)
-      pyoutBM(nBM_now) = sngl(ptrack*cytrck)
-      pzoutBM(nBM_now) = sngl(ptrack*cztrck)
-      deBM(nBM_now) = deBM(nBM_now) + sngl(erawBM)
-      alBM(nBM_now)=alBM(nBM_now)+ sngl(equenchedBM)
+      xoutBMN(nBMN_now) = sngl(xcordout)
+      youtBMN(nBMN_now) = sngl(ycordout)
+      zoutBMN(nBMN_now) = sngl(zcordout)
+      pxoutBMN(nBMN_now) = sngl(ptrack*cxtrck)
+      pyoutBMN(nBMN_now) = sngl(ptrack*cytrck)
+      pzoutBMN(nBMN_now) = sngl(ptrack*cztrck)
+      deBMN(nBMN_now) = deBMN(nBMN_now) + sngl(erawBMN)
+      alBMN(nBMN_now)=alBMN(nBMN_now)+ sngl(equenchedBMN)
 c
       if(idbflg.gt.1) then
-         write(*,*)'nBM= ',nBM_now,
-     &         ' deBM(nBM)= ',deBM(nBM_now)
+         write(*,*)'nBMN= ',nBMN_now, ' deBMN(nBMN)= ',deBMN(nBMN_now)
          write(*,*)' '
       endif             
 c    
@@ -263,7 +267,7 @@ c
       end
 c
 c-------------------------------------------------------------------------
-      subroutine score_vtx(mreg, erawvtx, equenchedvtx,xcordin,
+      subroutine score_VTX(mreg, erawVTX, equenchedVTX,xcordin,
      &     ycordin,zcordin,xcordout,ycordout,zcordout)
 c--------------------------------------------------------------------------
 c
@@ -271,242 +275,115 @@ c
       INCLUDE '(DIMPAR)'
       INCLUDE '(IOUNIT)'
       INCLUDE '(TRACKR)'
-      double precision erawvtx, equenchedvtx
+      double precision erawVTX, equenchedVTX
       include 'mgdraw.inc'
       integer mreg, ii
-      integer ipla
+      integer ilay
 c
-      ipla = mreg-nregfirstvtx+1
-      if (ipla.gt.5.or.ipla.lt.1) THEN
-         write(*,*) ' WARNING!!!! iplavtx= ',ipla,
+      ilay = mreg-nregFirstVTX
+      if (ilay.ge.nlayVTX.or.ilay.lt.0) THEN
+         write(*,*) ' WARNING!!!! ilayVTX= ',ilay,
      &    '  zcordin= ',zcordin
       ENDIF
 c      
-      nvtx_now = 0
+      nVTX_now = 0
 c
       if(idbflg.gt.1) then
          write(*,*)' '
-         write(*,*)'---------------Score_vtx-----------------'
-         write(*,*)'test ','idcurr= ',idcurr,' pla= ',
-     &        ipla, ' mreg= ',mreg,' nvtx= ',nvtx
+         write(*,*)'---------------Score_VTX-----------------'
+         write(*,*)'test ','idcurr= ',idcurr,' lay= ',
+     &        ilay, ' mreg= ',mreg,' nVTX= ',nVTX
          write(*,*)'xyz= ',xcordin,ycordin,zcordin
       endif             
 c
 c new hit in the vertex?
 c
       if (idbflg.gt.1) then
-         write(*,*)'Check of previous hits nvtx_now= ',nvtx_now,
-     &        ' nvtx= ',nvtx
+         write(*,*)'Check of previous hits nVTX_now= ',nVTX_now,
+     &        ' nVTX= ',nVTX
       endif
-      do ii=1,nvtx
+      do ii=1,nVTX
          if (idbflg.gt.1) then
             write(*,*)'ii= ',ii
-            write(*,*)'idvtx(ii)= ',idvtx(ii),' idcurr= ',idcurr
-            write(*,*)'ipla= ',ipla
-            write(*,*)'irow(ii)= ',irowvtx(ii),' icol= ',icolvtx(ii)
+            write(*,*)'idVTX(ii)= ',idVTX(ii),' idcurr= ',idcurr
+            write(*,*)'ilay= ',ilay
+            write(*,*)'irow(ii)= ',irowVTX(ii),' icol= ',icolVTX(ii)
          endif
-         if( ( idvtx(ii).eq.idcurr .and.
-     &         iplavtx(ii).eq.ipla ) .OR.
-     &        ( sngl(xcordin).eq.xinvtx(ii) .and. 
-     &          sngl(ycordin).eq.yinvtx(ii) .and.
-     &          sngl(zcordin).eq.zinvtx(ii) )
+         if( ( idVTX(ii).eq.idcurr .and.
+     &         ilayVTX(ii).eq.ilay ) .OR.
+     &        ( sngl(xcordin).eq.xinVTX(ii) .and. 
+     &          sngl(ycordin).eq.yinVTX(ii) .and.
+     &          sngl(zcordin).eq.zinVTX(ii) )
      &        ) then 
-            nvtx_now = ii
+            nVTX_now = ii
             if (idbflg.gt.1) then
-               write(*,*)'Previous hit found: nvtx_now= ',nvtx_now,
+               write(*,*)'Previous hit found: nVTX_now= ',nVTX_now,
      &              ' ii= ',ii
             endif
          endif
       end do
 c
-c if nvtx_now = 0 then ... new hit...
+c if nVTX_now = 0 then ... new hit...
 c
-      if( nvtx_now.eq.0) then
-         if(nvtx.eq.maxvtx) then
-            write(*,*)'Error: Score_vtx:'
+      if( nVTX_now.eq.0) then
+         if(nVTX.eq.maxVTX) then
+            write(*,*)'Error: Score_VTX:'
             write(*,*)'Maximum hit number exceeded : ev= ',ncase
             return
          endif
-         nvtx = nvtx + 1
-         nvtx_now = nvtx
-         idvtx(nvtx) = idcurr
-         iplavtx(nvtx_now) = ipla
-         xinvtx(nvtx_now)  = sngl(xcordin)
-         yinvtx(nvtx_now)  = sngl(ycordin)
-         zinvtx(nvtx_now)  = sngl(zcordin)
-         pxinvtx(nvtx_now) = sngl(ptrack*cxtrck)
-         pyinvtx(nvtx_now) = sngl(ptrack*cytrck)
-         pzinvtx(nvtx_now) = sngl(ptrack*cztrck)
-         timvtx(nvtx_now)  = sngl(atrack)
-         if (ycordin.le.(-yminvtx)) then
-            irowvtx(nvtx_now) = int((ycordin-yminvtx)/dyvtx)+1
+         nVTX = nVTX + 1
+         nVTX_now = nVTX
+         idVTX(nVTX) = idcurr
+         ilayVTX(nVTX_now) = ilay
+         xinVTX(nVTX_now)  = sngl(xcordin)
+         yinVTX(nVTX_now)  = sngl(ycordin)
+         zinVTX(nVTX_now)  = sngl(zcordin)
+         pxinVTX(nVTX_now) = sngl(ptrack*cxtrck)
+         pyinVTX(nVTX_now) = sngl(ptrack*cytrck)
+         pzinVTX(nVTX_now) = sngl(ptrack*cztrck)
+         timVTX(nVTX_now)  = sngl(atrack)
+         if (ycordin.le.-yminVTX) then
+            irowVTX(nVTX_now) = int((ycordin-yminVTX)/dyVTX)+1
          else
-            irowvtx(nvtx_now) = xpixvtx
+            irowVTX(nVTX_now) = xpixVTX
          endif
-         if (xcordin.le.(-xminvtx)) then
-            icolvtx(nvtx_now) = int((xcordin-xminvtx)/dxvtx)+1
+         if (xcordin.le.-xminVTX) then
+            icolVTX(nVTX_now) = int((xcordin-xminVTX)/dxVTX)+1
          else
-            icolvtx(nvtx_now) = ypixvtx
+            icolVTX(nVTX_now) = ypixVTX
          endif
-         if (irowvtx(nvtx_now).gt.(ypixvtx)
-     &        .or. irowvtx(nvtx_now).lt.1)then
+         if (irowVTX(nVTX_now).gt.ypixVTX
+     &        .or. irowVTX(nVTX_now).lt.1)then
             write(*,*)'WARNING! max vertex row no. exceeded: irow= ',
-     &           irowvtx(nvtx_now),'yin= ',yinvtx(nvtx_now),
+     &           irowVTX(nVTX_now),'yin= ',yinVTX(nVTX_now),
      &           ' mreg= ',mreg
          endif
-         if (icolvtx(nvtx_now).gt.(ypixvtx)
-     &        .or. icolvtx(nvtx_now).lt.1)then
+         if (icolVTX(nVTX_now).gt.ypixVTX
+     &        .or. icolVTX(nVTX_now).lt.1)then
             write(*,*)'WARNING! max vertex col no. exceeded: icol= ',
-     &           icolvtx(nvtx_now),'xin= ',xinvtx(nvtx_now),
+     &           icolVTX(nVTX_now),'xin= ',xinVTX(nVTX_now),
      &           ' mreg= ',mreg
          endif
       endif
 c 
-      xoutvtx(nvtx_now) = sngl(xcordout)
-      youtvtx(nvtx_now) = sngl(ycordout)
-      zoutvtx(nvtx_now) = sngl(zcordout)
-      pxoutvtx(nvtx_now) = sngl(ptrack*cxtrck)
-      pyoutvtx(nvtx_now) = sngl(ptrack*cytrck)
-      pzoutvtx(nvtx_now) = sngl(ptrack*cztrck)
-      devtx(nvtx_now) = devtx(nvtx_now) + sngl(erawvtx)
-      alvtx(nvtx_now) = alvtx(nvtx_now) + sngl(equenchedvtx)
-c
+      xoutVTX(nVTX_now) = sngl(xcordout)
+      youtVTX(nVTX_now) = sngl(ycordout)
+      zoutVTX(nVTX_now) = sngl(zcordout)
+      pxoutVTX(nVTX_now) = sngl(ptrack*cxtrck)
+      pyoutVTX(nVTX_now) = sngl(ptrack*cytrck)
+      pzoutVTX(nVTX_now) = sngl(ptrack*cztrck)
+      deVTX(nVTX_now) = deVTX(nVTX_now) + sngl(erawVTX)
+      alVTX(nVTX_now) = alVTX(nVTX_now) + sngl(equenchedVTX)
 c
       if(idbflg.gt.1) then
-         do ii=1,nvtx
+         do ii=1,nVTX
             write(*,*)'ii= ',ii
-            write(*,*)'idvtx(ii)= ',idvtx(ii),' idcurr= ',idcurr
-            write(*,*)'ipla= ',iplavtx(ii)
-            write(*,*)'irow(ii)= ',irowvtx(ii),' icol= ',icolvtx(ii)
+            write(*,*)'idVTX(ii)= ',idVTX(ii),' idcurr= ',idcurr
+            write(*,*)'ilay= ',ilayVTX(ii)
+            write(*,*)'irow(ii)= ',irowVTX(ii),' icol= ',icolVTX(ii)
          enddo
-         write(*,*)'nvtx_now= ',nvtx_now,' nvtx= ',nvtx,
-     &         ' devtx(nvtx)= ',devtx(nvtx_now)
-         write(*,*)' '
-      endif             
-c
-      return
-      end
-c
-c      
-c-------------------------------------------------------------------------
-      subroutine score_IT(mreg, erawIT, equenchedIT,xcordin,
-     &     ycordin,zcordin,xcordout,ycordout,zcordout)
-c--------------------------------------------------------------------------
-c
-      INCLUDE '(DBLPRC)'
-      INCLUDE '(DIMPAR)'
-      INCLUDE '(IOUNIT)'
-      INCLUDE '(TRACKR)'
-      double precision erawIT, equenchedIT
-      include 'mgdraw.inc'
-      integer mreg, ii
-      integer ipla
-c
-      ipla = mreg-nregfirstIT+1
-      if (ipla.gt.5.or.ipla.lt.1) THEN
-         write(*,*) ' WARNING!!!! iplaIT= ',ipla,
-     &    '  zcordin= ',zcordin
-      ENDIF
-c      
-      nIT_now = 0
-c
-      if(idbflg.gt.1) then
-         write(*,*)' '
-         write(*,*)'---------------Score_IT-----------------'
-         write(*,*)'test ','idcurr= ',idcurr,' pla= ',
-     &        ipla, ' mreg= ',mreg,' nIT= ',nIT
-         write(*,*)'xyz= ',xcordin,ycordin,zcordin
-      endif             
-c
-c new hit in the vertex?
-c
-      if (idbflg.gt.1) then
-         write(*,*)'Check of previous hits nIT_now= ',nIT_now,
-     &        ' nIT= ',nIT
-      endif
-      do ii=1,nIT
-         if (idbflg.gt.1) then
-            write(*,*)'ii= ',ii
-            write(*,*)'idIT(ii)= ',idIT(ii),' idcurr= ',idcurr
-            write(*,*)'ipla= ',ipla
-            write(*,*)'irow(ii)= ',irowIT(ii),' icol= ',icolIT(ii)
-         endif
-         if( ( idIT(ii).eq.idcurr .and.
-     &         iplaIT(ii).eq.ipla ) .OR.
-     &        ( sngl(xcordin).eq.xinIT(ii) .and. 
-     &          sngl(ycordin).eq.yinIT(ii) .and.
-     &          sngl(zcordin).eq.zinIT(ii) )
-     &        ) then 
-            nIT_now = ii
-            if (idbflg.gt.1) then
-               write(*,*)'Previous hit found: nIT_now= ',nIT_now,
-     &              ' ii= ',ii
-            endif
-         endif
-      end do
-c
-c if nIT_now = 0 then ... new hit...
-c
-      if( nIT_now.eq.0) then
-         if(nIT.eq.maxIT) then
-            write(*,*)'Error: Score_IT:'
-            write(*,*)'Maximum hit number exceeded : ev= ',ncase
-            return
-         endif
-         nIT = nIT + 1
-         nIT_now = nIT
-         idIT(nIT) = idcurr
-         iplaIT(nIT_now) = ipla
-         xinIT(nIT_now)  = sngl(xcordin)
-         yinIT(nIT_now)  = sngl(ycordin)
-         zinIT(nIT_now)  = sngl(zcordin)
-         pxinIT(nIT_now) = sngl(ptrack*cxtrck)
-         pyinIT(nIT_now) = sngl(ptrack*cytrck)
-         pzinIT(nIT_now) = sngl(ptrack*cztrck)
-         timIT(nIT_now)  = sngl(atrack)
-         if (ycordin.le.(-yminIT)) then
-            irowIT(nIT_now) = int((ycordin-yminIT)/dyIT)+1
-         else
-            irowIT(nIT_now) = xpixIT
-         endif
-         if (xcordin.le.(-xminIT)) then
-            icolIT(nIT_now) = int((xcordin-xminIT)/dxIT)+1
-         else
-            icolIT(nIT_now) = ypixIT
-         endif
-         if (irowIT(nIT_now).gt.(ypixIT)
-     &        .or. irowIT(nIT_now).lt.1)then
-            write(*,*)'WARNING! max vertex row no. exceeded: irow= ',
-     &           irowIT(nIT_now),'yin= ',yinIT(nIT_now),
-     &           ' mreg= ',mreg
-         endif
-         if (icolIT(nIT_now).gt.(ypixIT)
-     &        .or. icolIT(nIT_now).lt.1)then
-            write(*,*)'WARNING! max vertex col no. exceeded: icol= ',
-     &           icolIT(nIT_now),'xin= ',xinIT(nIT_now),
-     &           ' mreg= ',mreg
-         endif
-      endif
-c 
-      xoutIT(nIT_now) = sngl(xcordout)
-      youtIT(nIT_now) = sngl(ycordout)
-      zoutIT(nIT_now) = sngl(zcordout)
-      pxoutIT(nIT_now) = sngl(ptrack*cxtrck)
-      pyoutIT(nIT_now) = sngl(ptrack*cytrck)
-      pzoutIT(nIT_now) = sngl(ptrack*cztrck)
-      deIT(nIT_now) = deIT(nIT_now) + sngl(erawIT)
-      alIT(nIT_now) = alIT(nIT_now) + sngl(equenchedIT)
-c
-c
-      if(idbflg.gt.1) then
-         do ii=1,nIT
-            write(*,*)'ii= ',ii
-            write(*,*)'idIT(ii)= ',idIT(ii),' idcurr= ',idcurr
-            write(*,*)'ipla= ',iplaIT(ii)
-            write(*,*)'irow(ii)= ',irowIT(ii),' icol= ',icolIT(ii)
-         enddo
-         write(*,*)'nIT_now= ',nIT_now,' nIT= ',nIT,
-     &         ' deIT(nIT)= ',deIT(nIT_now)
+         write(*,*)'nVTX_now= ',nVTX_now,' nVTX= ',nVTX,
+     &         ' deVTX(nVTX)= ',deVTX(nVTX_now)
          write(*,*)' '
       endif             
 c
@@ -515,7 +392,7 @@ c
 c
 c
 c-------------------------------------------------------------------------
-      subroutine score_DC(mreg,erawDC,equenchedDC,xcordin,
+      subroutine score_ITR(mreg, erawITR, equenchedITR,xcordin,
      &     ycordin,zcordin,xcordout,ycordout,zcordout)
 c--------------------------------------------------------------------------
 c
@@ -523,77 +400,203 @@ c
       INCLUDE '(DIMPAR)'
       INCLUDE '(IOUNIT)'
       INCLUDE '(TRACKR)'
-      double precision erawDC, equenchedDC
+      double precision erawITR, equenchedITR
       include 'mgdraw.inc'
-      integer ii, nDC_now
-      integer iview, ipla, icell
+      integer mreg, ii
+      integer ilay
 c
-      iview = ireg2viewDC(mreg)
-      ipla = ireg2plaDC(mreg)
-      icell = ireg2cellDC(mreg)
+      ilay = mreg-nregFirstITR
+      if (ilay.ge.nlayITR.or.ilay.lt.0) THEN
+         write(*,*) ' WARNING!!!! ilayITR= ',ilay,
+     &    '  zcordin= ',zcordin
+      ENDIF
+c      
+      nITR_now = 0
 c
-      if ((ipla.gt.6.or.ipla.lt.1).or.(icell.gt.6.or.icell.lt.1).or.
-     &     (iview.gt.2.or.iview.lt.1)) then
-         write(*,*) ' WARNING!!!! ipla, iview, icell, mreg '
-         write(*,*) ipla, iview, icell, mreg
+      if(idbflg.gt.1) then
+         write(*,*)' '
+         write(*,*)'---------------Score_ITR-----------------'
+         write(*,*)'test ','idcurr= ',idcurr,' lay= ',
+     &        ilay, ' mreg= ',mreg,' nITR= ',nITR
+         write(*,*)'xyz= ',xcordin,ycordin,zcordin
+      endif             
+c
+c new hit in the inner tracker?
+c
+      if (idbflg.gt.1) then
+         write(*,*)'Check of previous hits nITR_now= ',nITR_now,
+     &        ' nITR= ',nITR
+      endif
+      do ii=1,nITR
+         if (idbflg.gt.1) then
+            write(*,*)'ii= ',ii
+            write(*,*)'idITR(ii)= ',idITR(ii),' idcurr= ',idcurr
+            write(*,*)'ilay= ',ilay
+            write(*,*)'irow(ii)= ',irowITR(ii),' icol= ',icolITR(ii)
+         endif
+         if( ( idITR(ii).eq.idcurr .and.
+     &         ilayITR(ii).eq.ilay ) .OR.
+     &        ( sngl(xcordin).eq.xinITR(ii) .and. 
+     &          sngl(ycordin).eq.yinITR(ii) .and.
+     &          sngl(zcordin).eq.zinITR(ii) )
+     &        ) then 
+            nITR_now = ii
+            if (idbflg.gt.1) then
+               write(*,*)'Previous hit found: nITR_now= ',nITR_now,
+     &              ' ii= ',ii
+            endif
+         endif
+      end do
+c
+c if nITR_now = 0 then ... new hit...
+c
+      if( nITR_now.eq.0) then
+         if(nITR.eq.maxITR) then
+            write(*,*)'Error: Score_ITR:'
+            write(*,*)'Maximum hit number exceeded : ev= ',ncase
+            return
+         endif
+         nITR = nITR + 1
+         nITR_now = nITR
+         idITR(nITR) = idcurr
+         ilayITR(nITR_now) = ilay
+         xinITR(nITR_now)  = sngl(xcordin)
+         yinITR(nITR_now)  = sngl(ycordin)
+         zinITR(nITR_now)  = sngl(zcordin)
+         pxinITR(nITR_now) = sngl(ptrack*cxtrck)
+         pyinITR(nITR_now) = sngl(ptrack*cytrck)
+         pzinITR(nITR_now) = sngl(ptrack*cztrck)
+         timITR(nITR_now)  = sngl(atrack)
+         if (ycordin.le.-yminITR) then
+            irowITR(nITR_now) = int((ycordin-yminITR)/dyITR)+1
+         else
+            irowITR(nITR_now) = xpixITR
+         endif
+         if (xcordin.le.-xminITR) then
+            icolITR(nITR_now) = int((xcordin-xminITR)/dxITR)+1
+         else
+            icolITR(nITR_now) = ypixITR
+         endif
+         if (irowITR(nITR_now).gt.ypixITR
+     &        .or. irowITR(nITR_now).lt.1)then
+            write(*,*)'WARNING! max ITR row no. exceeded: irow= ',
+     &           irowITR(nITR_now),'yin= ',yinITR(nITR_now),
+     &           ' mreg= ',mreg
+         endif
+         if (icolITR(nITR_now).gt.(ypixITR)
+     &        .or. icolITR(nITR_now).lt.1)then
+            write(*,*)'WARNING! max ITR col no. exceeded: icol= ',
+     &           icolITR(nITR_now),'xin= ',xinITR(nITR_now),
+     &           ' mreg= ',mreg
+         endif
+      endif
+c 
+      xoutITR(nITR_now) = sngl(xcordout)
+      youtITR(nITR_now) = sngl(ycordout)
+      zoutITR(nITR_now) = sngl(zcordout)
+      pxoutITR(nITR_now) = sngl(ptrack*cxtrck)
+      pyoutITR(nITR_now) = sngl(ptrack*cytrck)
+      pzoutITR(nITR_now) = sngl(ptrack*cztrck)
+      deITR(nITR_now) = deITR(nITR_now) + sngl(erawITR)
+      alITR(nITR_now) = alITR(nITR_now) + sngl(equenchedITR)
+c
+      if(idbflg.gt.1) then
+         do ii=1,nITR
+            write(*,*)'ii= ',ii
+            write(*,*)'idITR(ii)= ',idITR(ii),' idcurr= ',idcurr
+            write(*,*)'ilay= ',ilayITR(ii)
+            write(*,*)'irow(ii)= ',irowITR(ii),' icol= ',icolITR(ii)
+         enddo
+         write(*,*)'nITR_now= ',nITR_now,' nITR= ',nITR,
+     &         ' deITR(nITR)= ',deITR(nITR_now)
+         write(*,*)' '
+      endif             
+c
+      return
+      end
+c
+c
+c-------------------------------------------------------------------------
+      subroutine score_DCH(mreg,erawDCH,equenchedDCH,xcordin,
+     &     ycordin,zcordin,xcordout,ycordout,zcordout)
+c--------------------------------------------------------------------------
+c
+      INCLUDE '(DBLPRC)'
+      INCLUDE '(DIMPAR)'
+      INCLUDE '(IOUNIT)'
+      INCLUDE '(TRACKR)'
+      double precision erawDCH, equenchedDCH
+      include 'mgdraw.inc'
+      integer ii, nDCH_now
+      integer iview, ilay, icell
+c
+      iview = ireg2viewDCH(mreg)
+      ilay = ireg2layDCH(mreg)
+      icell = ireg2cellDCH(mreg)
+c
+      if ((ilay.ge.nlayDCH.or.ilay.lt.0).or.
+     &     (icell.ge.ncellDCH.or.icell.lt.0).or.
+     &     (iview.ne.-1.and.iview.ne.1)) then
+         write(*,*) ' WARNING!!!! ilay, iview, icell, mreg '
+         write(*,*) ilay, iview, icell, mreg
       endif
 c     
       if(idbflg.gt.1) then
          write(*,*)' '
-         write(*,*)'---------------Score_DC-----------------'
-         write(*,*)'idcurr= ',idcurr,' equenchedDC= ',
-     &        equenchedDC,' view= ', iview,' pla= ', ipla,
+         write(*,*)'---------------Score_DCH-----------------'
+         write(*,*)'idcurr= ',idcurr,' equenchedDCH= ',
+     &        equenchedDCH,' view= ', iview,' lay= ', ilay,
      &       ' cell= ',icell,' mreg= ',mreg
          write(*,*)'xyz= ',xcordin,ycordin,zcordin
          write(*,*)'dtrack= ',(dtrack(ii),ii=1,mtrack)
       endif         
 c
-c new hit in the drift chamber?   
+c new hit in the second drift chamber?   
 c
-      nDC_now = 0
-      do ii=1,nDC
-         if( (idDC(ii).eq.idcurr) .and. (iviewDC(ii).eq.iview) .and.
-     &        (iplaDC(ii).eq.ipla) .and. (icellDC(ii).eq.icell) )then
-            nDC_now = ii
+      nDCH_now = 0
+      do ii=1,nDCH
+         if( (idDCH(ii).eq.idcurr) .and. (iviewDCH(ii).eq.iview) .and.
+     &        (ilayDCH(ii).eq.ilay) .and. (icellDCH(ii).eq.icell) )then
+            nDCH_now = ii
          endif
       end do
 c
-c if ndc_now = 0 then ... new hit...
+c if nDCH_now = 0 then ... new hit...
 c
-      if(nDC_now.eq.0) then
-         if(nDC.eq.maxDC) then
-            write(*,*)'Error: Score_DC:'
-            write(*,*)'Maximum number of DC scoring exceeded: ev= ',
+      if(nDCH_now.eq.0) then
+         if(nDCH.eq.maxDCH) then
+            write(*,*)'Error: Score_DCH:'
+            write(*,*)'Maximum number of DCH scoring exceeded: ev= ',
      &           ncase
             return
          endif
-         nDC = nDC + 1
-         nDC_now = nDC
-         idDC(nDC) = idcurr
-         xinDC(nDC_now)  = sngl(xcordin)
-         yinDC(nDC_now)  = sngl(ycordin)
-         zinDC(nDC_now)  = sngl(zcordin)
-         pxinDC(nDC_now) = sngl(ptrack*cxtrck)
-         pyinDC(nDC_now) = sngl(ptrack*cytrck)
-         pzinDC(nDC_now) = sngl(ptrack*cztrck)
-         timDC(nDC_now)  = sngl(atrack)
-         iviewDC(nDC_now) = iview
-         iplaDC(nDC_now)   = ipla
-         icellDC(nDC_now) = icell
+         nDCH = nDCH + 1
+         nDCH_now = nDCH
+         idDCH(nDCH) = idcurr
+         xinDCH(nDCH_now)   = sngl(xcordin)
+         yinDCH(nDCH_now)   = sngl(ycordin)
+         zinDCH(nDCH_now)   = sngl(zcordin)
+         pxinDCH(nDCH_now)  = sngl(ptrack*cxtrck)
+         pyinDCH(nDCH_now)  = sngl(ptrack*cytrck)
+         pzinDCH(nDCH_now)  = sngl(ptrack*cztrck)
+         timDCH(nDCH_now)   = sngl(atrack)
+         iviewDCH(nDCH_now) = iview
+         ilayDCH(nDCH_now)  = ilay 
+         icellDCH(nDCH_now) = icell
       endif
 c 
-      xoutDC(nDC_now) = sngl(xcordout)
-      youtDC(nDC_now) = sngl(ycordout)
-      zoutDC(nDC_now) = sngl(zcordout)
-      pxoutDC(nDC_now) = sngl(ptrack*cxtrck)
-      pyoutDC(nDC_now) = sngl(ptrack*cytrck)
-      pzoutDC(nDC_now) = sngl(ptrack*cztrck)
-      deDC(nDC_now) = deDC(nDC_now) + sngl(erawDC)
-      alDC(nDC_now)=alDC(nDC_now)+ sngl(equenchedDC)
+      xoutDCH(nDCH_now) = sngl(xcordout)
+      youtDCH(nDCH_now) = sngl(ycordout)
+      zoutDCH(nDCH_now) = sngl(zcordout)
+      pxoutDCH(nDCH_now) = sngl(ptrack*cxtrck)
+      pyoutDCH(nDCH_now) = sngl(ptrack*cytrck)
+      pzoutDCH(nDCH_now) = sngl(ptrack*cztrck)
+      deDCH(nDCH_now) = deDCH(nDCH_now) + sngl(erawDCH)
+      alDCH(nDCH_now)=alDCH(nDCH_now)+ sngl(equenchedDCH)
 c
       if(idbflg.gt.1) then
-         write(*,*)'nDC= ',nDC_now,
-     &         ' deDC(nDC)= ',deDC(nDC_now)
+         write(*,*)'nDCH= ',nDCH_now,
+     &         ' deDCH(nDCH)= ',deDCH(nDCH_now)
          write(*,*)' '
       endif             
 c
@@ -602,7 +605,7 @@ c
 c
 c     
 c-------------------------------------------------------------------------
-      subroutine score_scint(mreg,erawscint,equenchedscint,xcordin,
+      subroutine score_SCN(mreg,erawSCN,equenchedSCN,xcordin,
      &     ycordin,zcordin,xcordout,ycordout,zcordout)
 c--------------------------------------------------------------------------
 c
@@ -610,80 +613,86 @@ c
       INCLUDE '(DIMPAR)'
       INCLUDE '(IOUNIT)'
       INCLUDE '(TRACKR)'
-      double precision erawscint, equenchedscint
+      double precision erawSCN, equenchedSCN
       include 'mgdraw.inc'
-      integer ii, nscint_now
-      integer rowscint, colscint
+      integer ii, nSCN_now
+      integer stripSCN, viewSCN
 c
-      rowscint = ireg2rowscint(mreg)
-      colscint = ireg2colscint(mreg)
-      if (colscint.gt.11 .or. colscint.lt.1) THEN
-         write(*,*) ' WARNING!!!! colscint = ', colscint,
-     &        ' ycordin= ',ycordin
+      stripSCN = ireg2stripSCN(mreg)
+      viewSCN = ireg2viewSCN(mreg)
+      if (stripSCNSCN.ge.nstripSCN .or. colSCN.lt.0) THEN
+         write(*,*) ' WARNING!!!! stripSCN = ', stripSCN,
+     &        ' xcordin= ',xcordin, ' ycordin= ',ycordin,
+     &        ' zcordin= ',zcordin         
       ENDIF
-      if (rowscint.gt.11 .or. rowscint.lt.1) THEN
-         write(*,*) ' WARNING!!!! rowscint = ', rowscint,
-     &        ' xcordin= ',xcordin
+      if (viewSCN.gt.1 .or. viewSCN.lt.-1) THEN
+         write(*,*) ' WARNING!!!! viewSCN = ', viewSCN,
+     &        ' xcordin= ',xcordin, ' ycordin= ',ycordin,
+     &        ' zcordin= ',zcordin
       ENDIF
 c
       if(idbflg.gt.1) then
          write(*,*)' '
-         write(*,*)'---------------Score_scint-----------------'
-         write(*,*)'idcurr= ',idcurr,' equenchedscint= ',
-     &        equenchedscint
+         write(*,*)'---------------Score_SCN-----------------'
+         write(*,*)'idcurr= ',idcurr,' equenchedSCN= ',
+     &        equenchedSCN
          write(*,*)'dtrack= ',(dtrack(ii),ii=1,mtrack)
-         write(*,*)'mreg= ',mreg,' row= ',rowscint,' col= ',
-     &        colscint 
+         write(*,*)'mreg= ',mreg,' strip= ',stripSCN,
+     &    ' view= ',viewSCN
          write(*,*)'xyz= ',xcordin,ycordin,zcordin
       endif             
 c
-      nscint_now = 0
-      do ii=1,nscint
-         if((idscint(ii).eq.idcurr.and.   
-     &        irowscint(ii).eq.rowscint.and.
-     &        icolscint(ii).eq.colscint ) .OR.
-     &        ( sngl(xcordin).eq.xinscint(ii) .and. 
-     &        sngl(ycordin).eq.yinscint(ii) .and.
-     &        sngl(zcordin).eq.zinscint(ii) ))then
-            nscint_now = ii
+c new hit in the scintillator?
+c
+      nSCN_now = 0
+      do ii=1,nSCN
+         if((idSCN(ii).eq.idcurr.and.  
+     &        iviewSCN(ii).eq.viewSCN.and. 
+     &        istripSCN(ii).eq.stripSCN ) .OR.
+     &        ( sngl(xcordin).eq.xinSCN(ii) .and. 
+     &        sngl(ycordin).eq.yinSCN(ii) .and.
+     &        sngl(zcordin).eq.zinSCN(ii) ))then
+            nSCN_now = ii
          endif
       end do
 c
-      if(nscint_now.eq.0) then
-         if(nscint.eq.maxscint ) then
-            write(*,*)'Error: Score_scint:'
-            write(*,*)'Maximum number of scint scoring exceeded : ev= ',
+c if nSCN_now = 0 then ... new hit...
+c
+      if(nSCN_now.eq.0) then
+         if(nSCN.eq.maxSCN ) then
+            write(*,*)'Error: Score_SCN:'
+            write(*,*)'Maximum number of SCN scoring exceeded : ev= ',
      &           ncase
             return
          endif
-         nscint = nscint + 1
-         nscint_now = nscint
-         idscint(nscint) = idcurr
-         irowscint(nscint_now) = rowscint
-         icolscint(nscint_now) = colscint
-         xinscint(nscint_now)  = sngl(xcordin)
-         yinscint(nscint_now)  = sngl(ycordin)
-         zinscint(nscint_now)  = sngl(zcordin)
-         pxinscint(nscint_now) = sngl(ptrack*cxtrck)
-         pyinscint(nscint_now) = sngl(ptrack*cytrck)
-         pzinscint(nscint_now) = sngl(ptrack*cztrck)
-         timscint(nscint_now)  = sngl(atrack)
+         nSCN = nSCN + 1
+         nSCN_now = nSCN
+         idSCN(nSCN) = idcurr
+         istripSCN(nSCN_now) = stripSCN
+         iviewSCN(nSCN_now) = viewSCN
+         xinSCN(nSCN_now)  = sngl(xcordin)
+         yinSCN(nSCN_now)  = sngl(ycordin)
+         zinSCN(nSCN_now)  = sngl(zcordin)
+         pxinSCN(nSCN_now) = sngl(ptrack*cxtrck)
+         pyinSCN(nSCN_now) = sngl(ptrack*cytrck)
+         pzinSCN(nSCN_now) = sngl(ptrack*cztrck)
+         timSCN(nSCN_now)  = sngl(atrack)
       endif
 c 
-      xoutscint(nscint_now) = sngl(xcordout)
-      youtscint(nscint_now) = sngl(ycordout)
-      zoutscint(nscint_now) = sngl(zcordout)
-      pxoutscint(nscint_now) = sngl(ptrack*cxtrck)
-      pyoutscint(nscint_now) = sngl(ptrack*cytrck)
-      pzoutscint(nscint_now) = sngl(ptrack*cztrck)
-      descint(nscint_now) = descint(nscint_now) + sngl(erawscint)
-      alscint(nscint_now) = alscint(nscint_now) + sngl(equenchedscint)
+      xoutSCN(nSCN_now) = sngl(xcordout)
+      youtSCN(nSCN_now) = sngl(ycordout)
+      zoutSCN(nSCN_now) = sngl(zcordout)
+      pxoutSCN(nSCN_now) = sngl(ptrack*cxtrck)
+      pyoutSCN(nSCN_now) = sngl(ptrack*cytrck)
+      pzoutSCN(nSCN_now) = sngl(ptrack*cztrck)
+      deSCN(nSCN_now) = deSCN(nSCN_now) + sngl(erawSCN)
+      alSCN(nSCN_now) = alSCN(nSCN_now) + sngl(equenchedSCN)
 c
       if(idbflg.gt.1) then
-         write(*,*)'nscint= ',nscint_now,
-     &         ' descint(nscint)= ',descint(nscint_now)
-         write(*,*)'irowscint= ',irowscint(nscint_now),
-     &        'icolscint= ',icolscint(nscint_now)
+         write(*,*)'nSCN= ',nSCN_now,
+     &         ' deSCN(nSCN)= ',deSCN(nSCN_now)
+         write(*,*)'istripSCN= ',istripSCN(nSCN_now),
+     &        'iviewSCN= ',iviewSCN(nSCN_now)
          write(*,*)' '
       endif             
 c
@@ -692,94 +701,87 @@ c
 c
 c
 c-------------------------------------------------------------------------
-      subroutine score_cry(mreg, erawcry, equenchedcry,xcordin,ycordin,
+      subroutine score_CAL(mreg, erawCAL, equenchedCAL,xcordin,ycordin,
      &     zcordin,xcordout,ycordout,zcordout)
 c--------------------------------------------------------------------------
       INCLUDE '(DBLPRC)'
       INCLUDE '(DIMPAR)'
       INCLUDE '(IOUNIT)'
       INCLUDE '(TRACKR)'
-      INCLUDE '(LTCLCM)'
-      double precision erawcry, equenchedcry
+      double precision erawCAL, equenchedCAL
       include 'mgdraw.inc'
-      integer ii, mreg, ncry_now
-      integer rowcry, colcry
+      integer ii, mreg, nCAL_now
+      integer cryCAL
 c
-      rowcry = ireg2rowcry(mreg)
-      colcry = ireg2colcry(mreg)
-      if (colcry.gt.11 .or. colcry.lt.1) THEN
-         write(*,*) ' WARNING!!!! colcry = ', colcry
+      cryCAL = ireg2cryCAL(mreg)
+      if (cryCAL.ge.ncryCAL .or. cryCAL.lt.0) THEN
+         write(*,*) ' WARNING!!!! cryCAL = ', cryCAL,
+     &        ' xcordin= ',xcordin, ' ycordin= ',ycordin
       ENDIF
-      if (rowcry.gt.11 .or. rowcry.lt.1) THEN
-         write(*,*) ' WARNING!!!! rowcry = ', rowcry
-      ENDIF
-      
+c      
       if(idbflg.gt.1) then
          write(*,*)' '
-         write(*,*)'---------------Score_cry-----------------'
+         write(*,*)'---------------Score_CAL-----------------'
          write(*,*)'idcurr= ',idcurr,' equenchedlyso= ',
-     &        equenchedcry
+     &        equenchedCAL
          write(*,*)'dtrack= ',(dtrack(ii),ii=1,mtrack)
       endif
-c
-      
-      ncry_now = 0
+c      
+      nCAL_now = 0
 c     
 c new hit in the calo?
 c
-      do ii=1,ncry
-         if( ((idcry(ii).eq.idcurr) .and. (irowcry(ii).eq.rowcry) .and.
-     &        (icolcry(ii).eq.colcry)).or.
-     &        ( sngl(xcordin).eq.xincry(ii) .and. 
-     &        sngl(ycordin).eq.yincry(ii) .and.
-     &        sngl(zcordin).eq.zincry(ii) )) then
-            ncry_now = ii
+      do ii=1,nCAL
+         if( ((idCAL(ii).eq.idcurr) .and. (icryCAL(ii).eq.cryCAL)) .or.
+     &        ( sngl(xcordin).eq.xinCAL(ii) .and. 
+     &        sngl(ycordin).eq.yinCAL(ii) .and.
+     &        sngl(zcordin).eq.zinCAL(ii) )) then
+            nCAL_now = ii
          endif
       end do
 c
-      if(ncry_now.eq.0) then
-         if(ncry.eq.maxcry) then
-            write(*,*)'Error: Score_cry:'
+c if nCAL_now = 0 then ... new hit...
+c
+      if(nCAL_now.eq.0) then
+         if(nCAL.eq.maxCAL) then
+            write(*,*)'Error: Score_CAL:'
             write(*,*)'Maximum number of lyso scoring exceeded : ev= ',
      &           ncase
             return
          endif
-         ncry = ncry + 1
-         ncry_now = ncry
-         idcry(ncry_now) = idcurr
-         irowcry(ncry_now) = rowcry
-         icolcry(ncry_now) = colcry
-         xincry(ncry_now)  = sngl(xcordin)
-         yincry(ncry_now)  = sngl(ycordin)
-         zincry(ncry_now)  = sngl(zcordin)
-         pxincry(ncry_now) = sngl(ptrack*cxtrck)
-         pyincry(ncry_now) = sngl(ptrack*cytrck)
-         pzincry(ncry_now) = sngl(ptrack*cztrck)
-         timcry(ncry_now)  = sngl(atrack)
-
+         nCAL = nCAL + 1
+         nCAL_now = nCAL
+         idCAL(nCAL_now) = idcurr
+         icryCAL(nCAL_now) = cryCAL
+         xinCAL(nCAL_now)  = sngl(xcordin)
+         yinCAL(nCAL_now)  = sngl(ycordin)
+         zinCAL(nCAL_now)  = sngl(zcordin)
+         pxinCAL(nCAL_now) = sngl(ptrack*cxtrck)
+         pyinCAL(nCAL_now) = sngl(ptrack*cytrck)
+         pzinCAL(nCAL_now) = sngl(ptrack*cztrck)
+         timCAL(nCAL_now)  = sngl(atrack)
       endif
 c 
-      xoutcry(ncry_now) = sngl(xcordout)
-      youtcry(ncry_now) = sngl(ycordout)
-      zoutcry(ncry_now) = sngl(zcordout)
-      pxoutcry(ncry_now) = sngl(ptrack*cxtrck)
-      pyoutcry(ncry_now) = sngl(ptrack*cytrck)
-      pzoutcry(ncry_now) = sngl(ptrack*cztrck)
-      decry(ncry_now) = decry(ncry_now) + sngl(erawcry)
-      alcry(ncry_now) = alcry(ncry_now) + sngl(equenchedcry)
-      
+      xoutCAL(nCAL_now) = sngl(xcordout)
+      youtCAL(nCAL_now) = sngl(ycordout)
+      zoutCAL(nCAL_now) = sngl(zcordout)
+      pxoutCAL(nCAL_now) = sngl(ptrack*cxtrck)
+      pyoutCAL(nCAL_now) = sngl(ptrack*cytrck)
+      pzoutCAL(nCAL_now) = sngl(ptrack*cztrck)
+      deCAL(nCAL_now) = deCAL(nCAL_now) + sngl(erawCAL)
+      alCAL(nCAL_now) = alCAL(nCAL_now) + sngl(equenchedCAL)
+c      
       if(idbflg.gt.0) then
          write(*,*)' '
-         write(*,*)'---------------Score_cry-----------------'
+         write(*,*)'---------------Score_CAL-----------------'
          write(*,*)'idcurr= ',idcurr,' equenchedlyso= ',
-     &        equenchedcry
+     &        equenchedCAL
          write(*,*)'dtrack= ',(dtrack(ii),ii=1,mtrack)
       endif      
       if(idbflg.gt.1) then
-         write(*,*)'ncry= ',ncry_now,
-     &        ' decry(ncry)= ',decry(ncry_now)
-         write(*,*)'irowcry= ',irowcry(ncry_now),
-     &        'icolcry= ',icolcry(ncry_now)
+         write(*,*)'nCAL= ',nCAL_now,
+     &        ' deCAL(nCAL)= ',deCAL(nCAL_now)
+         write(*,*)'icryCAL= ',icryCAL(nCAL_now)
          write(*,*)' '
       endif             
 c
@@ -788,7 +790,7 @@ c
 c
 c          
 c-------------------------------------------------------------------------
-      SUBROUTINE score_cross(
+      SUBROUTINE score_CROSS(
      &        icharge,numbar,ampart,newreg,mreg,xsco,ysco,zsco)
 c--------------------------------------------------------------------------
 c
@@ -800,32 +802,32 @@ c
       integer  icharge, numbar, newreg, mreg 
       double precision ampart, xsco, ysco, zsco
 c
-      if(ncross.ge.maxcross) then
-         write(*,*)"SCORE_CROSS: max number of crossing exceeded"
+      if(nCROSS.ge.maxCROSS) then
+         write(*,*)"SCORE_CROSS: max number of CROSSing exceeded"
          return
       endif
-      ncross = ncross + 1
-      idcross(ncross) = idcurr
-      nregcross(ncross) = newreg
-      nregoldcross(ncross) = mreg
-      xcross(ncross)  = sngl(xsco)
-      ycross(ncross)  = sngl(ysco)
-      zcross(ncross)  = sngl(zsco)
-      pxcross(ncross) = sngl(ptrack*cxtrck)
-      pycross(ncross) = sngl(ptrack*cytrck)
-      pzcross(ncross) = sngl(ptrack*cztrck)
-      tcross(ncross)  = sngl(atrack)
-      chcross(ncross) = icharge
-      amacross(ncross) = sngl(ampart)
+      nCROSS = nCROSS + 1
+      idCROSS(nCROSS) = idcurr
+      nregCROSS(nCROSS) = newreg
+      nregoldCROSS(nCROSS) = mreg
+      xCROSS(nCROSS)  = sngl(xsco)
+      yCROSS(nCROSS)  = sngl(ysco)
+      zCROSS(nCROSS)  = sngl(zsco)
+      pxCROSS(nCROSS) = sngl(ptrack*cxtrck)
+      pyCROSS(nCROSS) = sngl(ptrack*cytrck)
+      pzCROSS(nCROSS) = sngl(ptrack*cztrck)
+      tCROSS(nCROSS)  = sngl(atrack)
+      chCROSS(nCROSS) = icharge
+      amaCROSS(nCROSS) = sngl(ampart)
 c     
       if(idbflg.gt.1) then
          write(*,*)' '
-         write(*,*)'--------------- Score_cross -----------------'
-         write(*,*)'idcurr = ',idcurr,' ncross= ',ncross
+         write(*,*)'--------------- Score_CROSS -----------------'
+         write(*,*)'idcurr = ',idcurr,' nCROSS= ',nCROSS
          write(*,*)'reg= ',newreg,' mreg= ',mreg,
-     &        ' pxy,z= ',pxcross(ncross),
-     &        pycross(ncross),pzcross(ncross),' mass= ',ampart
-         write(*,*)'x,y,zcross= ',xsco,ysco,zsco,' t= ',atrack,
+     &        ' pxy,z= ',pxCROSS(nCROSS),
+     &        pyCROSS(nCROSS),pzCROSS(nCROSS),' mass= ',ampart
+         write(*,*)'x,y,zCROSS = ',xsco,ysco,zsco,' t= ',atrack,
      &        ' cha= ',icharge
       endif             
 c

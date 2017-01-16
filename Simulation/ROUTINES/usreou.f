@@ -37,12 +37,12 @@ c
       Eqcalo = 0
       Eqscint = 0
 c
-      do ii =1,ncry
-         Eqcalo = Eqcalo + decry(ii)
+      do ii =1,nCAL
+         Eqcalo = Eqcalo + deCAL(ii)
       end do
 c
-      do ii =1,nscint
-         Eqscint = Eqscint + descint(ii)
+      do ii =1,nSCN
+         Eqscint = Eqscint + deSCN(ii)
       end do
 c
       if( (Eqcalo.ge.Ethrdep) .or. (Eqscint.gt.Ethrdep) ) then
@@ -63,8 +63,8 @@ c
 c
       if(trigger) then
 c
-         write(outunit,*) ncase,nump,nstartc,nBM,nvtx,nIT,nDC,nscint,
-     &        ncry,ncross
+         write(outunit,*) ncase,nump,nSTC,nBMN,nVTX,nITR,nDCH,nSCN,nCAL,
+     &        nCROSS
 c
 c     scrivo la banca delle particelle
 c
@@ -78,94 +78,94 @@ c
 c
 c     scrivo lo start counter
 c         
-         do ii = 1,nstartc   
-            write(outunit,*) idstartc(ii), 
-     &           xinstartc(ii), yinstartc(ii), zinstartc(ii),
-     &           xoutstartc(ii), youtstartc(ii), zoutstartc(ii),
-     &           pxinstartc(ii), pyinstartc(ii), pzinstartc(ii), 
-     &           pxoutstartc(ii), pyoutstartc(ii), pzoutstartc(ii),
-     &           destartc(ii), alstartc(ii), timstartc(ii)
+         do ii = 1,nSTC   
+            write(outunit,*) idSTC(ii), 
+     &           xinSTC(ii), yinSTC(ii), zinSTC(ii),
+     &           xoutSTC(ii), youtSTC(ii), zoutSTC(ii),
+     &           pxinSTC(ii), pyinSTC(ii), pzinSTC(ii), 
+     &           pxoutSTC(ii), pyoutSTC(ii), pzoutSTC(ii),
+     &           deSTC(ii), alSTC(ii), timSTC(ii)
          end do
 c
-c     scrivo la prima camera a drift
+c     scrivo il beam monitor
 c         
-         do ii = 1,nBM   
-            write(outunit,*) idBM(ii), iviewBM(ii), iplaBM(ii), 
-     &           icellBM(ii), xinBM(ii), yinBM(ii), zinBM(ii),
-     &           xoutBM(ii), youtBM(ii), zoutBM(ii),
-     &           pxinBM(ii), pyinBM(ii), pzinBM(ii), 
-     &           pxoutBM(ii), pyoutBM(ii), pzoutBM(ii),
-     &           deBM(ii), alBM(ii), timBM(ii)
+         do ii = 1,nBMN   
+            write(outunit,*) idBMN(ii), iviewBMN(ii), ilayBMN(ii), 
+     &           icellBMN(ii), xinBMN(ii), yinBMN(ii), zinBMN(ii),
+     &           xoutBMN(ii), youtBMN(ii), zoutBMN(ii),
+     &           pxinBMN(ii), pyinBMN(ii), pzinBMN(ii), 
+     &           pxoutBMN(ii), pyoutBMN(ii), pzoutBMN(ii),
+     &           deBMN(ii), alBMN(ii), timBMN(ii)
          end do
 c     
 c     scrivo il vertice
 c         
-         do ii = 1,nvtx
-            write(outunit,*) idvtx(ii), iplavtx(ii), irowvtx(ii),
-     &           icolvtx(ii), xinvtx(ii), yinvtx(ii), zinvtx(ii),
-     &           xoutvtx(ii), youtvtx(ii), zoutvtx(ii),
-     &           pxinvtx(ii), pyinvtx(ii), pzinvtx(ii), 
-     &           pxoutvtx(ii), pyoutvtx(ii), pzoutvtx(ii),
-     &           devtx(ii), alvtx(ii), timvtx(ii)
+         do ii = 1,nVTX
+            write(outunit,*) idVTX(ii), ilayVTX(ii), irowVTX(ii),
+     &           icolVTX(ii), xinVTX(ii), yinVTX(ii), zinVTX(ii),
+     &           xoutVTX(ii), youtVTX(ii), zoutVTX(ii),
+     &           pxinVTX(ii), pyinVTX(ii), pzinVTX(ii), 
+     &           pxoutVTX(ii), pyoutVTX(ii), pzoutVTX(ii),
+     &           deVTX(ii), alVTX(ii), timVTX(ii)
          end do
 c     
 c     scrivo l'inner tracker
 c         
-         do ii = 1,nIT
-            write(outunit,*) idIT(ii), iplaIT(ii), irowIT(ii),
-     &           icolIT(ii), xinIT(ii), yinIT(ii), zinIT(ii),
-     &           xoutIT(ii), youtIT(ii), zoutIT(ii),
-     &           pxinIT(ii), pyinIT(ii), pzinIT(ii), 
-     &           pxoutIT(ii), pyoutIT(ii), pzoutIT(ii),
-     &           deIT(ii), alIT(ii), timIT(ii)
+         do ii = 1,nITR
+            write(outunit,*) idITR(ii), ilayITR(ii), irowITR(ii),
+     &           icolITR(ii), xinITR(ii), yinITR(ii), zinITR(ii),
+     &           xoutITR(ii), youtITR(ii), zoutITR(ii),
+     &           pxinITR(ii), pyinITR(ii), pzinITR(ii), 
+     &           pxoutITR(ii), pyoutITR(ii), pzoutITR(ii),
+     &           deITR(ii), alITR(ii), timITR(ii)
          end do
-c
+
+c     
 c     scrivo la seconda camera a drift
 c         
-         do ii = 1,nDC   
-            write(outunit,*) idDC(ii), iviewDC(ii),
-     &           iplaDC(ii), icellDC(ii), 
-     &           xinDC(ii), yinDC(ii), zinDC(ii),
-     &           xoutDC(ii), youtDC(ii), zoutDC(ii),
-     &           pxinDC(ii), pyinDC(ii), pzinDC(ii), 
-     &           pxoutDC(ii), pyoutDC(ii), pzoutDC(ii),
-     &           deDC(ii), alDC(ii), timDC(ii)
+         do ii = 1,nDCH   
+            write(outunit,*) idDCH(ii), iviewDCH(ii),
+     &           ilayDCH(ii), icellDCH(ii), 
+     &           xinDCH(ii), yinDCH(ii), zinDCH(ii),
+     &           xoutDCH(ii), youtDCH(ii), zoutDCH(ii),
+     &           pxinDCH(ii), pyinDCH(ii), pzinDCH(ii), 
+     &           pxoutDCH(ii), pyoutDCH(ii), pzoutDCH(ii),
+     &           deDCH(ii), alDCH(ii), timDCH(ii)
          end do
 c
 c     scrivo lo scintillatore
-c     
-         do ii = 1,nscint
-            write(outunit,*) idscint(ii),
-     &           irowscint(ii), icolscint(ii),
-     &           xinscint(ii), yinscint(ii), zinscint(ii),
-     &           xoutscint(ii), youtscint(ii), zoutscint(ii),
-     &           pxinscint(ii), pyinscint(ii), pzinscint(ii), 
-     &           pxoutscint(ii), pyoutscint(ii), pzoutscint(ii),
-     &           descint(ii), alscint(ii), timscint(ii)
+c
+         do ii = 1,nSCN
+            write(outunit,*) idSCN(ii),
+     &           istripSCN(ii), iviewSCN(ii),
+     &           xinSCN(ii), yinSCN(ii), zinSCN(ii),
+     &           xoutSCN(ii), youtSCN(ii), zoutSCN(ii),
+     &           pxinSCN(ii), pyinSCN(ii), pzinSCN(ii), 
+     &           pxoutSCN(ii), pyoutSCN(ii), pzoutSCN(ii),
+     &           deSCN(ii), alSCN(ii), timSCN(ii)
          end do
 c     
 c     scrivo il calorimetro
 c         
-         do ii = 1,ncry
-            write(outunit,*) idcry(ii), irowcry(ii), icolcry(ii), 
-     &           xincry(ii), yincry(ii), zincry(ii),
-     &           xoutcry(ii), youtcry(ii), zoutcry(ii),
-     &           pxincry(ii), pyincry(ii), pzincry(ii), 
-     &           pxoutcry(ii), pyoutcry(ii), pzoutcry(ii),
-     &           decry(ii), alcry(ii), timcry(ii)
+         do ii = 1,nCAL
+            write(outunit,*) idCAL(ii), icryCAL(ii),
+     &           xinCAL(ii), yinCAL(ii), zinCAL(ii),
+     &           xoutCAL(ii), youtCAL(ii), zoutCAL(ii),
+     &           pxinCAL(ii), pyinCAL(ii), pzinCAL(ii), 
+     &           pxoutCAL(ii), pyoutCAL(ii), pzoutCAL(ii),
+     &           deCAL(ii), alCAL(ii), timCAL(ii)
          end do
 c
 c     scrivo i crossings
 c
-         do ii = 1,ncross 
-            write(outunit,*) idcross(ii), nregcross(ii),
-     &           nregoldcross(ii), xcross(ii), ycross(ii), zcross(ii),
-     &           pxcross(ii), pycross(ii), pzcross(ii),
-     &           amacross(ii), chcross(ii), tcross(ii)
+         do ii = 1,nCROSS 
+            write(outunit,*) idCROSS(ii), nregCROSS(ii),
+     &           nregoldCROSS(ii), xCROSS(ii), yCROSS(ii), zCROSS(ii),
+     &           pxCROSS(ii), pyCROSS(ii), pzCROSS(ii),
+     &           amaCROSS(ii), chCROSS(ii), tCROSS(ii)
          end do
 c
 c     
-c     call myusreou()
 c
       endif
 c     
@@ -177,7 +177,7 @@ c
          write(*,*)''
       endif
 c
-c     write(*,*)'esco da  usreou'
+c 
 c
       RETURN
 *===  End of subroutine Usreou =========================================*

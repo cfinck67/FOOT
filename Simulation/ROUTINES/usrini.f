@@ -29,240 +29,194 @@
 *
       DIMENSION WHAT (6)
       CHARACTER SDUM*8
-
 c
       INCLUDE '(FLKMAT)'
       include "mgdraw.inc"
       character*8 REGNAM
-      CHARACTER*8 LATNAM
-      integer pladc,celldc
-      integer colscint,rowscint
-      integer colcry,rowcry
-      integer nrowcry,ncolcry
-      integer nrowscint,ncolscint
-      integer nplavtx
-      integer nplaIT
-      integer nBMpla, nBMcell
-      integer nDCpla, nDCcell
-
-      nrowcry = 11
-      ncolcry = 11
-      nrowscint = 11
-      ncolscint = 11 
-      nplavtx = 3
-      nplaIT = 2
-      nBMpla = 6
-      nBMcell = 3
-      nDCpla = 6
-      nDCcell = 6
+      integer cellDCH, cellBMN, strip, cry
+      integer ia,ib,ic,id,ie,ig,ih,il,im
 *
 *
-c      write(*,*)"sono in usrini"
 *  Don't change the following line:
       LUSRIN = .TRUE.
 * *** Write from here on *** *
 c
       idbflg = int(what(1))
       fragtrig = int(what(2))
-      Ehtrdep = what(3)/1000.
+      Ethrdep = what(3)/1000.
 c 
 c  init of geometry parameters
 c
-c
       write(*,*)" "
-      write(*,*)"fragtrig= ",fragtrig," Ethrdep= ",Ehtrdep
+      write(*,*)"fragtrig= ",fragtrig," Ethrdep= ",Ethrdep
 c
       outunit=60
       open(unit=outunit,file='TXT.dat',form='formatted',status='new')
 c
 c writing the header
 c
-      write(outunit,100) fragtrig, Ehtrdep
+      write(outunit,100) fragtrig, Ethrdep
 c
 c find the region number of the region of interest
 c
       nregtarg = 0
       nregaria = 0
-      nregstartc = 0
-      nregfirstvtx = 1000000
-      nreglastvtx = 0
-      nregfirstIT = 1000000
-      nreglastIT = 0
-      nregfirstscint = 1000000
-      nreglastscint = 0
-      nregfirstcry = 1000000 
-      nreglastcry = 0 
-      nregFirstU1 = 1000000
-      nregFirstV1 = 1000000
-      nregLastU1 = 0
-      nregLastV1 = 0
-      nregFirstU2 = 1000000
-      nregFirstV2 = 1000000
-      nregLastU2 = 0
-      nregLastV2 = 0
-
-      ia = 1
-      ib = 1
-      ic = 1
-      id = 1
-      ie = 1
-      ig = 1
-      ih = 1
-      ik = 1
-      il = 1
-
-      do nn = 1,MAXBMREG
-         ireg2viewBM(nn) = -1
-         ireg2cellBM(nn) = -1
-         ireg2plaBM(nn) = -1
+      nregSTC = 0
+      nregFirstVTX = 1000000
+      nregLastVTX = 0
+      nregFirstBMN = 1000000
+      nregFirstBMN = 1000000
+      nregFirstITR = 1000000
+      nregLastITR = 0
+      nregLastDCH = 0
+      nregLastDCH = 0
+      nregFirstSCN = 1000000
+      nregLastSCN = 0
+      nregFirstCAL = 1000000 
+      nregLastCAL = 0 
+c
+       ia = 1
+       ib = 1
+       ic = 1
+       id = 1
+       ie = 1
+       ig = 1
+       ih = 1
+       ik = 1
+       il = 1
+       im = 1
+c
+      do nn = 1,MAXBMNREG
+         ireg2viewBMN(nn) = -10
+         ireg2cellBMN(nn) = -10
+         ireg2layBMN(nn) = -10
       end do
-      do nn = 1,MAXDCREG
-         ireg2viewDC(nn) = -1
-         ireg2cellDC(nn) = -1
-         ireg2plaDC(nn) = -1
+      do nn = 1,MAXDCHREG
+         ireg2viewDCH(nn) = -10
+         ireg2cellDCH(nn) = -10
+         ireg2layDCH(nn) = -10
       end do
-      do nn = 1,MAXSCINTREG
-         ireg2rowscint(nn) = -1
-         ireg2colscint(nn) = -1
+      do nn = 1,MAXSCNREG
+         ireg2stripSCN(nn) = -10
+         ireg2viewSCN(nn) = -10
       end do
-      do nn = 1,MAXCRYREG
-         ireg2rowcry(nn) = -1
-         ireg2colcry(nn) = -1
+      do nn = 1,MAXCALREG
+         ireg2cryCAL(nn) = -10
       end do
 c
 c
       do ii = 1,NREGS
          call GEOR2N ( ii, REGNAM, IERR )
-c         write(*,3333)REGNAM
-c 3333    format(1x,A8)
          if(ierr.eq.0) then
-            if(REGNAM(1:6).eq.'TARGET') nregtarg = ii
-            if(REGNAM(1:3).eq.'VTX') then
-               read(REGNAM(4:4),*) 
-               if(ib.eq.1) then
-                  nregfirstvtx=ii
-               elseif(ib.eq.nplavtx) then
-                  nreglastvtx=ii
-               elseif(ib.eq.(nplavtx+1)) then
-                  nregfirstIT=ii
-               elseif(ib.eq.(nplavtx+nplaIT)) then
-                  nreglastIT=ii
-               endif
-               ib = ib + 1               
-            elseif(REGNAM(1:6).eq.'STARTC')then     
-               nregstartc=ii
-            elseif(REGNAM.eq.'AIR') then
+            if(REGNAM.eq.'AIR') then
                nregaria=ii
-            elseif(REGNAM(1:4).eq.'SCIN') then
-               read(REGNAM(5:6),*) rowscint
-               read(REGNAM(7:8),*) colscint
-               ireg2rowscint(ii) = rowscint
-               ireg2colscint(ii) = colscint
+            elseif(REGNAM.eq.'STC')then     
+               nregSTC=ii
+            elseif(REGNAM(1:5).eq.'BMN_C') then
+               read(REGNAM(7:8),*) cellBMN
+               if (REGNAM(6:6).eq.'U')then
+                  ireg2viewBMN(ii) = 1
+                  ireg2layBMN(ii) = cellBMN/ncellBMN
+                  ireg2cellBMN(ii) = cellBMN - cellBMN/ncellBMN*ncellBMN
+               elseif(REGNAM(6:6).eq.'V') then
+                  ireg2viewBMN(ii) = -1
+                  ireg2layBMN(ii) = cellBMN/ncellBMN
+                  ireg2cellBMN(ii) = cellBMN - cellBMN/ncellBMN*ncellBMN
+               endif
+               if(ig.eq.1) then
+                  nregFirstBMN=ii
+               elseif(ig.eq.(nlayBMN*ncellBMN*2)) then
+                  nregLastBMN=ii
+               endif
+               ig = ig + 1
+            elseif(REGNAM.eq.'TARGET')then
+               nregtarg = ii
+            elseif(REGNAM(1:3).eq.'VTX') then
+               if(ia.eq.1) then
+                  nregFirstVTX=ii
+               elseif(ia.eq.nlayVTX) then
+                  nregLastVTX=ii
+               endif
+               ia = ia + 1
+            elseif(REGNAM(1:3).eq.'ITR') then
+               if(ib.eq.1) then
+                  nregFirstITR=ii
+               elseif(ib.eq.nlayITR) then
+                  nregLastITR=ii
+               endif
+               ib = ib + 1
+            elseif(REGNAM(1:5).eq.'DCH_C') then
+               read(REGNAM(7:8),*) cellDCH
+               if (REGNAM(6:6).eq.'U')then
+                  ireg2viewDCH(ii) = 1
+               elseif(REGNAM(6:6).eq.'V') then
+                  ireg2viewDCH(ii) = -1
+               endif
+               ireg2layDCH(ii) = cellDCH/ncellDCH
+               ireg2cellDCH(ii) = cellDCH - cellDCH/ncellDCH*ncellDCH
+               if(il.eq.1) then
+                  nregFirstDCH=ii
+               elseif(il.eq.(nlayDCH*ncellDCH*2)) then
+                  nregLastDCH=ii
+               endif
+               il = il + 1
+            elseif(REGNAM(1:3).eq.'SCN') then
+               if (REGNAM(4:4).eq.'U')then
+                  ireg2viewSCN(ii) = 1
+               elseif(REGNAM(4:4).eq.'V') then
+                  ireg2viewSCN(ii) = -1
+               endif
+               read(REGNAM(5:6),*) strip
+               ireg2stripSCN(ii) = strip
                if(ic.eq.1) then
-                  nregfirstscint=ii
-               elseif(ic.eq.(nrowscint*ncolscint)) then
-                  nreglastscint=ii
+                  nregFirstSCN=ii
+               elseif(ic.eq.nstripSCN*2) then
+                  nregLastSCN=ii
                endif
                ic = ic + 1
-            elseif(REGNAM(1:4).eq.'CALO') then
-               read(REGNAM(5:6),*) rowcry
-               read(REGNAM(7:8),*) colcry
-               ireg2rowcry(ii) = rowcry
-               ireg2colcry(ii) = colcry
+            elseif(REGNAM(1:3).eq.'CAL') then
+               read(REGNAM(4:6),*) cry
+               ireg2cryCAL(ii) = cry
                if(id.eq.1) then
-                  nregfirstcry=ii
-               elseif(id.eq.(nrowcry*ncolcry)) then
-                  nreglastcry=ii
+                  nregFirstCAL=ii
+               elseif(id.eq.ncryCAL) then
+                  nregLastCAL=ii
                endif
                id = id + 1
-            elseif(REGNAM(1:2).eq.'up') then
-               read(REGNAM(3:3),*) pladc
-               read(REGNAM(5:5),*) celldc
-               if (REGNAM(6:6).eq.'a')then
-                  ireg2viewBM(ii) = 1
-c                  write(*,*)'ireg2viewBM  ',ireg2viewBM(ii)
-                  ireg2plaBM(ii) = pladc
-                  ireg2cellBM(ii) = celldc
-                  if(ig.eq.1) then
-                     nregFirstU1=ii
-                  elseif(ig.eq.(nBMpla*nBMcell)) then
-                     nregLastU1=ii
-                  endif
-                  ig = ig + 1
-               elseif (REGNAM(6:6).eq.'b')then
-                  ireg2viewDC(ii) = 1
-                  ireg2plaDC(ii) = pladc
-                  ireg2cellDC(ii) = celldc
-                  if(ih.eq.1) then
-                     nregFirstU2=ii
-                  elseif(ih.eq.(nDCpla*nDCcell)) then
-                     nregLastU2=ii
-                  endif
-                  ih = ih + 1
-               endif
-            elseif(REGNAM(1:2).eq.'vp') then
-               read(REGNAM(3:3),*) pladc
-               read(REGNAM(5:5),*) celldc
-               if (REGNAM(6:6).eq.'a')then
-                  ireg2viewBM(ii) = 2
-                  ireg2plaBM(ii) = pladc
-                  ireg2cellBM(ii) = celldc
-                  if(ik.eq.1) then
-                     nregFirstV1=ii
-                  elseif(ik.eq.(nBMpla*nBMcell)) then
-                     nregLastV1=ii
-                  endif
-                  ik = ik + 1
-               elseif (REGNAM(6:6).eq.'b')then
-                  ireg2viewDC(ii) = 2
-                  ireg2plaDC(ii) = pladc
-                  ireg2cellDC(ii) = celldc
-                  if(il.eq.1) then
-                     nregFirstV2=ii
-                  elseif(il.eq.(nDCpla*nDCcell)) then
-                     nregLastV2=ii
-                  endif
-                  il = il + 1
-               endif
             endif
          endif
       end do
-
-       
-
+c
+c       
+c
       write(*,*)'======================================'
       write(*,*)'USRINI: idbflg =  ',idbflg
 c     
-      if(((nregtarg*nreglastvtx*nreglastIT*nregaria*nreglastscint*
-     &     nregstartc
-     &     *nreglastcry*nregLastU1*nregLastV1*nregLastU2*nregLastV2)
-     &     .eq.0).or.(nregfirstvtx.eq.1000000).or.
-     &     (nregfirstIT.eq.1000000).or.
-     &     (nregfirstcry.eq.1000000).or.(nregfirstscint.eq.1000000).or.
-     &     (nregFirstU1.eq.1000000).or.(nregFirstV1.eq.1000000).or.
-     &     (nregFirstU2.eq.1000000).or.(nregFirstV2.eq.1000000))then
+      if(((nregtarg*nregLastVTX*nregaria*nregLastSCN*nregSTC*nregLastITR
+     &     *nregLastCAL*nregLastBMN
+     &     *nregLastDCH).eq.0).or.(nregFirstVTX.eq.1000000).or.
+     &     (nregFirstCAL.eq.1000000).or.(nregFirstSCN.eq.1000000).or.
+     &     (nregFirstBMN.eq.1000000).or.
+     &     (nregFirstDCH.eq.1000000).or.
+     &     (nregFirstITR.eq.1000000)) then
          write(*,*)'Non ho trovato tutte le regioni!!!!'
       else
          write(*,*)'**************** Inizio Geometria *****************'
          write(*,*)'        nregaria           = ',nregaria
+         write(*,*)'        nregSTC            = ',nregSTC
+         write(*,*)'        nregFirstBMN       = ',nregFirstBMN
+         write(*,*)'        nregLastBMN        = ',nregLastBMN
          write(*,*)'        nregtarg           = ',nregtarg
-         write(*,*)'        nregstartc         = ',nregstartc
-         write(*,*)'        nregfirstvtx       = ',nregfirstvtx
-         write(*,*)'        nreglastvtx        = ',nreglastvtx
-         write(*,*)'        nregfirstIT        = ',nregfirstIT
-         write(*,*)'        nreglastIT         = ',nreglastIT
-         write(*,*)'        nregFirstV1        = ',nregFirstV1
-         write(*,*)'        nregLastV1         = ',nregLastV1
-         write(*,*)'        nregFirstU1        = ',nregFirstU1
-         write(*,*)'        nregLastU1         = ',nregLastU1
-         write(*,*)'        nregFirstV2        = ',nregFirstV2
-         write(*,*)'        nregLastV2         = ',nregLastV2
-         write(*,*)'        nregFirstU2        = ',nregFirstU2
-         write(*,*)'        nregLastU2         = ',nregLastU2
-         write(*,*)'        nregfirstscint     = ',nregfirstscint
-         write(*,*)'        nreglastscint      = ',nreglastscint
-         write(*,*)'        nregfirstcrystal   = ',nregfirstcry
-         write(*,*)'        nreglastcrystal    = ',nreglastcry
+         write(*,*)'        nregFirstVTX       = ',nregFirstVTX
+         write(*,*)'        nregLastVTX        = ',nregLastVTX
+         write(*,*)'        nregFirstITR       = ',nregFirstITR
+         write(*,*)'        nregLastITR        = ',nregLastITR
+         write(*,*)'        nregFirstDCH       = ',nregFirstDCH
+         write(*,*)'        nregLastDCH        = ',nregLastDCH
+         write(*,*)'        nregFirstSCN       = ',nregFirstSCN
+         write(*,*)'        nregLastSCN        = ',nregLastSCN
+         write(*,*)'        nregFirstcrystal   = ',nregFirstCAL
+         write(*,*)'        nregLastcrystal    = ',nregLastCAL
          write(*,*)'**************** Fine Geometria *******************'
          write(*,*)''
       endif

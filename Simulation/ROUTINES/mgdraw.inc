@@ -33,7 +33,7 @@ c     tof           = tof of the particle
 c     trlen         = track lenght of the particle
 c     
       integer nump, maxnump
-      parameter(maxnump=5000)
+      parameter(maxnump=2000)
 
       integer idpa(maxnump), igen(maxnump)
       integer icha(maxnump), numreg(maxnump), iba(maxnump)
@@ -53,7 +53,7 @@ c     *************************************************************
 c     common needed to score the hit in the start counter
 c     
       integer nSTC, maxSTC 
-      parameter (maxSTC=2000)
+      parameter (maxSTC=200)
       integer idSTC (maxSTC)
 
       real xinSTC(maxSTC), xoutSTC(maxSTC), 
@@ -77,7 +77,7 @@ c     ilay  = first drift chamber layer index (1-6)
 c     icell = first drift chamber cell index (1-3)
 c      
       integer nBMN, maxBMN 
-      parameter (maxBMN=2000)
+      parameter (maxBMN=1000)
       integer idBMN (maxBMN), iviewBMN(maxBMN),ilayBMN(maxBMN),
      &     icellBMN(maxBMN) 
 
@@ -116,7 +116,7 @@ c     icolVTX  =  vertex pixel column index (1-1000)
 c     irowVTX  =  vertex pixel row index (1-1000)
 
       integer nVTX, maxVTX 
-      parameter (maxVTX=2000)
+      parameter (maxVTX=300)
       integer idVTX (maxVTX), ilayVTX(maxVTX), irowVTX(maxVTX), 
      &     icolVTX(maxVTX) 
 
@@ -147,7 +147,7 @@ c     icolITR  =  vertex pixel column index (1-3000)
 c     irowITR  =  vertex pixel row index (1-3000)
 
       integer nITR, maxITR 
-      parameter (maxITR=2000)
+      parameter (maxITR=300)
       integer idITR (maxITR), ilayITR(maxITR), irowITR(maxITR), 
      &     icolITR(maxITR) 
 
@@ -169,7 +169,7 @@ c     ilay  = second drift chamber layer index (1-6)
 c     icell = second drift chamber cell index (1-6)
 c
       integer nDCH, maxDCH 
-      parameter (maxDCH=2000)
+      parameter (maxDCH=1000)
       integer idDCH (maxDCH), iviewDCH(maxDCH), ilayDCH(maxDCH),
      &     icellDCH(maxDCH) 
 
@@ -248,15 +248,14 @@ c
       integer nCROSS, maxCROSS
       parameter (maxCROSS=10000)
       integer idCROSS(maxCROSS), nregCROSS(maxCROSS) 
-      integer nregoldCROSS(maxCROSS), nlattCROSS(maxCROSS)
-      integer nlattoldCROSS(maxCROSS)
+      integer nregoldCROSS(maxCROSS)
       real pxCROSS(maxCROSS), pyCROSS(maxCROSS), pzCROSS(maxCROSS)
       real xCROSS(maxCROSS), yCROSS(maxCROSS), zCROSS(maxCROSS)
       real tCROSS(maxCROSS), amaCROSS(maxCROSS), chCROSS(maxCROSS)
       common /crossing_common/ 
      &     pxCROSS, pyCROSS, pzCROSS, 
      &     xCROSS, yCROSS, zCROSS, tCROSS, chCROSS, amaCROSS, nCROSS,  
-     &     idCROSS, nregCROSS, nregoldCROSS, nlattCROSS, nlattoldCROSS
+     &     idCROSS, nregCROSS, nregoldCROSS
       
 c     ************************************************************
 c     Numbers of fluka region to be scored
