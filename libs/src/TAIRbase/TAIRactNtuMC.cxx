@@ -45,10 +45,10 @@ Bool_t TAIRactNtuMC::Action()
   if (!p_nturaw->hir) p_nturaw->SetupClones();
 
   //The number of hits inside the Start Counter is stn
-  Info("Action()","Processing n SC :: %2d hits \n",fpEvtStr->stn);
-  for (Int_t i = 0; i < fpEvtStr->stn; i++) {
+  Info("Action()","Processing n SC :: %2d hits \n",fpEvtStr->STCn);
+  for (Int_t i = 0; i < fpEvtStr->STCn; i++) {
     //First two numbers make sense only for data (typ, channel)
-    new((*(p_nturaw->hir))[i]) TAIRrawHit(0,0,fpEvtStr->stde[i],fpEvtStr->sttim[i]);
+    new((*(p_nturaw->hir))[i]) TAIRrawHit(0,0,fpEvtStr->STCde[i],fpEvtStr->STCtim[i]);
     nhits++;
   }
   

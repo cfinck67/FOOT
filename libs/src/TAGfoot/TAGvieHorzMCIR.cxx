@@ -260,7 +260,7 @@ void TAGvieHorzMCIR::Paint(Option_t* option)
     }
 
     //MC truth
-    double pvx = fpEvtStr->pxinmon[0]; double pvy = fpEvtStr->pyinmon[0];
+    double pvx = fpEvtStr->BMNpxin[0]; double pvy = fpEvtStr->BMNpyin[0];
 
     double ptra2 = pvx*pvx + pvy*pvy;
     if(ptra2>1.){
@@ -336,8 +336,12 @@ void TAGvieHorzMCIR::Paint(Option_t* option)
 
     //Position is returned in microns
     TVector3* myP = p_vtgeo->GetPosition(is);
+    /*
     cm_w = MI_MIMO_WIDTH/4;
     cm_h = MI_MIMO_THICK/2;
+    */
+    cm_w = 0.01;
+    cm_h = 0.005;
     h_z = myP->Z()/10000;    h_x = myP->X()/10000;
 
     myloc.SetXYZ(-cm_w+h_x, 0, -cm_h+h_z);

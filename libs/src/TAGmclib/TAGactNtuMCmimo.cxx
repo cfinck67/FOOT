@@ -56,7 +56,7 @@ Bool_t TAGactNtuMCmimo::Action() {
 
  //Number of hits/tracks
   //  nh = fpEvtStr->miSigN;
-  nh = fpEvtStr->nvtx;
+  nh = fpEvtStr->VTXn;
 
   //AS: to be re-implemented
   /*

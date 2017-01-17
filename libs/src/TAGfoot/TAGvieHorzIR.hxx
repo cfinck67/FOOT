@@ -13,6 +13,7 @@
 #include "TAGview.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGparaDsc.hxx"
+#include "foot_geo.h"
 
 class TAGvieHorzIR : public TAGview {
   public:

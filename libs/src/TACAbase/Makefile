@@ -11,7 +11,8 @@ SOMINV     = 0
 #
 TINCLFLAGS += $(shell root-config --cflags)
 INCLFLAGS  = $(filter-out -stdlib=libc++, $(TINCLFLAGS))
-INCLFLAGS += -I../TAGbase -I../TAVTbase -I../TAGfoot -I../TABMbase -I../../../Simulation/TXT2ROOT
+INCLFLAGS += -I../TAGbase -I../TAVTbase -I../TAGfoot -I../TABMbase
+INCLFLAGS += -I../../../Simulation/TXT2ROOT -I../../../Simulation
 LDLIBS    += $(shell root-config --libs) 
 #
 # Files to be included

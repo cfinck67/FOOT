@@ -386,6 +386,13 @@ void TABMparGeo::ToStream(ostream& os, Option_t*) const
   return;
 }
 
+/*
+TGeoManager* TABMparGeo::GetGeoManager() {
+
+  
+}
+*/
+
 //_____________________________________________________________________________
 TGeoVolume* TABMparGeo::AddBM(const char *bmName )
 {
@@ -427,3 +434,5 @@ TEveGeoShapeExtract* TABMparGeo::AddExtractBM(const char *bmName )
    
    return tubeExtract;
 }
+
+

@@ -111,10 +111,10 @@ Bool_t TAVTactNtuMC::Action()
   Int_t mcID(-1000);
 
    if (fDebugLevel)
-     Info("Action()","Processing n :: %2d hits \n",fpEvtStr->nvtx);
+     Info("Action()","Processing n :: %2d hits \n",fpEvtStr->VTXn);
 
    //AS  To be completely rechecked...
-   for (Int_t i = 0; i < fpEvtStr->nvtx; i++) {
+   for (Int_t i = 0; i < fpEvtStr->VTXn; i++) {
 
      /*
      // position in global transform in local
@@ -128,29 +128,29 @@ Bool_t TAVTactNtuMC::Action()
      //What About a decent post processing?
      //The column refer to Y!!!
      int myTrow, myTcol;
-     myTrow = fpEvtStr->irowvtx[i];
-     myTcol = fpEvtStr->icolvtx[i];
+     myTrow = fpEvtStr->VTXirow[i];
+     myTcol = fpEvtStr->VTXicol[i];
      /*
      myTcol = pParMap->GetPixelsNu()-fpEvtStr->miSigCol[i];
      myTrow = pParMap->GetPixelsNv()-fpEvtStr->miSigRow[i];
      */
      TAVTntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol);
      //ID matching for the "trk" block
-     mcID = fpEvtStr->idvtx[i];
+     mcID = fpEvtStr->VTXid[i];
      pixel->SetMCid(mcID);
 
      //Need IDX matching
      TVector3 MCmom(0,0,0); 
      TVector3 MCpos(0,0,0); 
 
-     MCpos.SetXYZ((fpEvtStr->xinvtx[i]+fpEvtStr->xoutvtx[i])/2,(fpEvtStr->yinvtx[i]+fpEvtStr->youtvtx[i])/2,(fpEvtStr->zinvtx[i]+fpEvtStr->zoutvtx[i])/2);
-     MCmom.SetXYZ((fpEvtStr->pxinvtx[i]+fpEvtStr->pxoutvtx[i])/2,(fpEvtStr->pyinvtx[i]+fpEvtStr->pyoutvtx[i])/2,(fpEvtStr->pzinvtx[i]+fpEvtStr->pzoutvtx[i])/2);
+     MCpos.SetXYZ((fpEvtStr->VTXxin[i]+fpEvtStr->VTXxout[i])/2,(fpEvtStr->VTXyin[i]+fpEvtStr->VTXyout[i])/2,(fpEvtStr->VTXzin[i]+fpEvtStr->VTXzout[i])/2);
+     MCmom.SetXYZ((fpEvtStr->VTXpxin[i]+fpEvtStr->VTXpxout[i])/2,(fpEvtStr->VTXpyin[i]+fpEvtStr->VTXpyout[i])/2,(fpEvtStr->VTXpzin[i]+fpEvtStr->VTXpzout[i])/2);
 
      //     MCpos.SetXYZ(fpEvtStr->miSigX[i],fpEvtStr->miSigY[i],fpEvtStr->miSigZ[i]);
      //     MCmom.SetXYZ(fpEvtStr->miSigpX[i],fpEvtStr->miSigpY[i],fpEvtStr->miSigpZ[i]);
      pixel->SetMCPosition(MCpos);
      pixel->SetMCMomentum(MCmom);
-     pixel->SetEneLoss(fpEvtStr->devtx[i]);  // VM added 3/11/13
+     pixel->SetEneLoss(fpEvtStr->VTXde[i]);  // VM added 3/11/13
      /*
      if (fDebugLevel)
        printf("Sensor %d line %d col %d\n", sensorId, fpEvtStr->miSigRow[i], fpEvtStr->miSigCol[i]);

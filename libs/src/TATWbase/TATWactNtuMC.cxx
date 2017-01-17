@@ -45,14 +45,14 @@ Bool_t TATWactNtuMC::Action()
   if (!p_nturaw->hir) p_nturaw->SetupClones();
 
   //The number of hits inside the Start Counter is stn
-  Info("Action()","Processing n Scint :: %2d hits \n",fpEvtStr->nscint);
-  for (Int_t i = 0; i < fpEvtStr->nscint; i++) {
+  Info("Action()","Processing n Scint :: %2d hits \n",fpEvtStr->SCNn);
+  for (Int_t i = 0; i < fpEvtStr->SCNn; i++) {
     //First two numbers make sense only for data (typ, channel)
     
     TATWrawHit *mytmp = new((*(p_nturaw->hir))[i]) 
-      TATWrawHit(0,0,fpEvtStr->descint[i],fpEvtStr->timscint[i]);
+      TATWrawHit(0,0,fpEvtStr->SCNde[i],fpEvtStr->SCNtim[i]);
     
-    mytmp->SetMCID(fpEvtStr->idscint[i]);
+    mytmp->SetMCID(fpEvtStr->SCNid[i]);
     nhits++;
   }
   

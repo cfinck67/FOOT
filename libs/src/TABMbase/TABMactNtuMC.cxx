@@ -62,9 +62,9 @@ Bool_t TABMactNtuMC::Action()
   if (!p_nturaw->h) p_nturaw->SetupClones();
   Double_t resolution;
   //The number of hits inside the BM is nmon
-  Info("Action()","Processing n :: %2d hits \n",fpEvtStr->nmon);
+  Info("Action()","Processing n :: %2d hits \n",fpEvtStr->BMNn);
 
-  for (Int_t i = 0; i < fpEvtStr->nmon; i++) {
+  for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
 
     /*
       Pre processing of INFO to compute the PCA info + rDrift and tDrift
@@ -76,28 +76,28 @@ Bool_t TABMactNtuMC::Action()
     */
 
     //AS::: drift quantities have to be computed,
-    cell = fpEvtStr->icell[i];
+    cell = fpEvtStr->BMNicell[i];
     cell += -1;
-    lay = fpEvtStr->ilayer[i];
+    lay = fpEvtStr->BMNilay[i];
     lay += -1;
-    view = fpEvtStr->iview[i];
+    view = fpEvtStr->BMNiview[i];
     if(view==2) view = -1;
     
-    if(fpEvtStr->idmon[i]-1 == 0) {
+    if(fpEvtStr->BMNid[i]-1 == 0) {
       TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) 
-	TABMntuHit(fpEvtStr->idmon[i],		 view,
+	TABMntuHit(fpEvtStr->BMNid[i],		 view,
 		   lay,          cell,  
 		   0, 0, 0, //Will become PCA that is needed @ tracking level.
-		   fpEvtStr->pxinmon[i], fpEvtStr->pyinmon[i], fpEvtStr->pzinmon[i],  //mom @ entrance in cell
+		   fpEvtStr->BMNpxin[i], fpEvtStr->BMNpyin[i], fpEvtStr->BMNpzin[i],  //mom @ entrance in cell
 		   0, 0, //Rdrift is set later on (see FindRdrift) while tdrift has no meaning for now for MC
-		   fpEvtStr->timmon[i] );
+		   fpEvtStr->BMNtim[i] );
       
       
       //X,Y and Z needs to be placed in Local coordinates.
-      TVector3 gloc(fpEvtStr->xinmon[i],fpEvtStr->yinmon[i],fpEvtStr->zinmon[i]);
+      TVector3 gloc(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
       TVector3 loc = fpFirstGeo->FromGlobalToBMLocal(gloc);
       
-      TVector3 gmom(fpEvtStr->pxinmon[i],fpEvtStr->pyinmon[i],fpEvtStr->pzinmon[i]);
+      TVector3 gmom(fpEvtStr->BMNpxin[i],fpEvtStr->BMNpyin[i],fpEvtStr->BMNpzin[i]);
       TVector3 mom = fpFirstGeo->VecFromGlobalToBMLocal(gmom);
       
       mytmp->SetAW(p_pargeo);

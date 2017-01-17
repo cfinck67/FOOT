@@ -111,10 +111,10 @@ Bool_t TAITactNtuMC::Action()
   Int_t mcID(-1000);
 
    if (fDebugLevel)
-     Info("Action()","Processing n :: %2d hits \n",fpEvtStr->nIT);
+     Info("Action()","Processing n :: %2d hits \n",fpEvtStr->ITRn);
 
    //AS  To be completely rechecked...
-   for (Int_t i = 0; i < fpEvtStr->nIT; i++) {
+   for (Int_t i = 0; i < fpEvtStr->ITRn; i++) {
 
      /*
      // position in global transform in local
@@ -128,8 +128,8 @@ Bool_t TAITactNtuMC::Action()
      //What About a decent post processing?
      //The column refer to Y!!!
      int myTrow, myTcol;
-     myTrow = fpEvtStr->irowIT[i];
-     myTcol = fpEvtStr->icolIT[i];
+     myTrow = fpEvtStr->ITRirow[i];
+     myTcol = fpEvtStr->ITRicol[i];
      /*
      myTcol = pParMap->GetPixelsNu()-fpEvtStr->miSigCol[i];
      myTrow = pParMap->GetPixelsNv()-fpEvtStr->miSigRow[i];
@@ -138,19 +138,19 @@ Bool_t TAITactNtuMC::Action()
      TAITntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol);
      //ID matching for the "trk" block
      //     mcID = fpEvtStr->miSigId[i];
-     mcID = fpEvtStr->idIT[i];
+     mcID = fpEvtStr->ITRid[i];
      pixel->SetMCid(mcID);
 
      //Need IDX matching
      TVector3 MCmom(0,0,0); 
      TVector3 MCpos(0,0,0); 
 
-     MCpos.SetXYZ((fpEvtStr->xinIT[i]+fpEvtStr->xoutIT[i])/2,(fpEvtStr->yinIT[i]+fpEvtStr->youtIT[i])/2,(fpEvtStr->zinIT[i]+fpEvtStr->zoutIT[i])/2);
-     MCmom.SetXYZ((fpEvtStr->pxinIT[i]+fpEvtStr->pxoutIT[i])/2,(fpEvtStr->pyinIT[i]+fpEvtStr->pyoutIT[i])/2,(fpEvtStr->pzinIT[i]+fpEvtStr->pzoutIT[i])/2);
+     MCpos.SetXYZ((fpEvtStr->ITRxin[i]+fpEvtStr->ITRxout[i])/2,(fpEvtStr->ITRyin[i]+fpEvtStr->ITRyout[i])/2,(fpEvtStr->ITRzin[i]+fpEvtStr->ITRzout[i])/2);
+     MCmom.SetXYZ((fpEvtStr->ITRpxin[i]+fpEvtStr->ITRpxout[i])/2,(fpEvtStr->ITRpyin[i]+fpEvtStr->ITRpyout[i])/2,(fpEvtStr->ITRpzin[i]+fpEvtStr->ITRpzout[i])/2);
      pixel->SetMCPosition(MCpos);
      pixel->SetMCMomentum(MCmom);
      //     pixel->SetEneLoss(fpEvtStr->miSigDE[i]);  // VM added 3/11/13
-     pixel->SetEneLoss(fpEvtStr->deIT[i]);  // VM added 3/11/13
+     pixel->SetEneLoss(fpEvtStr->ITRde[i]);  // VM added 3/11/13
 
      /*
      if (fDebugLevel)

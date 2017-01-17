@@ -58,13 +58,13 @@ Bool_t TADCactNtuMC::Action()
   if (!p_nturaw->h) p_nturaw->SetupClones();
   double locx, locy, locz;
   Double_t resolution;
-  //The number of hits inside the DC is n2dc
-  Info("Action()","Processing n :: %2d hits \n",fpEvtStr->n2dc);
-  for (Int_t i = 0; i < fpEvtStr->n2dc; i++) {
+  //The number of hits inside the DC is DCHn
+  Info("Action()","Processing n :: %2d hits \n",fpEvtStr->DCHn);
+  for (Int_t i = 0; i < fpEvtStr->DCHn; i++) {
     if(i<32) {
       
       //X,Y and Z needs to be placed in Local coordinates.
-      TVector3 gloc(fpEvtStr->xin2dc[i],fpEvtStr->yin2dc[i],fpEvtStr->zin2dc[i]);
+      TVector3 gloc(fpEvtStr->DCHxin[i],fpEvtStr->DCHyin[i],fpEvtStr->DCHzin[i]);
       TVector3 loc = fpFirstGeo->FromGlobalToDCLocal(gloc);
       locx = loc.X();
       locy = loc.Y();
@@ -74,13 +74,13 @@ Bool_t TADCactNtuMC::Action()
       resolution = p_parcon->ResoEval(0.1);
       //AS::: drift quantities have to be computed,
       TADCntuHit *mytmp = new((*(p_nturaw->h))[i]) 
-	TADCntuHit(fpEvtStr->id2dc[i],		 fpEvtStr->iview2dc[i],
-		   fpEvtStr->ipla2dc[i],          fpEvtStr->icell2dc[i],  
+	TADCntuHit(fpEvtStr->DCHid[i],		 fpEvtStr->DCHiview[i],
+		   fpEvtStr->DCHilay[i],          fpEvtStr->DCHicell[i],  
 		   locx, locy,
-		   locz, fpEvtStr->pxin2dc[i],
-		   fpEvtStr->pyin2dc[i],	 fpEvtStr->pzin2dc[i],
+		   locz, fpEvtStr->DCHpxin[i],
+		   fpEvtStr->DCHpyin[i],	 fpEvtStr->DCHpzin[i],
 		   0,		 0,
-		   fpEvtStr->tim2dc[i] );
+		   fpEvtStr->DCHtim[i] );
       mytmp->SetSigma(resolution);
       mytmp->SetTrkAss(0);
       nhits++;

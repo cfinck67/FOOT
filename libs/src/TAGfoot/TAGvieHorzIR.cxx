@@ -5,7 +5,6 @@
 */
 
 #include <math.h>
-#include "foot_geo.h"
 
 #include "TROOT.h"
 #include "TString.h"
@@ -327,8 +326,13 @@ void TAGvieHorzIR::Paint(Option_t* option)
     //Position is returned in microns
     TVector3* myP = p_vtgeo->GetPosition(is);
     //    cout<<" position X :: "<<myP->X()/10000<<" "<<endl;
+    /*
     cm_w = MI_MIMO_WIDTH/4;
     cm_h = MI_MIMO_THICK/2;
+    */
+    cm_w = 0.01;
+    cm_h = 0.005;
+
     h_z = myP->Z()/10000;    h_x = myP->X()/10000;
 
     myloc.SetXYZ(-cm_w+h_x, 0, -cm_h+h_z);

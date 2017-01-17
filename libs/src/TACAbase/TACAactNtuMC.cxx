@@ -9,7 +9,7 @@
 
 /*!
   \class TACAactNtuMC TACAactNtuMC.hxx "TACAactNtuMC.hxx"
-  \brief NTuplizer for BM raw hits. **
+  \brief NTuplizer for Calo raw hits. **
 */
 
 ClassImp(TACAactNtuMC);
@@ -44,11 +44,11 @@ Bool_t TACAactNtuMC::Action()
   Int_t nhits(0);
   if (!p_nturaw->hir) p_nturaw->SetupClones();
 
-  //The number of hits inside the Start Counter is stn
-  Info("Action()","Processing n SC :: %2d hits \n",fpEvtStr->stn);
-  for (Int_t i = 0; i < fpEvtStr->stn; i++) {
+  //The number of hits inside the Calo is CALn
+  Info("Action()","Processing n Calo :: %2d hits \n",fpEvtStr->CALn);
+  for (Int_t i = 0; i < fpEvtStr->CALn; i++) {
     //First two numbers make sense only for data (typ, channel)
-    new((*(p_nturaw->hir))[i]) TACArawHit(0,0,fpEvtStr->stde[i],fpEvtStr->sttim[i]);
+    new((*(p_nturaw->hir))[i]) TACArawHit(0,0,fpEvtStr->CALde[i],fpEvtStr->CALtim[i]);
     nhits++;
   }
   
