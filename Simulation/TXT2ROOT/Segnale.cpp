@@ -206,11 +206,11 @@ Int_t Segnale::MI_Reset() {
   Double_t curED;
   double dist_x;
   double dist_y;
-  TVector3 ChipPos = Geo->MI_Coord(Column, Row, Chip - 1);
+  //  TVector3 ChipPos = Geo->MI_Coord(Column, Row, Chip - 1);
   TVector3 position(X,Y,Z);
   TVector3 momentum(pX,pY,pZ);
-  Double_t BinFracX = (X - ChipPos.X()) / MI_PAD_WIDTH;
-  Double_t BinFracY = (Y - ChipPos.Y()) / MI_PAD_HEIGHT;
+  //  Double_t BinFracX = (X - ChipPos.X()) / MI_PAD_WIDTH;
+  //  Double_t BinFracY = (Y - ChipPos.Y()) / MI_PAD_HEIGHT;
   Int_t exp_ncl;
 
   //actually the following numbers should be calculated (like this it introduces only right cluster size fluctuation but also an additional position uncertainty)

@@ -14,9 +14,9 @@
 #include <vector>
 #include <algorithm>
 
-#include "foot_geo.h"
+#include "../foot_geo.h"
 #include "Helper.h"
-#include "Geometry.h"
+#include "../Geometry.h"
 #include "Evento.h"
 
 using namespace std;

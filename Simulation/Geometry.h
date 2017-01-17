@@ -135,6 +135,9 @@ class Geometry : public TObject {
 		     ,TString fInsertText);  
 
   /* regions */
+
+  //convert Double_t to Int_t without crashing - hell knows why (deadly FORTRAN-C++ mix?).
+  virtual Int_t castd2i(Double_t number);
   
   // take bodies and subtract them in groups of 8
   Int_t Reg8sub(TString fVolPreName,Int_t fVolNbStart,Int_t fVolNbEnd,Int_t fVerbosity

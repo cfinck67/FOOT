@@ -11,9 +11,9 @@
 #include <vector>
 #include <algorithm>
 
-#include "foot_geo.h"
+#include "../foot_geo.h"
 #include "Helper.h"
-#include "Geometry.h"
+#include "../Geometry.h"
 //#include "Evento.h"
 
 // VM added 9/1/2014
@@ -146,10 +146,10 @@ private:
 
 	//MIMOSA26 calibration parameters/////////////////////////////////////////////////////////////////////
 	//old stuff
-	//  const static Double_t kMI_EDThreshold= 0.01E-3;//GeV 
-	//  const static Double_t kMI_EDThreshold= 0.01E-4;//GeV 
-	//  const static Double_t kMI_EDErr= 0.20;//fraction ; fluctuation of ED by diffusion
-	//  const static Double_t kMI_EDDiffusion=0.0018*1.5*5./7.;//cm (=sigma when referring to Gaussian)
+	//  constexpr static Double_t kMI_EDThreshold= 0.01E-3;//GeV 
+	//  constexpr static Double_t kMI_EDThreshold= 0.01E-4;//GeV 
+	//  constexpr static Double_t kMI_EDErr= 0.20;//fraction ; fluctuation of ED by diffusion
+	//  constexpr static Double_t kMI_EDDiffusion=0.0018*1.5*5./7.;//cm (=sigma when referring to Gaussian)
 
 	//from fit
 	constexpr static Double_t kMI_EDDiffusion = (36.23) * 1E-4;//cm (=sigma when referring to Gaussian)
@@ -231,7 +231,8 @@ public:
 			exit(1);
 		}
 
-		return MI_SENS_BIN_WIDTH-fMI_Column[Number];
+		return 0.01-fMI_Column[Number];
+		//		return MI_SENS_BIN_WIDTH-fMI_Column[Number];
 	}
 	;
 

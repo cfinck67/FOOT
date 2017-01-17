@@ -725,6 +725,21 @@ Int_t Geometry::VolBox(TString fVolName, Int_t fVerbosity, TString* fFLUKALine,
 	return 0;
 }
 
+/*--------------------------------------------------------*/
+//convert Double_t to Int_t without crashing - hell knows why (deadly FORTRAN-C++ mix?).
+Int_t Geometry::castd2i(Double_t number) {
+	Double_t top = 2147483647., bottom = -2147483648.;
+
+	//check out-of-bounds
+	if (number >= top) {
+		return 2147483647;
+	} else if (number <= bottom) {
+		return -2147483648;
+	} else {
+		return (int) number;
+	}
+}
+
 
 /*-----------------------------------------------------------------*/
 Geometry::~Geometry() {

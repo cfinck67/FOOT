@@ -124,19 +124,19 @@ Bool_t Trigger::EventIsWanted(EVENT_STRUCT* Evt, vector<TString>* RegionNames,
 	}
 
 	//loop over tracks
-	for (Int_t i0 = 0; i0 < Evt->trn; i0++) {
-		if (Evt->trreg[i0] == TargetRegionNumber) {
-			if (Evt->trpaid[i0] == 1) {//if parent particle is the primary particle
+	for (Int_t i0 = 0; i0 < Evt->TRn; i0++) {
+		if (Evt->TRreg[i0] == TargetRegionNumber) {
+			if (Evt->TRpaid[i0] == 1) {//if parent particle is the primary particle
 
-				if (i0>-1) {//if particle is an ion (we skip neutrons for the moment (8,9) || (Evt->trtype[i0] == 8))
+				if (i0>-1) {//if particle is an ion (we skip neutrons for the moment (8,9) || (Evt->TRtype[i0] == 8))
 				  //AS:: reimplement the check once we have the trtype again in the tuples.
-				  //				if ((Evt->trtype[i0] <= -2) || (Evt->trtype[i0] == 1)) {//if particle is an ion (we skip neutrons for the moment (8,9) || (Evt->trtype[i0] == 8))
+				  //				if ((Evt->TRtype[i0] <= -2) || (Evt->TRtype[i0] == 1)) {//if particle is an ion (we skip neutrons for the moment (8,9) || (Evt->TRtype[i0] == 8))
 					//now check the kinetic energy of the particle
-					Double_t CurrentMass = Evt->trmass[i0];
-					TVector3 CurrentMom(Evt->tripx[i0], Evt->tripy[i0],
-							Evt->tripz[i0]);
+					Double_t CurrentMass = Evt->TRmass[i0];
+					TVector3 CurrentMom(Evt->TRipx[i0], Evt->TRipy[i0],
+							Evt->TRipz[i0]);
 					Double_t CurrentMomMod(CurrentMom.Mag());
-					Int_t CurrentA(Evt->trbar[i0]);
+					Int_t CurrentA(Evt->TRbar[i0]);
 					//TVector3 CurrentDirection(math.degrees(arccos(curPART_PX/curPART_P),);
 					if (CurrentMomMod == 0.0)
 						CurrentMomMod = 1.0;

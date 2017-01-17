@@ -10,12 +10,12 @@
 #include "TObject.h"
 
 
-#include "foot_geo.h"
+#include "../foot_geo.h"
 
 using namespace std; 
 
 
-const static Int_t  gMIMONb=MI_MIMO_N;
+const static Int_t  gMIMONb=8;
 const static Int_t  gQMAX=6;
 const static Int_t  gCLUSIZEMAX=15;
 const static Int_t  gCLUSIZEBIN=10;

@@ -154,17 +154,18 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   Evento *ev =  new Evento();
   Trigger *tr = new Trigger();
 
-  vector < Int_t > RegNumber;
-  vector < TString > RegName;
+  //  vector < Int_t > RegNumber;
+  //  vector < TString > RegName;
 
   //get FLUKA region number-name correspondance
   if(m_debug) cout<<" Reading Geo info "<<endl;
 
+  /*
   filename = m_wd + "FOOT.reg";
   my_G->InitRegions(filename.Data());
   RegName = my_G->GetRegionNames();
   RegNumber = my_G->GetRegionNumbers();
-
+  */
   EVENT_STRUCT evStr;
   TAGpadGroup* pg = new TAGpadGroup();
 
@@ -181,8 +182,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     Setting up the detectors that we want to decode.
   */
   bool m_doEvent = kTRUE;
-  bool m_doBM = kTRUE;
-  bool m_doDC = kTRUE;
+  bool m_doBM = kFALSE;
+  bool m_doDC = kFALSE;
   bool m_doIR = kTRUE;
   bool m_doTW = kTRUE;
   bool m_doCA = kTRUE;
@@ -345,9 +346,9 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
       }
       
       //Momentum in the track block
-      for(int iTr = 0; iTr<evStr.trn; iTr++) { 
-	if(evStr.trcha[iTr] == 6) {
-	  TVector3 true_P(evStr.tripx[iTr],evStr.tripy[iTr],evStr.tripz[iTr]);
+      for(int iTr = 0; iTr<evStr.TRn; iTr++) { 
+	if(evStr.TRcha[iTr] == 6) {
+	  TVector3 true_P(evStr.TRipx[iTr],evStr.TRipy[iTr],evStr.TRipz[iTr]);
 	  carbMCAngle_pl = true_P.Theta();
 	  //	cout<<"size:: "<<carbMCAngle_pl-recAngle_pl<<endl;
 	  ((TH1D*)gDirectory->Get("ResoMCCarbons"))->Fill(carbMCAngle_pl-recAngle_pl);
