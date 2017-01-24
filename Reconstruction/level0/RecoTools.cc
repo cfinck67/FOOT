@@ -182,8 +182,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     Setting up the detectors that we want to decode.
   */
   bool m_doEvent = kTRUE;
-  bool m_doBM = kFALSE;
-  bool m_doDC = kFALSE;
+  bool m_doBM = kTRUE;
+  bool m_doDC = kTRUE;
   bool m_doIR = kTRUE;
   bool m_doTW = kTRUE;
   bool m_doCA = kTRUE;
@@ -226,7 +226,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   //Initialize the Event Display for the Music
 
   if(m_doBM) {
-    DisplayBeamMonitor(pg);
+    //    DisplayBeamMonitor(pg);
     
     //    DisplayIRMonitor(pg,&evStr);
   }
@@ -554,11 +554,11 @@ void RecoTools::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
 
   my_out->SetupElementBranch(myn_bmraw,     "bmrh.");
 
-  myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
+  //  myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
 
-  new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
+  //  new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
 
-  my_out->SetupElementBranch(myn_bmtrk,     "bmtrk.");
+  //  my_out->SetupElementBranch(myn_bmtrk,     "bmtrk.");
 
   return;
 }
@@ -578,13 +578,13 @@ void RecoTools::FillMCDriftChamber(EVENT_STRUCT *myStr) {
   myp_dcgeo  = new TAGparaDsc("p_dcgeo", new TADCparGeo());
 
   initDCGeo(myp_dcgeo); 
-
+  /*
   myn_dctrk    = new TAGdataDsc("myn_dctrk", new TADCntuTrack());
 
   new TADCactNtuTrack("an_dctrk", myn_dctrk, myn_dcraw, myp_dcgeo, myp_dccon);
 
   my_out->SetupElementBranch(myn_dctrk,     "dctrk.");
-
+  */
   return;
 }
 
