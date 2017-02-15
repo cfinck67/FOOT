@@ -10,14 +10,19 @@
 #include "TABMparCon.hxx"
 #include "TABMntuRaw.hxx"
 #include "TABMntuTrack.hxx"
-
+using namespace std;
+#include <iostream>
 #include "TABMactNtuTrack.hxx"
 #include "FieldManager.h"
 #include "MaterialEffects.h"
 #include "TGeoMaterialInterface.h"
 #include "ConstField.h"
 #include "Track.h"
-#include "WireMeasurementNew.h"
+#include "WireMeasurement.h"
+#include "EventDisplay.h"
+#include "TDatabasePDG.h"
+#include "DAF.h"
+
 
 /*!
   \class TABMactNtuTrack TABMactNtuTrack.hxx "TABMactNtuTrack.hxx"
@@ -45,34 +50,31 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
   AddPara(p_bmgeo,  "TABMparGeo");
   AddPara(p_bmcon,  "TABMparCon");
 
-  //  AbsKalmanFitter* fitter = new KalmanFitterRefTrack();
 
-  const int nIter = 20; // max number of iterations
-  const double dPVal = 1.E-3; // convergence criterion
+  const Int_t nIter = 20; // max number of iterations
+  const Double_t dPVal = 1.E-3; // convergence criterion used by GenFit
 
-  f_fitter = new KalmanFitter(nIter, dPVal);
-  f_fitter->setMultipleMeasurementHandling(unweightedClosestToPredictionWire);
+  simpleFitter = new KalmanFitter(nIter, dPVal);
+  refFitter = new KalmanFitterRefTrack(nIter, dPVal);   
+  dafRefFitter = new DAF(true, nIter, dPVal);
+  dafSimpleFitter = new DAF(false, nIter, dPVal);
 
-  const double BField = 1.;       // kGauss [ --> Eq. to 0.1 T]
+  const double BField = 0.;       // kGauss [ --> Eq. to 0.1 T]
 
   // init geometry and mag. field
-  /*
-  f_BMgeoMan = p_bmgeo->GetGeoManager();
+  
+  //f_BMgeoMan = p_bmgeo->GetGeoManager();
 
   TABMparGeo*   geo = (TABMparGeo*)    fpBMGeo->Object();
   geo->AddBM("BeamMonitor");
 
-  new TGeoManager("Geometry", "Geane geometry");
-  TGeoManager::Import("/home/FOOT-T3/sartifoott3/software/libs/src/TABMbase/genfitGeom.root");
-  */
+  new TGeoManager("Geometry", "Geane geometry");//load geometry
+  TGeoManager::Import("LocalBM.root");
+  
   //Bfield is along Y in our case.
-  FieldManager::getInstance()->init(new ConstField(0.,BField,0.));
-  FieldManager::getInstance()->useCache(true, 8);
+  
+  FieldManager::getInstance()->init(new ConstField(0.,BField,0.)); //forse servirà il campo magnetico fatto bene, ma per ora non c'è nella simulazione
   MaterialEffects::getInstance()->init(new TGeoMaterialInterface());
-
-  //We're going to need to load the geometry here at some point..
-  //From parGeo..
-
 }
 
 //------------------------------------------+-----------------------------------
@@ -80,7 +82,10 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
 
 TABMactNtuTrack::~TABMactNtuTrack()
 {
-  delete f_fitter;
+  delete simpleFitter;
+  delete refFitter;
+  delete dafSimpleFitter;
+  delete dafRefFitter;
 }
 
 
@@ -105,96 +110,274 @@ Bool_t TABMactNtuTrack::Action()
 
   Int_t i_nhit = p_ntuhit->nhit;
 
-  /*
-    NEW tracking
-  */
   
-  Track* fitTrack(nullptr);
-  /*  
-  // true start values
-  TVector3 pos(0, 0, 0);
-  TVector3 mom(1.,0,0);
-  // calc helix parameters
-  const double charge = 6;
-  genfit::HelixTrackModel* helix = new genfit::HelixTrackModel(pos, mom, charge);
-  */
-
-  double sign = 1.; //Charged particles 
-  const int pdg = 2212; //proton
-  const int det_type = 1; //beam monitor
+//******************************************************NEW tracking********************************************
+        
+  //parameters
+  Int_t BMdebug=0;
+  Int_t readyToFit = 3; //to fit (0=not fit, 1=simpleFitter, 2=refFitter, 3=dafSimpleFitter, 4=dafRefFitter)
+  bool vediamo=false;  	//to use the eventDisplay of Genfit (not implemented now)
+  Double_t chi2cut=200.; //temporary, an optimum chi2cut value isn't found yet (load it from beamconfig?)
+  Double_t wire_err=0.003; //temporary, is the error of the wire position 
+  Double_t maxError=0.5;  //temporary, used in checkTr, is the error tollerance of the fitted primary position and the exact primary position (MC) 
+  
+  Double_t tmp_double, res;
+  bool onlyPrimary, converged;
+  TABMntuTrackTr tmp_trackTr;
+  Double_t x, y, z, cx, cy, cz;
+  Double_t sign = 1.; //Charged particles (probably useless)
+  Int_t pdg = 2212; //proton=2212 
   AbsTrackRep* rep = new RKTrackRep(sign*pdg);
-
-  //  genfit::MeasuredStateOnPlane stateRef(rep);
-  //  rep->setPosMomCov(stateRef, pos, mom, covM);
-
-  genfit::MeasuredStateOnPlane stateSmeared(rep);
   
-  //Resolution on measurement along wire and on direction
-  const double resolution = 0.02;   // cm; resolution of generated measurements
-  TMatrixDSym covM(6);
-  for (int i = 0; i < 3; ++i)
-    covM(i,i) = resolution*resolution;
-  for (int i = 3; i < 6; ++i)
-    covM(i,i) = pow(resolution / 10 / sqrt(3), 2);
-  
-  TVector3 posM(0, 0, 0);
-  TVector3 momM(1.,0,0);
-  rep->setPosMomCov(stateSmeared, posM, momM, covM);
-
-  // fill measurements vector
-  vector<AbsMeasurement*> measurements;
-
-  double hit_reso(0.);
-  double x,y,z,cx,cy,cz;
-  //Looping on hits
-  for(Int_t i_h = 0; i_h < i_nhit; i_h++) {
+  Int_t hit_view, tmp_int, tmp_cellx=1, tmp_celly=1, tracknum=1;
+  const Int_t det_Id = 1; //beam monitor Id (useless parameter need for genfit)
+  TMatrixDSym hitCov(7);
+  TVectorD hitCoords(7);
+  vector<vector<Int_t>> hitxplane(p_bmgeo->GetLayersNumber()*2); //number of hit for every bm plane (plane should be 12 in BM)
+  TABMntuHit* p_hit;
+  Int_t firedPlane=p_bmgeo->GetLayersNumber()*2; //number of plane fired
     
-    Info("Action()","create WireHit");
+  TVector3 priexit(0,0,100); //primary last release in BMN coordinates (from MC)
+  TVector3 init_pos(0.,0.,p_bmgeo->GetCenter().z()-p_bmgeo->GetLength());
+  TVector3 init_mom(0.,0.,1.);//initial position and momentum for tracking, for BM porpouse the primary track should always have these inital values
 
-    TABMntuHit* p_hit = p_ntuhit->Hit(i_h);
-    hit_reso = p_hit->GetSigma();
-    x = p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
-    y = p_bmgeo->GetY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
-    z = p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
+  Track fitTrack(rep, init_pos, init_mom);
 
-    cx = p_bmgeo->GetCX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
-    cy = p_bmgeo->GetCY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
-    cz = p_bmgeo->GetCZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
-
-    TVector3 wire_e1 = TVector3(x+cx/2,y+cy/2,z+cz/2);
-    TVector3 wire_e2 = TVector3(x-cx/2,y-cy/2,z-cz/2);
-
-    AbsMeasurement* measurement = new WireMeasurementNew (p_hit->Dist(), hit_reso, wire_e1, wire_e2, det_type, i_h, nullptr);
-
-    measurements.push_back(measurement);
-  }
+  if(i_nhit==0)
+    readyToFit=0;
   
-  // create track
-  TVectorD seedState(6);
-  TMatrixDSym seedCov(6);
-  rep->get6DStateCov(stateSmeared, seedState, seedCov);
-  fitTrack = new Track(rep, seedState, seedCov); //initialized with smeared rep
+  //counter for number of possible tracks:
+  for(Int_t i_h = 0; i_h < i_nhit; i_h++) {
+    p_hit = p_ntuhit->Hit(i_h);
+    if(ToBeConsider(p_hit->Cell(), p_hit->View(), p_hit->Plane()))
+      hitxplane[p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())].push_back(i_h);
+    }
+  for(Int_t j = 0; j < hitxplane.size(); j++) {  
+    if(hitxplane[j].size()!=0)
+      tracknum*=hitxplane[j].size();
+    else
+      firedPlane--;
+    }
+  
+  //print hitxplane
+  if(BMdebug>=3){  
+    cout<<"print hitxplane"<<endl;  
+    Print_matrix(hitxplane);    
+    }
+    
+  vector<TABMntuTrackTr> alltrack; 
+  vector<bool> possiblePrimary(tracknum, true);
+  vector<vector<Int_t>> hitxtrack(tracknum); 
+  for(Int_t j=0; j<tracknum; j++)
+    hitxtrack[j].resize(firedPlane);  
 
-  // add measurements
-  for(unsigned int i=0; i<measurements.size(); ++i){
-    //    cout<<"Adding measurements :: "<<i<<endl;
-    fitTrack->insertPoint(new TrackPoint(measurements[i], fitTrack));
-    assert(fitTrack->checkConsistency());
+  tmp_int=0;
+  Int_t flip=1, jump;
+  
+  //charge all possible tracks
+  for(Int_t i=0; i<hitxplane.size(); i++) {
+    if(hitxplane[i].size()!=0){
+      flip*=hitxplane[i].size();
+      jump=hitxtrack.size()/flip;
+      for(Int_t k=0; k<hitxplane[i].size(); k++) {
+        for(Int_t j=0; j<hitxtrack.size();) {
+          if(k==0){
+            hitxtrack[j][tmp_int]=hitxplane[i][k];
+            j++;
+            }
+          if(k!=0){
+            for(Int_t jj=j; jj<j+jump;jj++) 
+              hitxtrack[jj][tmp_int]=hitxplane[i][k];
+            j+=jump*2;  
+            }
+          }
+        }
+      tmp_int++;
+      }
+    }
+
+  
+  //check for possible tracks: reject tracks in witch there is hits on the same view that are too different
+  tmp_int=0;
+  for(Int_t i=0; i<hitxtrack.size(); i++) {
+    tmp_cellx=1;
+    tmp_celly=1;
+    for(Int_t j=0; j<hitxtrack[i].size(); j++) {
+      if(possiblePrimary[i]==true){
+        p_hit = p_ntuhit->Hit(hitxtrack[i][j]);
+        if(p_hit->View()==1 && tmp_cellx==1 && p_hit->Cell()!=1)
+          tmp_cellx=p_hit->Cell();
+        if(p_hit->View()==-1 && tmp_celly==1 && p_hit->Cell()!=1)
+          tmp_celly=p_hit->Cell();
+        if(p_hit->View()==1 && tmp_cellx!=1 && p_hit->Cell()!=1 && p_hit->Cell()!=tmp_cellx)
+          possiblePrimary[i]=false;
+        if(p_hit->View()==-1 && tmp_celly!=1 && p_hit->Cell()!=1 && p_hit->Cell()!=tmp_celly)
+          possiblePrimary[i]=false;
+        }
+      }
+    if(possiblePrimary[i]==true)
+      tmp_int++;  
+    }
+    
+  if((tracknum>1 && BMdebug>1) || BMdebug>=3)
+    cout<<"number of total hits="<<i_nhit<<"   number of possible tracks="<<tmp_int<<"  number of fired plane="<<firedPlane<<endl;  
+
+  if(tmp_int==0 || firedPlane<8){
+    cout<<"no possible track!"<<endl;
+    readyToFit=0;
+    }
+    
+  //print hitxtrack
+  if(BMdebug>=3){
+    cout<<"print hitxtrack"<<endl;  
+    Print_matrix(hitxtrack);
+    }
+  
+  if(BMdebug>=3)
+    cout<<"index saved, going to loop on all tracks"<<endl;    
+  
+  //loop on all possible tracks:
+  for(Int_t i=0; i<tracknum; i++){
+    
+    if(possiblePrimary[i]){
+      
+      if(BMdebug>=2)
+        cout<<"charging track number "<<i<<endl;
+     
+      tmp_trackTr.Clean(); 
+      tmp_trackTr.SetNhit(firedPlane); 
+              
+      //charge hits
+      for(Int_t i_h = 0; i_h <firedPlane ; i_h++) {
+        
+        Info("Action()","create WireHit");
+        onlyPrimary=true;
+    
+        p_hit = p_ntuhit->Hit(hitxtrack[i][i_h]);
+        
+        if(p_bmcon->IsMC()){
+          if(p_hit->GetIdmon()!=1) //there is a hit from a non primary particle
+            onlyPrimary=false;
+          else if(priexit.Z()==100)
+            priexit=p_hit->GetPosm2(); //per ora lo carico ogni volta, poi sistemare meglio
+          }
+        
+        hit_view=(p_hit->View()==1) ? 0:1;
+        x = p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
+        y = p_bmgeo->GetY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
+        z = p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
+    
+        cx = p_bmgeo->GetCX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
+        cy = p_bmgeo->GetCY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
+        cz = p_bmgeo->GetCZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);	    
+          
+        hitCoords(0)=x;
+        hitCoords(1)=y;
+        hitCoords(2)=z;
+        hitCoords(3)=x+cx;
+        hitCoords(4)=y+cy;
+        hitCoords(5)=z+cz;
+        hitCoords(6)= p_hit->Dist();
+        
+        res=p_bmcon->ResoEval(p_hit->Dist());
+        hitCov.UnitMatrix();         // matrice di covarianza da settare meglio: per ora metto solo matrice diagonale con errore su posizione fili 
+        hitCov *= wire_err*wire_err; //ed errore su rdrift, manca studio sulla correlazione tra le componenti... ma forse non serve
+        hitCov[6][6]=res*res; 
+        //hitCov*=res*res;
+            
+        if(BMdebug>=3){
+          cout<<"show charging BM data:"<<endl;
+          cout<<"x:"<<x<<"  y:"<<y<<"  z:"<<z<<endl;
+          cout<<"cx:"<<cx<<"  cy:"<<cy<<"  cz:"<<cz<<endl;
+          cout<<"view"<<p_hit->View()<<"  rdrift="<<p_hit->Dist()<<endl;
+          }
+          
+        AbsMeasurement* measurement = new WireMeasurement(hitCoords, hitCov, det_Id, i_h, new TrackPoint(&fitTrack));
+        fitTrack.insertMeasurement(measurement); 	 
+        }//end of charge hits loop
+      
+      //fitting!
+      if(readyToFit!=0) { 
+
+        if(BMdebug>=3)
+          cout<<"ready to fit="<<readyToFit<<endl;
+        fitTrack.checkConsistency();
+        
+        if(readyToFit==1)  simpleFitter->processTrack(&fitTrack); 
+        if(readyToFit==2)  refFitter->processTrack(&fitTrack); 
+        if(readyToFit==3)  dafSimpleFitter->processTrack(&fitTrack);
+        if(readyToFit==4)  dafRefFitter->processTrack(&fitTrack);
+        
+        fitTrack.checkConsistency();
+        if(BMdebug>=3)
+          cout<<"end of fitting"<<endl;
+        
+        converged=fitTrack.getFitStatus(rep)->isFitConverged();
+        
+        if(converged){
+          tmp_trackTr.SetChi2New(fitTrack.getFitStatus(rep)->getChi2());
+          tmp_trackTr.SetNdf(fitTrack.getFitStatus(rep)->getNdf());  
+          tmp_trackTr.SetFailedPoint(fitTrack.getFitStatus(rep)->getNFailedPoints());  
+          if(fitTrack.getFitStatus(rep)->getNdf()!=0)        
+            tmp_trackTr.SetChi2NewRed((double) fitTrack.getFitStatus(rep)->getChi2()/fitTrack.getFitStatus(rep)->getNdf());          
+          }
+        else{
+          tmp_trackTr.SetChi2New(990);
+          tmp_trackTr.SetNdf(0);
+          tmp_trackTr.SetFailedPoint(firedPlane);
+          tmp_trackTr.SetChi2NewRed(100);          
+          }
+          
+        if(tmp_trackTr.GetChi2New()>990)  //lo faccio perchè sennò ho grafici chi2 troppo larghi
+          tmp_trackTr.SetChi2New(980);
+        if(tmp_trackTr.GetChi2NewRed()>100)  //lo faccio perchè sennò ho grafici chi2red troppo larghi
+          tmp_trackTr.SetChi2NewRed(100);
+              
+        if(p_bmcon->IsMC())
+          tmp_trackTr.MCcheckTr(chi2cut, onlyPrimary, converged, priexit, p_bmcon->GetMylar2cut(), fitTrack, BMdebug, maxError);
+    
+        if(BMdebug>=2 && converged){
+          cout<<"print fit status:"<<endl;
+          fitTrack.getFitStatus(rep)->Print();
+          }
+      }//end of fitting (readytofit)
+      
+      alltrack.push_back(tmp_trackTr);
+  
   }
-
-  //  cout<<"Starting the fitter"<<endl;
-  //  gGeoManager = f_BMgeoMan;
-  bool readyToFit = kFALSE;
-  if(readyToFit) {
-    f_fitter->processTrack(fitTrack, false);
-    double pval = f_fitter->getPVal(fitTrack, rep);
-  }
-  //  cout<<"Fitted with pval:: "<<pval<<endl;
-  delete fitTrack;
-
-  /*
-    OLD tracking
-  */
+}//end of loop on all possible track
+  
+  if(alltrack.size()!=0){
+    tmp_int=0;
+    tmp_double=alltrack[0].GetChi2New();
+    for(Int_t i=1;i<alltrack.size();i++){
+      if(tmp_double>alltrack[i].GetChi2New()){
+        tmp_double=alltrack[i].GetChi2New();
+        tmp_int=i;
+        }
+      }
+    }
+  else{
+    alltrack.push_back(tmp_trackTr);
+    tmp_int=0;
+    }
+  
+  if(BMdebug>=3)
+    cout<<"tracks with smallest chi2="<<tmp_int<<" alltrack.size="<<alltrack.size()<<endl;  
+        
+  //set and store trackTr parameters:
+  new((*(p_ntutrk->t))[p_ntutrk->ntrack]) TABMntuTrackTr(alltrack[tmp_int]);
+    p_ntutrk->ntrack = 1;  
+  
+  if(BMdebug>=3)
+    cout<<"end of NEW tabmactntutrack"<<endl;
+  
+  
+  fpNtuTrk->SetBit(kValid);
+  return kTRUE; //in this way I cut off the old tracking
+  
+// ************************************************** OLD TRACKING*********************************************
+  
 
   Int_t cell, plane, view, stat;
   Double_t dist;
@@ -451,9 +634,36 @@ Bool_t TABMactNtuTrack::Action()
     }
   }
  
+  cout<<"end of action in tabmactntutrack"<<endl;
   fpNtuTrk->SetBit(kValid);
   return kTRUE;
 }
+
+
+//*******************************NEW TRACKING*********************************
+//to print matrix
+void TABMactNtuTrack::Print_matrix(vector<vector<int>>& vec){
+  for(int i=0;i<vec.size();i++){
+    for(int j=0;j<vec[i].size();j++){
+      cout<<vec[i][j]<<" ";
+      }
+    cout<<endl;
+    }  
+  cout<<endl;  
+return;  
+}
+
+//primary particle shouldn't have any hit in some cell (cell very far from x=0, y=0)
+//this method return true if the cell can be hit by primary and false if not (it need view==1 || view==-1)
+bool TABMactNtuTrack::ToBeConsider(const Int_t cell, const Int_t view, const Int_t lay){
+  bool consider=true;
+  if((lay%2==0 && cell==2 && view==1) || (lay%2==1 && cell==0 && view==1) || (lay%2==0 && cell==0 && view==-1) || (lay%2==1 && cell==2 && view==-1))  
+    consider=false;
+  return consider;
+}
+
+//*********************OLD TRACKING************************
+
 
 void TABMactNtuTrack::sortDoubleHits(TABMntuRaw *hp, TABMntuTrack* pntr, TABMparGeo* ppg, TABMntuTrackTr &aSrTr, TABMntuTrackTr &RefTr, int add[36], int ndou)
 {
@@ -671,3 +881,7 @@ void TABMactNtuTrack::refitImprovedTrackSide(TABMntuRaw *hp, TABMntuTrack* pntr,
   return;
   
 }
+
+
+
+

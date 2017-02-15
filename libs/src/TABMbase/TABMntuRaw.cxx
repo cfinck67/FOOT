@@ -10,6 +10,7 @@
 #include <bitset>
 using namespace std;
 #include <algorithm>
+#include <TRandom.h>
 
 #include "TString.h"
 
@@ -42,19 +43,21 @@ TABMntuHit::TABMntuHit()
   Wvers.SetXYZ(0,0,0);
   rho = 0;
   pca.SetXYZ(0,0,0);
+  posm2.SetXYZ(0,0,0);
 }
 
 TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t tm) {
 
-  idmon = id;  iview = iv;  ilayer = il;      icell = ic;  ichi2 = 0;
+  idmon = id;  iview = iv;  ilayer = il;      icell = ic;  
   xcamon = x;   ycamon = y;  zcamon = z;
   pxcamon = px;   pycamon = py;   pzcamon = pz;
   rdrift = r;   tdrift = t;    timmon = tm;
-  sigma = 0;
+  sigma = 0; ichi2 = 0;
   A0.SetXYZ(0,0,0);
   Wvers.SetXYZ(0,0,0);
   rho = 0;
   pca.SetXYZ(0,0,0);
+  posm2.SetXYZ(0,0,0);
 }
 
 void TABMntuHit::SetData(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t tm) {
@@ -71,10 +74,9 @@ void TABMntuHit::SetAW(TABMparGeo* f_bmgeo) {
 
   int idfilo = f_bmgeo->GetID(Cell());
   /*  vista U */
-  Int_t tmp_fview = 0;
-  if(View()<0) tmp_fview = 1;
+  Int_t tmp_fview = (View()<0)? 1 : 0;            
 
-  if(idfilo <0 || idfilo>2) idfilo = 2;
+ // if(idfilo <0 || idfilo>2) idfilo = 2; //yun: nosense questa cosa...
 
   A0.SetXYZ(f_bmgeo->GetX(idfilo,Plane(),tmp_fview),
 	    f_bmgeo->GetY(idfilo,Plane(),tmp_fview),
@@ -95,41 +97,12 @@ void TABMntuHit::SetAW(TABMparGeo* f_bmgeo) {
   return;
 }
 
-
-
-void TABMntuHit::FindRdrift(TVector3 pos, TVector3 dir) {
-
-  Double_t tp = 0., tf= 0.; 
-  TVector3 D0, R0, Pvers;
-
-  R0.SetXYZ(pos.X(),pos.Y(),pos.Z());//set position
-  Double_t pmodulo = dir.Mag(); //sqrt(fpxp*fpxp +fpyp*fpyp +fpzp*fpzp );
-  if (pmodulo!=0.){
-    Pvers.SetXYZ(dir.X()/pmodulo,dir.Y()/pmodulo,dir.Z()/pmodulo);//set directions
-  }else{
-    printf("WARNING: FindPca(): momentum is 0 and thus pmodulo=0 is set to 1\n");
-    Pvers.SetXYZ(0.,0.,1.);
-  }
-
-  D0 = R0 - GetA0();//distance between position of reference point of current wire and current particle position
-
-  Double_t prosca = Pvers*GetWvers() ;//scalar product of directions
-  Double_t D0W = D0*GetWvers();//distance projected on wire
-  Double_t D0P = D0*Pvers;//distance projected on particle direction
-
-  if(prosca!= 1.) {//if the don't fly parallel
-    tp = (D0W*prosca - D0P)/(1.-prosca*prosca);
-    tf = (-D0P*prosca + D0W)/(1.-prosca*prosca);
-    rdrift = sqrt( abs(D0.Mag2() + tp*tp + tf*tf + 2.*tp*D0P -2.*tf*D0W 
-		       -2.*prosca*tf*tp ));
-    //    pca = R0 + tp*Pvers;
-  } else { //if they go parallel
-    rdrift = sqrt(abs( D0.Mag2() - D0W*D0W)); 
-  }
-
-  return;
-}
-
+void TABMntuHit::SmearRdrift(){
+gRandom->SetSeed(14);
+rdrift=fabs(gRandom->Gaus(rdrift,sigma));  
+if(rdrift>0.943) rdrift=0.943; 
+return;  
+} 
 
 //##############################################################################
 

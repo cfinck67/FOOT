@@ -22,6 +22,12 @@ inline TVector3 TABMntuHit::Position() const
   return pos;
 }
 
+inline TVector3 TABMntuHit::Momentum() const
+{
+  TVector3 mom(pxcamon,pycamon,pzcamon);
+  return mom;
+}
+
 inline Double_t TABMntuHit::X() const
 {
   return xcamon;

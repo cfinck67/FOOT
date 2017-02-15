@@ -11,6 +11,11 @@
 #include "TAGroot.hxx"
 #include "TAGgeoTrafo.hxx"
 #include "TABMntuTrack.hxx"
+using namespace genfit;
+#include "DetPlane.h"
+#include "StateOnPlane.h"
+#include "SharedPlanePtr.h"
+
 
 /*!
   \class TABMntuTrackTr TABMntuTrack.hxx "TABMntuTrack.hxx"
@@ -24,7 +29,9 @@ ClassImp(TABMntuTrackTr);
 
 TABMntuTrackTr::TABMntuTrackTr()
   : nwire(0), nass(0),
-    x0(0.), y0(0.), ux(0.), uy(0.)
+    x0(0.), y0(0.), ux(0.), uy(0.),
+    nhit(0), chi2(999.), check(99),
+    ndf(0), failedPoint(0) 
 {
 
   trackrho.Zero();
@@ -38,8 +45,8 @@ TABMntuTrackTr::TABMntuTrackTr()
   trackpar(1) = y0;
   trackpar(2) = ux;
   trackpar(3) = uy;
-  tr_chi2 = 10000;
-
+  residuo=3;
+  
 }
 
 //------------------------------------------+-----------------------------------
@@ -49,7 +56,125 @@ TABMntuTrackTr::~TABMntuTrackTr()
 {}
 
 /*-----------------------------------------------------------------*/
+//**************************OLD AND NEW TRACKING***************************
+/*-----------------------------------------------------------------*/
 
+void TABMntuTrackTr::Dump() const
+{ 
+  cout<<endl<<"------------ Dump Track Class ---------"<<endl;
+  cout<<"nwire= "<<nwire<<" x0= "<<x0<<" y0= "<<y0<<
+    " z0= "<<z0<<" Pvers= "<<ux<<" "<<uy<<" "<<uz<<endl;
+  cout<<"new tracking: nhit="<<nhit<<"  chi2="<<chi2<<"  check="<<check<<endl;
+  cout<<"ndf="<<ndf<<"   failedPoint="<<failedPoint<<"  residuo="<<residuo<<endl;
+}
+
+/*-----------------------------------------------------------------*/
+
+void TABMntuTrackTr::Clean()
+{
+  /*  
+      reset the Track values to default 
+  */
+  trackpar.Zero();
+  trackrho.Zero();
+  nwire = 0;
+  nass = 0;
+  x0 = 0.;
+  y0 = 0.;
+  z0 = 0;
+  ux = 0.;
+  uy = 0.;
+  uz = 1.;
+  R0.SetXYZ(x0,y0,z0);
+  Pvers.SetXYZ(ux,uy,uz);
+  
+  //new tracking
+  nhit=0;
+  chi2=999.;
+  ndf=0;
+  failedPoint=0;
+  
+  check=99;
+  residuo=3;
+}
+
+//********************************* NEW TRACKING  **********************************
+
+void TABMntuTrackTr::MCcheckTr(Double_t chi2cut, bool onlyPrimary, bool converged, TVector3 priexit, Double_t mylar2_cut, Track fitTrack, Int_t& BMdebug, Double_t maxError){
+
+Double_t prim2=sqrt(priexit.X()*priexit.X()+priexit.Y()*priexit.Y());
+bool goodEvent=(prim2<mylar2_cut && priexit.Z()>5. && priexit.Z()<11.5) ? true : false; //messo a mano per ora
+//per ora un goodEvent è quando primario esce dall'ultimo piano di celle ed ha distanza in xy dall'origine < mylar2_cut
+
+bool goodTrack=false; 
+ 
+if(chi2<chi2cut && converged)
+  goodTrack=MCcheckLastPoint(fitTrack, priexit, maxError, BMdebug);
+  
+  
+//tracking is right
+if(goodTrack && goodEvent && onlyPrimary) check=1; //tracking has selected a very good primary track (best and easy situation)
+if(goodTrack && goodEvent && !onlyPrimary) check=2; //tracking has selected a good primary track even if there's hit from other particle
+if(!goodTrack && !goodEvent) check=3; //tracking has rejected a non primary track
+
+//tracking is wrong
+if(goodTrack && !goodEvent) check=5; //tracking selected a good track even if isn't a primary track 
+if(!goodTrack && goodEvent && onlyPrimary) check=6; //tracking has lost a good primary track (very very bad)
+if(!goodTrack && goodEvent && !onlyPrimary) check=7; //tracking has lost a good primary track, but there is other particles in the chamber
+
+return;  
+}
+
+
+//find and set fitpos: the position of the fitted particle on the plane (x,y) at realpos.Z().
+//it returns true if the fitted position and real position difference is less than maxError, else it return false
+bool TABMntuTrackTr::MCcheckLastPoint(Track fitTrack, TVector3 realpos, Double_t maxError, Int_t BMdebug){
+
+TVector3 fitpos;
+TVector3 xvers(1.,0,0);
+TVector3 yvers(0,1.,0);
+SharedPlanePtr plane(new DetPlane(realpos,xvers, yvers));
+StateOnPlane state(fitTrack.getFittedState(fitTrack.getNumPoints()-1));  
+double useless=state.extrapolateToPlane(plane);
+fitpos=state.getPos();
+if(fitpos.Z()-realpos.Z()!=0){
+  cout<<"there's something wrong in extrapolate to plane: fitpos.Z="<<fitpos.Z()<<"  realpos.Z="<<realpos.Z()<<endl;
+  return false;
+  }
+else
+  residuo=(fitpos-realpos).Mag();
+
+if(BMdebug>=3){
+  cout<<"MCcheckLastPoint:  maxError="<<maxError<<endl;
+  cout<<"last MC point is: Z="<<realpos.Z()<<" Y="<<realpos.Y()<<" X="<<realpos.X();
+  cout<<"fitted track at same Z is: Y="<<fitpos.Y()<<" X="<<fitpos.X()<<endl;
+  }
+  
+if(BMdebug>=2)  
+  cout<<"residuo="<<residuo<<endl;
+
+if(residuo<maxError)
+  return true;
+else
+  return false;   
+  
+return false;
+}
+
+void TABMntuTrackTr::MCcheckFewHit(TVector3 priexit, Int_t BMdebug){
+  double xy=sqrt(priexit.X()*priexit.X()+priexit.Y()*priexit.Y());
+  if(priexit.Z()==-99 || priexit.Z()==100 || priexit.Z()<6. || xy>2.) //ATTENZIONE!!! -8 È DOVE FINISCE CAMERA, MESSO A MANO! xy=2 da studio anafoot
+    check=3.; //tracking is right!
+  else
+    check=4.;//tracking failed, it's a primary that lost a hit... (souldn't happen now)
+  
+  if(BMdebug>=2)
+    cout<<"meno di 12 hit: check="<<check<<endl;
+
+return;  
+}
+
+//**********************************OLD TRACKING****************************************
 Int_t TABMntuTrackTr::Set(Double_t fx0, Double_t fy0, Double_t fux, 
 		 Double_t fuy, Double_t fuz)
 {
@@ -181,7 +306,7 @@ Int_t TABMntuTrackTr::SetPvers(Double_t fux, Double_t fuy, Double_t fuz)
 }
 
 
-void TABMntuTrackTr::Calibrate(TF1* mypol, TF1* mypol2) {
+void TABMntuTrackTr::Calibrate(TF1* mypol, TF1* mypol2) { //DA FARE CON NUOVE VARIABILI!!!!
 
 
   TAGgeoTrafo *fGeoTrafo =  (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
@@ -299,37 +424,6 @@ TVector3 TABMntuTrackTr::PointAtLocalZ(double zloc) {
   
   return loc_poi;
 
-}
-
-
-/*-----------------------------------------------------------------*/
-
-void TABMntuTrackTr::Dump() const
-{ 
-  cout<<endl<<"------------ Dump Track Class ---------"<<endl;
-  cout<<"nwire= "<<nwire<<" x0= "<<x0<<" y0= "<<y0<<
-    " z0= "<<z0<<" Pvers= "<<ux<<" "<<uy<<" "<<uz<<endl;
-}
-
-/*-----------------------------------------------------------------*/
-
-void TABMntuTrackTr::Clean()
-{
-  /*  
-      reset the Track values to default 
-  */
-  trackpar.Zero();
-  trackrho.Zero();
-  nwire = 0;
-  nass = 0;
-  x0 = 0.;
-  y0 = 0.;
-  z0 = 0;
-  ux = 0.;
-  uy = 0.;
-  uz = 1.;
-  R0.SetXYZ(x0,y0,z0);
-  Pvers.SetXYZ(ux,uy,uz);
 }
 
 /*-----------------------------------------------------------------*/
@@ -672,7 +766,7 @@ void   TABMntuTrackTr::SetChi2H(TVectorD dy, TVectorD au, TABMntuRaw *hitp) {
   return;
 }
 
-//##############################################################################
+//########################################   TABMntuTrack   ######################################
 
 /*!
   \class TABMntuTrack TABMntuTrack.hxx "TABMntuTrack.hxx"
@@ -686,7 +780,7 @@ ClassImp(TABMntuTrack);
 
 TABMntuTrack::TABMntuTrack()
   : ntrk(0),
-    t(0)
+    t(0), ntrack(0)
 {}
 
 //------------------------------------------+-----------------------------------
@@ -714,6 +808,8 @@ void TABMntuTrack::Clear(Option_t*)
   TAGdata::Clear();
 
   ntrk   = 0;
+  ntrack = 0;
+    
   t->Delete();
 
   return;

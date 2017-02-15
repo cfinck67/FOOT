@@ -8,7 +8,7 @@
 
 #include <fstream>
 #include <math.h>
-
+using namespace std; //yun
 #include "TSystem.h"
 #include "TString.h"
 #include "TFile.h"
@@ -70,27 +70,45 @@ Bool_t TABMparCon::FromFile(const TString& name) {
   while (incF.getline(bufConf, 200, '\n')) {
     if(strchr(bufConf,'!')) {
       //      Info("FromFile()","Skip comment line:: %s",bufConf);
-    } else if(strchr(bufConf,'V')) {
+    }else if(strchr(bufConf,'V')) {
       sscanf(bufConf, "V %lf",&myArg1);
-      if(myArg1>0 && myArg1<1) {
-	vdrift = myArg1;
-      } else {
-	Error(""," Plane Map Error:: check config file!!");
-	return kTRUE;
-      }
-    } 
+      if(myArg1>0 && myArg1<1) 
+        vdrift = myArg1;
+      else {
+	      Error(""," Plane Map Error:: check config file!!");
+	      return kTRUE;
+        }
+    }else if(strchr(bufConf,'R')) {
+      sscanf(bufConf, "R %lf",&myArg1);
+      if(myArg1>0) 
+        rdrift_cut = myArg1;
+      else {
+	      Error(""," Plane Map Error:: check config file!!");
+	      return kTRUE;
+        }
+    }else if(strchr(bufConf,'M')) {
+      sscanf(bufConf, "M %lf",&myArg1);
+      if(myArg1>0) 
+        mylar2_cut = myArg1;
+      else {
+	      Error(""," Plane Map Error:: check config file!!");
+	      return kTRUE;
+        }
+    }else if(strchr(bufConf,'E')) {
+      sscanf(bufConf, "E %lf",&myArg1);
+      if(myArg1>0)
+        enxcell_cut = myArg1;
+      else {
+	      Error(""," Plane Map Error:: check config file!!");
+	      return kTRUE;
+        }
+      } 
   }
 
   return kFALSE;
 }
 
-void TABMparCon::SetIsMC(bool ism) {
-  m_isMC = ism;
-}
 
-bool TABMparCon::IsMC() {
-  return m_isMC;
-}
 
 void TABMparCon::loadT0s(const TString& name) {
 
@@ -156,17 +174,6 @@ Double_t TABMparCon::GetT0(int view, int plane, int cell) {
 
 }
 
-
-void TABMparCon::SetVDrift(Double_t v) {
-
-  vdrift = v;
-
- return;
-}
-
-Double_t TABMparCon::GetVDrift() {
-  return vdrift;
-}
 
 //------------------------------------------+-----------------------------------
 //! Clear geometry info.

@@ -12,6 +12,7 @@ SOMINV     = 0
 TINCLFLAGS += $(shell root-config --cflags)
 INCLFLAGS  = $(filter-out -stdlib=libc++, $(TINCLFLAGS))
 INCLFLAGS += -I../TAGbase  -I../TABMbase -I../../../Simulation/TXT2ROOT
+INCLFLAGS += -I../../../libs/GenFit/fitters/include -I../../../libs/GenFit/core/include
 LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 # Files to be included

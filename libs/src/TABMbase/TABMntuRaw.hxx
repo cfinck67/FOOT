@@ -30,39 +30,45 @@ class TABMntuHit : public TObject {
     Double_t Y() const;
     Double_t Z() const;
     TVector3 Position() const;
+    TVector3 Momentum() const;
     Double_t Dist() const;
     Double_t Tdrift() const;
     Double_t Timmon() const;
     Bool_t HorView() const; //Horizontal, Top, XZ == -1
     Bool_t VertView() const; //Vertical, Side, YZ == 1
 
-    //Track Related Paramters
+    //Getters
     void SetAW(TABMparGeo *f_bmgeo);
-    int TrkAss() {return itrkass;};
+    Int_t TrkAss() {return itrkass;};
     Double_t GetRho() {return rho;};
     Double_t GetChi2() {return ichi2;};
     Double_t GetSigma() {return sigma;};
+    Double_t GetIdmon() {return idmon;};
     TVector3 GetA0() {return A0;};
     TVector3 GetWvers() {return Wvers;};
+    TVector3 GetPca() {return pca;};
+    TVector3 GetPosm2() {return posm2;};
 
-    void FindRdrift(TVector3 pos, TVector3 dir);
+    void SmearRdrift(); //to smear rdrift with resolution, use it ONLY for MC events!
 
-  
+    //setters
     void SetTrkAss(Int_t in_ass) { itrkass = in_ass;};
     void SetRho(Double_t in_rho) { rho = in_rho;};
     void SetChi2(Double_t in_chi2) { ichi2 = in_chi2;};
     void SetPca(TVector3 in_pca) { pca = in_pca;};
-    void SetSigma(Double_t sig) {sigma = sig;};
+    void SetSigma(Double_t in_sigma) {sigma = in_sigma;};
+    void SetRdrift(Double_t in_rdrift){rdrift=in_rdrift;};
+    void SetPosm2(TVector3 in_posm2){posm2=in_posm2;};
 
   ClassDef(TABMntuHit,1)
 
   private:
-    Int_t idmon;
+    Int_t idmon; //idmon==1 -> hit from primary particle
     Int_t iview;    
     Int_t ilayer;    
     Int_t icell;
-    Int_t itrkass;
     Double_t ichi2;
+    Int_t itrkass;   
     Double_t xcamon;    
     Double_t ycamon;    
     Double_t zcamon;
@@ -73,15 +79,23 @@ class TABMntuHit : public TObject {
     Double_t tdrift;
     Double_t timmon;
     Double_t sigma;
-
+ 
     //Track related params
-    TVector3  A0;
+    TVector3  A0;    //posizione filo di anodo che dovrebbe essere interessato
     TVector3  Wvers;
 
     Double_t  rho;
     TVector3  pca;
     
-  
+    //MC parameters
+    TVector3 posm2;  //ci salvo la posizione di uscita reale del primario nel suo ultimo hit,\
+                       se il primario non esce, posm2=(0,0,99) \
+                       lo uso per checkMC(), almeno all'inizio che non ho un event display.. \
+                       potrei farne a meno visto che è solo controllo in più... \
+                       fatto in coordinate locali!
+                       
+
+    
 };
 
 //##############################################################################

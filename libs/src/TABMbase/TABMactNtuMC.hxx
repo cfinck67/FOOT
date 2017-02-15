@@ -10,6 +10,7 @@
 #include "Evento.h"
 #include "foot_geo.h"
 
+#include "TVector3.h"
 #include "TAGaction.hxx"
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
@@ -24,6 +25,8 @@ class TABMactNtuMC : public TAGaction {
     virtual         ~TABMactNtuMC();
 
     virtual Bool_t  Action();
+
+    Double_t FindRdrift(TVector3 loc, TVector3 mom, TVector3 A0, TVector3 Wvers);
 
     ClassDef(TABMactNtuMC,0)
 
