@@ -49,7 +49,7 @@ class TABMntuHit : public TObject {
     TVector3 GetPca() {return pca;};
     TVector3 GetPosm2() {return posm2;};
 
-    void SmearRdrift(); //to smear rdrift with resolution, use it ONLY for MC events!
+    void SmearRdrift(Int_t smear_type); //to smear rdrift with resolution, use it ONLY for MC events!
 
     //setters
     void SetTrkAss(Int_t in_ass) { itrkass = in_ass;};

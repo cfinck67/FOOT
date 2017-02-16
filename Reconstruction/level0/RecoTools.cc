@@ -132,6 +132,8 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
 
 void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
+  //Initializing the Geometry class that handles the 
+  //detector positioning and global to local transformations
   fGeoTrafo = new TAGgeoTrafo();
   TString filename = m_wd + "/FOOT_geo.map";
   fGeoTrafo->InitGeo(filename.Data());
@@ -173,9 +175,11 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
   if(m_debug) cout<<" Found branches "<<endl;
 
+  //Configure the output flagging
   tagr->SetCampaignNumber(100);
   tagr->SetRunNumber(1);
 
+  //Define the output file content.
   my_out = new TAGactTreeWriter("my_out");
  
   /*
@@ -554,11 +558,11 @@ void RecoTools::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
 
   my_out->SetupElementBranch(myn_bmraw,     "bmrh.");
 
-  //  myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
+  myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
 
-  //  new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
+  new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
 
-  //  my_out->SetupElementBranch(myn_bmtrk,     "bmtrk.");
+  my_out->SetupElementBranch(myn_bmtrk,     "bmtrk.");
 
   return;
 }

@@ -22,7 +22,7 @@ using namespace std;
 #include "EventDisplay.h"
 #include "TDatabasePDG.h"
 #include "DAF.h"
-
+#include <TDecompChol.h>
 
 /*!
   \class TABMactNtuTrack TABMactNtuTrack.hxx "TABMactNtuTrack.hxx"
@@ -117,9 +117,11 @@ Bool_t TABMactNtuTrack::Action()
   Int_t BMdebug=0;
   Int_t readyToFit = 3; //to fit (0=not fit, 1=simpleFitter, 2=refFitter, 3=dafSimpleFitter, 4=dafRefFitter)
   bool vediamo=false;  	//to use the eventDisplay of Genfit (not implemented now)
-  Double_t chi2cut=200.; //temporary, an optimum chi2cut value isn't found yet (load it from beamconfig?)
+  bool cell_bool=true; //temporary: if the event have a hit in a cell =  cell_flag, cell_flag will be = false
+  vector<Int_t> cell_flag;//temporary:if the event have a hit in a cell that is = cell_flag, the event will be signed as rejected  
+  Double_t chi2cut=2.2; //temporary, an optimum chi2cut value isn't found yet (load it from beamconfig?)
   Double_t wire_err=0.003; //temporary, is the error of the wire position 
-  Double_t maxError=0.5;  //temporary, used in checkTr, is the error tollerance of the fitted primary position and the exact primary position (MC) 
+  Double_t maxError=100;  //temporary, used in checkTr, is the error tollerance of the fitted primary position and the exact primary position (MC) 
   
   Double_t tmp_double, res;
   bool onlyPrimary, converged;
@@ -127,7 +129,7 @@ Bool_t TABMactNtuTrack::Action()
   Double_t x, y, z, cx, cy, cz;
   Double_t sign = 1.; //Charged particles (probably useless)
   Int_t pdg = 2212; //proton=2212 
-  AbsTrackRep* rep = new RKTrackRep(sign*pdg);
+  //~ AbsTrackRep* rep = new RKTrackRep(sign*pdg);
   
   Int_t hit_view, tmp_int, tmp_cellx=1, tmp_celly=1, tracknum=1;
   const Int_t det_Id = 1; //beam monitor Id (useless parameter need for genfit)
@@ -136,21 +138,32 @@ Bool_t TABMactNtuTrack::Action()
   vector<vector<Int_t>> hitxplane(p_bmgeo->GetLayersNumber()*2); //number of hit for every bm plane (plane should be 12 in BM)
   TABMntuHit* p_hit;
   Int_t firedPlane=p_bmgeo->GetLayersNumber()*2; //number of plane fired
+  TDecompChol fitTrack_cov;  
     
   TVector3 priexit(0,0,100); //primary last release in BMN coordinates (from MC)
   TVector3 init_pos(0.,0.,p_bmgeo->GetCenter().z()-p_bmgeo->GetLength());
   TVector3 init_mom(0.,0.,1.);//initial position and momentum for tracking, for BM porpouse the primary track should always have these inital values
 
-  Track fitTrack(rep, init_pos, init_mom);
+  Track* fitTrack(nullptr);
+  TrackPoint* fitTrack_point;
+  AbsFitterInfo* fitTrack_info;
 
   if(i_nhit==0)
     readyToFit=0;
+  
+  cell_flag.push_back(0);  
+  cell_flag.push_back(5);  
+  cell_flag.push_back(8);  
+  cell_flag.push_back(9);  
   
   //counter for number of possible tracks:
   for(Int_t i_h = 0; i_h < i_nhit; i_h++) {
     p_hit = p_ntuhit->Hit(i_h);
     if(ToBeConsider(p_hit->Cell(), p_hit->View(), p_hit->Plane()))
       hitxplane[p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())].push_back(i_h);
+    for(Int_t kk=0; kk<cell_flag.size();kk++)//WORK IN PROGRESS
+      if(p_bmgeo->GetBMNcell(p_hit->Plane(), p_hit->View(), p_hit->Cell())==cell_flag[kk])
+        cell_bool=false;//WORK IN PROGRESS
     }
   for(Int_t j = 0; j < hitxplane.size(); j++) {  
     if(hitxplane[j].size()!=0)
@@ -168,6 +181,7 @@ Bool_t TABMactNtuTrack::Action()
   vector<TABMntuTrackTr> alltrack; 
   vector<bool> possiblePrimary(tracknum, true);
   vector<vector<Int_t>> hitxtrack(tracknum); 
+  vector<Double_t> hit_res(firedPlane); //needed in CalculateMyChi2 
   for(Int_t j=0; j<tracknum; j++)
     hitxtrack[j].resize(firedPlane);  
 
@@ -222,6 +236,10 @@ Bool_t TABMactNtuTrack::Action()
   if((tracknum>1 && BMdebug>1) || BMdebug>=3)
     cout<<"number of total hits="<<i_nhit<<"   number of possible tracks="<<tmp_int<<"  number of fired plane="<<firedPlane<<endl;  
 
+  vector<TMatrixDSym> hitCov_vec(tmp_int);
+  vector<TVectorD> hitCoords_vec(tmp_int);
+
+
   if(tmp_int==0 || firedPlane<8){
     cout<<"no possible track!"<<endl;
     readyToFit=0;
@@ -246,6 +264,15 @@ Bool_t TABMactNtuTrack::Action()
      
       tmp_trackTr.Clean(); 
       tmp_trackTr.SetNhit(firedPlane); 
+      
+      //~ fitTrack.Clear();
+      //~ fitTrack.deleteTrackPointsAndFitStatus();
+      //~ fitTrack.setStateSeed(init_pos, init_mom);
+      delete fitTrack;
+      fitTrack = nullptr;
+      AbsTrackRep* rep = new RKTrackRep(sign*pdg);
+      fitTrack = new Track(rep, init_pos, init_mom); 
+      
               
       //charge hits
       for(Int_t i_h = 0; i_h <firedPlane ; i_h++) {
@@ -279,11 +306,17 @@ Bool_t TABMactNtuTrack::Action()
         hitCoords(5)=z+cz;
         hitCoords(6)= p_hit->Dist();
         
+        hitCoords_vec.push_back(hitCoords);
+        
         res=p_bmcon->ResoEval(p_hit->Dist());
         hitCov.UnitMatrix();         // matrice di covarianza da settare meglio: per ora metto solo matrice diagonale con errore su posizione fili 
         hitCov *= wire_err*wire_err; //ed errore su rdrift, manca studio sulla correlazione tra le componenti... ma forse non serve
         hitCov[6][6]=res*res; 
+
+        hitCov_vec.push_back(hitCov);
         //hitCov*=res*res;
+            
+        hit_res[i_h]=res;
             
         if(BMdebug>=3){
           cout<<"show charging BM data:"<<endl;
@@ -292,8 +325,8 @@ Bool_t TABMactNtuTrack::Action()
           cout<<"view"<<p_hit->View()<<"  rdrift="<<p_hit->Dist()<<endl;
           }
           
-        AbsMeasurement* measurement = new WireMeasurement(hitCoords, hitCov, det_Id, i_h, new TrackPoint(&fitTrack));
-        fitTrack.insertMeasurement(measurement); 	 
+        AbsMeasurement* measurement = new WireMeasurement(hitCoords_vec.back(), hitCov_vec.back(), det_Id, i_h, new TrackPoint(fitTrack));
+        fitTrack->insertMeasurement(measurement); 	 
         }//end of charge hits loop
       
       //fitting!
@@ -301,44 +334,63 @@ Bool_t TABMactNtuTrack::Action()
 
         if(BMdebug>=3)
           cout<<"ready to fit="<<readyToFit<<endl;
-        fitTrack.checkConsistency();
+        fitTrack->checkConsistency();
         
-        if(readyToFit==1)  simpleFitter->processTrack(&fitTrack); 
-        if(readyToFit==2)  refFitter->processTrack(&fitTrack); 
-        if(readyToFit==3)  dafSimpleFitter->processTrack(&fitTrack);
-        if(readyToFit==4)  dafRefFitter->processTrack(&fitTrack);
+        if(readyToFit==1)  simpleFitter->processTrack(fitTrack); 
+        if(readyToFit==2)  refFitter->processTrack(fitTrack); 
+        if(readyToFit==3)  dafSimpleFitter->processTrack(fitTrack);
+        if(readyToFit==4)  dafRefFitter->processTrack(fitTrack);
         
-        fitTrack.checkConsistency();
+        fitTrack->checkConsistency();
         if(BMdebug>=3)
           cout<<"end of fitting"<<endl;
         
-        converged=fitTrack.getFitStatus(rep)->isFitConverged();
+        converged=(fitTrack->getFitStatus(rep)->isFitConverged());
         
         if(converged){
-          tmp_trackTr.SetChi2New(fitTrack.getFitStatus(rep)->getChi2());
-          tmp_trackTr.SetNdf(fitTrack.getFitStatus(rep)->getNdf());  
-          tmp_trackTr.SetFailedPoint(fitTrack.getFitStatus(rep)->getNFailedPoints());  
-          if(fitTrack.getFitStatus(rep)->getNdf()!=0)        
-            tmp_trackTr.SetChi2NewRed((double) fitTrack.getFitStatus(rep)->getChi2()/fitTrack.getFitStatus(rep)->getNdf());          
+          if(fitTrack->getNumPoints()!=fitTrack->getNumPointsWithMeasurement()){
+            cout<<"WARNING: number of trackPoints is different from number of trackPointWithMeasurement.. something odd is happened"<<endl;
+            converged=false;
+            }
+          }
+          
+        if(converged){
+          if(BMdebug>=3)
+            cout<<"fit is converged"<<endl;
+          if(fitTrack->getFitStatus(rep)->getNFailedPoints()==0)
+            tmp_trackTr.CalculateMyChi2(fitTrack, BMdebug, hit_res);
+          tmp_trackTr.SetChi2New(fitTrack->getFitStatus(rep)->getChi2());
+          tmp_trackTr.SetNdf(fitTrack->getFitStatus(rep)->getNdf());  
+          tmp_trackTr.SetFailedPoint(fitTrack->getFitStatus(rep)->getNFailedPoints());  
+          if(fitTrack->getFitStatus(rep)->getNdf()!=0)        
+            tmp_trackTr.SetChi2NewRed((double) fitTrack->getFitStatus(rep)->getChi2()/fitTrack->getFitStatus(rep)->getNdf());          
+          tmp_trackTr.SetIsConverged(1);
           }
         else{
+          if(BMdebug>=3)
+            cout<<"fit not converged"<<endl;
+          tmp_trackTr.SetIsConverged(2);
           tmp_trackTr.SetChi2New(990);
           tmp_trackTr.SetNdf(0);
           tmp_trackTr.SetFailedPoint(firedPlane);
           tmp_trackTr.SetChi2NewRed(100);          
           }
           
-        if(tmp_trackTr.GetChi2New()>990)  //lo faccio perchè sennò ho grafici chi2 troppo larghi
-          tmp_trackTr.SetChi2New(980);
-        if(tmp_trackTr.GetChi2NewRed()>100)  //lo faccio perchè sennò ho grafici chi2red troppo larghi
-          tmp_trackTr.SetChi2NewRed(100);
+        //~ if(tmp_trackTr.GetChi2New()>990)  //lo faccio perchè sennò ho grafici chi2 troppo larghi
+          //~ tmp_trackTr.SetChi2New(980);
+        //~ if(tmp_trackTr.GetChi2NewRed()>100)  //lo faccio perchè sennò ho grafici chi2red troppo larghi
+          //~ tmp_trackTr.SetChi2NewRed(90);
+        //~ if(tmp_trackTr.GetMyChi2()>160)  //lo faccio perchè sennò ho grafici chi2red troppo larghi
+          //~ tmp_trackTr.SetMyChi2(150);
+        //~ if(tmp_trackTr.GetMyChi2Red()>15)  //lo faccio perchè sennò ho grafici chi2red troppo larghi
+          //~ tmp_trackTr.SetMyChi2Red(14);
               
         if(p_bmcon->IsMC())
           tmp_trackTr.MCcheckTr(chi2cut, onlyPrimary, converged, priexit, p_bmcon->GetMylar2cut(), fitTrack, BMdebug, maxError);
     
         if(BMdebug>=2 && converged){
           cout<<"print fit status:"<<endl;
-          fitTrack.getFitStatus(rep)->Print();
+          fitTrack->getFitStatus(rep)->Print();
           }
       }//end of fitting (readytofit)
       
@@ -347,31 +399,48 @@ Bool_t TABMactNtuTrack::Action()
   }
 }//end of loop on all possible track
   
+  //~ if(alltrack.size()!=0){
+    //~ tmp_int=0;
+    //~ tmp_double=alltrack[0].GetChi2New();
+    //~ for(Int_t i=1;i<alltrack.size();i++){
+      //~ if(tmp_double>alltrack[i].GetChi2New()){
+        //~ tmp_double=alltrack[i].GetChi2New();
+        //~ tmp_int=i;
+        //~ }
+      //~ }
+    //~ }
+    
   if(alltrack.size()!=0){
     tmp_int=0;
-    tmp_double=alltrack[0].GetChi2New();
+    tmp_double=alltrack[0].GetMyChi2Red();
     for(Int_t i=1;i<alltrack.size();i++){
-      if(tmp_double>alltrack[i].GetChi2New()){
-        tmp_double=alltrack[i].GetChi2New();
+      if(tmp_double>alltrack[i].GetMyChi2Red()){
+        tmp_double=alltrack[i].GetMyChi2Red();
         tmp_int=i;
         }
       }
-    }
+    }    
   else{
     alltrack.push_back(tmp_trackTr);
     tmp_int=0;
     }
   
-  if(BMdebug>=3)
+  if(BMdebug>=3){
     cout<<"tracks with smallest chi2="<<tmp_int<<" alltrack.size="<<alltrack.size()<<endl;  
-        
+    cout<<"registered  mychi2reduced="<<alltrack[tmp_int].GetMyChi2Red()<<"   mychi2registered="<<alltrack[tmp_int].GetMyChi2()<<endl;
+    }
+            
   //set and store trackTr parameters:
-  new((*(p_ntutrk->t))[p_ntutrk->ntrack]) TABMntuTrackTr(alltrack[tmp_int]);
-    p_ntutrk->ntrack = 1;  
+  //PROVVISORIO!!!  metto ciclo if solo per selezionare alcuni eventi di mio interesse ora.
+  if(alltrack[tmp_int].GetIsConverged()==1 && alltrack[tmp_int].GetMyChi2Red()<=20){
+    new((*(p_ntutrk->t))[p_ntutrk->ntrack]) TABMntuTrackTr(alltrack[tmp_int]);
+      p_ntutrk->ntrack = 1;  
+  }
   
   if(BMdebug>=3)
     cout<<"end of NEW tabmactntutrack"<<endl;
   
+  delete fitTrack;
   
   fpNtuTrk->SetBit(kValid);
   return kTRUE; //in this way I cut off the old tracking
