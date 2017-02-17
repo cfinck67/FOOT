@@ -15,6 +15,7 @@ using namespace genfit;
 #include "DetPlane.h"
 #include "StateOnPlane.h"
 #include "SharedPlanePtr.h"
+#include <TDecompChol.h>
 
 
 /*!
@@ -31,7 +32,8 @@ TABMntuTrackTr::TABMntuTrackTr()
   : nwire(0), nass(0),
     x0(0.), y0(0.), ux(0.), uy(0.),
     nhit(0), chi2(999.), check(99),
-    ndf(0), failedPoint(0) 
+    ndf(0), failedPoint(0), mychi2(160), mychi2Red(15), 
+    isConverged(0)
 {
 
   trackrho.Zero();
@@ -91,8 +93,11 @@ void TABMntuTrackTr::Clean()
   //new tracking
   nhit=0;
   chi2=999.;
+  mychi2=160;
+  mychi2Red=15;
   ndf=0;
   failedPoint=0;
+  isConverged=0;
   
   check=99;
   residuo=3;
@@ -100,27 +105,32 @@ void TABMntuTrackTr::Clean()
 
 //********************************* NEW TRACKING  **********************************
 
-void TABMntuTrackTr::MCcheckTr(Double_t chi2cut, bool onlyPrimary, bool converged, TVector3 priexit, Double_t mylar2_cut, Track fitTrack, Int_t& BMdebug, Double_t maxError){
+void TABMntuTrackTr::MCcheckTr(Double_t chi2cut, bool onlyPrimary, bool converged, TVector3 priexit, Double_t mylar2_cut, Track *fitTrack, Int_t& BMdebug, Double_t maxError){
 
 Double_t prim2=sqrt(priexit.X()*priexit.X()+priexit.Y()*priexit.Y());
 bool goodEvent=(prim2<mylar2_cut && priexit.Z()>5. && priexit.Z()<11.5) ? true : false; //messo a mano per ora
 //per ora un goodEvent è quando primario esce dall'ultimo piano di celle ed ha distanza in xy dall'origine < mylar2_cut
-
+TVector3 fitpos;
 bool goodTrack=false; 
- 
-if(chi2<chi2cut && converged)
-  goodTrack=MCcheckLastPoint(fitTrack, priexit, maxError, BMdebug);
-  
-  
+
+if(mychi2Red<chi2cut && converged)
+  goodTrack=MCcheckLastPoint(fitTrack, priexit, maxError, BMdebug, fitpos);
+
 //tracking is right
 if(goodTrack && goodEvent && onlyPrimary) check=1; //tracking has selected a very good primary track (best and easy situation)
 if(goodTrack && goodEvent && !onlyPrimary) check=2; //tracking has selected a good primary track even if there's hit from other particle
 if(!goodTrack && !goodEvent) check=3; //tracking has rejected a non primary track
 
 //tracking is wrong
-if(goodTrack && !goodEvent) check=5; //tracking selected a good track even if isn't a primary track 
-if(!goodTrack && goodEvent && onlyPrimary) check=6; //tracking has lost a good primary track (very very bad)
+if(goodTrack && !goodEvent) check=5; //tracking selected a good track even if isn't a primary track (very very bad) 
+if(!goodTrack && goodEvent && onlyPrimary) check=6; //tracking has lost a good primary track (bad)
 if(!goodTrack && goodEvent && !onlyPrimary) check=7; //tracking has lost a good primary track, but there is other particles in the chamber
+
+//~ if(check==6 && converged){
+  //~ cout<<"check=6!"<<endl;
+  //~ cout<<"last MC point is: Z="<<priexit.Z()<<" Y="<<priexit.Y()<<" X="<<priexit.X()<<endl;
+  //~ cout<<"fitted track at same Z is: Y="<<fitpos.Y()<<" X="<<fitpos.X()<<endl;  
+  //~ }
 
 return;  
 }
@@ -128,13 +138,12 @@ return;
 
 //find and set fitpos: the position of the fitted particle on the plane (x,y) at realpos.Z().
 //it returns true if the fitted position and real position difference is less than maxError, else it return false
-bool TABMntuTrackTr::MCcheckLastPoint(Track fitTrack, TVector3 realpos, Double_t maxError, Int_t BMdebug){
+bool TABMntuTrackTr::MCcheckLastPoint(Track *fitTrack, TVector3 realpos, Double_t maxError, Int_t BMdebug, TVector3& fitpos){
 
-TVector3 fitpos;
 TVector3 xvers(1.,0,0);
 TVector3 yvers(0,1.,0);
 SharedPlanePtr plane(new DetPlane(realpos,xvers, yvers));
-StateOnPlane state(fitTrack.getFittedState(fitTrack.getNumPoints()-1));  
+StateOnPlane state(fitTrack->getFittedState(fitTrack->getNumPoints()-1));  
 double useless=state.extrapolateToPlane(plane);
 fitpos=state.getPos();
 if(fitpos.Z()-realpos.Z()!=0){
@@ -161,6 +170,7 @@ else
 return false;
 }
 
+//NOT USED NOW
 void TABMntuTrackTr::MCcheckFewHit(TVector3 priexit, Int_t BMdebug){
   double xy=sqrt(priexit.X()*priexit.X()+priexit.Y()*priexit.Y());
   if(priexit.Z()==-99 || priexit.Z()==100 || priexit.Z()<6. || xy>2.) //ATTENZIONE!!! -8 È DOVE FINISCE CAMERA, MESSO A MANO! xy=2 da studio anafoot
@@ -172,6 +182,123 @@ void TABMntuTrackTr::MCcheckFewHit(TVector3 priexit, Int_t BMdebug){
     cout<<"meno di 12 hit: check="<<check<<endl;
 
 return;  
+}
+
+
+void TABMntuTrackTr::CalculateMyChi2(Track* fitTrack, Int_t BMdebug, vector<Double_t>& hit_res){
+Int_t hit_num=fitTrack->getNumPointsWithMeasurement();
+Int_t hit_num_withcov=0;
+Double_t lenght, old_rdrift, new_rdrift, mychi2_in=0.;
+TVector3 wire_pos, wire_dir;
+Double_t wire_err=0.003; //provvisorio!!!
+AbsMeasurement* measurement;
+TDecompChol fitTrack_cov;  
+
+if(BMdebug>=4)
+  cout<<"sono in calculate, numero hit="<<hit_num<<"  ora inizio loop"<<endl;
+if(hit_res.size()!=hit_num){
+  cout<<"WARNING:    hit_res and hit_num is different!!!!!!!!!!!!!!!!!!!!!!!!!   hit_res.size="<<hit_res.size()<<"   hit_num="<<hit_num<<endl;
+  return;
+  }
+
+//~ TMatrixDSym hitCov(7);
+//~ vector<TMatrixDSym> hitCov_vec(hit_num);
+//~ hitCov.UnitMatrix();         // matrice di covarianza da settare meglio: per ora metto solo matrice diagonale con errore su posizione fili 
+//~ hitCov *= wire_err*wire_err; //ed errore su rdrift, manca studio sulla correlazione tra le componenti... ma forse non serve
+//~ hitCov[6][6]=0.015*0.015;//provvisorio 
+//~ for(Int_t i=0;i<hit_num;i++)
+  //~ hitCov_vec.push_back(hitCov);
+  
+for(Int_t i=0;i<hit_num;i++){
+  Track extrapTrack(*fitTrack);
+  fitTrack_cov=fitTrack->getPointWithMeasurement(i)->getRawMeasurement(0)->getRawHitCov();
+  if(fitTrack_cov.Decompose()){
+    if(BMdebug>4)
+      cout<<"mi carico state, trackrep number="<<extrapTrack.getNumReps()<<endl;
+    MeasuredStateOnPlane state=extrapTrack.getFittedState(i);
+    if(BMdebug>4)
+      cout<<"estratto stato, numero di misure="<<extrapTrack.getPointWithMeasurement(i)->getNumRawMeasurements()<<endl;
+    //~ cout<<"provo ad estrarre lo stateonplane; extrapTrack.getnumpointsetc="<<extrapTrack.getNumPointsWithMeasurement()<<"per questo trackpoint ho questi getrawmeasurement="<<extrapTrack.getPointWithMeasurement(i)->getNumRawMeasurements()<<endl;
+    
+    measurement=extrapTrack.getPointWithMeasurement(i)->getRawMeasurement(0); 
+    if(BMdebug>4)
+      cout<<"estratto misura"<<endl;
+    lenght=extrapTrack.getTrackRep(0)->extrapolateToMeasurement(state, measurement);//mi serve perchè modifica lo state usato dopo per new_rdrift
+    if(BMdebug>4)
+      cout<<"dopo lenght"<<endl;
+    old_rdrift=measurement->getRawHitCoords()[6];
+    wire_pos.SetXYZ(measurement->getRawHitCoords()[0],measurement->getRawHitCoords()[1],measurement->getRawHitCoords()[2]);
+    wire_dir.SetXYZ(measurement->getRawHitCoords()[3],measurement->getRawHitCoords()[4],measurement->getRawHitCoords()[5]);
+    wire_dir=wire_dir-wire_pos;
+    wire_dir.SetMag(1.);
+    if(BMdebug>3)
+      cout<<"wire_pos=("<<wire_pos.X()<<", "<<wire_pos.Y()<<", "<<wire_pos.Z()<<")"<<"   wire_dir=("<<wire_dir.X()<<", "<<wire_dir.Y()<<", "<<wire_dir.Z()<<")"<<"  lenght="<<lenght<<endl;
+    if(wire_dir.Z()!=0 || !(wire_dir.X()==1 || wire_dir.Y()==1))
+      cout<<"WARNING:    wire_dir have a problem:   wire_dir=("<<wire_dir.X()<<", "<<wire_dir.Y()<<", "<<wire_dir.Z()<<")"<<endl;
+    new_rdrift=FindRdrift(state.getPos(), state.getMom(), wire_pos, wire_dir);
+    mychi2_in+=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i];
+    if(BMdebug>=4)
+      cout<<"old rdrift ="<<old_rdrift<<"  new rdrift="<<new_rdrift<<"  diff="<<fabs(old_rdrift-new_rdrift)<<"  res="<<hit_res[i]<<"  contributo chi2="<<(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i]<<endl;
+    hit_num_withcov++;
+  }
+}
+
+mychi2=mychi2_in;
+if(hit_num_withcov!=4)
+  mychi2Red=mychi2_in/(hit_num_withcov-4.);
+else{
+  cout<<"hit_num_withcov=4!!!!! no chi2red possible"<<endl;
+  mychi2Red=10;
+  }
+if(BMdebug>3)
+  cout<<"mychi2="<<mychi2_in<<"  mychi2Red="<<mychi2Red<<endl;
+
+return;
+}
+
+
+
+Double_t TABMntuTrackTr::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers) {
+
+  Double_t tp = 0., tf= 0., rdrift; 
+  TVector3 D0, R0, Pvers;
+
+  //~ if (dir.Mag()!=0.)
+    //~ dir.SetMag(1.);
+  //~ else{
+  if(dir.Mag()==0.){
+    cout<<"WARNING: FindRdrift: momentum is 0 and the hit shouldn't be charged because this hit is from a fragmentated particle with zero momentum"<<endl;
+    return 99;//fake value
+    }
+    
+  R0.SetXYZ(pos.X(),pos.Y(),pos.Z());//set position
+  Pvers=dir;
+  Pvers.SetMag(1.);
+  
+  D0 = R0 - A0;//distance between position of reference point of current wire and current particle position
+
+  Double_t prosca = Pvers*Wvers ;//scalar product of directions
+  Double_t D0W = D0*Wvers;//distance projected on wire
+  Double_t D0P = D0*Pvers;//distance projected on particle direction
+
+  if(prosca!= 1.) {//if the don't fly parallel
+    tp = (D0W*prosca - D0P)/(1.-prosca*prosca);
+    tf = (-D0P*prosca + D0W)/(1.-prosca*prosca);
+    rdrift = sqrt( abs(D0.Mag2() + tp*tp + tf*tf + 2.*tp*D0P -2.*tf*D0W -2.*prosca*tf*tp ));
+    } 
+  else  //if they go parallel
+    rdrift = sqrt(abs( D0.Mag2() - D0W*D0W)); 
+
+  if(rdrift<0)
+    cout<<"WARNING!!!!! SOMETHING IS WRONG, YOU HAVE A NEGATIVE RDRIFT!!!!!!!!!"<<endl;
+  //~ if(rdrift>0.96)
+    //~ cout<<"WARNING!!!!! SOMETHING IS WRONG, YOU HAVE A TOO BIG RDRIFT!!!!!!!!! rdrift="<<rdrift<<endl;
+  if(rdrift<0){
+    cout<<"pos=("<<pos.X()<<","<<pos.Y()<<","<<pos.Z()<<")  dir=("<<dir.X()<<","<<dir.Y()<<","<<dir.Z()<<")"<<endl;
+    cout<<"A0=("<<A0.X()<<","<<A0.Y()<<","<<A0.Z()<<")  Wvers=("<<Wvers.X()<<","<<Wvers.Y()<<","<<Wvers.Z()<<")"<<endl;
+    }
+    
+  return rdrift;
 }
 
 //**********************************OLD TRACKING****************************************

@@ -97,10 +97,31 @@ void TABMntuHit::SetAW(TABMparGeo* f_bmgeo) {
   return;
 }
 
-void TABMntuHit::SmearRdrift(){
+void TABMntuHit::SmearRdrift(Int_t smear_type){
 gRandom->SetSeed(14);
-rdrift=fabs(gRandom->Gaus(rdrift,sigma));  
-if(rdrift>0.943) rdrift=0.943; 
+Double_t a, smeared=-1.;
+
+if(smear_type==0)
+  return;
+
+if(smear_type==4){ //flat smearing
+  a=sigma*sqrt(12.)/2.;
+  do{smeared=rdrift+gRandom->Uniform(-a,a);}while(smeared<0 || smeared>0.943);
+  }
+
+if(smear_type==1){ //gaussian truncated to 1 sigma
+  do{smeared=gRandom->Gaus(rdrift,sigma);}while(smeared<0 || smeared>0.943 || fabs(smeared-rdrift)>sigma);
+  }
+
+if(smear_type==2){ //gaussian truncated to 2 sigma
+  do{smeared=gRandom->Gaus(rdrift,sigma);}while(smeared<0 || smeared>0.943 || fabs(smeared-rdrift)>2.*sigma);
+  }
+
+if(smear_type==3){ //gaussian truncated to 3 sigma
+  do{smeared=gRandom->Gaus(rdrift,sigma);}while(smeared<0 || smeared>0.943 || fabs(smeared-rdrift)>3.*sigma);
+  }
+
+rdrift=smeared;
 return;  
 } 
 

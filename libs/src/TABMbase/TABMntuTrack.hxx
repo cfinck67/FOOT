@@ -92,28 +92,39 @@ class TABMntuTrackTr : public TObject {
     void SetNhit (Int_t nhi) { nhit = nhi;};
     void SetChi2New(Double_t chi) {chi2 = chi;};
     void SetChi2NewRed(Double_t chi2_re) {chi2Red = chi2_re;};
+    void SetMyChi2(Double_t mychi) {mychi2 = mychi;};
+    void SetMyChi2Red(Double_t mychi) {mychi2Red = mychi;};
     void SetNdf(Double_t nd) {ndf = nd;};
     void SetFailedPoint(Int_t fail) {failedPoint = fail;};
+    void SetIsConverged(Int_t conv) {isConverged = conv;};
     
     //Getters
     Int_t  GetNhit() {return nhit;};
     Double_t GetChi2New() {return chi2;};
     Double_t GetChi2NewRed() {return chi2Red;};
+    Double_t GetMyChi2() {return mychi2;};
+    Double_t GetMyChi2Red() {return mychi2Red;};
     Double_t GetNdf() {return ndf;};
     Int_t GetFailedPoint() {return failedPoint;};
     Int_t GetCheck(){return check;};
+    Int_t GetIsConverged(){return isConverged;};
     Double_t GetResiduo(){return residuo;};
     
-    void MCcheckTr(Double_t chi2cut, bool onlyPrimary, bool converged, TVector3 priexit, Double_t mylar2_cut, genfit::Track fitTrack, Int_t& BMdebug, Double_t maxError);
-    bool MCcheckLastPoint(genfit::Track fitTrack, TVector3 realpos, Double_t maxError, Int_t BMdebug);
+    void MCcheckTr(Double_t chi2cut, bool onlyPrimary, bool converged, TVector3 priexit, Double_t mylar2_cut, genfit::Track* fitTrack, Int_t& BMdebug, Double_t maxError);
+    bool MCcheckLastPoint(genfit::Track* fitTrack, TVector3 realpos, Double_t maxError, Int_t BMdebug, TVector3& fitpos);
     void MCcheckFewHit(TVector3 priexit, Int_t BMdebug);
+    void CalculateMyChi2(genfit::Track* fitTrack, Int_t BMdebug, vector<Double_t>& hit_res);
+    Double_t FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers);    
     
     //parameters
     Int_t         nhit;	          //number of associated hits (different from nwire because of Double_t hits in the same cell)
-    Double_t 		  chi2;           //new tracking chi2
-    Double_t      chi2Red;        //chi2/ndf
+    Double_t 		  chi2;           //new tracking chi2 from Genfit
+    Double_t      chi2Red;        // chi2/ndf (from Genfit)
     Double_t      ndf;            //degree of freedom (I don't know why Genfit uses double instead of int)
     Int_t         failedPoint;    //number of point rejected by the fit (only for DAF fitters)
+    Double_t      mychi2;         //chi2 calculated from difference between measured rdrift and fitted rdrift (set by CalculateMyChi2)
+    Double_t      mychi2Red;      //mychi2 reduced
+    Int_t         isConverged;
     
     //MC parameters:
     Double_t    residuo;          //temporary: difference between fitted position and "real" position (from MC) of the last hit 

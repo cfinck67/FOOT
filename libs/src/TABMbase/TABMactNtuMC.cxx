@@ -57,7 +57,10 @@ Bool_t TABMactNtuMC::Action()
   TABMparCon* p_parcon = (TABMparCon*) fpParCon->Object();
   TABMparGeo* p_bmgeo = (TABMparGeo*) fpParGeo->Object();
 
+  //parameters:
   Int_t BMdebug=0;
+  Int_t smeary_type=3;    //smearing (0=no smearing, 1=gauss 1sigma, 2=gauss 2sigma, 3=gauss 3sigma, 4=flat)
+  Double_t rdrift_err=0.015;  //errore di default su rdrift (da usare nel caso da parcon non c'è errore)
 
   Int_t cell, view, lay, ipoint;
   vector<Int_t> hitxcell(fpEvtStr->BMNn, 99); 
@@ -104,6 +107,15 @@ Bool_t TABMactNtuMC::Action()
                    p_bmgeo->GetCZ(p_bmgeo->GetID(cell),lay,view)); 
       Wvers.SetMag(1.);                      
       rdriftxcell[i]=FindRdrift(loc, gmom, A0, Wvers);
+      
+      //provvisorio!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //~ cout<<"xin="<<fpEvtStr->BMNxin[i]<<"  xout="<<fpEvtStr->BMNxout[i]<<"  yin="<<fpEvtStr->BMNyin[i]<<"   yout="<<fpEvtStr->BMNyout[i]<<"   zin="<<fpEvtStr->BMNzin[i]<<"    zout="<<fpEvtStr->BMNzout[i]<<"  rdrift="<<rdriftxcell[i]<<"  errore="<<p_parcon->ResoEval(rdriftxcell[i])<<endl;
+      //~ TVector3 provvA0=A0;
+      //~ provvA0=provvA0+p_bmgeo->GetCenter();
+      //~ cout<<"provvA0=("<<provvA0.X()<<","<<provvA0.Y()<<","<<provvA0.Z()<<endl;
+      //~ cout<<"x="<<(fpEvtStr->BMNxin[i]+fpEvtStr->BMNxout[i])/2.<<"  y="<<(fpEvtStr->BMNyin[i]+fpEvtStr->BMNyout[i])/2.<<"   z="<<(fpEvtStr->BMNzin[i]+fpEvtStr->BMNzout[i])/2.<<"  rdrift="<<rdriftxcell[i]<<endl;
+      
+      
       if(rdriftxcell[i]==99) //FindRdrift return 99 if a particle is born without energy, so it shouldn't release energy for a hit.
         tobecharged[i]=false;
       //if there is a double hit in the same cell, it charges the hits if they have rdrift difference more than p_parcon->GetRdriftCut()
@@ -141,8 +153,17 @@ Bool_t TABMactNtuMC::Action()
         
       //X,Y and Z needs to be placed in Local coordinates.
       mytmp->SetAW(p_bmgeo);
-      mytmp->SetSigma(p_parcon->ResoEval(rdriftxcell[i]));
-      mytmp->SmearRdrift();
+      if(p_parcon->ResoEval(rdriftxcell[i])!=0)
+        mytmp->SetSigma(p_parcon->ResoEval(rdriftxcell[i]));
+      if(rdriftxcell[i]>=0.8 && p_parcon->ResoEval(rdriftxcell[i])==0) //messo a mano perchè in grafico non c'è caso oltre 0.8!!
+        mytmp->SetSigma(0.09);
+      if(rdriftxcell[i]<0.8 && p_parcon->ResoEval(rdriftxcell[i])==0){  
+        cout<<"WARNING: error from config is zero!!! going to set error=0.015; rdrift="<<rdriftxcell[i]<<endl;
+        mytmp->SetSigma(rdrift_err);
+        }
+      mytmp->SmearRdrift(smeary_type);   //smearing (0=flat, 1=gauss 1sigma, 2=gauss 2sigma, 3=gauss 3sigma)
+      if(BMdebug>=3)
+        cout<<"rdrift="<<rdriftxcell[i]<<"   error="<<p_parcon->ResoEval(rdriftxcell[i])<<endl;
       
       //siccome non ci sono i crossing, mi accontento dell'ultima posizione in uscita del primario dal bmn... almeno per ora
       mytmp->SetPosm2(in_posm2);
@@ -229,9 +250,15 @@ Double_t TABMactNtuMC::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVect
   if(rdrift>0.96)
     cout<<"WARNING!!!!! SOMETHING IS WRONG, YOU HAVE A TOO BIG RDRIFT!!!!!!!!! rdrift="<<rdrift<<endl;
   if(rdrift>0.96 || rdrift<0){
+    cout<<"rdrift="<<rdrift<<endl;
     cout<<"pos=("<<pos.X()<<","<<pos.Y()<<","<<pos.Z()<<")  dir=("<<dir.X()<<","<<dir.Y()<<","<<dir.Z()<<")"<<endl;
     cout<<"A0=("<<A0.X()<<","<<A0.Y()<<","<<A0.Z()<<")  Wvers=("<<Wvers.X()<<","<<Wvers.Y()<<","<<Wvers.Z()<<")"<<endl;
     }
+    
+    //~ //PROVVISORIO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //~ cout<<"rdrift="<<rdrift<<endl;
+    //~ cout<<"pos=("<<pos.X()<<","<<pos.Y()<<","<<pos.Z()<<")  dir=("<<dir.X()<<","<<dir.Y()<<","<<dir.Z()<<")"<<endl;
+    //~ cout<<"A0=("<<A0.X()<<","<<A0.Y()<<","<<A0.Z()<<")  Wvers=("<<Wvers.X()<<","<<Wvers.Y()<<","<<Wvers.Z()<<")"<<endl;  
     
   return rdrift;
 }
