@@ -116,13 +116,14 @@ void TADCparCon::loadT0s(const TString& name) {
     } else if(strchr(bufConf,'#')) {
       sscanf(bufConf, "#%lf %d %d %d",&myArg1,&myArg2,&myArg3,&myArg4);
       if((myArg2== -1 || myArg2==1) && (myArg3>=0 && myArg3<=5) && (myArg4>=0 || myArg4<=2)) {
-	int tmpv = myArg2;
-	if(myArg2<0)tmpv = 0;
-	int chidx = myArg4+myArg3*3+tmpv*18;
-	v_t0s.at(chidx) = myArg1;
-      } else {
-	Error(""," Plane Map Error:: check config file!!");
-	return;
+      	int tmpv = myArg2;
+      	if(myArg2<0)tmpv = 0;
+          	int chidx = myArg4+myArg3*3+tmpv*18;
+          	v_t0s.at(chidx) = myArg1;
+        } 
+        else {
+        	Error(""," Plane Map Error:: check config file!!");
+        	return;
       }
     }
   }
@@ -299,8 +300,10 @@ double TADCparCon::ResoEval(double dist) {
   int mybin(-1);
   if(my_hreso) {
     mybin = my_hreso->FindBin(dist);
-    sigma = my_hreso->GetBinContent(mybin)/10000;
+    sigma = my_hreso->GetBinContent(mybin)/1e4;
   }
+  if ( mybin == -1 ) 
+    sigma = 0.12;
   return sigma;
   
 }

@@ -27,6 +27,13 @@ class TABMparGeo : public TAGpara {
 
     //Id sense as function of cell
     Int_t           GetID(int cell);
+    
+    //get a number from 0 to 35 to identify any cell (ivew=1 or -1)
+    Int_t GetBMNcell(Int_t ilay, Int_t iview, Int_t icell){return icell+((iview==1) ? 0:1)*3+ilay*6;};
+
+    //get a number from 0 to 12 to identify real wire plane (iview=1 or -1)
+    Int_t GetWirePlane(Int_t ilay, Int_t iview){return ((iview==1) ? 0:1) + ilay*2;};
+
 
     //X,Y,Z as a function of wire, plane, view
     Double_t        GetX(int w, int p, int v);
@@ -75,6 +82,8 @@ class TABMparGeo : public TAGpara {
 
     virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
    
+    void CreateLocalBMGeo();
+       
     TGeoVolume*     AddBM(const char *bmName = "BM");
    
     TEveGeoShapeExtract* AddExtractBM(const char *bmName = "BM");

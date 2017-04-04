@@ -36,6 +36,7 @@ private:
    Int_t              fPixelIndex;                   // index of the pixel
    Int_t              fPixelLine;                    // line in the matrix
    Int_t              fPixelColumn;                  // column in the matrix
+   int                m_layer;
    Double_t           fRawValue;                     // the rawvalue
    Double_t           fPulseHeight;                  // pulseheight on pixel
    
@@ -75,6 +76,8 @@ public:
    void               SetPixelLine(Int_t aLin)        { fPixelLine = aLin;       }
    //! Set pixel column
    void               SetPixelColumn(Int_t aCol)      { fPixelColumn = aCol;     }
+
+   void               SetLayer(Int_t aLay)            { m_layer = aLay;     }
    //! Set pixel position
    void               SetPosition(TVector3 aPosition) { fPosition = aPosition;   }
    //! Set pixel size
@@ -91,6 +94,30 @@ public:
    //! Set MC truth momentum
    void               SetMCMomentum(TVector3 a_mom)   { fMCP = a_mom;            }
 
+   // Frank
+    void SetGeneratedParticleInfo ( int genPartID, int genPartFLUKAid, int genPartCharge,
+                        int genPartBarionNum, float genPartMass,
+                        TVector3 genPartPosition,
+                        TVector3 genPartMomentum ) {
+        m_genPartID = genPartID;
+        m_genPartFLUKAid = genPartFLUKAid;
+        m_genPartCharge = genPartCharge;
+        m_genPartBarionNum = genPartBarionNum;
+        m_genPartMass = genPartMass;
+        m_genPartPosition = genPartPosition;
+        m_genPartMomentum = genPartMomentum;
+    };
+    // Get generated particle quantities
+    //  provvisorio
+    int m_genPartID;
+    int m_genPartFLUKAid;
+    int m_genPartCharge;
+    int m_genPartBarionNum;
+    float m_genPartMass;
+    TVector3 m_genPartPosition;
+    TVector3 m_genPartMomentum;
+
+
   // set MC energy loss (VM 3/11/13)
   void SetEneLoss(Double_t de) { fEneLoss=de; }  
    
@@ -104,6 +131,8 @@ public:
    Double_t           GetRawValue()             const { return  fRawValue;       }
    //! Get pulse height
    Double_t           GetPulseHeight()          const { return  fPulseHeight;    }
+   // Quik hack by Frank, put it better
+   Int_t              GetLayer()               { return  m_layer;   }
    
    //! Get position
    TVector3&          GetPosition()                   { return  fPosition;       }
@@ -134,8 +163,6 @@ class TAVTntuRaw : public TAGdata {
 private:
    //using TObjArray here
    TObjArray*        fListOfPixels; 
-   
-private:   
    static TString    fgkBranchName;    // Branch name in TTree
    
 public:
@@ -153,6 +180,7 @@ public:
    TAVTntuHit*       NewPixel(Int_t sensor, Double_t value, Int_t aLine, Int_t aColumn);
    TAVTntuHit*       NewPixel(Int_t sensor, TAVTrawHit* pixel);
 
+   
    virtual void      SetupClones();
    
    virtual void      Clear(Option_t* opt="");

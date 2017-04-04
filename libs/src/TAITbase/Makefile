@@ -11,19 +11,21 @@ SOMINV     = 0
 #
 TINCLFLAGS += $(shell root-config --cflags)
 INCLFLAGS  = $(filter-out -stdlib=libc++, $(TINCLFLAGS))
-INCLFLAGS += -I../TAGbase  -I../TABMbase -I../../../Simulation/TXT2ROOT
+INCLFLAGS += -I../TAGbase -I../TAGfoot -I../TABMbase
+INCLFLAGS += -I../../../Simulation/TXT2ROOT -I../../../Simulation
 LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 # Files to be included
 #
 TOBJ_all   = TAITdatRaw.hxx  TAITntuRaw.hxx \
-	         TAITparMap.hxx TAITparGeo.hxx  TAITparConf.hxx TAITparCal.hxx TAITparTools.hxx\
-		TAITactBaseRaw.hxx \
-			 TAITactAscReader.hxx TAITrawEvent.hxx TAITactAscRaw.hxx\
-			 TAITactNtuRaw.hxx TAITactNtuMC.hxx TAITntuCluster.hxx \
-			 TAITntuTrack.hxx TAITactBaseNtuCluster.hxx TAITactNtuClusterF.hxx\
-			 TAITactNtuCluster.hxx TAITactBaseNtuTrack.hxx \
-			 TAITactNtuTrack.hxx  TAITactNtuTrackF.hxx  TAITactNtuTrackH.hxx 
+	         TAITparMap.hxx TAITparGeo.hxx  TAITparConf.hxx  TAITparTools.hxx\
+			 TAITactNtuRaw.hxx TAITactNtuMC.hxx
+			 # TAITactBaseRaw.hxx \
+			 # TAITactAscReader.hxx TAITrawEvent.hxx TAITactAscRaw.hxx TAITparCal.hxx\
+			 #  TAITntuCluster.hxx \
+			 # TAITntuTrack.hxx TAITactBaseNtuCluster.hxx TAITactNtuClusterF.hxx\
+			 # TAITactNtuCluster.hxx TAITactBaseNtuTrack.hxx \
+			 # TAITactNtuTrack.hxx  TAITactNtuTrackF.hxx  TAITactNtuTrackH.hxx 
 #	   TAITactNtuPostTrack.hxx         TAITeventDisplay.hxx TAITntuAlign.hxx TAITalign.hxx TAITactDatRaw.hxx 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #

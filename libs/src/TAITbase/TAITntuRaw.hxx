@@ -36,6 +36,7 @@ private:
    Int_t              fPixelIndex;                   // index of the pixel
    Int_t              fPixelLine;                    // line in the matrix
    Int_t              fPixelColumn;                  // column in the matrix
+   int                m_layer;
    Double_t           fRawValue;                     // the rawvalue
    Double_t           fPulseHeight;                  // pulseheight on pixel
    
@@ -75,6 +76,8 @@ public:
    void               SetPixelLine(Int_t aLin)        { fPixelLine = aLin;       }
    //! Set pixel column
    void               SetPixelColumn(Int_t aCol)      { fPixelColumn = aCol;     }
+   
+   void               SetLayer(Int_t aLay)      { m_layer = aLay;     }
    //! Set pixel position
    void               SetPosition(TVector3 aPosition) { fPosition = aPosition;   }
    //! Set pixel size
@@ -90,6 +93,29 @@ public:
    void               SetMCPosition(TVector3 a_pos)   { fMCPos = a_pos;          }
    //! Set MC truth momentum
    void               SetMCMomentum(TVector3 a_mom)   { fMCP = a_mom;            }
+
+   // Frank
+    void SetGeneratedParticleInfo ( int genPartID, int genPartFLUKAid, int genPartCharge,
+                        int genPartBarionNum, float genPartMass,
+                        TVector3 genPartPosition,
+                        TVector3 genPartMomentum ) {
+        m_genPartID = genPartID;
+        m_genPartFLUKAid = genPartFLUKAid;
+        m_genPartCharge = genPartCharge;
+        m_genPartBarionNum = genPartBarionNum;
+        m_genPartMass = genPartMass;
+        m_genPartPosition = genPartPosition;
+        m_genPartMomentum = genPartMomentum;
+    };
+    // Get generated particle quantities
+    //  provvisorio
+    int m_genPartID;
+    int m_genPartFLUKAid;
+    int m_genPartCharge;
+    int m_genPartBarionNum;
+    float m_genPartMass;
+    TVector3 m_genPartPosition;
+    TVector3 m_genPartMomentum;
 
   // set MC energy loss (VM 3/11/13)
   void SetEneLoss(Double_t de) { fEneLoss=de; }  
@@ -112,7 +138,8 @@ public:
    //! Get found flag
    Bool_t             Found()                         { return  fFound;          }
    //! Get plane number
-   Int_t              GetSensorNumber()               { return  fSensorNumber;   }
+   // Int_t              GetSensorNumber()               { return  fSensorNumber;   }
+   Int_t              GetLayer()               { return  m_layer;   }
    
    //! Get MC truth matching index
    Int_t              GetMCid()                       { return  fMCid;           }

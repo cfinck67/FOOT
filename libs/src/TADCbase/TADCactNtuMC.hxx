@@ -19,6 +19,7 @@ class TADCactNtuMC : public TAGaction {
     explicit        TADCactNtuMC(const char* name=0,
 				 TAGdataDsc* p_nturaw=0, 
 				 TAGparaDsc* p_parcon=0, 
+         TAGparaDsc* p_pargeo=0, 
 				 EVENT_STRUCT* evStr=0);
     virtual         ~TADCactNtuMC();
 
@@ -29,6 +30,7 @@ class TADCactNtuMC : public TAGaction {
   private:
     TAGdataDsc*     fpNtuMC;		    // output data dsc
     TAGparaDsc*     fpParCon;		    // DC config params.
+    TAGparaDsc*     fpParGeo;        // geo params.
     EVENT_STRUCT*   fpEvtStr;
 };
 

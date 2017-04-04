@@ -11,22 +11,26 @@ SOMINV     = 0
 #
 TINCLFLAGS += $(shell root-config --cflags)
 INCLFLAGS  = $(filter-out -stdlib=libc++, $(TINCLFLAGS))
-INCLFLAGS += -I../TAGbase  -I../TABMbase 
+INCLFLAGS += -I../TAGbase -I../TAGfoot -I../TABMbase 
 INCLFLAGS += -I../../../Simulation/TXT2ROOT -I../../../Simulation
 LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 # Files to be included
 #
-TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx \
-	         TAVTparMap.hxx TAVTparGeo.hxx  TAVTparConf.hxx TAVTparCal.hxx TAVTparTools.hxx\
-		TAVTactBaseRaw.hxx \
-			 TAVTactAscReader.hxx TAVTrawEvent.hxx TAVTactAscRaw.hxx\
-			 TAVTactNtuRaw.hxx TAVTactNtuMC.hxx TAVTntuCluster.hxx \
-			 TAVTntuTrack.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx\
-			 TAVTactNtuCluster.hxx TAVTactBaseNtuTrack.hxx \
-			 TAVTactNtuTrack.hxx  TAVTactNtuTrackF.hxx  TAVTactNtuTrackH.hxx TAVTactNtuPostTrack.hxx\
-             TAVTntuVertex.hxx TAVTactBaseNtuVertex.hxx TAVTactNtuVertex.hxx TAVTactNtuVertexPD.hxx\
-	             TAVTeventDisplayMC.hxx TAVTbaseEventDisplay.hxx 
+TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTparTools.hxx \
+	         TAVTparMap.hxx TAVTparGeo.hxx  TAVTparConf.hxx \
+	         TAVTactNtuRaw.hxx TAVTactNtuMC.hxx 	
+			 # TAVTactAscReader.hxx TAVTrawEvent.hxx TAVTactBaseRaw.hxx  \	
+			 # TAVTactAscRaw.hxx	TAVTparCal.hxx 	\
+			 
+			 # TAVTntuCluster.hxx \
+			 # TAVTntuTrack.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx\
+			 # TAVTactNtuCluster.hxx TAVTactBaseNtuTrack.hxx \
+			 # TAVTactNtuTrack.hxx  TAVTactNtuTrackF.hxx  TAVTactNtuTrackH.hxx TAVTactNtuPostTrack.hxx\
+    #          TAVTntuVertex.hxx TAVTactBaseNtuVertex.hxx TAVTactNtuVertex.hxx TAVTactNtuVertexPD.hxx\
+	   #           TAVTeventDisplayMC.hxx TAVTbaseEventDisplay.hxx 
+
+
 #	            TAVTeventDisplay.hxx TAVTntuAlign.hxx TAVTalign.hxx TAVTactDatRaw.hxx 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #

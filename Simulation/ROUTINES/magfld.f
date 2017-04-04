@@ -126,7 +126,10 @@
          END DO
          WRITE(*,*) ' Warning: J = NY',J,J1,J0,NREG,Y
  31      DO K=1,NZ
-            IF (ZLAT(K).GE.Z) THEN
+     
+#endif
+
+       IF (ZLAT(K).GE.Z) THEN
                K0=(K-1)
                K1=(K)
                GO TO 32

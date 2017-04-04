@@ -11,6 +11,13 @@
 #include "TAGroot.hxx"
 #include "TAGgeoTrafo.hxx"
 #include "TABMntuTrack.hxx"
+using namespace genfit;
+#include "DetPlane.h"
+#include "StateOnPlane.h"
+#include "SharedPlanePtr.h"
+#include "KalmanFitterInfo.h"
+#include <TDecompChol.h>
+
 
 /*!
   \class TABMntuTrackTr TABMntuTrack.hxx "TABMntuTrack.hxx"
@@ -24,7 +31,10 @@ ClassImp(TABMntuTrackTr);
 
 TABMntuTrackTr::TABMntuTrackTr()
   : nwire(0), nass(0),
-    x0(0.), y0(0.), ux(0.), uy(0.)
+    x0(0.), y0(0.), ux(0.), uy(0.),
+    nhit(0), chi2(999.),
+    ndf(0), failedPoint(0), mychi2(160), mychi2Red(15), 
+    isConverged(0)
 {
 
   trackrho.Zero();
@@ -38,8 +48,13 @@ TABMntuTrackTr::TABMntuTrackTr()
   trackpar(1) = y0;
   trackpar(2) = ux;
   trackpar(3) = uy;
-  tr_chi2 = 10000;
-
+  MaxRdriftErr=100;
+  AngZ=100;
+  AngZRes=100;
+  AngZResAv=100;
+  AngPhi=100;
+  AngPhiRes=100;
+  RTarget=100;
 }
 
 //------------------------------------------+-----------------------------------
@@ -49,7 +64,249 @@ TABMntuTrackTr::~TABMntuTrackTr()
 {}
 
 /*-----------------------------------------------------------------*/
+//**************************OLD AND NEW TRACKING***************************
+/*-----------------------------------------------------------------*/
 
+void TABMntuTrackTr::Dump() const
+{ 
+  cout<<endl<<"------------ Dump Track Class ---------"<<endl;
+  cout<<"nwire= "<<nwire<<" x0= "<<x0<<" y0= "<<y0<<
+    " z0= "<<z0<<" Pvers= "<<ux<<" "<<uy<<" "<<uz<<endl;
+  cout<<"new tracking: nhit="<<nhit<<"  chi2="<<chi2<<endl;
+  cout<<"ndf="<<ndf<<"   failedPoint="<<failedPoint<<endl;
+}
+
+/*-----------------------------------------------------------------*/
+
+void TABMntuTrackTr::Clean()
+{
+  /*  
+      reset the Track values to default 
+  */
+  trackpar.Zero();
+  trackrho.Zero();
+  nwire = 0;
+  nass = 0;
+  x0 = 0.;
+  y0 = 0.;
+  z0 = 0;
+  ux = 0.;
+  uy = 0.;
+  uz = 1.;
+  R0.SetXYZ(x0,y0,z0);
+  Pvers.SetXYZ(ux,uy,uz);
+  
+  //new tracking
+  nhit=0;
+  chi2=999.;
+  mychi2=160;
+  mychi2Red=15;
+  ndf=0;
+  failedPoint=0;
+  isConverged=0;
+  MaxRdriftErr=100;
+  AngZ=100;
+  AngZRes=100;
+  AngZResAv=100;
+  AngPhi=100;
+  AngPhiRes=100;
+  RTarget=100;
+}
+
+//********************************* NEW TRACKING  **********************************
+
+
+void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, Int_t BMdebug, vector<Double_t>& hit_res){
+  Int_t hit_num=fitTrack->getNumPointsWithMeasurement();
+  Int_t hit_num_withcov=0;
+  Double_t tmp_double, old_rdrift, new_rdrift, mychi2_in=0., rdrift_err_max=0;
+  TVector3 wire_pos, wire_dir, Xvers(1.,0,0), Yvers(0.,1.,0.);
+  TVector3 first_fit_pos(0,0,100), last_fit_pos(0,0,-100);//per calcolo angZ... ma no buono!!!
+  vector<Double_t> angZ_vec, angPhi_vec;
+  vector<TVector3> state_pos_vec;
+  AbsMeasurement* measurement;
+  TDecompChol fitTrack_cov;  
+  MeasuredStateOnPlane state;
+  KalmanFitterInfo* kalmanInfo;
+  
+  if(BMdebug>=4)
+    cout<<"sono in calculate, numero hit="<<hit_num<<"  ora inizio loop"<<endl;
+  if(hit_res.size()!=hit_num){
+    cout<<"WARNING:    hit_res and hit_num is different!!!!!!!!!!!!!!!!!!!!!!!!!   hit_res.size="<<hit_res.size()<<"   hit_num="<<hit_num<<endl;
+    return;
+    }
+  
+  //cicle to calculate mychi2 and set state to last state  
+  for(Int_t i=0;i<hit_num;i++){
+    if(fitTrack->getPointWithMeasurement(i)->hasFitterInfo(fitTrack->getTrackRep(0))){
+      kalmanInfo=fitTrack->getPointWithMeasurement(i)->getKalmanFitterInfo(fitTrack->getTrackRep(0));
+      if(BMdebug>4)
+        cout<<"ho preso kalmaninfo"<<endl;
+      fitTrack_cov=fitTrack->getPointWithMeasurement(i)->getRawMeasurement(0)->getRawHitCov();
+      if(fitTrack_cov.Decompose()) {// questo check in più forse è inutile!!!!!!
+        if(BMdebug>4) 
+          cout<<"mi carico state, trackrep number="<<fitTrack->getNumReps()<<endl;
+        state=fitTrack->getFittedState(i);
+        measurement=fitTrack->getPointWithMeasurement(i)->getRawMeasurement(0);
+        if(BMdebug>4)
+          cout<<"estratto stato e misura, numero di misure="<<fitTrack->getPointWithMeasurement(i)->getNumRawMeasurements()<<endl;
+        angZ_vec.push_back(state.getMom().Theta()*RAD2DEG);
+        angPhi_vec.push_back(state.getMom().Phi()*RAD2DEG);
+        state_pos_vec.push_back(state.getPos());  
+        old_rdrift=measurement->getRawHitCoords()[6];
+        wire_pos.SetXYZ(measurement->getRawHitCoords()[0],measurement->getRawHitCoords()[1],measurement->getRawHitCoords()[2]);
+        wire_dir.SetXYZ(measurement->getRawHitCoords()[3],measurement->getRawHitCoords()[4],measurement->getRawHitCoords()[5]);
+        wire_dir=wire_dir-wire_pos;
+        wire_dir.SetMag(1.);
+        new_rdrift=FindRdrift(state.getPos(), state.getMom(), wire_pos, wire_dir);//da check
+        mychi2_in+=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i];        
+        if(fabs(old_rdrift-new_rdrift)>rdrift_err_max)
+          rdrift_err_max=fabs(old_rdrift-new_rdrift);
+        if(state.getPos().Z()<first_fit_pos.Z())
+          first_fit_pos=state.getPos();
+        if(state.getPos().Z()>last_fit_pos.Z())
+          last_fit_pos=state.getPos();  
+        
+        if(wire_dir.Z()!=0 || !(wire_dir.X()==1 || wire_dir.Y()==1))
+          cout<<"WARNING:    wire_dir have a problem:   wire_dir=("<<wire_dir.X()<<", "<<wire_dir.Y()<<", "<<wire_dir.Z()<<")"<<endl;
+        if(BMdebug>4){
+          cout<<"wire_pos=("<<wire_pos.X()<<", "<<wire_pos.Y()<<", "<<wire_pos.Z()<<")"<<"   wire_dir=("<<wire_dir.X()<<", "<<wire_dir.Y()<<", "<<wire_dir.Z()<<")"<<endl;
+          cout<<"old rdrift ="<<old_rdrift<<"  new rdrift="<<new_rdrift<<"  diff="<<fabs(old_rdrift-new_rdrift)<<"  res="<<hit_res[i]<<"  contributo chi2="<<(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i]<<endl;
+          }
+                
+        hit_num_withcov++;
+      }
+    }
+  }
+  
+  MaxRdriftErr=rdrift_err_max;
+  mychi2=mychi2_in;
+  if(fitTrack->getFitStatus()->getNdf()!=0)
+    mychi2Red=mychi2_in/fitTrack->getFitStatus()->getNdf();
+  else
+    cout<<"WARNING: you have 0 Ndf!!!!!!! cannot set mychi2Red!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+    
+  if(BMdebug>3)
+    cout<<"mychi2="<<mychi2_in<<"  mychi2Red="<<mychi2Red<<"  ndf="<<fitTrack->getFitStatus()->getNdf()<<endl;
+  
+  //out of cicle state should be the state of last measurement
+  //other fitpos parameter
+  if(hit_num_withcov>0){
+    
+    //calculate AngZ and AngPhi with momentum:
+    if(angZ_vec.size()!=angPhi_vec.size())
+      cout<<"WARNING: something is wrong in angZ and angPhi!!!! check in TABMntuTrack::CalculateFitPar!!!!!!!!!!!!!"<<endl;
+    Double_t maxAngZ=-1000., minAngZ=1000., maxAngPhi=-1000., minAngPhi=1000., avAngZ=0., avAngPhi=0., avAngZres=0.;
+    for(Int_t i=0;i<angZ_vec.size();i++){
+      if(angPhi_vec[i]>maxAngPhi)
+        maxAngPhi=angPhi_vec[i];
+      if(angPhi_vec[i]<minAngPhi)
+        minAngPhi=angPhi_vec[i];
+      if(angZ_vec[i]>maxAngZ)
+        maxAngZ=angZ_vec[i];
+      if(angZ_vec[i]<minAngZ)
+        minAngZ=angZ_vec[i];
+      avAngZ+=angZ_vec[i];
+      avAngPhi+=angPhi_vec[i];
+      }
+    if(angZ_vec.size()!=0){   
+      AngZ=avAngZ/angZ_vec.size();
+      AngPhi=avAngPhi/angZ_vec.size();      
+      AngZRes=maxAngZ-minAngZ;
+      AngPhiRes=maxAngPhi-minAngPhi;
+      for(Int_t j=0;j<angZ_vec.size();j++)
+        avAngZres+=fabs(angZ_vec[j]-AngZ);
+      AngZResAv=avAngZres/angZ_vec.size();
+      }
+      
+    if(BMdebug>=3)
+      cout<<"angZRes="<<AngZRes<<"  numero misure="<<angZ_vec.size()<<"  converge?"<<fitTrack->getFitStatus(fitTrack->getTrackRep(0))->isFitConverged()<<"   angZ medio="<<AngZ<<endl;
+      
+    if(state_pos_vec.size()!=angZ_vec.size())
+      cout<<"WARNING: state_pos_vec.size is different from angZ_vec.size!!!!!!!!!!!!!!!!!!!!!  something is wrong in TABMntuTrack::CalculatefitPar"<<endl;
+        
+    TVector3 target_o(0.,0.,13.9);//messo a mano!!!, punto di origine superficie target NEL SISTEMA DI RIFERIMENTO DEL BM
+    RTarget=tan(AngZ*DEG2RAD)*(target_o.Z()-state_pos_vec[0].Z());   //Calculate RTarget using AngZ from first state position, without state xy bias 
+  
+  
+    //~ //Calculate RTarget (distance on the surface of target), calculated from the state of the last measurement
+    //~ SharedPlanePtr target_plane(new DetPlane(target_o, Xvers, Yvers));
+    //~ tmp_double=fitTrack->getTrackRep(0)->extrapolateToPlane(state, target_plane); //now state is the state of track on the surface of target
+    //~ if(state.getPos().Z()!=target_o.Z())
+      //~ cout<<"WARNING in calculation of RTarget: state on the target has a different Z from target surface!!!!!!!!!"<<endl;
+    //~ else 
+      //~ RTarget=(state.getPos()-target_o).Mag();
+  
+    //Calculate RTarget using AngZ (for any state calculate RTarget and then save the mean RTarget)
+    //~ Double_t sum=0, RTargetMax=-10, RTargetMin=10, RTarget_hit;
+    //~ for(Int_t i=0;i<state_pos_vec.size();i++){
+      //~ tmp_double=sqrt(state_pos_vec[i].X()*state_pos_vec[i].X()+state_pos_vec[i].Y()*state_pos_vec[i].Y());
+      //~ if(target_o.Z()<state_pos_vec[i].Z())
+        //~ cout<<"WARNING: state_pos.Z is bigger than target_o.Z!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!something is wrong in TABMntuTrack::CalculatefitPar"<<endl;
+      //~ else{
+        //~ RTarget_hit=tmp_double+tan(AngZ*DEG2RAD)*(target_o.Z()-state.getPos().Z());
+        //~ sum+=RTarget_hit;
+        //~ if(RTargetMax<RTarget_hit)
+          //~ RTargetMax=RTarget_hit;
+        //~ if(RTargetMin>RTarget_hit)
+          //~ RTargetMin=RTarget_hit;  
+        //~ }
+      //~ }
+    //~ if(state_pos_vec.size()>0)  
+      //~ RTarget=sum/state_pos_vec.size();
+    //~ if(state_pos_vec.size()>1)
+      //~ RTargetRes=RTargetMax-RTargetMin;
+       
+      
+    }
+    
+    
+  return;
+}
+
+
+Double_t TABMntuTrackTr::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers) {
+
+  Double_t tp = 0., tf= 0., rdrift; 
+  TVector3 D0, R0, Pvers;
+
+  if(dir.Mag()==0.){
+    cout<<"WARNING: FindRdrift: momentum is 0 and the hit shouldn't be charged because this hit is from a fragmentated particle with zero momentum"<<endl;
+    return 99;//fake value
+    }
+    
+  R0.SetXYZ(pos.X(),pos.Y(),pos.Z());//set position
+  Pvers=dir;
+  Pvers.SetMag(1.);
+  
+  D0 = R0 - A0;//distance between position of reference point of current wire and current particle position
+
+  Double_t prosca = Pvers*Wvers ;//scalar product of directions
+  Double_t D0W = D0*Wvers;//distance projected on wire
+  Double_t D0P = D0*Pvers;//distance projected on particle direction
+
+  if(prosca!= 1.) {//if the don't fly parallel
+    tp = (D0W*prosca - D0P)/(1.-prosca*prosca);
+    tf = (-D0P*prosca + D0W)/(1.-prosca*prosca);
+    rdrift = sqrt( abs(D0.Mag2() + tp*tp + tf*tf + 2.*tp*D0P -2.*tf*D0W -2.*prosca*tf*tp ));
+    } 
+  else  //if they go parallel
+    rdrift = sqrt(abs( D0.Mag2() - D0W*D0W)); 
+
+  if(rdrift<0)
+    cout<<"WARNING!!!!! SOMETHING IS WRONG, YOU HAVE A NEGATIVE RDRIFT!!!!!!!!! look at TABMntuTrack::FindRdrift    rdrift="<<rdrift<<endl;
+  //~ if(rdrift>0.945) //for the fitted tracks it is possible to have a rdrift bigger than the cell size
+    //~ cout<<"WARNING!!!!! SOMETHING IS WRONG, YOU HAVE A TOO BIG RDRIFT!!!!!!!!! look at TABMntuTrack::FindRdrift   rdrift="<<rdrift<<endl;
+  if(rdrift<0){
+    cout<<"pos=("<<pos.X()<<","<<pos.Y()<<","<<pos.Z()<<")  dir=("<<dir.X()<<","<<dir.Y()<<","<<dir.Z()<<")"<<endl;
+    cout<<"A0=("<<A0.X()<<","<<A0.Y()<<","<<A0.Z()<<")  Wvers=("<<Wvers.X()<<","<<Wvers.Y()<<","<<Wvers.Z()<<")"<<endl;
+    }
+    
+  return rdrift;
+}
+
+
+//**********************************OLD TRACKING****************************************
 Int_t TABMntuTrackTr::Set(Double_t fx0, Double_t fy0, Double_t fux, 
 		 Double_t fuy, Double_t fuz)
 {
@@ -181,7 +438,7 @@ Int_t TABMntuTrackTr::SetPvers(Double_t fux, Double_t fuy, Double_t fuz)
 }
 
 
-void TABMntuTrackTr::Calibrate(TF1* mypol, TF1* mypol2) {
+void TABMntuTrackTr::Calibrate(TF1* mypol, TF1* mypol2) { //DA FARE CON NUOVE VARIABILI!!!!
 
 
   TAGgeoTrafo *fGeoTrafo =  (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
@@ -299,37 +556,6 @@ TVector3 TABMntuTrackTr::PointAtLocalZ(double zloc) {
   
   return loc_poi;
 
-}
-
-
-/*-----------------------------------------------------------------*/
-
-void TABMntuTrackTr::Dump() const
-{ 
-  cout<<endl<<"------------ Dump Track Class ---------"<<endl;
-  cout<<"nwire= "<<nwire<<" x0= "<<x0<<" y0= "<<y0<<
-    " z0= "<<z0<<" Pvers= "<<ux<<" "<<uy<<" "<<uz<<endl;
-}
-
-/*-----------------------------------------------------------------*/
-
-void TABMntuTrackTr::Clean()
-{
-  /*  
-      reset the Track values to default 
-  */
-  trackpar.Zero();
-  trackrho.Zero();
-  nwire = 0;
-  nass = 0;
-  x0 = 0.;
-  y0 = 0.;
-  z0 = 0;
-  ux = 0.;
-  uy = 0.;
-  uz = 1.;
-  R0.SetXYZ(x0,y0,z0);
-  Pvers.SetXYZ(ux,uy,uz);
 }
 
 /*-----------------------------------------------------------------*/
@@ -672,7 +898,7 @@ void   TABMntuTrackTr::SetChi2H(TVectorD dy, TVectorD au, TABMntuRaw *hitp) {
   return;
 }
 
-//##############################################################################
+//########################################   TABMntuTrack   ######################################
 
 /*!
   \class TABMntuTrack TABMntuTrack.hxx "TABMntuTrack.hxx"
@@ -714,6 +940,7 @@ void TABMntuTrack::Clear(Option_t*)
   TAGdata::Clear();
 
   ntrk   = 0;
+    
   t->Delete();
 
   return;

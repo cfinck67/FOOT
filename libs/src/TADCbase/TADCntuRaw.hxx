@@ -8,13 +8,31 @@
 /*------------------------------------------+---------------------------------*/
 
 #include <vector>
-using namespace std;
-
 #include "TObject.h"
 #include "TClonesArray.h"
 
 #include "TAGdata.hxx"
 #include "TADCparGeo.hxx"
+
+
+// GenFit
+#include "FieldManager.h"
+#include "MaterialEffects.h"
+#include "TGeoMaterialInterface.h"
+#include "ConstField.h"
+#include "Track.h"
+#include "WireMeasurementNew.h"
+
+#include "TGeoManager.h"
+#include "KalmanFitterRefTrack.h"
+#include "KalmanFitter.h"
+
+#include "AbsMeasurement.h"
+#include "MeasurementCreator.h"
+
+using namespace std;
+using namespace genfit;
+
 
 class TADCntuHit : public TObject {
   public:
@@ -30,14 +48,20 @@ class TADCntuHit : public TObject {
     Double_t Y() const;
     Double_t Z() const;
     TVector3 Position() const;
+    TVector3 Momentum() { return TVector3( pxcadc, pycadc, pzcadc ); };
     Double_t Dist() const;
     Double_t Tdrift() const;
     Double_t Timdc() const;
     Bool_t HorView() const; //Horizontal, Top, XZ == -1
     Bool_t VertView() const; //Vertical, Side, YZ == 1
 
+    double Px() { return pxcadc; };
+    double Py() { return pycadc; };
+    double Pz() { return pzcadc; };
+
+    
+
     //Track Related Paramters
-    void SetAW(TADCparGeo *f_dcgeo);
     int TrkAss() {return itrkass;};
     Int_t GetMCId() {return iddc;};
     Double_t GetRho() {return rho;};
@@ -45,14 +69,44 @@ class TADCntuHit : public TObject {
     Double_t GetSigma() {return sigma;};
     TVector3 GetA0() {return A0;};
     TVector3 GetWvers() {return Wvers;};
+
+    // Get generated particle quantities
+    //  provvisorio
+    int m_genPartID;
+    int m_genPartFLUKAid;
+    int m_genPartCharge;
+    int m_genPartBarionNum;
+    float m_genPartMass;
+    TVector3 m_genPartPosition;
+    TVector3 m_genPartMomentum;
   
+    void SetAW(TADCparGeo *f_dcgeo);
     void SetTrkAss(Int_t in_ass) { itrkass = in_ass;};
     void SetMCId(Int_t in_id) { iddc = in_id;};
     void SetRho(Double_t in_rho) { rho = in_rho;};
+    void SetRdrift(TVector3 pos, TVector3 dir);
+    void SetSigma(Double_t sig) {sigma = sig;};
+    ////////   Frank'd say useless with Kalman
     void SetChi2(Double_t in_chi2) { ichi2 = in_chi2;};
     void SetPca(TVector3 in_pca) { pca = in_pca;};
     void SetPcaWire(TVector3 in_pca) { pca_wire = in_pca;};
-    void SetSigma(Double_t sig) {sigma = sig;};
+    ////////////////////////////////////////////
+
+
+    // Frank
+    void SetGeneratedParticleInfo ( int genPartID, int genPartFLUKAid, int genPartCharge,
+                        int genPartBarionNum, float genPartMass,
+                        TVector3 genPartPosition,
+                        TVector3 genPartMomentum ) {
+        m_genPartID = genPartID;
+        m_genPartFLUKAid = genPartFLUKAid;
+        m_genPartCharge = genPartCharge;
+        m_genPartBarionNum = genPartBarionNum;
+        m_genPartMass = genPartMass;
+        m_genPartPosition = genPartPosition;
+        m_genPartMomentum = genPartMomentum;
+    };
+
 
   ClassDef(TADCntuHit,1)
 
@@ -77,10 +131,20 @@ class TADCntuHit : public TObject {
     //Track related params
     TVector3  A0;
     TVector3  Wvers;
+    TVector3  m_trueP;
 
     Double_t  rho;
     TVector3  pca;
     TVector3  pca_wire;
+
+    // // link generated particle quantities
+    // int m_genPartID;
+    // int m_genPartFLUKAid;
+    // int m_genPartCharge;
+    // int m_genPartBarionNum;
+    // float m_genPartMass;
+    // TVector3 m_genPartPosition;
+    // TVector3 m_genPartMomentum;
 
 };
 
@@ -94,6 +158,12 @@ class TADCntuRaw : public TAGdata {
 
     TADCntuHit*       Hit(Int_t i_ind);
     const TADCntuHit* Hit(Int_t i_ind) const;
+
+    void FillWithMeasurementPoints( vector<AbsMeasurement*> & hit_vect, TADCparGeo* dc_geo );
+    void FillWithMeasurementPoints_Test( vector<AbsMeasurement*> & hit_vect, TADCparGeo* dc_geo);
+    void FillWithMeasurementTypes( vector<eMeasurementType> & hit_vect );
+
+    int NHit() { return nhit; };
 
     virtual void    SetupClones();
 

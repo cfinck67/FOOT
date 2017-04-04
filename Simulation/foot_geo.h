@@ -9,6 +9,10 @@ const Double_t  PI		=3.141592653589793238462643383279502884197169399375;
 const Double_t  ZERO            =0.0;
 const Double_t  FWHM2Sig	=2.354820;//conversion FWHM to sigma (Gaussian)
 
+const Double_t  GEV2MEV         =1.e3;
+const Double_t  DEG2RAD 	=PI/180;//conversion FWHM to sigma (Gaussian)
+
+
 
 //************************************************************
 // PRIMARY BEAM
@@ -56,8 +60,17 @@ const Double_t AL_THRES_EM      = 0.005;
 
 // MagField = true if magnetic field is on
 //          = false if magnetic field is off
-//const bool MagField            =true;
-const bool MagField            =false;
+const bool MagField            =true;
+//const bool MagField            =false;
+
+//Bx,By,Bz-> value of the mag field. To use a mag field map-> set Bx=By=Bz=0 (necessario TString)
+const TString Bx               ="0.";
+const TString By               ="0.7";
+const TString Bz               ="0.";
+
+// VacChamber = true if you want a vacuum chamber in the mag region
+//const bool VacChamber          =true;
+const bool VacChamber          =false;
 
 
 //************************************************************
@@ -78,7 +91,7 @@ const Double_t STC_Y		=0.0;//middle of STC
 const Double_t STC_Z		=-29.0;//beginning of STC
 		 
 const Double_t STC_RAD    	=2.6;//STC radius
-const Double_t STC_THICK  	=250.E-6;//STC thickness (along z)
+const Double_t STC_THICK  	=0.025;//STC thickness (along z)
 		 
 const TString  STC_MEDIUM	="EJ-232"; 
 
@@ -97,11 +110,11 @@ const Double_t BMN_HEIGHT 	=11.2;//height of beam monitor (gas)
 const Double_t BMN_LENGTH    	=21.0;//length of beam monitor (gas)
 
 const Int_t    BMN_NLAY         =6;//no. of layers
-const Int_t    BMN_NWIRELAY     =21;//no. of wires (field or sense) per layer
 const Int_t    BMN_NSENSELAY    =3;//no. of sense wires (and also cells) per layers
+const Int_t    BMN_NWIRELAY     =BMN_NLAY*BMN_NSENSELAY+3;//no. of wires (field or sense) per layer
 
-const Double_t BMN_UVIEW  	=1;//wire along x (side view)  //not used
-const Double_t BMN_VVIEW  	=-1;//wire along y (top view)  //not used
+const Double_t BMN_UVIEW  	=1;//wire along x (side view) 
+const Double_t BMN_VVIEW  	=-1;//wire along y (top view) 
 
 //ATTENZIONE:controllare i prossimi parametri
 const Double_t BMN_RSENSE 	=0.0015;//radius of sensitive wires//ATTENZIONE:in first erano 0.003
@@ -154,63 +167,34 @@ const Double_t VTX_LAYDIST   	=0.5;//distrance btw layers
 const TString  VTX_MEDIUM       ="SILICON";
 
 //************************************************************
-/*parametri dei silici*/
-//TODO: for starting, geometry is implemented with x<->y swapped
-// 1.3M sensitive pads per plane (2 MIMOSAs), 18um=0.018mm distance between pads
-
-
-const Double_t MI_DIST_TGT_MI	=0.3;//distance target (end) and mimosa (beginning of first plane)
-const Double_t MI_DIST_PLANES	=0.3;//distance between mimosa planes (middle to middle)
-
-
-const Int_t    MI_MIMO_N  	=8; //number of MIMOSA chips
-
-
-const Double_t MI_GLAFI_HEIGHT 	=5.;
-const Double_t MI_GLAFI_WIDTH  	=5.;
-const Double_t MI_GLAFI_THICK  	=0.1;
-
-//const TString  MI_MIMO_GAS	="AIR"; //DEFAULT
-const TString  MI_MIMO_MEDIUM	="MI_SILIC";
-const Double_t MI_MIMO_HEIGHT 	=1.06;
-const Double_t MI_MIMO_WIDTH  	=2.12;
-//const Double_t MI_MIMO_THICK  	=0.01;//80um old
-const Double_t MI_MIMO_THICK  	=0.00504;//30um+14um+6.4um
-const Double_t MI_MEOX_THICK	=0.00064;
-
-
-const Double_t MI_SENS_HEIGHT 	=MI_MIMO_HEIGHT;
-const Double_t MI_SENS_WIDTH  	=MI_MIMO_WIDTH;
-const Double_t MI_SENS_THICK  	=0.0014;//14um
-//const Double_t MI_SENS_THICK  	=0.002;//20um old
-
-const Int_t  MI_SENS_BIN_HEIGHT =576; //number of bins
-const Int_t  MI_SENS_BIN_WIDTH  =1152;
-const Int_t  MI_SENS_BIN_THICK  =1;
-
-//const Double_t MI_PAD_WIDTH      =0.0018;//cm =18um
-const Double_t MI_PAD_WIDTH      =0.00184027777778;
-const Double_t MI_PAD_HEIGHT     =MI_PAD_WIDTH;//cm
-const Double_t MI_PAD_THICK      =MI_SENS_THICK;//cm
-
-//************************************************************
 // Inner Tracker
 
-const Double_t ITR_X 		=0.0;//middle of vertex
-const Double_t ITR_Y 		=0.0;//middle of vertex
-const Double_t ITR_Z 		=14.5;//middle of vertex
+const Double_t ITR_X 		=0.0;//middle of inner tracker
+const Double_t ITR_Y 		=0.0;//middle of inner tracker
+const Double_t ITR_Z 		=14.7;//middle of inner tracker
 				     
 const Double_t ITR_WIDTH   	=6.0;//x dimension
 const Double_t ITR_HEIGHT  	=6.0;//y dimension
 const Double_t ITR_THICK   	=0.005;//z dimension
 
+const Double_t ITR_EPO_THICK    =0.001;//epoxy glue
+const Double_t ITR_COV_THICK    =0.0025;//cover layers
+const Double_t ITR_AL_THICK     =0.001;//aluminum layers
+const Double_t ITR_KAP_THICK    =0.005;//kaptron layers
+const Double_t ITR_FOAM_THICK   =0.2;//foam layer
+
 const Int_t    ITR_NLAY         =2;
 const Double_t ITR_LAYDIST   	=1.0;
 
-const TString  ITR_MEDIUM       ="SILICON";
+const TString  ITR_MEDIUM       ="SILICON";//mimosa28
+const TString  ITR_COV_MEDIUM ="KAPTON";
+const TString  ITR_EPO_MEDIUM ="Epoxy";
+const TString  ITR_AL_MEDIUM    ="ALUMINUM";
+const TString  ITR_KAP_MEDIUM  ="KAPTON";
+const TString  ITR_FOAM_MEDIUM  ="SiCFoam";
 
 //************************************************************
-// Magnets (Sanelli config)
+// Magnets
 
 const Double_t MAG_X 		=0.0;//middle of magnet
 const Double_t MAG_Y 		=0.0;//middle of magnet
@@ -219,12 +203,22 @@ const Double_t MAG_Z 		=8.7;//middle of magnet
 const Double_t MAG_DIST		=12.0;//distance btw magnets
 const Int_t    MAG_N		=2;//no. of magnets
 
-const Double_t MAG_CV_OUTRAD	=7.4;//outer radius of magnets Al cover
-const Double_t MAG_CV_INRAD 	=3.5;//inner radius of magnets Al cover
-const Double_t MAG_CV_LENGTH 	=7.4;//length of magnets Al cover
-const Double_t MAG_PM_OUTRAD 	=7.2;//outer radius of permanent magnets
-const Double_t MAG_PM_INRAD 	=3.7;//inner radius of permanent magnets
-const Double_t MAG_PM_LENGTH 	=7.0;//length of permanent magnets
+const Double_t MAG_ANG		=10.*DEG2RAD;//required semiapertura angolare
+
+const Double_t MAG_PM_THICK 	=3.5;//thickness of permanent magnets
+const Double_t MAG_PM_LENGTH 	=10.;//length of permanent magnets
+const Double_t MAG_CV_THICK 	=0.2;//thickness of Al cover
+const Double_t MAG_CV_LENGTH 	=MAG_PM_LENGTH+2*MAG_CV_THICK;//length of magnets Al cover
+
+const Double_t MAG_CV0_INRAD 	=(MAG_Z+MAG_CV_LENGTH/2-TG_Z)*tan(MAG_ANG);//inner radius of magnet 0 Al cover
+const Double_t MAG_PM0_INRAD 	=MAG_CV0_INRAD+MAG_CV_THICK;//inner radius of permanent magnet 0
+const Double_t MAG_PM0_OUTRAD 	=MAG_PM0_INRAD+MAG_PM_THICK;//outer radius of permanent magnet 0
+const Double_t MAG_CV0_OUTRAD	= MAG_PM0_OUTRAD+MAG_CV_THICK;//outer radius of magnet 0 Al cover
+
+const Double_t MAG_CV1_INRAD 	=(MAG_Z+MAG_CV_LENGTH/2+MAG_DIST-TG_Z)*tan(MAG_ANG);//inner radius of magnet 1 Al cover
+const Double_t MAG_PM1_INRAD 	=MAG_CV1_INRAD+MAG_CV_THICK;//inner radius of permanent magnet 1
+const Double_t MAG_PM1_OUTRAD 	=MAG_PM1_INRAD+MAG_PM_THICK;//outer radius of permanent magnet 1
+const Double_t MAG_CV1_OUTRAD	= MAG_PM1_OUTRAD+MAG_CV_THICK;//outer radius of magnet 1 Al cover
 
 const Double_t MAG_AIR_X 	=0.0;//middle of magnetic field region
 const Double_t MAG_AIR_Y 	=0.0;//middle of magnetic field region
@@ -232,7 +226,7 @@ const Double_t MAG_AIR_Z 	=MAG_Z+MAG_DIST/2;//middle of magnetic field region
 
 const Double_t MAG_AIR_WIDTH	=10.0;//width of magnetic field region
 const Double_t MAG_AIR_HEIGHT 	=10.0;//height of magnetic field region
-const Double_t MAG_AIR_LENGTH 	=60.0;//length of magnets Al cover
+const Double_t MAG_AIR_LENGTH 	=25.0;//length of magnets Al cover
 
 const TString  MAG_PM_MEDIUM    ="SmCo";
 const TString  MAG_CV_MEDIUM    ="ALUMINUM";
@@ -243,7 +237,8 @@ const TString  MAG_AIR_MEDIUM   ="AIR";
 
 const Double_t DCH_X 		=0.0;//middle of drift chamber
 const Double_t DCH_Y 		=0.0;//middle of drift chamber
-const Double_t DCH_Z 		=37.7;//middle of drift chamber
+//const Double_t DCH_Z 		=37.7;//middle of drift chamber
+const Double_t DCH_Z 		=43.7;//middle of drift chamber
 
 const Double_t DCH_SHI_LENGTH  	=23.0;//length (along z) of drift chamber shield
 const Double_t DCH_SHI_THICK   	=1.5;//thickness of drift chamber shield
@@ -253,11 +248,11 @@ const Double_t DCH_HEIGHT 	=20.0;//height of drift chamber (gas)
 const Double_t DCH_LENGTH    	=21.0;//length of drift chamber (gas)
 
 const Int_t    DCH_NLAY         =6;//no. of layers
-const Int_t    DCH_NWIRELAY     =39;//no. of wires (field or sense) per layer
-const Int_t    DCH_NSENSELAY    =6;//no. of sense wires (and also cells) per layers
+const Int_t    DCH_NSENSELAY    =8;//no. of sense wires (and also cells) per layers
+const Int_t    DCH_NWIRELAY     =DCH_NSENSELAY*6+3;//no. of wires (field or sense) per layer
 
-const Double_t DCH_UVIEW  	=1;//wire along x (side view)//not used
-const Double_t DCH_VVIEW  	=-1;//wire along y (top view)//not used
+const Double_t DCH_UVIEW  	=1;//wire along x (side view)
+const Double_t DCH_VVIEW  	=-1;//wire along y (top view)
 
 //ATTENZIONE:controllare i prossimi parametri
 const Double_t DCH_RSENSE 	=0.0015;//radius of sensitive wires//ATTENZIONE:in first erano 0.003
@@ -267,8 +262,8 @@ const Double_t DCH_PASSO	=0.8;//distance between wires (x or y distance)
 const Double_t DCH_LAYDIST   	=0.3;//distance between layer U and V 
 
 //ATTENZIONE: da controllare
-const Double_t DCH_DELTAY	=4.8;//wires x shift from the beam monitor internal sides
-const Double_t DCH_DELTAX	=4.8;//wires y shift from the beam monitor internal sides
+const Double_t DCH_DELTAY	=4.8-1.6;//wires x shift from the beam monitor internal sides
+const Double_t DCH_DELTAX	=4.8-1.6;//wires y shift from the beam monitor internal sides
 //Alessio's version: const Double_t DCH_DELTA_Z	=2.8;
 const Double_t DCH_DELTAZ	=2.85;//wires z shift from the beam monitor internal sides
 

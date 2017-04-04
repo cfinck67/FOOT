@@ -47,20 +47,20 @@ TAITactNtuRaw::~TAITactNtuRaw()
 //! Setup all histograms.
 void TAITactNtuRaw::CreateHistogram()
 {
-   DeleteHistogram();
-   TAITparGeo* pGeoMap  = (TAITparGeo*) fpGeoMap->Object();
-   for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
-	  if (TAITparConf::IsMapHistOn()) {
-		 fpHisPosMap[i] = new TH2F(Form("vtPosMap%d", i+1), Form("Vertex - position map for sensor %d", i+1), 
-									 pGeoMap->GetPixelsNv(), -pGeoMap->GetPitchV()/2*pGeoMap->GetPixelsNv(), pGeoMap->GetPitchV()/2*pGeoMap->GetPixelsNv(),
-									 pGeoMap->GetPixelsNu(), -pGeoMap->GetPitchU()/2*pGeoMap->GetPixelsNu(), pGeoMap->GetPitchU()/2*pGeoMap->GetPixelsNu());
-		 fpHisPosMap[i]->SetStats(kFALSE);
-		 AddHistogram(fpHisPosMap[i]);
-	  }
-   }
+   // DeleteHistogram();
+   // TAITparGeo* pGeoMap  = (TAITparGeo*) fpGeoMap->Object();
+   // for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
+	  // if (TAITparConf::IsMapHistOn()) {
+		 // fpHisPosMap[i] = new TH2F(Form("vtPosMap%d", i+1), Form("Vertex - position map for sensor %d", i+1), 
+			// 						 pGeoMap->GetPixelsNv(), -pGeoMap->GetPitchV()/2*pGeoMap->GetPixelsNv(), pGeoMap->GetPitchV()/2*pGeoMap->GetPixelsNv(),
+			// 						 pGeoMap->GetPixelsNu(), -pGeoMap->GetPitchU()/2*pGeoMap->GetPixelsNu(), pGeoMap->GetPitchU()/2*pGeoMap->GetPixelsNu());
+		 // fpHisPosMap[i]->SetStats(kFALSE);
+		 // AddHistogram(fpHisPosMap[i]);
+	  // }
+   // }
    
-   SetValidHistogram(kTRUE);
-   return;
+   // SetValidHistogram(kTRUE);
+   // return;
 }
 
 //------------------------------------------+-----------------------------------
@@ -74,27 +74,27 @@ Bool_t TAITactNtuRaw::Action()
    
    pNtuRaw->SetupClones();
    
-   for (Int_t iSensor = 0; iSensor < pGeoMap->GetSensorsN(); ++iSensor) {
-	  //Sort List of pixels
-	  TClonesArray* myList = pDatRaw->GetPixels(iSensor); 
-	  myList->Sort(myList->GetEntriesFast());
-	  DeleteDoublet(iSensor);
+   // for (Int_t iSensor = 0; iSensor < pGeoMap->GetSensorsN(); ++iSensor) {
+	  // //Sort List of pixels
+	  // TClonesArray* myList = pDatRaw->GetPixels(iSensor); 
+	  // myList->Sort(myList->GetEntriesFast());
+	  // DeleteDoublet(iSensor);
 	  	  
-	  Int_t nPixels = pDatRaw->GetPixelsN(iSensor);
-	  for (Int_t iPixel = 0; iPixel < nPixels; ++iPixel) {
-		 TAITrawHit* rawPixel =  pDatRaw->GetPixel(iSensor, iPixel);
-		 TAITntuHit* pixel= pNtuRaw->NewPixel(iSensor, rawPixel);
-		 Float_t u = pParMap->GetPositionU(rawPixel->GetColumnNumber());
-		 Float_t v = pParMap->GetPositionV(rawPixel->GetLineNumber());
-		 Float_t w = 0;
-		 TVector3 pos(v,u,w);
-		 pixel->SetPosition(pos);
-		 if (ValidHistogram()) {
-			if (TAITparConf::IsMapHistOn()) 
-			   fpHisPosMap[iSensor]->Fill(v, u);
-		 }
-	  }
-   }
+	  // Int_t nPixels = pDatRaw->GetPixelsN(iSensor);
+	  // for (Int_t iPixel = 0; iPixel < nPixels; ++iPixel) {
+		 // TAITrawHit* rawPixel =  pDatRaw->GetPixel(iSensor, iPixel);
+		 // TAITntuHit* pixel= pNtuRaw->NewPixel(iSensor, rawPixel);
+		 // Float_t u = pParMap->GetPositionU(rawPixel->GetColumnNumber());
+		 // Float_t v = pParMap->GetPositionV(rawPixel->GetLineNumber());
+		 // Float_t w = 0;
+		 // TVector3 pos(v,u,w);
+		 // pixel->SetPosition(pos);
+		 // if (ValidHistogram()) {
+			// if (TAITparConf::IsMapHistOn()) 
+			//    fpHisPosMap[iSensor]->Fill(v, u);
+		 // }
+	  // }
+   // }
    
    fpNtuRaw->SetBit(kValid);
    return kTRUE;

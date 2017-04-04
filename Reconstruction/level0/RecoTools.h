@@ -24,6 +24,10 @@
 #include "TAGdataDsc.hxx"
 #include "TAGroot.hxx"
 
+#include "KFitter.hxx"
+#include "GlobalPar.hxx"
+
+
 
 class RecoTools {
   
@@ -59,10 +63,13 @@ class RecoTools {
   void bookHisto(TFile *f);
   void CalibBMVT();
   void MonitorBMVTMat();
+  void MonitorBMNew(Long64_t jentry);
   void MonitorBM();
   void AssociateHitsToParticle();
 
   TAGgeoTrafo* fGeoTrafo;
+
+  KFitter* m_kFitter;
 
   int m_nev;
   int m_debug;
@@ -82,6 +89,9 @@ class RecoTools {
   //Parameters
   TAGparaDsc* myp_bmgeo;
   TAGparaDsc* myp_dcgeo;
+  shared_ptr<TAVTparGeo> m_vtgeo;
+  shared_ptr<TAITparGeo> m_itgeo;
+  shared_ptr<TADCparGeo> m_dcgeo;
 
   TAGparaDsc* myp_vtmap;
   TAGparaDsc* myp_vtcal;

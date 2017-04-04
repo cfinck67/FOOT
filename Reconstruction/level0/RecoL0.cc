@@ -20,9 +20,14 @@
 #include <sstream>
 
 #include "RecoTools.h"
+#include "GlobalPar.hxx"
+
+
 //#include "MCTree.h"
 
 using namespace std;
+
+// extern TAGparGlobal  *gPar; 
 
 int main (int argc, char *argv[]) {
 
@@ -64,6 +69,9 @@ int main (int argc, char *argv[]) {
   TApplication::CreateApplication();
 
   TAGroot tagroot;
+
+  GlobalPar::Instance();
+  GlobalPar::GetPar()->Print();
 
   cout<<"Opening:  outp file:: "<<out.Data()<<" input file:: "<<in.Data()<<endl;
   

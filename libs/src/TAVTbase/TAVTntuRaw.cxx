@@ -277,8 +277,9 @@ void TAVTntuRaw::Clear(Option_t*)
 {
    for (Int_t i = 0; i < TAVTparMap::GetSensorsN(); ++i) {
 	  TClonesArray* list = GetListOfPixels(i);
-	  list->Delete();
-   }   
+	  list->Delete();   
+   list->Clear();
+ }
 }
 
 //______________________________________________________________________________

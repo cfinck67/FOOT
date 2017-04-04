@@ -26,10 +26,21 @@ class TABMparCon : public TAGpara {
     virtual         ~TABMparCon();
 
 
-    void        SetVDrift(Double_t v);
-    Double_t    GetVDrift();
+    void SetVDrift(Double_t v){vdrift=v; return;};
+    void SetIsMC(bool ism){m_isMC=ism; return;};
+    void SetRdriftCut(Double_t Rdcut){rdrift_cut=Rdcut; return;};
+    void SetEnxcellcut(Double_t Encut){enxcell_cut=Encut; return;};
+    
+    bool     IsMC(){return m_isMC;};
+    Double_t GetVDrift(){return vdrift;};
+    Double_t GetRdriftCut(){return rdrift_cut;};
+    Double_t GetEnxcellcut(){return enxcell_cut;};
+    Double_t GetChi2Redcut(){return chi2red_cut;};
+    Double_t GetAngZCut(){return angz_cut;};
+    Double_t GetAngZRescut(){return angzres_cut;};
+    Int_t GetFitterIndex(){return fitter_index;};
 
-    void        loadT0s(const TString& name);
+    void        loadT0s(const TString& name); 
     void        SetT0s(vector<double> t0s);
     Double_t    GetT0(int view, int plane, int cell);
 
@@ -42,9 +53,7 @@ class TABMparCon : public TAGpara {
     TF1* GetCalibY();
     TF1* GetCalibX();
     void ConfigureTrkCalib();
-    void SetIsMC(bool ism);
-    bool IsMC();
-
+  
     void LoadReso(TString sF);
     double ResoEval(double dist);
 
@@ -60,6 +69,13 @@ class TABMparCon : public TAGpara {
 
     bool m_isMC;
     Double_t vdrift;
+    Double_t rdrift_cut;
+    Double_t enxcell_cut;
+    Double_t chi2red_cut;
+    Double_t angz_cut;
+    Double_t angzres_cut;
+    Int_t    fitter_index;
+    
     vector<double> v_t0s;
 
     TF1* f_mypol;
