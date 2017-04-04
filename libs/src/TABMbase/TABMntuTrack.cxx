@@ -912,7 +912,7 @@ ClassImp(TABMntuTrack);
 
 TABMntuTrack::TABMntuTrack()
   : ntrk(0),
-    t(0)
+    t(0), ntrack(0)
 {}
 
 //------------------------------------------+-----------------------------------
