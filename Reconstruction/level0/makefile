@@ -13,9 +13,9 @@ NGLIBB        += -lMinuit -lGeom -lGeomPainter -lEve -lRGL -lGed -lEG -lTreePlay
 NGLIBB        += $(PWD)/libRecoTools.so 
 #MC libs
 NGLIBB        += $(PWD)/libEvento.so 
-NGLIBB        += $(PWD)/libSegnale.so 
 NGLIBB        += $(PWD)/libGeometry.so 
-NGLIBB        += $(PWD)/libTrigger.so
+# NGLIBB        += $(PWD)/libTrigger.so
+# NGLIBB        += $(PWD)/libSegnale.so 
 #TA* libs
 NGLIBB        += $(PWD)/../../libs/lib/libTAGfoot.so $(PWD)/../../libs/lib/libTAVTbase.so 
 NGLIBB        += $(PWD)/../../libs/lib/libTAGbase.so 
@@ -30,9 +30,9 @@ NGLIBB        += $(PWD)/../../libs/lib/libTACAbase.so
 GLIBB          = $(filter-out -lNew, $(NGLIBB))
 
 ELIB        += ./libEvento.so 
-ELIB        += ./libSegnale.so 
 ELIB        += ./libGeometry.so 
-ELIB        += ./libTrigger.so
+# ELIB        += ./libTrigger.so
+# ELIB        += ./libSegnale.so 
 
 # TAINCL	      = -I$(PWD)/../ -I$(PWD)/../../libs/src/TAGbase/  -I$(PWD)/../../libs/src/TAGmclib/ 
 # TAINCL	     +=-I$(PWD)/../../libs/src/TAVTbase -I$(PWD)/../../libs/src/TAGfoot 
@@ -57,12 +57,12 @@ ifeq ($(ARCH),macosx64)
 #SOFLAGS       = -dynamiclib -single_module -undefined dynamic_lookup  
 SOFLAGSE       = -shared $(ROOTGLIBS) 
 SOFLAGSS       = -shared $(ROOTGLIBS) ./libGeometry.so  
-SOFLAGSV       = -shared $(ROOTGLIBS) ./libSegnale.so ./libGeometry.so 
+SOFLAGSV       = -shared $(ROOTGLIBS) ./libGeometry.so 
 SOFLAGS       = -dynamiclib -shared $(ROOTGLIBS) $(TALIB) $(ELIB)
 else 
 SOFLAGSE       = -shared $(ROOTGLIBS) 
 SOFLAGSS       = -shared $(ROOTGLIBS) ./libGeometry.so  
-SOFLAGSV       = -shared $(ROOTGLIBS) ./libSegnale.so ./libGeometry.so 
+SOFLAGSV       = -shared $(ROOTGLIBS) ./libGeometry.so 
 SOFLAGS  = -shared $(ROOTGLIBS) 
 endif
 
@@ -84,9 +84,9 @@ NTUPLEB = RecoTools.o
 NTUPLEB += RecoToolsDict.o 
 
 NTUPLET = ../../Simulation/TXT2ROOT/Evento.o EventoDict.o
-NTUPLES = ../../Simulation/TXT2ROOT/Segnale.o SegnaleDict.o
 NTUPLEG = ../../Simulation/Geometry.o GeometryDict.o
-NTUPLEU = ../../Simulation/TXT2ROOT/Trigger.o TriggerDict.o
+# NTUPLEU = ../../Simulation/TXT2ROOT/Trigger.o TriggerDict.o
+# NTUPLES = ../../Simulation/TXT2ROOT/Segnale.o SegnaleDict.o
 
 .SUFFIXES: .cc,.C
 
@@ -110,21 +110,21 @@ libEvento:  $(NTUPLET)
 EventoDict.cc: ../../Simulation/TXT2ROOT/Evento.h
 	$(ROOTSYS)/bin/rootcint -f EventoDict.cc -c -I../ ../../Simulation/TXT2ROOT/Evento.h
 
-# ================================================================================
-libSegnale:  $(NTUPLES)
-#---------------------------------------------------------------
-	$(CXX) $(SOFLAGSS) $(NTUPLES) -o libSegnale.so
+# # ================================================================================
+# libSegnale:  $(NTUPLES)
+# #---------------------------------------------------------------
+# 	$(CXX) $(SOFLAGSS) $(NTUPLES) -o libSegnale.so
 
-SegnaleDict.cc: ../../Simulation/TXT2ROOT/Segnale.h
-	$(ROOTSYS)/bin/rootcint -f SegnaleDict.cc -c -I../ ../../Simulation/TXT2ROOT/Segnale.h
+# SegnaleDict.cc: ../../Simulation/TXT2ROOT/Segnale.h
+# 	$(ROOTSYS)/bin/rootcint -f SegnaleDict.cc -c -I../ ../../Simulation/TXT2ROOT/Segnale.h
 
-# ================================================================================
-libTrigger:  $(NTUPLEU) 
-#---------------------------------------------------------------
-	$(CXX) $(SOFLAGSE) $(NTUPLEU) -o libTrigger.so
+# # ================================================================================
+# libTrigger:  $(NTUPLEU) 
+# #---------------------------------------------------------------
+# 	$(CXX) $(SOFLAGSE) $(NTUPLEU) -o libTrigger.so
 
-TriggerDict.cc: ../../Simulation/TXT2ROOT/Trigger.h
-	$(ROOTSYS)/bin/rootcint -f TriggerDict.cc -c -I../ ../../Simulation/TXT2ROOT/Trigger.h
+# TriggerDict.cc: ../../Simulation/TXT2ROOT/Trigger.h
+# 	$(ROOTSYS)/bin/rootcint -f TriggerDict.cc -c -I../ ../../Simulation/TXT2ROOT/Trigger.h
 
 
 # ================================================================================
@@ -136,7 +136,8 @@ GeometryDict.cc: ../../Simulation/Geometry.h
 	$(ROOTSYS)/bin/rootcint -f GeometryDict.cc -c -I../ ../../Simulation/Geometry.h
 
 
-DecodeMC:  RecoL0.o libGeometry libSegnale libEvento libTrigger lib 
+# DecodeMC:  RecoL0.o libGeometry libSegnale libEvento libTrigger lib 
+DecodeMC:  RecoL0.o libGeometry libEvento lib 
 # -----------------------------------------------------------------------------
 	$(LD) $(LDFLAGS) -o DecodeMC RecoL0.o $(GLIBB)
 

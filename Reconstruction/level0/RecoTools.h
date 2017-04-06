@@ -13,9 +13,9 @@
 #include <math.h>
 
 #include "Evento.h"
-#include "Segnale.h"
+// #include "Segnale.h"
 #include "Geometry.h"
-#include "Trigger.h"
+// #include "Trigger.h"
 
 #include "TAGpadGroup.hxx"
 #include "TAGgeoTrafo.hxx"
