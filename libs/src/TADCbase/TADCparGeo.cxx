@@ -398,13 +398,14 @@ TGeoVolume* TADCparGeo::GetVolume() {
     }
 
    // create main box
-   TGeoVolume *top = gGeoManager->MakeBox("top",gGeoManager->GetMedium("Vacuum_med"),20,20,20); //top è scatola che conterrà tutto (dimensioni in cm)
+   // TGeoVolume *top = gGeoManager->MakeBox("top",gGeoManager->GetMedium("Vacuum_med"),m_width_x/2,m_height_y/2,m_length_z/2); //top è scatola che conterrà tutto (dimensioni in cm)
+   TGeoVolume *top = gGeoManager->MakeBox("top",gGeoManager->GetMedium("ArCO2_med"),m_width_x/2,m_height_y/2,m_length_z/2); //top è scatola che conterrà tutto (dimensioni in cm)
    // gGeoManager->SetTopVolume(top);
    gGeoManager->SetTopVisible(1);
 
    //create gas box
-   TGeoVolume* airBox = gGeoManager->MakeBox("airBox", gGeoManager->GetMedium("ArCO2_med"), m_width_x/2., m_height_y/2., m_length_z/2.); //scatola di gas poi si dovrà mettere le rotazioni e le traslazioni, per ora centrato nell'origine.
-   airBox->SetLineColor(8);
+   // TGeoVolume* airBox = gGeoManager->MakeBox("airBox", gGeoManager->GetMedium("ArCO2_med"), m_width_x/2., m_height_y/2., m_length_z/2.); //scatola di gas poi si dovrà mettere le rotazioni e le traslazioni, per ora centrato nell'origine.
+   top->SetLineColor(8);
    
    
 //sense

@@ -218,7 +218,7 @@ TGeoVolume* TAITparGeo::GetVolume() {
 
 
     if ( GlobalPar::GetPar()->Debug() > 3 )  {
-        cout << endl << "IT List of Materil\n ";
+        cout << endl << "IT List of Material\n ";
         TIter next( gGeoManager->GetListOfMaterials() );
         while ( TGeoMaterial *obj = (TGeoMaterial*) next() ) {
           cout << obj->GetName () << endl;
@@ -234,7 +234,8 @@ TGeoVolume* TAITparGeo::GetVolume() {
     double height_Ly = m_dimension.Y();
     
    // create main box
-    TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Vacuum_med"),width_Lx+1,height_Ly+1,m_dimension.z()+0.5); //top è scatola che conterrà tutto (dimensioni in cm)
+    // TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Vacuum_med"),width_Lx+1,height_Ly+1,m_dimension.z()+0.5); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Air_med"),width_Lx/2,height_Ly/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
     gGeoManager->SetTopVisible(1);
 
     TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_singleSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
