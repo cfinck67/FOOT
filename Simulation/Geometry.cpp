@@ -194,16 +194,30 @@ Int_t Geometry::InitDch() {
 
   //sposto di +/-0.00001 perchè le celle non tocchino i fili, se no mi dà problemi
   Double_t shift = 0.00001;
+  bool sense;
   
   Double_t aa[DCH_NWIRELAY], bb[DCH_NWIRELAY];
 
+  for (int s=0; s<DCH_NSENSELAY; s++){
+    geo.Dch.idsense[s] = 2*DCH_NSENSELAY+2*(s+1);
+    //    cout<<geo.Dch.idsense[s]<<endl;
+  }
+  
+  for (int nn = 0; nn < 2*DCH_NSENSELAY+1; nn++) {
+    for (int kk=0; kk<3; kk++){
+      bb[nn + kk*(2*DCH_NSENSELAY+1)] = nn * DCH_PASSO;
+      aa[nn + kk*(2*DCH_NSENSELAY+1)] = kk * DCH_STEP;
+    }
+  }  
+  
+  /*
   geo.Dch.idsense[0] = 14;
   geo.Dch.idsense[1] = 16;
   geo.Dch.idsense[2] = 18;
   geo.Dch.idsense[3] = 20;
   geo.Dch.idsense[4] = 22;
   geo.Dch.idsense[5] = 24;
-
+  
   for (int nn = 0; nn < 13; nn++) {
     bb[nn] = nn * DCH_PASSO;
     bb[nn + 13] = nn * DCH_PASSO;
@@ -213,7 +227,7 @@ Int_t Geometry::InitDch() {
     aa[nn + 13] = DCH_STEP;
     aa[nn + 26] = 2 * DCH_STEP;
   }
-  
+  */
   geo.Dch.nlayer = DCH_NLAY;
   geo.Dch.nwirelayer = DCH_NWIRELAY;
   geo.Dch.nsense = DCH_NSENSELAY;
@@ -292,6 +306,8 @@ Int_t Geometry::InitDch() {
     }
     
     for (int iw = 0; iw < geo.Dch.nwirelayer; iw++) {
+
+      sense = false;
       
       //  U wires -> along x 
 
@@ -328,19 +344,22 @@ Int_t Geometry::InitDch() {
       geo.Dch.V_cx[iw][il] = 0.;
       geo.Dch.V_cy[iw][il] = geo.Dch.SideDch[1];
       geo.Dch.V_cz[iw][il] = 0.;
-      
-      // filo di sense 
-      if ((iw == geo.Dch.idsense[0]) || (iw == geo.Dch.idsense[1])
-	  || (iw == geo.Dch.idsense[2])) {
-	geo.Dch.U_rad[iw][il] = DCH_RSENSE;
-	geo.Dch.V_rad[iw][il] = DCH_RSENSE;
+
+      //controllo se è un filo di sense
+      for (int s=0; s<DCH_NSENSELAY; s++){
+	if (iw == geo.Dch.idsense[s]) sense = true;
       }
       
-      // filo di campo 
-      else {
+      // filo di sense
+      if (sense){
+	geo.Dch.U_rad[iw][il] = DCH_RSENSE;
+	geo.Dch.V_rad[iw][il] = DCH_RSENSE;
+	// filo di campo 
+      }else {
 	geo.Dch.U_rad[iw][il] = DCH_RFIELD;
 	geo.Dch.V_rad[iw][il] = DCH_RFIELD;
       }
+   
     }
   }
   
@@ -723,21 +742,6 @@ Int_t Geometry::VolBox(TString fVolName, Int_t fVerbosity, TString* fFLUKALine,
 
 	*fFLUKALine = fLine.str();
 	return 0;
-}
-
-/*--------------------------------------------------------*/
-//convert Double_t to Int_t without crashing - hell knows why (deadly FORTRAN-C++ mix?).
-Int_t Geometry::castd2i(Double_t number) {
-	Double_t top = 2147483647., bottom = -2147483648.;
-
-	//check out-of-bounds
-	if (number >= top) {
-		return 2147483647;
-	} else if (number <= bottom) {
-		return -2147483648;
-	} else {
-		return (int) number;
-	}
 }
 
 

@@ -32,6 +32,8 @@ int main(int argc, char *argv[]){
   Int_t nCry, nScnV, nScnU;
 
   Double_t x, y;
+
+  bool sense;
   
   genstg<<"* ******************************************************************************"<<endl;
   genstg<<"*                           GENERAL & PRIMARY                                  *"<<endl;
@@ -119,12 +121,12 @@ int main(int argc, char *argv[]){
   geofile << stringa << endl;
 
   geofile << "* ***Black Body" << endl;
-  sprintf(stringa,"RPP blk        -10000.1 10000.1 -10000.1 10000.1 -50000.1 50000.1");
+  sprintf(stringa,"RPP blk        -1000. 1000. -1000. 1000. -1000. 1000.");
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
 
   geofile << "* ***Air -> no mag field" << endl;
-  sprintf(stringa,"RPP air        -1000.0 1000.0 -1000.0 1000.0 -5000.0 5000.0");
+  sprintf(stringa,"RPP air        -900.0 900.0 -900.0 900.0 -900.0 900.0");
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
 
@@ -235,6 +237,17 @@ int main(int argc, char *argv[]){
     }
   }  
 
+  // Vacuum chamber
+  geofile << "* ***Vacuum chamber" << endl;
+  TheGeometry->VolBox(FLUKAname="vacOut",kVerbosity,&FLUKAcard
+			,ITR_X,ITR_Y,ITR_Z,10.+0.01,10.+0.01,12.+0.01);
+  if (kVerbosity>0) cout << FLUKAcard << endl;
+  geofile << FLUKAcard << endl;
+  TheGeometry->VolBox(FLUKAname="vacIn",kVerbosity,&FLUKAcard
+			,ITR_X,ITR_Y,ITR_Z,10.,10,12.);
+  if (kVerbosity>0) cout << FLUKAcard << endl;
+  geofile << FLUKAcard << endl;
+
   // Target
   
   geofile << "* ***Target" << endl;
@@ -258,6 +271,8 @@ int main(int argc, char *argv[]){
   // Inner Tracker
 
   geofile << "* ***Inner Tracker" << endl;
+  double itr_tot_thick=2*ITR_THICK+2*ITR_EPO_THICK+4*ITR_COV_THICK+4*ITR_AL_THICK
+    +2*ITR_KAP_THICK+ITR_FOAM_THICK;/*
   for (int i=0; i<ITR_NLAY; i++){
     sprintf(regname,"itr%d%",i);
     TheGeometry->VolBox(FLUKAname=regname,kVerbosity,&FLUKAcard
@@ -265,10 +280,58 @@ int main(int argc, char *argv[]){
 			,ITR_WIDTH/2.,ITR_HEIGHT/2.,ITR_THICK/2.);
     if (kVerbosity>0) cout << FLUKAcard << endl;
     geofile << FLUKAcard << endl;
-  }
+  }*/
+  sprintf(regname,"itrbox");
+  TheGeometry->VolBox(FLUKAname=regname,kVerbosity,&FLUKAcard
+			,ITR_X,ITR_Y,ITR_Z
+			,ITR_WIDTH/2.,ITR_HEIGHT/2.,itr_tot_thick/2);
+  if (kVerbosity>0) cout << FLUKAcard << endl;
+  geofile << FLUKAcard << endl;
+  sprintf(stringa,"XYP itr00     %f",ITR_Z-itr_tot_thick/2+ITR_THICK);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr01     %f",ITR_Z-itr_tot_thick/2+ITR_THICK+ITR_EPO_THICK);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr02     %f",ITR_Z-itr_tot_thick/2+ITR_THICK+ITR_EPO_THICK+ITR_COV_THICK);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr03     %f",ITR_Z-itr_tot_thick/2+ITR_THICK+ITR_EPO_THICK+ITR_COV_THICK+ITR_AL_THICK);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr04     %f",ITR_Z-ITR_FOAM_THICK/2-ITR_COV_THICK-ITR_AL_THICK);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr05     %f",ITR_Z-ITR_FOAM_THICK/2-ITR_COV_THICK);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr06     %f",ITR_Z-ITR_FOAM_THICK/2);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr07     %f",ITR_Z+ITR_FOAM_THICK/2);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr08     %f",ITR_Z+ITR_FOAM_THICK/2+ITR_COV_THICK);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr09     %f",ITR_Z+ITR_FOAM_THICK/2+ITR_COV_THICK+ITR_AL_THICK);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr10     %f",ITR_Z+itr_tot_thick/2-ITR_THICK-ITR_EPO_THICK-ITR_COV_THICK-ITR_AL_THICK);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr11     %f",ITR_Z+itr_tot_thick/2-ITR_THICK-ITR_EPO_THICK-ITR_COV_THICK);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr12     %f",ITR_Z+itr_tot_thick/2-ITR_THICK-ITR_EPO_THICK);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"XYP itr13     %f",ITR_Z+itr_tot_thick/2-ITR_THICK);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
 
   // Magnets
-
+  /*
   geofile << "* ***Magnets" << endl;
   for (int i=0; i<MAG_N; i++){
     sprintf(stringa,"RCC MagCvOu%d   %f %f %f %f %f %f %f",i,MAG_X,MAG_Y
@@ -296,7 +359,52 @@ int main(int argc, char *argv[]){
 	  ,MAG_AIR_Z-MAG_AIR_LENGTH/2.,MAG_AIR_Z+MAG_AIR_LENGTH/2.);
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
+*/  
+  geofile << "* ***Magnets" << endl;
+  //for (int i=0; i<MAG_N; i++){
+  sprintf(stringa,"RCC MagCvOu0   %f %f %f %f %f %f %f",MAG_X,MAG_Y
+	  ,(MAG_Z-MAG_CV_LENGTH/2),ZERO,ZERO,MAG_CV_LENGTH,MAG_CV0_OUTRAD);
+  if (kVerbosity>0) cout << stringa <<endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"RCC MagCvOu1   %f %f %f %f %f %f %f",MAG_X,MAG_Y
+	  ,(MAG_Z-MAG_CV_LENGTH/2+MAG_DIST),ZERO,ZERO,MAG_CV_LENGTH,MAG_CV1_OUTRAD);
+  if (kVerbosity>0) cout << stringa <<endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"RCC MagPMOu0   %f %f %f %f %f %f %f",MAG_X,MAG_Y
+	  ,(MAG_Z-MAG_PM_LENGTH/2),ZERO,ZERO,MAG_PM_LENGTH,MAG_PM0_OUTRAD);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"RCC MagPMOu1   %f %f %f %f %f %f %f",MAG_X,MAG_Y
+	  ,(MAG_Z-MAG_PM_LENGTH/2+MAG_DIST),ZERO,ZERO,MAG_PM_LENGTH,MAG_PM1_OUTRAD);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"RCC MagPMIn0   %f %f %f %f %f %f %f",MAG_X,MAG_Y
+	  ,(MAG_Z-MAG_PM_LENGTH/2),ZERO,ZERO,MAG_PM_LENGTH,MAG_PM0_INRAD);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"RCC MagPMIn1   %f %f %f %f %f %f %f",MAG_X,MAG_Y
+	  ,(MAG_Z-MAG_PM_LENGTH/2+MAG_DIST),ZERO,ZERO,MAG_PM_LENGTH,MAG_PM1_INRAD);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  //}
+  
+  geofile << "* ***Gap for magnets" << endl;
+  sprintf(stringa,"ZCC Gap0       %f %f %f",ZERO,ZERO,MAG_CV0_INRAD);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  sprintf(stringa,"ZCC Gap1       %f %f %f",ZERO,ZERO,MAG_CV1_INRAD);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
+  
+  geofile << "* ***Magnetic field air region" << endl;
+  sprintf(stringa,"RPP MagAir     %f %f %f %f %f %f",MAG_AIR_X-MAG_AIR_WIDTH/2.
+	  ,MAG_AIR_X+MAG_AIR_WIDTH/2.,MAG_AIR_Y-MAG_AIR_HEIGHT/2.,MAG_AIR_Y+MAG_AIR_HEIGHT/2.
+	  ,MAG_AIR_Z-MAG_AIR_LENGTH/2.,MAG_AIR_Z+MAG_AIR_LENGTH/2.);
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa << endl;
 
+
+  
   // Drift Chamber
   
   geofile << "* ***Drift Chamber" << endl;
@@ -347,17 +455,23 @@ int main(int argc, char *argv[]){
   iFieldDCH=-1;
   iSenseDCH=-1;
   for (int il=0;il<DCH_NLAY;il++){
-    for (int iw =0; iw<DCH_NWIRELAY;iw++){      
+    for (int iw =0; iw<DCH_NWIRELAY;iw++){
+      sense=false;
+      for (int is=0; is<DCH_NSENSELAY; is++){
+	if (iw==geo.Dch.idsense[is]) sense=true;
+      }/*
       if ( (iw==geo.Dch.idsense[0]) ||(iw==geo.Dch.idsense[1]) ||
 	   (iw==geo.Dch.idsense[2]) ||(iw==geo.Dch.idsense[3]) ||
-	   (iw==geo.Dch.idsense[4]) ||(iw==geo.Dch.idsense[5]) ){
+	   (iw==geo.Dch.idsense[4]) ||(iw==geo.Dch.idsense[5]) ||
+	   (iw==geo.Dch.idsense[6]) ||(iw==geo.Dch.idsense[7])){*/
+      if(sense){
 	iSenseDCH++;
 	sprintf(stringa,"RCC DchUS%d    %f %f %f %f %f %f %f",iSenseDCH
 		,geo.Dch.U_x[iw][il],geo.Dch.U_y[iw][il],geo.Dch.U_z[iw][il]
 		,geo.Dch.U_cx[iw][il],geo.Dch.U_cy[iw][il],geo.Dch.U_cz[iw][il]
 		,geo.Dch.U_rad[iw][il]);
-      	if (kVerbosity>0) cout << stringa << endl;
-      	geofile << stringa << endl;
+	if (kVerbosity>0) cout << stringa << endl;
+	geofile << stringa << endl;
       } else {
 	iFieldDCH++;	 
 	sprintf(stringa,"RCC DchUF%d   %f %f %f %f %f %f %f",iFieldDCH
@@ -375,9 +489,14 @@ int main(int argc, char *argv[]){
   iSenseDCH=-1;
   for (int il=0;il<DCH_NLAY;il++){
     for (int iw =0; iw<DCH_NWIRELAY;iw++){
+      sense=false;
+      for (int is=0; is<DCH_NSENSELAY; is++){
+	if (iw==geo.Dch.idsense[is]) sense=true;
+      }/*
       if ((iw==geo.Dch.idsense[0]) ||(iw==geo.Dch.idsense[1]) ||
 	  (iw==geo.Dch.idsense[2]) ||(iw==geo.Dch.idsense[3]) ||
-	  (iw==geo.Dch.idsense[4]) ||(iw==geo.Dch.idsense[5]) ){
+	  (iw==geo.Dch.idsense[4]) ||(iw==geo.Dch.idsense[5]) ){*/
+      if(sense){
 	iSenseDCH++;	 
 	sprintf(stringa,"RCC DchVS%d    %f %f %f %f %f %f %f",iSenseDCH
 		,geo.Dch.V_x[iw][il],geo.Dch.V_y[iw][il],geo.Dch.V_z[iw][il]
@@ -468,7 +587,7 @@ int main(int argc, char *argv[]){
   // Black Body
   
   sprintf(stringa,"BLACK        5 blk -air");
-  regfile << "black " << iReg << endl; iReg++;
+  regfile << "const int nregBlk = " << iReg << "; //blackbody" << endl; iReg++;
   if (kVerbosity>0) cout << stringa <<endl;
   geofile << stringa << endl;  
   TheGeometry->AssignMaterial("BLACK",BLK_MEDIUM,kVerbosity,&FLUKAcard);
@@ -478,10 +597,14 @@ int main(int argc, char *argv[]){
   // Air -> no mag field
   
   geofile <<"* ***Air -> no mag field" << endl;
-  sprintf(stringa,"AIR          5 air -stc -MagAir -box -(MagCvOu0 -Gap) -(MagCvOu1 -Gap)\n -(BmnShiOu -BmnShiIn) -(BmnShiIn -BmnMyl0 +BmnMyl3)\n -(DchShiOu -DchShiIn) -(DchShiIn -DchMyl0 +DchMyl3) ");
+  if (VacChamber){
+    sprintf(stringa,"AIR          5 air -stc -tgt -vtx0 -vtx1 -vtx2 -MagAir -vacOut -box\n -(BmnShiOu -BmnShiIn) -(BmnShiIn -BmnMyl0 +BmnMyl3)\n -(DchShiOu -DchShiIn) -(DchShiIn -DchMyl0 +DchMyl3) ");
+  }else{
+    sprintf(stringa,"AIR          5 air -stc -tgt -vtx0 -vtx1 -vtx2 -MagAir -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1) -box\n -(BmnShiOu -BmnShiIn) -(BmnShiIn -BmnMyl0 +BmnMyl3)\n -(DchShiOu -DchShiIn) -(DchShiIn -DchMyl0 +DchMyl3) ");
+  }
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
-  regfile << "air " << iReg << endl; iReg++;  
+  regfile << "const int nregAir = " << iReg << "; //Air no mag field" << endl; iReg++;  
   TheGeometry->AssignMaterial("AIR",AIR_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl; 
@@ -491,7 +614,7 @@ int main(int argc, char *argv[]){
   if (kVerbosity>0) cout << "* Start Counter" << endl;
   geofile <<"* ***Start Counter" << endl;
   sprintf(stringa,"STC          5 stc");
-  regfile << "start counter " << iReg << endl; iReg++;
+  regfile << "const int nregSTC = " << iReg << "; //start counter" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;  
   TheGeometry->AssignMaterial("STC",STC_MEDIUM,kVerbosity,&FLUKAcard);
@@ -505,7 +628,7 @@ int main(int argc, char *argv[]){
   
   //beam monitor shielding
   sprintf(stringa,"BMN_SHI      5 BmnShiOu -BmnShiIn");
-  regfile << "bmn shield " << iReg << endl; iReg++;
+  regfile << "const int nregShiBMN = " << iReg << "; //BMN shield" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
   TheGeometry->AssignMaterial("BMN_SHI",BMN_SHI_MEDIUM,kVerbosity,&FLUKAcard);
@@ -514,26 +637,26 @@ int main(int argc, char *argv[]){
   
   //beam monitor mylar windows
   sprintf(stringa,"BMN_MYL0      5 BmnShiIn -BmnMyl0 +BmnMyl1");
-  regfile << "bmn front mylar " << iReg << endl; iReg++;
+  regfile << "const int nregMyl1BMN = " << iReg << "; //BMN front mylar window" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
   sprintf(stringa,"BMN_MYL1      5 BmnShiIn -BmnMyl2 +BmnMyl3");
-  regfile << "bmn back mylar " << iReg << endl; iReg++;
+  regfile << "const int nregMyl2BMN = " << iReg << "; //BMN back mylar window" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
   TheGeometry->AssignMaterial("BMN_MYL0",BMN_MYL_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;
-  TheGeometry->AssignMaterial("BMN_MYL1",BMN_MYL_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("BMN_MYL1",BMN_MYL_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;
   
   //beam monitor gas region
   sprintf(stringa,"BMN_GAS       5 BmnShiIn -BmnMyl1 +BmnMyl2");
-  regfile << "bmn gas " << iReg << endl; iReg++;
+  regfile << "const int nregGasBMN = " << iReg << "; //gas inside bmn (no cells)" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
-  TheGeometry->AssignMaterial("BMN_GAS",BMN_GAS_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("BMN_GAS",BMN_GAS_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;  
   TheGeometry->Reg8sub("BmnUF",0,iFieldBMN,kVerbosity,&FLUKAcard);
@@ -554,28 +677,28 @@ int main(int argc, char *argv[]){
   for (int il=0;il<BMN_NLAY;il++){
     for (int iw =0; iw<BMN_NSENSELAY;iw++){
       iCellBMN++;   
-      if (iw==0 && il==0) regfile << "bmn cell first " << iReg << endl;
+      if (iw==0 && il==0) regfile << "const int nregFirstBMN = " << iReg << "; //first BMN cell" << endl;
       sprintf(stringa,"BMN_CU%02d    5 BmnCU%d -BmnUS%d",iCellBMN,iCellBMN,iCellBMN);
       if (kVerbosity>0) cout << stringa << endl;
       geofile << stringa << endl; iReg++;
-      if (iw==BMN_NSENSELAY-1 && il==BMN_NLAY-1) regfile << "bmn cell last " << iReg << endl;   
+      if (iw==BMN_NSENSELAY-1 && il==BMN_NLAY-1) regfile << "const int nregLastBMN = " << iReg << "; //last BMN cell" << endl;   
       sprintf(stringa,"BMN_CV%02d    5 BmnCV%d -BmnVS%d",iCellBMN,iCellBMN,iCellBMN);
       if (kVerbosity>0) cout << stringa << endl;
       geofile << stringa << endl; iReg++;
     }
   }
   sprintf(regname,"BMN_CU%d",BMN_NLAY*BMN_NSENSELAY-1);
-  TheGeometry->AssignMaterial("BMN_CU00",regname,1,BMN_GAS_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("BMN_CU00",regname,1,BMN_GAS_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;  
   sprintf(regname,"BMN_CV%d",BMN_NLAY*BMN_NSENSELAY-1);
-  TheGeometry->AssignMaterial("BMN_CV00",regname,1,BMN_GAS_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("BMN_CV00",regname,1,BMN_GAS_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;
   
   //beam monitor field wires regions
   sprintf(stringa,"BMN_FWI      5 ");
-  regfile << "bmn field wires " << iReg << endl; iReg++;
+  regfile << "const int nregFWBMN = " << iReg << "; //BMN field wires" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
   TheGeometry->Reg8addExp("BmnUF",0,iFieldBMN,"BmnShiIn+",kVerbosity,&FLUKAcard);
@@ -584,13 +707,13 @@ int main(int argc, char *argv[]){
   TheGeometry->Reg8addExp("BmnVF",0,iFieldBMN,"BmnShiIn+",kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   geofile << FLUKAcard << endl;
-  TheGeometry->AssignMaterial("BMN_FWI",BMN_FWIRE_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("BMN_FWI",BMN_FWIRE_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;
   
   //beam monitor sense wires regions
   sprintf(stringa,"BMN_SWI       5 ");
-  regfile << "bmn sense wires " << iReg << endl; iReg++;
+  regfile << "const int nregSWBMN = " << iReg << "; //BMN sense wires" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
   TheGeometry->Reg8addVarExp("BmnUS",0,iSenseBMN,"BmnCU",kVerbosity,&FLUKAcard);
@@ -599,19 +722,42 @@ int main(int argc, char *argv[]){
   TheGeometry->Reg8addVarExp("BmnVS",0,iSenseBMN,"BmnCV",kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   geofile << FLUKAcard << endl;
-  TheGeometry->AssignMaterial("BMN_SWI",BMN_SWIRE_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("BMN_SWI",BMN_SWIRE_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;
+
+  // Vacuum chamber
+
+  if (VacChamber){
+    if (kVerbosity>0) cout << "* Vacuum chamber" << endl;
+    geofile <<"* ***Vacuum chamber" << endl;
+    sprintf(stringa,"VACCH       5 vacOut -vacIn");
+    regfile << "const int nregWallVCH = " << iReg << "; //vacuum chamber walls" << endl; iReg++;
+    if (kVerbosity>0) cout << stringa << endl;
+    geofile << stringa << endl;
+    TheGeometry->AssignMaterial("VACCH","KAPTON",kVerbosity,&FLUKAcard);
+    if (kVerbosity>0) cout << FLUKAcard << endl;
+    matstg << FLUKAcard << endl;
+    if (kVerbosity>0) cout << "* Magnetic field vacuum region" << endl;
+    geofile <<"* ***Magnetic field vacuum region" << endl;  
+    sprintf(stringa,"MAG_VAC      5 vacIn -itrbox -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1)");
+    regfile << "const int nregMagVac = " << iReg << "; //magnetic vacuum region" << endl; iReg++;
+    if (kVerbosity>0) cout << stringa << endl;
+    geofile << stringa << endl;
+    TheGeometry->AssignMaterial("MAG_VAC","VACUUM",MagField,kVerbosity,&FLUKAcard);
+    if (kVerbosity>0) cout << FLUKAcard << endl;
+    matstg << FLUKAcard << endl;
+  }
   
   // Target
 
   if (kVerbosity>0) cout << "* Target" << endl;
   geofile <<"* ***Target" << endl;
   sprintf(stringa,"TARGET       5 tgt");
-  regfile << "target " << iReg << endl; iReg++;
+  regfile << "const int nregTarg = " << iReg << "; //target"  << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
-  TheGeometry->AssignMaterial("TARGET",TG_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("TARGET",TG_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;
 
@@ -621,25 +767,26 @@ int main(int argc, char *argv[]){
   geofile <<"* ***Vertex" <<endl;
   for (int i=0; i<VTX_NLAY; i++){
     sprintf(stringa,"VTX%d      5 vtx%d%",i,i);
-    if ( i == 0 ) regfile << "vertex first " << iReg << endl;
-    if ( i == VTX_NLAY-1 ) regfile << "vertex last " << iReg << endl;
+    if ( i == 0 ) regfile << "const int nregFirstVTX = " << iReg << "; //first vertex" << endl;
+    if ( i == VTX_NLAY-1 ) regfile << "const int nregLastVTX = " << iReg << "; //last vertex" << endl;
     iReg++;
     if (kVerbosity>0) cout << stringa << endl;
     geofile << stringa << endl;
   }
   sprintf(regname,"VTX%d",VTX_NLAY-1);
-  TheGeometry->AssignMaterial("VTX0",regname,1,VTX_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("VTX0",regname,1,VTX_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;
   
   // Inner Tracker 
-
+  
   if (kVerbosity>0) cout << "* Inner Tracker" << endl;
   geofile <<"* ***Inner Tracker" << endl;
+  /*
   for (int i=0; i<ITR_NLAY; i++){
     sprintf(stringa,"ITR%d      5 itr%d%",i,i);
-    if ( i == 0 ) regfile << "inner tracker first " << iReg << endl;
-    if ( i == ITR_NLAY-1 ) regfile << "inner tracker last " << iReg << endl;
+    if ( i == 0 ) regfile << "const int nregFirstITR = " << iReg << "; //first inner tracker" << endl;
+    if ( i == ITR_NLAY-1 ) regfile << "const int nregLastITR = " << iReg << "; //last inner tracker" << endl;
     iReg++;
     if (kVerbosity>0) cout << stringa << endl;
     geofile << stringa <<endl;
@@ -647,8 +794,79 @@ int main(int argc, char *argv[]){
   sprintf(regname,"ITR%d",ITR_NLAY-1);
   TheGeometry->AssignMaterial("ITR0",regname,1,ITR_MEDIUM,MagField,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
+  matstg << FLUKAcard << endl;*/  
+  sprintf(stringa,"ITR0      5 itrbox +itr00");
+  regfile << "const int nregFirstITR = " << iReg << "; //first inner tracker" << endl;iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITR1      5 itrbox -itr13");
+  regfile << "const int nregLastITR = " << iReg << "; //last inner tracker" << endl;iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITREPO0     5 itrbox -itr00 +itr01");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITREPO1     5 itrbox -itr12 +itr13");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITRAL0     5 itrbox -itr02 +itr03");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITRAL1     5 itrbox -itr04 +itr05");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITRAL2     5 itrbox -itr08 +itr09");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITRAL3     5 itrbox -itr10 +itr11");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITRCOV0     5 itrbox -itr01 +itr02");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITRCOV1     5 itrbox -itr05 +itr06");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITRCOV2     5 itrbox -itr07 +itr08");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITRCOV3     5 itrbox -itr11 +itr12");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITRKAP0     5 itrbox -itr03 +itr04");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITRKAP1     5 itrbox -itr09 +itr10");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(stringa,"ITRFOAM     5 itrbox -itr06 +itr07");iReg++;
+  if (kVerbosity>0) cout << stringa << endl;
+  geofile << stringa <<endl;
+  sprintf(regname,"ITR%d",ITR_NLAY-1);
+  TheGeometry->AssignMaterial("ITR0",regname,1,ITR_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;
-
+  sprintf(regname,"ITREPO%d",ITR_NLAY-1);
+  TheGeometry->AssignMaterial("ITREPO0",regname,1,ITR_EPO_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  if (kVerbosity>0) cout << FLUKAcard << endl;
+  matstg << FLUKAcard << endl;
+  sprintf(regname,"ITRAL%d",2*ITR_NLAY-1);
+  TheGeometry->AssignMaterial("ITRAL0",regname,1,ITR_AL_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  if (kVerbosity>0) cout << FLUKAcard << endl;
+  matstg << FLUKAcard << endl;
+  sprintf(regname,"ITRCOV%d",2*ITR_NLAY-1);
+  TheGeometry->AssignMaterial("ITRCOV0",regname,1,ITR_COV_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  if (kVerbosity>0) cout << FLUKAcard << endl;
+  matstg << FLUKAcard << endl;
+  sprintf(regname,"ITRKAP%d",ITR_NLAY-1);
+  TheGeometry->AssignMaterial("ITRKAP0",regname,1,ITR_KAP_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  if (kVerbosity>0) cout << FLUKAcard << endl;
+  matstg << FLUKAcard << endl;
+  TheGeometry->AssignMaterial("ITRFOAM",ITR_FOAM_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  if (kVerbosity>0) cout << FLUKAcard << endl;
+  matstg << FLUKAcard << endl;
+  
+  
   // Magnets & Magnetic Field Air Region
   
   if (kVerbosity>0) cout << "* Magnets" << endl;
@@ -663,7 +881,7 @@ int main(int argc, char *argv[]){
     if (kVerbosity>0) cout << FLUKAcard << endl;
     matstg << FLUKAcard << endl;
     //aluminium cover
-    sprintf(stringa,"MAG_CV%d      5 MagCvOu%d -(MagPMOu%d -MagPMIn%d) -Gap",i,i,i,i);
+    sprintf(stringa,"MAG_CV%d      5 MagCvOu%d -(MagPMOu%d -MagPMIn%d) -Gap%d",i,i,i,i,i);
     if (kVerbosity>0) cout << stringa << endl;
     geofile << stringa << endl; iReg++;
     sprintf(stringa,"MAG_CV%d",i);    
@@ -673,9 +891,13 @@ int main(int argc, char *argv[]){
   }
   
   if (kVerbosity>0) cout << "* Magnetic field air region" << endl;
-  geofile <<"* ***Magnetic field air region" << endl;  
-  sprintf(stringa,"MAG_AIR      5 MagAir -tgt -vtx0 -vtx1 -vtx2 -itr0 -itr1 -(MagCvOu0 -Gap) -(MagCvOu1 -Gap)\n -(BmnShiIn -BmnMyl0 +BmnMyl3)-(DchShiIn -DchMyl0 +DchMyl3) ");
-  regfile << "magnetic field air region " << iReg << endl; iReg++;
+  geofile <<"* ***Magnetic field air region" << endl;
+  if(!VacChamber){
+    sprintf(stringa,"MAG_AIR      5 MagAir -itrbox -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1)\n -(BmnShiIn -BmnMyl0 +BmnMyl3)-(DchShiIn -DchMyl0 +DchMyl3) ");
+  }else{
+    sprintf(stringa,"MAG_AIR      5 MagAir -tgt -vtx0 -vtx1 -vtx2 -vacOut\n -(BmnShiIn -BmnMyl0 +BmnMyl3)-(DchShiIn -DchMyl0 +DchMyl3) ");
+  }  
+  regfile << "const int nregMagAir = " << iReg << "; //magnetic field air region" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
   TheGeometry->AssignMaterial("MAG_AIR",MAG_AIR_MEDIUM,MagField,kVerbosity,&FLUKAcard);
@@ -689,7 +911,7 @@ int main(int argc, char *argv[]){
   
   //drift chamber shielding
   sprintf(stringa,"DCH_SHI      5 DchShiOu -DchShiIn");
-  regfile << "dch shield " << iReg << endl; iReg++;
+  regfile << "const int nregShiDCH = " << iReg << ";//DCH shield" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
   TheGeometry->AssignMaterial("DCH_SHI",DCH_SHI_MEDIUM,kVerbosity,&FLUKAcard);
@@ -698,14 +920,14 @@ int main(int argc, char *argv[]){
   
   //drift chamber mylar windows
   sprintf(stringa,"DCH_MYL0      5 DchShiIn -DchMyl0 +DchMyl1");
-  regfile << "dch front mylar " << iReg << endl; iReg++;
+  regfile << "const int nregMyl1DCH =" << iReg << "; //DCH front mylar" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
   sprintf(stringa,"DCH_MYL1      5 DchShiIn -DchMyl2 +DchMyl3");
-  regfile << "dch back mylar " << iReg << endl; iReg++;
+  regfile << "const int nregMyl2DCH = " << iReg << "; //DCH back mylar" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
-  TheGeometry->AssignMaterial("DCH_MYL0",DCH_MYL_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("DCH_MYL0",DCH_MYL_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;
   TheGeometry->AssignMaterial("DCH_MYL1",DCH_MYL_MEDIUM,kVerbosity,&FLUKAcard);
@@ -714,10 +936,10 @@ int main(int argc, char *argv[]){
   
   //drift chamber gas region
   sprintf(stringa,"DCH_GAS       5 DchShiIn -DchMyl1 +DchMyl2");
-  regfile << "dch gas " << iReg << endl; iReg++;
+  regfile << "const int nregGasDCH = " << iReg << "; //DCH gas" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
-  TheGeometry->AssignMaterial("DCH_GAS",DCH_GAS_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("DCH_GAS",DCH_GAS_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;  
   TheGeometry->Reg8sub("DchUF",0,iFieldDCH,kVerbosity,&FLUKAcard);
@@ -738,28 +960,28 @@ int main(int argc, char *argv[]){
   for (int il=0;il<DCH_NLAY;il++){
     for (int iw =0; iw<DCH_NSENSELAY;iw++){   
       iCellDCH++;   
-      if (iw==0 && il==0) regfile << "dch cell first " << iReg << endl; 
+      if (iw==0 && il==0) regfile << "const int nregFirstDCH = " << iReg << "; //first BMN cell" << endl; 
       sprintf(stringa,"DCH_CU%02d    5 DchCU%d -DchUS%d",iCellDCH,iCellDCH,iCellDCH);
       if (kVerbosity>0) cout << stringa << endl;
       geofile << stringa << endl; iReg++;
-      if (iw==DCH_NSENSELAY-1 && il==DCH_NLAY-1) regfile << "dch cell last " << iReg << endl;
+      if (iw==DCH_NSENSELAY-1 && il==DCH_NLAY-1) regfile << "const int nregLastDCH = " << iReg << "; //last DCH cell" << endl;
       sprintf(stringa,"DCH_CV%02d    5 DchCV%d -DchVS%d",iCellDCH,iCellDCH,iCellDCH);
       if (kVerbosity>0) cout << stringa << endl;
       geofile << stringa << endl; iReg++;
     }
   }
   sprintf(regname,"DCH_CU%d",DCH_NLAY*DCH_NSENSELAY-1);
-  TheGeometry->AssignMaterial("DCH_CU00",regname,1,DCH_GAS_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("DCH_CU00",regname,1,DCH_GAS_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;  
   sprintf(regname,"DCH_CV%d",DCH_NLAY*DCH_NSENSELAY-1);
-  TheGeometry->AssignMaterial("DCH_CV00",regname,1,DCH_GAS_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("DCH_CV00",regname,1,DCH_GAS_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;
   
   //drift chamber field wires regions
   sprintf(stringa,"DCH_FWI      5 ");
-  regfile << "dch field wires " << iReg << endl; iReg++;
+  regfile << "const int nregFWDCH = " << iReg << "; //DCH field wires" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
   TheGeometry->Reg8addExp("DchUF",0,iFieldDCH,"DchShiIn+",kVerbosity,&FLUKAcard);
@@ -768,13 +990,13 @@ int main(int argc, char *argv[]){
   TheGeometry->Reg8addExp("DchVF",0,iFieldDCH,"DchShiIn+",kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   geofile << FLUKAcard << endl;
-  TheGeometry->AssignMaterial("DCH_FWI",DCH_FWIRE_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("DCH_FWI",DCH_FWIRE_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;
   
   //drift chamber sense wires regions
   sprintf(stringa,"DCH_SWI       5 ");
-  regfile << "dch sense wires " << iReg << endl; iReg++;
+  regfile << "const int nregSWDCH = " << iReg << "; //DCH sense wires" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;
   TheGeometry->Reg8addVarExp("DchUS",0,iSenseDCH,"DchCU",kVerbosity,&FLUKAcard);
@@ -783,7 +1005,7 @@ int main(int argc, char *argv[]){
   TheGeometry->Reg8addVarExp("DchVS",0,iSenseDCH,"DchCV",kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   geofile << FLUKAcard << endl;
-  TheGeometry->AssignMaterial("DCH_SWI",DCH_SWIRE_MEDIUM,MagField,kVerbosity,&FLUKAcard);
+  TheGeometry->AssignMaterial("DCH_SWI",DCH_SWIRE_MEDIUM,kVerbosity,&FLUKAcard);
   if (kVerbosity>0) cout << FLUKAcard << endl;
   matstg << FLUKAcard << endl;
 
@@ -792,7 +1014,7 @@ int main(int argc, char *argv[]){
   if (kVerbosity>0) cout << "* Air Box for Scintillator and Calorimeter" << endl;
   geofile <<"* ***Air Box for Scintillator and Calorimeter" << endl;
   sprintf(stringa,"BOX          5 box");
-  regfile << "air box for scint and calo " << iReg << endl; iReg++;
+  regfile << "const int nregAirCAL = " << iReg << "; //air box for scint and calo" << endl; iReg++;
   if (kVerbosity>0) cout << stringa << endl;
   geofile << stringa << endl;  
   TheGeometry->Reg8sub("scnV",0,SCN_NSTRIP-1,kVerbosity,&FLUKAcard);
@@ -819,8 +1041,8 @@ int main(int argc, char *argv[]){
       else sprintf(stringa,"SCNU%02d   5 scnU%d",j,j);
       if (kVerbosity>0) cout << stringa << endl;
       geofile << stringa << endl;
-      if (i==0 && j==0) regfile << "scintillator first " << iReg << endl;
-      if (i==SCN_NLAY-1 && j==SCN_NSTRIP-1) regfile << "scintillator last " << iReg << endl;
+      if (i==0 && j==0) regfile << "const int nregFirstSCN = " << iReg << "; //SCN first strip" << endl;
+      if (i==SCN_NLAY-1 && j==SCN_NSTRIP-1) regfile << "const int nregLastSCN = " << iReg << "; //SCN fistr strip" << endl;
       iReg++;
     }
   }
@@ -835,8 +1057,8 @@ int main(int argc, char *argv[]){
   geofile <<"* ***Calorimeter" << endl;
   for (int i=0; i<=nCry; i++){
     sprintf(stringa,"CAL%03d  5 cal%d",i,i);
-    if (i == 0) regfile << "calorimeter first " << iReg << endl;
-    if (i == nCry) regfile << "calorimeter last " << iReg << endl;
+    if (i == 0) regfile << "const int nregFirstCAL = " << iReg << "; //first CAL crystal" << endl;
+    if (i == nCry) regfile << "const int nregLastCAL = " << iReg << "; //last CAL crystal" << endl;
     iReg++;
     if (kVerbosity>0) cout << stringa << endl;
     geofile << stringa << endl;
@@ -1023,7 +1245,7 @@ int main(int argc, char *argv[]){
   cout    <<"* ******************************************************************************"<<endl;
 
   if (MagField){
-    TheGeometry->GenericCard("MGNFIELD",kVerbosity,&FLUKAcard ,"","","","0.","0.","0.","");
+    TheGeometry->GenericCard("MGNFIELD",kVerbosity,&FLUKAcard ,"","","",Bx,By,Bz,"");
     if (kVerbosity>0) cout << FLUKAcard << endl;
     matstg << FLUKAcard << endl;
   }

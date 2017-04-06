@@ -137,7 +137,30 @@ MATERIAL                      .001677136                              Ar-CO2
 COMPOUND        -0.8    -ARGON      -0.2      -CO2                    Ar-CO2
 MAT-PROP          1.                        Ar-CO2
 MATERIAL         18.            0.001662                              ARGON
+* Kapton polyimide film (C22_H10_N2_O5)n
+*
+MATERIAL                            1.42                              KAPTON
+COMPOUND   -0.026362  HYDROGEN -0.691133    CARBON  -0.07327  NITROGENKAPTON
+COMPOUND   -0.209235    OXYGEN                                        KAPTON
 MAT-PROP         0.8               188.0     ARGON
+MATERIAL          9.           0.0015803                              FLUORINE
+* TEDLAR
+MATERIAL                             1.5                              TEDLAR
+COMPOUND         3.0  HYDROGEN       2.0    CARBON       1.0  FLUORINETEDLAR
+* Epoxy (cast)
+* Chemical           H-C - C-H     CH3  H-C - C-H        H   H   H
+* Formula             //    \\     |     //    \\        |   |   |
+*          ----- O - C        C -- C -- C        C - O - C - C - C ---
+*  C  H  0            \     /      |     \     /         |   |   |
+*   18 19 3          H-C = C-H     CH3  H-C = C-H        H   O   H
+* If epoxy has silica filler, density will be in range of 1.6 - 2.0 g/cm3.
+MATERIAL                            1.18                              Epoxy
+COMPOUND        19.0  HYDROGEN      18.0    CARBON       3.0    OXYGENEpoxy
+* *** Silicon carbide
+MATERIAL                            3.22                              SiC
+COMPOUND        -1.0   SILICON      -1.0    CARBON                    SiC
+MATERIAL                          0.1288                              SiCFoam
+COMPOUND        -4.0       SiC     -96.0       AIR                    SiCFoam
 *
 * @@@START GENERATED, DO NOT MODIFY:MATERIAL&MAGFIELD@@@ ***********************
 * ******************************************************************************
@@ -159,23 +182,29 @@ ASSIGNMA    ALUMINUM   BMN_FWI
 ASSIGNMA    TUNGSTEN   BMN_SWI
 ASSIGNMA    Polyethy    TARGET
 ASSIGNMA     SILICON      VTX0      VTX2         1
-ASSIGNMA     SILICON      ITR0      ITR1         1
+ASSIGNMA     SILICON      ITR0      ITR1         1         1
+ASSIGNMA       Epoxy   ITREPO0   ITREPO1         1         1
+ASSIGNMA    ALUMINUM    ITRAL0    ITRAL3         1         1
+ASSIGNMA      KAPTON   ITRCOV0   ITRCOV3         1         1
+ASSIGNMA      KAPTON   ITRKAP0   ITRKAP1         1         1
+ASSIGNMA     SiCFoam   ITRFOAM                             1
 ASSIGNMA        SmCo   MAG_PM0
 ASSIGNMA    ALUMINUM   MAG_CV0
 ASSIGNMA        SmCo   MAG_PM1
 ASSIGNMA    ALUMINUM   MAG_CV1
-ASSIGNMA         AIR   MAG_AIR
+ASSIGNMA         AIR   MAG_AIR                             1
 ASSIGNMA    ALUMINUM   DCH_SHI
 ASSIGNMA       Mylar  DCH_MYL0
 ASSIGNMA       Mylar  DCH_MYL1
 ASSIGNMA      Ar-CO2   DCH_GAS
-ASSIGNMA      Ar-CO2  DCH_CU00  DCH_CU35         1
-ASSIGNMA      Ar-CO2  DCH_CV00  DCH_CV35         1
+ASSIGNMA      Ar-CO2  DCH_CU00  DCH_CU47         1
+ASSIGNMA      Ar-CO2  DCH_CV00  DCH_CV47         1
 ASSIGNMA    ALUMINUM   DCH_FWI
 ASSIGNMA    TUNGSTEN   DCH_SWI
 ASSIGNMA         AIR       BOX
 ASSIGNMA      EJ-232    SCNV00    SCNU21         1
 ASSIGNMA         BGO    CAL000    CAL359         1
+MGNFIELD                                        0.       0.7        0.          
 *
 * @@@END GENERATED:MATERIAL&MAGFIELD@@@ ****************************************
 * ******************************************************************************
@@ -183,7 +212,7 @@ ASSIGNMA         BGO    CAL000    CAL359         1
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| idbflg  | FragTrg |Eth(Mev) |unused   |unused   |unused | SDUM      |
 * -------1---------2---------3---------4---------5---------6---------7---------8
-USRICALL         0.0        1.       0.1       0.0        0.        0.
+USRICALL          0.        1.       0.1       0.0        0.        0.
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
@@ -193,6 +222,6 @@ RANDOMIZ         1.0   593585.
 * ******************************************************************************
 *                          RUN                                                 *
 * ******************************************************************************
-START           1.E4
+START            100
 STOP
 
