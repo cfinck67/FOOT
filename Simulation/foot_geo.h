@@ -166,6 +166,48 @@ const Double_t VTX_LAYDIST   	=0.5;//distrance btw layers
 
 const TString  VTX_MEDIUM       ="SILICON";
 
+
+//************************************************************
+/*parametri dei silici*/
+//TODO: for starting, geometry is implemented with x<->y swapped
+// 1.3M sensitive pads per plane (2 MIMOSAs), 18um=0.018mm distance between pads
+
+
+const Double_t MI_DIST_TGT_MI	=0.3;//distance target (end) and mimosa (beginning of first plane)
+const Double_t MI_DIST_PLANES	=0.3;//distance between mimosa planes (middle to middle)
+
+
+const Int_t    MI_MIMO_N  	=8; //number of MIMOSA chips
+
+
+const Double_t MI_GLAFI_HEIGHT 	=5.;
+const Double_t MI_GLAFI_WIDTH  	=5.;
+const Double_t MI_GLAFI_THICK  	=0.1;
+
+//const TString  MI_MIMO_GAS	="AIR"; //DEFAULT
+const TString  MI_MIMO_MEDIUM	="MI_SILIC";
+const Double_t MI_MIMO_HEIGHT 	=1.06;
+const Double_t MI_MIMO_WIDTH  	=2.12;
+//const Double_t MI_MIMO_THICK  	=0.01;//80um old
+const Double_t MI_MIMO_THICK  	=0.00504;//30um+14um+6.4um
+const Double_t MI_MEOX_THICK	=0.00064;
+
+
+const Double_t MI_SENS_HEIGHT 	=MI_MIMO_HEIGHT;
+const Double_t MI_SENS_WIDTH  	=MI_MIMO_WIDTH;
+const Double_t MI_SENS_THICK  	=0.0014;//14um
+//const Double_t MI_SENS_THICK  	=0.002;//20um old
+
+const Int_t  MI_SENS_BIN_HEIGHT =576; //number of bins
+const Int_t  MI_SENS_BIN_WIDTH  =1152;
+const Int_t  MI_SENS_BIN_THICK  =1;
+
+//const Double_t MI_PAD_WIDTH      =0.0018;//cm =18um
+const Double_t MI_PAD_WIDTH      =0.00184027777778;
+const Double_t MI_PAD_HEIGHT     =MI_PAD_WIDTH;//cm
+const Double_t MI_PAD_THICK      =MI_SENS_THICK;//cm
+
+
 //************************************************************
 // Inner Tracker
 
