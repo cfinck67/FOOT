@@ -34,8 +34,8 @@ private:
    TVector3           fMCP;                          // size in uvw directions
    
    Int_t              fPixelIndex;                   // index of the pixel
-   Int_t              fPixelLine;                    // line in the matrix
-   Int_t              fPixelColumn;                  // column in the matrix
+   Int_t              fPixelView;                    // line in the matrix
+   Int_t              fPixelStrip;                  // column in the matrix
    int                m_layer;
    Double_t           fRawValue;                     // the rawvalue
    Double_t           fPulseHeight;                  // pulseheight on pixel
@@ -50,7 +50,7 @@ public:
    TAMSDntuHit();
    TAMSDntuHit( Int_t iSensor, TAMSDrawHit* pixel);
    TAMSDntuHit( Int_t iSensor, const Int_t aIndex, Double_t aValue);
-   TAMSDntuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn); 
+   TAMSDntuHit( Int_t iSensor, Double_t aValue, Int_t aView, Int_t aStrip); 
    ~TAMSDntuHit();
    
    //! Compute distance from a given pixel
@@ -73,9 +73,9 @@ public:
    //! Set pulse height
    void               SetPulseHeight(Double_t aPH)    { fPulseHeight = aPH;      }
    //! Set pixel line
-   void               SetPixelLine(Int_t aLin)        { fPixelLine = aLin;       }
+   void               SetPixelView(Int_t aLin)        { fPixelView = aLin;       }
    //! Set pixel column
-   void               SetPixelColumn(Int_t aCol)      { fPixelColumn = aCol;     }
+   void               SetPixelStrip(Int_t aCol)      { fPixelStrip = aCol;     }
 
    void               SetLayer(Int_t aLay)            { m_layer = aLay;     }
    //! Set pixel position
@@ -124,9 +124,9 @@ public:
    //! Get pixel index
    Int_t              GetPixelIndex()           const { return  fPixelIndex;     }
    //! Get pixel line
-   Int_t              GetPixelLine()            const { return  fPixelLine;      }
+   Int_t              GetPixelView()            const { return  fPixelView;      }
    //! Get pixel line
-   Int_t              GetPixelColumn()          const { return  fPixelColumn;    }
+   Int_t              GetPixelStrip()          const { return  fPixelStrip;    }
    //! Get raw value
    Double_t           GetRawValue()             const { return  fRawValue;       }
    //! Get pulse height

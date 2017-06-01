@@ -16,21 +16,21 @@ TAMSDrawHit::TAMSDrawHit()
    fInput(0), 
    fValue(0),
    fIndex(0),
-   fLineNumber(0),
-   fColumnNumber(0)
+   fView(0),
+   fStrip(0)
 {
    
 }
 
 //______________________________________________________________________________
 //
-TAMSDrawHit::TAMSDrawHit( Int_t input, Int_t value, Int_t lineNumber, Int_t columnNumber)
+TAMSDrawHit::TAMSDrawHit( Int_t input, Int_t value, Int_t view, Int_t strip)
 : TObject(),
    fInput(input), 
    fValue(value),
    fIndex(0),
-   fLineNumber(lineNumber),
-   fColumnNumber(columnNumber)
+   fView(view),
+   fStrip(strip)
 {
 
 }
@@ -39,10 +39,10 @@ TAMSDrawHit::TAMSDrawHit( Int_t input, Int_t value, Int_t lineNumber, Int_t colu
 //!Compare return 1 if grater 0 if equal -1 if lower
 Int_t TAMSDrawHit::Compare(const TObject* obj) const
 {
-   Int_t aLine = fLineNumber;
-   Int_t nLine = ((TAMSDrawHit *)obj)->GetLineNumber();
-   Int_t aCol = fColumnNumber;
-   Int_t nCol = ((TAMSDrawHit *)obj)->GetColumnNumber();
+   Int_t aLine = fView;
+   Int_t nLine = ((TAMSDrawHit *)obj)->GetView();
+   Int_t aCol = fStrip;
+   Int_t nCol = ((TAMSDrawHit *)obj)->GetStrip();
    
    if (aLine == nLine) { //Order ok then order for column
       if(aCol<nCol)
@@ -184,8 +184,8 @@ void TAMSDdatRaw::ToStream(ostream& os, Option_t* option) const
 		 const TAMSDrawHit* hit = GetPixel(i,k);
 		 os << Form("%4d\n", hit->GetInput());
 		 os << Form("%4d\n", hit->GetValue());
-		 os << Form("%4d\n", hit->GetLineNumber());
-		 os << Form("%4d\n", hit->GetColumnNumber());
+		 os << Form("%4d\n", hit->GetView());
+		 os << Form("%4d\n", hit->GetStrip());
 		 os << Form("%4d\n", hit->GetIndex());
 		 os << endl;
 	  }

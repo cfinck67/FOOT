@@ -18,12 +18,12 @@ protected:
    Int_t fInput;
    Int_t fValue;
    Int_t fIndex;
-   Int_t fLineNumber;
-   Int_t fColumnNumber;
+   Int_t fView;
+   Int_t fStrip;
          
 public:
    TAMSDrawHit();
-   TAMSDrawHit( Int_t input, Int_t value, Int_t index, Int_t columnNumber = 0 );
+   TAMSDrawHit( Int_t input, Int_t value, Int_t view, Int_t strip );
    virtual ~TAMSDrawHit() {;}
 
    //! Comapre method
@@ -33,9 +33,9 @@ public:
    //! Get value (pulse height)
    Int_t      GetValue()        const    { return fValue;        }
    //! Get line number
-   Int_t      GetLineNumber()   const    { return fLineNumber;   }
+   Int_t      GetView()   const    { return fView;   }
    //! Get column number
-   Int_t      GetColumnNumber() const    { return fColumnNumber; }
+   Int_t      GetStrip() const    { return fStrip; }
    //! Get index
    Int_t      GetIndex()        const    { return fIndex;        }
    //! Is Sortable
@@ -46,9 +46,9 @@ public:
    //! Set value
    void     SetValue(Int_t value)        { fValue = value;      }
    //! Set line number
-   void     SetLineNumber(Int_t line)    { fLineNumber = line;  }
+   void     SetView(Int_t view)    { fView = view;  }
    //! Set column number
-   void     SetColumnNumber(Int_t col)   { fColumnNumber = col; }
+   void     SetStrip(Int_t strip)   { fStrip = strip; }
    //! Set index
    void     SetIndex(Int_t index)        { fIndex = index;      }
    

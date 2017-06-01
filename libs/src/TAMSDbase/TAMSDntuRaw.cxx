@@ -52,8 +52,8 @@ TAMSDntuHit::TAMSDntuHit(Int_t aSensorNumber, TAMSDrawHit* pixel)
 {
    // constructor of a TAMSDntuHit from a base pixel
    
-   fPixelLine    = pixel->GetLineNumber();
-   fPixelColumn  = pixel->GetColumnNumber();
+   fPixelView    = pixel->GetView();
+   fPixelStrip   = pixel->GetStrip();
    fPixelIndex   = pixel->GetIndex();
 
    fRawValue     = pixel->GetValue();
@@ -76,8 +76,8 @@ TAMSDntuHit::TAMSDntuHit(Int_t aSensorNumber, const Int_t aPixelIndex, Double_t 
   fSensorNumber(aSensorNumber),
   fMCid(-1),
   fPixelIndex(aPixelIndex),
-  fPixelLine(0),
-  fPixelColumn(0),
+  fPixelView(0),
+  fPixelStrip(0),
   fRawValue(aValue),
   fFound(kFALSE),
   fDebugLevel(0)
@@ -98,13 +98,13 @@ TAMSDntuHit::TAMSDntuHit(Int_t aSensorNumber, const Int_t aPixelIndex, Double_t 
 
 //______________________________________________________________________________
 //  
-TAMSDntuHit::TAMSDntuHit(Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t aColumn)
+TAMSDntuHit::TAMSDntuHit(Int_t aSensorNumber, Double_t aValue, Int_t aView, Int_t aStrip)
 : TObject(),
   fSensorNumber(aSensorNumber),
   fMCid(-1),
   fPixelIndex(0),
-  fPixelLine(aLine),
-  fPixelColumn(aColumn),
+  fPixelView(aView),
+  fPixelStrip(aStrip),
   fRawValue(aValue),
   fFound(kFALSE),
   fDebugLevel(0)

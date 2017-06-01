@@ -112,13 +112,13 @@ Bool_t TAMSDactNtuMC::Action() {
 
   int mcID(-1000);
 
-    if (fDebugLevel)     Info("Action()","Processing n :: %2d hits \n",fpEvtStr->VTXn);
-    if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "VTXn   " << fpEvtStr->VTXn<< endl;
+    if (fDebugLevel)     Info("Action()","Processing n :: %2d hits \n",fpEvtStr->MSDn);
+    if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "MSDn   " << fpEvtStr->MSDn<< endl;
 
 // cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx << "  "<< fpEvtStr->TRfy << "  "<< fpEvtStr->TRfz << endl;
 
    //AS  To be completely rechecked...
-   for (Int_t i = 0; i < fpEvtStr->VTXn; i++) {
+   for (Int_t i = 0; i < fpEvtStr->MSDn; i++) {
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx[i] << "  "<< fpEvtStr->TRfy[i] << "  "<< fpEvtStr->TRfz[i] << endl;
 
      /*
@@ -133,17 +133,17 @@ Bool_t TAMSDactNtuMC::Action() {
      //What About a decent post processing?
      //The column refer to Y!!!
      // !!!!!!!!!!!!!!!!!!!!!!!!!!!  in ntuple, the row and col start from 0  !!!!!!!!!!!!!!!!!!!!!!!
-     int myTrow, myTcol;
-     myTrow = fpEvtStr->VTXirow[i] - 1;
-     myTcol = fpEvtStr->VTXicol[i] - 1;
+     int myTview, myTstrip;
+     myTview = fpEvtStr->MSDiview[i] - 1;
+     myTstrip = fpEvtStr->MSDistrip[i] - 1;
      /*
-     myTcol = pParMap->GetPixelsNu()-fpEvtStr->miSigCol[i];
-     myTrow = pParMap->GetPixelsNv()-fpEvtStr->miSigRow[i];
+     myTstrip = pParMap->GetPixelsNu()-fpEvtStr->miSigCol[i];
+     myTview = pParMap->GetPixelsNv()-fpEvtStr->miSigRow[i];
      */
 
 
      // Generated particle ID 
-     int genPartID = fpEvtStr->VTXid[i] - 1;
+     int genPartID = fpEvtStr->MSDid[i] - 1;
     
     // check true particle ID linked to the hit is in the correct range
     if ( genPartID < 0 || genPartID > fpEvtStr->TRn-1 ) {
@@ -172,22 +172,22 @@ Bool_t TAMSDactNtuMC::Action() {
     }
      
 
-     TAMSDntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol);
+     TAMSDntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTview, myTstrip);
      //ID matching for the "trk" block
-     mcID = fpEvtStr->VTXid[i];
+     mcID = fpEvtStr->MSDid[i];
      pixel->SetMCid(mcID);
-     pixel->SetLayer( fpEvtStr->VTXilay[i] );
+     pixel->SetLayer( fpEvtStr->MSDilay[i] );
 
      //Need IDX matching
      TVector3 MCmom(0,0,0); 
      TVector3 MCpos(0,0,0); 
 
      // global coordinates
-     MCpos.SetXYZ((fpEvtStr->VTXxin[i]+fpEvtStr->VTXxout[i])/2,(fpEvtStr->VTXyin[i]+fpEvtStr->VTXyout[i])/2,(fpEvtStr->VTXzin[i]+fpEvtStr->VTXzout[i])/2);
-     MCmom.SetXYZ((fpEvtStr->VTXpxin[i]+fpEvtStr->VTXpxout[i])/2,(fpEvtStr->VTXpyin[i]+fpEvtStr->VTXpyout[i])/2,(fpEvtStr->VTXpzin[i]+fpEvtStr->VTXpzout[i])/2);
+     MCpos.SetXYZ((fpEvtStr->MSDxin[i]+fpEvtStr->MSDxout[i])/2,(fpEvtStr->MSDyin[i]+fpEvtStr->MSDyout[i])/2,(fpEvtStr->MSDzin[i]+fpEvtStr->MSDzout[i])/2);
+     MCmom.SetXYZ((fpEvtStr->MSDpxin[i]+fpEvtStr->MSDpxout[i])/2,(fpEvtStr->MSDpyin[i]+fpEvtStr->MSDpyout[i])/2,(fpEvtStr->MSDpzin[i]+fpEvtStr->MSDpzout[i])/2);
      
     if ( GlobalPar::GetPar()->Debug() > 0 )     {
-        cout << "Vertex pixel " << i << " col " << myTcol << " row "<< myTrow << endl;
+        cout << "Vertex pixel " << i << " col " << myTstrip << " row "<< myTview << endl;
         cout << "\tGlobal kinematic: \n\t\tPos:\t"; 
         MCpos.Print();
         cout << "\t\tMom:\t";
@@ -204,7 +204,7 @@ Bool_t TAMSDactNtuMC::Action() {
      
      pixel->SetMCPosition(MCpos);
      pixel->SetMCMomentum(MCmom);
-     pixel->SetEneLoss(fpEvtStr->VTXde[i]);  // VM added 3/11/13
+     pixel->SetEneLoss(fpEvtStr->MSDde[i]);  // VM added 3/11/13
      // store generated particle info
     pixel->SetGeneratedParticleInfo ( genPartID, fpEvtStr->TRfid[genPartID], fpEvtStr->TRcha[genPartID],
                     fpEvtStr->TRbar[genPartID], fpEvtStr->TRmass[genPartID],
@@ -222,8 +222,8 @@ Bool_t TAMSDactNtuMC::Action() {
        printf("Id %d X %f Y %f\n",      sensorId, -pParMap->GetPositionV(fpEvtStr->miSigCol[i]), pParMap->GetPositionU(fpEvtStr->miSigRow[i]));
      }
      */
-     double v = pParMap->GetPositionV(myTrow);
-     double u = pParMap->GetPositionU(myTcol);
+     double v = pParMap->GetPositionV(myTview);
+     double u = pParMap->GetPositionU(myTstrip);
      TVector3 pos(v,u,0);
      pixel->SetPosition(pos);
 
