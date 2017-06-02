@@ -26,6 +26,7 @@ NGLIBB        += $(PWD)/../../libs/lib/libTAIRbase.so
 NGLIBB        += $(PWD)/../../libs/lib/libTAITbase.so 
 NGLIBB        += $(PWD)/../../libs/lib/libTATWbase.so 
 NGLIBB        += $(PWD)/../../libs/lib/libTACAbase.so 
+NGLIBB        += $(PWD)/../../libs/lib/libTAMSDbase.so 
 
 GLIBB          = $(filter-out -lNew, $(NGLIBB))
 
@@ -51,6 +52,7 @@ TALIB        += ../../libs/lib/libTABMbase.so
 TALIB        += ../../libs/lib/libTAITbase.so 
 TALIB        += ../../libs/lib/libTATWbase.so 
 TALIB        += ../../libs/lib/libTACAbase.so 
+TALIB        += ../../libs/lib/libTAMSDbase.so 
 TALIB        += ../../libs/lib/libTAIRbase.so ../../libs/lib/libTAVTbase.so 
 
 ifeq ($(ARCH),macosx64)
@@ -69,7 +71,7 @@ endif
 TAINCL	      = -I../ -I../../libs/src/TAGbase/ -I../../libs/src/TAGmclib/ -I../../libs/src/TAGfoot 
 TAINCL	     +=-I../../libs/src/TABMbase -I../../libs/src/TADCbase -I../../libs/src/TAIRbase 
 TAINCL	     +=-I../../libs/src/TAITbase -I../../libs/src/TACAbase -I../../libs/src/TATWbase 
-TAINCL	     +=-I../../libs/src/TAVTbase -I../../Simulation/TXT2ROOT -I../../Simulation 
+TAINCL	     +=-I../../libs/src/TAVTbase -I../../libs/src/TAMSDbase -I../../Simulation/TXT2ROOT -I../../Simulation 
 TAINCL	     +=-I../../libs/GenFit/fitters/include -I../../libs/GenFit/core/include 
 TAINCL	     +=-I../../libs/GenFit/trackReps/include -I../../libs/GenFit/fields/include 
 TAINCL	     +=-I../../libs/GenFit/measurements/include  -I$(PWD)/../../libs/GenFit/utilities/include 
