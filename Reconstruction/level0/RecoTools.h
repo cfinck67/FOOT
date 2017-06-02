@@ -45,6 +45,7 @@ class RecoTools {
   void FillMCBeamMonitor(EVENT_STRUCT *myStr);
   void FillMCDriftChamber(EVENT_STRUCT *myStr);
   void FillMCVertex(EVENT_STRUCT *myStr);
+  void FillMCMSD(EVENT_STRUCT *myStr);
   void FillMCInnerTracker(EVENT_STRUCT *myStr);
   void FillMCInteractionRegion(EVENT_STRUCT *myStr);
   void FillMCCalorimeter(EVENT_STRUCT *myStr);
@@ -98,6 +99,11 @@ class RecoTools {
   TAGparaDsc* myp_vtgeo;
   TAGparaDsc* myp_vtconf;
 
+  TAGparaDsc* myp_msdmap;
+  TAGparaDsc* myp_msdcal;
+  TAGparaDsc* myp_msdgeo;
+  TAGparaDsc* myp_msdconf;
+
   TAGparaDsc* myp_itmap;
   TAGparaDsc* myp_itcal;
   TAGparaDsc* myp_itgeo;
@@ -117,6 +123,7 @@ class RecoTools {
   TAGdataDsc* myn_vtvtx;
   TAGdataDsc* myn_bmtrk;
   TAGdataDsc* myn_dctrk;
+  TAGdataDsc* myn_msdraw;
 
 
   TAGdataDsc* myn_itraw;
@@ -132,6 +139,7 @@ class RecoTools {
   //Actions
 
   TAGactTreeWriter* my_out;
+  TAGaction* mya_msdraw;
   TAGaction* mya_vtraw;
   TAGaction* mya_vtclus;
   TAGaction* mya_vttrack;

@@ -78,6 +78,14 @@
 #include "TADCactNtuTrack.hxx"
 #include "TADCvieTrackFIRST.hxx"
 
+//MicroStrip Detector
+#include "TAMSDparGeo.hxx"
+#include "TAMSDparConf.hxx"
+#include "TAMSDparMap.hxx"
+#include "TAMSDntuRaw.hxx"
+#include "TAMSDactNtuMC.hxx"
+
+
 //Tof Wall (scintillator)
 #include "TATWparMap.hxx"
 #include "TATWdatRaw.hxx"
@@ -199,9 +207,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   bool m_doKalman = kTRUE;
   // bool m_doBM = kFALSE;
   bool m_doBM = kTRUE;
-  bool m_doDC = kTRUE;
+  bool m_doDC = kFALSE;
   bool m_doIR = kFALSE;
   bool m_doTW = kFALSE;
+  bool m_doMSD = kTRUE;
   bool m_doCA = kFALSE;
   bool m_doInnerTracker = kTRUE;
   bool m_doVertex = kTRUE;
@@ -225,6 +234,9 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
   if(m_doDC)
     FillMCDriftChamber(&evStr);
+
+  if(m_doMSD)
+    FillMCMSD(&evStr);
 
   if(m_doTW)
     FillMCTofWall(&evStr);
@@ -472,8 +484,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
         //do some MC check
         //to be moved to framework
-        if(m_doVertex && m_doInnerTracker )
-        AssociateHitsToParticle();
+        if(m_doVertex && m_doInnerTracker)
+	  AssociateHitsToParticle();
 
         if(m_debug) {
 
@@ -866,6 +878,52 @@ void RecoTools::FillMCVertex(EVENT_STRUCT *myStr) {
 }
 
 
+void RecoTools::FillMCMSD(EVENT_STRUCT *myStr) {
+   
+   /*Ntupling the MC Vertex information*/
+   myn_msdraw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
+   // myn_msdclus   = new TAGdataDsc("msdClus", new TAMSDntuCluster());
+   // myn_msdrk     = new TAGdataDsc("msdTrack", new TAMSDntuTrack());
+   // myn_msdmsdx    = new TAGdataDsc("msdMsdx", new TAMSDntuVertex());
+
+   myp_msdmap    = new TAGparaDsc("msdMap", new TAMSDparMap());
+
+   myp_msdconf  = new TAGparaDsc("msdConf", new TAMSDparConf());
+   TAMSDparConf* parconf = (TAMSDparConf*) myp_msdconf->Object();
+   TString filename = m_wd + "/config/TAMSDdetector.cfg";
+   parconf->FromFile(filename.Data());
+
+   myp_msdgeo    = new TAGparaDsc("msdGeo", new TAMSDparGeo());
+   // TAMSDparGeo* geomap   = (TAMSDparGeo*) myp_msdgeo->Object();
+   // filename = m_wd + "/geomaps/TAMSDdetector.map";
+   // geomap->FromFile(filename.Data());
+
+   // myp_msdcal = new TAGparaDsc("msdCal", new TAMSDparCal());
+   // TAMSDparCal* cal   = (TAMSDparCal*) myp_msdcal->Object();
+   // filename = m_wd + "/config/TAMSDdetector.cal";
+   // cal->FromFile(filename.Data());
+   
+   mya_msdraw   = new TAMSDactNtuMC("msdActRaw", myn_msdraw, myp_msdgeo, myp_msdmap, myStr);
+   // mya_msdclus  = new TAMSDactNtuClusterF("msdActClus", myn_msdraw, myn_msdclus, myp_msdconf, myp_msdgeo);
+   // mya_msdtrack = new TAMSDactNtuTrack("msdActTrack", myn_msdclus, myn_msdrk, myp_msdconf, myp_msdgeo, myp_msdcal);
+   // // L algo mya_msdtrack = new TAMSDactNtuTrackF("msdActTrack", myn_msdclus, myn_msdrk, myp_msdconf, myp_msdgeo, myp_msdcal);
+   // mya_msdmsdx   = new TAMSDactNtuVertexPD("msdActMsdx", myn_msdrk, myn_msdmsdx, myp_msdconf, myp_msdgeo, myn_bmtrk);
+   //IPA   mya_msdmsdx   = new TAMSDactNtuVertex("msdActMsdx", myn_msdrk, myn_msdmsdx, myp_msdconf, myp_msdgeo, myn_bmtrk);
+
+   // if (m_flaghisto) {
+   //   mya_msdraw->CreateHistogram();
+   //   mya_msdclus->CreateHistogram();
+   //   mya_msdtrack->CreateHistogram();
+   //   mya_msdvtx->CreateHistogram();
+   // }
+
+   my_out->SetupElementBranch(myn_msdraw, "msdrh.");
+   // my_out->SetupElementBranch(myn_msdclus, "msdclus.");
+   // my_out->SetupElementBranch(myn_msdrk, "msdTrack.");
+   // my_out->SetupElementBranch(myn_msdmsdx, "msdVtx.");
+}
+
+
 void RecoTools::FillMCInnerTracker(EVENT_STRUCT *myStr) {
    
    /*Ntupling the MC Vertex information*/
@@ -900,7 +958,7 @@ void RecoTools::FillMCInnerTracker(EVENT_STRUCT *myStr) {
    //   mya_ittrack->CreateHistogram();
    // }
 
-   // my_out->SetupElementBranch(myn_itraw, "itrh.");
+   my_out->SetupElementBranch(myn_itraw, "itrh.");
    // my_out->SetupElementBranch(myn_itclus, "itclus.");
    // my_out->SetupElementBranch(myn_itrk, "itTrack.");
 }
