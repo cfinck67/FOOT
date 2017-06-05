@@ -102,7 +102,7 @@ class RecoTools {
   
   shared_ptr<TAVTparGeo> m_vtgeo;
   shared_ptr<TAITparGeo> m_itgeo;
-  shared_ptr<TADCparGeo> m_msdgeo;
+  shared_ptr<TAMSDparGeo> m_msdgeo;
   shared_ptr<TADCparGeo> m_dcgeo;
 
   TAGparaDsc* myp_vtmap;
