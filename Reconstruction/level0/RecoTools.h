@@ -27,14 +27,18 @@
 #include "KFitter.hxx"
 #include "GlobalPar.hxx"
 
+#include <ctime>
+#include <time.h>
 
+
+ 
 
 class RecoTools {
   
  public :
 
   RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev,
-	    TFile *hf);
+      TFile *hf);
   virtual ~RecoTools();
 
   //Reconstructions
@@ -45,8 +49,8 @@ class RecoTools {
   void FillMCBeamMonitor(EVENT_STRUCT *myStr);
   void FillMCDriftChamber(EVENT_STRUCT *myStr);
   void FillMCVertex(EVENT_STRUCT *myStr);
-  void FillMCMSD(EVENT_STRUCT *myStr);
   void FillMCInnerTracker(EVENT_STRUCT *myStr);
+  void FillMCMSD(EVENT_STRUCT *myStr);
   void FillMCInteractionRegion(EVENT_STRUCT *myStr);
   void FillMCCalorimeter(EVENT_STRUCT *myStr);
   void FillMCTofWall(EVENT_STRUCT *myStr);
@@ -72,6 +76,11 @@ class RecoTools {
 
   KFitter* m_kFitter;
 
+  // time variables
+ clock_t start_tot, end_tot;
+ clock_t start_kal, end_kal;
+ double tempo_kal;
+
   int m_nev;
   int m_debug;
   bool m_flaghisto, m_fullmoni;
@@ -90,8 +99,10 @@ class RecoTools {
   //Parameters
   TAGparaDsc* myp_bmgeo;
   TAGparaDsc* myp_dcgeo;
+  
   shared_ptr<TAVTparGeo> m_vtgeo;
   shared_ptr<TAITparGeo> m_itgeo;
+  shared_ptr<TADCparGeo> m_msdgeo;
   shared_ptr<TADCparGeo> m_dcgeo;
 
   TAGparaDsc* myp_vtmap;
@@ -99,15 +110,15 @@ class RecoTools {
   TAGparaDsc* myp_vtgeo;
   TAGparaDsc* myp_vtconf;
 
-  TAGparaDsc* myp_msdmap;
-  TAGparaDsc* myp_msdcal;
-  TAGparaDsc* myp_msdgeo;
-  TAGparaDsc* myp_msdconf;
-
   TAGparaDsc* myp_itmap;
   TAGparaDsc* myp_itcal;
   TAGparaDsc* myp_itgeo;
   TAGparaDsc* myp_itconf;
+
+  TAGparaDsc* myp_msdmap;
+  TAGparaDsc* myp_msdcal;
+  TAGparaDsc* myp_msdgeo;
+  TAGparaDsc* myp_msdconf;
 
   //Data descriptions
  
@@ -115,20 +126,22 @@ class RecoTools {
 
   TAGparaDsc* myp_bmcon;
   TAGdataDsc* myn_bmraw;
+  TAGdataDsc* myn_bmtrk;
+
   TAGparaDsc* myp_dccon;
   TAGdataDsc* myn_dcraw;
+  TAGdataDsc* myn_dctrk;
+
   TAGdataDsc* myn_vtraw;
   TAGdataDsc* myn_vtclus;
   TAGdataDsc* myn_vtrk;
   TAGdataDsc* myn_vtvtx;
-  TAGdataDsc* myn_bmtrk;
-  TAGdataDsc* myn_dctrk;
-  TAGdataDsc* myn_msdraw;
-
 
   TAGdataDsc* myn_itraw;
   TAGdataDsc* myn_itclus;
   TAGdataDsc* myn_itrk;
+
+  TAGdataDsc* myn_msdraw;
 
   TAGdataDsc* myn_trtrk;
   TAGdataDsc* myn_trtin;
@@ -139,7 +152,6 @@ class RecoTools {
   //Actions
 
   TAGactTreeWriter* my_out;
-  TAGaction* mya_msdraw;
   TAGaction* mya_vtraw;
   TAGaction* mya_vtclus;
   TAGaction* mya_vttrack;
@@ -149,7 +161,7 @@ class RecoTools {
   TAGaction* mya_itclus;
   TAGaction* mya_ittrack;
 
-
+  TAGaction* mya_msdraw;
 
 };
 

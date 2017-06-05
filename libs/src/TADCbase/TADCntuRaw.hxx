@@ -40,6 +40,8 @@ class TADCntuHit : public TObject {
     TADCntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t tm);
     virtual         ~TADCntuHit();
 
+    void            SetDchGeo( TADCparGeo* ageometry )  { m_geometry = ageometry; };
+
     void            SetData(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t tm);
     Int_t           Cell() const;
     Int_t           Plane() const;
@@ -47,8 +49,22 @@ class TADCntuHit : public TObject {
     Double_t X() const;
     Double_t Y() const;
     Double_t Z() const;
-    TVector3 Position() const;
-    TVector3 Momentum() { return TVector3( pxcadc, pycadc, pzcadc ); };
+    // TVector3 Position() const;
+    // TVector3 Momentum() { return TVector3( pxcadc, pycadc, pzcadc ); };
+    //! Get MC truth position
+    TVector3 GetMCPosition_Local() { return  TVector3(xcadc,ycadc,zcadc); };
+    TVector3 GetMCPosition_Global() { 
+        TVector3 globPos(xcadc,ycadc,zcadc);
+        m_geometry->Local2Global( &globPos ); 
+        return globPos; 
+    };   
+    //! Get MC truth momentum
+    TVector3 GetMCMomentum_Local() { return TVector3( pxcadc, pycadc, pzcadc ); };
+    TVector3 GetMCMomentum_Global() { 
+        TVector3 globP( pxcadc, pycadc, pzcadc );
+        m_geometry->Local2Global_RotationOnly( &globP ); 
+        return globP; 
+    };
     Double_t Dist() const;
     Double_t Tdrift() const;
     Double_t Timdc() const;
@@ -111,6 +127,9 @@ class TADCntuHit : public TObject {
   ClassDef(TADCntuHit,1)
 
   private:
+
+    TADCparGeo* m_geometry;
+
     Int_t iddc;
     Int_t iview;    
     Int_t ilayer;    

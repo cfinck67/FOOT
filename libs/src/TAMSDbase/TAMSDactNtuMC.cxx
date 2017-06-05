@@ -98,29 +98,31 @@ void TAMSDactNtuMC::CreateHistogram()
 
 Bool_t TAMSDactNtuMC::Action() {
 
+  cout << "cazzo 1" << endl;
+
   TAMSDntuRaw* pNtuRaw = (TAMSDntuRaw*) fpNtuRaw->Object();
   TAMSDparMap* pParMap = (TAMSDparMap*) fpParMap->Object();
   TAMSDparGeo* pGeoMap  = (TAMSDparGeo*) fpGeoMap->Object();
-
+cout << "cazzo 1.5" << endl;
   // bool doXchk = kFALSE;    // era della vecchia ricostruzione
 
   TAGgeoTrafo *fGeoTrafo =  (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
   if (fGeoTrafo == 0x0)
     Error("SetGeoTrafoName","No GeoTrafo action called %s available", TAGgeoTrafo::GetDefaultActName().Data());
-
+cout << "cazzo 2" << endl;
   pNtuRaw->Clear();
 
   int mcID(-1000);
 
     if (fDebugLevel)     Info("Action()","Processing n :: %2d hits \n",fpEvtStr->MSDn);
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "MSDn   " << fpEvtStr->MSDn<< endl;
-
+cout << "cazzo 3" << endl;
 // cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx << "  "<< fpEvtStr->TRfy << "  "<< fpEvtStr->TRfz << endl;
 
    //AS  To be completely rechecked...
    for (Int_t i = 0; i < fpEvtStr->MSDn; i++) {
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx[i] << "  "<< fpEvtStr->TRfy[i] << "  "<< fpEvtStr->TRfz[i] << endl;
-
+cout << "cazzo 4" << endl;
      /*
      // position in global transform in local
      // missing value set to 1. cos binary
@@ -156,10 +158,10 @@ Bool_t TAMSDactNtuMC::Action() {
     // cout << "ALPHA found! "  << endl;
     // if ( fpEvtStr->TRfid[genPartID] != -2 || fpEvtStr->TRcha[genPartID] != 3 )    continue;
     // cout << "LITIUM found! "  << endl;
-    if ( fpEvtStr->TRfid[genPartID] != -2 || fpEvtStr->TRcha[genPartID] != 6 )    continue;
+    // if ( fpEvtStr->TRfid[genPartID] != -2 || fpEvtStr->TRcha[genPartID] != 6 )    continue;
     // if ( fpEvtStr->TRfid[genPartID] != -2 || fpEvtStr->TRcha[genPartID] != 6 ||
     //               fpEvtStr->TRmass[genPartID] < 10 ||  fpEvtStr->TRmass[genPartID] > 10.5 )    continue;
-    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "CARBONIUM found! "  << endl;
+    // if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "CARBONIUM found! "  << endl;
 
     if ( GlobalPar::GetPar()->Debug() > 0 )     {
         cout << "Part type: " << fpEvtStr->TRfid[genPartID] << " and charge: " << fpEvtStr->TRcha[genPartID] << endl;
@@ -258,7 +260,7 @@ Bool_t TAMSDactNtuMC::Action() {
      }	 
    */
    }
-   
+   cout << "cazzo 5" << endl;
    fpNtuRaw->SetBit(kValid);
    return kTRUE;
 }

@@ -55,6 +55,8 @@ public:
     //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
     TVector3 GetPosition( int layer, int col, int row );
 
+    TVector3 GetLayerCenter( int layer );
+
     //  Return Vertex center coord. in the global frame
     TVector3 GetCenter() { return m_center; };
 
@@ -68,6 +70,7 @@ public:
 
     double GetNPixelX() { return m_nPixel_X; };
     double GetNPixelY() { return m_nPixel_Y; };
+    int GetNLayers() { return m_nSensors_Z; };
 
     // Return a vector with the number of sensors along the cartesian directions
     TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };

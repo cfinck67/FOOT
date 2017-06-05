@@ -12,7 +12,7 @@ SOMINV     = 0
 TINCLFLAGS += $(shell root-config --cflags)
 INCLFLAGS  = $(filter-out -stdlib=libc++, $(TINCLFLAGS))
 INCLFLAGS += -I../TAGbase -I../TABMbase -I../TAVTbase -I../TAITbase -I../TADCbase
-INCLFLAGS += -I../TAGfoot -I../TAVTbase -I../TAIRbase 
+INCLFLAGS += -I../TAGfoot -I../TAVTbase -I../TAIRbase -I../TAMSDbase
 INCLFLAGS += -I../TAGmclib -I../../../Simulation/TXT2ROOT -I../../../Simulation
 INCLFLAGS += -I../../../libs/GenFit/fitters/include 
 INCLFLAGS += -I../../../libs/GenFit/trackReps/include -I../../../libs/GenFit/fields/include 

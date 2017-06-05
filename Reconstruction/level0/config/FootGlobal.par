@@ -5,13 +5,13 @@
 ################################################################
 
 
-Debug:	0
+Debug:	3
 
 
 
 ############	MC selection Control Parameters	################
 
-MC Particle Types:	C
+MC Particle Types:	C10	C11	C12	Li6	Li7	B7	B8	B9	Be9	Be10	N12	N14	O15
 
 
 ############	Kalman Filter Control Parameters	################

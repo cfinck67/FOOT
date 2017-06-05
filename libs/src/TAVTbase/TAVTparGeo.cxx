@@ -279,49 +279,49 @@ TGeoVolume* TAVTparGeo::GetVolume() {
 
 void TAVTparGeo::InitMaterial() {
 
-    m_materialOrder = {  "ITR_MEDIUM", 
-                        "ITR_EPO_MEDIUM",
-                        "ITR_COV_MEDIUM",
-                        "ITR_AL_MEDIUM",
-                        "ITR_KAP_MEDIUM",
-                        "ITR_AL_MEDIUM",
-                        "ITR_COV_MEDIUM",
-                        "ITR_FOAM_MEDIUM",
-                        "ITR_COV_MEDIUM",
-                        "ITR_AL_MEDIUM",
-                        "ITR_KAP_MEDIUM",
-                        "ITR_AL_MEDIUM",
-                        "ITR_COV_MEDIUM",
-                        "ITR_EPO_MEDIUM",
-                        "ITR_MEDIUM"
+    m_materialOrder = {  "VTX_MEDIUM", 
+                        // "ITR_EPO_MEDIUM",
+                        // "ITR_COV_MEDIUM",
+                        // "ITR_AL_MEDIUM",
+                        // "ITR_KAP_MEDIUM",
+                        // "ITR_AL_MEDIUM",
+                        // "ITR_COV_MEDIUM",
+                        // "ITR_FOAM_MEDIUM",
+                        // "ITR_COV_MEDIUM",
+                        // "ITR_AL_MEDIUM",
+                        // "ITR_KAP_MEDIUM",
+                        // "ITR_AL_MEDIUM",
+                        // "ITR_COV_MEDIUM",
+                        // "ITR_EPO_MEDIUM",
+                        "VTX_MEDIUM"
                          };
 
     
     for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
-        if( m_materialOrder[i] == "ITR_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_MEDIUM;
+        if( m_materialOrder[i] == "VTX_MEDIUM" ){
+            m_materialThick[ m_materialOrder[i] ] = VTX_THICK;
+            m_materialType[ m_materialOrder[i] ] = VTX_MEDIUM;
         }
-        else if( m_materialOrder[i] == "ITR_EPO_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_EPO_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_EPO_MEDIUM;
-        }
-        else if( m_materialOrder[i] == "ITR_COV_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_COV_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_COV_MEDIUM;
-        }
-        else if( m_materialOrder[i] == "ITR_AL_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_AL_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_AL_MEDIUM;
-        }
-        else if( m_materialOrder[i] == "ITR_KAP_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_KAP_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_KAP_MEDIUM;
-        }
-        else if( m_materialOrder[i] == "ITR_FOAM_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_FOAM_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_FOAM_MEDIUM;
-        }
+        // else if( m_materialOrder[i] == "ITR_EPO_MEDIUM" ){
+        //     m_materialThick[ m_materialOrder[i] ] = ITR_EPO_THICK;
+        //     m_materialType[ m_materialOrder[i] ] = ITR_EPO_MEDIUM;
+        // }
+        // else if( m_materialOrder[i] == "ITR_COV_MEDIUM" ){
+        //     m_materialThick[ m_materialOrder[i] ] = ITR_COV_THICK;
+        //     m_materialType[ m_materialOrder[i] ] = ITR_COV_MEDIUM;
+        // }
+        // else if( m_materialOrder[i] == "ITR_AL_MEDIUM" ){
+        //     m_materialThick[ m_materialOrder[i] ] = ITR_AL_THICK;
+        //     m_materialType[ m_materialOrder[i] ] = ITR_AL_MEDIUM;
+        // }
+        // else if( m_materialOrder[i] == "ITR_KAP_MEDIUM" ){
+        //     m_materialThick[ m_materialOrder[i] ] = ITR_KAP_THICK;
+        //     m_materialType[ m_materialOrder[i] ] = ITR_KAP_MEDIUM;
+        // }
+        // else if( m_materialOrder[i] == "ITR_FOAM_MEDIUM" ){
+        //     m_materialThick[ m_materialOrder[i] ] = ITR_FOAM_THICK;
+        //     m_materialType[ m_materialOrder[i] ] = ITR_FOAM_MEDIUM;
+        // }
     }
 
 }
@@ -337,9 +337,9 @@ void TAVTparGeo::InitMaterial() {
 // {
 //    TGeoVolume* vertex = 0x0; 
    
-//    for(Int_t iSensor = 0; iSensor < GetSensorsN(); iSensor++) {	 
-// 	  TGeoHMatrix* hm = GetTransfo(iSensor);
-// 	  vertex = TAVTparGeo::AddVertexModule(hm, basemoduleName, vertexName);
+//    for(Int_t iSensor = 0; iSensor < GetSensorsN(); iSensor++) {   
+//    TGeoHMatrix* hm = GetTransfo(iSensor);
+//    vertex = TAVTparGeo::AddVertexModule(hm, basemoduleName, vertexName);
 //    }
    
 //    return vertex;
@@ -349,23 +349,23 @@ void TAVTparGeo::InitMaterial() {
 // TGeoVolume* TAVTparGeo::AddVertexModule(TGeoHMatrix* hm, const char* basemoduleName, const char *vertexName)
 // {
 //    if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
-// 	  new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+//    new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
 //    }
    
 //    TGeoVolume* vertex = gGeoManager->FindVolumeFast(vertexName);
 //    if ( vertex == 0x0 ) {
-// 	  Int_t nSensors = GetSensorsN();
-	  
-// 	  Float_t posZ1 = (*GetPosition(0))(2)*0.9;
-// 	  Float_t posZ2 = (*GetPosition(nSensors-1))(2)*1.1;
+//    Int_t nSensors = GetSensorsN();
+      
+//    Float_t posZ1 = (*GetPosition(0))(2)*0.9;
+//    Float_t posZ2 = (*GetPosition(nSensors-1))(2)*1.1;
 
-// 	  TGeoMedium   *med;
-// 	  TGeoMaterial *mat;
-// 	  if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject("Vacuum")) == 0x0 )
-// 		 mat = new TGeoMaterial("Vacuum",0,0,0); 			
-// 	  if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Vacuum")) == 0x0 )
-// 		 med = new TGeoMedium("Vacuum",1,mat);
-// 	  vertex = gGeoManager->MakeBox(vertexName, med, fHeight/2., fHeight/2., (posZ2-posZ1)/2.); // volume corresponding to vertex
+//    TGeoMedium   *med;
+//    TGeoMaterial *mat;
+//    if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject("Vacuum")) == 0x0 )
+//       mat = new TGeoMaterial("Vacuum",0,0,0);            
+//    if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Vacuum")) == 0x0 )
+//       med = new TGeoMedium("Vacuum",1,mat);
+//    vertex = gGeoManager->MakeBox(vertexName, med, fHeight/2., fHeight/2., (posZ2-posZ1)/2.); // volume corresponding to vertex
 //    } 
    
 //    // create module
@@ -373,9 +373,9 @@ void TAVTparGeo::InitMaterial() {
 //    TGeoMedium*   medMod;
    
 //    if ( (matMod = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject("Si")) == 0x0 )
-// 	  matMod = new TGeoMaterial("Si", 28.09, 14, 2.3);
+//    matMod = new TGeoMaterial("Si", 28.09, 14, 2.3);
 //    if ( (medMod = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Si")) == 0x0 )
-// 	  medMod = new TGeoMedium("Si",2,matMod);
+//    medMod = new TGeoMedium("Si",2,matMod);
    
 //    TGeoBBox *box = new TGeoBBox(Form("%s_Box",basemoduleName), fWidth/2, fHeight/2, fThick/2.);
    
@@ -387,14 +387,14 @@ void TAVTparGeo::InitMaterial() {
    
 //    TObjArray* list = vertex->GetNodes();
 //    if (list) {
-// 	  for (Int_t i = 0; i < list->GetEntries(); ++i) {
-// 		 TGeoVolume* vol = (TGeoVolume*)list->At(i);
-// 		 if (vol) {
-// 			TString name(vol->GetName());
-// 			if ( name.Contains(Form("%s_Vertex",basemoduleName)) )
-// 			   nbModule++;
-// 		 }
-// 	  }
+//    for (Int_t i = 0; i < list->GetEntries(); ++i) {
+//       TGeoVolume* vol = (TGeoVolume*)list->At(i);
+//       if (vol) {
+//          TString name(vol->GetName());
+//          if ( name.Contains(Form("%s_Vertex",basemoduleName)) )
+//             nbModule++;
+//       }
+//    }
 //    }
 
 //    vertex->AddNode(vertexMod, nbModule, new TGeoHMatrix(*hm));
@@ -415,10 +415,10 @@ void TAVTparGeo::InitMaterial() {
 //    Float_t color[] = {0, 0, 0, 0};
 //    vertexExtract->SetRGBA(color);
    
-//    for(Int_t iSensor = 0; iSensor < nSensors; iSensor++) {	 
-// 	  TGeoHMatrix* hm = GetTransfo(iSensor);
-// 	  TEveGeoShapeExtract* vertexMod = AddExtractVertexModule(hm, basemoduleName, vertexName);
-// 	  vertexExtract->AddElement(vertexMod);
+//    for(Int_t iSensor = 0; iSensor < nSensors; iSensor++) {    
+//    TGeoHMatrix* hm = GetTransfo(iSensor);
+//    TEveGeoShapeExtract* vertexMod = AddExtractVertexModule(hm, basemoduleName, vertexName);
+//    vertexExtract->AddElement(vertexMod);
 //    }
    
 //    return vertexExtract;

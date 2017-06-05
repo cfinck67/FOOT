@@ -65,15 +65,15 @@ void TAMSDparGeo::InitGeo()  {
 
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTAMSDparGeo::InitGeo" << endl<< endl;
 
-    m_origin = TVector3(0,0,0);
-    m_center = TVector3(VTX_X, VTX_Y, VTX_Z);
+    m_origin = TVector3( 0, 0, 0 );
+    m_center = TVector3( MSD_X, MSD_Y, MSD_Z );
 
     m_nSensors_X = 1;
     m_nSensors_Y = 1;
-    m_nSensors_Z = VTX_NLAY;
+    m_nSensors_Z = MSD_NLAY;
     TVector3 m_NSensors = TVector3( m_nSensors_X, m_nSensors_Y, m_nSensors_Z );
 
-    // init sensor matrix   (z, x, y) = (layer, col, row)
+    // init sensor matrix   (z, x, y) = (layer, view, strip)
     m_sensorMatrix.resize( m_nSensors_Z );
     for (int k=0; k<m_nSensors_Z; k++) {
         m_sensorMatrix[k].resize( m_nSensors_X );
@@ -88,20 +88,20 @@ void TAMSDparGeo::InitGeo()  {
     // fill m_materialOrder, m_materialThick, m_materialType 
     // InitMaterial();
 
-    m_layerDistance = VTX_LAYDIST;
-    m_singleSensorThick_Lz = VTX_THICK;
+    m_layerDistance = MSD_LAYDIST;
+    m_singleSensorThick_Lz = MSD_THICK;
 
     // set detector dimension
     double length_Lz = m_singleSensorThick_Lz + (m_nSensors_Z-1)*m_layerDistance;
-    m_dimension = TVector3( VTX_WIDTH, VTX_HEIGHT, length_Lz );
+    m_dimension = TVector3( MSD_WIDTH, MSD_HEIGHT, length_Lz );
     double width_Lx = m_dimension.x();
     double height_Ly = m_dimension.y();
     
     double sensorDistance = 0;
     double pixelDistance = 0;
 
-    double pixelWidth_Lx = 0.002;
-    double pixelHeight_Ly = 0.002;
+    double pixelWidth_Lx = MSD_DX;
+    double pixelHeight_Ly = MSD_DY;
 
     if ( GlobalPar::GetPar()->Debug() > 2 )  {
         cout << "m_layerDistance " << m_layerDistance << endl;
@@ -131,7 +131,7 @@ void TAMSDparGeo::InitGeo()  {
 
                 double sensor_newY = m_origin.Y() - height_Ly/2 + (1+2*j)*(sensor_Height_Ly/2);
 
-                m_sensorMatrix[k][i][j]->SetMaterial( (string)VTX_MEDIUM );
+                m_sensorMatrix[k][i][j]->SetMaterial( (string)MSD_MEDIUM );
 
                 m_sensorMatrix[k][i][j]->SetSensor( 
                         TVector3( sensor_newX, sensor_newY, sensor_newZ ),  // sensor center
@@ -162,17 +162,30 @@ void TAMSDparGeo::InitGeo()  {
 
 
 //_____________________________________________________________________________
-TVector3 TAMSDparGeo::GetPosition( int layer, int col, int row )  {
+TVector3 TAMSDparGeo::GetPosition( int layer, int view, int strip )  {
     // TVector3 sensorCoord = GetSensorCoortdinates( int layer, int col, int row );
     // TVector3 pos = m_sensorMatrix[sensorCoord.z()][sensorCoord.x()][sensorCoord.y()]->GetPosition();
-    TVector3 pos = m_sensorMatrix[layer][0][0]->GetPosition( col, row );
+    TVector3 pos = m_sensorMatrix[layer][0][0]->GetPosition( view, strip );
+
+    // set the z coordinate as one of the sensor surface, depending on the view
+    if ( view == -1 )           pos.SetZ( pos.z() - 0.5*m_singleSensorThick_Lz );
+    else if ( view ==  1 )      pos.SetZ( pos.z() + 0.5*m_singleSensorThick_Lz );
+    else                        cout << "ERROR :: TAMSDparGeo::GetPosition  -->  wrong value for strip view = " << view << endl, exit(0);
+
     Local2Global(&pos);
     return pos;
 }
 
 
+//_____________________________________________________________________________
+TVector3 TAMSDparGeo::GetLayerCenter( int layer ) {
 
+    TVector3 pos = m_sensorMatrix[layer][0][0]->GetCenter();
+    
+    Local2Global(&pos);
+    return pos;
 
+}
 
 //_____________________________________________________________________________
 void TAMSDparGeo::Global2Local( TVector3* glob ) {

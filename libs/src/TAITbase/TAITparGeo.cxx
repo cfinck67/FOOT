@@ -109,8 +109,8 @@ void TAITparGeo::InitGeo()  {
     double pixelDistance = 0;
 
     // take it somewhere            // wrong to have it hardcoded
-    double pixelWidth_Lx = 0.002;
-    double pixelHeight_Ly = 0.002;
+    double pixelWidth_Lx = ITR_DX;
+    double pixelHeight_Ly = ITR_DY;
 
     if ( GlobalPar::GetPar()->Debug() > 2 )  {
         cout << "m_layerDistance " << m_layerDistance << endl;

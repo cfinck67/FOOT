@@ -66,6 +66,7 @@ public:
     double GetLayerDistance() { return m_layerDistance; };
     double GetNPixelX() { return m_nPixel_X; };
     double GetNPixelY() { return m_nPixel_Y; };
+    int GetNLayers() { return m_nSensors_Z; };
     
     
     // Return a vector with the number of sensors along the cartesian directions

@@ -42,7 +42,7 @@ GlobalPar::GlobalPar( string aparFileName ) {
 
     m_parFileName = aparFileName;
 
-	m_copyInputFile.clear();
+    m_copyInputFile.clear();
     m_debug = 0;
     m_nLevelOfDebug = 4;    // from 0 to 4
 
@@ -57,7 +57,7 @@ GlobalPar::GlobalPar( string aparFileName ) {
 
 void GlobalPar::ReadParemFile () {
 
-	ifstream ifile;
+    ifstream ifile;
 
     if ( !getenv("FOOTCONFIG") )     cout<< "ERROR::GlobalPar::ReadParemFile  -->  FOOTCONFIG env variable not set "<< endl, exit(0);
 
@@ -123,7 +123,9 @@ void GlobalPar::ReadParemFile () {
 
 
         else if ( line.find("Reverse Tracking") != string::npos ) {
-            if ( StrReplace( line, "Reverse Tracking:", "" ) == "true" )
+            string rev =StrReplace( line, "Reverse Tracking:", "" );
+            RemoveSpace( &rev );
+            if ( rev == "true" )
                 m_kalReverse = true;
             else
                 m_kalReverse = false;
@@ -163,7 +165,7 @@ void GlobalPar::ReadParemFile () {
 
     // Check mandatory parameters set
     if ( m_debug < 0 || m_debug > m_nLevelOfDebug )     cout<< "ERROR :: GlobalPar.cxx  -->  wrong parameters config setting: debug level = "<< m_debug <<endl, exit(0);
-    if ( m_trackingSystems.size() < 0 )		cout<< "ERROR :: GlobalPar.cxx  -->  wrong parameters config setting: m_trackingSystems ize = 0"<<endl, exit(0);
+    if ( m_trackingSystems.size() < 0 )     cout<< "ERROR :: GlobalPar.cxx  -->  wrong parameters config setting: m_trackingSystems ize = 0"<<endl, exit(0);
 
  
     ifile.close();

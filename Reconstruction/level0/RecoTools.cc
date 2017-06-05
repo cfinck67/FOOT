@@ -115,6 +115,8 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
   m_oustr = ostr;
   m_wd = wd;
 
+  tempo_kal=0;
+
   ifstream inS; 
   char bufConf[200]; char fname[400];
   if(!list) {
@@ -204,13 +206,13 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     Setting up the detectors that we want to decode.
   */
   bool m_doEvent = kTRUE;
-  bool m_doKalman = kTRUE;
+  bool m_doKalman = kFALSE;
   // bool m_doBM = kFALSE;
   bool m_doBM = kTRUE;
   bool m_doDC = kFALSE;
   bool m_doIR = kFALSE;
   bool m_doTW = kFALSE;
-  bool m_doMSD = kTRUE;
+  bool m_doMSD = kFALSE;
   bool m_doCA = kFALSE;
   bool m_doInnerTracker = kTRUE;
   bool m_doVertex = kTRUE;
@@ -265,6 +267,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     airMat->AddElement(16.00,8.,.21);   // O
     airMat->AddElement(39.95,18.,.01);  // Ar
     airMat->SetDensity(1.2e-3);
+    // airMat->SetPressure();      // std 6.32420e+8 = 1atm
+    // 1,26484e+8 MeV/mm3 = 0,2 atm     
+    // 1 MeV/mm3 = 1,58122538 × 10-9 atm
+    cout << "airMat->GetPressure()   " << airMat->GetPressure() << endl;
 
    TGeoMaterial *matAr = new TGeoMaterial("Argon", 39.948, 18., 0.001662);//densità viene da flair, 
    TGeoMaterial *matC = new TGeoMaterial("Carbon", 12.0107, 6., 2.26);
@@ -287,7 +293,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     matEpo->AddElement(16,8, 3./40.);  // O
 
 
-    TGeoMixture *matSilicon = new TGeoMixture("Silicon",2, 3.22);
+    TGeoMixture *matSilicon = new TGeoMixture("Silicon",2, 3.22); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    matSilicon->AddElement(matC ,0.5);
    matSilicon->AddElement(28.085, 14 ,0.5);
 
@@ -304,6 +310,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
    ArCO2->AddElement(matO ,2./4.);
 //   ArCO2->AddElement(matCO2 ,20.);
    ArCO2->SetDensity(0.001677136); //da flair
+   ArCO2->SetPressure(1.26484e+8);    // 0.2 atm
+   cout << "ArCO2->GetPressure()   " << ArCO2->GetPressure() << endl;
 
 
    TGeoMixture *matKapton = new TGeoMixture("Kapton",4, 1.42);
@@ -341,7 +349,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
 
 
-    TGeoVolume *top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("Air_med"), 100., 100., 200.);
+    TGeoVolume *top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("Air_med"), 25., 25., 80.);
     // TGeoVolume *top = gGeoManager->MakeBox("TOPPER", vacuum_med, 100., 100., 200.);
     gGeoManager->SetTopVolume(top); // mandatory !
 
@@ -349,8 +357,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     // genfit::FieldManager::getInstance()->init(new genfit::ConstField(0. ,10., 0.)); // 1 T
     // genfit::FieldManager::getInstance()->init(new genfit::ConstField(0. ,0., 0.)); // no mag
     // genfit::FieldManager::getInstance()->init(new FootField("DoubleDipole.table")); // variable field
-    genfit::FieldManager::getInstance()->init( new FootField( 7 ) ); // const field
+    genfit::FieldManager::getInstance()->init(new FootField("DoubleGaussMag.table")); // variable field
+    // genfit::FieldManager::getInstance()->init( new FootField( 7 ) ); // const field
     // FieldManager::getInstance()->useCache(true, 8);
+
 
 
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 1,1,14.7 ) ).Print();
@@ -383,6 +393,16 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
     }
 
+    if(m_doMSD) {
+
+      m_msdgeo = shared_ptr<TAMSDparGeo> ( (TAMSDparGeo*) myp_msdgeo->Object() );
+
+        //Initialization of DC parameters
+        m_msdgeo->InitGeo();
+        top->AddNode( m_msdgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_msdgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
+
+    }
+
     if(m_doDC) {
 
       m_dcgeo = shared_ptr<TADCparGeo> ( (TADCparGeo*) myp_dcgeo->Object() );
@@ -393,6 +413,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         top->AddNode( m_dcgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_dcgeo->GetCenter().z(), new TGeoRotation("DriftChamber",0,0,0)) );
 
     }
+
 
     // set material into genfit 
     MaterialEffects::getInstance()->init(new TGeoMaterialInterface());
@@ -405,15 +426,15 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     // save an image of the foot geometry
     //top->Draw("ogl");
-    // TCanvas* mirror = new TCanvas("footGeometry", "footGeometry",  700, 700); 
-    // top->Draw("ap");
-    // mirror->SaveAs("footGeometry.png");
-    // mirror->SaveAs("footGeometry.root");
+    TCanvas* mirror = new TCanvas("footGeometry", "footGeometry",  700, 700); 
+    top->Draw("ap");
+    mirror->SaveAs("footGeometry.png");
+    mirror->SaveAs("footGeometry.root");
 
     // save the geometry info in .root
-    // TFile *outfile = TFile::Open("genfitGeomFOOT.root","RECREATE");
-    // gGeoManager->Write();
-    // outfile->Close();
+    TFile *outfile = TFile::Open("genfitGeomFOOT.root","RECREATE");
+    gGeoManager->Write();
+    outfile->Close();
 
     const int nIter = 20; // max number of iterations
     const double dPVal = 1.E-3; // convergence criterion
@@ -477,11 +498,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
             cout<<"Processed:: "<<jentry<<" evts!"<<endl;
 
 
-        TAGntuMCeve*  p_ntumceve = 
-        (TAGntuMCeve*)   myn_mceve->GenerateObject();
-
-        int nhitmc = p_ntumceve->nhit;
-
+        
         //do some MC check
         //to be moved to framework
         if(m_doVertex && m_doInnerTracker)
@@ -551,6 +568,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
             m_kFitter->UploadHitsIT( myn_itraw, m_itgeo );
         }
 
+        // if( m_doMSD && m_doKalman ) {
+        //     // m_kFitter->UploadHitsMSD( myn_msdraw, m_msdgeo );
+        // }
+
 
         if (m_doDC && m_doKalman ) {
 
@@ -559,13 +580,15 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
         }
 
+// start time
+start_kal = clock();
 
         // Kalman Filter
         int isKalmanConverged = 0;
         if ( m_doKalman ) {
              // check other tracking systems are enabled 
             if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit" << endl;
-            isKalmanConverged = m_kFitter->MakeFit( jentry, "all" );
+            isKalmanConverged = m_kFitter->MakeFit( jentry );
             if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit done. Converged = " << isKalmanConverged << endl;
     
             // if ( isKalmanConverged == 1  )
@@ -574,7 +597,9 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
             if ( isKalmanConverged == 1 && GlobalPar::GetPar()->Debug() > 1 )    eventListFile << jentry<< endl;
 
         }
-
+// stop time
+end_kal = clock();
+tempo_kal+=(double)(end_kal-start_kal);
 
     
 
@@ -599,6 +624,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
 
     if ( m_doKalman ) {
+        m_kFitter->EvaluateMomentumResolution();
         m_kFitter->PrintEfficiency();
         m_kFitter->Save();
     }
@@ -917,7 +943,7 @@ void RecoTools::FillMCMSD(EVENT_STRUCT *myStr) {
    //   mya_msdvtx->CreateHistogram();
    // }
 
-   my_out->SetupElementBranch(myn_msdraw, "msdrh.");
+   // my_out->SetupElementBranch(myn_msdraw, "msdrh.");
    // my_out->SetupElementBranch(myn_msdclus, "msdclus.");
    // my_out->SetupElementBranch(myn_msdrk, "msdTrack.");
    // my_out->SetupElementBranch(myn_msdmsdx, "msdVtx.");
@@ -958,7 +984,7 @@ void RecoTools::FillMCInnerTracker(EVENT_STRUCT *myStr) {
    //   mya_ittrack->CreateHistogram();
    // }
 
-   my_out->SetupElementBranch(myn_itraw, "itrh.");
+   // my_out->SetupElementBranch(myn_itraw, "itrh.");
    // my_out->SetupElementBranch(myn_itclus, "itclus.");
    // my_out->SetupElementBranch(myn_itrk, "itTrack.");
 }

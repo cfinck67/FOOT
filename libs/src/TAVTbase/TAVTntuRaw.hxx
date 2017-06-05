@@ -13,6 +13,8 @@
 #include "TClonesArray.h"
 #include "TVector3.h"
 
+#include "TAVTparGeo.hxx"
+
 #include "TAGdata.hxx"
 
 class TAVTrawHit;
@@ -25,6 +27,9 @@ class TAVTrawHit;
 class TAVTntuHit : public TObject {
    
 private:
+
+  TAVTparGeo* m_geometry;
+
    Int_t              fSensorNumber;                 // number of the plane
    TVector3           fPosition;                     // position in uvw coordinates in the plane
    TVector3           fSize;                         // size in uvw directions
@@ -93,6 +98,8 @@ public:
    void               SetMCPosition(TVector3 a_pos)   { fMCPos = a_pos;          }
    //! Set MC truth momentum
    void               SetMCMomentum(TVector3 a_mom)   { fMCP = a_mom;            }
+   //
+   void               SetVtxGeo( TAVTparGeo* ageometry )  { m_geometry = ageometry; };
 
    // Frank
     void SetGeneratedParticleInfo ( int genPartID, int genPartFLUKAid, int genPartCharge,
@@ -146,9 +153,19 @@ public:
    //! Get MC truth matching index
    Int_t              GetMCid()                       { return  fMCid;           }
    //! Get MC truth position
-   TVector3&          GetMCPosition()                 { return  fMCPos;          }
+   TVector3&          GetMCPosition_Local()                 { return  fMCPos;          }
+   TVector3          GetMCPosition_Global()          { 
+        TVector3 globPos = fMCPos;
+        m_geometry->Local2Global( &globPos ); 
+        return globPos; 
+    };
    //! Get MC truth momentum
-   TVector3&          GetMCMomentum()                 { return  fMCP;            }
+   TVector3&          GetMCMomentum_Local()                 { return  fMCP;            }
+   TVector3          GetMCMomentum_Global()          { 
+        TVector3 globP = fMCP;
+        m_geometry->Local2Global_RotationOnly( &globP ); 
+        return globP; 
+    };
 
   // get MC energy loss (VM 3/11/13)
   Double_t           GetEneLoss() { return fEneLoss; }
