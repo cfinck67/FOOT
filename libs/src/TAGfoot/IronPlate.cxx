@@ -18,7 +18,7 @@ IronPlate::IronPlate() {
 
 TVector3 IronPlate::GetPosition( int col, int row ) { 
 		
-	if ( col < 1 || col > m_nColPixel || row < 1 || row > m_nRowPixel )	{
+	if ( col < 0 || col > m_nColPixel || row < 0 || row > m_nRowPixel )	{
 		cout << "ERROR!!  ::  IronPlate::GetPosition  -->  column("<<col<<") or row("<<row<<") out of boundaries ("<<m_nColPixel<<"x"<<m_nRowPixel<<")"<<endl;
 		exit(0);
 	}

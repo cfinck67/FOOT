@@ -61,7 +61,7 @@ public:
     // Return Inner Trakcker full dimension.
     TVector3 GetDimension() { return m_dimension; };
 
-    double GetSingleSensorThickness() { return m_singleSensorThick_Lz; };
+    double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
 
     // Return distance from center to center
     double GetLayerDistance() { return m_layerDistance; };
@@ -100,7 +100,7 @@ private:
     map<string, string> m_materialType;
 
 
-    double m_singleSensorThick_Lz;
+    double m_siliconSensorThick_Lz;
     double m_layerDistance;
 
     int m_nPixel_X;

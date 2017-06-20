@@ -421,7 +421,6 @@ TGeoVolume* TADCparGeo::GetVolume() {
 
    //set wires
    int c=0;
-// cout << "TADCparGeo::GetVolume cazzo" << endl;
 // cout << "TADCparGeo::GetVolume " << m_wireMatrix_YZ.size() << endl;
 // cout << m_wireMatrix_YZ.at(0).size() << endl;
    for(unsigned int wire=0; wire<m_wireMatrix_YZ.size(); wire++ ){
@@ -458,42 +457,6 @@ TGeoVolume* TADCparGeo::GetVolume() {
     top->AddNode(maylarFoil, c++ , new TGeoCombiTrans( 0, 0,  -m_maylar_thick/2-m_length_z/2, new TGeoRotation("null,",0,0,0)));
     top->AddNode(maylarFoil, c++ , new TGeoCombiTrans( 0, 0,  m_maylar_thick/2+m_length_z/2, new TGeoRotation("null,",0,0,0)));
 
-
-    // shield
-
-
-    // //--- close the geometry
-    // gGeoManager->CloseGeometry();
-
-    //--- draw the ROOT box
-    // cout << "--- draw the ROOT box" << endl;
-
-
-//     gGeoManager->CloseGeometry();
-//    TFile *outfile = TFile::Open("DCgeo.root","RECREATE");
-// //   bm_geo->Write();
-//    gGeoManager->Write();
-//    outfile->Close();
-
-    
-    // gGeoManager->SetVisLevel(10);
-
-
-    // cout << "cazzo0 XXX" << endl;
-    // // top->Draw("ogl");
-    // TCanvas* cazzo = new TCanvas("c", "c",  700, 700); 
-    // top->Draw("");
-    // cout << "cazzo1 XXX" << endl;
-    // gGeoManager->CloseGeometry();
-    // cout << "cazzo2 XXX" << endl;
-    // TFile *outfile = TFile::Open("DCgeo.root","RECREATE");
-    // cout << "cazzo3 XXX" << endl;
-    // gGeoManager->Write();
-    // cout << "cazzo4 XXX" << endl;
-    // outfile->Close();
-    // cout << "cazzo5 XXX" << endl;
-    // cazzo->SaveAs("cazzo.png");
-    // cazzo->SaveAs("cazzo.root");
 
     return top;
 }

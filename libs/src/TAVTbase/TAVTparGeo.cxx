@@ -48,7 +48,7 @@ TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
     m_materialThick(original->m_materialThick),
     m_materialType(original->m_materialType),
 
-    m_singleSensorThick_Lz(original->m_singleSensorThick_Lz),
+    m_siliconSensorThick_Lz(original->m_siliconSensorThick_Lz),
     m_layerDistance(original->m_layerDistance),
 
     m_nPixel_X(original->m_nPixel_X),
@@ -88,11 +88,12 @@ void TAVTparGeo::InitGeo()  {
     // fill m_materialOrder, m_materialThick, m_materialType 
     // InitMaterial();
 
-    m_layerDistance = VTX_LAYDIST;
-    m_singleSensorThick_Lz = VTX_THICK;
+
+    m_layerDistance = VTX_LAYDIST;          // from center to center
+    m_siliconSensorThick_Lz = VTX_THICK;    // ONLY silicon
 
     // set detector dimension
-    double length_Lz = m_singleSensorThick_Lz + (m_nSensors_Z-1)*m_layerDistance;
+    double length_Lz = m_siliconSensorThick_Lz + (m_nSensors_Z-1)*m_layerDistance; // from edge to edge
     m_dimension = TVector3( VTX_WIDTH, VTX_HEIGHT, length_Lz );
     double width_Lx = m_dimension.x();
     double height_Ly = m_dimension.y();
@@ -110,7 +111,7 @@ void TAVTparGeo::InitGeo()  {
 
     double sensor_Width_Lx = width_Lx - (sensorDistance*(1+m_nSensors_X)) /m_nSensors_X;
     double sensor_Height_Ly = height_Ly - (sensorDistance*(1+m_nSensors_Y)) /m_nSensors_Y;
-    double sensor_Length_Lz = m_singleSensorThick_Lz;
+    double sensor_Length_Lz = m_siliconSensorThick_Lz;
     // double sensor_Length_Lz = m_length_Lz - ((sensorDistance+1)*m_nSensors_Z) /m_nSensors_Z;
 
     // // total pixels
@@ -124,7 +125,7 @@ void TAVTparGeo::InitGeo()  {
     
     // fill sensor matrix
     for (int k=0; k<m_nSensors_Z; k++) {
-        double sensor_newZ = m_origin.Z() - length_Lz/2 +0.5*m_singleSensorThick_Lz + k*m_layerDistance;
+        double sensor_newZ = m_origin.Z() - length_Lz/2 +0.5*m_siliconSensorThick_Lz + k*m_layerDistance;
         for (int i=0; i<m_nSensors_X; i++) {
             double sensor_newX = m_origin.X() - width_Lx/2 + (0.5+i)*(sensor_Width_Lx);
             for (int j=0; j<m_nSensors_Y; j++) {
@@ -137,7 +138,7 @@ void TAVTparGeo::InitGeo()  {
                         TVector3( sensor_newX, sensor_newY, sensor_newZ ),  // sensor center
                         TVector3( sensor_Width_Lx, sensor_Height_Ly, sensor_Length_Lz ),    // sensor dimension
                         m_nPixel_X, m_nPixel_Y,
-                        pixelWidth_Lx, pixelHeight_Ly, m_singleSensorThick_Lz,
+                        pixelWidth_Lx, pixelHeight_Ly, m_siliconSensorThick_Lz,
                         pixelDistance, pixelDistance, 0, //layerDistance,
                         TVector3(0,0,0)
                  );
@@ -233,7 +234,7 @@ TGeoVolume* TAVTparGeo::GetVolume() {
    TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Air_med"),width_Lx/2,height_Ly/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
    gGeoManager->SetTopVisible(1);
 
-    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_singleSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_siliconSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
     siliconFoil->SetLineColor(kOrange);
     siliconFoil->SetFillColor(kOrange);
     // TGeoVolume *kaptonFoil = gGeoManager->MakeBox("kaptonFoil",kapton,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_KAP_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
@@ -266,9 +267,9 @@ TGeoVolume* TAVTparGeo::GetVolume() {
     // box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_EPO_MEDIUM" ]/2+ m_materialThick[ "ITR_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     
 
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  -m_singleSensorThick_Lz/2-m_dimension.z()/2, new TGeoRotation("null,",0,0,0)));
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  (-0.5*m_dimension.z())+(0.5*m_siliconSensorThick_Lz), new TGeoRotation("null,",0,0,0)));
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("null,",0,0,0)));
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,   m_singleSensorThick_Lz/2+m_dimension.z()/2, new TGeoRotation("null,",0,0,0)));
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  (0.5*m_dimension.z())-(0.5*m_siliconSensorThick_Lz), new TGeoRotation("null,",0,0,0)));
     
 
     return box;

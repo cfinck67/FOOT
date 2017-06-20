@@ -48,7 +48,7 @@ TAMSDparGeo::TAMSDparGeo( TAMSDparGeo* original ) :
     m_materialThick(original->m_materialThick),
     m_materialType(original->m_materialType),
 
-    m_singleSensorThick_Lz(original->m_singleSensorThick_Lz),
+    m_siliconSensorThick_Lz(original->m_siliconSensorThick_Lz),
     m_layerDistance(original->m_layerDistance),
 
     m_nPixel_X(original->m_nPixel_X),
@@ -86,13 +86,20 @@ void TAMSDparGeo::InitGeo()  {
     }
     
     // fill m_materialOrder, m_materialThick, m_materialType 
-    // InitMaterial();
+    InitMaterial();
 
-    m_layerDistance = MSD_LAYDIST;
-    m_singleSensorThick_Lz = MSD_THICK;
+    // evaluate layer dimension 
+    m_layerThick = 0;
+    for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
+        m_layerThick += m_materialThick[ m_materialOrder[i] ];     
+    }
+
+    m_layerDistance = MSD_LAYDIST;            // from center to center
+    m_siliconSensorThick_Lz = MSD_THICK;       // ONLY silicon
+    m_nSensor_X_Layer = MSD_NVIEW;
 
     // set detector dimension
-    double length_Lz = m_singleSensorThick_Lz + (m_nSensors_Z-1)*m_layerDistance;
+    double length_Lz = m_layerThick + (m_nSensors_Z-1)*m_layerDistance; // from edge to edge
     m_dimension = TVector3( MSD_WIDTH, MSD_HEIGHT, length_Lz );
     double width_Lx = m_dimension.x();
     double height_Ly = m_dimension.y();
@@ -110,7 +117,7 @@ void TAMSDparGeo::InitGeo()  {
 
     double sensor_Width_Lx = width_Lx - (sensorDistance*(1+m_nSensors_X)) /m_nSensors_X;
     double sensor_Height_Ly = height_Ly - (sensorDistance*(1+m_nSensors_Y)) /m_nSensors_Y;
-    double sensor_Length_Lz = m_singleSensorThick_Lz;
+    double sensor_Length_Lz = m_layerThick;
     // double sensor_Length_Lz = m_length_Lz - ((sensorDistance+1)*m_nSensors_Z) /m_nSensors_Z;
 
     // // total pixels
@@ -124,7 +131,7 @@ void TAMSDparGeo::InitGeo()  {
     
     // fill sensor matrix
     for (int k=0; k<m_nSensors_Z; k++) {
-        double sensor_newZ = m_origin.Z() - length_Lz/2 +0.5*m_singleSensorThick_Lz + k*m_layerDistance;
+        double sensor_newZ = m_origin.Z() - length_Lz/2 +0.5*m_layerThick + k*m_layerDistance;
         for (int i=0; i<m_nSensors_X; i++) {
             double sensor_newX = m_origin.X() - width_Lx/2 + (0.5+i)*(sensor_Width_Lx);
             for (int j=0; j<m_nSensors_Y; j++) {
@@ -137,7 +144,7 @@ void TAMSDparGeo::InitGeo()  {
                         TVector3( sensor_newX, sensor_newY, sensor_newZ ),  // sensor center
                         TVector3( sensor_Width_Lx, sensor_Height_Ly, sensor_Length_Lz ),    // sensor dimension
                         m_nPixel_X, m_nPixel_Y,
-                        pixelWidth_Lx, pixelHeight_Ly, m_singleSensorThick_Lz,
+                        pixelWidth_Lx, pixelHeight_Ly, m_siliconSensorThick_Lz,
                         pixelDistance, pixelDistance, 0, //layerDistance,
                         TVector3(0,0,0)
                  );
@@ -168,9 +175,9 @@ TVector3 TAMSDparGeo::GetPosition( int layer, int view, int strip )  {
     TVector3 pos = m_sensorMatrix[layer][0][0]->GetPosition( view, strip );
 
     // set the z coordinate as one of the sensor surface, depending on the view
-    if ( view == -1 )           pos.SetZ( pos.z() - 0.5*m_singleSensorThick_Lz );
-    else if ( view ==  1 )      pos.SetZ( pos.z() + 0.5*m_singleSensorThick_Lz );
-    else                        cout << "ERROR :: TAMSDparGeo::GetPosition  -->  wrong value for strip view = " << view << endl, exit(0);
+    // if ( view == 0 )           pos.SetZ( pos.z() - 0.5*m_siliconSensorThick_Lz );
+    // else if ( view ==  1 )      pos.SetZ( pos.z() + 0.5*m_siliconSensorThick_Lz );
+    // else                        cout << "ERROR :: TAMSDparGeo::GetPosition  -->  wrong value for strip view = " << view << endl, exit(0);
 
     Local2Global(&pos);
     return pos;
@@ -225,63 +232,54 @@ TGeoVolume* TAMSDparGeo::GetVolume() {
     // TGeoMedium* aluminium = new TGeoMedium( "aluminium_med", 4, gGeoManager->GetMaterial("air") );
     // TGeoMedium* siCFoam = new TGeoMedium( "siCFoam_med", 5, gGeoManager->GetMaterial("air") );
 
-    if ( GlobalPar::GetPar()->Debug() > 1 ) {
-        cout << endl << "VT List of Materil\n ";
-        TIter next( gGeoManager->GetListOfMaterials() );
-        while ( TGeoMaterial *obj = (TGeoMaterial*) next() ) {
-          cout << obj->GetName () << endl;
-        }
-        cout << endl << "List of Media\n ";
-        TIter nnext( gGeoManager->GetListOfMedia() );
-        while ( TGeoMedium *obj = (TGeoMedium *) nnext()  ) {
-          cout << obj->GetName () << endl;
-        }
-    }
+    // if ( GlobalPar::GetPar()->Debug() > 1 ) {
+    //     cout << endl << "MSD List of Materil\n ";
+    //     TIter next( gGeoManager->GetListOfMaterials() );
+    //     while ( TGeoMaterial *obj = (TGeoMaterial*) next() ) {
+    //       cout << obj->GetName () << endl;
+    //     }
+    //     cout << endl << "List of Media\n ";
+    //     TIter nnext( gGeoManager->GetListOfMedia() );
+    //     while ( TGeoMedium *obj = (TGeoMedium *) nnext()  ) {
+    //       cout << obj->GetName () << endl;
+    //     }
+    // }
 
     double width_Lx = m_dimension.X();
     double height_Ly = m_dimension.Y();
 
     // create main box
    // TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Vacuum_med"),width_Lx+1,height_Ly+1,m_dimension.z()+0.5); //top è scatola che conterrà tutto (dimensioni in cm)
-   TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Air_med"),width_Lx/2,height_Ly/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
+   TGeoVolume *box = gGeoManager->MakeBox("MSDbox",gGeoManager->GetMedium("Air_med"),width_Lx/2,height_Ly/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
    gGeoManager->SetTopVisible(1);
 
-    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_singleSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2, m_materialThick[ "MSD_MEDIUM" ]/2 ); //top è scatola che conterrà tutto (dimensioni in cm)
     siliconFoil->SetLineColor(kOrange);
     siliconFoil->SetFillColor(kOrange);
-    // TGeoVolume *kaptonFoil = gGeoManager->MakeBox("kaptonFoil",kapton,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_KAP_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    // TGeoVolume *kaptonFoil = gGeoManager->MakeBox("kaptonFoil",gGeoManager->GetMedium("Kapton_med"), width_Lx/2, height_Ly/2, m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ); //top è scatola che conterrà tutto (dimensioni in cm)
     // kaptonFoil->SetLineColor(kOrange-7);
-    // TGeoVolume *coverKaptonFoil = gGeoManager->MakeBox("coverKaptonFoil",kapton,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_COV_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
-    // kaptonFoil->SetLineColor(kOrange-7);
-    // TGeoVolume *alFoil = gGeoManager->MakeBox("alFoil",aluminium,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_AL_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
-    // alFoil->SetLineColor(kGray);
-    // TGeoVolume *epoxyFoil = gGeoManager->MakeBox("epoxyFoil",epoxy,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_EPO_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
-    // epoxyFoil->SetLineColor(kCyan-3);
-    // TGeoVolume *siCFoamFoil = gGeoManager->MakeBox("iCFoamFoil",siCFoam,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_FOAM_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
-    // siCFoamFoil->SetLineColor(kViolet+6);
+
+
 
     int c=0;
-    // double position = -m_length_Lz/2;
-    // box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(epoxyFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_MEDIUM" ]/2 + m_materialThick[ "ITR_EPO_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(coverKaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_EPO_MEDIUM" ]/2 + m_materialThick[ "ITR_COV_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(alFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_COV_MEDIUM" ]/2 + m_materialThick[ "ITR_AL_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_AL_MEDIUM" ]/2 + m_materialThick[ "ITR_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(alFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_KAP_MEDIUM" ]/2 + m_materialThick[ "ITR_AL_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(coverKaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_AL_MEDIUM" ]/2 + m_materialThick[ "ITR_COV_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(siCFoamFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_COV_MEDIUM" ]/2 + m_materialThick[ "ITR_FOAM_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(coverKaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_FOAM_MEDIUM" ]/2 + m_materialThick[ "ITR_COV_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(alFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_COV_MEDIUM" ]/2 + m_materialThick[ "ITR_AL_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_AL_MEDIUM" ]/2 + m_materialThick[ "ITR_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(alFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_KAP_MEDIUM" ]/2 + m_materialThick[ "ITR_AL_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(coverKaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_AL_MEDIUM" ]/2 + m_materialThick[ "ITR_COV_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(epoxyFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_COV_MEDIUM" ]/2 + m_materialThick[ "ITR_EPO_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_EPO_MEDIUM" ]/2+ m_materialThick[ "ITR_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     
-
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  -m_singleSensorThick_Lz/2-m_dimension.z()/2, new TGeoRotation("null,",0,0,0)));
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("null,",0,0,0)));
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,   m_singleSensorThick_Lz/2+m_dimension.z()/2, new TGeoRotation("null,",0,0,0)));
+    double position1 = -m_dimension.z()/2;
+    // layer 1
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position1+=( m_materialThick[ "m_siliconSensorThick_Lz_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+    // box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,   position1+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position1+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+    
+    // layer 2
+    double position2 = -(m_materialThick[ "MSD_MEDIUM" ] + m_materialThick[ "MSD_KAP_MEDIUM" ]/2);
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position2+=( m_materialThick[ "MSD_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+    // box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position2+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position2+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+    
+    // layer 3
+    double position3 = (m_dimension.z()/2) -( m_materialThick[ "MSD_MEDIUM" ]*2 + m_materialThick[ "MSD_KAP_MEDIUM" ] );
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position3+=( m_materialThick[ "MSD_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+    // box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position3+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position3+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     
 
     return box;
@@ -292,49 +290,23 @@ TGeoVolume* TAMSDparGeo::GetVolume() {
 
 void TAMSDparGeo::InitMaterial() {
 
-    m_materialOrder = {  "ITR_MEDIUM", 
-                        "ITR_EPO_MEDIUM",
-                        "ITR_COV_MEDIUM",
-                        "ITR_AL_MEDIUM",
-                        "ITR_KAP_MEDIUM",
-                        "ITR_AL_MEDIUM",
-                        "ITR_COV_MEDIUM",
-                        "ITR_FOAM_MEDIUM",
-                        "ITR_COV_MEDIUM",
-                        "ITR_AL_MEDIUM",
-                        "ITR_KAP_MEDIUM",
-                        "ITR_AL_MEDIUM",
-                        "ITR_COV_MEDIUM",
-                        "ITR_EPO_MEDIUM",
-                        "ITR_MEDIUM"
+    m_materialOrder = {  "MSD_MEDIUM", 
+                         // "MSD_KAP_MEDIUM",
+                         "MSD_MEDIUM"
                          };
 
     
     for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
-        if( m_materialOrder[i] == "ITR_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_MEDIUM;
+        if( m_materialOrder[i] == "MSD_MEDIUM" ){
+            m_materialThick[ m_materialOrder[i] ] = MSD_THICK;
+            m_materialType[ m_materialOrder[i] ] = MSD_MEDIUM;
         }
-        else if( m_materialOrder[i] == "ITR_EPO_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_EPO_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_EPO_MEDIUM;
-        }
-        else if( m_materialOrder[i] == "ITR_COV_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_COV_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_COV_MEDIUM;
-        }
-        else if( m_materialOrder[i] == "ITR_AL_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_AL_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_AL_MEDIUM;
-        }
-        else if( m_materialOrder[i] == "ITR_KAP_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_KAP_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_KAP_MEDIUM;
-        }
-        else if( m_materialOrder[i] == "ITR_FOAM_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_FOAM_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_FOAM_MEDIUM;
-        }
+        
+        // else if( m_materialOrder[i] == "MSD_KAP_MEDIUM" ){
+        //     m_materialThick[ m_materialOrder[i] ] = MSD_THICK;
+        //     m_materialType[ m_materialOrder[i] ] = MSD_KAP_MEDIUM;
+        // }
+        
     }
 
 }

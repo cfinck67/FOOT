@@ -20,7 +20,8 @@ Evento::Evento()
   eve.VTXn    = 0;
   eve.ITRn    = 0;
   eve.BMNn    = 0;
-  eve.DCHn    = 0;
+  // eve.DCHn    = 0;
+  eve.MSDn    = 0;
   eve.SCNn    = 0;
   eve.CALn    = 0;
   eve.CROSSn  = 0;
@@ -136,26 +137,48 @@ Evento::Evento()
     eve.ITRtim[kk]   = 0.;
   }
 
-  for(int kk=0;kk<MAXDCH;kk++){
-    eve.DCHid[kk]    = 0;
-    eve.DCHilay[kk]  = 0;
-    eve.DCHiview[kk] = 0;
-    eve.DCHicell[kk] = 0;
-    eve.DCHxin[kk]   = 0.;
-    eve.DCHyin[kk]   = 0.;
-    eve.DCHzin[kk]   = 0.;
-    eve.DCHxout[kk]  = 0.;
-    eve.DCHyout[kk]  = 0.;
-    eve.DCHzout[kk]  = 0.;
-    eve.DCHpxin[kk]  = 0.;
-    eve.DCHpyin[kk]  = 0.;
-    eve.DCHpzin[kk]  = 0.;
-    eve.DCHpxout[kk] = 0.;
-    eve.DCHpyout[kk] = 0.;
-    eve.DCHpzout[kk] = 0.;
-    eve.DCHde[kk]    = 0.;
-    eve.DCHal[kk]    = 0.;
-    eve.DCHtim[kk]   = 0.;
+  // for(int kk=0;kk<MAXDCH;kk++){
+  //   eve.DCHid[kk]    = 0;
+  //   eve.DCHilay[kk]  = 0;
+  //   eve.DCHiview[kk] = 0;
+  //   eve.DCHicell[kk] = 0;
+  //   eve.DCHxin[kk]   = 0.;
+  //   eve.DCHyin[kk]   = 0.;
+  //   eve.DCHzin[kk]   = 0.;
+  //   eve.DCHxout[kk]  = 0.;
+  //   eve.DCHyout[kk]  = 0.;
+  //   eve.DCHzout[kk]  = 0.;
+  //   eve.DCHpxin[kk]  = 0.;
+  //   eve.DCHpyin[kk]  = 0.;
+  //   eve.DCHpzin[kk]  = 0.;
+  //   eve.DCHpxout[kk] = 0.;
+  //   eve.DCHpyout[kk] = 0.;
+  //   eve.DCHpzout[kk] = 0.;
+  //   eve.DCHde[kk]    = 0.;
+  //   eve.DCHal[kk]    = 0.;
+  //   eve.DCHtim[kk]   = 0.;
+  // }
+
+  for(int kk=0;kk<MAXMSD;kk++){
+    eve.MSDid[kk]    = 0;
+    eve.MSDilay[kk]  = 0;
+    eve.MSDiview[kk] = 0;
+    eve.MSDistrip[kk] = 0;
+    eve.MSDxin[kk]   = 0.;
+    eve.MSDyin[kk]   = 0.;
+    eve.MSDzin[kk]   = 0.;
+    eve.MSDxout[kk]  = 0.;
+    eve.MSDyout[kk]  = 0.;
+    eve.MSDzout[kk]  = 0.;
+    eve.MSDpxin[kk]  = 0.;
+    eve.MSDpyin[kk]  = 0.;
+    eve.MSDpzin[kk]  = 0.;
+    eve.MSDpxout[kk] = 0.;
+    eve.MSDpyout[kk] = 0.;
+    eve.MSDpzout[kk] = 0.;
+    eve.MSDde[kk]    = 0.;
+    eve.MSDal[kk]    = 0.;
+    eve.MSDtim[kk]   = 0.;
   }
   
   for(int kk=0;kk<MAXSCN;kk++){
@@ -340,26 +363,48 @@ Int_t Evento::Clean(){
     eve.ITRtim[kk]   = 0.;
   }
 
-  for(int kk=0;kk<eve.DCHn;kk++){
-    eve.DCHid[kk]    = 0;
-    eve.DCHilay[kk]  = 0;
-    eve.DCHiview[kk] = 0;
-    eve.DCHicell[kk] = 0;
-    eve.DCHxin[kk]   = 0.;
-    eve.DCHyin[kk]   = 0.;
-    eve.DCHzin[kk]   = 0.;
-    eve.DCHxout[kk]  = 0.;
-    eve.DCHyout[kk]  = 0.;
-    eve.DCHzout[kk]  = 0.;
-    eve.DCHpxin[kk]  = 0.;
-    eve.DCHpyin[kk]  = 0.;
-    eve.DCHpzin[kk]  = 0.;
-    eve.DCHpxout[kk] = 0.;
-    eve.DCHpyout[kk] = 0.;
-    eve.DCHpzout[kk] = 0.;
-    eve.DCHde[kk]    = 0.;
-    eve.DCHal[kk]    = 0.;
-    eve.DCHtim[kk]   = 0.;
+  // for(int kk=0;kk<eve.DCHn;kk++){
+  //   eve.DCHid[kk]    = 0;
+  //   eve.DCHilay[kk]  = 0;
+  //   eve.DCHiview[kk] = 0;
+  //   eve.DCHicell[kk] = 0;
+  //   eve.DCHxin[kk]   = 0.;
+  //   eve.DCHyin[kk]   = 0.;
+  //   eve.DCHzin[kk]   = 0.;
+  //   eve.DCHxout[kk]  = 0.;
+  //   eve.DCHyout[kk]  = 0.;
+  //   eve.DCHzout[kk]  = 0.;
+  //   eve.DCHpxin[kk]  = 0.;
+  //   eve.DCHpyin[kk]  = 0.;
+  //   eve.DCHpzin[kk]  = 0.;
+  //   eve.DCHpxout[kk] = 0.;
+  //   eve.DCHpyout[kk] = 0.;
+  //   eve.DCHpzout[kk] = 0.;
+  //   eve.DCHde[kk]    = 0.;
+  //   eve.DCHal[kk]    = 0.;
+  //   eve.DCHtim[kk]   = 0.;
+  // }
+
+  for(int kk=0;kk<eve.MSDn;kk++){
+    eve.MSDid[kk]    = 0;
+    eve.MSDilay[kk]  = 0;
+    eve.MSDiview[kk] = 0;
+    eve.MSDistrip[kk] = 0;
+    eve.MSDxin[kk]   = 0.;
+    eve.MSDyin[kk]   = 0.;
+    eve.MSDzin[kk]   = 0.;
+    eve.MSDxout[kk]  = 0.;
+    eve.MSDyout[kk]  = 0.;
+    eve.MSDzout[kk]  = 0.;
+    eve.MSDpxin[kk]  = 0.;
+    eve.MSDpyin[kk]  = 0.;
+    eve.MSDpzin[kk]  = 0.;
+    eve.MSDpxout[kk] = 0.;
+    eve.MSDpyout[kk] = 0.;
+    eve.MSDpzout[kk] = 0.;
+    eve.MSDde[kk]    = 0.;
+    eve.MSDal[kk]    = 0.;
+    eve.MSDtim[kk]   = 0.;
   }
 
   for(int kk=0;kk<eve.SCNn;kk++){
@@ -423,7 +468,8 @@ Int_t Evento::Clean(){
   eve.STCn      = 0;
   eve.VTXn      = 0;
   eve.BMNn      = 0;
-  eve.DCHn      = 0;
+  // eve.DCHn      = 0;
+  eve.MSDn      = 0;
   eve.SCNn      = 0;
   eve.CALn      = 0;
   eve.CROSSn    = 0;
@@ -630,35 +676,74 @@ Int_t Evento::AddITR(Int_t fITRid, Int_t fITRilay,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddDCH(Int_t fDCHid, Int_t fDCHilay, Int_t fDCHiview,
-		     Int_t fDCHicell,
-		     Double_t fDCHxin, Double_t fDCHyin, Double_t fDCHzin,
-		     Double_t fDCHxout, Double_t fDCHyout, Double_t fDCHzout,
-		     Double_t fDCHpxin, Double_t fDCHpyin, Double_t fDCHpzin,
-		     Double_t fDCHpxout, Double_t fDCHpyout, Double_t fDCHpzout,
-		     Double_t fDCHde, Double_t fDCHal, Double_t fDCHtim){
+// Int_t Evento::AddDCH(Int_t fDCHid, Int_t fDCHilay, Int_t fDCHiview,
+//          Int_t fDCHicell,
+//          Double_t fDCHxin, Double_t fDCHyin, Double_t fDCHzin,
+//          Double_t fDCHxout, Double_t fDCHyout, Double_t fDCHzout,
+//          Double_t fDCHpxin, Double_t fDCHpyin, Double_t fDCHpzin,
+//          Double_t fDCHpxout, Double_t fDCHpyout, Double_t fDCHpzout,
+//          Double_t fDCHde, Double_t fDCHal, Double_t fDCHtim){
   
-  if(eve.DCHn<MAXDCH){
-      eve.DCHn ++;
-      eve.DCHid[eve.DCHn-1] = fDCHid;
-      eve.DCHilay[eve.DCHn-1] = fDCHilay;
-      eve.DCHiview[eve.DCHn-1] = fDCHiview;
-      eve.DCHicell[eve.DCHn-1] = fDCHicell;
-      eve.DCHxin[eve.DCHn-1] = fDCHxin;
-      eve.DCHyin[eve.DCHn-1] = fDCHyin;
-      eve.DCHzin[eve.DCHn-1] = fDCHzin;
-      eve.DCHpxin[eve.DCHn-1] = fDCHpxin;
-      eve.DCHpyin[eve.DCHn-1] = fDCHpyin;
-      eve.DCHpzin[eve.DCHn-1] = fDCHpzin;
-      eve.DCHxout[eve.DCHn-1] = fDCHxout;
-      eve.DCHyout[eve.DCHn-1] = fDCHyout;
-      eve.DCHzout[eve.DCHn-1] = fDCHzout;
-      eve.DCHpxout[eve.DCHn-1] = fDCHpxout;
-      eve.DCHpyout[eve.DCHn-1] = fDCHpyout;
-      eve.DCHpzout[eve.DCHn-1] = fDCHpzout;
-      eve.DCHde[eve.DCHn-1] = fDCHde;
-      eve.DCHal[eve.DCHn-1] = fDCHal;
-      eve.DCHtim[eve.DCHn-1] = fDCHtim;
+//   if(eve.DCHn<MAXDCH){
+//       eve.DCHn ++;
+//       eve.DCHid[eve.DCHn-1] = fDCHid;
+//       eve.DCHilay[eve.DCHn-1] = fDCHilay;
+//       eve.DCHiview[eve.DCHn-1] = fDCHiview;
+//       eve.DCHicell[eve.DCHn-1] = fDCHicell;
+//       eve.DCHxin[eve.DCHn-1] = fDCHxin;
+//       eve.DCHyin[eve.DCHn-1] = fDCHyin;
+//       eve.DCHzin[eve.DCHn-1] = fDCHzin;
+//       eve.DCHpxin[eve.DCHn-1] = fDCHpxin;
+//       eve.DCHpyin[eve.DCHn-1] = fDCHpyin;
+//       eve.DCHpzin[eve.DCHn-1] = fDCHpzin;
+//       eve.DCHxout[eve.DCHn-1] = fDCHxout;
+//       eve.DCHyout[eve.DCHn-1] = fDCHyout;
+//       eve.DCHzout[eve.DCHn-1] = fDCHzout;
+//       eve.DCHpxout[eve.DCHn-1] = fDCHpxout;
+//       eve.DCHpyout[eve.DCHn-1] = fDCHpyout;
+//       eve.DCHpzout[eve.DCHn-1] = fDCHpzout;
+//       eve.DCHde[eve.DCHn-1] = fDCHde;
+//       eve.DCHal[eve.DCHn-1] = fDCHal;
+//       eve.DCHtim[eve.DCHn-1] = fDCHtim;
+//       return 0;
+//     }
+//   else
+//     {
+//       return -1;
+//     }
+// }
+
+/*-----------------------------------------------------------------*/
+
+Int_t Evento::AddMSD(Int_t fMSDid, Int_t fMSDilay, Int_t fMSDiview,
+         Int_t fMSDistrip,
+         Double_t fMSDxin, Double_t fMSDyin, Double_t fMSDzin,
+         Double_t fMSDxout, Double_t fMSDyout, Double_t fMSDzout,
+         Double_t fMSDpxin, Double_t fMSDpyin, Double_t fMSDpzin,
+         Double_t fMSDpxout, Double_t fMSDpyout, Double_t fMSDpzout,
+         Double_t fMSDde, Double_t fMSDal, Double_t fMSDtim){
+  
+  if(eve.MSDn<MAXMSD){
+      eve.MSDn ++;
+      eve.MSDid[eve.MSDn-1] = fMSDid;
+      eve.MSDilay[eve.MSDn-1] = fMSDilay;
+      eve.MSDiview[eve.MSDn-1] = fMSDiview;
+      eve.MSDistrip[eve.MSDn-1] = fMSDistrip;
+      eve.MSDxin[eve.MSDn-1] = fMSDxin;
+      eve.MSDyin[eve.MSDn-1] = fMSDyin;
+      eve.MSDzin[eve.MSDn-1] = fMSDzin;
+      eve.MSDpxin[eve.MSDn-1] = fMSDpxin;
+      eve.MSDpyin[eve.MSDn-1] = fMSDpyin;
+      eve.MSDpzin[eve.MSDn-1] = fMSDpzin;
+      eve.MSDxout[eve.MSDn-1] = fMSDxout;
+      eve.MSDyout[eve.MSDn-1] = fMSDyout;
+      eve.MSDzout[eve.MSDn-1] = fMSDzout;
+      eve.MSDpxout[eve.MSDn-1] = fMSDpxout;
+      eve.MSDpyout[eve.MSDn-1] = fMSDpyout;
+      eve.MSDpzout[eve.MSDn-1] = fMSDpzout;
+      eve.MSDde[eve.MSDn-1] = fMSDde;
+      eve.MSDal[eve.MSDn-1] = fMSDal;
+      eve.MSDtim[eve.MSDn-1] = fMSDtim;
       return 0;
     }
   else
@@ -666,6 +751,7 @@ Int_t Evento::AddDCH(Int_t fDCHid, Int_t fDCHilay, Int_t fDCHiview,
       return -1;
     }
 }
+
 
 /*-----------------------------------------------------------------*/
 
@@ -880,26 +966,47 @@ int Evento::FindBranches(TTree *RootTree, EVENT_STRUCT *eve){
   RootTree->SetBranchAddress("ITRal",&(eve->ITRal));
   RootTree->SetBranchAddress("ITRtim",&(eve->ITRtim));
 
-  RootTree->SetBranchAddress("DCHn",&(eve->DCHn));
-  RootTree->SetBranchAddress("DCHid",&(eve->DCHid));
-  RootTree->SetBranchAddress("DCHilay",&(eve->DCHilay));
-  RootTree->SetBranchAddress("DCHiview",&(eve->DCHiview));
-  RootTree->SetBranchAddress("DCHicell",&(eve->DCHicell));
-  RootTree->SetBranchAddress("DCHxin",&(eve->DCHxin));
-  RootTree->SetBranchAddress("DCHyin",&(eve->DCHyin));
-  RootTree->SetBranchAddress("DCHzin",&(eve->DCHzin));
-  RootTree->SetBranchAddress("DCHpxin",&(eve->DCHpxin));
-  RootTree->SetBranchAddress("DCHpyin",&(eve->DCHpyin));
-  RootTree->SetBranchAddress("DCHpzin",&(eve->DCHpzin));
-  RootTree->SetBranchAddress("DCHxout",&(eve->DCHxout));
-  RootTree->SetBranchAddress("DCHyout",&(eve->DCHyout));
-  RootTree->SetBranchAddress("DCHzout",&(eve->DCHzout));
-  RootTree->SetBranchAddress("DCHpxout",&(eve->DCHpxout));
-  RootTree->SetBranchAddress("DCHpyout",&(eve->DCHpyout));
-  RootTree->SetBranchAddress("DCHpzout",&(eve->DCHpzout));
-  RootTree->SetBranchAddress("DCHde",&(eve->DCHde));
-  RootTree->SetBranchAddress("DCHal",&(eve->DCHal));
-  RootTree->SetBranchAddress("DCHtim",&(eve->DCHtim));
+  // RootTree->SetBranchAddress("DCHn",&(eve->DCHn));
+  // RootTree->SetBranchAddress("DCHid",&(eve->DCHid));
+  // RootTree->SetBranchAddress("DCHilay",&(eve->DCHilay));
+  // RootTree->SetBranchAddress("DCHiview",&(eve->DCHiview));
+  // RootTree->SetBranchAddress("DCHicell",&(eve->DCHicell));
+  // RootTree->SetBranchAddress("DCHxin",&(eve->DCHxin));
+  // RootTree->SetBranchAddress("DCHyin",&(eve->DCHyin));
+  // RootTree->SetBranchAddress("DCHzin",&(eve->DCHzin));
+  // RootTree->SetBranchAddress("DCHpxin",&(eve->DCHpxin));
+  // RootTree->SetBranchAddress("DCHpyin",&(eve->DCHpyin));
+  // RootTree->SetBranchAddress("DCHpzin",&(eve->DCHpzin));
+  // RootTree->SetBranchAddress("DCHxout",&(eve->DCHxout));
+  // RootTree->SetBranchAddress("DCHyout",&(eve->DCHyout));
+  // RootTree->SetBranchAddress("DCHzout",&(eve->DCHzout));
+  // RootTree->SetBranchAddress("DCHpxout",&(eve->DCHpxout));
+  // RootTree->SetBranchAddress("DCHpyout",&(eve->DCHpyout));
+  // RootTree->SetBranchAddress("DCHpzout",&(eve->DCHpzout));
+  // RootTree->SetBranchAddress("DCHde",&(eve->DCHde));
+  // RootTree->SetBranchAddress("DCHal",&(eve->DCHal));
+  // RootTree->SetBranchAddress("DCHtim",&(eve->DCHtim));
+
+  RootTree->SetBranchAddress("MSDn",&(eve->MSDn));
+  RootTree->SetBranchAddress("MSDid",&(eve->MSDid));
+  RootTree->SetBranchAddress("MSDilay",&(eve->MSDilay));
+  RootTree->SetBranchAddress("MSDiview",&(eve->MSDiview));
+  RootTree->SetBranchAddress("MSDistrip",&(eve->MSDistrip));
+  RootTree->SetBranchAddress("MSDxin",&(eve->MSDxin));
+  RootTree->SetBranchAddress("MSDyin",&(eve->MSDyin));
+  RootTree->SetBranchAddress("MSDzin",&(eve->MSDzin));
+  RootTree->SetBranchAddress("MSDpxin",&(eve->MSDpxin));
+  RootTree->SetBranchAddress("MSDpyin",&(eve->MSDpyin));
+  RootTree->SetBranchAddress("MSDpzin",&(eve->MSDpzin));
+  RootTree->SetBranchAddress("MSDxout",&(eve->MSDxout));
+  RootTree->SetBranchAddress("MSDyout",&(eve->MSDyout));
+  RootTree->SetBranchAddress("MSDzout",&(eve->MSDzout));
+  RootTree->SetBranchAddress("MSDpxout",&(eve->MSDpxout));
+  RootTree->SetBranchAddress("MSDpyout",&(eve->MSDpyout));
+  RootTree->SetBranchAddress("MSDpzout",&(eve->MSDpzout));
+  RootTree->SetBranchAddress("MSDde",&(eve->MSDde));
+  RootTree->SetBranchAddress("MSDal",&(eve->MSDal));
+  RootTree->SetBranchAddress("MSDtim",&(eve->MSDtim));
   
   RootTree->SetBranchAddress("SCNn",&(eve->SCNn));
   RootTree->SetBranchAddress("SCNid",&(eve->SCNid));

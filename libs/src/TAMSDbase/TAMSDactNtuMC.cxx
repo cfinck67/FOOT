@@ -98,31 +98,26 @@ void TAMSDactNtuMC::CreateHistogram()
 
 Bool_t TAMSDactNtuMC::Action() {
 
-  cout << "cazzo 1" << endl;
-
   TAMSDntuRaw* pNtuRaw = (TAMSDntuRaw*) fpNtuRaw->Object();
   TAMSDparMap* pParMap = (TAMSDparMap*) fpParMap->Object();
   TAMSDparGeo* pGeoMap  = (TAMSDparGeo*) fpGeoMap->Object();
-cout << "cazzo 1.5" << endl;
   // bool doXchk = kFALSE;    // era della vecchia ricostruzione
 
   TAGgeoTrafo *fGeoTrafo =  (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
   if (fGeoTrafo == 0x0)
     Error("SetGeoTrafoName","No GeoTrafo action called %s available", TAGgeoTrafo::GetDefaultActName().Data());
-cout << "cazzo 2" << endl;
+
   pNtuRaw->Clear();
 
   int mcID(-1000);
 
     if (fDebugLevel)     Info("Action()","Processing n :: %2d hits \n",fpEvtStr->MSDn);
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "MSDn   " << fpEvtStr->MSDn<< endl;
-cout << "cazzo 3" << endl;
 // cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx << "  "<< fpEvtStr->TRfy << "  "<< fpEvtStr->TRfz << endl;
 
    //AS  To be completely rechecked...
    for (Int_t i = 0; i < fpEvtStr->MSDn; i++) {
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx[i] << "  "<< fpEvtStr->TRfy[i] << "  "<< fpEvtStr->TRfz[i] << endl;
-cout << "cazzo 4" << endl;
      /*
      // position in global transform in local
      // missing value set to 1. cos binary
@@ -136,7 +131,7 @@ cout << "cazzo 4" << endl;
      //The column refer to Y!!!
      // !!!!!!!!!!!!!!!!!!!!!!!!!!!  in ntuple, the row and col start from 0  !!!!!!!!!!!!!!!!!!!!!!!
      int myTview, myTstrip;
-     myTview = fpEvtStr->MSDiview[i] - 1;
+     myTview = ( fpEvtStr->MSDiview[i] == 1 ? 1 : 0 );
      myTstrip = fpEvtStr->MSDistrip[i] - 1;
      /*
      myTstrip = pParMap->GetPixelsNu()-fpEvtStr->miSigCol[i];
@@ -169,13 +164,15 @@ cout << "cazzo 4" << endl;
         //                   fpEvtStr->TRipy[genPartID]*fpEvtStr->TRipy[genPartID] +
         //                   fpEvtStr->TRipz[genPartID]*fpEvtStr->TRipz[genPartID] );
         // cout << "\t\t\tmomentum: " << momentum << endl;
-        cout << "Position: " << fpEvtStr->TRix[genPartID] <<" "<<fpEvtStr->TRiy[genPartID]<<" "<<fpEvtStr->TRiz[genPartID] << endl;
-        cout << "Momentum: " << fpEvtStr->TRipx[genPartID] <<" "<<fpEvtStr->TRipy[genPartID]<<" "<<fpEvtStr->TRipz[genPartID] << endl;
+        cout << "Generated Position: " << fpEvtStr->TRix[genPartID] <<" "<<fpEvtStr->TRiy[genPartID]<<" "<<fpEvtStr->TRiz[genPartID] << endl;
+        cout << "Generated Momentum: " << fpEvtStr->TRipx[genPartID] <<" "<<fpEvtStr->TRipy[genPartID]<<" "<<fpEvtStr->TRipz[genPartID] << endl;
     }
      
 
      TAMSDntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTview, myTstrip);
      //ID matching for the "trk" block
+     // set geometry
+     pixel->SetMsdGeo(pGeoMap);
      mcID = fpEvtStr->MSDid[i];
      pixel->SetMCid(mcID);
      pixel->SetLayer( fpEvtStr->MSDilay[i] );
@@ -260,7 +257,7 @@ cout << "cazzo 4" << endl;
      }	 
    */
    }
-   cout << "cazzo 5" << endl;
+
    fpNtuRaw->SetBit(kValid);
    return kTRUE;
 }

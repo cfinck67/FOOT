@@ -206,13 +206,13 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     Setting up the detectors that we want to decode.
   */
   bool m_doEvent = kTRUE;
-  bool m_doKalman = kFALSE;
+  bool m_doKalman = kTRUE;
   // bool m_doBM = kFALSE;
-  bool m_doBM = kTRUE;
+  bool m_doBM = kFALSE;
   bool m_doDC = kFALSE;
   bool m_doIR = kFALSE;
   bool m_doTW = kFALSE;
-  bool m_doMSD = kFALSE;
+  bool m_doMSD = kTRUE;
   bool m_doCA = kFALSE;
   bool m_doInnerTracker = kTRUE;
   bool m_doVertex = kTRUE;
@@ -276,6 +276,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
    TGeoMaterial *matC = new TGeoMaterial("Carbon", 12.0107, 6., 2.26);
    TGeoMaterial *matO = new TGeoMaterial("Oxygen", 16., 8., 0.0013315);
    TGeoMaterial *matAl = new TGeoMaterial("Aluminium", 26.981539, 13., 2.6989);
+   TGeoMaterial *matSi = new TGeoMaterial("Silicon", 28.085, 14., 2.329);
    TGeoMaterial *matW = new TGeoMaterial("Tungsten", 183.84, 74., 19.3);// poi magari mettere la copertura in oro
    TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
    
@@ -293,14 +294,14 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     matEpo->AddElement(16,8, 3./40.);  // O
 
 
-    TGeoMixture *matSilicon = new TGeoMixture("Silicon",2, 3.22); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   matSilicon->AddElement(matC ,0.5);
-   matSilicon->AddElement(28.085, 14 ,0.5);
+    TGeoMixture *matSiC = new TGeoMixture("SiliconCarbon",2, 3.22); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    matSiC->AddElement(matC ,0.5);
+    matSiC->AddElement(28.085, 14 ,0.5);
 
 
     // CHECK
     TGeoMixture *matSiCFoam = new TGeoMixture("SiCFoam",2,   0.1288    );
-    matSiCFoam->AddElement(matSilicon, 0.04);  
+    matSiCFoam->AddElement(matSiC, 0.04);  
     matSiCFoam->AddElement(airMat, 0.96);  
 
 
@@ -390,14 +391,14 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
         //Initialization of IT parameters
         m_itgeo->InitGeo();
-        top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
+        // top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
     }
 
     if(m_doMSD) {
 
       m_msdgeo = shared_ptr<TAMSDparGeo> ( (TAMSDparGeo*) myp_msdgeo->Object() );
 
-        //Initialization of DC parameters
+        //Initialization of MSD parameters
         m_msdgeo->InitGeo();
         top->AddNode( m_msdgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_msdgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
 
@@ -475,7 +476,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // if (jentry>1)  break;
-        // if (jentry<556)  continue;
+        // if (jentry<33061)  continue;
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -568,9 +569,9 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
             m_kFitter->UploadHitsIT( myn_itraw, m_itgeo );
         }
 
-        // if( m_doMSD && m_doKalman ) {
-        //     // m_kFitter->UploadHitsMSD( myn_msdraw, m_msdgeo );
-        // }
+        if( m_doMSD && m_doKalman ) {
+            m_kFitter->UploadHitsMSD( myn_msdraw, m_msdgeo );
+        }
 
 
         if (m_doDC && m_doKalman ) {
@@ -897,7 +898,7 @@ void RecoTools::FillMCVertex(EVENT_STRUCT *myStr) {
    //   mya_vtvtx->CreateHistogram();
    // }
 
-   my_out->SetupElementBranch(myn_vtraw, "vtrh.");
+   // my_out->SetupElementBranch(myn_vtraw, "vtrh.");
    // my_out->SetupElementBranch(myn_vtclus, "vtclus.");
    // my_out->SetupElementBranch(myn_vtrk, "vtTrack.");
    // my_out->SetupElementBranch(myn_vtvtx, "vtVtx.");

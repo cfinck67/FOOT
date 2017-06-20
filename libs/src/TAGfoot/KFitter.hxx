@@ -179,6 +179,9 @@ private:
 	// vector< shared_ptr<TAITntuHit> > m_IT_hitCollection;
 	// vector< shared_ptr<TADCntuHit> > m_DC_hitCollection;
 	
+	vector<TVector3> m_MSD_posVectorSmearedHit;
+	vector<TVector3> m_MSD_momVectorSmearedHit;
+	vector<double> m_MSD_mass;
 
 	// kept as std pointer just to remember how to correctely delete and free resources iwth them
 	// correctely freed
@@ -207,6 +210,19 @@ private:
 	map< string, TH1F* > h_sigmaP;
 	map< string, TH1F* > h_deltaP;
 	map< string, TH1F* > h_polarAngol;
+
+	map< string, TH1F* >  h_mass_genFit;
+	map< string, TH1F* >  h_charge;
+	map< string, TH1F* >  h_isFitConvergedFully;
+	map< string, TH1F* >  h_isFitConvergedPartially;
+	map< string, TH1F* >  h_NFailedPoints;
+	map< string, TH1F* >  h_isTrackPruned;
+	map< string, TH1F* >  h_Ndf;
+	
+	map< string, TH1F* >  h_startX;
+	map< string, TH1F* >  h_endX;
+	map< string, TH1F* >  h_startY;
+	map< string, TH1F* >  h_endY;
 
 	map< string, TH1F* > h_dP_over_Ptrue;
 	map< string, TH1F* > h_dP_over_Pkf;

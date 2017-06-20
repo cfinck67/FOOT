@@ -276,7 +276,7 @@ const bool MAG_AIR_MAG		=true;
 
 const double MSD_X		=0.0;
 const double MSD_Y		=0.0;
-const double MSD_Z		=27.5;
+const double MSD_Z		=28.0;
 				     
 const Double_t MSD_WIDTH   	=9.0;//x dimension
 const Double_t MSD_HEIGHT  	=9.0;//y dimension
@@ -284,7 +284,7 @@ const Double_t MSD_THICK   	=0.005;//z dimension
 
 const Int_t    MSD_NVIEW        =2;//no. of layers
 const Int_t    MSD_NLAY         =3;//no. of layers
-const Double_t MSD_LAYDIST   	=1.;//distrance btw layers
+const Double_t MSD_LAYDIST   	=2.;//distrance btw layers
 
 //strip parameters
 const Double_t MSD_XMIN		=-MSD_WIDTH/2.;

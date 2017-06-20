@@ -15,6 +15,8 @@ FootField::FootField ( string fileName ) {
 	ifstream ifile;
     ifile.open( ("../../Simulation/"+fileName).c_str() );
 
+    cout << "\tB center =  " << MAG_AIR_X <<"  "<< MAG_AIR_Y << "  "<< MAG_AIR_Z << endl;
+
     if ( !ifile.is_open() )        
     	cout<< "wrong input in AbsBField constructor for file " << fileName << endl, exit(0);
 
