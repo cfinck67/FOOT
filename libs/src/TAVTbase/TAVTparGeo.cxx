@@ -27,9 +27,6 @@
 #include "foot_geo.h"
 #include "GlobalPar.hxx"
 
-
-
-
 //  copy constructor
 TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
 
@@ -120,8 +117,7 @@ void TAVTparGeo::InitGeo()  {
     // pixels per sensors, same as above as far as we use 1 sensor
     m_nPixel_X = sensor_Width_Lx / (pixelWidth_Lx + pixelDistance);
     m_nPixel_Y = sensor_Height_Ly / (pixelHeight_Ly + pixelDistance);
-
-    
+   
     // fill sensor matrix
     for (int k=0; k<m_nSensors_Z; k++) {
         double sensor_newZ = m_origin.Z() - length_Lz/2 +0.5*m_singleSensorThick_Lz + k*m_layerDistance;
