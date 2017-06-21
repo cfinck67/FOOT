@@ -95,7 +95,7 @@ class Evento : public TObject {
 
   int FindBranches(TTree *RootTree,EVENT_STRUCT *eve);
 
-  Int_t Dump();
+  void Dump() const;
 
   EVENT_STRUCT Output();
 

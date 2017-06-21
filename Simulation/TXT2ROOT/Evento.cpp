@@ -960,8 +960,9 @@ int Evento::FindBranches(TTree *RootTree, EVENT_STRUCT *eve){
 /*-----------------------------------------------------------------*/
 
 
-Int_t Evento::Dump(){
-  return 0;
+void Evento::Dump() const
+{
+  return;
 
 }
 
