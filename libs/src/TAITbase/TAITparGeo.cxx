@@ -48,7 +48,7 @@ TAITparGeo::TAITparGeo( TAITparGeo* original ) :
     m_materialThick(original->m_materialThick),
     m_materialType(original->m_materialType),
 
-    m_singleSensorThick_Lz(original->m_singleSensorThick_Lz),
+    m_siliconSensorThick_Lz(original->m_siliconSensorThick_Lz),
     m_layerDistance(original->m_layerDistance),
 
     m_nPixel_X(original->m_nPixel_X),
@@ -87,10 +87,10 @@ void TAITparGeo::InitGeo()  {
     InitMaterial();
 
     // evaluate detector dimension and layer distance using materials 
-    double length_Lz = 0;
+    double length_Lz = 0;       // from edge to edge
     m_layerDistance = 0;
     for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
-        length_Lz += m_materialThick[ m_materialOrder[i] ];
+        length_Lz += m_materialThick[ m_materialOrder[i] ];     
         if ( m_materialOrder[i] != "ITR_MEDIUM" )
             m_layerDistance += m_materialThick[ m_materialOrder[i] ];
     }
@@ -100,17 +100,17 @@ void TAITparGeo::InitGeo()  {
     double width_Lx = m_dimension.x();
     double height_Ly = m_dimension.y();
     
-    m_singleSensorThick_Lz = ITR_THICK;
+    m_siliconSensorThick_Lz = ITR_THICK;     // ONLY silicon
 
     // overload -> use a cross check later on
     // m_layerDistance = ITR_LAYDIST;   //wrong
-    m_layerDistance += m_singleSensorThick_Lz;
+    m_layerDistance += m_siliconSensorThick_Lz;     // from center to center
     double sensorDistance = 0;
     double pixelDistance = 0;
 
     // take it somewhere            // wrong to have it hardcoded
-    double pixelWidth_Lx = 0.002;
-    double pixelHeight_Ly = 0.002;
+    double pixelWidth_Lx = ITR_DX;
+    double pixelHeight_Ly = ITR_DY;
 
     if ( GlobalPar::GetPar()->Debug() > 2 )  {
         cout << "m_layerDistance " << m_layerDistance << endl;
@@ -120,7 +120,7 @@ void TAITparGeo::InitGeo()  {
 
     double sensor_Width_Lx = width_Lx - (sensorDistance*(1+m_nSensors_X)) /m_nSensors_X;
     double sensor_Height_Ly = height_Ly - (sensorDistance*(1+m_nSensors_Y)) /m_nSensors_Y;
-    double sensor_Length_Lz = m_singleSensorThick_Lz;
+    double sensor_Length_Lz = m_siliconSensorThick_Lz;
 
     // // total pixels
     // m_nPixel_X = width_Lx / (pixelWidth_Lx + pixelDistance);
@@ -133,7 +133,7 @@ void TAITparGeo::InitGeo()  {
     
     // fill sensor matrix
     for (int k=0; k<m_nSensors_Z; k++) {
-        double sensor_newZ = m_origin.Z() - length_Lz/2 + 0.5*m_singleSensorThick_Lz + k*m_layerDistance;
+        double sensor_newZ = m_origin.Z() - length_Lz/2 + 0.5*m_siliconSensorThick_Lz + k*m_layerDistance;
         for (int i=0; i<m_nSensors_X; i++) {
             double sensor_newX = m_origin.X() - width_Lx/2 + (0.5+i)*(sensor_Width_Lx);
             for (int j=0; j<m_nSensors_Y; j++) {
@@ -146,7 +146,7 @@ void TAITparGeo::InitGeo()  {
                         TVector3( sensor_newX, sensor_newY, sensor_newZ ),  // sensor center
                         TVector3( sensor_Width_Lx, sensor_Height_Ly, sensor_Length_Lz ),    // sensor dimension
                         m_nPixel_X, m_nPixel_Y,
-                        pixelWidth_Lx, pixelHeight_Ly, m_singleSensorThick_Lz,
+                        pixelWidth_Lx, pixelHeight_Ly, m_siliconSensorThick_Lz,
                         pixelDistance, pixelDistance, 0, //m_layerDistance,
                         TVector3(0,0,0)
                  );
@@ -217,18 +217,18 @@ TGeoVolume* TAITparGeo::GetVolume() {
     // TGeoMedium* siCFoam = new TGeoMedium( "siCFoam_med", 5, gGeoManager->GetMaterial("SiCFoam") );
 
 
-    if ( GlobalPar::GetPar()->Debug() > 3 )  {
-        cout << endl << "IT List of Material\n ";
-        TIter next( gGeoManager->GetListOfMaterials() );
-        while ( TGeoMaterial *obj = (TGeoMaterial*) next() ) {
-          cout << obj->GetName () << endl;
-        }
-        cout << endl << "List of Media\n ";
-        TIter nnext( gGeoManager->GetListOfMedia() );
-        while ( TGeoMedium *obj = (TGeoMedium *) nnext()  ) {
-          cout << obj->GetName () << endl;
-        }
-    }
+    // if ( GlobalPar::GetPar()->Debug() > 3 )  {
+    //     cout << endl << "IT List of Material\n ";
+    //     TIter next( gGeoManager->GetListOfMaterials() );
+    //     while ( TGeoMaterial *obj = (TGeoMaterial*) next() ) {
+    //       cout << obj->GetName () << endl;
+    //     }
+    //     cout << endl << "List of Media\n ";
+    //     TIter nnext( gGeoManager->GetListOfMedia() );
+    //     while ( TGeoMedium *obj = (TGeoMedium *) nnext()  ) {
+    //       cout << obj->GetName () << endl;
+    //     }
+    // }
 
     double width_Lx = m_dimension.X();
     double height_Ly = m_dimension.Y();
@@ -238,7 +238,7 @@ TGeoVolume* TAITparGeo::GetVolume() {
     TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Air_med"),width_Lx/2,height_Ly/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
     gGeoManager->SetTopVisible(1);
 
-    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_singleSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_siliconSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
     siliconFoil->SetLineColor(kOrange);
     TGeoVolume *kaptonFoil = gGeoManager->MakeBox("kaptonFoil",gGeoManager->GetMedium("Kapton_med"),width_Lx/2,height_Ly/2,m_materialThick[ "ITR_KAP_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
     kaptonFoil->SetLineColor(kOrange-7);

@@ -78,6 +78,14 @@
 #include "TADCactNtuTrack.hxx"
 #include "TADCvieTrackFIRST.hxx"
 
+//MicroStrip Detector
+#include "TAMSDparGeo.hxx"
+#include "TAMSDparConf.hxx"
+#include "TAMSDparMap.hxx"
+#include "TAMSDntuRaw.hxx"
+#include "TAMSDactNtuMC.hxx"
+
+
 //Tof Wall (scintillator)
 #include "TATWparMap.hxx"
 #include "TATWdatRaw.hxx"
@@ -106,6 +114,8 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
   m_debug = d;
   m_oustr = ostr;
   m_wd = wd;
+
+  tempo_kal=0;
 
   ifstream inS; 
   char bufConf[200]; char fname[400];
@@ -198,10 +208,11 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   bool m_doEvent = kTRUE;
   bool m_doKalman = kTRUE;
   // bool m_doBM = kFALSE;
-  bool m_doBM = kTRUE;
-  bool m_doDC = kTRUE;
+  bool m_doBM = kFALSE;
+  bool m_doDC = kFALSE;
   bool m_doIR = kFALSE;
   bool m_doTW = kFALSE;
+  bool m_doMSD = kTRUE;
   bool m_doCA = kFALSE;
   bool m_doInnerTracker = kTRUE;
   bool m_doVertex = kTRUE;
@@ -225,6 +236,9 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
   if(m_doDC)
     FillMCDriftChamber(&evStr);
+
+  if(m_doMSD)
+    FillMCMSD(&evStr);
 
   if(m_doTW)
     FillMCTofWall(&evStr);
@@ -253,11 +267,16 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     airMat->AddElement(16.00,8.,.21);   // O
     airMat->AddElement(39.95,18.,.01);  // Ar
     airMat->SetDensity(1.2e-3);
+    // airMat->SetPressure();      // std 6.32420e+8 = 1atm
+    // 1,26484e+8 MeV/mm3 = 0,2 atm     
+    // 1 MeV/mm3 = 1,58122538 × 10-9 atm
+    cout << "airMat->GetPressure()   " << airMat->GetPressure() << endl;
 
    TGeoMaterial *matAr = new TGeoMaterial("Argon", 39.948, 18., 0.001662);//densità viene da flair, 
    TGeoMaterial *matC = new TGeoMaterial("Carbon", 12.0107, 6., 2.26);
    TGeoMaterial *matO = new TGeoMaterial("Oxygen", 16., 8., 0.0013315);
    TGeoMaterial *matAl = new TGeoMaterial("Aluminium", 26.981539, 13., 2.6989);
+   TGeoMaterial *matSi = new TGeoMaterial("Silicon", 28.085, 14., 2.329);
    TGeoMaterial *matW = new TGeoMaterial("Tungsten", 183.84, 74., 19.3);// poi magari mettere la copertura in oro
    TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
    
@@ -275,14 +294,14 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     matEpo->AddElement(16,8, 3./40.);  // O
 
 
-    TGeoMixture *matSilicon = new TGeoMixture("Silicon",2, 3.22);
-   matSilicon->AddElement(matC ,0.5);
-   matSilicon->AddElement(28.085, 14 ,0.5);
+    TGeoMixture *matSiC = new TGeoMixture("SiliconCarbon",2, 3.22); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    matSiC->AddElement(matC ,0.5);
+    matSiC->AddElement(28.085, 14 ,0.5);
 
 
     // CHECK
     TGeoMixture *matSiCFoam = new TGeoMixture("SiCFoam",2,   0.1288    );
-    matSiCFoam->AddElement(matSilicon, 0.04);  
+    matSiCFoam->AddElement(matSiC, 0.04);  
     matSiCFoam->AddElement(airMat, 0.96);  
 
 
@@ -292,6 +311,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
    ArCO2->AddElement(matO ,2./4.);
 //   ArCO2->AddElement(matCO2 ,20.);
    ArCO2->SetDensity(0.001677136); //da flair
+   ArCO2->SetPressure(1.26484e+8);    // 0.2 atm
+   cout << "ArCO2->GetPressure()   " << ArCO2->GetPressure() << endl;
 
 
    TGeoMixture *matKapton = new TGeoMixture("Kapton",4, 1.42);
@@ -329,7 +350,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
 
 
-    TGeoVolume *top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("Air_med"), 100., 100., 200.);
+    TGeoVolume *top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("Air_med"), 25., 25., 80.);
     // TGeoVolume *top = gGeoManager->MakeBox("TOPPER", vacuum_med, 100., 100., 200.);
     gGeoManager->SetTopVolume(top); // mandatory !
 
@@ -337,8 +358,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     // genfit::FieldManager::getInstance()->init(new genfit::ConstField(0. ,10., 0.)); // 1 T
     // genfit::FieldManager::getInstance()->init(new genfit::ConstField(0. ,0., 0.)); // no mag
     // genfit::FieldManager::getInstance()->init(new FootField("DoubleDipole.table")); // variable field
-    genfit::FieldManager::getInstance()->init( new FootField( 7 ) ); // const field
+    genfit::FieldManager::getInstance()->init(new FootField("DoubleGaussMag.table")); // variable field
+    // genfit::FieldManager::getInstance()->init( new FootField( 7 ) ); // const field
     // FieldManager::getInstance()->useCache(true, 8);
+
 
 
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 1,1,14.7 ) ).Print();
@@ -368,7 +391,17 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
         //Initialization of IT parameters
         m_itgeo->InitGeo();
-        top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
+        // top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
+    }
+
+    if(m_doMSD) {
+
+      m_msdgeo = shared_ptr<TAMSDparGeo> ( (TAMSDparGeo*) myp_msdgeo->Object() );
+
+        //Initialization of MSD parameters
+        m_msdgeo->InitGeo();
+        top->AddNode( m_msdgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_msdgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
+
     }
 
     if(m_doDC) {
@@ -382,6 +415,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     }
 
+
     // set material into genfit 
     MaterialEffects::getInstance()->init(new TGeoMaterialInterface());
 
@@ -393,15 +427,15 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     // save an image of the foot geometry
     //top->Draw("ogl");
-    // TCanvas* mirror = new TCanvas("footGeometry", "footGeometry",  700, 700); 
-    // top->Draw("ap");
-    // mirror->SaveAs("footGeometry.png");
-    // mirror->SaveAs("footGeometry.root");
+    TCanvas* mirror = new TCanvas("footGeometry", "footGeometry",  700, 700); 
+    top->Draw("ap");
+    mirror->SaveAs("footGeometry.png");
+    mirror->SaveAs("footGeometry.root");
 
     // save the geometry info in .root
-    // TFile *outfile = TFile::Open("genfitGeomFOOT.root","RECREATE");
-    // gGeoManager->Write();
-    // outfile->Close();
+    TFile *outfile = TFile::Open("genfitGeomFOOT.root","RECREATE");
+    gGeoManager->Write();
+    outfile->Close();
 
     const int nIter = 20; // max number of iterations
     const double dPVal = 1.E-3; // convergence criterion
@@ -442,7 +476,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // if (jentry>1)  break;
-        // if (jentry<556)  continue;
+        // if (jentry<33061)  continue;
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -465,15 +499,11 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
             cout<<"Processed:: "<<jentry<<" evts!"<<endl;
 
 
-        TAGntuMCeve*  p_ntumceve = 
-        (TAGntuMCeve*)   myn_mceve->GenerateObject();
-
-        int nhitmc = p_ntumceve->nhit;
-
+        
         //do some MC check
         //to be moved to framework
-        if(m_doVertex && m_doInnerTracker )
-        AssociateHitsToParticle();
+        if(m_doVertex && m_doInnerTracker)
+	  AssociateHitsToParticle();
 
         if(m_debug) {
 
@@ -539,6 +569,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
             m_kFitter->UploadHitsIT( myn_itraw, m_itgeo );
         }
 
+        if( m_doMSD && m_doKalman ) {
+            m_kFitter->UploadHitsMSD( myn_msdraw, m_msdgeo );
+        }
+
 
         if (m_doDC && m_doKalman ) {
 
@@ -547,13 +581,15 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
         }
 
+// start time
+start_kal = clock();
 
         // Kalman Filter
         int isKalmanConverged = 0;
         if ( m_doKalman ) {
              // check other tracking systems are enabled 
             if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit" << endl;
-            isKalmanConverged = m_kFitter->MakeFit( jentry, "all" );
+            isKalmanConverged = m_kFitter->MakeFit( jentry );
             if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit done. Converged = " << isKalmanConverged << endl;
     
             // if ( isKalmanConverged == 1  )
@@ -562,7 +598,9 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
             if ( isKalmanConverged == 1 && GlobalPar::GetPar()->Debug() > 1 )    eventListFile << jentry<< endl;
 
         }
-
+// stop time
+end_kal = clock();
+tempo_kal+=(double)(end_kal-start_kal);
 
     
 
@@ -587,6 +625,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
 
     if ( m_doKalman ) {
+        m_kFitter->EvaluateMomentumResolution();
         m_kFitter->PrintEfficiency();
         m_kFitter->Save();
     }
@@ -859,10 +898,56 @@ void RecoTools::FillMCVertex(EVENT_STRUCT *myStr) {
    //   mya_vtvtx->CreateHistogram();
    // }
 
-   my_out->SetupElementBranch(myn_vtraw, "vtrh.");
+   // my_out->SetupElementBranch(myn_vtraw, "vtrh.");
    // my_out->SetupElementBranch(myn_vtclus, "vtclus.");
    // my_out->SetupElementBranch(myn_vtrk, "vtTrack.");
    // my_out->SetupElementBranch(myn_vtvtx, "vtVtx.");
+}
+
+
+void RecoTools::FillMCMSD(EVENT_STRUCT *myStr) {
+   
+   /*Ntupling the MC Vertex information*/
+   myn_msdraw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
+   // myn_msdclus   = new TAGdataDsc("msdClus", new TAMSDntuCluster());
+   // myn_msdrk     = new TAGdataDsc("msdTrack", new TAMSDntuTrack());
+   // myn_msdmsdx    = new TAGdataDsc("msdMsdx", new TAMSDntuVertex());
+
+   myp_msdmap    = new TAGparaDsc("msdMap", new TAMSDparMap());
+
+   myp_msdconf  = new TAGparaDsc("msdConf", new TAMSDparConf());
+   TAMSDparConf* parconf = (TAMSDparConf*) myp_msdconf->Object();
+   TString filename = m_wd + "/config/TAMSDdetector.cfg";
+   parconf->FromFile(filename.Data());
+
+   myp_msdgeo    = new TAGparaDsc("msdGeo", new TAMSDparGeo());
+   // TAMSDparGeo* geomap   = (TAMSDparGeo*) myp_msdgeo->Object();
+   // filename = m_wd + "/geomaps/TAMSDdetector.map";
+   // geomap->FromFile(filename.Data());
+
+   // myp_msdcal = new TAGparaDsc("msdCal", new TAMSDparCal());
+   // TAMSDparCal* cal   = (TAMSDparCal*) myp_msdcal->Object();
+   // filename = m_wd + "/config/TAMSDdetector.cal";
+   // cal->FromFile(filename.Data());
+   
+   mya_msdraw   = new TAMSDactNtuMC("msdActRaw", myn_msdraw, myp_msdgeo, myp_msdmap, myStr);
+   // mya_msdclus  = new TAMSDactNtuClusterF("msdActClus", myn_msdraw, myn_msdclus, myp_msdconf, myp_msdgeo);
+   // mya_msdtrack = new TAMSDactNtuTrack("msdActTrack", myn_msdclus, myn_msdrk, myp_msdconf, myp_msdgeo, myp_msdcal);
+   // // L algo mya_msdtrack = new TAMSDactNtuTrackF("msdActTrack", myn_msdclus, myn_msdrk, myp_msdconf, myp_msdgeo, myp_msdcal);
+   // mya_msdmsdx   = new TAMSDactNtuVertexPD("msdActMsdx", myn_msdrk, myn_msdmsdx, myp_msdconf, myp_msdgeo, myn_bmtrk);
+   //IPA   mya_msdmsdx   = new TAMSDactNtuVertex("msdActMsdx", myn_msdrk, myn_msdmsdx, myp_msdconf, myp_msdgeo, myn_bmtrk);
+
+   // if (m_flaghisto) {
+   //   mya_msdraw->CreateHistogram();
+   //   mya_msdclus->CreateHistogram();
+   //   mya_msdtrack->CreateHistogram();
+   //   mya_msdvtx->CreateHistogram();
+   // }
+
+   // my_out->SetupElementBranch(myn_msdraw, "msdrh.");
+   // my_out->SetupElementBranch(myn_msdclus, "msdclus.");
+   // my_out->SetupElementBranch(myn_msdrk, "msdTrack.");
+   // my_out->SetupElementBranch(myn_msdmsdx, "msdVtx.");
 }
 
 

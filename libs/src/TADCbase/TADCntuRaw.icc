@@ -16,12 +16,6 @@ inline Int_t TADCntuHit::Cell() const
 //------------------------------------------+-----------------------------------
 //! Returns X,Y,Z and dist 
 
-inline TVector3 TADCntuHit::Position() const
-{
-  TVector3 pos(xcadc,ycadc,zcadc);
-  return pos;
-}
-
 inline Double_t TADCntuHit::X() const
 {
   return xcadc;

@@ -64,14 +64,23 @@ class Evento : public TObject {
 	       Double_t fITRpxout, Double_t fITRpyoutITR, Double_t fITRpzout,
 	       Double_t fITRde, Double_t fITRal, Double_t fITRtim);
 
-  Int_t AddDCH(Int_t fDCHid, Int_t fDCHipla, Int_t fDCHiview,
-	       Int_t fDCHicell,
+  Int_t AddDCH(Int_t fDCHid, Int_t fDCHilay, Int_t fDCHiview,
+	       Int_t fDCHistrip,
 	       Double_t fDCHxin, Double_t fDCHyin, Double_t fDCHzin,
 	       Double_t fDCHxout, Double_t fDCHyout, Double_t fDCHzout,
 	       Double_t fDCHpxin, Double_t fpDCHyin, Double_t fDCHpzin,
 	       Double_t fDCHpxout, Double_t fDCHpyout,
 	       Double_t fDCHpzout,
 	       Double_t fDCHde, Double_t fDCHal, Double_t fDCHtim);
+
+  Int_t AddMSD(Int_t fMSDid, Int_t fMSDipla, Int_t fMSDiview,
+	       Int_t fMSDicell,
+	       Double_t fMSDxin, Double_t fMSDyin, Double_t fMSDzin,
+	       Double_t fMSDxout, Double_t fMSDyout, Double_t fMSDzout,
+	       Double_t fMSDpxin, Double_t fpMSDyin, Double_t fMSDpzin,
+	       Double_t fMSDpxout, Double_t fMSDpyout,
+	       Double_t fMSDpzout,
+	       Double_t fMSDde, Double_t fMSDal, Double_t fMSDtim);
  
   Int_t AddSCN(Int_t fSCNid, Int_t fSCNistrip, Int_t fSCNiview,
 	       Double_t fSCNxin, Double_t fSCNyin, Double_t fSCNzin,

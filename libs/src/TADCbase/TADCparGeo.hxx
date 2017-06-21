@@ -50,7 +50,8 @@ typedef vector< vector< TinCan* > > CanMatrix;
     double  GetShieldThick()   {return m_shield_thick;};
     double  GetMaylarThick()   {return m_maylar_thick;};
 
-    int     GetLayersNumber()   {return m_nLayers;};
+    int     GetLayersNumber()   {return m_nLayers;};     // outdated!!!
+    int     GetNLayers()        { return m_nLayers; };
     int     NWire_x_Layer()     {return m_nWire_x_Layer;};
     int     NSense_x_Layer()    {return m_nSense_x_Layer;};
 

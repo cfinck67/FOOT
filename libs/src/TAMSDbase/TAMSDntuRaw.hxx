@@ -1,9 +1,9 @@
-#ifndef _TAVTntuRaw_HXX
-#define _TAVTntuRaw_HXX
+#ifndef _TAMSDntuRaw_HXX
+#define _TAMSDntuRaw_HXX
 /*!
  \file
- \version $Id: TAVTntuRaw.hxx,v 1.0 2011/04/01 18:11:59 asarti Exp $
- \brief   Declaration of TAVTntuRaw.
+ \version $Id: TAMSDntuRaw.hxx,v 1.0 2011/04/01 18:11:59 asarti Exp $
+ \brief   Declaration of TAMSDntuRaw.
  */
 /*------------------------------------------+---------------------------------*/
 
@@ -13,22 +13,22 @@
 #include "TClonesArray.h"
 #include "TVector3.h"
 
-#include "TAVTparGeo.hxx"
+#include "TAMSDparGeo.hxx"
 
 #include "TAGdata.hxx"
 
-class TAVTrawHit;
+class TAMSDrawHit;
 
-/** TAVTntuHit class contains information respect to a pixel in cmos detectors
+/** TAMSDntuHit class contains information respect to a pixel in cmos detectors
  index, position, noise, pulse height, size, etc...
  
  */
 
-class TAVTntuHit : public TObject {
+class TAMSDntuHit : public TObject {
    
 private:
 
-  TAVTparGeo* m_geometry;
+  TAMSDparGeo* m_geometry;
 
    Int_t              fSensorNumber;                 // number of the plane
    TVector3           fPosition;                     // position in uvw coordinates in the plane
@@ -39,8 +39,8 @@ private:
    TVector3           fMCP;                          // size in uvw directions
    
    Int_t              fPixelIndex;                   // index of the pixel
-   Int_t              fPixelLine;                    // line in the matrix
-   Int_t              fPixelColumn;                  // column in the matrix
+   Int_t              fPixelView;                    // line in the matrix
+   Int_t              fPixelStrip;                  // column in the matrix
    int                m_layer;
    Double_t           fRawValue;                     // the rawvalue
    Double_t           fPulseHeight;                  // pulseheight on pixel
@@ -52,22 +52,22 @@ private:
   Double_t            fEneLoss;        // energy loss by MC particle VM 3/11/13
    
 public:
-   TAVTntuHit();
-   TAVTntuHit( Int_t iSensor, TAVTrawHit* pixel);
-   TAVTntuHit( Int_t iSensor, const Int_t aIndex, Double_t aValue);
-   TAVTntuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn); 
-   ~TAVTntuHit();
+   TAMSDntuHit();
+   TAMSDntuHit( Int_t iSensor, TAMSDrawHit* pixel);
+   TAMSDntuHit( Int_t iSensor, const Int_t aIndex, Double_t aValue);
+   TAMSDntuHit( Int_t iSensor, Double_t aValue, Int_t aView, Int_t aStrip); 
+   ~TAMSDntuHit();
    
    //! Compute distance from a given pixel
-   Double_t           Distance( TAVTntuHit&         aPixel);
+   Double_t           Distance( TAMSDntuHit&         aPixel);
    //! Compute distance from a given position
    Double_t           Distance( const TVector3&     aPosition);
    //! Compute distance in U direction from a given pixel
-   Double_t           DistanceU( TAVTntuHit&        aPixel);
+   Double_t           DistanceU( TAMSDntuHit&        aPixel);
    //! Compute distance in U direction from a given position
    Double_t           DistanceU( const TVector3&     aPosition);
    //! Compute distance in V direction from a given pixel
-   Double_t           DistanceV( TAVTntuHit&         aPixel);
+   Double_t           DistanceV( TAMSDntuHit&         aPixel);
    //! Compute distance in V direction from a given position
    Double_t           DistanceV( const TVector3&     aPosition);
    
@@ -78,9 +78,9 @@ public:
    //! Set pulse height
    void               SetPulseHeight(Double_t aPH)    { fPulseHeight = aPH;      }
    //! Set pixel line
-   void               SetPixelLine(Int_t aLin)        { fPixelLine = aLin;       }
+   void               SetPixelView(Int_t aLin)        { fPixelView = aLin;       }
    //! Set pixel column
-   void               SetPixelColumn(Int_t aCol)      { fPixelColumn = aCol;     }
+   void               SetPixelStrip(Int_t aCol)      { fPixelStrip = aCol;     }
 
    void               SetLayer(Int_t aLay)            { m_layer = aLay;     }
    //! Set pixel position
@@ -99,7 +99,7 @@ public:
    //! Set MC truth momentum
    void               SetMCMomentum(TVector3 a_mom)   { fMCP = a_mom;            }
    //
-   void               SetVtxGeo( TAVTparGeo* ageometry )  { m_geometry = ageometry; };
+   void               SetMsdGeo( TAMSDparGeo* ageometry )  { m_geometry = ageometry; };
 
    // Frank
     void SetGeneratedParticleInfo ( int genPartID, int genPartFLUKAid, int genPartCharge,
@@ -131,9 +131,9 @@ public:
    //! Get pixel index
    Int_t              GetPixelIndex()           const { return  fPixelIndex;     }
    //! Get pixel line
-   Int_t              GetPixelLine()            const { return  fPixelLine;      }
+   Int_t              GetPixelView()            const { return  fPixelView;      }
    //! Get pixel line
-   Int_t              GetPixelColumn()          const { return  fPixelColumn;    }
+   Int_t              GetPixelStrip()          const { return  fPixelStrip;    }
    //! Get raw value
    Double_t           GetRawValue()             const { return  fRawValue;       }
    //! Get pulse height
@@ -170,12 +170,12 @@ public:
   // get MC energy loss (VM 3/11/13)
   Double_t           GetEneLoss() { return fEneLoss; }
 
-   ClassDef(TAVTntuHit,3)                            // Pixel or Pixel of a Detector Plane
+   ClassDef(TAMSDntuHit,3)                            // Pixel or Pixel of a Detector Plane
 };
 
 //##############################################################################
 
-class TAVTntuRaw : public TAGdata {
+class TAMSDntuRaw : public TAGdata {
    
 private:
    //using TObjArray here
@@ -183,19 +183,19 @@ private:
    static TString    fgkBranchName;    // Branch name in TTree
    
 public:
-   TAVTntuRaw();
-   virtual          ~TAVTntuRaw();
+   TAMSDntuRaw();
+   virtual          ~TAMSDntuRaw();
    
-   TAVTntuHit*       GetPixel(Int_t iSensor, Int_t iPixel);
-   const TAVTntuHit* GetPixel(Int_t iSensor, Int_t iPixel) const;
+   TAMSDntuHit*       GetPixel(Int_t iSensor, Int_t iPixel);
+   const TAMSDntuHit* GetPixel(Int_t iSensor, Int_t iPixel) const;
    
    TClonesArray*     GetListOfPixels(Int_t iSensor);
    TClonesArray*     GetListOfPixels(Int_t iSensor) const;
    
    Int_t             GetPixelsN(Int_t iSensor) const; 
    
-   TAVTntuHit*       NewPixel(Int_t sensor, Double_t value, Int_t aLine, Int_t aColumn);
-   TAVTntuHit*       NewPixel(Int_t sensor, TAVTrawHit* pixel);
+   TAMSDntuHit*       NewPixel(Int_t sensor, Double_t value, Int_t aLine, Int_t aColumn);
+   TAMSDntuHit*       NewPixel(Int_t sensor, TAMSDrawHit* pixel);
 
    
    virtual void      SetupClones();
@@ -207,7 +207,7 @@ public:
 public:   
    static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
    
-   ClassDef(TAVTntuRaw,1)
+   ClassDef(TAMSDntuRaw,1)
 };
 
 #endif

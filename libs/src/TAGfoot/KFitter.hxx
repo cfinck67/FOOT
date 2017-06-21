@@ -30,8 +30,13 @@
 #include "SpacepointMeasurement.h"
 #include "SharedPlanePtr.h"
 
+#include <TROOT.h>
+#include <TStyle.h>
 #include <TCanvas.h>
 #include <TH1F.h>
+#include <TF1.h>
+
+#include <TRandom3.h>
 
 #include <TVector3.h>
 #include <vector>
@@ -40,6 +45,9 @@
 #include <TMath.h>
 
 #include "TAGdataDsc.hxx"
+
+#include "TAMSDparGeo.hxx"
+#include "TAMSDntuRaw.hxx"
 
 #include "TADCparGeo.hxx"
 #include "TADCntuRaw.hxx"
@@ -51,6 +59,9 @@
 #include "TAITntuRaw.hxx"
 
 #include "GlobalPar.hxx"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <limits>
 
 
 
@@ -59,6 +70,8 @@
 using namespace std;
 using namespace genfit;
 
+#define build_string(expr) \
+    (static_cast<ostringstream*>(&(ostringstream().flush() << expr))->str())
 
 
 typedef vector<genfit::AbsMeasurement*> MeasurementVector;
@@ -77,39 +90,58 @@ public:
 		// delete m_dafRefFitter;
 		// delete m_dafSimpleFitter;
 
+		// delete m_pdgDatabase;	// !!! occupa uno strafottio di memoria!!!!! Molto di piu di Track!!!
+
 		// delete m_fitTrackCollection;
 
-		delete h_chi2;
-		// delete h_chi2_ndof;
-		delete h_momentumRes;
-		delete h_momentumMC;
-		delete h_momentumKal;
-		delete h_posRes;
-		delete h_deltaP;
-		// delete h_sigmaP;
-		delete h_polarAngol;
-		delete h_mass;
+		// delete h_chi2;
+		// // delete h_chi2_ndof;
+		// delete h_momentumRes;
+		// delete h_momentumMC;
+		// delete h_momentumKal;
+		// delete h_posRes;
+		// // delete h_deltaP;
+		// // delete h_sigmaP;
+		// delete h_polarAngol;
+		// delete h_mass;
 	};
+
+	void MakePdgDatabase();
 
 	// int PrepareData4Fit( string option );
 	int PrepareData4Fit( Track* fitTrack );
 	void Prepare4Test( Track* fitTrack );
 	void Prepare4Vertex( Track* fitTrack );
 	void Prepare4InnerTracker( Track* fitTrack );
+	void Prepare4Strip( Track* fitTrack );
 	void Prepare4DriftChamber( Track* fitTrack );
 
-	int MakeFit(long evNum, string option);
+	bool PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterator element );
 
-	void RecordTrackInfo( Track* track );
+	int MakeFit(long evNum);
+
+	string CategoriseHitsToFit_withTrueInfo( int flukaID, int charge, int mass );
+	
+	void RecordTrackInfo( Track* track, string hitSampleName );
 
 	int UploadHitsVT( TAGdataDsc* footDataObj, shared_ptr<TAVTparGeo> vt_geo );
 	int UploadHitsIT( TAGdataDsc* footDataObj, shared_ptr<TAITparGeo> it_geo );
+	int UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd_geo );
 	int UploadHitsDC( TAGdataDsc* footDataObj, shared_ptr<TADCparGeo> dc_geo );
 
+	void EvaluateMomentumResolution();
+
 	void PrintEfficiency(  );
-	void PrintPositionResidual( TVector3 pos, TVector3 expectedPos );
-	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, TVector3 cov );
+	void PrintPositionResidual( TVector3 pos, TVector3 expectedPos, string hitSampleName );
+	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, TVector3 cov, string hitSampleName );
+	
+	void InitAllHistos( string hitSampleName );
+	void InitSingleHisto( map< string, TH1F* >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin );
+
 	void Save();
+	void SaveHisto( TCanvas* mirror, map< string, TH1F* > histoMap, string title, string saveName );
+	void SaveHisto( TCanvas* mirror, TH1F* histoMap, string title, string saveName );
+
 
 	double EvalError( TVector3 mom, TVector3 err );
 
@@ -131,43 +163,85 @@ private:
 	AbsKalmanFitter*  m_dafRefFitter;    	 //DAF with kalman ref
 	AbsKalmanFitter*  m_dafSimpleFitter;    	 //DAF with simple kalman
 
+	Track*  fitTrack;
 
-	// non va fatto il delete perche APPARENTEMENTE gia fatto
-	vector<TADCntuHit*> m_DC_hitCollection;
+	TRandom3* m_diceRoll;
+
+	// TDatabasePDG* m_pdgDatabase;
+	map<string, int> m_pdgCodeMap;
+
+	//  delete non va fatto il delete perche APPARENTEMENTE gia fatto
 	vector<TAVTntuHit*> m_VT_hitCollection;
 	vector<TAITntuHit*> m_IT_hitCollection;
+	vector<TAMSDntuHit*> m_MSD_hitCollection;
+	vector<TADCntuHit*> m_DC_hitCollection;
 	// vector< shared_ptr<TAVTntuHit> > m_VT_hitCollection;
 	// vector< shared_ptr<TAITntuHit> > m_IT_hitCollection;
 	// vector< shared_ptr<TADCntuHit> > m_DC_hitCollection;
 	
+	vector<TVector3> m_MSD_posVectorSmearedHit;
+	vector<TVector3> m_MSD_momVectorSmearedHit;
+	vector<double> m_MSD_mass;
 
 	// kept as std pointer just to remember how to correctely delete and free resources iwth them
 	// correctely freed
-	vector<AbsMeasurement*> m_hitCollectionToFit;
+	// vector<AbsMeasurement*> m_hitCollectionToFit;
+	map <string, vector<AbsMeasurement*> > m_hitCollectionToFit;
 
 	shared_ptr<TAVTparGeo> m_VT_geo;
 	shared_ptr<TAITparGeo> m_IT_geo;
+	shared_ptr<TAMSDparGeo> m_MSD_geo;
 	shared_ptr<TADCparGeo> m_DC_geo;
 
 	// TrackVector* m_fitTrackCollection;
 	vector<int> m_evNum_vect;
 
-	TH1F* h_chi2;
-	TH1F* h_momentumRes;
-	TH1F* h_momentumKal;
-	TH1F* h_momentumMC;
-	TH1F* h_posRes;
-	TH1F* h_mass;
-	// TH1F* h_sigmaP;
-	TH1F* h_deltaP;
-	TH1F* h_polarAngol;
+	vector<Color_t> m_vecHistoColor;
+
+	map<string, int> m_nTotTracks;
+	map<string, int> m_nConvergedTracks;
+
+	map< string, TH1F* > h_chi2;
+	map< string, TH1F* > h_momentumRes;
+	map< string, TH1F* > h_momentumKal;
+	map< string, TH1F* > h_momentumMC;
+	map< string, TH1F* > h_posRes;
+	map< string, TH1F* > h_mass;
+	map< string, TH1F* > h_sigmaP;
+	map< string, TH1F* > h_deltaP;
+	map< string, TH1F* > h_polarAngol;
+
+	map< string, TH1F* >  h_mass_genFit;
+	map< string, TH1F* >  h_charge;
+	map< string, TH1F* >  h_isFitConvergedFully;
+	map< string, TH1F* >  h_isFitConvergedPartially;
+	map< string, TH1F* >  h_NFailedPoints;
+	map< string, TH1F* >  h_isTrackPruned;
+	map< string, TH1F* >  h_Ndf;
+	
+	map< string, TH1F* >  h_startX;
+	map< string, TH1F* >  h_endX;
+	map< string, TH1F* >  h_startY;
+	map< string, TH1F* >  h_endY;
+
+	map< string, TH1F* > h_dP_over_Ptrue;
+	map< string, TH1F* > h_dP_over_Pkf;
+	map< string, TH1F* > h_sigmaP_over_Pkf;
+	map< string, TH1F* > h_sigmaP_over_Ptrue;
+
+	map< string, TH1F* > h_resoP_over_Pkf;
+	map< string, TH1F* > h_biasP_over_Pkf;
+	map<string, map<float, TH1F*> > h_dP_x_bin;
+	map<string, map<float, TH1F*> > h_dPOverP_x_bin;
+	map<string, map<float, TH1F*> > h_dPOverSigmaP_x_bin;
 
 	map<string, int> m_detectorID_map;
-	map<int, int> m_totTracksXParticles;
-	map<int, int> m_fittedTracksXParticles;
+	// map<string, int> m_totTracksXParticles;
+	// map<string, int> m_fittedTracksXParticles;
 
-	int m_nTotTracks;
-	int m_nConvergedTracks;
+	string m_systemsON;
+
+	float m_resoP_step;
 
 	bool m_reverse;
 	int m_debug;

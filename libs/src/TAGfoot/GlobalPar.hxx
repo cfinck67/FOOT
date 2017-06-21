@@ -39,7 +39,8 @@ public:
 	vector<string> KalParticles() { return m_kalParticles; };
 	
 	vector<string> MCParticles() { return m_mcParticles; };
-
+	bool Find_MCParticle( string villain ) 
+		{ return ( find( m_mcParticles.begin(), m_mcParticles.end(), villain ) == m_mcParticles.end() ? false : true ); };
 
 
 

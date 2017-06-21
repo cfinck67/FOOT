@@ -45,7 +45,7 @@ TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
     m_materialThick(original->m_materialThick),
     m_materialType(original->m_materialType),
 
-    m_singleSensorThick_Lz(original->m_singleSensorThick_Lz),
+    m_siliconSensorThick_Lz(original->m_siliconSensorThick_Lz),
     m_layerDistance(original->m_layerDistance),
 
     m_nPixel_X(original->m_nPixel_X),
@@ -85,11 +85,12 @@ void TAVTparGeo::InitGeo()  {
     // fill m_materialOrder, m_materialThick, m_materialType 
     // InitMaterial();
 
-    m_layerDistance = VTX_LAYDIST;
-    m_singleSensorThick_Lz = VTX_THICK;
+
+    m_layerDistance = VTX_LAYDIST;          // from center to center
+    m_siliconSensorThick_Lz = VTX_THICK;    // ONLY silicon
 
     // set detector dimension
-    double length_Lz = m_singleSensorThick_Lz + (m_nSensors_Z-1)*m_layerDistance;
+    double length_Lz = m_siliconSensorThick_Lz + (m_nSensors_Z-1)*m_layerDistance; // from edge to edge
     m_dimension = TVector3( VTX_WIDTH, VTX_HEIGHT, length_Lz );
     double width_Lx = m_dimension.x();
     double height_Ly = m_dimension.y();
@@ -107,7 +108,7 @@ void TAVTparGeo::InitGeo()  {
 
     double sensor_Width_Lx = width_Lx - (sensorDistance*(1+m_nSensors_X)) /m_nSensors_X;
     double sensor_Height_Ly = height_Ly - (sensorDistance*(1+m_nSensors_Y)) /m_nSensors_Y;
-    double sensor_Length_Lz = m_singleSensorThick_Lz;
+    double sensor_Length_Lz = m_siliconSensorThick_Lz;
     // double sensor_Length_Lz = m_length_Lz - ((sensorDistance+1)*m_nSensors_Z) /m_nSensors_Z;
 
     // // total pixels
@@ -120,7 +121,7 @@ void TAVTparGeo::InitGeo()  {
    
     // fill sensor matrix
     for (int k=0; k<m_nSensors_Z; k++) {
-        double sensor_newZ = m_origin.Z() - length_Lz/2 +0.5*m_singleSensorThick_Lz + k*m_layerDistance;
+        double sensor_newZ = m_origin.Z() - length_Lz/2 +0.5*m_siliconSensorThick_Lz + k*m_layerDistance;
         for (int i=0; i<m_nSensors_X; i++) {
             double sensor_newX = m_origin.X() - width_Lx/2 + (0.5+i)*(sensor_Width_Lx);
             for (int j=0; j<m_nSensors_Y; j++) {
@@ -133,7 +134,7 @@ void TAVTparGeo::InitGeo()  {
                         TVector3( sensor_newX, sensor_newY, sensor_newZ ),  // sensor center
                         TVector3( sensor_Width_Lx, sensor_Height_Ly, sensor_Length_Lz ),    // sensor dimension
                         m_nPixel_X, m_nPixel_Y,
-                        pixelWidth_Lx, pixelHeight_Ly, m_singleSensorThick_Lz,
+                        pixelWidth_Lx, pixelHeight_Ly, m_siliconSensorThick_Lz,
                         pixelDistance, pixelDistance, 0, //layerDistance,
                         TVector3(0,0,0)
                  );
@@ -229,7 +230,7 @@ TGeoVolume* TAVTparGeo::GetVolume() {
    TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Air_med"),width_Lx/2,height_Ly/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
    gGeoManager->SetTopVisible(1);
 
-    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_singleSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_siliconSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
     siliconFoil->SetLineColor(kOrange);
     siliconFoil->SetFillColor(kOrange);
     // TGeoVolume *kaptonFoil = gGeoManager->MakeBox("kaptonFoil",kapton,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_KAP_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
@@ -262,9 +263,9 @@ TGeoVolume* TAVTparGeo::GetVolume() {
     // box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_EPO_MEDIUM" ]/2+ m_materialThick[ "ITR_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     
 
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  -m_singleSensorThick_Lz/2-m_dimension.z()/2, new TGeoRotation("null,",0,0,0)));
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  (-0.5*m_dimension.z())+(0.5*m_siliconSensorThick_Lz), new TGeoRotation("null,",0,0,0)));
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("null,",0,0,0)));
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,   m_singleSensorThick_Lz/2+m_dimension.z()/2, new TGeoRotation("null,",0,0,0)));
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  (0.5*m_dimension.z())-(0.5*m_siliconSensorThick_Lz), new TGeoRotation("null,",0,0,0)));
     
 
     return box;
@@ -275,49 +276,49 @@ TGeoVolume* TAVTparGeo::GetVolume() {
 
 void TAVTparGeo::InitMaterial() {
 
-    m_materialOrder = {  "ITR_MEDIUM", 
-                        "ITR_EPO_MEDIUM",
-                        "ITR_COV_MEDIUM",
-                        "ITR_AL_MEDIUM",
-                        "ITR_KAP_MEDIUM",
-                        "ITR_AL_MEDIUM",
-                        "ITR_COV_MEDIUM",
-                        "ITR_FOAM_MEDIUM",
-                        "ITR_COV_MEDIUM",
-                        "ITR_AL_MEDIUM",
-                        "ITR_KAP_MEDIUM",
-                        "ITR_AL_MEDIUM",
-                        "ITR_COV_MEDIUM",
-                        "ITR_EPO_MEDIUM",
-                        "ITR_MEDIUM"
+    m_materialOrder = {  "VTX_MEDIUM", 
+                        // "ITR_EPO_MEDIUM",
+                        // "ITR_COV_MEDIUM",
+                        // "ITR_AL_MEDIUM",
+                        // "ITR_KAP_MEDIUM",
+                        // "ITR_AL_MEDIUM",
+                        // "ITR_COV_MEDIUM",
+                        // "ITR_FOAM_MEDIUM",
+                        // "ITR_COV_MEDIUM",
+                        // "ITR_AL_MEDIUM",
+                        // "ITR_KAP_MEDIUM",
+                        // "ITR_AL_MEDIUM",
+                        // "ITR_COV_MEDIUM",
+                        // "ITR_EPO_MEDIUM",
+                        "VTX_MEDIUM"
                          };
 
     
     for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
-        if( m_materialOrder[i] == "ITR_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_MEDIUM;
+        if( m_materialOrder[i] == "VTX_MEDIUM" ){
+            m_materialThick[ m_materialOrder[i] ] = VTX_THICK;
+            m_materialType[ m_materialOrder[i] ] = VTX_MEDIUM;
         }
-        else if( m_materialOrder[i] == "ITR_EPO_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_EPO_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_EPO_MEDIUM;
-        }
-        else if( m_materialOrder[i] == "ITR_COV_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_COV_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_COV_MEDIUM;
-        }
-        else if( m_materialOrder[i] == "ITR_AL_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_AL_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_AL_MEDIUM;
-        }
-        else if( m_materialOrder[i] == "ITR_KAP_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_KAP_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_KAP_MEDIUM;
-        }
-        else if( m_materialOrder[i] == "ITR_FOAM_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_FOAM_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_FOAM_MEDIUM;
-        }
+        // else if( m_materialOrder[i] == "ITR_EPO_MEDIUM" ){
+        //     m_materialThick[ m_materialOrder[i] ] = ITR_EPO_THICK;
+        //     m_materialType[ m_materialOrder[i] ] = ITR_EPO_MEDIUM;
+        // }
+        // else if( m_materialOrder[i] == "ITR_COV_MEDIUM" ){
+        //     m_materialThick[ m_materialOrder[i] ] = ITR_COV_THICK;
+        //     m_materialType[ m_materialOrder[i] ] = ITR_COV_MEDIUM;
+        // }
+        // else if( m_materialOrder[i] == "ITR_AL_MEDIUM" ){
+        //     m_materialThick[ m_materialOrder[i] ] = ITR_AL_THICK;
+        //     m_materialType[ m_materialOrder[i] ] = ITR_AL_MEDIUM;
+        // }
+        // else if( m_materialOrder[i] == "ITR_KAP_MEDIUM" ){
+        //     m_materialThick[ m_materialOrder[i] ] = ITR_KAP_THICK;
+        //     m_materialType[ m_materialOrder[i] ] = ITR_KAP_MEDIUM;
+        // }
+        // else if( m_materialOrder[i] == "ITR_FOAM_MEDIUM" ){
+        //     m_materialThick[ m_materialOrder[i] ] = ITR_FOAM_THICK;
+        //     m_materialType[ m_materialOrder[i] ] = ITR_FOAM_MEDIUM;
+        // }
     }
 
 }
@@ -333,9 +334,9 @@ void TAVTparGeo::InitMaterial() {
 // {
 //    TGeoVolume* vertex = 0x0; 
    
-//    for(Int_t iSensor = 0; iSensor < GetSensorsN(); iSensor++) {	 
-// 	  TGeoHMatrix* hm = GetTransfo(iSensor);
-// 	  vertex = TAVTparGeo::AddVertexModule(hm, basemoduleName, vertexName);
+//    for(Int_t iSensor = 0; iSensor < GetSensorsN(); iSensor++) {   
+//    TGeoHMatrix* hm = GetTransfo(iSensor);
+//    vertex = TAVTparGeo::AddVertexModule(hm, basemoduleName, vertexName);
 //    }
    
 //    return vertex;
@@ -345,23 +346,23 @@ void TAVTparGeo::InitMaterial() {
 // TGeoVolume* TAVTparGeo::AddVertexModule(TGeoHMatrix* hm, const char* basemoduleName, const char *vertexName)
 // {
 //    if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
-// 	  new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+//    new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
 //    }
    
 //    TGeoVolume* vertex = gGeoManager->FindVolumeFast(vertexName);
 //    if ( vertex == 0x0 ) {
-// 	  Int_t nSensors = GetSensorsN();
-	  
-// 	  Float_t posZ1 = (*GetPosition(0))(2)*0.9;
-// 	  Float_t posZ2 = (*GetPosition(nSensors-1))(2)*1.1;
+//    Int_t nSensors = GetSensorsN();
+      
+//    Float_t posZ1 = (*GetPosition(0))(2)*0.9;
+//    Float_t posZ2 = (*GetPosition(nSensors-1))(2)*1.1;
 
-// 	  TGeoMedium   *med;
-// 	  TGeoMaterial *mat;
-// 	  if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject("Vacuum")) == 0x0 )
-// 		 mat = new TGeoMaterial("Vacuum",0,0,0); 			
-// 	  if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Vacuum")) == 0x0 )
-// 		 med = new TGeoMedium("Vacuum",1,mat);
-// 	  vertex = gGeoManager->MakeBox(vertexName, med, fHeight/2., fHeight/2., (posZ2-posZ1)/2.); // volume corresponding to vertex
+//    TGeoMedium   *med;
+//    TGeoMaterial *mat;
+//    if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject("Vacuum")) == 0x0 )
+//       mat = new TGeoMaterial("Vacuum",0,0,0);            
+//    if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Vacuum")) == 0x0 )
+//       med = new TGeoMedium("Vacuum",1,mat);
+//    vertex = gGeoManager->MakeBox(vertexName, med, fHeight/2., fHeight/2., (posZ2-posZ1)/2.); // volume corresponding to vertex
 //    } 
    
 //    // create module
@@ -369,9 +370,9 @@ void TAVTparGeo::InitMaterial() {
 //    TGeoMedium*   medMod;
    
 //    if ( (matMod = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject("Si")) == 0x0 )
-// 	  matMod = new TGeoMaterial("Si", 28.09, 14, 2.3);
+//    matMod = new TGeoMaterial("Si", 28.09, 14, 2.3);
 //    if ( (medMod = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Si")) == 0x0 )
-// 	  medMod = new TGeoMedium("Si",2,matMod);
+//    medMod = new TGeoMedium("Si",2,matMod);
    
 //    TGeoBBox *box = new TGeoBBox(Form("%s_Box",basemoduleName), fWidth/2, fHeight/2, fThick/2.);
    
@@ -383,14 +384,14 @@ void TAVTparGeo::InitMaterial() {
    
 //    TObjArray* list = vertex->GetNodes();
 //    if (list) {
-// 	  for (Int_t i = 0; i < list->GetEntries(); ++i) {
-// 		 TGeoVolume* vol = (TGeoVolume*)list->At(i);
-// 		 if (vol) {
-// 			TString name(vol->GetName());
-// 			if ( name.Contains(Form("%s_Vertex",basemoduleName)) )
-// 			   nbModule++;
-// 		 }
-// 	  }
+//    for (Int_t i = 0; i < list->GetEntries(); ++i) {
+//       TGeoVolume* vol = (TGeoVolume*)list->At(i);
+//       if (vol) {
+//          TString name(vol->GetName());
+//          if ( name.Contains(Form("%s_Vertex",basemoduleName)) )
+//             nbModule++;
+//       }
+//    }
 //    }
 
 //    vertex->AddNode(vertexMod, nbModule, new TGeoHMatrix(*hm));
@@ -411,10 +412,10 @@ void TAVTparGeo::InitMaterial() {
 //    Float_t color[] = {0, 0, 0, 0};
 //    vertexExtract->SetRGBA(color);
    
-//    for(Int_t iSensor = 0; iSensor < nSensors; iSensor++) {	 
-// 	  TGeoHMatrix* hm = GetTransfo(iSensor);
-// 	  TEveGeoShapeExtract* vertexMod = AddExtractVertexModule(hm, basemoduleName, vertexName);
-// 	  vertexExtract->AddElement(vertexMod);
+//    for(Int_t iSensor = 0; iSensor < nSensors; iSensor++) {    
+//    TGeoHMatrix* hm = GetTransfo(iSensor);
+//    TEveGeoShapeExtract* vertexMod = AddExtractVertexModule(hm, basemoduleName, vertexName);
+//    vertexExtract->AddElement(vertexMod);
 //    }
    
 //    return vertexExtract;
