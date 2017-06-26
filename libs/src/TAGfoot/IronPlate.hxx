@@ -88,7 +88,7 @@ public:
 
 	
 
-	bool AddVolumeTo( TGeoVolume* volume ) {
+	bool AddVolumeTo(TGeoVolume* /*volume*/ ) {
 
 		// /***********************************************************************************/
 		// TGeoMaterial * siliconMat = new TGeoMaterial( "siliconMat", 28.0855, 14., 2.329);

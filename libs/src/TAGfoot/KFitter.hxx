@@ -171,7 +171,7 @@ private:
 	map<string, int> m_pdgCodeMap;
 
 	//  delete non va fatto il delete perche APPARENTEMENTE gia fatto
-	vector<TAVTntuHit*> m_VT_hitCollection;
+	vector<TAVTntuHitMC*> m_VT_hitCollection;
 	vector<TAITntuHit*> m_IT_hitCollection;
 	vector<TAMSDntuHit*> m_MSD_hitCollection;
 	vector<TADCntuHit*> m_DC_hitCollection;

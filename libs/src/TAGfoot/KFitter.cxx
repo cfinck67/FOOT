@@ -113,7 +113,7 @@ void KFitter::MakePdgDatabase() {
 										"O15" };
 	if ( (int)nameV.size() != nNewParticles ) 	cout << "ERROR::KFitter::MakePdgDatabase  -->  particle collection name size not match "<< nameV.size() <<endl;
 
-	double massV [nNewParticles] = { 	10.254, 11.1749, 12.1095, 
+	double massV [] = { 	10.254, 11.1749, 12.1095,
 										6.53383, 7,
 										7, 8, 9.3255,
 										9.32444, 10.2525, 11,
@@ -126,7 +126,7 @@ void KFitter::MakePdgDatabase() {
 	// 									9, 10, 11,
 	// 									12, 13, 14,
 	// 									15 };
-	double chargeV [nNewParticles] = { 	18, 18, 18, 
+	double chargeV [] = { 	18, 18, 18, 
 										9, 9,
 										12, 12, 12,
 										15, 15, 15,
@@ -158,7 +158,7 @@ int KFitter::UploadHitsVT( TAGdataDsc* footDataObj, shared_ptr<TAVTparGeo> vt_ge
 
 	if ( m_debug > 0 )		cout << "N vertex pixel read: " << ntup->GetPixelsN(0) << endl;
 	for (int i = 0; i < ntup->GetPixelsN(0); i++) 
-        m_VT_hitCollection.push_back( ntup->GetPixel(0,i) );
+        m_VT_hitCollection.push_back( (TAVTntuHitMC*)ntup->GetPixel(0,i) );
 
 	return ntup->GetPixelsN(0);
 }
@@ -343,7 +343,7 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
 	TVectorD hitCoords(3);
     for (unsigned int i = 0; i < m_VT_hitCollection.size(); i++) {
         
-        TAVTntuHit* p_hit = m_VT_hitCollection.at(i);
+        TAVTntuHitMC* p_hit = m_VT_hitCollection.at(i);
         TVector3 hitPos = m_VT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
         
         if ( m_debug > 0 )		cout << "VTX test = Layer:" << p_hit->GetLayer() <<" col:"<< p_hit->GetPixelColumn() <<" row:"<< p_hit->GetPixelLine() << endl;

@@ -43,10 +43,9 @@ TAVTntuHit::~TAVTntuHit()
 }
 //______________________________________________________________________________
 //  
-TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, TAVTrawHit* pixel)
+TAVTntuHit::TAVTntuHit(Int_t aSensorId, TAVTrawHit* pixel)
 : TObject(),
-  fSensorNumber(aSensorNumber),
-  fMCid(-1),
+  fSensorId(aSensorId),
   fFound(kFALSE),
   fDebugLevel(0)
 {
@@ -62,19 +61,15 @@ TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, TAVTrawHit* pixel)
    fPosition.SetXYZ(0, 0, 0);
    fSize.SetXYZ(0, 0, 0);
    
-   fMCPos.SetXYZ(0, 0, 0);
-   fMCP.SetXYZ(0, 0, 0);
-   
    if(fDebugLevel > 1)
-	  printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
+	  printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorId, fRawValue);
 }
 
 //______________________________________________________________________________
 //  
-TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aValue)
+TAVTntuHit::TAVTntuHit(Int_t aSensorId, const Int_t aPixelIndex, Double_t aValue)
 : TObject(),
-  fSensorNumber(aSensorNumber),
-  fMCid(-1),
+  fSensorId(aSensorId),
   fPixelIndex(aPixelIndex),
   fPixelLine(0),
   fPixelColumn(0),
@@ -86,22 +81,18 @@ TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aV
    fPosition.SetXYZ(0, 0, 0);
    fSize.SetXYZ(0, 0, 0);
    
-   fMCPos.SetXYZ(0, 0, 0);
-   fMCP.SetXYZ(0, 0, 0);
-   
    fPulseHeight    = fRawValue; 
    
    if(fDebugLevel>1)
-	  printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
+	  printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorId, fRawValue);
    
 }
 
 //______________________________________________________________________________
 //  
-TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t aColumn)
+TAVTntuHit::TAVTntuHit(Int_t aSensorId, Double_t aValue, Int_t aLine, Int_t aColumn)
 : TObject(),
-  fSensorNumber(aSensorNumber),
-  fMCid(-1),
+  fSensorId(aSensorId),
   fPixelIndex(0),
   fPixelLine(aLine),
   fPixelColumn(aColumn),
@@ -114,13 +105,10 @@ TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t 
    fPosition.SetXYZ(0, 0, 0);
    fSize.SetXYZ(0, 0, 0);
    
-   fMCPos.SetXYZ(0, 0, 0);
-   fMCP.SetXYZ(0, 0, 0);
-   
    fPulseHeight    = fRawValue; 
    
    if(fDebugLevel > 1) 
-	  printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
+	  printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorId, fRawValue);
 }
 
 //______________________________________________________________________________
@@ -172,6 +160,80 @@ Double_t TAVTntuHit::DistanceV(const TVector3& aPosition)
 }
 
 //##############################################################################
+ClassImp(TAVTntuHitMC) // Description of Single Detector TAVTntuHit
+//______________________________________________________________________________
+//
+TAVTntuHitMC::TAVTntuHitMC()
+{
+   // TAVTntuHit default constructor
+}
+
+//______________________________________________________________________________
+//
+
+TAVTntuHitMC::~TAVTntuHitMC()
+{
+   // TAVTntuHit default destructor
+   
+}
+//______________________________________________________________________________
+//
+TAVTntuHitMC::TAVTntuHitMC(Int_t aSensorId, const Int_t aPixelIndex, Double_t aValue)
+: TAVTntuHit(aSensorId, aPixelIndex, aValue),
+   fMCid(-1)
+{
+   fMCPos.SetXYZ(0, 0, 0);
+   fMCP.SetXYZ(0, 0, 0);
+}
+
+//______________________________________________________________________________
+//
+TAVTntuHitMC::TAVTntuHitMC(Int_t aSensorId, Double_t aValue, Int_t aLine, Int_t aColumn)
+: TAVTntuHit(aSensorId, aValue, aLine, aColumn),
+  fMCid(-1)
+{
+   // constructor of a Pixel with column and line
+   fMCPos.SetXYZ(0, 0, 0);
+   fMCP.SetXYZ(0, 0, 0);
+
+}
+
+//______________________________________________________________________________
+//
+void TAVTntuHitMC::SetGeneratedParticleInfo ( Int_t genPartID, int genPartFLUKAid, Int_t genPartCharge, Int_t genPartBarionNum, Float_t genPartMass,
+                               TVector3 genPartPosition,  TVector3 genPartMomentum )
+{
+   m_genPartID = genPartID;
+   m_genPartFLUKAid = genPartFLUKAid;
+   m_genPartCharge = genPartCharge;
+   m_genPartBarionNum = genPartBarionNum;
+   m_genPartMass = genPartMass;
+   m_genPartPosition = genPartPosition;
+   m_genPartMomentum = genPartMomentum;
+}
+
+//______________________________________________________________________________
+//
+TVector3 TAVTntuHitMC::GetMCPosition_Global()
+{
+   TVector3 globPos = fMCPos;
+   fGeometry->Local2Global( &globPos );
+   
+   return globPos;
+}
+
+//______________________________________________________________________________
+//
+TVector3 TAVTntuHitMC::GetMCMomentum_Global()
+{
+   TVector3 globP = fMCP;
+   fGeometry->Local2Global_RotationOnly( &globP );
+   
+   return globP;
+}
+
+
+//##############################################################################
 
 ClassImp(TAVTntuRaw);
 
@@ -179,9 +241,10 @@ TString TAVTntuRaw::fgkBranchName   = "vtrh.";
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
-TAVTntuRaw::TAVTntuRaw() 
+TAVTntuRaw::TAVTntuRaw(Bool_t flagMC)
 : TAGdata(),
-  fListOfPixels(0x0)
+  fListOfPixels(0x0),
+  fFlagMC(flagMC)
 {
    SetupClones();
 }
@@ -236,7 +299,10 @@ TAVTntuHit* TAVTntuRaw::GetPixel(Int_t iSensor, Int_t iPixel)
 {
    if (iPixel >=0 || iPixel < GetPixelsN(iSensor)) {
 	  TClonesArray* list = GetListOfPixels(iSensor);
-	  return (TAVTntuHit*)list->At(iPixel);
+      if (fFlagMC)
+         return (TAVTntuHitMC*)list->At(iPixel);
+      else
+         return (TAVTntuHit*)list->At(iPixel);
    } else {
 	  Error("GetPixel()", "Wrong sensor number %d\n", iSensor);
 	  return 0x0;
@@ -249,7 +315,10 @@ const TAVTntuHit* TAVTntuRaw::GetPixel(Int_t iSensor, Int_t iPixel) const
 {
    if (iPixel >=0 || iPixel < GetPixelsN(iSensor)) {
 	  TClonesArray* list = GetListOfPixels(iSensor);
-	  return (TAVTntuHit*)list->At(iPixel);
+      if (fFlagMC)
+         return (TAVTntuHitMC*)list->At(iPixel);
+      else
+         return (TAVTntuHit*)list->At(iPixel);
    } else {
 	  Error("GetPixel()", "Wrong sensor number %d\n", iSensor);
 	  return 0x0;
@@ -264,7 +333,12 @@ void TAVTntuRaw::SetupClones()
    fListOfPixels = new TObjArray();
    
    for (Int_t i = 0; i < TAVTparMap::GetSensorsN(); ++i) {
-	  TClonesArray* arr = new TClonesArray("TAVTntuHit", 500);
+      TClonesArray* arr = 0x0;
+      if (fFlagMC)
+         arr = new TClonesArray("TAVTntuHitMC", 500);
+      else
+         arr = new TClonesArray("TAVTntuHit", 500);
+
 	  arr->SetOwner(true);
 	  fListOfPixels->AddAt(arr, i);
    }
@@ -288,7 +362,12 @@ TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, Double_t value, Int_t aLine, Int
 {
    if (iSensor >= 0  || iSensor < TAVTparMap::GetSensorsN()) {	  
 	  TClonesArray &pixelArray = *GetListOfPixels(iSensor);
-	  TAVTntuHit* pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TAVTntuHit(iSensor, value, aLine, aColumn);
+      TAVTntuHit* pixel  = 0x0;
+     if (fFlagMC)
+        pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TAVTntuHitMC(iSensor, value, aLine, aColumn);
+      else
+         pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TAVTntuHit(iSensor, value, aLine, aColumn);
+ 
 	  return pixel;
    } else {
 	  Error("NewPixel()", "Wrong sensor number %d\n", iSensor);

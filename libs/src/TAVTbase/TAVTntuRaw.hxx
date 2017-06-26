@@ -26,30 +26,23 @@ class TAVTrawHit;
 
 class TAVTntuHit : public TObject {
    
-private:
+protected:
 
-  TAVTparGeo* m_geometry;
+  TAVTparGeo*         fGeometry;                    //!
 
-   Int_t              fSensorNumber;                 // number of the plane
+   Int_t              fSensorId;                     // plane id
    TVector3           fPosition;                     // position in uvw coordinates in the plane
    TVector3           fSize;                         // size in uvw directions
-   
-   Int_t              fMCid;                         // MC index
-   TVector3           fMCPos;                        // position in uvw coordinates in the plane
-   TVector3           fMCP;                          // size in uvw directions
    
    Int_t              fPixelIndex;                   // index of the pixel
    Int_t              fPixelLine;                    // line in the matrix
    Int_t              fPixelColumn;                  // column in the matrix
-   int                m_layer;
    Double_t           fRawValue;                     // the rawvalue
    Double_t           fPulseHeight;                  // pulseheight on pixel
    
    Bool_t             fFound;                        // flag, that strip is found in hit
    
    Int_t              fDebugLevel;                   // debug level
-
-  Double_t            fEneLoss;        // energy loss by MC particle VM 3/11/13
    
 public:
    TAVTntuHit();
@@ -72,7 +65,7 @@ public:
    Double_t           DistanceV( const TVector3&     aPosition);
    
    //! Set Plane number
-   void               SetSensorNumber(Int_t aNumber)  { fSensorNumber = aNumber; }
+   void               SetSensorId(Int_t aNumber)      { fSensorId = aNumber;     }
    //! Set raw value
    void               SetRawValue(Double_t aRV)       { fRawValue = aRV;         }
    //! Set pulse height
@@ -82,7 +75,6 @@ public:
    //! Set pixel column
    void               SetPixelColumn(Int_t aCol)      { fPixelColumn = aCol;     }
 
-   void               SetLayer(Int_t aLay)            { m_layer = aLay;     }
    //! Set pixel position
    void               SetPosition(TVector3 aPosition) { fPosition = aPosition;   }
    //! Set pixel size
@@ -91,44 +83,10 @@ public:
    void               SetFound(Bool_t b)              { fFound = b;              }
    //! Set pixel index
    void               SetPixelIndex(Int_t px)         { fPixelIndex = px;        } 
-
-   //! Set MC truth matching index
-   void               SetMCid(Int_t a_id)             { fMCid = a_id;            }
-   //! Set MC truth position
-   void               SetMCPosition(TVector3 a_pos)   { fMCPos = a_pos;          }
-   //! Set MC truth momentum
-   void               SetMCMomentum(TVector3 a_mom)   { fMCP = a_mom;            }
    //
-   void               SetVtxGeo( TAVTparGeo* ageometry )  { m_geometry = ageometry; };
+   void               SetVtxGeo( TAVTparGeo* ageo )   { fGeometry = ageo;        }
 
-   // Frank
-    void SetGeneratedParticleInfo ( int genPartID, int genPartFLUKAid, int genPartCharge,
-                        int genPartBarionNum, float genPartMass,
-                        TVector3 genPartPosition,
-                        TVector3 genPartMomentum ) {
-        m_genPartID = genPartID;
-        m_genPartFLUKAid = genPartFLUKAid;
-        m_genPartCharge = genPartCharge;
-        m_genPartBarionNum = genPartBarionNum;
-        m_genPartMass = genPartMass;
-        m_genPartPosition = genPartPosition;
-        m_genPartMomentum = genPartMomentum;
-    };
-    // Get generated particle quantities
-    //  provvisorio
-    int m_genPartID;
-    int m_genPartFLUKAid;
-    int m_genPartCharge;
-    int m_genPartBarionNum;
-    float m_genPartMass;
-    TVector3 m_genPartPosition;
-    TVector3 m_genPartMomentum;
-
-
-  // set MC energy loss (VM 3/11/13)
-  void SetEneLoss(Double_t de) { fEneLoss=de; }  
-   
-   //! Get pixel index
+    //! Get pixel index
    Int_t              GetPixelIndex()           const { return  fPixelIndex;     }
    //! Get pixel line
    Int_t              GetPixelLine()            const { return  fPixelLine;      }
@@ -138,9 +96,7 @@ public:
    Double_t           GetRawValue()             const { return  fRawValue;       }
    //! Get pulse height
    Double_t           GetPulseHeight()          const { return  fPulseHeight;    }
-   // Quik hack by Frank, put it better
-   Int_t              GetLayer()               { return  m_layer;   }
-   
+    
    //! Get position
    TVector3&          GetPosition()                   { return  fPosition;       }
    //! Get Size
@@ -148,29 +104,74 @@ public:
    //! Get found flag
    Bool_t             Found()                         { return  fFound;          }
    //! Get plane number
-   Int_t              GetSensorNumber()               { return  fSensorNumber;   }
+   Int_t              GetSensorId()                   { return  fSensorId;       }
    
-   //! Get MC truth matching index
-   Int_t              GetMCid()                       { return  fMCid;           }
-   //! Get MC truth position
-   TVector3&          GetMCPosition_Local()                 { return  fMCPos;          }
-   TVector3          GetMCPosition_Global()          { 
-        TVector3 globPos = fMCPos;
-        m_geometry->Local2Global( &globPos ); 
-        return globPos; 
-    };
-   //! Get MC truth momentum
-   TVector3&          GetMCMomentum_Local()                 { return  fMCP;            }
-   TVector3          GetMCMomentum_Global()          { 
-        TVector3 globP = fMCP;
-        m_geometry->Local2Global_RotationOnly( &globP ); 
-        return globP; 
-    };
-
-  // get MC energy loss (VM 3/11/13)
-  Double_t           GetEneLoss() { return fEneLoss; }
 
    ClassDef(TAVTntuHit,3)                            // Pixel or Pixel of a Detector Plane
+};
+
+//##############################################################################
+
+class TAVTntuHitMC : public TAVTntuHit {
+   
+private:
+   
+   Int_t              fMCid;           // MC index
+   TVector3           fMCPos;          // position in uvw coordinates in the plane
+   TVector3           fMCP;            // size in uvw directions
+   Int_t              fLayer;
+   Double_t           fEneLoss;        // energy loss by MC particle VM 3/11/13
+   
+public:
+   TAVTntuHitMC();
+   TAVTntuHitMC(Int_t iSensor, const Int_t aIndex, Double_t aValue);
+   TAVTntuHitMC(Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn);
+   ~TAVTntuHitMC();
+   
+   //! Set MC layer
+   void               SetLayer(Int_t aLay)            { fLayer = aLay;   }
+   //! Set MC truth matching index
+   void               SetMCid(Int_t a_id)             { fMCid = a_id;    }
+   //! Set MC truth position
+   void               SetMCPosition(TVector3 a_pos)   { fMCPos = a_pos;  }
+   //! Set MC truth momentum
+   void               SetMCMomentum(TVector3 a_mom)   { fMCP = a_mom;    }
+   // set MC energy loss (VM 3/11/13)
+   void               SetEneLoss(Double_t de)         { fEneLoss = de;   }
+   
+   
+   // Frank
+   void SetGeneratedParticleInfo ( Int_t genPartID, Int_t genPartFLUKAid, Int_t genPartCharge,
+                                  Int_t genPartBarionNum, Float_t genPartMass,
+                                  TVector3 genPartPosition, TVector3 genPartMomentum ) ;
+   
+   // Quik hack by Frank, put it better
+   Int_t              GetLayer()                      { return  fLayer;  }
+     //! Get MC truth matching index
+   Int_t              GetMCid()                       { return  fMCid;   }
+   //! Get MC truth position
+   TVector3&          GetMCPosition_Local()           { return  fMCPos;  }
+   TVector3           GetMCPosition_Global();
+   
+   //! Get MC truth momentum
+   TVector3&         GetMCMomentum_Local()            { return  fMCP;    }
+   TVector3          GetMCMomentum_Global();
+   
+   // get MC energy loss (VM 3/11/13)
+   Double_t          GetEneLoss()                     { return fEneLoss; }
+   
+public:
+   // Get generated particle quantities
+   //  provvisorio
+   Int_t             m_genPartID;
+   Int_t             m_genPartFLUKAid;
+   Int_t             m_genPartCharge;
+   Int_t             m_genPartBarionNum;
+   Float_t           m_genPartMass;
+   TVector3          m_genPartPosition;
+   TVector3          m_genPartMomentum;
+   
+   ClassDef(TAVTntuHitMC,1)                            // Pixel or Pixel of a Detector Plane
 };
 
 //##############################################################################
@@ -182,8 +183,10 @@ private:
    TObjArray*        fListOfPixels; 
    static TString    fgkBranchName;    // Branch name in TTree
    
+   Bool_t            fFlagMC;
+   
 public:
-   TAVTntuRaw();
+   TAVTntuRaw(Bool_t flagMC = false);
    virtual          ~TAVTntuRaw();
    
    TAVTntuHit*       GetPixel(Int_t iSensor, Int_t iPixel);
@@ -196,7 +199,6 @@ public:
    
    TAVTntuHit*       NewPixel(Int_t sensor, Double_t value, Int_t aLine, Int_t aColumn);
    TAVTntuHit*       NewPixel(Int_t sensor, TAVTrawHit* pixel);
-
    
    virtual void      SetupClones();
    
