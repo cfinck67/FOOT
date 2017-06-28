@@ -21,6 +21,7 @@
 #include <TrackPoint.h>
 #include <MaterialEffects.h>
 #include <TMatrixDSym.h>
+#include <TMatrixD.h>
 
 
 // #include <EventDisplay.h>
@@ -34,11 +35,13 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TF1.h>
 
 #include <TRandom3.h>
 
 #include <TVector3.h>
+#include <array>
 #include <vector>
 
 #include "TDatabasePDG.h"
@@ -84,26 +87,7 @@ public:
 	
 	KFitter( int nIter, double dPVal  );
 	~KFitter() {
-
 		delete m_fitter;
-		// delete m_refFitter;
-		// delete m_dafRefFitter;
-		// delete m_dafSimpleFitter;
-
-		// delete m_pdgDatabase;	// !!! occupa uno strafottio di memoria!!!!! Molto di piu di Track!!!
-
-		// delete m_fitTrackCollection;
-
-		// delete h_chi2;
-		// // delete h_chi2_ndof;
-		// delete h_momentumRes;
-		// delete h_momentumMC;
-		// delete h_momentumKal;
-		// delete h_posRes;
-		// // delete h_deltaP;
-		// // delete h_sigmaP;
-		// delete h_polarAngol;
-		// delete h_mass;
 	};
 
 	void MakePdgDatabase();
@@ -134,6 +118,7 @@ public:
 	void PrintEfficiency(  );
 	void PrintPositionResidual( TVector3 pos, TVector3 expectedPos, string hitSampleName );
 	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, TVector3 cov, string hitSampleName );
+	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, TMatrixD cov, string hitSampleName );
 	
 	void InitAllHistos( string hitSampleName );
 	void InitSingleHisto( map< string, TH1F* >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin );
@@ -144,6 +129,8 @@ public:
 
 
 	double EvalError( TVector3 mom, TVector3 err );
+	double EvalError( TVector3 mom, TMatrixD cov );
+	void MatrixToZero( TMatrixD *matrix );
 
 	// GlobalTrackFoot* GetTrack( int id ) {
 	// 	// fai controllo sul vettore
@@ -207,10 +194,12 @@ private:
 	map< string, TH1F* > h_momentumMC;
 	map< string, TH1F* > h_posRes;
 	map< string, TH1F* > h_mass;
+	map< string, TH1F* > h_sigmaR;
 	map< string, TH1F* > h_sigmaP;
 	map< string, TH1F* > h_deltaP;
 	map< string, TH1F* > h_polarAngol;
 
+	map< string, TH1F* >  h_zPosGen;
 	map< string, TH1F* >  h_mass_genFit;
 	map< string, TH1F* >  h_charge;
 	map< string, TH1F* >  h_isFitConvergedFully;
@@ -223,6 +212,11 @@ private:
 	map< string, TH1F* >  h_endX;
 	map< string, TH1F* >  h_startY;
 	map< string, TH1F* >  h_endY;
+	
+	map< string, TH1F* >  h_TrackLenght;
+	map< string, TH1F* >  h_TrackTOF;
+
+	map< string, TH2F* >  h_covariance;
 
 	map< string, TH1F* > h_dP_over_Ptrue;
 	map< string, TH1F* > h_dP_over_Pkf;

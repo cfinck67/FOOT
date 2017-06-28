@@ -4,7 +4,6 @@ FOOT setup
 GLOBAL         9999.                                      1.
 DEFAULTS                                                              PRECISIO
 PHYSICS          3.0                                                  EVAPORAT
-PHYSICS           1.                                                  COALESCE
 IONTRANS    HEAVYION
 * @@@START GENERATED, DO NOT MODIFY:GENERAL@@@ *********************************
 * ******************************************************************************
@@ -13,49 +12,22 @@ IONTRANS    HEAVYION
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
-BEAM       -0.200940  0.000000     0.000 -0.480000 -0.480000       1.0HEAVYION  
+PHYSICS           1.                                                  COALESCE  
+BEAM       -0.200000  0.000000  0.000000 -0.480000 -0.480000       1.0HEAVYION  
 HI-PROPE    8.000000 16.000000                                                  
 BEAMPOS        0.000     0.000   -30.000     0.000     0.000                    
 * **************************************************
-* * EM TRANSPORT THRESHOLD FOR ALL REGIONS
-EMFCUT     -0.000100  0.000100                 AIR  @LASTREG       1.0          
-* * Calorimeter
-EMFCUT     -0.001000  0.001000              CAL000    CAL359       1.0          
-* * Magnets
-EMFCUT     -1.000000  1.000000             MAG_PM0                              
-EMFCUT     -1.000000  1.000000             MAG_PM1                              
-* * Aluminium shieldings of magnets and drift chambers
-EMFCUT     -0.005000  0.005000             MAG_CV0                              
-EMFCUT     -0.005000  0.005000             MAG_CV1                              
-EMFCUT     -0.005000  0.005000             BMN_SHI                              
-EMFCUT     -0.005000  0.005000             DCH_SHI                              
+* * EM TRANSPORT THRESHOLD FOR EVERY REGION
+EMFCUT     -1.000000  1.000000               BLACK  @LASTREG       1.0          
 * ***************************************************
-* * EM PRODUCTION THRESHOLD FOR ALL REGIONS
-EMFCUT     -0.000100  0.000100                 AIR  @LASTMAT       1.0PROD-CUT  
-* * Calorimeter
-EMFCUT     -0.001000  0.001000                 BGO                    PROD-CUT  
-* * Magnets
-EMFCUT     -1.000000  1.000000                SmCo                    PROD-CUT  
-* * Aluminium shieldings of magnets and drift chambers
-EMFCUT     -0.005000  0.005000            ALUMINUM                    PROD-CUT  
+* * EM PRODUCTION THRESHOLD FOR EVERY MATERIAL
+EMFCUT     -1.000000  1.000000        1.  BLCKHOLE  @LASTMAT       1.0PROD-CUT  
 * ***********************************************
 * * DELTA-RAY THRESHOLD FOR ALL REGIONS
-DELTARAY    0.000100                           AIR  @LASTMAT       1.0          
-* * Calorimeter
-DELTARAY    0.001000                           BGO                              
-* * Magnets
-DELTARAY    1.000000                          SmCo                              
-* * Aluminium shieldings of magnets and drift chambers
-DELTARAY    0.005000                      ALUMINUM                              
+DELTARAY    1.000000                      BLCKHOLE  @LASTMAT       1.0          
 * ***********************************************
 * * PAIR-BREM THRESHOLD FOR ALL REGIONS
-PAIRBREM          3.  0.000100  0.000100       AIR  @LASTMAT                    
-* * Calorimeter
-PAIRBREM          3.  0.001000  0.001000       BGO                              
-* * Magnets
-PAIRBREM          3.  1.000000  1.000000      SmCo                              
-* * Aluminium shieldings of magnets and drift chambers
-PAIRBREM          3.  0.005000  0.005000  ALUMINUM                              
+PAIRBREM         -3.                      BLCKHOLE  @LASTMAT                    
 *
 * @@@END GENERATED:GENERAL@@@ **************************************************
 * ******************************************************************************
@@ -175,13 +147,13 @@ ASSIGNMA      EJ-232       STC
 ASSIGNMA    ALUMINUM   BMN_SHI
 ASSIGNMA       Mylar  BMN_MYL0
 ASSIGNMA       Mylar  BMN_MYL1
-ASSIGNMA      Ar-CO2   BMN_GAS
 ASSIGNMA      Ar-CO2  BMN_CU00  BMN_CU17         1
 ASSIGNMA      Ar-CO2  BMN_CV00  BMN_CV17         1
+ASSIGNMA      Ar-CO2   BMN_GAS
 ASSIGNMA    ALUMINUM   BMN_FWI
 ASSIGNMA    TUNGSTEN   BMN_SWI
-ASSIGNMA    Polyethy    TARGET
-ASSIGNMA     SILICON      VTX0      VTX2         1
+ASSIGNMA    Polyethy    TARGET                             1
+ASSIGNMA     SILICON      VTX0      VTX3         1         1
 ASSIGNMA     SILICON      ITR0      ITR1         1         1
 ASSIGNMA       Epoxy   ITREPO0   ITREPO1         1         1
 ASSIGNMA    ALUMINUM    ITRAL0    ITRAL3         1         1
@@ -193,18 +165,12 @@ ASSIGNMA    ALUMINUM   MAG_CV0
 ASSIGNMA        SmCo   MAG_PM1
 ASSIGNMA    ALUMINUM   MAG_CV1
 ASSIGNMA         AIR   MAG_AIR                             1
-ASSIGNMA    ALUMINUM   DCH_SHI
-ASSIGNMA       Mylar  DCH_MYL0
-ASSIGNMA       Mylar  DCH_MYL1
-ASSIGNMA      Ar-CO2   DCH_GAS
-ASSIGNMA      Ar-CO2  DCH_CU00  DCH_CU47         1
-ASSIGNMA      Ar-CO2  DCH_CV00  DCH_CV47         1
-ASSIGNMA    ALUMINUM   DCH_FWI
-ASSIGNMA    TUNGSTEN   DCH_SWI
+ASSIGNMA     SILICON     MSDV0     MSDU2         1         1
+ASSIGNMA      KAPTON   MSDKAP0   MSDKAP2         1         1
 ASSIGNMA         AIR       BOX
 ASSIGNMA      EJ-232    SCNV00    SCNU21         1
 ASSIGNMA         BGO    CAL000    CAL359         1
-MGNFIELD                                        0.       0.7        0.          
+MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000          
 *
 * @@@END GENERATED:MATERIAL&MAGFIELD@@@ ****************************************
 * ******************************************************************************
@@ -212,16 +178,55 @@ MGNFIELD                                        0.       0.7        0.
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| idbflg  | FragTrg |Eth(Mev) |unused   |unused   |unused | SDUM      |
 * -------1---------2---------3---------4---------5---------6---------7---------8
-USRICALL          0.        1.       0.1       0.0        0.        0.
+USRICALL          0.        6.       0.1       0.0        0.        0.
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
+STEPSIZE    -0.00001            BMN_MYL0   MAG_AIR
+STEPSIZE    -0.00001             MAG_AIR    TARGET
+STEPSIZE    -0.00001              TARGET   MAG_AIR
+STEPSIZE    -0.00001             MAG_AIR      VTX0
+STEPSIZE    -0.00001                VTX0   MAG_AIR
+STEPSIZE    -0.00001             MAG_AIR      VTX1
+STEPSIZE    -0.00001                VTX1   MAG_AIR
+STEPSIZE    -0.00001             MAG_AIR      VTX2
+STEPSIZE    -0.00001                VTX2   MAG_AIR
+STEPSIZE    -0.00001             MAG_AIR      VTX3
+STEPSIZE    -0.00001                VTX3   MAG_AIR
+STEPSIZE    -0.00001             MAG_AIR      ITR0
+STEPSIZE    -0.00001                ITR0   ITREPO0
+STEPSIZE    -0.00001             ITREPO0   ITRCOV0
+STEPSIZE    -0.00001             ITRCOV0    ITRAL0
+STEPSIZE    -0.00001              ITRAL0   ITRKAP0
+STEPSIZE    -0.00001             ITRKAP0    ITRAL1
+STEPSIZE    -0.00001              ITRAL1   ITRCOV1
+STEPSIZE    -0.00001             ITRCOV1   ITRFOAM
+STEPSIZE    -0.00001             ITRFOAM   ITRCOV2
+STEPSIZE    -0.00001             ITRCOV2    ITRAL2
+STEPSIZE    -0.00001              ITRAL2   ITRKAP1
+STEPSIZE    -0.00001             ITRKAP1    ITRAL3
+STEPSIZE    -0.00001              ITRAL3   ITRCOV3
+STEPSIZE    -0.00001             ITRCOV3   ITREPO1
+STEPSIZE    -0.00001             ITREPO1      ITR1
+STEPSIZE    -0.00001                ITR1   MAG_AIR
+STEPSIZE    -0.00001             MAG_AIR     MSDV0
+STEPSIZE    -0.00001               MSDV0   MSDKAP0
+STEPSIZE    -0.00001             MSDKAP0     MSDU0
+STEPSIZE    -0.00001               MSDU0   MAG_AIR
+STEPSIZE    -0.00001             MAG_AIR     MSDV1
+STEPSIZE    -0.00001               MSDV1   MSDKAP1
+STEPSIZE    -0.00001             MSDKAP1     MSDU1
+STEPSIZE    -0.00001               MSDU1   MAG_AIR
+STEPSIZE    -0.00001             MAG_AIR     MSDV2
+STEPSIZE    -0.00001               MSDV2   MSDKAP2
+STEPSIZE    -0.00001             MSDKAP2     MSDU2
+STEPSIZE    -0.00001               MSDU2   MAG_AIR
 USERDUMP        100.       69.       0.0        1.                    Opt
 USROCALL
 RANDOMIZ         1.0   593585.
 * ******************************************************************************
 *                          RUN                                                 *
 * ******************************************************************************
-START            100
+START           2.E5
 STOP
 

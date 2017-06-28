@@ -61,7 +61,7 @@ typedef struct {
    
 } GEO_BMON;
 
-
+/*
 typedef struct {
 
   // U view (wires along x)  (dimensions: [DCH_NWIRELAY][DCH_NLAY])
@@ -107,13 +107,13 @@ typedef struct {
   Double_t SideDch[3];//lateral dimension of beam monitor
   Double_t DeltaDch[3];// displacement del primo filo rispetto al lato camera 
 
-} GEO_DCH; 
+  } GEO_DCH; */
 
 typedef struct {
 
   GEO_BMON Bmon;
   
-  GEO_DCH Dch;
+  //GEO_DCH Dch;
   
 } GEOMETRY_STRUCT;
 
@@ -127,7 +127,7 @@ class Geometry : public TObject {
 
   Int_t InitBmon();
   
-  Int_t InitDch();
+  //  Int_t InitDch();
 
   GEOMETRY_STRUCT GetStruct();
 

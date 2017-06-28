@@ -3,6 +3,12 @@
 #include "KFitter.hxx"
 
 
+
+
+
+
+
+//----------------------------------------------------------------------------------------------------
 KFitter::KFitter ( int nIter, double dPVal ) {
 	
 	gROOT->SetStyle("Plain");
@@ -92,11 +98,11 @@ KFitter::KFitter ( int nIter, double dPVal ) {
 }
 
 
-// int imin = std::numeric_limits<int>::min(); // minimum value of the in on this machine
-// int imax = std::numeric_limits<int>::max();
-//	 -2147483648    2147483647
 
 
+
+//----------------------------------------------------------------------------------------------------
+// create the fragment database
 void KFitter::MakePdgDatabase() {
 
 	// clean the particle datatbase. Important!
@@ -120,12 +126,7 @@ void KFitter::MakePdgDatabase() {
 										12.1112, 13, 14,
 										4, 1,
 										15 };
-	// double massV [nNewParticles] = { 	10.254, 11.1749, 12, 
-	// 									6, 7,
-	// 									7, 8, 9,
-	// 									9, 10, 11,
-	// 									12, 13, 14,
-	// 									15 };
+
 	double chargeV [nNewParticles] = { 	18, 18, 18, 
 										9, 9,
 										12, 12, 12,
@@ -133,8 +134,8 @@ void KFitter::MakePdgDatabase() {
 										21, 21, 21,
 										6, 3,
 										24  };
-		
-	
+
+	// check that every particle defined in the parameter file is defined in nameV
 	for ( unsigned int i=0; i<GlobalPar::GetPar()->MCParticles().size(); i++) {
 		if ( find( nameV.begin(), nameV.end(), GlobalPar::GetPar()->MCParticles()[i] ) == nameV.end() ) {
 			cout << "ERROR::KFitter::MakePdgDatabase()  -->  required " << GlobalPar::GetPar()->MCParticles()[i] << " particle from input parameter not defined" << endl;
@@ -142,6 +143,7 @@ void KFitter::MakePdgDatabase() {
 		}
 	}
 
+	// add the new particles to the standard TDatabasePDG
 	for ( int i=0; i<nNewParticles; i++) {
 		TDatabasePDG::Instance()->AddParticle(nameV[i].c_str(), nameV[i].c_str(), massV[i], true, 0., chargeV[i], "ion", ++pdgCode);	
 		m_pdgCodeMap[ nameV[i] ] = pdgCode;
@@ -150,13 +152,16 @@ void KFitter::MakePdgDatabase() {
 
 
 
+
+//----------------------------------------------------------------------------------------------------
 // upload measurement points from vertex pixel
 int KFitter::UploadHitsVT( TAGdataDsc* footDataObj, shared_ptr<TAVTparGeo> vt_geo ) {
 	
 	m_VT_geo = vt_geo;
 	TAVTntuRaw* ntup = (TAVTntuRaw*) footDataObj->GenerateObject();
-
 	if ( m_debug > 0 )		cout << "N vertex pixel read: " << ntup->GetPixelsN(0) << endl;
+	
+	// save pixels in the collection
 	for (int i = 0; i < ntup->GetPixelsN(0); i++) 
         m_VT_hitCollection.push_back( ntup->GetPixel(0,i) );
 
@@ -166,13 +171,15 @@ int KFitter::UploadHitsVT( TAGdataDsc* footDataObj, shared_ptr<TAVTparGeo> vt_ge
 
 
 
+//----------------------------------------------------------------------------------------------------
 // upload measurement points from Inner Tracker pixel
 int KFitter::UploadHitsIT( TAGdataDsc* footDataObj, shared_ptr<TAITparGeo> it_geo ) {
 	
 	m_IT_geo = it_geo;
 	TAITntuRaw* ntup = (TAITntuRaw*) footDataObj->GenerateObject();
-
 	if ( m_debug > 0 )		cout << "N inner pixel read: " << ntup->GetPixelsN(0) << endl;
+
+	// save pixels in the collection
 	for (int i = 0; i < ntup->GetPixelsN(0); i++) 
         m_IT_hitCollection.push_back( ntup->GetPixel(0,i) );
 
@@ -181,6 +188,7 @@ int KFitter::UploadHitsIT( TAGdataDsc* footDataObj, shared_ptr<TAITparGeo> it_ge
 
 
 
+//----------------------------------------------------------------------------------------------------
 // upload measurement points from Strip
 int KFitter::UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd_geo ) {
 	
@@ -188,8 +196,8 @@ int KFitter::UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd
 	TAMSDntuRaw* ntup = (TAMSDntuRaw*) footDataObj->GenerateObject();
 
 	if ( m_debug > 0 )		cout << "Strip detector hits read: " << ntup->GetPixelsN(0) << endl;
-	// else 	return 0;
 
+	// save strips hits in the collection
 	for (int i = 0; i < ntup->GetPixelsN(0); i++) 
         m_MSD_hitCollection.push_back( ntup->GetPixel(0,i) );
 
@@ -199,6 +207,7 @@ int KFitter::UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd
 
 
 
+//----------------------------------------------------------------------------------------------------
 // upload measurement points from drift chamber
 int KFitter::UploadHitsDC( TAGdataDsc* footDataObj, shared_ptr<TADCparGeo> dc_geo ) {
 
@@ -218,6 +227,7 @@ int KFitter::UploadHitsDC( TAGdataDsc* footDataObj, shared_ptr<TADCparGeo> dc_ge
 
 
 
+//----------------------------------------------------------------------------------------------------
 // pack together the hits to be fitted, from all the detectors, selct different preselecion m_systemsONs
 int KFitter::PrepareData4Fit( Track* fitTrack ) {
 
@@ -282,6 +292,7 @@ int KFitter::PrepareData4Fit( Track* fitTrack ) {
 
 
 
+//----------------------------------------------------------------------------------------------------
 // pre-fit requirements to be applied to EACH of the hitCollections
 bool KFitter::PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterator element ) {
 
@@ -337,8 +348,9 @@ bool KFitter::PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterat
 
 
 
-
+//----------------------------------------------------------------------------------------------------
 void KFitter::Prepare4Vertex( Track* fitTrack ) {
+	
 	TMatrixDSym hitCov(3); 
 	TVectorD hitCoords(3);
     for (unsigned int i = 0; i < m_VT_hitCollection.size(); i++) {
@@ -376,6 +388,7 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
 
 
 
+//----------------------------------------------------------------------------------------------------
 void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
 	TMatrixDSym hitCov(3); 
 	TVectorD hitCoords(3);
@@ -414,6 +427,7 @@ void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
 
 
 
+//----------------------------------------------------------------------------------------------------
 void KFitter::Prepare4Strip( Track* fitTrack ) {
 	
 	TMatrixDSym hitCov(3); 
@@ -509,6 +523,7 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 
 
 
+//----------------------------------------------------------------------------------------------------
 void KFitter::Prepare4DriftChamber( Track* fitTrack ) {
 
 	vector<string> viewTranslator = { "SIDE", "TOP" };
@@ -563,34 +578,24 @@ void KFitter::Prepare4DriftChamber( Track* fitTrack ) {
 
 
 
+//----------------------------------------------------------------------------------------------------
 int KFitter::MakeFit( long evNum ) {
 
 	if ( m_debug > 0 )		cout << "Starting MakeFit " << endl;
-
 	int isConverged = 0;
+	
 	// start values for the fit, change below
 	TVector3 pos(0, 0, 0);	// global   [cm]
 	TVector3 mom(0, 0, 6);	// GeV
 	
-	// particle pdg code 
-	// const int pdg = 2212;	//proton
-	// const int pdg = 211;		//pion
-	// double sign = 1; 		//Charged particles 
 
-	
 	// loop here for different particle hipothesis fit
 
-
-	// trackrep for creating measurements and the state on a plane
-	// AbsTrackRep* rep = new RKTrackRep(66666602);
-	// AbsTrackRep* rep = new RKTrackRep(sign*pdg);
-
 	Track*  fitTrack = new Track();
-	// Track*  fitTrack = new Track(rep, pos, mom);
 
     PrepareData4Fit( fitTrack );
 
-    // check the hit vector not empty
+    // check the hit vector not empty otherwise clear
 	if ( m_hitCollectionToFit.size() <= 0 )	{	
 		m_VT_hitCollection.clear();
 		m_IT_hitCollection.clear();
@@ -602,7 +607,7 @@ int KFitter::MakeFit( long evNum ) {
 
 	if ( m_debug > 0 )		cout << "MakeFit::m_hitCollectionToFit.size  =  " << m_hitCollectionToFit.size() << endl;
 	
-	// insert points to be fitted
+	
 	// loop over all hit category
 	for ( map< string, vector<AbsMeasurement*> >::iterator hitSample=m_hitCollectionToFit.begin(); hitSample != m_hitCollectionToFit.end(); hitSample++ ) {
 
@@ -637,8 +642,6 @@ int KFitter::MakeFit( long evNum ) {
 		else if ( detID == m_detectorID_map["MSD"] ) {
 			pos = m_MSD_posVectorSmearedHit.at( hitID );
 			mom = m_MSD_momVectorSmearedHit.at( hitID );
-			// pos = m_MSD_hitCollection.at( hitID )->GetMCPosition_Global();
-			// mom = m_MSD_hitCollection.at( hitID )->GetMCMomentum_Global();
 		}
 		else if ( detID == m_detectorID_map["DC"] ) {
 			pos = m_DC_hitCollection.at( hitID )->GetMCPosition_Global();
@@ -649,7 +652,7 @@ int KFitter::MakeFit( long evNum ) {
 		// set seed
 		fitTrack->setStateSeed(pos, mom);		
 
-		// loop over each measurement in the current collection
+		// insert points to be fitted  -   loop over each measurement in the current collection
 		for ( unsigned int i=0; i < (*hitSample).second.size(); i++ )	{
 			// fitTrack->insertPoint(new genfit::TrackPoint( (*hitSample).second.at(i), fitTrack ) );	// differenza con insertMeasurement???
 			fitTrack->insertMeasurement( (*hitSample).second.at(i) );
@@ -661,7 +664,7 @@ int KFitter::MakeFit( long evNum ) {
 
 		//check
 		fitTrack->checkConsistency();
-		if ( m_debug > 2 )		fitTrack->Print();
+		if ( m_debug > 3 )		fitTrack->Print();
 
 
 //pre-fit
@@ -696,9 +699,9 @@ int KFitter::MakeFit( long evNum ) {
 			else if ( GlobalPar::GetPar()->KalMode() == 4 )
 				m_dafSimpleFitter->processTrack(fitTrack);
 		
-
-			if ( m_debug > 0 )		cout << "Fitted " << endl;
-			if ( fitTrack->getFitStatus(rep)->isFitConverged() )	isConverged = 1;	// convergence check
+			if ( m_debug > 3 )		fitTrack->Print();
+			if ( m_debug > 0 )		cout << "Fitted " << fitTrack->getFitStatus(rep)->isFitted() << endl;
+			if ( fitTrack->getFitStatus(rep)->isFitConverged() &&  fitTrack->getFitStatus(rep)->isFitted() )	isConverged = 1;	// convergence check
 			if ( m_debug > 3 )		fitTrack->Print("C");
 
 			if ( m_nTotTracks.find( (*hitSample).first ) == m_nTotTracks.end() )	m_nTotTracks[ (*hitSample).first ] = 0;
@@ -753,7 +756,7 @@ int KFitter::MakeFit( long evNum ) {
 
 
 
-//
+//----------------------------------------------------------------------------------------------------
 string KFitter::CategoriseHitsToFit_withTrueInfo( int flukaID, int charge, int mass ) {
 
 	string outName = "fail";
@@ -790,7 +793,20 @@ string KFitter::CategoriseHitsToFit_withTrueInfo( int flukaID, int charge, int m
 
 
 
+void KFitter::MatrixToZero( TMatrixD *matrix ) {
 
+	for ( int j=0; j<matrix->GetNrows(); j++ ) {
+		for ( int k=0; k<matrix->GetNcols(); k++ ) {
+			(*matrix)(j,k) = 0;
+		}
+	}
+
+}
+
+
+
+
+//----------------------------------------------------------------------------------------------------
 void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 
 	TVector3 expectedPos;
@@ -801,31 +817,38 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 
 	InitAllHistos( hitSampleName );
 
+	TMatrixD covarianceR(3,3); 
+	TMatrixD covarianceP(3,3); 
 	// loop over tracks
 	for ( unsigned int i =0; i<m_hitCollectionToFit[ hitSampleName ].size(); i++ ) {
 
 		int x = i;	// track index, same in case of forward and reverse
 		if ( m_reverse ) 	x = m_hitCollectionToFit[ hitSampleName ].size() - 1 - i;	
 
-		//////////			CAMBIA L'USO DELLE COORDINATE LOCALI QUI!!!!!!!!!!!!!!!!!!!!!   /////////////////////////////
+
 		TVector3 tmpPos, tmpMom;
-		double tmp_mass;
+		double tmp_mass = -666;
+		TVector3 tmp_genPos;
+
 		int detID = m_hitCollectionToFit[ hitSampleName ].at(x)->getDetId();
 		int hitID = m_hitCollectionToFit[ hitSampleName ].at(x)->getHitId();
 		if ( detID == m_detectorID_map["VT"] ) {
 			tmpPos = m_VT_hitCollection.at(	hitID )->GetMCPosition_Global();
 			tmpMom = m_VT_hitCollection.at(	hitID )->GetMCMomentum_Global();
 			tmp_mass = m_VT_hitCollection.at( hitID )->m_genPartMass;
+			tmp_genPos = m_VT_hitCollection.at( hitID )->m_genPartPosition;
 		}
 		else if ( detID == m_detectorID_map["IT"] ) {
 			tmpPos = m_IT_hitCollection.at(	hitID )->GetMCPosition_Global();
 			tmpMom = m_IT_hitCollection.at(	hitID )->GetMCMomentum_Global();
 			tmp_mass = m_IT_hitCollection.at( hitID )->m_genPartMass;
+			tmp_genPos = m_IT_hitCollection.at( hitID )->m_genPartPosition;
 		}
 		else if ( detID == m_detectorID_map["MSD"] ) {
 			tmpPos = m_MSD_posVectorSmearedHit.at( hitID );
 			tmpMom =  m_MSD_momVectorSmearedHit.at( hitID );
 			tmp_mass = m_MSD_mass.at( hitID );
+			tmp_genPos = TVector3(-1, -1, -1);
 		}
 		else if ( detID == m_detectorID_map["DC"] ) {
 			tmpPos = m_DC_hitCollection.at( hitID )->GetMCPosition_Global();
@@ -833,13 +856,14 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			tmp_mass = m_DC_hitCollection.at( hitID )->m_genPartMass;
 		}
 
-
+		
 
 		// Get track kinematics and errors
 		TVector3 KalmanPos = TVector3( (track->getFittedState(i).get6DState())[0],	(track->getFittedState(i).get6DState())[1],	(track->getFittedState(i).get6DState())[2] );
 		TVector3 KalmanMom = TVector3( (track->getFittedState(i).get6DState())[3], (track->getFittedState(i).get6DState())[4],	(track->getFittedState(i).get6DState())[5] );
 		TVector3 KalmanPos_err = TVector3( (track->getFittedState(i).get6DCov())[0][0], (track->getFittedState(i).get6DCov())[1][1], (track->getFittedState(i).get6DCov())[2][2] );
 		TVector3 KalmanMom_err = TVector3( (track->getFittedState(i).get6DCov())[3][3],	(track->getFittedState(i).get6DCov())[4][4], (track->getFittedState(i).get6DCov())[5][5] );
+
 
 		if ( m_debug > 0 )	{
 			cout <<endl<< "Single Event Debug\t--\t" << hitSampleName << endl;
@@ -851,18 +875,8 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			cout << "\t Kalman Mom da State6D = "<< KalmanMom.Mag() <<"    "; KalmanMom.Print();
 			cout << "\t Kalman Mom Error da State6D = "; KalmanMom_err.Print();
 		}
-
-		if ( i == 0 ) {
-			h_mass_genFit[ hitSampleName ]->Fill( track->getFittedState(i).getMass() );
-			h_charge[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->getCharge() );
-			// h_chargeSign->Fill( track->getFittedState(i).getMass() );
-			h_isFitConvergedFully[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->isFitConvergedFully() );
-			h_isFitConvergedPartially[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->isFitConvergedPartially() );
-			h_NFailedPoints[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->getNFailedPoints() );
-			h_isTrackPruned[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->isTrackPruned() );
-			h_Ndf[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->getNdf() );
-		}
 		
+
 		// keep quantities to be plotted of the state CLOSER to the interaction point
 		unsigned int measuredState = ( m_reverse ? m_hitCollectionToFit[ hitSampleName ].size()-1 : 0 );
 		if ( i == measuredState ) {
@@ -874,21 +888,55 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			massMC = tmp_mass;
 		}
 
+
+		// double dmom = kalmanMom.Mag() - expectedMom.Mag();
+		// if ( fabs( dmom ) > 0.2  )	return;
+		
+		
+		if ( i == measuredState  ) {
+			MatrixToZero(&covarianceR);
+			MatrixToZero(&covarianceP);
+			for ( int j=0; j<3; j++ ) {
+				for ( int k=0; k<3; k++ ) {
+					h_covariance[ hitSampleName ]->Fill( j, k, (track->getFittedState(i).get6DCov())[j+3][k+3] );
+					covarianceP(j,k) = (track->getFittedState(i).get6DCov())[j+3][k+3];
+					covarianceR(j,k) = (track->getFittedState(i).get6DCov())[j][k];
+				}
+			}
+			
+
+			h_sigmaR[ hitSampleName ]->Fill( EvalError( expectedPos, covarianceR ) );
+// h_sigmaR[ hitSampleName ]->Fill( EvalError( expectedPos, KalmanMom_err ) );
+
+			h_mass_genFit[ hitSampleName ]->Fill( track->getFittedState(i).getMass() );
+			
+			h_zPosGen[ hitSampleName ]->Fill( tmp_genPos.Z() );
+
+			h_charge[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->getCharge() );
+			// h_chargeSign->Fill( track->getFittedState(i).getMass() );
+			h_isFitConvergedFully[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->isFitConvergedFully() );
+			h_isFitConvergedPartially[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->isFitConvergedPartially() );
+			h_NFailedPoints[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->getNFailedPoints() );
+			h_isTrackPruned[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->isTrackPruned() );
+			h_Ndf[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->getNdf() );
+
+			h_TrackLenght[ hitSampleName ]->Fill( track->getTrackLen( track->getCardinalRep() ) );
+			// h_TrackTOF[ hitSampleName ]->Fill( track->getTOF( track->getCardinalRep() ) );		// doesn't work!!!!
+
+		}
+
 		if ( i == 0 ) {
 			h_startX[ hitSampleName ]->Fill( tmpPos.X() );
 			h_startY[ hitSampleName ]->Fill( tmpPos.Y() );
 		}
-		if ( i == m_hitCollectionToFit[ hitSampleName ].size() ) {
+		if ( i == m_hitCollectionToFit[ hitSampleName ].size() -1 ) {
 			h_endX[ hitSampleName ]->Fill( tmpPos.X() );
 			h_endY[ hitSampleName ]->Fill( tmpPos.Y() );
 		}
 	}
 	if ( m_debug > 0 )		cout << "Chi2 = "<< track->getFitStatus(track->getCardinalRep())->getChi2()<< endl;
 
-	double dmom = kalmanMom.Mag() - expectedMom.Mag();
-	// if ( fabs( dmom ) > 0.2  )	return;
-
-	// InitAllHistos( hitSampleName );
+	
 
 	// fill histo with tracking info 
 	h_chi2[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->getChi2() );
@@ -898,7 +946,7 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 	h_polarAngol[ hitSampleName ]->Fill( kalmanMom.Theta() *180 / M_PI );		// convert in radiant
 
 	PrintPositionResidual( kalmanPos, expectedPos, hitSampleName );
-	PrintMomentumResidual( kalmanMom, expectedMom, kalmanMom_err, hitSampleName );
+	PrintMomentumResidual( kalmanMom, expectedMom, covarianceP, hitSampleName );
 
 }
 
@@ -906,32 +954,38 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 
 
 
-
+//----------------------------------------------------------------------------------------------------
 void KFitter::InitAllHistos( string hitSampleName ) {
 
 	if ( m_debug > 2 )		cout << "KFitter::InitAllHistos -- Start!!!!  " << endl;
 	// initialize output histos
 	InitSingleHisto(&h_chi2, hitSampleName, "TrackChi2", 100, 0, 10);
 	InitSingleHisto(&h_posRes, hitSampleName, "h_posRes", 40, 0, 0.06);
-	InitSingleHisto(&h_sigmaP, hitSampleName, "h_sigmaP", 100, -1, 1);
+	InitSingleHisto(&h_sigmaR, hitSampleName, "h_sigmaR", 1000, -1, 1);
+	InitSingleHisto(&h_sigmaP, hitSampleName, "h_sigmaP", 1000, -1, 1);
 	InitSingleHisto(&h_deltaP, hitSampleName, "h_deltaP", 100, -1, 1);
 	InitSingleHisto(&h_momentumRes, hitSampleName, "h_momentumRes", 80, -4, 4);
-	InitSingleHisto(&h_momentumMC, hitSampleName, "h_momentumMC", 50, 3, 16);
-	InitSingleHisto(&h_momentumKal, hitSampleName, "h_momentumKal", 50, 3, 16);
-	// InitSingleHisto(&h_momentumMC, hitSampleName, "h_momentumMC", 50, 0, 12);
-	// InitSingleHisto(&h_momentumKal, hitSampleName, "h_momentumKal", 50, 0, 12);
+
+	InitSingleHisto(&h_momentumMC, hitSampleName, "h_momentumMC", 64, 0, 16);
+	InitSingleHisto(&h_momentumKal, hitSampleName, "h_momentumKal", 64, 0, 16);
+
 	InitSingleHisto(&h_polarAngol, hitSampleName, "h_polarAngol", 50, 0, 10);
 	InitSingleHisto(&h_mass, hitSampleName, "h_mass", 90, 0, 15);
+	InitSingleHisto(&h_zPosGen, hitSampleName, "h_zPosGen", 100, -0.5, 0.5);
 	
 	InitSingleHisto(&h_mass_genFit, hitSampleName, "h_mass_genFit", 90, 0, 15);
 	InitSingleHisto(&h_charge, hitSampleName, "h_charge", 21, -10.5, 10.5);
 	// InitSingleHisto(&h_chargeSign, hitSampleName, "h_chargeSign", 5, -2.5, 2.5);
 	// InitSingleHisto(&h_startDir, hitSampleName, "h_startDir", 100, -2.5, 2.5);
 	// InitSingleHisto(&h_endDir, hitSampleName, "h_endDir", 100, -2.5, 2.5);
-	InitSingleHisto(&h_startX, hitSampleName, "h_startX", 100, -10, 10);
+	InitSingleHisto(&h_startX, hitSampleName, "h_startX", 40, -2, 2);
 	InitSingleHisto(&h_endX, hitSampleName, "h_endY", 100, -10, 10);
-	InitSingleHisto(&h_startY, hitSampleName, "h_startX", 100, -10, 10);
+	InitSingleHisto(&h_startY, hitSampleName, "h_startX", 40, -2, 2);
 	InitSingleHisto(&h_endY, hitSampleName, "h_endY", 100, -10, 10);
+	
+	// InitSingleHisto(&h_TrackLenght, hitSampleName, "h_TrackLenght", 100, 28, 31);
+	InitSingleHisto(&h_TrackLenght, hitSampleName, "h_TrackLenght", 100, 12.5, 15.5);		// VT and IT only
+	// InitSingleHisto(&h_TrackTOF, hitSampleName, "h_TrackTOF", 100, 0, 50);
 	
 	InitSingleHisto(&h_isFitConvergedFully, hitSampleName, "h_isFitConvergedFully", 5, -2.5, 2.5);
 	InitSingleHisto(&h_isFitConvergedPartially, hitSampleName, "h_isFitConvergedPartially", 5, -2.5, 2.5);
@@ -942,20 +996,26 @@ void KFitter::InitAllHistos( string hitSampleName ) {
 	InitSingleHisto(&h_dP_over_Ptrue, hitSampleName, "h_dP_over_Ptrue", 40, -0.2, 0.2);
 	InitSingleHisto(&h_dP_over_Pkf, hitSampleName, "h_dP_over_Pkf", 40, -0.2, 0.2);
 	InitSingleHisto(&h_sigmaP_over_Pkf, hitSampleName, "h_sigmaP_over_Pkf", 40, 0, 0.1);
-	InitSingleHisto(&h_sigmaP_over_Ptrue, hitSampleName, "h_sigmaP_over_Ptrue", 40, 0, 0.1);
+	InitSingleHisto(&h_sigmaP_over_Ptrue, hitSampleName, "h_sigmaP_over_Ptrue", 40, 0, 0.5);
+
+
+	// 2D
+	if ( h_covariance.find( hitSampleName ) == h_covariance.end() )					
+		h_covariance[hitSampleName] = new TH2F( "covariance", "covariance", 3, 0, 3, 3, 0, 3 );
+
 
  	if ( m_debug > 2 )		cout << "KFitter::InitAllHistos -- End!!!!  " << endl;
 }
 
 
 
-
+//----------------------------------------------------------------------------------------------------
 void KFitter::InitSingleHisto( map< string, TH1F* >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin ) {
 	if ( histoMap->find( collectionName ) == histoMap->end() )					
 		(*histoMap)[collectionName] = new TH1F( histoName.c_str(), histoName.c_str(), nBin, minBin, maxBin );
 }
 
-
+//----------------------------------------------------------------------------------------------------
 // void KFitter::InitMultiBinHistoMap( map< map< string, TH1F* > >* histoMap, string collectionName, string histoName, int nBin, int minBin, int maxBin ) {
 // 	if ( histoMap.find( collectionName ) == histoMap.end() )					
 // 		histoMap[collectionName] = new TH1F( histoName.c_str(), histoName.c_str(), 100, minBin, maxBin );
@@ -963,7 +1023,7 @@ void KFitter::InitSingleHisto( map< string, TH1F* >* histoMap, string collection
 
 
 
-
+//----------------------------------------------------------------------------------------------------
 void KFitter::PrintEfficiency() {
 
 	TCanvas* mirror = new TCanvas("TrackEfficiencyPlot", "TrackEfficiencyPlot", 700, 700);
@@ -993,7 +1053,7 @@ void KFitter::PrintEfficiency() {
 }
 
 
-
+//----------------------------------------------------------------------------------------------------
 void KFitter::PrintPositionResidual( TVector3 pos, TVector3 expectedPos, string hitSampleName ) {
 	double dR = pos.DeltaR( expectedPos );
 	h_posRes[ hitSampleName ]->Fill(dR);
@@ -1001,8 +1061,7 @@ void KFitter::PrintPositionResidual( TVector3 pos, TVector3 expectedPos, string 
 
 
 
-//____________________________________________________________________________________
-// 
+//----------------------------------------------------------------------------------------------------
 void KFitter::PrintMomentumResidual( TVector3 meas, TVector3 expected, TVector3 cov, string hitSampleName ) {
 
 	if ( m_debug > 2 )		cout << "KFitter::PrintMomentumResidual -- Start!!!!  " << endl;
@@ -1095,7 +1154,101 @@ void KFitter::PrintMomentumResidual( TVector3 meas, TVector3 expected, TVector3 
 
 
 
-//____________________________________________________________________________________
+
+//----------------------------------------------------------------------------------------------------
+void KFitter::PrintMomentumResidual( TVector3 meas, TVector3 expected, TMatrixD cov, string hitSampleName ) {
+
+	if ( m_debug > 2 )		cout << "KFitter::PrintMomentumResidual -- Start!!!!  " << endl;
+	double dP = meas.Mag() - expected.Mag();
+	double err = EvalError( meas, cov );
+
+	if ( m_debug > 1 )		cout << "dp= " <<meas.Mag() << "-"<<expected.Mag() << "   err= " << err<< endl;
+	if ( m_debug > 1 )		cout << " residuo= "<< dP / err <<endl;
+
+	h_deltaP[ hitSampleName ]->Fill( dP );
+	h_sigmaP[ hitSampleName ]->Fill(err);
+	h_momentumRes[ hitSampleName ]->Fill( dP /err);
+
+	h_dP_over_Ptrue[ hitSampleName ]->Fill( dP / expected.Mag() );
+	h_dP_over_Pkf[ hitSampleName ]->Fill( dP / meas.Mag() );
+	h_sigmaP_over_Ptrue[ hitSampleName ]->Fill( err / expected.Mag() );
+	h_sigmaP_over_Pkf[ hitSampleName ]->Fill( err / meas.Mag() );
+
+	
+	// histos for momentum reso
+	if ( meas.Mag() == 0 || expected.Mag() == 0 ) 
+		cout<< "ERROR::KFitter::PrintMomentumResidual  -->  track momentum - 0. "<< endl, exit(0);
+	// find the center of the momentum bin
+	int roundUp = ceil( (double)expected.Mag() );
+	int roundDown = floor( (double)expected.Mag() );
+	float binCenter = -666;
+	int nstep = ((float)(roundUp - roundDown)) / m_resoP_step;
+	for ( int i=0; i<nstep; i++ ) {
+		if ( expected.Mag() > roundDown+(i*m_resoP_step) &&  expected.Mag() <= roundDown+((i+1)*m_resoP_step) ) {
+			binCenter = roundDown + m_resoP_step*i + 0.5*m_resoP_step;
+			break;
+		}
+	}
+
+	// fill the h_dP_x_bin
+	if ( h_dP_x_bin.find( hitSampleName ) == h_dP_x_bin.end() ) {
+		map<float, TH1F*> tmp_dP_x_bin;
+		
+		string name = "dP_dist_"+hitSampleName+"_"+build_string(binCenter);
+		TH1F* h = new TH1F( name.c_str(), name.c_str(), 80 , -2, 2 );
+		tmp_dP_x_bin[ binCenter ] = h;
+				
+		h_dP_x_bin[ hitSampleName ] = tmp_dP_x_bin;
+	}
+	else if ( h_dP_x_bin[ hitSampleName ].find( binCenter ) == h_dP_x_bin[ hitSampleName ].end() ) {
+		string name = "dP_dist_"+hitSampleName+"_"+build_string(binCenter);
+		TH1F* h = new TH1F( name.c_str(), name.c_str(), 80 , -2, 2 );
+		h_dP_x_bin[ hitSampleName ][ binCenter ] = h;
+	}
+	h_dP_x_bin[ hitSampleName ][ binCenter ]->Fill( dP );
+
+	// fill the h_dPOverP_x_bin
+	if ( h_dPOverP_x_bin.find( hitSampleName ) == h_dPOverP_x_bin.end() ) {
+		map<float, TH1F*> tmp_dPOverP_x_bin;
+		
+		string name = "dPOverP_dist_"+hitSampleName+"_"+build_string(binCenter);
+		TH1F* h = new TH1F( name.c_str(), name.c_str(), 80 , -0.2, 0.2 );
+		tmp_dPOverP_x_bin[ binCenter ] = h;
+				
+		h_dPOverP_x_bin[ hitSampleName ] = tmp_dPOverP_x_bin;
+	}
+	else if ( h_dPOverP_x_bin[ hitSampleName ].find( binCenter ) == h_dPOverP_x_bin[ hitSampleName ].end() ) {
+		string name = "dPOverP_dist_"+hitSampleName+"_"+build_string(binCenter);
+		TH1F* h = new TH1F( name.c_str(), name.c_str(), 80 , -0.2, 0.2 );
+		h_dPOverP_x_bin[ hitSampleName ][ binCenter ] = h;
+	}
+	h_dPOverP_x_bin[ hitSampleName ][ binCenter ]->Fill( dP/expected.Mag() );
+
+	// fill the h_dPOverSigmaP_x_bin
+	if ( h_dPOverSigmaP_x_bin.find( hitSampleName ) == h_dPOverSigmaP_x_bin.end() ) {
+		map<float, TH1F*> tmp_dPOverSigmaP_x_bin;
+		
+		string name = "dPOverSigmaP_dist_"+hitSampleName+"_"+build_string(binCenter);
+		TH1F* h = new TH1F( name.c_str(), name.c_str(), 80 , -2, 2 );
+		tmp_dPOverSigmaP_x_bin[ binCenter ] = h;
+				
+		h_dPOverSigmaP_x_bin[ hitSampleName ] = tmp_dPOverSigmaP_x_bin;
+	}
+	else if ( h_dPOverSigmaP_x_bin[ hitSampleName ].find( binCenter ) == h_dPOverSigmaP_x_bin[ hitSampleName ].end() ) {
+		string name = "dPOverSigmaP_dist_"+hitSampleName+"_"+build_string(binCenter);
+		TH1F* h = new TH1F( name.c_str(), name.c_str(), 80 , -4, 4 );
+		h_dPOverSigmaP_x_bin[ hitSampleName ][ binCenter ] = h;
+	}
+	h_dPOverSigmaP_x_bin[ hitSampleName ][ binCenter ]->Fill( dP/err );
+
+
+
+	if ( m_debug > 1 )		cout << "KFitter::PrintMomentumResidual -- End!!!!  " << endl;
+}
+
+
+
+//----------------------------------------------------------------------------------------------------
 //  measure the Kalman efficiency over the total sets of points satisfaing the pre-fitting criteria
 double KFitter::EvalError( TVector3 mom, TVector3 err ) {
 
@@ -1112,7 +1265,33 @@ double KFitter::EvalError( TVector3 mom, TVector3 err ) {
 
 
 
-//____________________________________________________________________________________
+//----------------------------------------------------------------------------------------------------
+//  measure the Kalman uncertainty INCLUDING the cross terms in the covariance matrix
+double KFitter::EvalError( TVector3 mom, TMatrixD cov ) {
+
+	if ( cov.GetNcols() != 3 || cov.GetNrows() != 3 ) 
+		cout << "ERROR :: KFitter::EvalError  >>  covariance dimension (should be 6) is wrong " << cov.GetNcols() << " x " << cov.GetNrows() << endl, exit(0);
+
+	array<double,3> partialDer = { mom.x()/sqrt(mom.Mag()), mom.y()/sqrt(mom.Mag()), mom.z()/sqrt(mom.Mag()) };
+
+
+	double err = 0;
+	for ( int j=0; j<cov.GetNrows(); j++ ) {
+		for ( int k=0; k<cov.GetNcols(); k++ ) {
+			
+			err += partialDer[j] * partialDer[k] * cov(j,k); // * diagFactor;
+			
+		}
+	}
+
+	double dp = sqrt(err);
+
+	return dp;
+}
+
+
+
+//----------------------------------------------------------------------------------------------------
 // Called from outside!
 void KFitter::EvaluateMomentumResolution() {
 
@@ -1188,7 +1367,7 @@ void KFitter::EvaluateMomentumResolution() {
 
 
 
-
+//----------------------------------------------------------------------------------------------------
 void KFitter::SaveHisto( TCanvas* mirror, map< string, TH1F* > histoMap, string title, string saveName ) {
 
 	for ( map< string, TH1F* >::iterator it=histoMap.begin(); it != histoMap.end(); it++ ) {
@@ -1200,11 +1379,13 @@ void KFitter::SaveHisto( TCanvas* mirror, map< string, TH1F* > histoMap, string 
 		(*it).second->SetLineWidth(2);
 
 		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+saveName + ".png").c_str() );
+		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+saveName + ".root").c_str() );
 	}
 }
 
 
 
+//----------------------------------------------------------------------------------------------------
 // to be cancelled
 void KFitter::SaveHisto( TCanvas* mirror, TH1F* histoMap, string title, string saveName ) {
 
@@ -1222,7 +1403,7 @@ void KFitter::SaveHisto( TCanvas* mirror, TH1F* histoMap, string title, string s
 
 
 
-
+//----------------------------------------------------------------------------------------------------
 void KFitter::Save( ) {
 
 	// cambiare!!!!!
@@ -1244,6 +1425,7 @@ void KFitter::Save( ) {
 	// SaveHisto( mirror, h_momentumKal );
 	SaveHisto( mirror, h_posRes, "dR", "PositionRes" );
 	SaveHisto( mirror, h_mass, "mass(GeV)", "mass" );
+	SaveHisto( mirror, h_zPosGen, "gen z(cm)", "GenZ" );
 
 	SaveHisto( mirror, h_mass_genFit, "mass(GeV)", "mass" );
 	SaveHisto( mirror, h_charge, "q", "charge" );
@@ -1257,8 +1439,12 @@ void KFitter::Save( ) {
 	SaveHisto( mirror, h_endX, "endY", "g" );
 	SaveHisto( mirror, h_startY, "startY", "h" );
 	SaveHisto( mirror, h_endY, "endY", "i" );
+	
+	SaveHisto( mirror, h_TrackLenght, "TrackLenght", "Track lenght (cm)" );
+	// SaveHisto( mirror, h_TrackTOF, "TrackTOF", "TOF (ns)" );
 
 	SaveHisto( mirror, h_sigmaP, "sigma(p)", "sigmaP" );
+	SaveHisto( mirror, h_sigmaR, "sigma(r)", "sigmaR" );
 	SaveHisto( mirror, h_deltaP, "dp", "deltaP" );
 	SaveHisto( mirror, h_polarAngol, "polarAngol(deg)", "polarAngol" );
 	SaveHisto( mirror, h_dP_over_Ptrue, "dp/p_{true}", "dP_over_Ptrue" );
@@ -1266,9 +1452,7 @@ void KFitter::Save( ) {
 	SaveHisto( mirror, h_sigmaP_over_Pkf, "sigma(p)/p_{true}", "sigmaP_over_Pkf" );
 	SaveHisto( mirror, h_sigmaP_over_Ptrue, "sigma(p)/p_{KF}", "sigmaP_over_Ptrue" );
 
-	// TFile *f_out = new TFile(Outname,"RECREATE");
-
-	//	make dir
+	
 	for ( map<string, map<float, TH1F*> >::iterator collIt=h_dP_x_bin.begin(); collIt != h_dP_x_bin.end(); collIt++ ) {
 		string pathName = (string)getenv("FOOTRES")+"/"+(*collIt).first+"/dP_x_bin";
 		if( stat( pathName.c_str(), &info ) != 0 )		//cannot access
@@ -1338,6 +1522,19 @@ void KFitter::Save( ) {
 		
 	}
 
+	// 2D
+	for ( map< string, TH2F* >::iterator it=h_covariance.begin(); it != h_covariance.end(); it++ ) {
+
+		// (*it).second->GetXaxis()->SetTitle("p [GeV]");
+		(*it).second->Scale( 1./( (float)((*it).second->GetEntries())/9. ) );
+		gStyle->SetPalette(1);
+		mirror->SetLogz(1);
+		(*it).second->Draw("colz text");
+		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"covariance" + ".png").c_str() );
+		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"covariance" + ".root").c_str() );
+		mirror->SetLogz(0);
+	}
+
 }
 
 
@@ -1345,7 +1542,7 @@ void KFitter::Save( ) {
 
 
 
-
+//----------------------------------------------------------------------------------------------------
 void KFitter::Prepare4Test( Track* fitTrack ) {
 	vector<string> viewTranslator = { "SIDE", "TOP" };
     int NHits = 12;

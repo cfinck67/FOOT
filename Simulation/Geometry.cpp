@@ -23,7 +23,7 @@ Geometry::Geometry() {
 	fRegionNumber.clear();
 
 	Geometry::InitBmon();
-	Geometry::InitDch();
+	//	Geometry::InitDch();
 
 }
 
@@ -189,7 +189,7 @@ Int_t Geometry::InitBmon() {
 
 
 /*-----------------------------------------------------------------*/
-
+/*
 Int_t Geometry::InitDch() {
 
   //sposto di +/-0.00001 perchè le celle non tocchino i fili, se no mi dà problemi
@@ -200,7 +200,6 @@ Int_t Geometry::InitDch() {
 
   for (int s=0; s<DCH_NSENSELAY; s++){
     geo.Dch.idsense[s] = 2*DCH_NSENSELAY+2*(s+1);
-    //    cout<<geo.Dch.idsense[s]<<endl;
   }
   
   for (int nn = 0; nn < 2*DCH_NSENSELAY+1; nn++) {
@@ -210,24 +209,7 @@ Int_t Geometry::InitDch() {
     }
   }  
   
-  /*
-  geo.Dch.idsense[0] = 14;
-  geo.Dch.idsense[1] = 16;
-  geo.Dch.idsense[2] = 18;
-  geo.Dch.idsense[3] = 20;
-  geo.Dch.idsense[4] = 22;
-  geo.Dch.idsense[5] = 24;
   
-  for (int nn = 0; nn < 13; nn++) {
-    bb[nn] = nn * DCH_PASSO;
-    bb[nn + 13] = nn * DCH_PASSO;
-    bb[nn + 26] = nn * DCH_PASSO;
-    
-    aa[nn] = 0.;
-    aa[nn + 13] = DCH_STEP;
-    aa[nn + 26] = 2 * DCH_STEP;
-  }
-  */
   geo.Dch.nlayer = DCH_NLAY;
   geo.Dch.nwirelayer = DCH_NWIRELAY;
   geo.Dch.nsense = DCH_NSENSELAY;
@@ -244,14 +226,6 @@ Int_t Geometry::InitDch() {
   geo.Dch.SideDch[1] = DCH_HEIGHT;
   geo.Dch.SideDch[2] = DCH_LENGTH;
   
-  /* generazione parametri volumi di FLUKA :  ogni filo e' definito
-     da un cilindro: 2 basi nell'alluminio e direzione
-     parallela all'asse x ( vista U) e y (vista V) definito da:
-     
-     1) vettore posizione del punto centrale della base
-     2) vettore che da una base arriva all'altra base
-     3) raggio
-  */
   
   for (int il = 0; il < geo.Dch.nlayer; il++) {
     
@@ -266,7 +240,7 @@ Int_t Geometry::InitDch() {
 	+ 2 * il * DCH_LAYDIST + shift;
       geo.Dch.Uc_zM[ic][il] = geo.Dch.CenterDch[2] - geo.Dch.SideDch[2]/2
 	+ geo.Dch.DeltaDch[2] - DCH_RFIELD + 4 * (il+1./2.) * DCH_STEP
-	+ 2 * il * DCH_LAYDIST - .00001;
+	+ 2 * il * DCH_LAYDIST - shift;
 
       if ((il == 0) || (il == 2) || (il == 4)) {
 	geo.Dch.Uc_ym[ic][il] =  geo.Dch.CenterDch[1] - geo.Dch.SideDch[1] / 2
@@ -300,7 +274,7 @@ Int_t Geometry::InitDch() {
 	geo.Dch.Vc_xm[ic][il] =  geo.Dch.CenterDch[0] - geo.Dch.SideDch[0] / 2
 	  + geo.Dch.DeltaDch[0] + (2.*ic+1.) * DCH_PASSO + DCH_RFIELD + shift;
 	geo.Dch.Vc_xM[ic][il] =  geo.Dch.CenterDch[0] - geo.Dch.SideDch[0] / 2
-	  + geo.Dch.DeltaDch[0] + (2.*ic+3.) * DCH_PASSO - DCH_RFIELD;
+	  + geo.Dch.DeltaDch[0] + (2.*ic+3.) * DCH_PASSO - DCH_RFIELD - shift;
       }
       
     }
@@ -308,6 +282,11 @@ Int_t Geometry::InitDch() {
     for (int iw = 0; iw < geo.Dch.nwirelayer; iw++) {
 
       sense = false;
+      
+      //controllo se è un filo di sense
+      for (int s=0; s<DCH_NSENSELAY; s++){
+	if (iw == geo.Dch.idsense[s]) sense = true;
+      }
       
       //  U wires -> along x 
 
@@ -344,11 +323,6 @@ Int_t Geometry::InitDch() {
       geo.Dch.V_cx[iw][il] = 0.;
       geo.Dch.V_cy[iw][il] = geo.Dch.SideDch[1];
       geo.Dch.V_cz[iw][il] = 0.;
-
-      //controllo se è un filo di sense
-      for (int s=0; s<DCH_NSENSELAY; s++){
-	if (iw == geo.Dch.idsense[s]) sense = true;
-      }
       
       // filo di sense
       if (sense){
@@ -365,7 +339,7 @@ Int_t Geometry::InitDch() {
   
   return 0;
   }
-
+*/
 
 /*-----------------------------------------------------------------*/
 

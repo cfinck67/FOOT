@@ -52,8 +52,7 @@ TAVTactNtuMC::~TAVTactNtuMC()
 
 //------------------------------------------+-----------------------------------
 //! Setup all histograms.
-void TAVTactNtuMC::CreateHistogram()
-{
+void TAVTactNtuMC::CreateHistogram()  {
  //  DeleteHistogram();
  //  TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
  //  for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {

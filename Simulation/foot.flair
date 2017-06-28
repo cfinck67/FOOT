@@ -5,7 +5,7 @@ Title: FOOT setup
 Input: foot.inp
 Submit: *Default
 Tabs: 0.1 0.32 0.56 0.81 1.0
-Page: Input
+Page: Geometry
 DefMain: True
 LinkPrg: lfluka
 F77bound: True
@@ -15,39 +15,9 @@ F77dline: False
 Run: <default>
 	Prev:     0
 	Last:     1
-	Status:   4
+	Status:   3
 	Pid:      0
-	StartRun: 1479306855
-End
-
-# Material
-Material: BISMUTH
-	shine: 10.0
-	color: #401030
-	ior: 1.0
-	specular: 0.0
-	alpha: 0
-	fuzz: 0.0
-End
-
-# Material
-Material: NdFeB
-	shine: 10.0
-	color: #B05010
-	ior: 1.0
-	specular: 0.0
-	alpha: 0
-	fuzz: 0.0
-End
-
-# Material
-Material: SmCo
-	shine: 10.0
-	color: #505070
-	ior: 1.0
-	specular: 0.0
-	alpha: 0
-	fuzz: 0.0
+	StartRun: 1496225604
 End
 
 # Material
@@ -81,26 +51,6 @@ Material: BARIUM
 End
 
 # Material
-Material: PilotB
-	shine: 10.0
-	color: #9030B0
-	ior: 1.0
-	specular: 0.0
-	alpha: 0
-	fuzz: 0.0
-End
-
-# Material
-Material: Graphite
-	shine: 10.0
-	color: #1070D0
-	ior: 1.0
-	specular: 0.0
-	alpha: 0
-	fuzz: 0.0
-End
-
-# Material
 Material: BGO
 	shine: 10.0
 	color: #80B090
@@ -111,49 +61,9 @@ Material: BGO
 End
 
 # Material
-Material: NIOBIUM
+Material: SmCo
 	shine: 10.0
-	color: #7030D0
-	ior: 1.0
-	specular: 0.0
-	alpha: 0
-	fuzz: 0.0
-End
-
-# Material
-Material: BAKELITE
-	shine: 10.0
-	color: #407050
-	ior: 1.0
-	specular: 0.0
-	alpha: 0
-	fuzz: 0.0
-End
-
-# Material
-Material: GERMANIU
-	shine: 10.0
-	color: #B0D010
-	ior: 1.0
-	specular: 0.0
-	alpha: 0
-	fuzz: 0.0
-End
-
-# Material
-Material: DYSPROSI
-	shine: 10.0
-	color: #A070B0
-	ior: 1.0
-	specular: 0.0
-	alpha: 0
-	fuzz: 0.0
-End
-
-# Material
-Material: NEODYMIU
-	shine: 10.0
-	color: #D07010
+	color: #505070
 	ior: 1.0
 	specular: 0.0
 	alpha: 0
@@ -171,9 +81,29 @@ Material: Ar-CO2
 End
 
 # Material
-Material: Polyethy
+Material: EJ-232
 	shine: 10.0
-	color: #70B010
+	color: #E0B090
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: SiC
+	shine: 10.0
+	color: #5050D0
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: NEODYMIU
+	shine: 10.0
+	color: #D07010
 	ior: 1.0
 	specular: 0.0
 	alpha: 0
@@ -190,11 +120,221 @@ Material: Mylar
 	fuzz: 0.0
 End
 
+# Material
+Material: BISMUTH
+	shine: 10.0
+	color: #401030
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: NIOBIUM
+	shine: 10.0
+	color: #7030D0
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: TEDLAR
+	shine: 10.0
+	color: #50B010
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: Graphite
+	shine: 10.0
+	color: #1070D0
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: DYSPROSI
+	shine: 10.0
+	color: #A070B0
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: Epoxy
+	shine: 10.0
+	color: #3090B0
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: NdFeB
+	shine: 10.0
+	color: #B05010
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: SiCFoam
+	shine: 10.0
+	color: #E0D0B0
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: FLUORINE
+	shine: 10.0
+	color: #503010
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: BAKELITE
+	shine: 10.0
+	color: #407050
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: Polyethy
+	shine: 10.0
+	color: #70B010
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: PilotB
+	shine: 10.0
+	color: #9030B0
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
+# Material
+Material: GERMANIU
+	shine: 10.0
+	color: #B0D010
+	ior: 1.0
+	specular: 0.0
+	alpha: 0
+	fuzz: 0.0
+End
+
 # Geometry Information
 Geometry:
 	Frame.bsplit: 0.5
 	Frame.tsplit: 0.5
 	Frame.vsplit: 0.5
+
+	# Layer
+	Layer: 3D
+		Userdump.AOMEGA+: 0
+		3D._visible: True
+		Userdump.OMEGAC0: 0
+		Userdump.D0: 0
+		Userdump.AKAONZER: 0
+		Userdump.NEUTRIT: 0
+		Userdump.RAY: 0
+		Userdump.ELECTRON: 0
+		Userdump.LAMBDA: 0
+		Userdump.WWLOWNEU: 0
+		Userdump.XSIC0: 0
+		Userdump.OMEGA-: 0
+		Userdump.D-: 0
+		Userdump.MUON-: 0
+		Userdump.KAON-: 0
+		Userdump.ALAMBDC-: 0
+		3D: True
+		Userdump.PROTON: 0
+		Userdump.PIZERO: 0
+		Userdump.ANEUTRIT: 0
+		layer: 3D
+		Userdump.XSIZERO: 0
+		Userdump.APROTON: 0
+		Userdump.AXSIPC-: 0
+		Userdump.OPTIPHOT: 0
+		Userdump.TRITON: 0
+		Userdump.KAON+: 0
+		Userdump.AXSIPC0: 0
+		Userdump.KAONLONG: 0
+		Userdump.ANEUTRIE: 0
+		Userdump.TAU-: 0
+		Show.voxel: True
+		Userdump.ANEUTRON: 0
+		Show.lattice: True
+		Userdump.ANEUTRIM: 0
+		Userdump.DEUTERON: 0
+		Userdump.XSIC+: 0
+		Userdump.ASIGMA+: 0
+		deflights: 1
+		Userdump.ASIGMA-: 0
+		Userdump.AOMEGAC0: 0
+		Userdump.TAU+: 0
+		Userdump.D+: 0
+		Userdump.XSIPC+: 0
+		Userdump.AXSIZERO: 0
+		Userdump.PION+: 0
+		Userdump.XSI-: 0
+		Userdump.PION-: 0
+		Options.shortcut: F4
+		Userdump.HEAVYION: 0
+		Userdump.ALAMBDA: 0
+		Userdump.SIGMAZER: 0
+		Userdump.MUON+: 0
+		Userdump.LAMBDAC+: 0
+		Userdump.KAONSHRT: 0
+		Userdump.3-HELIUM: 0
+		Userdump.KAONZERO: 0
+		Userdump.XSIPC0: 0
+		Userdump.DS+: 0
+		Userdump.POSITRON: 0
+		Userdump.DS-: 0
+		Options.viewport: False
+		Show: 0
+		Userdump.SIGMA-: 0
+		Userdump.SIGMA+: 0
+		Userdump.AXSIC0: 0
+		Userdump.AXSI+: 0
+		Userdump.NEUTRIE: 0
+		Userdump.AXSIC-: 0
+		Userdump.PHOTON: 0
+		Userdump.NEUTRON: 0
+		Userdump.ASIGMAZE: 0
+		Userdump.D0BAR: 0
+		Userdump.4-HELIUM: 0
+		3D.xray: 128
+		Userdump.NEUTRIM: 0
+	End
 End
 
 # Pet
@@ -205,14 +345,14 @@ End
 Plot: Red
 	Format: .eps
 	Type:   Geometry
-	origin: 0 0 0.1
+	origin: 0 0 0
 	layer: Media
 	title: GeoViewer Red plot
 	labels: 1
 	coord: X-Y
 	boundaries: 1
 	subtype: Material
-	extends: 172.8 79.513
+	extends: 23.2568 10.7015
 	basisu: 1 0 0
 	basisv: 0 1 0
 End
@@ -221,14 +361,14 @@ End
 Plot: Green
 	Format: .eps
 	Type:   Geometry
-	origin: -6.4468 0 3.34258
+	origin: 0 0 0
 	layer: Media
 	title: GeoViewer Green plot
 	labels: 1
 	coord: Z-X
 	boundaries: 1
 	subtype: Material
-	extends: 86.6789 39.8849
+	extends: 86.6788 39.8848
 	basisu: 0 0 1
 	basisv: 1 0 0
 End
@@ -237,14 +377,14 @@ End
 Plot: Blue
 	Format: .eps
 	Type:   Geometry
-	origin: 0 -12.4166 -0.202601
+	origin: 0 0 0
 	layer: Media
 	title: GeoViewer Blue plot
 	labels: 1
 	coord: Z-Y
 	boundaries: 1
 	subtype: Material
-	extends: 40.1878 18.4194
+	extends: 33.4898 15.3495
 	basisu: 0 0 1
 	basisv: 0 1 0
 End
@@ -253,14 +393,14 @@ End
 Plot: Magenta
 	Format: .eps
 	Type:   Geometry
-	origin: -1.73402 19.2966 99.8
+	origin: 0 0 0
 	layer: Media
 	title: GeoViewer Magenta plot
 	labels: 1
 	coord: X-Y
 	boundaries: 1
 	subtype: Material
-	extends: 11.2157 5.14052
+	extends: 57.8705 26.524
 	basisu: -1 0 0
 	basisv: 0 1 0
 End
