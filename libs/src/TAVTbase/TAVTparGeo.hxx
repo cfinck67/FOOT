@@ -79,6 +79,11 @@ public:
     virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
 
 
+    // new geometry 
+    void AssignMaterial() {};
+    void AssignMagnetField() {};
+    void Print() {};
+
 private:
 
     SensorMatrix m_sensorMatrix;
