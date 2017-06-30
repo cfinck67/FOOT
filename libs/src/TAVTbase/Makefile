@@ -20,7 +20,7 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTparTools.hxx \
 	         TAVTparMap.hxx TAVTparGeo.hxx  TAVTparConf.hxx \
-	         TAVTactNtuRaw.hxx TAVTactNtuMC.hxx 	
+	         TAVTactNtuRaw.hxx TAVTactNtuMC.hxx 	TAVTdigitizer.hxx
 			 # TAVTactAscReader.hxx TAVTrawEvent.hxx TAVTactBaseRaw.hxx  \	
 			 # TAVTactAscRaw.hxx	TAVTparCal.hxx 	\
 			 
