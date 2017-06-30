@@ -22,7 +22,7 @@
 class TAVTparTools : public TAGpara {
       
 protected:
-   ifstream fFileStream; // parameter file
+   ifstream fFileStream; //! parameter file
    TString  fFileName;   // name of the file
    Int_t    fDebugLevel; // debug level
    
