@@ -93,6 +93,29 @@ private:
 private:   
    static Double_t fgkGeV2keV;
    
+   //00
+   static Int_t   fgkShel00[];
+   static Float_t fgkAngD00[];
+   static Float_t fgkFacX00[];
+   static Float_t fgkFacY00[];
+   
+   //55
+   static Int_t   fgkShel55[];
+   static Float_t fgkAngD55[];
+   static Float_t fgkFacX55[];
+   static Float_t fgkFacY55[];
+   
+   //05
+   static Int_t   fgkShel50[];
+   static Float_t fgkAngD50[];
+   static Float_t fgkFacX50[];
+   static Float_t fgkFacY50[];
+   
+   //50
+   static Float_t fgkAngD05[];
+
+   static Int_t   fgkMaxTurn;
+
    ClassDef(TAVTdigitizer,0)
 };
 
