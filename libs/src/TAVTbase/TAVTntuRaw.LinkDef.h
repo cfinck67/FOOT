@@ -5,6 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class TAVTntuHit+;
+#pragma link C++ class TAVTntuHitMC+;
 #pragma link C++ class TAVTntuRaw+;
 
 #endif
