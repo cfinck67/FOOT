@@ -66,9 +66,14 @@ public:
     // Return distance from center to center
     double GetLayerDistance() { return m_layerDistance; };
 
-    double GetNPixelX() { return m_nPixel_X; };
-    double GetNPixelY() { return m_nPixel_Y; };
-    int GetNLayers() { return m_nSensors_Z; };
+    double GetNPixelX() const { return m_nPixel_X; };
+    double GetNPixelY() const { return m_nPixel_Y; };
+   
+    double GetPitchX()  const { return m_Pitch_X; };
+    double GetPitchY()  const { return m_Pitch_Y; };
+
+    int    GetNLayers() const { return m_nSensors_Z; };
+   
 
     // Return a vector with the number of sensors along the cartesian directions
     TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
@@ -93,6 +98,7 @@ private:
     int m_nSensors_X;
     int m_nSensors_Y;
     int m_nSensors_Z;
+   
     TVector3 m_NSensors;   
 
     vector<string> m_materialOrder;
@@ -106,47 +112,9 @@ private:
     int m_nPixel_X;
     int m_nPixel_Y;
 
+    double m_Pitch_X;
+    double m_Pitch_Y;
 
-
-    // static Float_t GetTargetWidth()            { return fgTargetWidth; }
-    // static void    SetTargetWidth(Float_t w)   { fgTargetWidth = w;    }
-
-    // static Float_t GetTargetSize()             { return fgTargetSize;  }
-    // static void    SetTargetSize(Float_t s)    { fgTargetSize = s;     }
-
-    // static const Char_t* GetDefaultGeoName()   { return fgkDefaultGeoName.Data();    }
-    // static const Char_t* GetDefaultGeoNameMC() { return fgkDefaultGeoNameMC.Data();  }
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-      
-   // //! Add CMOS module geometry to world
-   // TGeoVolume* AddVertexModule(TGeoHMatrix* hm, const char* basemoduleName = "Module", const char *name = "Vertex");
-   
-   // //! Add CMOS module geometry to world
-   // TEveGeoShapeExtract* AddExtractVertexModule(TGeoHMatrix* hm, const char* basemoduleName = "Module", const char *name = "Vertex");
-
-   // //! Add Target
-   // TGeoVolume* AddTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2., 
-			// 			 const Float_t dz = fgTargetWidth/2., const char *targetName = "Target");
-   
-   // //! Add Extract Target
-   // TEveGeoShapeExtract* AddExtractTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2., 
-			// 							 const Float_t dz = fgTargetWidth/2., const char *targetName = "Target");
-   
-   // //! Build Vertex
-   // TGeoVolume* BuildVertex(const char* basemoduleName = "Module", const char *name = "Vertex");
-   
-   // //! Build Extract Vertex
-   // TEveGeoShapeExtract* BuildExtractVertex(const char* basemoduleName = "Module", const char *name = "Vertex");
-   
-   // //! Get Sensor parameter
-   // SensorParameter_t& GetSensorPar(Int_t idx){return fSensorParameter[idx];}
-
-   
    ClassDef(TAVTparGeo,1)
 };
 
