@@ -14,6 +14,8 @@
 
 class TH2F;
 class TH1F;
+class TAVTdigitizer;
+
 class TAVTactNtuMC : public TAGaction {
    
 public:
@@ -30,15 +32,19 @@ private:
    TAGdataDsc*     fpNtuRaw;		    // output data dsc
    TAGparaDsc*     fpGeoMap;		    // geometry para dsc
    TAGparaDsc*     fpParMap;		    // map para dsc
-   EVENT_STRUCT*   fpEvtStr;
+   EVENT_STRUCT*   fpEvtStr;         // MC structure
    
-   Int_t           fDebugLevel;         // debug level
+   TAVTdigitizer*  fDigitizer;       // cluster size digitizer
+   
+   Int_t           fDebugLevel;       // debug level
    
    TH2F*           fpHisPixelMap[8];  // pixel map per sensor
    TH2F*           fpHisPosMap[8];    // pixel map per sensor   
    TH1F*           fpHisRateMap[8];   // rates per sensor
    TH1F*           fpHisRateMapQ[8];  // rates per quadrant
    
+   TH1F*           fpHisPixel[8];     // number pixels per cluster MC
+
    ClassDef(TAVTactNtuMC,0)
 };
 
