@@ -15,13 +15,19 @@ OutPutOpt     = -o
 ROOTCFLAGS   := $(shell root-config --cflags)
 ROOTLIBS     := $(shell root-config --libs)
 ROOTGLIBS    := $(shell root-config --glibs)
+ARCH       = $(shell root-config --arch)
 
 # Linux with egcs, gcc 2.9x, gcc 3.x (>= RedHat 5.2)
 CXX           = g++
 CXXFLAGS      = -g -Wall -fPIC
 LD            = g++
 LDFLAGS       = -O
+SOPATH        = ../lib
 SOFLAGS       = -shared -dynamiclib
+
+ifeq ($(ARCH),macosx64)
+SOFLAGS = -dynamiclib -single_module -undefined dynamic_lookup
+endif
 
 CXXFLAGS     += $(ROOTCFLAGS) -I.
 LIBS          = $(ROOTLIBS) $(SYSLIBS)
@@ -34,7 +40,7 @@ OBJ   = Evento.o Txt2RootDict.o
 HEAD  = Evento.h 
 #------------------------------------------------------------------------------
 
-all:            Txt2Root
+all:            Txt2Root libStruct
 
 Txt2Root:  Txt2Root.o $(OBJ) $(HEAD)  EventStruct.h
 	$(LD) $(LDFLAGS) Txt2Root.o $(OBJ) $(GLIBS) -o Txt2Root
@@ -49,6 +55,9 @@ Txt2Root.o:   Txt2Root.cpp $(HEAD) EventStruct.h
 Evento.o:   Evento.cpp $(HEAD) Evento.h EventStruct.h
 	    g++ -c Evento.cpp $(CXXFLAGS)
 
+libStruct: Evento.o
+	$(CXX) $(SOFLAGS) -o $(SOPATH)/libEventStruct.$(DllSuf) \
+		$(OBJ) $(GLIBS)
 clean:
 	@rm -f $(OBJ) Txt2RootDict.o core *.so Txt2RootDict.cpp Txt2Root.o Txt2Root
 
