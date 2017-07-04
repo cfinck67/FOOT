@@ -9,6 +9,10 @@
 #include <sstream>
 
 #include "TAVTparGeo.hxx"
+#include "Materials.hxx"
+
+#include "GlobalPar.hxx"
+
 
 
 using namespace std;
@@ -50,8 +54,13 @@ int main (int argc, char *argv[]) {
   cout << 1 + ltm->tm_min << ":";
   cout << 1 + ltm->tm_sec << endl;
 
+
+  cout << "Hello Footer!" << endl;
   
   // real coding !
+
+  GlobalPar::Instance();
+  GlobalPar::GetPar()->Print();
 
   // crea la lista dei materiali nel costruttore
   // leggi i materiali da file o definiti nella calsse stessa?
@@ -87,14 +96,7 @@ int main (int argc, char *argv[]) {
   int t_s = trunc( fmod(fmod(tempo, 3600), 60) );
   cout<< "Execution Time: "<< tempo << " seconds" << endl;
   cout<< "Execution Time in human units: "<< t_h <<" : "<< t_m <<" : "<< t_s << endl;
-  
-  double tempoKal = d.tempo_kal / CLOCKS_PER_SEC;
-  int t_h2 = trunc( tempoKal/3600 );
-  int t_m2 = trunc( fmod(tempoKal, 3600)/60 );
-  int t_s2 = trunc( fmod(fmod(tempoKal, 3600), 60) );
-  cout<< "Execution Time: "<< tempoKal << " seconds" << endl;
-  cout<< "Execution Time in human units: "<< t_h2 <<" : "<< t_m2 <<" : "<< t_s2 << endl;
-  
+    
 
   cout<<" Job done! "<<endl;
   return 0;

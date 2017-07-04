@@ -13,16 +13,13 @@
 
 #include <TGeoManager.h>
 
-#include <TGeoMaterialInterface.h>
+// #include <TGeoMaterialInterface.h>
 
 using namespace std;
 
 
 #define build_string(expr) \
-    (static_cast<ostringstream*>(&(ostringstream().flush() << expr))->str())
-
-
-typedef vector<genfit::AbsMeasurement*> MeasurementVector;
+    (static_cast<ostringstream*>(&(ostringstream().flush() << expr))->str());
 
 
 class Materials {
@@ -35,7 +32,7 @@ public:
 
 	
 
-	TGeoMaterial GetMaterial( string nome ) {
+	TGeoMaterial* GetMaterial( string nome ) {
 		// if (not find nome)	....
 		return store[nome];
 	}
@@ -43,9 +40,9 @@ public:
 
 private:
 	
-	FillStore() {};
+	void FillStore() {};
 	
-	map<string, TGeoMaterial> store;
+	map<string, TGeoMaterial*> store;
 
 };
 
