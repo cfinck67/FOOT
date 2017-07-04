@@ -52,13 +52,12 @@ Float_t TAVTdigitizer::fgkAngD05[] = {180.0,  11.3,  91.0,  18.5,  11.3,  11.3, 
 TAVTdigitizer::TAVTdigitizer(TAGparaDsc* parGeo)
 : TObject(),
   fpParGeo(parGeo),
-  fListOfPixels(new TList()),
   fPixelsN(-1),
   fRsPar(1.6),
   fRsParErr(0.2),
   fThresPar(885),
   fThresParErr(250),
-  fDebugLevel(1)
+  fDebugLevel(0)
 {
    SetFunctions();
    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpParGeo->Object();
@@ -72,7 +71,7 @@ TAVTdigitizer::TAVTdigitizer(TAGparaDsc* parGeo)
 //! Destructor.
 TAVTdigitizer::~TAVTdigitizer()
 {
-   delete fListOfPixels;
+
 }
 
 //------------------------------------------+-----------------------------------
@@ -105,22 +104,19 @@ Bool_t TAVTdigitizer::Process( Double_t edep, Double_t x0, Double_t y0)
 Bool_t TAVTdigitizer::MakeCluster(Double_t x0, Double_t y0)
 {
    fMap.clear();
+   fMapLast.clear();
    
    Int_t line0 = GetLine(y0);
    Int_t col0  = GetColumn(x0);
    
-   Float_t remX = GetColRemainder(x0);
-   Float_t remY = GetLineRemainder(y0);
-
+   
+   // get region in pixel of the hit
    Int_t regX  = GetColRegion(x0);
-   Int_t regY = GetLineRegion(y0);
+   Int_t regY  = GetLineRegion(y0);
    
    if (fDebugLevel) {
 
       printf("%d %d %d\n", fPixelsN, line0, col0);
-
-      printf("remX: %.2f\n", remX);
-      printf("remY: %.2f\n", remY);
    
       printf("regX: %d\n", regX);
       printf("regY: %d\n", regY);
@@ -129,6 +125,7 @@ Bool_t TAVTdigitizer::MakeCluster(Double_t x0, Double_t y0)
    Float_t pitchX  = GetPitchX();
    Float_t pitchY  = GetPitchY();
    
+   // reset position in one of the 9 remarkable position
    switch (regX) {
       case 0:
          x0 += -(GetColRemainder(x0))*pitchX;
@@ -159,6 +156,12 @@ Bool_t TAVTdigitizer::MakeCluster(Double_t x0, Double_t y0)
          break;
    }
    
+   
+   // choose the cluster version
+   if (!SetRegion(regX, regY))
+      return false;
+   
+   
    Int_t turn = 0;
    
    Int_t idx0  = GetIndex(line0, col0);
@@ -166,50 +169,29 @@ Bool_t TAVTdigitizer::MakeCluster(Double_t x0, Double_t y0)
    
    if (fDebugLevel)
       printf("%d %d %d\n", fPixelsN, line0, col0);
+   
+   
+   Int_t rpixels = fPixelsN;
+   Int_t lastTurn = GetLastShell(fShel);
+   Int_t npixels  = fShel[lastTurn];
+   
+   rpixels  = npixels - rpixels;
 
-   Int_t*   shel;
-   Float_t* angD;
-   Float_t* facX;
-   Float_t* facY;
-   
-   if (regX == 5 && regY == 5) {
-      shel = fgkShel55;
-      angD = fgkAngD55;
-      facX = fgkFacX55;
-      facY = fgkFacY55;
-   } else if ((regX == 0 && regY == 0) || (regX == 1 && regY == 1) || (regX == 1 && regY == 0) || (regX == 0 && regY == 1)) {
-      shel = fgkShel00;
-      angD = fgkAngD00;
-      facX = fgkFacX00;
-      facY = fgkFacY00;
-   } else if ((regX == 5 && regY == 0) || (regX == 5 && regY == 1)) {
-      shel = fgkShel50;
-      angD = fgkAngD50;
-      facX = fgkFacX50;
-      facY = fgkFacY50;
-   } else if ((regX == 0 && regY == 5) || (regX == 1 && regY == 5)) {
-      shel = fgkShel50;
-      angD = fgkAngD05;
-      facX = fgkFacY50;
-      facY = fgkFacX50;
-      
-   } else
-      return false;
-   
-   while(fPixelsN != 1) {
+   // complete all shells
+   while(npixels != 1) {
       
       if (fDebugLevel)
          printf("turn %d\n", turn);
       
-      Float_t angL = TMath::ATan2(facX[turn], facY[turn])*TMath::RadToDeg();
+      Float_t angL = TMath::ATan2(fFacX[turn], fFacY[turn])*TMath::RadToDeg();
       Float_t angU = angL+360.;
       
       if (fDebugLevel)
          printf("angL: %.1f\n", angL);
       
-      for (Float_t ang = angL; ang < angU; ang += angD[turn]) {
-         Float_t fcX = facX[turn];
-         Float_t fcY = facY[turn];
+      for (Float_t ang = angL; ang < angU; ang += fAngD[turn]) {
+         Float_t fcX = fFacX[turn];
+         Float_t fcY = fFacY[turn];
          Float_t radius1 = TMath::Sqrt(pitchX*pitchX*fcX*fcX + pitchY*pitchY*fcY*fcY);
          Float_t x = radius1*TMath::Cos(ang*TMath::DegToRad()) + x0;
          Float_t y = radius1*TMath::Sin(ang*TMath::DegToRad()) + y0;
@@ -219,11 +201,17 @@ Bool_t TAVTdigitizer::MakeCluster(Double_t x0, Double_t y0)
          Int_t idx  = GetIndex(line, col);
          
          if (fMap[idx] != 1) {
+            if (turn == lastTurn)
+               fMapLast[idx] = 1;
+               
             if (fDebugLevel)
                printf("%d %d %d\n", fPixelsN-1, line, col);
-            fPixelsN--;
-            if (fPixelsN == 1 )
+               
+            npixels--;
+            if (npixels == 1 ) {
+               fMap[idx] = 1;
                break;
+            }
          }
          fMap[idx] = 1;
       }
@@ -232,10 +220,25 @@ Bool_t TAVTdigitizer::MakeCluster(Double_t x0, Double_t y0)
       turn++;
    }
 
+   // remove pixels until the pixels number is reached
+   RemovePixels(rpixels);
    
+   if (fDebugLevel) {
+      std::map<int,int>::iterator it;
+      
+      Int_t r = 0;
+      for (it = fMap.begin(); it != fMap.end(); ++it) {
+         if (fMap[it->first] == 1) {
+            r++;
+            Int_t l = it->first / fPixelsNx;
+            Int_t c = it->first % fPixelsNx;
+            printf("line/col %d  %d %d\n", r, l, c);
+         }
+      }
+   }
+
    return true;
 }
-
 
 // --------------------------------------------------------------------------------------
 void  TAVTdigitizer::SetFunctions()
@@ -252,6 +255,40 @@ Double_t TAVTdigitizer::FuncClusterSize(Double_t* x, Double_t* par)
    Float_t f = 2*TMath::Pi()*par[0]*TMath::Log(xx/(2*TMath::Pi()*3.6e-3*par[1]));
    
    return f;
+}
+
+
+//_____________________________________________________________________________
+Bool_t TAVTdigitizer::SetRegion(Int_t regX, Int_t regY)
+{
+   if (regX == 5 && regY == 5) {
+      fShel = fgkShel55;
+      fAngD = fgkAngD55;
+      fFacX = fgkFacX55;
+      fFacY = fgkFacY55;
+      
+   } else if ((regX == 0 && regY == 0) || (regX == 1 && regY == 1) || (regX == 1 && regY == 0) || (regX == 0 && regY == 1)) {
+      fShel = fgkShel00;
+      fAngD = fgkAngD00;
+      fFacX = fgkFacX00;
+      fFacY = fgkFacY00;
+      
+   } else if ((regX == 5 && regY == 0) || (regX == 5 && regY == 1)) {
+      fShel = fgkShel50;
+      fAngD = fgkAngD50;
+      fFacX = fgkFacX50;
+      fFacY = fgkFacY50;
+      
+   } else if ((regX == 0 && regY == 5) || (regX == 1 && regY == 5)) {
+      fShel = fgkShel50;
+      fAngD = fgkAngD05;
+      fFacX = fgkFacY50;
+      fFacY = fgkFacX50;
+      
+   } else
+      return false;
+   
+   return true;
 }
 
 //_____________________________________________________________________________
@@ -328,12 +365,12 @@ Int_t TAVTdigitizer::GetColRegion(Float_t x) const
 {
    Float_t rem = GetColRemainder(x);
    
-   if (rem < 0.33)
+   if (rem < 0.33) // hit a corner
       return 0;
    else if (rem > 0.33 && rem < 0.66)
-      return 5;
+      return 5; // hit the middle of the pixel
    else if (rem > 0.66)
-      return 1;
+      return 1; // hit the upper cormer
    else
       return -99;
 }
@@ -352,4 +389,48 @@ Int_t TAVTdigitizer::GetLineRegion(Float_t y) const
    else
       return -99;
 }
+
+//_____________________________________________________________________________
+Int_t TAVTdigitizer::GetLastShell(Int_t* shell) const
+{
+   Int_t lastTurn = 0;
+   
+   while (fPixelsN > shell[lastTurn]) {
+      lastTurn++;
+      if (lastTurn >= fgkMaxTurn) {
+         lastTurn = fgkMaxTurn;
+         break;
+      }
+   }
+
+   return lastTurn;
+}
+
+//_____________________________________________________________________________
+void TAVTdigitizer::RemovePixels(Int_t rpixels)
+{
+   Int_t size = fMapLast.size();
+   
+   std::vector<int> rarray;
+   
+   for (Int_t i = 0; i < size; ++i) {
+      if (i > rpixels-1)
+         rarray.push_back(0);
+      else
+         rarray.push_back(1);
+   }
+   
+   std::random_shuffle (rarray.begin(), rarray.end());
+   
+   std::map<int,int>::iterator it;
+   Int_t r = 0;
+   for (it = fMapLast.begin(); it != fMapLast.end(); ++it) {
+      if (rarray[r] == 1) {
+         fMap[it->first] = 0;
+      }
+      r++;
+   }
+
+}
+
 

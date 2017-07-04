@@ -49,6 +49,9 @@ public:
    Float_t      GetPitchX()  const           { return fPitchX;     }
    Float_t      GetPitchY()  const           { return fPitchX;     }
 
+   //! Get Map
+   std::map<int, int>  GetMap() const        { return fMap;         }
+   
    //! Get column/line from x/y position
    Int_t        GetColumn(Float_t x) const;
    Int_t        GetLine(Float_t y)   const;
@@ -67,10 +70,10 @@ public:
    
 private:
    TAGparaDsc* fpParGeo;
-   TList*      fListOfPixels;    // list of pixel influenced by the deposited charge
    TF1*        fFuncClusterSize; // cluster size function
    
    std::map<int, int> fMap;      // map of found pixels
+   std::map<int, int> fMapLast;  // map of found pixels of the outer shell
    
    Int_t       fPixelsN;         // number of pixels for a given eloss
    Double_t    fRsPar;           // parameter r_s for the cluster size function
@@ -84,11 +87,19 @@ private:
    Float_t     fPitchX;          // pitch in X
    Float_t     fPitchY;          // pitch in Y
    
+   Int_t*      fShel;
+   Float_t*    fAngD;
+   Float_t*    fFacX;
+   Float_t*    fFacY;
+   
    Int_t       fDebugLevel;      // debug
    
 private:
    void        SetFunctions();
    Bool_t      MakeCluster(Double_t x0, Double_t y0);
+   Int_t       GetLastShell(Int_t* shell) const;
+   void        RemovePixels(Int_t rpixels); // remove number of pixels from last shell randomly
+   Bool_t      SetRegion(Int_t regX, Int_t regY);
    
 private:   
    static Double_t fgkGeV2keV;
