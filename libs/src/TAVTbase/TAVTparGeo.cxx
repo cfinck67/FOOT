@@ -182,6 +182,11 @@ void TAVTparGeo::Global2Local( TVector3* glob ) {
 } 
 
 //_____________________________________________________________________________
+void TAVTparGeo::Global2Local_TranslationOnly( TVector3* glob ) {
+    *glob = *glob - m_center;
+} 
+
+//_____________________________________________________________________________
 void TAVTparGeo::Global2Local_RotationOnly( TVector3* glob ) {
     glob->Transform( GetRotationToLocal() );
 } 
@@ -189,6 +194,11 @@ void TAVTparGeo::Global2Local_RotationOnly( TVector3* glob ) {
 //_____________________________________________________________________________
 void TAVTparGeo::Local2Global( TVector3* loc ) {
     loc->Transform( GetRotationToGlobal() );
+    *loc = *loc + m_center;
+}
+
+//_____________________________________________________________________________
+void TAVTparGeo::Local2Global_TranslationOnly( TVector3* loc ) {
     *loc = *loc + m_center;
 }
 
@@ -266,10 +276,14 @@ TGeoVolume* TAVTparGeo::GetVolume() {
     // box->AddNode(epoxyFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_COV_MEDIUM" ]/2 + m_materialThick[ "ITR_EPO_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     // box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_EPO_MEDIUM" ]/2+ m_materialThick[ "ITR_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     
+    double position1 = -m_dimension.z()/2;
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=( m_materialThick[ "VTX_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
 
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  (-0.5*m_dimension.z())+(0.5*m_siliconSensorThick_Lz), new TGeoRotation("null,",0,0,0)));
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("null,",0,0,0)));
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  (0.5*m_dimension.z())-(0.5*m_siliconSensorThick_Lz), new TGeoRotation("null,",0,0,0)));
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
+
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
+
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
     
 
     return box;
@@ -328,26 +342,35 @@ void TAVTparGeo::InitMaterial() {
 }
 
 
-
-void TAVTparGeo::PrintBodies( string geofileName ) {
+void TAVTparGeo::PrintBodies( string geoFileName ) {
 
     ofstream geofile;
-    geofile.open("foot.geo", std::ofstream::out | std::ofstream::app );
-    geofile << "* ***Vertex" << endl;
+    geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
+    
+    string vtxID = "vtx";
+    int count = 0;
 
-    // string vertexId = "vt";
-    string vertexId = "vtx";
+    geofile << "* ***Vertex" << endl;
 
     for (int k=0; k<m_nSensors_Z; k++) {
         for (int i=0; i<m_nSensors_X; i++) {
             for (int j=0; j<m_nSensors_Y; j++) {
 
+                string vtxID = "vtx";
                 geofile << setiosflags(ios::fixed) << setprecision(6) 
-                        << "RPP " << vertexId << i << "     "
-                        << m_sensorMatrix[k][i][j]->GetMinCoord().x() << " " << m_sensorMatrix[k][i][j]->GetMinCoord().x() << " "
-                        << m_sensorMatrix[k][i][j]->GetMinCoord().y() << " " << m_sensorMatrix[k][i][j]->GetMinCoord().y() << " "
-                        << m_sensorMatrix[k][i][j]->GetMinCoord().z() << " " << m_sensorMatrix[k][i][j]->GetMinCoord().z()
+                        << "RPP " << vtxID << count << "     ";
+
+                TVector3 minCoord = TVector3(m_sensorMatrix[k][i][j]->GetMinCoord());
+                Local2Global_TranslationOnly( &minCoord );
+                TVector3 maxCoord = TVector3(m_sensorMatrix[k][i][j]->GetMaxCoord());
+                Local2Global_TranslationOnly( &maxCoord );
+                
+                geofile << minCoord.x() << " " << maxCoord.x() << " "
+                        << minCoord.y() << " " << maxCoord.y() << " "
+                        << minCoord.z() << " " << maxCoord.z()
                         << endl;
+
+                count++;
             }
         }
     }
@@ -355,10 +378,6 @@ void TAVTparGeo::PrintBodies( string geofileName ) {
     geofile.close();
 
 }
-
-
-
-
 // **************** VERTEXING      *******************************************************
 
 

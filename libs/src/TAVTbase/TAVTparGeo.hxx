@@ -43,8 +43,10 @@ public:
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id
     void Global2Local( TVector3* glob );
+    void Global2Local_TranslationOnly( TVector3* glob );
     void Global2Local_RotationOnly( TVector3* glob );
     void Local2Global( TVector3* loc );
+    void Local2Global_TranslationOnly( TVector3* loc );
     void Local2Global_RotationOnly( TVector3* loc );
 
 
@@ -70,6 +72,10 @@ public:
     double GetNPixelY() { return m_nPixel_Y; };
     int GetNLayers() { return m_nSensors_Z; };
 
+    void AssignMaterial() {};
+    void AssignMagnetField() {};
+    void PrintBodies( string geoFileName );
+
     // Return a vector with the number of sensors along the cartesian directions
     TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
 
@@ -78,11 +84,6 @@ public:
     virtual void    Clear(Option_t* opt="");
     virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
 
-
-    // new geometry 
-    void AssignMaterial() {};
-    void AssignMagnetField() {};
-    void PrintBodies( string geofileName );
 
 private:
 

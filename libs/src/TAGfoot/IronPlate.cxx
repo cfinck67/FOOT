@@ -10,6 +10,9 @@ IronPlate::IronPlate() {
 	for ( unsigned int i=0; i<checkTic.size(); i++ ) {
 		m_readyCheck[ checkTic.at(i) ] = false;
 	}
+
+	m_origin = TVector3( 0, 0, 0 );
+
 	// m_readyCheck["material"] = true;		// provvisorio!!!!!
 	// m_MaterialName = "SILICON";				// provvisorio!!!!!
 };

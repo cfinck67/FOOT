@@ -58,8 +58,10 @@ int main (int argc, char *argv[]) {
 
   // PRINT OUT
   // per ora chiamati da qui, si puo fare una classe gestore separata se serve
+  string geofileName = "foot.geonew";
+  // string geofileName = "foot.geo";
   ofstream geofile;
-  geofile.open("foot.geo", std::ofstream::out | std::ofstream::trunc );
+  geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::trunc );
 
   geofile << "    0    0          FOOT experiment geometry" << endl;
   geofile << "* ***Black Body" << endl;
@@ -69,9 +71,9 @@ int main (int argc, char *argv[]) {
 
   geofile.close();
 
-  vtxGeo.PrintBodies( "foot.geo" );
+  vtxGeo.PrintBodies( geofileName );
 
-  geofile.open("foot.geo", std::ofstream::out | std::ofstream::app );
+  geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::app );
   geofile << "END        " <<endl;
 
   /*

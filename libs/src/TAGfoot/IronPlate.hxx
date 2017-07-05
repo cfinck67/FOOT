@@ -50,13 +50,13 @@ public:
 	TVector3 GetPosition( int col, int row );
 
 	TVector3 GetMinCoord() { 
-		TVector3 tmpCenter = TVector3(m_center);
+		TVector3 tmpCenter = TVector3(m_origin);
 		Local2Global_TranslationOnly(&tmpCenter);
 		return tmpCenter - m_halfLength; 
 	};
 
 	TVector3 GetMaxCoord() { 
-		TVector3 tmpCenter = TVector3(m_center);
+		TVector3 tmpCenter = TVector3(m_origin);
 		Local2Global_TranslationOnly(&tmpCenter);
 		return tmpCenter + m_halfLength; 
 	};
@@ -148,6 +148,7 @@ private:
 	
 	TRotation* m_rotation;
 
+	TVector3 m_origin;
 	TVector3 m_center;
 	TVector3 m_length;
 	TVector3 m_halfLength;
