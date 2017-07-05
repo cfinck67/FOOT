@@ -267,9 +267,14 @@ TGeoVolume* TAVTparGeo::GetVolume() {
     // box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_EPO_MEDIUM" ]/2+ m_materialThick[ "ITR_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     
 
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  (-0.5*m_dimension.z())+(0.5*m_siliconSensorThick_Lz), new TGeoRotation("null,",0,0,0)));
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("null,",0,0,0)));
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  (0.5*m_dimension.z())-(0.5*m_siliconSensorThick_Lz), new TGeoRotation("null,",0,0,0)));
+    double position1 = -m_dimension.z()/2;
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=( m_materialThick[ "VTX_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
+
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
+
+    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
     
 
     return box;
