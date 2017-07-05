@@ -36,12 +36,12 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name,
                            TAGparaDsc* pParMap,
                            EVENT_STRUCT* evStr)
 : TAGaction(name, "TAVTactNtuMC - NTuplize Vertex MC data"),
-fpNtuRaw(pNtuRaw),
-fpGeoMap(pGeoMap),
-fpParMap(pParMap),
-fpEvtStr(evStr),
-fDigitizer(new TAVTdigitizer(pGeoMap)),
-fDebugLevel(0)
+  fpNtuRaw(pNtuRaw),
+  fpGeoMap(pGeoMap),
+  fpParMap(pParMap),
+  fpEvtStr(evStr),
+  fDigitizer(new TAVTdigitizer(pGeoMap)),
+  fDebugLevel(0)
 {
    AddDataOut(pNtuRaw, "TAVTntuRaw");
    AddPara(pGeoMap, "TAVTparGeo");
@@ -52,7 +52,7 @@ fDebugLevel(0)
 //! Destructor.
 TAVTactNtuMC::~TAVTactNtuMC()
 {
-   
+   delete fDigitizer;
 }
 
 //------------------------------------------+-----------------------------------
