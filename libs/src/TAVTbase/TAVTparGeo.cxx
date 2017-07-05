@@ -27,6 +27,7 @@
 #include "foot_geo.h"
 #include "GlobalPar.hxx"
 
+//_____________________________________________________________________________
 //  copy constructor
 TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
 
@@ -49,16 +50,16 @@ TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
     m_layerDistance(original->m_layerDistance),
 
     m_nPixel_X(original->m_nPixel_X),
-    m_nPixel_Y(original->m_nPixel_Y)         {
+    m_nPixel_Y(original->m_nPixel_Y)
+{
 
     SensorMatrix m_sensorMatrix = original->m_sensorMatrix;
 }
 
 
-
-
-
-void TAVTparGeo::InitGeo()  {
+//_____________________________________________________________________________
+void TAVTparGeo::InitGeo()
+{
 
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTAVTparGeo::InitGeo" << endl<< endl;
 
@@ -150,6 +151,19 @@ void TAVTparGeo::InitGeo()  {
    m_Pitch_X = m_Pitch_Y = 20.7;
 }
 
+
+//_____________________________________________________________________________
+Float_t TAVTparGeo::GetPositionU(Int_t column) const
+{
+   return ((2*column - m_nPixel_X + 1 ) * m_Pitch_X)/2 ;
+}
+
+//_____________________________________________________________________________
+Float_t TAVTparGeo::GetPositionV(Int_t line) const
+{
+   return -((2*line - m_nPixel_Y + 1 ) * m_Pitch_Y)/2 ;
+   
+}
 
 //_____________________________________________________________________________
 TVector3 TAVTparGeo::GetPosition( int layer, int col, int row )  {

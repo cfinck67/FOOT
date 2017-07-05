@@ -40,6 +40,11 @@ public:
     void InitGeo();
     void InitMaterial();
 
+    //! get position from pixel line/column
+    Float_t GetPositionU(Int_t column)         const;
+    Float_t GetPositionV(Int_t line)           const;
+
+   
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id
     void Global2Local( TVector3* glob );
@@ -73,6 +78,8 @@ public:
     double GetPitchY()  const { return m_Pitch_Y; };
 
     int    GetNLayers() const { return m_nSensors_Z; };
+
+    int    GetSensorsN() const { return m_nSensors_Z; };
    
 
     // Return a vector with the number of sensors along the cartesian directions
