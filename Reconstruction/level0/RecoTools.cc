@@ -367,6 +367,35 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 1,1,14.7 ) ).Print();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic no Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,2 ) ).Print();
 
+    bool magneticFiledTest = true;
+    if ( magneticFiledTest ) {
+        ofstream bFieldTest;
+        bFieldTest.open("bField.test", std::ofstream::out | std::ofstream::trunc );
+
+        bFieldTest << setiosflags(ios::fixed) << setprecision(8);
+
+        float zCoord = -29.75 + 14;     // global coordinates
+        for (int k=0; k<120; k++) {
+            float yCoord = -4.75;
+            for (int j=0; j<20; j++) {
+                float xCoord = -4.75;
+                for (int i=0; i<20; i++) {
+
+                    TVector3 vecB = genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) );
+                    // bFieldTest << vecB.x() << " " << vecB.y() << " " << vecB.z() << endl;
+                    bFieldTest << " " << xCoord << " " << yCoord << " " << zCoord-14;
+                    bFieldTest << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).x() / 10
+                                << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).y() / 10
+                                << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).z() / 10 << endl;
+                    xCoord += 0.5;
+                }
+                yCoord += 0.5;
+            }
+            zCoord += 0.5;
+        }
+        bFieldTest.close();
+    }
+
 
     if(m_doBM) {
         // DisplayBeamMonitor(pg);
