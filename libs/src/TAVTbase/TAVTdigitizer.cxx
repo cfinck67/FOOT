@@ -24,6 +24,7 @@ ClassImp(TAVTdigitizer);
 
 
 Double_t TAVTdigitizer::fgkGeV2keV = 1e6;
+Double_t TAVTdigitizer::fgkCm2Mu   = 10000;
 Int_t    TAVTdigitizer::fgkMaxTurn = 8;
 
 //00
@@ -78,7 +79,9 @@ TAVTdigitizer::~TAVTdigitizer()
 //! fill pixel signal
 Bool_t TAVTdigitizer::Process( Double_t edep, Double_t x0, Double_t y0)
 {
-
+   x0 *= fgkCm2Mu;
+   y0 *= fgkCm2Mu;
+   
    Double_t deltaE = edep*fgkGeV2keV;
    Double_t  smear = 0;
    

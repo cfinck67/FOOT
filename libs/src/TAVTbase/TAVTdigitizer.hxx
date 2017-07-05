@@ -67,6 +67,7 @@ public:
    
 public:
    static Double_t GeV2keV()                 { return fgkGeV2keV;  }
+   static Double_t Cm2Mu()                   { return fgkCm2Mu;    }
    
 private:
    TAGparaDsc* fpParGeo;
@@ -103,6 +104,7 @@ private:
    
 private:   
    static Double_t fgkGeV2keV;
+   static Double_t fgkCm2Mu;
    
    //00
    static Int_t   fgkShel00[];
