@@ -15,6 +15,7 @@
 class TH2F;
 class TH1F;
 class TAVTdigitizer;
+class TAVTntuHitMC;
 
 class TAVTactNtuMC : public TAGaction {
    
@@ -39,11 +40,11 @@ private:
    Int_t           fDebugLevel;       // debug level
    
    TH2F*           fpHisPixelMap[8];  // pixel map per sensor
-   TH2F*           fpHisPosMap[8];    // pixel map per sensor   
-   TH1F*           fpHisRateMap[8];   // rates per sensor
-   TH1F*           fpHisRateMapQ[8];  // rates per quadrant
-   
+   TH2F*           fpHisPosMap[8];    // pixel map per sensor      
    TH1F*           fpHisPixel[8];     // number pixels per cluster MC
+   
+private:
+   void SetMCinfo(TAVTntuHitMC* pixel, Int_t hitId);
 
    ClassDef(TAVTactNtuMC,0)
 };

@@ -4,6 +4,8 @@
   \brief   Implementation of TAVTactNtuMC.
 */
 
+#include <map>
+
 #include "TH2F.h"
 
 #include "TAVTparGeo.hxx"
@@ -59,44 +61,34 @@ void TAVTactNtuMC::CreateHistogram()
 {
    DeleteHistogram();
    
-   for (Int_t i = 0; i < VTX_NLAY; ++i) {
+   TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
+
+   for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
       fpHisPixel[i] = new TH1F(Form("vtMcPixel%d", i+1), Form("Vertex - MC # pixels per clusters for sensor %d", i+1), 100, 0., 100.);
       AddHistogram(fpHisPixel[i]);
    }
 
    
- //  TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
- //  for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
- //    if (TAVTparConf::IsMapHistOn()) {
- //      fpHisPixelMap[i] 
-  // = new TH2F(Form("vtPixelMap%d", i+1)
-  //     , Form("Vertex - pixel map for sensor %d", i+1), 
-  //     pGeoMap->GetPixelsNu(), 0, pGeoMap->GetPixelsNu(), 
-  //     pGeoMap->GetPixelsNv(), 0, pGeoMap->GetPixelsNv());
- //      fpHisPixelMap[i]->SetStats(kFALSE);
- //      AddHistogram(fpHisPixelMap[i]);
- //    }
- //  }
+   for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
+     if (TAVTparConf::IsMapHistOn()) {
+       fpHisPixelMap[i]  = new TH2F(Form("vtMcPixelMap%d", i+1) , Form("Vertex - pixel map for sensor %d", i+1),
+                                    pGeoMap->GetNPixelX(), 0, pGeoMap->GetNPixelX(),
+                                    pGeoMap->GetNPixelY(), 0, pGeoMap->GetNPixelY());
+       fpHisPixelMap[i]->SetStats(kFALSE);
+       AddHistogram(fpHisPixelMap[i]);
+     }
+   }
   
- //  for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
- //    if (TAVTparConf::IsMapHistOn()) {
- //      fpHisPosMap[i] = 
-  // new TH2F(Form("vtPosMap%d", i+1), 
-  //   Form("Vertex - position map for sensor %d", i+1), 
-  //   pGeoMap->GetPixelsNu(), -pGeoMap->GetPitchU()/2*pGeoMap->GetPixelsNu(), pGeoMap->GetPitchU()/2*pGeoMap->GetPixelsNu(),
-  //   pGeoMap->GetPixelsNv(), -pGeoMap->GetPitchV()/2*pGeoMap->GetPixelsNv(), pGeoMap->GetPitchV()/2*pGeoMap->GetPixelsNv());
- //      fpHisPosMap[i]->SetStats(kFALSE);
- //      AddHistogram(fpHisPosMap[i]);
- //    }
+   for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
+     if (TAVTparConf::IsMapHistOn()) {
+       fpHisPosMap[i] =  new TH2F(Form("vtMcPosMap%d", i+1), Form("Vertex - position map for sensor %d", i+1),
+                                  pGeoMap->GetNPixelX(), -pGeoMap->GetPitchX()/2*pGeoMap->GetNPixelX(), pGeoMap->GetPitchX()/2*pGeoMap->GetNPixelX(),
+                                  pGeoMap->GetNPixelY(), -pGeoMap->GetPitchY()/2*pGeoMap->GetNPixelY(), pGeoMap->GetPitchY()/2*pGeoMap->GetNPixelY());
+       fpHisPosMap[i]->SetStats(kFALSE);
+       AddHistogram(fpHisPosMap[i]);
+     }
     
- //    fpHisRateMap[i] = new TH1F(Form("vtRateMap%d", i+1), Form("Vertex - rate per line for sensor %d", i+1), 
-  //           pGeoMap->GetPixelsNu(), 0, pGeoMap->GetPixelsNu());
- //    AddHistogram(fpHisRateMap[i]);
-    
- //    fpHisRateMapQ[i] = new TH1F(Form("vtRateMapQ%d", i+1), Form("Vertex - rate per quadrant for sensor %d", i+1), 
-  //      10, 0, 5);
- //    AddHistogram(fpHisRateMapQ[i]);
- //  }
+   }
   
    SetValidHistogram(kTRUE);
   return;
@@ -109,7 +101,6 @@ Bool_t TAVTactNtuMC::Action()
 {
 
   TAVTntuRaw* pNtuRaw = (TAVTntuRaw*) fpNtuRaw->Object();
-  TAVTparMap* pParMap = (TAVTparMap*) fpParMap->Object();
   TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
 
 
@@ -119,7 +110,8 @@ Bool_t TAVTactNtuMC::Action()
 
   pNtuRaw->Clear();
 
-  int mcID(-1000);
+   Int_t nPixelX = pGeoMap->GetNPixelX();
+   
 
     if (fDebugLevel)     Info("Action()","Processing n :: %2d hits \n",fpEvtStr->VTXn);
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "VTXn   " << fpEvtStr->VTXn<< endl;
@@ -128,99 +120,122 @@ Bool_t TAVTactNtuMC::Action()
    for (Int_t i = 0; i < fpEvtStr->VTXn; i++) {
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx[i] << "  "<< fpEvtStr->TRfy[i] << "  "<< fpEvtStr->TRfz[i] << endl;
 
-      Int_t sensorId    = 0;
 
-     //What About a decent post processing?
-     //The column refer to Y!!!
-     // !!!!!!!!!!!!!!!!!!!!!!!!!!!  in ntuple, the row and col start from 0  !!!!!!!!!!!!!!!!!!!!!!!
-     Int_t myTrow, myTcol;
-     myTrow = fpEvtStr->VTXirow[i] - 1;
-     myTcol = fpEvtStr->VTXicol[i] - 1;
-     
-
-     // Generated particle ID 
-     Int_t genPartID = fpEvtStr->VTXid[i] - 1;
-    
-    // check true particle ID linked to the hit is in the correct range
-    if ( genPartID < 0 || genPartID > fpEvtStr->TRn-1 ) {
-        cout << "TAVTactNtuMC::Action :: ERROR >> wrong generate particle ID: "<< genPartID << " nPart= " << fpEvtStr->TRn << endl;
-        exit(0);
-    }
-
-
+      // Generated particle ID
+      Int_t genPartID = fpEvtStr->VTXid[i] - 1;
+      
     if ( GlobalPar::GetPar()->Debug() > 0 )     {
         cout << "Part type: " << fpEvtStr->TRfid[genPartID] << " and charge: " << fpEvtStr->TRcha[genPartID] << endl;      
         cout << "Generated Position: " << fpEvtStr->TRix[genPartID] <<" "<<fpEvtStr->TRiy[genPartID]<<" "<<fpEvtStr->TRiz[genPartID] << endl;
         cout << "Generated Momentum: " << fpEvtStr->TRipx[genPartID] <<" "<<fpEvtStr->TRipy[genPartID]<<" "<<fpEvtStr->TRipz[genPartID] << endl;
     }
+
+      Int_t layer = fpEvtStr->VTXilay[i] ;
      
-     TAVTntuHitMC* pixel = (TAVTntuHitMC*)pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol);
+      Int_t sensorId = layer;
+
 
      // set geometry // why ???
-     pixel->SetVtxGeo(pGeoMap);
+   //  pixel->SetVtxGeo(pGeoMap);
     
-     Int_t layer = fpEvtStr->VTXilay[i] ;
-     pixel->SetLayer(layer);
    
       Double_t eloss = fpEvtStr->VTXde[i];
-      Double_t x = (fpEvtStr->VTXxin[i]+fpEvtStr->VTXxout[i])/2;
-      Double_t y = (fpEvtStr->VTXyin[i]+fpEvtStr->VTXyout[i])/2;
+      Double_t x     = (fpEvtStr->VTXxin[i]+fpEvtStr->VTXxout[i])/2;
+      Double_t y     = (fpEvtStr->VTXyin[i]+fpEvtStr->VTXyout[i])/2;
       
       fDigitizer->Process(eloss, x, y);
+      std::map<int, int> map = fDigitizer->GetMap();
       
+      // fill pixels from map
+      std::map<int,int>::iterator it;
+      
+       if ( GlobalPar::GetPar()->Debug() > 0 )
+          printf("x %.1f y %.1f\n", x, y);
+      
+      for (it = map.begin(); it != map.end(); ++it) {
+         if (map[it->first] == 1) {
+            Int_t line = it->first / nPixelX;
+            Int_t col  = it->first % nPixelX;
+            TAVTntuHitMC* pixel = (TAVTntuHitMC*)pNtuRaw->NewPixel(sensorId, 1., line, col);
+            double v = pGeoMap->GetPositionV(line);
+            double u = pGeoMap->GetPositionU(col);
+            TVector3 pos(v,u,0);
+            pixel->SetPosition(pos);
+            
+            pixel->SetLayer(layer);
+            SetMCinfo(pixel, i);
+            
+            if ( GlobalPar::GetPar()->Debug() > 0 )
+               printf("line %d col %d\n", line, col);
+            
+            if (ValidHistogram()) {
+               fpHisPixelMap[sensorId]->Fill(line, col);
+               fpHisPosMap[sensorId]->Fill(u, v);
+            }
+         }
+      }
+
       if (ValidHistogram()) {
          Int_t pixelsN = fDigitizer->GetPixelsN();
         fpHisPixel[layer]->Fill(pixelsN);
       }
-      
-      double v = pParMap->GetPositionV(myTrow);
-      double u = pParMap->GetPositionU(myTcol);
-      TVector3 pos(v,u,0);
-      pixel->SetPosition(pos);
-      
-      
-      
-      
-      // MC tracks info
-      mcID = fpEvtStr->VTXid[i];
-      pixel->SetMCid(mcID);
-      
-     //Need IDX matching
-     TVector3 MCmom(0,0,0);
-     TVector3 MCpos(0,0,0);
-      
-      // global coordinates
-     MCpos.SetXYZ((fpEvtStr->VTXxin[i]+fpEvtStr->VTXxout[i])/2,(fpEvtStr->VTXyin[i]+fpEvtStr->VTXyout[i])/2,(fpEvtStr->VTXzin[i]+fpEvtStr->VTXzout[i])/2);
-     MCmom.SetXYZ((fpEvtStr->VTXpxin[i]+fpEvtStr->VTXpxout[i])/2,(fpEvtStr->VTXpyin[i]+fpEvtStr->VTXpyout[i])/2,(fpEvtStr->VTXpzin[i]+fpEvtStr->VTXpzout[i])/2);
-
-      if ( GlobalPar::GetPar()->Debug() > 0 )     {
-         cout << "Vertex pixel hit n: " << i << ". Col " << myTcol << " row "<< myTrow << endl;
-         cout << "\tGlobal kinematic: \n\t\tPos:\t";
-         MCpos.Print();
-         cout << "\t\tMom:\t";
-         MCmom.Print();
-      }
-
-      // change to local
-     pGeoMap->Global2Local( &MCpos );
-     pGeoMap->Global2Local_RotationOnly( &MCmom );
-     
-     
-     pixel->SetMCPosition(MCpos);   // set in local coord
-     pixel->SetMCMomentum(MCmom);   // set in local coord
-     pixel->SetEneLoss(fpEvtStr->VTXde[i]);  // VM added 3/11/13
-     // store generated particle info
-    pixel->SetGeneratedParticleInfo ( genPartID, fpEvtStr->TRfid[genPartID], fpEvtStr->TRcha[genPartID],
-                    fpEvtStr->TRbar[genPartID], fpEvtStr->TRmass[genPartID],
-                    TVector3(fpEvtStr->TRix[genPartID], fpEvtStr->TRiy[genPartID], fpEvtStr->TRiz[genPartID]),
-                    TVector3(fpEvtStr->TRipx[genPartID], fpEvtStr->TRipy[genPartID], fpEvtStr->TRipz[genPartID]) );
-
-        
-  
-
    }
    
    fpNtuRaw->SetBit(kValid);
    return kTRUE;
 }
+
+//------------------------------------------+-----------------------------------
+void TAVTactNtuMC::SetMCinfo(TAVTntuHitMC* pixel, Int_t hitId)
+{
+   
+   TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
+
+   Int_t mcID(-1000);
+
+   // Generated particle ID
+   Int_t genPartID = fpEvtStr->VTXid[hitId] - 1;
+   
+   // check true particle ID linked to the hit is in the correct range
+   if ( genPartID < 0 || genPartID > fpEvtStr->TRn-1 ) {
+      cout << "TAVTactNtuMC::Action :: ERROR >> wrong generate particle ID: "<< genPartID << " nPart= " << fpEvtStr->TRn << endl;
+      exit(0);
+   }
+   
+   // MC tracks info
+   mcID = fpEvtStr->VTXid[hitId];
+   pixel->SetMCid(mcID);
+   
+   //Need IDX matching
+   TVector3 MCmom(0,0,0);
+   TVector3 MCpos(0,0,0);
+   
+   // global coordinates
+   MCpos.SetXYZ((fpEvtStr->VTXxin[hitId]  + fpEvtStr->VTXxout[hitId])/2,  (fpEvtStr->VTXyin[hitId]  + fpEvtStr->VTXyout[hitId])/2,  (fpEvtStr->VTXzin[hitId]  + fpEvtStr->VTXzout[hitId])/2);
+   MCmom.SetXYZ((fpEvtStr->VTXpxin[hitId] + fpEvtStr->VTXpxout[hitId])/2, (fpEvtStr->VTXpyin[hitId] + fpEvtStr->VTXpyout[hitId])/2, (fpEvtStr->VTXpzin[hitId] + fpEvtStr->VTXpzout[hitId])/2);
+   
+   if ( GlobalPar::GetPar()->Debug() > 0 )     {
+      cout << "Vertex pixel hit n: " << hitId << ". Col " << pixel->GetPixelColumn() << " row "<< pixel->GetPixelLine() << endl;
+      cout << "\tGlobal kinematic: \n\t\tPos:\t";
+      MCpos.Print();
+      cout << "\t\tMom:\t";
+      MCmom.Print();
+   }
+   
+   // change to local
+   pGeoMap->Global2Local( &MCpos );
+   pGeoMap->Global2Local_RotationOnly( &MCmom );
+   
+   pixel->SetMCPosition(MCpos);   // set in local coord
+   pixel->SetMCMomentum(MCmom);   // set in local coord
+   pixel->SetEneLoss(fpEvtStr->VTXde[hitId]);  // VM added 3/11/13
+   
+   // store generated particle info
+   pixel->SetGeneratedParticleInfo( genPartID, fpEvtStr->TRfid[genPartID], fpEvtStr->TRcha[genPartID],
+                                    fpEvtStr->TRbar[genPartID], fpEvtStr->TRmass[genPartID],
+                                    TVector3(fpEvtStr->TRix[genPartID], fpEvtStr->TRiy[genPartID], fpEvtStr->TRiz[genPartID]),
+                                    TVector3(fpEvtStr->TRipx[genPartID], fpEvtStr->TRipy[genPartID], fpEvtStr->TRipz[genPartID]) );
+   
+}
+
 
