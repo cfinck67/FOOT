@@ -21,30 +21,6 @@ int main (int argc, char *argv[]) {
 
   clock_t start_tot, end_tot;
 
-  
-  // for (int i = 0; i < argc; i++){
-  //   if(strcmp(argv[i],"-out") == 0)   { out =TString(argv[++i]);  }                        // Root file name for output
-  //   if(strcmp(argv[i],"-outh") == 0)  { outH =TString(argv[++i]);  }                      // Root file name for histo output
-  //   if(strcmp(argv[i],"-in") == 0)    { in = TString(argv[++i]);  }                        // Root file in input
-  //   if(strcmp(argv[i],"-wd") == 0)    { wdir = TString(argv[++i]);  }                      // Working dir
-  //   if(strcmp(argv[i],"-deb") == 0)   { debug = atoi(argv[++i]);      }                    // Enables debugging
-  //   if(strcmp(argv[i],"-nev") == 0)   { nTotEv = atoi(argv[++i]);      }                   // Number of events to be analized
-  //   if(strcmp(argv[i],"-pl_fr") == 0) { pl_freq = atoi(argv[++i]);    }                  // Plot Frequency Number 
-  //   if(strcmp(argv[i],"-list") == 0)  { alist = kTRUE;                 }                  // Input File is a list
-
-  //   if(strcmp(argv[i],"-help") == 0)  { 
-  //     cout<<" Decoder help:"<<endl;
-  //     cout<<" Ex: Decoder [opts] "<<endl;
-  //     cout<<" possible opts are:"<<endl;
-  //     cout<<"      -out path/file : [def=DecodedMC.root] Root output file"<<endl;
-  //     cout<<"      -in path/file  : [def=../data/mc/MC_ID040_Evt1k.root] ROOT input file"<<endl;
-  //     cout<<"      -deb value     : [def=0] Enables debugging. Values 1,2 are allowed"<<endl;
-  //     cout<<"      -nev value     : [def=10^7] Numbers of events to process"<<endl;
-  //     cout<<"      -pl_fr value   : [def=100] Produce an event display each _value_ events"<<endl;
-  //     return 1;
-  //   }
-  // }
-
   // start time
   start_tot = clock();
   time_t now = time(0);
@@ -82,9 +58,31 @@ int main (int argc, char *argv[]) {
 
   // PRINT OUT
   // per ora chiamati da qui, si puo fare una classe gestore separata se serve
-  vtxGeo.Print();
+  ofstream geofile;
+  geofile.open("foot.geo", std::ofstream::out | std::ofstream::trunc );
 
+  geofile << "    0    0          FOOT experiment geometry" << endl;
+  geofile << "* ***Black Body" << endl;
+  geofile << "RPP blk        -1000. 1000. -1000. 1000. -1000. 1000." << endl;
+  geofile << "* ***Air -> no mag field" << endl;
+  geofile << "RPP air        -900.0 900.0 -900.0 900.0 -900.0 900.0" << endl;
 
+  geofile.close();
+
+  vtxGeo.PrintBodies( "foot.geo" );
+
+  geofile.open("foot.geo", std::ofstream::out | std::ofstream::app );
+  geofile << "END        " <<endl;
+
+  /*
+     inizio definizione regioni
+  */
+  
+  geofile <<"* ******************************************************************************"<<endl;
+  geofile <<"*                         REGIONS                                              *"<<endl;
+  geofile <<"* ******************************************************************************"<<endl;
+
+  geofile.close();
 
 
 

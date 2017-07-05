@@ -82,7 +82,7 @@ public:
     // new geometry 
     void AssignMaterial() {};
     void AssignMagnetField() {};
-    void Print() {};
+    void PrintBodies( string geofileName );
 
 private:
 

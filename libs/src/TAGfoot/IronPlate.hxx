@@ -49,10 +49,25 @@ public:
 
 	TVector3 GetPosition( int col, int row );
 
+	TVector3 GetMinCoord() { 
+		TVector3 tmpCenter = TVector3(m_center);
+		Local2Global_TranslationOnly(&tmpCenter);
+		return tmpCenter - m_halfLength; 
+	};
 
+	TVector3 GetMaxCoord() { 
+		TVector3 tmpCenter = TVector3(m_center);
+		Local2Global_TranslationOnly(&tmpCenter);
+		return tmpCenter + m_halfLength; 
+	};
+
+	// put private
 	void Global2Local( TVector3* glob );
+	void Global2Local_TranslationOnly( TVector3* glob );
     void Global2Local_RotationOnly( TVector3* glob );
+
     void Local2Global( TVector3* loc );
+    void Local2Global_TranslationOnly( TVector3* loc );
     void Local2Global_RotationOnly( TVector3* loc );
 
 
@@ -124,6 +139,9 @@ public:
 
 
 private:
+
+	// TVector3 GetCenter() { return m_center; };
+
 
 	map<string, bool> m_readyCheck;		
 	map<string, double> m_materialMap;

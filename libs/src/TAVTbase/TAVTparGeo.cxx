@@ -329,6 +329,35 @@ void TAVTparGeo::InitMaterial() {
 
 
 
+void TAVTparGeo::PrintBodies( string geofileName ) {
+
+    ofstream geofile;
+    geofile.open("foot.geo", std::ofstream::out | std::ofstream::app );
+    geofile << "* ***Vertex" << endl;
+
+    // string vertexId = "vt";
+    string vertexId = "vtx";
+
+    for (int k=0; k<m_nSensors_Z; k++) {
+        for (int i=0; i<m_nSensors_X; i++) {
+            for (int j=0; j<m_nSensors_Y; j++) {
+
+                geofile << setiosflags(ios::fixed) << setprecision(6) 
+                        << "RPP " << vertexId << i << "     "
+                        << m_sensorMatrix[k][i][j]->GetMinCoord().x() << " " << m_sensorMatrix[k][i][j]->GetMinCoord().x() << " "
+                        << m_sensorMatrix[k][i][j]->GetMinCoord().y() << " " << m_sensorMatrix[k][i][j]->GetMinCoord().y() << " "
+                        << m_sensorMatrix[k][i][j]->GetMinCoord().z() << " " << m_sensorMatrix[k][i][j]->GetMinCoord().z()
+                        << endl;
+            }
+        }
+    }
+
+    geofile.close();
+
+}
+
+
+
 
 // **************** VERTEXING      *******************************************************
 

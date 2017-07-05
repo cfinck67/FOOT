@@ -35,7 +35,9 @@ public:
 	TGeoMaterial* GetMaterial( string nome ) {
 		// if (not find nome)	....
 		return store[nome];
-	}
+	};
+
+	void Print() {};
 
 
 private:
