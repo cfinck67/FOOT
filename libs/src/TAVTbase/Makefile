@@ -20,16 +20,15 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTparTools.hxx \
 	         TAVTparMap.hxx TAVTparGeo.hxx  TAVTparConf.hxx \
-	         TAVTactNtuRaw.hxx TAVTactNtuMC.hxx 	TAVTdigitizer.hxx
-			 # TAVTactAscReader.hxx TAVTrawEvent.hxx TAVTactBaseRaw.hxx  \	
+	         TAVTactNtuRaw.hxx TAVTactNtuMC.hxx 	TAVTdigitizer.hxx \
+			   TAVTntuCluster.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx TAVTactNtuCluster.hxx
+
+          # TAVTactAscReader.hxx TAVTrawEvent.hxx TAVTactBaseRaw.hxx  \
 			 # TAVTactAscRaw.hxx	TAVTparCal.hxx 	\
-			 
-			 # TAVTntuCluster.hxx \
-			 # TAVTntuTrack.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx\
-			 # TAVTactNtuCluster.hxx TAVTactBaseNtuTrack.hxx \
+			 # TAVTntuTrack.hxx TAVTactBaseNtuTrack.hxx \
 			 # TAVTactNtuTrack.hxx  TAVTactNtuTrackF.hxx  TAVTactNtuTrackH.hxx TAVTactNtuPostTrack.hxx\
-    #          TAVTntuVertex.hxx TAVTactBaseNtuVertex.hxx TAVTactNtuVertex.hxx TAVTactNtuVertexPD.hxx\
-	   #           TAVTeventDisplayMC.hxx TAVTbaseEventDisplay.hxx 
+          # TAVTntuVertex.hxx TAVTactBaseNtuVertex.hxx TAVTactNtuVertex.hxx TAVTactNtuVertexPD.hxx\
+	       # TAVTeventDisplayMC.hxx TAVTbaseEventDisplay.hxx
 
 
 #	            TAVTeventDisplay.hxx TAVTntuAlign.hxx TAVTalign.hxx TAVTactDatRaw.hxx 

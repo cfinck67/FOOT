@@ -165,6 +165,16 @@ Float_t TAVTparGeo::GetPositionV(Int_t line) const
    
 }
 
+
+//_____________________________________________________________________________
+TVector3 TAVTparGeo::Local2Global(Int_t detID, TVector3& loc) const
+{
+   TVector3 pos(loc);
+   m_sensorMatrix[detID][0][0]->Local2Global(&pos);
+   
+   return pos;
+}
+
 //_____________________________________________________________________________
 TVector3 TAVTparGeo::GetPosition( int layer, int col, int row )  {
     // TVector3 sensorCoord = GetSensorCoortdinates( int layer, int col, int row );

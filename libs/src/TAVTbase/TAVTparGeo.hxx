@@ -51,7 +51,8 @@ public:
     void Global2Local_RotationOnly( TVector3* glob );
     void Local2Global( TVector3* loc );
     void Local2Global_RotationOnly( TVector3* loc );
-
+   
+    TVector3  Local2Global(Int_t detID, TVector3& loc) const;
 
     TRotation GetRotationToGlobal() { return *m_rotation; };
     TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
