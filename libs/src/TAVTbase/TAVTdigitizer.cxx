@@ -426,7 +426,7 @@ void TAVTdigitizer::RemovePixels(Int_t rpixels)
          rarray.push_back(1);
    }
    
-   std::random_shuffle (rarray.begin(), rarray.end());
+   std::random_shuffle (rarray.begin(), rarray.end(), digit::myrandom);
    
    std::map<int,int>::iterator it;
    Int_t r = 0;
