@@ -43,7 +43,7 @@ public:
    Float_t      GetPitchY()  const           { return fPitchX;     }
 
    //! Get Map
-   std::map<int, int>  GetMap() const        { return fMap;         }
+   std::map<int, int>  GetMap() const        { return fMap;        }
    
    //! Get column/line from x/y position
    Int_t        GetColumn(Float_t x) const;
@@ -62,6 +62,8 @@ public:
    static Double_t GeV2keV()                 { return fgkGeV2keV;  }
    static Double_t Cm2Mu()                   { return fgkCm2Mu;    }
    
+   static Int_t    GetRandom (Int_t i)       { return std::rand() % i;}
+
 private:
    TAGparaDsc* fpParGeo;
    TF1*        fFuncClusterSize; // cluster size function
@@ -124,9 +126,5 @@ private:
 
    ClassDef(TAVTdigitizer,0)
 };
-
-namespace digit {
-   Int_t myrandom (Int_t i) { return std::rand() % i;}
-}
 
 #endif
