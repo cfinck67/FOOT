@@ -61,7 +61,6 @@ void TAVTactBaseNtuCluster::CreateHistogram()
    fpHisPixelTot = new TH1F("vtClusPixelTot", "Vertex - Total # pixels per clusters", 100, 0., 100.);
    AddHistogram(fpHisPixelTot);
    
-   TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
    
    for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
