@@ -18,13 +18,6 @@
 #include "TAGparaDsc.hxx"
 
 
-struct RawPixel_t : public  TObject {
-     RawPixel_t() {line = column = 0;}
-	  Int_t line;    // pixel line id
-	  Int_t column;  // pixel column id
-};
-
-
 class TF1;
 class TAVTdigitizer : public TObject {
    
@@ -131,5 +124,9 @@ private:
 
    ClassDef(TAVTdigitizer,0)
 };
+
+namespace digit {
+   Int_t myrandom (Int_t i) { return std::rand() % i;}
+}
 
 #endif
