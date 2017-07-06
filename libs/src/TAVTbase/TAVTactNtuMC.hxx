@@ -7,6 +7,8 @@
  */
 /*------------------------------------------+---------------------------------*/
 
+#include <vector>
+
 #include "Evento.h"
 
 #include "TAGaction.hxx"
@@ -16,6 +18,15 @@ class TH2F;
 class TH1F;
 class TAVTdigitizer;
 class TAVTntuHitMC;
+
+struct RawMcHit_t : public  TObject {
+   RawMcHit_t() {id = 0; de = x = y = 0.;}
+     Int_t  id;  // sensor id
+     Float_t de; // enerhy loss
+	  Float_t x;  // hit in X
+	  Float_t y;  // hit in Y
+};
+
 
 class TAVTactNtuMC : public TAGaction {
    
@@ -28,6 +39,26 @@ public:
 
    //! Base creation of histogram
    virtual  void   CreateHistogram();
+ 
+public:
+   //! Set refit flag
+   static void   SetPileup(Bool_t flag)      { fgPileup = flag;         }
+   
+   //! Get refit flag
+   static Bool_t GetPileup()                 { return fgPileup;         }
+   
+   //! Set number of pileup evt
+   static void   SetPileupEventsN(Bool_t n)  { fgPileupEventsN = n;     }
+   
+   //! Get number of pileup evt
+   static Int_t  GetPileupEventsN()          { return fgPileupEventsN;  }
+   
+   //! Set Poisson parameter
+   static void   SetPoissonPar(Float_t par)  { fgPoissonPar = par;      }
+   
+   //! Get Poisson parameter
+   static Float_t GetPoissonPar()            { return fgPoissonPar;     }
+
    
 private:
    TAGdataDsc*     fpNtuRaw;		    // output data dsc
@@ -43,9 +74,20 @@ private:
    TH2F*           fpHisPosMap[8];    // pixel map per sensor      
    TH1F*           fpHisPixel[8];     // number pixels per cluster MC
    
+   TH1F*           fpHisPoisson;      // Poisson distribution for pileup
+   
+   std::vector<std::vector<RawMcHit_t>> fStoredEvents;
+   
 private:
-   void SetMCinfo(TAVTntuHitMC* pixel, Int_t hitId);
+   void            SetMCinfo(TAVTntuHitMC* pixel, Int_t hitId);
+   void            GeneratePileup();
+   void            FillPixels(Int_t sensorId, Int_t mcId = -1);
 
+private:
+   static Bool_t   fgPileup;           // flag to generated pileup events
+   static Int_t    fgPileupEventsN;    // number of pileup events to be stored
+   static Float_t  fgPoissonPar;       // Poisson parameter for pileup simulation
+   
    ClassDef(TAVTactNtuMC,0)
 };
 
