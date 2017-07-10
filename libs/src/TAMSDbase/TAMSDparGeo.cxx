@@ -256,8 +256,8 @@ TGeoVolume* TAMSDparGeo::GetVolume() {
     TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2, m_materialThick[ "MSD_MEDIUM" ]/2 ); //top è scatola che conterrà tutto (dimensioni in cm)
     siliconFoil->SetLineColor(kOrange);
     siliconFoil->SetFillColor(kOrange);
-    // TGeoVolume *kaptonFoil = gGeoManager->MakeBox("kaptonFoil",gGeoManager->GetMedium("Kapton_med"), width_Lx/2, height_Ly/2, m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ); //top è scatola che conterrà tutto (dimensioni in cm)
-    // kaptonFoil->SetLineColor(kOrange-7);
+    TGeoVolume *kaptonFoil = gGeoManager->MakeBox("kaptonFoil",gGeoManager->GetMedium("Kapton_med"), width_Lx/2, height_Ly/2, m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ); //top è scatola che conterrà tutto (dimensioni in cm)
+    kaptonFoil->SetLineColor(kOrange-7);
 
 
 
@@ -266,19 +266,19 @@ TGeoVolume* TAMSDparGeo::GetVolume() {
     double position1 = -m_dimension.z()/2;
     // layer 1
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position1+=( m_materialThick[ "m_siliconSensorThick_Lz_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,   position1+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+    box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,   position1+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position1+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     
     // layer 2
     double position2 = -(m_materialThick[ "MSD_MEDIUM" ] + m_materialThick[ "MSD_KAP_MEDIUM" ]/2);
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position2+=( m_materialThick[ "MSD_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position2+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+    box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position2+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position2+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     
     // layer 3
     double position3 = (m_dimension.z()/2) -( m_materialThick[ "MSD_MEDIUM" ]*2 + m_materialThick[ "MSD_KAP_MEDIUM" ] );
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position3+=( m_materialThick[ "MSD_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position3+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+    box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position3+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position3+=( m_materialThick[ "MSD_MEDIUM" ]/2 + m_materialThick[ "MSD_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     
 
@@ -291,7 +291,7 @@ TGeoVolume* TAMSDparGeo::GetVolume() {
 void TAMSDparGeo::InitMaterial() {
 
     m_materialOrder = {  "MSD_MEDIUM", 
-                         // "MSD_KAP_MEDIUM",
+                         "MSD_KAP_MEDIUM",
                          "MSD_MEDIUM"
                          };
 
@@ -302,10 +302,10 @@ void TAMSDparGeo::InitMaterial() {
             m_materialType[ m_materialOrder[i] ] = MSD_MEDIUM;
         }
         
-        // else if( m_materialOrder[i] == "MSD_KAP_MEDIUM" ){
-        //     m_materialThick[ m_materialOrder[i] ] = MSD_THICK;
-        //     m_materialType[ m_materialOrder[i] ] = MSD_KAP_MEDIUM;
-        // }
+        else if( m_materialOrder[i] == "MSD_KAP_MEDIUM" ){
+            m_materialThick[ m_materialOrder[i] ] = MSD_THICK;
+            m_materialType[ m_materialOrder[i] ] = MSD_KAP_MEDIUM;
+        }
         
     }
 

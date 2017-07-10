@@ -280,7 +280,11 @@ const double MSD_Z		=28.0;
 				     
 const Double_t MSD_WIDTH   	=9.0;//x dimension
 const Double_t MSD_HEIGHT  	=9.0;//y dimension
-const Double_t MSD_THICK   	=0.005;//z dimension
+const Double_t MSD_THICK   	=0.007;//z dimension
+				     
+const Double_t MSD_KAP_WIDTH   	=MSD_WIDTH;
+const Double_t MSD_KAP_HEIGHT  	=MSD_HEIGHT;
+const Double_t MSD_KAP_THICK   	=0.003; 
 
 const Int_t    MSD_NVIEW        =2;//no. of layers
 const Int_t    MSD_NLAY         =3;//no. of layers
@@ -294,6 +298,7 @@ const Double_t MSD_DY		=MSD_DX;//y dimension of strip
 const Int_t MSD_XSTRIP		=int(MSD_WIDTH/MSD_DX);//n. strip in x
 const Int_t MSD_YSTRIP		=int(MSD_HEIGHT/MSD_DY);//n. strip in y
 
+const TString  MSD_KAP_MEDIUM   ="KAPTON";
 const TString  MSD_MEDIUM       ="SILICON";
 
 //MSD_MAG = true if mag field region includes MSD
