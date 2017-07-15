@@ -99,6 +99,7 @@
 
 #include "foot_geo.h"
 
+#include "Materials.hxx"
 #include "FootField.hxx"
 
 #include <iostream>
@@ -158,7 +159,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   fGeoTrafo = new TAGgeoTrafo();
   TString filename = m_wd + "/FOOT_geo.map";
   fGeoTrafo->InitGeo(filename.Data());
+  
 
+  //Materials* listMaterials=new Materials() ;
+  //listMaterials->PrintMap();
 
   //  TTree *tree = 0;
   TChain *tree = new TChain("EventTree");

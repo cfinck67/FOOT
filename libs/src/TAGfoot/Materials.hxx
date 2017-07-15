@@ -26,25 +26,30 @@ class Materials {
 
 public:
 
-	
-	Materials( ) {};
+
+	Materials( );
 	~Materials() {};
 
-	
+
 
 	TGeoMaterial* GetMaterial( string nome ) {
 		// if (not find nome)	....
-		return store[nome];
+		return m_store[nome];
 	};
 
 	void Print() {};
 
+  void PrintMap();
+
 
 private:
-	
-	void FillStore() {};
-	
-	map<string, TGeoMaterial*> store;
+
+  void FillStore();
+  void ReadFile();
+  void WriteMaterial(vector<string> tmpVecStr);
+  string StrReplace(string original,string erase,string add);
+
+  map<string, TGeoMaterial*> m_store;
 
 };
 
@@ -53,26 +58,3 @@ private:
 
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
