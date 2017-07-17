@@ -161,7 +161,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   fGeoTrafo->InitGeo(filename.Data());
   
 
-  //Materials* listMaterials=new Materials() ;
+  Materials* listMaterials=new Materials() ;
   //listMaterials->PrintMap();
 
   //  TTree *tree = 0;

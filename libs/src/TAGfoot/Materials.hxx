@@ -6,6 +6,21 @@
 
 #include <array>
 #include <vector>
+#include <map>
+#include <iterator>
+
+#include <iomanip>
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string>
+#include <cstring>
+#include <fstream>
+#include <sstream>
+// #include <vector>
+// #include <math.h>
+// #include <algorithm>
+// #include <memory>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -39,17 +54,17 @@ public:
 
 	void Print() {};
 
-  void PrintMap();
+	void PrintMap();
 
 
 private:
 
-  void FillStore();
-  void ReadFile();
-  void WriteMaterial(vector<string> tmpVecStr);
-  string StrReplace(string original,string erase,string add);
+	void FillStore();
+	void ReadFile();
+	void WriteMaterial(vector<string> tmpVecStr);
+	string StrReplace(string original,string erase,string add);
 
-  map<string, TGeoMaterial*> m_store;
+	map<string, TGeoMaterial*> m_store;
 
 };
 

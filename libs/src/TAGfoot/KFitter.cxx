@@ -13,6 +13,10 @@ KFitter::KFitter ( int nIter, double dPVal ) {
 	
 	gROOT->SetStyle("Plain");
 	gStyle->SetFrameBorderMode(0);
+	gStyle->SetStatW(0.2);                
+	// Set width of stat-box (fraction of pad size)
+	gStyle->SetStatH(0.1);                
+	// Set height of stat-box (fraction of pad size)
 	m_debug = GlobalPar::GetPar()->Debug();
 
 	// test variable of control
@@ -819,7 +823,8 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 
 	TMatrixD covarianceR(3,3); 
 	TMatrixD covarianceP(3,3); 
-	// loop over tracks
+
+	// loop over hits
 	for ( unsigned int i =0; i<m_hitCollectionToFit[ hitSampleName ].size(); i++ ) {
 
 		int x = i;	// track index, same in case of forward and reverse
@@ -921,9 +926,12 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			h_Ndf[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->getNdf() );
 
 			h_TrackLenght[ hitSampleName ]->Fill( track->getTrackLen( track->getCardinalRep() ) );
-			// h_TrackTOF[ hitSampleName ]->Fill( track->getTOF( track->getCardinalRep() ) );		// doesn't work!!!!
+			// h_Radius[ hitSampleName ]->Fill( track->getTOF( track->getCardinalRep() ) );		// doesn't work!!!!
+			// h_Radius[ hitSampleName ]->Fill( (KalmanPos - tmpPos).Mag() );	
 
 		}
+
+		if ( i == 4 ) 	h_Radius[ hitSampleName ]->Fill( (KalmanPos - tmpPos).Mag() );
 
 		if ( i == 0 ) {
 			h_startX[ hitSampleName ]->Fill( tmpPos.X() );
@@ -961,8 +969,8 @@ void KFitter::InitAllHistos( string hitSampleName ) {
 	// initialize output histos
 	InitSingleHisto(&h_chi2, hitSampleName, "TrackChi2", 100, 0, 10);
 	InitSingleHisto(&h_posRes, hitSampleName, "h_posRes", 40, 0, 0.06);
-	InitSingleHisto(&h_sigmaR, hitSampleName, "h_sigmaR", 1000, -1, 1);
-	InitSingleHisto(&h_sigmaP, hitSampleName, "h_sigmaP", 1000, -1, 1);
+	InitSingleHisto(&h_sigmaR, hitSampleName, "h_sigmaR", 100, 0, 0.002);
+	InitSingleHisto(&h_sigmaP, hitSampleName, "h_sigmaP", 1000, -10, 10);
 	InitSingleHisto(&h_deltaP, hitSampleName, "h_deltaP", 100, -1, 1);
 	InitSingleHisto(&h_momentumRes, hitSampleName, "h_momentumRes", 80, -4, 4);
 
@@ -984,8 +992,9 @@ void KFitter::InitAllHistos( string hitSampleName ) {
 	InitSingleHisto(&h_endY, hitSampleName, "h_endY", 100, -10, 10);
 	
 	// InitSingleHisto(&h_TrackLenght, hitSampleName, "h_TrackLenght", 100, 28, 31);
-	InitSingleHisto(&h_TrackLenght, hitSampleName, "h_TrackLenght", 100, 12.5, 15.5);		// VT and IT only
-	// InitSingleHisto(&h_TrackTOF, hitSampleName, "h_TrackTOF", 100, 0, 50);
+	// InitSingleHisto(&h_TrackLenght, hitSampleName, "h_TrackLenght", 100, 12.5, 15.5);		// VT and IT only
+	InitSingleHisto(&h_TrackLenght, hitSampleName, "h_TrackLenght", 500, 12.5, 31);		// VT and IT only
+	InitSingleHisto(&h_Radius, hitSampleName, "h_Radius", 100, 0, 0.004);
 	
 	InitSingleHisto(&h_isFitConvergedFully, hitSampleName, "h_isFitConvergedFully", 5, -2.5, 2.5);
 	InitSingleHisto(&h_isFitConvergedPartially, hitSampleName, "h_isFitConvergedPartially", 5, -2.5, 2.5);
@@ -995,7 +1004,7 @@ void KFitter::InitAllHistos( string hitSampleName ) {
 	
 	InitSingleHisto(&h_dP_over_Ptrue, hitSampleName, "h_dP_over_Ptrue", 40, -0.2, 0.2);
 	InitSingleHisto(&h_dP_over_Pkf, hitSampleName, "h_dP_over_Pkf", 40, -0.2, 0.2);
-	InitSingleHisto(&h_sigmaP_over_Pkf, hitSampleName, "h_sigmaP_over_Pkf", 40, 0, 0.1);
+	InitSingleHisto(&h_sigmaP_over_Pkf, hitSampleName, "h_sigmaP_over_Pkf", 40, 0, 0.2);
 	InitSingleHisto(&h_sigmaP_over_Ptrue, hitSampleName, "h_sigmaP_over_Ptrue", 40, 0, 0.5);
 
 
@@ -1440,8 +1449,8 @@ void KFitter::Save( ) {
 	SaveHisto( mirror, h_startY, "startY", "h" );
 	SaveHisto( mirror, h_endY, "endY", "i" );
 	
-	SaveHisto( mirror, h_TrackLenght, "TrackLenght", "Track lenght (cm)" );
-	// SaveHisto( mirror, h_TrackTOF, "TrackTOF", "TOF (ns)" );
+	SaveHisto( mirror, h_TrackLenght, "Track lenght (cm)", "TrackLenght" );
+	SaveHisto( mirror, h_Radius, "R (cm)", "Radius" );
 
 	SaveHisto( mirror, h_sigmaP, "sigma(p)", "sigmaP" );
 	SaveHisto( mirror, h_sigmaR, "sigma(r)", "sigmaR" );
