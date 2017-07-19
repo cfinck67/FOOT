@@ -123,7 +123,8 @@ void KFitter::MakePdgDatabase() {
 										"O15" };
 	if ( (int)nameV.size() != nNewParticles ) 	cout << "ERROR::KFitter::MakePdgDatabase  -->  particle collection name size not match "<< nameV.size() <<endl;
 
-	double massV [nNewParticles] = { 	10.254, 11.1749, 12.1095, 
+	// double massV [nNewParticles] = { 	10.254, 11.1749, 12.1095, 
+	double massV [] = { 	10.254, 11.1749, 12.1095, 
 										6.53383, 7,
 										7, 8, 9.3255,
 										9.32444, 10.2525, 11,
@@ -131,7 +132,8 @@ void KFitter::MakePdgDatabase() {
 										4, 1,
 										15 };
 
-	double chargeV [nNewParticles] = { 	18, 18, 18, 
+	// double chargeV [nNewParticles] = { 	18, 18, 18, 
+	double chargeV [] = { 	18, 18, 18, 
 										9, 9,
 										12, 12, 12,
 										15, 15, 15,
