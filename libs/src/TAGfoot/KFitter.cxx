@@ -119,21 +119,24 @@ void KFitter::MakePdgDatabase() {
 										"O15" };
 	if ( (int)nameV.size() != nNewParticles ) 	cout << "ERROR::KFitter::MakePdgDatabase  -->  particle collection name size not match "<< nameV.size() <<endl;
 
-	double massV [nNewParticles] = { 	10.254, 11.1749, 12.1095, 
+	double massV [] = { 	10.254, 11.1749, 12.1095, 
 										6.53383, 7,
 										7, 8, 9.3255,
 										9.32444, 10.2525, 11,
 										12.1112, 13, 14,
 										4, 1,
 										15 };
+	if ( (int)massV.size() != nNewParticles ) 	cout << "ERROR::KFitter::MakePdgDatabase  -->  particle collection mass size not match "<< massV.size() <<endl;
 
-	double chargeV [nNewParticles] = { 	18, 18, 18, 
+	double chargeV [] = { 	18, 18, 18, 
 										9, 9,
 										12, 12, 12,
 										15, 15, 15,
 										21, 21, 21,
 										6, 3,
 										24  };
+	if ( (int)chargeV.size() != nNewParticles ) 	cout << "ERROR::KFitter::MakePdgDatabase  -->  particle collection charge size not match "<< chargeV.size() <<endl;
+
 
 	// check that every particle defined in the parameter file is defined in nameV
 	for ( unsigned int i=0; i<GlobalPar::GetPar()->MCParticles().size(); i++) {
