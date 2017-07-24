@@ -37,6 +37,7 @@ public:
 
     void InitGeo();
     void InitMaterial();
+    void PrintBodies( string geoFileName );
 
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id and vice versa
@@ -95,6 +96,7 @@ private:
     TVector3 m_NSensors;   
 
     vector<string> m_materialOrder;
+    vector<string> m_materialOrderCopy;
     map<string, double> m_materialThick;
     map<string, string> m_materialType;
 

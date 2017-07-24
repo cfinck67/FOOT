@@ -9,6 +9,7 @@
 #include <sstream>
 
 #include "TAVTparGeo.hxx"
+#include "TAITparGeo.hxx"
 #include "Materials.hxx"
 
 #include "GlobalPar.hxx"
@@ -40,20 +41,26 @@ int main (int argc, char *argv[]) {
 
   // crea la lista dei materiali nel costruttore
   // leggi i materiali da file o definiti nella calsse stessa?
-  Materials listOfMaterials();     
+  // Materials listOfMaterials();
+  // Materials* listOfMaterials = new Materials();
+  // listOfMaterials->PrintMap();
 
   
   // GlobalFootGeo footGeo;
   TAVTparGeo vtxGeo;
+  TAITparGeo itrGeo;
 
   //  si costruisce le coordinate di ogni oggetto geometrico e sensibile
   vtxGeo.InitGeo();
+  itrGeo.InitGeo();
 
   // assegna ad ogni oggetto il materiale
   vtxGeo.AssignMaterial();
+  // itrGeo.AssignMaterial();
 
   // assegna ad ogni oggetto se sta nel campo magnetico
   vtxGeo.AssignMagnetField();
+  //itrGeo.AssignMaterial();
 
 
   // PRINT OUT
@@ -72,6 +79,7 @@ int main (int argc, char *argv[]) {
   geofile.close();
 
   vtxGeo.PrintBodies( geofileName );
+  itrGeo.PrintBodies( geofileName );
 
   geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::app );
   geofile << "END        " <<endl;

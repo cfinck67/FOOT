@@ -89,10 +89,10 @@ void TAITparGeo::InitGeo()  {
     // evaluate detector dimension and layer distance using materials 
     double length_Lz = 0;       // from edge to edge
     m_layerDistance = 0;
-    for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
-        length_Lz += m_materialThick[ m_materialOrder[i] ];     
-        if ( m_materialOrder[i] != "ITR_MEDIUM" )
-            m_layerDistance += m_materialThick[ m_materialOrder[i] ];
+    for ( unsigned int i=0; i<m_materialOrderCopy.size(); i++ ) {
+        length_Lz += m_materialThick[ m_materialOrderCopy[i] ];     
+        if ( ( m_materialOrderCopy[i] != "00_ITR_MEDIUM" )||( m_materialOrderCopy[i]!= "14_ITR_MEDIUM" ) )
+            m_layerDistance += m_materialThick[ m_materialOrderCopy[i] ];
     }
 
     // set detector dimension
@@ -277,7 +277,7 @@ TGeoVolume* TAITparGeo::GetVolume() {
 
 void TAITparGeo::InitMaterial() {
 
-    m_materialOrder = {  "ITR_MEDIUM", 
+    m_materialOrder = {  "ITR_MEDIUM",
                         "ITR_EPO_MEDIUM",
                         "ITR_COV_MEDIUM",
                         "ITR_AL_MEDIUM",
@@ -294,36 +294,193 @@ void TAITparGeo::InitMaterial() {
                         "ITR_MEDIUM"
                          };
 
-    
+
+    m_materialOrderCopy = { "00_ITR_MEDIUM",
+                        "01_ITR_EPO_MEDIUM",
+                        "02_ITR_COV_MEDIUM",
+                        "03_ITR_AL_MEDIUM",
+                        "04_ITR_KAP_MEDIUM",
+                        "05_ITR_AL_MEDIUM",
+                        "06_ITR_COV_MEDIUM",
+                        "07_ITR_FOAM_MEDIUM",
+                        "08_ITR_COV_MEDIUM",
+                        "09_ITR_AL_MEDIUM",
+                        "10_ITR_KAP_MEDIUM",
+                        "11_ITR_AL_MEDIUM",
+                        "12_ITR_COV_MEDIUM",
+                        "13_ITR_EPO_MEDIUM",
+                        "14_ITR_MEDIUM"
+                         };
+
+
     for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
+      
         if( m_materialOrder[i] == "ITR_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_MEDIUM;
+            // m_materialThick.insert ( std::pair<string,double>(m_materialOrder[i],ITR_THICK) );
+            // m_materialType.insert ( std::pair<string,string>(m_materialOrder[i],ITR_MEDIUM) );
+            //m_materialThick[ m_materialOrder[i] ] = ITR_THICK;
+            m_materialType[ "ITR_MEDIUM" ] = ITR_MEDIUM;
         }
-        else if( m_materialOrder[i] == "ITR_EPO_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_EPO_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_EPO_MEDIUM;
+        if(  m_materialOrder[i] == "ITR_EPO_MEDIUM" ){
+            // m_materialThick.insert ( std::pair<string,double>(m_materialOrder[i],ITR_EPO_THICK) );
+            // m_materialType.insert ( std::pair<string,string>(m_materialOrder[i],ITR_EPO_MEDIUM) );
+            //m_materialThick[ m_materialOrder[i] ] = ITR_EPO_THICK;
+            m_materialType[ "ITR_EPO_MEDIUM" ] = ITR_EPO_MEDIUM;
         }
-        else if( m_materialOrder[i] == "ITR_COV_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_COV_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_COV_MEDIUM;
+        if( m_materialOrder[i] == "ITR_COV_MEDIUM" ){
+            // m_materialThick.insert ( std::pair<string,double>(m_materialOrder[i],ITR_COV_THICK) );
+            // m_materialType.insert ( std::pair<string,string>(m_materialOrder[i],ITR_COV_MEDIUM) );
+            //m_materialThick[ m_materialOrder[i] ] = ITR_COV_THICK;
+            m_materialType[ "ITR_COV_MEDIUM" ] = ITR_COV_MEDIUM;
         }
-        else if( m_materialOrder[i] == "ITR_AL_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_AL_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_AL_MEDIUM;
+        if( m_materialOrder[i] == "ITR_AL_MEDIUM" ){
+            // m_materialThick.insert ( std::pair<string,double>(m_materialOrder[i],ITR_AL_THICK) );
+            // m_materialType.insert ( std::pair<string,string>(m_materialOrder[i],ITR_AL_MEDIUM) );
+            //m_materialThick[ m_materialOrder[i] ] = ITR_AL_THICK;
+            m_materialType[ "ITR_AL_MEDIUM" ] = ITR_AL_MEDIUM;
         }
-        else if( m_materialOrder[i] == "ITR_KAP_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_KAP_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_KAP_MEDIUM;
+        if( m_materialOrder[i] == "ITR_KAP_MEDIUM" ){
+            // m_materialThick.insert ( std::pair<string,double>(m_materialOrder[i],ITR__KAP_THICK) );
+            // m_materialType.insert ( std::pair<string,string>(m_materialOrder[i],ITR_KAP_MEDIUM) );
+	  // m_materialThick[ m_materialOrder[i] ] = ITR_KAP_THICK;
+            m_materialType[ "ITR_KAP_MEDIUM" ] = ITR_KAP_MEDIUM;
         }
-        else if( m_materialOrder[i] == "ITR_FOAM_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_FOAM_THICK;
-            m_materialType[ m_materialOrder[i] ] = ITR_FOAM_MEDIUM;
+        if( m_materialOrder[i] == "ITR_FOAM_MEDIUM" ){
+            // m_materialThick.insert ( std::pair<string,double>(m_materialOrder[i],ITR_FOAM_THICK) );
+            // m_materialType.insert ( std::pair<string,string>(m_materialOrder[i],ITR_FOAM_MEDIUM) );
+            //m_materialThick[ m_materialOrder[i] ] = ITR_FOAM_THICK;
+            m_materialType[ "ITR_FOAM_MEDIUM" ] = ITR_FOAM_MEDIUM;
         }
     }
 
+    
+
+
+    for ( unsigned int i=0; i<m_materialOrderCopy.size(); i++ ) {
+      //cout << "element in m_materialOrderCopy" << i << " is " << m_materialOrderCopy[i] <<endl;
+        if( ( m_materialOrderCopy[i] == "00_ITR_MEDIUM" )||( m_materialOrderCopy[i] == "14_ITR_MEDIUM") ){
+            // m_materialThick.insert ( std::pair<string,double>(m_materialOrder[i],ITR_THICK) );
+            // m_materialType.insert ( std::pair<string,string>(m_materialOrder[i],ITR_MEDIUM) );
+            m_materialThick[ m_materialOrderCopy[i] ] = ITR_THICK;
+        }
+        if( ( m_materialOrderCopy[i] == "01_ITR_EPO_MEDIUM" )||( m_materialOrderCopy[i] == "13_ITR_EPO_MEDIUM") ){
+            // m_materialThick.insert ( std::pair<string,double>(m_materialOrder[i],ITR_EPO_THICK) );
+            // m_materialType.insert ( std::pair<string,string>(m_materialOrder[i],ITR_EPO_MEDIUM) );
+            m_materialThick[ m_materialOrderCopy[i] ] = ITR_EPO_THICK;
+           
+        }
+        if( ( m_materialOrderCopy[i] == "02_ITR_COV_MEDIUM" )||( m_materialOrderCopy[i] == "12_ITR_COV_MEDIUM")||( m_materialOrderCopy[i] == "06_ITR_COV_MEDIUM" )||( m_materialOrderCopy[i] == "08_ITR_COV_MEDIUM" ) ){
+            // m_materialThick.insert ( std::pair<string,double>(m_materialOrder[i],ITR_COV_THICK) );
+            // m_materialType.insert ( std::pair<string,string>(m_materialOrder[i],ITR_COV_MEDIUM) );
+            m_materialThick[ m_materialOrderCopy[i] ] = ITR_COV_THICK;
+            
+        }
+        if( ( m_materialOrderCopy[i] == "03_ITR_AL_MEDIUM" )||( m_materialOrderCopy[i] == "11_ITR_AL_MEDIUM")||( m_materialOrderCopy[i] == "05_ITR_AL_MEDIUM" )||( m_materialOrderCopy[i] == "09_ITR_AL_MEDIUM" ) ){
+            // m_materialThick.insert ( std::pair<string,double>(m_materialOrder[i],ITR_AL_THICK) );
+            // m_materialType.insert ( std::pair<string,string>(m_materialOrder[i],ITR_AL_MEDIUM) );
+            m_materialThick[ m_materialOrderCopy[i] ] = ITR_AL_THICK;
+           
+        }
+        if( ( m_materialOrderCopy[i] == "04_ITR_KAP_MEDIUM" )||( m_materialOrderCopy[i] == "10_ITR_KAP_MEDIUM") ){
+            // m_materialThick.insert ( std::pair<string,double>(m_materialOrder[i],ITR__KAP_THICK) );
+            // m_materialType.insert ( std::pair<string,string>(m_materialOrder[i],ITR_KAP_MEDIUM) );
+            m_materialThick[ m_materialOrderCopy[i] ] = ITR_KAP_THICK;
+            
+        }
+        if( m_materialOrderCopy[i] == "07_ITR_FOAM_MEDIUM" ){
+            // m_materialThick.insert ( std::pair<string,double>(m_materialOrder[i],ITR_FOAM_THICK) );
+            // m_materialType.insert ( std::pair<string,string>(m_materialOrder[i],ITR_FOAM_MEDIUM) );
+            m_materialThick[ m_materialOrderCopy[i] ] = ITR_FOAM_THICK;
+           
+        }
+	
+    }
+    /*
+    for (unsigned int i = 0; i<m_materialOrderCopy.size(); ++i)
+    cout << "element in m_materialOrderCopy" << i << " is " << m_materialOrderCopy[i] <<endl;
+
+
+    for (map<string, double>::iterator it=m_materialThick.begin(); it!=m_materialThick.end(); ++it)
+      cout << "after filling m_materialThick has: 1st element => " << it->first << " and 2nd => " << it->second<<endl;
+
+    cout << "IN INITMATERIAL SIZE OF m_materialOrderCopy is " << m_materialOrderCopy.size() << endl;
+
+    cout << "IN INITMATERIAL SIZE OF  m_materialThickness is " << m_materialThick.size() << endl;
+
+*/
+
+
+
+
+
+
+    
 }
 
+
+void TAITparGeo::PrintBodies( string geoFileName ){
+
+    ofstream geofile;
+    geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
+    string itrID = "itr";
+    int count = 0;
+    double qualcosa;
+
+
+    geofile << "* ***Inner Tracker" << endl;
+    geofile << setiosflags(ios::fixed) << setprecision(6) << "RPP itrbox"<<"     ";
+
+
+
+    for (int k=0; k<m_nSensors_Z-1; k++)  {
+      for (int i=0; i<m_nSensors_X; i++)  {
+        for (int j=0; j<m_nSensors_Y; j++)  {
+
+
+
+              TVector3 minCoord = TVector3(m_sensorMatrix[k][i][j]->GetMinCoord());
+              Local2Global( &minCoord );
+              TVector3 maxCoord = TVector3(m_sensorMatrix[k][i][j]->GetMaxCoord());
+              Local2Global( &maxCoord );
+
+              geofile << minCoord.x() << " " << maxCoord.x() << " "
+                      << minCoord.y() << " " << maxCoord.y() << " "
+                      << minCoord.z() << " " << maxCoord.z()
+                      << endl;
+
+                      qualcosa=minCoord.z();
+
+
+
+
+        }
+      }
+
+
+
+    }
+
+    geofile.close();
+
+    //cout << "IN PRINTBODIES BEFORE LOOP SIZE OF THICKNESS IS " << m_materialThick.size() << endl;
+    
+
+    FILE *pFile;
+    pFile = fopen (geoFileName.c_str(),"a");
+    for (map<string, double>::iterator it=m_materialThick.begin(); std::distance(it, m_materialThick.end())>1 ; ++it){
+      //geofile <<  setiosflags(ios::fixed) << setprecision(6) << "XYP " << itrID << count << "     ";
+	  qualcosa += it->second;
+	  // geofile << qualcosa << endl;
+	  fprintf(pFile, "XYP itr%.2d     %.6f\n", count, qualcosa);
+	  // cout<<"SIZE OF MAP THICKNESS IS " << m_materialThick.size() << endl;
+	  //cout<<"SIZE OF MAP TYPE IS " << m_materialType.size()<<endl;
+	  // cout<<"sono in printbodies " << it->first << "  " << it->second<<endl;
+          count++;
+
+        }
+
+    fclose(pFile);
+}
 
 
 // //_____________________________________________________________________________
