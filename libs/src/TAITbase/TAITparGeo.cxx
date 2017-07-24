@@ -428,7 +428,7 @@ void TAITparGeo::PrintBodies( string geoFileName ){
 
 
     geofile << "* ***Inner Tracker" << endl;
-    geofile << setiosflags(ios::fixed) << setprecision(6) << "RPP itrbox"<<"     ";
+    geofile << setiosflags(ios::fixed) << setprecision(6) << "RPP itrbox"<<"    ";
 
 
 
@@ -445,7 +445,7 @@ void TAITparGeo::PrintBodies( string geoFileName ){
 
               geofile << minCoord.x() << " " << maxCoord.x() << " "
                       << minCoord.y() << " " << maxCoord.y() << " "
-                      << minCoord.z() << " " << maxCoord.z()
+                      << minCoord.z() << " " << minCoord.z() + m_dimension.z()
                       << endl;
 
                       qualcosa=minCoord.z();
