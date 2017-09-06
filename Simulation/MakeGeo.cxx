@@ -81,6 +81,8 @@ int main (int argc, char *argv[]) {
   vtxGeo.PrintBodies( geofileName );
   itrGeo.PrintBodies( geofileName );
 
+  //prova geometria
+ // itrGeo.GetVolume();
   geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::app );
   geofile << "END        " <<endl;
 

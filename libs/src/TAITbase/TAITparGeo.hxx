@@ -96,7 +96,6 @@ private:
     TVector3 m_NSensors;   
 
     vector<string> m_materialOrder;
-    vector<string> m_materialOrderCopy;
     map<string, double> m_materialThick;
     map<string, string> m_materialType;
 
