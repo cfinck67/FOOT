@@ -32,8 +32,9 @@
 c
       INCLUDE '(FLKMAT)'
       include "mgdraw.inc"
+      include "parameters.inc"
       character*8 REGNAM
-      integer cellDCH, cellBMN, strip, cry
+      integer cellBMN, strip, cry, layMSD
       integer ia,ib,ic,id,ie,ig,ih,il,im
 *
 *
@@ -55,12 +56,13 @@ c
 c
 c writing the header
 c
-      write(outunit,100) fragtrig, Ethrdep
+      write(outunit,*) int(abs(fragtrig)), Ethrdep
 c
 c find the region number of the region of interest
 c
       nregtarg = 0
       nregaria = 0
+      nregMagAir = 0
       nregSTC = 0
       nregFirstVTX = 1000000
       nregLastVTX = 0
@@ -68,8 +70,8 @@ c
       nregFirstBMN = 1000000
       nregFirstITR = 1000000
       nregLastITR = 0
-      nregLastDCH = 0
-      nregLastDCH = 0
+      nregLastMSD = 0
+      nregLastMSD = 0
       nregFirstSCN = 1000000
       nregLastSCN = 0
       nregFirstCAL = 1000000 
@@ -91,10 +93,9 @@ c
          ireg2cellBMN(nn) = -10
          ireg2layBMN(nn) = -10
       end do
-      do nn = 1,MAXDCHREG
-         ireg2viewDCH(nn) = -10
-         ireg2cellDCH(nn) = -10
-         ireg2layDCH(nn) = -10
+      do nn = 1,MAXMSDREG
+         ireg2viewMSD(nn) = -10
+         ireg2layMSD(nn) = -10
       end do
       do nn = 1,MAXSCNREG
          ireg2stripSCN(nn) = -10
@@ -110,6 +111,8 @@ c
          if(ierr.eq.0) then
             if(REGNAM.eq.'AIR') then
                nregaria=ii
+            else if(REGNAM.eq.'MAG_AIR') then
+               nregMagAir=ii
             elseif(REGNAM.eq.'STC')then     
                nregSTC=ii
             elseif(REGNAM(1:5).eq.'BMN_C') then
@@ -145,19 +148,19 @@ c
                   nregLastITR=ii
                endif
                ib = ib + 1
-            elseif(REGNAM(1:5).eq.'DCH_C') then
-               read(REGNAM(7:8),*) cellDCH
-               if (REGNAM(6:6).eq.'U')then
-                  ireg2viewDCH(ii) = 1
-               elseif(REGNAM(6:6).eq.'V') then
-                  ireg2viewDCH(ii) = -1
+            elseif(REGNAM(1:3).eq.'MSD') then
+               if (REGNAM(4:4).eq.'U')then
+               read(REGNAM(5:5),*) layMSD
+                  ireg2viewMSD(ii) = 1
+               elseif(REGNAM(4:4).eq.'V') then
+               read(REGNAM(5:5),*) layMSD
+                  ireg2viewMSD(ii) = -1
                endif
-               ireg2layDCH(ii) = cellDCH/ncellDCH
-               ireg2cellDCH(ii) = cellDCH - cellDCH/ncellDCH*ncellDCH
+               ireg2layMSD(ii) = layMSD
                if(il.eq.1) then
-                  nregFirstDCH=ii
-               elseif(il.eq.(nlayDCH*ncellDCH*2)) then
-                  nregLastDCH=ii
+                  nregFirstMSD=ii
+               elseif(il.eq.(nlayMSD*nviewMSD)) then
+                  nregLastMSD=ii
                endif
                il = il + 1
             elseif(REGNAM(1:3).eq.'SCN') then
@@ -193,43 +196,43 @@ c
       write(*,*)'USRINI: idbflg =  ',idbflg
 c     
       if(((nregtarg*nregLastVTX*nregaria*nregLastSCN*nregSTC*nregLastITR
-     &     *nregLastCAL*nregLastBMN
-     &     *nregLastDCH).eq.0).or.(nregFirstVTX.eq.1000000).or.
+     &     *nregLastCAL*nregLastBMN*nregMagAir
+     &     *nregLastMSD).eq.0).or.(nregFirstVTX.eq.1000000).or.
      &     (nregFirstCAL.eq.1000000).or.(nregFirstSCN.eq.1000000).or.
      &     (nregFirstBMN.eq.1000000).or.
-     &     (nregFirstDCH.eq.1000000).or.
+     &     (nregFirstMSD.eq.1000000).or.
      &     (nregFirstITR.eq.1000000)) then
          write(*,*)'Non ho trovato tutte le regioni!!!!'
-      else
-         write(*,*)'**************** Inizio Geometria *****************'
-         write(*,*)'        nregaria           = ',nregaria
-         write(*,*)'        nregSTC            = ',nregSTC
-         write(*,*)'        nregFirstBMN       = ',nregFirstBMN
-         write(*,*)'        nregLastBMN        = ',nregLastBMN
-         write(*,*)'        nregtarg           = ',nregtarg
-         write(*,*)'        nregFirstVTX       = ',nregFirstVTX
-         write(*,*)'        nregLastVTX        = ',nregLastVTX
-         write(*,*)'        nregFirstITR       = ',nregFirstITR
-         write(*,*)'        nregLastITR        = ',nregLastITR
-         write(*,*)'        nregFirstDCH       = ',nregFirstDCH
-         write(*,*)'        nregLastDCH        = ',nregLastDCH
-         write(*,*)'        nregFirstSCN       = ',nregFirstSCN
-         write(*,*)'        nregLastSCN        = ',nregLastSCN
-         write(*,*)'        nregFirstcrystal   = ',nregFirstCAL
-         write(*,*)'        nregLastcrystal    = ',nregLastCAL
-         write(*,*)'**************** Fine Geometria *******************'
-         write(*,*)''
       endif
+      write(*,*)'**************** Inizio Geometria *****************'
+      write(*,*)'        nregaria           = ',nregaria
+      write(*,*)'        nregMagAir         = ',nregMagAir
+      write(*,*)'        nregSTC            = ',nregSTC
+      write(*,*)'        nregFirstBMN       = ',nregFirstBMN
+      write(*,*)'        nregLastBMN        = ',nregLastBMN
+      write(*,*)'        nregtarg           = ',nregtarg
+      write(*,*)'        nregFirstVTX       = ',nregFirstVTX
+      write(*,*)'        nregLastVTX        = ',nregLastVTX
+      write(*,*)'        nregFirstITR       = ',nregFirstITR
+      write(*,*)'        nregLastITR        = ',nregLastITR
+      write(*,*)'        nregFirstMSD       = ',nregFirstMSD
+      write(*,*)'        nregLastMSD        = ',nregLastMSD
+      write(*,*)'        nregFirstSCN       = ',nregFirstSCN
+      write(*,*)'        nregLastSCN        = ',nregLastSCN
+      write(*,*)'        nregFirstcrystal   = ',nregFirstCAL
+      write(*,*)'        nregLastcrystal    = ',nregLastCAL
+      write(*,*)'**************** Fine Geometria *******************'
+      write(*,*)''
       write(*,*)' '
       write(*,*)'======================================'
-c
-c init of the root interface
-c
-c      CALL myusrini();
 c     
-c      write(*,*)"esco da usrini"
+c     init of the root interface
+c     
+c     CALL myusrini();
+c     
+c     write(*,*)"esco da usrini"
 
- 100  FORMAT(I2, 1X, F6.4, 3(1X, I2))
+C 100  FORMAT(I5, 1X, F6.4, 3(1X, I2))
       RETURN
 *===  End of subroutine Usrini ================================*
 

@@ -40,7 +40,8 @@
       PARAMETER (NX=21) 
       PARAMETER (NY=21) 
       PARAMETER (NZ=121)
-      PARAMETER (ZSHIFT=14.7D+00)
+      PARAMETER (ZSHIFT=14.D+00)
+*      PARAMETER (ZSHIFT=14.7D+00)
       PARAMETER (G2T=1.D-04)
 
       DOUBLE PRECISION XLAT, YLAT, ZLAT
@@ -66,7 +67,8 @@
          
       IF (LFIRST) THEN 
          
-         CALL OAUXFI('DoubleDipole.table',22,'OLD',IERR)
+*         CALL OAUXFI('DoubleDipole.table',22,'OLD',IERR)
+         CALL OAUXFI('MyMagMap.table',22,'OLD',IERR)
          
          DO I=1,NX
             DO J=1,NY
@@ -126,10 +128,7 @@
          END DO
          WRITE(*,*) ' Warning: J = NY',J,J1,J0,NREG,Y
  31      DO K=1,NZ
-     
-#endif
-
-       IF (ZLAT(K).GE.Z) THEN
+            IF (ZLAT(K).GE.Z) THEN
                K0=(K-1)
                K1=(K)
                GO TO 32

@@ -62,9 +62,6 @@ class RecoTools {
   void initBMGeo(TAGparaDsc* p_bmgeo); //Beam Monitor Geometry
   void initBMCon(TAGparaDsc* beamcon);
 
-  void initDCGeo(TAGparaDsc* p_dcgeo); //Drift Chamber Geometry
-  void initDCCon(TAGparaDsc* driftcon);
-
   void bookHisto(TFile *f);
   void CalibBMVT();
   void MonitorBMVTMat();
@@ -98,12 +95,10 @@ class RecoTools {
 
   //Parameters
   TAGparaDsc* myp_bmgeo;
-  TAGparaDsc* myp_dcgeo;
   
   shared_ptr<TAVTparGeo> m_vtgeo;
   shared_ptr<TAITparGeo> m_itgeo;
   shared_ptr<TAMSDparGeo> m_msdgeo;
-  shared_ptr<TADCparGeo> m_dcgeo;
 
   TAGparaDsc* myp_vtmap;
   TAGparaDsc* myp_vtcal;

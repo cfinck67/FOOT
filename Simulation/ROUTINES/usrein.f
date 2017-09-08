@@ -31,7 +31,7 @@ c
       include 'mgdraw.inc'
       integer ii  
 c
-      if(idbflg .gt. 0)then
+      if(idbflg .gt. 0 .AND. idbflg.lt.4)then
          write(*,*)'***************************************************'
          write(*,*)'                   EVENT',ncase
          write(*,*)'***************************************************'
@@ -181,27 +181,27 @@ c
 c     
 c     second drift chamber
 c
-      nDCH = 0
-      do ii = 1,maxDCH
-         idDCH(ii)     = 0
-         iviewDCH(ii)  = 0
-         ilayDCH(ii)   = 0
-         icellDCH(ii)  = 0
-         xinDCH(ii)    = 0.  
-         xoutDCH(ii)   = 0. 
-         yinDCH(ii)    = 0. 
-         youtDCH(ii)   = 0. 
-         zinDCH(ii)    = 0.
-         zoutDCH(ii)   = 0.
-         pxinDCH(ii)   = 0.  
-         pxoutDCH(ii)  = 0. 
-         pyinDCH(ii)   = 0. 
-         pyoutDCH(ii)  = 0. 
-         pzinDCH(ii)   = 0.
-         pzoutDCH(ii)  = 0.
-         deDCH(ii)     = 0.
-         alDCH(ii)     = 0.
-         timDCH(ii)    = 0.
+      nMSD = 0
+      do ii = 1,maxMSD
+         idMSD(ii)     = 0
+         iviewMSD(ii)  = 0
+         ilayMSD(ii)   = 0
+         istripMSD(ii)  = 0
+         xinMSD(ii)    = 0.  
+         xoutMSD(ii)   = 0. 
+         yinMSD(ii)    = 0. 
+         youtMSD(ii)   = 0. 
+         zinMSD(ii)    = 0.
+         zoutMSD(ii)   = 0.
+         pxinMSD(ii)   = 0.  
+         pxoutMSD(ii)  = 0. 
+         pyinMSD(ii)   = 0. 
+         pyoutMSD(ii)  = 0. 
+         pzinMSD(ii)   = 0.
+         pzoutMSD(ii)  = 0.
+         deMSD(ii)     = 0.
+         alMSD(ii)     = 0.
+         timMSD(ii)    = 0.
       end do
 c
 c     scintillator
@@ -268,6 +268,19 @@ c
          chCROSS(ii)       = 0.
          amaCROSS(ii)      = 0.
       end do
+c
+c     triggers
+c
+      stcfrag = 0
+      bmnfrag = 0
+      tgtfrag = 0
+      airfrag = 0
+      elsfrag = 0
+      trig_tgt = .false.
+      trig_bmn = .false.
+      trig_stc = .false.
+      trig_air = .false.
+      trig_els = .false.
 c
 c
       RETURN

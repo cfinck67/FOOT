@@ -69,15 +69,6 @@
 #include "TAITactNtuTrackH.hxx"
 #include "TAITactNtuTrackF.hxx"
  
-//Drift Chamber
-#include "TADCparGeo.hxx"
-#include "TADCparCon.hxx"
-#include "TADCntuRaw.hxx"
-#include "TADCntuTrack.hxx"
-#include "TADCactNtuMC.hxx"
-#include "TADCactNtuTrack.hxx"
-#include "TADCvieTrackFIRST.hxx"
-
 //MicroStrip Detector
 #include "TAMSDparGeo.hxx"
 #include "TAMSDparConf.hxx"
@@ -96,10 +87,10 @@
 #include "TACAdatRaw.hxx"
 #include "TACAactNtuMC.hxx"
 
-
 #include "foot_geo.h"
 
 #include "FootField.hxx"
+#include "MeasurementCreator.h"
 
 #include <iostream>
 #include <vector>
@@ -209,7 +200,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   bool m_doKalman = kTRUE;
   // bool m_doBM = kFALSE;
   bool m_doBM = kFALSE;
-  bool m_doDC = kFALSE;
   bool m_doIR = kFALSE;
   bool m_doTW = kFALSE;
   bool m_doMSD = kTRUE;
@@ -233,9 +223,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
   if(m_doVertex)
     FillMCVertex(&evStr);
-
-  if(m_doDC)
-    FillMCDriftChamber(&evStr);
 
   if(m_doMSD)
     FillMCMSD(&evStr);
@@ -416,7 +403,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     if(m_doInnerTracker) {
       m_itgeo = shared_ptr<TAITparGeo> ( (TAITparGeo*) myp_itgeo->Object() );
-      // m_dcgeo = (TADCparGeo*) myp_dcgeo->Object();
 
         //Initialization of IT parameters
         m_itgeo->InitGeo();
@@ -430,17 +416,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         //Initialization of MSD parameters
         m_msdgeo->InitGeo();
         top->AddNode( m_msdgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_msdgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
-
-    }
-
-    if(m_doDC) {
-
-      m_dcgeo = shared_ptr<TADCparGeo> ( (TADCparGeo*) myp_dcgeo->Object() );
-      // m_dcgeo = (TADCparGeo*) myp_dcgeo->Object();
-
-        //Initialization of DC parameters
-        m_dcgeo->InitGeo();
-        top->AddNode( m_dcgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_dcgeo->GetCenter().z(), new TGeoRotation("DriftChamber",0,0,0)) );
 
     }
 
@@ -602,13 +577,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
             m_kFitter->UploadHitsMSD( myn_msdraw, m_msdgeo );
         }
 
-
-        if (m_doDC && m_doKalman ) {
-
-            m_kFitter->UploadHitsDC( myn_dcraw, m_dcgeo );
-            if (jentry == 0 && GlobalPar::GetPar()->Debug() > 1  )            m_dcgeo->Print();
-
-        }
 
 // start time
 start_kal = clock();
@@ -821,30 +789,6 @@ void RecoTools::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
 
   my_out->SetupElementBranch(myn_bmtrk,     "bmtrk.");
 
-  return;
-}
-
-
-
-
-void RecoTools::FillMCDriftChamber(EVENT_STRUCT *myStr) {
-  cout << "RecoTools::FillMCDriftChamber     ->    start" << endl;
-  /*Ntupling the MC Drift Chamber information*/
-  myn_dcraw    = new TAGdataDsc("myn_dcraw", new TADCntuRaw());
-  myp_dccon  = new TAGparaDsc("myp_dccon", new TADCparCon());
-
-  initDCCon(myp_dccon);
-
-  myp_dcgeo  = new TAGparaDsc("p_dcgeo", new TADCparGeo());
-  initDCGeo(myp_dcgeo); 
-
-  new TADCactNtuMC("an_dcraw", myn_dcraw, myp_dccon, myp_dcgeo, myStr);
-  my_out->SetupElementBranch(myn_dcraw,     "dcrh.");
-  
-  myn_dctrk    = new TAGdataDsc("myn_dctrk", new TADCntuTrack());
-  new TADCactNtuTrack("an_dctrk", myn_dctrk, myn_dcraw, myp_dcgeo, myp_dccon);
-  my_out->SetupElementBranch(myn_dctrk,     "dctrk.");
-  cout << "RecoTools::FillMCDriftChamber     ->    end" << endl;
   return;
 }
 
@@ -2139,66 +2083,6 @@ void RecoTools::initBMGeo(TAGparaDsc* p_bmgeo)  {
 
   p_bmgeo->SetBit(TAGparaDsc::kValid);
 
-  return;
-
-}
-
-
-void RecoTools::initDCCon(TAGparaDsc* driftcon)  {
-
-  Int_t i_run = gTAGroot->CurrentRunNumber();
-  Int_t i_cam = gTAGroot->CurrentCampaignNumber();
-
-  cout << "Loading driftcon for cam/run = " << i_cam << "/" << i_run << endl;
-
-  TADCparCon* o_driftcon = (TADCparCon*) driftcon->Object();
-
-  o_driftcon->Clear();
-
-  Bool_t b_bad = kTRUE;
-
-  TString filename = m_wd + "/config/driftchamber.cfg";
-
-  cout << "   from file " << filename << endl;
-
-  b_bad = o_driftcon->FromFile(filename);
-  
-  filename = m_wd + "/config/driftchamber_t0s.cfg";
-
-  o_driftcon->loadT0s(filename);
-
-  filename = m_wd + "/config/file_stlist_FIRST.txt";
-  //  filename = "config/file_stlist_8020_Cst1_1750.txt";
-
-  o_driftcon->LoadSTrel(filename);
-
-  o_driftcon->SetIsMC(true);
-
-  o_driftcon->ConfigureTrkCalib();
-
-  filename = m_wd + "/config/dcreso_vs_r.root";
-  o_driftcon->LoadReso(filename);
-
-  if (!b_bad) driftcon->SetBit(TAGparaDsc::kValid);
-
-  return;
-}
-
-
-
-void RecoTools::initDCGeo(TAGparaDsc* p_dcgeo)  {
-  p_dcgeo = gTAGroot->FindParaDsc("p_dcgeo", "TADCparGeo");
-  if (p_dcgeo == 0) {
-    cout << "p_dcgeo not found or holding wrong parameter object type" << endl;
-    return;
-  }
-  Int_t i_run = gTAGroot->CurrentRunNumber();
-  Int_t i_cam = gTAGroot->CurrentCampaignNumber();
-  Info("RecoTools::initDCGeo","Loading p_dcgeo for cam/run = %d / %d",i_cam,i_run);
-  TADCparGeo* o_dcgeo = (TADCparGeo*) p_dcgeo->Object();
-  //Initialization of DC parameters
-  o_dcgeo->InitGeo();
-  p_dcgeo->SetBit(TAGparaDsc::kValid);
   return;
 
 }

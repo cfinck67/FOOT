@@ -42,13 +42,18 @@ c
       include 'mgdraw.inc'
 *
       DIMENSION DTQUEN ( MXTRCK, MAXQMG )
+      CHARACTER*20 FILNAM
+      LOGICAL LFCOPE
+      SAVE LFCOPE
+      DATA LFCOPE / .FALSE. /
+c
       integer  ICPART, IBPART 
       character*8 NEWREGNAM,MREGNAM
 *      CHARACTER*8 MLATNAM
       logical ldead
       double precision erawSTC, equenchedSTC
       double precision erawBMN, equenchedBMN
-      double precision erawDCH, equenchedDCH
+      double precision erawMSD, equenchedMSD
       double precision erawVTX, equenchedVTX
       double precision erawITR, equenchedITR
       double precision erawSCN, equenchedSCN
@@ -66,7 +71,25 @@ c
 *                                                                      *
 c      write(*,*)"sono in mgdraw"
 *  +-------------------------------------------------------------------*
-      if(idbflg.gt.1) then
+      if(idbflg.eq.4) then
+         IF ( .NOT. LFCOPE ) THEN
+            LFCOPE = .TRUE.
+            IF ( KOMPUT .EQ. 2 ) THEN
+               FILNAM = '/'//CFDRAW(1:8)//' DUMP A'
+            ELSE
+               FILNAM = CFDRAW
+            END IF
+            OPEN ( UNIT = IODRAW, FILE = FILNAM, STATUS = 'NEW',
+     &           FORM = 'UNFORMATTED' )
+         END IF
+         WRITE (IODRAW) NTRACK, MTRACK, JTRACK, SNGL (ETRACK),
+     &        SNGL (WTRACK)
+         WRITE (IODRAW) ( SNGL (XTRACK (I)), SNGL (YTRACK (I)),
+     &        SNGL (ZTRACK (I)), I = 0, NTRACK ),
+     &        ( SNGL (DTRACK (I)), I = 1, MTRACK ),
+     &        SNGL (CTRACK)
+      endif
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          call GEOR2N ( mreg, MREGNAM, IERR ) 
          write(*,*)' '
          write(*,*)'------------- mgdraw: Ev =',ncase,' -------------'
@@ -98,7 +121,7 @@ c**************************************************************
 *      CALL GEOL2N(MLATTC,MLATNAM,IRTLAT,IERR)
 c      write(*,*) jtrack, mreg,' ',MREGNAM, MLATTC
 c
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)'ptrack = ',ptrack,' ekin = ',etrack-ampart
          write(*,*)'zfrttk = ',zfrttk,' icpart = ',icpart,'  m =',ampart
          WRITE (*,*)'x,y,z = ', ( SNGL (XTRACK (I)), SNGL (YTRACK (I)),
@@ -124,7 +147,15 @@ c
      &     xtrack(0),ytrack(0),ztrack(0),JRUN)
 c      call UpdateCurrPart(mreg,icpart,ibpart,ampart,icode)
 c
-            
+      if (idbflg.eq.4) then
+         IF ( LQEMGD )THEN
+            RULLL  = ZERZER
+            CALL QUENMG ( ICODE, MREG, RULLL, DTQUEN )
+               WRITE (IODRAW) ( ( SNGL (DTQUEN (I,JBK))
+     &              , I = 1, MTRACK ),
+     &              JBK = 1, NQEMGD )
+         ENDIF
+      endif
 c  *****************************************************************   
 c  inside the start counter
 c
@@ -134,7 +165,6 @@ c
             do ii = 1,MTRACK
                erawSTC = erawSTC + dtrack(ii)
             end do
-            
             IF ( LQEMGD )THEN
                RULLL  = ZERZER
                CALL QUENMG ( ICODE, MREG, RULLL, DTQUEN )
@@ -244,11 +274,11 @@ c
 c  *****************************************************************   
 c  inside the second drift chamber
 c
-      if( mreg.ge.nregFirstDCH.and.mreg.le.nregLastDCH )then
-         erawDCH = 0.
+      if( mreg.ge.nregFirstMSD.and.mreg.le.nregLastMSD )then
+         erawMSD = 0.
          IF ( MTRACK .GT. 0 )THEN
             do ii = 1,MTRACK
-               erawDCH = erawDCH + dtrack(ii)
+               erawMSD = erawMSD + dtrack(ii)
             end do
             
             IF ( LQEMGD )THEN
@@ -258,13 +288,13 @@ c
 c     DTQUEN(MTRACK,1) e' il rilascio di energia quenchato nella camera a drift
 c     
                do ii = 1,mtrack
-                  equenchedDCH = equenchedDCH + dtquen(ii,3)
+                  equenchedMSD = equenchedMSD + dtquen(ii,3)
                end do
-               equenchedDCH = equenchedDCH*abs_DCH
+               equenchedMSD = equenchedMSD*abs_MSD
             endif
          endif
-         if(erawDCH.gt.0) then
-            call score_DCH(mreg,erawDCH,equenchedDCH,
+         if(erawMSD.gt.0) then
+            call score_MSD(mreg,erawMSD,equenchedMSD,
      &      xtrack(0),ytrack(0),ztrack(0),xtrack(ntrack),ytrack(ntrack),
      &      ztrack(ntrack))
          endif
@@ -373,7 +403,7 @@ c************* HEAVY IONS WITH JTRACK.LT.-6
 c
 c debug printing
 c
-      if(idbflg.gt.0) then
+      if(idbflg.gt.0 .AND. idbflg.lt.4) then
          call GEOR2N ( newreg, NEWREGNAM, IERR ) 
          call GEOR2N ( mreg, MREGNAM, IERR ) 
 *         CALL GEOL2N ( MLATTC,MLATNAM,IRTLAT,IERR )
@@ -384,24 +414,22 @@ c
 *     &        MLATTC
          write(*,*)'da -> ',mregnam,'a -> = ',newregnam
 
-         if(idbflg.gt.0) then
-            write(*,*)'zfrttk = ',zfrttk,' icpart = ',icpart,
-     &           ' m =',AMPART
-            write(*,*)'ptrack = ',ptrack,' ekin = ',etrack-AMPART
-            write(*,*)'x,y,z = ',XSCO,YSCO,ZSCO
-            WRITE (*,*)'cx,cy,cz = ',SNGL(CXTRCK), SNGL(CYTRCK)
+         write(*,*)'zfrttk = ',zfrttk,' icpart = ',icpart,
+     &        ' m =',AMPART
+         write(*,*)'ptrack = ',ptrack,' ekin = ',etrack-AMPART
+         write(*,*)'x,y,z = ',XSCO,YSCO,ZSCO
+         WRITE (*,*)'cx,cy,cz = ',SNGL(CXTRCK), SNGL(CYTRCK)
      &           ,SNGL(CZTRCK)
-            write(*,*)'number of track segments: ntrack = ',NTRACK
-            do ii =1,ntrack
-               write(*,*)'track seg # ',ii,' track seg lenght = '
-     &              ,ttrack(ii)
-            end do
-            write(*,*)'number of en deposition: mtrack = ',MTRACK
-            do ii =1,mtrack
-               write(*,*)'track dep # ',ii,' track dep val = ',
-     &              dtrack(ii)
-            end do
-         endif
+         write(*,*)'number of track segments: ntrack = ',NTRACK
+         do ii =1,ntrack
+            write(*,*)'track seg # ',ii,' track seg lenght = '
+     &           ,ttrack(ii)
+         end do
+         write(*,*)'number of en deposition: mtrack = ',MTRACK
+         do ii =1,mtrack
+            write(*,*)'track dep # ',ii,' track dep val = ',
+     &           dtrack(ii)
+         end do
          write(*,*)' '
       endif
 cf
@@ -426,7 +454,7 @@ c
 *======================================================================*
 *                                                                      *
       ENTRY EEDRAW ( ICODE )
-      if(idbflg.gt.2) then
+      if(idbflg.gt.2 .AND. idbflg.lt.4) then
          call dump_common()
       endif
       RETURN
@@ -469,7 +497,23 @@ c
 c
 c debug
 c
-      if(idbflg.gt.1) then
+      if (idbflg.eq.4) then
+         IF ( .NOT. LFCOPE ) THEN
+            LFCOPE = .TRUE.
+            IF ( KOMPUT .EQ. 2 ) THEN
+               FILNAM = '/'//CFDRAW(1:8)//' DUMP A'
+            ELSE
+               FILNAM = CFDRAW
+            END IF
+            OPEN ( UNIT = IODRAW, FILE = FILNAM, STATUS = 'NEW',
+     &           FORM = 'UNFORMATTED' )
+            WRITE (IODRAW)  0, ICODE, JTRACK, SNGL (ETRACK),
+     &           SNGL (WTRACK)
+            WRITE (IODRAW)  SNGL (XSCO), SNGL (YSCO), SNGL (ZSCO),
+     &           SNGL (RULL)
+         endif
+      endif
+      if(idbflg.gt.1 .AND. idbflg.lt.4 ) then
          write(*,*)'------------- endraw: Ev =',ncase,' -------------'
          write(*,*)'jtrack = ',jtrack,' mreg = ',mreg
          write(*,*)'rull = ',rull,' icode = ',icode,' idcurr = ',idcurr
@@ -483,7 +527,7 @@ Cgb   to preserve idead flag correctly
 Cgb
       idead (idcurr) = icode
 Cgb
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)'ENDRAW: Now idead(idcurr) = ',idead(idcurr)
       endif
 Cgb
@@ -518,8 +562,17 @@ c            write(*,*)'***********************************************'
                pz(idcurr) = pzf(idcurr)
             endif
          endif
-      endif 
-      if (rull.ne.0) then
+      endif
+      if (idbflg.eq.4) then
+         IF ( LQEMGD) THEN
+            RULLL = RULL
+            CALL QUENMG ( ICODE, MREG, RULL, DTQUEN )
+            WRITE (IODRAW) ( ( SNGL (DTQUEN (I,JBK))
+     &           , I = 1, MTRACK ),
+     &           JBK = 1, NQEMGD )
+         ENDIF
+      endif
+      if (rull.ne.0) then         
 c     
 c     inside the start counter
 c
@@ -581,15 +634,15 @@ c
 c     
 c     inside the second drift chamber
 c
-         if( mreg.ge.nregFirstDCH .and. mreg.le.nregLastDCH ) then
-            erawDCH = rull
-            equenchedDCH=0
+         if( mreg.ge.nregFirstMSD .and. mreg.le.nregLastMSD ) then
+            erawMSD = rull
+            equenchedMSD=0
             IF ( LQEMGD) THEN
                RULLL = RULL
                CALL QUENMG ( ICODE, MREG, RULL, DTQUEN )
-               equenchedDCH = dtquen(1,1)*abs_DCH
+               equenchedMSD = dtquen(1,1)*abs_MSD
             END IF
-            call score_DCH(mreg,erawDCH,equenchedDCH,xsco,
+            call score_MSD(mreg,erawMSD,equenchedMSD,xsco,
      &           ysco,zsco,xsco,ysco,zsco)
          endif
 c     
@@ -634,7 +687,21 @@ c
 *
       ENTRY SODRAW
 c
-      if(idbflg.gt.1) then
+      if (idbflg.eq.4) then
+         IF ( .NOT. LFCOPE ) THEN
+            LFCOPE = .TRUE.
+            IF ( KOMPUT .EQ. 2 ) THEN
+               FILNAM = '/'//CFDRAW(1:8)//' DUMP A'
+            ELSE
+               FILNAM = CFDRAW
+            END IF
+            OPEN ( UNIT = IODRAW, FILE = FILNAM, STATUS = 'NEW',
+     &           FORM ='UNFORMATTED' )
+         END IF
+         WRITE (IODRAW) -NCASE, NPFLKA, NSTMAX, SNGL (TKESUM),
+     &        SNGL (WEIPRI)
+      endif
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)'------------- sodraw: Ev =',ncase,' -------------'
       endif
 *  +-------------------------------------------------------------------*
@@ -645,7 +712,14 @@ c
          IZRES  = MOD ( ILOFLK (NPFLKA), 10000000 ) / 100000
          IISRES = ILOFLK (NPFLKA) / 10000000
          IONID  = ILOFLK (NPFLKA)
-c
+         if (idbflg.eq.4) then
+            WRITE (IODRAW) ( IONID,SNGL(-TKEFLK(I)),
+     &           SNGL (WTFLK(I)), SNGL (XFLK (I)),
+     &           SNGL (YFLK (I)), SNGL (ZFLK (I)),
+     &           SNGL (TXFLK(I)), SNGL (TYFLK(I)),
+     &           SNGL (TZFLK(I)), I = 1, NPFLKA )
+         endif
+c     
 *  |
 *  +-------------------------------------------------------------------*
 *  |  Patch for heavy ions: it works only for 1 source particle on
@@ -653,8 +727,37 @@ c
       ELSE IF ( ABS (ILOFLK (NPFLKA)) .GE. 10000 ) THEN
          IONID = ILOFLK (NPFLKA)
          CALL DCDION ( IONID )
-      ELSE 
+         if (idbflg.eq.4) then
+            WRITE (IODRAW) ( IONID,SNGL(TKEFLK(I)+AMNHEA(-IONID)),
+     &           SNGL (WTFLK(I)), SNGL (XFLK (I)),
+     &           SNGL (YFLK (I)), SNGL (ZFLK (I)),
+     &           SNGL (TXFLK(I)), SNGL (TYFLK(I)),
+     &           SNGL (TZFLK(I)), I = 1, NPFLKA )
+         endif
+*  |
+*  +-------------------------------------------------------------------*
+*  |  Patch for heavy ions: ???
+      ELSE IF ( ILOFLK (NPFLKA) .LT. -6 ) THEN
+         if (idbflg.eq.4) then
+            WRITE (IODRAW)
+     &           ( IONID,SNGL(TKEFLK(I)+AMNHEA(-ILOFLK(NPFLKA))),
+     &           SNGL (WTFLK(I)), SNGL (XFLK (I)),
+     &           SNGL (YFLK (I)), SNGL (ZFLK (I)),
+     &           SNGL (TXFLK(I)), SNGL (TYFLK(I)),
+     &           SNGL (TZFLK(I)), I = 1, NPFLKA )
+         endif
+*  |
+*  +-------------------------------------------------------------------*
+*  |
+      ELSE
          IONID = ILOFLK (NPFLKA)
+         if (idbflg.eq.4) then
+            WRITE (IODRAW) ( ILOFLK(I), SNGL (TKEFLK(I)+AM(ILOFLK(I))),
+     &           SNGL (WTFLK(I)), SNGL (XFLK (I)),
+     &           SNGL (YFLK (I)), SNGL (ZFLK (I)),
+     &           SNGL (TXFLK(I)), SNGL (TYFLK(I)),
+     &           SNGL (TZFLK(I)), I = 1, NPFLKA )
+         endif
       END IF
 c
 c   first call to initialing the kinematic tracking 
@@ -662,7 +765,7 @@ c
       call UpdateCurrPart(mreg,icpart,ibpart,ampart,icode,
      &     0.d+00,0.d+00,0.d+00,JSTART)
 c
-      if(idbflg.gt.0) then
+      if(idbflg.gt.0 .AND. idbflg.lt.4) then
          write(*,*)'reg = ',numreg(nump),' tprod = ',tempo(nump),
      &        ' jpa = ',jpa(nump)
          write(*,*)'vert = ',vxi(nump),vyi(nump),vzi(nump),
@@ -712,14 +815,26 @@ Cgb
 c     
 c debug printing
 c
-      if(idbflg.gt.0) then
+      if (idblfg.eq.4) then
+         IF ( .NOT. LFCOPE ) THEN
+            LFCOPE = .TRUE.
+            IF ( KOMPUT .EQ. 2 ) THEN
+               FILNAM = '/'//CFDRAW(1:8)//' DUMP A'
+            ELSE
+               FILNAM = CFDRAW
+            END IF
+            OPEN ( UNIT = IODRAW, FILE = FILNAM, STATUS = 'NEW',
+     &           FORM = 'UNFORMATTED' )
+         END IF
+      endif
+      if(idbflg.gt.0 .AND. idbflg.lt.4) then
          call GEOR2N ( mreg, MREGNAM, IERR ) 
          write(*,*)' '
          write(*,*)'------------- usdraw: Ev =',ncase,' -------------'
          write(*,*)' Fluka index= ',ISPUSR(MKBMX2),' idcurr= ',idcurr,
-     &        'jtrack = ',jtrack,' icode = ',icode, ' ltrack = ',ltrack
+     &        'jtrack = ',jtrack,' icode = ',icode
          write(*,*)'regione = ',mregnam, 'x,y,z = ',XSCO,YSCO,ZSCO
-         if(idbflg.gt.2) then
+         if(idbflg.gt.2 .AND. idbflg.lt.4) then
             write(*,*)'zfrttk = ',zfrttk,' icpart = ',icpart,',m = ',
      &           AMPART
             write(*,*)'ptrack = ',ptrack,' ekin = ',etrack-AMPART,
@@ -739,25 +854,95 @@ c
          end do
          write(*,*)' '
       endif
-
-      if(idbflg.gt.0) then
-         write(*,*)'TGreg= ',nregtarg,' MREG= ',MREG,
-     &        ' ICODE= ',ICODE
-      endif
-      
-      IF (MREG.eq.nregtarg .AND. ICODE.EQ.101.and.
-     &     LTRACK.eq.1 ) THEN
-         tarfrag = 1
-         if (np.gt.2) tarfrag = 2
-         if (npheav.gt.0) tarfrag = 3
-         if (idbflg.gt.2) then
-            do  ip = 1, NP
-               if(kpart(ip).lt.-1) then
-                  CALL USRDCI(kpart(ip),IONA,IONZ,IONM)
-                  write(*,*)'A= ',iona,' Z= ',ionz
-               endif
-            end do
-         endif
+      IF (icode.eq.101) THEN   !! inelastic interaction
+         IF (MREG.eq.nregSTC) THEN
+            stcfrag = LTRACK
+            if (idbflg.gt.2 .AND. idbflg.lt.4) then
+               write(*,*) ' mgdraw: STC ',stcfrag
+               do  ip = 1, NP
+                  if(kpart(ip).lt.-1) then
+                     CALL USRDCI(kpart(ip),IONA,IONZ,IONM)
+                     write(*,*)'STC: A= ',iona,' Z= ',ionz
+                  endif
+               end do
+               do  ip = 1, NPHEAV
+                  if(kpart(ip).lt.-1) then
+                     write(*,*)'STC: A= ',ibheav(ip),' Z= ',icheav(ip)
+                  endif
+               end do
+            endif
+         ENDIF
+         IF (MREG.ge.4 .AND. MREG.le.45) THEN
+            bmnfrag = LTRACK
+            if (idbflg.gt.2 .AND. idbflg.lt.4) then
+               write(*,*) ' mgdraw: BMN ',bmnfrag
+               do  ip = 1, NP
+                  if(kpart(ip).lt.-1) then
+                     CALL USRDCI(kpart(ip),IONA,IONZ,IONM)
+                     write(*,*)'BMN: A= ',iona,' Z= ',ionz
+                  endif
+               end do
+               do  ip = 1, NPHEAV
+                  if(kpart(ip).lt.-1) then
+                     write(*,*)'BMN: A= ',ibheav(ip),' Z= ',icheav(ip)
+                  endif
+               end do
+            endif
+         ENDIF
+         IF (MREG.eq.nregtarg) THEN
+            tgtfrag = LTRACK
+            if (idbflg.gt.2 .AND. idbflg.lt.4) then
+               write(*,*) ' mgdraw: TGT ',tgtfrag
+               do  ip = 1, NP
+                  if(kpart(ip).lt.-1) then
+                     CALL USRDCI(kpart(ip),IONA,IONZ,IONM)
+                     write(*,*)'TGT: A= ',iona,' Z= ',ionz
+                  endif
+               end do
+               do  ip = 1, NPHEAV
+                  if(kpart(ip).lt.-1) then
+                     write(*,*)'TGT: A= ',ibheav(ip),' Z= ',icheav(ip)
+                  endif
+               end do
+            endif
+         ENDIF
+         IF ( (MREG.eq.nregaria .or. MREG.eq.nregMagAir) ) THEN
+            airfrag = LTRACK
+            if (idbflg.gt.2 .AND. idbflg.lt.4) then
+               write(*,*) ' mgdraw: AIR ',airfrag
+               do  ip = 1, NP
+                  if(kpart(ip).lt.-1) then
+                     CALL USRDCI(kpart(ip),IONA,IONZ,IONM)
+                     write(*,*)'AIR: A= ',iona,' Z= ',ionz
+                  endif
+               end do
+               do  ip = 1, NPHEAV
+                  if(kpart(ip).lt.-1) then
+                     write(*,*)'AIR: A= ',ibheav(ip),' Z= ',icheav(ip)
+                  endif
+               end do
+            endif
+         ENDIF
+         IF ( MREG.ne.nregaria .AND. MREG.ne.nregMagAir
+     &        .AND. MREG.ne.nregSTC
+     &        .AND. MREG.ne.nregtarg
+     &        .AND. MREG.lt.nregFirstSCN ) THEN
+            elsfrag = LTRACK
+            if (idbflg.gt.2 .AND. idbflg.lt.4) then
+               write(*,*) ' mgdraw: Else ', elsfrag
+               do  ip = 1, NP
+                  if(kpart(ip).lt.-1) then
+                     CALL USRDCI(kpart(ip),IONA,IONZ,IONM)
+                     write(*,*)'AIR: A= ',iona,' Z= ',ionz
+                  endif
+               end do
+               do  ip = 1, NPHEAV
+                  if(kpart(ip).lt.-1) then
+                     write(*,*)'AIR: A= ',ibheav(ip),' Z= ',icheav(ip)
+                  endif
+               end do
+            endif
+         ENDIF
       ENDIF
 *
 *   Do nothing for elastic scattering
@@ -826,7 +1011,7 @@ c      if ( icode .eq.  100) return
       zint(numint) = zsco
       intpa(numint) = idcurr
 C      idead(numint) = idead(idcurr)
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)'USDRAW: Now numint, idead(numint) = ',
      &        numint,intpa(numint)
       endif
@@ -846,7 +1031,7 @@ c
       if ( ldead ) then
          idead (idcurr) = icode
 c         idead (idcurr) = intcode(idcurr)
-         if(idbflg.gt.1) then
+         if(idbflg.gt.1 .AND. idbflg.lt.4) then
             write(*,*)'USDRAW: ldead Now idcurr, idead(idcurr) = ',
      &           idcurr,idead(idcurr),icode
          endif

@@ -20,7 +20,6 @@ NGLIBB        += $(PWD)/libGeometry.so
 NGLIBB        += $(PWD)/../../libs/lib/libTAGfoot.so $(PWD)/../../libs/lib/libTAVTbase.so 
 NGLIBB        += $(PWD)/../../libs/lib/libTAGbase.so 
 NGLIBB        += $(PWD)/../../libs/lib/libTAGmclib.so
-NGLIBB        += $(PWD)/../../libs/lib/libTADCbase.so 
 NGLIBB        += $(PWD)/../../libs/lib/libTABMbase.so
 NGLIBB        += $(PWD)/../../libs/lib/libTAIRbase.so 
 NGLIBB        += $(PWD)/../../libs/lib/libTAITbase.so 
@@ -37,7 +36,7 @@ ELIB        += ./libGeometry.so
 
 # TAINCL	      = -I$(PWD)/../ -I$(PWD)/../../libs/src/TAGbase/  -I$(PWD)/../../libs/src/TAGmclib/ 
 # TAINCL	     +=-I$(PWD)/../../libs/src/TAVTbase -I$(PWD)/../../libs/src/TAGfoot 
-# TAINCL	     +=-I$(PWD)/../../libs/src/TABMbase -I$(PWD)/../../libs/src/TADCbase 
+# TAINCL	     +=-I$(PWD)/../../libs/src/TABMbase 
 # TAINCL	     +=-I$(PWD)/../../libs/src/TAIRbase  -I$(PWD)/../../libs/src/TAITbase  
 # TAINCL	     +=-I$(PWD)/../../libs/src/TACAbase  -I$(PWD)/../../libs/src/TATWbase  
 # TAINCL	     +=-I$(PWD)/../../Simulation/TXT2ROOT -I$(PWD)/../../Simulation 
@@ -47,7 +46,6 @@ ELIB        += ./libGeometry.so
 
 TALIB        += ../../libs/lib/libTAGfoot.so ../../libs/lib/libTAGmclib.so 
 TALIB        += ../../libs/lib/libTAGbase.so 
-TALIB        += ../../libs/lib/libTADCbase.so 
 TALIB        += ../../libs/lib/libTABMbase.so 
 TALIB        += ../../libs/lib/libTAITbase.so 
 TALIB        += ../../libs/lib/libTATWbase.so 
@@ -69,7 +67,7 @@ SOFLAGS  = -shared $(ROOTGLIBS)
 endif
 
 TAINCL	      = -I../ -I../../libs/src/TAGbase/ -I../../libs/src/TAGmclib/ -I../../libs/src/TAGfoot 
-TAINCL	     +=-I../../libs/src/TABMbase -I../../libs/src/TADCbase -I../../libs/src/TAIRbase 
+TAINCL	     +=-I../../libs/src/TABMbase -I../../libs/src/TAIRbase 
 TAINCL	     +=-I../../libs/src/TAITbase -I../../libs/src/TACAbase -I../../libs/src/TATWbase 
 TAINCL	     +=-I../../libs/src/TAVTbase -I../../libs/src/TAMSDbase -I../../Simulation/TXT2ROOT -I../../Simulation 
 TAINCL	     +=-I../../libs/GenFit/fitters/include -I../../libs/GenFit/core/include 

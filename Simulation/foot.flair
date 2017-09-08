@@ -3,9 +3,10 @@
 Version: 2
 Title: FOOT setup
 Input: foot.inp
+Exec: fluka_FOOT_mag.exe
 Submit: *Default
 Tabs: 0.1 0.32 0.56 0.81 1.0
-Page: Geometry
+Page: Run
 DefMain: True
 LinkPrg: lfluka
 F77bound: True
@@ -13,11 +14,12 @@ F77dline: False
 
 # Run information
 Run: <default>
+	Exe:      fluka_FOOT_mag.exe
 	Prev:     0
 	Last:     1
 	Status:   3
 	Pid:      0
-	StartRun: 1496225604
+	StartRun: 1497343237
 End
 
 # Material
@@ -252,57 +254,56 @@ End
 
 # Geometry Information
 Geometry:
-	Frame.bsplit: 0.5
+	Frame.bsplit: 0.99
 	Frame.tsplit: 0.5
-	Frame.vsplit: 0.5
+	Frame.vsplit: 0.01
 
 	# Layer
 	Layer: 3D
 		Userdump.AOMEGA+: 0
 		3D._visible: True
-		Userdump.OMEGAC0: 0
+		layer: 3D
 		Userdump.D0: 0
 		Userdump.AKAONZER: 0
-		Userdump.NEUTRIT: 0
+		Userdump.NEUTRIM: 0
+		Userdump.AXSIC0: 0
+		Userdump.PROTON: 0
 		Userdump.RAY: 0
 		Userdump.ELECTRON: 0
 		Userdump.LAMBDA: 0
 		Userdump.WWLOWNEU: 0
-		Userdump.XSIC0: 0
-		Userdump.OMEGA-: 0
+		Userdump.MUON+: 0
 		Userdump.D-: 0
-		Userdump.MUON-: 0
+		Userdump.XSIPC+: 0
 		Userdump.KAON-: 0
 		Userdump.ALAMBDC-: 0
+		Userdump.KAONSHRT: 0
 		3D: True
-		Userdump.PROTON: 0
-		Userdump.PIZERO: 0
+		Userdump.TAU+: 0
 		Userdump.ANEUTRIT: 0
-		layer: 3D
+		Userdump.LAMBDAC+: 0
 		Userdump.XSIZERO: 0
 		Userdump.APROTON: 0
 		Userdump.AXSIPC-: 0
-		Userdump.OPTIPHOT: 0
-		Userdump.TRITON: 0
-		Userdump.KAON+: 0
+		Userdump.XSIC0: 0
+		Userdump.OMEGAC0: 0
 		Userdump.AXSIPC0: 0
 		Userdump.KAONLONG: 0
 		Userdump.ANEUTRIE: 0
-		Userdump.TAU-: 0
 		Show.voxel: True
 		Userdump.ANEUTRON: 0
-		Show.lattice: True
+		Userdump.OPTIPHOT: 0
+		Userdump.KAON+: 0
 		Userdump.ANEUTRIM: 0
 		Userdump.DEUTERON: 0
 		Userdump.XSIC+: 0
 		Userdump.ASIGMA+: 0
-		deflights: 1
 		Userdump.ASIGMA-: 0
-		Userdump.AOMEGAC0: 0
-		Userdump.TAU+: 0
+		Userdump.NEUTRIT: 0
+		deflights: 1
 		Userdump.D+: 0
-		Userdump.XSIPC+: 0
 		Userdump.AXSIZERO: 0
+		Userdump.D0BAR: 0
 		Userdump.PION+: 0
 		Userdump.XSI-: 0
 		Userdump.PION-: 0
@@ -310,30 +311,31 @@ Geometry:
 		Userdump.HEAVYION: 0
 		Userdump.ALAMBDA: 0
 		Userdump.SIGMAZER: 0
-		Userdump.MUON+: 0
-		Userdump.LAMBDAC+: 0
-		Userdump.KAONSHRT: 0
+		Userdump.PIZERO: 0
+		Userdump.MUON-: 0
+		Userdump.OMEGA-: 0
 		Userdump.3-HELIUM: 0
 		Userdump.KAONZERO: 0
 		Userdump.XSIPC0: 0
-		Userdump.DS+: 0
+		Show.lattice: True
 		Userdump.POSITRON: 0
 		Userdump.DS-: 0
 		Options.viewport: False
 		Show: 0
 		Userdump.SIGMA-: 0
 		Userdump.SIGMA+: 0
-		Userdump.AXSIC0: 0
-		Userdump.AXSI+: 0
+		Userdump.AOMEGAC0: 0
+		Userdump.TRITON: 0
 		Userdump.NEUTRIE: 0
 		Userdump.AXSIC-: 0
+		Userdump.AXSI+: 0
 		Userdump.PHOTON: 0
 		Userdump.NEUTRON: 0
-		Userdump.ASIGMAZE: 0
-		Userdump.D0BAR: 0
+		Userdump.TAU-: 0
+		Userdump.DS+: 0
 		Userdump.4-HELIUM: 0
 		3D.xray: 128
-		Userdump.NEUTRIM: 0
+		Userdump.ASIGMAZE: 0
 	End
 End
 
@@ -345,16 +347,32 @@ End
 Plot: Red
 	Format: .eps
 	Type:   Geometry
-	origin: 0 0 0
-	layer: Media
-	title: GeoViewer Red plot
 	labels: 1
+	cbcolors: 0
+	title: GeoViewer Red plot
+	extends: 23.2568 0.0421319
+	grid: 0
+	cbpalette: FLUKA
 	coord: X-Y
-	boundaries: 1
+	x2log: False
+	index: 0
 	subtype: Material
-	extends: 23.2568 10.7015
+	y2log: False
+	boundaries: 1
+	ztics: 0
+	cblog: False
+	origin: 0 0 0
+	cbround: 0
+	ylog: False
+	zlog: False
+	y2tics: 0
+	cbtics: 0
+	layer: Media
+	cpd: 0
+	xlog: False
 	basisu: 1 0 0
 	basisv: 0 1 0
+	x2tics: 0
 End
 
 # Geometry plot "GeoViewer Green plot"
@@ -368,7 +386,7 @@ Plot: Green
 	coord: Z-X
 	boundaries: 1
 	subtype: Material
-	extends: 86.6788 39.8848
+	extends: 86.6788 0.157027
 	basisu: 0 0 1
 	basisv: 1 0 0
 End
@@ -384,7 +402,7 @@ Plot: Blue
 	coord: Z-Y
 	boundaries: 1
 	subtype: Material
-	extends: 33.4898 15.3495
+	extends: 120 58.1918
 	basisu: 0 0 1
 	basisv: 0 1 0
 End
@@ -400,7 +418,39 @@ Plot: Magenta
 	coord: X-Y
 	boundaries: 1
 	subtype: Material
-	extends: 57.8705 26.524
+	extends: 57.8705 3414.36
 	basisu: -1 0 0
 	basisv: 0 1 0
+End
+
+# Geometry plot "Magnetic Field"
+Plot: foot_plot05
+	Format: .eps
+	Type:   Geometry
+	labels: 1
+	cbcolors: 0
+	title: Magnetic Field
+	extends: 40 30
+	grid: 0
+	cbpalette: FLUKA
+	coord: Z-X
+	x2log: False
+	index: 0
+	subtype: Field Intensity
+	y2log: False
+	boundaries: 0
+	run: <foot>
+	ztics: 0
+	cblog: False
+	origin: 0 0 14
+	cbround: 0
+	ylog: False
+	zlog: False
+	y2tics: 0
+	cbtics: 0
+	cpd: 0
+	xlog: False
+	basisu: 0 0 1
+	basisv: 1 0 0
+	x2tics: 0
 End

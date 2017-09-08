@@ -198,26 +198,26 @@ int main(int argc, char *argv[])
   RootTree->Branch("ITRal",&eve.ITRal,"ITRal[ITRn]/D");
   RootTree->Branch("ITRtim",&eve.ITRtim,"ITRITRtim[ITRn]/D");
 
-  RootTree->Branch("DCHn",&eve.DCHn,"DCHn/I");
-  RootTree->Branch("DCHid",&eve.DCHid,"DCHid[DCHn]/I");
-  RootTree->Branch("DCHilay",&eve.DCHilay,"DCHilay[DCHn]/I");
-  RootTree->Branch("DCHiview",&eve.DCHiview,"DCHiview[DCHn]/I");
-  RootTree->Branch("DCHicell",&eve.DCHicell,"DCHicell[DCHn]/I");
-  RootTree->Branch("DCHxin",&eve.DCHxin,"DCHxin[DCHn]/D");
-  RootTree->Branch("DCHyin",&eve.DCHyin,"DCHyin[DCHn]/D");
-  RootTree->Branch("DCHzin",&eve.DCHzin,"DCHzin[DCHn]/D");
-  RootTree->Branch("DCHpxin",&eve.DCHpxin,"DCHpxin[DCHn]/D");
-  RootTree->Branch("DCHpyin",&eve.DCHpyin,"DCHpyin[DCHn]/D");
-  RootTree->Branch("DCHpzin",&eve.DCHpzin,"DCHpzin[DCHn]/D");
-  RootTree->Branch("DCHxout",&eve.DCHxout,"DCHxout[DCHn]/D");
-  RootTree->Branch("DCHyout",&eve.DCHyout,"DCHyout[DCHn]/D");
-  RootTree->Branch("DCHzout",&eve.DCHzout,"DCHzout[DCHn]/D");
-  RootTree->Branch("DCHpxout",&eve.DCHpxout,"DCHpxout[DCHn]/D");
-  RootTree->Branch("DCHpyout",&eve.DCHpyout,"DCHpyout[DCHn]/D");
-  RootTree->Branch("DCHpzout",&eve.DCHpzout,"DCHpzout[DCHn]/D");
-  RootTree->Branch("DCHde",&eve.DCHde,"DCHde[DCHn]/D");
-  RootTree->Branch("DCHal",&eve.DCHal,"DCHal[DCHn]/D");
-  RootTree->Branch("DCHtim",&eve.DCHtim,"DCHtim[DCHn]/D");
+  RootTree->Branch("MSDn",&eve.MSDn,"MSDn/I");
+  RootTree->Branch("MSDid",&eve.MSDid,"MSDid[MSDn]/I");
+  RootTree->Branch("MSDilay",&eve.MSDilay,"MSDilay[MSDn]/I");
+  RootTree->Branch("MSDiview",&eve.MSDiview,"MSDiview[MSDn]/I");
+  RootTree->Branch("MSDistrip",&eve.MSDistrip,"MSDistrip[MSDn]/I");
+  RootTree->Branch("MSDxin",&eve.MSDxin,"MSDxin[MSDn]/D");
+  RootTree->Branch("MSDyin",&eve.MSDyin,"MSDyin[MSDn]/D");
+  RootTree->Branch("MSDzin",&eve.MSDzin,"MSDzin[MSDn]/D");
+  RootTree->Branch("MSDpxin",&eve.MSDpxin,"MSDpxin[MSDn]/D");
+  RootTree->Branch("MSDpyin",&eve.MSDpyin,"MSDpyin[MSDn]/D");
+  RootTree->Branch("MSDpzin",&eve.MSDpzin,"MSDpzin[MSDn]/D");
+  RootTree->Branch("MSDxout",&eve.MSDxout,"MSDxout[MSDn]/D");
+  RootTree->Branch("MSDyout",&eve.MSDyout,"MSDyout[MSDn]/D");
+  RootTree->Branch("MSDzout",&eve.MSDzout,"MSDzout[MSDn]/D");
+  RootTree->Branch("MSDpxout",&eve.MSDpxout,"MSDpxout[MSDn]/D");
+  RootTree->Branch("MSDpyout",&eve.MSDpyout,"MSDpyout[MSDn]/D");
+  RootTree->Branch("MSDpzout",&eve.MSDpzout,"MSDpzout[MSDn]/D");
+  RootTree->Branch("MSDde",&eve.MSDde,"MSDde[MSDn]/D");
+  RootTree->Branch("MSDal",&eve.MSDal,"MSDal[MSDn]/D");
+  RootTree->Branch("MSDtim",&eve.MSDtim,"MSDtim[MSDn]/D");
 
   RootTree->Branch("SCNn",&eve.SCNn,"SCNn/I");
   RootTree->Branch("SCNid",&eve.SCNid,"SCNid[SCNn]/I");
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
       eve.BMNn        = 0;
       eve.VTXn        = 0;
       eve.ITRn        = 0;
-      eve.DCHn        = 0;
+      eve.MSDn        = 0;
       eve.SCNn        = 0;
       eve.CALn        = 0;
       eve.CROSSn      = 0;
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
       //	leggo l'header
 
       nread= fscanf(pfile,"%d %d %d %d %d %d %d %d %d %d \n",&eve.EventNumber,
-		    &eve.TRn,&eve.STCn,&eve.BMNn,&eve.VTXn,&eve.ITRn,&eve.DCHn,
+		    &eve.TRn,&eve.STCn,&eve.BMNn,&eve.VTXn,&eve.ITRn,&eve.MSDn,
 		    &eve.SCNn,&eve.CALn,&eve.CROSSn);
       if(nread!=10){
 	cout<<"ReadError in ev header section: nread = "<<nread<<
@@ -440,19 +440,19 @@ int main(int argc, char *argv[])
 
       if(!ReadError){
  
-	for(int jj=0; jj<eve.DCHn;jj++){
+	for(int jj=0; jj<eve.MSDn;jj++){
 	  nread = fscanf(pfile,
 			 "%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
-			 &eve.DCHid[jj],&eve.DCHiview[jj],&eve.DCHilay[jj],
-			 &eve.DCHicell[jj],
-			 &eve.DCHxin[jj],&eve.DCHyin[jj],&eve.DCHzin[jj],
-			 &eve.DCHxout[jj],&eve.DCHyout[jj],&eve.DCHzout[jj],
-			 &eve.DCHpxin[jj],&eve.DCHpyin[jj],&eve.DCHpzin[jj],
-			 &eve.DCHpxout[jj],&eve.DCHpyout[jj],&eve.DCHpzout[jj],
-			 &eve.DCHde[jj],&eve.DCHal[jj],&eve.DCHtim[jj]);
+			 &eve.MSDid[jj],&eve.MSDiview[jj],&eve.MSDilay[jj],
+			 &eve.MSDistrip[jj],
+			 &eve.MSDxin[jj],&eve.MSDyin[jj],&eve.MSDzin[jj],
+			 &eve.MSDxout[jj],&eve.MSDyout[jj],&eve.MSDzout[jj],
+			 &eve.MSDpxin[jj],&eve.MSDpyin[jj],&eve.MSDpzin[jj],
+			 &eve.MSDpxout[jj],&eve.MSDpyout[jj],&eve.MSDpzout[jj],
+			 &eve.MSDde[jj],&eve.MSDal[jj],&eve.MSDtim[jj]);
 	  if(nread!=19){
 	    ReadError = true;
-	    cout<<"ReadError in DCH section: nread = "<<nread<<
+	    cout<<"ReadError in MSD section: nread = "<<nread<<
 	      " instead of 19; ev= "<<NumProcessed<<endl;
 	    break;
 	  }
@@ -526,12 +526,12 @@ int main(int argc, char *argv[])
       else{
 	if((eve.TRn<=MAXTR)&&(eve.STCn<=MAXSTC)&&(eve.BMNn<=MAXBMN)&&(eve.VTXn<=MAXVTX)
 	   &&(eve.ITRn<=MAXITR)&&(eve.SCNn<=MAXSCN)&&(eve.CALn<=MAXCAL)
-	   &&(eve.DCHn<=MAXDCH)&&(eve.CROSSn<=MAXCROSS)){
+	   &&(eve.MSDn<=MAXMSD)&&(eve.CROSSn<=MAXCROSS)){
 	  RootTree->Fill() ;
 	}
 	else{
 	  cout<<ReadError<<" "<<eve.EventNumber<<" "<<eve.TRn<<" "<<eve.STCn
-	      <<" "<<eve.BMNn<<" "<<eve.VTXn<<" "<<eve.ITRn<<" "<<eve.DCHn
+	      <<" "<<eve.BMNn<<" "<<eve.VTXn<<" "<<eve.ITRn<<" "<<eve.MSDn
 	      <<" "<<eve.SCNn<<" "<<eve.CALn<<" "<<eve.CROSSn<<endl;  
 	}
       }

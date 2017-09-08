@@ -52,9 +52,6 @@
 #include "TAMSDparGeo.hxx"
 #include "TAMSDntuRaw.hxx"
 
-#include "TADCparGeo.hxx"
-#include "TADCntuRaw.hxx"
-
 #include "TAVTparGeo.hxx"
 #include "TAVTntuRaw.hxx"
 
@@ -94,11 +91,9 @@ public:
 
 	// int PrepareData4Fit( string option );
 	int PrepareData4Fit( Track* fitTrack );
-	void Prepare4Test( Track* fitTrack );
 	void Prepare4Vertex( Track* fitTrack );
 	void Prepare4InnerTracker( Track* fitTrack );
 	void Prepare4Strip( Track* fitTrack );
-	void Prepare4DriftChamber( Track* fitTrack );
 
 	bool PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterator element );
 
@@ -111,7 +106,6 @@ public:
 	int UploadHitsVT( TAGdataDsc* footDataObj, shared_ptr<TAVTparGeo> vt_geo );
 	int UploadHitsIT( TAGdataDsc* footDataObj, shared_ptr<TAITparGeo> it_geo );
 	int UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd_geo );
-	int UploadHitsDC( TAGdataDsc* footDataObj, shared_ptr<TADCparGeo> dc_geo );
 
 	void EvaluateMomentumResolution();
 
@@ -161,10 +155,6 @@ private:
 	vector<TAVTntuHit*> m_VT_hitCollection;
 	vector<TAITntuHit*> m_IT_hitCollection;
 	vector<TAMSDntuHit*> m_MSD_hitCollection;
-	vector<TADCntuHit*> m_DC_hitCollection;
-	// vector< shared_ptr<TAVTntuHit> > m_VT_hitCollection;
-	// vector< shared_ptr<TAITntuHit> > m_IT_hitCollection;
-	// vector< shared_ptr<TADCntuHit> > m_DC_hitCollection;
 	
 	vector<TVector3> m_MSD_posVectorSmearedHit;
 	vector<TVector3> m_MSD_momVectorSmearedHit;
@@ -178,7 +168,6 @@ private:
 	shared_ptr<TAVTparGeo> m_VT_geo;
 	shared_ptr<TAITparGeo> m_IT_geo;
 	shared_ptr<TAMSDparGeo> m_MSD_geo;
-	shared_ptr<TADCparGeo> m_DC_geo;
 
 	// TrackVector* m_fitTrackCollection;
 	vector<int> m_evNum_vect;

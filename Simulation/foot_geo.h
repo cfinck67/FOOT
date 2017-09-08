@@ -276,7 +276,7 @@ const bool MAG_AIR_MAG		=true;
 
 const double MSD_X		=0.0;
 const double MSD_Y		=0.0;
-const double MSD_Z		=28.0;
+const double MSD_Z		=29.0;
 				     
 const Double_t MSD_WIDTH   	=9.0;//x dimension
 const Double_t MSD_HEIGHT  	=9.0;//y dimension
@@ -306,7 +306,7 @@ const bool MSD_MAG		=true;
 
 //************************************************************
 // Drift Chamber
-
+/*
 const Double_t DCH_X 		=0.0; //center x coordinate
 const Double_t DCH_Y 		=0.0; //center y coordinate
 //const Double_t DCH_Z 		=37.7;//center z coordinate
@@ -348,7 +348,7 @@ const TString  DCH_FWIRE_MEDIUM ="ALUMINUM";
 
 //DCH_MAG = true if mag field region includes DCH
 const bool DCH_MAG		=false;
-
+*/
 //************************************************************
 // Scintillator
 

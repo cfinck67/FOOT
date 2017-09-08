@@ -178,7 +178,7 @@ MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| idbflg  | FragTrg |Eth(Mev) |unused   |unused   |unused | SDUM      |
 * -------1---------2---------3---------4---------5---------6---------7---------8
-USRICALL          0.        6.       0.1       0.0        0.        0.
+USRICALL          0.        0.       0.1       0.0        0.        0.
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
@@ -210,16 +210,13 @@ STEPSIZE    -0.00001             ITRCOV3   ITREPO1
 STEPSIZE    -0.00001             ITREPO1      ITR1
 STEPSIZE    -0.00001                ITR1   MAG_AIR
 STEPSIZE    -0.00001             MAG_AIR     MSDV0
-STEPSIZE    -0.00001               MSDV0   MSDKAP0
-STEPSIZE    -0.00001             MSDKAP0     MSDU0
+STEPSIZE    -0.00001               MSDV0     MSDU0
 STEPSIZE    -0.00001               MSDU0   MAG_AIR
 STEPSIZE    -0.00001             MAG_AIR     MSDV1
-STEPSIZE    -0.00001               MSDV1   MSDKAP1
-STEPSIZE    -0.00001             MSDKAP1     MSDU1
+STEPSIZE    -0.00001               MSDV1     MSDU1
 STEPSIZE    -0.00001               MSDU1   MAG_AIR
 STEPSIZE    -0.00001             MAG_AIR     MSDV2
-STEPSIZE    -0.00001               MSDV2   MSDKAP2
-STEPSIZE    -0.00001             MSDKAP2     MSDU2
+STEPSIZE    -0.00001               MSDV2     MSDU2
 STEPSIZE    -0.00001               MSDU2   MAG_AIR
 USERDUMP        100.       69.       0.0        1.                    Opt
 USROCALL
@@ -227,6 +224,6 @@ RANDOMIZ         1.0   593585.
 * ******************************************************************************
 *                          RUN                                                 *
 * ******************************************************************************
-START           2.E5
+START              1
 STOP
 

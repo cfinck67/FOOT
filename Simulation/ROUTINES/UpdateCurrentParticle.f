@@ -107,7 +107,7 @@ c
          iba(idcurr) = JAPART
          amass(idcurr) = sngl(ampart)
 c
-         if(idbflg.gt.1) then
+         if(idbflg.gt.1 .AND. idbflg.lt.4) then
             write(*,*)' '
             write(*,*)'===== UpdateCurrPart : Ev =',numev,' == INIT = '
             write(*,*)' '
@@ -132,7 +132,7 @@ c    _____________________ END  INIT   ________________________
 c
 c    normal Kinematic tracking
 c            
-         if(idbflg.gt.1) then
+         if(idbflg.gt.1 .AND. idbflg.lt.4) then
             write(*,*)' '
             write(*,*)
      &           '--------- UpdateCurrPart : Ev =',numev,' ------- '
@@ -160,7 +160,7 @@ c
             if (icode.ne.219) then
                oldone = .true.
             else
-               if (idbflg.gt.1)  
+               if (idbflg.gt.1 .AND. idbflg.lt.4)  
      &         write(*,*) '--------- UpdateCurrPart : Icode 1 =',icode
             endif
 c
@@ -170,14 +170,14 @@ c
             if (icode.ne.219) then
                oldone = .true.
             else
-               if (idbflg.gt.1)  
+               if (idbflg.gt.1 .AND. idbflg.lt.4)  
      &         write(*,*) '--------- UpdateCurrPart : Icode 2 =',icode
             endif
-            if(idbflg.gt.0) then
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
        write(*,*)'UpdateCurrentParticle ptrack = 0 searching for father'
             endif
             do ii = 1,numint
-               if(idbflg.gt.0) then
+               if(idbflg.gt.0 .AND. idbflg.lt.4) then
                   write(*,*)'int= ',ii, 'x int= ',xint(ii),yint(ii),
      &                 zint(ii),' intpa= ',intpa(ii)
                endif
@@ -194,7 +194,7 @@ c
                   if (icode.ne.219) then
                      oldone = .true.
                   else
-               if (idbflg.gt.1)  
+               if (idbflg.gt.1 .AND. idbflg.lt.4)  
      &             write(*,*) 
      &             '--------- UpdateCurrPart : Icode 3 =',icode
                   endif
@@ -227,7 +227,7 @@ C               idead(idcurr) = icode
 c     
 c     =========:  FOLLOWING A NEW PARTICLE  : ===============   
 c     
-            if(idbflg.gt.0) then
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
                write(*,*)' '
                write(*,*)
      &     'UPdateCurrentParticle= --------- New part found ----------'
@@ -291,7 +291,7 @@ c
 c particle latching: father, igen
 c
             do ii = 1,numint
-               if(idbflg.gt.0) then
+               if(idbflg.gt.0 .AND. idbflg.lt.4) then
                   write(*,*)'int= ',ii, 'x int= ',xint(ii),yint(ii),
      &                 zint(ii),' intpa= ',intpa(ii)
                endif

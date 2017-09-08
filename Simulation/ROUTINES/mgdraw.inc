@@ -3,14 +3,18 @@ c     idcurr = position of the current particle in the particle common block
 c     if idcurr<=0  -> new particle to be followed     
 c     
       integer idbflg, outunit
-      integer tarfrag, fragtrig
+      integer tarfrag, fragtrig, stcfrag, bmnfrag, tgtfrag, airfrag
+      integer elsfrag
+      logical trig_stc, trig_bmn, trig_tgt, trig_air, trig_els
       integer numev
       integer idcurr
       integer JSTART, JRUN, JEND
       parameter (JSTART=1, JRUN=0, JEND=-1)
       double precision Ethrdep
       common /comunico/Ethrdep, idbflg, numev,
-     &     idcurr, outunit, tarfrag, fragtrig
+     &     idcurr, outunit, stcfrag, bmnfrag, tgtfrag, airfrag,
+     &     tarfrag, elsfrag, fragtrig, trig_stc, trig_bmn, trig_tgt,
+     &     trig_air, trig_els
 c     
 c     particle common block
 c     
@@ -101,16 +105,7 @@ c
 
 c     *************************************************************
 c     common needed to score the hit in the vertex
-c     
-      double precision xminVTX, yminVTX, dxVTX, dyVTX
-      integer xpixVTX, ypixVTX
-      parameter (xminVTX=-1.)
-      parameter (yminVTX=-1.)
-      parameter (dxVTX=0.002)
-      parameter (dyVTX=0.002)
-      parameter (xpixVTX=1000)
-      parameter (ypixVTX=1000)
-
+c 
 c     ilayVTX  =  vertex layer (1-3) 
 c     icolVTX  =  vertex pixel column index (1-1000)
 c     irowVTX  =  vertex pixel row index (1-1000)
@@ -133,18 +128,9 @@ c     irowVTX  =  vertex pixel row index (1-1000)
 c     *************************************************************
 c     common needed to score the hit in the inner tracker
 c     
-      double precision xminITR, yminITR, dxITR, dyITR
-      integer xpixITR, ypixITR
-      parameter (xminITR=-3.)
-      parameter (yminITR=-3.)
-      parameter (dxITR=0.002)
-      parameter (dyITR=0.002)
-      parameter (xpixITR=3000)
-      parameter (ypixITR=3000)
-
-c     ilayITR  =  vertex layer (1-2) 
-c     icolITR  =  vertex pixel column index (1-3000)
-c     irowITR  =  vertex pixel row index (1-3000)
+c     ilayITR  =  inner tracker layer (1-2) 
+c     icolITR  =  inner tracker pixel column index (1-2400)
+c     irowITR  =  inner tracker pixel row index (1-2400)
 
       integer nITR, maxITR 
       parameter (maxITR=300)
@@ -168,28 +154,28 @@ c     iview = x and y view (1-2)
 c     ilay  = second drift chamber layer index (1-6)
 c     icell = second drift chamber cell index (1-6)
 c
-      integer nDCH, maxDCH 
-      parameter (maxDCH=1000)
-      integer idDCH (maxDCH), iviewDCH(maxDCH), ilayDCH(maxDCH),
-     &     icellDCH(maxDCH) 
+      integer nMSD, maxMSD 
+      parameter (maxMSD=1000)
+      integer idMSD (maxMSD), iviewMSD(maxMSD), ilayMSD(maxMSD),
+     &     istripMSD(maxMSD) 
 
-      real xinDCH(maxDCH), xoutDCH(maxDCH), yinDCH(maxDCH), 
-     &     youtDCH(maxDCH), zinDCH(maxDCH), zoutDCH(maxDCH)
-      real pxinDCH(maxDCH), pxoutDCH(maxDCH),pyinDCH(maxDCH), 
-     &     pyoutDCH(maxDCH), pzinDCH(maxDCH), pzoutDCH(maxDCH)
-      real deDCH(maxDCH), timDCH(maxDCH), alDCH(maxDCH)
-      common /DCH_common/ xinDCH, xoutDCH, yinDCH, youtDCH, zinDCH, 
-     &     zoutDCH, pxinDCH, pxoutDCH, pyinDCH, pyoutDCH, pzinDCH, 
-     &     pzoutDCH,deDCH, alDCH, timDCH, nDCH, idDCH, iviewDCH,
-     &     ilayDCH, icellDCH
+      real xinMSD(maxMSD), xoutMSD(maxMSD), yinMSD(maxMSD), 
+     &     youtMSD(maxMSD), zinMSD(maxMSD), zoutMSD(maxMSD)
+      real pxinMSD(maxMSD), pxoutMSD(maxMSD),pyinMSD(maxMSD), 
+     &     pyoutMSD(maxMSD), pzinMSD(maxMSD), pzoutMSD(maxMSD)
+      real deMSD(maxMSD), timMSD(maxMSD), alMSD(maxMSD)
+      common /MSD_common/ xinMSD, xoutMSD, yinMSD, youtMSD, zinMSD, 
+     &     zoutMSD, pxinMSD, pxoutMSD, pyinMSD, pyoutMSD, pzinMSD, 
+     &     pzoutMSD,deMSD, alMSD, timMSD, nMSD, idMSD, iviewMSD,
+     &     ilayMSD, istripMSD
 c     
 c  common for the indexing of the second drift chamber
 c
-      integer MAXDCHREG
-      parameter (MAXDCHREG=200)
-      integer ireg2layDCH(MAXDCHREG), ireg2viewDCH(MAXDCHREG), 
-     & ireg2cellDCH(MAXDCH)
-      common /DCH_index_common/ireg2layDCH, ireg2viewDCH, ireg2cellDCH
+      integer MAXMSDREG
+      parameter (MAXMSDREG=300)
+      integer ireg2layMSD(MAXMSDREG), ireg2viewMSD(MAXMSDREG), 
+     & ireg2stripMSD(MAXMSD)
+      common /MSD_index_common/ireg2layMSD, ireg2viewMSD, ireg2stripMSD
 
 c      
 c     *************************************************************
@@ -214,7 +200,7 @@ c
 c  common for the indexing of the SCN
 c
        integer MAXSCNREG
-       parameter (MAXSCNREG=200)
+       parameter (MAXSCNREG=300)
        integer ireg2stripSCN(MAXSCNREG),ireg2viewSCN(MAXSCNREG)
        common /SCN_index_common/ireg2stripSCN,ireg2viewSCN
       
@@ -222,7 +208,7 @@ c     *************************************************************
 c     common neede to score the hit in the Calo regions
 c     
       integer nCAL, maxCAL
-      parameter (maxCAL=2000)
+      parameter (maxCAL=6000)
       integer idCAL(maxCAL),icryCAL(maxCAL)
 
       real xinCAL(maxCAL), xoutCAL(maxCAL), yinCAL(maxCAL),
@@ -237,7 +223,7 @@ c
 c  common for the indexing of the SCN
 c
        integer MAXCALREG
-       parameter (MAXCALREG=600)
+       parameter (MAXCALREG=700)
        integer ireg2cryCAL(MAXCALREG)
        common /CAL_index_common/ireg2cryCAL
       
@@ -260,27 +246,27 @@ c
 c     ************************************************************
 c     Numbers of fluka region to be scored
 c     
-      integer  nregaria, nregSTC, nregtarg,
+      integer  nregaria, nregMagAir, nregSTC, nregtarg,
      &     nregFirstBMN, nregLastBMN, nregFirstVTX, nregLastVTX,
-     &     nregFirstITR, nregLastITR, nregFirstDCH, nregLastDCH,
+     &     nregFirstITR, nregLastITR, nregFirstMSD, nregLastMSD,
      &     nregFirstSCN, nregLastSCN, nregFirstCAL, nregLastCAL
       
       common/region_common/
-     &     nregaria, nregSTC, nregtarg, nregFirstBMN, nregLastBMN,
-     &     nregFirstVTX, nregLastVTX, nregFirstITR, nregLastITR,
-     &     nregFirstDCH, nregLastDCH, nregFirstSCN, nregLastSCN,
-     &     nregFirstCAL, nregLastCAL
+     &     nregaria, nregMagAir, nregSTC, nregtarg, nregFirstBMN,
+     &     nregLastBMN, nregFirstVTX, nregLastVTX, nregFirstITR,
+     &     nregLastITR, nregFirstMSD, nregLastMSD, nregFirstSCN,
+     &     nregLastSCN, nregFirstCAL, nregLastCAL
       
 c     ***********************************************************
 c     absolute light efficiency of material in quenched formula
 c     
       double precision abs_STC,abs_BMN,abs_VTX,abs_ITR,
-     &     abs_DCH, abs_SCN, abs_CAL
+     &     abs_MSD, abs_SCN, abs_CAL
       parameter (abs_STC=1.0)
       parameter (abs_BMN=1.0)
       parameter (abs_VTX=1.0)
       parameter (abs_ITR=1.0)
-      parameter (abs_DCH=1.0)
+      parameter (abs_MSD=1.0)
       parameter (abs_SCN=1.0)
       parameter (abs_CAL=1.0)   
 
@@ -290,25 +276,8 @@ c     recording with the info on the interaction point
 c     
       integer idfluka(maxnump)
       integer numint, maxint
-      parameter (MAXINT=2000)
+      parameter (MAXINT=6000)
       double precision xint(maxint),yint(maxint),zint(maxint)
       integer intpa(maxint),intcode(maxint)
       common /particle_stack/xint,yint,zint,intpa,intcode,
      &     idfluka,numint
-
-c     ***********************************************************
-c     geometry parameters
-c     
-      integer nlayBMN, ncellBMN, nlayDCH, ncellDCH
-      integer nlayVTX, nlayITR
-      integer nstripSCN, ncryCAL
-
-      parameter (nlayBMN = 6)
-      parameter (ncellBMN = 3)
-      parameter (nlayDCH = 6)
-      parameter (ncellDCH = 6)
-      parameter (nlayVTX = 3)
-      parameter (nlayITR = 2)
-      parameter (nstripSCN = 22)
-      parameter (ncryCAL = 360)
-      

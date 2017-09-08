@@ -50,6 +50,6 @@ Evento.o:   Evento.cpp $(HEAD) Evento.h EventStruct.h
 	    g++ -c Evento.cpp $(CXXFLAGS)
 
 clean:
-	@rm -f $(OBJ) Txt2RootDict.o core *.so Txt2RootDict.cpp Txt2Root.o Txt2Root
+	@rm -f $(OBJ) Txt2RootDict* core *.so Txt2RootDict.cpp Txt2Root.o Txt2Root
 
 

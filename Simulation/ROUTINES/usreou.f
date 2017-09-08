@@ -32,8 +32,29 @@
       logical trigger
       double precision Eqcalo, Eqscint
 c     
-c     
+c
+C      idbflg = 1
       trigger = .false.
+      tarfrag = stcfrag + 10*bmnfrag + 100*tgtfrag + 1000*airfrag
+     & + 10000*elsfrag
+      if (stcfrag.eq.1) trig_stc = .true.
+      if (bmnfrag.eq.1) trig_bmn = .true.
+      if (tgtfrag.eq.1) trig_tgt = .true.
+      if (airfrag.eq.1) trig_air = .true.
+      if (elsfrag.eq.1) trig_els = .true.
+      if(idbflg.gt.0 .AND. idbflg.lt.4) then
+         write(*,*) '---------------------------'
+         write(*,*)'Usreou. Ev= ',numev,
+     &        ' trig_stc: ', trig_stc,
+     &        ' trig_bmn: ', trig_bmn,
+     &        ' trig_tgt: ', trig_tgt,
+     &        ' trig_air: ', trig_air,
+     &        ' trig_els: ', trig_els,
+     &        ' trigger= ', Trigger,
+     &        ' fragtrig= ',fragtrig,
+     &     ' tarfrag= ',tarfrag
+         write(*,*)
+      endif
       Eqcalo = 0
       Eqscint = 0
 c
@@ -45,14 +66,246 @@ c
          Eqscint = Eqscint + deSCN(ii)
       end do
 c
-      if( (Eqcalo.ge.Ethrdep) .or. (Eqscint.gt.Ethrdep) ) then
+C      if( (Eqcalo.ge.Ethrdep) .or. (Eqscint.gt.Ethrdep) ) then
+C         trigger = .true.
+C     endif
+C
+C     fragtrig = 0 ----- no trigger
+C     fragtrig = 1 ----- only STC with inelastic interaction
+C     fragtrig = 2 ----- only BMN with inelastic interaction
+C     fragtrig = 3 ----- only TGT with inelastic interaction
+C     fragtrig = 4 ----- only AIR with inelastic interaction
+C     fragtrig = 5 ----- inelastic interaction in STC + X
+C     fragtrig = 6 ----- inelastic interaction in TGT + X
+C     fragtrig = 7 ----- inelastic interaction in AIR + X
+C     fragtrig = 8 ----- inelastic interaction in ELS + X
+C     fragtrig = 9 ----- inelastic interaction in BMN + X
+C     fragtrig = 10 ---- inelastic interaction in STC - BMN +X
+C     fragtrig = 11 ---- inelastic interaction in BMN - STC +X 
+C     fragtrig = 34 ---- inelastic interaction in TGT + AIR - STC -BMN -ELS      
+C     fragtrig = 35 ---- inelastic interaction in TGT + ELS - STC -BMN -AIR     
+C     fragtrig = -1 ---- no inelastic interaction in STC
+C     fragtrig = -2 ---- no inelastic interaction in BMN
+C     fragtrig = -3 ---- no inelastic interaction in TGT
+C     fragtrig = -4 ---- no inelastic interaction in AIR
+C     fragtrig = -123 -- no inelastic interaction in STC, BMN and TGT
+C     fragtrig = -1234 - no inelastic interaction in STC, BMN, TGT and AIR
+C     
+      if (fragtrig.eq.0 ) then
          trigger = .true.
+      else if (fragtrig.eq.1) then
+         if (trig_stc .and. .not.trig_bmn .and. .not.trig_tgt .and.
+     &        .not.trig_air .and. .not.trig_els) then
+            trigger = .true.
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+               write(*,*)'STC Ev= ',numev,
+     &              ' trig_stc: ', trig_stc,
+     &              ' trig_bmn: ', trig_bmn,
+     &              ' trig_tgt: ', trig_tgt,
+     &              ' trig_air: ', trig_air,
+     &              ' trig_els: ', trig_els,
+     &              ' trigger= ', Trigger,
+     &              ' fragtrig= ',fragtrig,
+     &              ' tarfrag= ',tarfrag
+            endif
+         endif
+      else if (fragtrig.eq.2) then
+         if (trig_bmn .and. .not.trig_stc .and. .not.trig_tgt .and.
+     &        .not.trig_air .and. .not.trig_els) then
+            trigger = .true.
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+               write(*,*)'BMN Ev= ',numev,
+     &              ' trig_stc: ', trig_stc,
+     &              ' trig_bmn: ', trig_bmn,
+     &              ' trig_tgt: ', trig_tgt,
+     &              ' trig_air: ', trig_air,
+     &              ' trig_els: ', trig_els,
+     &              ' trigger= ', Trigger,
+     &              ' fragtrig= ',fragtrig,
+     &              ' tarfrag= ',tarfrag
+            endif
+         endif
+      else if (fragtrig.eq.3) then
+         if (trig_tgt .and. .not.trig_stc .and. .not.trig_bmn .and.
+     &        .not.trig_air .and. .not.trig_els) then
+            trigger = .true.
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+               write(*,*)'TGT Ev= ',numev,
+     &              ' trig_stc: ', trig_stc,
+     &              ' trig_bmn: ', trig_bmn,
+     &              ' trig_tgt: ', trig_tgt,
+     &              ' trig_air: ', trig_air,
+     &              ' trig_els: ', trig_els,
+     &              ' trigger= ', Trigger,
+     &              ' fragtrig= ',fragtrig,
+     &              ' tarfrag= ',tarfrag
+            endif
+         endif
+      else if (fragtrig.eq.4) then
+         if (trig_air .and. .not.trig_stc .and. .not.trig_bmn .and.
+     &        .not.trig_tgt .and. .not.trig_els) then
+            trigger = .true.
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+               write(*,*)'AIR Ev= ',numev,
+     &              ' trig_stc: ', trig_stc,
+     &              ' trig_bmn: ', trig_bmn,
+     &              ' trig_tgt: ', trig_tgt,
+     &              ' trig_air: ', trig_air,
+     &              ' trig_els: ', trig_els,
+     &              ' trigger= ', Trigger,
+     &              ' fragtrig= ',fragtrig,
+     &              ' tarfrag= ',tarfrag
+            endif
+         endif
+      else if (fragtrig.eq.5) then
+         if (trig_stc) then
+            trigger = .true.
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+               write(*,*)'STC+X Ev= ',numev,
+     &              ' trig_stc: ', trig_stc,
+     &              ' trig_bmn: ', trig_bmn,
+     &              ' trig_tgt: ', trig_tgt,
+     &              ' trig_air: ', trig_air,
+     &              ' trig_els: ', trig_els,
+     &              ' trigger= ', Trigger,
+     &              ' fragtrig= ',fragtrig,
+     &              ' tarfrag= ',tarfrag
+            endif
+         endif
+      else if (fragtrig.eq.6) then
+         if (trig_tgt) then
+            trigger = .true.
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+               write(*,*)'TGT+X Ev= ',numev,
+     &              ' trig_stc: ', trig_stc,
+     &              ' trig_bmn: ', trig_bmn,
+     &              ' trig_tgt: ', trig_tgt,
+     &              ' trig_air: ', trig_air,
+     &              ' trig_els: ', trig_els,
+     &              ' trigger= ', Trigger,
+     &              ' fragtrig= ',fragtrig,
+     &              ' tarfrag= ',tarfrag
+            endif
+         endif
+      else if (fragtrig.eq.7) then
+         if (trig_air) then
+            trigger = .true.
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+               write(*,*)'AIR+X Ev= ',numev,
+     &              ' trig_stc: ', trig_stc,
+     &              ' trig_bmn: ', trig_bmn,
+     &              ' trig_tgt: ', trig_tgt,
+     &              ' trig_air: ', trig_air,
+     &              ' trig_els: ', trig_els,
+     &              ' trigger= ', Trigger,
+     &              ' fragtrig= ',fragtrig,
+     &              ' tarfrag= ',tarfrag
+            endif
+         endif
+      else if (fragtrig.eq.8) then
+         if (trig_els) then
+            trigger = .true.
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+               write(*,*)'ELS+X Ev= ',numev,
+     &              ' trig_stc: ', trig_stc,
+     &              ' trig_bmn: ', trig_bmn,
+     &              ' trig_tgt: ', trig_tgt,
+     &              ' trig_air: ', trig_air,
+     &              ' trig_els: ', trig_els,
+     &              ' trigger= ', Trigger,
+     &              ' fragtrig= ',fragtrig,
+     &              ' tarfrag= ',tarfrag
+            endif
+         endif
+      else if (fragtrig.eq.9) then
+         if (trig_bmn) then
+            trigger = .true.
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+               write(*,*)'BMN+X Ev= ',numev,
+     &              ' trig_stc: ', trig_stc,
+     &              ' trig_bmn: ', trig_bmn,
+     &              ' trig_tgt: ', trig_tgt,
+     &              ' trig_air: ', trig_air,
+     &              ' trig_els: ', trig_els,
+     &              ' trigger= ', Trigger,
+     &              ' fragtrig= ',fragtrig,
+     &              ' tarfrag= ',tarfrag
+            endif
+         endif         
+      else if (fragtrig.eq.10) then
+         if (trig_stc .and. .not.trig_bmn) then
+            trigger = .true.
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+               write(*,*)'SCT -BMN +X Ev= ',numev,
+     &              ' trig_stc: ', trig_stc,
+     &              ' trig_bmn: ', trig_bmn,
+     &              ' trig_tgt: ', trig_tgt,
+     &              ' trig_air: ', trig_air,
+     &              ' trig_els: ', trig_els,
+     &              ' trigger= ', Trigger,
+     &              ' fragtrig= ',fragtrig,
+     &              ' tarfrag= ',tarfrag
+            endif
+         endif
+      else if (fragtrig.eq.11) then
+         if (trig_bmn .and. .not.trig_stc) then
+            trigger = .true.
+            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+               write(*,*)'BMN -STC +X Ev= ',numev,
+     &              ' trig_stc: ', trig_stc,
+     &              ' trig_bmn: ', trig_bmn,
+     &              ' trig_tgt: ', trig_tgt,
+     &              ' trig_air: ', trig_air,
+     &              ' trig_els: ', trig_els,
+     &              ' trigger= ', Trigger,
+     &              ' fragtrig= ',fragtrig,
+     &              ' tarfrag= ',tarfrag
+            endif
+         endif         
+      else if (fragtrig.eq.-1) then
+         if (.not.trig_stc) then
+            trigger = .true.
+         endif
+      else if (fragtrig.eq.-2) then
+         if (.not.trig_bmn) then
+            trigger = .true.
+         endif
+      else if (fragtrig.eq.-3) then
+         if (.not.trig_tgt) then
+            trigger = .true.
+         endif
+      else if (fragtrig.eq.-4) then
+         if (.not.trig_air) then
+            trigger = .true.
+         endif
+      else if (fragtrig.eq.-5) then
+         if (.not.trig_els) then
+            trigger = .true.
+         endif
+      else if (fragtrig.eq.-123) then
+         if (.not.trig_stc .and. .not.trig_bmn
+     &        .and. .not.trig_tgt) then
+            trigger = .true.
+         endif
+      else if (fragtrig.eq.-1234) then
+         if (.not.trig_stc .and. .not.trig_bmn
+     &        .and. .not.trig_tgt .and. .not.trig_air) then
+            trigger = .true.
+         endif
+      else if (fragtrig.eq.35) then
+         if (trig_tgt .and. trig_els .and. .not.trig_stc
+     &        .and. .not.trig_bmn .and. .not.trig_air) then
+            trigger = .true.
+         endif
+      else if (fragtrig.eq.34) then
+         if (trig_tgt .and. trig_air .and. .not.trig_stc
+     &        .and. .not.trig_bmn .and. .not.trig_els) then
+            trigger = .true.
+         endif
       endif
-      if (fragtrig.gt.0 .AND. tarfrag.le.0) then
-         trigger = .false.
-      endif
-c     
-      if(idbflg.gt.0) then
+c
+C      idbflg = 0
+      if(idbflg.gt.0 .AND. idbflg.lt.4) then
          write(*,*)'ev= ',numev,' Equench= ',Eqcalo,
      &        ' Eqscint= ',Eqscint,
      &        ' trigger= ', Trigger,
@@ -63,7 +316,7 @@ c
 c
       if(trigger) then
 c
-         write(outunit,*) ncase,nump,nSTC,nBMN,nVTX,nITR,nDCH,nSCN,nCAL,
+         write(outunit,*) ncase,nump,nSTC,nBMN,nVTX,nITR,nMSD,nSCN,nCAL,
      &        nCROSS
 c
 c     scrivo la banca delle particelle
@@ -123,14 +376,14 @@ c
 c     
 c     scrivo la seconda camera a drift
 c         
-         do ii = 1,nDCH   
-            write(outunit,*) idDCH(ii), iviewDCH(ii),
-     &           ilayDCH(ii), icellDCH(ii), 
-     &           xinDCH(ii), yinDCH(ii), zinDCH(ii),
-     &           xoutDCH(ii), youtDCH(ii), zoutDCH(ii),
-     &           pxinDCH(ii), pyinDCH(ii), pzinDCH(ii), 
-     &           pxoutDCH(ii), pyoutDCH(ii), pzoutDCH(ii),
-     &           deDCH(ii), alDCH(ii), timDCH(ii)
+         do ii = 1,nMSD   
+            write(outunit,*) idMSD(ii), iviewMSD(ii),
+     &           ilayMSD(ii), istripMSD(ii), 
+     &           xinMSD(ii), yinMSD(ii), zinMSD(ii),
+     &           xoutMSD(ii), youtMSD(ii), zoutMSD(ii),
+     &           pxinMSD(ii), pyinMSD(ii), pzinMSD(ii), 
+     &           pxoutMSD(ii), pyoutMSD(ii), pzoutMSD(ii),
+     &           deMSD(ii), alMSD(ii), timMSD(ii)
          end do
 c
 c     scrivo lo scintillatore
@@ -169,7 +422,7 @@ c
 c
       endif
 c     
-      if(idbflg .gt. 0)then
+      if(idbflg .gt. 0 .AND. idbflg.lt.4) then
          call dump_common()
          write(*,*)'***************************************************'
          write(*,*)'***************** EVENT END ***********************'
@@ -177,7 +430,7 @@ c
          write(*,*)''
       endif
 c
-c 
+c
 c
       RETURN
 *===  End of subroutine Usreou =========================================*

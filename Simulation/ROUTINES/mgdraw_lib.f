@@ -98,7 +98,7 @@ c
       INCLUDE '(TRACKR)'
       include 'mgdraw.inc'
 c
-      if(idbflg .gt. 0) then
+      if(idbflg .gt. 0 .AND. idbflg.lt.4) then
 c         
          call dump_common_part()
 c
@@ -125,7 +125,7 @@ c
       include 'mgdraw.inc'
       integer ii, nSTC_now
 c
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)' '
          write(*,*)'---------------Score_STC-----------------'
          write(*,*)'idcurr= ',idcurr,' equenchedSTC= ',
@@ -170,7 +170,7 @@ c
       deSTC(nSTC_now) = deSTC(nSTC_now) + sngl(erawSTC)
       alSTC(nSTC_now)=alSTC(nSTC_now)+ sngl(equenchedSTC)
 c
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)'nSTC= ',nSTC_now,
      &         ' deSTC(nSTC)= ',deSTC(nSTC_now)
          write(*,*)' '
@@ -191,6 +191,7 @@ c
       INCLUDE '(TRACKR)'
       double precision erawBMN, equenchedBMN
       include 'mgdraw.inc'
+      include 'parameters.inc'
       integer ii, nBMN_now
       integer iview, ilay, icell
 c
@@ -205,7 +206,7 @@ c
          write(*,*) ilay, iview, icell, mreg
       endif
 c     
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)' '
          write(*,*)'---------------Score_BMN-----------------'
          write(*,*)'idcurr= ',idcurr,' equenchedBMN= ',
@@ -258,7 +259,7 @@ c
       deBMN(nBMN_now) = deBMN(nBMN_now) + sngl(erawBMN)
       alBMN(nBMN_now)=alBMN(nBMN_now)+ sngl(equenchedBMN)
 c
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)'nBMN= ',nBMN_now, ' deBMN(nBMN)= ',deBMN(nBMN_now)
          write(*,*)' '
       endif             
@@ -277,6 +278,7 @@ c
       INCLUDE '(TRACKR)'
       double precision erawVTX, equenchedVTX
       include 'mgdraw.inc'
+      include 'parameters.inc'
       integer mreg, ii
       integer ilay
 c
@@ -288,7 +290,7 @@ c
 c      
       nVTX_now = 0
 c
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)' '
          write(*,*)'---------------Score_VTX-----------------'
          write(*,*)'test ','idcurr= ',idcurr,' lay= ',
@@ -298,12 +300,12 @@ c
 c
 c new hit in the vertex?
 c
-      if (idbflg.gt.1) then
+      if (idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)'Check of previous hits nVTX_now= ',nVTX_now,
      &        ' nVTX= ',nVTX
       endif
       do ii=1,nVTX
-         if (idbflg.gt.1) then
+         if (idbflg.gt.1 .AND. idbflg.lt.4) then
             write(*,*)'ii= ',ii
             write(*,*)'idVTX(ii)= ',idVTX(ii),' idcurr= ',idcurr
             write(*,*)'ilay= ',ilay
@@ -316,7 +318,7 @@ c
      &          sngl(zcordin).eq.zinVTX(ii) )
      &        ) then 
             nVTX_now = ii
-            if (idbflg.gt.1) then
+            if (idbflg.gt.1 .AND. idbflg.lt.4) then
                write(*,*)'Previous hit found: nVTX_now= ',nVTX_now,
      &              ' ii= ',ii
             endif
@@ -375,7 +377,7 @@ c
       deVTX(nVTX_now) = deVTX(nVTX_now) + sngl(erawVTX)
       alVTX(nVTX_now) = alVTX(nVTX_now) + sngl(equenchedVTX)
 c
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          do ii=1,nVTX
             write(*,*)'ii= ',ii
             write(*,*)'idVTX(ii)= ',idVTX(ii),' idcurr= ',idcurr
@@ -402,6 +404,7 @@ c
       INCLUDE '(TRACKR)'
       double precision erawITR, equenchedITR
       include 'mgdraw.inc'
+      include 'parameters.inc'
       integer mreg, ii
       integer ilay
 c
@@ -413,7 +416,7 @@ c
 c      
       nITR_now = 0
 c
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)' '
          write(*,*)'---------------Score_ITR-----------------'
          write(*,*)'test ','idcurr= ',idcurr,' lay= ',
@@ -423,12 +426,12 @@ c
 c
 c new hit in the inner tracker?
 c
-      if (idbflg.gt.1) then
+      if (idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)'Check of previous hits nITR_now= ',nITR_now,
      &        ' nITR= ',nITR
       endif
       do ii=1,nITR
-         if (idbflg.gt.1) then
+         if (idbflg.gt.1 .AND. idbflg.lt.4) then
             write(*,*)'ii= ',ii
             write(*,*)'idITR(ii)= ',idITR(ii),' idcurr= ',idcurr
             write(*,*)'ilay= ',ilay
@@ -441,7 +444,7 @@ c
      &          sngl(zcordin).eq.zinITR(ii) )
      &        ) then 
             nITR_now = ii
-            if (idbflg.gt.1) then
+            if (idbflg.gt.1 .AND. idbflg.lt.4) then
                write(*,*)'Previous hit found: nITR_now= ',nITR_now,
      &              ' ii= ',ii
             endif
@@ -500,7 +503,7 @@ c
       deITR(nITR_now) = deITR(nITR_now) + sngl(erawITR)
       alITR(nITR_now) = alITR(nITR_now) + sngl(equenchedITR)
 c
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          do ii=1,nITR
             write(*,*)'ii= ',ii
             write(*,*)'idITR(ii)= ',idITR(ii),' idcurr= ',idcurr
@@ -517,7 +520,7 @@ c
 c
 c
 c-------------------------------------------------------------------------
-      subroutine score_DCH(mreg,erawDCH,equenchedDCH,xcordin,
+      subroutine score_MSD(mreg,erawMSD,equenchedMSD,xcordin,
      &     ycordin,zcordin,xcordout,ycordout,zcordout)
 c--------------------------------------------------------------------------
 c
@@ -525,27 +528,26 @@ c
       INCLUDE '(DIMPAR)'
       INCLUDE '(IOUNIT)'
       INCLUDE '(TRACKR)'
-      double precision erawDCH, equenchedDCH
+      double precision erawMSD, equenchedMSD
       include 'mgdraw.inc'
-      integer ii, nDCH_now
-      integer iview, ilay, icell
+      include 'parameters.inc'
+      integer ii, nMSD_now
+      integer iview, ilay, istrip
 c
-      iview = ireg2viewDCH(mreg)
-      ilay = ireg2layDCH(mreg)
-      icell = ireg2cellDCH(mreg)
+      iview = ireg2viewMSD(mreg)
+      ilay = ireg2layMSD(mreg)
 c
-      if ((ilay.ge.nlayDCH.or.ilay.lt.0).or.
-     &     (icell.ge.ncellDCH.or.icell.lt.0).or.
+      if ((ilay.ge.nlayMSD.or.ilay.lt.0).or.
      &     (iview.ne.-1.and.iview.ne.1)) then
-         write(*,*) ' WARNING!!!! ilay, iview, icell, mreg '
-         write(*,*) ilay, iview, icell, mreg
+         write(*,*) ' WARNING!!!! ilay, iview, mreg '
+         write(*,*) ilay, iview, mreg
       endif
 c     
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)' '
-         write(*,*)'---------------Score_DCH-----------------'
-         write(*,*)'idcurr= ',idcurr,' equenchedDCH= ',
-     &        equenchedDCH,' view= ', iview,' lay= ', ilay,
+         write(*,*)'---------------Score_MSD-----------------'
+         write(*,*)'idcurr= ',idcurr,' equenchedMSD= ',
+     &        equenchedMSD,' view= ', iview,' lay= ', ilay,
      &       ' cell= ',icell,' mreg= ',mreg
          write(*,*)'xyz= ',xcordin,ycordin,zcordin
          write(*,*)'dtrack= ',(dtrack(ii),ii=1,mtrack)
@@ -553,50 +555,72 @@ c
 c
 c new hit in the second drift chamber?   
 c
-      nDCH_now = 0
-      do ii=1,nDCH
-         if( (idDCH(ii).eq.idcurr) .and. (iviewDCH(ii).eq.iview) .and.
-     &        (ilayDCH(ii).eq.ilay) .and. (icellDCH(ii).eq.icell) )then
-            nDCH_now = ii
+      nMSD_now = 0
+      do ii=1,nMSD
+         if( (idMSD(ii).eq.idcurr) .and. (iviewMSD(ii).eq.iview) .and.
+     &        (ilayMSD(ii).eq.ilay) )then
+            nMSD_now = ii
          endif
       end do
 c
-c if nDCH_now = 0 then ... new hit...
+c if nMSD_now = 0 then ... new hit...
 c
-      if(nDCH_now.eq.0) then
-         if(nDCH.eq.maxDCH) then
-            write(*,*)'Error: Score_DCH:'
-            write(*,*)'Maximum number of DCH scoring exceeded: ev= ',
+      if(nMSD_now.eq.0) then
+         if(nMSD.eq.maxMSD) then
+            write(*,*)'Error: Score_MSD:'
+            write(*,*)'Maximum number of MSD scoring exceeded: ev= ',
      &           ncase
             return
          endif
-         nDCH = nDCH + 1
-         nDCH_now = nDCH
-         idDCH(nDCH) = idcurr
-         xinDCH(nDCH_now)   = sngl(xcordin)
-         yinDCH(nDCH_now)   = sngl(ycordin)
-         zinDCH(nDCH_now)   = sngl(zcordin)
-         pxinDCH(nDCH_now)  = sngl(ptrack*cxtrck)
-         pyinDCH(nDCH_now)  = sngl(ptrack*cytrck)
-         pzinDCH(nDCH_now)  = sngl(ptrack*cztrck)
-         timDCH(nDCH_now)   = sngl(atrack)
-         iviewDCH(nDCH_now) = iview
-         ilayDCH(nDCH_now)  = ilay 
-         icellDCH(nDCH_now) = icell
+         nMSD = nMSD + 1
+         nMSD_now = nMSD
+         idMSD(nMSD) = idcurr
+         xinMSD(nMSD_now)   = sngl(xcordin)
+         yinMSD(nMSD_now)   = sngl(ycordin)
+         zinMSD(nMSD_now)   = sngl(zcordin)
+         pxinMSD(nMSD_now)  = sngl(ptrack*cxtrck)
+         pyinMSD(nMSD_now)  = sngl(ptrack*cytrck)
+         pzinMSD(nMSD_now)  = sngl(ptrack*cztrck)
+         timMSD(nMSD_now)   = sngl(atrack)
+         iviewMSD(nMSD_now) = iview
+         ilayMSD(nMSD_now)  = ilay 
+         if (iview.eq.1)then
+            if(ycordin.le.-yminMSD) then
+               istripMSD(nMSD_now) = int((ycordin-yminMSD)/dyMSD)+1
+            else
+               istripMSD(nMSD_now) = ystripMSD
+            endif
+            if (istripMSD(nMSD_now).gt.ystripMSD
+     &           .or. istripMSD(nMSD_now).lt.1)then
+               write(*,*)'WARNING! max MSD strip no. exceeded:',
+     &              ' istrip= ',istripMSD(nMSD_now)
+            endif
+         else if (iview.eq.-1)then
+            if (xcordin.le.-xminMSD) then
+               istripMSD(nMSD_now) = int((xcordin-xminMSD)/dxMSD)+1
+            else
+               istripMSD(nMSD_now) = xstripMSD
+            endif
+            if (istripMSD(nMSD_now).gt.xstripMSD
+     &           .or. istripMSD(nMSD_now).lt.1)then
+               write(*,*)'WARNING! max MSD strip no. exceeded:',
+     &              ' istrip= ',istripMSD(nMSD_now)
+            endif
+         endif
       endif
 c 
-      xoutDCH(nDCH_now) = sngl(xcordout)
-      youtDCH(nDCH_now) = sngl(ycordout)
-      zoutDCH(nDCH_now) = sngl(zcordout)
-      pxoutDCH(nDCH_now) = sngl(ptrack*cxtrck)
-      pyoutDCH(nDCH_now) = sngl(ptrack*cytrck)
-      pzoutDCH(nDCH_now) = sngl(ptrack*cztrck)
-      deDCH(nDCH_now) = deDCH(nDCH_now) + sngl(erawDCH)
-      alDCH(nDCH_now)=alDCH(nDCH_now)+ sngl(equenchedDCH)
+      xoutMSD(nMSD_now) = sngl(xcordout)
+      youtMSD(nMSD_now) = sngl(ycordout)
+      zoutMSD(nMSD_now) = sngl(zcordout)
+      pxoutMSD(nMSD_now) = sngl(ptrack*cxtrck)
+      pyoutMSD(nMSD_now) = sngl(ptrack*cytrck)
+      pzoutMSD(nMSD_now) = sngl(ptrack*cztrck)
+      deMSD(nMSD_now) = deMSD(nMSD_now) + sngl(erawMSD)
+      alMSD(nMSD_now)=alMSD(nMSD_now)+ sngl(equenchedMSD)
 c
-      if(idbflg.gt.1) then
-         write(*,*)'nDCH= ',nDCH_now,
-     &         ' deDCH(nDCH)= ',deDCH(nDCH_now)
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
+         write(*,*)'nMSD= ',nMSD_now,
+     &         ' deMSD(nMSD)= ',deMSD(nMSD_now)
          write(*,*)' '
       endif             
 c
@@ -615,6 +639,7 @@ c
       INCLUDE '(TRACKR)'
       double precision erawSCN, equenchedSCN
       include 'mgdraw.inc'
+      include 'parameters.inc'
       integer ii, nSCN_now
       integer stripSCN, viewSCN
 c
@@ -631,7 +656,7 @@ c
      &        ' zcordin= ',zcordin
       ENDIF
 c
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)' '
          write(*,*)'---------------Score_SCN-----------------'
          write(*,*)'idcurr= ',idcurr,' equenchedSCN= ',
@@ -688,7 +713,7 @@ c
       deSCN(nSCN_now) = deSCN(nSCN_now) + sngl(erawSCN)
       alSCN(nSCN_now) = alSCN(nSCN_now) + sngl(equenchedSCN)
 c
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)'nSCN= ',nSCN_now,
      &         ' deSCN(nSCN)= ',deSCN(nSCN_now)
          write(*,*)'istripSCN= ',istripSCN(nSCN_now),
@@ -710,6 +735,7 @@ c--------------------------------------------------------------------------
       INCLUDE '(TRACKR)'
       double precision erawCAL, equenchedCAL
       include 'mgdraw.inc'
+      include 'parameters.inc'
       integer ii, mreg, nCAL_now
       integer cryCAL
 c
@@ -719,7 +745,7 @@ c
      &        ' xcordin= ',xcordin, ' ycordin= ',ycordin
       ENDIF
 c      
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)' '
          write(*,*)'---------------Score_CAL-----------------'
          write(*,*)'idcurr= ',idcurr,' equenchedlyso= ',
@@ -771,14 +797,14 @@ c
       deCAL(nCAL_now) = deCAL(nCAL_now) + sngl(erawCAL)
       alCAL(nCAL_now) = alCAL(nCAL_now) + sngl(equenchedCAL)
 c      
-      if(idbflg.gt.0) then
+      if(idbflg.gt.0 .AND. idbflg.lt.4) then
          write(*,*)' '
          write(*,*)'---------------Score_CAL-----------------'
          write(*,*)'idcurr= ',idcurr,' equenchedlyso= ',
      &        equenchedCAL
          write(*,*)'dtrack= ',(dtrack(ii),ii=1,mtrack)
       endif      
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)'nCAL= ',nCAL_now,
      &        ' deCAL(nCAL)= ',deCAL(nCAL_now)
          write(*,*)'icryCAL= ',icryCAL(nCAL_now)
@@ -820,7 +846,7 @@ c
       chCROSS(nCROSS) = icharge
       amaCROSS(nCROSS) = sngl(ampart)
 c     
-      if(idbflg.gt.1) then
+      if(idbflg.gt.1 .AND. idbflg.lt.4) then
          write(*,*)' '
          write(*,*)'--------------- Score_CROSS -----------------'
          write(*,*)'idcurr = ',idcurr,' nCROSS= ',nCROSS

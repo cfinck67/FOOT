@@ -24,7 +24,6 @@ KFitter::KFitter ( int nIter, double dPVal ) {
 	m_VT_hitCollection.clear();
 	m_IT_hitCollection.clear();
 	m_MSD_hitCollection.clear();
-	m_DC_hitCollection.clear();
 
 	vector<string> tmp_detName = { "STC", "BM", "TG", "VT", "IT", "MSD", "DC" };
 	for (unsigned int i=0; i<tmp_detName.size(); i++)
@@ -207,36 +206,13 @@ int KFitter::UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd
 
 
 
-//----------------------------------------------------------------------------------------------------
-// upload measurement points from drift chamber
-int KFitter::UploadHitsDC( TAGdataDsc* footDataObj, shared_ptr<TADCparGeo> dc_geo ) {
-
-	m_DC_geo = dc_geo;
-	TADCntuRaw* ntup = (TADCntuRaw*) footDataObj->GenerateObject();
-
-	if ( m_debug > 0 )		cout << "N wire read: " << ntup->NHit() << endl;
-	for (int i = 0; i < ntup->NHit(); i++) 
-        m_DC_hitCollection.push_back( ntup->Hit(i) );
-
-	return ntup->NHit();
-}
-
-
-
-
-
 
 
 //----------------------------------------------------------------------------------------------------
 // pack together the hits to be fitted, from all the detectors, selct different preselecion m_systemsONs
 int KFitter::PrepareData4Fit( Track* fitTrack ) {
 
-	
-	if (m_systemsON == "test") {
-	    cout<<  endl << "KFitter::PrepareData4Fit test" << endl<< endl;
-		Prepare4Test(fitTrack);
-	    return m_hitCollectionToFit.size();
-	}
+
 	// Vertex -  fill fitter collections
 	if ( m_systemsON == "all" ||  m_systemsON.find( "VT" ) != string::npos ) {
 
@@ -248,13 +224,6 @@ int KFitter::PrepareData4Fit( Track* fitTrack ) {
 		
 		if ( m_debug > 0 )		cout <<endl<<endl << "Filling inner detector hit collection = " << m_IT_hitCollection.size() << endl;
 		Prepare4InnerTracker(fitTrack);    
-	}
-	// DC -  fill fitter collections
-	if ( m_systemsON.find( "DC" ) != string::npos ) {
-	// if ( m_systemsON == "all" || m_systemsON.find( "DC" ) != string::npos ) {
-
-		if ( m_debug > 0 )		cout << endl<<endl << "Filling Drift Chamber hit collection = " << m_DC_hitCollection.size() << endl;		
-		Prepare4DriftChamber(fitTrack);
 	}
 	// MSD -  fill fitter collections
 	if ( m_systemsON == "all" || m_systemsON.find( "MSD" ) != string::npos ) {
@@ -280,7 +249,6 @@ int KFitter::PrepareData4Fit( Track* fitTrack ) {
 		m_VT_hitCollection.clear();
 		m_IT_hitCollection.clear();
 		m_MSD_hitCollection.clear();
-		m_DC_hitCollection.clear();
 		return 0;
 	}	
 
@@ -305,14 +273,10 @@ bool KFitter::PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterat
 	if ( m_systemsON == "all" ) {
 		testHit_VT = m_VT_geo->GetNLayers(), testHit_IT = m_IT_geo->GetNLayers(), testHit_MSD = m_MSD_geo->GetNLayers();
 	}
-	else if ( m_systemsON == "old" ) {
-		testHit_VT = m_VT_geo->GetNLayers(), testHit_IT = m_IT_geo->GetNLayers(), testHit_DC = 2*m_DC_geo->GetNLayers();
-	}
 	else {
 		if ( m_systemsON.find( "VT" ) != string::npos )			testHit_VT = m_VT_geo->GetNLayers();
 		if ( m_systemsON.find( "IT" ) != string::npos )			testHit_IT = m_IT_geo->GetNLayers();
 		if ( m_systemsON.find( "MSD" ) != string::npos )		testHit_MSD = m_MSD_geo->GetNLayers();
-		if ( m_systemsON.find( "DC" ) != string::npos )			testHit_DC = 2*m_DC_geo->GetNLayers();
 	}
 	// num of total hits
 	testHitNumberLimit = testHit_VT + testHit_IT + testHit_DC + testHit_MSD;
@@ -523,59 +487,6 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 
 
 
-//----------------------------------------------------------------------------------------------------
-void KFitter::Prepare4DriftChamber( Track* fitTrack ) {
-
-	vector<string> viewTranslator = { "SIDE", "TOP" };
-    TMatrixDSym hitCov(7); 
-	TVectorD hitCoords(7);
-
-    for (unsigned int i = 0; i < m_DC_hitCollection.size(); i++) {
-        
-        TADCntuHit* p_hit = m_DC_hitCollection.at(i);
-        int view = ( p_hit->View() == 1 ? 0 : 1 );
-
-        TVector3 wire_end1, wire_end2;        
-        m_DC_geo->GetWireEndPoints( p_hit->Cell(), p_hit->Plane(), viewTranslator[view], wire_end1, wire_end2 );
-
-        if ( m_debug > 0 )		cout << "DC test = cell:" << p_hit->Cell() <<" layer:"<< p_hit->Plane() <<" view:"<< viewTranslator[view] << endl;
-        if ( m_debug > 0 )		cout << "Hit " << i << " : cell: " << p_hit->Cell() 
-              << " plane: " << p_hit->Plane() << " view: " << viewTranslator[view] << endl;
-        if ( m_debug > 0 )		cout << "end1 ";
-        if ( m_debug > 0 )		wire_end1.Print();
-              
-        hitCoords(0)=wire_end1.x();
-		hitCoords(1)=wire_end1.y();
-		hitCoords(2)=wire_end1.z();
-		hitCoords(3)=wire_end2.x();
-		hitCoords(4)=wire_end2.y();
-		hitCoords(5)=wire_end2.z();
-
-		hitCoords(6)= p_hit->Dist();  //  -> drift radius, misleading name => change!!!!!
-
-		double wireReso = 0.003;
-		hitCov.UnitMatrix();         
-		hitCov *= wireReso*wireReso; 
-		hitCov[6][6]=p_hit->GetSigma()*p_hit->GetSigma(); 
-
-        if ( m_debug > 0 )		cout << "DIST; " << p_hit->Dist() << "  " << p_hit->GetSigma() << endl;
-        
-        // det_type -> never called in genfit, usefull for the user 
-        AbsMeasurement* hit = new WireMeasurement(hitCoords, hitCov, m_detectorID_map["DC"], i, nullptr );
-
-        // try to categorise the particle that generated the hit. If it fails --> clean the hit object
-		string category = CategoriseHitsToFit_withTrueInfo( p_hit->m_genPartFLUKAid, p_hit->m_genPartCharge, p_hit->m_genPartMass );
-        if (category == "fail")	{
-        	delete hit;
-        	continue;
-        }
-        if ( m_debug > 0 )		cout << "Cathegory = " << category << endl;
-        m_hitCollectionToFit[ category ].push_back(hit);
-    }
-}
-
-
-
 
 
 //----------------------------------------------------------------------------------------------------
@@ -600,7 +511,6 @@ int KFitter::MakeFit( long evNum ) {
 		m_VT_hitCollection.clear();
 		m_IT_hitCollection.clear();
 		m_MSD_hitCollection.clear();
-		m_DC_hitCollection.clear();
 		delete fitTrack;
 		return 2;
 	}
@@ -642,10 +552,6 @@ int KFitter::MakeFit( long evNum ) {
 		else if ( detID == m_detectorID_map["MSD"] ) {
 			pos = m_MSD_posVectorSmearedHit.at( hitID );
 			mom = m_MSD_momVectorSmearedHit.at( hitID );
-		}
-		else if ( detID == m_detectorID_map["DC"] ) {
-			pos = m_DC_hitCollection.at( hitID )->GetMCPosition_Global();
-			mom = m_DC_hitCollection.at( hitID )->GetMCMomentum_Global();
 		}
 		if ( m_debug > 2 )		cout << "pos mom "<< endl, pos.Print(), mom.Print();
 		
@@ -733,14 +639,10 @@ int KFitter::MakeFit( long evNum ) {
 	// for ( vector<TAITntuHit*>::iterator it=m_IT_hitCollection.begin(); it != m_IT_hitCollection.end(); it++ ) {
 	// 	delete (*it);
 	// }
-	// for ( vector<TADCntuHit*>::iterator it=m_DC_hitCollection.begin(); it != m_DC_hitCollection.end(); it++ ) {
-	// 	delete (*it);
-	// }
 
 	m_VT_hitCollection.clear();
 	m_IT_hitCollection.clear();
 	m_MSD_hitCollection.clear();
-	m_DC_hitCollection.clear();
 	delete fitTrack;	// include un delete rep pare
 	for ( map< string, vector<AbsMeasurement*> >::iterator it=m_hitCollectionToFit.begin(); it != m_hitCollectionToFit.end(); it++ ) {
 		// for ( vector<AbsMeasurement*>::iterator it2=(*it).second.begin(); it2 != (*it).second.end(); it2++ )
@@ -850,12 +752,6 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			tmp_mass = m_MSD_mass.at( hitID );
 			tmp_genPos = TVector3(-1, -1, -1);
 		}
-		else if ( detID == m_detectorID_map["DC"] ) {
-			tmpPos = m_DC_hitCollection.at( hitID )->GetMCPosition_Global();
-			tmpMom =  m_DC_hitCollection.at( hitID )->GetMCMomentum_Global();
-			tmp_mass = m_DC_hitCollection.at( hitID )->m_genPartMass;
-		}
-
 		
 
 		// Get track kinematics and errors
@@ -1537,46 +1433,6 @@ void KFitter::Save( ) {
 
 }
 
-
-
-
-
-
-//----------------------------------------------------------------------------------------------------
-void KFitter::Prepare4Test( Track* fitTrack ) {
-	vector<string> viewTranslator = { "SIDE", "TOP" };
-    int NHits = 12;
-    vector<int> v_cell = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
-    vector<int> v_plane = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5 };
-    // vector<float> v_Rdrift = { 0.4, 1.2, 0.4, 1.2,0.4, 1.2,0.4, 1.2,0.4, 1.2,0.4, 1.2 };
-    float reso = 0.04;
-    float wireReso = 0.02;
-
-    TMatrixDSym hitCov(7); 
-	TVectorD hitCoords(7);
-
-    for (int i = 0; i < NHits; i++) {
-        
-        int view = ( i%2 == 0 ? 0 : 1 );
-
-        TVector3 wire_end1, wire_end2;        
-        m_DC_geo->GetWireEndPoints( v_cell[i], v_plane[i], viewTranslator[view], wire_end1, wire_end2 );
-        
-        hitCoords(0)=wire_end1.x();		hitCoords(1)=wire_end1.y();		hitCoords(2)=wire_end1.z();
-		hitCoords(3)=wire_end2.x();		hitCoords(4)=wire_end2.y();		hitCoords(5)=wire_end2.z();
-		// hitCoords(6)= v_Rdrift[i];
-		hitCoords(6)= 0.4;
-
-		
-		hitCov.UnitMatrix();         
-		hitCov *= wireReso*wireReso; //ed errore su rdrift (da grafico da parcon), manca studio sulla correlazione tra le componenti!!
-		hitCov[6][6]=reso * reso; 
-
-        AbsMeasurement* hit = new WireMeasurement(hitCoords, hitCov, m_detectorID_map["DC"], i, new TrackPoint(fitTrack));
-
-        m_hitCollectionToFit["test"].push_back(hit);
-    }
-}
 
 
 

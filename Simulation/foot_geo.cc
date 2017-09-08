@@ -12,7 +12,7 @@ using namespace std;
 
 //ofstream outfile;
 static Geometry *TheGeometry = 0;
-// GEOMETRY_STRUCT geo;
+GEOMETRY_STRUCT geo;
 
 
 int main(int argc, char *argv[]){ 
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]){
 
   TheGeometry = new Geometry();
 
-  auto& geo = TheGeometry->GetStruct();
+  geo = TheGeometry->GetStruct();
 
   //END OF INIT
   
@@ -820,7 +820,7 @@ int main(int argc, char *argv[]){
     if (kVerbosity>0) cout << stringa << endl;
     geofile << stringa << endl;
     if ( i == 0 ) regfile << "const int nregFirstKapMSD = " << iReg << "; //first MSD kapton layer" << endl;
-    if ( i == MSD_NLAY-1 ) regfile << "const int nregLastMSD = " << iReg << "; //last MSD kapton layer" << endl;
+    if ( i == MSD_NLAY-1 ) regfile << "const int nregLastKapMSD = " << iReg << "; //last MSD kapton layer" << endl;
   }
   sprintf(regname,"MSDKAP%d",MSD_NLAY-1);
   if(MSD_MAG) TheGeometry->AssignMaterial("MSDKAP0",regname,1,MSD_KAP_MEDIUM,MagField,kVerbosity,&FLUKAcard);
