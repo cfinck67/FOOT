@@ -25,7 +25,7 @@ KFitter::KFitter ( int nIter, double dPVal ) {
 	m_IT_hitCollection.clear();
 	m_MSD_hitCollection.clear();
 
-	vector<string> tmp_detName = { "STC", "BM", "TG", "VT", "IT", "MSD", "DC" };
+	vector<string> tmp_detName = { "STC", "BM", "TG", "VT", "IT", "MSD" };
 	for (unsigned int i=0; i<tmp_detName.size(); i++)
 		m_detectorID_map[ tmp_detName[i] ] = i;
 
@@ -118,21 +118,24 @@ void KFitter::MakePdgDatabase() {
 										"O15" };
 	if ( (int)nameV.size() != nNewParticles ) 	cout << "ERROR::KFitter::MakePdgDatabase  -->  particle collection name size not match "<< nameV.size() <<endl;
 
-	double massV [nNewParticles] = { 	10.254, 11.1749, 12.1095, 
+	vector<double> massV = { 	10.254, 11.1749, 12.1095, 
 										6.53383, 7,
 										7, 8, 9.3255,
 										9.32444, 10.2525, 11,
 										12.1112, 13, 14,
 										4, 1,
 										15 };
+	if ( (int)massV.size() != nNewParticles ) 	cout << "ERROR::KFitter::MakePdgDatabase  -->  particle collection mass size not match "<< massV.size() <<endl;
 
-	double chargeV [nNewParticles] = { 	18, 18, 18, 
+	vector<double> chargeV = { 	18, 18, 18, 
 										9, 9,
 										12, 12, 12,
 										15, 15, 15,
 										21, 21, 21,
 										6, 3,
 										24  };
+	if ( (int)chargeV.size() != nNewParticles ) 	cout << "ERROR::KFitter::MakePdgDatabase  -->  particle collection charge size not match "<< chargeV.size() <<endl;
+
 
 	// check that every particle defined in the parameter file is defined in nameV
 	for ( unsigned int i=0; i<GlobalPar::GetPar()->MCParticles().size(); i++) {
@@ -208,11 +211,13 @@ int KFitter::UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd
 
 
 
+
+
 //----------------------------------------------------------------------------------------------------
 // pack together the hits to be fitted, from all the detectors, selct different preselecion m_systemsONs
 int KFitter::PrepareData4Fit( Track* fitTrack ) {
 
-
+	
 	// Vertex -  fill fitter collections
 	if ( m_systemsON == "all" ||  m_systemsON.find( "VT" ) != string::npos ) {
 
@@ -267,7 +272,6 @@ bool KFitter::PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterat
 	int testHitNumberLimit = 0;
 	int testHit_VT = 0;
 	int testHit_IT = 0;
-	int testHit_DC = 0;
 	int testHit_MSD = 0;
 	// define the number of hits per each detector to consider to satisfy the pre-fit requirements
 	if ( m_systemsON == "all" ) {
@@ -279,7 +283,7 @@ bool KFitter::PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterat
 		if ( m_systemsON.find( "MSD" ) != string::npos )		testHit_MSD = m_MSD_geo->GetNLayers();
 	}
 	// num of total hits
-	testHitNumberLimit = testHit_VT + testHit_IT + testHit_DC + testHit_MSD;
+	testHitNumberLimit = testHit_VT + testHit_IT + testHit_MSD;
 	if ( testHitNumberLimit == 0 ) 			cout << "ERROR >> KFitter::PrefitRequirements :: m_systemsON mode is wrong!!!" << endl, exit(0);
 
 	// test the total number of hits ->  speed up the test
@@ -290,14 +294,12 @@ bool KFitter::PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterat
  
  	int nHitVT = 0;
 	int nHitIT = 0;
-	int nHitDC = 0;
 	int nHitMSD = 0;
 	// count the hits per each detector
 	for ( vector<AbsMeasurement*>::iterator it=(*element).second.begin(); it != (*element).second.end(); it++ ) {
 		if ( (*it)->getDetId() == m_detectorID_map["VT"] )	nHitVT++;
 		if ( (*it)->getDetId() == m_detectorID_map["IT"] )	nHitIT++;
 		if ( (*it)->getDetId() == m_detectorID_map["MSD"] )	nHitMSD++;
-		if ( (*it)->getDetId() == m_detectorID_map["DC"] )	nHitDC++;
 		if ( m_debug > 2 )		cout << "nHitVT  " << nHitVT << " nHitIT" << nHitIT << " nHitMSD "<< nHitMSD<<endl;
 	}
 	// test the num of hits per each detector
@@ -488,7 +490,6 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 
 
 
-
 //----------------------------------------------------------------------------------------------------
 int KFitter::MakeFit( long evNum ) {
 
@@ -639,7 +640,7 @@ int KFitter::MakeFit( long evNum ) {
 	// for ( vector<TAITntuHit*>::iterator it=m_IT_hitCollection.begin(); it != m_IT_hitCollection.end(); it++ ) {
 	// 	delete (*it);
 	// }
-
+	
 	m_VT_hitCollection.clear();
 	m_IT_hitCollection.clear();
 	m_MSD_hitCollection.clear();
