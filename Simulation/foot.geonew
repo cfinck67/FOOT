@@ -1,0 +1,51 @@
+    0    0          FOOT experiment geometry
+* ***Black Body
+RPP blk        -1000. 1000. -1000. 1000. -1000. 1000.
+* ***Air -> no mag field
+RPP air        -900.0 900.0 -900.0 900.0 -900.0 900.0
+* ***Vertex
+RPP vtx0     -1.000000 1.000000 -1.000000 1.000000 0.597500 0.602500
+RPP vtx1     -1.000000 1.000000 -1.000000 1.000000 1.097500 1.102500
+RPP vtx2     -1.000000 1.000000 -1.000000 1.000000 1.597500 1.602500
+RPP vtx3     -1.000000 1.000000 -1.000000 1.000000 2.097500 2.102500
+* ***Inner Tracker
+RPP itrbox    -3.000000 3.000000 -3.000000 3.000000 13.882000 14.118000
+XYP itr00     13.887000
+XYP itr01     13.888000
+XYP itr02     13.890500
+XYP itr03     13.891500
+XYP itr04     13.896500
+XYP itr05     13.897500
+XYP itr06     13.900000
+XYP itr07     14.100000
+XYP itr08     14.102500
+XYP itr09     14.103500
+XYP itr10     14.108500
+XYP itr11     14.109500
+XYP itr12     14.112000
+XYP itr13     14.113000
+END        
+* ******************************************************************************
+*                         REGIONS                                              *
+* ******************************************************************************
+* ***Vertex
+VTX0         5 vtx0
+VTX1         5 vtx1
+VTX2         5 vtx2
+VTX3         5 vtx3
+* ***Inner Tracker
+ITR0         5 itrbox +itr00
+ITR1         5 itrbox -itr13
+ITREPO0      5 itrbox -itr00 +itr01
+ITREPO1      5 itrbox -itr12 +itr13
+ITRAL0       5 itrbox -itr02 +itr03
+ITRAL1       5 itrbox -itr04 +itr05
+ITRAL2       5 itrbox -itr08 +itr09
+ITRAL3       5 itrbox -itr10 +itr11
+ITRCOV0      5 itrbox -itr01 +itr02
+ITRCOV1      5 itrbox -itr05 +itr06
+ITRCOV2      5 itrbox -itr07 +itr08
+ITRCOV3      5 itrbox -itr11 +itr12
+ITRKAP0      5 itrbox -itr03 +itr04
+ITRKAP1      5 itrbox -itr09 +itr10
+ITRFOAM      5 itrbox -itr06 +itr07

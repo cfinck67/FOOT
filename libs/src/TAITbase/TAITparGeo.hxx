@@ -38,6 +38,7 @@ public:
     void InitGeo();
     void InitMaterial();
     void PrintBodies( string geoFileName );
+    void PrintRegions( string geoFileName);
 
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id and vice versa
@@ -53,27 +54,27 @@ public:
     //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
     TVector3 GetPosition( int layer, int col, int row );
 
-    
+
 
     // Return Inner Trakcker center coord. in the global frame
     TVector3 GetCenter() { return m_center; };
 
     // Return Inner Trakcker full dimension.
     TVector3 GetDimension() { return m_dimension; };
-    
+
     double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
-    
+
     // Return distance from center to center
     double GetLayerDistance() { return m_layerDistance; };
     double GetNPixelX() { return m_nPixel_X; };
     double GetNPixelY() { return m_nPixel_Y; };
     int GetNLayers() { return m_nSensors_Z; };
-    
-    
+
+
     // Return a vector with the number of sensors along the cartesian directions
     TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
-    
-    TGeoVolume*     GetVolume();     
+
+    TGeoVolume*     GetVolume();
 
 
     virtual void    Clear(Option_t* opt="");
@@ -88,16 +89,23 @@ private:
 
     TVector3  m_origin;  // current position in local coord.
     TVector3  m_center;  // current position in global coord.
-    TVector3  m_dimension;  
+    TVector3  m_dimension;
 
     int m_nSensors_X;
     int m_nSensors_Y;
     int m_nSensors_Z;
-    TVector3 m_NSensors;   
+    TVector3 m_NSensors;
 
     vector<string> m_materialOrder;
     map<string, double> m_materialThick;
     map<string, string> m_materialType;
+
+    vector<string> m_regionOrder;
+    vector<string> m_regPrintOrder;
+    map<string,string> m_regionMap;
+    stringstream m_streamRegion;
+
+
 
 
     double m_siliconSensorThick_Lz;
@@ -113,10 +121,10 @@ private:
    // Int_t  GetSensorsN()         const { return fSensorsN;       }
    // Int_t  GetPixelsNu()         const { return fPixelsNu;       }
    // Int_t  GetPixelsNv()         const { return fPixelsNv;       }
-   
+
    // Float_t GetPitchU()          const { return fPitchU;         }
    // Float_t GetPitchV()          const { return fPitchV;         }
-   
+
    // Float_t GetWidth()           const { return fWidth;          }
    // Float_t GetHeight()          const { return fHeight;         }
    // Float_t GetThick()           const { return fThick;          }
@@ -124,33 +132,33 @@ private:
    // Float_t  GetPixThickness()   const { return fPixThickness;   }
    // Float_t  GetTotalThickness() const { return fTotalThickness; }
    // TVector3 GetTotalSize()      const { return fTotalSize;      }
-   
 
 
-      
+
+
    // //! Add CMOS module geometry to world
    // TGeoVolume* AddVertexModule(TGeoHMatrix* hm, const char* basemoduleName = "Module", const char *name = "Vertex");
-   
+
    // //! Add CMOS module geometry to world
    // TEveGeoShapeExtract* AddExtractVertexModule(TGeoHMatrix* hm, const char* basemoduleName = "Module", const char *name = "Vertex");
 
    // //! Add Target
-   // TGeoVolume* AddTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2., 
+   // TGeoVolume* AddTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2.,
 			// 			 const Float_t dz = fgTargetWidth/2., const char *targetName = "Target");
-   
+
    // //! Add Extract Target
-   // TEveGeoShapeExtract* AddExtractTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2., 
+   // TEveGeoShapeExtract* AddExtractTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2.,
 			// 							 const Float_t dz = fgTargetWidth/2., const char *targetName = "Target");
-   
+
    // //! Build Vertex
    // TGeoVolume* BuildVertex(const char* basemoduleName = "Module", const char *name = "Vertex");
-   
+
    // //! Build Extract Vertex
    // TEveGeoShapeExtract* BuildExtractVertex(const char* basemoduleName = "Module", const char *name = "Vertex");
-   
+
    // //! Get Sensor parameter
    // SensorParameter_t& GetSensorPar(Int_t idx){return fSensorParameter[idx];}
-   
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -158,7 +166,7 @@ private:
 
    // static Float_t GetTargetWidth()            { return fgTargetWidth; }
    // static void    SetTargetWidth(Float_t w)   { fgTargetWidth = w;    }
-   
+
    // static Float_t GetTargetSize()             { return fgTargetSize;  }
    // static void    SetTargetSize(Float_t s)    { fgTargetSize = s;     }
 

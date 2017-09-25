@@ -19,7 +19,7 @@
 #include "TROOT.h"
 #include "TSystem.h"
 
-#include "TAGgeoTrafo.hxx" 
+#include "TAGgeoTrafo.hxx"
 
 #include "TAVTparMap.hxx"
 #include "TAVTparGeo.hxx"
@@ -33,7 +33,7 @@
 //  copy constructor
 TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
 
-    m_rotation(original->m_rotation), 
+    m_rotation(original->m_rotation),
     m_origin(original->m_origin),  // current position
     m_center(original->m_center),  // current position
     m_dimension(original->m_dimension),
@@ -84,8 +84,8 @@ void TAVTparGeo::InitGeo()  {
             }
         }
     }
-    
-    // fill m_materialOrder, m_materialThick, m_materialType 
+
+    // fill m_materialOrder, m_materialThick, m_materialType
     // InitMaterial();
 
 
@@ -97,7 +97,7 @@ void TAVTparGeo::InitGeo()  {
     m_dimension = TVector3( VTX_WIDTH, VTX_HEIGHT, length_Lz );
     double width_Lx = m_dimension.x();
     double height_Ly = m_dimension.y();
-    
+
     double sensorDistance = 0;
     double pixelDistance = 0;
 
@@ -122,7 +122,7 @@ void TAVTparGeo::InitGeo()  {
     m_nPixel_X = sensor_Width_Lx / (pixelWidth_Lx + pixelDistance);
     m_nPixel_Y = sensor_Height_Ly / (pixelHeight_Ly + pixelDistance);
 
-    
+
     // fill sensor matrix
     for (int k=0; k<m_nSensors_Z; k++) {
         double sensor_newZ = m_origin.Z() - length_Lz/2 +0.5*m_siliconSensorThick_Lz + k*m_layerDistance;
@@ -134,7 +134,7 @@ void TAVTparGeo::InitGeo()  {
 
                 m_sensorMatrix[k][i][j]->SetMaterial( (string)VTX_MEDIUM );
 
-                m_sensorMatrix[k][i][j]->SetSensor( 
+                m_sensorMatrix[k][i][j]->SetSensor(
                         TVector3( sensor_newX, sensor_newY, sensor_newZ ),  // sensor center
                         TVector3( sensor_Width_Lx, sensor_Height_Ly, sensor_Length_Lz ),    // sensor dimension
                         m_nPixel_X, m_nPixel_Y,
@@ -142,7 +142,7 @@ void TAVTparGeo::InitGeo()  {
                         pixelDistance, pixelDistance, 0, //layerDistance,
                         TVector3(0,0,0)
                  );
-                // if (m_debug) 
+                // if (m_debug)
                 if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "sensor center ",    TVector3( sensor_newX, sensor_newY, sensor_newZ ).Print();
             }
         }
@@ -179,17 +179,17 @@ TVector3 TAVTparGeo::GetPosition( int layer, int col, int row )  {
 void TAVTparGeo::Global2Local( TVector3* glob ) {
     glob->Transform( GetRotationToLocal() );
     *glob = *glob - m_center;
-} 
+}
 
 //_____________________________________________________________________________
 void TAVTparGeo::Global2Local_TranslationOnly( TVector3* glob ) {
     *glob = *glob - m_center;
-} 
+}
 
 //_____________________________________________________________________________
 void TAVTparGeo::Global2Local_RotationOnly( TVector3* glob ) {
     glob->Transform( GetRotationToLocal() );
-} 
+}
 
 //_____________________________________________________________________________
 void TAVTparGeo::Local2Global( TVector3* loc ) {
@@ -205,7 +205,7 @@ void TAVTparGeo::Local2Global_TranslationOnly( TVector3* loc ) {
 //_____________________________________________________________________________
 void TAVTparGeo::Local2Global_RotationOnly( TVector3* loc ) {
     loc->Transform( GetRotationToGlobal() );
-} 
+}
 
 
 
@@ -214,7 +214,7 @@ void TAVTparGeo::Local2Global_RotationOnly( TVector3* loc ) {
 //_____________________________________________________________________________
 TGeoVolume* TAVTparGeo::GetVolume() {
 
-    
+
     // if ( (medium = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Vacuum")) == 0x0 )
     // TGeoMedium* vacuum_med = new TGeoMedium("Vacuum",0, gGeoManager->GetMaterial("air"));
     // TGeoMedium* silicon = new TGeoMedium( "silicon_med", 1, gGeoManager->GetMaterial("air") );
@@ -275,7 +275,7 @@ TGeoVolume* TAVTparGeo::GetVolume() {
     // box->AddNode(coverKaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_AL_MEDIUM" ]/2 + m_materialThick[ "ITR_COV_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     // box->AddNode(epoxyFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_COV_MEDIUM" ]/2 + m_materialThick[ "ITR_EPO_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     // box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_EPO_MEDIUM" ]/2+ m_materialThick[ "ITR_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    
+
     double position1 = -m_dimension.z()/2;
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=( m_materialThick[ "VTX_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
 
@@ -284,7 +284,7 @@ TGeoVolume* TAVTparGeo::GetVolume() {
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
 
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
-    
+
 
     return box;
 }
@@ -294,7 +294,7 @@ TGeoVolume* TAVTparGeo::GetVolume() {
 
 void TAVTparGeo::InitMaterial() {
 
-    m_materialOrder = {  "VTX_MEDIUM", 
+    m_materialOrder = {  "VTX_MEDIUM",
                         // "ITR_EPO_MEDIUM",
                         // "ITR_COV_MEDIUM",
                         // "ITR_AL_MEDIUM",
@@ -311,7 +311,7 @@ void TAVTparGeo::InitMaterial() {
                         "VTX_MEDIUM"
                          };
 
-    
+
     for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
         if( m_materialOrder[i] == "VTX_MEDIUM" ){
             m_materialThick[ m_materialOrder[i] ] = VTX_THICK;
@@ -346,7 +346,7 @@ void TAVTparGeo::PrintBodies( string geoFileName ) {
 
     ofstream geofile;
     geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
-    
+
     string vtxID = "vtx";
     int count = 0;
 
@@ -357,14 +357,14 @@ void TAVTparGeo::PrintBodies( string geoFileName ) {
             for (int j=0; j<m_nSensors_Y; j++) {
 
                 string vtxID = "vtx";
-                geofile << setiosflags(ios::fixed) << setprecision(6) 
+                geofile << setiosflags(ios::fixed) << setprecision(6)
                         << "RPP " << vtxID << count << "     ";
 
                 TVector3 minCoord = TVector3(m_sensorMatrix[k][i][j]->GetMinCoord());
                 Local2Global_TranslationOnly( &minCoord );
                 TVector3 maxCoord = TVector3(m_sensorMatrix[k][i][j]->GetMaxCoord());
                 Local2Global_TranslationOnly( &maxCoord );
-                
+
                 geofile << minCoord.x() << " " << maxCoord.x() << " "
                         << minCoord.y() << " " << maxCoord.y() << " "
                         << minCoord.z() << " " << maxCoord.z()
@@ -378,19 +378,48 @@ void TAVTparGeo::PrintBodies( string geoFileName ) {
     geofile.close();
 
 }
+
+
+void TAVTparGeo::PrintRegions( string geoFileName ) {
+
+  m_regionOrder = { "VTX0",
+                    "VTX1",
+                    "VTX2",
+                    "VTX3"
+  };
+
+  ofstream geofile;
+  geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
+
+  string vtxID = "vtx";
+  geofile << "* ***Vertex" << endl;
+  for (unsigned int i = 0; i < m_regionOrder.size(); i++) {
+    m_streamRegion << "5 " << vtxID << i;
+    m_regionMap[m_regionOrder.at(i)] = m_streamRegion.str();
+    m_streamRegion.str("");
+  }
+
+  for ( std::vector<string>::iterator it = m_regionOrder.begin(); it != m_regionOrder.end(); it++){
+
+    geofile << setw(13) << setfill( ' ' ) << std::left << *it << m_regionMap[*it] << endl;
+
+  }
+  geofile.close();
+
+}
 // **************** VERTEXING      *******************************************************
 
 
 // //_____________________________________________________________________________
 // TGeoVolume* TAVTparGeo::BuildVertex(const char* basemoduleName, const char *vertexName)
 // {
-//    TGeoVolume* vertex = 0x0; 
-   
-//    for(Int_t iSensor = 0; iSensor < GetSensorsN(); iSensor++) {   
+//    TGeoVolume* vertex = 0x0;
+
+//    for(Int_t iSensor = 0; iSensor < GetSensorsN(); iSensor++) {
 //    TGeoHMatrix* hm = GetTransfo(iSensor);
 //    vertex = TAVTparGeo::AddVertexModule(hm, basemoduleName, vertexName);
 //    }
-   
+
 //    return vertex;
 // }
 
@@ -400,40 +429,40 @@ void TAVTparGeo::PrintBodies( string geoFileName ) {
 //    if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
 //    new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
 //    }
-   
+
 //    TGeoVolume* vertex = gGeoManager->FindVolumeFast(vertexName);
 //    if ( vertex == 0x0 ) {
 //    Int_t nSensors = GetSensorsN();
-      
+
 //    Float_t posZ1 = (*GetPosition(0))(2)*0.9;
 //    Float_t posZ2 = (*GetPosition(nSensors-1))(2)*1.1;
 
 //    TGeoMedium   *med;
 //    TGeoMaterial *mat;
 //    if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject("Vacuum")) == 0x0 )
-//       mat = new TGeoMaterial("Vacuum",0,0,0);            
+//       mat = new TGeoMaterial("Vacuum",0,0,0);
 //    if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Vacuum")) == 0x0 )
 //       med = new TGeoMedium("Vacuum",1,mat);
 //    vertex = gGeoManager->MakeBox(vertexName, med, fHeight/2., fHeight/2., (posZ2-posZ1)/2.); // volume corresponding to vertex
-//    } 
-   
+//    }
+
 //    // create module
 //    TGeoMaterial* matMod;
 //    TGeoMedium*   medMod;
-   
+
 //    if ( (matMod = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject("Si")) == 0x0 )
 //    matMod = new TGeoMaterial("Si", 28.09, 14, 2.3);
 //    if ( (medMod = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Si")) == 0x0 )
 //    medMod = new TGeoMedium("Si",2,matMod);
-   
+
 //    TGeoBBox *box = new TGeoBBox(Form("%s_Box",basemoduleName), fWidth/2, fHeight/2, fThick/2.);
-   
+
 //    Int_t nbModule = 0;
-   
+
 //    TGeoVolume *vertexMod = new TGeoVolume(Form("%s_Vertex",basemoduleName),box, medMod);
 //    vertexMod->SetLineColor(kAzure-5);
 //    vertexMod->SetTransparency( TAGgeoTrafo::GetDefaultTransp());
-   
+
 //    TObjArray* list = vertex->GetNodes();
 //    if (list) {
 //    for (Int_t i = 0; i < list->GetEntries(); ++i) {
@@ -458,18 +487,18 @@ void TAVTparGeo::PrintBodies( string geoFileName ) {
 //    Float_t posZ1 = (*GetPosition(0))(2)*0.9;
 //    Float_t posZ2 = (*GetPosition(nSensors-1))(2)*1.1;
 //    TGeoBBox *box = new TGeoBBox(vertexName, 11000,11000,(posZ2-posZ1)/2.);
-   
+
 //    TEveGeoShapeExtract* vertexExtract = new TEveGeoShapeExtract(vertexName);
 //    vertexExtract->SetShape(box);
 //    Float_t color[] = {0, 0, 0, 0};
 //    vertexExtract->SetRGBA(color);
-   
-//    for(Int_t iSensor = 0; iSensor < nSensors; iSensor++) {    
+
+//    for(Int_t iSensor = 0; iSensor < nSensors; iSensor++) {
 //    TGeoHMatrix* hm = GetTransfo(iSensor);
 //    TEveGeoShapeExtract* vertexMod = AddExtractVertexModule(hm, basemoduleName, vertexName);
 //    vertexExtract->AddElement(vertexMod);
 //    }
-   
+
 //    return vertexExtract;
 // }
 
@@ -478,21 +507,21 @@ void TAVTparGeo::PrintBodies( string geoFileName ) {
 // {
 //    // create module
 //    static Int_t nbModule = 0;
-   
+
 //    TGeoBBox *box = new TGeoBBox(Form("%s_%d",basemoduleName, nbModule), fWidth/2, fHeight/2, fThick/2.);
-   
+
 //    TEveTrans eveTrans;
 //    eveTrans.SetFrom(*hm);
 //    TColor* color = gROOT->GetColor(kAzure-5);
 //    Float_t rgba[4];
 //    color->GetRGB(rgba[0], rgba[1], rgba[2]);
 //    rgba[3] = TAGgeoTrafo::GetDefaultTransp()/100.;
-   
+
 //    TEveGeoShapeExtract* vertexModExtract = new TEveGeoShapeExtract(Form("%s_%d",basemoduleName, nbModule++));
 //    vertexModExtract->SetShape(box);
 //    vertexModExtract->SetTrans(eveTrans.Array());
 //    vertexModExtract->SetRGBA(rgba);
-      
+
 //    return vertexModExtract;
 // }
 
@@ -500,18 +529,18 @@ void TAVTparGeo::PrintBodies( string geoFileName ) {
 // TEveGeoShapeExtract* TAVTparGeo::AddExtractTarget(const Float_t dx, const Float_t dy, const Float_t dz, const char *targetName)
 // {
 //    TGeoBBox* box = new TGeoBBox(targetName, dx, dy, dz);
-   
+
 //    TColor* color = gROOT->GetColor(19);
 //    Float_t rgba[4];
 //    color->GetRGB(rgba[0], rgba[1], rgba[2]);
 //    rgba[3] = TAGgeoTrafo::GetDefaultTransp()/100.;
-   
+
 //    TEveGeoShapeExtract* target = new TEveGeoShapeExtract(targetName);
 //    target->SetShape(box);
 //    target->SetRGBA(rgba);
-   
+
 //    return target;
-   
+
 // }
 
 //------------------------------------------+-----------------------------------
@@ -531,4 +560,3 @@ void TAVTparGeo::ToStream(ostream& os, Option_t*) const
 
   return;
 }
-
