@@ -42,7 +42,7 @@ class Materials {
 public:
 
 
-	Materials( );
+	Materials();
 	~Materials() {};
 
 
@@ -63,13 +63,17 @@ private:
 	void ReadFile();
 	void WriteMaterial(vector<string> tmpVecStr);
 	string StrReplace(string original,string erase,string add);
+  vector<string> StrSplit(const string& str, int splitLength);
+  bool ChooseIfWriteCompound(string provamarcopolo);
+  bool m_flagWriteCompound;
+  void AppendCompound(vector<string> tmpVecStr);
+  void ChooseHowToWriteCompound(vector<string> tmpVecStr);
+  string m_tmpAppendCompoundName;
+  vector<string> m_tmpCompoundData;
+  map<string, TGeoMaterial*> m_store;
 
-	map<string, TGeoMaterial*> m_store;
 
 };
-
-
-
 
 
 #endif
