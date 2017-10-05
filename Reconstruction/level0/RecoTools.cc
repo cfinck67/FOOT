@@ -160,10 +160,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   TString filename = m_wd + "/FOOT_geo.map";
   fGeoTrafo->InitGeo(filename.Data());
 
-
-  Materials* listMaterials=new Materials() ;
-  listMaterials->PrintMap();
-
   //  TTree *tree = 0;
   TChain *tree = new TChain("EventTree");
   for(unsigned int ifi=0; ifi<my_files.size(); ifi++) {
@@ -264,7 +260,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     cout << "Make Geo" << endl;
 
-    new TGeoManager("genfitGeom", "GENFIT geometry");
+    TGeoManager *prova=new TGeoManager("genfitGeom", "GENFIT geometry");
 
     TGeoMixture *airMat = new TGeoMixture("Air",3);
     airMat->AddElement(14.01,7.,.78);   // N
@@ -276,16 +272,19 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     // 1 MeV/mm3 = 1,58122538 × 10-9 atm
     cout << "airMat->GetPressure()   " << airMat->GetPressure() << endl;
 
-   TGeoMaterial *matAr = new TGeoMaterial("Argon", 39.948, 18., 0.001662);//densità viene da flair,
-   TGeoMaterial *matC = new TGeoMaterial("Carbon", 12.0107, 6., 2.26);
-   TGeoMaterial *matO = new TGeoMaterial("Oxygen", 16., 8., 0.0013315);
-   TGeoMaterial *matAl = new TGeoMaterial("Aluminium", 26.981539, 13., 2.6989);
-   TGeoMaterial *matSi = new TGeoMaterial("Silicon", 28.085, 14., 2.329);
-   TGeoMaterial *matW = new TGeoMaterial("Tungsten", 183.84, 74., 19.3);// poi magari mettere la copertura in oro
-   TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
+		Materials* listMaterials=new Materials() ;
+		listMaterials->PrintCompMap();
+
+  	TGeoMaterial *matAr = new TGeoMaterial("Argon", 39.948, 18., 0.001662);//densità viene da flair,
+    TGeoMaterial *matC = new TGeoMaterial("Carbon", 12.0107, 6., 2.26);
+ 	  TGeoMaterial *matO = new TGeoMaterial("Oxygen", 16., 8., 0.0013315);
+  	TGeoMaterial *matAl = new TGeoMaterial("Aluminium", 26.981539, 13., 2.6989);
+   	TGeoMaterial *matSi = new TGeoMaterial("Silicon", 28.085, 14., 2.329);
+   	TGeoMaterial *matW = new TGeoMaterial("Tungsten", 183.84, 74., 19.3);// poi magari mettere la copertura in oro
+   	TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
 
 
-   TGeoMixture *matMylar = new TGeoMixture("Mylar",3,   1.39000    );
+   	TGeoMixture *matMylar = new TGeoMixture("Mylar",3,   1.39000    );
     // matMylar->SetUniqueID(  18);
     matMylar->DefineElement(0,12.01,6,0.624935);
     matMylar->DefineElement(1,1.01,1,0.4204392E-01);

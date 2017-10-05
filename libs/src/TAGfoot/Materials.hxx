@@ -28,7 +28,7 @@
 
 #include <TGeoManager.h>
 
-// #include <TGeoMaterialInterface.h>
+#include <TGeoMaterialInterface.h>
 
 using namespace std;
 
@@ -49,12 +49,13 @@ public:
 
 	TGeoMaterial* GetMaterial( string nome ) {
 		// if (not find nome)	....
-		return m_store[nome];
+		return m_storeMat[nome];
 	};
 
 	void Print() {};
 
-	void PrintMap();
+	void PrintMatMap();
+  void PrintCompMap();
 
 
 private:
@@ -70,7 +71,11 @@ private:
   void ChooseHowToWriteCompound(vector<string> tmpVecStr);
   string m_tmpAppendCompoundName;
   vector<string> m_tmpCompoundData;
-  map<string, TGeoMaterial*> m_store;
+  void WriteByVolume();
+  void WriteByWeight();
+  void WriteByAtoms();
+  map<string, TGeoMaterial*> m_storeMat;
+  map<string, TGeoMixture*> m_storeComp;
 
 
 };

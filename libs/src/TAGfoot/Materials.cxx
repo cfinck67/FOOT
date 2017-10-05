@@ -1,8 +1,5 @@
 #include "Materials.hxx"
 
-
-// using namespace std;
-
 Materials::Materials(){
 
 	FillStore();
@@ -18,8 +15,6 @@ void Materials::WriteMaterial(vector<string> tmpVecStr){
 
 	string nome = tmpVecStr.back();
 	TGeoMaterial *mat=new TGeoMaterial(nome.c_str());
-	//mat.SetName(name); VEDIAMO SE C'E METODO PER NOME
-	//cout<<"size in switch is: "<<v.size()<<endl;
 	switch (tmpVecStr.size()) {
 	  case 2:
 	    mat->SetDensity(atof(tmpVecStr[0].c_str()));
@@ -40,7 +35,8 @@ void Materials::WriteMaterial(vector<string> tmpVecStr){
 	    cout<<"error in vec size"<<endl;
 	    exit(0);
 	}
-	m_store[nome]=mat;
+	//m_storeMat[nome]=mat;
+	m_storeMat.insert( pair<string, TGeoMaterial*> (nome,mat) );
 	//cout<<"IN FUNC SIZE OF MYMAP IS "<<tmpmap->size()<<endl;
 	return;
 
@@ -74,9 +70,12 @@ void Materials::AppendCompound(vector<string> tmpVecStr){
 void Materials::ChooseHowToWriteCompound(vector<string> tmpVecStr){
 
 	//only to control if they are the same compound
-	if( m_tmpCompoundData.empty() == false && tmpVecStr.back() == m_tmpAppendCompoundName ) {cout << "tutto a posto a ferragosto" << endl;}
-	else if ( m_tmpCompoundData.empty() == true ){ cout << "dovremmo essere in un compound singolo" << endl;}
-	else if ( m_tmpCompoundData.empty() == false && tmpVecStr.back() != m_tmpAppendCompoundName ) {cout << "spero di non vederla mai" << endl; return;}
+	if( m_tmpCompoundData.empty() == false && tmpVecStr.back() == m_tmpAppendCompoundName )
+		{ cout << "tutto a posto a ferragosto" << endl; }
+	else if ( m_tmpCompoundData.empty() == true )
+		{ cout << "dovremmo essere in un compound singolo" << endl; }
+	else if ( m_tmpCompoundData.empty() == false && tmpVecStr.back() != m_tmpAppendCompoundName )
+		{ cout << "spero di non vederla mai" << endl; return; }
 	else { cout << "qualcosa non va come vorresti, Riccardo" << endl; return; }
 
 	m_tmpAppendCompoundName = tmpVecStr.back();
@@ -86,21 +85,56 @@ void Materials::ChooseHowToWriteCompound(vector<string> tmpVecStr){
 	}
 	//***************WRITE HERE************************
 	cout << "VERIFICA ESITO " << endl;
-
 	cout << m_tmpAppendCompoundName << " ===> ";
-
 	for (unsigned int j=0; j<m_tmpCompoundData.size(); ++j)
 	{
 		cout << "  " << m_tmpCompoundData[j];
 	}
-
 	cout << endl;
-
-
+	if ( (m_tmpCompoundData[0]).find("-")!=string::npos && (m_tmpCompoundData[1]).find("-")!=string::npos )
+		{ WriteByVolume(); }
+	else if ( (m_tmpCompoundData[0]).find("-")!=string::npos && (m_tmpCompoundData[1]).find("-")==string::npos )
+		{ WriteByWeight(); }
+	else if ( (m_tmpCompoundData[0]).find("-")==string::npos && (m_tmpCompoundData[1]).find("-")==string::npos )
+		{ WriteByAtoms(); }
 
 	//*************************************************
 	m_tmpAppendCompoundName = "";
 	m_tmpCompoundData.clear();
+
+}
+
+void Materials::WriteByVolume(){
+	cout << "write by volume" << endl;
+
+	return;
+
+}
+
+void Materials::WriteByWeight(){
+	cout << "write by weight" << endl;
+	double weightSum = 0;
+	//evaluate weight sum to normalize single weights, loop every two elements of vector
+	for(unsigned int i = 0; i<m_tmpCompoundData.size(); i+=2){
+		weightSum += atof(m_tmpCompoundData[i].c_str());
+	}
+	cout << "riga 125" << endl;
+	TGeoMixture *comp = new TGeoMixture(m_tmpAppendCompoundName.c_str(), m_tmpCompoundData.size()/2);
+
+	for(unsigned int i = 1; i<m_tmpCompoundData.size(); i+=2){
+		comp->AddElement( m_storeMat[m_tmpCompoundData[i]], atof(m_tmpCompoundData[i-1].c_str())/weightSum );
+	}
+
+	m_storeComp.insert( pair<string, TGeoMixture*> (m_tmpAppendCompoundName, comp) );
+	return;
+}
+
+void Materials::WriteByAtoms(){
+	cout << "write by atoms" << endl;
+	//https://root.cern.ch/root/roottalk/roottalk04/2863.html
+
+	return;
+
 
 }
 string Materials::StrReplace(string original,string erase,string add){
@@ -142,10 +176,31 @@ void Materials::ReadFile(){
 	int count=0;
 	m_flagWriteCompound = false;
 	m_tmpAppendCompoundName = "";
+	m_storeMat.clear();
 	m_tmpCompoundData.clear();
-	map<string, TGeoMaterial*> mymap;
+	m_storeComp.clear();
 	proofinput.open( ( ( (string) (getenv ("FOOTMAIN") ) + "/Simulation/foot.inp" ) ).c_str());
 	if ( !proofinput.is_open() ){cout << "ERROR" << endl;}
+
+	//temporary definition of some materials not defined in .inp
+	//**********************************************************
+	TGeoMaterial *maAr = new TGeoMaterial("ARGON", 39.948, 18., 0.001662);//densità viene da flair,
+	TGeoMaterial *maC = new TGeoMaterial("CARBON", 12.0107, 6., 2.26);
+	TGeoMaterial *maO = new TGeoMaterial("OXYGEN", 16., 8., 0.0013315);
+	TGeoMaterial *maAl = new TGeoMaterial("ALUMINIUM", 26.981539, 13., 2.6989);
+	TGeoMaterial *maH = new TGeoMaterial("HYDROGEN", 1.008, 1., 0.000089);
+	TGeoMaterial *maN = new TGeoMaterial("NITROGEN", 14.007, 7., 0.001251);
+	TGeoMaterial *maFe = new TGeoMaterial("IRON", 55.845, 26., 7.874);
+
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("ARGON",maAr) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("CARBON",maC) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("OXYGEN",maO) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("ALUMINIUM",maAl) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("HYDROGEN",maH) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("NITROGEN",maN) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("IRON",maFe) );
+
+	//********************************************************************
 
 	string line="";
 	while(getline(proofinput,line)){
@@ -195,8 +250,14 @@ void Materials::ReadFile(){
 	return;
 }
 
-void Materials::PrintMap(){
+void Materials::PrintMatMap(){
 
-	for (map<string, TGeoMaterial*>::iterator it=m_store.begin(); it!=m_store.end(); ++it)
+	for (map<string, TGeoMaterial*>::iterator it=m_storeMat.begin(); it!=m_storeMat.end(); ++it)
 	cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << '\n';
+}
+
+void Materials::PrintCompMap(){
+
+	for (map<string, TGeoMixture*>::iterator it=m_storeComp.begin(); it!=m_storeComp.end(); ++it)
+	cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << it->second->GetNelements() << '\n';
 }
