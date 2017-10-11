@@ -1,15 +1,51 @@
+
+
+// instructions... anche in .h
+
+// commento per ogni funzione
+
+// spazio tra parentesi
+
+
+
+
 #include "Materials.hxx"
 
 Materials::Materials(){
 
-	FillStore();
-}
+	m_tmpAppendCompoundName = "";
+	m_storeMat.clear();
+	m_tmpCompoundData.clear();
+	m_storeComp.clear();
+	m_compoundDensity = 0;
 
-void Materials::FillStore(){
+	//temporary definition of some materials not defined in .inp
+	//**********************************************************
+	TGeoMaterial *maAr = new TGeoMaterial("ARGON", 39.948, 18., 0.001662);//densità viene da flair,
+	TGeoMaterial *maC = new TGeoMaterial("CARBON", 12.0107, 6., 2.26);
+	TGeoMaterial *maO = new TGeoMaterial("OXYGEN", 16., 8., 0.0013315);
+	TGeoMaterial *maAl = new TGeoMaterial("ALUMINUM", 26.981539, 13., 2.6989);
+	TGeoMaterial *maH = new TGeoMaterial("HYDROGEN", 1.008, 1., 0.000089);
+	TGeoMaterial *maN = new TGeoMaterial("NITROGEN", 14.007, 7., 0.001251);
+	TGeoMaterial *maFe = new TGeoMaterial("IRON", 55.845, 26., 7.874);
+	TGeoMaterial *maSi = new TGeoMaterial("SILICON", 28.085, 14., 2.329);
+
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("ARGON",maAr) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("CARBON",maC) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("OXYGEN",maO) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("ALUMINUM",maAl) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("HYDROGEN",maH) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("NITROGEN",maN) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("IRON",maFe) );
+	m_storeMat.insert ( pair<string,TGeoMaterial*>("SILICON",maSi) );
+
+	//********************************************************************
 
 	ReadFile();
-
 }
+
+
+
 
 void Materials::WriteMaterial(vector<string> tmpVecStr){
 
@@ -35,63 +71,53 @@ void Materials::WriteMaterial(vector<string> tmpVecStr){
 	    cout<<"error in vec size"<<endl;
 	    exit(0);
 	}
-	//m_storeMat[nome]=mat;
-	m_storeMat.insert( pair<string, TGeoMaterial*> (nome,mat) );
+	m_storeMat[nome] = mat;
 	//cout<<"IN FUNC SIZE OF MYMAP IS "<<tmpmap->size()<<endl;
-	return;
-
 }
+
+
+
 
 //evaluate if we can write compound or if we have to wait next line
 bool Materials::ChooseIfWriteCompound(string provamarcopolo){
 
-	if (provamarcopolo.find("COMPOUND") != string::npos) {
-		//cout<<"c'è un compound qui"<<endl;
-		m_flagWriteCompound = false;
-	}
-
-	else {
-		m_flagWriteCompound = true;
-		//cout << "non c'è nulla qua sotto" << '\n';
-	}
-	return m_flagWriteCompound;
+	if (provamarcopolo.find("COMPOUND") != string::npos) 		return false;
+	else 		return true;
 }
+
+
 
 void Materials::AppendCompound(vector<string> tmpVecStr){
 
 	m_tmpAppendCompoundName = tmpVecStr.back();
 	tmpVecStr.pop_back();
-	for (unsigned int i = 0; i<tmpVecStr.size(); ++i){
-		cout << tmpVecStr[i] << endl;
-	}
+	// for (unsigned int i = 0; i<tmpVecStr.size(); ++i){
+	// 	cout <<  tmpVecStr[i] << endl;
+	// }
 
 	for (unsigned int i=0; i<tmpVecStr.size(); ++i){
-		tmpVecStr[i].erase( std::remove( tmpVecStr[i].begin(), tmpVecStr[i].end(), ' ' ), tmpVecStr[i].end() ) ;
-		m_tmpCompoundData.push_back(tmpVecStr[i]);
+		RemoveSpace( &tmpVecStr[i] );
+		m_tmpCompoundData.push_back( tmpVecStr[i] );
 	}
-	return;
 }
 
-void Materials::ChooseHowToWriteCompound(vector<string> tmpVecStr){
+
+
+
+
+void Materials::ChooseHowToWriteCompound(vector<string> tmpVecStr ){
 
 	//only to control if they are the same compound
-	// if( m_tmpCompoundData.empty() == false && tmpVecStr.back() == m_tmpAppendCompoundName )
-	// 	{ cout << "tutto a posto a ferragosto" << endl; }
-	// else if ( m_tmpCompoundData.empty() == true )
-	// 	{ cout << "dovremmo essere in un compound singolo" << endl; }
-	// else if ( m_tmpCompoundData.empty() == false && tmpVecStr.back() != m_tmpAppendCompoundName )
-	// 	{ cout << "spero di non vederla mai" << endl; return; }
-	// else { cout << "qualcosa non va come vorresti, Riccardo" << endl; return; }
+	if( m_tmpCompoundData.empty() == false && tmpVecStr.back() == m_tmpAppendCompoundName )
+		{ cout << "tutto a posto a ferragosto" << endl; }
+	else if ( m_tmpCompoundData.empty() == true )
+		{ cout << "dovremmo essere in un compound singolo" << endl; }
+	else if ( m_tmpCompoundData.empty() == false && tmpVecStr.back() != m_tmpAppendCompoundName )
+		{ cout << "spero di non vederla mai" << endl; exit(0); }	
 
-	m_tmpAppendCompoundName = tmpVecStr.back();
-	tmpVecStr.pop_back();
-	for (unsigned int i = 0; i<tmpVecStr.size(); ++i){
-		cout << tmpVecStr[i] << endl;
-	}
-	for (unsigned int i=0; i<tmpVecStr.size(); ++i){
-		tmpVecStr[i].erase( std::remove( tmpVecStr[i].begin(), tmpVecStr[i].end(), ' ' ), tmpVecStr[i].end() ) ;
-		m_tmpCompoundData.push_back(tmpVecStr[i]);
-	}
+
+	AppendCompound( tmpVecStr );
+
 	//***************WRITE HERE************************
 	cout << "VERIFICA ESITO " << endl;
 	cout << m_tmpAppendCompoundName << " ===>";
@@ -109,9 +135,14 @@ void Materials::ChooseHowToWriteCompound(vector<string> tmpVecStr){
 
 	//*************************************************
 	m_tmpAppendCompoundName = "";
+	m_compoundDensity = 0;
 	m_tmpCompoundData.clear();
 
 }
+
+
+
+
 
 void Materials::WriteByVolume(){
 	cout << "write by volume" << endl;
@@ -120,32 +151,61 @@ void Materials::WriteByVolume(){
 
 }
 
+
+
+
+
 void Materials::WriteByWeight(){
 	cout << "write by weight" << endl;
+
+	// controlla che numero elementi sia pari
+
 	double weightSum = 0;
 	//evaluate weight sum to normalize single weights, loop every two elements of vector
-	for(unsigned int i = 0; i<m_tmpCompoundData.size(); i+=2){
-		weightSum += atof(m_tmpCompoundData[i].c_str());
+	cout << "KKKKKKKKKKKDSFHGDXWAJSBDJWHASDJSWJASSJWBADJ" << endl;
+	for(unsigned int i = 0; i<m_tmpCompoundData.size(); i++){
+		cout << m_tmpCompoundData[i] << endl;
 	}
-	cout << "riga 125" << endl;
-	TGeoMixture *comp = new TGeoMixture(m_tmpAppendCompoundName.c_str(), m_tmpCompoundData.size()/2);
 
-	// for(unsigned int i = 1; i<m_tmpCompoundData.size(); i+=2){
-	// 	comp->AddElement( m_storeMat[m_tmpCompoundData[i]], atof(m_tmpCompoundData[i-1].c_str())/weightSum );
-	// }
+	string whichCompMap = "";
+	for(unsigned int i = 0; i<m_tmpCompoundData.size(); i+=2){
+		// check the material is already stored in the map
+		if ( m_storeMat.find( m_tmpCompoundData[i+1] ) != m_storeMat.end() ) 		
+			whichCompMap = "mat";
+		else if ( m_storeComp.find( m_tmpCompoundData[i+1] ) != m_storeComp.end() ) 	
+			whichCompMap = "comp";
+		else
+			cout << "Mat or Comp not found" << endl, exit(0);
+		
+		weightSum += atof(m_tmpCompoundData[i].c_str());
+		cout << m_tmpCompoundData[i] << "   " << weightSum << endl;
+	}
+	TGeoMixture *comp = new TGeoMixture(m_tmpAppendCompoundName.c_str(), m_tmpCompoundData.size()/2, m_compoundDensity);
 
-	//m_storeComp.insert( pair<string, TGeoMixture*> (m_tmpAppendCompoundName, comp) );
-	return;
+	for(unsigned int i = 1; i<m_tmpCompoundData.size(); i+=2){
+		cout << m_tmpCompoundData[i] << "   " << atof(m_tmpCompoundData[i-1].c_str()) << "  " << atof(m_tmpCompoundData[i-1].c_str())/weightSum << endl;
+		if ( whichCompMap == "mat" )
+			comp->AddElement( m_storeMat[m_tmpCompoundData[i]], atof(m_tmpCompoundData[i-1].c_str())/weightSum );
+		else if ( whichCompMap == "comp" )
+			comp->AddElement( m_storeComp[m_tmpCompoundData[i]], atof(m_tmpCompoundData[i-1].c_str())/weightSum );
+		cout << "Addato" << endl;
+	}
+
+	m_storeComp[m_tmpAppendCompoundName] = comp;
 }
+
+
+
 
 void Materials::WriteByAtoms(){
 	cout << "write by atoms" << endl;
 	//https://root.cern.ch/root/roottalk/roottalk04/2863.html
 
-	return;
-
-
 }
+
+
+
+// usa quello globale???
 string Materials::StrReplace(string original,string erase,string add){
 
   int found=original.find(erase);
@@ -161,6 +221,9 @@ string Materials::StrReplace(string original,string erase,string add){
   }
 }
 
+
+
+
 vector<string> Materials::StrSplit(const string& str, int splitLength = 10)
 {
    int NumSubstrings = str.length() / splitLength;
@@ -175,97 +238,92 @@ vector<string> Materials::StrSplit(const string& str, int splitLength = 10)
    return ret;
 }
 
-void Materials::RemoveEmpty(vector<string> tmpVecStr){
-	for (unsigned int i = 0; i < tmpVecStr.size(); ++i){
-		if(tmpVecStr[i].empty()==true) tmpVecStr.erase(tmpVecStr.begin()+i);
-		continue;
-	}
 
+
+void Materials::RemoveEmpty( vector<string>* tmpVecStr ){
+	for (unsigned int i = 0; i < tmpVecStr->size(); ++i){
+		if ( tmpVecStr->at(i).find_first_not_of (' ') == string::npos ) {
+			tmpVecStr->erase(tmpVecStr->begin()+i);
+			i--;
+		}
+	}
 }
 
 
 void Materials::ReadFile(){
 
-	ifstream proofinput;
-	vector<string> datawholeline;
-	vector<string> dataCompound;
 	int count=0;
-	m_flagWriteCompound = false;
-	m_tmpAppendCompoundName = "";
-	m_storeMat.clear();
-	m_tmpCompoundData.clear();
-	m_storeComp.clear();
+
+	ifstream proofinput;
 	proofinput.open( ( ( (string) (getenv ("FOOTMAIN") ) + "/Simulation/foot.inp" ) ).c_str());
 	if ( !proofinput.is_open() ){cout << "ERROR" << endl;}
 
-	//temporary definition of some materials not defined in .inp
-	//**********************************************************
-	TGeoMaterial *maAr = new TGeoMaterial("ARGON", 39.948, 18., 0.001662);//densità viene da flair,
-	TGeoMaterial *maC = new TGeoMaterial("CARBON", 12.0107, 6., 2.26);
-	TGeoMaterial *maO = new TGeoMaterial("OXYGEN", 16., 8., 0.0013315);
-	TGeoMaterial *maAl = new TGeoMaterial("ALUMINIUM", 26.981539, 13., 2.6989);
-	TGeoMaterial *maH = new TGeoMaterial("HYDROGEN", 1.008, 1., 0.000089);
-	TGeoMaterial *maN = new TGeoMaterial("NITROGEN", 14.007, 7., 0.001251);
-	TGeoMaterial *maFe = new TGeoMaterial("IRON", 55.845, 26., 7.874);
-
-	m_storeMat.insert ( pair<string,TGeoMaterial*>("ARGON",maAr) );
-	m_storeMat.insert ( pair<string,TGeoMaterial*>("CARBON",maC) );
-	m_storeMat.insert ( pair<string,TGeoMaterial*>("OXYGEN",maO) );
-	m_storeMat.insert ( pair<string,TGeoMaterial*>("ALUMINIUM",maAl) );
-	m_storeMat.insert ( pair<string,TGeoMaterial*>("HYDROGEN",maH) );
-	m_storeMat.insert ( pair<string,TGeoMaterial*>("NITROGEN",maN) );
-	m_storeMat.insert ( pair<string,TGeoMaterial*>("IRON",maFe) );
-
-	//********************************************************************
-
+	
 	string line="";
 	while(getline(proofinput,line)){
 
-	  if(line=="") continue;
-	  if(line.find("*")!=string::npos||line.find("#")!=string::npos||line.find("!")!=string::npos)
-	  continue;
+		
+		if(line == "") continue;
+		if(line.find("*")!=string::npos||line.find("#")!=string::npos||line.find("!")!=string::npos)
+		continue;
 
 	  	if(line.find("MATERIAL")!=string::npos){
 
-	    	datawholeline.clear();
+	    	vector<string> datawholeline;
 	    	string materialString=StrReplace(line,"MATERIAL","");
 	    	istringstream materialStream(materialString);
-	    	string tmpString="";
-	    	while (materialStream>>tmpString) {
 
-	      	datawholeline.push_back(tmpString);
-	      }
+			streampos oldPos = proofinput.tellg();
+			getline(proofinput,line);
+			
+			bool flagWriteMat = ChooseIfWriteCompound( line );
 
-	  		WriteMaterial(datawholeline);
-				continue;
+			string tmpString="";
+	    	while (materialStream>>tmpString) 
+				datawholeline.push_back(tmpString);
+
+			if ( flagWriteMat ) {
+				proofinput.seekg (oldPos);   // get back to the position
+		  		WriteMaterial(datawholeline);
+
+			}
+	    	else {
+	    		if (datawholeline.size() != 2 ) 	
+	    			cout << "ERROR::Materials::ReadFile  -->  Compound density not found. Line standard not respected!" << endl, exit(0);
+	    		m_compoundDensity = atof( datawholeline[0].c_str() );
+	    		cout << "datawholeline   " << datawholeline[0].c_str() << endl;
+	    	}
 	    }
 
-			if(line.find("COMPOUND")!=string::npos){
+		if(line.find("COMPOUND")!=string::npos){
 
-				count++;
-				dataCompound.clear();
-				string compoundString=StrReplace(line,"COMPOUND  ","");
-				dataCompound = StrSplit(compoundString);
-				RemoveEmpty(dataCompound);
-				string marcopolo="";
-				streampos oldPos = proofinput.tellg();
-				getline(proofinput,marcopolo);
-				m_flagWriteCompound = ChooseIfWriteCompound(marcopolo);
-				cout << "**********************************" << endl;
-				for (unsigned int j=0; j < dataCompound.size(); ++j){cout << dataCompound[j] << endl;}
-				cout << "**********************************" << endl;
-				proofinput.seekg (oldPos);   // get back to the position
-				if ( m_flagWriteCompound == false) { AppendCompound( dataCompound );}
-				if ( m_flagWriteCompound == true) { ChooseHowToWriteCompound( dataCompound );}
-				continue;
-			 }
+			count++;
+			vector<string> dataCompound;
+			string compoundString=StrReplace(line,"COMPOUND  ","");
+			dataCompound = StrSplit(compoundString);
+			RemoveEmpty( &dataCompound );
+			string marcopolo="";
+
+			streampos oldPos = proofinput.tellg();
+			getline(proofinput,marcopolo);
+			bool flagWriteCompound = ChooseIfWriteCompound(marcopolo);
+			cout << "**********************************" << endl;
+			for (unsigned int j=0; j < dataCompound.size(); ++j){cout << dataCompound[j] << endl;}
+			cout << "**********************************" << endl;
+			proofinput.seekg (oldPos);   // get back to the position
+			if ( !flagWriteCompound ) 	AppendCompound( dataCompound );
+			if ( flagWriteCompound  ) 	ChooseHowToWriteCompound( dataCompound );
+							
+		}
 	}
 
 	proofinput.close();
 	cout <<"ho trovato questi compound "<< count << endl;
-
-	return;
 }
+
+
+
+
 
 void Materials::PrintMatMap(){
 
@@ -276,9 +334,24 @@ void Materials::PrintMatMap(){
 void Materials::PrintCompMap(){
 
 	for (map<string, TGeoMixture*>::iterator it=m_storeComp.begin(); it!=m_storeComp.end(); ++it)
-	cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << it->second->GetNelements() << '\n';
+	cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << "\t" << it->second->GetNelements() << '\n';
 }
 
-// void RemoveSpace( string* s ) {
-// 	s->erase( ::remove_if(s->begin(), s->end(), ::isspace), s->end() );
-// }
+void Materials::RemoveSpace( string* s ) {
+	s->erase( ::remove_if(s->begin(), s->end(), ::isspace), s->end() );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

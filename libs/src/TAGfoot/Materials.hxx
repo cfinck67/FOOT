@@ -19,7 +19,7 @@
 #include <sstream>
 // #include <vector>
 // #include <math.h>
-// #include <algorithm>
+#include <algorithm>
 // #include <memory>
 
 #include <sys/types.h>
@@ -63,17 +63,26 @@ private:
 	void FillStore();
 	void ReadFile();
 	void WriteMaterial(vector<string> tmpVecStr);
-	string StrReplace(string original,string erase,string add);
+	
+  string StrReplace(string original,string erase,string add);
   vector<string> StrSplit(const string& str, int splitLength);
+  void RemoveSpace( string* s );
+  void RemoveEmpty(vector<string>* tmpVecStr);
+
   bool ChooseIfWriteCompound(string provamarcopolo);
-  bool m_flagWriteCompound;
+    
   void AppendCompound(vector<string> tmpVecStr);
   void ChooseHowToWriteCompound(vector<string> tmpVecStr);
-  string m_tmpAppendCompoundName;
-  vector<string> m_tmpCompoundData;
+  
   void WriteByVolume();
   void WriteByWeight();
   void WriteByAtoms();
+
+
+  float m_compoundDensity;
+  string m_tmpAppendCompoundName;
+  vector<string> m_tmpCompoundData;
+  
   map<string, TGeoMaterial*> m_storeMat;
   map<string, TGeoMixture*> m_storeComp;
 
