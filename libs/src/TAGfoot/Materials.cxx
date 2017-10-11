@@ -61,7 +61,12 @@ void Materials::AppendCompound(vector<string> tmpVecStr){
 
 	m_tmpAppendCompoundName = tmpVecStr.back();
 	tmpVecStr.pop_back();
+	for (unsigned int i = 0; i<tmpVecStr.size(); ++i){
+		cout << tmpVecStr[i] << endl;
+	}
+
 	for (unsigned int i=0; i<tmpVecStr.size(); ++i){
+		tmpVecStr[i].erase( std::remove( tmpVecStr[i].begin(), tmpVecStr[i].end(), ' ' ), tmpVecStr[i].end() ) ;
 		m_tmpCompoundData.push_back(tmpVecStr[i]);
 	}
 	return;
@@ -70,25 +75,29 @@ void Materials::AppendCompound(vector<string> tmpVecStr){
 void Materials::ChooseHowToWriteCompound(vector<string> tmpVecStr){
 
 	//only to control if they are the same compound
-	if( m_tmpCompoundData.empty() == false && tmpVecStr.back() == m_tmpAppendCompoundName )
-		{ cout << "tutto a posto a ferragosto" << endl; }
-	else if ( m_tmpCompoundData.empty() == true )
-		{ cout << "dovremmo essere in un compound singolo" << endl; }
-	else if ( m_tmpCompoundData.empty() == false && tmpVecStr.back() != m_tmpAppendCompoundName )
-		{ cout << "spero di non vederla mai" << endl; return; }
-	else { cout << "qualcosa non va come vorresti, Riccardo" << endl; return; }
+	// if( m_tmpCompoundData.empty() == false && tmpVecStr.back() == m_tmpAppendCompoundName )
+	// 	{ cout << "tutto a posto a ferragosto" << endl; }
+	// else if ( m_tmpCompoundData.empty() == true )
+	// 	{ cout << "dovremmo essere in un compound singolo" << endl; }
+	// else if ( m_tmpCompoundData.empty() == false && tmpVecStr.back() != m_tmpAppendCompoundName )
+	// 	{ cout << "spero di non vederla mai" << endl; return; }
+	// else { cout << "qualcosa non va come vorresti, Riccardo" << endl; return; }
 
 	m_tmpAppendCompoundName = tmpVecStr.back();
 	tmpVecStr.pop_back();
+	for (unsigned int i = 0; i<tmpVecStr.size(); ++i){
+		cout << tmpVecStr[i] << endl;
+	}
 	for (unsigned int i=0; i<tmpVecStr.size(); ++i){
+		tmpVecStr[i].erase( std::remove( tmpVecStr[i].begin(), tmpVecStr[i].end(), ' ' ), tmpVecStr[i].end() ) ;
 		m_tmpCompoundData.push_back(tmpVecStr[i]);
 	}
 	//***************WRITE HERE************************
 	cout << "VERIFICA ESITO " << endl;
-	cout << m_tmpAppendCompoundName << " ===> ";
+	cout << m_tmpAppendCompoundName << " ===>";
 	for (unsigned int j=0; j<m_tmpCompoundData.size(); ++j)
 	{
-		cout << "  " << m_tmpCompoundData[j];
+		cout << m_tmpCompoundData[j] << "X ";
 	}
 	cout << endl;
 	if ( (m_tmpCompoundData[0]).find("-")!=string::npos && (m_tmpCompoundData[1]).find("-")!=string::npos )
@@ -121,11 +130,11 @@ void Materials::WriteByWeight(){
 	cout << "riga 125" << endl;
 	TGeoMixture *comp = new TGeoMixture(m_tmpAppendCompoundName.c_str(), m_tmpCompoundData.size()/2);
 
-	for(unsigned int i = 1; i<m_tmpCompoundData.size(); i+=2){
-		comp->AddElement( m_storeMat[m_tmpCompoundData[i]], atof(m_tmpCompoundData[i-1].c_str())/weightSum );
-	}
+	// for(unsigned int i = 1; i<m_tmpCompoundData.size(); i+=2){
+	// 	comp->AddElement( m_storeMat[m_tmpCompoundData[i]], atof(m_tmpCompoundData[i-1].c_str())/weightSum );
+	// }
 
-	m_storeComp.insert( pair<string, TGeoMixture*> (m_tmpAppendCompoundName, comp) );
+	//m_storeComp.insert( pair<string, TGeoMixture*> (m_tmpAppendCompoundName, comp) );
 	return;
 }
 
@@ -166,6 +175,13 @@ vector<string> Materials::StrSplit(const string& str, int splitLength = 10)
    return ret;
 }
 
+void Materials::RemoveEmpty(vector<string> tmpVecStr){
+	for (unsigned int i = 0; i < tmpVecStr.size(); ++i){
+		if(tmpVecStr[i].empty()==true) tmpVecStr.erase(tmpVecStr.begin()+i);
+		continue;
+	}
+
+}
 
 
 void Materials::ReadFile(){
@@ -230,6 +246,7 @@ void Materials::ReadFile(){
 				dataCompound.clear();
 				string compoundString=StrReplace(line,"COMPOUND  ","");
 				dataCompound = StrSplit(compoundString);
+				RemoveEmpty(dataCompound);
 				string marcopolo="";
 				streampos oldPos = proofinput.tellg();
 				getline(proofinput,marcopolo);
@@ -261,3 +278,7 @@ void Materials::PrintCompMap(){
 	for (map<string, TGeoMixture*>::iterator it=m_storeComp.begin(); it!=m_storeComp.end(); ++it)
 	cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << it->second->GetNelements() << '\n';
 }
+
+// void RemoveSpace( string* s ) {
+// 	s->erase( ::remove_if(s->begin(), s->end(), ::isspace), s->end() );
+// }
