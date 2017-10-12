@@ -176,7 +176,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   if(m_debug) cout<<" Creating Eve "<<endl;
   Evento *ev =  new Evento();
   // Trigger *tr = new Trigger();
-
+  
   // vector < Int_t > RegNumber;
   // vector < TString > RegName;
 
