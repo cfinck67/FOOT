@@ -205,7 +205,6 @@ void Materials::WriteByWeight(){
 
 
 void Materials::WriteByAtoms(){
-	cout << "write by atoms" << endl;
 	if ( m_tmpCompoundData.size()%2 != 0 )
 			cout << "ERROR::Materials::WriteByAtoms  -->  compound vector does NOT have a even size!" << endl, exit(0);
 	//the following constructor requires ( compound_name, number_of_elements, density)
