@@ -1,3 +1,10 @@
+//This class reads FLUKA input file foot.inp in Simulation dir and creates two maps,
+//one map<string,TGeoMaterial*> which contains materials in the setup (always information
+//about density, sometimes about A,Z) and one map<string,TGeoMixture*> which contains
+//compounds written by weight or by atom (by volume still NOT present)
+
+//Authors: Matteo Franchini (Matteo.Franchini@bo.infn.it),Riccardo Ridolfi (Riccardo.Ridolfi@bo.infn.it)
+
 #ifndef MATERIALS_HXX
 #define MATERIALS_HXX
 
@@ -27,8 +34,9 @@
 #include <limits>
 
 #include <TGeoManager.h>
-
 #include <TGeoMaterialInterface.h>
+
+#include "GlobalPar.hxx"
 
 using namespace std;
 
@@ -94,6 +102,8 @@ private:
 
   map<string, TGeoMaterial*> m_storeMat; //map of materials
   map<string, TGeoMixture*> m_storeComp; //map of compound
+
+  int m_debug;
 
 
 };

@@ -1,3 +1,10 @@
+//This class reads FLUKA input file foot.inp in Simulation dir and creates two maps,
+//one map<string,TGeoMaterial*> which contains materials in the setup (always information
+//about density, sometimes about A,Z) and one map<string,TGeoMixture*> which contains
+//compounds written by weight or by atom (by volume still NOT present)
+
+//Authors: Matteo Franchini (Matteo.Franchini@bo.infn.it),Riccardo Ridolfi (Riccardo.Ridolfi@bo.infn.it)
+
 #include "Materials.hxx"
 
 Materials::Materials(){
@@ -7,6 +14,8 @@ Materials::Materials(){
 	m_tmpCompoundData.clear();
 	m_storeComp.clear();
 	m_compoundDensity = 0;
+
+	m_debug = GlobalPar::GetPar()->Debug();
 
 	//********temporary definition of some materials not defined in .inp**********
 	//****************************************************************************
@@ -34,6 +43,9 @@ Materials::Materials(){
 }
 
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
 //put Materials found in .inp in a map <string, TGeoMaterial*>; every material
 //could have different information (A,Z,rho)
 
@@ -44,28 +56,28 @@ void Materials::WriteMaterial( vector<string> tmpVecStr ){
 	switch ( tmpVecStr.size() ) {
 	  case 2:
 	    mat->SetDensity( atof( tmpVecStr[0].c_str() ) );
-	    //cout<<"case 2 done!"<<endl;
+	    if ( m_debug > 0 ) cout<<"case 2 done!"<<endl;
 	    break;
 	  case 3:
 	    mat->SetZ( atof( tmpVecStr[0].c_str() ) );
 	    mat->SetDensity( atof(tmpVecStr[1].c_str() ) );
-	    //cout<<"case 3 done!"<<endl;
+	    if ( m_debug > 0 ) cout<<"case 3 done!"<<endl;
 	    break;
 	  case 4:
 	    mat->SetZ( atof( tmpVecStr[0].c_str() ) );
 	    mat->SetA( atof( tmpVecStr[1].c_str() ) );
 	    mat->SetDensity( atof( tmpVecStr[2].c_str() ) );
-	    //cout<<"case 4 done!"<<endl;
+	    if ( m_debug > 0 ) cout<<"case 4 done!"<<endl;
 	    break;
 	  default:
-	    cout<<"error in vec size"<<endl;
-	    exit(0);
+			cout << "ERROR::Materials::WriteMaterial  -->  Material vector size is not 2, 3, 4" << endl; exit(0);
 	}
 	m_storeMat[nome] = mat;
-	//cout<<"IN FUNC SIZE OF MYMAP IS "<<tmpmap->size()<<endl;
 }
 
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 
 //evaluate if we can write compound or if we have to wait next line
@@ -75,15 +87,15 @@ bool Materials::ChooseIfWriteCompound( string provamarcopolo ){
 }
 
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
 //Compound definition continues in next line so we decide to append information
 //of current line in a global vector to be written when compound definition is over
 void Materials::AppendCompound( vector<string> tmpVecStr ){
 
 	m_tmpAppendCompoundName = tmpVecStr.back();
 	tmpVecStr.pop_back();
-	// for (unsigned int i = 0; i<tmpVecStr.size(); ++i){
-	// 	cout <<  tmpVecStr[i] << endl;
-	// }
 
 	for ( unsigned int i=0; i<tmpVecStr.size(); ++i ){
 		RemoveSpace( &tmpVecStr[i] );
@@ -91,28 +103,35 @@ void Materials::AppendCompound( vector<string> tmpVecStr ){
 	}
 }
 
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
 //Compound definition does NOT continue in next line so we write compound remembering
 //also previous information of compound. We have to decide how to write compound too:
 //by weight, by atoms, by volume
 void Materials::ChooseHowToWriteCompound( vector<string> tmpVecStr ){
 	//only to control if they are the same compound
-	if( m_tmpCompoundData.empty() == false && tmpVecStr.back() == m_tmpAppendCompoundName )
-		{ cout << "procedo con la scrittura" << endl; }
-	else if ( m_tmpCompoundData.empty() == true )
-		{ cout << "dovremmo essere in un compound singolo" << endl; }
+	if( m_tmpCompoundData.empty() == false && tmpVecStr.back() == m_tmpAppendCompoundName && m_debug > 0 )
+		{ cout << "go on with compound writing on map" << endl; }
+	else if ( m_tmpCompoundData.empty() == true && m_debug > 0 )
+		{ cout << "I am in a compound defined in one line" << endl; }
 	else if ( m_tmpCompoundData.empty() == false && tmpVecStr.back() != m_tmpAppendCompoundName )
-		{ cout << "spero di non vederla mai" << endl; exit(0); }
+		{ cout << "ERROR::Materials::ChooseHowToWriteCompound ---> Compound names in two near lines are NOT the same" << endl; exit(0); }
 
 	AppendCompound( tmpVecStr );
 
 	//***************WRITE HERE************************
-	cout << "VERIFICA ESITO " << endl;
-	cout << m_tmpAppendCompoundName << " ===>";
-	for ( unsigned int j=0; j<m_tmpCompoundData.size(); ++j )
-	{
-		cout << m_tmpCompoundData[j] << " ";
+	if ( m_debug > 0 ){
+		cout << "VERIFICA ESITO " << endl;
+		cout << m_tmpAppendCompoundName << " ===>";
+		for ( unsigned int j=0; j<m_tmpCompoundData.size(); ++j )
+		{
+			cout << m_tmpCompoundData[j] << " ";
+		}
+		cout << endl;
 	}
-	cout << endl;
+
 	if ( (m_tmpCompoundData[0]).find("-")!=string::npos && (m_tmpCompoundData[1]).find("-")!=string::npos )
 		{ WriteByVolume(); }
 	else if ( (m_tmpCompoundData[0]).find("-")!=string::npos && (m_tmpCompoundData[1]).find("-")==string::npos )
@@ -127,15 +146,23 @@ void Materials::ChooseHowToWriteCompound( vector<string> tmpVecStr ){
 
 }
 
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+
 void Materials::WriteByVolume(){
-	cout << "write by volume" << endl;
 
 	return;
 
 }
 
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+
 void Materials::WriteByWeight(){
-	cout << "write by weight" << endl;
 
 	if ( m_tmpCompoundData.size()%2 != 0 )
 
@@ -143,13 +170,9 @@ void Materials::WriteByWeight(){
 
 	double weightSum = 0;
 	//evaluate weight sum to normalize single weights, loop every two elements of vector
-	for( unsigned int i = 0; i<m_tmpCompoundData.size(); i++ ){
-		cout << m_tmpCompoundData[i] << endl;
-	}
-
 	string whichCompMap = "";
 	for( unsigned int i = 0; i<m_tmpCompoundData.size(); i+=2 ){
-		// check the material is already stored in one of the maps: material map or
+		// check if the material is already stored in one of the maps: material map or
 		//compound map if we have to define a compound which contains a compound
 		if ( m_storeMat.find( m_tmpCompoundData[i+1] ) != m_storeMat.end() )
 			whichCompMap = "mat";
@@ -159,35 +182,41 @@ void Materials::WriteByWeight(){
 			cout << "Mat or Comp not found" << endl, exit(0);
 
 		weightSum += atof( m_tmpCompoundData[i].c_str() );
-		cout << m_tmpCompoundData[i] << "   " << weightSum << endl;
 	}
+	//the following constructor requires ( compound_name, number_of_elements, density)
 	TGeoMixture *comp = new TGeoMixture( m_tmpAppendCompoundName.c_str(), m_tmpCompoundData.size()/2, m_compoundDensity );
 
+	//we take one every two in "for" loop as the layout of vector is fraction1 name1 fraction2 name2 etc
 	for( unsigned int i = 1; i<m_tmpCompoundData.size(); i+=2 ){
-		cout << m_tmpCompoundData[i] << "   " << atof( m_tmpCompoundData[i-1].c_str() ) << "  " << atof( m_tmpCompoundData[i-1].c_str() )/weightSum << endl;
+		if ( m_debug > 0 )
+			cout << m_tmpCompoundData[i] << "   " << atof( m_tmpCompoundData[i-1].c_str() ) << "  " << atof( m_tmpCompoundData[i-1].c_str() )/weightSum << endl;
 		if ( whichCompMap == "mat" )
 			comp->AddElement( m_storeMat[m_tmpCompoundData[i]], atof(m_tmpCompoundData[i-1].c_str())/weightSum );
 		else if ( whichCompMap == "comp" )
 			comp->AddElement( m_storeComp[m_tmpCompoundData[i]], atof(m_tmpCompoundData[i-1].c_str())/weightSum );
-		cout << "Added" << endl;
 	}
 
 	m_storeComp[m_tmpAppendCompoundName] = comp;
 }
 
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 
 void Materials::WriteByAtoms(){
 	cout << "write by atoms" << endl;
 	if ( m_tmpCompoundData.size()%2 != 0 )
 			cout << "ERROR::Materials::WriteByAtoms  -->  compound vector does NOT have a even size!" << endl, exit(0);
-	//https://root.cern.ch/root/roottalk/roottalk04/2863.html
+	//the following constructor requires ( compound_name, number_of_elements, density)
 	TGeoMixture *comp = new TGeoMixture( m_tmpAppendCompoundName.c_str(), m_tmpCompoundData.size()/2, m_compoundDensity );
 	int count = 0;
+	//we take one every two in for loop as the layout of vector is fraction1 name1 fraction2 name2 etc
 	for( unsigned int i = 1; i<m_tmpCompoundData.size(); i+=2 ){
-		cout << m_tmpCompoundData[i] << "   " << atof( m_tmpCompoundData[i-1].c_str() ) << endl;
+		if ( m_debug > 0 )
+			cout << m_tmpCompoundData[i] << "   " << atof( m_tmpCompoundData[i-1].c_str() ) << endl;
 		if ( m_storeMat.find( m_tmpCompoundData[i] ) != m_storeMat.end() ){
+			//DefineElement wants (ordinal_number_of_element,Z,number_of_atoms)
 			comp->DefineElement( count, m_storeMat[ m_tmpCompoundData[i] ]->GetZ(), atoi( m_tmpCompoundData[i-1].c_str() ) );
 			count++;
 		}
@@ -202,8 +231,10 @@ void Materials::WriteByAtoms(){
 }
 
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-// usa quello globale???
+// we can use a global function for String replace???
 string Materials::StrReplace( string original,string erase,string add ){
 
   int found=original.find( erase );
@@ -220,24 +251,31 @@ string Materials::StrReplace( string original,string erase,string add ){
 }
 
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-
+//in input file compounds data are not separated by blanks,so split by field length
 vector<string> Materials::StrSplit( const string& str, int splitLength = 10 )
 {
 	int NumSubstrings = str.length() / splitLength;
-	//cout << str.length() << "    " << NumSubstrings <<endl;
   vector<string> ret;
  	//**********************************ROUGH ADD OF A ITER***********************
 	//**********cause lines have different lenghts because of \n******************
+	//****************************************************************************
   for ( int i = 0; i < NumSubstrings +1; i++ ){
   	ret.push_back(str.substr( i * splitLength, splitLength ) );
 	}
-
+	//****************************************************************************
+	//*************************END OF DISCLAIMER**********************************
+	//****************************************************************************
   return ret;
 }
 
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
+//remove empty elements from vector string
 void Materials::RemoveEmpty( vector<string>* tmpVecStr ){
 	for ( unsigned int i = 0; i < tmpVecStr->size(); ++i ){
 		if ( tmpVecStr->at(i).find_first_not_of (' ') == string::npos ) {
@@ -247,11 +285,20 @@ void Materials::RemoveEmpty( vector<string>* tmpVecStr ){
 	}
 }
 
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+//remove every blanks from a string
 void Materials::RemoveSpace( string* s ) {
 	s->erase( ::remove_if(s->begin(), s->end(), ::isspace), s->end() );
 }
 
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+//main function that read input file and recalls previous functions
 void Materials::ReadFile(){
 
 	int count=0;
@@ -324,15 +371,21 @@ void Materials::ReadFile(){
 }
 
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-
-
+//easy print of material map
 void Materials::PrintMatMap(){
 
 	for ( map<string, TGeoMaterial*>::iterator it=m_storeMat.begin(); it!=m_storeMat.end(); ++it )
 	cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << '\n';
 }
 
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+//easy print of compound map
 void Materials::PrintCompMap(){
 
 	for ( map<string, TGeoMixture*>::iterator it=m_storeComp.begin(); it!=m_storeComp.end(); ++it )
