@@ -22,16 +22,17 @@ LDLIBS    = $(shell root-config --glibs) -lGeom -lGeomPainter -lEve
 #
 TOBJ_all   = TAGobject.hxx TAGnamed.hxx TAGroot.hxx \
 		TAGtimestamp.hxx TAGeventId.hxx \
-		TAGrunInfo.hxx TAGgeoTrafo.hxx\
+		TAGrunInfo.hxx \
 		TAGdata.hxx TAGdataDsc.hxx TAGpara.hxx TAGparaDsc.hxx \
 		TAGaction.hxx TAGactionFile.hxx \
 		TAGactTreeReader.hxx TAGactTreeWriter.hxx \
 		TAGpadGroup.hxx \
 		TAGview.hxx \
-		TAGconfigFile.hxx \
+		TAGconfigFile.hxx  TAGgeoTrafo.hxx \
 		TAGstlUtil.hxx TAGlineFit.hxx \
 		TAGclusterDisplay.hxx TAGtrackDisplay.hxx TAGwireDisplay.hxx \
 		TAGeventDisplay.hxx
+	
 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #

@@ -65,7 +65,7 @@ void MakePdgDatabase() {
                     // "O15" 
                   };
 
-  double massV [nNewParticles] = {  12.1095, 
+  double massV [] = {  12.1095, 
                     6.53383
                     // , 7,
                     // 7, 8, 9.3255,
@@ -75,7 +75,7 @@ void MakePdgDatabase() {
                     // 15 
                   };
 
-  double chargeV [nNewParticles] = {  18, //18, 18, 
+  double chargeV [] = {  18, //18, 18, 
                     9
                     // , 9,
                     // 12, 12, 12,
@@ -107,7 +107,7 @@ int main() {
   // init geometry and mag. field
   new TGeoManager("Geometry", "Geane geometry");
   TGeoManager::Import("genfitGeom.root");
-  genfit::FieldManager::getInstance()->init(new genfit::ConstField(0.,0., 8.)); // 15 kGauss
+  genfit::FieldManager::getInstance()->init(new genfit::ConstField(0.,0., 8.)); //  kGauss
   genfit::MaterialEffects::getInstance()->init(new genfit::TGeoMaterialInterface());
 
 
@@ -140,7 +140,7 @@ int main() {
 
     // helix track model
     const int pdg = 13;               // particle pdg code     mu
-    // const int pdg = 66666600;               // particle pdg code     mu
+    // const int pdg = 66666600;               // particle pdg code     C12
     const double charge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/(3.);
     genfit::HelixTrackModel* helix = new genfit::HelixTrackModel(pos, mom, charge);
     measurementCreator.setTrackModel(helix);

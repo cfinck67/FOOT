@@ -270,16 +270,28 @@ int KFitter::PrepareData4Fit( Track* fitTrack ) {
 	}
 
 	// loop over all the hit-collections to be fit
+	vector <int> hitsToBeRemoved;
+	int hitsCount = 0;
 	for ( map< string, vector<AbsMeasurement*> >::iterator it=m_hitCollectionToFit.begin(); it != m_hitCollectionToFit.end(); it++ ) {
-		// check the pre-fit requirements
-		if ( !PrefitRequirements( it ) ) {
-			// if requirements are FALSE -> delete each AbsMeasurement objects and clear the map element
+		if ( !PrefitRequirements( it ) )	{
+			hitsToBeRemoved.push_back( hitsCount );
+			// if requirements are FALSE -> delete each AbsMeasurement objects
 			for ( vector<AbsMeasurement*>::iterator it2=(*it).second.begin(); it2 != (*it).second.end(); it2++ ) {
 				delete (*it2);
 				// delete (*it).second.at(i);	// wrong!
 			}
+		}
+		hitsCount++;
+	}
+	hitsCount = 0;
+	for ( auto it = m_hitCollectionToFit.cbegin(), next_it = m_hitCollectionToFit.cbegin(); it != m_hitCollectionToFit.cend(); it = next_it)	{
+		next_it = it; ++next_it;
+		// check the pre-fit requirements
+		if ( find( hitsToBeRemoved.begin(), hitsToBeRemoved.end(), hitsCount ) != hitsToBeRemoved.end() ) {
+			// if requirements are FALSE -> clear the map element
 			m_hitCollectionToFit.erase(it);
 		}
+		hitsCount++;
 	}
 	//	if no map element survive -> clear the single-detector hit-collections
 	if ( m_hitCollectionToFit.size() == 0 ) {
@@ -742,17 +754,28 @@ int KFitter::MakeFit( long evNum ) {
 	// for ( vector<TADCntuHit*>::iterator it=m_DC_hitCollection.begin(); it != m_DC_hitCollection.end(); it++ ) {
 	// 	delete (*it);
 	// }
-
+cout << "Ready 1!" << endl;
 	m_VT_hitCollection.clear();
+	cout << "Ready 2!" << endl;
 	m_IT_hitCollection.clear();
+	cout << "Ready 3!" << endl;
 	m_MSD_hitCollection.clear();
+	cout << "Ready 5!" << endl;
 	m_DC_hitCollection.clear();
+	cout << "Ready 6!" << endl;
 	delete fitTrack;	// include un delete rep pare
-	for ( map< string, vector<AbsMeasurement*> >::iterator it=m_hitCollectionToFit.begin(); it != m_hitCollectionToFit.end(); it++ ) {
-		// for ( vector<AbsMeasurement*>::iterator it2=(*it).second.begin(); it2 != (*it).second.end(); it2++ )
-		// 	delete (*it2);	// no perche fatto da altri
+	cout << "Ready 7!" << endl;
+	// clean m_hitCollectionToFit
+	for ( auto it = m_hitCollectionToFit.cbegin(), next_it = m_hitCollectionToFit.cbegin(); it != m_hitCollectionToFit.cend(); it = next_it)	{
+		next_it = it; ++next_it;		
 		m_hitCollectionToFit.erase(it);
 	}
+	// for ( map< string, vector<AbsMeasurement*> >::iterator it=m_hitCollectionToFit.begin(); it != m_hitCollectionToFit.end(); it++ ) {
+	// 	// for ( vector<AbsMeasurement*>::iterator it2=(*it).second.begin(); it2 != (*it).second.end(); it2++ )
+	// 	// 	delete (*it2);	// no perche fatto da altri
+	// 	m_hitCollectionToFit.erase(it);
+	// }
+	cout << "Ready 8!" << endl;
 	m_hitCollectionToFit.clear();	
 	if ( m_debug > 1 )		cout << "Ready for the next track fit!" << endl;
 

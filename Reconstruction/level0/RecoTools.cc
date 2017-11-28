@@ -110,7 +110,7 @@ using namespace std;
 RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev,
 		     TFile *hf) {
 
-  
+  cout << "\tstart Constructor RecoTools\n";
   my_files.clear();
   m_debug = d;
   m_oustr = ostr;
@@ -140,7 +140,7 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
   //  gErrorIgnoreLevel = kFatal;
 
   m_hf = hf;
-
+  cout << "\tend Constructor RecoTools\n";
 }
 
 
@@ -153,17 +153,17 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     eventListFile.open( ((string)getenv("FOOTLEVEL0")+"/"+"eventListFile.dat").c_str(), fstream::trunc | fstream::out );
     if ( !eventListFile.is_open() )        cout<< "ERROR  -->  eventListFile.dat cannot open file."<< endl, exit(0);
   }
-
+cout << "\tend Constructor RecoTools\n";
   //Initializing the Geometry class that handles the 
   //detector positioning and global to local transformations
   fGeoTrafo = new TAGgeoTrafo();
   TString filename = m_wd + "/FOOT_geo.map";
   fGeoTrafo->InitGeo(filename.Data());
-  
+  cout << "\tend Constructor RecoTools\n";
 
   Materials* listMaterials=new Materials() ;
   //listMaterials->PrintMap();
-
+cout << "\tend Constructor RecoTools\n";
   //  TTree *tree = 0;
   TChain *tree = new TChain("EventTree");
   for(unsigned int ifi=0; ifi<my_files.size(); ifi++) {

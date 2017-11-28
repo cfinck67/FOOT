@@ -16,6 +16,7 @@ realclean:
 	for dir in $(DIRS) ; do cd $$dir; rm -f *.d; cd ../; done
 	for dir in $(DIRS) ; do cd $$dir; rm -f *.o; cd ../; done
 	for dir in $(DIRS) ; do cd $$dir; rm -f *.cint.*; cd ../; done
+	for dir in $(DIRS) ; do cd $$dir; rm -f *.pcm; cd ../; done
 
 cintclean:
 	for dir in $(DIRS) ; do cd $$dir; rm -f *.cint.*; cd ../; done
