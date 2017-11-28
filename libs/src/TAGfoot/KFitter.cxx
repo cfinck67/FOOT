@@ -210,9 +210,6 @@ int KFitter::UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd
 
 
 
-
-
-
 //----------------------------------------------------------------------------------------------------
 // pack together the hits to be fitted, from all the detectors, selct different preselecion m_systemsONs
 int KFitter::PrepareData4Fit( Track* fitTrack ) {
@@ -488,8 +485,6 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 }
 
 
-
-
 //----------------------------------------------------------------------------------------------------
 int KFitter::MakeFit( long evNum ) {
 
@@ -640,7 +635,7 @@ int KFitter::MakeFit( long evNum ) {
 	// for ( vector<TAITntuHit*>::iterator it=m_IT_hitCollection.begin(); it != m_IT_hitCollection.end(); it++ ) {
 	// 	delete (*it);
 	// }
-	
+
 	m_VT_hitCollection.clear();
 	m_IT_hitCollection.clear();
 	m_MSD_hitCollection.clear();
@@ -753,8 +748,6 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			tmp_mass = m_MSD_mass.at( hitID );
 			tmp_genPos = TVector3(-1, -1, -1);
 		}
-		
-
 		// Get track kinematics and errors
 		TVector3 KalmanPos = TVector3( (track->getFittedState(i).get6DState())[0],	(track->getFittedState(i).get6DState())[1],	(track->getFittedState(i).get6DState())[2] );
 		TVector3 KalmanMom = TVector3( (track->getFittedState(i).get6DState())[3], (track->getFittedState(i).get6DState())[4],	(track->getFittedState(i).get6DState())[5] );
@@ -1433,17 +1426,6 @@ void KFitter::Save( ) {
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
