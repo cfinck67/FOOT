@@ -1,4 +1,4 @@
-©/*!
+/*!
   \file
   \version $Id: TAVTparGeo.cxx,v 1.2 2003/06/22 19:34:21 mueller Exp $
   \brief   Implementation of TAVTparGeo.
