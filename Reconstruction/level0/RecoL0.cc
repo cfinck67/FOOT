@@ -94,13 +94,13 @@ int main (int argc, char *argv[]) {
 
   RecoTools d(debug,in,alist,out,wdir,nTotEv, hF);
 
-  d.bookHisto(hF);
+  // d.bookHisto(hF);
 
   d.RecoLoop(&tagroot,pl_freq);
 
-  hF->cd();
+  // hF->cd();
 
-  hF->Write();
+  // hF->Write();
   hF->Close();
 
   // stop time

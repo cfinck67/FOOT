@@ -4,6 +4,7 @@
 #include <TVector3.h>
 #include <TString.h>
 #include <TGeoMatrix.h>
+#include "TObjArray.h"
 
 #include "TAGaction.hxx"
 

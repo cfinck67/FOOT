@@ -1,4 +1,4 @@
-/*!
+©/*!
   \file
   \version $Id: TAVTparGeo.cxx,v 1.2 2003/06/22 19:34:21 mueller Exp $
   \brief   Implementation of TAVTparGeo.
@@ -182,6 +182,11 @@ void TAVTparGeo::Global2Local( TVector3* glob ) {
 } 
 
 //_____________________________________________________________________________
+void TAVTparGeo::Global2Local_TranslationOnly( TVector3* glob ) {
+    *glob = *glob - m_center;
+} 
+
+//_____________________________________________________________________________
 void TAVTparGeo::Global2Local_RotationOnly( TVector3* glob ) {
     glob->Transform( GetRotationToLocal() );
 } 
@@ -189,6 +194,11 @@ void TAVTparGeo::Global2Local_RotationOnly( TVector3* glob ) {
 //_____________________________________________________________________________
 void TAVTparGeo::Local2Global( TVector3* loc ) {
     loc->Transform( GetRotationToGlobal() );
+    *loc = *loc + m_center;
+}
+
+//_____________________________________________________________________________
+void TAVTparGeo::Local2Global_TranslationOnly( TVector3* loc ) {
     *loc = *loc + m_center;
 }
 
@@ -234,7 +244,8 @@ TGeoVolume* TAVTparGeo::GetVolume() {
    TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Air_med"),width_Lx/2,height_Ly/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
    gGeoManager->SetTopVisible(1);
 
-    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_siliconSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_materialThick[ "VTX_MEDIUM" ]/2); //(dimensioni in cm)
+    // TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_siliconSensorThick_Lz/2); //(dimensioni in cm)
     siliconFoil->SetLineColor(kOrange);
     siliconFoil->SetFillColor(kOrange);
     // TGeoVolume *kaptonFoil = gGeoManager->MakeBox("kaptonFoil",kapton,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_KAP_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
@@ -266,7 +277,6 @@ TGeoVolume* TAVTparGeo::GetVolume() {
     // box->AddNode(epoxyFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_COV_MEDIUM" ]/2 + m_materialThick[ "ITR_EPO_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     // box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_EPO_MEDIUM" ]/2+ m_materialThick[ "ITR_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
     
-
     double position1 = -m_dimension.z()/2;
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=( m_materialThick[ "VTX_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
 
@@ -333,8 +343,42 @@ void TAVTparGeo::InitMaterial() {
 }
 
 
+void TAVTparGeo::PrintBodies( string geoFileName ) {
 
+    ofstream geofile;
+    geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
+    
+    string vtxID = "vtx";
+    int count = 0;
 
+    geofile << "* ***Vertex" << endl;
+
+    for (int k=0; k<m_nSensors_Z; k++) {
+        for (int i=0; i<m_nSensors_X; i++) {
+            for (int j=0; j<m_nSensors_Y; j++) {
+
+                string vtxID = "vtx";
+                geofile << setiosflags(ios::fixed) << setprecision(6) 
+                        << "RPP " << vtxID << count << "     ";
+
+                TVector3 minCoord = TVector3(m_sensorMatrix[k][i][j]->GetMinCoord());
+                Local2Global_TranslationOnly( &minCoord );
+                TVector3 maxCoord = TVector3(m_sensorMatrix[k][i][j]->GetMaxCoord());
+                Local2Global_TranslationOnly( &maxCoord );
+                
+                geofile << minCoord.x() << " " << maxCoord.x() << " "
+                        << minCoord.y() << " " << maxCoord.y() << " "
+                        << minCoord.z() << " " << maxCoord.z()
+                        << endl;
+
+                count++;
+            }
+        }
+    }
+
+    geofile.close();
+
+}
 // **************** VERTEXING      *******************************************************
 
 

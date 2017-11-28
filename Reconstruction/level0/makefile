@@ -44,6 +44,7 @@ ELIB        += ./libGeometry.so
 # TAINCL	     +=-I$(PWD)/../../libs/GenFit/trackReps/include -I$(PWD)/../../libs/GenFit/fields/include 
 # TAINCL	     +=-I$(PWD)/../../libs/GenFit/measurements/include -I$(PWD)/../../libs/GenFit/utilities/include 
 
+TALIB        += -lGeom -lGeomPainter -lEve -L$(PWD)/../../libs/GenFit/lib -lgenfit2
 TALIB        += ../../libs/lib/libTAGfoot.so ../../libs/lib/libTAGmclib.so 
 TALIB        += ../../libs/lib/libTAGbase.so 
 TALIB        += ../../libs/lib/libTABMbase.so 
@@ -51,7 +52,7 @@ TALIB        += ../../libs/lib/libTAITbase.so
 TALIB        += ../../libs/lib/libTATWbase.so 
 TALIB        += ../../libs/lib/libTACAbase.so 
 TALIB        += ../../libs/lib/libTAMSDbase.so 
-TALIB        += ../../libs/lib/libTAIRbase.so ../../libs/lib/libTAVTbase.so 
+TALIB        += ../../libs/lib/libTAIRbase.so ../../libs/lib/libTAVTbase.so
 
 ifeq ($(ARCH),macosx64)
 #SOFLAGS       = -dynamiclib -single_module -undefined dynamic_lookup  

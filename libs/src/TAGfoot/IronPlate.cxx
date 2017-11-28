@@ -10,6 +10,9 @@ IronPlate::IronPlate() {
 	for ( unsigned int i=0; i<checkTic.size(); i++ ) {
 		m_readyCheck[ checkTic.at(i) ] = false;
 	}
+
+	m_origin = TVector3( 0, 0, 0 );
+
 	// m_readyCheck["material"] = true;		// provvisorio!!!!!
 	// m_MaterialName = "SILICON";				// provvisorio!!!!!
 };
@@ -93,6 +96,11 @@ void IronPlate::SetSensor( double x, double y, double z,
 void IronPlate::Global2Local( TVector3* glob ) {
     glob->Transform( GetRotationToLocal() );
     *glob = *glob - m_center;
+}
+
+//_____________________________________________________________________________
+void IronPlate::Global2Local_TranslationOnly( TVector3* glob ) {
+    *glob = *glob - m_center;
 } 
 
 //_____________________________________________________________________________
@@ -103,6 +111,11 @@ void IronPlate::Global2Local_RotationOnly( TVector3* glob ) {
 //_____________________________________________________________________________
 void IronPlate::Local2Global( TVector3* loc ) {
     loc->Transform( GetRotationToGlobal() );
+    *loc = *loc + m_center;
+}
+
+//_____________________________________________________________________________
+void IronPlate::Local2Global_TranslationOnly( TVector3* loc ) {
     *loc = *loc + m_center;
 }
 

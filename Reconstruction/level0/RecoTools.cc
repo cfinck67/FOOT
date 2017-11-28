@@ -89,6 +89,7 @@
 
 #include "foot_geo.h"
 
+#include "Materials.hxx"
 #include "FootField.hxx"
 #include "MeasurementCreator.h"
 
@@ -100,7 +101,7 @@ using namespace std;
 RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev,
 		     TFile *hf) {
 
-  
+  cout << "\tstart Constructor RecoTools\n";
   my_files.clear();
   m_debug = d;
   m_oustr = ostr;
@@ -130,7 +131,7 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
   //  gErrorIgnoreLevel = kFatal;
 
   m_hf = hf;
-
+  cout << "\tend Constructor RecoTools\n";
 }
 
 
@@ -143,14 +144,17 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     eventListFile.open( ((string)getenv("FOOTLEVEL0")+"/"+"eventListFile.dat").c_str(), fstream::trunc | fstream::out );
     if ( !eventListFile.is_open() )        cout<< "ERROR  -->  eventListFile.dat cannot open file."<< endl, exit(0);
   }
-
+cout << "\tend Constructor RecoTools\n";
   //Initializing the Geometry class that handles the 
   //detector positioning and global to local transformations
   fGeoTrafo = new TAGgeoTrafo();
   TString filename = m_wd + "/FOOT_geo.map";
   fGeoTrafo->InitGeo(filename.Data());
+  cout << "\tend Constructor RecoTools\n";
 
-
+  Materials* listMaterials=new Materials() ;
+  //listMaterials->PrintMap();
+cout << "\tend Constructor RecoTools\n";
   //  TTree *tree = 0;
   TChain *tree = new TChain("EventTree");
   for(unsigned int ifi=0; ifi<my_files.size(); ifi++) {
@@ -350,7 +354,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     // FieldManager::getInstance()->useCache(true, 8);
 
 
-
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 1,1,14.7 ) ).Print();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic no Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,2 ) ).Print();
 
@@ -383,6 +386,34 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         bFieldTest.close();
     }
 
+
+    ofstream bFieldTest;
+    bFieldTest.open("bField.test", std::ofstream::out | std::ofstream::trunc );
+
+    bFieldTest << setiosflags(ios::fixed) << setprecision(8);
+
+    float zCoord = -29.75 + 14;     // global coordinates
+    for (int k=0; k<120; k++) {
+        float yCoord = -4.75;
+        for (int j=0; j<20; j++) {
+            float xCoord = -4.75;
+            for (int i=0; i<20; i++) {
+
+                TVector3 vecB = genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) );
+                // bFieldTest << vecB.x() << " " << vecB.y() << " " << vecB.z() << endl;
+                bFieldTest << " " << xCoord << " " << yCoord << " " << zCoord-14;
+                bFieldTest << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).x() / 10
+                            << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).y() / 10
+                            << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).z() / 10 << endl;
+                xCoord += 0.5;
+            }
+            yCoord += 0.5;
+        }
+        zCoord += 0.5;
+    }
+
+
+    bFieldTest.close();
 
     if(m_doBM) {
         // DisplayBeamMonitor(pg);
