@@ -29,7 +29,7 @@ class TAVTparGeo : public TAVTparTools {
 
 typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
 // typedef map< int, map< int, map< int, IronPlate* > > > SensorMatrix;
-      
+
 
 public:
 
@@ -75,11 +75,12 @@ public:
     void AssignMaterial() {};
     void AssignMagnetField() {};
     void PrintBodies( string geoFileName );
+    void PrintRegions( string geoFileName );
 
     // Return a vector with the number of sensors along the cartesian directions
     TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
 
-    TGeoVolume*     GetVolume(); 
+    TGeoVolume*     GetVolume();
 
     virtual void    Clear(Option_t* opt="");
     virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
@@ -94,12 +95,12 @@ private:
     // TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each sensor)
     TVector3  m_origin;  // current position
     TVector3  m_center;  // current position
-    TVector3  m_dimension;  
+    TVector3  m_dimension;
 
     int m_nSensors_X;
     int m_nSensors_Y;
     int m_nSensors_Z;
-    TVector3 m_NSensors;   
+    TVector3 m_NSensors;
 
     vector<string> m_materialOrder;
     map<string, double> m_materialThick;
@@ -108,6 +109,10 @@ private:
 
     double m_siliconSensorThick_Lz;
     double m_layerDistance;
+
+    vector<string> m_regionOrder;
+    stringstream m_streamRegion;
+    map<string, string> m_regionMap;
 
     int m_nPixel_X;
     int m_nPixel_Y;
@@ -128,62 +133,32 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 
-      
+
    // //! Add CMOS module geometry to world
    // TGeoVolume* AddVertexModule(TGeoHMatrix* hm, const char* basemoduleName = "Module", const char *name = "Vertex");
-   
+
    // //! Add CMOS module geometry to world
    // TEveGeoShapeExtract* AddExtractVertexModule(TGeoHMatrix* hm, const char* basemoduleName = "Module", const char *name = "Vertex");
 
    // //! Add Target
-   // TGeoVolume* AddTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2., 
+   // TGeoVolume* AddTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2.,
 			// 			 const Float_t dz = fgTargetWidth/2., const char *targetName = "Target");
-   
+
    // //! Add Extract Target
-   // TEveGeoShapeExtract* AddExtractTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2., 
+   // TEveGeoShapeExtract* AddExtractTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2.,
 			// 							 const Float_t dz = fgTargetWidth/2., const char *targetName = "Target");
-   
+
    // //! Build Vertex
    // TGeoVolume* BuildVertex(const char* basemoduleName = "Module", const char *name = "Vertex");
-   
+
    // //! Build Extract Vertex
    // TEveGeoShapeExtract* BuildExtractVertex(const char* basemoduleName = "Module", const char *name = "Vertex");
-   
+
    // //! Get Sensor parameter
    // SensorParameter_t& GetSensorPar(Int_t idx){return fSensorParameter[idx];}
 
-   
+
    ClassDef(TAVTparGeo,1)
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

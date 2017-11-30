@@ -9,6 +9,7 @@
 #include <sstream>
 
 #include "TAVTparGeo.hxx"
+#include "TAITparGeo.hxx"
 #include "Materials.hxx"
 
 #include "GlobalPar.hxx"
@@ -25,14 +26,14 @@ int main (int argc, char *argv[]) {
   start_tot = clock();
   time_t now = time(0);
   tm *ltm = localtime(&now);
-  cout << "Date: "<<  ltm->tm_mday <<" / "<< 1 + ltm->tm_mon 
+  cout << "Date: "<<  ltm->tm_mday <<" / "<< 1 + ltm->tm_mon
         <<" / "<< 1900 + ltm->tm_year << "  Time: "<< 1 + ltm->tm_hour << ":";
   cout << 1 + ltm->tm_min << ":";
   cout << 1 + ltm->tm_sec << endl;
 
 
   cout << "Hello Footer!" << endl;
-  
+
   // real coding !
 
   GlobalPar::Instance();
@@ -40,20 +41,26 @@ int main (int argc, char *argv[]) {
 
   // crea la lista dei materiali nel costruttore
   // leggi i materiali da file o definiti nella calsse stessa?
-  Materials listOfMaterials();     
+  // Materials listOfMaterials();
+  // Materials* listOfMaterials = new Materials();
+  // listOfMaterials->PrintMap();
 
-  
+
   // GlobalFootGeo footGeo;
   TAVTparGeo vtxGeo;
+  TAITparGeo itrGeo;
 
   //  si costruisce le coordinate di ogni oggetto geometrico e sensibile
   vtxGeo.InitGeo();
+  itrGeo.InitGeo();
 
   // assegna ad ogni oggetto il materiale
   vtxGeo.AssignMaterial();
+  // itrGeo.AssignMaterial();
 
   // assegna ad ogni oggetto se sta nel campo magnetico
   vtxGeo.AssignMagnetField();
+  //itrGeo.AssignMaterial();
 
 
   // PRINT OUT
@@ -72,17 +79,26 @@ int main (int argc, char *argv[]) {
   geofile.close();
 
   vtxGeo.PrintBodies( geofileName );
+  itrGeo.PrintBodies( geofileName );
 
+  //prova geometria
+ // itrGeo.GetVolume();
   geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::app );
   geofile << "END        " <<endl;
 
   /*
      inizio definizione regioni
   */
-  
+
   geofile <<"* ******************************************************************************"<<endl;
   geofile <<"*                         REGIONS                                              *"<<endl;
   geofile <<"* ******************************************************************************"<<endl;
+
+
+  //prova regioni
+
+  vtxGeo.PrintRegions( geofileName );
+  itrGeo.PrintRegions( geofileName );
 
   geofile.close();
 
@@ -96,23 +112,8 @@ int main (int argc, char *argv[]) {
   int t_s = trunc( fmod(fmod(tempo, 3600), 60) );
   cout<< "Execution Time: "<< tempo << " seconds" << endl;
   cout<< "Execution Time in human units: "<< t_h <<" : "<< t_m <<" : "<< t_s << endl;
-    
+
 
   cout<<" Job done! "<<endl;
   return 0;
-} 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
