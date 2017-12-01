@@ -14,6 +14,7 @@ Materials::Materials(){
 	m_tmpCompoundData.clear();
 	m_storeComp.clear();
 	m_compoundDensity = 0;
+	m_mediumID = 0;
 
 	m_debug = GlobalPar::GetPar()->Debug();
 
@@ -73,6 +74,8 @@ void Materials::WriteMaterial( vector<string> tmpVecStr ){
 			cout << "ERROR::Materials::WriteMaterial  -->  Material vector size is not 2, 3, 4" << endl; exit(0);
 	}
 	m_storeMat[nome] = mat;
+	TGeoMedium *medium = new TGeoMedium( nome.c_str(), m_mediumID, mat );
+	m_mediumID++;
 }
 
 
@@ -139,6 +142,9 @@ void Materials::ChooseHowToWriteCompound( vector<string> tmpVecStr ){
 	else if ( (m_tmpCompoundData[0]).find("-")==string::npos && (m_tmpCompoundData[1]).find("-")==string::npos )
 		{ WriteByAtoms(); }
 
+	TGeoMedium *medium = new TGeoMedium( m_tmpAppendCompoundName.c_str(), m_mediumID, m_storeComp[m_tmpAppendCompoundName] );
+	m_mediumID++;
+
 	//*************************************************
 	m_tmpAppendCompoundName = "";
 	m_compoundDensity = 0;
@@ -153,7 +159,54 @@ void Materials::ChooseHowToWriteCompound( vector<string> tmpVecStr ){
 
 void Materials::WriteByVolume(){
 
-	return;
+	
+
+	if ( m_tmpCompoundData.size()%2 != 0 )
+
+			cout << "ERROR::Materials::WriteByWeight  -->  compound vector does NOT have a even size!" << endl, exit(0);
+
+	double weightSum = 0;
+
+	//the following constructor requires ( compound_name, number_of_elements, density)
+	TGeoMixture *comp = new TGeoMixture( m_tmpAppendCompoundName.c_str(), m_tmpCompoundData.size()/2, m_compoundDensity );
+
+	//evaluate weight sum to normalize single weights, loop every two elements of vector
+	string whichCompMap = "";
+	vector<double> atomicMass;
+	for( unsigned int i = 1; i<m_tmpCompoundData.size(); i+=2 ){
+
+		// remove the minus to all the strings (name and numbers) 
+		if ( m_tmpCompoundData[i].find( "-" ) == 0 ) m_tmpCompoundData[i].erase(0,1);
+		if ( m_tmpCompoundData[i-1].find( "-" ) == 0 ) m_tmpCompoundData[i-1].erase(0,1);
+
+		// check if the material is already stored in one of the maps: material map or
+		//compound map if we have to define a compound which contains a compound
+		if ( m_storeMat.find( m_tmpCompoundData[i] ) != m_storeMat.end() ) 		//   material
+			atomicMass.push_back( m_storeMat[m_tmpCompoundData[i]]->GetA() );
+		else if ( m_storeComp.find( m_tmpCompoundData[i] ) != m_storeComp.end() )			// compound 
+			atomicMass.push_back( m_storeComp[m_tmpCompoundData[i]]->GetA() );
+		else
+			cout << "Mat or Comp not found  " << m_tmpCompoundData[i] << endl, exit(0);
+
+		weightSum += atof( m_tmpCompoundData[i-1].c_str() ) * atomicMass.back();
+		
+	}
+
+	for( unsigned int i = 1; i<m_tmpCompoundData.size(); i+=2 ){
+		// check if the material is already stored in one of the maps: material map or
+		//compound map if we have to define a compound which contains a compound
+		if ( m_storeMat.find( m_tmpCompoundData[i] ) != m_storeMat.end() ) {			//   material
+			comp->AddElement( m_storeMat[m_tmpCompoundData[i]], atof(m_tmpCompoundData[i-1].c_str()) * atomicMass.at( (i-1)/2 ) /weightSum );
+		}
+		else if ( m_storeComp.find( m_tmpCompoundData[i] ) != m_storeComp.end() )			// compound 
+			comp->AddElement( m_storeComp[m_tmpCompoundData[i]], atof(m_tmpCompoundData[i-1].c_str()) * atomicMass.at( (i-1)/2 ) /weightSum );
+		else
+			cout << "2 Mat or Comp not found  " <<  m_tmpCompoundData[i] << endl, exit(0);
+		
+	}
+
+	atomicMass.clear();
+	m_storeComp[m_tmpAppendCompoundName] = comp;
 
 }
 
@@ -254,8 +307,7 @@ string Materials::StrReplace( string original,string erase,string add ){
 //------------------------------------------------------------------------------
 
 //in input file compounds data are not separated by blanks,so split by field length
-vector<string> Materials::StrSplit( const string& str, int splitLength = 10 )
-{
+vector<string> Materials::StrSplit( const string& str, int splitLength = 10 )	{
 	int NumSubstrings = str.length() / splitLength;
   vector<string> ret;
  	//**********************************ROUGH ADD OF A ITER***********************
@@ -390,3 +442,35 @@ void Materials::PrintCompMap(){
 	for ( map<string, TGeoMixture*>::iterator it=m_storeComp.begin(); it!=m_storeComp.end(); ++it )
 	cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << "\t" << it->second->GetNelements() << '\n';
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

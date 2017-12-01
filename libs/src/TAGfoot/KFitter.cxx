@@ -754,17 +754,11 @@ int KFitter::MakeFit( long evNum ) {
 	// for ( vector<TADCntuHit*>::iterator it=m_DC_hitCollection.begin(); it != m_DC_hitCollection.end(); it++ ) {
 	// 	delete (*it);
 	// }
-cout << "Ready 1!" << endl;
 	m_VT_hitCollection.clear();
-	cout << "Ready 2!" << endl;
 	m_IT_hitCollection.clear();
-	cout << "Ready 3!" << endl;
 	m_MSD_hitCollection.clear();
-	cout << "Ready 5!" << endl;
 	m_DC_hitCollection.clear();
-	cout << "Ready 6!" << endl;
 	delete fitTrack;	// include un delete rep pare
-	cout << "Ready 7!" << endl;
 	// clean m_hitCollectionToFit
 	for ( auto it = m_hitCollectionToFit.cbegin(), next_it = m_hitCollectionToFit.cbegin(); it != m_hitCollectionToFit.cend(); it = next_it)	{
 		next_it = it; ++next_it;		
@@ -775,7 +769,6 @@ cout << "Ready 1!" << endl;
 	// 	// 	delete (*it2);	// no perche fatto da altri
 	// 	m_hitCollectionToFit.erase(it);
 	// }
-	cout << "Ready 8!" << endl;
 	m_hitCollectionToFit.clear();	
 	if ( m_debug > 1 )		cout << "Ready for the next track fit!" << endl;
 

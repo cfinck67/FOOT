@@ -235,20 +235,20 @@ TGeoVolume* TAITparGeo::GetVolume() {
 
    // create main box
     // TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Vacuum_med"),width_Lx+1,height_Ly+1,m_dimension.z()+0.5); //top è scatola che conterrà tutto (dimensioni in cm)
-    TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Air_med"),width_Lx/2,height_Ly/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("AIR"),width_Lx/2,height_Ly/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
     gGeoManager->SetTopVisible(1);
 
-    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_siliconSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("SILICON"),width_Lx/2,height_Ly/2,m_siliconSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
     siliconFoil->SetLineColor(kOrange);
-    TGeoVolume *kaptonFoil = gGeoManager->MakeBox("kaptonFoil",gGeoManager->GetMedium("Kapton_med"),width_Lx/2,height_Ly/2,m_materialThick[ "ITR_KAP_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *kaptonFoil = gGeoManager->MakeBox("kaptonFoil",gGeoManager->GetMedium("KAPTON"),width_Lx/2,height_Ly/2,m_materialThick[ "ITR_KAP_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
     kaptonFoil->SetLineColor(kOrange-7);
-    TGeoVolume *coverKaptonFoil = gGeoManager->MakeBox("coverKaptonFoil",gGeoManager->GetMedium("Kapton_med"),width_Lx/2,height_Ly/2,m_materialThick[ "ITR_COV_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *coverKaptonFoil = gGeoManager->MakeBox("coverKaptonFoil",gGeoManager->GetMedium("KAPTON"),width_Lx/2,height_Ly/2,m_materialThick[ "ITR_COV_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
     kaptonFoil->SetLineColor(kOrange-7);
-    TGeoVolume *alFoil = gGeoManager->MakeBox("alFoil",gGeoManager->GetMedium("Aluminium_med"),width_Lx/2,height_Ly/2,m_materialThick[ "ITR_AL_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *alFoil = gGeoManager->MakeBox("alFoil",gGeoManager->GetMedium("ALUMINUM"),width_Lx/2,height_Ly/2,m_materialThick[ "ITR_AL_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
     alFoil->SetLineColor(kGray);
-    TGeoVolume *epoxyFoil = gGeoManager->MakeBox("epoxyFoil",gGeoManager->GetMedium("Epoxy_med"),width_Lx/2,height_Ly/2,m_materialThick[ "ITR_EPO_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *epoxyFoil = gGeoManager->MakeBox("epoxyFoil",gGeoManager->GetMedium("Epoxy"),width_Lx/2,height_Ly/2,m_materialThick[ "ITR_EPO_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
     epoxyFoil->SetLineColor(kCyan-3);
-    TGeoVolume *siCFoamFoil = gGeoManager->MakeBox("iCFoamFoil",gGeoManager->GetMedium("SiCFoam_med"),width_Lx/2,height_Ly/2,m_materialThick[ "ITR_FOAM_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
+    TGeoVolume *siCFoamFoil = gGeoManager->MakeBox("SiCFoamFoil",gGeoManager->GetMedium("SiCFoam"),width_Lx/2,height_Ly/2,m_materialThick[ "ITR_FOAM_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
     siCFoamFoil->SetLineColor(kViolet+6);
 
     int c=0;

@@ -104,6 +104,7 @@ private:
   map<string, TGeoMixture*> m_storeComp; //map of compound
 
   int m_debug;
+  int m_mediumID;
 
 
 };

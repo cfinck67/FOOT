@@ -6,6 +6,7 @@
 *Dict.cpp
 
 *.png
+*.root
 
 *.so
 *.o
@@ -28,3 +29,10 @@ Simulation/parameters.inc
 libs/lib/
 
 libs/GenFit/
+
+Reconstruction/level0/results/
+Reconstruction/level0/bField.test
+Reconstruction/level0/eventListFile.dat
+
+
+

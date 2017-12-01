@@ -161,7 +161,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   TString filename = m_wd + "/FOOT_geo.map";
   fGeoTrafo->InitGeo(filename.Data());
 
-  Materials* listMaterials=new Materials() ;
+  // Materials* listMaterials=new Materials() ;
   //listMaterials->PrintMap();
 
   //  TTree *tree = 0;
@@ -276,7 +276,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     // 1 MeV/mm3 = 1,58122538 × 10-9 atm
     cout << "airMat->GetPressure()   " << airMat->GetPressure() << endl;
 
-		Materials* listMaterials=new Materials() ;
+		Materials* listMaterials = new Materials() ;
 		listMaterials->PrintCompMap();
 
   	TGeoMaterial *matAr = new TGeoMaterial("Argon", 39.948, 18., 0.001662);//densità viene da flair,
@@ -288,17 +288,17 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
    	TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
 
 
-   	TGeoMixture *matMylar = new TGeoMixture("Mylar",3,   1.39000    );
-    // matMylar->SetUniqueID(  18);
-    matMylar->DefineElement(0,12.01,6,0.624935);
-    matMylar->DefineElement(1,1.01,1,0.4204392E-01);
-    matMylar->DefineElement(2,16,8,0.3330211);
+   	// TGeoMixture *matMylar = new TGeoMixture("Mylar",3,   1.39000    );
+    // // matMylar->SetUniqueID(  18);
+    // matMylar->DefineElement(0,12.01,6,0.624935);
+    // matMylar->DefineElement(1,1.01,1,0.4204392E-01);
+    // matMylar->DefineElement(2,16,8,0.3330211);
 
 
-    TGeoMixture *matEpo = new TGeoMixture("Epoxy",3,   1.18    );
-    matEpo->AddElement(12,6, 18./40.);  // C
-    matEpo->AddElement(1,1, 19./40.);   // H
-    matEpo->AddElement(16,8, 3./40.);  // O
+    // TGeoMixture *matEpo = new TGeoMixture("Epoxy",3,   1.18    );
+    // matEpo->AddElement(12,6, 18./40.);  // C
+    // matEpo->AddElement(1,1, 19./40.);   // H
+    // matEpo->AddElement(16,8, 3./40.);  // O
 
 
     TGeoMixture *matSiC = new TGeoMixture("SiliconCarbon",2, 3.22); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -306,10 +306,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     matSiC->AddElement(28.085, 14 ,0.5);
 
 
-    // CHECK
-    TGeoMixture *matSiCFoam = new TGeoMixture("SiCFoam",2,   0.1288    );
-    matSiCFoam->AddElement(matSiC, 0.04);
-    matSiCFoam->AddElement(airMat, 0.96);
+    // // CHECK
+    // TGeoMixture *matSiCFoam = new TGeoMixture("SiCFoam",2,   0.1288    );
+    // matSiCFoam->AddElement(matSiC, 0.04);
+    // matSiCFoam->AddElement(airMat, 0.96);
 
 
    TGeoMixture *ArCO2 = new TGeoMixture("ArCO2",3);
@@ -322,11 +322,11 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
    cout << "ArCO2->GetPressure()   " << ArCO2->GetPressure() << endl;
 
 
-   TGeoMixture *matKapton = new TGeoMixture("Kapton",4, 1.42);
-   matKapton->AddElement(1,1, 0.02636 );            // H
-   matKapton->AddElement(matC ,0.691133);
-   matKapton->AddElement(14.01, 7, 0.07327);        // N
-   matKapton->AddElement(16,8, 0.209235);               // O
+   // TGeoMixture *matKapton = new TGeoMixture("Kapton",4, 1.42);
+   // matKapton->AddElement(1,1, 0.02636 );            // H
+   // matKapton->AddElement(matC ,0.691133);
+   // matKapton->AddElement(14.01, 7, 0.07327);        // N
+   // matKapton->AddElement(16,8, 0.209235);               // O
 
 
       int medID = 0;
@@ -357,7 +357,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
 
 
-    TGeoVolume *top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("Air_med"), 25., 25., 80.);
+    TGeoVolume *top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 80.);
     // TGeoVolume *top = gGeoManager->MakeBox("TOPPER", vacuum_med, 100., 100., 200.);
     gGeoManager->SetTopVolume(top); // mandatory !
 
@@ -398,8 +398,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         }
         zCoord += 0.5;
     }
-
-
     bFieldTest.close();
 
     if(m_doBM) {
