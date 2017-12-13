@@ -16,7 +16,7 @@
 
 class TH2F;
 class TH1F;
-class TAVTdigitizer;
+class TAVTbaseDigitizer;
 class TAVTntuHitMC;
 
 struct RawMcHit_t : public  TObject {
@@ -69,7 +69,7 @@ private:
    TAGparaDsc*     fpParMap;		    // map para dsc
    EVENT_STRUCT*   fpEvtStr;         // MC structure
    
-   TAVTdigitizer*  fDigitizer;       // cluster size digitizer
+   TAVTbaseDigitizer*  fDigitizer;       // cluster size digitizer
    
    Int_t           fNoisyPixelsN;
 

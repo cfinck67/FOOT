@@ -16,6 +16,7 @@
 #include "TAVTparConf.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAVTdigitizer.hxx"
+#include "TAVTdigitizerE.hxx"
 #include "TAVTactNtuMC.hxx"
 #include "TAGgeoTrafo.hxx"
 #include "TAGroot.hxx"
@@ -49,7 +50,7 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name,
   fpGeoMap(pGeoMap),
   fpParMap(pParMap),
   fpEvtStr(evStr),
-  fDigitizer(new TAVTdigitizer(pGeoMap)),
+  fDigitizer(new TAVTdigitizerE(pGeoMap)),
   fNoisyPixelsN(0),
   fDebugLevel(0)
 {
