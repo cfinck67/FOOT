@@ -25,6 +25,8 @@ struct RawMcHit_t : public  TObject {
      Float_t de; // enerhy loss
 	  Float_t x;  // hit in X
 	  Float_t y;  // hit in Y
+	  Float_t zi;  // hit in Zin
+	  Float_t zo;  // hit in Zout
 };
 
 

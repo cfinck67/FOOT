@@ -175,10 +175,12 @@ Bool_t TAVTactNtuMC::Action()
       Double_t zout  = fpEvtStr->VTXzout[i];
 
       if (fgPileup && storedEvents <= fgPileupEventsN) {
-         mcHit.id = sensorId;
-         mcHit.x  = x;
-         mcHit.de = eloss;
-         mcHit.y  = y;
+         mcHit.id  = sensorId;
+         mcHit.x   = x;
+         mcHit.de  = eloss;
+         mcHit.y   = y;
+         mcHit.zi  = zin;
+         mcHit.zo  = zout;
          storedEvtInfo.push_back(mcHit);
       }
 
@@ -397,7 +399,7 @@ void  TAVTactNtuMC::GeneratePileup()
       for (Int_t j = 0; j < mcInfo.size(); ++j) {
          RawMcHit_t hit = mcInfo[j];
          
-         if (!fDigitizer->Process(hit.de, hit.x, hit.y)) continue;
+         if (!fDigitizer->Process(hit.de, hit.x, hit.y, hit.zi, hit.zo)) continue;
          FillPixels(hit.id, -1);
       }
    }
