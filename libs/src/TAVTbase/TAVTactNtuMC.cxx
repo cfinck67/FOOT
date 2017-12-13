@@ -7,7 +7,7 @@
 #include <map>
 
 #include "TH2F.h"
-#include "TH2F.h"
+#include "TF1.h"
 #include "TMath.h"
 #include "TDirectory.h"
 
@@ -30,9 +30,11 @@
 
 ClassImp(TAVTactNtuMC);
 
-Bool_t  TAVTactNtuMC::fgPileup        = true;
-Float_t TAVTactNtuMC::fgPoissonPar    = 0.736; // ajust for FIRST
-Int_t   TAVTactNtuMC::fgPileupEventsN = 10;
+Bool_t  TAVTactNtuMC::fgPileup          = true;
+Float_t TAVTactNtuMC::fgPoissonPar      = 0.736; // ajust for FIRST
+Int_t   TAVTactNtuMC::fgPileupEventsN   = 10;
+Float_t TAVTactNtuMC::fgSigmaNoiseLevel = -1.;
+Int_t   TAVTactNtuMC::fgMcNoiseId       = -99;
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
@@ -48,6 +50,7 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name,
   fpParMap(pParMap),
   fpEvtStr(evStr),
   fDigitizer(new TAVTdigitizer(pGeoMap)),
+  fNoisyPixelsN(0),
   fDebugLevel(0)
 {
    AddDataOut(pNtuRaw, "TAVTntuRaw");
@@ -244,7 +247,7 @@ void TAVTactNtuMC::FillPixels(Int_t sensorId, Int_t mcId)
          if (mcId != -1)
             SetMCinfo(pixel, mcId);
          else
-            pixel->SetMCid(-99);
+            pixel->SetMCid(fgMcNoiseId);
          
          if ( GlobalPar::GetPar()->Debug() > 0 )
             printf("line %d col %d\n", line, col);
@@ -254,6 +257,54 @@ void TAVTactNtuMC::FillPixels(Int_t sensorId, Int_t mcId)
             fpHisPosMap[sensorId]->Fill(u, v);
          }
       }
+   }
+}
+
+// --------------------------------------------------------------------------------------
+void TAVTactNtuMC::ComputeNoiseLevel()
+{
+   // computing number of noise pixels (sigma level) from gaussian
+   TF1* f = new TF1("f", "gaus", -10, 10);
+   f->SetParameters(1,0,1);
+   Float_t fraction = 0;
+   
+   if (fgSigmaNoiseLevel > 0) {
+      fraction = f->Integral(-fgSigmaNoiseLevel, fgSigmaNoiseLevel)/TMath::Sqrt(2*TMath::Pi());
+      fNoisyPixelsN = TMath::Nint(fDigitizer->GetNPixelX()*fDigitizer->GetNPixelY()*(1.-fraction));
+   }
+   
+   if (fDebugLevel)
+      printf("Number of noise pixels %d\n", fNoisyPixelsN);
+   
+   delete f;
+}
+
+
+//___________________________________
+void TAVTactNtuMC::FillNoise()
+{
+   TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
+   for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
+      FillNoise(i);
+   }
+}
+
+//___________________________________
+void TAVTactNtuMC::FillNoise(Int_t sensorId)
+{
+   TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
+   TAVTntuRaw* pNtuRaw = (TAVTntuRaw*) fpNtuRaw->Object();
+
+   Int_t pixelsN = gRandom->Uniform(0, fNoisyPixelsN);
+   for (Int_t i = 0; i < pixelsN; ++i) {
+      Int_t col  = gRandom->Uniform(0,fDigitizer->GetNPixelX());
+      Int_t line = gRandom->Uniform(0,fDigitizer->GetNPixelY());
+      TAVTntuHitMC* pixel = (TAVTntuHitMC*)pNtuRaw->NewPixel(sensorId, 1., line, col);
+      double v = pGeoMap->GetPositionV(line);
+      double u = pGeoMap->GetPositionU(col);
+      TVector3 pos(v,u,0);
+      pixel->SetPosition(pos);
+      pixel->SetMCid(fgMcNoiseId);
    }
 }
 

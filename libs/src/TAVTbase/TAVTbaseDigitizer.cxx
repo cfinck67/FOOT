@@ -22,9 +22,10 @@
 ClassImp(TAVTbaseDigitizer);
 
 
-Double_t TAVTbaseDigitizer::fgkGeV2keV = 1e6;
-Double_t TAVTbaseDigitizer::fgkCm2Mu   = 10000;
-
+Double_t TAVTbaseDigitizer::fgkGeV2keV        = 1e6;
+Double_t TAVTbaseDigitizer::fgkCm2Mu          = 10000;
+Bool_t   TAVTbaseDigitizer::fgSmearFlag       = false;
+Float_t  TAVTbaseDigitizer::fgDefSmearPos     =  9;    // in micron
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.

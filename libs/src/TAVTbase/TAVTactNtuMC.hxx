@@ -35,11 +35,14 @@ public:
    virtual ~TAVTactNtuMC();
    
    //! Base action 
-   virtual Bool_t  Action();
+   virtual Bool_t Action();
 
    //! Base creation of histogram
-   virtual  void   CreateHistogram();
+   virtual  void  CreateHistogram();
  
+   // Fill noise over sensors
+   void           FillNoise();
+   
 public:
    //! Set refit flag
    static void   SetPileup(Bool_t flag)      { fgPileup = flag;         }
@@ -68,6 +71,8 @@ private:
    
    TAVTdigitizer*  fDigitizer;       // cluster size digitizer
    
+   Int_t           fNoisyPixelsN;
+
    Int_t           fDebugLevel;       // debug level
    
    TH2F*           fpHisPixelMap[8];  // pixel map per sensor
@@ -82,11 +87,22 @@ private:
    void            SetMCinfo(TAVTntuHitMC* pixel, Int_t hitId);
    void            GeneratePileup();
    void            FillPixels(Int_t sensorId, Int_t mcId = -1);
+   void            ComputeNoiseLevel();
+   void            FillNoise(Int_t sensorId);
 
+public:
+   static Float_t GetSigmaNoiseLevel()              { return fgSigmaNoiseLevel;  }
+   static void    SetSigmaNoiseLevel(Float_t level) { fgSigmaNoiseLevel = level; }
+   
+   static Int_t   GetMcNoiseId()                    { return fgMcNoiseId;        }
+   static void    SetMcNoiseId(Int_t id)            { fgMcNoiseId = id;          }
+   
 private:
    static Bool_t   fgPileup;           // flag to generated pileup events
    static Int_t    fgPileupEventsN;    // number of pileup events to be stored
    static Float_t  fgPoissonPar;       // Poisson parameter for pileup simulation
+   static Float_t  fgSigmaNoiseLevel;
+   static Int_t    fgMcNoiseId;
    
    ClassDef(TAVTactNtuMC,0)
 };

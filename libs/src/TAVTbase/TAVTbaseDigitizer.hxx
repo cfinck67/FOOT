@@ -59,12 +59,6 @@ public:
    //! Get pixel region of column/line
    Int_t        GetColRegion(Float_t x)  const;
    Int_t        GetLineRegion(Float_t y) const;
-   
-public:
-   static Double_t GeV2keV()                 { return fgkGeV2keV;  }
-   static Double_t Cm2Mu()                   { return fgkCm2Mu;    }
-   
-   static Int_t    GetRandom (Int_t i)       { return std::rand() % i;}
 
 protected:
    TAGparaDsc* fpParGeo;
@@ -92,10 +86,23 @@ protected:
    void        SetFunctions();
    Int_t       GetLastShell(Int_t* shell, Int_t maxTurn) const;
    
+public:
+   static Double_t GeV2keV()                        { return fgkGeV2keV;         }
+   static Double_t Cm2Mu()                          { return fgkCm2Mu;           }
+   
+   static Bool_t  GetSmearFlag()                    { return fgSmearFlag;        }
+   static void    SetSmearFlag(Bool_t flag)         { fgSmearFlag = flag;        }
+   
+   static Float_t GetDefSmearPos()                  { return fgDefSmearPos;      }
+   static void    SetDefSmearPos(Float_t pos)       { fgDefSmearPos = pos;       }
+   
+   static Int_t   GetRandom (Int_t i)               { return std::rand() % i;    }
+   
 protected:
    static Double_t fgkGeV2keV;
    static Double_t fgkCm2Mu;
-   
+   static Float_t  fgDefSmearPos;
+   static Bool_t   fgSmearFlag;
 
    ClassDef(TAVTbaseDigitizer,0)
 };
