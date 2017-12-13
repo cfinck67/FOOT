@@ -171,6 +171,8 @@ Bool_t TAVTactNtuMC::Action()
       Double_t eloss = fpEvtStr->VTXde[i];
       Double_t x     = (fpEvtStr->VTXxin[i]+fpEvtStr->VTXxout[i])/2;
       Double_t y     = (fpEvtStr->VTXyin[i]+fpEvtStr->VTXyout[i])/2;
+      Double_t zin   = fpEvtStr->VTXzin[i];
+      Double_t zout  = fpEvtStr->VTXzout[i];
 
       if (fgPileup && storedEvents <= fgPileupEventsN) {
          mcHit.id = sensorId;
@@ -183,7 +185,7 @@ Bool_t TAVTactNtuMC::Action()
       if ( GlobalPar::GetPar()->Debug() > 0 )
          printf("x %.1f y %.1f\n", x, y);
 
-      if (!fDigitizer->Process(eloss, x, y)) continue;
+      if (!fDigitizer->Process(eloss, x, y, zin, zout)) continue;
       
       FillPixels(sensorId, i);
 
