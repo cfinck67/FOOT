@@ -28,22 +28,18 @@ public:
    
    Bool_t MakeCluster(Double_t x0, Double_t y0, Double_t zin = 0, Double_t zout = 0);
 
-private:
-   TAGparaDsc* fpParGeo;
-   
+private:   
    std::map<int, int> fMapLast;  // map of found pixels of the outer shell
    
    Float_t*    fAngD;
    Float_t*    fFacX;
    Float_t*    fFacY;
    
-   
 private:
    void        RemovePixels(Int_t rpixels); // remove number of pixels from last shell randomly
    Bool_t      SetRegion(Int_t regX, Int_t regY);
    
 private:
-   
    //00
    static Int_t   fgkShel00[];
    static Float_t fgkAngD00[];
