@@ -72,8 +72,8 @@ KFitter::KFitter ( int nIter, double dPVal ) {
     //const genfit::eMultipleMeasurementHandling mmHandling = genfit::weightedClosestToPredictionWire;
 
 	// temorary safty
-	if ( GlobalPar::GetPar()->KalMode() != 1 )
-		cout<< "ERROR::KFitter::KFitter  --> KalMode parameter not set properly, check befor continue."<< endl, exit(0);
+	// if ( GlobalPar::GetPar()->KalMode() != 1 )
+	// 	cout<< "ERROR::KFitter::KFitter  --> KalMode parameter not set properly, check befor continue."<< endl, exit(0);
 
 	if ( GlobalPar::GetPar()->KalMode() == 1 )
 		m_fitter = new KalmanFitter(nIter, dPVal);
@@ -374,8 +374,11 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
     for (unsigned int i = 0; i < m_VT_hitCollection.size(); i++) {
         
         TAVTntuHit* p_hit = m_VT_hitCollection.at(i);
-        TVector3 hitPos = m_VT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
-        
+
+        // TVector3 hitPos = m_VT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
+        TVector3 hitPos;
+        hitPos = m_VT_hitCollection.at(i)->GetMCPosition_Global();
+
         if ( m_debug > 0 )		cout << "VTX test = Layer:" << p_hit->GetLayer() <<" col:"<< p_hit->GetPixelColumn() <<" row:"<< p_hit->GetPixelLine() << endl;
         if ( m_debug > 0 )		cout << "Hit " << i;
         if ( m_debug > 0 )		hitPos.Print();
@@ -384,10 +387,10 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
 		hitCoords(1)=hitPos.y();
 		hitCoords(2)=hitPos.z();
 		
-		double pixReso = 0.002*1.5;
+		double pixReso = 0.0001;
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
-		double zErr = 0.0025;
+		double zErr = 0.0001;
 		hitCov[2][2] = zErr*zErr; 
 
         // AbsMeasurement* hit = new SpacepointMeasurement(hitCoords, hitCov, m_detectorID_map["VT"], i, new TrackPoint(fitTrack));
@@ -415,7 +418,9 @@ void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
         
         TAITntuHit* p_hit = m_IT_hitCollection.at(i);
 
-        TVector3 hitPos = m_IT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
+        // TVector3 hitPos = m_IT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
+        TVector3 hitPos;
+        hitPos = m_IT_hitCollection.at(i)->GetMCPosition_Global();
 
         if ( m_debug > 0 )		cout << "IT test = Layer:" << p_hit->GetLayer() <<" col:"<< p_hit->GetPixelColumn() <<" row:"<< p_hit->GetPixelLine() << endl;
         if ( m_debug > 0 )		cout << "Hit " << i;
@@ -425,10 +430,10 @@ void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
 		hitCoords(1)=hitPos.y();
 		hitCoords(2)=hitPos.z();
 
-		double pixReso = 0.002*1.5;
+		double pixReso = 0.0001;
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
-		double zErr = 0.0025;
+		double zErr = 0.0001;
 		hitCov[2][2] = zErr*zErr; 
 
         AbsMeasurement* hit = new SpacepointMeasurement(hitCoords, hitCov, m_detectorID_map["IT"], i, nullptr );
@@ -471,51 +476,44 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 
 	if ( m_debug > 0 )		cout << "x=  " << allStripSignals_x.size() << "  y= " << allStripSignals_y.size() << endl;
     
-    int countStripHits = 0;
+
+	//***********************************************************************************************
+	//		test senza smearing su x
+	//***********************************************************************************************
+	int countStripHits = 0;
     m_MSD_posVectorSmearedHit.clear();
     m_MSD_momVectorSmearedHit.clear();
     m_MSD_mass.clear();
     for ( vector<TAMSDntuHit*>::iterator xIt=allStripSignals_x.begin(); xIt != allStripSignals_x.end(); xIt++ ) {
-	    for ( vector<TAMSDntuHit*>::iterator yIt=allStripSignals_y.begin(); yIt != allStripSignals_y.end(); yIt++ ) {
 	
-	    	if ( (*xIt)->GetLayer() != (*yIt)->GetLayer() )		continue;
 
-	    	// combine strip signals ONLY if coming from th same fragment
-	    	if ( (*xIt)->m_genPartID != (*yIt)->m_genPartID )		continue;
-
-
-	        TVector3 x_hitPos = m_MSD_geo->GetPosition( (*xIt)->GetLayer(), (*xIt)->GetPixelView(), (*xIt)->GetPixelStrip() );
-	        TVector3 y_hitPos = m_MSD_geo->GetPosition( (*yIt)->GetLayer(), (*yIt)->GetPixelView(), (*yIt)->GetPixelStrip() );
+	        TVector3 hitPos = m_MSD_geo->GetPosition( (*xIt)->GetLayer(), (*xIt)->GetPixelView(), (*xIt)->GetPixelStrip() );
 	        
-	        TVector3 geo_hitPos = TVector3 ( x_hitPos.y(), y_hitPos.y(), 0.5*(x_hitPos.z() + y_hitPos.z()) );
-	        
-	        if ( m_debug > 0 )		cout << "Hit strip " << countStripHits << endl;
-	        if ( m_debug > 0 )		cout << "\tMSD hit = Layer:" << (*xIt)->GetLayer() << " xStrip:" << (*xIt)->GetPixelStrip() <<" yStrip:"<<  (*yIt)->GetPixelStrip() << endl;
-	        
-	        if ( m_debug > 0 )		cout << "\t", geo_hitPos.Print();
-			
-			double stripReso = 0.0035;
+			double stripReso = 0.0001;
 			hitCov.UnitMatrix();         
 			hitCov *= stripReso*stripReso; 
-			double zErr = 0.0025;
+			double zErr = 0.0001;
 			hitCov[2][2] = zErr*zErr; 
 
-			double simulatedStripHit_X = (*xIt)->GetMCPosition_Global().X() + m_diceRoll->Gaus(0.,1.) * stripReso;
-			double simulatedStripHit_Y = (*yIt)->GetMCPosition_Global().Y() + m_diceRoll->Gaus(0.,1.) * stripReso;
-			double simulatedStripHit_Z = m_MSD_geo->GetLayerCenter( (*xIt)->GetLayer() ).Z() + m_diceRoll->Gaus(0.,1.) * zErr;
-
-			TVector3 hitPos = TVector3 ( simulatedStripHit_X, simulatedStripHit_Y, simulatedStripHit_Z );
+			double simulatedStripHit_X = (*xIt)->GetMCPosition_Global().X();
+			double simulatedStripHit_Y = (*xIt)->GetMCPosition_Global().Y();
+			double simulatedStripHit_Z = (*xIt)->GetMCPosition_Global().Z();
+			
+			TVector3 gen_hitPos = TVector3 ( simulatedStripHit_X, simulatedStripHit_Y, simulatedStripHit_Z );
 			if ( m_debug > 0 )		cout << "\tSimulated hits coosrdinate using smearing: \t\t ";
 			if ( m_debug > 0 )		hitPos.Print();
 
-	        hitCoords(0)=hitPos.x();
-			hitCoords(1)=hitPos.y();
-			hitCoords(2)=hitPos.z();
-
+	        hitCoords(0)=gen_hitPos.x();
+			hitCoords(1)=gen_hitPos.y();
+			hitCoords(2)=gen_hitPos.z();
+			// hitCoords(0)=hitPos.x();
+			// hitCoords(1)=hitPos.y();
+			// hitCoords(2)=hitPos.z();
+			
 			// MC info
-			TVector3 hitPosMC( (*xIt)->GetMCPosition_Global().X(), (*yIt)->GetMCPosition_Global().Y(), m_MSD_geo->GetLayerCenter( (*xIt)->GetLayer() ).Z() );
+			TVector3 hitPosMC( gen_hitPos.x(), gen_hitPos.y(), gen_hitPos.z() );
 			m_MSD_posVectorSmearedHit.push_back( hitPosMC );
-			TVector3 hitMomMC( (*xIt)->GetMCMomentum_Global().X(), (*yIt)->GetMCMomentum_Global().Y(), (*xIt)->GetMCMomentum_Global().Z() );
+			TVector3 hitMomMC( (*xIt)->GetMCMomentum_Global().X(), (*xIt)->GetMCMomentum_Global().Y(), (*xIt)->GetMCMomentum_Global().Z() );
 			m_MSD_momVectorSmearedHit.push_back( hitMomMC );
 			m_MSD_mass.push_back( (*xIt)->m_genPartMass );
 
@@ -534,8 +532,86 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 	        // cout << category << "   " << p_hit->m_genPartMass << endl;
 	        m_hitCollectionToFit[ category ].push_back(hit);
 
-	    }
     }
+	//***********************************************************************************************
+	//***********************************************************************************************
+
+
+//***********************************************************************************************
+//		include smearing 
+//***********************************************************************************************
+
+   //  int countStripHits = 0;
+   //  m_MSD_posVectorSmearedHit.clear();
+   //  m_MSD_momVectorSmearedHit.clear();
+   //  m_MSD_mass.clear();
+   //  for ( vector<TAMSDntuHit*>::iterator xIt=allStripSignals_x.begin(); xIt != allStripSignals_x.end(); xIt++ ) {
+	  //   for ( vector<TAMSDntuHit*>::iterator yIt=allStripSignals_y.begin(); yIt != allStripSignals_y.end(); yIt++ ) {
+	
+	  //   	if ( (*xIt)->GetLayer() != (*yIt)->GetLayer() )		continue;
+
+	  //   	// combine strip signals ONLY if coming from th same fragment
+	  //   	if ( (*xIt)->m_genPartID != (*yIt)->m_genPartID )		continue;
+
+
+	  //       TVector3 x_hitPos = m_MSD_geo->GetPosition( (*xIt)->GetLayer(), (*xIt)->GetPixelView(), (*xIt)->GetPixelStrip() );
+	  //       TVector3 y_hitPos = m_MSD_geo->GetPosition( (*yIt)->GetLayer(), (*yIt)->GetPixelView(), (*yIt)->GetPixelStrip() );
+	        
+	  //       // TVector3 geo_hitPos = TVector3 ( x_hitPos.x(), x_hitPos.y(), x_hitPos.z() );
+	  //       TVector3 geo_hitPos = TVector3 ( x_hitPos.y(), y_hitPos.y(), 0.5*(x_hitPos.z() + y_hitPos.z()) );
+	        
+	  //       if ( m_debug > 0 )		cout << "Hit strip " << countStripHits << endl;
+	  //       if ( m_debug > 0 )		cout << "\tMSD hit = Layer:" << (*xIt)->GetLayer() << " xStrip:" << (*xIt)->GetPixelStrip() <<" yStrip:"<<  (*yIt)->GetPixelStrip() << endl;
+	        
+	  //       if ( m_debug > 0 )		cout << "\t", geo_hitPos.Print();
+			
+			// double stripReso = 0.0035*2;
+			// hitCov.UnitMatrix();         
+			// hitCov *= stripReso*stripReso; 
+			// double zErr = 0.0025*2;
+			// hitCov[2][2] = zErr*zErr; 
+
+			// double simulatedStripHit_X = (*xIt)->GetMCPosition_Global().X() + m_diceRoll->Gaus(0.,1.) * stripReso/4;
+			// double simulatedStripHit_Y = (*yIt)->GetMCPosition_Global().Y() + m_diceRoll->Gaus(0.,1.) * stripReso/4;
+			// double simulatedStripHit_Z = m_MSD_geo->GetLayerCenter( (*xIt)->GetLayer() ).Z();
+			// // double simulatedStripHit_Z = m_MSD_geo->GetLayerCenter( (*xIt)->GetLayer() ).Z() + m_diceRoll->Gaus(0.,1.) * zErr;
+
+			// TVector3 hitPos = TVector3 ( simulatedStripHit_X, simulatedStripHit_Y, simulatedStripHit_Z );
+			// if ( m_debug > 0 )		cout << "\tSimulated hits coosrdinate using smearing: \t\t ";
+			// if ( m_debug > 0 )		hitPos.Print();
+
+	  //       hitCoords(0)=hitPos.x();
+			// hitCoords(1)=hitPos.y();
+			// hitCoords(2)=hitPos.z();
+			
+			// // MC info
+			// TVector3 hitPosMC( (*xIt)->GetMCPosition_Global().X(), (*yIt)->GetMCPosition_Global().Y(), m_MSD_geo->GetLayerCenter( (*xIt)->GetLayer() ).Z() );
+			// // TVector3 hitPosMC( (*xIt)->GetMCPosition_Global().X(), (*xIt)->GetMCPosition_Global().Y(), m_MSD_geo->GetLayerCenter( (*xIt)->GetLayer() ).Z() );
+			// m_MSD_posVectorSmearedHit.push_back( hitPosMC );
+			// TVector3 hitMomMC( (*xIt)->GetMCMomentum_Global().X(), (*yIt)->GetMCMomentum_Global().Y(), (*xIt)->GetMCMomentum_Global().Z() );
+			// m_MSD_momVectorSmearedHit.push_back( hitMomMC );
+			// m_MSD_mass.push_back( (*xIt)->m_genPartMass );
+
+	  //       // AbsMeasurement* hit = new SpacepointMeasurement(hitCoords, hitCov, m_detectorID_map["MSD"], i, new TrackPoint(fitTrack));
+	  //       AbsMeasurement* hit = new SpacepointMeasurement(hitCoords, hitCov, m_detectorID_map["MSD"], countStripHits, nullptr );
+
+	  //       // count the combined hits
+			// countStripHits++;
+	        
+	  //        // try to categorise the particle that generated the hit. If it fails --> clean the hit object
+	  //       string category = CategoriseHitsToFit_withTrueInfo( (*xIt)->m_genPartFLUKAid, (*xIt)->m_genPartCharge, (*xIt)->m_genPartMass );
+	  //       if (category == "fail")	{
+	  //       	delete hit;
+	  //       	continue;
+	  //       }
+	  //       // cout << category << "   " << p_hit->m_genPartMass << endl;
+	  //       m_hitCollectionToFit[ category ].push_back(hit);
+
+	  //   }
+   //  }
+    //***********************************************************************************************
+	//***********************************************************************************************
+
 
 }
 
@@ -643,29 +719,29 @@ int KFitter::MakeFit( long evNum ) {
 
 
 		// SET SEED
-		int firstHitToProcess = -666;
-		if ( !m_reverse ) 		firstHitToProcess = 0;
-		else 					firstHitToProcess = (*hitSample).second.size()-1;
+		// int firstHitToProcess = -666;
+		// if ( !m_reverse ) 		firstHitToProcess = 0;
+		// else 					firstHitToProcess = (*hitSample).second.size()-1;
 
-		int detID = (*hitSample).second.at( firstHitToProcess )->getDetId();
-		int hitID = (*hitSample).second.at( firstHitToProcess )->getHitId();
-		if ( detID == m_detectorID_map["VT"] ) {
-			pos = m_VT_hitCollection.at( hitID )->GetMCPosition_Global();
-			mom = m_VT_hitCollection.at( hitID )->GetMCMomentum_Global();
-		}
-		else if ( detID == m_detectorID_map["IT"] ) {
-			pos = m_IT_hitCollection.at( hitID )->GetMCPosition_Global();
-			mom = m_IT_hitCollection.at( hitID )->GetMCMomentum_Global();
-		}
-		else if ( detID == m_detectorID_map["MSD"] ) {
-			pos = m_MSD_posVectorSmearedHit.at( hitID );
-			mom = m_MSD_momVectorSmearedHit.at( hitID );
-		}
-		else if ( detID == m_detectorID_map["DC"] ) {
-			pos = m_DC_hitCollection.at( hitID )->GetMCPosition_Global();
-			mom = m_DC_hitCollection.at( hitID )->GetMCMomentum_Global();
-		}
-		if ( m_debug > 2 )		cout << "pos mom "<< endl, pos.Print(), mom.Print();
+		// int detID = (*hitSample).second.at( firstHitToProcess )->getDetId();
+		// int hitID = (*hitSample).second.at( firstHitToProcess )->getHitId();
+		// if ( detID == m_detectorID_map["VT"] ) {
+		// 	pos = m_VT_hitCollection.at( hitID )->GetMCPosition_Global();
+		// 	mom = m_VT_hitCollection.at( hitID )->GetMCMomentum_Global();
+		// }
+		// else if ( detID == m_detectorID_map["IT"] ) {
+		// 	pos = m_IT_hitCollection.at( hitID )->GetMCPosition_Global();
+		// 	mom = m_IT_hitCollection.at( hitID )->GetMCMomentum_Global();
+		// }
+		// else if ( detID == m_detectorID_map["MSD"] ) {
+		// 	pos = m_MSD_posVectorSmearedHit.at( hitID );
+		// 	mom = m_MSD_momVectorSmearedHit.at( hitID );
+		// }
+		// else if ( detID == m_detectorID_map["DC"] ) {
+		// 	pos = m_DC_hitCollection.at( hitID )->GetMCPosition_Global();
+		// 	mom = m_DC_hitCollection.at( hitID )->GetMCMomentum_Global();
+		// }
+		// if ( m_debug > 2 )		cout << "pos mom "<< endl, pos.Print(), mom.Print();
 		
 		// set seed
 		fitTrack->setStateSeed(pos, mom);		
@@ -727,7 +803,7 @@ int KFitter::MakeFit( long evNum ) {
 			// m_fitTrackCollection->push_back( new GlobalTrackFoot( *fitTrack, m_nTotTracks, evNum ) );
 
 			if (isConverged) {	
-				// if ( fitTrack->getFitStatus(fitTrack->getCardinalRep())->getChi2() <= 1 ) {
+				// if ( fitTrack->getFitStatus(fitTrack->getCardinalRep())->getChi2() < 1.5 ) {
 					if ( m_nConvergedTracks.find( (*hitSample).first ) == m_nConvergedTracks.end() )	m_nConvergedTracks[ (*hitSample).first ] = 0;
 					m_nConvergedTracks[ (*hitSample).first ]++;
 					RecordTrackInfo( fitTrack, (*hitSample).first );
@@ -836,6 +912,7 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 	TVector3 kalmanMom, kalmanPos;
 	TVector3 kalmanMom_err;
 	double massMC = -666;
+	double myChi2 = 0;
 
 	InitAllHistos( hitSampleName );
 
@@ -845,6 +922,7 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 	// loop over hits
 	for ( unsigned int i =0; i<m_hitCollectionToFit[ hitSampleName ].size(); i++ ) {
 
+		if ( m_debug > 0 )		cout << "Start hit num: " << i << endl;
 		int x = i;	// track index, same in case of forward and reverse
 		if ( m_reverse ) 	x = m_hitCollectionToFit[ hitSampleName ].size() - 1 - i;	
 
@@ -852,26 +930,38 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 		TVector3 tmpPos, tmpMom;
 		double tmp_mass = -666;
 		TVector3 tmp_genPos;
+		TVector3 tmp_genMom;
+		TVector3 hitPos;
 
 		int detID = m_hitCollectionToFit[ hitSampleName ].at(x)->getDetId();
 		int hitID = m_hitCollectionToFit[ hitSampleName ].at(x)->getHitId();
+		// Generated positions and momentums
 		if ( detID == m_detectorID_map["VT"] ) {
 			tmpPos = m_VT_hitCollection.at(	hitID )->GetMCPosition_Global();
 			tmpMom = m_VT_hitCollection.at(	hitID )->GetMCMomentum_Global();
 			tmp_mass = m_VT_hitCollection.at( hitID )->m_genPartMass;
 			tmp_genPos = m_VT_hitCollection.at( hitID )->m_genPartPosition;
+			tmp_genMom = m_VT_hitCollection.at( hitID )->m_genPartMomentum;
+			TAVTntuHit* p_hit = m_VT_hitCollection.at(hitID);
+	        hitPos = m_VT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
+
 		}
 		else if ( detID == m_detectorID_map["IT"] ) {
 			tmpPos = m_IT_hitCollection.at(	hitID )->GetMCPosition_Global();
 			tmpMom = m_IT_hitCollection.at(	hitID )->GetMCMomentum_Global();
 			tmp_mass = m_IT_hitCollection.at( hitID )->m_genPartMass;
 			tmp_genPos = m_IT_hitCollection.at( hitID )->m_genPartPosition;
+			tmp_genMom = m_IT_hitCollection.at( hitID )->m_genPartMomentum;
+			TAITntuHit* p_hit = m_IT_hitCollection.at(hitID);
+	        hitPos = m_IT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
 		}
 		else if ( detID == m_detectorID_map["MSD"] ) {
 			tmpPos = m_MSD_posVectorSmearedHit.at( hitID );
 			tmpMom =  m_MSD_momVectorSmearedHit.at( hitID );
 			tmp_mass = m_MSD_mass.at( hitID );
 			tmp_genPos = TVector3(-1, -1, -1);
+			tmp_genMom = TVector3(-1, -1, -1);;
+			hitPos = tmpPos;
 		}
 		else if ( detID == m_detectorID_map["DC"] ) {
 			tmpPos = m_DC_hitCollection.at( hitID )->GetMCPosition_Global();
@@ -881,24 +971,59 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 
 		
 
-		// Get track kinematics and errors
+		// Get reco track kinematics and errors
 		TVector3 KalmanPos = TVector3( (track->getFittedState(i).get6DState())[0],	(track->getFittedState(i).get6DState())[1],	(track->getFittedState(i).get6DState())[2] );
 		TVector3 KalmanMom = TVector3( (track->getFittedState(i).get6DState())[3], (track->getFittedState(i).get6DState())[4],	(track->getFittedState(i).get6DState())[5] );
 		TVector3 KalmanPos_err = TVector3( (track->getFittedState(i).get6DCov())[0][0], (track->getFittedState(i).get6DCov())[1][1], (track->getFittedState(i).get6DCov())[2][2] );
 		TVector3 KalmanMom_err = TVector3( (track->getFittedState(i).get6DCov())[3][3],	(track->getFittedState(i).get6DCov())[4][4], (track->getFittedState(i).get6DCov())[5][5] );
 
 
+		AbsMeasurement* measurement = track->getPointWithMeasurement(i)->getRawMeasurement(0);
+		TVector3 hit_pos_fromMeas, hit_dir_fromMeas;
+		hit_pos_fromMeas.SetXYZ(measurement->getRawHitCoords()[0],measurement->getRawHitCoords()[1],measurement->getRawHitCoords()[2]);
+        // hit_dir_fromMeas.SetXYZ(measurement->getRawHitCoords()[3],measurement->getRawHitCoords()[4],measurement->getRawHitCoords()[5]);
+
+
 		if ( m_debug > 0 )	{
 			cout <<endl<< "Single Event Debug\t--\t" << hitSampleName << endl;
 			cout << "Hit num = " << i << "  --  MC mass = " << tmp_mass << endl;
-			cout << "\t MCPos =       "; tmpPos.Print();
-			cout << "\t Kalman Pos da State6D = "; KalmanPos.Print();
-			cout << "\t Kalman Pos Error da State6D = "; KalmanPos_err.Print();
-			cout <<endl<< "\t MCMom = "<< tmpMom.Mag() <<"     "; tmpMom.Print();
-			cout << "\t Kalman Mom da State6D = "<< KalmanMom.Mag() <<"    "; KalmanMom.Print();
-			cout << "\t Kalman Mom Error da State6D = "; KalmanMom_err.Print();
+			cout << "\t GenPos =       " << tmpPos.Mag() << "  ~=  measuredPos  " << hitPos.Mag() << endl;
+			// cout << "\t MCPos =       "; tmpPos.Print();
+			cout << "\t Kalman Pos da State6D = " << KalmanPos.Mag() << "  = Pos " << track->getFittedState(i).getPos().Mag() << endl;
+			// cout << "\t Kalman Pos da State6D = "; KalmanPos.Print();
+			// cout << "\t Kalman Pos Error da State6D = "; KalmanPos_err.Print();
+			cout <<endl<< "\t GenMom = "<< tmpMom.Mag() << endl;
+			// cout <<endl<< "\t MCMom = "<< tmpMom.Mag() <<"     "; tmpMom.Print();
+			cout << "\t Kalman Mom da State6D = "<< KalmanMom.Mag() << "  = Mom " << track->getFittedState(i).getMom().Mag() << endl;
+			// cout << "\t Kalman Mom da State6D = "<< KalmanMom.Mag() <<"    "; KalmanMom.Print();
+			// cout << "\t Kalman Mom Error da State6D = "; KalmanMom_err.Print();
 		}
 		
+		h_dist_RecoMeas[hitSampleName][i]->Fill( fabs( (KalmanPos - hitPos).Mag() ) );
+		h_dist_RecoGen[hitSampleName][i]->Fill( fabs( (KalmanPos - tmpPos).Mag() ) );
+		h_dist_GenMeas[hitSampleName][i]->Fill( fabs( (tmpPos - hitPos).Mag() ) );
+
+		h_dist_RecoGen_x[hitSampleName][i]->Fill( fabs( KalmanPos.x() - tmpPos.x() ) );
+		h_dist_GenMeas_x[hitSampleName][i]->Fill( fabs( tmpPos.x() - hitPos.x() ) );
+		h_dist_RecoGen_y[hitSampleName][i]->Fill( fabs( KalmanPos.y() - tmpPos.y() ) );
+		h_dist_GenMeas_y[hitSampleName][i]->Fill( fabs( tmpPos.y() - hitPos.y() ) );
+		h_dist_RecoGen_z[hitSampleName][i]->Fill( fabs( KalmanPos.z() - tmpPos.z() ) );
+		h_dist_GenMeas_z[hitSampleName][i]->Fill( fabs( tmpPos.z() - hitPos.z() ) );
+
+		double sqrtVariance = EvalError( hitPos, (TMatrixD)track->getPointWithMeasurement(i)->getRawMeasurement(0)->getRawHitCov() );
+		myChi2 += (KalmanPos - hitPos).Mag() * (KalmanPos - hitPos).Mag() / (sqrtVariance*sqrtVariance);
+		h_myChi2[hitSampleName][i]->Fill( myChi2 );
+
+		h_theta_RecoGen[hitSampleName][i]->Fill( KalmanMom.Angle(tmp_genMom) * 180 / TMath::Pi() );
+		h_deltaP_RecoGen[hitSampleName][i]->Fill( (KalmanMom.Mag() - tmp_genMom.Mag()) / tmp_genMom.Mag() );
+		h_deltaP_RecoGen_x[hitSampleName][i]->Fill( (KalmanMom.x() - tmp_genMom.x()) / tmp_genMom.x() );
+		h_deltaP_RecoGen_y[hitSampleName][i]->Fill( (KalmanMom.y() - tmp_genMom.y()) / tmp_genMom.y() );
+		h_deltaP_RecoGen_z[hitSampleName][i]->Fill( (KalmanMom.z() - tmp_genMom.z()) / tmp_genMom.z() );
+
+
+
+		//! Get the accumulated X/X0 (path / radiation length) of the material crossed in the last extrapolation.
+		// virtual double getRadiationLenght() const = 0;
 
 		// keep quantities to be plotted of the state CLOSER to the interaction point
 		unsigned int measuredState = ( m_reverse ? m_hitCollectionToFit[ hitSampleName ].size()-1 : 0 );
@@ -915,7 +1040,7 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 		// double dmom = kalmanMom.Mag() - expectedMom.Mag();
 		// if ( fabs( dmom ) > 0.2  )	return;
 		
-		
+		// prduce the covariance matrix on the measured state
 		if ( i == measuredState  ) {
 			MatrixToZero(&covarianceR);
 			MatrixToZero(&covarianceP);
@@ -929,7 +1054,18 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			
 
 			h_sigmaR[ hitSampleName ]->Fill( EvalError( expectedPos, covarianceR ) );
-// h_sigmaR[ hitSampleName ]->Fill( EvalError( expectedPos, KalmanMom_err ) );
+			h_sigmaPx[ hitSampleName ]->Fill( sqrt(KalmanMom_err.x())/kalmanMom.x() );
+			h_sigmaPy[ hitSampleName ]->Fill( sqrt(KalmanMom_err.y())/kalmanMom.y() );
+			h_sigmaPz[ hitSampleName ]->Fill( sqrt(KalmanMom_err.z())/kalmanMom.z() );
+
+			h_momentumKal_x[ hitSampleName ]->Fill( sqrt(KalmanMom.x())/kalmanMom.Mag() );
+			h_momentumKal_y[ hitSampleName ]->Fill( sqrt(KalmanMom.y())/kalmanMom.Mag() );
+			h_momentumKal_z[ hitSampleName ]->Fill( sqrt(KalmanMom.z())/kalmanMom.Mag() );
+
+			h_sigmaPos[ hitSampleName ]->Fill( (TVector3( sqrt(KalmanMom_err.x()), sqrt(KalmanMom_err.y()), sqrt(KalmanMom_err.z()) )).Mag() );
+			h_sigmaX[ hitSampleName ]->Fill( sqrt(KalmanPos_err.x())/kalmanPos.x() );
+			h_sigmaY[ hitSampleName ]->Fill( sqrt(KalmanPos_err.y())/kalmanPos.y() );
+			h_sigmaZ[ hitSampleName ]->Fill( sqrt(KalmanPos_err.z())/kalmanPos.z() );
 
 			h_mass_genFit[ hitSampleName ]->Fill( track->getFittedState(i).getMass() );
 			
@@ -960,9 +1096,9 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			h_endY[ hitSampleName ]->Fill( tmpPos.Y() );
 		}
 	}
-	if ( m_debug > 0 )		cout << "Chi2 = "<< track->getFitStatus(track->getCardinalRep())->getChi2()<< endl;
+	if ( m_debug > 0 )		cout << "Chi2 = "<< track->getFitStatus(track->getCardinalRep())->getChi2()<< " & myChi2 = " << myChi2 << endl;
 
-	
+	// if ( track->getFitStatus(track->getCardinalRep())->getChi2() > 2 ) return;
 
 	// fill histo with tracking info 
 	h_chi2[ hitSampleName ]->Fill( track->getFitStatus(track->getCardinalRep())->getChi2() );
@@ -988,7 +1124,14 @@ void KFitter::InitAllHistos( string hitSampleName ) {
 	InitSingleHisto(&h_chi2, hitSampleName, "TrackChi2", 100, 0, 10);
 	InitSingleHisto(&h_posRes, hitSampleName, "h_posRes", 40, 0, 0.06);
 	InitSingleHisto(&h_sigmaR, hitSampleName, "h_sigmaR", 100, 0, 0.002);
-	InitSingleHisto(&h_sigmaP, hitSampleName, "h_sigmaP", 1000, -10, 10);
+	InitSingleHisto(&h_sigmaP, hitSampleName, "h_sigmaP", 100, -2, 2);
+	InitSingleHisto(&h_sigmaPx, hitSampleName, "h_sigmaPx", 100, -4, 4);
+	InitSingleHisto(&h_sigmaPy, hitSampleName, "h_sigmaPy", 100, -4, 4);
+	InitSingleHisto(&h_sigmaPz, hitSampleName, "h_sigmaPz", 100, -4, 4);
+	InitSingleHisto(&h_sigmaPos, hitSampleName, "h_sigmaPos", 100, 1, 1);
+	InitSingleHisto(&h_sigmaX, hitSampleName, "h_sigmaX", 100, -10, 10);
+	InitSingleHisto(&h_sigmaY, hitSampleName, "h_sigmaY", 100, -10, 10);
+	InitSingleHisto(&h_sigmaZ, hitSampleName, "h_sigmaZ", 100, -10, 10);
 	InitSingleHisto(&h_deltaP, hitSampleName, "h_deltaP", 100, -1, 1);
 	InitSingleHisto(&h_momentumRes, hitSampleName, "h_momentumRes", 80, -4, 4);
 
@@ -1025,6 +1168,24 @@ void KFitter::InitAllHistos( string hitSampleName ) {
 	InitSingleHisto(&h_sigmaP_over_Pkf, hitSampleName, "h_sigmaP_over_Pkf", 40, 0, 0.2);
 	InitSingleHisto(&h_sigmaP_over_Ptrue, hitSampleName, "h_sigmaP_over_Ptrue", 40, 0, 0.5);
 
+	// multi bin histo init
+	if ( m_debug > 2 )		cout << "KFitter::InitAllHistos -- multi-bin histos Start!!!!  " << endl;
+	InitMultiBinHistoMap(&h_myChi2, hitSampleName, "MyChi2_State", 120, 0, 12);
+	InitMultiBinHistoMap(&h_dist_RecoMeas, hitSampleName, "Dist_RecoMeas___State", 100, 0, 0.01);
+	InitMultiBinHistoMap(&h_dist_RecoGen, hitSampleName, "Dist_RecoGen___State", 100, 0, 0.01);
+	InitMultiBinHistoMap(&h_dist_GenMeas, hitSampleName, "Dist_GenMeas___State", 100, 0, 0.01);
+	InitMultiBinHistoMap(&h_dist_RecoGen_x, hitSampleName, "Dist_RecoGenX___State", 100, 0, 0.01);
+	InitMultiBinHistoMap(&h_dist_GenMeas_x, hitSampleName, "Dist_GenMeasX___State", 100, 0, 0.01);
+	InitMultiBinHistoMap(&h_dist_RecoGen_y, hitSampleName, "Dist_RecoGenY___State", 100, 0, 0.01);
+	InitMultiBinHistoMap(&h_dist_GenMeas_y, hitSampleName, "Dist_GenMeasY___State", 100, 0, 0.01);
+	InitMultiBinHistoMap(&h_dist_RecoGen_z, hitSampleName, "Dist_RecoGenZ___State", 100, 0, 0.01);
+	InitMultiBinHistoMap(&h_dist_GenMeas_z, hitSampleName, "Dist_GenMeasZ___State", 100, 0, 0.01);
+	InitMultiBinHistoMap(&h_theta_RecoGen, hitSampleName, "Theta_RecoGen_State", 50, -0, 0.5);
+	InitMultiBinHistoMap(&h_deltaP_RecoGen, hitSampleName, "DeltaP_RecoGen_State", 40, -0.2, 0.2);
+	InitMultiBinHistoMap(&h_deltaP_RecoGen_x, hitSampleName, "DeltaP_RecoGenX_State_", 80, -0.2, 0.2);
+	InitMultiBinHistoMap(&h_deltaP_RecoGen_y, hitSampleName, "DeltaP_RecoGenY_State_", 80, -0.2, 0.2);
+	InitMultiBinHistoMap(&h_deltaP_RecoGen_z, hitSampleName, "DeltaP_RecoGenZ_State_", 80, -0.2, 0.2);
+
 
 	// 2D
 	if ( h_covariance.find( hitSampleName ) == h_covariance.end() )					
@@ -1042,11 +1203,14 @@ void KFitter::InitSingleHisto( map< string, TH1F* >* histoMap, string collection
 		(*histoMap)[collectionName] = new TH1F( histoName.c_str(), histoName.c_str(), nBin, minBin, maxBin );
 }
 
-//----------------------------------------------------------------------------------------------------
-// void KFitter::InitMultiBinHistoMap( map< map< string, TH1F* > >* histoMap, string collectionName, string histoName, int nBin, int minBin, int maxBin ) {
-// 	if ( histoMap.find( collectionName ) == histoMap.end() )					
-// 		histoMap[collectionName] = new TH1F( histoName.c_str(), histoName.c_str(), 100, minBin, maxBin );
-// }
+// ----------------------------------------------------------------------------------------------------
+void KFitter::InitMultiBinHistoMap( map< string, vector<TH1F*> >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin ) {
+	if ( histoMap->find( collectionName ) == histoMap->end() ) {
+		// loop over the numper of hits
+		for (unsigned i=0;  i < m_hitCollectionToFit[ collectionName ].size();  i++)				
+			(*histoMap)[collectionName].push_back( new TH1F( (histoName+"_"+build_string(i)).c_str(), (histoName+"_"+build_string(i)).c_str(), nBin, minBin, maxBin ) );
+	}
+}
 
 
 
@@ -1072,7 +1236,7 @@ void KFitter::PrintEfficiency() {
 	h_trackEfficiency->SetStats(0);
 	h_trackEfficiency->GetYaxis()->SetTitle("KF Efficiency");
 	h_trackEfficiency->GetYaxis()->SetTitleOffset(1.1);
-	h_trackEfficiency->SetLineWidth(1.8);
+	h_trackEfficiency->SetLineWidth(2); // take short ~ int
 	h_trackEfficiency->Draw();
 	mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+"TrackEfficiencyPlot.png").c_str() );
 	mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+"TrackEfficiencyPlot.root").c_str() );
@@ -1456,22 +1620,29 @@ void KFitter::Save( ) {
 
 	SaveHisto( mirror, h_mass_genFit, "mass(GeV)", "mass" );
 	SaveHisto( mirror, h_charge, "q", "charge" );
-	SaveHisto( mirror, h_isFitConvergedFully, "isFitConvergedFully", "a" );
-	SaveHisto( mirror, h_isFitConvergedPartially, "isConvergedPartially", "b" );
-	SaveHisto( mirror, h_NFailedPoints, "nFailedPoints", "c" );
-	SaveHisto( mirror, h_isTrackPruned, "isPruned", "d" );
-	SaveHisto( mirror, h_Ndf, "nDoF", "e" );
+	SaveHisto( mirror, h_isFitConvergedFully, "isFitConvergedFully", "isFitConvergedFully" );
+	SaveHisto( mirror, h_isFitConvergedPartially, "isConvergedPartially", "isConvergedPartially" );
+	SaveHisto( mirror, h_NFailedPoints, "nFailedPoints", "nFailedPoints" );
+	SaveHisto( mirror, h_isTrackPruned, "isPruned", "isPruned" );
+	SaveHisto( mirror, h_Ndf, "nDoF", "nDoF" );
 	
-	SaveHisto( mirror, h_startX, "startX", "f" );
-	SaveHisto( mirror, h_endX, "endY", "g" );
-	SaveHisto( mirror, h_startY, "startY", "h" );
-	SaveHisto( mirror, h_endY, "endY", "i" );
+	SaveHisto( mirror, h_startX, "startX", "startX" );
+	SaveHisto( mirror, h_endX, "endX", "endX" );
+	SaveHisto( mirror, h_startY, "startY", "startY" );
+	SaveHisto( mirror, h_endY, "endY", "endY" );
 	
 	SaveHisto( mirror, h_TrackLenght, "Track lenght (cm)", "TrackLenght" );
 	SaveHisto( mirror, h_Radius, "R (cm)", "Radius" );
 
 	SaveHisto( mirror, h_sigmaP, "sigma(p)", "sigmaP" );
-	SaveHisto( mirror, h_sigmaR, "sigma(r)", "sigmaR" );
+	SaveHisto( mirror, h_sigmaPx, "sigma(px)", "sigmaPx" );
+	SaveHisto( mirror, h_sigmaPy, "sigma(py)", "sigmaPy" );
+	SaveHisto( mirror, h_sigmaPz, "sigma(pz)", "sigmaPz" );
+	SaveHisto( mirror, h_sigmaPos, "sigma(pos)", "sigmaPos" );
+	SaveHisto( mirror, h_sigmaX, "sigma(x)", "sigmaX" );
+	SaveHisto( mirror, h_sigmaY, "sigma(y)", "sigmaY" );
+	SaveHisto( mirror, h_sigmaZ, "sigma(z)", "sigmaZ" );
+	// SaveHisto( mirror, h_sigmaR, "sigma(r)", "sigmaR" );
 	SaveHisto( mirror, h_deltaP, "dp", "deltaP" );
 	SaveHisto( mirror, h_polarAngol, "polarAngol(deg)", "polarAngol" );
 	SaveHisto( mirror, h_dP_over_Ptrue, "dp/p_{true}", "dP_over_Ptrue" );
@@ -1479,7 +1650,94 @@ void KFitter::Save( ) {
 	SaveHisto( mirror, h_sigmaP_over_Pkf, "sigma(p)/p_{true}", "sigmaP_over_Pkf" );
 	SaveHisto( mirror, h_sigmaP_over_Ptrue, "sigma(p)/p_{KF}", "sigmaP_over_Ptrue" );
 
-	
+
+	// save state by state control plots
+	for ( map<string, vector<TH1F*> >::iterator collIt=h_dist_RecoMeas.begin(); collIt != h_dist_RecoMeas.end(); collIt++ ) {
+		string pathName = (string)getenv("FOOTRES")+"/"+(*collIt).first+"/StateByState";
+		if( stat( pathName.c_str(), &info ) != 0 )		//cannot access
+			system(("mkdir "+pathName).c_str());
+		for (unsigned i=0; i<(*collIt).second.size(); i++ ) {
+			(*collIt).second.at(i)->GetXaxis()->SetTitle("dist reco-meas [cm]");
+			(*collIt).second.at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + (*collIt).second.at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + (*collIt).second.at(i)->GetName() + ".root").c_str() );
+
+			h_dist_RecoGen[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist reco-gen [cm]");
+			h_dist_RecoGen[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+			h_dist_GenMeas[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist gen-meas [cm]");
+			h_dist_GenMeas[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+			h_dist_RecoGen_x[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist reco-gen [cm]");
+			h_dist_RecoGen_x[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen_x[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen_x[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+			h_dist_GenMeas_x[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist gen-meas [cm]");
+			h_dist_GenMeas_x[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas_x[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas_x[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+			h_dist_RecoGen_y[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist reco-gen [cm]");
+			h_dist_RecoGen_y[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen_y[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen_y[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+			h_dist_GenMeas_y[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist gen-meas [cm]");
+			h_dist_GenMeas_y[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas_y[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas_y[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+			h_dist_RecoGen_z[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist reco-gen [cm]");
+			h_dist_RecoGen_z[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen_z[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen_z[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+			h_dist_GenMeas_z[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist gen-meas [cm]");
+			h_dist_GenMeas_z[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas_z[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas_z[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+
+
+			h_theta_RecoGen[(*collIt).first].at(i)->GetXaxis()->SetTitle("#theta(reco-gen) [deg]");
+			h_theta_RecoGen[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_theta_RecoGen[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_theta_RecoGen[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+			h_deltaP_RecoGen[(*collIt).first].at(i)->GetXaxis()->SetTitle("resoP reco-gen/gen");
+			h_deltaP_RecoGen[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+			h_deltaP_RecoGen_x[(*collIt).first].at(i)->GetXaxis()->SetTitle("resoP reco-gen/gen");
+			h_deltaP_RecoGen_x[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen_x[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen_x[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+			h_deltaP_RecoGen_y[(*collIt).first].at(i)->GetXaxis()->SetTitle("resoP reco-gen/gen");
+			h_deltaP_RecoGen_y[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen_y[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen_y[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+			h_deltaP_RecoGen_z[(*collIt).first].at(i)->GetXaxis()->SetTitle("resoP reco-gen/gen");
+			h_deltaP_RecoGen_z[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen_z[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen_z[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+			h_myChi2[(*collIt).first].at(i)->GetXaxis()->SetTitle("resoP reco-gen/gen");
+			h_myChi2[(*collIt).first].at(i)->Draw();
+			mirror->SaveAs( ( pathName+"/" + h_myChi2[(*collIt).first].at(i)->GetName() + ".png").c_str() );
+			mirror->SaveAs( ( pathName+"/" + h_myChi2[(*collIt).first].at(i)->GetName() + ".root").c_str() );
+
+		}
+
+	}
+
 	for ( map<string, map<float, TH1F*> >::iterator collIt=h_dP_x_bin.begin(); collIt != h_dP_x_bin.end(); collIt++ ) {
 		string pathName = (string)getenv("FOOTRES")+"/"+(*collIt).first+"/dP_x_bin";
 		if( stat( pathName.c_str(), &info ) != 0 )		//cannot access
@@ -1563,6 +1821,7 @@ void KFitter::Save( ) {
 	}
 
 }
+
 
 
 

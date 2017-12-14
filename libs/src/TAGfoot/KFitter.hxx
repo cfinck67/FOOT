@@ -122,6 +122,8 @@ public:
 	
 	void InitAllHistos( string hitSampleName );
 	void InitSingleHisto( map< string, TH1F* >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin );
+	void InitMultiBinHistoMap( map< string, vector<TH1F*> >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin );
+
 
 	void Save();
 	void SaveHisto( TCanvas* mirror, map< string, TH1F* > histoMap, string title, string saveName );
@@ -150,7 +152,7 @@ private:
 	AbsKalmanFitter*  m_dafRefFitter;    	 //DAF with kalman ref
 	AbsKalmanFitter*  m_dafSimpleFitter;    	 //DAF with simple kalman
 
-	Track*  fitTrack;
+	// Track*  m_fitTrack;
 
 	TRandom3* m_diceRoll;
 
@@ -196,6 +198,13 @@ private:
 	map< string, TH1F* > h_mass;
 	map< string, TH1F* > h_sigmaR;
 	map< string, TH1F* > h_sigmaP;
+	map< string, TH1F* > h_sigmaPos;
+	map< string, TH1F* > h_sigmaX;
+	map< string, TH1F* > h_sigmaY;
+	map< string, TH1F* > h_sigmaZ;
+	map< string, TH1F* > h_sigmaPx;
+	map< string, TH1F* > h_sigmaPy;
+	map< string, TH1F* > h_sigmaPz;
 	map< string, TH1F* > h_deltaP;
 	map< string, TH1F* > h_polarAngol;
 
@@ -225,6 +234,23 @@ private:
 
 	map< string, TH1F* > h_resoP_over_Pkf;
 	map< string, TH1F* > h_biasP_over_Pkf;
+	
+	map<string, vector<TH1F*> > h_dist_RecoMeas;
+	map<string, vector<TH1F*> > h_dist_RecoGen;
+	map<string, vector<TH1F*> > h_dist_GenMeas;
+	map<string, vector<TH1F*> > h_dist_RecoGen_x;
+	map<string, vector<TH1F*> > h_dist_GenMeas_x;
+	map<string, vector<TH1F*> > h_dist_RecoGen_y;
+	map<string, vector<TH1F*> > h_dist_GenMeas_y;
+	map<string, vector<TH1F*> > h_dist_RecoGen_z;
+	map<string, vector<TH1F*> > h_dist_GenMeas_z;
+	map<string, vector<TH1F*> > h_theta_RecoGen;
+	map<string, vector<TH1F*> > h_deltaP_RecoGen;
+	map<string, vector<TH1F*> > h_deltaP_RecoGen_x;
+	map<string, vector<TH1F*> > h_deltaP_RecoGen_y;
+	map<string, vector<TH1F*> > h_deltaP_RecoGen_z;
+	map<string, vector<TH1F*> > h_myChi2;
+
 	map<string, map<float, TH1F*> > h_dP_x_bin;
 	map<string, map<float, TH1F*> > h_dPOverP_x_bin;
 	map<string, map<float, TH1F*> > h_dPOverSigmaP_x_bin;

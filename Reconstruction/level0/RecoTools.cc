@@ -96,7 +96,6 @@
 #include "TACAdatRaw.hxx"
 #include "TACAactNtuMC.hxx"
 
-
 #include "foot_geo.h"
 
 #include "Materials.hxx"
@@ -264,28 +263,31 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     cout << "Make Geo" << endl;
 
-    TGeoManager *prova=new TGeoManager("genfitGeom", "GENFIT geometry");
+    TGeoManager *colombo = new TGeoManager("genfitGeom", "GENFIT geometry");
+    TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
+    TGeoMedium *vacuum_med = new TGeoMedium("Vacuum_med",666, gGeoManager->GetMaterial("Vacuum"));
 
-    TGeoMixture *airMat = new TGeoMixture("Air",3);
-    airMat->AddElement(14.01,7.,.78);   // N
-    airMat->AddElement(16.00,8.,.21);   // O
-    airMat->AddElement(39.95,18.,.01);  // Ar
-    airMat->SetDensity(1.2e-3);
+
+    // TGeoMixture *airMat = new TGeoMixture("Air",3);
+    // airMat->AddElement(14.01,7.,.78);   // N
+    // airMat->AddElement(16.00,8.,.21);   // O
+    // airMat->AddElement(39.95,18.,.01);  // Ar
+    // airMat->SetDensity(1.2e-3);
     // airMat->SetPressure();      // std 6.32420e+8 = 1atm
     // 1,26484e+8 MeV/mm3 = 0,2 atm
     // 1 MeV/mm3 = 1,58122538 × 10-9 atm
-    cout << "airMat->GetPressure()   " << airMat->GetPressure() << endl;
+    // cout << "airMat->GetPressure()   " << airMat->GetPressure() << endl;
 
 		Materials* listMaterials = new Materials() ;
 		listMaterials->PrintCompMap();
-
-  	TGeoMaterial *matAr = new TGeoMaterial("Argon", 39.948, 18., 0.001662);//densità viene da flair,
-    TGeoMaterial *matC = new TGeoMaterial("Carbon", 12.0107, 6., 2.26);
- 	  TGeoMaterial *matO = new TGeoMaterial("Oxygen", 16., 8., 0.0013315);
-  	TGeoMaterial *matAl = new TGeoMaterial("Aluminium", 26.981539, 13., 2.6989);
-   	TGeoMaterial *matSi = new TGeoMaterial("Silicon", 28.085, 14., 2.329);
-   	TGeoMaterial *matW = new TGeoMaterial("Tungsten", 183.84, 74., 19.3);// poi magari mettere la copertura in oro
-   	TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
+    cout << endl << endl;
+  	// TGeoMaterial *matAr = new TGeoMaterial("Argon", 39.948, 18., 0.001662);//densità viene da flair,
+   //  TGeoMaterial *matC = new TGeoMaterial("Carbon", 12.0107, 6., 2.26);
+ 	 //  TGeoMaterial *matO = new TGeoMaterial("Oxygen", 16., 8., 0.0013315);
+  	// TGeoMaterial *matAl = new TGeoMaterial("Aluminium", 26.981539, 13., 2.6989);
+   // 	TGeoMaterial *matSi = new TGeoMaterial("Silicon", 28.085, 14., 2.329);
+   // 	TGeoMaterial *matW = new TGeoMaterial("Tungsten", 183.84, 74., 19.3);// poi magari mettere la copertura in oro
+   // 	TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
 
 
    	// TGeoMixture *matMylar = new TGeoMixture("Mylar",3,   1.39000    );
@@ -301,9 +303,9 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     // matEpo->AddElement(16,8, 3./40.);  // O
 
 
-    TGeoMixture *matSiC = new TGeoMixture("SiliconCarbon",2, 3.22); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    matSiC->AddElement(matC ,0.5);
-    matSiC->AddElement(28.085, 14 ,0.5);
+    // TGeoMixture *matSiC = new TGeoMixture("SiliconCarbon",2, 3.22); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // matSiC->AddElement(matC ,0.5);
+    // matSiC->AddElement(28.085, 14 ,0.5);
 
 
     // // CHECK
@@ -312,14 +314,14 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     // matSiCFoam->AddElement(airMat, 0.96);
 
 
-   TGeoMixture *ArCO2 = new TGeoMixture("ArCO2",3);
-   ArCO2->AddElement(matAr ,1./4.);
-   ArCO2->AddElement(matC ,1./4.);
-   ArCO2->AddElement(matO ,2./4.);
-//   ArCO2->AddElement(matCO2 ,20.);
-   ArCO2->SetDensity(0.001677136); //da flair
-   ArCO2->SetPressure(1.26484e+8);    // 0.2 atm
-   cout << "ArCO2->GetPressure()   " << ArCO2->GetPressure() << endl;
+//    TGeoMixture *ArCO2 = new TGeoMixture("ArCO2",3);
+//    ArCO2->AddElement(matAr ,1./4.);
+//    ArCO2->AddElement(matC ,1./4.);
+//    ArCO2->AddElement(matO ,2./4.);
+// //   ArCO2->AddElement(matCO2 ,20.);
+//    ArCO2->SetDensity(0.001677136); //da flair
+//    ArCO2->SetPressure(1.26484e+8);    // 0.2 atm
+//    cout << "ArCO2->GetPressure()   " << ArCO2->GetPressure() << endl;
 
 
    // TGeoMixture *matKapton = new TGeoMixture("Kapton",4, 1.42);
@@ -329,18 +331,18 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
    // matKapton->AddElement(16,8, 0.209235);               // O
 
 
-      int medID = 0;
-   TGeoMedium *vacuum_med = new TGeoMedium("Vacuum_med",medID++, gGeoManager->GetMaterial("Vacuum"));
-   TGeoMedium *air = new TGeoMedium("Air_med",medID++, gGeoManager->GetMaterial("Air"));
-   TGeoMedium *gas_med = new TGeoMedium("ArCO2_med",medID++, gGeoManager->GetMaterial("ArCO2"));
-   // TGeoMedium *c_wire_med = new TGeoMedium("catod wire",medID++, gGeoManager->GetMaterial("Aluminium"));
-   TGeoMedium *a_wire_med = new TGeoMedium("Tungsten_med",medID++, gGeoManager->GetMaterial("Tungsten"));
-   TGeoMedium *a_maylar_med = new TGeoMedium("Mylar_med",medID++, gGeoManager->GetMaterial("Mylar"));
-    TGeoMedium* silicon = new TGeoMedium( "Silicon_med", medID++, gGeoManager->GetMaterial("Silicon") );
-    TGeoMedium* kapton = new TGeoMedium( "Kapton_med", medID++, gGeoManager->GetMaterial("Kapton") );
-    TGeoMedium* epoxy = new TGeoMedium( "Epoxy_med", medID++, gGeoManager->GetMaterial("Epoxy") );
-    TGeoMedium* aluminium = new TGeoMedium( "Aluminium_med", medID++, gGeoManager->GetMaterial("Aluminium") );
-    TGeoMedium* siCFoam = new TGeoMedium( "SiCFoam_med", medID++, gGeoManager->GetMaterial("SiCFoam") );
+   //    int medID = 0;
+   // TGeoMedium *vacuum_med = new TGeoMedium("Vacuum_med",medID++, gGeoManager->GetMaterial("Vacuum"));
+   // TGeoMedium *air = new TGeoMedium("Air_med",medID++, gGeoManager->GetMaterial("Air"));
+   // TGeoMedium *gas_med = new TGeoMedium("ArCO2_med",medID++, gGeoManager->GetMaterial("ArCO2"));
+   // // TGeoMedium *c_wire_med = new TGeoMedium("catod wire",medID++, gGeoManager->GetMaterial("Aluminium"));
+   // TGeoMedium *a_wire_med = new TGeoMedium("Tungsten_med",medID++, gGeoManager->GetMaterial("Tungsten"));
+   // TGeoMedium *a_maylar_med = new TGeoMedium("Mylar_med",medID++, gGeoManager->GetMaterial("Mylar"));
+   //  TGeoMedium* silicon = new TGeoMedium( "Silicon_med", medID++, gGeoManager->GetMaterial("Silicon") );
+   //  TGeoMedium* kapton = new TGeoMedium( "Kapton_med", medID++, gGeoManager->GetMaterial("Kapton") );
+   //  TGeoMedium* epoxy = new TGeoMedium( "Epoxy_med", medID++, gGeoManager->GetMaterial("Epoxy") );
+   //  TGeoMedium* aluminium = new TGeoMedium( "Aluminium_med", medID++, gGeoManager->GetMaterial("Aluminium") );
+   //  TGeoMedium* siCFoam = new TGeoMedium( "SiCFoam_med", medID++, gGeoManager->GetMaterial("SiCFoam") );
 
 
 
@@ -373,32 +375,33 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 1,1,14.7 ) ).Print();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic no Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,2 ) ).Print();
 
+    if ( GlobalPar::GetPar()->Debug() > 1 ) {
+        ofstream bFieldTest;
+        bFieldTest.open("bField.test", std::ofstream::out | std::ofstream::trunc );
 
-    ofstream bFieldTest;
-    bFieldTest.open("bField.test", std::ofstream::out | std::ofstream::trunc );
+        bFieldTest << setiosflags(ios::fixed) << setprecision(8);
 
-    bFieldTest << setiosflags(ios::fixed) << setprecision(8);
+        float zCoord = -29.75 + 14;     // global coordinates
+        for (int k=0; k<120; k++) {
+            float yCoord = -4.75;
+            for (int j=0; j<20; j++) {
+                float xCoord = -4.75;
+                for (int i=0; i<20; i++) {
 
-    float zCoord = -29.75 + 14;     // global coordinates
-    for (int k=0; k<120; k++) {
-        float yCoord = -4.75;
-        for (int j=0; j<20; j++) {
-            float xCoord = -4.75;
-            for (int i=0; i<20; i++) {
-
-                TVector3 vecB = genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) );
-                // bFieldTest << vecB.x() << " " << vecB.y() << " " << vecB.z() << endl;
-                bFieldTest << " " << xCoord << " " << yCoord << " " << zCoord-14;
-                bFieldTest << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).x() / 10
-                            << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).y() / 10
-                            << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).z() / 10 << endl;
-                xCoord += 0.5;
+                    TVector3 vecB = genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) );
+                    // bFieldTest << vecB.x() << " " << vecB.y() << " " << vecB.z() << endl;
+                    bFieldTest << " " << xCoord << " " << yCoord << " " << zCoord-14;
+                    bFieldTest << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).x() / 10
+                                << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).y() / 10
+                                << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).z() / 10 << endl;
+                    xCoord += 0.5;
+                }
+                yCoord += 0.5;
             }
-            yCoord += 0.5;
+            zCoord += 0.5;
         }
-        zCoord += 0.5;
+        bFieldTest.close();
     }
-    bFieldTest.close();
 
     if(m_doBM) {
         // DisplayBeamMonitor(pg);
@@ -423,7 +426,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
         //Initialization of IT parameters
         m_itgeo->InitGeo();
-        // top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
+        top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
     }
 
     if(m_doMSD) {
@@ -449,10 +452,11 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
 
     // set material into genfit
-    MaterialEffects::getInstance()->init(new TGeoMaterialInterface());
+    MaterialEffects* materialEffects = MaterialEffects::getInstance();
+    materialEffects->init(new TGeoMaterialInterface());
 
     //--- close the geometry
-    gGeoManager->CloseGeometry();
+    // gGeoManager->CloseGeometry();
 
     //--- draw the ROOT box
     gGeoManager->SetVisLevel(10);
@@ -483,8 +487,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init!" << endl;
     m_kFitter = new KFitter ( nIter, dPVal );
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
-
-
 
   /*
     The event Loop
@@ -672,6 +674,8 @@ tempo_kal+=(double)(end_kal-start_kal);
     // }
     my_out->Print();
     my_out->Close();
+
+    // materialEffects->drawdEdx( 11 );
 
     return;
 }

@@ -10,7 +10,7 @@
 #include <RKTrackRep.h>
 #include <TGeoMaterialInterface.h>
 
-// #include <EventDisplay.h>
+#include <EventDisplay.h>
 
 #include <HelixTrackModel.h>
 #include <MeasurementCreator.h>
@@ -112,7 +112,7 @@ int main() {
 
 
   // init event display
-  // genfit::EventDisplay* display = genfit::EventDisplay::getInstance();
+  genfit::EventDisplay* display = genfit::EventDisplay::getInstance();
 
   MakePdgDatabase();
 
@@ -244,7 +244,7 @@ int main() {
 
     if (iEvent < 1000) {
       // add track to event display
-      // display->addEvent(&fitTrack);
+      display->addEvent(&fitTrack);
     }
 
 
@@ -266,7 +266,7 @@ int main() {
   delete fitter;
 
   // open event display
-  // display->open();
+  display->open();
 
 }
 

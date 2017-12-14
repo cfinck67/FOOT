@@ -20,23 +20,23 @@ Materials::Materials(){
 
 	//********temporary definition of some materials not defined in .inp**********
 	//****************************************************************************
-	TGeoMaterial *maAr = new TGeoMaterial( "ARGON", 39.948, 18., 0.001662 );
-	TGeoMaterial *maC = new TGeoMaterial(  "CARBON", 12.0107, 6., 2.6 );
-	TGeoMaterial *maO = new TGeoMaterial( "OXYGEN", 16., 8., 0.0013315 );
-	TGeoMaterial *maAl = new TGeoMaterial( "ALUMINUM", 26.981539, 13., 2.6989 );
-	TGeoMaterial *maH = new TGeoMaterial( "HYDROGEN", 1.008, 1., 0.000089 );
-	TGeoMaterial *maN = new TGeoMaterial( "NITROGEN", 14.007, 7., 0.001251 );
-	TGeoMaterial *maFe = new TGeoMaterial( "IRON", 55.845, 26., 7.874 );
-	TGeoMaterial *maSi = new TGeoMaterial( "SILICON", 28.085, 14., 2.329 );
+	// TGeoMaterial *maAr = new TGeoMaterial( "ARGON", 39.948, 18., 0.001662 );
+	// TGeoMaterial *maC = new TGeoMaterial(  "CARBON", 12.0107, 6., 2.6 );
+	// TGeoMaterial *maO = new TGeoMaterial( "OXYGEN", 16., 8., 0.0013315 );
+	// TGeoMaterial *maAl = new TGeoMaterial( "ALUMINUM", 26.981539, 13., 2.6989 );
+	// TGeoMaterial *maH = new TGeoMaterial( "HYDROGEN", 1.008, 1., 0.000089 );
+	// TGeoMaterial *maN = new TGeoMaterial( "NITROGEN", 14.007, 7., 0.001251 );
+	// TGeoMaterial *maFe = new TGeoMaterial( "IRON", 55.845, 26., 7.874 );
+	// TGeoMaterial *maSi = new TGeoMaterial( "SILICON", 28.085, 14., 2.329 );
 
-	m_storeMat["ARGON"] = maAr;
-	m_storeMat["CARBON"] = maC;
-	m_storeMat["OXYGEN"] = maO;
-	m_storeMat["ALUMINUM"] = maAl;
-	m_storeMat["HYDROGEN"] = maH;
-	m_storeMat["NITROGEN"] = maN;
-	m_storeMat["IRON"] = maFe;
-	m_storeMat["SILICON"] = maSi;
+	// m_storeMat["ARGON"] = maAr;
+	// m_storeMat["CARBON"] = maC;
+	// m_storeMat["OXYGEN"] = maO;
+	// m_storeMat["ALUMINUM"] = maAl;
+	// m_storeMat["HYDROGEN"] = maH;
+	// m_storeMat["NITROGEN"] = maN;
+	// m_storeMat["IRON"] = maFe;
+	// m_storeMat["SILICON"] = maSi;
 
 	//****************************************************************************
 	//****************************************************************************

@@ -858,9 +858,9 @@ void GFGbl::processTrackWithRep(Track* trk, const AbsTrackRep* rep, bool resortH
     
     pvalue = TMath::Prob(Chi2, Ndf);
     
-    //traj->printTrajectory(100);
-    //traj->printData();
-    //traj->printPoints(100);
+    traj->printTrajectory(100);
+    traj->printData();
+    traj->printPoints(100);
     
     #ifdef OUTPUT
     // Fill histogram with fit result
