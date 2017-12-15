@@ -30,8 +30,8 @@ TAITactNtuClusterF::TAITactNtuClusterF(const char* name,
 : TAITactBaseNtuCluster(name, pNtuRaw, pNtuClus, pConfig, pGeoMap)
 {
    TAITparGeo* geoMap = (TAITparGeo*)fpGeoMap->Object();
-   Int_t nLines = geoMap->GetPixelsNu()+1;
-   Int_t nCols  = geoMap->GetPixelsNv()+1;
+   Int_t nLines = geoMap->GetNPixelX()+1;
+   Int_t nCols  = geoMap->GetNPixelY()+1;
    fFlagMap.Set(nLines*nCols);
 }
 
@@ -54,8 +54,8 @@ Bool_t TAITactNtuClusterF::FindClusters(Int_t iSensor)
    TAITparConf*    pConfig  = (TAITparConf*)    fpConfig->Object();
 
    Int_t clusterWidth = pConfig->GetAnalysisPar().SearchPixelDistance;
-   Int_t nLine = pGeoMap->GetPixelsNv()+1;
-   Int_t nCol  = pGeoMap->GetPixelsNu()+1;
+   Int_t nLine = pGeoMap->GetNPixelY()+1;
+   Int_t nCol  = pGeoMap->GetNPixelX()+1;
    
    Int_t nClusters = 0;
    fPixelMap.clear();
@@ -183,8 +183,8 @@ Bool_t TAITactNtuClusterF::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY)
 {
    TAITparGeo* pGeoMap = (TAITparGeo*)fpGeoMap->Object();
    
-   Int_t nLine = pGeoMap->GetPixelsNv()+1;
-   Int_t nCol  = pGeoMap->GetPixelsNu()+1;
+   Int_t nLine = pGeoMap->GetNPixelY()+1;
+   Int_t nCol  = pGeoMap->GetNPixelX()+1;
 
    if ( fPixelMap[IndX*nCol+IndY] <= 0 ) return false;
     if ( fFlagMap[IndX*nCol+IndY] != -1 ) return false;

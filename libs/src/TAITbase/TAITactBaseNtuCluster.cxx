@@ -72,8 +72,8 @@ void TAITactBaseNtuCluster::CreateHistogram()
    for (Int_t i = 0; i < pConfig->GetSensorsN(); ++i) {
 	  if (TAITparConf::IsMapHistOn()) {
 		 fpHisClusMap[i] = new TH2F(Form("vtClusMap%d", i+1), Form("Vertex - clusters map for sensor %d", i+1), 
-									100, -pGeoMap->GetPitchV()*pGeoMap->GetPixelsNv()/2., pGeoMap->GetPitchV()*pGeoMap->GetPixelsNv()/2., 
-									100, -pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2., pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2.);
+									100, -pGeoMap->GetPitchY()*pGeoMap->GetNPixelY()/2., pGeoMap->GetPitchY()*pGeoMap->GetNPixelY()/2., 
+									100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2.);
 		 fpHisClusMap[i]->SetMarkerStyle(20);
 		 fpHisClusMap[i]->SetMarkerSize(.6);
 		 fpHisClusMap[i]->SetMarkerColor(1);
