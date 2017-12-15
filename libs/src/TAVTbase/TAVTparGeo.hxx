@@ -26,10 +26,8 @@ class TGeoVolume;
 
 class TAVTparGeo : public TAVTparTools {
 
-
-typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
-// typedef map< int, map< int, map< int, IronPlate* > > > SensorMatrix;
-      
+typedef vector< IronPlate* > SensorMatrix;
+   
 
 public:
 

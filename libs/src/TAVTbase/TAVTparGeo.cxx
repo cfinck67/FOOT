@@ -73,73 +73,62 @@ void TAVTparGeo::InitGeo()
 
     // init sensor matrix   (z, x, y) = (layer, col, row)
     m_sensorMatrix.resize( m_nSensors_Z );
-    for (int k=0; k<m_nSensors_Z; k++) {
-        m_sensorMatrix[k].resize( m_nSensors_X );
-        for (int i=0; i<m_nSensors_X; i++) {
-            m_sensorMatrix[k][i].resize( m_nSensors_Y );
-            for (int j=0; j<m_nSensors_Y; j++) {
-                m_sensorMatrix[k][i][j] = new IronPlate();
-            }
-        }
+    for (Int_t k = 0; k < m_nSensors_Z; k++) {
+       m_sensorMatrix[k] = new IronPlate();
     }
     
     // fill m_materialOrder, m_materialThick, m_materialType 
     // InitMaterial();
 
-
     m_layerDistance = VTX_LAYDIST;          // from center to center
     m_siliconSensorThick_Lz = VTX_THICK;    // ONLY silicon
 
     // set detector dimension
-    double length_Lz = m_siliconSensorThick_Lz + (m_nSensors_Z-1)*m_layerDistance; // from edge to edge
+    Double_t length_Lz = m_siliconSensorThick_Lz + (m_nSensors_Z-1)*m_layerDistance; // from edge to edge
     m_dimension = TVector3( VTX_WIDTH, VTX_HEIGHT, length_Lz );
-    double width_Lx = m_dimension.x();
-    double height_Ly = m_dimension.y();
+    Double_t width_Lx = m_dimension.x();
+    Double_t height_Ly = m_dimension.y();
     
-    double sensorDistance = 0;
-    double pixelDistance = 0;
+    Double_t sensorDistance = 0;
+    Double_t pixelDistance = 0;
 
-    double pixelWidth_Lx = 0.002;
-    double pixelHeight_Ly = 0.002;
+    Double_t pixelWidth_Lx = 0.002;
+    Double_t pixelHeight_Ly = 0.002;
 
     if ( GlobalPar::GetPar()->Debug() > 2 )  {
         cout << "m_layerDistance " << m_layerDistance << endl;
         cout << "length_Lz " << length_Lz << endl;
     }
 
-    double sensor_Width_Lx = width_Lx - (sensorDistance*(1+m_nSensors_X)) /m_nSensors_X;
-    double sensor_Height_Ly = height_Ly - (sensorDistance*(1+m_nSensors_Y)) /m_nSensors_Y;
-    double sensor_Length_Lz = m_siliconSensorThick_Lz;
-    // double sensor_Length_Lz = m_length_Lz - ((sensorDistance+1)*m_nSensors_Z) /m_nSensors_Z;
+    Double_t sensor_Width_Lx = width_Lx - (sensorDistance*(1+m_nSensors_X)) /m_nSensors_X;
+    Double_t sensor_Height_Ly = height_Ly - (sensorDistance*(1+m_nSensors_Y)) /m_nSensors_Y;
+    Double_t sensor_Length_Lz = m_siliconSensorThick_Lz;
+    // Double_t sensor_Length_Lz = m_length_Lz - ((sensorDistance+1)*m_nSensors_Z) /m_nSensors_Z;
 
     // pixels per sensors, same as above as far as we use 1 sensor
-   m_nPixel_X = 960;//sensor_Width_Lx / (pixelWidth_Lx + pixelDistance);
-   m_nPixel_Y = 928;//sensor_Height_Ly / (pixelHeight_Ly + pixelDistance);
+    m_nPixel_X = 960;//sensor_Width_Lx / (pixelWidth_Lx + pixelDistance);
+    m_nPixel_Y = 928;//sensor_Height_Ly / (pixelHeight_Ly + pixelDistance);
    
     // fill sensor matrix
-    for (int k=0; k<m_nSensors_Z; k++) {
-        double sensor_newZ = m_origin.Z() - length_Lz/2 +0.5*m_siliconSensorThick_Lz + k*m_layerDistance;
-        for (int i=0; i<m_nSensors_X; i++) {
-            double sensor_newX = m_origin.X() - width_Lx/2 + (0.5+i)*(sensor_Width_Lx);
-            for (int j=0; j<m_nSensors_Y; j++) {
-
-                double sensor_newY = m_origin.Y() - height_Ly/2 + (1+2*j)*(sensor_Height_Ly/2);
-
-                m_sensorMatrix[k][i][j]->SetMaterial( (string)VTX_MEDIUM );
-
-                m_sensorMatrix[k][i][j]->SetSensor( 
-                        TVector3( sensor_newX, sensor_newY, sensor_newZ ),  // sensor center
-                        TVector3( sensor_Width_Lx, sensor_Height_Ly, sensor_Length_Lz ),    // sensor dimension
-                        m_nPixel_X, m_nPixel_Y,
-                        pixelWidth_Lx, pixelHeight_Ly, m_siliconSensorThick_Lz,
-                        pixelDistance, pixelDistance, 0, //layerDistance,
-                        TVector3(0,0,0)
-                 );
-                // if (m_debug) 
-                if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "sensor center ",    TVector3( sensor_newX, sensor_newY, sensor_newZ ).Print();
-            }
-        }
-    }
+   for (Int_t k=0; k<m_nSensors_Z; k++) {
+      Double_t sensor_newZ = m_origin.Z() - length_Lz/2 +0.5*m_siliconSensorThick_Lz + k*m_layerDistance;
+      Double_t sensor_newX = m_origin.X() - width_Lx/2 + 0.5*sensor_Width_Lx;
+      
+      Double_t sensor_newY = m_origin.Y() - height_Ly/2 + 0.5*sensor_Height_Ly;
+      
+      m_sensorMatrix[k]->SetMaterial( (string)VTX_MEDIUM );
+      
+      m_sensorMatrix[k]->SetSensor(
+                                   TVector3( sensor_newX, sensor_newY, sensor_newZ ),  // sensor center
+                                   TVector3( sensor_Width_Lx, sensor_Height_Ly, sensor_Length_Lz ),    // sensor dimension
+                                   m_nPixel_X, m_nPixel_Y,
+                                   pixelWidth_Lx, pixelHeight_Ly, m_siliconSensorThick_Lz,
+                                   pixelDistance, pixelDistance, 0, //layerDistance,
+                                   TVector3(0,0,0)
+                                   );
+      // if (m_debug)
+      if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "sensor center ",    TVector3( sensor_newX, sensor_newY, sensor_newZ ).Print();
+   }
 
     // FillMaterialCollection();
 
@@ -170,16 +159,16 @@ Float_t TAVTparGeo::GetPositionV(Int_t line) const
 TVector3 TAVTparGeo::Local2Global(Int_t detID, TVector3& loc) const
 {
    TVector3 pos(loc);
-   m_sensorMatrix[detID][0][0]->Local2Global(&pos);
+   m_sensorMatrix[detID]->Local2Global(&pos);
    
    return pos;
 }
 
 //_____________________________________________________________________________
-TVector3 TAVTparGeo::GetPosition( int layer, int col, int row )  {
+TVector3 TAVTparGeo::GetPosition( int detID, int col, int row )  {
     // TVector3 sensorCoord = GetSensorCoortdinates( int layer, int col, int row );
     // TVector3 pos = m_sensorMatrix[sensorCoord.z()][sensorCoord.x()][sensorCoord.y()]->GetPosition();
-    TVector3 pos = m_sensorMatrix[layer][0][0]->GetPosition( col, row );
+    TVector3 pos = m_sensorMatrix[detID]->GetPosition( col, row );
     Local2Global(&pos);
     return pos;
 }
@@ -230,8 +219,8 @@ TGeoVolume* TAVTparGeo::GetVolume()
         }
     }
 
-    double width_Lx = m_dimension.X();
-    double height_Ly = m_dimension.Y();
+    Double_t width_Lx = m_dimension.X();
+    Double_t height_Ly = m_dimension.Y();
 
     // create main box
    // TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Vacuum_med"),width_Lx+1,height_Ly+1,m_dimension.z()+0.5); //top è scatola che conterrà tutto (dimensioni in cm)
@@ -241,7 +230,7 @@ TGeoVolume* TAVTparGeo::GetVolume()
     TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("Silicon_med"),width_Lx/2,height_Ly/2,m_siliconSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
     siliconFoil->SetLineColor(kOrange);
     siliconFoil->SetFillColor(kOrange);
-   int c=0;
+   Int_t c=0;
 
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  (-0.5*m_dimension.z())+(0.5*m_siliconSensorThick_Lz), new TGeoRotation("null,",0,0,0)));
     box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("null,",0,0,0)));
@@ -272,7 +261,7 @@ void TAVTparGeo::InitMaterial()
                          };
 
     
-    for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
+    for ( UInt_t i=0; i<m_materialOrder.size(); i++ ) {
         if( m_materialOrder[i] == "VTX_MEDIUM" ){
             m_materialThick[ m_materialOrder[i] ] = VTX_THICK;
             m_materialType[ m_materialOrder[i] ] = VTX_MEDIUM;
@@ -292,7 +281,7 @@ void TAVTparGeo::InitMaterial()
 // {
 //    TGeoVolume* vertex = 0x0; 
    
-//    for(Int_t iSensor = 0; iSensor < GetSensorsN(); iSensor++) {   
+//    for(Int_t_t iSensor = 0; iSensor < GetSensorsN(); iSensor++) {   
 //    TGeoHMatrix* hm = GetTransfo(iSensor);
 //    vertex = TAVTparGeo::AddVertexModule(hm, basemoduleName, vertexName);
 //    }
