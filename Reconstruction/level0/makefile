@@ -36,7 +36,7 @@ ELIB        += ./libGeometry.so
 
 # TAINCL	      = -I$(PWD)/../ -I$(PWD)/../../libs/src/TAGbase/  -I$(PWD)/../../libs/src/TAGmclib/ 
 # TAINCL	     +=-I$(PWD)/../../libs/src/TAVTbase -I$(PWD)/../../libs/src/TAGfoot 
-# TAINCL	     +=-I$(PWD)/../../libs/src/TABMbase 
+# TAINCL	     +=-I$(PWD)/../../libs/src/TABMbase -I$(PWD)/../..
 # TAINCL	     +=-I$(PWD)/../../libs/src/TAIRbase  -I$(PWD)/../../libs/src/TAITbase  
 # TAINCL	     +=-I$(PWD)/../../libs/src/TACAbase  -I$(PWD)/../../libs/src/TATWbase  
 # TAINCL	     +=-I$(PWD)/../../Simulation/TXT2ROOT -I$(PWD)/../../Simulation 
@@ -74,6 +74,7 @@ TAINCL	     +=-I../../libs/src/TAVTbase -I../../libs/src/TAMSDbase -I../../Simul
 TAINCL	     +=-I../../libs/GenFit/fitters/include -I../../libs/GenFit/core/include 
 TAINCL	     +=-I../../libs/GenFit/trackReps/include -I../../libs/GenFit/fields/include 
 TAINCL	     +=-I../../libs/GenFit/measurements/include  -I$(PWD)/../../libs/GenFit/utilities/include 
+TAINCL	     +=-I../../libs/GenFit/eventDisplay/include
 
 CXXFLAGS      = -g -Wall -fPIC
 CXXFLAGS      += $(ROOTCFLAGS)

@@ -68,7 +68,7 @@
 #include "TAITactNtuTrack.hxx"
 #include "TAITactNtuTrackH.hxx"
 #include "TAITactNtuTrackF.hxx"
- 
+
 //MicroStrip Detector
 #include "TAMSDparGeo.hxx"
 #include "TAMSDparConf.hxx"
@@ -102,6 +102,7 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
 		     TFile *hf) {
 
   cout << "\tstart Constructor RecoTools\n";
+
   my_files.clear();
   m_debug = d;
   m_oustr = ostr;
@@ -109,7 +110,7 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
 
   tempo_kal=0;
 
-  ifstream inS; 
+  ifstream inS;
   char bufConf[200]; char fname[400];
   if(!list) {
     m_instr = istr;
@@ -144,17 +145,16 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     eventListFile.open( ((string)getenv("FOOTLEVEL0")+"/"+"eventListFile.dat").c_str(), fstream::trunc | fstream::out );
     if ( !eventListFile.is_open() )        cout<< "ERROR  -->  eventListFile.dat cannot open file."<< endl, exit(0);
   }
-cout << "\tend Constructor RecoTools\n";
-  //Initializing the Geometry class that handles the 
+
+  //Initializing the Geometry class that handles the
   //detector positioning and global to local transformations
   fGeoTrafo = new TAGgeoTrafo();
   TString filename = m_wd + "/FOOT_geo.map";
   fGeoTrafo->InitGeo(filename.Data());
-  cout << "\tend Constructor RecoTools\n";
 
-  Materials* listMaterials=new Materials() ;
+  // Materials* listMaterials=new Materials() ;
   //listMaterials->PrintMap();
-cout << "\tend Constructor RecoTools\n";
+
   //  TTree *tree = 0;
   TChain *tree = new TChain("EventTree");
   for(unsigned int ifi=0; ifi<my_files.size(); ifi++) {
@@ -165,13 +165,13 @@ cout << "\tend Constructor RecoTools\n";
   //  TTree* tree = (TTree*)gDirectory->Get("EventTree");
 
   // if(m_debug) cout<<" Creating Geo "<<endl;
-  // Geometry *my_G = new Geometry(); 
+  // Geometry *my_G = new Geometry();
   // if(m_debug) cout<<" Creating Sig "<<endl;
-  // Segnale *my_S = new Segnale(my_G); 
+  // Segnale *my_S = new Segnale(my_G);
   if(m_debug) cout<<" Creating Eve "<<endl;
   Evento *ev =  new Evento();
   // Trigger *tr = new Trigger();
-
+  
   // vector < Int_t > RegNumber;
   // vector < TString > RegName;
 
@@ -196,7 +196,7 @@ cout << "\tend Constructor RecoTools\n";
 
   //Define the output file content.
   my_out = new TAGactTreeWriter("my_out");
- 
+
   /*
     Setting up the detectors that we want to decode.
   */
@@ -213,7 +213,7 @@ cout << "\tend Constructor RecoTools\n";
 
   bool breakAfterThisEvent = false;
 
-  if(m_doEvent) 
+  if(m_doEvent)
     FillMCEvent(&evStr);
 
   if(m_doBM)
@@ -251,81 +251,87 @@ cout << "\tend Constructor RecoTools\n";
 
     cout << "Make Geo" << endl;
 
-    new TGeoManager("genfitGeom", "GENFIT geometry");
+    TGeoManager *colombo = new TGeoManager("genfitGeom", "GENFIT geometry");
+    TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
+    TGeoMedium *vacuum_med = new TGeoMedium("Vacuum_med",666, gGeoManager->GetMaterial("Vacuum"));
 
-    TGeoMixture *airMat = new TGeoMixture("Air",3);
-    airMat->AddElement(14.01,7.,.78);   // N
-    airMat->AddElement(16.00,8.,.21);   // O
-    airMat->AddElement(39.95,18.,.01);  // Ar
-    airMat->SetDensity(1.2e-3);
+
+    // TGeoMixture *airMat = new TGeoMixture("Air",3);
+    // airMat->AddElement(14.01,7.,.78);   // N
+    // airMat->AddElement(16.00,8.,.21);   // O
+    // airMat->AddElement(39.95,18.,.01);  // Ar
+    // airMat->SetDensity(1.2e-3);
     // airMat->SetPressure();      // std 6.32420e+8 = 1atm
-    // 1,26484e+8 MeV/mm3 = 0,2 atm     
+    // 1,26484e+8 MeV/mm3 = 0,2 atm
     // 1 MeV/mm3 = 1,58122538 × 10-9 atm
-    cout << "airMat->GetPressure()   " << airMat->GetPressure() << endl;
+    // cout << "airMat->GetPressure()   " << airMat->GetPressure() << endl;
 
-   TGeoMaterial *matAr = new TGeoMaterial("Argon", 39.948, 18., 0.001662);//densità viene da flair, 
-   TGeoMaterial *matC = new TGeoMaterial("Carbon", 12.0107, 6., 2.26);
-   TGeoMaterial *matO = new TGeoMaterial("Oxygen", 16., 8., 0.0013315);
-   TGeoMaterial *matAl = new TGeoMaterial("Aluminium", 26.981539, 13., 2.6989);
-   TGeoMaterial *matSi = new TGeoMaterial("Silicon", 28.085, 14., 2.329);
-   TGeoMaterial *matW = new TGeoMaterial("Tungsten", 183.84, 74., 19.3);// poi magari mettere la copertura in oro
-   TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
-   
-   
-   TGeoMixture *matMylar = new TGeoMixture("Mylar",3,   1.39000    );
-    // matMylar->SetUniqueID(  18);
-    matMylar->DefineElement(0,12.01,6,0.624935);
-    matMylar->DefineElement(1,1.01,1,0.4204392E-01);
-    matMylar->DefineElement(2,16,8,0.3330211);
-  
-
-    TGeoMixture *matEpo = new TGeoMixture("Epoxy",3,   1.18    );
-    matEpo->AddElement(12,6, 18./40.);  // C
-    matEpo->AddElement(1,1, 19./40.);   // H
-    matEpo->AddElement(16,8, 3./40.);  // O
+		Materials* listMaterials = new Materials() ;
+		listMaterials->PrintCompMap();
+    cout << endl << endl;
+  	// TGeoMaterial *matAr = new TGeoMaterial("Argon", 39.948, 18., 0.001662);//densità viene da flair,
+   //  TGeoMaterial *matC = new TGeoMaterial("Carbon", 12.0107, 6., 2.26);
+ 	 //  TGeoMaterial *matO = new TGeoMaterial("Oxygen", 16., 8., 0.0013315);
+  	// TGeoMaterial *matAl = new TGeoMaterial("Aluminium", 26.981539, 13., 2.6989);
+   // 	TGeoMaterial *matSi = new TGeoMaterial("Silicon", 28.085, 14., 2.329);
+   // 	TGeoMaterial *matW = new TGeoMaterial("Tungsten", 183.84, 74., 19.3);// poi magari mettere la copertura in oro
+   // 	TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
 
 
-    TGeoMixture *matSiC = new TGeoMixture("SiliconCarbon",2, 3.22); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    matSiC->AddElement(matC ,0.5);
-    matSiC->AddElement(28.085, 14 ,0.5);
+   	// TGeoMixture *matMylar = new TGeoMixture("Mylar",3,   1.39000    );
+    // // matMylar->SetUniqueID(  18);
+    // matMylar->DefineElement(0,12.01,6,0.624935);
+    // matMylar->DefineElement(1,1.01,1,0.4204392E-01);
+    // matMylar->DefineElement(2,16,8,0.3330211);
 
 
-    // CHECK
-    TGeoMixture *matSiCFoam = new TGeoMixture("SiCFoam",2,   0.1288    );
-    matSiCFoam->AddElement(matSiC, 0.04);  
-    matSiCFoam->AddElement(airMat, 0.96);  
+    // TGeoMixture *matEpo = new TGeoMixture("Epoxy",3,   1.18    );
+    // matEpo->AddElement(12,6, 18./40.);  // C
+    // matEpo->AddElement(1,1, 19./40.);   // H
+    // matEpo->AddElement(16,8, 3./40.);  // O
 
 
-   TGeoMixture *ArCO2 = new TGeoMixture("ArCO2",3);
-   ArCO2->AddElement(matAr ,1./4.);
-   ArCO2->AddElement(matC ,1./4.);
-   ArCO2->AddElement(matO ,2./4.);
-//   ArCO2->AddElement(matCO2 ,20.);
-   ArCO2->SetDensity(0.001677136); //da flair
-   ArCO2->SetPressure(1.26484e+8);    // 0.2 atm
-   cout << "ArCO2->GetPressure()   " << ArCO2->GetPressure() << endl;
+    // TGeoMixture *matSiC = new TGeoMixture("SiliconCarbon",2, 3.22); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // matSiC->AddElement(matC ,0.5);
+    // matSiC->AddElement(28.085, 14 ,0.5);
 
 
-   TGeoMixture *matKapton = new TGeoMixture("Kapton",4, 1.42);
-   matKapton->AddElement(1,1, 0.02636 );            // H
-   matKapton->AddElement(matC ,0.691133);
-   matKapton->AddElement(14.01, 7, 0.07327);        // N
-   matKapton->AddElement(16,8, 0.209235);               // O
+    // // CHECK
+    // TGeoMixture *matSiCFoam = new TGeoMixture("SiCFoam",2,   0.1288    );
+    // matSiCFoam->AddElement(matSiC, 0.04);
+    // matSiCFoam->AddElement(airMat, 0.96);
 
 
-      int medID = 0;
-   TGeoMedium *vacuum_med = new TGeoMedium("Vacuum_med",medID++, gGeoManager->GetMaterial("Vacuum"));
-   TGeoMedium *air = new TGeoMedium("Air_med",medID++, gGeoManager->GetMaterial("Air"));
-   TGeoMedium *gas_med = new TGeoMedium("ArCO2_med",medID++, gGeoManager->GetMaterial("ArCO2"));
-   // TGeoMedium *c_wire_med = new TGeoMedium("catod wire",medID++, gGeoManager->GetMaterial("Aluminium"));
-   TGeoMedium *a_wire_med = new TGeoMedium("Tungsten_med",medID++, gGeoManager->GetMaterial("Tungsten"));
-   TGeoMedium *a_maylar_med = new TGeoMedium("Mylar_med",medID++, gGeoManager->GetMaterial("Mylar"));
-    TGeoMedium* silicon = new TGeoMedium( "Silicon_med", medID++, gGeoManager->GetMaterial("Silicon") );
-    TGeoMedium* kapton = new TGeoMedium( "Kapton_med", medID++, gGeoManager->GetMaterial("Kapton") );
-    TGeoMedium* epoxy = new TGeoMedium( "Epoxy_med", medID++, gGeoManager->GetMaterial("Epoxy") );
-    TGeoMedium* aluminium = new TGeoMedium( "Aluminium_med", medID++, gGeoManager->GetMaterial("Aluminium") );
-    TGeoMedium* siCFoam = new TGeoMedium( "SiCFoam_med", medID++, gGeoManager->GetMaterial("SiCFoam") );
- 
+//    TGeoMixture *ArCO2 = new TGeoMixture("ArCO2",3);
+//    ArCO2->AddElement(matAr ,1./4.);
+//    ArCO2->AddElement(matC ,1./4.);
+//    ArCO2->AddElement(matO ,2./4.);
+// //   ArCO2->AddElement(matCO2 ,20.);
+//    ArCO2->SetDensity(0.001677136); //da flair
+//    ArCO2->SetPressure(1.26484e+8);    // 0.2 atm
+//    cout << "ArCO2->GetPressure()   " << ArCO2->GetPressure() << endl;
+
+
+   // TGeoMixture *matKapton = new TGeoMixture("Kapton",4, 1.42);
+   // matKapton->AddElement(1,1, 0.02636 );            // H
+   // matKapton->AddElement(matC ,0.691133);
+   // matKapton->AddElement(14.01, 7, 0.07327);        // N
+   // matKapton->AddElement(16,8, 0.209235);               // O
+
+
+   //    int medID = 0;
+   // TGeoMedium *vacuum_med = new TGeoMedium("Vacuum_med",medID++, gGeoManager->GetMaterial("Vacuum"));
+   // TGeoMedium *air = new TGeoMedium("Air_med",medID++, gGeoManager->GetMaterial("Air"));
+   // TGeoMedium *gas_med = new TGeoMedium("ArCO2_med",medID++, gGeoManager->GetMaterial("ArCO2"));
+   // // TGeoMedium *c_wire_med = new TGeoMedium("catod wire",medID++, gGeoManager->GetMaterial("Aluminium"));
+   // TGeoMedium *a_wire_med = new TGeoMedium("Tungsten_med",medID++, gGeoManager->GetMaterial("Tungsten"));
+   // TGeoMedium *a_maylar_med = new TGeoMedium("Mylar_med",medID++, gGeoManager->GetMaterial("Mylar"));
+   //  TGeoMedium* silicon = new TGeoMedium( "Silicon_med", medID++, gGeoManager->GetMaterial("Silicon") );
+   //  TGeoMedium* kapton = new TGeoMedium( "Kapton_med", medID++, gGeoManager->GetMaterial("Kapton") );
+   //  TGeoMedium* epoxy = new TGeoMedium( "Epoxy_med", medID++, gGeoManager->GetMaterial("Epoxy") );
+   //  TGeoMedium* aluminium = new TGeoMedium( "Aluminium_med", medID++, gGeoManager->GetMaterial("Aluminium") );
+   //  TGeoMedium* siCFoam = new TGeoMedium( "SiCFoam_med", medID++, gGeoManager->GetMaterial("SiCFoam") );
+
 
 
 //     cout << endl << "List of Materil\n ";
@@ -341,7 +347,7 @@ cout << "\tend Constructor RecoTools\n";
 
 
 
-    TGeoVolume *top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("Air_med"), 25., 25., 80.);
+    TGeoVolume *top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 80.);
     // TGeoVolume *top = gGeoManager->MakeBox("TOPPER", vacuum_med, 100., 100., 200.);
     gGeoManager->SetTopVolume(top); // mandatory !
 
@@ -357,8 +363,8 @@ cout << "\tend Constructor RecoTools\n";
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 1,1,14.7 ) ).Print();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic no Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,2 ) ).Print();
 
-    bool magneticFiledTest = true;
-    if ( magneticFiledTest ) {
+    // print out of the magnetic field
+    if ( GlobalPar::GetPar()->Debug() > 1 ) {
         ofstream bFieldTest;
         bFieldTest.open("bField.test", std::ofstream::out | std::ofstream::trunc );
 
@@ -387,33 +393,6 @@ cout << "\tend Constructor RecoTools\n";
     }
 
 
-    ofstream bFieldTest;
-    bFieldTest.open("bField.test", std::ofstream::out | std::ofstream::trunc );
-
-    bFieldTest << setiosflags(ios::fixed) << setprecision(8);
-
-    float zCoord = -29.75 + 14;     // global coordinates
-    for (int k=0; k<120; k++) {
-        float yCoord = -4.75;
-        for (int j=0; j<20; j++) {
-            float xCoord = -4.75;
-            for (int i=0; i<20; i++) {
-
-                TVector3 vecB = genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) );
-                // bFieldTest << vecB.x() << " " << vecB.y() << " " << vecB.z() << endl;
-                bFieldTest << " " << xCoord << " " << yCoord << " " << zCoord-14;
-                bFieldTest << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).x() / 10
-                            << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).y() / 10
-                            << "  " << genfit::FieldManager::getInstance()->getFieldVal( TVector3( xCoord, yCoord, zCoord ) ).z() / 10 << endl;
-                xCoord += 0.5;
-            }
-            yCoord += 0.5;
-        }
-        zCoord += 0.5;
-    }
-
-
-    bFieldTest.close();
 
     if(m_doBM) {
         // DisplayBeamMonitor(pg);
@@ -424,7 +403,7 @@ cout << "\tend Constructor RecoTools\n";
     if (m_doVertex) {
 
       m_vtgeo = shared_ptr<TAVTparGeo> ( (TAVTparGeo*) myp_vtgeo->Object() );
-      
+
 
         //Initialization of VTX parameters
         m_vtgeo->InitGeo();
@@ -437,7 +416,7 @@ cout << "\tend Constructor RecoTools\n";
 
         //Initialization of IT parameters
         m_itgeo->InitGeo();
-        // top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
+        top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
     }
 
     if(m_doMSD) {
@@ -451,18 +430,19 @@ cout << "\tend Constructor RecoTools\n";
     }
 
 
-    // set material into genfit 
-    MaterialEffects::getInstance()->init(new TGeoMaterialInterface());
+    // set material into genfit
+    MaterialEffects* materialEffects = MaterialEffects::getInstance();
+    materialEffects->init(new TGeoMaterialInterface());
 
     //--- close the geometry
-    gGeoManager->CloseGeometry();
+    // gGeoManager->CloseGeometry();
 
     //--- draw the ROOT box
     gGeoManager->SetVisLevel(10);
 
     // save an image of the foot geometry
     //top->Draw("ogl");
-    TCanvas* mirror = new TCanvas("footGeometry", "footGeometry",  700, 700); 
+    TCanvas* mirror = new TCanvas("footGeometry", "footGeometry",  700, 700);
     top->Draw("ap");
     mirror->SaveAs("footGeometry.png");
     mirror->SaveAs("footGeometry.root");
@@ -475,8 +455,8 @@ cout << "\tend Constructor RecoTools\n";
     const int nIter = 20; // max number of iterations
     const double dPVal = 1.E-3; // convergence criterion
 
-    
-    vector<genfit::eMeasurementType> measurementTypes;
+
+    // vector<genfit::eMeasurementType> measurementTypes;
     // for (unsigned int i = 0; i<nMeasurements; ++i) {
     //     measurementTypes.push_back(genfit::eMeasurementType(8));
     //     // measurementTypes.push_back(genfit::eMeasurementType(i%8));
@@ -486,8 +466,6 @@ cout << "\tend Constructor RecoTools\n";
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init!" << endl;
     m_kFitter = new KFitter ( nIter, dPVal );
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
-
-
 
   /*
     The event Loop
@@ -525,7 +503,7 @@ cout << "\tend Constructor RecoTools\n";
                 // MonitorBM();
             if(m_doVertex) {
             	// MonitorBMVTMat();
-                
+
             	// CalibBMVT();
             }
         }
@@ -534,7 +512,7 @@ cout << "\tend Constructor RecoTools\n";
             cout<<"Processed:: "<<jentry<<" evts!"<<endl;
 
 
-        
+
         //do some MC check
         //to be moved to framework
         if(m_doVertex && m_doInnerTracker)
@@ -543,31 +521,31 @@ cout << "\tend Constructor RecoTools\n";
         if(m_debug) {
 
             //Pixels stuff
-            TAVTntuRaw*  p_nturaw = 
-            (TAVTntuRaw*)   myn_vtraw->GenerateObject();
+            // TAVTntuRaw*  p_nturaw =
+            // (TAVTntuRaw*)   myn_vtraw->GenerateObject();
 
-            for(int is = 0; is<8; is++) {
-            	//      cout<<"Npixel:: "<<p_nturaw->GetPixelsN(is)<<endl;
-            	for(int i=0; i<p_nturaw->GetPixelsN(is); i++){
-            	  TAVTntuHit* hit = p_nturaw->GetPixel(is,i);
-            	  TVector3 apos = hit->GetPosition();
-            	}
-            }
+            // for(int is = 0; is<8; is++) {
+            // 	//      cout<<"Npixel:: "<<p_nturaw->GetPixelsN(is)<<endl;
+            // 	for(int i=0; i<p_nturaw->GetPixelsN(is); i++){
+            // 	  TAVTntuHit* hit = p_nturaw->GetPixel(is,i);
+            // 	  TVector3 apos = hit->GetPosition();
+            // 	}
+            // }
 
-             //      TAVTntuCluster*  p_ntuclus = 
+             //      TAVTntuCluster*  p_ntuclus =
             	// (TAVTntuCluster*)   myn_vtclus->GenerateObject();
              //      int i_ncl;
              //      //Displays the Clusters in the VTX detector
              //      for(int is=0; is<8; is++) {
             	// i_ncl = p_ntuclus->GetClustersN(is);
-            	
+
             	// for (Int_t i_cl = 0; i_cl < i_ncl; i_cl++) {
-            	  
+
             	//   TAVTcluster *acl = p_ntuclus->GetCluster(is,i_cl);
             	//   TVector3 myG = acl->GetPositionG();
             	//   TVector3 myLG(myG.X()*1./10000.,myG.Y()*1./10000.,myG.Z()*1./10000.);
             	//   TVector3 myR = fGeoTrafo->FromVTLocalToGlobal(myLG);
-            	  
+
             	// }
              //      }
         }
@@ -575,7 +553,7 @@ cout << "\tend Constructor RecoTools\n";
         //Trigger Stuff
         tr->Reset();
         tr->ComputeTrigger(&evStr, &RegName, &RegNumber);
-        
+
         if (!(jentry % 10) && m_debug)
           cout << "Trigger: Top Level:" << tr->IsTopLevel() << " Wanted:"
     	   << tr->IsWanted()<< " ST:"
@@ -584,8 +562,8 @@ cout << "\tend Constructor RecoTools\n";
     	   << " TWS:" << tr->IsTOFWallFSingle() << " TWM:"
     	   << tr->IsTOFWallFMulti() << " ON:" << tr->IsONION() << endl;
 
-        for(int iTr = 0; iTr<evStr.trn; iTr++) { 
-          if(m_debug) cout<<" Trk Chg:: "<<evStr.trcha[iTr]<<endl; 
+        for(int iTr = 0; iTr<evStr.trn; iTr++) {
+          if(m_debug) cout<<" Trk Chg:: "<<evStr.trcha[iTr]<<endl;
         }
 
 
@@ -615,11 +593,11 @@ start_kal = clock();
         // Kalman Filter
         int isKalmanConverged = 0;
         if ( m_doKalman ) {
-             // check other tracking systems are enabled 
+             // check other tracking systems are enabled
             if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit" << endl;
             isKalmanConverged = m_kFitter->MakeFit( jentry );
             if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit done. Converged = " << isKalmanConverged << endl;
-    
+
             // if ( isKalmanConverged == 1  )
               // breakAfterThisEvent = true;
 
@@ -630,9 +608,9 @@ start_kal = clock();
 end_kal = clock();
 tempo_kal+=(double)(end_kal-start_kal);
 
-    
 
-    
+
+
 
         if (!pg->IsEmpty() && tobedrawn && !(jentry%fr)) {
             pg->Modified();
@@ -669,6 +647,8 @@ tempo_kal+=(double)(end_kal-start_kal);
     my_out->Print();
     my_out->Close();
 
+    // materialEffects->drawdEdx( 11 );
+
     return;
 }
 
@@ -678,10 +658,10 @@ tempo_kal+=(double)(end_kal-start_kal);
 
 void RecoTools::AssociateHitsToParticle() {
 
-  
-  TAGntuMCeve*  p_ntumceve = 
+
+  TAGntuMCeve*  p_ntumceve =
     (TAGntuMCeve*)   myn_mceve->GenerateObject();
-  
+
   vector<int> FragIdxs;
   int nhitmc = p_ntumceve->nhit;
   for(int i=0; i<nhitmc; i++){
@@ -696,16 +676,16 @@ void RecoTools::AssociateHitsToParticle() {
   }
 
   //Pixels stuff
-  TAVTntuRaw*  p_nturaw = 
+  TAVTntuRaw*  p_nturaw =
     (TAVTntuRaw*)   myn_vtraw->GenerateObject();
-  
+
   int tmp_vtxid(0);
   TAVTntuHit* hit;
 
   //inner tracker stuff
-  TAITntuRaw*  p_itnturaw = 
+  TAITntuRaw*  p_itnturaw =
     (TAITntuRaw*)   myn_itraw->GenerateObject();
-  
+
   int tmp_itid(0);
   TAITntuHit* hitIT;
 
@@ -745,7 +725,7 @@ void RecoTools::DisplayIRMonitor(TAGpadGroup* pg, EVENT_STRUCT *myStr) {
   // TAGview* pirh_view = new TAGvieHorzMCIR(myn_bmtrk, myn_bmraw,
 		// 			  myp_bmgeo, myn_vtclus,
 		// 			  myn_vtrk, myp_vtgeo, myStr);
-  
+
   // pirh_view->Draw();
 
   // c_irhview_z = new TCanvas("irhview_z", "IR - Zoom horizontal view",20,20,1200,1200);
@@ -754,7 +734,7 @@ void RecoTools::DisplayIRMonitor(TAGpadGroup* pg, EVENT_STRUCT *myStr) {
   // TAGview* pirh_view_z = new TAGvieHorzMCIR(myn_bmtrk, myn_bmraw,
 		// 			    myp_bmgeo, myn_vtclus,
 		// 			    myn_vtrk, myp_vtgeo, myStr);
-  
+
   // pirh_view_z->Draw("zoom");
 
   return;
@@ -799,7 +779,7 @@ void RecoTools::FillMCEvent(EVENT_STRUCT *myStr) {
 }
 
 void RecoTools::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
-  
+
   /*Ntupling the MC Beam Monitor information*/
   myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
   myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
@@ -827,7 +807,7 @@ void RecoTools::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
 
 
 void RecoTools::FillMCTofWall(EVENT_STRUCT *myStr) {
-  
+
   /*Ntupling the MC Tof Wall information*/
   myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
 
@@ -839,7 +819,7 @@ void RecoTools::FillMCTofWall(EVENT_STRUCT *myStr) {
 }
 
 void RecoTools::FillMCCalorimeter(EVENT_STRUCT *myStr) {
-  
+
   /*Ntupling the MC Calorimeter information*/
   myn_caraw    = new TAGdataDsc("myn_caraw", new TACAdatRaw());
 
@@ -851,7 +831,7 @@ void RecoTools::FillMCCalorimeter(EVENT_STRUCT *myStr) {
 }
 
 void RecoTools::FillMCInteractionRegion(EVENT_STRUCT *myStr) {
-  
+
   /*Ntupling the MC Beam Monitor information*/
   myn_irraw    = new TAGdataDsc("myn_irraw", new TAIRdatRaw());
 
@@ -864,7 +844,7 @@ void RecoTools::FillMCInteractionRegion(EVENT_STRUCT *myStr) {
 }
 
 void RecoTools::FillMCVertex(EVENT_STRUCT *myStr) {
-   
+
    /*Ntupling the MC Vertex information*/
    myn_vtraw    = new TAGdataDsc("vtRaw", new TAVTntuRaw());
    // myn_vtclus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
@@ -887,7 +867,7 @@ void RecoTools::FillMCVertex(EVENT_STRUCT *myStr) {
    // TAVTparCal* cal   = (TAVTparCal*) myp_vtcal->Object();
    // filename = m_wd + "/config/TAVTdetector.cal";
    // cal->FromFile(filename.Data());
-   
+
    mya_vtraw   = new TAVTactNtuMC("vtActRaw", myn_vtraw, myp_vtgeo, myp_vtmap, myStr);
    // mya_vtclus  = new TAVTactNtuClusterF("vtActClus", myn_vtraw, myn_vtclus, myp_vtconf, myp_vtgeo);
    // mya_vttrack = new TAVTactNtuTrack("vtActTrack", myn_vtclus, myn_vtrk, myp_vtconf, myp_vtgeo, myp_vtcal);
@@ -910,7 +890,7 @@ void RecoTools::FillMCVertex(EVENT_STRUCT *myStr) {
 
 
 void RecoTools::FillMCMSD(EVENT_STRUCT *myStr) {
-   
+
    /*Ntupling the MC Vertex information*/
    myn_msdraw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
    // myn_msdclus   = new TAGdataDsc("msdClus", new TAMSDntuCluster());
@@ -933,7 +913,7 @@ void RecoTools::FillMCMSD(EVENT_STRUCT *myStr) {
    // TAMSDparCal* cal   = (TAMSDparCal*) myp_msdcal->Object();
    // filename = m_wd + "/config/TAMSDdetector.cal";
    // cal->FromFile(filename.Data());
-   
+
    mya_msdraw   = new TAMSDactNtuMC("msdActRaw", myn_msdraw, myp_msdgeo, myp_msdmap, myStr);
    // mya_msdclus  = new TAMSDactNtuClusterF("msdActClus", myn_msdraw, myn_msdclus, myp_msdconf, myp_msdgeo);
    // mya_msdtrack = new TAMSDactNtuTrack("msdActTrack", myn_msdclus, myn_msdrk, myp_msdconf, myp_msdgeo, myp_msdcal);
@@ -956,7 +936,7 @@ void RecoTools::FillMCMSD(EVENT_STRUCT *myStr) {
 
 
 void RecoTools::FillMCInnerTracker(EVENT_STRUCT *myStr) {
-   
+
    /*Ntupling the MC Vertex information*/
    myn_itraw    = new TAGdataDsc("itRaw", new TAITntuRaw());
    // myn_itclus   = new TAGdataDsc("itClus", new TAITntuCluster());
@@ -978,7 +958,7 @@ void RecoTools::FillMCInnerTracker(EVENT_STRUCT *myStr) {
    // TAITparCal* cal   = (TAITparCal*) myp_itcal->Object();
    // filename = m_wd + "/config/TAITdetector.cal";
    // cal->FromFile(filename.Data());
-   
+
    mya_itraw   = new TAITactNtuMC("itActRaw", myn_itraw, myp_itgeo, myp_itmap, myStr);
    // mya_itclus  = new TAITactNtuClusterF("itActClus", myn_itraw, myn_itclus, myp_itconf, myp_itgeo);
    // mya_ittrack = new TAITactNtuTrack("itActTrack", myn_itclus, myn_itrk, myp_itconf, myp_itgeo, myp_itcal);
@@ -998,7 +978,7 @@ void RecoTools::FillMCInnerTracker(EVENT_STRUCT *myStr) {
 void RecoTools::MonitorBM() {
 
   m_hf->cd();
-  
+
   char name[200];
   double dist, rho, resi_aft;
   int ce,pl,vi;
@@ -1012,7 +992,7 @@ void RecoTools::MonitorBM() {
 
   TVector3 bmPos = fGeoTrafo->GetBMCenter();
   TVector3 tgPos = fGeoTrafo->GetVTCenter();
-  double zDiff  = tgPos.Z() - bmPos.Z();	  
+  double zDiff  = tgPos.Z() - bmPos.Z();
 
   //Raw Data
 
@@ -1025,62 +1005,62 @@ void RecoTools::MonitorBM() {
   Int_t nwiretot=0;
 
   ((TH1D*)gDirectory->Get("beammonitor/eff"))->SetBinContent(2,((TH1D*)gDirectory->Get("beammonitor/eff"))->GetBinContent(2)+1);
-  
+
   // initialization
-  
+
   //Tracks
-  TABMntuTrack* p_ntutrk  = 
+  TABMntuTrack* p_ntutrk  =
     (TABMntuTrack*) myn_bmtrk->GenerateObject();
-  
+
   //Hits
-  TABMntuRaw* p_ntuhit  = 
+  TABMntuRaw* p_ntuhit  =
     (TABMntuRaw*) myn_bmraw->GenerateObject();
-  
+
   Int_t i_nnhit = p_ntuhit->nhit;
   for (Int_t i = 0; i < i_nnhit; i++) {
     const TABMntuHit* aHi = p_ntuhit->Hit(i);
-    
+
     int tmpv = aHi->View();
     if(tmpv<0)tmpv = 0;
     int chidx = aHi->Cell()+aHi->Plane()*3+tmpv*18;
-    
+
     nwirehit[chidx]++;
     sprintf(name,"beammonitor/t0_tdc_%d",chidx);
     ((TH1D*)gDirectory->Get(name))->Fill(aHi->Timmon());
   }
-  
-  
+
+
   Int_t i_ntrk = p_ntutrk->ntrk;
-  
+
   for (Int_t i_h = 0; i_h < i_ntrk; i_h++) {
     TABMntuTrackTr* trk = p_ntutrk->Track(i_h);
-    
+
     trk_chi2 = trk->GetChi2();
     //    if(!i_h && trk_chi2>20) tobepl = kTRUE;
-    
+
     sprintf(name,"beammonitor/chi2_%d",i_h);
     ((TH1D*)gDirectory->Get(name))->Fill(trk_chi2);
-    
-    
+
+
     my_ux = trk->GetUx();
     my_uy = trk->GetUy();
     my_uz = 0;
     my_uzs = 1. - my_ux*my_ux - my_uy*my_uy;
     if(my_uzs>=0) my_uz = sqrt(my_uzs);
-    
+
     phi_an = atan(my_ux/my_uz);
     psi_an = atan(my_uy/my_uz);
-    
+
     phi_an_dg = phi_an*TMath::RadToDeg();
     psi_an_dg = psi_an*TMath::RadToDeg();
-    
+
     myVec.SetXYZ(my_ux, my_uy, my_uz);
     ang_x = myVec.Angle(vX);
     ang_z = myVec.Angle(vZ);
     bs = trk->PointAtLocalZ(zDiff);
-    
+
     ((TH1D*)gDirectory->Get("beammonitor/z_ang"))->Fill(ang_z);
-    
+
   }
   if(trk_chi2<10 && i_ntrk) {
     ((TH1D*)gDirectory->Get("beammonitor/eff"))->SetBinContent(7,((TH1D*)gDirectory->Get("beammonitor/eff"))->GetBinContent(7)+1);
@@ -1094,7 +1074,7 @@ void RecoTools::MonitorBM() {
   if(trk_chi2<20 && i_ntrk) {
     ((TH1D*)gDirectory->Get("beammonitor/eff"))->SetBinContent(4,((TH1D*)gDirectory->Get("beammonitor/eff"))->GetBinContent(4)+1);
   }
-  
+
   if(trk_chi2<100 && i_ntrk) {
     ((TH1D*)gDirectory->Get("beammonitor/eff"))->SetBinContent(3,((TH1D*)gDirectory->Get("beammonitor/eff"))->GetBinContent(3)+1);
     //      ((TH1D*)gDirectory->Get("beammonitor/z_ang"))->Fill(ang_z);
@@ -1104,21 +1084,21 @@ void RecoTools::MonitorBM() {
     }
     ((TH1D*)gDirectory->Get("beammonitor/x_ang_dg"))->Fill(phi_an_dg);
     ((TH1D*)gDirectory->Get("beammonitor/y_ang_dg"))->Fill(psi_an_dg);
-    
+
     ((TH1D*)gDirectory->Get("beammonitor/xpr_ang"))->Fill(phi_an);
     ((TH1D*)gDirectory->Get("beammonitor/ypr_ang"))->Fill(psi_an);
     ((TH1D*)gDirectory->Get("beammonitor/x_pro"))->Fill(bs.X());
     ((TH1D*)gDirectory->Get("beammonitor/y_pro"))->Fill(bs.Y());
     ((TH1D*)gDirectory->Get("beammonitor/xy_dist"))->Fill(bs.X(),bs.Y());
   }
-  
+
   //    if(i_ntrk && p_ntutrk->GetChi2()<100) {
   if(i_ntrk) {
     Int_t i_nhit = p_ntuhit->nhit;
     for (Int_t i_h = 0; i_h < i_nhit; i_h++) {
       TABMntuHit* hit = p_ntuhit->Hit(i_h);
       if(hit->TrkAss()) {
-	rho = 	hit->GetRho(); 
+	rho = 	hit->GetRho();
 	dist = 	hit->Dist();
 	ce = 	hit->Cell();
 	pl = 	hit->Plane();
@@ -1129,7 +1109,7 @@ void RecoTools::MonitorBM() {
 	if(!TMath::IsNaN(rho)) {
 	  ((TH1D*)gDirectory->Get("beammonitor/resi_aft"))->Fill(resi_aft);
 	  ((TH2D*)gDirectory->Get("beammonitor/resi_vs_t"))->Fill(resi_aft,hit->Tdrift());
-	  if(m_fullmoni) 
+	  if(m_fullmoni)
 	    ((TH2D*)gDirectory->Get("beammonitor/resi_vs_zmt"))->Fill(resi_aft,hit->Tdrift());
 	  ((TH2D*)gDirectory->Get("beammonitor/resi_vs_r"))->Fill(resi_aft,hit->Dist());
 	  if(m_fullmoni) {
@@ -1166,16 +1146,16 @@ void RecoTools::MonitorBM() {
 //Yun new graphs:
 void RecoTools::MonitorBMNew(Long64_t jentry) {
   m_hf->cd();
-  
+
   TABMntuTrack* p_ntutrk = (TABMntuTrack*) myn_bmtrk->GenerateObject();
   TABMntuRaw* p_ntuhit  =  (TABMntuRaw*) myn_bmraw->GenerateObject();  //da capire come prendere info dagli singoli hit della traccia!
-  TABMparGeo* p_bmgeo = (TABMparGeo*)(gTAGroot->FindParaDsc("p_bmgeo", "TABMparGeo")->Object());  
+  TABMparGeo* p_bmgeo = (TABMparGeo*)(gTAGroot->FindParaDsc("p_bmgeo", "TABMparGeo")->Object());
   TABMparCon* p_bmcon = (TABMparCon*) (gTAGroot->FindParaDsc("myp_bmcon", "TABMparCon")->Object());
   TABMntuHit* rawhit;
   TABMntuTrackTr* trackTr;
-    
+
   Int_t i_ntrk = p_ntutrk->ntrk;
-  Int_t i_nhit = p_ntuhit->nhit;  
+  Int_t i_nhit = p_ntuhit->nhit;
   vector<Double_t> realangz_vec, realangphi_vec;
   vector<TVector3> realpos_vec;
   Double_t tmp_double, maxRdriftSmear=10., avReso=0.;
@@ -1189,8 +1169,8 @@ void RecoTools::MonitorBMNew(Long64_t jentry) {
   for (Int_t i_h = 0; i_h < i_nhit; i_h++) {
     rawhit = p_ntuhit->Hit(i_h);
     if(rawhit->GetIdmon()==1){
-      realangz_vec.push_back(rawhit->Momentum().Theta()*RAD2DEG);    
-      realangphi_vec.push_back(rawhit->Momentum().Phi()*RAD2DEG);    
+      realangz_vec.push_back(rawhit->Momentum().Theta()*RAD2DEG);
+      realangphi_vec.push_back(rawhit->Momentum().Phi()*RAD2DEG);
       realpos_vec.push_back(rawhit->Position());
       if(rawhit->View()==1)
         nhit_pri_all_x++;
@@ -1206,26 +1186,26 @@ void RecoTools::MonitorBMNew(Long64_t jentry) {
       else if(rawhit->GetIdmon()==1 && rawhit->View()==-1)
         nhit_pri_sel_y++;
       else
-        ReadOnlyPrimary=false;  
+        ReadOnlyPrimary=false;
       //~ if(rawhit->GetRdriftSmear()<maxRdriftSmear)
       if(p_bmcon->ResoEval(rawhit->GetRealRdrift())<maxRdriftSmear)//provvisorio
         maxRdriftSmear=rawhit->GetRdriftSmear();
-      ((TH1D*)gDirectory->Get("NewBM/hitIndex"))->Fill(p_bmgeo->GetBMNcell(rawhit->Plane(),rawhit->View(),rawhit->Cell()));      
+      ((TH1D*)gDirectory->Get("NewBM/hitIndex"))->Fill(p_bmgeo->GetBMNcell(rawhit->Plane(),rawhit->View(),rawhit->Cell()));
       hitxplane[rawhit->Plane()]++;
       if(rawhit->GetSigma()>0.02)
         avReso++;;
         //~ avReso+=rawhit->GetSigma();
       if(i_ntrk==1){ //loop on track
-        trackTr = p_ntutrk->Track(0);  
+        trackTr = p_ntutrk->Track(0);
         if(trackTr->GetIsConverged()==1){//commentami se vuoi mettere condizioni in più come quelli sotto
         //~ if(trackTr->GetIsConverged()==1 && trackTr->GetAngZRes()<0.45 && trackTr->GetAngZRes()>0.3){//provvisorio!
         //~ if(trackTr->GetIsConverged()==1 && trackTr->GetChi2NewRed()<1.){//provvisorio!
-          ((TH1D*)gDirectory->Get("NewBM/converged/hitIndex_conv"))->Fill(p_bmgeo->GetBMNcell(rawhit->Plane(),rawhit->View(),rawhit->Cell())); 
-          ((TH1D*)gDirectory->Get("NewBM/converged/Rdrift_real_conv"))->Fill(rawhit->Dist()); 
-          ((TH1D*)gDirectory->Get("NewBM/converged/Rdrift_smeared_conv"))->Fill(rawhit->GetRealRdrift()); 
-          ((TH1D*)gDirectory->Get("NewBM/converged/smearingRdrift_conv"))->Fill(rawhit->GetRdriftSmear()); 
-          ((TH1D*)gDirectory->Get("NewBM/converged/sigma_conv"))->Fill(rawhit->GetSigma()); 
-          } 
+          ((TH1D*)gDirectory->Get("NewBM/converged/hitIndex_conv"))->Fill(p_bmgeo->GetBMNcell(rawhit->Plane(),rawhit->View(),rawhit->Cell()));
+          ((TH1D*)gDirectory->Get("NewBM/converged/Rdrift_real_conv"))->Fill(rawhit->Dist());
+          ((TH1D*)gDirectory->Get("NewBM/converged/Rdrift_smeared_conv"))->Fill(rawhit->GetRealRdrift());
+          ((TH1D*)gDirectory->Get("NewBM/converged/smearingRdrift_conv"))->Fill(rawhit->GetRdriftSmear());
+          ((TH1D*)gDirectory->Get("NewBM/converged/sigma_conv"))->Fill(rawhit->GetSigma());
+          }
         }
       }
     }
@@ -1236,7 +1216,7 @@ void RecoTools::MonitorBMNew(Long64_t jentry) {
   if(realangz_vec.size()!=realangphi_vec.size())
     cout<<"WARNING: something is wrong in realangz and realangphi!!!!!check in RecoTools::MonitorBMNew() realangz_vec.size()="<<realangz_vec.size()<<" realangphi_vec.size()="<<realangphi_vec.size()<<endl;
   Double_t maxAngZ=-1000., minAngZ=1000., maxAngPhi=-1000., minAngPhi=1000., avAngZ=0., avAngPhi=0.;
-  Double_t realAngZ, realAngZRes, realAngPhi, realAngPhiRes, realAngZResAv=0.;  
+  Double_t realAngZ, realAngZRes, realAngPhi, realAngPhiRes, realAngZResAv=0.;
   for (Int_t i_h = 0; i_h < realangz_vec.size(); i_h++){
     if(realangphi_vec[i_h]>maxAngPhi)
       maxAngPhi=realangphi_vec[i_h];
@@ -1249,28 +1229,28 @@ void RecoTools::MonitorBMNew(Long64_t jentry) {
     avAngZ+=realangz_vec[i_h];
     avAngPhi+=realangphi_vec[i_h];
     }
-  if(realangz_vec.size()!=0){  
-    realAngZ=avAngZ/realangz_vec.size();   
-    realAngPhi=avAngPhi/realangz_vec.size();   
+  if(realangz_vec.size()!=0){
+    realAngZ=avAngZ/realangz_vec.size();
+    realAngPhi=avAngPhi/realangz_vec.size();
     ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_angZ"))->Fill(realAngZ);
     ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_angPhi"))->Fill(realAngPhi);
     realAngZRes=maxAngZ-minAngZ;
     realAngPhiRes=maxAngPhi-minAngPhi;
-    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_angZRes"))->Fill(realAngZRes);    
-    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_angPhiRes"))->Fill(realAngPhiRes);  
+    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_angZRes"))->Fill(realAngZRes);
+    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_angPhiRes"))->Fill(realAngPhiRes);
     for (Int_t i_hh = 0; i_hh < realangz_vec.size(); i_hh++)
       realAngZResAv+=fabs(realangz_vec[i_hh]-realAngZ);
-    realAngZResAv=realAngZResAv/realangz_vec.size();  
-    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_angZResAv"))->Fill(realAngZResAv);        
-    ((TH2D*)gDirectory->Get("NewBM/MCeve/Real_AngzvsAngzRes"))->Fill(realAngZ, realAngZRes);        
+    realAngZResAv=realAngZResAv/realangz_vec.size();
+    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_angZResAv"))->Fill(realAngZResAv);
+    ((TH2D*)gDirectory->Get("NewBM/MCeve/Real_AngzvsAngzRes"))->Fill(realAngZ, realAngZRes);
     }
-      
-  
+
+
   if(realangz_vec.size()!=realpos_vec.size())
     cout<<"WARNING: something is very wrong in realangz and realpos!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!check in RecoTools::MonitorBMNew()"<<endl;
-  
+
   //calculate realRTarget // INUTILE, DA TOGLIERE!!! con tutti i suoi grafici
-  Double_t minRTarget=10, maxRTarget=-10, RealRTarget=0., RealRTargetNew=0.;  
+  Double_t minRTarget=10, maxRTarget=-10, RealRTarget=0., RealRTargetNew=0.;
   for (Int_t i_h = 0; i_h < realpos_vec.size(); i_h++){
     //~ tmp_double=sqrt(realpos_vec[i_h].X()*realpos_vec[i_h].X()+realpos_vec[i_h].Y()*realpos_vec[i_h].Y());
     //~ tmp_double+=tan(realangz_vec[i_h]*DEG2RAD)*(target_o.Z()-realpos_vec[i_h].Z());
@@ -1284,46 +1264,46 @@ void RecoTools::MonitorBMNew(Long64_t jentry) {
     RealRTarget+=tmp_double;
     }
   if(realpos_vec.size()>0){
-    RealRTarget=RealRTarget/realpos_vec.size();  
-    RealRTargetNew=RealRTargetNew/realpos_vec.size();  
-    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_RTarget"))->Fill(RealRTarget);  
+    RealRTarget=RealRTarget/realpos_vec.size();
+    RealRTargetNew=RealRTargetNew/realpos_vec.size();
+    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_RTarget"))->Fill(RealRTarget);
     ((TH2D*)gDirectory->Get("NewBM/MCeve/Real_AngzvsRTarget"))->Fill(realAngZ, RealRTarget);
-    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_RTargetNew"))->Fill(RealRTargetNew);  
+    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_RTargetNew"))->Fill(RealRTargetNew);
     ((TH2D*)gDirectory->Get("NewBM/MCeve/Real_AngzvsRTargetNew"))->Fill(realAngZ, RealRTargetNew);
-    if(realpos_vec.size()>1)      
-      ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_RTargetRes"))->Fill(maxRTarget-minRTarget);        
+    if(realpos_vec.size()>1)
+      ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_RTargetRes"))->Fill(maxRTarget-minRTarget);
     }
-    
 
 
-  //calculate RealRTargetFirst 
-  if(realpos_vec.size()>0){  
-    //~ Double_t RealRTargetFirst=sqrt(realpos_vec[0].X()*realpos_vec[0].X()+realpos_vec[0].Y()*realpos_vec[0].Y())+      
+
+  //calculate RealRTargetFirst
+  if(realpos_vec.size()>0){
+    //~ Double_t RealRTargetFirst=sqrt(realpos_vec[0].X()*realpos_vec[0].X()+realpos_vec[0].Y()*realpos_vec[0].Y())+
     Double_t RealRTargetFirst=tan(realAngZ*DEG2RAD)*(target_o.Z()-realpos_vec[0].Z());
-    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_RTargetFirst"))->Fill(RealRTargetFirst);  
-    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_AngzvsRTarget_pendenza"))->Fill(RealRTargetFirst/realAngZ);            
+    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_RTargetFirst"))->Fill(RealRTargetFirst);
+    ((TH1D*)gDirectory->Get("NewBM/MCeve/Real_AngzvsRTarget_pendenza"))->Fill(RealRTargetFirst/realAngZ);
     ((TH2D*)gDirectory->Get("NewBM/MCeve/Real_AngzvsRTargetFirst"))->Fill(realAngZ, RealRTargetFirst);
     }
-    
-    
+
+
   //_sel sono gli hit selezionati, quelli che derivano dalla traccia, senza sel sono tutti gli hit letti dal BM
   nhit_pri_all=nhit_pri_all_x+nhit_pri_all_y;
   nhit_pri_sel=nhit_pri_sel_x+nhit_pri_sel_y;
   if(nhit_pri_all_x>2 && nhit_pri_all_y>2 && realAngZ<p_bmcon->GetAngZCut())//goodEvent is true if there is at least 3 hit from the primary particle for any view and angz<angzcut.. no buono secondo me!!!
-    goodEvent=true;     
-    
+    goodEvent=true;
+
   //NO LOOP ON TRACK: dovrebbe esserci solo una traccia o nessuna traccia
   if(i_ntrk!=1 && i_ntrk!=0)
     cout<<"WARNING: you have a wrong number of tracks in BM!!!!!!!!!!!!!!!! message from RecoTools::MonitorBMNew()"<<endl;
-  
-  if(i_ntrk==1) {// dovrebbe esserci una sola traccia salvata      
+
+  if(i_ntrk==1) {// dovrebbe esserci una sola traccia salvata
     trackTr = p_ntutrk->Track(0);
     if(nhit_sel!=trackTr->GetNhit())//se non vedi mai questa scritta togli nhit_sel
-      cout<<"WARNING: Nhit from track of TABMntuTrackTr is different from nhit_sel of Recotools!!!check in RecoTools::MonitorBMNew() nhit_sel="<<nhit_sel<<"  trackTr->GetNhit()="<<trackTr->GetNhit()<<endl;  
-        
+      cout<<"WARNING: Nhit from track of TABMntuTrackTr is different from nhit_sel of Recotools!!!check in RecoTools::MonitorBMNew() nhit_sel="<<nhit_sel<<"  trackTr->GetNhit()="<<trackTr->GetNhit()<<endl;
+
     ((TH1D*)gDirectory->Get("NewBM/isConverged"))->Fill(trackTr->GetIsConverged());
-    
-    
+
+
 
     if(trackTr->GetIsConverged()==1){
     //provv cutpass_conv era 0.01 e anche gli altri end erano diversi!
@@ -1339,7 +1319,7 @@ void RecoTools::MonitorBMNew(Long64_t jentry) {
       for(Double_t chi2cut_conv=0.00001 ; chi2cut_conv<chi2cut_end_conv ; chi2cut_conv+=cutpass_conv)
           if(trackTr->GetChi2NewRed()<chi2cut_conv)
             ((TH1D*)gDirectory->Get("NewBM/converged/chi2redcut_conv"))->Fill(chi2cut_conv);
-      
+
   //~ if(trackTr->GetIsConverged()==1 && trackTr->GetAngZRes()<0.45 && trackTr->GetAngZRes()>0.3){//provvisorio!
   //~ if(trackTr->GetIsConverged()==1 && trackTr->GetChi2NewRed()<1.){//provvisorio!
     if(trackTr->GetIsConverged()==1){// è inutile, ma lo lascio perchè poi è più semplice mettere le condizioni sopra senza dover togliere e mettere la }
@@ -1370,7 +1350,7 @@ void RecoTools::MonitorBMNew(Long64_t jentry) {
       ((TH2D*)gDirectory->Get("NewBM/converged/chi2redVsAngzRes_conv_large"))->Fill(trackTr->GetChi2NewRed(), trackTr->GetAngZRes());
       ((TH2D*)gDirectory->Get("NewBM/converged/avReso_vs_chi2red_conv"))->Fill(avReso, trackTr->GetChi2NewRed());
       ((TH2D*)gDirectory->Get("NewBM/converged/avReso_vs_angzres_conv"))->Fill(avReso, trackTr->GetAngZRes());
-      ((TH1D*)gDirectory->Get("NewBM/converged/n_prihit_sel"))->Fill(nhit_pri_sel);      
+      ((TH1D*)gDirectory->Get("NewBM/converged/n_prihit_sel"))->Fill(nhit_pri_sel);
       if(goodEvent)
         ((TH1D*)gDirectory->Get("NewBM/converged/n_hit_conv_good"))->Fill(nhit_pri_sel);
       else
@@ -1382,17 +1362,17 @@ void RecoTools::MonitorBMNew(Long64_t jentry) {
 
       Double_t rescut=0.5, angzcut=0.3;//provvisorio!!! poi prendi da parcon magari
       if(trackTr->GetAngZRes() < rescut && i_nhit<=12) {//enter in rescut// da modificare, poi //provvisorio! WORK NOW
-        Double_t rescut_chi2pass=0.01, rescut_angzpass=0.01, rescut_initchi2=1., rescut_endchi2=5., rescut_initangz=0.1, rescut_endangz=0.3;      
+        Double_t rescut_chi2pass=0.01, rescut_angzpass=0.01, rescut_initchi2=1., rescut_endchi2=5., rescut_initangz=0.1, rescut_endangz=0.3;
         Double_t angzcut_end=0.5, chi2redcut_end=10., angzcut_pass=0.01, chi2redcut_pass=0.01;
         Double_t chi2redcut_tight=1.57, chi2redcut_loose=3;
-        ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/AngZRes_conv_resloose"))->Fill(trackTr->GetAngZRes());  
+        ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/AngZRes_conv_resloose"))->Fill(trackTr->GetAngZRes());
         ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/AngZ_conv_resloose"))->Fill(trackTr->GetAngZ());
         ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2red_conv_resloose"))->Fill(trackTr->GetChi2NewRed());
         ((TH2D*)gDirectory->Get("NewBM/converged/rescut_l/chi2redVsAngz_conv_resloose"))->Fill(trackTr->GetChi2NewRed(),trackTr->GetAngZ());
         for(Double_t maxangzcut=0.00001 ; maxangzcut<angzcut_end ; maxangzcut+=angzcut_pass)
           if(trackTr->GetAngZ()<maxangzcut)
             ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/AngZcut_conv_resloose"))->Fill(maxangzcut);
- 
+
         for(Double_t maxchi2cut=0.00001 ; maxchi2cut<chi2redcut_end ; maxchi2cut+=chi2redcut_pass)
           if(trackTr->GetChi2NewRed()<maxchi2cut)
             ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2redcut_conv_resloose"))->Fill(maxchi2cut);
@@ -1401,34 +1381,34 @@ void RecoTools::MonitorBMNew(Long64_t jentry) {
           if(trackTr->GetChi2NewRed()<maxchi2)
             for(Double_t maxangz=rescut_initangz+0.001;maxangz<rescut_endangz;maxangz+=rescut_angzpass)
               if(trackTr->GetAngZ()<maxangz)
-                ((TH2D*)gDirectory->Get("NewBM/converged/rescut_l/chi2redAndAngz_conv_resloose"))->Fill(maxangz, maxchi2);//da riempire        
-        
-        //chi2tight  
+                ((TH2D*)gDirectory->Get("NewBM/converged/rescut_l/chi2redAndAngz_conv_resloose"))->Fill(maxangz, maxchi2);//da riempire
+
+        //chi2tight
         if(trackTr->GetChi2NewRed()<chi2redcut_tight){
-          ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2cut_tight/AngZ_conv_resloose_chi2tight"))->Fill(trackTr->GetAngZ());          
+          ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2cut_tight/AngZ_conv_resloose_chi2tight"))->Fill(trackTr->GetAngZ());
           for(Double_t maxangzcut=0.00001 ; maxangzcut<angzcut_end ; maxangzcut+=angzcut_pass)
             if(trackTr->GetAngZ()<maxangzcut)
-              ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2cut_tight/AngZcut_conv_resloose_chi2tight"))->Fill(maxangzcut);          
+              ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2cut_tight/AngZcut_conv_resloose_chi2tight"))->Fill(maxangzcut);
           }//end of rescut && chi2tight
-          
-        //chi2loose  
+
+        //chi2loose
         if(trackTr->GetChi2NewRed()<chi2redcut_loose){
-          ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2cut_l/ndf_conv_resloose_chi2loose"))->Fill(trackTr->GetNdf());           
-          ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2cut_l/n_hit_conv_resloose_chi2loose_good"))->Fill(nhit_pri_sel);           
-          ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2cut_l/AngZ_conv_resloose_chi2loose"))->Fill(trackTr->GetAngZ());          
+          ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2cut_l/ndf_conv_resloose_chi2loose"))->Fill(trackTr->GetNdf());
+          ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2cut_l/n_hit_conv_resloose_chi2loose_good"))->Fill(nhit_pri_sel);
+          ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2cut_l/AngZ_conv_resloose_chi2loose"))->Fill(trackTr->GetAngZ());
           for(Double_t maxangzcut=0.00001 ; maxangzcut<angzcut_end ; maxangzcut+=angzcut_pass)
             if(trackTr->GetAngZ()<maxangzcut)
-              ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2cut_l/AngZcut_conv_resloose_chi2loose"))->Fill(maxangzcut);          
+              ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/chi2cut_l/AngZcut_conv_resloose_chi2loose"))->Fill(maxangzcut);
           }//end of rescut && chi2tight
-        
-        //angZcut  
+
+        //angZcut
         if(trackTr->GetAngZ()<angzcut){
-          ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/angzcut/chi2red_conv_resloose_angzcut"))->Fill(trackTr->GetChi2NewRed());          
+          ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/angzcut/chi2red_conv_resloose_angzcut"))->Fill(trackTr->GetChi2NewRed());
           for(Double_t maxchi2cut=0.00001 ; maxchi2cut<chi2redcut_end ; maxchi2cut+=chi2redcut_pass)
             if(trackTr->GetChi2NewRed()<maxchi2cut)
-              ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/angzcut/chi2redcut_conv_resloose_angzcut"))->Fill(maxchi2cut);          
+              ((TH1D*)gDirectory->Get("NewBM/converged/rescut_l/angzcut/chi2redcut_conv_resloose_angzcut"))->Fill(maxchi2cut);
           }//end of rescut_l/angZcut
-                  
+
         }//end of rescut_l
 
 
@@ -1447,12 +1427,12 @@ void RecoTools::MonitorBMNew(Long64_t jentry) {
           ((TH1D*)gDirectory->Get("NewBM/converged/chi2redcut/n_hit_conv_chi2redcut_good"))->Fill(nhit_pri_sel);
         else
           ((TH1D*)gDirectory->Get("NewBM/converged/chi2redcut/n_hit_conv_chi2redcut_bad"))->Fill(nhit_pri_sel);
-          
+
         if(ReadOnlyPrimary==true){
           ((TH1D*)gDirectory->Get("NewBM/converged/chi2redcut/AngZ_conv_chi2redcut_onlyPrimary"))->Fill(trackTr->GetAngZ());
           ((TH1D*)gDirectory->Get("NewBM/converged/chi2redcut/AngZRes_conv_chi2redcut_onlyPrimary"))->Fill(trackTr->GetAngZRes());
           }
-          
+
         if(trackTr->GetAngZ()<p_bmcon->GetAngZCut()){
           Double_t maxangzres=0.5, angzres_pass=0.01, angzrescut=0.5;
           if(trackTr->GetAngZRes()<angzrescut)
@@ -1465,18 +1445,18 @@ void RecoTools::MonitorBMNew(Long64_t jentry) {
           if(goodEvent)
             ((TH1D*)gDirectory->Get("NewBM/converged/chi2redcut/chi2_angz/n_hit_conv_chi2redcut_angzcut_good"))->Fill(nhit_pri_sel);
           else
-            ((TH1D*)gDirectory->Get("NewBM/converged/chi2redcut/chi2_angz/n_hit_conv_chi2redcut_angzcut_bad"))->Fill(nhit_pri_sel);          
-          //~ if(trackTr->GetAngZ()<p_bmcon->GetAngZRescut()){          
-            
+            ((TH1D*)gDirectory->Get("NewBM/converged/chi2redcut/chi2_angz/n_hit_conv_chi2redcut_angzcut_bad"))->Fill(nhit_pri_sel);
+          //~ if(trackTr->GetAngZ()<p_bmcon->GetAngZRescut()){
+
             //~ }//end of chi2_angz_res as level 3
-          
+
           }//end of chi2_angz as level 2
         }//end of chi2cut as level 1
-        
+
     Double_t chi2end_angzcut=10., angzcut_passo=0.01, resend_angzcut=0.5;
     Double_t chi2tight_angzcut=1.6, chi2loose_angzcut=5., resloose_angzcut=0.5, restight_angzcut=0.1;
       if(trackTr->GetAngZ() < 0.3 && i_nhit<=12){//primo taglio è su angz
-        
+
         if(trackTr->GetChi2NewRed() < 5) //chi2loose
           for(Double_t ar=0.000001 ; ar<resend_angzcut ; ar+=angzcut_passo)
             if(trackTr->GetAngZRes()<ar)
@@ -1486,45 +1466,45 @@ void RecoTools::MonitorBMNew(Long64_t jentry) {
           for(Double_t ar=0.000001 ; ar<resend_angzcut ; ar+=angzcut_passo)
             if(trackTr->GetAngZRes()<ar)
               ((TH1D*)gDirectory->Get("NewBM/converged/angzcut/AngZRescut_conv_angzcut_chi2tight"))->Fill(ar);
-                
+
         if(trackTr->GetAngZRes()<0.5)//resloose
           for(Double_t ar=0.00001 ; ar<chi2end_angzcut ; ar+=angzcut_passo)
             if(trackTr->GetChi2NewRed()<ar)
-              ((TH1D*)gDirectory->Get("NewBM/converged/angzcut/chi2redcut_conv_angzcut_resloose"))->Fill(ar);                  
-              
+              ((TH1D*)gDirectory->Get("NewBM/converged/angzcut/chi2redcut_conv_angzcut_resloose"))->Fill(ar);
+
         if(trackTr->GetAngZRes()<0.1)//restight
           for(Double_t ar=0.00001 ; ar<chi2end_angzcut ; ar+=angzcut_passo)
             if(trackTr->GetChi2NewRed()<ar)
-              ((TH1D*)gDirectory->Get("NewBM/converged/angzcut/chi2redcut_conv_angzcut_restight"))->Fill(ar);                  
+              ((TH1D*)gDirectory->Get("NewBM/converged/angzcut/chi2redcut_conv_angzcut_restight"))->Fill(ar);
 
-        
+
         }//fine primo taglio su angz
-        
-        
+
+
       }//provvisorio  su converged
-        
+
     }else if(trackTr->GetIsConverged()==2){
       ((TH1D*)gDirectory->Get("NewBM/not_converged/n_hit_notconv_tot"))->Fill(nhit_pri_sel);
-      ((TH1D*)gDirectory->Get("NewBM/not_converged/RdriftSmear_notconv"))->Fill(maxRdriftSmear);      
+      ((TH1D*)gDirectory->Get("NewBM/not_converged/RdriftSmear_notconv"))->Fill(maxRdriftSmear);
       if(goodEvent){
-        if(ReadOnlyPrimary)      
-          ((TH1D*)gDirectory->Get("NewBM/not_converged/n_hit_notconv_good_onlyPrimary"))->Fill(nhit_pri_sel);      
+        if(ReadOnlyPrimary)
+          ((TH1D*)gDirectory->Get("NewBM/not_converged/n_hit_notconv_good_onlyPrimary"))->Fill(nhit_pri_sel);
         else
-          ((TH1D*)gDirectory->Get("NewBM/not_converged/n_hit_notconv_good"))->Fill(nhit_pri_sel, nhit_sel);                
+          ((TH1D*)gDirectory->Get("NewBM/not_converged/n_hit_notconv_good"))->Fill(nhit_pri_sel, nhit_sel);
         }
       else
-        ((TH1D*)gDirectory->Get("NewBM/not_converged/n_hit_notconv_bad"))->Fill(nhit_sel);                
-      }   
+        ((TH1D*)gDirectory->Get("NewBM/not_converged/n_hit_notconv_bad"))->Fill(nhit_sel);
+      }
   }else if(i_ntrk==0){
-    ((TH1D*)gDirectory->Get("NewBM/isConverged"))->Fill(0);    
-    ((TH1D*)gDirectory->Get("NewBM/nopossible/n_hit_nopossible_tot"))->Fill(nhit_pri_all);      
+    ((TH1D*)gDirectory->Get("NewBM/isConverged"))->Fill(0);
+    ((TH1D*)gDirectory->Get("NewBM/nopossible/n_hit_nopossible_tot"))->Fill(nhit_pri_all);
     if(goodEvent)
       ((TH1D*)gDirectory->Get("NewBM/nopossible/n_hit_nopossible_good"))->Fill(nhit_pri_all);
     else
       ((TH1D*)gDirectory->Get("NewBM/nopossible/n_hit_nopossible_bad"))->Fill(nhit_pri_all);
     }
-  
-  
+
+
   return;
 }
 
@@ -1538,15 +1518,15 @@ void RecoTools::MonitorBMVTMat() {
 
   // TVector3 bmPos = fGeoTrafo->GetBMCenter();
   // TVector3 tgPos = fGeoTrafo->GetVTCenter();
-  // double zDiff  = tgPos.Z() - bmPos.Z() - 0.7;	  
+  // double zDiff  = tgPos.Z() - bmPos.Z() - 0.7;
   // double my_ux, my_uy, my_uz, my_uzs, phi_an, psi_an;
   // //Tracks
-  // TABMntuTrack* p_ntutrk  = 
+  // TABMntuTrack* p_ntutrk  =
   //   (TABMntuTrack*) myn_bmtrk->GenerateObject();
 
-  // TAVTntuTrack* p_vttrk = 
+  // TAVTntuTrack* p_vttrk =
   //   (TAVTntuTrack*) myn_vtrk->GenerateObject();
-  
+
 
   // vector<TVector3> myOrigs;
   // for(int i= 0; i<p_vttrk->GetTracksN(); i++) {
@@ -1562,7 +1542,7 @@ void RecoTools::MonitorBMVTMat() {
 
   //     distance = sqrt(pow(myOrigs.at(ia).X()-myOrigs.at(ib).X(),2)+
 		//       pow(myOrigs.at(ia).Y()-myOrigs.at(ib).y(),2));
-      
+
   //     ((TH1D*)gDirectory->Get("beammonitor/vtdist"))->Fill(distance);
   //     ((TH2D*)gDirectory->Get("beammonitor/vtdist_nt"))->Fill(distance,myOrigs.size());
   //   }
@@ -1571,45 +1551,45 @@ void RecoTools::MonitorBMVTMat() {
   // double phi_bm, phi_vt_1, psi_bm, psi_vt_1;
   // double phi_vt_2, psi_vt_2;
 
-  // TAGntuMCeve* p_mceve  = 
+  // TAGntuMCeve* p_mceve  =
   //   (TAGntuMCeve*) myn_mceve->GenerateObject();
 
   // if(p_ntutrk->ntrk) {
   //   TABMntuTrackTr* bmTrack  = p_ntutrk->Track(0);
   //   double chi2 = bmTrack->GetChi2();
-    
+
   //   TVector3 trackPos = bmTrack->PointAtLocalZ(zDiff);
-    
+
   //   TVector3 trackCen = bmTrack->PointAtLocalZ(0);
-    
+
   //   TVector3 GlbBM = fGeoTrafo->FromBMLocalToGlobal(trackPos);
-    
+
   //   TVector3 GlbBMCent = fGeoTrafo->FromBMLocalToGlobal(trackCen);
   //   my_ux = bmTrack->GetUx();
   //   my_uy = bmTrack->GetUy();
   //   my_uz = 1;
   //   my_uzs = 1. - my_ux*my_ux - my_uy*my_uy;
   //   if(my_uzs>=0) my_uz = sqrt(my_uzs);
-    
+
   //   phi_an = atan(my_ux/my_uz);
   //   psi_an = atan(my_uy/my_uz);
-    
+
   //   //from local to global in the BM
   //   TVector3 versBM (my_ux/my_uz,my_uy/my_uz,1);
   //   //	TVector3 angGlbBM = fGeoTrafo->VecFromGlobalToBMLocal(versBM);
   //   TVector3 angGlbBM = fGeoTrafo->VecFromBMLocalToGlobal(versBM);
-    
+
   //   double phi_BM_GL = angGlbBM.X()/angGlbBM.Z();
   //   double psi_BM_GL = angGlbBM.Y()/angGlbBM.Z();
-    
+
   //   //requires only 1 track in the vtx
   //   vector <double> dis_vec;
-  //   dis_vec.clear(); 
+  //   dis_vec.clear();
   //   double dis_1, dis_2;
 
  //    for(int i= 0; i<p_vttrk->GetTracksN(); i++) {
  //      TAVTtrack* track = p_vttrk->GetTrack(i);
-      
+
  //      TAVTline line = track->GetTrackLine();
  //      TVector3 angVtx = line.GetSlopeZ();
  //      double phi_Vtx = angVtx.X()/angVtx.Z();
@@ -1625,13 +1605,13 @@ void RecoTools::MonitorBMVTMat() {
  //      //      //      cout<<"GLBref:: " << phi_Vtx_GL<<" "<< psi_Vtx_GL<<endl;
  //      //      cout<<"GLBref:: " << angGlbVtx.Theta()<< " "<<angGlbVtx.Phi()<<endl;
 
- //      /*  
-	//   TVector3 origin_chk = track->Intersection(0);      
+ //      /*
+	//   TVector3 origin_chk = track->Intersection(0);
 	//   origin_chk *= 1./10000;
 	//   TVector3 GlbOrigin_chk = fGeoTrafo->FromVTLocalToGlobal(origin_chk);
 	//   cout<<"orichk:: "<<origin_chk.X()<<" "<<GlbOrigin_chk.X()<<endl;
  //      */
-      
+
  //      TVector3 origin = track->GetTrackLine().GetOrigin();
  //      origin *= 1./10000;
  //      TVector3 GlbOrigin = fGeoTrafo->FromVTLocalToGlobal(origin);
@@ -1643,7 +1623,7 @@ void RecoTools::MonitorBMVTMat() {
 
  //      for(int ih=0; ih<p_mceve->nhit; ih++) {
 	// TAGntuMCeveHit* hit = p_mceve->Hit(ih);
-	
+
 	// double chgMC = hit->Chg();
 	// //	maMC = hit->Mass();
 	// double angMC = (hit->InitP()).Theta();
@@ -1655,7 +1635,7 @@ void RecoTools::MonitorBMVTMat() {
 	// }
  //      }
 
-      
+
  //      if(chi2<10 && p_vttrk->GetTracksN()==1 && m_fullmoni) {
 	// ((TH2D*)gDirectory->Get("beammonitor/bmvt_1t_ang_chi10_2D_x"))->Fill(phi_BM_GL,phi_Vtx_GL);
 	// ((TH2D*)gDirectory->Get("beammonitor/bmvt_1t_ang_chi10_2D_y"))->Fill(psi_BM_GL,psi_Vtx_GL);
@@ -1664,7 +1644,7 @@ void RecoTools::MonitorBMVTMat() {
 
  //      phi_bm = -0.011+0.266*phi_BM_GL;
  //      psi_bm = -0.0067+0.3938*psi_BM_GL;
-      
+
  //      if(p_vttrk->GetTracksN()==2) 	{
 	// if(i == 0) {
 	//   phi_vt_1 = phi_Vtx_GL;
@@ -1680,7 +1660,7 @@ void RecoTools::MonitorBMVTMat() {
 	//   ((TH2D*)gDirectory->Get("beammonitor/bmvt_1t_ang_chi2_2D_x"))->Fill(phi_BM_GL,phi_Vtx_GL);
 	//   ((TH2D*)gDirectory->Get("beammonitor/bmvt_1t_ang_chi2_2D_y"))->Fill(psi_BM_GL,psi_Vtx_GL);
 	// }
-	
+
 	// if(chi2<2 && p_vttrk->GetTracksN()==1 && phi_BM_GL>=-0.5*pow(10.,-2) && phi_BM_GL<=0*pow(10.,-3)) {
 	//   ((TH2D*)gDirectory->Get("beammonitor/bmvt_1t_ang_chi2_2D_x_cut0.5"))->Fill(phi_BM_GL,phi_Vtx_GL);
 	//   ((TH2D*)gDirectory->Get("beammonitor/bmvt_1t_ang_chi2_2D_x_cut1"))->Fill(phi_BM_GL,phi_Vtx_GL);
@@ -1695,7 +1675,7 @@ void RecoTools::MonitorBMVTMat() {
  //      }
 
  //      if(p_vttrk->GetTracksN()==2) 	{
-	// if(i == 0) 
+	// if(i == 0)
 	//   dis_1 = sqrt(pow(res.X(),2)+pow(res.Y(),2));
 	// if(i == 1)
 	//   dis_2 = sqrt(pow(res.X(),2)+pow(res.Y(),2));
@@ -1704,25 +1684,25 @@ void RecoTools::MonitorBMVTMat() {
  //      if(m_fullmoni) {
 	// if(chi2<2) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_res2x"))->Fill(res.X());
-	//   if(p_vttrk->GetTracksN()==1) 	
+	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_res2x"))->Fill(res.X());
 	// }
-	
+
 	// if(chi2<20) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_res20x"))->Fill(res.X());
-	//   if(p_vttrk->GetTracksN()==1) 	
+	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_res20x"))->Fill(res.X());
 	// }
-	
+
 	// if(chi2<10) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_res10x"))->Fill(res.X());
-	//   if(p_vttrk->GetTracksN()==1) 	
+	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_res10x"))->Fill(res.X());
 	// }
  //      }
  //      if(chi2<5) {
 	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_res5x"))->Fill(res.X());
-	// if(p_vttrk->GetTracksN()==1) {	
+	// if(p_vttrk->GetTracksN()==1) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_res5x"))->Fill(res.X());
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_vtx5x"))->Fill(GlbOrigin.X());
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_bmx5x"))->Fill(GlbBM.X());
@@ -1730,133 +1710,133 @@ void RecoTools::MonitorBMVTMat() {
 	// }
 
  //      }
-      
+
  //      ((TH1D*)gDirectory->Get("beammonitor/bmvt_resy"))->Fill(res.Y());
- //      if(p_vttrk->GetTracksN()==1) 	
+ //      if(p_vttrk->GetTracksN()==1)
 	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_resy"))->Fill(res.Y());
-      
+
       // if(m_fullmoni) {
 	// if(chi2<20) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_res20y"))->Fill(res.Y());
-	//   if(p_vttrk->GetTracksN()==1) 	
+	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_res20y"))->Fill(res.Y());
 	// }
 	// if(chi2<15) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_res15y"))->Fill(res.Y());
-	//   if(p_vttrk->GetTracksN()==1) {	
+	//   if(p_vttrk->GetTracksN()==1) {
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_res15y"))->Fill(res.Y());
 	//   }
 	// }
-	
+
 	// if(chi2<2) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_res2y"))->Fill(res.Y());
-	//   if(p_vttrk->GetTracksN()==1) 	
+	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_res2y"))->Fill(res.Y());
 	// }
-	
-	
+
+
 	// if(chi2<10) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_res10y"))->Fill(res.Y());
-	//   if(p_vttrk->GetTracksN()==1) 	
+	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_res10y"))->Fill(res.Y());
 	// }
  //      }
-      
+
    //    if(chi2<5) {
 	  // ((TH1D*)gDirectory->Get("beammonitor/bmvt_res5y"))->Fill(res.Y());
-	  // if(p_vttrk->GetTracksN()==1) {	
+	  // if(p_vttrk->GetTracksN()==1) {
 	  //   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_res5y"))->Fill(res.Y());
 	  //   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_vtx5y"))->Fill(GlbOrigin.Y());
 	  //   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_bmx5y"))->Fill(GlbBM.Y());
 	  //   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_bmcex5y"))->Fill(GlbBMCent.Y());
 	  // }
    //    }
-      
+
  //      //Rediduals on X and Y with ANGLE CONDITION
-      
+
  //      if(chi2<10 && phi_an>=-0.5*pow(10.,-3) && phi_an<=0.5*pow(10.,-3)) {
-	// if(p_vttrk->GetTracksN()==1) 	
+	// if(p_vttrk->GetTracksN()==1)
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_res2x_ang"))->Fill(res.X());
 	// /*	cout << "bmvt_1t_res2x_ang "<<res.X()<<" chi2 "<< chi2 << endl;*/
  //      }
-      
+
  //      if(chi2<10 && psi_an>=-0.5*pow(10.,-3) && psi_an<=0.5*pow(10.,-3)) {
-	// if(p_vttrk->GetTracksN()==1) 	
+	// if(p_vttrk->GetTracksN()==1)
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_res2y_ang"))->Fill(res.Y());
-	
+
 	// /*	cout << "bmvt_1t_res2y_ang "<<res.Y()<<" chi2 "<< chi2 << endl;*/
  //      }
  //      //Rediduals on X and Y with ANGLE CONDITION - CHI2 vs X
-      
+
  //      if(chi2<10 && phi_an>=-0.5*pow(10.,-3) && phi_an<=0.5*pow(10.,-3)) {
-	// if(p_vttrk->GetTracksN()==1) 	
+	// if(p_vttrk->GetTracksN()==1)
 	//   ((TH2D*)gDirectory->Get("beammonitor/bmvt_1t_res2x_ang_2D"))->Fill(res.X(),chi2);
-	
+
 	// // 	    ((TH2D*)gDirectory->Get("beammonitor/bmvt_1t_x_ang_2D_vertex"))->Fill(theta_vt,phi_vt);
-	
+
 	// /*	cout << "bmvt_1t_res2x_ang "<<res.X()<<" chi2 "<< chi2 << endl;*/
  //      }
-      
+
  //      if(chi2<10 && psi_an>=-0.5*pow(10.,-3) && psi_an<=0.5*pow(10.,-3)) {
-	// if(p_vttrk->GetTracksN()==1) 	
+	// if(p_vttrk->GetTracksN()==1)
 	//   ((TH2D*)gDirectory->Get("beammonitor/bmvt_1t_res2y_ang_2D"))->Fill(res.Y(),chi2);
-	
+
 	// // 	    ((TH2D*)gDirectory->Get("beammonitor/bmvt_1t_y_ang_2D_vertex"))->Fill(theta_vt,phi_vt);
-	
+
 	// /*	cout << "bmvt_1t_res2y_ang "<<res.Y()<<" chi2 "<< chi2 << endl;*/
  //      }
-      
-      
+
+
  //      if(m_fullmoni) {
-	// //Residuals on the BM center 
+	// //Residuals on the BM center
 	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_resCenx"))->Fill(resCen.X());
-	// if(p_vttrk->GetTracksN()==1) 	
+	// if(p_vttrk->GetTracksN()==1)
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_resCenx"))->Fill(resCen.X());
-	
+
 	// if(chi2<20) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_resCen20x"))->Fill(resCen.X());
-	//   if(p_vttrk->GetTracksN()==1) 	
+	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_resCen20x"))->Fill(resCen.X());
 	// }
-	
+
 	// if(chi2<10) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_resCen10x"))->Fill(resCen.X());
-	//   if(p_vttrk->GetTracksN()==1) 	
+	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_resCen10x"))->Fill(resCen.X());
 	// }
-	
+
 	// if(chi2<5) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_resCen5x"))->Fill(resCen.X());
-	//   if(p_vttrk->GetTracksN()==1) 	
+	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_resCen5x"))->Fill(resCen.X());
 	// }
-	
+
 	// if(chi2<2) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_resCen2x"))->Fill(resCen.X());
-	//   if(p_vttrk->GetTracksN()==1) 	
+	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_resCen2x"))->Fill(resCen.X());
 	// }
-	
+
 	// //Residuals on the BM center on Y
-	
+
 	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_resCeny"))->Fill(resCen.Y());
-	// if(p_vttrk->GetTracksN()==1) 	
+	// if(p_vttrk->GetTracksN()==1)
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_resCeny"))->Fill(resCen.Y());
-	
+
 	// if(chi2<20) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_resCen20y"))->Fill(resCen.Y());
-	//   if(p_vttrk->GetTracksN()==1) 	
+	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_resCen20y"))->Fill(resCen.Y());
 	// }
-	
+
 	// if(chi2<2) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_resCen2y"))->Fill(resCen.Y());
-	//   if(p_vttrk->GetTracksN()==1) 	
+	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_resCen2y"))->Fill(resCen.Y());
 	// }
-	
+
 	// //Residuals on the BM center with Angle Condition on X and Y
-	
+
 	// if(chi2<10 && phi_an>=-0.5*pow(10.,-3) && phi_an<=0.5*pow(10.,-3)) {
 	//   if(p_vttrk->GetTracksN()==1)
 	//     ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_resCen2x_ang"))->Fill(resCen.X());
@@ -1868,7 +1848,7 @@ void RecoTools::MonitorBMVTMat() {
 	//   /*cout << "bmvt_1t_resCen2y_ang "<<resCen.Y()<<endl;*/
 	// }
  //      }
-      
+
  //      if(chi2<10 && phi_an>=-0.5*pow(10.,-3) && phi_an<=0.5*pow(10.,-3)) {
 	// if(p_vttrk->GetTracksN()==1) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_origin2x_ang"))->Fill(origin.X());
@@ -1877,7 +1857,7 @@ void RecoTools::MonitorBMVTMat() {
 	// }
 	// /*cout << "bmvt_1t_origin2x_ang "<<origin.X()<<endl;*/
  //      }
-      
+
  //      if(chi2<10 && psi_an>=-0.5*pow(10.,-3) && psi_an<=0.5*pow(10.,-3)) {
 	// if(p_vttrk->GetTracksN()==1) {
 	//   ((TH1D*)gDirectory->Get("beammonitor/bmvt_1t_origin2y_ang"))->Fill(origin.Y());
@@ -1886,21 +1866,21 @@ void RecoTools::MonitorBMVTMat() {
 	// }
 	// /*cout << "bmvt_1t_origin2y_ang "<<origin.Y()<<endl;*/
  //      }
-      
+
     // }//Loop on VTX tracks
 
  //    if(p_vttrk->GetTracksN()==2) {
  //      //      cout<<" "<<dis_1<<" "<<dis_2<<" "<<phi_bm<<" "<<psi_bm<<" "<<phi_vt_1<<" "<<psi_vt_1<<" "<<phi_vt_2<<" "<<psi_vt_2<<" "<<endl;
  //      if(dis_1<dis_2) {
-	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_phigoo"))->Fill(phi_bm-phi_vt_1); 
-	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_psigoo"))->Fill(psi_bm-psi_vt_1); 
-	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_phibad"))->Fill(phi_bm-phi_vt_2); 
-	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_psibad"))->Fill(psi_bm-psi_vt_2); 
+	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_phigoo"))->Fill(phi_bm-phi_vt_1);
+	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_psigoo"))->Fill(psi_bm-psi_vt_1);
+	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_phibad"))->Fill(phi_bm-phi_vt_2);
+	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_psibad"))->Fill(psi_bm-psi_vt_2);
  //      } else {
-	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_phigoo"))->Fill(phi_bm-phi_vt_2); 
-	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_psigoo"))->Fill(psi_bm-psi_vt_2); 
-	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_phibad"))->Fill(phi_bm-phi_vt_1); 
-	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_psibad"))->Fill(psi_bm-psi_vt_1); 
+	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_phigoo"))->Fill(phi_bm-phi_vt_2);
+	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_psigoo"))->Fill(psi_bm-psi_vt_2);
+	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_phibad"))->Fill(phi_bm-phi_vt_1);
+	// ((TH1D*)gDirectory->Get("beammonitor/bmvt_2t_psibad"))->Fill(psi_bm-psi_vt_1);
  //      }
  //    }
 
@@ -1912,28 +1892,28 @@ void RecoTools::MonitorBMVTMat() {
     // }
 
   // }//There's a BM track
-  
+
 }
 
 
 void RecoTools::CalibBMVT() {
 
  //  char name[200];
-  
+
  //  //Tracks
- //  TABMntuTrack* p_ntutrk  = 
+ //  TABMntuTrack* p_ntutrk  =
  //    (TABMntuTrack*) myn_bmtrk->GenerateObject();
 
  //  //VTX tracks
- //  // TAVTntuTrack* p_vttrk = 
+ //  // TAVTntuTrack* p_vttrk =
  //  //   (TAVTntuTrack*) myn_vtrk->GenerateObject();
 
  //  //BM local geo
- //  TABMparGeo* p_bmgeo = 
+ //  TABMparGeo* p_bmgeo =
  //    (TABMparGeo*)(gTAGroot->FindParaDsc("p_bmgeo", "TABMparGeo")->Object());
-  
+
  //  //Hits
- //  TABMntuRaw* p_ntuhit  = 
+ //  TABMntuRaw* p_ntuhit  =
  //    (TABMntuRaw*) myn_bmraw->GenerateObject();
 
  //  //requires only 1 track in the vtx
@@ -1941,14 +1921,14 @@ void RecoTools::CalibBMVT() {
  //  if(p_vttrk->GetTracksN() == 1) {
 
  //    TAVTtrack* track = p_vttrk->GetTrack(0);
-    
+
  //    TAVTline line = track->GetTrackLine();
 
  //    //First of all loops on the hits
  //    Int_t i_nnhit = p_ntuhit->nhit;
  //    for (Int_t i = 0; i < i_nnhit; i++) {
  //      const TABMntuHit* aHi = p_ntuhit->Hit(i);
-      
+
  //      int tmpv = aHi->View();
  //      if(tmpv<0)tmpv = 0;
  //      //      int chidx = aHi->Cell()+aHi->Plane()*3+tmpv*18;
@@ -1970,21 +1950,21 @@ void RecoTools::CalibBMVT() {
  //      TVector3 vt_CenPoi = fGeoTrafo->FromGlobalToVTLocal(fir_CenPoi);
 
  //      //cm --> mum
- //      TVector3 vt_ExtPoi = track->Intersection(vt_ChkPoi.Z()*10000);      
+ //      TVector3 vt_ExtPoi = track->Intersection(vt_ChkPoi.Z()*10000);
  //      //mum --> cm
  //      vt_ExtPoi.SetX(vt_ExtPoi.X()/10000);
  //      vt_ExtPoi.SetY(vt_ExtPoi.Y()/10000);
  //      vt_ExtPoi.SetZ(vt_ExtPoi.Z()/10000);
 
  //      TVector3 fir_ExtPoi = fGeoTrafo->FromVTLocalToGlobal(vt_ExtPoi);
-      
+
  //      //cm --> mum
- //      TVector3 vt_ExtCen = track->Intersection(vt_CenPoi.Z()*10000);      
+ //      TVector3 vt_ExtCen = track->Intersection(vt_CenPoi.Z()*10000);
  //      //mum --> cm
  //      vt_ExtCen.SetX(vt_ExtCen.X()/10000);
  //      vt_ExtCen.SetY(vt_ExtCen.Y()/10000);
  //      vt_ExtCen.SetZ(vt_ExtCen.Z()/10000);
-      
+
  //      if(m_debug)
 	// cout<<"Z BM:: "<< p_bmgeo->GetZ(idwire,aHi->Plane(),tmpv)<<
 	//   " Z VT::"<<vt_ExtPoi.Z()<<endl;
@@ -1999,7 +1979,7 @@ void RecoTools::CalibBMVT() {
  //      if(i==0 && m_debug)
 	// cout<<"X,Y extr from Vtx GLB:: "<<fir_ExtCen.X()<<" "<<fir_ExtCen.Y()<<" "<<fir_ExtCen.Z()<<endl;
  //      //      cout<<"X,Y xchk from Vtx:: "<<fir_ExtXck.X()<<" "<<fir_ExtXck.Y()<<" "<<fir_ExtXck.Z()<<endl;
-      
+
  //      TVector3 fir_ExtXck = fGeoTrafo->FromVTLocalToGlobal(TVector3(-10,0,0));
 
  //      TVector3 bm_ExtPoi = fGeoTrafo->FromGlobalToBMLocal(fir_ExtPoi);
@@ -2027,7 +2007,7 @@ void RecoTools::CalibBMVT() {
 	// DistanceFromTrack = fabs(x_wi - x_tr);
 	// sDistanceFromTrack = x_wi - x_tr;
 	// if(m_debug) cout<<"Cell: "<<idwire<<" Plane: "<<aHi->Plane()<<" View: "<<aHi->View()<<" "<<x_tr<<" "<<x_wi<<" Dis:: "<<DistanceFromTrack<<" sDis:: "<<sDistanceFromTrack<<" "<<aHi->Dist()<<endl;
- //      }      
+ //      }
 
  //      if(m_fullmoni) {
 	// Residuals = DistanceFromTrack - aHi->Dist();
@@ -2140,7 +2120,7 @@ void RecoTools::bookHisto(TFile *f) {
   gDirectory->mkdir("NewBM");
   gDirectory->cd("NewBM");
 
-  
+
   h = new TH1D("isConverged","0=no possible track, 1=converged, 2=not converged",3,0.,3.);
   h = new TH1D("hitIndex","cell index fired;cell index",37,0.,37.);
 
@@ -2171,7 +2151,7 @@ void RecoTools::bookHisto(TFile *f) {
   h = new TH1D("sigma_conv","sigma on rdrift;cm",300,0.,0.15);
   //~ h = new TH1D("Rdrift_fitted_conv","fitted rdrift (from genfit)",400,0.,2.);// dovrei implementare in tabmntutrack metodo lungo per salvarlo etc.
   //~ h2 = new TH2D("avReso_vs_chi2red_conv","avReso_vs_chi2red converged;avReso;chi2red",120,0.,0.12,200,0.,10.);
-  h = new TH1D("hitIndex_conv","cell index fired converged;cell index",37,0.,37.);  
+  h = new TH1D("hitIndex_conv","cell index fired converged;cell index",37,0.,37.);
   h2 = new TH2D("avReso_vs_chi2red_conv","avReso_vs_chi2red converged;avReso;chi2red",13,0.,13,200,0.,10.);
   h2 = new TH2D("avReso_vs_angzres_conv","avReso_vs_angzres converged;avReso;angzres",13,0.,13,200,0.,1.);
   h2 = new TH2D("AngzvsRTarget_conv","angZ vs RTarget converged;AngZ [deg];RTarget[cm]",100,0.,2.,300.,0.,1.5);
@@ -2184,42 +2164,42 @@ void RecoTools::bookHisto(TFile *f) {
   h = new TH1D("n_hit_conv_good","n_primary hit selected for good event converged ;primary hit selected",13,0.,13.);
   h = new TH1D("n_hit_conv_bad","n_primary hit selected for bad event converged;primary hit selected",13,0.,13.);
   h = new TH1D("n_prihit_sel","n_primary hit selected converged event;primary hit selected",13,0.,13.);
-  h = new TH1D("chi2redcut_conv","converged event passing chi2redcut;chi2redcut;N events",5000,0.,50.);  
+  h = new TH1D("chi2redcut_conv","converged event passing chi2redcut;chi2redcut;N events",5000,0.,50.);
   h = new TH1D("AngZcut_conv","converged events passing angzcut;AngZcut[deg];N events",2000,0.,20.);
   h = new TH1D("AngZRescut_conv","converged event passing rescut;AngZRescut [deg]; events",300,0.,1.);
   h = new TH1D("AngZRescut_conv_large","converged event passing rescut;AngZRescut [deg]; events",100,0.,5.);
-  
+
 
   gDirectory->mkdir("rescut_l");
   gDirectory->cd("rescut_l");
   h = new TH1D("AngZRes_conv_resloose","AngZRes converged && resloose;AngZRes[deg]",100,0.,1.);
   h = new TH1D("AngZ_conv_resloose","AngZ converged && resloose;AngZ[deg]",100,0.,1.);
   h = new TH1D("AngZcut_conv_resloose","event passing angzcut converged && resloose;AngZcut[deg]; N events",50,0.,0.5);
-  h = new TH1D("chi2red_conv_resloose","chi2red converged && resloose",200,0.,10.);  
-  h = new TH1D("chi2redcut_conv_resloose","event passing chi2redcut converged && resloose;chi2redcut;N events",1000,0.,10.);  
+  h = new TH1D("chi2red_conv_resloose","chi2red converged && resloose",200,0.,10.);
+  h = new TH1D("chi2redcut_conv_resloose","event passing chi2redcut converged && resloose;chi2redcut;N events",1000,0.,10.);
   h2 = new TH2D("chi2redVsAngz_conv_resloose","chi2red vs angZ converged && pass resloose;chi2red ;AngZ[deg]",200,0.,5.,100.,0.,1.);
   h2 = new TH2D("chi2redAndAngz_conv_resloose","Event passing chi2redcut and angZcut converged && resloose;AngZcut[deg] ;chi2redcut",20,0.1,0.3,400.,1.,5.);
-  
+
   gDirectory->mkdir("chi2cut_tight");
   gDirectory->cd("chi2cut_tight");
   h = new TH1D("AngZcut_conv_resloose_chi2tight","events passing res_loose && chi2_tight && angzcut;AngZcut[deg];N events",30,0.,0.3);
   h = new TH1D("AngZ_conv_resloose_chi2tight","angz for event passing res_loose && chi2_tight;AngZ[deg]",100,0.,1.);
-  h2 = new TH2D("AngZeff_conv_resloose_chi2tight","efficiency vs angZcut converged && rescut && chi2tightcut;AngZcut[deg] ;efficiency;",30,0.,0.3,100.,0.,1.);  
+  h2 = new TH2D("AngZeff_conv_resloose_chi2tight","efficiency vs angZcut converged && rescut && chi2tightcut;AngZcut[deg] ;efficiency;",30,0.,0.3,100.,0.,1.);
   gDirectory->cd("..");//exit rescut/chi2cut_tight
   gDirectory->mkdir("chi2cut_l");
   gDirectory->cd("chi2cut_l");
-  h = new TH1D("ndf_conv_resloose_chi2loose","ndf x converged track",120,0.,12.);  
-  h = new TH1D("n_hit_conv_resloose_chi2loose_good","n_primary hit selected for good event converged ;primary hit selected",13,0.,13.);  
+  h = new TH1D("ndf_conv_resloose_chi2loose","ndf x converged track",120,0.,12.);
+  h = new TH1D("n_hit_conv_resloose_chi2loose_good","n_primary hit selected for good event converged ;primary hit selected",13,0.,13.);
   h = new TH1D("AngZcut_conv_resloose_chi2loose","events passing res_loose && chi2_tight && angzcut;AngZcut[deg];N events",30,0.,0.3);
   h = new TH1D("AngZ_conv_resloose_chi2loose","angz for event passing res_loose && chi2_tight;AngZ[deg]",100,0.,1.);
   gDirectory->cd("..");//exit rescut_l/chi2cut_tight
 
   gDirectory->mkdir("angzcut");
   gDirectory->cd("angzcut");
-  h = new TH1D("chi2red_conv_resloose_angzcut","chi2red converged && resloose && angzcut; chi2red",200,0.,10.);  
-  h = new TH1D("chi2redcut_conv_resloose_angzcut","event passing chi2redcut converged && resloose && angzcut;chi2redcut;N events",1000,0.,10.);  
+  h = new TH1D("chi2red_conv_resloose_angzcut","chi2red converged && resloose && angzcut; chi2red",200,0.,10.);
+  h = new TH1D("chi2redcut_conv_resloose_angzcut","event passing chi2redcut converged && resloose && angzcut;chi2redcut;N events",1000,0.,10.);
   gDirectory->cd("..");//exit rescut_l/angzcut
-  
+
   gDirectory->cd("..");//exit rescut_l
 
   gDirectory->mkdir("chi2redcut");
@@ -2247,24 +2227,24 @@ void RecoTools::bookHisto(TFile *f) {
   //~ gDirectory->mkdir("chi2_angz_res");
   //~ gDirectory->cd("chi2_angz_res");
 
-  
+
   //~ gDirectory->cd("..");//exit chi2_angz_res
-  
+
   gDirectory->cd("..");//exit chi2_angz
   gDirectory->cd("..");//exit chi2cut
 
   gDirectory->mkdir("angzcut");//primo loop su angz
   gDirectory->cd("angzcut");
-  h = new TH1D("chi2redcut_conv_angzcut_resloose","event passing chi2redcut converged && resloose && angzcut;chi2redcut;N events",1000,0.,10.);  
-  h = new TH1D("chi2redcut_conv_angzcut_restight","event passing chi2redcut converged && resloose && angzcut;chi2redcut;N events",1000,0.,10.);  
- 
+  h = new TH1D("chi2redcut_conv_angzcut_resloose","event passing chi2redcut converged && resloose && angzcut;chi2redcut;N events",1000,0.,10.);
+  h = new TH1D("chi2redcut_conv_angzcut_restight","event passing chi2redcut converged && resloose && angzcut;chi2redcut;N events",1000,0.,10.);
+
   h = new TH1D("AngZRescut_conv_angzcut_chi2loose","event passing chi2redcut && angzcut && rescut;AngZRescut [deg]; events",50,0.,0.5);
   h = new TH1D("AngZRescut_conv_angzcut_chi2tight","event passing chi2redcut && angzcut && rescut;AngZRescut [deg]; events",50,0.,0.5);
 
-  
-  
+
+
   gDirectory->cd("..");//exit angzcut
-  
+
   gDirectory->cd("..");//exit converged
 
   gDirectory->mkdir("not_converged");
@@ -2275,7 +2255,7 @@ void RecoTools::bookHisto(TFile *f) {
   h = new TH1D("n_hit_notconv_bad","n_hit read for not converged events without any primary (tracking is right); all hit selected",13,0.,13.);
   h = new TH1D("RdriftSmear_notconv","Max rdrift smearing",400,0.,2.);
   gDirectory->cd("..");
-  
+
   gDirectory->mkdir("nopossible");
   gDirectory->cd("nopossible");
   h = new TH1D("n_hit_nopossible_tot","n_primary hit for event rejected by hit preselection; primary hit",13,0.,13.);
@@ -2293,26 +2273,26 @@ void RecoTools::bookHisto(TFile *f) {
   gDirectory->mkdir("MCeve");
   gDirectory->cd("MCeve");
   h = new TH1D("Real_angZ","real angZ for primary particle; AngZ[deg]",100,0.,1.);
-  h = new TH1D("Real_angZRes","real angZRes for primary particle; AngZRes[deg]",100,0.,1.);  
-  h = new TH1D("Real_angZResAv","real angZResAv for primary particle; AngZResAv[deg]",100,0.,1.);  
+  h = new TH1D("Real_angZRes","real angZRes for primary particle; AngZRes[deg]",100,0.,1.);
+  h = new TH1D("Real_angZResAv","real angZResAv for primary particle; AngZResAv[deg]",100,0.,1.);
   h = new TH1D("Real_angPhi","real angPhi for primary particle; AngPhi[deg]",720,0.,360.);
-  h = new TH1D("Real_angPhiRes","real angPhiRes for primary particle; AngPhiRes[deg]",720,0.,360.);  
-  h = new TH1D("Real_RTarget","real RTarget for primary particle",100,0.,5.);  
-  h = new TH1D("Real_RTargetNew","real RTargetNew for primary particle",100,0.,5.);  
-  h = new TH1D("Real_RTargetFirst","real RTargetNew for primary particle",100,0.,5.);  
-  h = new TH1D("Real_RTargetRes","real RTarget for primary particle",100,0.,0.5);  
+  h = new TH1D("Real_angPhiRes","real angPhiRes for primary particle; AngPhiRes[deg]",720,0.,360.);
+  h = new TH1D("Real_RTarget","real RTarget for primary particle",100,0.,5.);
+  h = new TH1D("Real_RTargetNew","real RTargetNew for primary particle",100,0.,5.);
+  h = new TH1D("Real_RTargetFirst","real RTargetNew for primary particle",100,0.,5.);
+  h = new TH1D("Real_RTargetRes","real RTarget for primary particle",100,0.,0.5);
   h = new TH1D("Real_AngzvsRTarget_pendenza","RTarget/AngZ",100,0.,2.);
   h2 = new TH2D("Real_AngzvsRTarget","angZ vs RTarget for primary particle (angz medio);AngZ [deg];RTarget[cm]",180,0.,0.6,400.,0.,1.);
   h2 = new TH2D("Real_AngzvsRTargetNew","angZ vs RTargetNew for primary particle (new=da angZ di ogni hit);AngZ [deg];RTarget[cm]",180,0.,0.6,400.,0.,1.);
   h2 = new TH2D("Real_AngzvsRTargetFirst","angZ vs RTarget for primary particle (da primo hit, angzmedio);AngZ [deg];RTarget[cm]",180,0.,0.6,400.,0.,1.);
   h2 = new TH2D("Real_AngzvsAngzRes","AngZ vs AngzRes for primary particle;AngZ [deg];AngZRes[deg]",100,0.,0.5,100.,0.,0.5);
   gDirectory->cd("..");
-  gDirectory->cd("..");//exit NewBM  
-    
+  gDirectory->cd("..");//exit NewBM
 
 
 
-  /* BEAM MONITOR */  
+
+  /* BEAM MONITOR */
   gDirectory->mkdir("beammonitor");
   gDirectory->cd("beammonitor");
 
@@ -2374,10 +2354,10 @@ void RecoTools::bookHisto(TFile *f) {
   h = new TH1D("bmvt_2t_resmin","Chi2 Dist",100,0,0.5);
   h = new TH1D("bmvt_2t_resnex","Chi2 Dist",100,0,0.5);
 
-  h = new TH1D("bmvt_2t_phigoo","Chi2 Dist",400,-0.5,0.5); 
-  h = new TH1D("bmvt_2t_psigoo","Chi2 Dist",400,-0.5,0.5); 
-  h = new TH1D("bmvt_2t_phibad","Chi2 Dist",400,-0.5,0.5); 
-  h = new TH1D("bmvt_2t_psibad","Chi2 Dist",400,-0.5,0.5); 
+  h = new TH1D("bmvt_2t_phigoo","Chi2 Dist",400,-0.5,0.5);
+  h = new TH1D("bmvt_2t_psigoo","Chi2 Dist",400,-0.5,0.5);
+  h = new TH1D("bmvt_2t_phibad","Chi2 Dist",400,-0.5,0.5);
+  h = new TH1D("bmvt_2t_psibad","Chi2 Dist",400,-0.5,0.5);
 
   if(m_fullmoni) {
     h = new TH1D("bmvt_resCenx","Chi2 Dist",400,-2,2);
@@ -2390,7 +2370,7 @@ void RecoTools::bookHisto(TFile *f) {
     h = new TH1D("bmvt_1t_resCen5x","Chi2 Dist",400,-2,2);
     h = new TH1D("bmvt_1t_resCen10x","Chi2 Dist",400,-2,2);
     h = new TH1D("bmvt_1t_resCen20x","Chi2 Dist",400,-2,2);
-    
+
     h = new TH1D("bmvt_resCeny","Chi2 Dist",400,-2,2);
     h = new TH1D("bmvt_resCen2y","Chi2 Dist",400,-2,2);
     h = new TH1D("bmvt_resCen20y","Chi2 Dist",400,-2,2);
@@ -2469,7 +2449,7 @@ void RecoTools::bookHisto(TFile *f) {
 	  }
 	  sprintf(name,"resi_vs_r_%d_%d_%d",ic,ip,iv);
 	  h2 = new TH2D(name,"Residuals versus meas dist",500,-0.8,0.8,500,0.,1.);
-	  
+
 	  sprintf(name,"VTresi_aft_%d_%d_%d",ic,ip,iv);
 	  h = new TH1D(name,"Residuals distribution",100,-0.8,0.8);
 	  sprintf(name,"VTresi_vs_t_%d_%d_%d",ic,ip,iv);
@@ -2509,7 +2489,7 @@ void RecoTools::bookHisto(TFile *f) {
   h = new TH1D("sidewire","Side wires occupancy",18,-0.5,17.5);
   gDirectory->cd("..");
 
-  /* Start Counter */  
+  /* Start Counter */
   gDirectory->mkdir("startcounter");
   gDirectory->cd("startcounter");
   h = new TH1D("nhit","Number of reconstructed hits",36,0,36);
@@ -2534,7 +2514,7 @@ void RecoTools::bookHisto(TFile *f) {
   }
   gDirectory->cd("..");
 
-  /* Trigger */  
+  /* Trigger */
   gDirectory->mkdir("trigger");
   gDirectory->cd("trigger");
 
@@ -2567,4 +2547,3 @@ void RecoTools::bookHisto(TFile *f) {
 
   return;
 }
-

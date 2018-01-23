@@ -6,6 +6,7 @@
 *Dict.cpp
 
 *.png
+*.root
 
 *.so
 *.o
@@ -31,3 +32,8 @@ libs/lib/
 libs/GenFit/build
 libs/GenFit/tests/*.png
 libs/GenFit/tests/*.pdf
+
+Reconstruction/level0/results/
+Reconstruction/level0/bField.test
+Reconstruction/level0/eventListFile.dat
+

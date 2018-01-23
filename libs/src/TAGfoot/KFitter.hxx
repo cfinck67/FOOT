@@ -41,7 +41,7 @@
 #include <TRandom3.h>
 
 #include <TVector3.h>
-#include <array>
+// #include <array>
 #include <vector>
 
 #include "TDatabasePDG.h"
@@ -59,9 +59,14 @@
 #include "TAITntuRaw.hxx"
 
 #include "GlobalPar.hxx"
+#include "ControlPlotsRepository.hxx"
+#include "GlobalTrackKalman.hxx"
+
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <limits>
+
 
 
 
@@ -99,6 +104,17 @@ public:
 
 	int MakeFit(long evNum);
 
+	void GetTrueMCInfo( string hitSampleName, int x, 
+						TVector3* tmpPos, TVector3* tmpMom, double* tmp_mass,
+						TVector3* tmp_genPos,  TVector3* tmp_genMom, TVector3* hitPos );
+	void GetKalmanTrackInfo ( string hitSampleName, int i, Track* track,
+								TVector3* KalmanPos, TVector3* KalmanMom, TVector3* KalmanPos_err, TVector3* KalmanMom_err,
+								TMatrixD* KalmanPos_cov, TMatrixD* KalmanMom_cov,
+								double* KalmanMass );
+
+	void SetTrueSeed( TVector3* pos, TVector3* mom );
+	void MakePrefit();
+
 	string CategoriseHitsToFit_withTrueInfo( int flukaID, int charge, int mass );
 	
 	void RecordTrackInfo( Track* track, string hitSampleName );
@@ -113,9 +129,13 @@ public:
 	void PrintPositionResidual( TVector3 pos, TVector3 expectedPos, string hitSampleName );
 	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, TVector3 cov, string hitSampleName );
 	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, TMatrixD cov, string hitSampleName );
+	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, double cov, string hitSampleName );
 	
 	void InitAllHistos( string hitSampleName );
 	void InitSingleHisto( map< string, TH1F* >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin );
+	
+	void InitMultiBinHistoMap( map< string, vector<TH1F*> >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin );
+	void InitEventDisplay();
 
 	void Save();
 	void SaveHisto( TCanvas* mirror, map< string, TH1F* > histoMap, string title, string saveName );
@@ -125,6 +145,8 @@ public:
 	double EvalError( TVector3 mom, TVector3 err );
 	double EvalError( TVector3 mom, TMatrixD cov );
 	void MatrixToZero( TMatrixD *matrix );
+
+
 
 	// GlobalTrackFoot* GetTrack( int id ) {
 	// 	// fai controllo sul vettore
@@ -144,7 +166,9 @@ private:
 	AbsKalmanFitter*  m_dafRefFitter;    	 //DAF with kalman ref
 	AbsKalmanFitter*  m_dafSimpleFitter;    	 //DAF with simple kalman
 
-	Track*  fitTrack;
+	// Track*  m_fitTrack;
+	ControlPlotsRepository m_controlPlotter;
+	vector<GlobalTrackKalman*> m_fitTrackCollection;
 
 	TRandom3* m_diceRoll;
 
@@ -155,7 +179,7 @@ private:
 	vector<TAVTntuHit*> m_VT_hitCollection;
 	vector<TAITntuHit*> m_IT_hitCollection;
 	vector<TAMSDntuHit*> m_MSD_hitCollection;
-	
+
 	vector<TVector3> m_MSD_posVectorSmearedHit;
 	vector<TVector3> m_MSD_momVectorSmearedHit;
 	vector<double> m_MSD_mass;
@@ -185,6 +209,13 @@ private:
 	map< string, TH1F* > h_mass;
 	map< string, TH1F* > h_sigmaR;
 	map< string, TH1F* > h_sigmaP;
+	map< string, TH1F* > h_sigmaPos;
+	map< string, TH1F* > h_sigmaX;
+	map< string, TH1F* > h_sigmaY;
+	map< string, TH1F* > h_sigmaZ;
+	map< string, TH1F* > h_sigmaPx;
+	map< string, TH1F* > h_sigmaPy;
+	map< string, TH1F* > h_sigmaPz;
 	map< string, TH1F* > h_deltaP;
 	map< string, TH1F* > h_polarAngol;
 
@@ -214,6 +245,23 @@ private:
 
 	map< string, TH1F* > h_resoP_over_Pkf;
 	map< string, TH1F* > h_biasP_over_Pkf;
+	
+	map<string, vector<TH1F*> > h_dist_RecoMeas;
+	map<string, vector<TH1F*> > h_dist_RecoGen;
+	map<string, vector<TH1F*> > h_dist_GenMeas;
+	map<string, vector<TH1F*> > h_dist_RecoGen_x;
+	map<string, vector<TH1F*> > h_dist_GenMeas_x;
+	map<string, vector<TH1F*> > h_dist_RecoGen_y;
+	map<string, vector<TH1F*> > h_dist_GenMeas_y;
+	map<string, vector<TH1F*> > h_dist_RecoGen_z;
+	map<string, vector<TH1F*> > h_dist_GenMeas_z;
+	map<string, vector<TH1F*> > h_theta_RecoGen;
+	map<string, vector<TH1F*> > h_deltaP_RecoGen;
+	map<string, vector<TH1F*> > h_deltaP_RecoGen_x;
+	map<string, vector<TH1F*> > h_deltaP_RecoGen_y;
+	map<string, vector<TH1F*> > h_deltaP_RecoGen_z;
+	map<string, vector<TH1F*> > h_myChi2;
+
 	map<string, map<float, TH1F*> > h_dP_x_bin;
 	map<string, map<float, TH1F*> > h_dPOverP_x_bin;
 	map<string, map<float, TH1F*> > h_dPOverSigmaP_x_bin;
@@ -228,6 +276,7 @@ private:
 
 	bool m_reverse;
 	int m_debug;
+	long m_evNum;
 
 };
 

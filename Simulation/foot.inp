@@ -12,22 +12,22 @@ IONTRANS    HEAVYION
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
-PHYSICS           1.                                                  COALESCE  
-BEAM       -0.200000  0.000000  0.000000 -0.480000 -0.480000       1.0HEAVYION  
-HI-PROPE    8.000000 16.000000                                                  
-BEAMPOS        0.000     0.000   -30.000     0.000     0.000                    
+PHYSICS           1.                                                  COALESCE
+BEAM       -0.200000  0.000000  0.000000 -0.480000 -0.480000       1.0HEAVYION
+HI-PROPE    8.000000 16.000000
+BEAMPOS        0.000     0.000   -30.000     0.000     0.000
 * **************************************************
 * * EM TRANSPORT THRESHOLD FOR EVERY REGION
-EMFCUT     -1.000000  1.000000               BLACK  @LASTREG       1.0          
+EMFCUT     -1.000000  1.000000               BLACK  @LASTREG       1.0
 * ***************************************************
 * * EM PRODUCTION THRESHOLD FOR EVERY MATERIAL
-EMFCUT     -1.000000  1.000000        1.  BLCKHOLE  @LASTMAT       1.0PROD-CUT  
+EMFCUT     -1.000000  1.000000        1.  BLCKHOLE  @LASTMAT       1.0PROD-CUT
 * ***********************************************
 * * DELTA-RAY THRESHOLD FOR ALL REGIONS
-DELTARAY    1.000000                      BLCKHOLE  @LASTMAT       1.0          
+DELTARAY    1.000000                      BLCKHOLE  @LASTMAT       1.0
 * ***********************************************
 * * PAIR-BREM THRESHOLD FOR ALL REGIONS
-PAIRBREM         -3.                      BLCKHOLE  @LASTMAT                    
+PAIRBREM         -3.                      BLCKHOLE  @LASTMAT
 *
 * @@@END GENERATED:GENERAL@@@ **************************************************
 * ******************************************************************************
@@ -39,6 +39,32 @@ GEOEND
 * ******************************************************************************
 *                          MEDIA                                               *
 * ******************************************************************************
+* *** Aggiunte manuali
+MATERIAL          0.                 0.               0.              BLCKHOLE
+MATERIAL          0.                 0.               0.              VACUUM
+MATERIAL          1.                 1.00794          .0000837        HYDROGEN
+MATERIAL          2.                 4.002602         .000166         HELIUM
+MATERIAL          4.                 9.012182         1.848           BERYLLIU
+MATERIAL          6.                 12.0107          2.              CARBON
+MATERIAL          7.                 14.0067          .00117          NITROGEN
+MATERIAL          8.                 15.9994          .00133          OXYGEN
+MATERIAL         12.                 24.3050          1.740           MAGNESIU
+MATERIAL         13.                 26.981538        2.699           ALUMINUM
+MATERIAL         26.                 55.845           7.874           IRON
+MATERIAL         29.                 63.546           8.960           COPPER
+MATERIAL         47.                107.8682         10.500           SILVER
+MATERIAL         14.                 28.0855          2.329           SILICON
+MATERIAL         79.                196.96655        19.320           GOLD
+MATERIAL         80.                200.59           13.546           MERCURY
+MATERIAL         82.                207.2            11.350           LEAD
+MATERIAL         73.                180.9479         16.654           TANTALUM
+MATERIAL         11.                 22.989770        0.971           SODIUM
+MATERIAL         18.                 39.948            .00166         ARGON
+MATERIAL         20.                 40.078           1.550           CALCIUM
+MATERIAL         50.                118.710           7.310           TIN
+MATERIAL         74.                183.84           19.300           TUNGSTEN
+MATERIAL         22.                 47.867           4.540           TITANIUM
+MATERIAL         28.                 58.6934          8.902           NICKEL
 * *** Samario-Cobalto permanent magnet
 MATERIAL         62.                7.46                              SAMARIUM
 MATERIAL         27.                 8.9                              COBALT
@@ -170,7 +196,7 @@ ASSIGNMA      KAPTON   MSDKAP0   MSDKAP2         1         1
 ASSIGNMA         AIR       BOX
 ASSIGNMA      EJ-232    SCNV00    SCNU21         1
 ASSIGNMA         BGO    CAL000    CAL359         1
-MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000          
+MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000
 *
 * @@@END GENERATED:MATERIAL&MAGFIELD@@@ ****************************************
 * ******************************************************************************
@@ -226,4 +252,3 @@ RANDOMIZ         1.0   593585.
 * ******************************************************************************
 START              1
 STOP
-

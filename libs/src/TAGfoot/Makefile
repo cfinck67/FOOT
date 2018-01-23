@@ -25,8 +25,8 @@ LDLIBS    = $(shell root-config --libs)
 #
 TOBJ_all   =   TATRdatRaw.hxx \
              TATRparGeo.hxx  TATRparMap.hxx \
-             TinCan.hxx  KFitter.hxx	FootField.hxx	\
-             IronPlate.hxx GlobalPar.hxx	Materials.hxx
+             TinCan.hxx  KFitter.hxx	FootField.hxx     GlobalTrackKalman.hxx	\
+             IronPlate.hxx GlobalPar.hxx	Materials.hxx  ControlPlotsRepository.hxx  ControlPlotInfo.hxx
 
              # TAGvieHorzIR.hxx TAGvieHorzMCIR.hxx    \		// rimosso by Frank
              
