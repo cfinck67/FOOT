@@ -10,6 +10,7 @@
 #include <sstream>
 #include <vector>
 #include <math.h>
+#include <sys/stat.h>
 
 #include "TCanvas.h"
 #include "TH1F.h"
@@ -52,10 +53,7 @@ public:
 
 		m_titleX = "";
 		m_titleY = "";
-		m_dir = getenv("FOOTRES");  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-		isControlPlotParamFile = false;  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+		m_dir = getenv("FOOTRES"); 
 	};
 
 
@@ -75,13 +73,37 @@ public:
 		m_variablesInt.push_back( x );
 	};
 
-	// SetParameterAsYouKnow();
-
-
+	void SetOutputDir( string outDir ) { 
+		vector<string> token = Tokenize( m_name, "__" );
+		m_dir = outDir +"/"+ token[0]; 
+	};
 
 	void PrintHisto( TCanvas* mirror );
 
 
+
+	//____________________________________________________________________________
+	vector<string>  Tokenize(const string str,
+	                      const string delimiters)	{
+
+	  vector<string> tokens;
+	    // Skip delimiters at beginning.
+	    string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+	    // Find first "non-delimiter".
+	    string::size_type pos     = str.find(delimiters, lastPos);
+
+	    while (string::npos != pos || string::npos != lastPos)
+	    {
+	        // Found a token, add it to the vector.
+	        tokens.push_back(str.substr(lastPos, pos - lastPos));
+	        // Skip delimiters.  Note the "not_of"
+	        lastPos = str.find_first_not_of(delimiters, pos);
+	        // Find next "non-delimiter"
+	        pos = str.find(delimiters, lastPos);
+
+	    }
+	    return tokens;
+	};
 
 
 	// vector<double> * GetVariableVec() { return m_variables; };
@@ -104,7 +126,6 @@ public:
 
 	bool isDoub;
 	bool isInt;
-	bool isControlPlotParamFile;
 
 	int m_nBin;
 	double m_minBin;

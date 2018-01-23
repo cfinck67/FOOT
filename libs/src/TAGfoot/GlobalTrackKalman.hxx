@@ -42,6 +42,7 @@ public:
 						TMatrixD* mom_cov 
 						 ) {
 
+		m_kalmanOutputDir = (string)getenv("FOOTRES")+"/Kalman";
 		m_name = name;
 
 		// bin width of the momentum resolution plot -- param file???
@@ -85,6 +86,7 @@ public:
 	int m_debug;
 
 	string m_name;
+	string m_kalmanOutputDir;
 	
 	long m_evNum;
 	int m_stateID;

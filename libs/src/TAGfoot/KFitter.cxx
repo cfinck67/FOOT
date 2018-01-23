@@ -26,8 +26,14 @@ KFitter::KFitter ( int nIter, double dPVal ) {
 	m_IT_hitCollection.clear();
 	m_MSD_hitCollection.clear();
 
+	// Create dir for kalman output
+	struct stat info;
+	m_kalmanOutputDir = (string)getenv("FOOTRES")+"/Kalman";
+	if( stat( m_kalmanOutputDir.c_str(), &info ) != 0 )		//cannot access
+	    system(("mkdir "+m_kalmanOutputDir).c_str());
+
 	// class for control plot dumping
-	m_controlPlotter = ControlPlotsRepository();
+	m_controlPlotter = ControlPlotsRepository::GetControlObject( m_kalmanOutputDir );
 
 	// all possible detector and a map with an ID num
 	vector<string> tmp_detName = { "STC", "BM", "TG", "VT", "IT", "MSD" };
@@ -73,14 +79,8 @@ KFitter::KFitter ( int nIter, double dPVal ) {
 
 	InitEventDisplay();		// empty!!!!
 
-	// clean results dir
-	if ( (string)getenv("FOOTRES") != "" ) {
-		system(("rm -r "+(string)getenv("FOOTRES")).c_str());
-		system(("mkdir "+(string)getenv("FOOTRES")).c_str());
-	}
-
 	// bin width of the momentum resolution plot -- param file???
-	m_resoP_step = 0.2;
+	// m_resoP_step = 0.2;
 
 	m_vecHistoColor = { kBlack, kRed-9, kRed+1, kRed-2, kOrange+7, kOrange, kOrange+3, kGreen+1, 
 						kGreen+3, kBlue+1, kBlue+3, kAzure+8, kAzure+1, kMagenta+2, 
@@ -103,12 +103,12 @@ void KFitter::MakePdgDatabase() {
 	int pdgCode = 66666600;
 	// particle name
 	vector<string> nameVector 		 = { 	"C10", "C11", "C12", 
-										"Li6", "Li7",
-										"B7", "B8", "B9",
-										"Be9", "Be10", "Be11",
-										"N12", "N13", "N14",
-										"Alpha", "H",
-										"O15", "O16" };
+											"Li6", "Li7",
+											"B7", "B8", "B9",
+											"Be9", "Be10", "Be11",
+											"N12", "N13", "N14",
+											"Alpha", "H",
+											"O15", "O16" };
 	if ( (int)nameVector.size() != nNewParticles ) 	{
 		cout << "ERROR::KFitter::MakePdgDatabase  -->  particle collection name size not match "<< nameVector.size() <<endl;
 		exit(0);
@@ -312,6 +312,7 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
         m_hitCollectionToFit[ category ].push_back(hit);
     }
 }
+
 
 
 
@@ -605,6 +606,7 @@ string KFitter::CategoriseHitsToFit_withTrueInfo( int flukaID, int charge, int m
 	if ( flukaID == -6 && charge == 2 )  outName =  "Alpha";
 	if ( flukaID == 1 && charge == 1 )  outName =  "H";
 
+	// diventa Find_Cathegory( outName )
 	if ( !GlobalPar::GetPar()->Find_MCParticle( outName ) )
 		return "fail";
 
@@ -712,6 +714,10 @@ int KFitter::MakeFit( long evNum ) {
           continue;
 		}
 
+		// fill a vector with the cathegories fitted at least onece
+		if ( find( m_cathegoryFitted.begin(), m_cathegoryFitted.end(), (*hitSample).first ) == m_cathegoryFitted.end() )
+			m_cathegoryFitted.push_back( (*hitSample).first );
+
 	}	// end  - loop over all hit category
 
 	m_VT_hitCollection.clear();
@@ -810,7 +816,7 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 	double massMC = -666;
 	// double myChi2 = 0;
 
-	InitAllHistos( hitSampleName );
+	// InitAllHistos( hitSampleName );
 
 	TMatrixD KalmanPos_cov(3,3); 
 	TMatrixD KalmanMom_cov(3,3); 
@@ -864,8 +870,8 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 		//! Get the accumulated X/X0 (path / radiation length) of the material crossed in the last extrapolation.
 		// virtual double getRadiationLenght() const = 0;
 
-		m_controlPlotter.SetControlMom_4eachState( hitSampleName, i, &KalmanMom, &tmpMom, &tmp_genMom );
-		m_controlPlotter.SetControlPos_4eachState( hitSampleName, i, &KalmanPos, &tmpPos, &tmp_genPos );
+		m_controlPlotter->SetControlMom_4eachState( hitSampleName, i, &KalmanMom, &tmpMom, &tmp_genMom );
+		m_controlPlotter->SetControlPos_4eachState( hitSampleName, i, &KalmanPos, &tmpPos, &tmp_genPos );
 
 		// keep quantities to be plotted of the state CLOSER to the interaction point
 		unsigned int measuredState = ( m_reverse ? m_hitCollectionToFit[ hitSampleName ].size()-1 : 0 );
@@ -884,13 +890,13 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 															&expectedMom, &expectedPos, 
 															&KalmanMom_cov ) );
 			
-			m_controlPlotter.SetMom_Gen( hitSampleName, &tmp_genMom );
-			m_controlPlotter.SetMom_TrueMC( hitSampleName, &expectedMom, massMC );
-			m_controlPlotter.SetMom_Kal( hitSampleName, &kalmanMom, &kalmanMom_err );
+			m_controlPlotter->SetMom_Gen( hitSampleName, &tmp_genMom );
+			m_controlPlotter->SetMom_TrueMC( hitSampleName, &expectedMom, massMC );
+			m_controlPlotter->SetMom_Kal( hitSampleName, &kalmanMom, &kalmanMom_err );
 
-			m_controlPlotter.SetPos_Kal( hitSampleName, &kalmanPos, &KalmanPos_err );
+			m_controlPlotter->SetPos_Kal( hitSampleName, &kalmanPos, &KalmanPos_err );
 			
-			m_controlPlotter.SetTrackInfo( hitSampleName, track );
+			m_controlPlotter->SetTrackInfo( hitSampleName, track );
 		}
 	}
 	
@@ -909,8 +915,8 @@ void KFitter::GetTrueMCInfo( string hitSampleName, int x,
 
 	// Generated positions and momentums
 	if ( detID == m_detectorID_map["VT"] ) {
-		*tmpPos = m_VT_hitCollection.at(	hitID )->GetMCPosition_Global();
-		*tmpMom = m_VT_hitCollection.at(	hitID )->GetMCMomentum_Global();
+		*tmpPos = m_VT_hitCollection.at( hitID )->GetMCPosition_Global();
+		*tmpMom = m_VT_hitCollection.at( hitID )->GetMCMomentum_Global();
 		// information on the particle that genearated the hit
 		*tmp_mass = m_VT_hitCollection.at( hitID )->m_genPartMass;
 		*tmp_genPos = m_VT_hitCollection.at( hitID )->m_genPartPosition;   // genaration position
@@ -975,103 +981,6 @@ void KFitter::GetKalmanTrackInfo ( string hitSampleName, int i, Track* track,
 
 
 
-//----------------------------------------------------------------------------------------------------
-void KFitter::InitAllHistos( string hitSampleName ) {
-
-	if ( m_debug > 2 )		cout << "KFitter::InitAllHistos -- Start!!!!  " << endl;
-	// initialize output histos
-	InitSingleHisto(&h_chi2, hitSampleName, "TrackChi2", 100, 0, 10);
-
-	InitSingleHisto(&h_posRes, hitSampleName, "h_posRes", 40, 0, 0.06);
-	
-	InitSingleHisto(&h_sigmaR, hitSampleName, "h_sigmaR", 100, 0, 0.002);
-	
-	InitSingleHisto(&h_sigmaP, hitSampleName, "h_sigmaP", 100, -2, 2);
-	InitSingleHisto(&h_sigmaPx, hitSampleName, "h_sigmaPx", 100, -4, 4);
-	InitSingleHisto(&h_sigmaPy, hitSampleName, "h_sigmaPy", 100, -4, 4);
-	InitSingleHisto(&h_sigmaPz, hitSampleName, "h_sigmaPz", 100, -4, 4);
-
-	InitSingleHisto(&h_sigmaPos, hitSampleName, "h_sigmaPos", 100, 1, 1);
-	InitSingleHisto(&h_sigmaX, hitSampleName, "h_sigmaX", 100, -10, 10);
-	InitSingleHisto(&h_sigmaY, hitSampleName, "h_sigmaY", 100, -10, 10);
-	InitSingleHisto(&h_sigmaZ, hitSampleName, "h_sigmaZ", 100, -10, 10);
-	
-	InitSingleHisto(&h_deltaP, hitSampleName, "h_deltaP", 100, -1, 1);
-	InitSingleHisto(&h_momentumRes, hitSampleName, "h_momentumRes", 80, -4, 4);
-	InitSingleHisto(&h_momentumMC, hitSampleName, "h_momentumMC", 64, 0, 16);
-	InitSingleHisto(&h_momentumKal, hitSampleName, "h_momentumKal", 64, 0, 16);
-
-	InitSingleHisto(&h_polarAngol, hitSampleName, "h_polarAngol", 50, 0, 10);
-	InitSingleHisto(&h_mass, hitSampleName, "h_mass", 90, 0, 15);
-	InitSingleHisto(&h_zPosGen, hitSampleName, "h_zPosGen", 100, -0.5, 0.5);
-	
-	InitSingleHisto(&h_mass_genFit, hitSampleName, "h_mass_genFit", 90, 0, 15);
-	InitSingleHisto(&h_charge, hitSampleName, "h_charge", 21, -10.5, 10.5);
-	// InitSingleHisto(&h_chargeSign, hitSampleName, "h_chargeSign", 5, -2.5, 2.5);
-	
-	// InitSingleHisto(&h_startDir, hitSampleName, "h_startDir", 100, -2.5, 2.5);
-	// InitSingleHisto(&h_endDir, hitSampleName, "h_endDir", 100, -2.5, 2.5);
-	InitSingleHisto(&h_startX, hitSampleName, "h_startX", 40, -2, 2);
-	InitSingleHisto(&h_endX, hitSampleName, "h_endY", 100, -10, 10);
-	InitSingleHisto(&h_startY, hitSampleName, "h_startX", 40, -2, 2);
-	InitSingleHisto(&h_endY, hitSampleName, "h_endY", 100, -10, 10);
-	
-	// InitSingleHisto(&h_TrackLenght, hitSampleName, "h_TrackLenght", 100, 28, 31);
-	// InitSingleHisto(&h_TrackLenght, hitSampleName, "h_TrackLenght", 100, 12.5, 15.5);		// VT and IT only
-	InitSingleHisto(&h_TrackLenght, hitSampleName, "h_TrackLenght", 500, 12.5, 31);		// VT and IT only
-	InitSingleHisto(&h_Radius, hitSampleName, "h_Radius", 100, 0, 0.004);
-	
-	InitSingleHisto(&h_isFitConvergedFully, hitSampleName, "h_isFitConvergedFully", 5, -2.5, 2.5);
-	InitSingleHisto(&h_isFitConvergedPartially, hitSampleName, "h_isFitConvergedPartially", 5, -2.5, 2.5);
-	InitSingleHisto(&h_NFailedPoints, hitSampleName, "h_NFailedPoints", 10, 0, 10);
-	InitSingleHisto(&h_isTrackPruned, hitSampleName, "h_isTrackPruned", 5, -2.5, 2.5);
-	InitSingleHisto(&h_Ndf, hitSampleName, "h_Ndf", 15, 0, 15);
-	
-	InitSingleHisto(&h_dP_over_Ptrue, hitSampleName, "h_dP_over_Ptrue", 40, -0.2, 0.2);
-	InitSingleHisto(&h_dP_over_Pkf, hitSampleName, "h_dP_over_Pkf", 40, -0.2, 0.2);
-	InitSingleHisto(&h_sigmaP_over_Pkf, hitSampleName, "h_sigmaP_over_Pkf", 40, 0, 0.2);
-	InitSingleHisto(&h_sigmaP_over_Ptrue, hitSampleName, "h_sigmaP_over_Ptrue", 40, 0, 0.5);
-
-	// multi bin histo init
-	if ( m_debug > 2 )		cout << "KFitter::InitAllHistos -- multi-bin histos Start!!!!  " << endl;
-	InitMultiBinHistoMap(&h_myChi2, hitSampleName, "MyChi2_State", 120, 0, 12);
-	InitMultiBinHistoMap(&h_dist_RecoMeas, hitSampleName, "Dist_RecoMeas___State", 100, 0, 0.01);
-	InitMultiBinHistoMap(&h_dist_RecoGen, hitSampleName, "Dist_RecoGen___State", 100, 0, 0.01);
-	InitMultiBinHistoMap(&h_dist_GenMeas, hitSampleName, "Dist_GenMeas___State", 100, 0, 0.01);
-	InitMultiBinHistoMap(&h_dist_RecoGen_x, hitSampleName, "Dist_RecoGenX___State", 100, 0, 0.01);
-	InitMultiBinHistoMap(&h_dist_GenMeas_x, hitSampleName, "Dist_GenMeasX___State", 100, 0, 0.01);
-	InitMultiBinHistoMap(&h_dist_RecoGen_y, hitSampleName, "Dist_RecoGenY___State", 100, 0, 0.01);
-	InitMultiBinHistoMap(&h_dist_GenMeas_y, hitSampleName, "Dist_GenMeasY___State", 100, 0, 0.01);
-	InitMultiBinHistoMap(&h_dist_RecoGen_z, hitSampleName, "Dist_RecoGenZ___State", 100, 0, 0.01);
-	InitMultiBinHistoMap(&h_dist_GenMeas_z, hitSampleName, "Dist_GenMeasZ___State", 100, 0, 0.01);
-	InitMultiBinHistoMap(&h_theta_RecoGen, hitSampleName, "Theta_RecoGen_State", 50, -0, 0.5);
-	InitMultiBinHistoMap(&h_deltaP_RecoGen, hitSampleName, "DeltaP_RecoGen_State", 40, -0.2, 0.2);
-	InitMultiBinHistoMap(&h_deltaP_RecoGen_x, hitSampleName, "DeltaP_RecoGenX_State_", 80, -0.2, 0.2);
-	InitMultiBinHistoMap(&h_deltaP_RecoGen_y, hitSampleName, "DeltaP_RecoGenY_State_", 80, -0.2, 0.2);
-	InitMultiBinHistoMap(&h_deltaP_RecoGen_z, hitSampleName, "DeltaP_RecoGenZ_State_", 80, -0.2, 0.2);
-
-
-
- 	if ( m_debug > 2 )		cout << "KFitter::InitAllHistos -- End!!!!  " << endl;
-}
-
-
-
-//----------------------------------------------------------------------------------------------------
-void KFitter::InitSingleHisto( map< string, TH1F* >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin ) {
-	if ( histoMap->find( collectionName ) == histoMap->end() )					
-		(*histoMap)[collectionName] = new TH1F( histoName.c_str(), histoName.c_str(), nBin, minBin, maxBin );
-}
-
-// ----------------------------------------------------------------------------------------------------
-void KFitter::InitMultiBinHistoMap( map< string, vector<TH1F*> >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin ) {
-	if ( histoMap->find( collectionName ) == histoMap->end() ) {
-		// loop over the numper of hits
-		for (unsigned i=0;  i < m_hitCollectionToFit[ collectionName ].size();  i++)				
-			(*histoMap)[collectionName].push_back( new TH1F( (histoName+"_"+build_string(i)).c_str(), (histoName+"_"+build_string(i)).c_str(), nBin, minBin, maxBin ) );
-	}
-}
-
 
 //----------------------------------------------------------------------------------------------------
 void KFitter::PrintEfficiency() {
@@ -1097,135 +1006,10 @@ void KFitter::PrintEfficiency() {
 	h_trackEfficiency->GetYaxis()->SetTitleOffset(1.1);
 	h_trackEfficiency->SetLineWidth(2); // take short ~ int
 	h_trackEfficiency->Draw();
-	mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+"TrackEfficiencyPlot.png").c_str() );
-	mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+"TrackEfficiencyPlot.root").c_str() );
+	mirror->SaveAs( (m_kalmanOutputDir+"/"+"TrackEfficiencyPlot.png").c_str() );
+	mirror->SaveAs( (m_kalmanOutputDir+"/"+"TrackEfficiencyPlot.root").c_str() );
 	
 }
-
-
-//----------------------------------------------------------------------------------------------------
-void KFitter::PrintPositionResidual( TVector3 pos, TVector3 expectedPos, string hitSampleName ) {
-	double dR = pos.DeltaR( expectedPos );
-	h_posRes[ hitSampleName ]->Fill(dR);
-}
-
-
-
-//----------------------------------------------------------------------------------------------------
-void KFitter::PrintMomentumResidual( TVector3 meas, TVector3 expected, TVector3 cov, string hitSampleName ) {
-
-	if ( m_debug > 2 )		cout << "KFitter::PrintMomentumResidual -- Start!!!!  " << endl;
-	double dP = meas.Mag() - expected.Mag();
-	double err = EvalError( meas, cov );
-
-	PrintMomentumResidual( meas, expected,  err, hitSampleName );
-
-}
-
-
-//----------------------------------------------------------------------------------------------------
-void KFitter::PrintMomentumResidual( TVector3 meas, TVector3 expected, TMatrixD cov, string hitSampleName ) {
-
-	if ( m_debug > 2 )		cout << "KFitter::PrintMomentumResidual -- Start!!!!  " << endl;
-	double dP = meas.Mag() - expected.Mag();
-	double err = EvalError( meas, cov );
-
-	PrintMomentumResidual( meas, expected,  err, hitSampleName );
-}
-
-
-//----------------------------------------------------------------------------------------------------
-void KFitter::PrintMomentumResidual( TVector3 meas, TVector3 expected, double err, string hitSampleName ) {
-
-	if ( m_debug > 2 )		cout << "KFitter::PrintMomentumResidual -- Start!!!!  " << endl;
-	double dP = meas.Mag() - expected.Mag();
-
-	if ( m_debug > 1 )		cout << "dp= " <<meas.Mag() << "-"<<expected.Mag() << "   err= " << err<< endl;
-	if ( m_debug > 1 )		cout << " residuo= "<< dP / err <<endl;
-
-	h_deltaP[ hitSampleName ]->Fill( dP );
-	h_sigmaP[ hitSampleName ]->Fill(err);
-	h_momentumRes[ hitSampleName ]->Fill( dP /err);
-
-	// h_dP_over_Ptrue[ hitSampleName ]->Fill( dP / expected.Mag() );
-	// h_dP_over_Pkf[ hitSampleName ]->Fill( dP / meas.Mag() );
-	// h_sigmaP_over_Ptrue[ hitSampleName ]->Fill( err / expected.Mag() );
-	// h_sigmaP_over_Pkf[ hitSampleName ]->Fill( err / meas.Mag() );
-
-	
-	// histos for momentum reso
-	if ( meas.Mag() == 0 || expected.Mag() == 0 ) 
-		cout<< "ERROR::KFitter::PrintMomentumResidual  -->  track momentum - 0. "<< endl, exit(0);
-	// find the center of the momentum bin
-	int roundUp = ceil( (double)expected.Mag() );
-	int roundDown = floor( (double)expected.Mag() );
-	float binCenter = -666;
-	int nstep = ((float)(roundUp - roundDown)) / m_resoP_step;
-	for ( int i=0; i<nstep; i++ ) {
-		if ( expected.Mag() > roundDown+(i*m_resoP_step) &&  expected.Mag() <= roundDown+((i+1)*m_resoP_step) ) {
-			binCenter = roundDown + m_resoP_step*i + 0.5*m_resoP_step;
-			break;
-		}
-	}
-
-	// fill the h_dP_x_bin
-	if ( h_dP_x_bin.find( hitSampleName ) == h_dP_x_bin.end() ) {
-		map<float, TH1F*> tmp_dP_x_bin;
-		
-		string name = "dP_dist_"+hitSampleName+"_"+build_string(binCenter);
-		TH1F* h = new TH1F( name.c_str(), name.c_str(), 80 , -2, 2 );
-		tmp_dP_x_bin[ binCenter ] = h;
-				
-		h_dP_x_bin[ hitSampleName ] = tmp_dP_x_bin;
-	}
-	else if ( h_dP_x_bin[ hitSampleName ].find( binCenter ) == h_dP_x_bin[ hitSampleName ].end() ) {
-		string name = "dP_dist_"+hitSampleName+"_"+build_string(binCenter);
-		TH1F* h = new TH1F( name.c_str(), name.c_str(), 80 , -2, 2 );
-		h_dP_x_bin[ hitSampleName ][ binCenter ] = h;
-	}
-	h_dP_x_bin[ hitSampleName ][ binCenter ]->Fill( dP );
-
-	// fill the h_dPOverP_x_bin
-	if ( h_dPOverP_x_bin.find( hitSampleName ) == h_dPOverP_x_bin.end() ) {
-		map<float, TH1F*> tmp_dPOverP_x_bin;
-		
-		string name = "dPOverP_dist_"+hitSampleName+"_"+build_string(binCenter);
-		TH1F* h = new TH1F( name.c_str(), name.c_str(), 80 , -0.2, 0.2 );
-		tmp_dPOverP_x_bin[ binCenter ] = h;
-				
-		h_dPOverP_x_bin[ hitSampleName ] = tmp_dPOverP_x_bin;
-	}
-	else if ( h_dPOverP_x_bin[ hitSampleName ].find( binCenter ) == h_dPOverP_x_bin[ hitSampleName ].end() ) {
-		string name = "dPOverP_dist_"+hitSampleName+"_"+build_string(binCenter);
-		TH1F* h = new TH1F( name.c_str(), name.c_str(), 80 , -0.2, 0.2 );
-		h_dPOverP_x_bin[ hitSampleName ][ binCenter ] = h;
-	}
-	h_dPOverP_x_bin[ hitSampleName ][ binCenter ]->Fill( dP/expected.Mag() );
-
-	// fill the h_dPOverSigmaP_x_bin
-	if ( h_dPOverSigmaP_x_bin.find( hitSampleName ) == h_dPOverSigmaP_x_bin.end() ) {
-		map<float, TH1F*> tmp_dPOverSigmaP_x_bin;
-		
-		string name = "dPOverSigmaP_dist_"+hitSampleName+"_"+build_string(binCenter);
-		TH1F* h = new TH1F( name.c_str(), name.c_str(), 80 , -2, 2 );
-		tmp_dPOverSigmaP_x_bin[ binCenter ] = h;
-				
-		h_dPOverSigmaP_x_bin[ hitSampleName ] = tmp_dPOverSigmaP_x_bin;
-	}
-	else if ( h_dPOverSigmaP_x_bin[ hitSampleName ].find( binCenter ) == h_dPOverSigmaP_x_bin[ hitSampleName ].end() ) {
-		string name = "dPOverSigmaP_dist_"+hitSampleName+"_"+build_string(binCenter);
-		TH1F* h = new TH1F( name.c_str(), name.c_str(), 80 , -4, 4 );
-		h_dPOverSigmaP_x_bin[ hitSampleName ][ binCenter ] = h;
-	}
-	h_dPOverSigmaP_x_bin[ hitSampleName ][ binCenter ]->Fill( dP/err );
-
-
-
-	if ( m_debug > 1 )		cout << "KFitter::PrintMomentumResidual -- End!!!!  " << endl;
-}
-
-
-
 
 
 
@@ -1273,357 +1057,28 @@ double KFitter::EvalError( TVector3 mom, TMatrixD cov ) {
 
 
 
-// //----------------------------------------------------------------------------------------------------
-// // Called from outside!
-void KFitter::EvaluateMomentumResolution() {
-
-	// for( unsigned int i = 0; i< m_fitTrackCollection.size(); i++ )
-	// 	m_fitTrackCollection.at(i)->EvaluateMomentumResolution();
-
-	for ( map<string, map<float, TH1F*> >::iterator collIt=h_dPOverP_x_bin.begin(); collIt != h_dPOverP_x_bin.end(); collIt++ ) {
-		
-		//  initialize output resolution histos
-		float resoP_min = (*(*collIt).second.begin()).first - m_resoP_step*0.5;
-		float resoP_max = (*(*collIt).second.rbegin()).first + m_resoP_step*0.5;
-		float nfbin = (resoP_max-resoP_min)/m_resoP_step;
-		// if ( modf( (resoP_max-resoP_min)/m_resoP_step, &nfbin ) == 0.0 ) 
-		if ( fabs(nfbin-round(nfbin)) > 0.001 )
-			cout<<"ERROR :: KFitter::EvaluateMomentumResolution  --> "<<(*collIt).first<<" resolution binning not round! min=" <<resoP_min<<" max="<<resoP_max<<" step="<<m_resoP_step<<" = "<<nfbin<< endl, exit(0);		// check correct binning
-		int nbin = round(nfbin);
-
-		string histoName = (string)"h_resoP_over_Pkf"+"__"+(*collIt).first;
-		h_resoP_over_Pkf[ (*collIt).first ] = new TH1F( histoName.c_str(), histoName.c_str(), nbin, resoP_min, resoP_max );
-		
-		histoName = (string)"h_biasP_over_Pkf"+"__"+(*collIt).first;
-		h_biasP_over_Pkf[ (*collIt).first ] = new TH1F( histoName.c_str(), histoName.c_str(), nbin, resoP_min, resoP_max );
-	
-
-
-		int k=0;
-		for ( map<float, TH1F*>::iterator it=(*collIt).second.begin(); it != (*collIt).second.end(); it++ ) {
-			
-			k++;
-			if ( k > h_resoP_over_Pkf[ (*collIt).first ]->GetNbinsX() )			
-				cout<<"ERROR :: KFitter::EvaluateMomentumResolution  --> "<<(*collIt).first<< "  binning problem! do not fill all the reso plot. " << endl, exit(0);	
-
-			if ( m_debug <= 0 && (*it).second->GetEntries() < 100 )		continue;
-
-			// check if the binning produce even bounds for the bins, not irrational numbers for examples
-			float a = (h_resoP_over_Pkf[ (*collIt).first ]->GetXaxis()->GetBinLowEdge(k) + h_resoP_over_Pkf[ (*collIt).first ]->GetXaxis()->GetBinUpEdge(k)) /2;
-			float b = (*it).first;
-			if ( fabs(a - b) > 0.00001 ) {
-				cout << "WARNING::KFitter::EvaluateMomentumResolution \t >> \t chosen binning do not make bin's round bounds "<<(*collIt).first<<": " << h_resoP_over_Pkf[ (*collIt).first ]->GetXaxis()->GetBinLowEdge(k) << " + "
-						<< h_resoP_over_Pkf[ (*collIt).first ]->GetXaxis()->GetBinUpEdge(k) <<" = " << a << " instead of 		" << b << endl; 
-				it--;
-				continue;
-			}
-
-			// TF1 *f1 = new TF1("f1","gaus",-3,3);
-			TF1 * f1 = new TF1("gauss", "[0] / sqrt(2.0 * TMath::Pi()) / [2] * exp(-(x-[1])*(x-[1])/2./[2]/[2])", 0, 100);
-			f1->SetParNames("Constant","Mean","Sigma");
-		    f1->SetParameters( 0, (*it).second->GetMean(), (*it).second->GetRMS() );
-		    // f1->SetParameters( 0, h_resoP_over_Pkf[ (*collIt).first ]->GetMean(), h_resoP_over_Pkf[ (*collIt).first ]->GetStdDev() );
-		    f1->SetParLimits(0,  0.1, (*it).second->GetMaximum());
-		    f1->SetParLimits(1, -0.18,  0.18);
-		    f1->SetParLimits(2,  0.001,  0.16);
-		    f1->SetLineWidth(2);
-		    f1->SetLineColor(2);
-			// h_resoP_over_Pkf[ (*collIt).first ]->Fit("f1","R");
-			(*it).second->Fit("gauss", "LQ");	// log likelihood fit, quiet mode
-
-			if ( m_debug <= 0 && (f1->GetParError(f1->GetParNumber("Sigma")) / f1->GetParameter(f1->GetParNumber("Sigma")) > 0.1) )	
-				continue;
-
-			// GetNumberFreeParameters()
-			// h_resoP_over_Pkf[ (*collIt).first ]->SetBinContent( k, f1->GetParameter(1) );
-			h_resoP_over_Pkf[ (*collIt).first ]->SetBinContent( k, f1->GetParameter(f1->GetParNumber("Sigma")) );
-			h_resoP_over_Pkf[ (*collIt).first ]->SetBinError( k, f1->GetParError (f1->GetParNumber("Sigma")) );
-			// h_resoP_over_Pkf[ (*collIt).first ]->SetBinContent( k, (*it).second->GetStdDev(1) );
-			// h_resoP_over_Pkf[ (*collIt).first ]->SetBinError( k, (*it).second->GetStdDev(1) );
-			
-
-			h_biasP_over_Pkf[ (*collIt).first ]->SetBinContent( k, f1->GetParameter(f1->GetParNumber("Mean")) );
-			h_biasP_over_Pkf[ (*collIt).first ]->SetBinError( k, f1->GetParameter(f1->GetParNumber("Mean")) );
-		}
-	}
-}
-
-
-
-
 //----------------------------------------------------------------------------------------------------
-void KFitter::SaveHisto( TCanvas* mirror, map< string, TH1F* > histoMap, string title, string saveName ) {
+// Called from outside!
+void KFitter::Finalize() {
 
-	for ( map< string, TH1F* >::iterator it=histoMap.begin(); it != histoMap.end(); it++ ) {
-
-		(*it).second->GetXaxis()->SetTitle( title.c_str() );
-		(*it).second->Draw();
-		
-		// (*it).second->SetLineColor( m_vecHistoColor[ k ] );
-		(*it).second->SetLineWidth(2);
-
-		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+saveName + ".png").c_str() );
-		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+saveName + ".root").c_str() );
-	}
-}
-
-
-
-//----------------------------------------------------------------------------------------------------
-// to be cancelled
-void KFitter::SaveHisto( TCanvas* mirror, TH1F* histoMap, string title, string saveName ) {
-
-
-	histoMap->GetXaxis()->SetTitle( title.c_str() );
-	histoMap->Draw();
-	
-	// (*it).second->SetLineColor( m_vecHistoColor[ k ] );
-	histoMap->SetLineWidth(2);
-
-	mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+"C"+"/"+saveName + ".png").c_str() );
-
-}
-
-
-
-
-//----------------------------------------------------------------------------------------------------
-void KFitter::Save( ) {
-
-	// cambiare!!!!!
+	// make a directory for each hit cathegory that forms a track candidate
 	struct stat info;
-	for ( map< string, TH1F* >::iterator it=h_deltaP.begin(); it != h_deltaP.end(); it++ ) {
-
-		// struct stat info;
-		string pathName = (string)getenv("FOOTRES")+"/"+(*it).first;
+	for ( unsigned int i=0; i < m_cathegoryFitted.size(); i++ ) {
+		string pathName = m_kalmanOutputDir+"/"+m_cathegoryFitted.at(i);
 		if( stat( pathName.c_str(), &info ) != 0 )		//cannot access
 		    system(("mkdir "+pathName).c_str());
-		// else if( info.st_mode & S_IFDIR )  // is a directory    
-		// else    cout << "WARNING::KFitter::Save( )	>>		recognise directory strange behaviour..."<< endl;
 	}
 
-	m_controlPlotter.PrintMap();
+	PrintEfficiency();
 
+	m_controlPlotter->PrintMap();
 
-	TCanvas* mirror = new TCanvas("TrackChi2Plot", "TrackChi2Plot", 700, 700);
+	for( unsigned int i = 0; i< m_fitTrackCollection.size(); i++ ) 
+		m_fitTrackCollection.at(i)->EvaluateMomentumResolution();
 
-	SaveHisto( mirror, h_chi2, "#chi^{2}", "TrackChi2Plot");
-	SaveHisto( mirror, h_momentumRes, "dp/sigma(p)", "MomentumRes" );
-	// SaveHisto( mirror, h_momentumKal );
-	SaveHisto( mirror, h_posRes, "dR", "PositionRes" );
-	SaveHisto( mirror, h_mass, "mass(GeV)", "mass" );
-	SaveHisto( mirror, h_zPosGen, "gen z(cm)", "GenZ" );
-
-	SaveHisto( mirror, h_mass_genFit, "mass(GeV)", "mass" );
-	SaveHisto( mirror, h_charge, "q", "charge" );
-	SaveHisto( mirror, h_isFitConvergedFully, "isFitConvergedFully", "isFitConvergedFully" );
-	SaveHisto( mirror, h_isFitConvergedPartially, "isConvergedPartially", "isConvergedPartially" );
-	SaveHisto( mirror, h_NFailedPoints, "nFailedPoints", "nFailedPoints" );
-	SaveHisto( mirror, h_isTrackPruned, "isPruned", "isPruned" );
-	SaveHisto( mirror, h_Ndf, "nDoF", "nDoF" );
-	
-	SaveHisto( mirror, h_startX, "startX", "startX" );
-	SaveHisto( mirror, h_endX, "endX", "endX" );
-	SaveHisto( mirror, h_startY, "startY", "startY" );
-	SaveHisto( mirror, h_endY, "endY", "endY" );
-	
-	SaveHisto( mirror, h_TrackLenght, "Track lenght (cm)", "TrackLenght" );
-	SaveHisto( mirror, h_Radius, "R (cm)", "Radius" );
-
-	SaveHisto( mirror, h_sigmaP, "sigma(p)", "sigmaP" );
-	SaveHisto( mirror, h_sigmaPx, "sigma(px)", "sigmaPx" );
-	SaveHisto( mirror, h_sigmaPy, "sigma(py)", "sigmaPy" );
-	SaveHisto( mirror, h_sigmaPz, "sigma(pz)", "sigmaPz" );
-	SaveHisto( mirror, h_sigmaPos, "sigma(pos)", "sigmaPos" );
-	SaveHisto( mirror, h_sigmaX, "sigma(x)", "sigmaX" );
-	SaveHisto( mirror, h_sigmaY, "sigma(y)", "sigmaY" );
-	SaveHisto( mirror, h_sigmaZ, "sigma(z)", "sigmaZ" );
-	// SaveHisto( mirror, h_sigmaR, "sigma(r)", "sigmaR" );
-	SaveHisto( mirror, h_deltaP, "dp", "deltaP" );
-	SaveHisto( mirror, h_polarAngol, "polarAngol(deg)", "polarAngol" );
-	SaveHisto( mirror, h_dP_over_Ptrue, "dp/p_{true}", "dP_over_Ptrue" );
-	SaveHisto( mirror, h_dP_over_Pkf, "dp/p_{KF}", "dP_over_Pkf" );
-	SaveHisto( mirror, h_sigmaP_over_Pkf, "sigma(p)/p_{true}", "sigmaP_over_Pkf" );
-	SaveHisto( mirror, h_sigmaP_over_Ptrue, "sigma(p)/p_{KF}", "sigmaP_over_Ptrue" );
-
-
-	// save state by state control plots
-	for ( map<string, vector<TH1F*> >::iterator collIt=h_dist_RecoMeas.begin(); collIt != h_dist_RecoMeas.end(); collIt++ ) {
-		string pathName = (string)getenv("FOOTRES")+"/"+(*collIt).first+"/StateByState";
-		if( stat( pathName.c_str(), &info ) != 0 )		//cannot access
-			system(("mkdir "+pathName).c_str());
-		for (unsigned i=0; i<(*collIt).second.size(); i++ ) {
-			(*collIt).second.at(i)->GetXaxis()->SetTitle("dist reco-meas [cm]");
-			(*collIt).second.at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + (*collIt).second.at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + (*collIt).second.at(i)->GetName() + ".root").c_str() );
-
-			h_dist_RecoGen[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist reco-gen [cm]");
-			h_dist_RecoGen[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-			h_dist_GenMeas[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist gen-meas [cm]");
-			h_dist_GenMeas[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-			h_dist_RecoGen_x[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist reco-gen [cm]");
-			h_dist_RecoGen_x[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen_x[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen_x[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-			h_dist_GenMeas_x[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist gen-meas [cm]");
-			h_dist_GenMeas_x[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas_x[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas_x[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-			h_dist_RecoGen_y[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist reco-gen [cm]");
-			h_dist_RecoGen_y[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen_y[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen_y[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-			h_dist_GenMeas_y[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist gen-meas [cm]");
-			h_dist_GenMeas_y[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas_y[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas_y[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-			h_dist_RecoGen_z[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist reco-gen [cm]");
-			h_dist_RecoGen_z[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen_z[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_dist_RecoGen_z[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-			h_dist_GenMeas_z[(*collIt).first].at(i)->GetXaxis()->SetTitle("dist gen-meas [cm]");
-			h_dist_GenMeas_z[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas_z[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_dist_GenMeas_z[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-
-
-			h_theta_RecoGen[(*collIt).first].at(i)->GetXaxis()->SetTitle("#theta(reco-gen) [deg]");
-			h_theta_RecoGen[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_theta_RecoGen[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_theta_RecoGen[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-			h_deltaP_RecoGen[(*collIt).first].at(i)->GetXaxis()->SetTitle("resoP reco-gen/gen");
-			h_deltaP_RecoGen[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-			h_deltaP_RecoGen_x[(*collIt).first].at(i)->GetXaxis()->SetTitle("resoP reco-gen/gen");
-			h_deltaP_RecoGen_x[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen_x[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen_x[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-			h_deltaP_RecoGen_y[(*collIt).first].at(i)->GetXaxis()->SetTitle("resoP reco-gen/gen");
-			h_deltaP_RecoGen_y[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen_y[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen_y[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-			h_deltaP_RecoGen_z[(*collIt).first].at(i)->GetXaxis()->SetTitle("resoP reco-gen/gen");
-			h_deltaP_RecoGen_z[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen_z[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_deltaP_RecoGen_z[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-			h_myChi2[(*collIt).first].at(i)->GetXaxis()->SetTitle("resoP reco-gen/gen");
-			h_myChi2[(*collIt).first].at(i)->Draw();
-			mirror->SaveAs( ( pathName+"/" + h_myChi2[(*collIt).first].at(i)->GetName() + ".png").c_str() );
-			mirror->SaveAs( ( pathName+"/" + h_myChi2[(*collIt).first].at(i)->GetName() + ".root").c_str() );
-
-		}
-
-	}
-
-	for ( map<string, map<float, TH1F*> >::iterator collIt=h_dP_x_bin.begin(); collIt != h_dP_x_bin.end(); collIt++ ) {
-		string pathName = (string)getenv("FOOTRES")+"/"+(*collIt).first+"/dP_x_bin";
-		if( stat( pathName.c_str(), &info ) != 0 )		//cannot access
-		    system(("mkdir "+pathName).c_str());
-		for ( map<float, TH1F*>::iterator it=(*collIt).second.begin(); it != (*collIt).second.end(); it++ ) {
-			(*it).second->GetXaxis()->SetTitle("dP(GeV)");
-			(*it).second->Draw();
-			mirror->SaveAs(( pathName+"/"+"dP_x_bin__"+(*collIt).first+"__"+build_string( (*it).first )+".png").c_str());
-		}
-	}
-	gStyle->SetOptFit(111111);
-	for ( map<string, map<float, TH1F*> >::iterator collIt=h_dPOverP_x_bin.begin(); collIt != h_dPOverP_x_bin.end(); collIt++ ) {
-		string pathName = (string)getenv("FOOTRES")+"/"+(*collIt).first+"/dPOverP_x_bin";
-		if( stat( pathName.c_str(), &info ) != 0 )		//cannot access
-		    system(("mkdir "+pathName).c_str());
-		for ( map<float, TH1F*>::iterator it=(*collIt).second.begin(); it != (*collIt).second.end(); it++ ) {
-			(*it).second->GetXaxis()->SetTitle("dP/P");
-			(*it).second->Draw();
-			mirror->SaveAs(( pathName+"/"+"dPOverP_x_bin__"+(*collIt).first+"__"+build_string( (*it).first )+".png").c_str());
-		}
-	}
-	gStyle->SetOptFit(111);
-	for ( map<string, map<float, TH1F*> >::iterator collIt=h_dPOverSigmaP_x_bin.begin(); collIt != h_dPOverSigmaP_x_bin.end(); collIt++ ) {
-		string pathName = (string)getenv("FOOTRES")+"/"+(*collIt).first+"/dPOverSigmaP_x_bin";
-		if( stat( pathName.c_str(), &info ) != 0 )		//cannot access
-		    system(("mkdir "+pathName).c_str());
-		for ( map<float, TH1F*>::iterator it=(*collIt).second.begin(); it != (*collIt).second.end(); it++ ) {
-			(*it).second->GetXaxis()->SetTitle("dP/sigmaP");
-			(*it).second->Draw();
-			mirror->SaveAs(( pathName+"/"+"dPOverSigmaP_x_bin__"+(*collIt).first+"__"+build_string( (*it).first )+".png").c_str());
-		}
-	}
-
-	for ( map< string, TH1F* >::iterator it=h_resoP_over_Pkf.begin(); it != h_resoP_over_Pkf.end(); it++ ) {
-		(*it).second->GetXaxis()->SetTitle("p(GeV)");
-		(*it).second->GetYaxis()->SetTitle("dp/p");
-		(*it).second->Draw();
-		
-		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"differentialMomentumReso" + ".png").c_str() );
-		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"differentialMomentumReso" + ".root").c_str() );
-		// string aaa = mirror->GetName();
-		// mirror->SetName( (*it).second->GetName() );
-		// mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"differentialMomentumReso" + ".root").c_str() );
-		// mirror->SetName( aaa.c_str() );
-	}
-
-	for ( map< string, TH1F* >::iterator it=h_biasP_over_Pkf.begin(); it != h_biasP_over_Pkf.end(); it++ ) {
-		(*it).second->GetXaxis()->SetTitle("p(GeV)");
-		(*it).second->GetYaxis()->SetTitle("Bias(dp/p)");
-		(*it).second->Draw();
-		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"differentialResoBias" + ".png").c_str() );
-		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"differentialResoBias" + ".root").c_str() );
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	// momentum distribution comparison
-	for ( map< string, TH1F* >::iterator it=h_momentumMC.begin(); it != h_momentumMC.end(); it++ ) {
-		
-		(*it).second->GetXaxis()->SetTitle("p [GeV]");
-		(*it).second->SetLineColor(kGreen+1);
-		(*it).second->SetLineWidth(2);
-		h_momentumKal[ (*it).first ]->SetLineColor(kOrange+8);
-		h_momentumKal[ (*it).first ]->SetLineWidth(2);
-		(*it).second->Draw();
-		h_momentumKal[ (*it).first ]->Draw("same");
-		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"Momentum" + ".png").c_str() );
-		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"Momentum" + ".root").c_str() );
-		
-	}
-
-
-
-
-	
+	m_cathegoryFitted.clear();
 
 }
-
-
 
 
 

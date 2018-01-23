@@ -255,13 +255,12 @@ void GlobalTrackKalman::EvaluateMomentumResolution() {
 //----------------------------------------------------------------------------------------------------
 void GlobalTrackKalman::Save( ) {
 
-	// cambiare!!!!!
 	struct stat info;
 
 	TCanvas* mirror = new TCanvas("TrackChi2Plot", "TrackChi2Plot", 700, 700);
 
 	for ( map<string, map<float, TH1F*> >::iterator collIt=h_dP_x_bin.begin(); collIt != h_dP_x_bin.end(); collIt++ ) {
-		string pathName = (string)getenv("FOOTRES")+"/"+(*collIt).first+"/dP_x_bin";
+		string pathName = m_kalmanOutputDir+"/"+(*collIt).first+"/dP_x_bin";
 		if( stat( pathName.c_str(), &info ) != 0 )		//cannot access
 		    system(("mkdir "+pathName).c_str());
 		for ( map<float, TH1F*>::iterator it=(*collIt).second.begin(); it != (*collIt).second.end(); it++ ) {
@@ -272,7 +271,7 @@ void GlobalTrackKalman::Save( ) {
 	}
 	gStyle->SetOptFit(111111);
 	for ( map<string, map<float, TH1F*> >::iterator collIt=h_dPOverP_x_bin.begin(); collIt != h_dPOverP_x_bin.end(); collIt++ ) {
-		string pathName = (string)getenv("FOOTRES")+"/"+(*collIt).first+"/dPOverP_x_bin";
+		string pathName = m_kalmanOutputDir+"/"+(*collIt).first+"/dPOverP_x_bin";
 		if( stat( pathName.c_str(), &info ) != 0 )		//cannot access
 		    system(("mkdir "+pathName).c_str());
 		for ( map<float, TH1F*>::iterator it=(*collIt).second.begin(); it != (*collIt).second.end(); it++ ) {
@@ -283,7 +282,7 @@ void GlobalTrackKalman::Save( ) {
 	}
 	gStyle->SetOptFit(111);
 	for ( map<string, map<float, TH1F*> >::iterator collIt=h_dPOverSigmaP_x_bin.begin(); collIt != h_dPOverSigmaP_x_bin.end(); collIt++ ) {
-		string pathName = (string)getenv("FOOTRES")+"/"+(*collIt).first+"/dPOverSigmaP_x_bin";
+		string pathName = m_kalmanOutputDir+"/"+(*collIt).first+"/dPOverSigmaP_x_bin";
 		if( stat( pathName.c_str(), &info ) != 0 )		//cannot access
 		    system(("mkdir "+pathName).c_str());
 		for ( map<float, TH1F*>::iterator it=(*collIt).second.begin(); it != (*collIt).second.end(); it++ ) {
@@ -298,11 +297,11 @@ void GlobalTrackKalman::Save( ) {
 		(*it).second->GetYaxis()->SetTitle("dp/p");
 		(*it).second->Draw();
 		
-		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"differentialMomentumReso" + ".png").c_str() );
-		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"differentialMomentumReso" + ".root").c_str() );
+		mirror->SaveAs( (m_kalmanOutputDir+"/"+(*it).first+"/"+"differentialMomentumReso" + ".png").c_str() );
+		mirror->SaveAs( (m_kalmanOutputDir+"/"+(*it).first+"/"+"differentialMomentumReso" + ".root").c_str() );
 		// string aaa = mirror->GetName();
 		// mirror->SetName( (*it).second->GetName() );
-		// mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"differentialMomentumReso" + ".root").c_str() );
+		// mirror->SaveAs( (m_kalmanOutputDir+"/"+(*it).first+"/"+"differentialMomentumReso" + ".root").c_str() );
 		// mirror->SetName( aaa.c_str() );
 	}
 
@@ -310,8 +309,8 @@ void GlobalTrackKalman::Save( ) {
 		(*it).second->GetXaxis()->SetTitle("p(GeV)");
 		(*it).second->GetYaxis()->SetTitle("Bias(dp/p)");
 		(*it).second->Draw();
-		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"differentialResoBias" + ".png").c_str() );
-		mirror->SaveAs( ((string)getenv("FOOTRES")+"/"+(*it).first+"/"+"differentialResoBias" + ".root").c_str() );
+		mirror->SaveAs( (m_kalmanOutputDir+"/"+(*it).first+"/"+"differentialResoBias" + ".png").c_str() );
+		mirror->SaveAs( (m_kalmanOutputDir+"/"+(*it).first+"/"+"differentialResoBias" + ".root").c_str() );
 	}
 
 }

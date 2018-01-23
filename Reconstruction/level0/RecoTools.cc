@@ -628,9 +628,10 @@ tempo_kal+=(double)(end_kal-start_kal);
 
 
     if ( m_doKalman ) {
-        m_kFitter->EvaluateMomentumResolution();
-        m_kFitter->PrintEfficiency();
-        m_kFitter->Save();
+        // m_kFitter->EvaluateMomentumResolution();
+        // m_kFitter->PrintEfficiency();
+        // m_kFitter->Save();
+        m_kFitter->Finalize();
     }
 
     if (GlobalPar::GetPar()->Debug() > 1)   eventListFile.close();

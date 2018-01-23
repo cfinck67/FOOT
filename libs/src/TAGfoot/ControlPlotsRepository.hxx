@@ -16,9 +16,12 @@ using namespace genfit;
 class ControlPlotsRepository {
 	
 public:
-	ControlPlotsRepository() {};
+
+	static ControlPlotsRepository* Instance();
+	static ControlPlotsRepository* GetControlObject( string outputDir );
 	~ControlPlotsRepository() {};
 
+	void SetOutputDir( string outputDir ) { m_outputDir = outputDir; };
 	void FillMap( string mapName, double x );
 	void PrintMap();
 
@@ -165,19 +168,16 @@ public:
 
 	}
 
-
-
-
-
-
-
-
-
-
+	bool m_alreadyPrintedOut;
+	string m_lastPrintedDir;
+	string m_outputDir;
 	map< string, ControlPlotInfo > m_chizu;
 
 
 private:
+
+	ControlPlotsRepository();
+	static ControlPlotsRepository* m_pInstance;
 
 
 };
