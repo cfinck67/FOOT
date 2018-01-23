@@ -14,7 +14,7 @@
 #include <math.h>
 #include <algorithm>
 #include <memory>
-
+#include <map>
 
 
 using namespace std;
@@ -28,20 +28,67 @@ public:
 	static GlobalPar* GetPar();
 	~GlobalPar() {};
 
-	void ReadParemFile();
+	void ReadParamFile();
 	void Print();
 
 	int Debug() { return m_debug; };
+
+	void ReadHistoNBin( map< string, int >* map_bin, string fileName );
+	void ReadHistoString( map< string, string >* map, string fileName );
+	void ReadHistoRange( map< string, pair< double, double > >* map_range, string fileName );
 
 	int KalMode() { return m_kalmanMode; };
 	bool IsKalReverse() { return m_kalReverse; };
 	vector<string> KalSystems() { return m_trackingSystems; };
 	vector<string> KalParticles() { return m_kalParticles; };
-	
 	vector<string> MCParticles() { return m_mcParticles; };
+
+
 	bool Find_MCParticle( string villain ) 
 		{ return ( find( m_mcParticles.begin(), m_mcParticles.end(), villain ) == m_mcParticles.end() ? false : true ); };
-
+	
+	double GetLowBinHisto( string villain ) 	{ 
+		for ( map< string, pair< double, double > >::iterator it = m_map_range.begin(); it != m_map_range.end(); it++ ) {
+			if ( frankFind( (*it).first, villain ) )
+				return (*it).second.first; 
+		}
+		return -666;
+	};
+	double GetUpBinHisto( string villain ) 	{ 
+		for ( map< string, pair< double, double > >::iterator it = m_map_range.begin(); it != m_map_range.end(); it++ ) {
+			if ( frankFind( (*it).first, villain ) )
+				return (*it).second.second; 
+		}
+		return -666;
+	};
+	int GetNBinHisto( string villain )  	{ 
+		for ( map< string, int >::iterator it = m_nBin_map.begin(); it != m_nBin_map.end(); it++ ) {
+			if ( frankFind( (*it).first, villain ) )
+				return (*it).second; 
+		}
+		return -666;
+	};
+	string GetSaveDirHisto( string villain )  	{ 
+		for ( map< string, string >::iterator it = m_map_saveDir.begin(); it != m_map_saveDir.end(); it++ ) {
+			if ( frankFind( (*it).first, villain ) )
+				return (*it).second; 
+		}
+		return "default";
+	};
+	string GetXTitlesHisto( string villain )  	{ 
+		for ( map< string, string >::iterator it = m_map_xTitles.begin(); it != m_map_xTitles.end(); it++ ) {
+			if ( frankFind( (*it).first, villain ) )
+				return (*it).second; 
+		}
+		return "default";
+	};
+	string GetYTitlesHisto( string villain )  	{ 
+		for ( map< string, string >::iterator it = m_map_yTitles.begin(); it != m_map_yTitles.end(); it++ ) {
+			if ( frankFind( (*it).first, villain ) )
+				return (*it).second; 
+		}
+		return "default";
+	};
 
 
 	//____________________________________________________________________________
@@ -81,6 +128,33 @@ public:
 	}
 
 
+
+
+	bool frankFind( string what, string where )	{
+	    
+	    int wildcard_pos = what.find("*");
+	    
+	    if ( wildcard_pos == 0 )    {
+	    	if( where.find( what.substr( wildcard_pos+1 ) ) != string::npos )
+		        return true;
+	    }
+	    else if( wildcard_pos == what.size()-1 )    {
+	    	if( where.find( what.substr( 0, wildcard_pos ) ) != string::npos )
+		        return true;
+	    }
+	    else if ( wildcard_pos != string::npos )    {
+	        int pre = where.find( what.substr( 0, wildcard_pos ) );
+	        int post = where.find( what.substr( wildcard_pos+1 ) );
+	        if( pre!=string::npos && post!=string::npos )
+		        return true;
+	    }
+
+	    return false;
+	}
+
+
+
+
 private: 
 
 	GlobalPar();
@@ -88,6 +162,12 @@ private:
 	static GlobalPar* m_pInstance;
 
 	vector<string> m_copyInputFile;
+
+	map< string, pair< double, double > > m_map_range;
+	map< string, int > m_nBin_map;
+	map< string, string > m_map_saveDir;
+	map< string, string > m_map_xTitles;
+	map< string, string > m_map_yTitles;
 
 	string m_parFileName;
 

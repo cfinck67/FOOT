@@ -11,7 +11,7 @@ SOMINV     = 0
 #
 TINCLFLAGS += $(shell root-config --cflags)
 INCLFLAGS  = $(filter-out -stdlib=libc++, $(TINCLFLAGS))
-INCLFLAGS += -I../TAGbase -I../TABMbase -I../TAVTbase -I../TAITbase -I../TADCbase
+INCLFLAGS += -I../TAGbase -I../TABMbase -I../TAVTbase -I../TAITbase
 INCLFLAGS += -I../TAGfoot -I../TAVTbase -I../TAIRbase -I../TAMSDbase
 INCLFLAGS += -I../TAGmclib -I../../../Simulation/TXT2ROOT -I../../../Simulation
 INCLFLAGS += -I../../../libs/GenFit/fitters/include 
@@ -25,8 +25,8 @@ LDLIBS    = $(shell root-config --libs)
 #
 TOBJ_all   =   TATRdatRaw.hxx \
              TATRparGeo.hxx  TATRparMap.hxx \
-             TinCan.hxx  KFitter.hxx	FootField.hxx	\
-             IronPlate.hxx GlobalPar.hxx	Materials.hxx
+             TinCan.hxx  KFitter.hxx	FootField.hxx     GlobalTrackKalman.hxx	\
+             IronPlate.hxx GlobalPar.hxx	Materials.hxx  ControlPlotsRepository.hxx  ControlPlotInfo.hxx
 
              # TAGvieHorzIR.hxx TAGvieHorzMCIR.hxx    \		// rimosso by Frank
              

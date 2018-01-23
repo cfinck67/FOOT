@@ -34,7 +34,7 @@
 #include <limits>
 
 #include <TGeoManager.h>
-#include <TGeoMaterialInterface.h>
+// #include <TGeoMaterialInterface.h>
 
 #include "GlobalPar.hxx"
 

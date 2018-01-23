@@ -41,7 +41,7 @@
 #include <TRandom3.h>
 
 #include <TVector3.h>
-#include <array>
+// #include <array>
 #include <vector>
 
 #include "TDatabasePDG.h"
@@ -52,9 +52,6 @@
 #include "TAMSDparGeo.hxx"
 #include "TAMSDntuRaw.hxx"
 
-#include "TADCparGeo.hxx"
-#include "TADCntuRaw.hxx"
-
 #include "TAVTparGeo.hxx"
 #include "TAVTntuRaw.hxx"
 
@@ -62,9 +59,14 @@
 #include "TAITntuRaw.hxx"
 
 #include "GlobalPar.hxx"
+#include "ControlPlotsRepository.hxx"
+#include "GlobalTrackKalman.hxx"
+
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <limits>
+
 
 
 
@@ -104,6 +106,17 @@ public:
 
 	int MakeFit(long evNum);
 
+	void GetTrueMCInfo( string hitSampleName, int x, 
+						TVector3* tmpPos, TVector3* tmpMom, double* tmp_mass,
+						TVector3* tmp_genPos,  TVector3* tmp_genMom, TVector3* hitPos );
+	void GetKalmanTrackInfo ( string hitSampleName, int i, Track* track,
+								TVector3* KalmanPos, TVector3* KalmanMom, TVector3* KalmanPos_err, TVector3* KalmanMom_err,
+								TMatrixD* KalmanPos_cov, TMatrixD* KalmanMom_cov,
+								double* KalmanMass );
+
+	void SetTrueSeed( TVector3* pos, TVector3* mom );
+	void MakePrefit();
+
 	string CategoriseHitsToFit_withTrueInfo( int flukaID, int charge, int mass );
 	
 	void RecordTrackInfo( Track* track, string hitSampleName );
@@ -111,7 +124,6 @@ public:
 	int UploadHitsVT( TAGdataDsc* footDataObj, shared_ptr<TAVTparGeo> vt_geo );
 	int UploadHitsIT( TAGdataDsc* footDataObj, shared_ptr<TAITparGeo> it_geo );
 	int UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd_geo );
-	int UploadHitsDC( TAGdataDsc* footDataObj, shared_ptr<TADCparGeo> dc_geo );
 
 	void EvaluateMomentumResolution();
 
@@ -119,11 +131,13 @@ public:
 	void PrintPositionResidual( TVector3 pos, TVector3 expectedPos, string hitSampleName );
 	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, TVector3 cov, string hitSampleName );
 	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, TMatrixD cov, string hitSampleName );
+	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, double cov, string hitSampleName );
 	
 	void InitAllHistos( string hitSampleName );
 	void InitSingleHisto( map< string, TH1F* >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin );
+	
 	void InitMultiBinHistoMap( map< string, vector<TH1F*> >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin );
-
+	void InitEventDisplay();
 
 	void Save();
 	void SaveHisto( TCanvas* mirror, map< string, TH1F* > histoMap, string title, string saveName );
@@ -133,6 +147,8 @@ public:
 	double EvalError( TVector3 mom, TVector3 err );
 	double EvalError( TVector3 mom, TMatrixD cov );
 	void MatrixToZero( TMatrixD *matrix );
+
+
 
 	// GlobalTrackFoot* GetTrack( int id ) {
 	// 	// fai controllo sul vettore
@@ -153,6 +169,8 @@ private:
 	AbsKalmanFitter*  m_dafSimpleFitter;    	 //DAF with simple kalman
 
 	// Track*  m_fitTrack;
+	ControlPlotsRepository m_controlPlotter;
+	vector<GlobalTrackKalman*> m_fitTrackCollection;
 
 	TRandom3* m_diceRoll;
 
@@ -163,10 +181,8 @@ private:
 	vector<TAVTntuHit*> m_VT_hitCollection;
 	vector<TAITntuHit*> m_IT_hitCollection;
 	vector<TAMSDntuHit*> m_MSD_hitCollection;
-	vector<TADCntuHit*> m_DC_hitCollection;
 	// vector< shared_ptr<TAVTntuHit> > m_VT_hitCollection;
 	// vector< shared_ptr<TAITntuHit> > m_IT_hitCollection;
-	// vector< shared_ptr<TADCntuHit> > m_DC_hitCollection;
 	
 	vector<TVector3> m_MSD_posVectorSmearedHit;
 	vector<TVector3> m_MSD_momVectorSmearedHit;
@@ -180,7 +196,6 @@ private:
 	shared_ptr<TAVTparGeo> m_VT_geo;
 	shared_ptr<TAITparGeo> m_IT_geo;
 	shared_ptr<TAMSDparGeo> m_MSD_geo;
-	shared_ptr<TADCparGeo> m_DC_geo;
 
 	// TrackVector* m_fitTrackCollection;
 	vector<int> m_evNum_vect;
@@ -265,6 +280,7 @@ private:
 
 	bool m_reverse;
 	int m_debug;
+	long m_evNum;
 
 };
 

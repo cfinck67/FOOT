@@ -294,6 +294,40 @@ void TAITparGeo::InitMaterial() {
                         "ITR_MEDIUM"
                          };
 
+    m_regionOrder = {  "ITR0",
+                      "ITREPO0",
+                      "ITRCOV0",
+                      "ITRAL0",
+                      "ITRKAP0",
+                      "ITRAL1",
+                      "ITRCOV1",
+                      "ITRFOAM",
+                      "ITRCOV2",
+                      "ITRAL2",
+                      "ITRKAP1",
+                      "ITRAL3",
+                      "ITRCOV3",
+                      "ITREPO1",
+                      "ITR1"
+                       };
+
+  m_regPrintOrder = {  "ITR0",
+                      "ITR1",
+                      "ITREPO0",
+                      "ITREPO1",
+                      "ITRAL0",
+                      "ITRAL1",
+                      "ITRAL2",
+                      "ITRAL3",
+                      "ITRCOV0",
+                      "ITRCOV1",
+                      "ITRCOV2",
+                      "ITRCOV3",
+                      "ITRKAP0",
+                      "ITRKAP1",
+                      "ITRFOAM"
+                       };
+
     for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
 
         if( m_materialOrder[i] == "ITR_MEDIUM" ){
@@ -398,39 +432,7 @@ void TAITparGeo::PrintBodies( string geoFileName ){
 
 void TAITparGeo::PrintRegions( string geoFileName ){
 
-  m_regionOrder = {  "ITR0",
-                      "ITREPO0",
-                      "ITRCOV0",
-                      "ITRAL0",
-                      "ITRKAP0",
-                      "ITRAL1",
-                      "ITRCOV1",
-                      "ITRFOAM",
-                      "ITRCOV2",
-                      "ITRAL2",
-                      "ITRKAP1",
-                      "ITRAL3",
-                      "ITRCOV3",
-                      "ITREPO1",
-                      "ITR1"
-                       };
-
-  m_regPrintOrder = {  "ITR0",
-                      "ITR1",
-                      "ITREPO0",
-                      "ITREPO1",
-                      "ITRAL0",
-                      "ITRAL1",
-                      "ITRAL2",
-                      "ITRAL3",
-                      "ITRCOV0",
-                      "ITRCOV1",
-                      "ITRCOV2",
-                      "ITRCOV3",
-                      "ITRKAP0",
-                      "ITRKAP1",
-                      "ITRFOAM"
-                       };
+  
 
 
   ofstream geofile;

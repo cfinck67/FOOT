@@ -63,7 +63,7 @@ int main (int argc, char *argv[]) {
   //itrGeo.AssignMaterial();
 
 
-  // PRINT OUT
+  // PRINT OUT foot.geo
   // per ora chiamati da qui, si puo fare una classe gestore separata se serve
   string geofileName = "foot.geonew";
   // string geofileName = "foot.geo";
@@ -101,7 +101,11 @@ int main (int argc, char *argv[]) {
   itrGeo.PrintRegions( geofileName );
 
   geofile.close();
+ // PRINT OUT foot.geo
 
+
+
+  //  Print out of foot.inp
 
 
   // stop time
