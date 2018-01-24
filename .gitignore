@@ -30,6 +30,8 @@ Simulation/parameters.inc
 libs/lib/
 
 libs/GenFit/build
+libs/GenFit/include/
+libs/GenFit/lib/
 libs/GenFit/tests/*.png
 libs/GenFit/tests/*.pdf
 
