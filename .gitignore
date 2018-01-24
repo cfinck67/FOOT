@@ -37,3 +37,7 @@ Reconstruction/level0/results/
 Reconstruction/level0/bField.test
 Reconstruction/level0/eventListFile.dat
 
+Reconstruction/level0/utils/
+Simulation/foot.inp_old
+Simulation/foot.inp_plusMaterialAll
+

@@ -10,11 +10,13 @@
 #include <sstream>
 #include <vector>
 #include <math.h>
+#include <sys/stat.h>
 
 #include "TCanvas.h"
 #include "TH1F.h"
 #include "TVector3.h"
 #include "GlobalPar.hxx"
+#include "MagicSkills.hxx"
 
 
 
@@ -52,10 +54,7 @@ public:
 
 		m_titleX = "";
 		m_titleY = "";
-		m_dir = getenv("FOOTRES");  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-		isControlPlotParamFile = false;  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+		m_dir = getenv("FOOTRES"); 
 	};
 
 
@@ -75,21 +74,12 @@ public:
 		m_variablesInt.push_back( x );
 	};
 
-	// SetParameterAsYouKnow();
-
-
+	void SetOutputDir( string outDir ) { 
+		vector<string> token = Tokenize( m_name, "__" );
+		m_dir = outDir +"/"+ token[0]; 
+	};
 
 	void PrintHisto( TCanvas* mirror );
-
-
-
-
-	// vector<double> * GetVariableVec() { return m_variables; };
-	// void SetInit( int nBin, double minBin, double maxBin) :
-	// 	m_nBin(nBin), m_minBin(minBin), m_maxBin(maxBin) {};
-	// void SetXTitle(string t) : m_titleX(t) {};
-	// void SetYTitle(string t) : m_titleY(t) {};
-	// void SetDirectory(string dir) : m_dir(dir) {};
 
 
 
@@ -104,7 +94,6 @@ public:
 
 	bool isDoub;
 	bool isInt;
-	bool isControlPlotParamFile;
 
 	int m_nBin;
 	double m_minBin;

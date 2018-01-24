@@ -60,8 +60,8 @@
 
 #include "GlobalPar.hxx"
 #include "ControlPlotsRepository.hxx"
-#include "GlobalTrackKalman.hxx"
-
+#include "GlobalTrackRepostory.hxx"
+#include "MagicSkills.hxx"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -111,11 +111,12 @@ public:
 								TVector3* KalmanPos, TVector3* KalmanMom, TVector3* KalmanPos_err, TVector3* KalmanMom_err,
 								TMatrixD* KalmanPos_cov, TMatrixD* KalmanMom_cov,
 								double* KalmanMass );
+	void GetTrueParticleType( AbsMeasurement* , int* flukaID, int* partID, int* charge, double* mass );
 
 	void SetTrueSeed( TVector3* pos, TVector3* mom );
 	void MakePrefit();
 
-	string CategoriseHitsToFit_withTrueInfo( int flukaID, int charge, int mass );
+	void CategoriseHitsToFit_withTrueInfo();
 	
 	void RecordTrackInfo( Track* track, string hitSampleName );
 
@@ -123,23 +124,23 @@ public:
 	int UploadHitsIT( TAGdataDsc* footDataObj, shared_ptr<TAITparGeo> it_geo );
 	int UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd_geo );
 
-	void EvaluateMomentumResolution();
+	void Finalize();	// save control plot and calculate resolutions
 
-	void PrintEfficiency(  );
-	void PrintPositionResidual( TVector3 pos, TVector3 expectedPos, string hitSampleName );
-	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, TVector3 cov, string hitSampleName );
-	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, TMatrixD cov, string hitSampleName );
-	void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, double cov, string hitSampleName );
+	void PrintEfficiency();
+	// void PrintPositionResidual( TVector3 pos, TVector3 expectedPos, string hitSampleName );
+	// void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, TVector3 cov, string hitSampleName );
+	// void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, TMatrixD cov, string hitSampleName );
+	// void PrintMomentumResidual( TVector3 pos, TVector3 expectedPos, double cov, string hitSampleName );
 	
-	void InitAllHistos( string hitSampleName );
-	void InitSingleHisto( map< string, TH1F* >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin );
+	// void InitAllHistos( string hitSampleName );
+	// void InitSingleHisto( map< string, TH1F* >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin );
+	// void InitMultiBinHistoMap( map< string, vector<TH1F*> >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin );
 	
-	void InitMultiBinHistoMap( map< string, vector<TH1F*> >* histoMap, string collectionName, string histoName, int nBin, float minBin, float maxBin );
 	void InitEventDisplay();
 
-	void Save();
-	void SaveHisto( TCanvas* mirror, map< string, TH1F* > histoMap, string title, string saveName );
-	void SaveHisto( TCanvas* mirror, TH1F* histoMap, string title, string saveName );
+	// void Save();
+	// void SaveHisto( TCanvas* mirror, map< string, TH1F* > histoMap, string title, string saveName );
+	// void SaveHisto( TCanvas* mirror, TH1F* histoMap, string title, string saveName );
 
 
 	double EvalError( TVector3 mom, TVector3 err );
@@ -159,6 +160,30 @@ public:
 	// };	
 
 
+	bool frankFind( string what, string where )	{
+	    
+	    int wildcard_pos = what.find("*");
+	    
+	    if ( wildcard_pos == 0 )    {
+	    	if( where.find( what.substr( wildcard_pos+1 ) ) != string::npos )
+		        return true;
+	    }
+	    else if( wildcard_pos == what.size()-1 )    {
+	    	if( where.find( what.substr( 0, wildcard_pos ) ) != string::npos )
+		        return true;
+	    }
+	    else if ( wildcard_pos != string::npos )    {
+	        int pre = where.find( what.substr( 0, wildcard_pos ) );
+	        int post = where.find( what.substr( wildcard_pos+1 ) );
+	        if( pre!=string::npos && post!=string::npos )
+		        return true;
+	    }
+
+	    return false;
+	}
+
+
+
 private:
 
 	KalmanFitter* m_fitter;
@@ -167,8 +192,8 @@ private:
 	AbsKalmanFitter*  m_dafSimpleFitter;    	 //DAF with simple kalman
 
 	// Track*  m_fitTrack;
-	ControlPlotsRepository m_controlPlotter;
-	vector<GlobalTrackKalman*> m_fitTrackCollection;
+	ControlPlotsRepository* m_controlPlotter;
+	GlobalTrackRepostory* m_fitTrackCollection;
 
 	TRandom3* m_diceRoll;
 
@@ -188,6 +213,7 @@ private:
 	// correctely freed
 	// vector<AbsMeasurement*> m_hitCollectionToFit;
 	map <string, vector<AbsMeasurement*> > m_hitCollectionToFit;
+	vector<AbsMeasurement*> m_allHitsInMeasurementFormat;
 
 	shared_ptr<TAVTparGeo> m_VT_geo;
 	shared_ptr<TAITparGeo> m_IT_geo;
@@ -201,76 +227,79 @@ private:
 	map<string, int> m_nTotTracks;
 	map<string, int> m_nConvergedTracks;
 
-	map< string, TH1F* > h_chi2;
-	map< string, TH1F* > h_momentumRes;
-	map< string, TH1F* > h_momentumKal;
-	map< string, TH1F* > h_momentumMC;
-	map< string, TH1F* > h_posRes;
-	map< string, TH1F* > h_mass;
-	map< string, TH1F* > h_sigmaR;
-	map< string, TH1F* > h_sigmaP;
-	map< string, TH1F* > h_sigmaPos;
-	map< string, TH1F* > h_sigmaX;
-	map< string, TH1F* > h_sigmaY;
-	map< string, TH1F* > h_sigmaZ;
-	map< string, TH1F* > h_sigmaPx;
-	map< string, TH1F* > h_sigmaPy;
-	map< string, TH1F* > h_sigmaPz;
-	map< string, TH1F* > h_deltaP;
-	map< string, TH1F* > h_polarAngol;
+	vector<string> m_categoryFitted;
 
-	map< string, TH1F* >  h_zPosGen;
-	map< string, TH1F* >  h_mass_genFit;
-	map< string, TH1F* >  h_charge;
-	map< string, TH1F* >  h_isFitConvergedFully;
-	map< string, TH1F* >  h_isFitConvergedPartially;
-	map< string, TH1F* >  h_NFailedPoints;
-	map< string, TH1F* >  h_isTrackPruned;
-	map< string, TH1F* >  h_Ndf;
+	// map< string, TH1F* > h_chi2;
+	// map< string, TH1F* > h_momentumRes;
+	// map< string, TH1F* > h_momentumKal;
+	// map< string, TH1F* > h_momentumMC;
+	// map< string, TH1F* > h_posRes;
+	// map< string, TH1F* > h_mass;
+	// map< string, TH1F* > h_sigmaR;
+	// map< string, TH1F* > h_sigmaP;
+	// map< string, TH1F* > h_sigmaPos;
+	// map< string, TH1F* > h_sigmaX;
+	// map< string, TH1F* > h_sigmaY;
+	// map< string, TH1F* > h_sigmaZ;
+	// map< string, TH1F* > h_sigmaPx;
+	// map< string, TH1F* > h_sigmaPy;
+	// map< string, TH1F* > h_sigmaPz;
+	// map< string, TH1F* > h_deltaP;
+	// map< string, TH1F* > h_polarAngol;
+
+	// map< string, TH1F* >  h_zPosGen;
+	// map< string, TH1F* >  h_mass_genFit;
+	// map< string, TH1F* >  h_charge;
+	// map< string, TH1F* >  h_isFitConvergedFully;
+	// map< string, TH1F* >  h_isFitConvergedPartially;
+	// map< string, TH1F* >  h_NFailedPoints;
+	// map< string, TH1F* >  h_isTrackPruned;
+	// map< string, TH1F* >  h_Ndf;
 	
-	map< string, TH1F* >  h_startX;
-	map< string, TH1F* >  h_endX;
-	map< string, TH1F* >  h_startY;
-	map< string, TH1F* >  h_endY;
+	// map< string, TH1F* >  h_startX;
+	// map< string, TH1F* >  h_endX;
+	// map< string, TH1F* >  h_startY;
+	// map< string, TH1F* >  h_endY;
 	
-	map< string, TH1F* >  h_TrackLenght;
-	map< string, TH1F* >  h_Radius;
+	// map< string, TH1F* >  h_TrackLenght;
+	// map< string, TH1F* >  h_Radius;
 
-	map< string, TH2F* >  h_covariance;
+	// map< string, TH2F* >  h_covariance;
 
-	map< string, TH1F* > h_dP_over_Ptrue;
-	map< string, TH1F* > h_dP_over_Pkf;
-	map< string, TH1F* > h_sigmaP_over_Pkf;
-	map< string, TH1F* > h_sigmaP_over_Ptrue;
+	// map< string, TH1F* > h_dP_over_Ptrue;
+	// map< string, TH1F* > h_dP_over_Pkf;
+	// map< string, TH1F* > h_sigmaP_over_Pkf;
+	// map< string, TH1F* > h_sigmaP_over_Ptrue;
 
-	map< string, TH1F* > h_resoP_over_Pkf;
-	map< string, TH1F* > h_biasP_over_Pkf;
+	// map< string, TH1F* > h_resoP_over_Pkf;
+	// map< string, TH1F* > h_biasP_over_Pkf;
 	
-	map<string, vector<TH1F*> > h_dist_RecoMeas;
-	map<string, vector<TH1F*> > h_dist_RecoGen;
-	map<string, vector<TH1F*> > h_dist_GenMeas;
-	map<string, vector<TH1F*> > h_dist_RecoGen_x;
-	map<string, vector<TH1F*> > h_dist_GenMeas_x;
-	map<string, vector<TH1F*> > h_dist_RecoGen_y;
-	map<string, vector<TH1F*> > h_dist_GenMeas_y;
-	map<string, vector<TH1F*> > h_dist_RecoGen_z;
-	map<string, vector<TH1F*> > h_dist_GenMeas_z;
-	map<string, vector<TH1F*> > h_theta_RecoGen;
-	map<string, vector<TH1F*> > h_deltaP_RecoGen;
-	map<string, vector<TH1F*> > h_deltaP_RecoGen_x;
-	map<string, vector<TH1F*> > h_deltaP_RecoGen_y;
-	map<string, vector<TH1F*> > h_deltaP_RecoGen_z;
-	map<string, vector<TH1F*> > h_myChi2;
+	// map<string, vector<TH1F*> > h_dist_RecoMeas;
+	// map<string, vector<TH1F*> > h_dist_RecoGen;
+	// map<string, vector<TH1F*> > h_dist_GenMeas;
+	// map<string, vector<TH1F*> > h_dist_RecoGen_x;
+	// map<string, vector<TH1F*> > h_dist_GenMeas_x;
+	// map<string, vector<TH1F*> > h_dist_RecoGen_y;
+	// map<string, vector<TH1F*> > h_dist_GenMeas_y;
+	// map<string, vector<TH1F*> > h_dist_RecoGen_z;
+	// map<string, vector<TH1F*> > h_dist_GenMeas_z;
+	// map<string, vector<TH1F*> > h_theta_RecoGen;
+	// map<string, vector<TH1F*> > h_deltaP_RecoGen;
+	// map<string, vector<TH1F*> > h_deltaP_RecoGen_x;
+	// map<string, vector<TH1F*> > h_deltaP_RecoGen_y;
+	// map<string, vector<TH1F*> > h_deltaP_RecoGen_z;
+	// map<string, vector<TH1F*> > h_myChi2;
 
-	map<string, map<float, TH1F*> > h_dP_x_bin;
-	map<string, map<float, TH1F*> > h_dPOverP_x_bin;
-	map<string, map<float, TH1F*> > h_dPOverSigmaP_x_bin;
+	// map<string, map<float, TH1F*> > h_dP_x_bin;
+	// map<string, map<float, TH1F*> > h_dPOverP_x_bin;
+	// map<string, map<float, TH1F*> > h_dPOverSigmaP_x_bin;
 
 	map<string, int> m_detectorID_map;
 	// map<string, int> m_totTracksXParticles;
 	// map<string, int> m_fittedTracksXParticles;
 
 	string m_systemsON;
+	string m_kalmanOutputDir;
 
 	float m_resoP_step;
 

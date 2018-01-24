@@ -21,6 +21,7 @@
 
 #include "RecoTools.h"
 #include "GlobalPar.hxx"
+#include "ControlPlotsRepository.hxx"
 
 
 //#include "MCTree.h"
@@ -83,6 +84,18 @@ int main (int argc, char *argv[]) {
 
   GlobalPar::Instance();
   GlobalPar::GetPar()->Print();
+
+  ControlPlotsRepository::Instance();
+
+  // clean results dir, and recreate it
+  if ( (string)getenv("FOOTRES") != "" ) {
+    system(("rm -r "+(string)getenv("FOOTRES")).c_str());
+    system(("mkdir "+(string)getenv("FOOTRES")).c_str());
+  }
+  else {
+    cout << "ERROR >> main  ::  $FOOTRES environment variable not set. Try to lunch setupFoot.sh.\n";
+    exit(0); 
+  }
 
   cout<<"Opening:  outp file:: "<<out.Data()<<" input file:: "<<in.Data()<<endl;
   
