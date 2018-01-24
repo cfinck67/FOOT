@@ -16,6 +16,7 @@
 #include "TH1F.h"
 #include "TVector3.h"
 #include "GlobalPar.hxx"
+#include "MagicSkills.hxx"
 
 
 
@@ -79,39 +80,6 @@ public:
 	};
 
 	void PrintHisto( TCanvas* mirror );
-
-
-
-	//____________________________________________________________________________
-	vector<string>  Tokenize(const string str,
-	                      const string delimiters)	{
-
-	  vector<string> tokens;
-	    // Skip delimiters at beginning.
-	    string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-	    // Find first "non-delimiter".
-	    string::size_type pos     = str.find(delimiters, lastPos);
-
-	    while (string::npos != pos || string::npos != lastPos)
-	    {
-	        // Found a token, add it to the vector.
-	        tokens.push_back(str.substr(lastPos, pos - lastPos));
-	        // Skip delimiters.  Note the "not_of"
-	        lastPos = str.find_first_not_of(delimiters, pos);
-	        // Find next "non-delimiter"
-	        pos = str.find(delimiters, lastPos);
-
-	    }
-	    return tokens;
-	};
-
-
-	// vector<double> * GetVariableVec() { return m_variables; };
-	// void SetInit( int nBin, double minBin, double maxBin) :
-	// 	m_nBin(nBin), m_minBin(minBin), m_maxBin(maxBin) {};
-	// void SetXTitle(string t) : m_titleX(t) {};
-	// void SetYTitle(string t) : m_titleY(t) {};
-	// void SetDirectory(string dir) : m_dir(dir) {};
 
 
 

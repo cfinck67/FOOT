@@ -60,8 +60,8 @@
 
 #include "GlobalPar.hxx"
 #include "ControlPlotsRepository.hxx"
-#include "GlobalTrackKalman.hxx"
-
+#include "GlobalTrackRepostory.hxx"
+#include "MagicSkills.hxx"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -113,11 +113,12 @@ public:
 								TVector3* KalmanPos, TVector3* KalmanMom, TVector3* KalmanPos_err, TVector3* KalmanMom_err,
 								TMatrixD* KalmanPos_cov, TMatrixD* KalmanMom_cov,
 								double* KalmanMass );
+	void GetTrueParticleType( AbsMeasurement* , int* flukaID, int* partID, int* charge, double* mass );
 
 	void SetTrueSeed( TVector3* pos, TVector3* mom );
 	void MakePrefit();
 
-	string CategoriseHitsToFit_withTrueInfo( int flukaID, int charge, int mass );
+	void CategoriseHitsToFit_withTrueInfo();
 	
 	void RecordTrackInfo( Track* track, string hitSampleName );
 
@@ -161,6 +162,30 @@ public:
 	// };	
 
 
+	bool frankFind( string what, string where )	{
+	    
+	    int wildcard_pos = what.find("*");
+	    
+	    if ( wildcard_pos == 0 )    {
+	    	if( where.find( what.substr( wildcard_pos+1 ) ) != string::npos )
+		        return true;
+	    }
+	    else if( wildcard_pos == what.size()-1 )    {
+	    	if( where.find( what.substr( 0, wildcard_pos ) ) != string::npos )
+		        return true;
+	    }
+	    else if ( wildcard_pos != string::npos )    {
+	        int pre = where.find( what.substr( 0, wildcard_pos ) );
+	        int post = where.find( what.substr( wildcard_pos+1 ) );
+	        if( pre!=string::npos && post!=string::npos )
+		        return true;
+	    }
+
+	    return false;
+	}
+
+
+
 private:
 
 	KalmanFitter* m_fitter;
@@ -170,7 +195,7 @@ private:
 
 	// Track*  m_fitTrack;
 	ControlPlotsRepository* m_controlPlotter;
-	vector<GlobalTrackKalman*> m_fitTrackCollection;
+	GlobalTrackRepostory* m_fitTrackCollection;
 
 	TRandom3* m_diceRoll;
 
@@ -192,6 +217,7 @@ private:
 	// correctely freed
 	// vector<AbsMeasurement*> m_hitCollectionToFit;
 	map <string, vector<AbsMeasurement*> > m_hitCollectionToFit;
+	vector<AbsMeasurement*> m_allHitsInMeasurementFormat;
 
 	shared_ptr<TAVTparGeo> m_VT_geo;
 	shared_ptr<TAITparGeo> m_IT_geo;
@@ -205,7 +231,7 @@ private:
 	map<string, int> m_nTotTracks;
 	map<string, int> m_nConvergedTracks;
 
-	vector<string> m_cathegoryFitted;
+	vector<string> m_categoryFitted;
 
 	// map< string, TH1F* > h_chi2;
 	// map< string, TH1F* > h_momentumRes;

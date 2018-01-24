@@ -26,6 +26,8 @@ KFitter::KFitter ( int nIter, double dPVal ) {
 	m_IT_hitCollection.clear();
 	m_MSD_hitCollection.clear();
 
+	m_fitTrackCollection = new GlobalTrackRepostory();
+
 	// Create dir for kalman output
 	struct stat info;
 	m_kalmanOutputDir = (string)getenv("FOOTRES")+"/Kalman";
@@ -227,18 +229,20 @@ int KFitter::PrepareData4Fit( Track* fitTrack ) {
 		Prepare4Strip(fitTrack);
 	}
 
+	// try to categorise the particle that generated the hit. If it fails --> clean the hit object
+    CategoriseHitsToFit_withTrueInfo();
 
-	// loop over all the hit-collections to be fit
+	// remove the category if does not satisfy the requirements  ///////////////////
 	vector <int> hitsToBeRemoved;
 	int hitsCount = 0;
 	for ( map< string, vector<AbsMeasurement*> >::iterator it=m_hitCollectionToFit.begin(); it != m_hitCollectionToFit.end(); it++ ) {
-		if ( !PrefitRequirements( it ) )	{
+		if ( !PrefitRequirements( it ) )	{	// to be exactely 1 hit per layer
 			hitsToBeRemoved.push_back( hitsCount );
-			// if requirements are FALSE -> delete each AbsMeasurement objects
-			for ( vector<AbsMeasurement*>::iterator it2=(*it).second.begin(); it2 != (*it).second.end(); it2++ ) {
-				delete (*it2);
-				// delete (*it).second.at(i);	// wrong!
-			}
+			// // if requirements are FALSE -> delete each AbsMeasurement objects
+			// for ( vector<AbsMeasurement*>::iterator it2=(*it).second.begin(); it2 != (*it).second.end(); it2++ ) {
+			// 	delete (*it2);
+			// 	// delete (*it).second.at(i);	// wrong!
+			// }
 		}
 		hitsCount++;
 	}
@@ -252,11 +256,16 @@ int KFitter::PrepareData4Fit( Track* fitTrack ) {
 		}
 		hitsCount++;
 	}
+	///////////////////////////////////////////////////////////////////////////////
+
 	//	if no map element survive -> clear the single-detector hit-collections
 	if ( m_hitCollectionToFit.size() == 0 ) {
 		m_VT_hitCollection.clear();
 		m_IT_hitCollection.clear();
 		m_MSD_hitCollection.clear();
+		for ( vector<AbsMeasurement*>::iterator it2=m_allHitsInMeasurementFormat.begin(); it2 != m_allHitsInMeasurementFormat.end(); it2++ )
+			delete (*it2);
+		m_allHitsInMeasurementFormat.clear();
 		return 0;
 	}	
 
@@ -301,15 +310,8 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
         // nullptr e' un TrackPoint(fitTrack). Leave like this otherwise it gives memory leak problems!!!!
         AbsMeasurement* hit = new SpacepointMeasurement(hitCoords, hitCov, m_detectorID_map["VT"], i, nullptr );
         
-         // try to categorise the particle that generated the hit. If it fails --> clean the hit object
-        string category = CategoriseHitsToFit_withTrueInfo( p_hit->m_genPartFLUKAid, p_hit->m_genPartCharge, p_hit->m_genPartMass );
-        if (category == "fail")	{
-        	delete hit;
-        	continue;
-        }
-        // fill collection to be fitted. It's indexed with the diffenet cathegories.
-        // One collection per each cathegory.
-        m_hitCollectionToFit[ category ].push_back(hit);
+        m_allHitsInMeasurementFormat.push_back(hit);
+
     }
 }
 
@@ -348,15 +350,8 @@ void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
         // nullptr e' un TrackPoint(fitTrack). Leave like this otherwise it gives memory leak problems!!!!
         AbsMeasurement* hit = new SpacepointMeasurement(hitCoords, hitCov, m_detectorID_map["IT"], i, nullptr );
 
-         // try to categorise the particle that generated the hit. If it fails --> clean the hit object
-        string category = CategoriseHitsToFit_withTrueInfo( p_hit->m_genPartFLUKAid, p_hit->m_genPartCharge, p_hit->m_genPartMass );
-        if (category == "fail")	{
-        	delete hit;
-        	continue;
-        }
-        // fill collection to be fitted. It's indexed with the diffenet cathegories.
-        // One collection per each cathegory.
-        m_hitCollectionToFit[ category ].push_back(hit);
+        m_allHitsInMeasurementFormat.push_back(hit);
+
     }
 }
 
@@ -429,19 +424,11 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 	        // nullptr e' un TrackPoint(fitTrack). Leave like this otherwise it gives memory leak problems!!!!
         	AbsMeasurement* hit = new SpacepointMeasurement(hitCoords, hitCov, m_detectorID_map["MSD"], countStripHits, nullptr );
 
+        	m_allHitsInMeasurementFormat.push_back(hit);
+
 	        // count the combined hits
 			countStripHits++;
 	        
-	         // try to categorise the particle that generated the hit. If it fails --> clean the hit object
-	        string category = CategoriseHitsToFit_withTrueInfo( (*xIt)->m_genPartFLUKAid, (*xIt)->m_genPartCharge, (*xIt)->m_genPartMass );
-	        if (category == "fail")	{
-	        	delete hit;
-	        	continue;
-	        }
-	        // fill collection to be fitted. It's indexed with the diffenet cathegories.
-	        // One collection per each cathegory.
-	        m_hitCollectionToFit[ category ].push_back(hit);
-
     }
 	//***********************************************************************************************
 	//***********************************************************************************************
@@ -578,42 +565,109 @@ bool KFitter::PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterat
 
 
 //----------------------------------------------------------------------------------------------------
-// cathegorise the hit depending on the generating particle!
-string KFitter::CategoriseHitsToFit_withTrueInfo( int flukaID, int charge, int mass ) {
+// categorise the hit depending on the generating particle!
+void KFitter::CategoriseHitsToFit_withTrueInfo() {
 
-	string outName = "fail";
 
-	if ( flukaID == -2 && charge == 6 &&  round(mass) == 10 )  outName =  "C10";
-	if ( flukaID == -2 && charge == 6 &&  round(mass) == 11 )  outName =  "C11";
-	if ( flukaID == -2 && charge == 6 &&  round(mass) == 12 )  outName =  "C12";
-	
-	if ( flukaID == -2 && charge == 3 &&  round(mass) == 6 )  outName =  "Li6";
-	if ( flukaID == -2 && charge == 3 &&  round(mass) == 7 && mass < 7 )  outName =  "Li7";
-	
-	if ( flukaID == -2 && charge == 4 &&  round(mass) == 7 )  outName =  "B7";
-	if ( flukaID == -2 && charge == 4 &&  round(mass) == 8 )  outName =  "B8";
-	if ( flukaID == -2 && charge == 4 &&  round(mass) == 9 )  outName =  "B9";
+	int flukaID, partID, charge;
+	double mass;
+	for ( unsigned int i=0; i < m_allHitsInMeasurementFormat.size(); i++ ) {
 
-	if ( flukaID == -2 && charge == 5 &&  round(mass) == 9 )  outName =  "Be9";
-	if ( flukaID == -2 && charge == 5 &&  round(mass) == 10 )  outName =  "Be10";
+		GetTrueParticleType( m_allHitsInMeasurementFormat.at(i), &flukaID, &partID, &charge, &mass );
 
-	if ( flukaID == -2 && charge == 7 &&  round(mass) == 12 )  outName =  "N12";
-	// if ( flukaID == -2 && charge == 7 &&  round(mass) == 13 )  outName =  "N13";
-	if ( flukaID == -2 && charge == 7 &&  round(mass) == 14 )  outName =  "N14";
+		string outName = "fail";
 
-	if ( flukaID == -2 && charge == 8 &&  round(mass) == 15 )  outName =  "O15";
+		if ( flukaID == -2 && charge == 6 &&  round(mass) == 10 )  outName =  "C10";
+		if ( flukaID == -2 && charge == 6 &&  round(mass) == 11 )  outName =  "C11";
+		if ( flukaID == -2 && charge == 6 &&  round(mass) == 12 )  outName =  "C12";
+		
+		if ( flukaID == -2 && charge == 3 &&  round(mass) == 6 )  outName =  "Li6";
+		if ( flukaID == -2 && charge == 3 &&  round(mass) == 7 && mass < 7 )  outName =  "Li7";
+		
+		if ( flukaID == -2 && charge == 4 &&  round(mass) == 7 )  outName =  "B7";
+		if ( flukaID == -2 && charge == 4 &&  round(mass) == 8 )  outName =  "B8";
+		if ( flukaID == -2 && charge == 4 &&  round(mass) == 9 )  outName =  "B9";
 
-	if ( flukaID == -6 && charge == 2 )  outName =  "Alpha";
-	if ( flukaID == 1 && charge == 1 )  outName =  "H";
+		if ( flukaID == -2 && charge == 5 &&  round(mass) == 9 )  outName =  "Be9";
+		if ( flukaID == -2 && charge == 5 &&  round(mass) == 10 )  outName =  "Be10";
 
-	// diventa Find_Cathegory( outName )
-	if ( !GlobalPar::GetPar()->Find_MCParticle( outName ) )
-		return "fail";
+		if ( flukaID == -2 && charge == 7 &&  round(mass) == 12 )  outName =  "N12";
+		// if ( flukaID == -2 && charge == 7 &&  round(mass) == 13 )  outName =  "N13";
+		if ( flukaID == -2 && charge == 7 &&  round(mass) == 14 )  outName =  "N14";
 
-	return outName;
+		if ( flukaID == -2 && charge == 8 &&  round(mass) == 15 )  outName =  "O15";
+		if ( flukaID == -2 && charge == 8 &&  round(mass) == 16 )  outName =  "O16";
+
+		if ( flukaID == -6 && charge == 2 )  outName =  "Alpha";
+		if ( flukaID == 1 && charge == 1 )  outName =  "H";
+
+		if ( m_debug > 4 )		cout << "Selected Category: " << outName << "  flukaID=" << flukaID << "  partID="<<partID << "  charge="<<charge << "  mass="<<mass<<endl;
+
+
+		// diventa Find_Category( outName )
+		if ( !GlobalPar::GetPar()->Find_MCParticle( outName ) )
+			continue;
+
+		if ( m_debug > 1 )		cout << "Selected Category: " << outName << "  flukaID=" << flukaID << "  partID="<<partID << "  charge="<<charge << "  mass="<<mass<<endl;
+
+		// if a category already defineed but with particle with a different partID  ->  make a new category with an incremental index
+		int coll = 0;
+		for ( map< string, vector<AbsMeasurement*> >::iterator it = m_hitCollectionToFit.begin(); it != m_hitCollectionToFit.end(); it++ ) {
+			if ( (*it).first.find( outName ) != string::npos ) {	// enter if a category have part of the found outname
+
+				int tmp_flukaID, tmp_partID, tmp_charge;
+				double tmp_mass;
+				GetTrueParticleType( (*it).second.at(0), &tmp_flukaID, &tmp_partID, &tmp_charge, &tmp_mass );
+
+				if ( partID == tmp_partID ) {	// if from the same particle break and fill this category
+					outName = (*it).first;
+					coll = 0;
+					break;
+				}
+				coll++;
+			}
+		}
+		if ( coll > 0 )	// if its category not exist yet and found category from another particle of the same type  -->  change outName as C11-1, c11-2
+			outName = outName +"-"+ build_string( coll );
+
+		// fill the collection to be fitted in the proper category
+		m_hitCollectionToFit[ outName ].push_back( m_allHitsInMeasurementFormat[i] );
+
+	}
 }
 
 
+
+
+void KFitter::GetTrueParticleType( AbsMeasurement* hit, int* flukaID, int* partID, int* charge, double* mass ) {
+
+	int detID = hit->getDetId();
+	int hitID = hit->getHitId();
+
+	if ( m_debug > 1 )		cout << "Detector Type = " << detID << "    HitID = " << hitID << endl;
+
+	// Generated positions and momentums
+	if ( detID == m_detectorID_map["VT"] ) {
+		*flukaID = m_VT_hitCollection.at( hitID )->m_genPartFLUKAid;
+		*partID  = m_VT_hitCollection.at( hitID )->m_genPartID;
+		*charge  = m_VT_hitCollection.at( hitID )->m_genPartCharge;
+		*mass    = m_VT_hitCollection.at( hitID )->m_genPartMass;
+	}
+	else if ( detID == m_detectorID_map["IT"] ) {
+		*flukaID = m_IT_hitCollection.at( hitID )->m_genPartFLUKAid;
+		*partID  = m_IT_hitCollection.at( hitID )->m_genPartID;
+		*charge  = m_IT_hitCollection.at( hitID )->m_genPartCharge;
+		*mass    = m_IT_hitCollection.at( hitID )->m_genPartMass;
+	}
+	else if ( detID == m_detectorID_map["MSD"] ) {
+		if ( m_MSD_hitCollection.size() > hitID*2 ) {
+			*flukaID = m_MSD_hitCollection.at( hitID*2 )->m_genPartFLUKAid;
+			*partID  = m_MSD_hitCollection.at( hitID*2 )->m_genPartID;
+			*charge  = m_MSD_hitCollection.at( hitID*2 )->m_genPartCharge;
+			*mass    = m_MSD_hitCollection.at( hitID*2 )->m_genPartMass;
+		}
+	}	
+}
 
 
 
@@ -635,9 +689,11 @@ int KFitter::MakeFit( long evNum ) {
     PrepareData4Fit( fitTrack );
     // check the hit vector not empty otherwise clear
 	if ( m_hitCollectionToFit.size() <= 0 )	{	
-		m_VT_hitCollection.clear();
-		m_IT_hitCollection.clear();
-		m_MSD_hitCollection.clear();
+		// m_VT_hitCollection.clear();
+		// m_IT_hitCollection.clear();
+		// m_MSD_hitCollection.clear();
+		// for ( vector<AbsMeasurement*>::iterator it2=m_allHitsInMeasurementFormat.begin(); it2 != m_allHitsInMeasurementFormat.end(); it2++ )
+		// 	delete (*it2);
 		delete fitTrack;
 		return 2;
 	}
@@ -647,9 +703,9 @@ int KFitter::MakeFit( long evNum ) {
 	// loop over all hit category
 	for ( map< string, vector<AbsMeasurement*> >::iterator hitSample=m_hitCollectionToFit.begin(); hitSample != m_hitCollectionToFit.end(); hitSample++ ) {
 
-		// check if the cathegory is defined in m_pdgCodeMap
+		// check if the category is defined in m_pdgCodeMap
 		if ( m_pdgCodeMap.find( (*hitSample).first ) == m_pdgCodeMap.end() ) 
-			cout << "ERROR :: KFitter::MakeFit  -->	 in m_pdgCodeMap not found the cathegory " << (*hitSample).first << endl;
+			cout << "ERROR :: KFitter::MakeFit  -->	 in m_pdgCodeMap not found the category " << (*hitSample).first << endl;
 
 		// SET PARTICLE HYPOTHESIS  --> set repository
 		AbsTrackRep* rep = new RKTrackRep( m_pdgCodeMap[ (*hitSample).first ] );
@@ -697,11 +753,11 @@ int KFitter::MakeFit( long evNum ) {
 			if ( fitTrack->getFitStatus(rep)->isFitConverged() &&  fitTrack->getFitStatus(rep)->isFitted() )	isConverged = 1;	// convergence check
 			if ( m_debug > 3 )		fitTrack->Print("C");
 
-			// map of the tracked particles for each cathegory
+			// map of the tracked particles for each category
 			if ( m_nTotTracks.find( (*hitSample).first ) == m_nTotTracks.end() )	m_nTotTracks[ (*hitSample).first ] = 0;
 			m_nTotTracks[ (*hitSample).first ]++;
 
-			// map of the CONVERGED tracks for each cathegory
+			// map of the CONVERGED tracks for each category
 			if (isConverged) {	
 				if ( m_nConvergedTracks.find( (*hitSample).first ) == m_nConvergedTracks.end() )	m_nConvergedTracks[ (*hitSample).first ] = 0;
 				m_nConvergedTracks[ (*hitSample).first ]++;
@@ -713,16 +769,18 @@ int KFitter::MakeFit( long evNum ) {
           std::cerr << "Exception, next track" << std::endl;
           continue;
 		}
-
-		// fill a vector with the cathegories fitted at least onece
-		if ( find( m_cathegoryFitted.begin(), m_cathegoryFitted.end(), (*hitSample).first ) == m_cathegoryFitted.end() )
-			m_cathegoryFitted.push_back( (*hitSample).first );
+		// fill a vector with the categories fitted at least onece
+		if ( find( m_categoryFitted.begin(), m_categoryFitted.end(), (*hitSample).first ) == m_categoryFitted.end() )
+			m_categoryFitted.push_back( (*hitSample).first );
 
 	}	// end  - loop over all hit category
+
 
 	m_VT_hitCollection.clear();
 	m_IT_hitCollection.clear();
 	m_MSD_hitCollection.clear();
+	// // clean all hits 
+	m_allHitsInMeasurementFormat.clear();
 	delete fitTrack;	// include un delete rep pare
 	// clean m_hitCollectionToFit
 	for ( auto it = m_hitCollectionToFit.cbegin(), next_it = m_hitCollectionToFit.cbegin(); it != m_hitCollectionToFit.cend(); it = next_it)	{
@@ -730,7 +788,8 @@ int KFitter::MakeFit( long evNum ) {
 		m_hitCollectionToFit.erase(it);
 	}
 	m_hitCollectionToFit.clear();	
-	if ( m_debug > 1 )		cout << "Ready for the next track fit!" << endl;
+
+	if ( m_debug > 0 )		cout << "Ready for the next track fit!" << endl;
 
 	return isConverged;
 }
@@ -885,10 +944,10 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			massMC = tmp_mass;
 
 			// tuuta la info andra esportata per essere messa in ntupla x l'analisi....
-			m_fitTrackCollection.push_back( new GlobalTrackKalman( hitSampleName, track, m_evNum, i, // trackID?
+			m_fitTrackCollection->AddTrack( hitSampleName, track, m_evNum, i, // trackID?
 															&KalmanMom, &KalmanPos,
 															&expectedMom, &expectedPos, 
-															&KalmanMom_cov ) );
+															&KalmanMom_cov );
 			
 			m_controlPlotter->SetMom_Gen( hitSampleName, &tmp_genMom );
 			m_controlPlotter->SetMom_TrueMC( hitSampleName, &expectedMom, massMC );
@@ -959,12 +1018,8 @@ void KFitter::GetKalmanTrackInfo ( string hitSampleName, int i, Track* track,
 	*KalmanPos_err = TVector3( (track->getFittedState(i).get6DCov())[0][0], (track->getFittedState(i).get6DCov())[1][1], (track->getFittedState(i).get6DCov())[2][2] );
 	*KalmanMom_err = TVector3( (track->getFittedState(i).get6DCov())[3][3],	(track->getFittedState(i).get6DCov())[4][4], (track->getFittedState(i).get6DCov())[5][5] );
 
-	// // test che sia la stessa di hitPos. se si itpos non serve piu
-	// AbsMeasurement* measurement = track->getPointWithMeasurement(i)->getRawMeasurement(0);
-	// TVector3 hit_pos_fromMeas, hit_dir_fromMeas;	// coord of the pixels and their resolutions
-	// hit_pos_fromMeas.SetXYZ(measurement->getRawHitCoords()[0],measurement->getRawHitCoords()[1],measurement->getRawHitCoords()[2]);
- //    // hit_dir_fromMeas.SetXYZ(measurement->getRawHitCoords()[3],measurement->getRawHitCoords()[4],measurement->getRawHitCoords()[5]);
-
+	// AbsMeasurement* measurement = track->getPointWithMeasurement(i)->getRawMeasurement(0);		// return the given coord -> aka the pixel coord
+	
 	// prduce the covariance matrix on the measured state
 	MatrixToZero(KalmanPos_cov);
 	MatrixToZero(KalmanMom_cov);
@@ -1061,10 +1116,10 @@ double KFitter::EvalError( TVector3 mom, TMatrixD cov ) {
 // Called from outside!
 void KFitter::Finalize() {
 
-	// make a directory for each hit cathegory that forms a track candidate
+	// make a directory for each hit category that forms a track candidate
 	struct stat info;
-	for ( unsigned int i=0; i < m_cathegoryFitted.size(); i++ ) {
-		string pathName = m_kalmanOutputDir+"/"+m_cathegoryFitted.at(i);
+	for ( unsigned int i=0; i < m_categoryFitted.size(); i++ ) {
+		string pathName = m_kalmanOutputDir+"/"+m_categoryFitted.at(i);
 		if( stat( pathName.c_str(), &info ) != 0 )		//cannot access
 		    system(("mkdir "+pathName).c_str());
 	}
@@ -1073,10 +1128,10 @@ void KFitter::Finalize() {
 
 	m_controlPlotter->PrintMap();
 
-	for( unsigned int i = 0; i< m_fitTrackCollection.size(); i++ ) 
-		m_fitTrackCollection.at(i)->EvaluateMomentumResolution();
+	
+	m_fitTrackCollection->EvaluateMomentumResolution();
 
-	m_cathegoryFitted.clear();
+	m_categoryFitted.clear();
 
 }
 
