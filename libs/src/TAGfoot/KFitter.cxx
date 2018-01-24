@@ -279,53 +279,6 @@ int KFitter::PrepareData4Fit( Track* fitTrack ) {
 
 
 
-//----------------------------------------------------------------------------------------------------
-// pre-fit requirements to be applied to EACH of the hitCollections
-bool KFitter::PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterator element ) {
-
-	int testHitNumberLimit = 0;
-	int testHit_VT = 0;
-	int testHit_IT = 0;
-	int testHit_MSD = 0;
-	// define the number of hits per each detector to consider to satisfy the pre-fit requirements
-	if ( m_systemsON == "all" ) {
-		testHit_VT = m_VT_geo->GetNLayers(), testHit_IT = m_IT_geo->GetNLayers(), testHit_MSD = m_MSD_geo->GetNLayers();
-	}
-	else {
-		if ( m_systemsON.find( "VT" ) != string::npos )			testHit_VT = m_VT_geo->GetNLayers();
-		if ( m_systemsON.find( "IT" ) != string::npos )			testHit_IT = m_IT_geo->GetNLayers();
-		if ( m_systemsON.find( "MSD" ) != string::npos )		testHit_MSD = m_MSD_geo->GetNLayers();
-	}
-	// num of total hits
-	testHitNumberLimit = testHit_VT + testHit_IT + testHit_MSD;
-	if ( testHitNumberLimit == 0 ) 			cout << "ERROR >> KFitter::PrefitRequirements :: m_systemsON mode is wrong!!!" << endl, exit(0);
-
-	// test the total number of hits ->  speed up the test
-	if ( (int)((*element).second.size()) != testHitNumberLimit ) {
-		if ( m_debug > 0 )		cout << "WARNING :: KFitter::PrefitRequirements  -->  number of elements different wrt the expected ones : Nel=" << (int)((*element).second.size()) << "   Nexp= " << testHitNumberLimit << endl;
-		return false;
-	}
- 
- 	int nHitVT = 0;
-	int nHitIT = 0;
-	int nHitMSD = 0;
-	// count the hits per each detector
-	for ( vector<AbsMeasurement*>::iterator it=(*element).second.begin(); it != (*element).second.end(); it++ ) {
-		if ( (*it)->getDetId() == m_detectorID_map["VT"] )	nHitVT++;
-		if ( (*it)->getDetId() == m_detectorID_map["IT"] )	nHitIT++;
-		if ( (*it)->getDetId() == m_detectorID_map["MSD"] )	nHitMSD++;
-		if ( m_debug > 2 )		cout << "nHitVT  " << nHitVT << " nHitIT" << nHitIT << " nHitMSD "<< nHitMSD<<endl;
-	}
-	// test the num of hits per each detector
-	if ( nHitVT != testHit_VT || nHitIT != testHit_IT || nHitMSD != testHit_MSD )	return false;
-
-	return true;
-}
-
-
-
-
-
 
 //----------------------------------------------------------------------------------------------------
 void KFitter::Prepare4Vertex( Track* fitTrack ) {
