@@ -31,7 +31,7 @@ typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
 
 public:
 
-    TAITparGeo() {};
+    TAITparGeo();
     TAITparGeo( TAITparGeo* original );
     virtual ~TAITparGeo() {};
 

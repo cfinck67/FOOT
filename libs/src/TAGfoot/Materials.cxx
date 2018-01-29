@@ -405,7 +405,7 @@ void Materials::ReadFile(){
 			string marcopolo="";
 
 			streampos oldPos = proofinput.tellg();
-			getline( proofinput,marcopolo );
+			getline( proofinput, marcopolo );
 			bool flagWriteCompound = ChooseIfWriteCompound( marcopolo );
 			// cout << "**********************************" << endl;
 			// for ( unsigned int j=0; j < dataCompound.size(); ++j ){ cout << dataCompound[j] << endl; }
@@ -440,7 +440,7 @@ void Materials::PrintMatMap(){
 void Materials::PrintCompMap(){
 
 	for ( map<string, TGeoMixture*>::iterator it=m_storeComp.begin(); it!=m_storeComp.end(); ++it )
-	cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << "\t" << it->second->GetNelements() << '\n';
+		cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << "\t" << it->second->GetNelements() << '\n';
 }
 
 

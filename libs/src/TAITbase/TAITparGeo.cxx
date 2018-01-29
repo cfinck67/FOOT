@@ -30,6 +30,13 @@
 //##############################################################################
 
 
+TAITparGeo::TAITparGeo() {
+
+    m_nPassiveLayersPerBoard_z = 13;
+
+};
+
+
 //  copy constructor
 TAITparGeo::TAITparGeo( TAITparGeo* original ) :
 
@@ -95,6 +102,10 @@ void TAITparGeo::InitGeo()  {
             m_layerDistance += m_materialThick[ m_materialOrder[i] ];
     }
 
+//---------------------------------------------------------------------
+//     Init sensor geometry
+//---------------------------------------------------------------------
+
     // set detector dimension
     m_dimension = TVector3( ITR_WIDTH, ITR_HEIGHT, length_Lz );
     double width_Lx = m_dimension.x();
@@ -159,6 +170,38 @@ void TAITparGeo::InitGeo()  {
     m_rotation = new TRotation();
     // m_rotation->SetYEulerAngles( m_tilt_eulerAngle.x(), m_tilt_eulerAngle.y(), m_tilt_eulerAngle.z() );
     m_rotation->SetYEulerAngles( 0,0,0 );
+
+
+
+//---------------------------------------------------------------------
+//     Init passive materials geometry
+//---------------------------------------------------------------------
+  
+
+    float position = -m_dimension.z();
+    for (int i=0; i<m_nPassiveLayersPerBoard_z; i++ ) {
+
+        string matID = m_materialOrder.at(i);
+        position +=  m_materialThick[ matID ]/2;
+
+        // FootBox * boxy = 
+
+        m_passiveMatrix[j][k] = new FootBox( TVector3( 0,0, position ), TVector3( m_dimension.x(), m_dimension.y(), m_materialThick[matID] ),
+                                                m_materialType[ matID ], matID, (string)"itr"+build_string(i), m_regionOrder.at(i) );
+
+        TGeoVolume *siliconFoil = gGeoManager->MakeBox( matID.c_str() ,gGeoManager->GetMedium( m_materialType[ matID ].c_str() ),
+                                                        width_Lx/2,height_Ly/2,m_siliconSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
+        siliconFoil->SetLineColor(kOrange); 
+
+        
+
+        position +=  m_materialThick[ matID ]/2;
+
+  }
+
+
+  // loop j, k 
+
 
 
 }
@@ -311,6 +354,7 @@ void TAITparGeo::InitMaterial() {
                       "ITR1"
                        };
 
+// da cancellare!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   m_regPrintOrder = {  "ITR0",
                       "ITR1",
                       "ITREPO0",

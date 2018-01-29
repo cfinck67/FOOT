@@ -60,7 +60,7 @@ public:
     //  Return Vertex center coord. in the global frame
     TVector3 GetCenter() { return m_center; };
 
-    // Return Inner Trakcker full dimension.
+    // Return Vertex full dimension.
     TVector3 GetDimension() { return m_dimension; };
 
     double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
@@ -90,7 +90,6 @@ private:
 
     SensorMatrix m_sensorMatrix;
     TRotation* m_rotation;
-
 
     // TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each sensor)
     TVector3  m_origin;  // current position
