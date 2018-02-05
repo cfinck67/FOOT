@@ -39,14 +39,12 @@ typedef vector< FootBox* > PassiveLine;
 
 public:
 
-    TAVTparGeo() {};
+    TAVTparGeo();
     TAVTparGeo( TAVTparGeo* original );
     virtual ~TAVTparGeo() {};
 
     void InitGeo();
     void InitMaterial();
-    void PrintBodies( string geoFileName );
-    void PrintRegions( string geoFileName);
 
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id
