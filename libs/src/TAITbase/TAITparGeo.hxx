@@ -47,8 +47,6 @@ public:
 
     void InitGeo();
     void InitMaterial();
-    void PrintBodies( string geoFileName );
-    void PrintRegions( string geoFileName);
 
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id and vice versa

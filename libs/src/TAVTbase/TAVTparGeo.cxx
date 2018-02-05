@@ -143,15 +143,14 @@ void TAVTparGeo::InitGeo()  {
     m_layerDistance = VTX_LAYDIST;          // from center to center
     m_siliconSensorThick_Lz = VTX_THICK;    // ONLY silicon
 
-    if ( GlobalPar::GetPar()->Debug() > 2 )  {
-        cout << "m_layerDistance " << m_layerDistance << endl;
-        cout << "length_Lz " << length_Lz << endl;
-    }
-
     // set detector dimension
     double length_Lz = m_siliconSensorThick_Lz + (m_nSensors_Z-1)*m_layerDistance; // from edge to edge
     m_dimension = TVector3( VTX_WIDTH, VTX_HEIGHT, length_Lz );
 
+     if ( GlobalPar::GetPar()->Debug() > 2 )  {
+        cout << "m_layerDistance " << m_layerDistance << endl;
+        cout << "length_Lz " << length_Lz << endl;
+    }
 
 //---------------------------------------------------------------------
 //     Init SENSOR geometry
@@ -163,8 +162,8 @@ void TAVTparGeo::InitGeo()  {
     double pixelHeight_Ly = VTX_DY;    
 
     // evaluate sensor dimension 
-    double sensor_Width_Lx = width_Lx - (sensorDistance*(1+m_nSensors_X)) /m_nSensors_X;
-    double sensor_Height_Ly = height_Ly - (sensorDistance*(1+m_nSensors_Y)) /m_nSensors_Y;
+    double sensor_Width_Lx = m_dimension.x() - (sensorDistance*(1+m_nSensors_X)) /m_nSensors_X;
+    double sensor_Height_Ly = m_dimension.y() - (sensorDistance*(1+m_nSensors_Y)) /m_nSensors_Y;
     double sensor_Length_Lz = m_siliconSensorThick_Lz;
 
     // pixels per sensors, same as above as far as we use 1 sensor
@@ -174,12 +173,12 @@ void TAVTparGeo::InitGeo()  {
 
     // fill sensor matrix
     for (int k=0; k<m_nSensors_Z; k++) {
-        double sensor_newZ = m_origin.Z() - length_Lz/2 +0.5*m_siliconSensorThick_Lz + k*m_layerDistance;
+        double sensor_newZ = m_origin.Z() - m_dimension.z()/2 +0.5*m_siliconSensorThick_Lz + k*m_layerDistance;
         for (int i=0; i<m_nSensors_X; i++) {
-            double sensor_newX = m_origin.X() - width_Lx/2 + (0.5+i)*(sensor_Width_Lx);
+            double sensor_newX = m_origin.X() - m_dimension.x()/2 + (0.5+i)*(sensor_Width_Lx);
             for (int j=0; j<m_nSensors_Y; j++) {
 
-                double sensor_newY = m_origin.Y() - height_Ly/2 + (1+2*j)*(sensor_Height_Ly/2);
+                double sensor_newY = m_origin.Y() - m_dimension.y()/2 + (1+2*j)*(sensor_Height_Ly/2);
 
                 stringstream ss_bodySensorName; ss_bodySensorName << "vtx" << setw(m_setW_0number) << setfill('0') << ++m_volumeCount;
                 stringstream ss_regionSensorName; ss_regionSensorName << "VTXS" << j << k << i;
@@ -405,7 +404,7 @@ void TAVTparGeo::PrintRegions( string geoFileName ) {
     }
 
 
-    geofile.close();
+    // geofile.close();
 }
 
 
