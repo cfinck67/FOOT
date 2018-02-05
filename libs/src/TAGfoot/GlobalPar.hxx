@@ -39,6 +39,8 @@ public:
 
 	int KalMode() { return m_kalmanMode; };
 	bool IsKalReverse() { return m_kalReverse; };
+	bool geoROOT() { return m_geoROOT; };
+	bool geoFLUKA() { return m_geoFLUKA; };
 	vector<string> KalSystems() { return m_trackingSystems; };
 	vector<string> KalParticles() { return m_kalParticles; };
 	vector<string> MCParticles() { return m_mcParticles; };
@@ -178,6 +180,8 @@ private:
 	
 	int m_kalmanMode;
 	bool m_kalReverse;
+	bool m_geoROOT;
+	bool m_geoFLUKA;
 	vector<string> m_trackingSystems;
 	vector<string> m_kalParticles;
 	

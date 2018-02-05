@@ -21,3 +21,7 @@ Tracking Systems Considered:	all
 Reverse Tracking:	false
 
 Kalman Particle Types:	C
+
+
+Create Reconstruction Geo: y
+Print FLUKA Geo input files: y

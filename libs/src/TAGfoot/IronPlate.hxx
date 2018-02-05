@@ -37,17 +37,20 @@ public:
 	~IronPlate() {};
 
 	TVector3 GetCenter() { return m_center; };
-	TVector3 GetLength() { return m_length; };
+	TVector3 GetDimension() { return m_dimension; };
 	TVector3 GetEuler() { return m_tilt_eulerAngle; };
+	
 	int GetNCol() { return m_nColPixel; };
 	int GetNRow() { return m_nRowPixel; };
-	// string GetMaterialName() {return m_MaterialName;};
-
-	TRotation GetRotationToGlobal() { return *m_rotation; };
-    TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
-
 
 	TVector3 GetPosition( int col, int row );
+
+	string GetMaterialName() { return m_materialName; };
+	string GetMaterialRegionName() { return m_materialRegionName; };
+
+	string GetBodyName() { return m_bodyName; };
+	string GetRegionName() { return m_regionName; };
+
 
 	TVector3 GetMinCoord() { 
 		TVector3 tmpCenter = TVector3(m_origin);
@@ -61,6 +64,16 @@ public:
 		return tmpCenter + m_halfLength; 
 	};
 
+	void AddNodeToUniverse( TGeoVolume* universe ) {
+        universe->AddNode( gGeoManager->GetVolume( m_materialRegionName.c_str() ), m_volumeID , 
+        					new TGeoCombiTrans( m_origin.x(), m_origin.y(), m_origin.z(), new TGeoRotation("null,",0,0,0)) );
+	}
+
+
+	TRotation GetRotationToGlobal() { return *m_rotation; };
+    TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
+
+
 	// put private
 	void Global2Local( TVector3* glob );
 	void Global2Local_TranslationOnly( TVector3* glob );
@@ -71,23 +84,12 @@ public:
     void Local2Global_RotationOnly( TVector3* loc );
 
 
-	// void GetCoord_ROOT( TVector3& center, TVector3& length ) { 
-	// 	center = m_center;
-	// 	length = m_halfLength;
-	// };
-	// void GetCoord_FLUKA( TVector3& pos, TVector3& length ) { 
-	// 	pos = m_center - m_halfLength;
-	// 	length = m_length;
-	// };
-	// void GetPosition_FLUKA( TVector3& pos ) { 
-	// 	pos = m_center - m_halfLength;
-	// };
-	// void GetLenght_FLUKA( TVector3& length ) { 
-	// 	length = m_length;
-	// };
+	void SetMaterial( string materialName, string materialRegion, 
+				string bodyName, string regionName, int volumeID );
+
+	void SetMaterial( string materialName );
 
 
-	void SetMaterial( string pixMat );
 	void SetSensor( TVector3 acenter,	TVector3 alength,
 				int ncol, int nrow, 
 				double px_Lx, double px_Ly, double px_thick, 
@@ -100,28 +102,6 @@ public:
 				double px_StepX, double px_StepY, double px_thick,
 				double euler_dx = 0, double euler_dy = 0, double euler_dz = 0
 				  ) ;
-
-	
-
-	bool AddVolumeTo( TGeoVolume* volume ) {
-
-		// /***********************************************************************************/
-		// TGeoMaterial * siliconMat = new TGeoMaterial( "siliconMat", 28.0855, 14., 2.329);
-	 //    siliconMat->SetRadLen(1.);             //calc automatically, need this for elemental mats.
-	 //    TGeoMedium * silicon = new TGeoMedium( "silicon", 1, siliconMat );
-	 //    **********************************************************************************
-
-		// TGeoVolume *redBullCan = gGeoManager->MakeTube("redBullCan", 
-		// 				silicon, 0, m_radius, m_length.Mag()/2 ); 
-
-  //       redBullCan->SetLineColor(kRed);
-
-  //       TGeoTranslation *m_transform = new TGeoTranslation(m_center.X(), m_center.Y(), m_center.Z());
-
-  //       volume->AddNode( redBullCan, 1, m_transform );
-
-        return 0;
-	}
 
 
 
@@ -150,7 +130,7 @@ private:
 
 	TVector3 m_origin;
 	TVector3 m_center;
-	TVector3 m_length;
+	TVector3 m_dimension;
 	TVector3 m_halfLength;
 	TVector3 m_tilt_eulerAngle;
 
@@ -166,9 +146,16 @@ private:
 	int m_nRowPixel;
 
 	string m_name;
-	string m_pixelMaterialName;
+	string m_pixelMaterialName; // not used
+	string m_materialName;		// the name of the material found in the .inp file
+	string m_materialRegionName;	// the name of the variable corresponding to the material name in the foot_geo.h file
+
+	// corrispondenza biunivoca
+	string m_bodyName;			// name of the body
+	string m_regionName;		// name of the region
 
 	int m_id;
+	int m_volumeID;
 
 };
 

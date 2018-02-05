@@ -12,13 +12,15 @@
 #include "TEveGeoShapeExtract.h"
 
 #include "TObject.h"
-#include "TString.h"
-#include "TVector3.h"
 
 #include "TAITparTools.hxx"
 
 #include "IronPlate.hxx"
-#include <vector>
+#include "FootBox.hxx"
+#include "GlobalPar.hxx"
+
+
+
 
 class TGeoHMatrix;
 class TGeoVolume;
@@ -28,12 +30,20 @@ class TAITparGeo : public TAITparTools {
 
 // object to be used as 3D matrix of sensors
 typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
+typedef vector< vector< IronPlate* > > SensorPlane;
+typedef vector< IronPlate* > SensorLine;
+
+typedef vector< vector< vector< FootBox* > > > PassiveMatrix;
+typedef vector< vector< FootBox* > > PassivePlane;
+typedef vector< FootBox* > PassiveLine;
 
 public:
 
     TAITparGeo();
     TAITparGeo( TAITparGeo* original );
-    virtual ~TAITparGeo() {};
+    virtual ~TAITparGeo() {
+      // matrix
+    };
 
     void InitGeo();
     void InitMaterial();
@@ -54,8 +64,6 @@ public:
     //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
     TVector3 GetPosition( int layer, int col, int row );
 
-
-
     // Return Inner Trakcker center coord. in the global frame
     TVector3 GetCenter() { return m_center; };
 
@@ -70,6 +78,10 @@ public:
     double GetNPixelY() { return m_nPixel_Y; };
     int GetNLayers() { return m_nSensors_Z; };
 
+    void AssignMaterial() {};
+    void AssignMagnetField() {};
+    void PrintBodies( string geoFileName );
+    void PrintRegions( string geoFileName );
 
     // Return a vector with the number of sensors along the cartesian directions
     TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
@@ -85,11 +97,17 @@ public:
 private:
 
     SensorMatrix m_sensorMatrix;
+    PassiveMatrix m_passiveMatrix;
     TRotation* m_rotation;
+
+    TGeoVolume* m_universe;
 
     TVector3  m_origin;  // current position in local coord.
     TVector3  m_center;  // current position in global coord.
     TVector3  m_dimension;
+
+    int m_volumeCount;
+    int m_passiveCount;
 
     int m_nSensors_X;
     int m_nSensors_Y;
@@ -97,22 +115,24 @@ private:
     TVector3 m_NSensors;
 
     vector<string> m_materialOrder;
+    vector<string> m_passiveMaterial;
+
     map<string, double> m_materialThick;
     map<string, string> m_materialType;
 
-    vector<string> m_regionOrder;
-    vector<string> m_regPrintOrder;
-    map<string,string> m_regionMap;
-    stringstream m_streamRegion;
+    map<string, vector<string> > m_regionPrintOut;
+    map<string, vector<string> > m_bodyPrintOut;
 
-
-
-
+    int m_nPassiveLayersPerBoard_z;
+    double m_passiveMaterialThick;
     double m_siliconSensorThick_Lz;
     double m_layerDistance;
 
     int m_nPixel_X;
     int m_nPixel_Y;
+
+    int m_debug;
+    int m_setW_0number;
 
 
 

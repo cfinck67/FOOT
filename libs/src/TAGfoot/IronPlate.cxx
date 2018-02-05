@@ -13,8 +13,6 @@ IronPlate::IronPlate() {
 
 	m_origin = TVector3( 0, 0, 0 );
 
-	// m_readyCheck["material"] = true;		// provvisorio!!!!!
-	// m_MaterialName = "SILICON";				// provvisorio!!!!!
 };
 
 
@@ -46,8 +44,8 @@ void IronPlate::SetSensor( TVector3 acenter,	TVector3 alength,
 	
 	// row along Y		// col along X
 	m_center = acenter;
-	m_length = alength;
-	m_halfLength = 0.5 * m_length;
+	m_dimension = alength;
+	m_halfLength = 0.5 * m_dimension;
 	m_nColPixel = ncol;
 	m_nRowPixel = nrow;
 	m_tilt_eulerAngle = aeuler;
@@ -68,6 +66,21 @@ void IronPlate::SetSensor( TVector3 acenter,	TVector3 alength,
     	cout << "IronPlate::SetSensor :: ERROR >> Set the pixel material BEFORE the coordinates!" << endl;
     	exit(0);
     }
+
+    // box == region
+	m_name = m_regionName;
+
+	// check if the material of the box is defined
+	if ( !gGeoManager->GetMedium( m_materialName.c_str() ) ) 
+		cout << "ERROR >> FootBox::FootBox  ::  Material " << m_materialName << " not defined in gGeoManager for the region " << m_regionName, exit(0);
+
+	// if the volume of the box is NOT defined  -->  define it
+	if ( !gGeoManager->GetVolume( m_materialRegionName.c_str() ) ) {
+		TGeoVolume *rootVolume = gGeoManager->MakeBox( m_materialRegionName.c_str() ,gGeoManager->GetMedium( m_materialName.c_str() ),
+                                                m_dimension.x()/2, m_dimension.y()/2, m_dimension.z()/2); 
+        rootVolume->SetLineColor(kOrange); 
+
+	}
 
 	m_readyCheck["coordinates"] = true;
 
@@ -128,14 +141,31 @@ void IronPlate::Local2Global_RotationOnly( TVector3* loc ) {
 
 
 
-void IronPlate::SetMaterial( string pixMat ) {
-// void SetMaterial( string pixMat, map<string, double>  materials ) {
-	// m_materialMap = materials;		// global ?
-	m_pixelMaterialName = pixMat;
+void IronPlate::SetMaterial( string materialName, string materialRegionName, string bodyName, string regionName, int volumeID ) {
+
+	m_pixelMaterialName = materialName;	// not used
+	m_materialName = materialName;
+	m_materialRegionName = materialRegionName;
+	m_bodyName = bodyName;
+	m_regionName = regionName;
+	m_volumeID = volumeID;
+
 	m_readyCheck["material"] = true;
 
-	// check the map
-	// SetGeometry();
+	
+
+}
+
+
+void IronPlate::SetMaterial( string materialName ) {
+
+	m_pixelMaterialName = materialName;	// not used
+	m_materialName = materialName;
+	
+
+	m_readyCheck["material"] = true;
+
+	
 
 }
 

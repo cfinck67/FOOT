@@ -30,6 +30,57 @@
 
 
 
+TAVTparGeo::TAVTparGeo() {
+
+    m_nPassiveLayersPerBoard_z = 13;
+    m_volumeCount = -1;
+    m_passiveCount = -1;
+    m_setW_0number = 2;
+
+    m_debug = GlobalPar::GetPar()->Debug();
+
+    // fill m_materialOrder, m_materialThick, m_materialType
+    InitMaterial();
+
+};
+
+
+
+void TAVTparGeo::InitMaterial() {
+
+    m_materialOrder = {     "VTX_MEDIUM",
+                            "VTX_MEDIUM"
+                             };
+
+    m_passiveMaterial = {};
+
+
+    for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
+        if( m_materialOrder[i] == "VTX_MEDIUM" ){
+            m_materialThick[ m_materialOrder[i] ] = VTX_THICK;
+            m_materialType[ m_materialOrder[i] ] = VTX_MEDIUM;
+        }
+    }
+
+    if ( GlobalPar::GetPar()->Debug() > 1 ) {
+        cout << endl << "VT List of Materil\n ";
+        TIter next( gGeoManager->GetListOfMaterials() );
+        while ( TGeoMaterial *obj = (TGeoMaterial*) next() ) {
+          cout << obj->GetName () << endl;
+        }
+        cout << endl << "List of Media\n ";
+        TIter nnext( gGeoManager->GetListOfMedia() );
+        while ( TGeoMedium *obj = (TGeoMedium *) nnext()  ) {
+          cout << obj->GetName () << endl;
+        }
+    }
+
+}
+
+
+
+
+
 //  copy constructor
 TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
 
@@ -65,8 +116,8 @@ void TAVTparGeo::InitGeo()  {
 
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTAVTparGeo::InitGeo" << endl<< endl;
 
-    m_origin = TVector3(0,0,0);
-    m_center = TVector3(VTX_X, VTX_Y, VTX_Z);
+    m_origin = TVector3(0,0,0);                         // center in local coord.
+    m_center = TVector3(VTX_X, VTX_Y, VTX_Z);           // center in global coord.
 
     m_nSensors_X = 1;
     m_nSensors_Y = 1;
@@ -85,38 +136,36 @@ void TAVTparGeo::InitGeo()  {
         }
     }
 
-    // fill m_materialOrder, m_materialThick, m_materialType
-    // InitMaterial();
-
+//---------------------------------------------------------------------
+//     Find DETECTOR dimension
+//---------------------------------------------------------------------
 
     m_layerDistance = VTX_LAYDIST;          // from center to center
     m_siliconSensorThick_Lz = VTX_THICK;    // ONLY silicon
-
-    // set detector dimension
-    double length_Lz = m_siliconSensorThick_Lz + (m_nSensors_Z-1)*m_layerDistance; // from edge to edge
-    m_dimension = TVector3( VTX_WIDTH, VTX_HEIGHT, length_Lz );
-    double width_Lx = m_dimension.x();
-    double height_Ly = m_dimension.y();
-
-    double sensorDistance = 0;
-    double pixelDistance = 0;
-
-    double pixelWidth_Lx = 0.002;
-    double pixelHeight_Ly = 0.002;
 
     if ( GlobalPar::GetPar()->Debug() > 2 )  {
         cout << "m_layerDistance " << m_layerDistance << endl;
         cout << "length_Lz " << length_Lz << endl;
     }
 
+    // set detector dimension
+    double length_Lz = m_siliconSensorThick_Lz + (m_nSensors_Z-1)*m_layerDistance; // from edge to edge
+    m_dimension = TVector3( VTX_WIDTH, VTX_HEIGHT, length_Lz );
+
+
+//---------------------------------------------------------------------
+//     Init SENSOR geometry
+//---------------------------------------------------------------------
+    double sensorDistance = 0;
+    double pixelDistance = 0;
+
+    double pixelWidth_Lx = VTX_DX;
+    double pixelHeight_Ly = VTX_DY;    
+
+    // evaluate sensor dimension 
     double sensor_Width_Lx = width_Lx - (sensorDistance*(1+m_nSensors_X)) /m_nSensors_X;
     double sensor_Height_Ly = height_Ly - (sensorDistance*(1+m_nSensors_Y)) /m_nSensors_Y;
     double sensor_Length_Lz = m_siliconSensorThick_Lz;
-    // double sensor_Length_Lz = m_length_Lz - ((sensorDistance+1)*m_nSensors_Z) /m_nSensors_Z;
-
-    // // total pixels
-    // m_nPixel_X = width_Lx / (pixelWidth_Lx + pixelDistance);
-    // m_nPixel_Y = height_Ly / (pixelHeight_Ly + pixelDistance);
 
     // pixels per sensors, same as above as far as we use 1 sensor
     m_nPixel_X = sensor_Width_Lx / (pixelWidth_Lx + pixelDistance);
@@ -132,7 +181,9 @@ void TAVTparGeo::InitGeo()  {
 
                 double sensor_newY = m_origin.Y() - height_Ly/2 + (1+2*j)*(sensor_Height_Ly/2);
 
-                m_sensorMatrix[k][i][j]->SetMaterial( (string)VTX_MEDIUM );
+                stringstream ss_bodySensorName; ss_bodySensorName << "vtx" << setw(m_setW_0number) << setfill('0') << ++m_volumeCount;
+                stringstream ss_regionSensorName; ss_regionSensorName << "VTXS" << j << k << i;
+                m_sensorMatrix[k][i][j]->SetMaterial( m_materialType[ "VTX_MEDIUM" ], "VTX_MEDIUM", ss_bodySensorName.str(), ss_regionSensorName.str(), m_volumeCount );
 
                 m_sensorMatrix[k][i][j]->SetSensor(
                         TVector3( sensor_newX, sensor_newY, sensor_newZ ),  // sensor center
@@ -142,19 +193,71 @@ void TAVTparGeo::InitGeo()  {
                         pixelDistance, pixelDistance, 0, //layerDistance,
                         TVector3(0,0,0)
                  );
-                // if (m_debug)
+
                 if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "sensor center ",    TVector3( sensor_newX, sensor_newY, sensor_newZ ).Print();
             }
         }
     }
 
-    // FillMaterialCollection();
-
-
     m_rotation = new TRotation();
     // m_rotation->SetYEulerAngles( m_tilt_eulerAngle.x(), m_tilt_eulerAngle.y(), m_tilt_eulerAngle.z() );
     m_rotation->SetYEulerAngles( 0,0,0 );
 
+//---------------------------------------------------------------------
+//     Init passive materials geometry
+//---------------------------------------------------------------------
+
+    // create the universe volume
+    if ( GlobalPar::GetPar()->geoROOT() ) {
+        m_universe = gGeoManager->MakeBox("ITuniverse",gGeoManager->GetMedium("AIR"),m_dimension.x()/2,m_dimension.y()/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
+        gGeoManager->SetTopVisible(1);
+    }
+
+//---------------------------------------------------------------------
+//     Build passive materials in ROOT and FLUKA
+//---------------------------------------------------------------------
+
+//---------------------------------------------------------------------
+//     Build sensor materials in ROOT and FLUKA
+//---------------------------------------------------------------------
+
+    for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
+        for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+            for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+
+                //ROOT addNode
+                if ( GlobalPar::GetPar()->geoROOT() )   
+                    (*itZ)->AddNodeToUniverse( m_universe );
+
+                    // boidies
+                if ( GlobalPar::GetPar()->geoROOT() ) {
+                    
+                    TVector3 minCoord = TVector3( (*itZ)->GetMinCoord().x(), (*itZ)->GetMinCoord().y(), (*itZ)->GetMinCoord().z() );
+                    TVector3 maxCoord = TVector3( (*itZ)->GetMaxCoord().x(), (*itZ)->GetMaxCoord().y(), (*itZ)->GetMaxCoord().z() );
+                    Local2Global( &minCoord );
+                    Local2Global( &maxCoord );
+
+                    stringstream ss;
+                    ss << setiosflags(ios::fixed) << setprecision(6);
+                    ss <<  "RPP " << (*itZ)->GetBodyName() <<  "     " 
+                                << minCoord.x() << " " << maxCoord.x() << " "
+                                << minCoord.y() << " " << maxCoord.y() << " "
+                                << minCoord.z() << " " << maxCoord.z() << endl;
+                    
+                    m_bodyPrintOut[ (*itZ)->GetMaterialName() ].push_back( ss.str() );
+
+                    // regions
+                    stringstream ssr;
+                    ssr << setw(13) << setfill( ' ' ) << std::left << (*itZ)->GetRegionName()
+                        << "5 " << (*itZ)->GetBodyName() << endl;
+                        
+                    m_regionPrintOut[ (*itZ)->GetMaterialName() ].push_back( ssr.str() );
+                }
+
+
+            }
+        }
+    } 
 
 }
 
@@ -214,199 +317,106 @@ void TAVTparGeo::Local2Global_RotationOnly( TVector3* loc ) {
 //_____________________________________________________________________________
 TGeoVolume* TAVTparGeo::GetVolume() {
 
+    if ( !GlobalPar::GetPar()->geoROOT() ) 
+        cout << "ERROR << TAVTparGeo::GetVolume()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
 
-    // if ( (medium = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Vacuum")) == 0x0 )
-    // TGeoMedium* vacuum_med = new TGeoMedium("Vacuum",0, gGeoManager->GetMaterial("air"));
-    // TGeoMedium* silicon = new TGeoMedium( "silicon_med", 1, gGeoManager->GetMaterial("air") );
-    // TGeoMedium* kapton = new TGeoMedium( "kapton_med", 2, gGeoManager->GetMaterial("air") );
-    // TGeoMedium* epoxy = new TGeoMedium( "epoxy_med", 3, gGeoManager->GetMaterial("air") );
-    // TGeoMedium* aluminium = new TGeoMedium( "aluminium_med", 4, gGeoManager->GetMaterial("air") );
-    // TGeoMedium* siCFoam = new TGeoMedium( "siCFoam_med", 5, gGeoManager->GetMaterial("air") );
+    return m_universe;
 
-    if ( GlobalPar::GetPar()->Debug() > 1 ) {
-        cout << endl << "VT List of Materil\n ";
-        TIter next( gGeoManager->GetListOfMaterials() );
-        while ( TGeoMaterial *obj = (TGeoMaterial*) next() ) {
-          cout << obj->GetName () << endl;
-        }
-        cout << endl << "List of Media\n ";
-        TIter nnext( gGeoManager->GetListOfMedia() );
-        while ( TGeoMedium *obj = (TGeoMedium *) nnext()  ) {
-          cout << obj->GetName () << endl;
-        }
-    }
+   //  double width_Lx = m_dimension.X();
+   //  double height_Ly = m_dimension.Y();
 
-    double width_Lx = m_dimension.X();
-    double height_Ly = m_dimension.Y();
+   // TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("AIR"),width_Lx/2,height_Ly/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
+   // gGeoManager->SetTopVisible(1);
 
-    // create main box
-   // TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("Vacuum_med"),width_Lx+1,height_Ly+1,m_dimension.z()+0.5); //top è scatola che conterrà tutto (dimensioni in cm)
-   TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("AIR"),width_Lx/2,height_Ly/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
-   gGeoManager->SetTopVisible(1);
+   //  TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("SILICON"),width_Lx/2,height_Ly/2,m_siliconSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
+   //  siliconFoil->SetLineColor(kOrange);
+   //  siliconFoil->SetFillColor(kOrange);
+    
+   //  int c=0;
+    
+   //  double position1 = -m_dimension.z()/2;
+   //  box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=( m_materialThick[ "VTX_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
 
-    TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("SILICON"),width_Lx/2,height_Ly/2,m_siliconSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
-    siliconFoil->SetLineColor(kOrange);
-    siliconFoil->SetFillColor(kOrange);
-    // TGeoVolume *kaptonFoil = gGeoManager->MakeBox("kaptonFoil",kapton,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_KAP_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
-    // kaptonFoil->SetLineColor(kOrange-7);
-    // TGeoVolume *coverKaptonFoil = gGeoManager->MakeBox("coverKaptonFoil",kapton,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_COV_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
-    // kaptonFoil->SetLineColor(kOrange-7);
-    // TGeoVolume *alFoil = gGeoManager->MakeBox("alFoil",aluminium,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_AL_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
-    // alFoil->SetLineColor(kGray);
-    // TGeoVolume *epoxyFoil = gGeoManager->MakeBox("epoxyFoil",epoxy,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_EPO_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
-    // epoxyFoil->SetLineColor(kCyan-3);
-    // TGeoVolume *siCFoamFoil = gGeoManager->MakeBox("iCFoamFoil",siCFoam,m_width_Lx/2,m_height_Ly/2,m_materialThick[ "ITR_FOAM_MEDIUM" ]/2); //top è scatola che conterrà tutto (dimensioni in cm)
-    // siCFoamFoil->SetLineColor(kViolet+6);
+   //  box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
 
-    int c=0;
-    // double position = -m_length_Lz/2;
-    // box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(epoxyFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_MEDIUM" ]/2 + m_materialThick[ "ITR_EPO_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(coverKaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_EPO_MEDIUM" ]/2 + m_materialThick[ "ITR_COV_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(alFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_COV_MEDIUM" ]/2 + m_materialThick[ "ITR_AL_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_AL_MEDIUM" ]/2 + m_materialThick[ "ITR_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(alFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_KAP_MEDIUM" ]/2 + m_materialThick[ "ITR_AL_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(coverKaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_AL_MEDIUM" ]/2 + m_materialThick[ "ITR_COV_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(siCFoamFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_COV_MEDIUM" ]/2 + m_materialThick[ "ITR_FOAM_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(coverKaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_FOAM_MEDIUM" ]/2 + m_materialThick[ "ITR_COV_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(alFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_COV_MEDIUM" ]/2 + m_materialThick[ "ITR_AL_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(kaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_AL_MEDIUM" ]/2 + m_materialThick[ "ITR_KAP_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(alFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_KAP_MEDIUM" ]/2 + m_materialThick[ "ITR_AL_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(coverKaptonFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_AL_MEDIUM" ]/2 + m_materialThick[ "ITR_COV_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(epoxyFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_COV_MEDIUM" ]/2 + m_materialThick[ "ITR_EPO_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-    // box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0,  position+=( m_materialThick[ "ITR_EPO_MEDIUM" ]/2+ m_materialThick[ "ITR_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
+   //  box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
 
-    double position1 = -m_dimension.z()/2;
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=( m_materialThick[ "VTX_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
-
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
-
-    box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
+   //  box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
 
 
-    return box;
+   //  return box;
 }
 
 
 
 
-void TAVTparGeo::InitMaterial() {
 
-    m_materialOrder = {  "VTX_MEDIUM",
-                        // "ITR_EPO_MEDIUM",
-                        // "ITR_COV_MEDIUM",
-                        // "ITR_AL_MEDIUM",
-                        // "ITR_KAP_MEDIUM",
-                        // "ITR_AL_MEDIUM",
-                        // "ITR_COV_MEDIUM",
-                        // "ITR_FOAM_MEDIUM",
-                        // "ITR_COV_MEDIUM",
-                        // "ITR_AL_MEDIUM",
-                        // "ITR_KAP_MEDIUM",
-                        // "ITR_AL_MEDIUM",
-                        // "ITR_COV_MEDIUM",
-                        // "ITR_EPO_MEDIUM",
-                        "VTX_MEDIUM"
-                         };
-
-
-    for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
-        if( m_materialOrder[i] == "VTX_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = VTX_THICK;
-            m_materialType[ m_materialOrder[i] ] = VTX_MEDIUM;
-        }
-        // else if( m_materialOrder[i] == "ITR_EPO_MEDIUM" ){
-        //     m_materialThick[ m_materialOrder[i] ] = ITR_EPO_THICK;
-        //     m_materialType[ m_materialOrder[i] ] = ITR_EPO_MEDIUM;
-        // }
-        // else if( m_materialOrder[i] == "ITR_COV_MEDIUM" ){
-        //     m_materialThick[ m_materialOrder[i] ] = ITR_COV_THICK;
-        //     m_materialType[ m_materialOrder[i] ] = ITR_COV_MEDIUM;
-        // }
-        // else if( m_materialOrder[i] == "ITR_AL_MEDIUM" ){
-        //     m_materialThick[ m_materialOrder[i] ] = ITR_AL_THICK;
-        //     m_materialType[ m_materialOrder[i] ] = ITR_AL_MEDIUM;
-        // }
-        // else if( m_materialOrder[i] == "ITR_KAP_MEDIUM" ){
-        //     m_materialThick[ m_materialOrder[i] ] = ITR_KAP_THICK;
-        //     m_materialType[ m_materialOrder[i] ] = ITR_KAP_MEDIUM;
-        // }
-        // else if( m_materialOrder[i] == "ITR_FOAM_MEDIUM" ){
-        //     m_materialThick[ m_materialOrder[i] ] = ITR_FOAM_THICK;
-        //     m_materialType[ m_materialOrder[i] ] = ITR_FOAM_MEDIUM;
-        // }
-    }
-
-}
-
-
+//_____________________________________________________________________________
 void TAVTparGeo::PrintBodies( string geoFileName ) {
 
-    ofstream geofile;
-    geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
+    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
+        cout << "ERROR << TAITparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
-    string vtxID = "vtx";
-    int count = 0;
+    // ofstream geofile;
+    // geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
 
-    geofile << "* ***Vertex" << endl;
+    // geofile << "* ***Vertex" << endl;
+    cout << "* ***Vertex" << endl;
 
-    for (int k=0; k<m_nSensors_Z; k++) {
-        for (int i=0; i<m_nSensors_X; i++) {
-            for (int j=0; j<m_nSensors_Y; j++) {
-
-                string vtxID = "vtx";
-                geofile << setiosflags(ios::fixed) << setprecision(6)
-                        << "RPP " << vtxID << count << "     ";
-
-                TVector3 minCoord = TVector3(m_sensorMatrix[k][i][j]->GetMinCoord());
-                Local2Global_TranslationOnly( &minCoord );
-                TVector3 maxCoord = TVector3(m_sensorMatrix[k][i][j]->GetMaxCoord());
-                Local2Global_TranslationOnly( &maxCoord );
-
-                geofile << minCoord.x() << " " << maxCoord.x() << " "
-                        << minCoord.y() << " " << maxCoord.y() << " "
-                        << minCoord.z() << " " << maxCoord.z()
-                        << endl;
-
-                count++;
-            }
-        }
+    // loop in order of the material alfabeth
+    for ( map<string, vector<string> >::iterator itMat = m_bodyPrintOut.begin(); itMat != m_bodyPrintOut.end(); itMat++ ) {
+        // loop over all body of the same material
+        for ( vector<string>::iterator itBody = (*itMat).second.begin(); itBody != (*itMat).second.end(); itBody++ ) {
+            // geofile << (*itBody);
+            cout << (*itBody);
+            if (m_debug > 0)    cout << (*itBody);
+        }        
     }
 
-    geofile.close();
-
+    // geofile.close();
 }
 
 
+
+
+
+//_____________________________________________________________________________
 void TAVTparGeo::PrintRegions( string geoFileName ) {
 
-  m_regionOrder = { "VTX0",
-                    "VTX1",
-                    "VTX2",
-                    "VTX3"
-  };
+    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
+        cout << "ERROR << TAITparGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
-  ofstream geofile;
-  geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
+    // ofstream geofile;
+    // geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
 
-  string vtxID = "vtx";
-  geofile << "* ***Vertex" << endl;
-  for (unsigned int i = 0; i < m_regionOrder.size(); i++) {
-    m_streamRegion << "5 " << vtxID << i;
-    m_regionMap[m_regionOrder.at(i)] = m_streamRegion.str();
-    m_streamRegion.str("");
-  }
+    // geofile << "* ***Vertex" << endl;
+    cout << "* ***Vertex" << endl;
 
-  for ( std::vector<string>::iterator it = m_regionOrder.begin(); it != m_regionOrder.end(); it++){
 
-    geofile << setw(13) << setfill( ' ' ) << std::left << *it << m_regionMap[*it] << endl;
 
-  }
-  geofile.close();
+  // loop in order of the material alfabeth
+    for ( map<string, vector<string> >::iterator itMat = m_regionPrintOut.begin(); itMat != m_regionPrintOut.end(); itMat++ ) {
+        // loop over all body of the same material
+        for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
+            // geofile << (*itRegion);
+            cout << (*itRegion);
+            if (m_debug > 0)    cout << (*itRegion);
+        }        
+    }
 
+
+    geofile.close();
 }
+
+
+
+
+
+
+
+
+
+
 // **************** VERTEXING      *******************************************************
 
 

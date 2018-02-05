@@ -48,6 +48,11 @@ GlobalPar::GlobalPar( string aparFileName ) {
 
     m_kalmanMode = -1;
 
+    m_kalReverse = false;
+    m_geoROOT = true;
+    m_geoFLUKA = false;
+
+
     ReadParamFile();
 
     m_nBin_map.clear();
@@ -138,7 +143,7 @@ void GlobalPar::ReadParamFile () {
         } 
 
 
-        else if ( line.find("Reverse Tracking") != string::npos ) {
+        else if ( line.find("Reverse Tracking:") != string::npos ) {
             string rev =StrReplace( line, "Reverse Tracking:", "" );
             RemoveSpace( &rev );
             if ( rev == "true" )
@@ -146,6 +151,27 @@ void GlobalPar::ReadParamFile () {
             else
                 m_kalReverse = false;
         } 
+
+
+        else if ( line.find("Create Reconstruction Geo:") != string::npos ) {
+            string rev =StrReplace( line, "Create Reconstruction Geo:", "" );
+            RemoveSpace( &rev );
+            if ( rev == "y" )
+                m_geoROOT = true;
+            else
+                m_geoROOT = false;
+        } 
+
+
+        else if ( line.find("Print FLUKA Geo input files:") != string::npos ) {
+            string rev =StrReplace( line, "Print FLUKA Geo input files:", "" );
+            RemoveSpace( &rev );
+            if ( rev == "y" )
+                m_geoFLUKA = true;
+            else
+                m_geoFLUKA = false;
+        } 
+
 
         else if ( line.find("Kalman Particle Types:") != string::npos ) {
             m_kalParticles.clear();

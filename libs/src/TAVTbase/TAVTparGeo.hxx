@@ -12,13 +12,15 @@
 #include "TEveGeoShapeExtract.h"
 
 #include "TObject.h"
-#include "TString.h"
-#include "TVector3.h"
-#include "TRotation.h"
 
 #include "TAVTparTools.hxx"
 
 #include "IronPlate.hxx"
+#include "FootBox.hxx"
+#include "GlobalPar.hxx"
+
+
+
 
 class TGeoHMatrix;
 class TGeoVolume;
@@ -28,8 +30,12 @@ class TAVTparGeo : public TAVTparTools {
 
 
 typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
-// typedef map< int, map< int, map< int, IronPlate* > > > SensorMatrix;
+typedef vector< vector< IronPlate* > > SensorPlane;
+typedef vector< IronPlate* > SensorLine;
 
+typedef vector< vector< vector< FootBox* > > > PassiveMatrix;
+typedef vector< vector< FootBox* > > PassivePlane;
+typedef vector< FootBox* > PassiveLine;
 
 public:
 
@@ -39,6 +45,8 @@ public:
 
     void InitGeo();
     void InitMaterial();
+    void PrintBodies( string geoFileName );
+    void PrintRegions( string geoFileName);
 
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id
@@ -89,12 +97,17 @@ public:
 private:
 
     SensorMatrix m_sensorMatrix;
+    PassiveMatrix m_passiveMatrix;
     TRotation* m_rotation;
 
-    // TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each sensor)
-    TVector3  m_origin;  // current position
-    TVector3  m_center;  // current position
+    TGeoVolume* m_universe;
+
+    TVector3  m_origin;  // current position in local coord.
+    TVector3  m_center;  // current position in global coord.
     TVector3  m_dimension;
+
+    int m_volumeCount;
+    int m_passiveCount;
 
     int m_nSensors_X;
     int m_nSensors_Y;
@@ -102,19 +115,26 @@ private:
     TVector3 m_NSensors;
 
     vector<string> m_materialOrder;
+    vector<string> m_passiveMaterial;
+
     map<string, double> m_materialThick;
     map<string, string> m_materialType;
 
+    map<string, vector<string> > m_regionPrintOut;
+    map<string, vector<string> > m_bodyPrintOut;
 
+    int m_nPassiveLayersPerBoard_z;
+    double m_passiveMaterialThick;
     double m_siliconSensorThick_Lz;
     double m_layerDistance;
 
-    vector<string> m_regionOrder;
-    stringstream m_streamRegion;
-    map<string, string> m_regionMap;
-
     int m_nPixel_X;
     int m_nPixel_Y;
+
+    int m_debug;
+    int m_setW_0number;
+
+
 
 
 

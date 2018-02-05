@@ -413,9 +413,12 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     if(m_doInnerTracker) {
       m_itgeo = shared_ptr<TAITparGeo> ( (TAITparGeo*) myp_itgeo->Object() );
-
+cout << "cazzo0" << endl;
         //Initialization of IT parameters
         m_itgeo->InitGeo();
+        cout << "cazzo1" << endl;
+        m_itgeo->PrintBodies("geppo");
+        m_itgeo->PrintRegions("geppo");
         top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
     }
 
@@ -585,6 +588,9 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         if( m_doMSD && m_doKalman ) {
             m_kFitter->UploadHitsMSD( myn_msdraw, m_msdgeo );
         }
+
+
+
 
 
 // start time
