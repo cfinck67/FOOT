@@ -30,6 +30,7 @@
 //##############################################################################
 
 
+//_____________________________________________________________________________
 TAITparGeo::TAITparGeo() {
 
     m_nPassiveLayersPerBoard_z = 13;
@@ -46,7 +47,7 @@ TAITparGeo::TAITparGeo() {
 
 
 
-
+//_____________________________________________________________________________
 void TAITparGeo::InitMaterial() {
 
     m_materialOrder = {  "ITR_MEDIUM",
@@ -114,7 +115,7 @@ void TAITparGeo::InitMaterial() {
 
 
 
-
+//_____________________________________________________________________________
 //  copy constructor
 TAITparGeo::TAITparGeo( TAITparGeo* original ) :
 
@@ -145,7 +146,7 @@ TAITparGeo::TAITparGeo( TAITparGeo* original ) :
 
 
 
-
+//_____________________________________________________________________________
 void TAITparGeo::InitGeo()  {
 
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTAITparGeo::InitGeo" << endl<< endl;

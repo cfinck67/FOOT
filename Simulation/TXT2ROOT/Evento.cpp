@@ -117,6 +117,8 @@ Evento::Evento()
   for(int kk=0;kk<MAXITR;kk++){
     eve.ITRid[kk]    = 0;
     eve.ITRilay[kk]  = 0;
+    eve.ITRiplume[kk]  = 0;
+    eve.ITRimimo[kk]  = 0;
     eve.ITRirow[kk]  = 0;
     eve.ITRicol[kk]  = 0;
     eve.ITRxin[kk]   = 0.;
@@ -138,9 +140,8 @@ Evento::Evento()
 
   for(int kk=0;kk<MAXMSD;kk++){
     eve.MSDid[kk]    = 0;
-    eve.MSDilay[kk]  = 0;
-    eve.MSDiview[kk] = 0;
-    eve.MSDistrip[kk] = 0;
+    eve.MSDistripx[kk]= 0;
+    eve.MSDistripy[kk]= 0;
     eve.MSDxin[kk]   = 0.;
     eve.MSDyin[kk]   = 0.;
     eve.MSDzin[kk]   = 0.;
@@ -321,6 +322,8 @@ Int_t Evento::Clean(){
   for(int kk=0;kk<eve.ITRn;kk++){
     eve.ITRid[kk]    = 0;
     eve.ITRilay[kk]  = 0;
+    eve.ITRiplume[kk]  = 0;
+    eve.ITRimimo[kk]  = 0;
     eve.ITRirow[kk]  = 0;
     eve.ITRicol[kk]  = 0;
     eve.ITRxin[kk]   = 0.;
@@ -342,9 +345,8 @@ Int_t Evento::Clean(){
 
   for(int kk=0;kk<eve.MSDn;kk++){
     eve.MSDid[kk]    = 0;
-    eve.MSDilay[kk]  = 0;
-    eve.MSDiview[kk] = 0;
-    eve.MSDistrip[kk]= 0;
+    eve.MSDistripy[kk]= 0;
+    eve.MSDistripx[kk]= 0;
     eve.MSDxin[kk]   = 0.;
     eve.MSDyin[kk]   = 0.;
     eve.MSDzin[kk]   = 0.;
@@ -591,8 +593,8 @@ Int_t Evento::AddVTX(Int_t fVTXid, Int_t fVTXilay,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddITR(Int_t fITRid, Int_t fITRilay,
-		     Int_t fITRirow, Int_t fITRicol,
+Int_t Evento::AddITR(Int_t fITRid, Int_t fITRilay, Int_t fITRiplume,
+		     Int_t fITRimimo, Int_t fITRirow, Int_t fITRicol,
 		     Double_t fITRxin, Double_t fITRyin, Double_t fITRzin,
 		     Double_t fITRxout, Double_t fITRyout, Double_t fITRzout,
 		     Double_t fITRpxin, Double_t fITRpyin, Double_t fITRpzin,
@@ -602,6 +604,8 @@ Int_t Evento::AddITR(Int_t fITRid, Int_t fITRilay,
   if(eve.ITRn<MAXITR){
       eve.ITRn ++;
       eve.ITRilay[eve.ITRn-1] = fITRilay;
+      eve.ITRiplume[eve.ITRn-1] = fITRiplume;
+      eve.ITRimimo[eve.ITRn-1] = fITRimimo;
       eve.ITRid[eve.ITRn-1] = fITRid;
       eve.ITRirow[eve.ITRn-1] = fITRirow;
       eve.ITRicol[eve.ITRn-1] = fITRicol;
@@ -630,8 +634,7 @@ Int_t Evento::AddITR(Int_t fITRid, Int_t fITRilay,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddMSD(Int_t fMSDid, Int_t fMSDilay, Int_t fMSDiview,
-		     Int_t fMSDistrip,
+Int_t Evento::AddMSD(Int_t fMSDid, Int_t fMSDistripx, Int_t fMSDistripy,
 		     Double_t fMSDxin, Double_t fMSDyin, Double_t fMSDzin,
 		     Double_t fMSDxout, Double_t fMSDyout, Double_t fMSDzout,
 		     Double_t fMSDpxin, Double_t fMSDpyin, Double_t fMSDpzin,
@@ -641,9 +644,8 @@ Int_t Evento::AddMSD(Int_t fMSDid, Int_t fMSDilay, Int_t fMSDiview,
   if(eve.MSDn<MAXMSD){
       eve.MSDn ++;
       eve.MSDid[eve.MSDn-1] = fMSDid;
-      eve.MSDilay[eve.MSDn-1] = fMSDilay;
-      eve.MSDiview[eve.MSDn-1] = fMSDiview;
-      eve.MSDistrip[eve.MSDn-1] = fMSDistrip;
+      eve.MSDistripx[eve.MSDn-1] = fMSDistripx;
+      eve.MSDistripy[eve.MSDn-1] = fMSDistripy;
       eve.MSDxin[eve.MSDn-1] = fMSDxin;
       eve.MSDyin[eve.MSDn-1] = fMSDyin;
       eve.MSDzin[eve.MSDn-1] = fMSDzin;
@@ -861,6 +863,8 @@ int Evento::FindBranches(TTree *RootTree, EVENT_STRUCT *eve){
   
   RootTree->SetBranchAddress("ITRn",&(eve->ITRn));
   RootTree->SetBranchAddress("ITRid",&(eve->ITRid));
+  RootTree->SetBranchAddress("ITRiplume",&(eve->ITRiplume));
+  RootTree->SetBranchAddress("ITRimimo",&(eve->ITRimimo));
   RootTree->SetBranchAddress("ITRilay",&(eve->ITRilay));
   RootTree->SetBranchAddress("ITRirow",&(eve->ITRirow));
   RootTree->SetBranchAddress("ITRicol",&(eve->ITRicol));
@@ -882,9 +886,8 @@ int Evento::FindBranches(TTree *RootTree, EVENT_STRUCT *eve){
 
   RootTree->SetBranchAddress("MSDn",&(eve->MSDn));
   RootTree->SetBranchAddress("MSDid",&(eve->MSDid));
-  RootTree->SetBranchAddress("MSDilay",&(eve->MSDilay));
-  RootTree->SetBranchAddress("MSDiview",&(eve->MSDiview));
-  RootTree->SetBranchAddress("MSDistrip",&(eve->MSDistrip));
+  RootTree->SetBranchAddress("MSDistripx",&(eve->MSDistripx));
+  RootTree->SetBranchAddress("MSDistripy",&(eve->MSDistripy));
   RootTree->SetBranchAddress("MSDxin",&(eve->MSDxin));
   RootTree->SetBranchAddress("MSDyin",&(eve->MSDyin));
   RootTree->SetBranchAddress("MSDzin",&(eve->MSDzin));

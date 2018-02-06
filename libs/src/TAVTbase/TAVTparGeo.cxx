@@ -29,7 +29,7 @@
 
 
 
-
+//_____________________________________________________________________________
 TAVTparGeo::TAVTparGeo() {
 
     m_nPassiveLayersPerBoard_z = 13;
@@ -46,6 +46,7 @@ TAVTparGeo::TAVTparGeo() {
 
 
 
+//_____________________________________________________________________________
 void TAVTparGeo::InitMaterial() {
 
     m_materialOrder = {     "VTX_MEDIUM",
@@ -61,26 +62,12 @@ void TAVTparGeo::InitMaterial() {
             m_materialType[ m_materialOrder[i] ] = VTX_MEDIUM;
         }
     }
-
-    if ( GlobalPar::GetPar()->Debug() > 1 ) {
-        cout << endl << "VT List of Materil\n ";
-        TIter next( gGeoManager->GetListOfMaterials() );
-        while ( TGeoMaterial *obj = (TGeoMaterial*) next() ) {
-          cout << obj->GetName () << endl;
-        }
-        cout << endl << "List of Media\n ";
-        TIter nnext( gGeoManager->GetListOfMedia() );
-        while ( TGeoMedium *obj = (TGeoMedium *) nnext()  ) {
-          cout << obj->GetName () << endl;
-        }
-    }
-
 }
 
 
 
 
-
+//_____________________________________________________________________________
 //  copy constructor
 TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
 
@@ -112,6 +99,7 @@ TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
 
 
 
+//_____________________________________________________________________________
 void TAVTparGeo::InitGeo()  {
 
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTAVTparGeo::InitGeo" << endl<< endl;

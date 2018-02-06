@@ -103,7 +103,9 @@ typedef struct {
 
   Int_t    ITRn;                
   Int_t    ITRid[MAXITR];	       
-  Int_t    ITRilay[MAXITR];       
+  Int_t    ITRilay[MAXITR];    	       
+  Int_t    ITRiplume[MAXITR]; 	       
+  Int_t    ITRimimo[MAXITR];    
   Int_t    ITRirow[MAXITR];       
   Int_t    ITRicol[MAXITR];       
   Double_t ITRxin[MAXITR];   
@@ -125,8 +127,8 @@ typedef struct {
   Int_t    MSDn;				
   Int_t    MSDid[MAXMSD];		
   Int_t    MSDilay[MAXMSD];		
-  Int_t    MSDistrip[MAXMSD];		
-  Int_t    MSDiview[MAXMSD];		
+  Int_t    MSDistripx[MAXMSD];		
+  Int_t    MSDistripy[MAXMSD];		
   Double_t MSDxin[MAXMSD];		
   Double_t MSDyin[MAXMSD];		
   Double_t MSDzin[MAXMSD];		
