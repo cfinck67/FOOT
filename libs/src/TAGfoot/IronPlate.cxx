@@ -157,22 +157,6 @@ void IronPlate::SetMaterial( string materialName, string materialRegionName, str
 }
 
 
-void IronPlate::SetMaterial( string materialName ) {
-
-	m_pixelMaterialName = materialName;	// not used
-	m_materialName = materialName;
-	
-
-	m_readyCheck["material"] = true;
-
-	
-
-}
-
-
-
-
-
 
 
 

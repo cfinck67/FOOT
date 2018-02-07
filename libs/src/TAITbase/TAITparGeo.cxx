@@ -85,7 +85,7 @@ void TAITparGeo::InitMaterial() {
     for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
 
         if( m_materialOrder[i] == "ITR_MEDIUM" ){
-            m_materialThick[ m_materialOrder[i] ] = ITR_THICK;
+            m_materialThick[ m_materialOrder[i] ] = ITR_M28_THICK;
             m_materialType[ m_materialOrder[i] ] = ITR_MEDIUM;
         }
         if(  m_materialOrder[i] == "ITR_EPO_MEDIUM" ){
@@ -155,18 +155,18 @@ void TAITparGeo::InitGeo()  {
     m_center = TVector3(ITR_X, ITR_Y, ITR_Z);   // center in global coord.
 
     // set number of sensors
-    m_nSensors_X = 1;
-    m_nSensors_Y = 1;
+    m_nSensors_X = ITR_NM28;
+    m_nSensors_Y = ITR_NPLM;
     m_nSensors_Z = ITR_NLAY;
     TVector3 m_NSensors = TVector3( m_nSensors_X, m_nSensors_Y, m_nSensors_Z );
 
     // init sensor matrix   (z, x, y) = (layer, col, row)
     m_sensorMatrix.resize( m_nSensors_Z );
     for (int k=0; k<m_nSensors_Z; k++) {
-        m_sensorMatrix[k].resize( m_nSensors_X );
-        for (int i=0; i<m_nSensors_X; i++) {
-            m_sensorMatrix[k][i].resize( m_nSensors_Y );
-            for (int j=0; j<m_nSensors_Y; j++) {
+        m_sensorMatrix[k].resize( m_nSensors_Y );
+        for (int j=0; j<m_nSensors_Y; j++) {
+            m_sensorMatrix[k][j].resize( m_nSensors_X );
+            for (int i=0; i<m_nSensors_X; i++) {
                 m_sensorMatrix[k][i][j] = new IronPlate();
             }
         }
@@ -178,67 +178,78 @@ void TAITparGeo::InitGeo()  {
 
     // evaluate detector dimension and layer distance using materials
     // !!!!!!!!!!!!!!!!!!!!  better put a variable in the footgeo.h  !!!!!!!!!!!!!!!!!!!!!
-    double length_Lz = 0;       // from edge to edge
+    double plume_Lz = 0;       // from edge to edge
     m_passiveMaterialThick = 0;
     for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
-        length_Lz += m_materialThick[ m_materialOrder[i] ];
+        plume_Lz += m_materialThick[ m_materialOrder[i] ];
 
         if ( ( m_materialOrder[i] != "ITR_MEDIUM" ) )  // only passive material
             m_passiveMaterialThick += m_materialThick[ m_materialOrder[i] ];
-            // m_layerDistance += m_materialThick[ m_materialOrder[i] ];
     }
+    double board_z = m_passiveMaterialThick;
 
-    m_dimension = TVector3( ITR_WIDTH, ITR_HEIGHT, length_Lz );
+    double boardStagger_x = 1.5;  // distance from center
+    m_dimension = TVector3( ITR_BOARD_WIDTH + 2*boardStagger_x,  4*ITR_SENSE_HEIGHT + 2*ITR_BOARD_YDEAD2 , ITR_PLMZDIST + board_z );     // detector dim
 
-    m_siliconSensorThick_Lz = ITR_THICK;     // ONLY silicon
-    m_layerDistance = m_passiveMaterialThick; 
-    m_layerDistance += m_siliconSensorThick_Lz;     // from center to center
+    
+    TVector3 boardDimension = TVector3( ITR_BOARD_WIDTH, ITR_BOARD_HEIGHT, board_z );
+    m_boardDeadMin = ITR_BOARD_YDEAD2;
+    m_boardDeadMax = ITR_BOARD_YDEAD1;
 
-    if ( GlobalPar::GetPar()->Debug() > 2 )  {
-        cout << "m_layerDistance " << m_layerDistance << endl;
-        cout << "length_Lz " << m_dimension.z() << endl;
-    }
+    TVector3 senseDimension = TVector3( ITR_SENSE_WIDTH, ITR_SENSE_HEIGHT, ITR_M28_THICK );
+
+    TVector3 chipDimension = TVector3( ITR_M28_WIDTH, ITR_M28_HEIGHT, ITR_M28_THICK );
+    double chipDead_X = chipDimension.x() - senseDimension.x();
+    double chipDead_Ymax = ITR_M28_YDEAD;
+    double chipDead_Ymin = chipDimension.y() - chipDead_Ymax;
+
+    m_siliconSensorThick_Lz = ITR_M28_THICK;     // ONLY silicon
+    m_layerDistance = m_passiveMaterialThick + m_siliconSensorThick_Lz;   // from center to center
+    m_plumeDistace_Z = ITR_PLMZDIST;                // from center to center
+    m_plumeDistace_Y = ITR_PLMYDIST;                // from border to border
+
 
 //---------------------------------------------------------------------
 //     Init SENSOR geometry
 //---------------------------------------------------------------------
 
     // fixed
-    double sensorDistance = 0;
     double pixelDistance = 0;
 
     double pixelWidth_Lx = ITR_DX;
     double pixelHeight_Ly = ITR_DY;
 
-    // evaluate sensor dimension 
-    double sensor_Width_Lx = m_dimension.x() - (sensorDistance*(1+m_nSensors_X)) /m_nSensors_X;
-    double sensor_Height_Ly = m_dimension.y() - (sensorDistance*(1+m_nSensors_Y)) /m_nSensors_Y;
-    double sensor_Length_Lz = m_siliconSensorThick_Lz;
-
     // pixels per sensors, same as above as far as we use 1 sensor
-    m_nPixel_X = sensor_Width_Lx / (pixelWidth_Lx + pixelDistance);
-    m_nPixel_Y = sensor_Height_Ly / (pixelHeight_Ly + pixelDistance);
+    m_nPixel_X = ITR_XPIX;
+    m_nPixel_Y = ITR_YPIX;
 
+    
 
     // fill sensor matrix
     for (int k=0; k<m_nSensors_Z; k++) {
-        double sensor_newZ = m_origin.Z() - length_Lz/2 + 0.5*sensor_Length_Lz + k*m_layerDistance;
-        for (int i=0; i<m_nSensors_X; i++) {
-            double sensor_newX = m_origin.X() - m_dimension.x()/2 + (0.5+i)*(sensor_Width_Lx);
-            for (int j=0; j<m_nSensors_Y; j++) {
+        double sensor_newZ = ( (k%2 == 0 ? -1 : 1) * ( board_z/2 + m_siliconSensorThick_Lz/2 )  );      // distance of the center of sensors from the board center
 
-                double sensor_newY = m_origin.Y() - m_dimension.y()/2 + (1+2*j)*(sensor_Height_Ly/2);
+        double sensor_newY = m_origin.Y() - (2 - 0.5)*chipDimension.y();
+        for (int j=0; j<m_nSensors_Y; j++) {
+            sensor_newY += j * chipDimension.y();
 
-                stringstream ss_bodySensorName; ss_bodySensorName << "itr" << setw(m_setW_0number) << setfill('0') << ++m_volumeCount;
+            double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + board_z/2 + m_siliconSensorThick_Lz ) ); // board center
+
+            double sensor_newX = m_origin.X() - 1.5*ITR_M28_DIST - 2*chipDimension.x() +    // end chip part of the chip line on the board 
+                                                senseDimension.x()/2 + (j < 2 ? chipDead_X : 0) ;     // now = first sensor center
+            for (int i=0; i<m_nSensors_X; i++) {
+                sensor_newX += i * (senseDimension.x() + ITR_M28_DIST );
+
+                stringstream ss_bodySensorName; ss_bodySensorName << "itrs" << j << k << i;
                 stringstream ss_regionSensorName; ss_regionSensorName << "ITRS" << j << k << i;
-                m_sensorMatrix[k][i][j]->SetMaterial( m_materialType[ "ITR_MEDIUM" ], "ITR_MEDIUM", ss_bodySensorName.str(), ss_regionSensorName.str(), m_volumeCount );
+                m_sensorMatrix[k][i][j]->SetMaterial( m_materialType[ "ITR_MEDIUM" ], "ITR_MEDIUM", ss_bodySensorName.str(), ss_regionSensorName.str(), ++m_volumeCount );
 
 
                 m_sensorMatrix[k][i][j]->SetSensor(
-                        TVector3( sensor_newX, sensor_newY, sensor_newZ ),  // sensor center
-                        TVector3( sensor_Width_Lx, sensor_Height_Ly, sensor_Length_Lz ),    // sensor dimension
+                        TVector3( sensor_newX, sensor_newY, offset_z + sensor_newZ ),              // sensor center
+                        TVector3( senseDimension.x(), senseDimension.y(), senseDimension.z() ),    // sensor dimension
                         m_nPixel_X, m_nPixel_Y,
-                        pixelWidth_Lx, pixelHeight_Ly, sensor_Length_Lz,
+                        pixelWidth_Lx, pixelHeight_Ly, senseDimension.z(),
                         pixelDistance, pixelDistance, 0, //m_layerDistance,
                         TVector3(0,0,0)
                  );
@@ -257,42 +268,96 @@ void TAITparGeo::InitGeo()  {
 //---------------------------------------------------------------------
 //     Init passive materials geometry
 //---------------------------------------------------------------------
-  
-    // minimum z coordinate of the passive group
-    float position = -m_dimension.z()/2 + m_siliconSensorThick_Lz;
-    int i = 0;
-    m_passiveMatrix.resize( 1 );
 
-    // TODO     Loop over alle the board  Y
-    int j = 0;
-    m_passiveMatrix[0].resize( 1 );
 
     // check same material as passive layers
     if ( m_passiveMaterial.size() != m_nPassiveLayersPerBoard_z ) 
         cout << "ERROR << TAITparGeo::InitGeo()  -->  m_passiveMaterial.size() != m_nPassiveLayersPerBoard_z\n", exit(0);
+  
+    // minimum z coordinate of the passive group
+    float position = 0;
+    int i = 0;
+    m_passiveMatrix.resize( 1 );
+    m_chipMatrix.resize( m_nSensors_X );
 
-    m_passiveMatrix[0][0].resize( m_passiveMaterial.size() );
-    // loop over the board passive layers
-    for ( unsigned int k=0; k<m_passiveMaterial.size(); k++ ) {
+    // TODO     Loop over alle the board  Y
+    // int j = 0;
+    m_passiveMatrix[i].resize( m_nSensors_Y );
+    m_chipMatrix[i].resize( m_nSensors_Y );
+    
+    double sensor_newY = m_origin.Y() - 1.5*boardDimension.y();
+    for (int j=0; j<m_nSensors_Y; j++) {
+        sensor_newY += j * boardDimension.y();
 
-        string matID = m_passiveMaterial.at(k);
-        position +=  m_materialThick[ matID ]/2;    // increase the z coordinate
+        double offset_x = m_origin.x() + (j < 2 ? 3 : -3);
+        
+        double offset_y = m_origin.y() + (j < 2 ? -1 : 1)*senseDimension.y() + (j%2 == 0 ? -1 : 1)*boardDimension.y()/2 ;  // board center y
+        double chipOffset_y = offset_y - boardDimension.y()/2 +    // lower part of the board
+                        (j < 2 ? m_boardDeadMin : m_boardDeadMax) + chipDimension.y()/2;  // distance of the chip center from the board border
 
-        stringstream ss_bodyName;      ss_bodyName << "itr" << setw(m_setW_0number) << setfill('0') << ++m_volumeCount;
-        stringstream ss_regionSensorName;      ss_regionSensorName << "ITRP" << setw(m_setW_0number) << setfill('0') << ++m_passiveCount;
+        double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + m_siliconSensorThick_Lz + (j%2 == 0 ? board_z : 0) ) );    // board begin 
+        double board_center = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + board_z/2 + m_siliconSensorThick_Lz ) ); // board center
 
-        // init matrix of passive material for a board
-        m_passiveMatrix[i][j][k] = new FootBox( TVector3( 0,0, position ),          // position
-                                                TVector3( m_dimension.x(), m_dimension.y(), m_materialThick[matID] ),   // dimension
-                                                m_materialType[ matID ],            // name of the material
-                                                matID,                              // name of the material-region in the foot_geo.h
-                                                ss_bodyName.str(),                  // FLUKA body name
-                                                ss_regionSensorName.str(),          // FLUKA region name
-                                                m_volumeCount                       // volume ID num
-                                                );
+        m_passiveMatrix[i][j].resize( m_passiveMaterial.size() );
+        m_chipMatrix[i][j].resize( m_nSensors_Z );
+
+        // loop over the board passive layers
+        for ( unsigned int k=0; k<m_passiveMaterial.size(); k++ ) {
+
+            string matID = m_passiveMaterial.at(k);
+            position += m_materialThick[ matID ]/2;    // increase or decrease the z coordinate
+
+            ++m_passiveCount;
+            stringstream ss_bodyPassiveName;      ss_bodyPassiveName << "itrp" << m_passiveCount;
+            stringstream ss_regionPassiveName;      ss_regionPassiveName << "ITRP" << m_passiveCount;
+
+            // init matrix of passive material for a board
+            m_passiveMatrix[i][j][k] = new FootBox( TVector3( offset_x, offset_y , offset_z + position ),          // position
+                                                    TVector3( boardDimension.x(), boardDimension.y(), m_materialThick[matID] ),   // dimension
+                                                    m_materialType[ matID ],            // name of the material
+                                                    matID,                              // name of the material-region in the foot_geo.h
+                                                    ss_bodyPassiveName.str(),                  // FLUKA body name
+                                                    ss_regionPassiveName.str(),          // FLUKA region name
+                                                    ++m_volumeCount                       // volume ID num
+                                                    );
+
+            position += m_materialThick[ matID ]/2;
+
+        }
 
 
-        position +=  m_materialThick[ matID ]/2;
+
+//---------------------------------------------------------------------
+//     Init passive CHIP materials 
+//---------------------------------------------------------------------
+
+        double chipOffset_x = m_origin.X() - 1.5*ITR_M28_DIST - 2.5*chipDimension.x();   // first chip center
+        for ( int f=1; f<m_nSensors_X; f++ ) {
+
+            chipOffset_x += f * ( ITR_M28_DIST + chipDimension.x() );
+
+            for ( int k=0; k<m_nSensors_Z; k++ ) {
+
+                string matID = "ITR_MEDIUM";
+                double boardSide = (k%2 == 0 ? -1 : 1) * (board_z/2 + m_siliconSensorThick_Lz/2);
+
+                ++m_passiveCount;
+                stringstream ss_bodyPassiveName;      ss_bodyPassiveName << "itrp" << m_passiveCount;
+                stringstream ss_regionPassiveName;      ss_regionPassiveName << "ITRP" << m_passiveCount;
+
+                // init matrix of passive material for a board
+                m_chipMatrix[f][j][k] = new FootBox( TVector3( chipOffset_x, chipOffset_y , board_center +  boardSide ),          // position
+                                                        TVector3( chipDimension.x(), chipDimension.y(), chipDimension.z() ),   // dimension
+                                                        m_materialType[ matID ],            // name of the material
+                                                        matID,                              // name of the material-region in the foot_geo.h
+                                                        ss_bodyPassiveName.str(),           // FLUKA body name
+                                                        ss_regionPassiveName.str(),         // FLUKA region name
+                                                        ++m_volumeCount                       // volume ID num
+                                                        );
+
+            }
+        }
+
 
     }
 
@@ -313,10 +378,44 @@ void TAITparGeo::InitGeo()  {
                 //ROOT addNode
                 if ( GlobalPar::GetPar()->geoROOT() )    
                     (*itZ)->AddNodeToUniverse( m_universe );
-                // TVector3 trasl = (*itZ)->GetPosition();
-                // m_universe->AddNode( gGeoManager->GetVolume( (*itZ)->GetMaterialRegionName().c_str() ), nVol++ , new TGeoCombiTrans( trasl.x(), trasl.y(), trasl.z(), new TGeoRotation("null,",0,0,0)) );
-                // (*itZ)->SetNodeID(nVol);
+                
+                // boidies
+                if ( GlobalPar::GetPar()->geoFLUKA() ) {
 
+                    TVector3 minCoord = TVector3( (*itZ)->GetMinCoord().x(), (*itZ)->GetMinCoord().y(), (*itZ)->GetMinCoord().z() );
+                    TVector3 maxCoord = TVector3( (*itZ)->GetMaxCoord().x(), (*itZ)->GetMaxCoord().y(), (*itZ)->GetMaxCoord().z() );
+                    Local2Global( &minCoord );
+                    Local2Global( &maxCoord );
+
+                    stringstream ss;    
+                    ss << setiosflags(ios::fixed) << setprecision(6);
+                    ss <<  "RPP " << (*itZ)->GetBodyName() <<  "     " 
+                                << minCoord.x() << " " << maxCoord.x() << " "
+                                << minCoord.y() << " " << maxCoord.y() << " "
+                                << minCoord.z() << " " << maxCoord.z() << endl;
+                    
+                    m_bodyPrintOut[ (*itZ)->GetMaterialName() ].push_back( ss.str() );
+
+                    // regions
+                    stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << (*itZ)->GetRegionName()
+                                            << "5 " << (*itZ)->GetBodyName() << endl;
+                        
+                    m_regionPrintOut[ (*itZ)->GetMaterialName() ].push_back( ssr.str() );
+                }
+
+            }
+        }
+    } 
+
+    // passive chip material
+    for ( PassiveMatrix::iterator itX = m_chipMatrix.begin(); itX != m_chipMatrix.end(); itX++ ) {
+        for ( PassivePlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+            for ( PassiveLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+
+                //ROOT addNode
+                if ( GlobalPar::GetPar()->geoROOT() )    
+                    (*itZ)->AddNodeToUniverse( m_universe );
+                
                 // boidies
                 if ( GlobalPar::GetPar()->geoFLUKA() ) {
 
@@ -499,68 +598,25 @@ void TAITparGeo::PrintRegions( string geoFileName ){
             if (m_debug > 0)    cout << (*itRegion);
         }        
     }
-
-
-
-
-
-/*
-
-
-  string itrID = "itr";
-  unsigned int count = 0;
-
-  
-
-  string defineRegion; //this string contains 5 itrbox
-  string addRegion;  //this string contains +itr
-  string removeRegion; //this string contains -itr
-
-
-  for (unsigned int i = 0; i < m_regionOrder.size() ; ++i) {
-    defineRegion = "5 itrbox ";
-    addRegion = "+itr";
-    removeRegion = "-itr";
-    if ( i == 0) {
-      m_streamRegion << defineRegion << addRegion;
-      m_streamRegion << setw(m_setW_0number) << setfill('0') << std::right << count;
-      m_regionMap[m_regionOrder.at(i)] = m_streamRegion.str();
-      m_streamRegion.str("");
-      continue;
-    }
-    m_streamRegion.str("");
-    m_streamRegion << defineRegion << removeRegion;
-    m_streamRegion << setw(m_setW_0number) << setfill('0') << std::right << count << ' ';
-    m_streamRegion << addRegion << setw(m_setW_0number) << setfill('0') << std::right << count+1;
-    m_regionMap[m_regionOrder.at(i)] = m_streamRegion.str();
-    m_streamRegion.str("");
-
-    if ( i == m_regionOrder.size()-1 ){
-
-      m_streamRegion << defineRegion << removeRegion;
-      m_streamRegion << setw(m_setW_0number) << setfill('0') << std::right << count;
-      m_regionMap[m_regionOrder.at(i)] = m_streamRegion.str();
-      m_streamRegion.str("");
-      break;
-    }
-    ++count;
-
-  }
-
-  // for ( std::map<string, string>::iterator it = m_regionMap.begin(); it != m_regionMap.end(); it++ ) {
-  //
-  //   cout << setw(13) << setfill(' ') << std::left << it->first << it->second << endl;
-  // }
-
-  for ( std::vector<string>::iterator it = m_regPrintOrder.begin(); it != m_regPrintOrder.end(); it++){
-
-    geofile << setw(13) << setfill( ' ' ) << std::left << *it << m_regionMap[*it] << endl;
-
-  }
-  */
-
-  // geofile.close();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // //_____________________________________________________________________________
 // void TAITparGeo::AddTransMatrix(TGeoHMatrix* mat, Int_t idx)

@@ -87,7 +87,8 @@ TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
     m_materialType(original->m_materialType),
 
     m_siliconSensorThick_Lz(original->m_siliconSensorThick_Lz),
-    m_layerDistance(original->m_layerDistance),
+    m_layerDistance_samePair(original->m_layerDistance_samePair),
+    m_layerDistance_interPair(original->m_layerDistance_interPair),
 
     m_nPixel_X(original->m_nPixel_X),
     m_nPixel_Y(original->m_nPixel_Y)         {
@@ -128,53 +129,53 @@ void TAVTparGeo::InitGeo()  {
 //     Find DETECTOR dimension
 //---------------------------------------------------------------------
 
-    m_layerDistance = VTX_LAYDIST;          // from center to center
+    m_layerDistance_samePair  = VTX_LAYDIST1;          // from center to center
+    m_layerDistance_interPair = VTX_LAYDIST2;          // from center to center
     m_siliconSensorThick_Lz = VTX_THICK;    // ONLY silicon
 
     // set detector dimension
-    double length_Lz = m_siliconSensorThick_Lz + (m_nSensors_Z-1)*m_layerDistance; // from edge to edge
-    m_dimension = TVector3( VTX_WIDTH, VTX_HEIGHT, length_Lz );
+    double length_Lz = m_siliconSensorThick_Lz + (VTX_NLAY/2)*m_layerDistance_samePair + (-1+VTX_NLAY/2)*m_layerDistance_interPair; // from edge to edge
+    m_dimension = TVector3( VTX_WIDTH + 2*VTX_XDEAD , 2*VTX_HEIGHT - VTX_SENSE_HEIGHT, length_Lz );
 
-     if ( GlobalPar::GetPar()->Debug() > 2 )  {
-        cout << "m_layerDistance " << m_layerDistance << endl;
-        cout << "length_Lz " << length_Lz << endl;
-    }
 
 //---------------------------------------------------------------------
 //     Init SENSOR geometry
 //---------------------------------------------------------------------
-    double sensorDistance = 0;
     double pixelDistance = 0;
 
     double pixelWidth_Lx = VTX_DX;
     double pixelHeight_Ly = VTX_DY;    
 
     // evaluate sensor dimension 
-    double sensor_Width_Lx = m_dimension.x() - (sensorDistance*(1+m_nSensors_X)) /m_nSensors_X;
-    double sensor_Height_Ly = m_dimension.y() - (sensorDistance*(1+m_nSensors_Y)) /m_nSensors_Y;
-    double sensor_Length_Lz = m_siliconSensorThick_Lz;
+    // double sensor_Width_Lx = VTX_SENSE_WIDTH;
+    // double sensor_Height_Ly = VTX_SENSE_HEIGHT;
+    // double sensor_Length_Lz = m_siliconSensorThick_Lz;
+    TVector3 sensorDimension = TVector3( VTX_SENSE_WIDTH, VTX_SENSE_HEIGHT, m_siliconSensorThick_Lz );
+    TVector3 passiveSiDimension = TVector3( VTX_WIDTH, VTX_HEIGHT, m_siliconSensorThick_Lz );
 
     // pixels per sensors, same as above as far as we use 1 sensor
-    m_nPixel_X = sensor_Width_Lx / (pixelWidth_Lx + pixelDistance);
-    m_nPixel_Y = sensor_Height_Ly / (pixelHeight_Ly + pixelDistance);
+    m_nPixel_X = VTX_XPIX;
+    m_nPixel_Y = VTX_YPIX;
 
 
     // fill sensor matrix
+    double sensor_newZ = m_origin.Z() - m_dimension.z()/2 +0.5*m_siliconSensorThick_Lz;
     for (int k=0; k<m_nSensors_Z; k++) {
-        double sensor_newZ = m_origin.Z() - m_dimension.z()/2 +0.5*m_siliconSensorThick_Lz + k*m_layerDistance;
+        if ( k!=0 )     // increment the layer distance Z, distance not uniform
+            sensor_newZ += ( k%2 != 0 ? m_layerDistance_samePair : m_layerDistance_interPair );
         for (int i=0; i<m_nSensors_X; i++) {
-            double sensor_newX = m_origin.X() - m_dimension.x()/2 + (0.5+i)*(sensor_Width_Lx);
+            double sensor_newX = m_origin.X();  
             for (int j=0; j<m_nSensors_Y; j++) {
+                double sensor_newY = m_origin.Y();
 
-                double sensor_newY = m_origin.Y() - m_dimension.y()/2 + (1+2*j)*(sensor_Height_Ly/2);
-
-                stringstream ss_bodySensorName; ss_bodySensorName << "vtx" << setw(m_setW_0number) << setfill('0') << ++m_volumeCount;
-                stringstream ss_regionSensorName; ss_regionSensorName << "VTXS" << j << k << i;
+                m_volumeCount++;
+                stringstream ss_bodySensorName; ss_bodySensorName << "vtxs" << m_volumeCount;
+                stringstream ss_regionSensorName; ss_regionSensorName << "VTXS" << m_volumeCount;
                 m_sensorMatrix[k][i][j]->SetMaterial( m_materialType[ "VTX_MEDIUM" ], "VTX_MEDIUM", ss_bodySensorName.str(), ss_regionSensorName.str(), m_volumeCount );
 
                 m_sensorMatrix[k][i][j]->SetSensor(
                         TVector3( sensor_newX, sensor_newY, sensor_newZ ),  // sensor center
-                        TVector3( sensor_Width_Lx, sensor_Height_Ly, sensor_Length_Lz ),    // sensor dimension
+                        TVector3( sensorDimension.x(), sensorDimension.y(), sensorDimension.z() ),    // sensor dimension
                         m_nPixel_X, m_nPixel_Y,
                         pixelWidth_Lx, pixelHeight_Ly, m_siliconSensorThick_Lz,
                         pixelDistance, pixelDistance, 0, //layerDistance,
@@ -194,6 +195,37 @@ void TAVTparGeo::InitGeo()  {
 //     Init passive materials geometry
 //---------------------------------------------------------------------
 
+    double passiveSi_Z = m_origin.Z() - m_dimension.z()/2 +0.5*m_siliconSensorThick_Lz;
+    for (int k=0; k<m_nSensors_Z; k++) {
+        if ( k!=0 )     // increment the layer distance Z, distance not uniform
+            passiveSi_Z += ( k%2 != 0 ? m_layerDistance_samePair : m_layerDistance_interPair );
+        for (int i=0; i<m_nSensors_X; i++) {
+            double passiveSi_X = m_origin.X() + sensorDimension.x()/2 + VTX_XDEAD - passiveSiDimension.x()/2;
+            passiveSi_X *= ( i>1 ? -1 : 1 );   // commenta!
+            for (int j=0; j<m_nSensors_Y; j++) {
+                double passiveSi_Y = m_origin.Y() + passiveSiDimension.y()/2 - sensorDimension.y()/2;
+                passiveSi_Y *= ( j%2 == 0 ? -1 : 1 );   // commenta!
+
+                m_passiveCount++;
+                stringstream ss_bodyPassiveName;      ss_bodyPassiveName << "vtxp" << m_passiveCount;
+                stringstream ss_regionPassiveName;      ss_regionPassiveName << "VTXP" << m_passiveCount;
+
+
+                m_passiveMatrix[i][j][k] = new FootBox( TVector3( passiveSi_X, passiveSi_Y, passiveSi_Z ),          // position passive
+                                                TVector3( passiveSiDimension.x(), passiveSiDimension.y(), passiveSiDimension.z() ),   // dimension passive
+                                                (string)VTX_MEDIUM,                         // name of the material
+                                                "VTX_MEDIUM",                       // name of the material-region in the foot_geo.h
+                                                ss_bodyPassiveName.str(),                  // FLUKA body name
+                                                ss_regionPassiveName.str(),          // FLUKA region name
+                                                m_volumeCount                       // volume ID num
+                                                );
+
+
+            }
+        }
+    }
+
+
     // create the universe volume
     if ( GlobalPar::GetPar()->geoROOT() ) {
         m_universe = gGeoManager->MakeBox("ITuniverse",gGeoManager->GetMedium("AIR"),m_dimension.x()/2,m_dimension.y()/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
@@ -203,6 +235,49 @@ void TAVTparGeo::InitGeo()  {
 //---------------------------------------------------------------------
 //     Build passive materials in ROOT and FLUKA
 //---------------------------------------------------------------------
+
+    int sensor_i = 0, sensor_j = 0, sensor_k = 0;
+    for ( PassiveMatrix::iterator itX = m_passiveMatrix.begin(); itX != m_passiveMatrix.end(); itX++ ) {
+        for ( PassivePlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+            for ( PassiveLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+
+                //ROOT addNode
+                if ( GlobalPar::GetPar()->geoROOT() )    
+                    (*itZ)->AddNodeToUniverse( m_universe );
+
+                // boidies
+                if ( GlobalPar::GetPar()->geoFLUKA() ) {
+
+                    TVector3 minCoord = TVector3( (*itZ)->GetMinCoord().x(), (*itZ)->GetMinCoord().y(), (*itZ)->GetMinCoord().z() );
+                    TVector3 maxCoord = TVector3( (*itZ)->GetMaxCoord().x(), (*itZ)->GetMaxCoord().y(), (*itZ)->GetMaxCoord().z() );
+                    Local2Global( &minCoord );
+                    Local2Global( &maxCoord );
+
+                    stringstream ss;    
+                    ss << setiosflags(ios::fixed) << setprecision(6);
+                    ss <<  "RPP " << (*itZ)->GetBodyName() <<  "     " 
+                                << minCoord.x() << " " << maxCoord.x() << " "
+                                << minCoord.y() << " " << maxCoord.y() << " "
+                                << minCoord.z() << " " << maxCoord.z() << endl;
+                    
+                    m_bodyPrintOut[ (*itZ)->GetMaterialName() ].push_back( ss.str() );
+
+                    // regions
+                    stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << (*itZ)->GetRegionName()
+                                            << "5 " << (*itZ)->GetBodyName() << " - " << 
+                                            m_sensorMatrix[sensor_i][sensor_j][sensor_k]->GetBodyName() << endl;
+                        
+                    m_regionPrintOut[ (*itZ)->GetMaterialName() ].push_back( ssr.str() );
+
+                }
+
+                sensor_k++;
+            }
+            sensor_j++;
+        }
+        sensor_i++;
+    }
+
 
 //---------------------------------------------------------------------
 //     Build sensor materials in ROOT and FLUKA
@@ -308,30 +383,6 @@ TGeoVolume* TAVTparGeo::GetVolume() {
         cout << "ERROR << TAVTparGeo::GetVolume()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
 
     return m_universe;
-
-   //  double width_Lx = m_dimension.X();
-   //  double height_Ly = m_dimension.Y();
-
-   // TGeoVolume *box = gGeoManager->MakeBox("ITbox",gGeoManager->GetMedium("AIR"),width_Lx/2,height_Ly/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
-   // gGeoManager->SetTopVisible(1);
-
-   //  TGeoVolume *siliconFoil = gGeoManager->MakeBox("siliconFoil",gGeoManager->GetMedium("SILICON"),width_Lx/2,height_Ly/2,m_siliconSensorThick_Lz/2); //top è scatola che conterrà tutto (dimensioni in cm)
-   //  siliconFoil->SetLineColor(kOrange);
-   //  siliconFoil->SetFillColor(kOrange);
-    
-   //  int c=0;
-    
-   //  double position1 = -m_dimension.z()/2;
-   //  box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=( m_materialThick[ "VTX_MEDIUM" ]/2 ), new TGeoRotation("null,",0,0,0)));
-
-   //  box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
-
-   //  box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
-
-   //  box->AddNode(siliconFoil, c++ , new TGeoCombiTrans( 0, 0, position1+=m_layerDistance, new TGeoRotation("null,",0,0,0)));
-
-
-   //  return box;
 }
 
 

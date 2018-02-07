@@ -197,7 +197,7 @@ const Double_t ITR_X 		=0.0; //center x coordinate
 const Double_t ITR_Y 		=0.0; //center y coordinate
 const Double_t ITR_Z 		=14.;//center z coordinate
 
-const Int_t    ITR_NLAY         =2;//no. of silicon layers per plume
+const Int_t    ITR_NLAY     =2;//no. of silicon layers per plume
 const Int_t    ITR_NM28		=4;//no. of M28 chips per layer
 
 const Double_t ITR_M28_WIDTH   	=2.022;//M28 x total dimension 

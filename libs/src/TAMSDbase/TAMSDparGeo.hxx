@@ -28,12 +28,13 @@ class TAMSDparGeo : public TAMSDparTools {
 
 
 typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
-// typedef map< int, map< int, map< int, IronPlate* > > > SensorMatrix;
+typedef vector< vector< IronPlate* > > SensorPlane;
+typedef vector< IronPlate* > SensorLine;
       
 
 public:
 
-    TAMSDparGeo() {};
+    TAMSDparGeo();
     TAMSDparGeo( TAMSDparGeo* original );
     virtual ~TAMSDparGeo() {};
 
@@ -63,7 +64,7 @@ public:
     // Return Inner Trakcker full dimension.
     TVector3 GetDimension() { return m_dimension; };
 
-    double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
+    double GetSingleSensorThickness() { return m_dimension.z(); };
 
     // Return distance from center to center
     double GetLayerDistance() { return m_layerDistance; };
@@ -71,6 +72,11 @@ public:
     double GetNPixelX() { return m_nPixel_X; };
     double GetNPixelY() { return m_nPixel_Y; };
     int GetNLayers() { return m_nSensors_Z; };
+
+    void AssignMaterial() {};
+    void AssignMagnetField() {};
+    void PrintBodies( string geoFileName );
+    void PrintRegions( string geoFileName );
 
     // Return a vector with the number of sensors along the cartesian directions
     TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
@@ -86,6 +92,7 @@ private:
     SensorMatrix m_sensorMatrix;
     TRotation* m_rotation;
 
+    TGeoVolume* m_universe;
 
     // TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each sensor)
     TVector3  m_origin;  // current position
@@ -97,18 +104,25 @@ private:
     int m_nSensors_Z;
     TVector3 m_NSensors;   
 
+    int m_volumeCount;
+    int m_passiveCount;
+
+    map<string, vector<string> > m_regionPrintOut;
+    map<string, vector<string> > m_bodyPrintOut;
+
     vector<string> m_materialOrder;
     map<string, double> m_materialThick;
     map<string, string> m_materialType;
 
-
-    double m_siliconSensorThick_Lz;
     double m_layerDistance;
     double m_layerThick;
     double m_nSensor_X_Layer;
 
     int m_nPixel_X;
     int m_nPixel_Y;
+
+    int m_debug;
+    int m_setW_0number;
 
 
 

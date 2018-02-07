@@ -131,8 +131,8 @@ Bool_t TAMSDactNtuMC::Action() {
      //The column refer to Y!!!
      // !!!!!!!!!!!!!!!!!!!!!!!!!!!  in ntuple, the row and col start from 0  !!!!!!!!!!!!!!!!!!!!!!!
      int myTview, myTstrip;
-     myTview = ( fpEvtStr->MSDiview[i] == 1 ? 1 : 0 );
-     myTstrip = fpEvtStr->MSDistrip[i] - 1;
+     myTview = ( fpEvtStr->MSDistripx[i] == 1 ? 1 : 0 );
+     myTstrip = fpEvtStr->MSDistripy[i] - 1;
      /*
      myTstrip = pParMap->GetPixelsNu()-fpEvtStr->miSigCol[i];
      myTview = pParMap->GetPixelsNv()-fpEvtStr->miSigRow[i];

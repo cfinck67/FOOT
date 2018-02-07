@@ -87,7 +87,6 @@ public:
 	void SetMaterial( string materialName, string materialRegion, 
 				string bodyName, string regionName, int volumeID );
 
-	void SetMaterial( string materialName );
 
 
 	void SetSensor( TVector3 acenter,	TVector3 alength,

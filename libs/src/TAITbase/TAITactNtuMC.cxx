@@ -130,8 +130,8 @@ Bool_t TAITactNtuMC::Action()
      //The column refer to Y!!!
      // !!!!!!!!!!!!!!!!!!!!!!!!!!!  in ntuple, the row and col start from 0  !!!!!!!!!!!!!!!!!!!!!!!
      int myTrow, myTcol;
-     myTrow = fpEvtStr->ITRirow[i] - 1;
-     myTcol = fpEvtStr->ITRicol[i] - 1;
+     myTrow = fpEvtStr->ITRirow[i];
+     myTcol = fpEvtStr->ITRicol[i];
      /*
      myTcol = pParMap->GetPixelsNu()-fpEvtStr->miSigCol[i];
      myTrow = pParMap->GetPixelsNv()-fpEvtStr->miSigRow[i];

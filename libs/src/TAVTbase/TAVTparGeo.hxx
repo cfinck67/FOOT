@@ -72,7 +72,7 @@ public:
     double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
 
     // Return distance from center to center
-    double GetLayerDistance() { return m_layerDistance; };
+    // double GetLayerDistance() { return m_layerDistance; };
 
     double GetNPixelX() { return m_nPixel_X; };
     double GetNPixelY() { return m_nPixel_Y; };
@@ -124,7 +124,8 @@ private:
     int m_nPassiveLayersPerBoard_z;
     double m_passiveMaterialThick;
     double m_siliconSensorThick_Lz;
-    double m_layerDistance;
+    double m_layerDistance_samePair;
+    double m_layerDistance_interPair;
 
     int m_nPixel_X;
     int m_nPixel_Y;

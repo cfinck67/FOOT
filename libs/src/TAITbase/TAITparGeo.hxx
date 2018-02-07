@@ -96,6 +96,7 @@ private:
 
     SensorMatrix m_sensorMatrix;
     PassiveMatrix m_passiveMatrix;
+    PassiveMatrix m_chipMatrix;
     TRotation* m_rotation;
 
     TGeoVolume* m_universe;
@@ -111,6 +112,11 @@ private:
     int m_nSensors_Y;
     int m_nSensors_Z;
     TVector3 m_NSensors;
+
+    double m_plumeDistace_Z;
+    double m_plumeDistace_Y;
+    double m_boardDeadMin;
+    double m_boardDeadMax;
 
     vector<string> m_materialOrder;
     vector<string> m_passiveMaterial;
