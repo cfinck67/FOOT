@@ -9,7 +9,7 @@
 #include "TH1.h"
 
 #include "EventStruct.h"
-#include "foot_geo.h"
+#include "../foot_geo.h"
 
 using namespace std;
 

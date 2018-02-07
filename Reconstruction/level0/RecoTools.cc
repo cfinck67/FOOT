@@ -326,8 +326,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
         //Initialization of IT parameters
         m_itgeo->InitGeo();
-        m_itgeo->PrintBodies("geppo");
-        m_itgeo->PrintRegions("geppo");
+        // m_itgeo->PrintBodies("geppo");
+        // m_itgeo->PrintRegions("geppo");
         top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
     }
 
@@ -432,7 +432,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
         if(m_debug) {
 
-            //Pixels stuff
+            // //Pixels stuff
             // TAVTntuRaw*  p_nturaw =
             // (TAVTntuRaw*)   myn_vtraw->GenerateObject();
 
@@ -444,19 +444,19 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
             // 	}
             // }
 
-             //      TAVTntuCluster*  p_ntuclus =
-            	// (TAVTntuCluster*)   myn_vtclus->GenerateObject();
-             //      int i_ncl;
-             //      //Displays the Clusters in the VTX detector
-             //      for(int is=0; is<8; is++) {
-            	// i_ncl = p_ntuclus->GetClustersN(is);
+            //       TAVTntuCluster*  p_ntuclus =
+            // 	(TAVTntuCluster*)   myn_vtclus->GenerateObject();
+            //       int i_ncl;
+            //       //Displays the Clusters in the VTX detector
+            //       for(int is=0; is<8; is++) {
+            // 	i_ncl = p_ntuclus->GetClustersN(is);
 
-            	// for (Int_t i_cl = 0; i_cl < i_ncl; i_cl++) {
+            // 	for (Int_t i_cl = 0; i_cl < i_ncl; i_cl++) {
 
-            	//   TAVTcluster *acl = p_ntuclus->GetCluster(is,i_cl);
-            	//   TVector3 myG = acl->GetPositionG();
-            	//   TVector3 myLG(myG.X()*1./10000.,myG.Y()*1./10000.,myG.Z()*1./10000.);
-            	//   TVector3 myR = fGeoTrafo->FromVTLocalToGlobal(myLG);
+            // 	  TAVTcluster *acl = p_ntuclus->GetCluster(is,i_cl);
+            // 	  TVector3 myG = acl->GetPositionG();
+            // 	  TVector3 myLG(myG.X()*1./10000.,myG.Y()*1./10000.,myG.Z()*1./10000.);
+            // 	  TVector3 myR = fGeoTrafo->FromVTLocalToGlobal(myLG);
 
             	// }
              //      }

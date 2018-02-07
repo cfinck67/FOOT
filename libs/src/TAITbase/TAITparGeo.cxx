@@ -497,10 +497,11 @@ void TAITparGeo::InitGeo()  {
 
 
 //_____________________________________________________________________________
-TVector3 TAITparGeo::GetPosition( int layer, int col, int row )  {
+TVector3 TAITparGeo::GetPosition( int layer, int plume, int chip, int col, int row )  {
     // TVector3 sensorCoord = GetSensorCoortdinates( int layer, int col, int row );
     // TVector3 pos = m_sensorMatrix[sensorCoord.z()][sensorCoord.x()][sensorCoord.y()]->GetPosition();
-    TVector3 pos = m_sensorMatrix[layer][0][0]->GetPosition( col, row );
+    TVector3 pos = m_sensorMatrix[layer][chip][plume]->GetPosition( col, row );
+    // TVector3 pos = m_sensorMatrix[layer][0][0]->GetPosition( col, row );
     Local2Global(&pos);
     return pos;
 }

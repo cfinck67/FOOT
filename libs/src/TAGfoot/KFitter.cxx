@@ -330,7 +330,8 @@ void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
         TAITntuHit* p_hit = m_IT_hitCollection.at(i);
 
         // get pixel coord
-        TVector3 hitPos = m_IT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
+        TVector3 hitPos = p_hit->GetHitCoordinate();
+        // TVector3 hitPos = m_IT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
         // get true MC coord
         // TVector3 hitPos = m_IT_hitCollection.at(i)->GetMCPosition_Global();
 
@@ -394,7 +395,7 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
     m_MSD_mass.clear();
     for ( vector<TAMSDntuHit*>::iterator xIt=allStripSignals_x.begin(); xIt != allStripSignals_x.end(); xIt++ ) {
 
-	        TVector3 hitPos = m_MSD_geo->GetPosition( (*xIt)->GetLayer(), (*xIt)->GetPixelView(), (*xIt)->GetPixelStrip() );
+	        // TVector3 hitPos = m_MSD_geo->GetPosition( (*xIt)->GetLayer(), (*xIt)->GetPixelView(), (*xIt)->GetPixelStrip() );
 	        
 	        // set covariance matrix
 			double stripReso = 0.001;
@@ -407,8 +408,9 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 			double simulatedStripHit_Y = (*xIt)->GetMCPosition_Global().Y();
 			double simulatedStripHit_Z = (*xIt)->GetMCPosition_Global().Z();
 			TVector3 gen_hitPos = TVector3 ( simulatedStripHit_X, simulatedStripHit_Y, simulatedStripHit_Z );
-			if ( m_debug > 0 )		cout << "\tSimulated hits coosrdinate using smearing: \t\t ";
-			if ( m_debug > 0 )		hitPos.Print();
+			if ( m_debug > 0 )		cout << "\tSimulated hits coordinate using smearing (nope!): \t\t ";
+			if ( m_debug > 0 )		gen_hitPos.Print();
+			// if ( m_debug > 0 )		hitPos.Print();
 
 	        hitCoords(0)=gen_hitPos.x();
 			hitCoords(1)=gen_hitPos.y();
@@ -991,7 +993,8 @@ void KFitter::GetTrueMCInfo( string hitSampleName, int x,
 		*tmp_genPos = m_IT_hitCollection.at( hitID )->m_genPartPosition;	// genaration position
 		*tmp_genMom = m_IT_hitCollection.at( hitID )->m_genPartMomentum;	// genaration momentum
 		TAITntuHit* p_hit = m_IT_hitCollection.at(hitID);
-        *hitPos = m_IT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() ); // pixel coord
+        // *hitPos = m_IT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() ); // pixel coord
+        *hitPos = p_hit->GetHitCoordinate(); // pixel coord
 	}
 	else if ( detID == m_detectorID_map["MSD"] ) {
 		*tmpPos = m_MSD_posVectorSmearedHit.at( hitID );

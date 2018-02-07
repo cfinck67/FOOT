@@ -114,6 +114,8 @@ Bool_t TAITactNtuMC::Action()
    if (fDebugLevel) Info("Action()","Processing n :: %2d hits \n",fpEvtStr->ITRn);
     if ( GlobalPar::GetPar()->Debug() > 0 )         cout<< endl << "ITn   " << fpEvtStr->ITRn<< endl;
    
+    vector<int> blackList;
+
    //AS  To be completely rechecked...
    for (Int_t i = 0; i < fpEvtStr->ITRn; i++) {
 
@@ -124,7 +126,10 @@ Bool_t TAITactNtuMC::Action()
      Int_t sensorId    = pParMap->GetRealId(fpEvtStr->miSigChip[i]-1);
      //     TAITntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., fpEvtStr->miSigRow[i], fpEvtStr->miSigCol[i]);
      */
-     Int_t sensorId    = 0;
+
+
+     int sensorId  = fpEvtStr->ITRimimo[i]*1 + fpEvtStr->ITRiplume[i]*4 + fpEvtStr->ITRilay[i]*16;
+
 
      //What About a decent post processing?
      //The column refer to Y!!!
@@ -132,10 +137,49 @@ Bool_t TAITactNtuMC::Action()
      int myTrow, myTcol;
      myTrow = fpEvtStr->ITRirow[i];
      myTcol = fpEvtStr->ITRicol[i];
-     /*
-     myTcol = pParMap->GetPixelsNu()-fpEvtStr->miSigCol[i];
-     myTrow = pParMap->GetPixelsNv()-fpEvtStr->miSigRow[i];
-     */
+     
+
+
+     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+     for ( int bl = 0; bl<blackList.size(); bl++ ) {
+        if ( blackList.at(bl) == i )
+          continue;   // next event
+      }
+
+
+    // DECLUSTER
+      bool decluster = false;
+      for ( int j = i+1; j < fpEvtStr->ITRn; j++) {   // other hit loop
+
+        // same sensor .....
+        bool decluster_inner = false;
+        for ( int k = -1; k <= 1; k++ ) {
+          for ( int h = -1; h <= 1; h++ ) {
+            if   ( myTrow == fpEvtStr->ITRirow[j]+k && myTcol == fpEvtStr->ITRicol[j]+h )   {
+              decluster_inner = true;
+              break;
+            }
+          }
+          if ( decluster_inner )    break;
+        }
+
+        if ( decluster_inner ) {
+           blackList.push_back( i+j );
+           decluster = true;
+         }
+
+      }
+      if ( decluster )   {
+        blackList.push_back( i );
+        continue;  // next event
+      }
+        
+      // DECLUSTER end
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 
       // Generated particle ID 
@@ -168,7 +212,6 @@ Bool_t TAITactNtuMC::Action()
         cout << "Generated Momentum: " << fpEvtStr->TRipx[genPartID] <<" "<<fpEvtStr->TRipy[genPartID]<<" "<<fpEvtStr->TRipz[genPartID] << endl;
     }
      
-
 
 
     // TAITntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol);
@@ -218,6 +261,8 @@ Bool_t TAITactNtuMC::Action()
      double u = pParMap->GetPositionU(myTcol);
      TVector3 pos(v,u,0);
      pixel->SetPosition(pos);
+
+     pixel->SetHitCoordinate( pGeoMap->GetPosition( fpEvtStr->ITRilay[i], fpEvtStr->ITRimimo[i], fpEvtStr->ITRiplume[i],  myTcol, myTrow ) );
 
      pixel->SetGeneratedParticleInfo ( genPartID, fpEvtStr->TRfid[genPartID], fpEvtStr->TRcha[genPartID],
                     fpEvtStr->TRbar[genPartID], fpEvtStr->TRmass[genPartID],

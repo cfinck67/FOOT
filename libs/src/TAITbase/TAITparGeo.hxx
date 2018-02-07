@@ -60,7 +60,7 @@ public:
 
     // Return the pixel position  -->  change name! in GetPixelPos()
     //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
-    TVector3 GetPosition( int layer, int col, int row );
+    TVector3 GetPosition( int layer, int plume, int chip, int col, int row );
 
     // Return Inner Trakcker center coord. in the global frame
     TVector3 GetCenter() { return m_center; };

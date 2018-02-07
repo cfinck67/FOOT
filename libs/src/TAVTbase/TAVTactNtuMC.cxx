@@ -116,6 +116,7 @@ Bool_t TAVTactNtuMC::Action() {
 
 // cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx << "  "<< fpEvtStr->TRfy << "  "<< fpEvtStr->TRfz << endl;
 
+    vector<int> blackList;
    //AS  To be completely rechecked...
    for (Int_t i = 0; i < fpEvtStr->VTXn; i++) {
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx[i] << "  "<< fpEvtStr->TRfy[i] << "  "<< fpEvtStr->TRfz[i] << endl;
@@ -135,10 +136,50 @@ Bool_t TAVTactNtuMC::Action() {
      int myTrow, myTcol;
      myTrow = fpEvtStr->VTXirow[i] - 1;
      myTcol = fpEvtStr->VTXicol[i] - 1;
-     /*
-     myTcol = pParMap->GetPixelsNu()-fpEvtStr->miSigCol[i];
-     myTrow = pParMap->GetPixelsNv()-fpEvtStr->miSigRow[i];
-     */
+     
+
+
+   
+     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+     for ( int bl = 0; bl<blackList.size(); bl++ ) {
+        if ( blackList.at(bl) == i )
+          continue;   // next event
+      }
+
+
+    // DECLUSTER
+      bool decluster = false;
+      for ( int j = i+1; j < fpEvtStr->VTXn; j++) {   // other hit loop
+
+        // same sensor .....
+        bool decluster_inner = false;
+        for ( int k = -1; k <= 1; k++ ) {
+          for ( int h = -1; h <= 1; h++ ) {
+            if   ( myTrow == fpEvtStr->VTXirow[j]+k && myTcol == fpEvtStr->VTXicol[j]+h )   {
+              decluster_inner = true;
+              break;
+            }
+          }
+          if ( decluster_inner )    break;
+        }
+
+        if ( decluster_inner ) {
+           blackList.push_back( i+j );
+           decluster = true;
+         }
+
+      }
+      if ( decluster )   {
+        blackList.push_back( i );
+        continue;  // next event
+      }
+        
+      // DECLUSTER end
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 
      // Generated particle ID 

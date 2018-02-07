@@ -183,7 +183,8 @@ TAITntuRaw::TAITntuRaw()
 : TAGdata(),
   fListOfPixels(0x0)
 {
-   SetupClones();
+  m_nSensor = 32;   // from geometry
+   SetupClones();   // crea la matrice dei sensori e pixel colpiti 
 }
 
 //------------------------------------------+-----------------------------------
@@ -197,7 +198,7 @@ TAITntuRaw::~TAITntuRaw()
 //! return number of pixels for a given sensor.
 Int_t TAITntuRaw::GetPixelsN(Int_t iSensor) const
 {
-   if (iSensor >= 0  || iSensor < TAITparMap::GetSensorsN()) {
+   if (iSensor >= 0  || iSensor < m_nSensor) {
 	  TClonesArray*list = GetListOfPixels(iSensor);
 	  return list->GetEntries();
    } else  {
@@ -209,7 +210,7 @@ Int_t TAITntuRaw::GetPixelsN(Int_t iSensor) const
 //------------------------------------------+-----------------------------------
 TClonesArray* TAITntuRaw::GetListOfPixels(Int_t iSensor)
 {
-   if (iSensor >= 0  || iSensor < TAITparMap::GetSensorsN()) {
+   if (iSensor >= 0  || iSensor < m_nSensor) {
 	  TClonesArray* list = (TClonesArray*)fListOfPixels->At(iSensor);
 	  return list;
    } else {
@@ -221,7 +222,7 @@ TClonesArray* TAITntuRaw::GetListOfPixels(Int_t iSensor)
 //------------------------------------------+-----------------------------------
 TClonesArray* TAITntuRaw::GetListOfPixels(Int_t iSensor) const
 {
-   if (iSensor >= 0  || iSensor < TAITparMap::GetSensorsN()) {
+   if (iSensor >= 0  || iSensor < m_nSensor) {
 	  TClonesArray* list = (TClonesArray*)fListOfPixels->At(iSensor);
 	  return list;
    } else {
@@ -263,7 +264,7 @@ void TAITntuRaw::SetupClones()
    if (fListOfPixels) return;
    fListOfPixels = new TObjArray();
    
-   for (Int_t i = 0; i < TAITparMap::GetSensorsN(); ++i) {
+   for (Int_t i = 0; i < m_nSensor; ++i) {
 	  TClonesArray* arr = new TClonesArray("TAITntuHit", 500);
 	  arr->SetOwner(true);
 	  fListOfPixels->AddAt(arr, i);
@@ -275,7 +276,7 @@ void TAITntuRaw::SetupClones()
 //! Clear event.
 void TAITntuRaw::Clear(Option_t*)
 {
-   for (Int_t i = 0; i < TAITparMap::GetSensorsN(); ++i) {
+   for (Int_t i = 0; i < m_nSensor; ++i) {
 	  TClonesArray* list = GetListOfPixels(i);
 	  list->Delete();
    }   
@@ -285,7 +286,7 @@ void TAITntuRaw::Clear(Option_t*)
 //  
 TAITntuHit* TAITntuRaw::NewPixel(Int_t iSensor, Double_t value, Int_t aLine, Int_t aColumn)
 {
-   if (iSensor >= 0  || iSensor < TAITparMap::GetSensorsN()) {	  
+   if (iSensor >= 0  || iSensor < m_nSensor) {	  
 	  TClonesArray &pixelArray = *GetListOfPixels(iSensor);
 	  TAITntuHit* pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TAITntuHit(iSensor, value, aLine, aColumn);
 	  return pixel;
@@ -299,7 +300,7 @@ TAITntuHit* TAITntuRaw::NewPixel(Int_t iSensor, Double_t value, Int_t aLine, Int
 //  
 TAITntuHit* TAITntuRaw::NewPixel(Int_t iSensor, TAITrawHit* rawPixel)
 {
-   if (iSensor >= 0  || iSensor < TAITparMap::GetSensorsN()) {	  
+   if (iSensor >= 0  || iSensor < m_nSensor) {	  
 	  TClonesArray &pixelArray = *GetListOfPixels(iSensor);
 	  TAITntuHit* pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TAITntuHit(iSensor, rawPixel);
 	  return pixel;
@@ -313,7 +314,8 @@ TAITntuHit* TAITntuRaw::NewPixel(Int_t iSensor, TAITrawHit* rawPixel)
 //! ostream insertion.
 void TAITntuRaw::ToStream(ostream& os, Option_t* option) const
 {
-   for (Int_t i = 0; i < TAITparMap::GetSensorsN(); ++i) {
+   for (Int_t i = 0; i < m_nSensor; ++i) {
+    // for (Int_t i = 0; i < TAITparMap::GetSensorsN(); ++i) {
 	  
 	  os << "TAITntuRaw " << GetName()
 	  << Form("  nPixels=%3d", GetPixelsN(i))

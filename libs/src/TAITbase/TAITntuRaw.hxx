@@ -34,6 +34,10 @@ private:
    TVector3           fPosition;                     // position in uvw coordinates in the plane
    TVector3           fSize;                         // size in uvw directions
    
+   TVector3           m_hitCoord;                       // hit pixel coordinate
+   // TVector3           resolution;                       // useful?
+
+
    Int_t              fMCid;                         // MC index
    TVector3           fMCPos;                        // position in uvw coordinates in the plane
    TVector3           fMCP;                          // size in uvw directions
@@ -85,6 +89,7 @@ public:
    void               SetLayer(Int_t aLay)      { m_layer = aLay;     }
    //! Set pixel position
    void               SetPosition(TVector3 aPosition) { fPosition = aPosition;   }
+   void               SetHitCoordinate(TVector3 aPosition) { m_hitCoord = aPosition;   }
    //! Set pixel size
    void               SetSize(TVector3 aSize)         { fSize = aSize;           }
    //! Set found flag
@@ -140,6 +145,7 @@ public:
    
    //! Get position
    TVector3&          GetPosition()                   { return  fPosition;       }
+   TVector3&          GetHitCoordinate()                   { return  m_hitCoord;       }
    //! Get Size
    TVector3&          GetSize()                       { return  fSize;           }
    //! Get found flag
@@ -179,7 +185,8 @@ private:
    
 private:   
    static TString    fgkBranchName;    // Branch name in TTree
-   
+  int m_nSensor;
+
 public:
    TAITntuRaw();
    virtual          ~TAITntuRaw();
@@ -191,6 +198,7 @@ public:
    TClonesArray*     GetListOfPixels(Int_t iSensor) const;
    
    Int_t             GetPixelsN(Int_t iSensor) const; 
+   int             GetNSensors() { return m_nSensor; }; 
    
    TAITntuHit*       NewPixel(Int_t sensor, Double_t value, Int_t aLine, Int_t aColumn);
    TAITntuHit*       NewPixel(Int_t sensor, TAITrawHit* pixel);
