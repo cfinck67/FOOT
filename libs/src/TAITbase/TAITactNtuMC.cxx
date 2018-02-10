@@ -131,7 +131,7 @@ Bool_t TAITactNtuMC::Action()
      int sensorId  = 0;
      // int sensorId  = 1*fpEvtStr->ITRimimo[i] + 4*fpEvtStr->ITRiplume[i] + 16*fpEvtStr->ITRilay[i];
 
-     cout << "sensorId "<< fpEvtStr->ITRimimo[i] << " + "<< fpEvtStr->ITRiplume[i] << " + "<< fpEvtStr->ITRilay[i] << endl;
+     // cout << "sensorId "<< fpEvtStr->ITRimimo[i] << " + "<< fpEvtStr->ITRiplume[i] << " + "<< fpEvtStr->ITRilay[i] << endl;
      // if ( fpEvtStr->ITRimimo[i] != 0 || fpEvtStr->ITRiplume[i] != 0 || fpEvtStr->ITRilay[i] != 0 )
      //    continue;
 
