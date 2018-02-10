@@ -165,7 +165,7 @@ Bool_t TAVTactNtuMC::Action() {
         }
 
         if ( decluster_inner ) {
-           blackList.push_back( i+j );
+           blackList.push_back( j );
            decluster = true;
          }
 

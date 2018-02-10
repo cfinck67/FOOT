@@ -169,7 +169,7 @@ Bool_t TAITactNtuMC::Action()
         }
 
         if ( decluster_inner ) {
-           blackList.push_back( i+j );
+           blackList.push_back( j );
            decluster = true;
          }
 
