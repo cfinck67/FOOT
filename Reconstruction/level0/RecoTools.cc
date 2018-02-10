@@ -186,13 +186,17 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   */
   bool m_doEvent = kTRUE;
   bool m_doKalman = kTRUE;
+  // bool m_doKalman = kFALSE;
   // bool m_doBM = kFALSE;
   bool m_doBM = kFALSE;
   bool m_doIR = kFALSE;
   bool m_doTW = kFALSE;
   bool m_doMSD = kTRUE;
+  // bool m_doMSD = kFALSE;
   bool m_doCA = kFALSE;
+  // bool m_doInnerTracker = kFALSE;
   bool m_doInnerTracker = kTRUE;
+  // bool m_doVertex = kFALSE;
   bool m_doVertex = kTRUE;
 
   bool breakAfterThisEvent = false;

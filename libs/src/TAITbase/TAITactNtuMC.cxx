@@ -128,8 +128,12 @@ Bool_t TAITactNtuMC::Action()
      */
 
 
-     int sensorId  = fpEvtStr->ITRimimo[i]*1 + fpEvtStr->ITRiplume[i]*4 + fpEvtStr->ITRilay[i]*16;
+     int sensorId  = 0;
+     // int sensorId  = 1*fpEvtStr->ITRimimo[i] + 4*fpEvtStr->ITRiplume[i] + 16*fpEvtStr->ITRilay[i];
 
+     cout << "sensorId "<< fpEvtStr->ITRimimo[i] << " + "<< fpEvtStr->ITRiplume[i] << " + "<< fpEvtStr->ITRilay[i] << endl;
+     // if ( fpEvtStr->ITRimimo[i] != 0 || fpEvtStr->ITRiplume[i] != 0 || fpEvtStr->ITRilay[i] != 0 )
+     //    continue;
 
      //What About a decent post processing?
      //The column refer to Y!!!
@@ -262,6 +266,7 @@ Bool_t TAITactNtuMC::Action()
      TVector3 pos(v,u,0);
      pixel->SetPosition(pos);
 
+     // in global frame
      pixel->SetHitCoordinate( pGeoMap->GetPosition( fpEvtStr->ITRilay[i], fpEvtStr->ITRimimo[i], fpEvtStr->ITRiplume[i],  myTcol, myTrow ) );
 
      pixel->SetGeneratedParticleInfo ( genPartID, fpEvtStr->TRfid[genPartID], fpEvtStr->TRcha[genPartID],

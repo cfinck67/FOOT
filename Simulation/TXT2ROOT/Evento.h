@@ -65,7 +65,7 @@ class Evento : public TObject {
 	       Double_t fITRpxout, Double_t fITRpyoutITR, Double_t fITRpzout,
 	       Double_t fITRde, Double_t fITRal, Double_t fITRtim);
 
-  Int_t AddMSD(Int_t fMSDid, Int_t fMSDistripx, Int_t fMSDistripy,
+  Int_t AddMSD(Int_t fMSDid, Int_t fMSDilay,  Int_t fMSDistripx, Int_t fMSDistripy,
 	       Double_t fMSDxin, Double_t fMSDyin, Double_t fMSDzin,
 	       Double_t fMSDxout, Double_t fMSDyout, Double_t fMSDzout,
 	       Double_t fMSDpxin, Double_t fpMSDyin, Double_t fMSDpzin,

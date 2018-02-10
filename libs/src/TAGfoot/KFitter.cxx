@@ -419,6 +419,8 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 			// hitCoords(1)=hitPos.y();
 			// hitCoords(2)=hitPos.z();
 			
+
+			
 			// MC info, provvisorio solo per il test!!!!!
 			m_MSD_posVectorSmearedHit.push_back( gen_hitPos );
 			TVector3 hitMomMC( (*xIt)->GetMCMomentum_Global().X(), (*xIt)->GetMCMomentum_Global().Y(), (*xIt)->GetMCMomentum_Global().Z() );
@@ -555,7 +557,10 @@ bool KFitter::PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterat
 		if ( m_debug > 2 )		cout << "nHitVT  " << nHitVT << " nHitIT" << nHitIT << " nHitMSD "<< nHitMSD<<endl;
 	}
 	// test the num of hits per each detector
-	if ( nHitVT != testHit_VT || nHitIT != testHit_IT || nHitMSD != testHit_MSD )	return false;
+	if ( nHitVT != testHit_VT || nHitIT != testHit_IT || nHitMSD != testHit_MSD ){
+		if ( m_debug > 0 )		cout << "WARNING :: KFitter::PrefitRequirements  -->  number of elements different wrt the expected ones : Nel=" << (int)((*element).second.size()) << "   Nexp= " << testHitNumberLimit << endl;
+		return false;
+	}
 
 	return true;
 }

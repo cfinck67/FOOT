@@ -134,8 +134,8 @@ Bool_t TAVTactNtuMC::Action() {
      //The column refer to Y!!!
      // !!!!!!!!!!!!!!!!!!!!!!!!!!!  in ntuple, the row and col start from 0  !!!!!!!!!!!!!!!!!!!!!!!
      int myTrow, myTcol;
-     myTrow = fpEvtStr->VTXirow[i] - 1;
-     myTcol = fpEvtStr->VTXicol[i] - 1;
+     myTrow = fpEvtStr->VTXirow[i];
+     myTcol = fpEvtStr->VTXicol[i];
      
 
 
@@ -300,6 +300,7 @@ Bool_t TAVTactNtuMC::Action() {
      }   
    */
    }
+   blackList.clear();
    
    fpNtuRaw->SetBit(kValid);
    return kTRUE;

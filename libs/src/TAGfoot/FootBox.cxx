@@ -6,15 +6,27 @@
 
 FootBox::FootBox ( 	TVector3 origin, TVector3 dimension, 
 					string materialName, string materialRegionName, string bodyName, string regionName, 
-					int volumeID ):
+					int volumeID )	{
 
-					m_origin(origin), m_dimension(dimension), 
-					m_materialName(materialName), m_materialRegionName(materialRegionName), m_bodyName(bodyName), m_regionName(regionName), 
-					m_volumeID(volumeID)
-{
+	SetBox (  	origin, dimension, 
+				materialName, materialRegionName, bodyName,  regionName, 
+				volumeID );
+
+};
+
+void FootBox::SetBox ( 	TVector3 origin, TVector3 dimension, 
+					string materialName, string materialRegionName, string bodyName, string regionName, 
+					int volumeID )   {
 
 	// box == region
 	m_name = m_regionName;
+	m_origin = origin; 
+	m_dimension = dimension; 
+	m_materialName = materialName; 
+	m_materialRegionName = materialRegionName; 
+	m_bodyName = bodyName; 
+	m_regionName = regionName; 
+	m_volumeID = volumeID;
 
 	// check if the mterial of the box is defined
 	if ( !gGeoManager->GetMedium( m_materialName.c_str() ) ) {

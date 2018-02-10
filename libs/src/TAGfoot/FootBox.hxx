@@ -27,13 +27,24 @@ class FootBox {
 
 public:
 
+	FootBox() {};    // wrong!!!!!!!!!!!!!!!!!!!!!
 	FootBox( 	TVector3 origin, TVector3 dimension, 
 				string materialName, string materialRegionName, string bodyName, string regionName, 
 				int volumeID );
 	~FootBox() {};
 
 	
+	void SetBox( TVector3 origin, TVector3 dimension, 
+				string materialName, string materialRegionName, string bodyName, string regionName, 
+				int volumeID );
+
 	void AddNodeToUniverse( TGeoVolume* universe ) {
+
+		cout << m_materialRegionName <<endl;
+		if ( !gGeoManager->GetVolume( m_materialRegionName.c_str() ) ) {
+			cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_materialRegionName << endl;
+		}
+
         universe->AddNode( gGeoManager->GetVolume( m_materialRegionName.c_str() ), m_volumeID , 
         					new TGeoCombiTrans( m_origin.x(), m_origin.y(), m_origin.z(), new TGeoRotation("null,",0,0,0)) );
 	}

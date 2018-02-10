@@ -197,7 +197,7 @@ void TAMSDparGeo::InitGeo()  {
 
     // create the universe volume
     if ( GlobalPar::GetPar()->geoROOT() ) {
-        m_universe = gGeoManager->MakeBox("ITuniverse",gGeoManager->GetMedium("AIR"),m_dimension.x()/2,m_dimension.y()/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
+        m_universe = gGeoManager->MakeBox("MSDuniverse",gGeoManager->GetMedium("AIR"),m_dimension.x()/2,m_dimension.y()/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
         gGeoManager->SetTopVisible(1);
     }
 
@@ -209,38 +209,44 @@ void TAMSDparGeo::InitGeo()  {
 //---------------------------------------------------------------------
 //     Build sensor materials in ROOT and FLUKA
 //---------------------------------------------------------------------
+if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT and FLUKA" << endl;
 
-    for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
-        for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
-            for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+    // for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
+    //     for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+    //         for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+
+    for ( unsigned int k=0; k<m_nSensors_Z; k++ ) {
+        for ( unsigned int j=0; j<m_nSensors_Y; j++ ) {
+            for ( unsigned int i=0; i<m_nSensors_X; i++ ) {    
+
 
                 //ROOT addNode
                 if ( GlobalPar::GetPar()->geoROOT() )   
-                    (*itZ)->AddNodeToUniverse( m_universe );
+                    m_sensorMatrix[k][i][j]->AddNodeToUniverse( m_universe );
 
                     // boidies
                 if ( GlobalPar::GetPar()->geoROOT() ) {
                     
-                    TVector3 minCoord = TVector3( (*itZ)->GetMinCoord().x(), (*itZ)->GetMinCoord().y(), (*itZ)->GetMinCoord().z() );
-                    TVector3 maxCoord = TVector3( (*itZ)->GetMaxCoord().x(), (*itZ)->GetMaxCoord().y(), (*itZ)->GetMaxCoord().z() );
+                    TVector3 minCoord = TVector3( m_sensorMatrix[k][i][j]->GetMinCoord().x(), m_sensorMatrix[k][i][j]->GetMinCoord().y(), m_sensorMatrix[k][i][j]->GetMinCoord().z() );
+                    TVector3 maxCoord = TVector3( m_sensorMatrix[k][i][j]->GetMaxCoord().x(), m_sensorMatrix[k][i][j]->GetMaxCoord().y(), m_sensorMatrix[k][i][j]->GetMaxCoord().z() );
                     Local2Global( &minCoord );
                     Local2Global( &maxCoord );
 
                     stringstream ss;
                     ss << setiosflags(ios::fixed) << setprecision(6);
-                    ss <<  "RPP " << (*itZ)->GetBodyName() <<  "     " 
+                    ss <<  "RPP " << m_sensorMatrix[k][i][j]->GetBodyName() <<  "     " 
                                 << minCoord.x() << " " << maxCoord.x() << " "
                                 << minCoord.y() << " " << maxCoord.y() << " "
                                 << minCoord.z() << " " << maxCoord.z() << endl;
                     
-                    m_bodyPrintOut[ (*itZ)->GetMaterialName() ].push_back( ss.str() );
+                    m_bodyPrintOut[ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( ss.str() );
 
                     // regions
                     stringstream ssr;
-                    ssr << setw(13) << setfill( ' ' ) << std::left << (*itZ)->GetRegionName()
-                        << "5 " << (*itZ)->GetBodyName() << endl;
+                    ssr << setw(13) << setfill( ' ' ) << std::left << m_sensorMatrix[k][i][j]->GetRegionName()
+                        << "5 " << m_sensorMatrix[k][i][j]->GetBodyName() << endl;
                         
-                    m_regionPrintOut[ (*itZ)->GetMaterialName() ].push_back( ssr.str() );
+                    m_regionPrintOut[ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( ssr.str() );
                 }
 
 

@@ -113,17 +113,6 @@ void TAVTparGeo::InitGeo()  {
     m_nSensors_Z = VTX_NLAY;
     TVector3 m_NSensors = TVector3( m_nSensors_X, m_nSensors_Y, m_nSensors_Z );
 
-    // init sensor matrix   (z, x, y) = (layer, col, row)
-    m_sensorMatrix.resize( m_nSensors_Z );
-    for (int k=0; k<m_nSensors_Z; k++) {
-        m_sensorMatrix[k].resize( m_nSensors_X );
-        for (int i=0; i<m_nSensors_X; i++) {
-            m_sensorMatrix[k][i].resize( m_nSensors_Y );
-            for (int j=0; j<m_nSensors_Y; j++) {
-                m_sensorMatrix[k][i][j] = new IronPlate();
-            }
-        }
-    }
 
 //---------------------------------------------------------------------
 //     Find DETECTOR dimension
@@ -141,6 +130,8 @@ void TAVTparGeo::InitGeo()  {
 //---------------------------------------------------------------------
 //     Init SENSOR geometry
 //---------------------------------------------------------------------
+    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR geometry " << endl;
+
     double pixelDistance = 0;
 
     double pixelWidth_Lx = VTX_DX;
@@ -160,13 +151,18 @@ void TAVTparGeo::InitGeo()  {
 
     // fill sensor matrix
     double sensor_newZ = m_origin.Z() - m_dimension.z()/2 +0.5*m_siliconSensorThick_Lz;
+    m_sensorMatrix.resize( m_nSensors_Z );
     for (int k=0; k<m_nSensors_Z; k++) {
         if ( k!=0 )     // increment the layer distance Z, distance not uniform
             sensor_newZ += ( k%2 != 0 ? m_layerDistance_samePair : m_layerDistance_interPair );
+        m_sensorMatrix[k].resize( m_nSensors_X );
         for (int i=0; i<m_nSensors_X; i++) {
             double sensor_newX = m_origin.X();  
+            m_sensorMatrix[k][i].resize( m_nSensors_Y );
             for (int j=0; j<m_nSensors_Y; j++) {
                 double sensor_newY = m_origin.Y();
+
+                m_sensorMatrix[k][i][j] = new IronPlate();
 
                 m_volumeCount++;
                 stringstream ss_bodySensorName; ss_bodySensorName << "vtxs" << m_volumeCount;
@@ -191,129 +187,150 @@ void TAVTparGeo::InitGeo()  {
     // m_rotation->SetYEulerAngles( m_tilt_eulerAngle.x(), m_tilt_eulerAngle.y(), m_tilt_eulerAngle.z() );
     m_rotation->SetYEulerAngles( 0,0,0 );
 
-//---------------------------------------------------------------------
-//     Init passive materials geometry
-//---------------------------------------------------------------------
+// //---------------------------------------------------------------------
+// //     Init passive materials geometry
+// //---------------------------------------------------------------------
+//     if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry" << endl;
 
-    double passiveSi_Z = m_origin.Z() - m_dimension.z()/2 +0.5*m_siliconSensorThick_Lz;
-    for (int k=0; k<m_nSensors_Z; k++) {
-        if ( k!=0 )     // increment the layer distance Z, distance not uniform
-            passiveSi_Z += ( k%2 != 0 ? m_layerDistance_samePair : m_layerDistance_interPair );
-        for (int i=0; i<m_nSensors_X; i++) {
-            double passiveSi_X = m_origin.X() + sensorDimension.x()/2 + VTX_XDEAD - passiveSiDimension.x()/2;
-            passiveSi_X *= ( i>1 ? -1 : 1 );   // commenta!
-            for (int j=0; j<m_nSensors_Y; j++) {
-                double passiveSi_Y = m_origin.Y() + passiveSiDimension.y()/2 - sensorDimension.y()/2;
-                passiveSi_Y *= ( j%2 == 0 ? -1 : 1 );   // commenta!
+//     double passiveSi_Z = m_origin.Z() - m_dimension.z()/2 +0.5*m_siliconSensorThick_Lz;
+//     m_passiveMatrix.resize( m_nSensors_Z );
+//     for (int k=0; k<m_nSensors_Z; k++) {
+//         if ( k!=0 )     // increment the layer distance Z, distance not uniform
+//             passiveSi_Z += ( k%2 != 0 ? m_layerDistance_samePair : m_layerDistance_interPair );
+//         m_passiveMatrix[k].resize( m_nSensors_X );
+//         for (int i=0; i<m_nSensors_X; i++) {
+//             double passiveSi_X = m_origin.X() + sensorDimension.x()/2 + VTX_XDEAD - passiveSiDimension.x()/2;
+//             passiveSi_X *= ( i>1 ? -1 : 1 );   // commenta!
+//             m_passiveMatrix[k][i].resize( m_nSensors_Y );
+//             for (int j=0; j<m_nSensors_Y; j++) {
+//                 double passiveSi_Y = m_origin.Y() + passiveSiDimension.y()/2 - sensorDimension.y()/2;
+//                 passiveSi_Y *= ( j%2 == 0 ? -1 : 1 );   // commenta!
 
-                m_passiveCount++;
-                stringstream ss_bodyPassiveName;      ss_bodyPassiveName << "vtxp" << m_passiveCount;
-                stringstream ss_regionPassiveName;      ss_regionPassiveName << "VTXP" << m_passiveCount;
-
-
-                m_passiveMatrix[i][j][k] = new FootBox( TVector3( passiveSi_X, passiveSi_Y, passiveSi_Z ),          // position passive
-                                                TVector3( passiveSiDimension.x(), passiveSiDimension.y(), passiveSiDimension.z() ),   // dimension passive
-                                                (string)VTX_MEDIUM,                         // name of the material
-                                                "VTX_MEDIUM",                       // name of the material-region in the foot_geo.h
-                                                ss_bodyPassiveName.str(),                  // FLUKA body name
-                                                ss_regionPassiveName.str(),          // FLUKA region name
-                                                m_volumeCount                       // volume ID num
-                                                );
+//                 m_passiveCount++;
+//                 stringstream ss_bodyPassiveName;      ss_bodyPassiveName << "vtxp" << m_passiveCount;
+//                 stringstream ss_regionPassiveName;      ss_regionPassiveName << "VTXP" << m_passiveCount;
 
 
-            }
-        }
-    }
+//                 m_passiveMatrix[k][i][j] = new FootBox( TVector3( passiveSi_X, passiveSi_Y, passiveSi_Z ),          // position passive
+//                                                 TVector3( passiveSiDimension.x(), passiveSiDimension.y(), passiveSiDimension.z() ),   // dimension passive
+//                                                 (string)VTX_MEDIUM,                         // name of the material
+//                                                 "VTX_MEDIUM",                       // name of the material-region in the foot_geo.h
+//                                                 ss_bodyPassiveName.str(),                  // FLUKA body name
+//                                                 ss_regionPassiveName.str(),          // FLUKA region name
+//                                                 m_volumeCount                       // volume ID num
+//                                                 );
+
+
+//                 if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "passive center ",    TVector3( passiveSi_X, passiveSi_Y, passiveSi_Z ).Print();
+
+//             }
+//         }
+//     }
 
 
     // create the universe volume
     if ( GlobalPar::GetPar()->geoROOT() ) {
-        m_universe = gGeoManager->MakeBox("ITuniverse",gGeoManager->GetMedium("AIR"),m_dimension.x()/2,m_dimension.y()/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
+        m_universe = gGeoManager->MakeBox("VTXuniverse",gGeoManager->GetMedium("AIR"),m_dimension.x()/2,m_dimension.y()/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
         gGeoManager->SetTopVisible(1);
     }
 
-//---------------------------------------------------------------------
-//     Build passive materials in ROOT and FLUKA
-//---------------------------------------------------------------------
+// //---------------------------------------------------------------------
+// //     Build passive materials in ROOT and FLUKA
+// //---------------------------------------------------------------------
+//     if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT and FLUKA" << endl;
 
-    int sensor_i = 0, sensor_j = 0, sensor_k = 0;
-    for ( PassiveMatrix::iterator itX = m_passiveMatrix.begin(); itX != m_passiveMatrix.end(); itX++ ) {
-        for ( PassivePlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
-            for ( PassiveLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+//     int sensor_k = 0;
+//     cout << m_passiveMatrix.size()<<endl;
+//     for ( PassiveMatrix::iterator itX = m_passiveMatrix.begin(); itX != m_passiveMatrix.end(); itX++ ) {
+//         cout << (*itX).size()<<endl;
+//         int sensor_i = 0;
+//         for ( PassivePlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+//             cout << (*itY).size()<<endl;
+//             int sensor_j = 0;
+//             for ( PassiveLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+                
+//                 //ROOT addNode
+//                 if ( GlobalPar::GetPar()->geoROOT() )    
+//                     (*itZ)->AddNodeToUniverse( m_universe );
 
-                //ROOT addNode
-                if ( GlobalPar::GetPar()->geoROOT() )    
-                    (*itZ)->AddNodeToUniverse( m_universe );
+//                 // boidies
+//                 if ( GlobalPar::GetPar()->geoFLUKA() ) {
 
-                // boidies
-                if ( GlobalPar::GetPar()->geoFLUKA() ) {
+//                     TVector3 minCoord = TVector3( (*itZ)->GetMinCoord().x(), (*itZ)->GetMinCoord().y(), (*itZ)->GetMinCoord().z() );
+//                     TVector3 maxCoord = TVector3( (*itZ)->GetMaxCoord().x(), (*itZ)->GetMaxCoord().y(), (*itZ)->GetMaxCoord().z() );
+//                     // minCoord.Print();
+//                     // maxCoord.Print();
+//                     Local2Global( &minCoord );
+//                     Local2Global( &maxCoord );
+//                     // minCoord.Print();
+//                     // maxCoord.Print();
 
-                    TVector3 minCoord = TVector3( (*itZ)->GetMinCoord().x(), (*itZ)->GetMinCoord().y(), (*itZ)->GetMinCoord().z() );
-                    TVector3 maxCoord = TVector3( (*itZ)->GetMaxCoord().x(), (*itZ)->GetMaxCoord().y(), (*itZ)->GetMaxCoord().z() );
-                    Local2Global( &minCoord );
-                    Local2Global( &maxCoord );
+//                     stringstream ss;    
+//                     ss << setiosflags(ios::fixed) << setprecision(6);
+//                     ss <<  "RPP " << (*itZ)->GetBodyName() <<  "     " 
+//                                 << minCoord.x() << " " << maxCoord.x() << " "
+//                                 << minCoord.y() << " " << maxCoord.y() << " "
+//                                 << minCoord.z() << " " << maxCoord.z() << endl;
+//                     cout << "Build passive materials in ROOT and FLUKA" << ss.str() <<  endl;
+//                     m_bodyPrintOut[ (*itZ)->GetMaterialName() ].push_back( ss.str() );
 
-                    stringstream ss;    
-                    ss << setiosflags(ios::fixed) << setprecision(6);
-                    ss <<  "RPP " << (*itZ)->GetBodyName() <<  "     " 
-                                << minCoord.x() << " " << maxCoord.x() << " "
-                                << minCoord.y() << " " << maxCoord.y() << " "
-                                << minCoord.z() << " " << maxCoord.z() << endl;
-                    
-                    m_bodyPrintOut[ (*itZ)->GetMaterialName() ].push_back( ss.str() );
+//                     // regions
+//                     stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << (*itZ)->GetRegionName()
+//                                             << "5 " << (*itZ)->GetBodyName() << " - " << 
+//                                             m_sensorMatrix[sensor_k][sensor_i][sensor_j]->GetBodyName() << endl;
+//                     cout << "Build passive materials in ROOT and FLUKA" << ssr.str() <<  endl;
+//                     m_regionPrintOut[ (*itZ)->GetMaterialName() ].push_back( ssr.str() );
 
-                    // regions
-                    stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << (*itZ)->GetRegionName()
-                                            << "5 " << (*itZ)->GetBodyName() << " - " << 
-                                            m_sensorMatrix[sensor_i][sensor_j][sensor_k]->GetBodyName() << endl;
-                        
-                    m_regionPrintOut[ (*itZ)->GetMaterialName() ].push_back( ssr.str() );
+//                 }
 
-                }
-
-                sensor_k++;
-            }
-            sensor_j++;
-        }
-        sensor_i++;
-    }
+//                 sensor_j++;
+//             }
+//             sensor_i++;
+//         }
+//         sensor_k++;
+//     }
 
 
 //---------------------------------------------------------------------
 //     Build sensor materials in ROOT and FLUKA
 //---------------------------------------------------------------------
+    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT and FLUKA" << endl;
 
-    for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
-        for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
-            for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+    // for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
+    //     for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+    //         for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+
+    for ( unsigned int k=0; k<m_nSensors_Z; k++ ) {
+        for ( unsigned int j=0; j<m_nSensors_Y; j++ ) {
+            for ( unsigned int i=0; i<m_nSensors_X; i++ ) {    
 
                 //ROOT addNode
                 if ( GlobalPar::GetPar()->geoROOT() )   
-                    (*itZ)->AddNodeToUniverse( m_universe );
+                    m_sensorMatrix[k][i][j]->AddNodeToUniverse( m_universe );
 
                     // boidies
                 if ( GlobalPar::GetPar()->geoROOT() ) {
                     
-                    TVector3 minCoord = TVector3( (*itZ)->GetMinCoord().x(), (*itZ)->GetMinCoord().y(), (*itZ)->GetMinCoord().z() );
-                    TVector3 maxCoord = TVector3( (*itZ)->GetMaxCoord().x(), (*itZ)->GetMaxCoord().y(), (*itZ)->GetMaxCoord().z() );
+                    TVector3 minCoord = TVector3( m_sensorMatrix[k][i][j]->GetMinCoord().x(), m_sensorMatrix[k][i][j]->GetMinCoord().y(), m_sensorMatrix[k][i][j]->GetMinCoord().z() );
+                    TVector3 maxCoord = TVector3( m_sensorMatrix[k][i][j]->GetMaxCoord().x(), m_sensorMatrix[k][i][j]->GetMaxCoord().y(), m_sensorMatrix[k][i][j]->GetMaxCoord().z() );
                     Local2Global( &minCoord );
                     Local2Global( &maxCoord );
 
                     stringstream ss;
                     ss << setiosflags(ios::fixed) << setprecision(6);
-                    ss <<  "RPP " << (*itZ)->GetBodyName() <<  "     " 
+                    ss <<  "RPP " << m_sensorMatrix[k][i][j]->GetBodyName() <<  "     " 
                                 << minCoord.x() << " " << maxCoord.x() << " "
                                 << minCoord.y() << " " << maxCoord.y() << " "
                                 << minCoord.z() << " " << maxCoord.z() << endl;
                     
-                    m_bodyPrintOut[ (*itZ)->GetMaterialName() ].push_back( ss.str() );
+                    m_bodyPrintOut[ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( ss.str() );
 
                     // regions
                     stringstream ssr;
-                    ssr << setw(13) << setfill( ' ' ) << std::left << (*itZ)->GetRegionName()
-                        << "5 " << (*itZ)->GetBodyName() << endl;
+                    ssr << setw(13) << setfill( ' ' ) << std::left << m_sensorMatrix[k][i][j]->GetRegionName()
+                        << "5 " << m_sensorMatrix[k][i][j]->GetBodyName() << endl;
                         
-                    m_regionPrintOut[ (*itZ)->GetMaterialName() ].push_back( ssr.str() );
+                    m_regionPrintOut[ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( ssr.str() );
                 }
 
 

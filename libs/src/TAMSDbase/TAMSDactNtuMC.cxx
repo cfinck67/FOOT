@@ -234,7 +234,7 @@ Bool_t TAMSDactNtuMC::Action() {
      MCmom.SetXYZ((fpEvtStr->MSDpxin[i]+fpEvtStr->MSDpxout[i])/2,(fpEvtStr->MSDpyin[i]+fpEvtStr->MSDpyout[i])/2,(fpEvtStr->MSDpzin[i]+fpEvtStr->MSDpzout[i])/2);
      
     if ( GlobalPar::GetPar()->Debug() > 0 )     {
-        cout << "Vertex pixel " << i << " col " << myTstrip << " row "<< myTview << endl;
+        cout << "MSD pixel " << i << " lay " << fpEvtStr->MSDilay[i] << " col " << myTstrip << " row "<< myTview << endl;
         cout << "\tGlobal kinematic: \n\t\tPos:\t"; 
         MCpos.Print();
         cout << "\t\tMom:\t";
