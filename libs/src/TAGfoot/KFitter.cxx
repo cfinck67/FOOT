@@ -849,7 +849,7 @@ int KFitter::MakeFit( long evNum ) {
 	m_hitCollectionToFit.clear();	
 
 	if ( m_debug > 0 )		cout << "Ready for the next track fit!" << endl;
-	if ( m_debug > 0 )		cin.get();
+	// if ( m_debug > 0 )		cin.get();
 
 	return isConverged;
 }
