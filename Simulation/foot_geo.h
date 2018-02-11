@@ -5,7 +5,7 @@
 const Int_t kVerbosity		=0;
 
 /* FLUKA version: 0->pro  1->dev */
-const Int_t FLK_VERS		=1;
+const Int_t FLK_VERS		=0;
 
 /*  constants   */
 const Double_t  PI		=3.141592653589793238462643383279502884197169399375;
@@ -197,7 +197,7 @@ const Double_t ITR_X 		=0.0; //center x coordinate
 const Double_t ITR_Y 		=0.0; //center y coordinate
 const Double_t ITR_Z 		=14.;//center z coordinate
 
-const Int_t    ITR_NLAY     =2;//no. of silicon layers per plume
+const Int_t    ITR_NLAY         =2;//no. of silicon layers per plume
 const Int_t    ITR_NM28		=4;//no. of M28 chips per layer
 
 const Double_t ITR_M28_WIDTH   	=2.022;//M28 x total dimension 
@@ -249,17 +249,17 @@ const Double_t MAG_X 		=0.0;//center x coordinate of the first magnet
 const Double_t MAG_Y 		=0.0;//center y coordinate of the first magnet
 const Double_t MAG_Z 		=8.;//center z coordinate of the first magnet
 
-const Double_t MAG_DIST		=12.0;//distance btw magnets
+const Double_t MAG_DIST		=12.0;//distance btw magnets (from zmin1 to zmin2)
 const Int_t    MAG_N		=2;//no. of magnets
 
 const Double_t MAG_ANG		=10.*DEG2RAD;//required semiapertura angolare
 
 const Double_t MAG_PM_THICK 	=10.;//thickness of permanent magnets
-const Double_t MAG_PM_LENGTH 	=10.;//length of permanent magnets
+const Double_t MAG_PM_LENGTH 	=7.;//length of permanent magnets
 const Double_t MAG_CV_THICK 	=0.2;//thickness of Al cover
 const Double_t MAG_CV_LENGTH 	=MAG_PM_LENGTH+2*MAG_CV_THICK;//length of magnets Al cover
 
-const Double_t MAG_CV1_INRAD 	=4.6;//(MAG_Z+MAG_CV_LENGTH/2+MAG_DIST-TG_Z)*tan(MAG_ANG);//inner radius of magnet 1 Al cover
+const Double_t MAG_CV1_INRAD 	=3.5;//(MAG_Z+MAG_CV_LENGTH/2+MAG_DIST-TG_Z)*tan(MAG_ANG);//inner radius of magnet 1 Al cover
 const Double_t MAG_PM1_INRAD 	=MAG_CV1_INRAD+MAG_CV_THICK;//inner radius of permanent magnet 1
 const Double_t MAG_PM1_OUTRAD 	=MAG_PM1_INRAD+MAG_PM_THICK;//outer radius of permanent magnet 1
 const Double_t MAG_CV1_OUTRAD	= MAG_PM1_OUTRAD+MAG_CV_THICK;//outer radius of magnet 1 Al cover
