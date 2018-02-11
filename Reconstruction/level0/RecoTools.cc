@@ -321,7 +321,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
         //Initialization of VTX parameters
         m_vtgeo->InitGeo();
-        top->AddNode( m_vtgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_vtgeo->GetCenter().z(), new TGeoRotation("Vertex",0,0,0)) );
+        top->AddNode( m_vtgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("Vertex",0,0,0)) );
+        // top->AddNode( m_vtgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_vtgeo->GetCenter().z(), new TGeoRotation("Vertex",0,0,0)) );
 
     }
 
@@ -332,7 +333,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         m_itgeo->InitGeo();
         // m_itgeo->PrintBodies("geppo");
         // m_itgeo->PrintRegions("geppo");
-        top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
+        top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("InnerTracker",0,0,0)) );
+        // top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_itgeo->GetCenter().z(), new TGeoRotation("InnerTracker",0,0,0)) );
     }
 
     if(m_doMSD) {
@@ -341,10 +343,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
         //Initialization of MSD parameters
         m_msdgeo->InitGeo();
-        top->AddNode( m_msdgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_msdgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
+        top->AddNode( m_msdgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("Strip",0,0,0)) );
+        // top->AddNode( m_msdgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_msdgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
 
     }
-
 
     // set material into genfit
     MaterialEffects* materialEffects = MaterialEffects::getInstance();

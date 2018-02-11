@@ -38,16 +38,16 @@ public:
 				string materialName, string materialRegionName, string bodyName, string regionName, 
 				int volumeID );
 
-	void AddNodeToUniverse( TGeoVolume* universe ) {
+	// void AddNodeToUniverse( TGeoVolume* universe ) {
 
-		cout << m_materialRegionName <<endl;
-		if ( !gGeoManager->GetVolume( m_materialRegionName.c_str() ) ) {
-			cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_materialRegionName << endl;
-		}
+	// 	// cout << m_materialRegionName <<endl;
+	// 	if ( !gGeoManager->GetVolume( m_materialRegionName.c_str() ) ) {
+	// 		cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_materialRegionName << endl;
+	// 	}
 
-        universe->AddNode( gGeoManager->GetVolume( m_materialRegionName.c_str() ), m_volumeID , 
-        					new TGeoCombiTrans( m_origin.x(), m_origin.y(), m_origin.z(), new TGeoRotation("null,",0,0,0)) );
-	}
+ //        universe->AddNode( gGeoManager->GetVolume( m_materialRegionName.c_str() ), m_volumeID , 
+ //        					new TGeoCombiTrans( m_origin.x(), m_origin.y(), m_origin.z(), new TGeoRotation("null,",0,0,0)) );
+	// }
 
 	TVector3 GetPosition() { return m_origin; };
 	TVector3 GetDimension() { return m_dimension; };

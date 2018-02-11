@@ -254,16 +254,16 @@ void TAITparGeo::InitGeo()  {
     for (int k=0; k<m_nSensors_Z; k++) {
         double sensor_newZ = ( (k%2 == 0 ? -1 : 1) * ( board_z/2 + m_siliconSensorThick_Lz/2 )  );      // distance of the center of sensors from the board center
 
-        double sensor_newY = m_origin.Y() - (2 - 0.5)*chipDimension.y();
+        double offset_y = m_origin.Y() - (2 - 0.5)*chipDimension.y();    // center of the bottom sensor in Y
         for (int j=0; j<m_nSensors_Y; j++) {
-            sensor_newY += j * chipDimension.y();
+            double sensor_newY = offset_y + j * chipDimension.y();
 
             double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + board_z/2 + m_siliconSensorThick_Lz ) ); // board center
 
-            double sensor_newX = m_origin.X() - 1.5*ITR_M28_DIST - 2*chipDimension.x() +    // end chip part of the chip line on the board 
+            double offset_x = m_origin.X() - 1.5*ITR_M28_DIST - 2*chipDimension.x() +    // end chip part of the chip line on the board 
                                                 senseDimension.x()/2 + (j < 2 ? chipDead_X : 0) ;     // now = first sensor center
             for (int i=0; i<m_nSensors_X; i++) {
-                sensor_newX += i * (senseDimension.x() + ITR_M28_DIST );
+                double sensor_newX = offset_x + i * (chipDimension.x() + ITR_M28_DIST );
 
                 stringstream ss_bodySensorName; ss_bodySensorName << "itrs" << j << k << i;
                 stringstream ss_regionSensorName; ss_regionSensorName << "ITRS" << j << k << i;
@@ -310,11 +310,11 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
     // m_passiveMatrix[i].resize( m_nSensors_Y );
     // m_chipMatrix[i].resize( m_nSensors_Y );
     
-    double sensor_newY = m_origin.Y() - 1.5*boardDimension.y();
+    // double sensor_newY = m_origin.Y() - 1.5*boardDimension.y();
     for (int j=0; j<m_nSensors_Y; j++) {
-        sensor_newY += j * boardDimension.y();
+        // sensor_newY += j * boardDimension.y();
 
-        double offset_x = m_origin.x() + (j < 2 ? 3 : -3);
+        double offset_x = m_origin.x() + (j < 2 ? 1.5 : -1.5);
         
         double offset_y = m_origin.y() + (j < 2 ? -1 : 1)*senseDimension.y() + (j%2 == 0 ? -1 : 1)*boardDimension.y()/2 ;  // board center y
         double chipOffset_y = offset_y - boardDimension.y()/2 +    // lower part of the board
@@ -361,7 +361,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
         double chipOffset_x = m_origin.X() - 1.5*ITR_M28_DIST - 2.5*chipDimension.x();   // first chip center
         for ( int f=0; f<m_nSensors_X; f++ ) {
 
-            chipOffset_x += f * ( ITR_M28_DIST + chipDimension.x() );
+            double chip_x = chipOffset_x + f * ( ITR_M28_DIST + chipDimension.x() );
 
             for ( int k=0; k<m_nSensors_Z; k++ ) {
 
@@ -373,7 +373,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
                 stringstream ss_regionPassiveName;      ss_regionPassiveName << "ITRP" << m_passiveCount;
 
                 // init matrix of passive material for a board
-                m_chipMatrix[f][j][k]->SetBox( TVector3( chipOffset_x, chipOffset_y , board_center +  boardSide ),          // position
+                m_chipMatrix[f][j][k]->SetBox( TVector3( chip_x, chipOffset_y , board_center +  boardSide ),          // position
                                                         TVector3( chipDimension.x(), chipDimension.y(), chipDimension.z() ),   // dimension
                                                         m_materialType[ matID ],            // name of the material
                                                         matID,                              // name of the material-region in the foot_geo.h
@@ -409,8 +409,18 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
             for ( unsigned int i=0; i<1; i++ ) {    
 
                 //ROOT addNode
-                if ( GlobalPar::GetPar()->geoROOT() )    
-                    m_passiveMatrix[i][j][k]->AddNodeToUniverse( m_universe );
+                if ( GlobalPar::GetPar()->geoROOT() ) {
+                    if ( !gGeoManager->GetVolume( m_passiveMatrix[i][j][k]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_passiveMatrix[i][j][k]->GetMaterialRegionName() << endl;
+
+                    TVector3 globalCoord = m_passiveMatrix[i][j][k]->GetPosition();
+                    Local2Global(&globalCoord);
+                    m_universe->AddNode( gGeoManager->GetVolume( m_passiveMatrix[i][j][k]->GetMaterialRegionName().c_str() ), 
+                                        m_passiveMatrix[i][j][k]->GetNodeID() , 
+                                        new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
+                                        new TGeoRotation("null,",0,0,0) ) );
+
+                    cout << "\t"<<m_passiveMatrix[i][j][k]->GetMaterialRegionName()<<"  "<<m_passiveMatrix[i][j][k]->GetRegionName()<< "  "; globalCoord.Print();
+                }
                 
                 // boidies
                 if ( GlobalPar::GetPar()->geoFLUKA() ) {
@@ -440,7 +450,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
         }
     } 
 
-if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build chip materials in ROOT and FLUKA" << endl;
+    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build chip materials in ROOT and FLUKA" << endl;
     // passive chip material
     // int sensor_i = 0;
     // for ( PassiveMatrix::iterator itX = m_chipMatrix.begin(); itX != m_chipMatrix.end(); itX++ ) {
@@ -454,8 +464,18 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build chip materials in ROOT an
             for ( unsigned int i=0; i<m_nSensors_X; i++ ) {   
 
                 //ROOT addNode
-                if ( GlobalPar::GetPar()->geoROOT() )    
-                    m_chipMatrix[i][j][k]->AddNodeToUniverse( m_universe );
+                if ( GlobalPar::GetPar()->geoROOT() )    {
+                    if ( !gGeoManager->GetVolume( m_chipMatrix[i][j][k]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_chipMatrix[i][j][k]->GetMaterialRegionName() << endl;
+
+                    TVector3 globalCoord = m_chipMatrix[i][j][k]->GetPosition();
+                    Local2Global(&globalCoord);
+                    m_universe->AddNode( gGeoManager->GetVolume( m_chipMatrix[i][j][k]->GetMaterialRegionName().c_str() ), 
+                                        m_chipMatrix[i][j][k]->GetNodeID() , 
+                                        new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
+                                        new TGeoRotation("null,",0,0,0) ) );
+
+                    cout << "\t"<<m_chipMatrix[i][j][k]->GetMaterialRegionName()<<"  "<<m_chipMatrix[i][j][k]->GetRegionName() <<"  "; globalCoord.Print();
+                }
                 
                 // boidies
                 if ( GlobalPar::GetPar()->geoFLUKA() ) {
@@ -499,8 +519,18 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
             for ( unsigned int i=0; i<m_nSensors_X; i++ ) {    
 
                 //ROOT addNode
-                if ( GlobalPar::GetPar()->geoROOT() )   
-                    m_sensorMatrix[k][j][i]->AddNodeToUniverse( m_universe );
+                if ( GlobalPar::GetPar()->geoROOT() )   {
+                    // m_sensorMatrix[k][j][i]->AddNodeToUniverse( m_universe );
+                    if ( !gGeoManager->GetVolume( m_sensorMatrix[k][j][i]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_sensorMatrix[k][j][i]->GetMaterialRegionName() << endl;
+
+                    TVector3 globalCoord = m_sensorMatrix[k][j][i]->GetCenter();
+                    Local2Global(&globalCoord);
+                    m_universe->AddNode( gGeoManager->GetVolume( m_sensorMatrix[k][j][i]->GetMaterialRegionName().c_str() ), 
+                                        m_sensorMatrix[k][j][i]->GetNodeID() , 
+                                        new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
+                                        new TGeoRotation("null,",0,0,0) ) );
+                    cout << "\t"<<m_sensorMatrix[k][j][i]->GetMaterialRegionName()<<"  "<<m_sensorMatrix[k][j][i]->GetRegionName()<<" "; globalCoord.Print();
+                }
 
                 // boidies
                 if ( GlobalPar::GetPar()->geoROOT() ) {
@@ -524,62 +554,6 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
                     ssr << setw(13) << setfill( ' ' ) << std::left << m_sensorMatrix[k][j][i]->GetRegionName()
                         << "5 " << m_sensorMatrix[k][j][i]->GetBodyName() << endl;
 
-                    m_regionPrintOut[ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( ssr.str() );
-                }
-
-
-            }
-        }
-    } 
-
-
-
-
-
-//---------------------------------------------------------------------
-//     Build sensor materials in ROOT and FLUKA
-//---------------------------------------------------------------------
-if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT and FLUKA" << endl;
-
-    // cout << m_sensorMatrix.size() << endl;
-    for ( unsigned int k=0; k<m_nSensors_Z; k++ ) {
-        // cout << m_sensorMatrix[k].size() << endl;
-        for ( unsigned int j=0; j<m_nSensors_Y; j++ ) {
-            // cout << m_sensorMatrix[k][j].size() << endl;
-            for ( unsigned int i=0; i<m_nSensors_X; i++ ) {
-
-
-    // for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
-    //     for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
-    //         for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
-
-//                 m_sensorMatrix[k][j][i]->GetMinCoord().Print();
-                
-
-                //ROOT addNode
-                if ( GlobalPar::GetPar()->geoROOT() )   
-                    m_sensorMatrix[k][j][i]->AddNodeToUniverse( m_universe );
-
-                    // boidies
-                if ( GlobalPar::GetPar()->geoROOT() ) {
-                    
-                    TVector3 minCoord = TVector3( m_sensorMatrix[k][j][i]->GetMinCoord().x(), m_sensorMatrix[k][j][i]->GetMinCoord().y(), m_sensorMatrix[k][j][i]->GetMinCoord().z() );
-                    TVector3 maxCoord = TVector3( m_sensorMatrix[k][j][i]->GetMaxCoord().x(), m_sensorMatrix[k][j][i]->GetMaxCoord().y(), m_sensorMatrix[k][j][i]->GetMaxCoord().z() );
-                    Local2Global( &minCoord );
-                    Local2Global( &maxCoord );
-
-                    stringstream ss;
-                    ss << setiosflags(ios::fixed) << setprecision(6);
-                    ss <<  "RPP " << m_sensorMatrix[k][j][i]->GetBodyName() <<  "     " 
-                                << minCoord.x() << " " << maxCoord.x() << " "
-                                << minCoord.y() << " " << maxCoord.y() << " "
-                                << minCoord.z() << " " << maxCoord.z() << endl;
-                    m_bodyPrintOut[ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( ss.str() );
-
-                    // regions
-                    stringstream ssr;
-                    ssr << setw(13) << setfill( ' ' ) << std::left << m_sensorMatrix[k][j][i]->GetRegionName()
-                        << "5 " << m_sensorMatrix[k][j][i]->GetBodyName() << endl;
                     m_regionPrintOut[ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( ssr.str() );
                 }
 

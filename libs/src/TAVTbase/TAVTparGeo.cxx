@@ -254,8 +254,17 @@ void TAVTparGeo::InitGeo()  {
             for ( unsigned int i=0; i<m_nSensors_X; i++ ) {    
                 
                 //ROOT addNode
-                if ( GlobalPar::GetPar()->geoROOT() )    
-                    m_passiveMatrix[k][i][j]->AddNodeToUniverse( m_universe );
+                if ( GlobalPar::GetPar()->geoROOT() )    {
+                    if ( !gGeoManager->GetVolume( m_passiveMatrix[k][i][j]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_passiveMatrix[k][i][j]->GetMaterialRegionName() << endl;
+
+                    TVector3 globalCoord = m_passiveMatrix[k][i][j]->GetPosition();
+                    Local2Global(&globalCoord);
+                    m_universe->AddNode( gGeoManager->GetVolume( m_passiveMatrix[k][i][j]->GetMaterialRegionName().c_str() ), 
+                                        m_passiveMatrix[k][i][j]->GetNodeID() , 
+                                        new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
+                                        new TGeoRotation("null,",0,0,0) ) );
+                    cout <<"\t"<<m_passiveMatrix[k][i][j]->GetMaterialRegionName()<<"  "; globalCoord.Print();
+                }
 
                 // boidies
                 if ( GlobalPar::GetPar()->geoFLUKA() ) {
@@ -275,14 +284,14 @@ void TAVTparGeo::InitGeo()  {
                                 << minCoord.x() << " " << maxCoord.x() << " "
                                 << minCoord.y() << " " << maxCoord.y() << " "
                                 << minCoord.z() << " " << maxCoord.z() << endl;
-                    cout << "Build passive materials in ROOT and FLUKA" << ss.str() <<  endl;
+                    cout << "Build passive materials in ROOT and FLUKA " << ss.str() <<  endl;
                     m_bodyPrintOut[ m_passiveMatrix[k][i][j]->GetMaterialName() ].push_back( ss.str() );
 
                     // regions
                     stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << m_passiveMatrix[k][i][j]->GetRegionName()
                                             << "5 " << m_passiveMatrix[k][i][j]->GetBodyName() << " - " << 
                                             m_sensorMatrix[k][i][j]->GetBodyName() << endl;
-                    cout << "Build passive materials in ROOT and FLUKA" << ssr.str() <<  endl;
+                    cout << "Build passive materials in ROOT and FLUKA " << ssr.str() <<  endl;
                     m_regionPrintOut[ m_passiveMatrix[k][i][j]->GetMaterialName() ].push_back( ssr.str() );
 
                 }
@@ -309,8 +318,17 @@ void TAVTparGeo::InitGeo()  {
             for ( unsigned int i=0; i<m_nSensors_X; i++ ) {    
 
                 //ROOT addNode
-                if ( GlobalPar::GetPar()->geoROOT() )   
-                    m_sensorMatrix[k][i][j]->AddNodeToUniverse( m_universe );
+                if ( GlobalPar::GetPar()->geoROOT() )   {
+                    if ( !gGeoManager->GetVolume( m_sensorMatrix[k][i][j]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_sensorMatrix[k][i][j]->GetMaterialRegionName() << endl;
+
+                    TVector3 globalCoord = m_sensorMatrix[k][i][j]->GetCenter();
+                    Local2Global(&globalCoord);
+                    m_universe->AddNode( gGeoManager->GetVolume( m_sensorMatrix[k][i][j]->GetMaterialRegionName().c_str() ), 
+                                        m_sensorMatrix[k][i][j]->GetNodeID() , 
+                                        new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
+                                        new TGeoRotation("null,",0,0,0) ) );
+                    cout <<"\t"<<m_sensorMatrix[k][i][j]->GetMaterialRegionName()<<"  "; globalCoord.Print();
+                }
 
                     // boidies
                 if ( GlobalPar::GetPar()->geoROOT() ) {

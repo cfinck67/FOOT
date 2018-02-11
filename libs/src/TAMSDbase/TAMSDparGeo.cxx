@@ -219,10 +219,19 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
         for ( unsigned int j=0; j<m_nSensors_Y; j++ ) {
             for ( unsigned int i=0; i<m_nSensors_X; i++ ) {    
 
-
+                
                 //ROOT addNode
-                if ( GlobalPar::GetPar()->geoROOT() )   
-                    m_sensorMatrix[k][i][j]->AddNodeToUniverse( m_universe );
+                if ( GlobalPar::GetPar()->geoROOT() )   {
+                    if ( !gGeoManager->GetVolume( m_sensorMatrix[k][i][j]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_sensorMatrix[k][i][j]->GetMaterialRegionName() << endl;
+
+                    TVector3 globalCoord = m_sensorMatrix[k][i][j]->GetCenter();
+                    Local2Global(&globalCoord);
+                    m_universe->AddNode( gGeoManager->GetVolume( m_sensorMatrix[k][i][j]->GetMaterialRegionName().c_str() ), 
+                                        m_sensorMatrix[k][i][j]->GetNodeID() , 
+                                        new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
+                                        new TGeoRotation("null,",0,0,0) ) );
+                }
+                    // m_sensorMatrix[k][i][j]->AddNodeToUniverse( m_universe );
 
                     // boidies
                 if ( GlobalPar::GetPar()->geoROOT() ) {

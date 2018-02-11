@@ -51,6 +51,7 @@ public:
 	string GetBodyName() { return m_bodyName; };
 	string GetRegionName() { return m_regionName; };
 
+	int GetNodeID() { return m_volumeID; };
 
 	TVector3 GetMinCoord() { 
 		TVector3 tmpCenter = TVector3(m_origin);
@@ -64,10 +65,10 @@ public:
 		return tmpCenter + m_halfLength; 
 	};
 
-	void AddNodeToUniverse( TGeoVolume* universe ) {
-        universe->AddNode( gGeoManager->GetVolume( m_materialRegionName.c_str() ), m_volumeID , 
-        					new TGeoCombiTrans( m_origin.x(), m_origin.y(), m_origin.z(), new TGeoRotation("null,",0,0,0)) );
-	}
+	// void AddNodeToUniverse( TGeoVolume* universe ) {
+ //        universe->AddNode( gGeoManager->GetVolume( m_materialRegionName.c_str() ), m_volumeID , 
+ //        					new TGeoCombiTrans( m_origin.x(), m_origin.y(), m_origin.z(), new TGeoRotation("null,",0,0,0)) );
+	// }
 
 
 	TRotation GetRotationToGlobal() { return *m_rotation; };
