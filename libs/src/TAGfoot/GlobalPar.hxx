@@ -42,9 +42,15 @@ public:
 	vector<string> KalSystems() { return m_trackingSystems; };
 	vector<string> KalParticles() { return m_kalParticles; };
 	vector<string> MCParticles() { return m_mcParticles; };
+  
+        double VTReso() 	{return m_VTreso; };
+        double ITReso() 	{return m_ITreso; };
+        double MSDReso()        {return m_MSDreso; };
 
-
-	bool Find_MCParticle( string villain ) 
+        bool IsPrintOutputFile() { return m_printoutfile; };
+        string OutputFile() { return m_outputfilename; };
+	
+        bool Find_MCParticle( string villain ) 
 		{ return ( find( m_mcParticles.begin(), m_mcParticles.end(), villain ) == m_mcParticles.end() ? false : true ); };
 	
 	double GetLowBinHisto( string villain ) 	{ 
@@ -181,7 +187,12 @@ private:
 	vector<string> m_trackingSystems;
 	vector<string> m_kalParticles;
 	
+        double m_VTreso;
+        double m_ITreso;
+        double m_MSDreso; 
 
+        string  m_outputfilename;
+        bool m_printoutfile;
 };
 
 

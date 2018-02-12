@@ -3,7 +3,7 @@
 
 
 #include <Track.h>
-
+#include <TMath.h>
 #include "ControlPlotInfo.hxx"
 
 #define build_string(expr) \
@@ -23,8 +23,9 @@ public:
 
 	void SetOutputDir( string outputDir ) { m_outputDir = outputDir; };
 	void FillMap( string mapName, double x );
-	void PrintMap();
-
+        void PrintMap();
+        void PrintMap(TFile* file);
+        void PrintOutputFile();
 
 	//change dir
 	void SetControlPos_4eachState( string hitSampleName, int i, TVector3 *kal, TVector3 *trueMC, TVector3 *detector ) {
@@ -172,14 +173,14 @@ public:
 	string m_lastPrintedDir;
 	string m_outputDir;
 	map< string, ControlPlotInfo > m_chizu;
-
+        string m_outputfilename;
 
 private:
 
 	ControlPlotsRepository();
 	static ControlPlotsRepository* m_pInstance;
-
-
+  
+  
 };
 
 #endif

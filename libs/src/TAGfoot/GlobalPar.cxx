@@ -155,10 +155,28 @@ void GlobalPar::ReadParamFile () {
             while ( formulasStream >> tmpString )
                 m_kalParticles.push_back(tmpString);
         } 
-         
-        // // btagging WP - default = 77%
-        // else if ( line.find("BtaggingWP:") != string::npos ) {
-        //     btaggingWP = atoi ( StrReplace( line, "BtaggingWP:", "" ).c_str() );
+	
+	else if ( line.find("VT  Reso") != string::npos ) {
+	  m_VTreso = atof ( StrReplace( line, "VT  Reso:", "" ).c_str() );
+	} 
+	else if ( line.find("IT  Reso") != string::npos ) {
+	  m_ITreso = atof ( StrReplace( line, "IT  Reso:", "" ).c_str() );
+	}
+	else if ( line.find("MSD Reso") != string::npos ) {
+	  m_MSDreso = atof ( StrReplace( line, "MSD Reso:", "" ).c_str() );	  
+	}
+	else if ( line.find("Print OutputFile") != string::npos ) {
+	  string rev =StrReplace( line, "Print OutputFile:", "" );
+            RemoveSpace( &rev );
+            if ( rev == "true" )
+	      m_printoutfile = true;
+            else
+	      m_printoutfile = false;
+        } 
+	else if ( line.find("Output Filename:") != string::npos ) {
+	  m_outputfilename = StrReplace( line, "Output Filename:", "" ).c_str();
+	}
+	//     btaggingWP = atoi ( StrReplace( line, "BtaggingWP:", "" ).c_str() );
         // } 
         // // if we're using the B-filtered samples
         // else if ( line.find("UsingBFilter") != string::npos ) {
@@ -176,6 +194,10 @@ void GlobalPar::ReadParamFile () {
         //     }
 
         // } 
+
+
+
+
     }
 
 

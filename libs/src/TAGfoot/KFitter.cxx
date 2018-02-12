@@ -238,14 +238,14 @@ int KFitter::PrepareData4Fit( Track* fitTrack ) {
 	vector <int> hitsToBeRemoved;
 	int hitsCount = 0;
 	for ( map< string, vector<AbsMeasurement*> >::iterator it=m_hitCollectionToFit.begin(); it != m_hitCollectionToFit.end(); it++ ) {
-		if ( !PrefitRequirements( it ) )	{	// to be exactely 1 hit per layer
-			hitsToBeRemoved.push_back( hitsCount );
-			// // if requirements are FALSE -> delete each AbsMeasurement objects
-			// for ( vector<AbsMeasurement*>::iterator it2=(*it).second.begin(); it2 != (*it).second.end(); it2++ ) {
-			// 	delete (*it2);
-			// 	// delete (*it).second.at(i);	// wrong!
-			// }
-		}
+	  if ( !PrefitRequirements( it ) )	{	// to be exactely 1 hit per layer
+	    hitsToBeRemoved.push_back( hitsCount );
+	    // // if requirements are FALSE -> delete each AbsMeasurement objects
+	    // for ( vector<AbsMeasurement*>::iterator it2=(*it).second.begin(); it2 != (*it).second.end(); it2++ ) {
+	    // 	delete (*it2);
+	    // 	// delete (*it).second.at(i);	// wrong!
+	    // }
+	  }
 		hitsCount++;
 	}
 	hitsCount = 0;
@@ -303,7 +303,8 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
 		hitCoords(1)=hitPos.y();
 		hitCoords(2)=hitPos.z();
 		// set covariance matrix
-		double pixReso = 0.001;
+		// double pixReso = 0.001;
+		double pixReso = GlobalPar::GetPar()->VTReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
 		double zErr = 0.001;
@@ -343,10 +344,11 @@ void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
 		hitCoords(1)=hitPos.y();
 		hitCoords(2)=hitPos.z();
 		// set covariance matrix
-		double pixReso = 0.0001;
+		//		double pixReso = 0.001;
+		double pixReso = GlobalPar::GetPar()->ITReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
-		double zErr = 0.0001;
+		double zErr = 0.001;
 		hitCov[2][2] = zErr*zErr; 
 
         // nullptr e' un TrackPoint(fitTrack). Leave like this otherwise it gives memory leak problems!!!!
@@ -397,7 +399,8 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 	        TVector3 hitPos = m_MSD_geo->GetPosition( (*xIt)->GetLayer(), (*xIt)->GetPixelView(), (*xIt)->GetPixelStrip() );
 	        
 	        // set covariance matrix
-			double stripReso = 0.001;
+		//			double stripReso = 0.001;
+			double stripReso = GlobalPar::GetPar()->MSDReso();
 			hitCov.UnitMatrix();         
 			hitCov *= stripReso*stripReso; 
 			double zErr = 0.001;
@@ -685,8 +688,8 @@ int KFitter::MakeFit( long evNum ) {
 	Track*  fitTrack = new Track();  // container of the tracking objects
 
 	// fill m_hitCollectionToFit
-    PrepareData4Fit( fitTrack );
-    // check the hit vector not empty otherwise clear
+        PrepareData4Fit( fitTrack );
+	// check the hit vector not empty otherwise clear
 	if ( m_hitCollectionToFit.size() <= 0 )	{	
 		// m_VT_hitCollection.clear();
 		// m_IT_hitCollection.clear();
@@ -718,7 +721,7 @@ int KFitter::MakeFit( long evNum ) {
 		SetTrueSeed( &pos, &mom );	// get seed from MC for debug
 		// set seed
 		fitTrack->setStateSeed(pos, mom);		
-
+		
 		// insert points to be fitted  -   loop over each measurement in the current collection
 		for ( unsigned int i=0; i < (*hitSample).second.size(); i++ )	{
 			fitTrack->insertMeasurement( (*hitSample).second.at(i) );
@@ -732,6 +735,8 @@ int KFitter::MakeFit( long evNum ) {
 		fitTrack->checkConsistency();
 		if ( m_debug > 3 )		fitTrack->Print();
 
+
+
 		//pre-fit
 		MakePrefit();
 
@@ -742,14 +747,17 @@ int KFitter::MakeFit( long evNum ) {
 			else if ( GlobalPar::GetPar()->KalMode() == 2 )
 				m_refFitter->processTrack(fitTrack);
 			else if ( GlobalPar::GetPar()->KalMode() == 3 )
-				m_dafRefFitter->processTrack(fitTrack);
+			        m_dafRefFitter->processTrack(fitTrack);
 			else if ( GlobalPar::GetPar()->KalMode() == 4 )
-				m_dafSimpleFitter->processTrack(fitTrack);
-		
+			        m_dafSimpleFitter->processTrack(fitTrack);
+			        
 			if ( m_debug > 3 )		fitTrack->Print();
 			if ( m_debug > 0 )		cout << "Fitted " << fitTrack->getFitStatus(rep)->isFitted() << endl;
 			if ( fitTrack->getFitStatus(rep)->isFitConverged() &&  fitTrack->getFitStatus(rep)->isFitted() )	isConverged = 1;	// convergence check
 			if ( m_debug > 3 )		fitTrack->Print("C");
+			
+			// cout << "track print"  << endl;
+			// fitTrack->Print();
 
 			// map of the tracked particles for each category
 			if ( m_nTotTracks.find( (*hitSample).first ) == m_nTotTracks.end() )	m_nTotTracks[ (*hitSample).first ] = 0;
@@ -1115,7 +1123,7 @@ double KFitter::EvalError( TVector3 mom, TMatrixD cov ) {
 // Called from outside!
 void KFitter::Finalize() {
 
-	// make a directory for each hit category that forms a track candidate
+	// // make a directory for each hit category that forms a track candidate
 	struct stat info;
 	for ( unsigned int i=0; i < m_categoryFitted.size(); i++ ) {
 		string pathName = m_kalmanOutputDir+"/"+m_categoryFitted.at(i);
@@ -1123,15 +1131,20 @@ void KFitter::Finalize() {
 		    system(("mkdir "+pathName).c_str());
 	}
 
-	PrintEfficiency();
-
-	m_controlPlotter->PrintMap();
-
 	
-	m_fitTrackCollection->EvaluateMomentumResolution();
+	//	PrintEfficiency();
+	
+	//m_fitTrackCollection->EvaluateMomentumResolution();
+	
+	m_printoutfile = GlobalPar::GetPar()->IsPrintOutputFile();
+	if (m_printoutfile)	m_controlPlotter->PrintOutputFile();
+	else   m_controlPlotter->PrintMap();
+	
+	//	if(m_printoutntuple) { }
 
 	m_categoryFitted.clear();
-
+	
+	
 }
 
 

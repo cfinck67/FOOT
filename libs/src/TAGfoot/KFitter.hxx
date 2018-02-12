@@ -304,9 +304,9 @@ private:
 	float m_resoP_step;
 
 	bool m_reverse;
-	int m_debug;
+	int  m_debug;
 	long m_evNum;
-
+        bool m_printoutfile;
 };
 
 

@@ -21,3 +21,16 @@ Tracking Systems Considered:	all
 Reverse Tracking:	false
 
 Kalman Particle Types:	C
+
+VT  Reso: 0.01
+
+IT  Reso: 0.01
+
+MSD Reso: 0.01
+
+############ Output File Parameters	################
+
+Print OutputFile: true
+Output Filename: ciaone.root
+
+

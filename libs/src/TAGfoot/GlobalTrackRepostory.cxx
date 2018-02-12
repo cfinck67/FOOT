@@ -258,8 +258,9 @@ void GlobalTrackRepostory::EvaluateMomentumResolution() {
 //----------------------------------------------------------------------------------------------------
 void GlobalTrackRepostory::Save( ) {
 
-	struct stat info;
+  
 
+	struct stat info;
 	TCanvas* mirror = new TCanvas("TrackChi2Plot", "TrackChi2Plot", 700, 700);
 
 	for ( map<string, map<float, TH1F*> >::iterator collIt=h_dP_x_bin.begin(); collIt != h_dP_x_bin.end(); collIt++ ) {
