@@ -273,9 +273,13 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     // genfit::FieldManager::getInstance()->init( new FootField( 7 ) ); // const field
     // FieldManager::getInstance()->useCache(true, 8);
 
+    FootField * ff = new FootField( "DoubleDipole.table" );
+
 
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 1,1,14.7 ) ).Print();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic no Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,2 ) ).Print();
+
+    cout << "Total mag field on the FOOT axis (from 0 to 40 cm) = " << ff->IntegralField( 4000, 0, 40 ) << endl;
 
     // print out of the magnetic field
     if ( GlobalPar::GetPar()->Debug() > 1 ) {
