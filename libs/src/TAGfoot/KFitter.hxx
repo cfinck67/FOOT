@@ -9,6 +9,8 @@
 
 #include <KalmanFitterRefTrack.h>
 #include <KalmanFitter.h>
+#include <KalmanFitterInfo.h>
+#include <KalmanFitStatus.h>
 #include <DAF.h>
 #include <RKTrackRep.h>
 #include <Track.h>
@@ -307,6 +309,9 @@ private:
 	int  m_debug;
 	long m_evNum;
         bool m_printoutfile;
+        bool m_printoutntuple;
+  
+ 
 };
 
 

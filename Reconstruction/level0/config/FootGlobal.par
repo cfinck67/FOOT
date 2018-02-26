@@ -22,15 +22,17 @@ Reverse Tracking:	false
 
 Kalman Particle Types:	C
 
-VT  Reso: 0.01
+VT  Reso: 0.0006
 
-IT  Reso: 0.01
+IT  Reso: 0.0006
 
-MSD Reso: 0.01
+MSD Reso: 0.0006
 
 ############ Output File Parameters	################
 
 Print OutputFile: true
-Output Filename: ciaone.root
+Output Filename: RecoHistos.root
 
+Print OutputNtuple: false
+Output Ntuplename: RecoTree.root
 

@@ -918,6 +918,9 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 								&KalmanMass );
 		/////////////////////////////////////////////////
 		
+		
+		
+		
 		if ( m_debug > 0 )	{
 			cout <<endl<< "Single Event Debug\t--\t" << hitSampleName << endl;
 			cout << "Hit num = " << i << "  --  MC mass = " << tmp_mass << endl;
@@ -963,8 +966,15 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			m_controlPlotter->SetPos_Kal( hitSampleName, &kalmanPos, &KalmanPos_err );
 			
 			m_controlPlotter->SetTrackInfo( hitSampleName, track );
+			
+			m_printoutntuple = GlobalPar::GetPar()->IsPrintOutputNtuple();
+			if (m_printoutntuple) m_controlPlotter->Set_Outputntuple(&kalmanMom, &kalmanPos, &tmp_genMom);
+			
 		}
 	}
+
+	
+
 	
 }
 
@@ -1036,6 +1046,9 @@ void KFitter::GetKalmanTrackInfo ( string hitSampleName, int i, Track* track,
 			(*KalmanPos_cov)(j,k) = (track->getFittedState(i).get6DCov())[j][k];
 		}
 	}
+
+
+
 
 }
 
@@ -1140,8 +1153,9 @@ void KFitter::Finalize() {
 	if (m_printoutfile)	m_controlPlotter->PrintOutputFile();
 	else   m_controlPlotter->PrintMap();
 	
-	//	if(m_printoutntuple) { }
-
+	m_printoutntuple = GlobalPar::GetPar()->IsPrintOutputNtuple();
+	if(m_printoutntuple) m_controlPlotter->PrintOutputNtuple();
+	
 	m_categoryFitted.clear();
 	
 	

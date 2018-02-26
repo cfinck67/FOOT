@@ -176,6 +176,20 @@ void GlobalPar::ReadParamFile () {
 	else if ( line.find("Output Filename:") != string::npos ) {
 	  m_outputfilename = StrReplace( line, "Output Filename:", "" ).c_str();
 	}
+	else if ( line.find("Print OutputNtuple") != string::npos ) {
+	  string rev =StrReplace( line, "Print OutputNtuple:", "" );
+            RemoveSpace( &rev );
+            if ( rev == "true" )
+	      m_printoutntuple = true;
+            else
+	      m_printoutntuple = false;
+        } 
+	else if ( line.find("Output Ntuplename:") != string::npos ) {
+	  m_outputntuplename = StrReplace( line, "Output Ntuplename:", "" ).c_str();
+	}
+
+
+
 	//     btaggingWP = atoi ( StrReplace( line, "BtaggingWP:", "" ).c_str() );
         // } 
         // // if we're using the B-filtered samples

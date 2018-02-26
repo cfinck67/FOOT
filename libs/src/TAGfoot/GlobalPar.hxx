@@ -49,6 +49,9 @@ public:
 
         bool IsPrintOutputFile() { return m_printoutfile; };
         string OutputFile() { return m_outputfilename; };
+
+        bool IsPrintOutputNtuple() { return m_printoutntuple; };
+        string OutputNtuple() { return m_outputntuplename; };
 	
         bool Find_MCParticle( string villain ) 
 		{ return ( find( m_mcParticles.begin(), m_mcParticles.end(), villain ) == m_mcParticles.end() ? false : true ); };
@@ -193,6 +196,10 @@ private:
 
         string  m_outputfilename;
         bool m_printoutfile;
+        
+        string  m_outputntuplename;
+        bool m_printoutntuple;
+  
 };
 
 
