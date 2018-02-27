@@ -1145,9 +1145,9 @@ void KFitter::Finalize() {
 	}
 
 	
-	//	PrintEfficiency();
+	PrintEfficiency();
 	
-	//m_fitTrackCollection->EvaluateMomentumResolution();
+	m_fitTrackCollection->EvaluateMomentumResolution();
 	
 	m_printoutfile = GlobalPar::GetPar()->IsPrintOutputFile();
 	if (m_printoutfile)	m_controlPlotter->PrintOutputFile();
