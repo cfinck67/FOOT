@@ -51,6 +51,10 @@ FootField::FootField ( string fileName ) {
     }  
     ifile.close();
 
+    // boundaries
+    lowerBound = TVector3( m_filedMap.begin()->first, m_filedMap.begin()->second.begin()->first, m_filedMap.begin()->second.begin()->second.begin()->first );
+	higherBound = TVector3( m_filedMap.rbegin()->first, m_filedMap.rbegin()->second.rbegin()->first, m_filedMap.rbegin()->second.rbegin()->second.rbegin()->first );
+
 }
 
 
@@ -123,6 +127,9 @@ double FootField::IntegralField( int step, double start, double end ) {  // in c
 
 
 
+bool FootField::IsInsideField()
+
+
 
 // same for real and const field
 TVector3 FootField::Interpolate( const TVector3 &position ) {
@@ -140,6 +147,7 @@ TVector3 FootField::Interpolate( const TVector3 &position ) {
 	if ( position.y() < m_filedMap.begin()->second.begin()->first || position.y() > m_filedMap.rbegin()->second.rbegin()->first )	return outField;
 	// cout << "\tAlong Z: " << position.z() << "  "<< m_filedMap.begin()->second.begin()->second.begin()->first <<"  "<< m_filedMap.rbegin()->second.rbegin()->second.rbegin()->first << endl;
 	if ( position.z() < m_filedMap.begin()->second.begin()->second.begin()->first || position.z() > m_filedMap.rbegin()->second.rbegin()->second.rbegin()->first )	return outField;
+
 
 	if (m_fieldSetting == "constField") {
 		// cout << "Const magnetic val: ";
