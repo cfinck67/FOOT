@@ -104,7 +104,8 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
   cout << "\tstart Constructor RecoTools\n";
 
   my_files.clear();
-  m_debug = d;
+  // m_debug = d;
+  m_debug = GlobalPar::GetPar()->Debug();
   m_oustr = ostr;
   m_wd = wd;
 
@@ -162,27 +163,11 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     cout<<"Adding :: "<<my_files.at(ifi).data() << " file"<<endl;
   }
 
-  //  TTree* tree = (TTree*)gDirectory->Get("EventTree");
-
-  // if(m_debug) cout<<" Creating Geo "<<endl;
-  // Geometry *my_G = new Geometry();
-  // if(m_debug) cout<<" Creating Sig "<<endl;
-  // Segnale *my_S = new Segnale(my_G);
+  
   if(m_debug) cout<<" Creating Eve "<<endl;
   Evento *ev =  new Evento();
-  // Trigger *tr = new Trigger();
   
-  // vector < Int_t > RegNumber;
-  // vector < TString > RegName;
 
-  //get FLUKA region number-name correspondance
-  if(m_debug) cout<<" Reading Geo info "<<endl;
-/*
-  filename = m_wd + "FOOT.reg";
-  my_G->InitRegions(filename.Data());
-  RegName = my_G->GetRegionNames();
-  RegNumber = my_G->GetRegionNumbers();
-*/
   EVENT_STRUCT evStr;
   TAGpadGroup* pg = new TAGpadGroup();
 
@@ -247,8 +232,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
   //   mya_vttrack->SetHistogramDir(my_out->File());
   // }
 
-
-
     cout << "Make Geo" << endl;
 
     TGeoManager *colombo = new TGeoManager("genfitGeom", "GENFIT geometry");
@@ -256,84 +239,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     TGeoMedium *vacuum_med = new TGeoMedium("Vacuum_med",666, gGeoManager->GetMaterial("Vacuum"));
 
 
-    // TGeoMixture *airMat = new TGeoMixture("Air",3);
-    // airMat->AddElement(14.01,7.,.78);   // N
-    // airMat->AddElement(16.00,8.,.21);   // O
-    // airMat->AddElement(39.95,18.,.01);  // Ar
-    // airMat->SetDensity(1.2e-3);
-    // airMat->SetPressure();      // std 6.32420e+8 = 1atm
-    // 1,26484e+8 MeV/mm3 = 0,2 atm
-    // 1 MeV/mm3 = 1,58122538 × 10-9 atm
-    // cout << "airMat->GetPressure()   " << airMat->GetPressure() << endl;
-
 		Materials* listMaterials = new Materials() ;
 		listMaterials->PrintCompMap();
     cout << endl << endl;
-  	// TGeoMaterial *matAr = new TGeoMaterial("Argon", 39.948, 18., 0.001662);//densità viene da flair,
-   //  TGeoMaterial *matC = new TGeoMaterial("Carbon", 12.0107, 6., 2.26);
- 	 //  TGeoMaterial *matO = new TGeoMaterial("Oxygen", 16., 8., 0.0013315);
-  	// TGeoMaterial *matAl = new TGeoMaterial("Aluminium", 26.981539, 13., 2.6989);
-   // 	TGeoMaterial *matSi = new TGeoMaterial("Silicon", 28.085, 14., 2.329);
-   // 	TGeoMaterial *matW = new TGeoMaterial("Tungsten", 183.84, 74., 19.3);// poi magari mettere la copertura in oro
-   // 	TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
-
-
-   	// TGeoMixture *matMylar = new TGeoMixture("Mylar",3,   1.39000    );
-    // // matMylar->SetUniqueID(  18);
-    // matMylar->DefineElement(0,12.01,6,0.624935);
-    // matMylar->DefineElement(1,1.01,1,0.4204392E-01);
-    // matMylar->DefineElement(2,16,8,0.3330211);
-
-
-    // TGeoMixture *matEpo = new TGeoMixture("Epoxy",3,   1.18    );
-    // matEpo->AddElement(12,6, 18./40.);  // C
-    // matEpo->AddElement(1,1, 19./40.);   // H
-    // matEpo->AddElement(16,8, 3./40.);  // O
-
-
-    // TGeoMixture *matSiC = new TGeoMixture("SiliconCarbon",2, 3.22); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // matSiC->AddElement(matC ,0.5);
-    // matSiC->AddElement(28.085, 14 ,0.5);
-
-
-    // // CHECK
-    // TGeoMixture *matSiCFoam = new TGeoMixture("SiCFoam",2,   0.1288    );
-    // matSiCFoam->AddElement(matSiC, 0.04);
-    // matSiCFoam->AddElement(airMat, 0.96);
-
-
-//    TGeoMixture *ArCO2 = new TGeoMixture("ArCO2",3);
-//    ArCO2->AddElement(matAr ,1./4.);
-//    ArCO2->AddElement(matC ,1./4.);
-//    ArCO2->AddElement(matO ,2./4.);
-// //   ArCO2->AddElement(matCO2 ,20.);
-//    ArCO2->SetDensity(0.001677136); //da flair
-//    ArCO2->SetPressure(1.26484e+8);    // 0.2 atm
-//    cout << "ArCO2->GetPressure()   " << ArCO2->GetPressure() << endl;
-
-
-   // TGeoMixture *matKapton = new TGeoMixture("Kapton",4, 1.42);
-   // matKapton->AddElement(1,1, 0.02636 );            // H
-   // matKapton->AddElement(matC ,0.691133);
-   // matKapton->AddElement(14.01, 7, 0.07327);        // N
-   // matKapton->AddElement(16,8, 0.209235);               // O
-
-
-   //    int medID = 0;
-   // TGeoMedium *vacuum_med = new TGeoMedium("Vacuum_med",medID++, gGeoManager->GetMaterial("Vacuum"));
-   // TGeoMedium *air = new TGeoMedium("Air_med",medID++, gGeoManager->GetMaterial("Air"));
-   // TGeoMedium *gas_med = new TGeoMedium("ArCO2_med",medID++, gGeoManager->GetMaterial("ArCO2"));
-   // // TGeoMedium *c_wire_med = new TGeoMedium("catod wire",medID++, gGeoManager->GetMaterial("Aluminium"));
-   // TGeoMedium *a_wire_med = new TGeoMedium("Tungsten_med",medID++, gGeoManager->GetMaterial("Tungsten"));
-   // TGeoMedium *a_maylar_med = new TGeoMedium("Mylar_med",medID++, gGeoManager->GetMaterial("Mylar"));
-   //  TGeoMedium* silicon = new TGeoMedium( "Silicon_med", medID++, gGeoManager->GetMaterial("Silicon") );
-   //  TGeoMedium* kapton = new TGeoMedium( "Kapton_med", medID++, gGeoManager->GetMaterial("Kapton") );
-   //  TGeoMedium* epoxy = new TGeoMedium( "Epoxy_med", medID++, gGeoManager->GetMaterial("Epoxy") );
-   //  TGeoMedium* aluminium = new TGeoMedium( "Aluminium_med", medID++, gGeoManager->GetMaterial("Aluminium") );
-   //  TGeoMedium* siCFoam = new TGeoMedium( "SiCFoam_med", medID++, gGeoManager->GetMaterial("SiCFoam") );
-
-
-
+  	
 //     cout << endl << "List of Materil\n ";
 //     TIter next( gGeoManager->GetListOfMaterials() );
 //     while ( TGeoMaterial *obj = (TGeoMaterial*) next() ) {
