@@ -11,15 +11,27 @@ SOMINV     = 0
 #
 TINCLFLAGS += $(shell root-config --cflags)
 INCLFLAGS  = $(filter-out -stdlib=libc++, $(TINCLFLAGS))
-INCLFLAGS += -I../TAGbase -I../TAVTbase -I../TAGfoot -I../TABMbase -I../../../Simulation/TXT2ROOT
-LDLIBS    += $(shell root-config --libs) 
+INCLFLAGS += -I../TAGbase -I../TAGfoot -I../TABMbase 
+INCLFLAGS += -I../../../Simulation/TXT2ROOT -I../../../Simulation
+INCLFLAGS += -I../../../libs/GenFit/fitters/include -I../../../libs/GenFit/core/include
+LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 # Files to be included
 #
-TOBJ_all   = TATWdatRaw.hxx TATWparMap.hxx \
-                  TATWactNtuMC.hxx 
-#             TATWeventDisplay.hxx
+TOBJ_all   = TATWdatRaw.hxx  TATWparMap.hxx \
+                  TATWactNtuMC.hxx TATWparGeo.hxx  TATWparTools.hxx
+			 # TATWactAscReader.hxx TATWrawEvent.hxx TATWactBaseRaw.hxx  \	
+			 # TATWactAscRaw.hxx	TATWparCal.hxx 	\
+			 
+			 # TATWntuCluster.hxx \
+			 # TATWntuTrack.hxx TATWactBaseNtuCluster.hxx TATWactNtuClusterF.hxx\
+			 # TATWactNtuCluster.hxx TATWactBaseNtuTrack.hxx \
+			 # TATWactNtuTrack.hxx  TATWactNtuTrackF.hxx  TATWactNtuTrackH.hxx TATWactNtuPostTrack.hxx\
+    #          TATWntuVertex.hxx TATWactBaseNtuVertex.hxx TATWactNtuVertex.hxx TATWactNtuVertexPD.hxx\
+	   #           TATWeventDisplayMC.hxx TATWbaseEventDisplay.hxx 
 
+
+#	            TATWeventDisplay.hxx TATWntuAlign.hxx TATWalign.hxx TATWactDatRaw.hxx 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #
 OBJ_all    = $(CXX_all:.cxx=.o) $(TOBJ_all:.hxx=.cint.o) 

@@ -20,6 +20,11 @@
 #include "TAGpadGroup.hxx"
 #include "TAGgeoTrafo.hxx"
 
+#include "TATWparGeo.hxx"
+#include "TACAparGeo.hxx"
+#include "TAIRparGeo.hxx"
+#include "TABMparGeo.hxx"
+
 #include "TAGactTreeWriter.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGroot.hxx"
@@ -38,7 +43,7 @@ class RecoTools {
  public :
 
   RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev,
-      TFile *hf);
+	    TFile *hf);
   virtual ~RecoTools();
 
   //Reconstructions
@@ -74,9 +79,9 @@ class RecoTools {
   KFitter* m_kFitter;
 
   // time variables
- clock_t start_tot, end_tot;
- clock_t start_kal, end_kal;
- double tempo_kal;
+  clock_t start_tot, end_tot;
+  clock_t start_kal, end_kal;
+  double tempo_kal;
 
   int m_nev;
   int m_debug;
@@ -99,6 +104,10 @@ class RecoTools {
   shared_ptr<TAVTparGeo> m_vtgeo;
   shared_ptr<TAITparGeo> m_itgeo;
   shared_ptr<TAMSDparGeo> m_msdgeo;
+  shared_ptr<TATWparGeo> m_twgeo;
+  shared_ptr<TACAparGeo> m_cageo; 
+  shared_ptr<TAIRparGeo> m_irgeo;  
+  shared_ptr<TABMparGeo> m_bmgeo;  
 
   TAGparaDsc* myp_vtmap;
   TAGparaDsc* myp_vtcal;
@@ -114,7 +123,22 @@ class RecoTools {
   TAGparaDsc* myp_msdcal;
   TAGparaDsc* myp_msdgeo;
   TAGparaDsc* myp_msdconf;
-
+  
+  TAGparaDsc* myp_twmap;
+  TAGparaDsc* myp_twcal;
+  TAGparaDsc* myp_twgeo;
+  TAGparaDsc* myp_twconf;
+  
+  TAGparaDsc* myp_irmap;
+  TAGparaDsc* myp_ircal;
+  TAGparaDsc* myp_irgeo;
+  TAGparaDsc* myp_irconf;
+  
+  TAGparaDsc* myp_camap;
+  TAGparaDsc* myp_cacal;
+  TAGparaDsc* myp_cageo;
+  TAGparaDsc* myp_caconf;
+  
   //Data descriptions
  
   TAGdataDsc* myn_irraw;
@@ -155,6 +179,8 @@ class RecoTools {
   TAGaction* mya_itraw;
   TAGaction* mya_itclus;
   TAGaction* mya_ittrack;
+
+  TAGaction* mya_twraw;
 
   TAGaction* mya_msdraw;
 

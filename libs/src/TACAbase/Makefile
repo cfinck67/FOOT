@@ -11,16 +11,27 @@ SOMINV     = 0
 #
 TINCLFLAGS += $(shell root-config --cflags)
 INCLFLAGS  = $(filter-out -stdlib=libc++, $(TINCLFLAGS))
-INCLFLAGS += -I../TAGbase -I../TAVTbase -I../TAGfoot -I../TABMbase
+INCLFLAGS += -I../TAGbase -I../TAGfoot -I../TABMbase 
 INCLFLAGS += -I../../../Simulation/TXT2ROOT -I../../../Simulation
-LDLIBS    += $(shell root-config --libs) 
+INCLFLAGS += -I../../../libs/GenFit/fitters/include -I../../../libs/GenFit/core/include
+LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 # Files to be included
 #
-TOBJ_all   = TACAdatRaw.hxx TACAparMap.hxx \
-                  TACAactNtuMC.hxx 
-#             TACAeventDisplay.hxx
+TOBJ_all   = TACAdatRaw.hxx  TACAparMap.hxx \
+                  TACAactNtuMC.hxx TACAparGeo.hxx  TACAparTools.hxx
+			 # TACAactAscReader.hxx TACArawEvent.hxx TACAactBaseRaw.hxx  \	
+			 # TACAactAscRaw.hxx	TACAparCal.hxx 	\
+			 
+			 # TACAntuCluster.hxx \
+			 # TACAntuTrack.hxx TACAactBaseNtuCluster.hxx TACAactNtuClusterF.hxx\
+			 # TACAactNtuCluster.hxx TACAactBaseNtuTrack.hxx \
+			 # TACAactNtuTrack.hxx  TACAactNtuTrackF.hxx  TACAactNtuTrackH.hxx TACAactNtuPostTrack.hxx\
+    #          TACAntuVertex.hxx TACAactBaseNtuVertex.hxx TACAactNtuVertex.hxx TACAactNtuVertexPD.hxx\
+	   #           TACAeventDisplayMC.hxx TACAbaseEventDisplay.hxx 
 
+
+#	            TACAeventDisplay.hxx TACAntuAlign.hxx TACAalign.hxx TACAactDatRaw.hxx 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #
 OBJ_all    = $(CXX_all:.cxx=.o) $(TOBJ_all:.hxx=.cint.o) 
