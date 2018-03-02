@@ -15,11 +15,10 @@
 
 #include "TAITparTools.hxx"
 
-#include "FootField.hxx"
-
 #include "IronPlate.hxx"
 #include "FootBox.hxx"
 #include "GlobalPar.hxx"
+#include "FootField.hxx"
 
 #include <FieldManager.h>
 

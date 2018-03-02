@@ -18,8 +18,9 @@
 #include "IronPlate.hxx"
 #include "FootBox.hxx"
 #include "GlobalPar.hxx"
+#include "FootField.hxx"
 
-
+#include <FieldManager.h>
 
 
 class TGeoHMatrix;
@@ -94,6 +95,7 @@ public:
     void AssignMagnetField() {};
     void PrintBodies( string geoFileName );
     void PrintRegions( string geoFileName );
+    string PrintAssignMaterial();
 
     // Return a vector with the number of sensors along the cartesian directions
     TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
@@ -132,6 +134,8 @@ private:
 
     map<string, vector<string> > m_regionPrintOut;
     map<string, vector<string> > m_bodyPrintOut;
+    map<string, vector<string> > m_regionName;
+    map<string, int > m_magneticRegion;
 
     int m_nPassiveLayersPerBoard_z;
     double m_passiveMaterialThick;

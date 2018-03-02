@@ -284,15 +284,20 @@ void TAVTparGeo::InitGeo()  {
                                 << minCoord.x() << " " << maxCoord.x() << " "
                                 << minCoord.y() << " " << maxCoord.y() << " "
                                 << minCoord.z() << " " << maxCoord.z() << endl;
-                    cout << "Build passive materials in ROOT and FLUKA " << ss.str() <<  endl;
+                    // cout << "Build passive materials in ROOT and FLUKA " << ss.str() <<  endl;
                     m_bodyPrintOut[ m_passiveMatrix[k][i][j]->GetMaterialName() ].push_back( ss.str() );
 
                     // regions
                     stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << m_passiveMatrix[k][i][j]->GetRegionName()
                                             << "5 " << m_passiveMatrix[k][i][j]->GetBodyName() << " - " << 
                                             m_sensorMatrix[k][i][j]->GetBodyName() << endl;
-                    cout << "Build passive materials in ROOT and FLUKA " << ssr.str() <<  endl;
+                    // cout << "Build passive materials in ROOT and FLUKA " << ssr.str() <<  endl;
                     m_regionPrintOut[ m_passiveMatrix[k][i][j]->GetMaterialName() ].push_back( ssr.str() );
+                    m_regionName    [ m_passiveMatrix[k][i][j]->GetMaterialName() ].push_back( m_passiveMatrix[k][i][j]->GetRegionName() );
+                    if ( genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 )
+                        m_magneticRegion[ m_passiveMatrix[k][i][j]->GetRegionName() ] = 0;
+                    else 
+                        m_magneticRegion[ m_passiveMatrix[k][i][j]->GetRegionName() ] = 1;
 
                 }
 
@@ -331,7 +336,7 @@ void TAVTparGeo::InitGeo()  {
                 }
 
                     // boidies
-                if ( GlobalPar::GetPar()->geoROOT() ) {
+                if ( GlobalPar::GetPar()->geoFLUKA() ) {
                     
                     TVector3 minCoord = TVector3( m_sensorMatrix[k][i][j]->GetMinCoord().x(), m_sensorMatrix[k][i][j]->GetMinCoord().y(), m_sensorMatrix[k][i][j]->GetMinCoord().z() );
                     TVector3 maxCoord = TVector3( m_sensorMatrix[k][i][j]->GetMaxCoord().x(), m_sensorMatrix[k][i][j]->GetMaxCoord().y(), m_sensorMatrix[k][i][j]->GetMaxCoord().z() );
@@ -353,6 +358,11 @@ void TAVTparGeo::InitGeo()  {
                         << "5 " << m_sensorMatrix[k][i][j]->GetBodyName() << endl;
                         
                     m_regionPrintOut[ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( ssr.str() );
+                    m_regionName    [ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( m_sensorMatrix[k][i][j]->GetRegionName() );
+                    if ( genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 )
+                        m_magneticRegion[ m_sensorMatrix[k][i][j]->GetRegionName() ] = 0;
+                    else 
+                        m_magneticRegion[ m_sensorMatrix[k][i][j]->GetRegionName() ] = 1;
                 }
 
 
@@ -434,23 +444,20 @@ void TAVTparGeo::PrintBodies( string geoFileName ) {
     if ( !GlobalPar::GetPar()->geoFLUKA() ) 
         cout << "ERROR << TAITparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
-    // ofstream geofile;
-    // geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
+    ofstream geofile;
+    geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
 
-    // geofile << "* ***Vertex" << endl;
-    cout << "* ***Vertex" << endl;
+    geofile << "* ***Vertex" << endl;
 
     // loop in order of the material alfabeth
     for ( map<string, vector<string> >::iterator itMat = m_bodyPrintOut.begin(); itMat != m_bodyPrintOut.end(); itMat++ ) {
         // loop over all body of the same material
         for ( vector<string>::iterator itBody = (*itMat).second.begin(); itBody != (*itMat).second.end(); itBody++ ) {
-            // geofile << (*itBody);
-            cout << (*itBody);
-            if (m_debug > 0)    cout << (*itBody);
+            geofile << (*itBody);
+            if (m_debug > 3)    cout << (*itBody);
         }        
     }
-
-    // geofile.close();
+    geofile.close();
 }
 
 
@@ -463,30 +470,90 @@ void TAVTparGeo::PrintRegions( string geoFileName ) {
     if ( !GlobalPar::GetPar()->geoFLUKA() ) 
         cout << "ERROR << TAITparGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
-    // ofstream geofile;
-    // geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
+    ofstream geofile;
+    geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
 
-    // geofile << "* ***Vertex" << endl;
-    cout << "* ***Vertex" << endl;
-
-
+    geofile << "* ***Vertex" << endl;
 
   // loop in order of the material alfabeth
     for ( map<string, vector<string> >::iterator itMat = m_regionPrintOut.begin(); itMat != m_regionPrintOut.end(); itMat++ ) {
         // loop over all body of the same material
         for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-            // geofile << (*itRegion);
-            cout << (*itRegion);
-            if (m_debug > 0)    cout << (*itRegion);
+            geofile << (*itRegion);
+            if (m_debug > 3)    cout << (*itRegion);
         }        
     }
-
-
-    // geofile.close();
+    geofile.close();
 }
 
 
 
+
+
+
+//_____________________________________________________________________________
+string TAVTparGeo::PrintAssignMaterial() {
+
+    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
+        cout << "ERROR << TAVTparGeo::PrintAssignMaterial()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
+
+
+    // loop in order of the material alfabeth
+    stringstream outstr; 
+    for ( map<string, vector<string> >::iterator itMat = m_regionName.begin(); itMat != m_regionName.end(); itMat++ ) {
+
+        // check dimension greater than 0
+        if ( (*itMat).second.size() == 0 ) {
+            cout << "ERROR << TAVTparGeo::PrintAssignMaterial  ::  "<<endl, exit(0);
+        }
+
+        // take the first region
+        string firstReg = (*itMat).second.at(0);
+        // take the last region
+        string lastReg = "";
+        if ( (*itMat).second.size() != 1 ) 
+            lastReg = (*itMat).second.at( (*itMat).second.size()-1 );
+
+        // build output string 
+        outstr  << setw(10) << setfill( ' ' ) << std::left << "ASSIGNMA" 
+                << setw(10) << setfill( ' ' ) << std::right << (*itMat).first 
+                << setw(10) << setfill( ' ' ) << std::right << firstReg 
+                << setw(10) << setfill( ' ' ) << std::right << lastReg;
+                       
+        
+        // multiple region condition 
+        if ( (*itMat).second.size() != 1 ) {
+            outstr << setw(10) << setfill( ' ' ) << std::right  << 1 ;
+        }
+        else {
+            outstr << setw(10) << setfill( ' ' ) << std::right  << " ";
+        }
+
+
+        // region in the magnetic filed condition
+        bool isMag = true;
+        for (int i=0; i<(*itMat).second.size(); i++) {
+            if ( m_magneticRegion[ (*itMat).second.at(i) ] == 0 ) {
+                isMag = false;
+                break;
+            }
+        }
+        if ( isMag )
+            outstr << setw(10) << setfill( ' ' ) << std::right  << 1 ;
+        else 
+            outstr << setw(10) << setfill( ' ' ) << std::right  << " " ;
+        
+        outstr << endl;
+
+        // DEBUG
+        cout << outstr.str();
+        if (m_debug > 0)    cout << outstr.str();
+
+    }
+
+    return outstr.str();
+
+}
 
 
 

@@ -10,6 +10,7 @@
 
 #include "TAVTparGeo.hxx"
 #include "TAITparGeo.hxx"
+#include "TAMSDparGeo.hxx"
 #include "Materials.hxx"
 
 #include "GlobalPar.hxx"
@@ -35,8 +36,8 @@ int main (int argc, char *argv[]) {
 
     cout << "Hello Footer!" << endl;
 
-    // real coding !
 
+    // real coding starts here!
     GlobalPar::Instance("GeoConfig.par");
     GlobalPar::GetPar()->Print();
 
@@ -55,10 +56,12 @@ int main (int argc, char *argv[]) {
     // GlobalFootGeo footGeo;
     TAVTparGeo* vtxGeo = new TAVTparGeo();
     TAITparGeo* itrGeo = new TAITparGeo();
+    TAMSDparGeo* msdGeo = new TAMSDparGeo();
 
     //  si costruisce le coordinate di ogni oggetto geometrico e sensibile
     vtxGeo->InitGeo();
     itrGeo->InitGeo();
+    msdGeo->InitGeo();
 
 
     // assegna ad ogni oggetto se sta nel campo magnetico
@@ -66,11 +69,12 @@ int main (int argc, char *argv[]) {
     string fileName = "foot.inp";
     file.open( fileName.c_str(), ios::in );
     if ( !file.is_open() )        cout<< "ERROR  -->  wrong input in GlobalPar::ReadParemFile file "<< endl, exit(0);
+    
     string line = "";
     stringstream before, after;
     bool readBefore = true;
     bool readAfter = false;
-    // vector<string> inputList;
+    // read the old file
     while( getline( file, line ) ) {  
 
         if ( readBefore )        before << line << endl;
@@ -91,14 +95,15 @@ int main (int argc, char *argv[]) {
     }
     file.close();
 
+    // rewrite the file in the correct way
     ofstream outfile;
     outfile.open( fileName.c_str(), fstream::trunc );
 
     outfile << before.str();
 
-    // outfile << "prova" << endl;
-    //outfile << vtxGeo.PrintAssignMaterial();
+    outfile << vtxGeo->PrintAssignMaterial();
     outfile << itrGeo->PrintAssignMaterial();
+    outfile << msdGeo->PrintAssignMaterial();
 
     outfile << "MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000" << endl;
 
@@ -107,7 +112,6 @@ int main (int argc, char *argv[]) {
     outfile.close();
 
     
-
 
     // PRINT OUT foot.geo
     // per ora chiamati da qui, si puo fare una classe gestore separata se serve
@@ -126,33 +130,25 @@ int main (int argc, char *argv[]) {
 
     vtxGeo->PrintBodies( geofileName );
     itrGeo->PrintBodies( geofileName );
+    msdGeo->PrintBodies( geofileName );
 
-    //prova geometria
-    // itrGeo.GetVolume();
+    // print bodies
     geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::app );
     geofile << "END        " <<endl;
 
-    /*
-     inizio definizione regioni
-    */
 
+     // region print begins here
     geofile <<"* ******************************************************************************"<<endl;
     geofile <<"*                         REGIONS                                              *"<<endl;
     geofile <<"* ******************************************************************************"<<endl;
 
-
-    //prova regioni
-
+    //print  regioni
     vtxGeo->PrintRegions( geofileName );
     itrGeo->PrintRegions( geofileName );
+    msdGeo->PrintRegions( geofileName );
 
     geofile.close();
-    // PRINT OUT foot.geo
-
-
-
-    //  Print out of foot.inp
-
+    
 
     // stop time
     end_tot = clock();

@@ -167,35 +167,13 @@ COMPOUND        -4.0       SiC     -96.0       AIR                    SiCFoam
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
-ASSIGNMA    BLCKHOLE     BLACK
-ASSIGNMA         AIR       AIR
-ASSIGNMA      EJ-232       STC
-ASSIGNMA    ALUMINUM   BMN_SHI
-ASSIGNMA       Mylar  BMN_MYL0
-ASSIGNMA       Mylar  BMN_MYL1
-ASSIGNMA      Ar-CO2  BMN_CU00  BMN_CU17         1
-ASSIGNMA      Ar-CO2  BMN_CV00  BMN_CV17         1
-ASSIGNMA      Ar-CO2   BMN_GAS
-ASSIGNMA    ALUMINUM   BMN_FWI
-ASSIGNMA    TUNGSTEN   BMN_SWI
-ASSIGNMA    Polyethy    TARGET                             1
-ASSIGNMA     SILICON      VTX0      VTX3         1         1
-ASSIGNMA     SILICON      ITR0      ITR1         1         1
-ASSIGNMA       Epoxy   ITREPO0   ITREPO1         1         1
-ASSIGNMA    ALUMINUM    ITRAL0    ITRAL3         1         1
-ASSIGNMA      KAPTON   ITRCOV0   ITRCOV3         1         1
-ASSIGNMA      KAPTON   ITRKAP0   ITRKAP1         1         1
-ASSIGNMA     SiCFoam   ITRFOAM                             1
-ASSIGNMA        SmCo   MAG_PM0
-ASSIGNMA    ALUMINUM   MAG_CV0
-ASSIGNMA        SmCo   MAG_PM1
-ASSIGNMA    ALUMINUM   MAG_CV1
-ASSIGNMA         AIR   MAG_AIR                             1
-ASSIGNMA     SILICON     MSDV0     MSDU2         1         1
-ASSIGNMA      KAPTON   MSDKAP0   MSDKAP2         1         1
-ASSIGNMA         AIR       BOX
-ASSIGNMA      EJ-232    SCNV00    SCNU21         1
-ASSIGNMA         BGO    CAL000    CAL359         1
+ASSIGNMA     SILICON     VTXP0     VTXS3         1         1
+ASSIGNMA    ALUMINUM     ITRP2    ITRP73         1         1
+ASSIGNMA       Epoxy     ITRP0    ITRP75         1         1
+ASSIGNMA      KAPTON     ITRP1    ITRP74         1         1
+ASSIGNMA     SILICON    ITRP13   ITRS313         1         1
+ASSIGNMA     SiCFoam     ITRP6    ITRP69         1         1
+ASSIGNMA     SILICON     MSDS0     MSDS2         1         1
 MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000
 *
 * @@@END GENERATED:MATERIAL&MAGFIELD@@@ ****************************************

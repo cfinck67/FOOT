@@ -696,7 +696,7 @@ void TAITparGeo::PrintRegions( string geoFileName ){
 string TAITparGeo::PrintAssignMaterial() {
 
     if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-        cout << "ERROR << TAITparGeo::PrintAssignMaterial()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
+        cout << "ERROR << TAITparGeo::PrintAssignMaterial()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
 
 
     // loop in order of the material alfabeth
@@ -747,7 +747,6 @@ string TAITparGeo::PrintAssignMaterial() {
         outstr << endl;
 
         // DEBUG
-        cout << outstr.str();
         if (m_debug > 0)    cout << outstr.str();
 
     }
