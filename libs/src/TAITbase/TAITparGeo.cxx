@@ -442,8 +442,14 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
                     // regions
                     stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << m_passiveMatrix[i][j][k]->GetRegionName()
                                             << "5 " << m_passiveMatrix[i][j][k]->GetBodyName() << endl;
-                        
+                    
                     m_regionPrintOut[ m_passiveMatrix[i][j][k]->GetMaterialName() ].push_back( ssr.str() );
+                    m_regionName    [ m_passiveMatrix[i][j][k]->GetMaterialName() ].push_back( m_passiveMatrix[i][j][k]->GetRegionName() );
+                    if ( genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 )
+                        m_magneticRegion[ m_passiveMatrix[i][j][k]->GetRegionName() ] = 0;
+                    else 
+                        m_magneticRegion[ m_passiveMatrix[i][j][k]->GetRegionName() ] = 1;
+                    
                 }
 
             }
@@ -498,8 +504,15 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
                     stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << m_chipMatrix[i][j][k]->GetRegionName()
                                             << "5 " << m_chipMatrix[i][j][k]->GetBodyName() << " - " << 
                                             m_sensorMatrix[k][j][i]->GetBodyName() << endl;   
-                        
+                    
                     m_regionPrintOut[ m_chipMatrix[i][j][k]->GetMaterialName() ].push_back( ssr.str() );
+                    m_regionName    [ m_chipMatrix[i][j][k]->GetMaterialName() ].push_back( m_chipMatrix[i][j][k]->GetRegionName() );
+                    
+                    if ( genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 )
+                        m_magneticRegion[ m_chipMatrix[i][j][k]->GetRegionName() ] = 0;
+                    else 
+                        m_magneticRegion[ m_chipMatrix[i][j][k]->GetRegionName() ] = 1;
+
                 }
                 // sensor_k++;
             }
@@ -533,8 +546,8 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
                 }
 
                 // boidies
-                if ( GlobalPar::GetPar()->geoROOT() ) {
-                    
+                if ( GlobalPar::GetPar()->geoFLUKA() ) {
+
                     TVector3 minCoord = TVector3( m_sensorMatrix[k][j][i]->GetMinCoord().x(), m_sensorMatrix[k][j][i]->GetMinCoord().y(), m_sensorMatrix[k][j][i]->GetMinCoord().z() );
                     TVector3 maxCoord = TVector3( m_sensorMatrix[k][j][i]->GetMaxCoord().x(), m_sensorMatrix[k][j][i]->GetMaxCoord().y(), m_sensorMatrix[k][j][i]->GetMaxCoord().z() );
                     Local2Global( &minCoord );
@@ -555,16 +568,20 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
                         << "5 " << m_sensorMatrix[k][j][i]->GetBodyName() << endl;
 
                     m_regionPrintOut[ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( ssr.str() );
+                    m_regionName    [ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( m_sensorMatrix[k][j][i]->GetRegionName() );
+                    
+                    if ( genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 )
+                        m_magneticRegion[ m_sensorMatrix[k][j][i]->GetRegionName() ] = 0;
+                    else 
+                        m_magneticRegion[ m_sensorMatrix[k][j][i]->GetRegionName() ] = 1;
+                    
                 }
 
-
             }
-        }
+       }
     } 
 
 }
-
-
 
 
 
@@ -629,23 +646,21 @@ void TAITparGeo::PrintBodies( string geoFileName ){
         cout << "ERROR << TAITparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
     
 
-    // ofstream geofile;
-    // geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
+    ofstream geofile;
+    geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
     
-    // geofile << "* ***Inner Tracker" << endl;
-    cout << "* BODIES ***Inner Tracker" << endl;
+    geofile << "* ***Inner Tracker" << endl;
 
     // loop in order of the material alfabeth
     for ( map<string, vector<string> >::iterator itMat = m_bodyPrintOut.begin(); itMat != m_bodyPrintOut.end(); itMat++ ) {
         // loop over all body of the same material
         for ( vector<string>::iterator itBody = (*itMat).second.begin(); itBody != (*itMat).second.end(); itBody++ ) {
-            // geofile << (*itBody);
-            cout << (*itBody);
-            if (m_debug > 0)    cout << (*itBody);
+            geofile << (*itBody);
+            if (m_debug > 3)    cout << (*itBody);
         }        
     }
 
-    // geofile.close();
+    geofile.close();
 }
 
 
@@ -658,27 +673,88 @@ void TAITparGeo::PrintRegions( string geoFileName ){
     if ( !GlobalPar::GetPar()->geoFLUKA() ) 
         cout << "ERROR << TAITparGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
-    // ofstream geofile;
-    // geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
+    ofstream geofile;
+    geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
       
-    // geofile << "* ***Inner Tracker" << endl;
-    cout << "* REGION ***Inner Tracker" << endl;
+    geofile << "* ***Inner Tracker" << endl;
 
     // loop in order of the material alfabeth
     for ( map<string, vector<string> >::iterator itMat = m_regionPrintOut.begin(); itMat != m_regionPrintOut.end(); itMat++ ) {
-        // loop over all body of the same material
+        // loop over all region of the same material
         for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-            // geofile << (*itRegion);
-            cout << (*itRegion);
-            if (m_debug > 0)    cout << (*itRegion);
+            geofile << (*itRegion);
+            if (m_debug > 3)    cout << (*itRegion);
         }        
     }
+    geofile.close();
 }
 
 
 
 
+//_____________________________________________________________________________
+string TAITparGeo::PrintAssignMaterial() {
 
+    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
+        cout << "ERROR << TAITparGeo::PrintAssignMaterial()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
+
+
+    // loop in order of the material alfabeth
+    stringstream outstr; 
+    for ( map<string, vector<string> >::iterator itMat = m_regionName.begin(); itMat != m_regionName.end(); itMat++ ) {
+
+        // check dimension greater than 0
+        if ( (*itMat).second.size() == 0 ) {
+            cout << "ERROR << TAITparGeo::PrintAssignMaterial  ::  "<<endl, exit(0);
+        }
+
+        // take the first region
+        string firstReg = (*itMat).second.at(0);
+        // take the last region
+        string lastReg = "";
+        if ( (*itMat).second.size() != 1 ) 
+            lastReg = (*itMat).second.at( (*itMat).second.size()-1 );
+
+        // build output string 
+        outstr  << setw(10) << setfill( ' ' ) << std::left << "ASSIGNMA" 
+                << setw(10) << setfill( ' ' ) << std::right << (*itMat).first 
+                << setw(10) << setfill( ' ' ) << std::right << firstReg 
+                << setw(10) << setfill( ' ' ) << std::right << lastReg;
+                       
+        
+        // multiple region condition 
+        if ( (*itMat).second.size() != 1 ) {
+            outstr << setw(10) << setfill( ' ' ) << std::right  << 1 ;
+        }
+        else {
+            outstr << setw(10) << setfill( ' ' ) << std::right  << " ";
+        }
+
+
+        // region in the magnetic filed condition
+        bool isMag = true;
+        for (int i=0; i<(*itMat).second.size(); i++) {
+            if ( m_magneticRegion[ (*itMat).second.at(i) ] == 0 ) {
+                isMag = false;
+                break;
+            }
+        }
+        if ( isMag )
+            outstr << setw(10) << setfill( ' ' ) << std::right  << 1 ;
+        else 
+            outstr << setw(10) << setfill( ' ' ) << std::right  << " " ;
+        
+        outstr << endl;
+
+        // DEBUG
+        cout << outstr.str();
+        if (m_debug > 0)    cout << outstr.str();
+
+    }
+
+    return outstr.str();
+
+}
 
 
 

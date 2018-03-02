@@ -71,8 +71,10 @@ void IronPlate::SetSensor( TVector3 acenter,	TVector3 alength,
 	m_name = m_regionName;
 
 	// check if the material of the box is defined
+	if ( !gGeoManager )	
+		cout << "ERROR >> FootBox::FootBox  ::  Material " << m_materialName << " not defined gGeoManager " << endl, exit(0);
 	if ( !gGeoManager->GetMedium( m_materialName.c_str() ) ) 
-		cout << "ERROR >> FootBox::FootBox  ::  Material " << m_materialName << " not defined in gGeoManager for the region " << m_regionName, exit(0);
+		cout << "ERROR >> FootBox::FootBox  ::  Material " << m_materialName << " not defined in gGeoManager for the region " << m_regionName << endl, exit(0);
 
 	// if the volume of the box is NOT defined  -->  define it
 	if ( !gGeoManager->GetVolume( m_materialRegionName.c_str() ) ) {

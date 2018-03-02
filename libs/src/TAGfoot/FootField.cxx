@@ -13,12 +13,12 @@ FootField::FootField ( string fileName ) {
 	m_fieldSetting = "realFieldMap";
 
 	ifstream ifile;
-    ifile.open( ("../../Simulation/"+fileName).c_str() );
+    ifile.open( ( (string)getenv("FOOTSIMU")+"/"+fileName ).c_str() );
 
     cout << "\tB center =  " << MAG_AIR_X <<"  "<< MAG_AIR_Y << "  "<< MAG_AIR_Z << endl;
 
     if ( !ifile.is_open() )        
-    	cout<< "wrong input in AbsBField constructor for file " << fileName << endl, exit(0);
+    	cout<< "ERROR >> FootField::FootField  ::  cannot open magnatic map for file " << fileName << endl, exit(0);
 
     // read position and field  -->	 fill a multidimensional map called lattice3D = map< double, map< double, map< double, TVector3 > > >
     string line = "";
@@ -50,10 +50,6 @@ FootField::FootField ( string fileName ) {
 
     }  
     ifile.close();
-
-    // boundaries
-    lowerBound = TVector3( m_filedMap.begin()->first, m_filedMap.begin()->second.begin()->first, m_filedMap.begin()->second.begin()->second.begin()->first );
-	higherBound = TVector3( m_filedMap.rbegin()->first, m_filedMap.rbegin()->second.rbegin()->first, m_filedMap.rbegin()->second.rbegin()->second.rbegin()->first );
 
 }
 
@@ -124,10 +120,6 @@ double FootField::IntegralField( int step, double start, double end ) {  // in c
 
 	return integral * dz;
 }
-
-
-
-bool FootField::IsInsideField()
 
 
 
