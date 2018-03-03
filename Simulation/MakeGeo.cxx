@@ -8,10 +8,13 @@
 #include <ostream>
 #include <sstream>
 
+#include "TAIRparGeo.hxx"
+#include "TABMparGeo.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAITparGeo.hxx"
 #include "TAMSDparGeo.hxx"
 #include "TATWparGeo.hxx"
+// #include "TACAparGeo.hxx"
 
 #include "Materials.hxx"
 
@@ -56,16 +59,22 @@ int main (int argc, char *argv[]) {
     listMaterials->PrintCompMap();
 
     // GlobalFootGeo footGeo;
+    TAIRparGeo* stcGeo = new TAIRparGeo();
+    TABMparGeo* bmGeo = new TABMparGeo();
     TAVTparGeo* vtxGeo = new TAVTparGeo();
     TAITparGeo* itrGeo = new TAITparGeo();
     TAMSDparGeo* msdGeo = new TAMSDparGeo();
     TATWparGeo* twGeo = new TATWparGeo();
+    // TACAparGeo* caGeo = new TACAparGeo();
 
     //  si costruisce le coordinate di ogni oggetto geometrico e sensibile
+    stcGeo->InitGeo();
+    bmGeo->InitGeo();
     vtxGeo->InitGeo();
     itrGeo->InitGeo();
     msdGeo->InitGeo();
     twGeo->InitGeo();
+    // caGeo->InitGeo();
 
 
     // assegna ad ogni oggetto se sta nel campo magnetico
@@ -105,10 +114,13 @@ int main (int argc, char *argv[]) {
 
     outfile << before.str();
 
+    outfile << stcGeo->PrintAssignMaterial();
+    outfile << bmGeo->PrintAssignMaterial();
     outfile << vtxGeo->PrintAssignMaterial();
     outfile << itrGeo->PrintAssignMaterial();
     outfile << msdGeo->PrintAssignMaterial();
     outfile << twGeo->PrintAssignMaterial();
+    // outfile << caGeo->PrintAssignMaterial();
 
     outfile << "MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000" << endl;
 
@@ -133,10 +145,13 @@ int main (int argc, char *argv[]) {
 
     geofile.close();
 
+    stcGeo->PrintBodies( geofileName );
+    bmGeo->PrintBodies( geofileName );
     vtxGeo->PrintBodies( geofileName );
     itrGeo->PrintBodies( geofileName );
     msdGeo->PrintBodies( geofileName );
     twGeo->PrintBodies( geofileName );
+    // caGeo->PrintBodies( geofileName );
 
     // print bodies
     geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::app );
@@ -149,10 +164,13 @@ int main (int argc, char *argv[]) {
     geofile <<"* ******************************************************************************"<<endl;
 
     //print  regioni
+    stcGeo->PrintRegions( geofileName );
+    bmGeo->PrintRegions( geofileName );
     vtxGeo->PrintRegions( geofileName );
     itrGeo->PrintRegions( geofileName );
     msdGeo->PrintRegions( geofileName );
     twGeo->PrintRegions( geofileName );
+    // caGeo->PrintRegions( geofileName );
 
     geofile.close();
     

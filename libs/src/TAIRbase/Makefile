@@ -11,14 +11,15 @@ SOMINV     = 0
 #
 TINCLFLAGS += $(shell root-config --cflags)
 INCLFLAGS  = $(filter-out -stdlib=libc++, $(TINCLFLAGS))
-INCLFLAGS += -I../TAGbase -I../TAVTbase -I../TAGfoot -I../TABMbase -I../../../Simulation/TXT2ROOT
-LDLIBS    += $(shell root-config --libs) 
+INCLFLAGS += -I../TAGbase -I../TAGfoot -I../TABMbase 
+INCLFLAGS += -I../../../Simulation/TXT2ROOT -I../../../Simulation
+INCLFLAGS += -I../../../libs/GenFit/fitters/include -I../../../libs/GenFit/core/include
+LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 # Files to be included
 #
-TOBJ_all   = TAIRdatRaw.hxx TAIRparMap.hxx \
-                  TAIRactNtuMC.hxx 
-#             TAIReventDisplay.hxx
+TOBJ_all   = TAIRdatRaw.hxx  TAIRparMap.hxx \
+                  TAIRactNtuMC.hxx TAIRparGeo.hxx  TAIRparTools.hxx
 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #

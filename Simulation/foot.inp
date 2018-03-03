@@ -167,6 +167,15 @@ COMPOUND        -4.0       SiC     -96.0       AIR                    SiCFoam
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
+ASSIGNMA      EJ-232       STC
+ASSIGNMA    ALUMINUM   BMN_SHI
+ASSIGNMA       Mylar  BMN_MYL0
+ASSIGNMA       Mylar  BMN_MYL1
+ASSIGNMA      Ar-CO2  BMN_CU00  BMN_CU17         1
+ASSIGNMA      Ar-CO2  BMN_CV00  BMN_CV17         1
+ASSIGNMA      Ar-CO2   BMN_GAS
+ASSIGNMA    ALUMINUM   BMN_FWI
+ASSIGNMA    TUNGSTEN   BMN_SWI
 ASSIGNMA     SILICON     VTXP0     VTXS3         1         1
 ASSIGNMA    ALUMINUM     ITRP2    ITRP73         1         1
 ASSIGNMA       Epoxy     ITRP0    ITRP75         1         1
