@@ -11,6 +11,8 @@
 #include "TAVTparGeo.hxx"
 #include "TAITparGeo.hxx"
 #include "TAMSDparGeo.hxx"
+#include "TATWparGeo.hxx"
+
 #include "Materials.hxx"
 
 #include "GlobalPar.hxx"
@@ -57,11 +59,13 @@ int main (int argc, char *argv[]) {
     TAVTparGeo* vtxGeo = new TAVTparGeo();
     TAITparGeo* itrGeo = new TAITparGeo();
     TAMSDparGeo* msdGeo = new TAMSDparGeo();
+    TATWparGeo* twGeo = new TATWparGeo();
 
     //  si costruisce le coordinate di ogni oggetto geometrico e sensibile
     vtxGeo->InitGeo();
     itrGeo->InitGeo();
     msdGeo->InitGeo();
+    twGeo->InitGeo();
 
 
     // assegna ad ogni oggetto se sta nel campo magnetico
@@ -104,6 +108,7 @@ int main (int argc, char *argv[]) {
     outfile << vtxGeo->PrintAssignMaterial();
     outfile << itrGeo->PrintAssignMaterial();
     outfile << msdGeo->PrintAssignMaterial();
+    outfile << twGeo->PrintAssignMaterial();
 
     outfile << "MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000" << endl;
 
@@ -131,6 +136,7 @@ int main (int argc, char *argv[]) {
     vtxGeo->PrintBodies( geofileName );
     itrGeo->PrintBodies( geofileName );
     msdGeo->PrintBodies( geofileName );
+    twGeo->PrintBodies( geofileName );
 
     // print bodies
     geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::app );
@@ -146,6 +152,7 @@ int main (int argc, char *argv[]) {
     vtxGeo->PrintRegions( geofileName );
     itrGeo->PrintRegions( geofileName );
     msdGeo->PrintRegions( geofileName );
+    twGeo->PrintRegions( geofileName );
 
     geofile.close();
     
@@ -163,3 +170,15 @@ int main (int argc, char *argv[]) {
     cout<<" Job done! "<<endl;
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
