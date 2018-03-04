@@ -190,6 +190,7 @@ void TATWparGeo::InitGeo()  {
                 << minCoord.z() << " " << maxCoord.z() << endl;
                             
                 m_bodyPrintOut[ (*itBar)->GetMaterialName() ].push_back( ss.str() );
+                m_bodyName    [ (*itBar)->GetMaterialName() ].push_back( (*itBar)->GetBodyName() );
 
                 // regions
                 stringstream ssr;
@@ -273,53 +274,64 @@ TGeoVolume* TATWparGeo::GetVolume() {
 
 
 
-void TATWparGeo::PrintBodies( string geoFileName ) {
+string TATWparGeo::PrintBodies() {
 
   if ( !GlobalPar::GetPar()->geoFLUKA() ) 
     cout << "ERROR << TATWparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
-  ofstream geofile;
-  geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
-
-  geofile << "* ***Scintillator" << endl;
+  stringstream outstr;
+  outstr << "* ***Scintillator" << endl;
 
   // loop in order of the material alfabeth
   for ( map<string, vector<string> >::iterator itMat = m_bodyPrintOut.begin(); itMat != m_bodyPrintOut.end(); itMat++ ) {
     // loop over all body of the same material
     for ( vector<string>::iterator itBody = (*itMat).second.begin(); itBody != (*itMat).second.end(); itBody++ ) {
-      geofile << (*itBody);
+      outstr << (*itBody);
       if (m_debug > 3)    cout << (*itBody);
     }        
   }
-  geofile.close();
+  return outstr.str();
 }
 
 
 
 //_____________________________________________________________________________
-void TATWparGeo::PrintRegions( string geoFileName ) {
+string TATWparGeo::PrintRegions() {
 
   if ( !GlobalPar::GetPar()->geoFLUKA() ) 
     cout << "ERROR << TATWparGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
-  ofstream geofile;
-  geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
-
-  geofile << "* ***Scintillator" << endl;
+  stringstream outstr;
+  outstr << "* ***Scintillator" << endl;
 
   // loop in order of the material alfabeth
   for ( map<string, vector<string> >::iterator itMat = m_regionPrintOut.begin(); itMat != m_regionPrintOut.end(); itMat++ ) {
     // loop over all region of the same material
     for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-      geofile << (*itRegion);
+      outstr << (*itRegion);
       if (m_debug > 3)    cout << (*itRegion);
     }        
   }
-  geofile.close();
+  return outstr.str();
 }
 
 
 
+
+//_____________________________________________________________________________
+string TATWparGeo::PrintSubtractBodiesFromAir() {
+
+    stringstream outstr;
+    // loop in order of the material alfabeth
+    for ( map<string, vector<string> >::iterator itMat = m_bodyName.begin(); itMat != m_bodyName.end(); itMat++ ) {
+        // loop over all region of the same material
+        for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
+            outstr << " -" << (*itRegion);
+        }        
+    }
+    return outstr.str();
+
+}
 
 
 
@@ -380,14 +392,13 @@ string TATWparGeo::PrintAssignMaterial() {
         outstr << endl;
 
         // DEBUG
-        if (m_debug > 0)    cout << outstr.str();
+        // if (m_debug > 0)    cout << outstr.str();
 
     }
 
     return outstr.str();
 
 }
-
 
 
 

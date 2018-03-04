@@ -301,7 +301,6 @@ private:
 	string m_systemsON;
 	string m_kalmanOutputDir;
 
-	float m_resoP_step;
 
 	bool m_reverse;
 	int m_debug;

@@ -555,16 +555,14 @@ TEveGeoShapeExtract* TABMparGeo::AddExtractBM(const char *bmName )
 
 
 //_____________________________________________________________________________
-void TABMparGeo::PrintBodies( string geoFileName ){
+string TABMparGeo::PrintBodies(){
 
   if ( !GlobalPar::GetPar()->geoFLUKA() ) 
     cout << "ERROR << TABMparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
     
 
-  ofstream geofile;
-  geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
-    
-  geofile << "* ***Beam Monitor" << endl;
+  stringstream outstr;
+  outstr << "* ***Beam Monitor" << endl;
 
   int iSense[2]={-1,-1}, iField[2]={-1,-1};
   // stringstream ss;
@@ -648,22 +646,20 @@ void TABMparGeo::PrintBodies( string geoFileName ){
     }
   }
   
-  geofile << ss.str() << endl;
+  outstr << ss.str() << endl;
  
-  geofile.close();
+  return outstr.str();
 }
 
 
 //_____________________________________________________________________________
-void TABMparGeo::PrintRegions( string geoFileName ){
+string TABMparGeo::PrintRegions(){
 
   if ( !GlobalPar::GetPar()->geoFLUKA() ) 
     cout << "ERROR << TABMparGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
-  ofstream geofile;
-  geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
-
-  geofile << "* ***Beam Monitor" << endl;
+  stringstream outstr;
+  outstr << "* ***Beam Monitor" << endl;
 
   int iCell[2]={-1,-1}, iSense[2]={-1,-1}, iField[2]={-1,-1};
   char stringa[100];
@@ -731,9 +727,9 @@ void TABMparGeo::PrintRegions( string geoFileName ){
     }
   }
   
-  geofile << ss.str() << endl; 
+  outstr << ss.str() << endl; 
 
-  geofile.close();
+  return outstr.str();
   
   /*
   // loop in order of the material alfabeth

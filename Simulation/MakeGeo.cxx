@@ -14,7 +14,7 @@
 #include "TAITparGeo.hxx"
 #include "TAMSDparGeo.hxx"
 #include "TATWparGeo.hxx"
-// #include "TACAparGeo.hxx"
+#include "TACAparGeo.hxx"
 
 #include "Materials.hxx"
 
@@ -65,7 +65,7 @@ int main (int argc, char *argv[]) {
     TAITparGeo* itrGeo = new TAITparGeo();
     TAMSDparGeo* msdGeo = new TAMSDparGeo();
     TATWparGeo* twGeo = new TATWparGeo();
-    // TACAparGeo* caGeo = new TACAparGeo();
+    TACAparGeo* caGeo = new TACAparGeo();
 
     //  si costruisce le coordinate di ogni oggetto geometrico e sensibile
     stcGeo->InitGeo();
@@ -74,7 +74,7 @@ int main (int argc, char *argv[]) {
     itrGeo->InitGeo();
     msdGeo->InitGeo();
     twGeo->InitGeo();
-    // caGeo->InitGeo();
+    caGeo->InitGeo();
 
 
     // assegna ad ogni oggetto se sta nel campo magnetico
@@ -114,13 +114,23 @@ int main (int argc, char *argv[]) {
 
     outfile << before.str();
 
+    outfile << "ASSIGNMA    BLCKHOLE     BLACK\n";
+    outfile << "ASSIGNMA         AIR       AIR\n";
+
     outfile << stcGeo->PrintAssignMaterial();
     outfile << bmGeo->PrintAssignMaterial();
+    outfile << "ASSIGNMA    Polyethy    TARGET                             1\n";
     outfile << vtxGeo->PrintAssignMaterial();
     outfile << itrGeo->PrintAssignMaterial();
+    outfile << "ASSIGNMA        SmCo   MAG_PM0\n";
+    outfile << "ASSIGNMA    ALUMINUM   MAG_CV0\n";
+    outfile << "ASSIGNMA        SmCo   MAG_PM1\n";
+    outfile << "ASSIGNMA    ALUMINUM   MAG_CV1\n";
+    outfile << "ASSIGNMA         AIR   MAG_AIR                             1\n";
     outfile << msdGeo->PrintAssignMaterial();
+    outfile << "ASSIGNMA         AIR       BOX\n";
     outfile << twGeo->PrintAssignMaterial();
-    // outfile << caGeo->PrintAssignMaterial();
+    outfile << caGeo->PrintAssignMaterial();
 
     outfile << "MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000" << endl;
 
@@ -143,18 +153,43 @@ int main (int argc, char *argv[]) {
     geofile << "* ***Air -> no mag field" << endl;
     geofile << "RPP air        -900.0 900.0 -900.0 900.0 -900.0 900.0" << endl;
 
-    geofile.close();
+    // geofile.close();
 
-    stcGeo->PrintBodies( geofileName );
-    bmGeo->PrintBodies( geofileName );
-    vtxGeo->PrintBodies( geofileName );
-    itrGeo->PrintBodies( geofileName );
-    msdGeo->PrintBodies( geofileName );
-    twGeo->PrintBodies( geofileName );
-    // caGeo->PrintBodies( geofileName );
+    geofile << stcGeo->PrintBodies(  );
+    geofile << bmGeo->PrintBodies(  );
+
+    geofile << "* ***Target\n";
+    geofile << "RPP tgt        -0.750000 0.750000 -0.750000 0.750000 -0.100000 0.100000\n";
+    
+    geofile << vtxGeo->PrintBodies(  );
+    geofile << itrGeo->PrintBodies(  );
+    
+    geofile << "* ***Magnets\n";
+    geofile << "RCC MagCvOu0   0.000000 0.000000 2.800000 0.000000 0.000000 10.400000 15.000000\n";
+    geofile << "RCC MagCvOu1   0.000000 0.000000 14.800000 0.000000 0.000000 10.400000 15.000000\n";
+    geofile << "RCC MagPMOu0   0.000000 0.000000 3.000000 0.000000 0.000000 10.000000 14.800000\n";
+    geofile << "RCC MagPMOu1   0.000000 0.000000 15.000000 0.000000 0.000000 10.000000 14.800000\n";
+    geofile << "RCC MagPMIn0   0.000000 0.000000 3.000000 0.000000 0.000000 10.000000 4.800000\n";
+    geofile << "RCC MagPMIn1   0.000000 0.000000 15.000000 0.000000 0.000000 10.000000 4.800000\n";
+    geofile << "* ***Gap for magnets\n";
+    geofile << "ZCC Gap0       0.000000 0.000000 4.600000\n";
+    geofile << "ZCC Gap1       0.000000 0.000000 4.600000\n";
+    geofile << "* ***Magnetic field air region\n";
+    geofile << "RPP MagAir     -5.000000 5.000000 -5.000000 5.000000 -16.000000 44.000000\n";
+    
+    geofile << msdGeo->PrintBodies(  );
+    
+    geofile << "* ***Air Box for Scintillator and Calorimeter\n";
+    geofile << "RPP box     -23.000000 23.000000 -23.000000 23.000000 99.400000 121.000000\n";
+    
+    geofile << twGeo->PrintBodies(  );
+    geofile << caGeo->PrintBodies(  );
+
+
+
 
     // print bodies
-    geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::app );
+    // geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::app );
     geofile << "END        " <<endl;
 
 
@@ -164,14 +199,49 @@ int main (int argc, char *argv[]) {
     geofile <<"* ******************************************************************************"<<endl;
 
     //print  regioni
-    stcGeo->PrintRegions( geofileName );
-    bmGeo->PrintRegions( geofileName );
-    vtxGeo->PrintRegions( geofileName );
-    itrGeo->PrintRegions( geofileName );
-    msdGeo->PrintRegions( geofileName );
-    twGeo->PrintRegions( geofileName );
-    // caGeo->PrintRegions( geofileName );
 
+    geofile <<"BLACK        5 blk -air\n";
+    geofile <<"* ***Air -> no mag field\n";
+    geofile <<"AIR          5 air -stc -MagAir -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1) -box\n";
+    geofile <<" -(BmnShiOu -BmnShiIn)\n";
+    geofile <<" -(BmnShiIn -BmnMyl0 +BmnMyl3)\n";
+    geofile << itrGeo->PrintSubtractBodiesFromAir();
+    geofile << msdGeo->PrintSubtractBodiesFromAir();
+    geofile <<"\n";
+
+    geofile << stcGeo->PrintRegions(  );
+    geofile << bmGeo->PrintRegions(  );
+    
+    geofile <<"* ***Target\n";
+    geofile <<"TARGET       5 tgt\n";
+    
+    geofile << vtxGeo->PrintRegions(  );
+    geofile << itrGeo->PrintRegions(  );
+    
+    geofile <<"* ***Magnets\n";
+    geofile <<"MAG_PM0      5 MagPMOu0 -MagPMIn0\n";
+    geofile <<"MAG_CV0      5 MagCvOu0 -(MagPMOu0 -MagPMIn0) -Gap0\n";
+    geofile <<"MAG_PM1      5 MagPMOu1 -MagPMIn1\n";
+    geofile <<"MAG_CV1      5 MagCvOu1 -(MagPMOu1 -MagPMIn1) -Gap1\n";
+    geofile <<"* ***Magnetic field air region\n";
+    geofile <<"MAG_AIR      5 MagAir -tgt -(BmnShiIn -BmnMyl0 +BmnMyl3) -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1) ";
+    geofile << vtxGeo->PrintSubtractBodiesFromAir();
+    geofile << itrGeo->PrintSubtractBodiesFromAir();
+    geofile << msdGeo->PrintSubtractBodiesFromAir();
+    geofile <<"\n";
+
+    geofile << msdGeo->PrintRegions(  );
+
+    geofile <<"* ***Air Box for Scintillator and Calorimeter\n";
+    geofile <<"BOX          5 box ";
+    geofile << twGeo->PrintSubtractBodiesFromAir();
+    geofile << caGeo->PrintSubtractBodiesFromAir();
+    geofile <<"\n";
+
+    geofile << twGeo->PrintRegions(  );
+    geofile << caGeo->PrintRegions(  );
+
+    geofile << "END        " <<endl;
     geofile.close();
     
 
@@ -181,7 +251,7 @@ int main (int argc, char *argv[]) {
     int t_h = trunc( tempo/3600 );
     int t_m = trunc( fmod(tempo, 3600)/60 );
     int t_s = trunc( fmod(fmod(tempo, 3600), 60) );
-    cout<< "Execution Time: "<< tempo << " seconds" << endl;
+    cout<< "\n\nExecution Time: "<< tempo << " seconds" << endl;
     cout<< "Execution Time in human units: "<< t_h <<" : "<< t_m <<" : "<< t_s << endl;
 
 

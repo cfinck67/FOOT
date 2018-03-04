@@ -437,7 +437,8 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
                                 << minCoord.y() << " " << maxCoord.y() << " "
                                 << minCoord.z() << " " << maxCoord.z() << endl;
                     
-                    m_bodyPrintOut[ m_passiveMatrix[i][j][k]->GetMaterialName() ].push_back( ss.str() );
+                    m_bodyPrintOut  [ m_passiveMatrix[i][j][k]->GetMaterialName() ].push_back( ss.str() );
+                    m_bodyName      [ m_passiveMatrix[i][j][k]->GetMaterialName() ].push_back( m_passiveMatrix[i][j][k]->GetBodyName() );
 
                     // regions
                     stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << m_passiveMatrix[i][j][k]->GetRegionName()
@@ -499,6 +500,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
                                 << minCoord.z() << " " << maxCoord.z() << endl;
                     
                     m_bodyPrintOut[ m_chipMatrix[i][j][k]->GetMaterialName() ].push_back( ss.str() );
+                    m_bodyName    [ m_chipMatrix[i][j][k]->GetMaterialName() ].push_back( m_chipMatrix[i][j][k]->GetBodyName() );
 
                     // regions
                     stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << m_chipMatrix[i][j][k]->GetRegionName()
@@ -560,7 +562,8 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
                                 << minCoord.y() << " " << maxCoord.y() << " "
                                 << minCoord.z() << " " << maxCoord.z() << endl;
 
-                    m_bodyPrintOut[ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( ss.str() );
+                    m_bodyPrintOut  [ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( ss.str() );
+                    m_bodyName      [ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( m_sensorMatrix[k][j][i]->GetBodyName() );
 
                     // regions
                     stringstream ssr;
@@ -640,27 +643,24 @@ TGeoVolume* TAITparGeo::GetVolume() {
 
 
 //_____________________________________________________________________________
-void TAITparGeo::PrintBodies( string geoFileName ){
+string TAITparGeo::PrintBodies(){
 
     if ( !GlobalPar::GetPar()->geoFLUKA() ) 
         cout << "ERROR << TAITparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
     
-
-    ofstream geofile;
-    geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
-    
-    geofile << "* ***Inner Tracker" << endl;
+    stringstream outstr;
+    outstr << "* ***Inner Tracker" << endl;
 
     // loop in order of the material alfabeth
     for ( map<string, vector<string> >::iterator itMat = m_bodyPrintOut.begin(); itMat != m_bodyPrintOut.end(); itMat++ ) {
         // loop over all body of the same material
         for ( vector<string>::iterator itBody = (*itMat).second.begin(); itBody != (*itMat).second.end(); itBody++ ) {
-            geofile << (*itBody);
+            outstr << (*itBody);
             if (m_debug > 3)    cout << (*itBody);
         }        
     }
 
-    geofile.close();
+    return outstr.str();
 }
 
 
@@ -668,26 +668,46 @@ void TAITparGeo::PrintBodies( string geoFileName ){
 
 
 //_____________________________________________________________________________
-void TAITparGeo::PrintRegions( string geoFileName ){
+string TAITparGeo::PrintRegions( ){
 
     if ( !GlobalPar::GetPar()->geoFLUKA() ) 
         cout << "ERROR << TAITparGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
-    ofstream geofile;
-    geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
-      
-    geofile << "* ***Inner Tracker" << endl;
-
+    stringstream outstr;
+    outstr << "* ***Inner Tracker" << endl;
+ 
     // loop in order of the material alfabeth
     for ( map<string, vector<string> >::iterator itMat = m_regionPrintOut.begin(); itMat != m_regionPrintOut.end(); itMat++ ) {
         // loop over all region of the same material
         for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-            geofile << (*itRegion);
+            outstr << (*itRegion);
             if (m_debug > 3)    cout << (*itRegion);
         }        
     }
-    geofile.close();
+    return outstr.str();
 }
+
+
+
+
+//_____________________________________________________________________________
+string TAITparGeo::PrintSubtractBodiesFromAir() {
+
+    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
+        cout << "ERROR << TAITparGeo::PrintSubtractMaterialFromAir()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
+
+    stringstream outstr;
+    // loop in order of the material alfabeth
+    for ( map<string, vector<string> >::iterator itMat = m_bodyName.begin(); itMat != m_bodyName.end(); itMat++ ) {
+        // loop over all bodies of the same material
+        for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
+            outstr << " -" << (*itRegion);
+        }        
+    }
+    return outstr.str();
+
+}
+
 
 
 
@@ -754,8 +774,6 @@ string TAITparGeo::PrintAssignMaterial() {
     return outstr.str();
 
 }
-
-
 
 
 

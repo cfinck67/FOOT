@@ -121,15 +121,13 @@ TGeoVolume* TAIRparGeo::GetVolume() {
 */
 
 //_____________________________________________________________________________
-void TAIRparGeo::PrintBodies( string geoFileName ) {
+string TAIRparGeo::PrintBodies( ) {
   
   if ( !GlobalPar::GetPar()->geoFLUKA() ) 
     cout << "ERROR << TAIRparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
-  ofstream geofile;
-  geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
-
-  geofile << "* ***Start Counter" << endl;
+  stringstream outstr;
+  outstr << "* ***Start Counter" << endl;
 
   stringstream ss;
   double zero = 0.;
@@ -138,28 +136,24 @@ void TAIRparGeo::PrintBodies( string geoFileName ) {
   ss << "RCC stc     "  << STC_X << " " << STC_Y << " " << STC_Z
      << " " << zero << " " << zero << " " << STC_THICK << " " << STC_RAD << endl;
   
-  geofile << ss.str() << endl;
-  geofile.close();
-  
+  outstr << ss.str() << endl;
+  return outstr.str();
 }
 
 
 
 //_____________________________________________________________________________
-void TAIRparGeo::PrintRegions( string geoFileName ) {
+string TAIRparGeo::PrintRegions() {
   
   if ( !GlobalPar::GetPar()->geoFLUKA() ) 
     cout << "ERROR << TAIRparGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
-  ofstream geofile;
-  geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
+  stringstream outstr;
+  outstr << "* ***Start Counter" << endl;
 
-  geofile << "* ***Start Counter" << endl;
+  outstr << "STC       5 stc" << endl;
 
-  geofile << "STC       5 stc" << endl;
-
-  geofile.close();
-
+  return outstr.str();
 }
 
 

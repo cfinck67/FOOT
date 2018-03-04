@@ -81,8 +81,6 @@ KFitter::KFitter ( int nIter, double dPVal ) {
 
 	InitEventDisplay();		// empty!!!!
 
-	// bin width of the momentum resolution plot -- param file???
-	// m_resoP_step = 0.2;
 
 	m_vecHistoColor = { kBlack, kRed-9, kRed+1, kRed-2, kOrange+7, kOrange, kOrange+3, kGreen+1, 
 						kGreen+3, kBlue+1, kBlue+3, kAzure+8, kAzure+1, kMagenta+2, 
@@ -1154,7 +1152,9 @@ double KFitter::EvalError( TVector3 mom, TMatrixD cov ) {
 	if ( cov.GetNcols() != 3 || cov.GetNrows() != 3 ) 
 		cout << "ERROR :: KFitter::EvalError  >>  covariance dimension (should be 6) is wrong " << cov.GetNcols() << " x " << cov.GetNrows() << endl, exit(0);
 
-	array<double,3> partialDer = { mom.x()/sqrt(mom.Mag()), mom.y()/sqrt(mom.Mag()), mom.z()/sqrt(mom.Mag()) };
+	array<double,3> partialDer = { 	( mom.x()/( sqrt(mom.Mag()) ) ), 
+									( mom.y()/( sqrt(mom.Mag()) ) ), 
+									( mom.z()/( sqrt(mom.Mag()) ) )   };
 
 
 	double err = 0;

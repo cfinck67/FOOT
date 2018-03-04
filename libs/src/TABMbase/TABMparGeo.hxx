@@ -62,8 +62,8 @@ public:
   int RotateBmon();
   int ShiftBmon();
   
-  void PrintBodies( string geoFileName );
-  void PrintRegions( string geoFileName );
+  string PrintBodies();
+  string PrintRegions();
   string PrintAssignMaterial();
 
   void        SetWidth(double wid);

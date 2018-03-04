@@ -45,8 +45,8 @@ public:
 
 
   
-  void PrintBodies( string geoFileName );
-  void PrintRegions( string geoFileName );
+  string PrintBodies();
+  string PrintRegions();
   string PrintAssignMaterial();
   
   // Return a vector with the number of sensors along the cartesian directions

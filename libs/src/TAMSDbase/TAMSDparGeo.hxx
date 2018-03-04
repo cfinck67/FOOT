@@ -87,11 +87,10 @@ public:
     double GetNPixelY() { return m_nPixel_Y; };
     int GetNLayers() { return m_nSensors_Z; };
 
-    void AssignMaterial() {};
-    void AssignMagnetField() {};
-    void PrintBodies( string geoFileName );
-    void PrintRegions( string geoFileName );
+    string PrintBodies();
+    string PrintRegions();
     string PrintAssignMaterial();
+    string PrintSubtractBodiesFromAir();
 
     // Return a vector with the number of sensors along the cartesian directions
     TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
@@ -125,6 +124,7 @@ private:
     map<string, vector<string> > m_regionPrintOut;
     map<string, vector<string> > m_bodyPrintOut;
     map<string, vector<string> > m_regionName;
+    map<string, vector<string> > m_bodyName;
     map<string, int > m_magneticRegion;
 
     vector<string> m_materialOrder;

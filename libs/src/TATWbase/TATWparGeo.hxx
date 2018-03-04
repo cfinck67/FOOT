@@ -74,9 +74,10 @@ public:
   int GetNLayers() { return m_nLayer; };
 
 
-  void PrintBodies( string geoFileName );
-  void PrintRegions( string geoFileName );
+  string PrintBodies();
+  string PrintRegions();
   string PrintAssignMaterial();
+  string PrintSubtractBodiesFromAir();
 
   // Return a vector with the number of sensors along the cartesian directions
   TVector2        GetNumberOfSensorAlongDirections() { return m_NBar; };
@@ -116,6 +117,7 @@ private:
   map<string, vector<string> > m_regionPrintOut;
   map<string, vector<string> > m_bodyPrintOut;
   map<string, vector<string> > m_regionName;
+  map<string, vector<string> > m_bodyName;
   map<string, int > m_magneticRegion;
 
   int m_debug;

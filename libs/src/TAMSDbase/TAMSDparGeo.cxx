@@ -249,6 +249,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
                                 << minCoord.z() << " " << maxCoord.z() << endl;
                     
                     m_bodyPrintOut[ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( ss.str() );
+                    m_bodyName    [ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( m_sensorMatrix[k][i][j]->GetBodyName() );
 
                     // regions
                     stringstream ssr;
@@ -340,26 +341,24 @@ TGeoVolume* TAMSDparGeo::GetVolume() {
 
 
 //_____________________________________________________________________________
-void TAMSDparGeo::PrintBodies( string geoFileName ){
+string TAMSDparGeo::PrintBodies( ){
 
     if ( !GlobalPar::GetPar()->geoFLUKA() ) 
         cout << "ERROR << TAMSDparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
     
 
-    ofstream geofile;
-    geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
-    
-    geofile << "* ***Micro Strip Detector" << endl;
+    stringstream outstr;
+    outstr << "* ***Micro Strip Detector" << endl;
 
     // loop in order of the material alfabeth
     for ( map<string, vector<string> >::iterator itMat = m_bodyPrintOut.begin(); itMat != m_bodyPrintOut.end(); itMat++ ) {
         // loop over all body of the same material
         for ( vector<string>::iterator itBody = (*itMat).second.begin(); itBody != (*itMat).second.end(); itBody++ ) {
-            geofile << (*itBody);
+            outstr << (*itBody);
             if (m_debug > 3)    cout << (*itBody);
         }        
     }
-    geofile.close();
+    return outstr.str();
 }
 
 
@@ -367,25 +366,46 @@ void TAMSDparGeo::PrintBodies( string geoFileName ){
 
 
 //_____________________________________________________________________________
-void TAMSDparGeo::PrintRegions( string geoFileName ){
+string TAMSDparGeo::PrintRegions(){
 
     if ( !GlobalPar::GetPar()->geoFLUKA() ) 
         cout << "ERROR << TAMSDparGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
-    ofstream geofile;
-    geofile.open( geoFileName.c_str(), std::ofstream::out | std::ofstream::app );
-      
-    geofile << "* ***Micro Strip Detector" << endl;
+    stringstream outstr; 
+    outstr << "* ***Micro Strip Detector" << endl;
 
     // loop in order of the material alfabeth
     for ( map<string, vector<string> >::iterator itMat = m_regionPrintOut.begin(); itMat != m_regionPrintOut.end(); itMat++ ) {
         // loop over all body of the same material
         for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-            geofile << (*itRegion);
+            outstr << (*itRegion);
             if (m_debug > 3)    cout << (*itRegion);
         }        
     }
-    geofile.close();
+    return outstr.str();
+}
+
+
+
+
+
+//_____________________________________________________________________________
+string TAMSDparGeo::PrintSubtractBodiesFromAir() {
+
+    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
+        cout << "ERROR << TAMSDparGeo::PrintSubtractMaterialFromAir()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
+
+
+    stringstream outstr;
+    // loop in order of the material alfabeth
+    for ( map<string, vector<string> >::iterator itMat = m_bodyName.begin(); itMat != m_bodyName.end(); itMat++ ) {
+        // loop over all region of the same material
+        for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
+            outstr << " -" << (*itRegion);
+        }        
+    }
+    return outstr.str();
+
 }
 
 
@@ -446,7 +466,6 @@ string TAMSDparGeo::PrintAssignMaterial() {
         outstr << endl;
 
         // DEBUG
-        cout << outstr.str();
         if (m_debug > 0)    cout << outstr.str();
 
     }
@@ -454,6 +473,8 @@ string TAMSDparGeo::PrintAssignMaterial() {
     return outstr.str();
 
 }
+
+
 
 
 
