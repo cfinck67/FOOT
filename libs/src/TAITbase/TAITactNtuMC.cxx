@@ -191,7 +191,7 @@ Bool_t TAITactNtuMC::Action()
     
     // check true particle ID linked to the hit is in the correct range
     if ( genPartID < 0 || genPartID > fpEvtStr->TRn-1 ) {
-        cout << "TADCactNtuMC::Action :: ERROR >> wrong generate particle ID: "<< genPartID << " (nPart= " << fpEvtStr->TRn << endl;
+        cout << "TAITactNtuMC::Action :: ERROR >> wrong generate particle ID: "<< genPartID << " (nPart= " << fpEvtStr->TRn << endl;
         exit(0);
     }
 

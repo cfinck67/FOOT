@@ -1240,9 +1240,7 @@ void KFitter::InitEventDisplay() {
 	// for ( vector<TAITntuHit*>::iterator it=m_IT_hitCollection.begin(); it != m_IT_hitCollection.end(); it++ ) {
 	// 	delete (*it);
 	// }
-	// for ( vector<TADCntuHit*>::iterator it=m_DC_hitCollection.begin(); it != m_DC_hitCollection.end(); it++ ) {
-	// 	delete (*it);
-	// }
+	
 
 
 
