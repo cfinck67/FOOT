@@ -3,7 +3,7 @@
 
 
 #include <Track.h>
-#include "TMath.h"
+#include <TMath.h>
 
 #include "ControlPlotInfo.hxx"
 
@@ -24,7 +24,10 @@ public:
 
 	void SetOutputDir( string outputDir ) { m_outputDir = outputDir; };
 	void FillMap( string mapName, double x );
+	
 	void PrintMap();
+    void PrintOutputFile();
+    void PrintOutputNtuple();
 
 
 	//change dir
@@ -169,9 +172,48 @@ public:
 
 	}
 
+
+
+
+	struct Ntuple_out {
+		vector< double >  Reco_track_px;
+		vector< double >  Reco_track_py;
+		vector< double >  Reco_track_pz;
+		vector< double >  Reco_track_x;
+		vector< double >  Reco_track_y;
+		vector< double >  Reco_track_z;
+		vector< double >  Truth_track_px;
+		vector< double >  Truth_track_py;
+		vector< double >  Truth_track_pz;
+	};
+  
+  Ntuple_out  ntuple_out;
+  
+	void Set_Outputntuple( TVector3 *Reco_mom, TVector3 *Reco_pos, TVector3 *Truth_mom) {
+
+		ntuple_out.Reco_track_px.push_back(Reco_mom->x());
+		ntuple_out.Reco_track_py.push_back(Reco_mom->y());
+		ntuple_out.Reco_track_pz.push_back(Reco_mom->z());
+
+		ntuple_out.Reco_track_x.push_back(Reco_pos->x());
+		ntuple_out.Reco_track_y.push_back(Reco_pos->y());
+		ntuple_out.Reco_track_z.push_back(Reco_pos->z());
+
+		ntuple_out.Truth_track_px.push_back(Truth_mom->x());
+		ntuple_out.Truth_track_py.push_back(Truth_mom->y());
+		ntuple_out.Truth_track_pz.push_back(Truth_mom->z());
+
+	}
+
+
+
 	bool m_alreadyPrintedOut;
+
 	string m_lastPrintedDir;
 	string m_outputDir;
+	string m_outputfilename;
+	string m_outputntuplename;
+	
 	map< string, ControlPlotInfo > m_chizu;
 
 

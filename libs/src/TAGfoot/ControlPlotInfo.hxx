@@ -17,6 +17,7 @@
 #include "TVector3.h"
 #include "GlobalPar.hxx"
 #include "MagicSkills.hxx"
+#include "TTree.h"
 
 
 
@@ -94,6 +95,7 @@ public:
 
 	bool isDoub;
 	bool isInt;
+	bool m_printoutfile;
 
 	int m_nBin;
 	double m_minBin;

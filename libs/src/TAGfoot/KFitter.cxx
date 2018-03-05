@@ -304,7 +304,7 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
 		hitCoords(1)=hitPos.y();
 		hitCoords(2)=hitPos.z();
 		// set covariance matrix
-		double pixReso = 0.001;
+		double pixReso = GlobalPar::GetPar()->VTReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
 		double zErr = 0.001;
@@ -347,7 +347,7 @@ void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
 		hitCoords(1)=hitPos.y();
 		hitCoords(2)=hitPos.z();
 		// set covariance matrix
-		double pixReso = 0.001;
+		double pixReso = GlobalPar::GetPar()->ITReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
 		double zErr = 0.001;
@@ -385,7 +385,7 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
         
 
         // set covariance matrix
-		double stripReso = 0.001;
+		double stripReso = GlobalPar::GetPar()->MSDReso();
 		hitCov.UnitMatrix();         
 		hitCov *= stripReso*stripReso; 
 		double zErr = 0.001;
@@ -439,7 +439,7 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 	//         // TVector3 hitPos = m_MSD_geo->GetPosition( (*xIt)->GetLayer(), (*xIt)->GetPixelView(), (*xIt)->GetPixelStrip() );
 	        
 	//         // set covariance matrix
-	// 		double stripReso = 0.001;
+	// 		double stripReso = GlobalPar::GetPar()->MSDReso();
 	// 		hitCov.UnitMatrix();         
 	// 		hitCov *= stripReso*stripReso; 
 	// 		double zErr = 0.001;
@@ -509,7 +509,7 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 	        
 	  //       if ( m_debug > 0 )		cout << "\t", geo_hitPos.Print();
 			
-			// double stripReso = 0.0035*2;
+			// double stripReso = GlobalPar::GetPar()->MSDReso();
 			// hitCov.UnitMatrix();         
 			// hitCov *= stripReso*stripReso; 
 			// double zErr = 0.0025*2;
@@ -1014,6 +1014,11 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			m_controlPlotter->SetPos_Kal( hitSampleName, &kalmanPos, &KalmanPos_err );
 			
 			m_controlPlotter->SetTrackInfo( hitSampleName, track );
+
+
+			m_printoutntuple = GlobalPar::GetPar()->IsPrintOutputNtuple();
+			if (m_printoutntuple) m_controlPlotter->Set_Outputntuple(&kalmanMom, &kalmanPos, &tmp_genMom);
+
 		}
 	}
 	
@@ -1187,10 +1192,15 @@ void KFitter::Finalize() {
 
 	PrintEfficiency();
 
-	m_controlPlotter->PrintMap();
-
-	
 	m_fitTrackCollection->EvaluateMomentumResolution();
+
+
+	m_printoutfile = GlobalPar::GetPar()->IsPrintOutputFile();
+	if (m_printoutfile)			m_controlPlotter->PrintOutputFile();
+	else   						m_controlPlotter->PrintMap();
+
+	m_printoutntuple = GlobalPar::GetPar()->IsPrintOutputNtuple();
+	if(m_printoutntuple) 		m_controlPlotter->PrintOutputNtuple();
 
 	m_categoryFitted.clear();
 

@@ -312,11 +312,15 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
 
 
-    if(m_doBM) {
-        // DisplayBeamMonitor(pg);
-
-        //    DisplayIRMonitor(pg,&evStr);
-    }
+    // if(m_doBM) {
+    //     // DisplayBeamMonitor(pg);
+    //   TABMparGeo* m_bmgeo = shared_ptr<TABMparGeo> ( (TABMparGeo*) myp_bmgeo->Object() );
+    //   m_bmgeo->InitGeo();
+    //   m_bmgeo->ShiftBmon();
+    //   // m_bmgeo->PrintBodies("geppo");
+    //   // m_bmgeo->PrintRegions("geppo");
+    //     //    DisplayIRMonitor(pg,&evStr);
+    // }
 
     if (m_doVertex) {
 
@@ -352,7 +356,44 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         // top->AddNode( m_msdgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_msdgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
 
     }
+
+    // if(m_doTW) {
+      
+    //   TATWparGeo* m_twgeo = shared_ptr<TATWparGeo> ( (TATWparGeo*) myp_twgeo->Object() );
+
+    //   //Initialization of TW parameters
+    //   // m_twgeo->InitGeo();
+    //   // m_twgeo->PrintBodies("geppo");
+    //   // m_twgeo->PrintRegions("geppo");
+    //   // top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_twgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
+      
+    // }
     
+
+  //   if(m_doCA) {
+      
+  //   TACAparGeo* m_cageo = shared_ptr<TACAparGeo> ( (TACAparGeo*) myp_cageo->Object() );
+ 
+  //   //Initialization of CA parameters
+  //   // m_cageo->InitGeo();
+  //   // m_cageo->PrintBodies("geppo");
+  //   // m_cageo->PrintRegions("geppo");
+  //   // top->AddNode( m_cageo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_cageo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
+    
+  // }
+ 
+  // if(m_doIR) {
+      
+  //   m_irgeo = shared_ptr<TAIRparGeo> ( (TAIRparGeo*) myp_irgeo->Object() );
+ 
+  //   //Initialization of IR parameters
+  //   // m_irgeo->InitGeo();
+  //   // m_irgeo->PrintBodies("geppo");
+  //   // m_irgeo->PrintRegions("geppo");
+  //   // top->AddNode( m_irgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_irgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
+  //   }
+
+
     // set material into genfit
     MaterialEffects* materialEffects = MaterialEffects::getInstance();
     materialEffects->init(new TGeoMaterialInterface());

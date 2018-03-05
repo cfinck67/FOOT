@@ -153,6 +153,7 @@ void GlobalPar::ReadParamFile () {
         } 
 
 
+
         else if ( line.find("Create Reconstruction Geo:") != string::npos ) {
             string rev =StrReplace( line, "Create Reconstruction Geo:", "" );
             RemoveSpace( &rev );
@@ -182,6 +183,41 @@ void GlobalPar::ReadParamFile () {
                 m_kalParticles.push_back(tmpString);
         } 
          
+
+        else if ( line.find("VT  Reso") != string::npos ) {
+            m_VTreso = atof ( StrReplace( line, "VT  Reso:", "" ).c_str() );
+        } 
+        else if ( line.find("IT  Reso") != string::npos ) {
+            m_ITreso = atof ( StrReplace( line, "IT  Reso:", "" ).c_str() );
+        }
+        else if ( line.find("MSD Reso") != string::npos ) {
+            m_MSDreso = atof ( StrReplace( line, "MSD Reso:", "" ).c_str() );   
+        }
+        else if ( line.find("Print OutputFile") != string::npos ) {
+            string rev =StrReplace( line, "Print OutputFile:", "" );
+            RemoveSpace( &rev );
+            if ( rev == "true" )
+                m_printoutfile = true;
+             else
+                m_printoutfile = false;
+        }
+        else if ( line.find("Output Filename:") != string::npos ) {
+            m_outputfilename = StrReplace( line, "Output Filename:", "" ).c_str();
+        }
+        else if ( line.find("Print OutputNtuple") != string::npos ) {
+            string rev =StrReplace( line, "Print OutputNtuple:", "" );
+            RemoveSpace( &rev );
+                if ( rev == "true" )
+                    m_printoutntuple = true;
+                else 
+                    m_printoutntuple = false;
+            }
+        else if ( line.find("Output Ntuplename:") != string::npos ) {
+            m_outputntuplename = StrReplace( line, "Output Ntuplename:", "" ).c_str();
+        }
+
+
+
         // // btagging WP - default = 77%
         // else if ( line.find("BtaggingWP:") != string::npos ) {
         //     btaggingWP = atoi ( StrReplace( line, "BtaggingWP:", "" ).c_str() );
