@@ -76,11 +76,10 @@ class RecoTools {
   // time variables
  clock_t start_tot, end_tot;
  clock_t start_kal, end_kal;
- double tempo_kal;
+ double m_tempo_kal;
 
   int m_nev;
   int m_debug;
-  bool m_flaghisto, m_fullmoni;
   TFile* m_of;
   TFile* m_hf;
   TString m_oustr;

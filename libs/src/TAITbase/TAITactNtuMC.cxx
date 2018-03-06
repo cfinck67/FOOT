@@ -135,6 +135,7 @@ Bool_t TAITactNtuMC::Action()   {
         }
 
         // loop on the remaining hits
+        bool decluster = false;
         for ( int j = i+1; j < fpEvtStr->ITRn; j++) {   
 
             // check if same sensor 
@@ -156,9 +157,14 @@ Bool_t TAITactNtuMC::Action()   {
             // 
             if ( decluster_inner ) {
                 blackList.push_back( j );
+                decluster = true;
             }
 
         }
+        if ( decluster )   {
+            blackList.push_back( i );
+            continue;  // next event
+       }
         // DECLUSTER end
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

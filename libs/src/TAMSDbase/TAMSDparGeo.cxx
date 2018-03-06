@@ -230,6 +230,8 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
                                         m_sensorMatrix[k][i][j]->GetNodeID() , 
                                         new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
                                         new TGeoRotation("null,",0,0,0) ) );
+                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "\t"<<m_sensorMatrix[k][i][j]->GetMaterialRegionName()<<"  "<<m_sensorMatrix[k][i][j]->GetRegionName()<<" ", globalCoord.Print();
+
                 }
                     // m_sensorMatrix[k][i][j]->AddNodeToUniverse( m_universe );
 

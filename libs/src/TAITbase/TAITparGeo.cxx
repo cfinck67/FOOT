@@ -419,7 +419,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
                                         new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
                                         new TGeoRotation("null,",0,0,0) ) );
 
-                    cout << "\t"<<m_passiveMatrix[i][j][k]->GetMaterialRegionName()<<"  "<<m_passiveMatrix[i][j][k]->GetRegionName()<< "  "; globalCoord.Print();
+                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "\t"<<m_passiveMatrix[i][j][k]->GetMaterialRegionName()<<"  "<<m_passiveMatrix[i][j][k]->GetRegionName()<< "  ", globalCoord.Print();
                 }
                 
                 // boidies
@@ -481,7 +481,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
                                         new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
                                         new TGeoRotation("null,",0,0,0) ) );
 
-                    cout << "\t"<<m_chipMatrix[i][j][k]->GetMaterialRegionName()<<"  "<<m_chipMatrix[i][j][k]->GetRegionName() <<"  "; globalCoord.Print();
+                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "\t"<<m_chipMatrix[i][j][k]->GetMaterialRegionName()<<"  "<<m_chipMatrix[i][j][k]->GetRegionName() <<"  ", globalCoord.Print();
                 }
                 
                 // boidies
@@ -544,7 +544,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
                                         m_sensorMatrix[k][j][i]->GetNodeID() , 
                                         new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
                                         new TGeoRotation("null,",0,0,0) ) );
-                    cout << "\t"<<m_sensorMatrix[k][j][i]->GetMaterialRegionName()<<"  "<<m_sensorMatrix[k][j][i]->GetRegionName()<<" "; globalCoord.Print();
+                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "\t"<<m_sensorMatrix[k][j][i]->GetMaterialRegionName()<<"  "<<m_sensorMatrix[k][j][i]->GetRegionName()<<" ", globalCoord.Print();
                 }
 
                 // boidies

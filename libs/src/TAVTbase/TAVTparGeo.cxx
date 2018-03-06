@@ -263,7 +263,7 @@ void TAVTparGeo::InitGeo()  {
                                         m_passiveMatrix[k][i][j]->GetNodeID() , 
                                         new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
                                         new TGeoRotation("null,",0,0,0) ) );
-                    cout <<"\t"<<m_passiveMatrix[k][i][j]->GetMaterialRegionName()<<"  "; globalCoord.Print();
+                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout <<"\t"<<m_passiveMatrix[k][i][j]->GetMaterialRegionName()<<"  ", globalCoord.Print();
                 }
 
                 // boidies
@@ -333,7 +333,7 @@ void TAVTparGeo::InitGeo()  {
                                         m_sensorMatrix[k][i][j]->GetNodeID() , 
                                         new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
                                         new TGeoRotation("null,",0,0,0) ) );
-                    cout <<"\t"<<m_sensorMatrix[k][i][j]->GetMaterialRegionName()<<"  "; globalCoord.Print();
+                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout <<"\t"<<m_sensorMatrix[k][i][j]->GetMaterialRegionName()<<"  ", globalCoord.Print();
                 }
 
                     // boidies

@@ -125,7 +125,7 @@ int main (int argc, char *argv[]) {
   cout<< "Execution Time: "<< tempo << " seconds" << endl;
   cout<< "Execution Time in human units: "<< t_h <<" : "<< t_m <<" : "<< t_s << endl;
   
-  double tempoKal = d.tempo_kal / CLOCKS_PER_SEC;
+  double tempoKal = d.m_tempo_kal / CLOCKS_PER_SEC;
   int t_h2 = trunc( tempoKal/3600 );
   int t_m2 = trunc( fmod(tempoKal, 3600)/60 );
   int t_s2 = trunc( fmod(fmod(tempoKal, 3600), 60) );
