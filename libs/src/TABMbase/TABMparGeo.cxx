@@ -672,10 +672,10 @@ string TABMparGeo::PrintRegions(){
   for (int iv =0; iv<2;iv++){      // loop on views
     for (int il=0;il<NLAYERNEW;il++){ // loop on layers
       for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
-	iCell[iv]++;
-	ss << "BMN_C" << iv << setw(2) << setfill('0') << iCell[iv]
-	   << "     5 BmnC" << iv << iCell[iv]
-	   << " -BmnS" << iv << iCell[iv] << endl;
+  iCell[iv]++;
+  ss << "BMN_C" << iv << setw(2) << setfill('0') << iCell[iv]
+     << "     5 BmnC" << iv << iCell[iv]
+     << " -BmnS" << iv << iCell[iv] << endl;
       }
     }
   }
@@ -685,10 +685,10 @@ string TABMparGeo::PrintRegions(){
   for (int iv = 0; iv<2; iv++){
     for (int il=0;il<NLAYERNEW;il++){ // loop on layers
       for (int jj = 0; jj < (NWIRELAYERNEW-NSENSENEW); jj++) {
-	if ((( count  % 4 ) == 0) && count>0 )
-	  ss << "\n              ";
-	ss << " | " << "BmnShiIn + BmnF" << iv  << (NWIRELAYERNEW-NSENSENEW)*il+jj;
-	count++;
+  if ((( count  % 4 ) == 0) && count>0 )
+    ss << "\n              ";
+  ss << " | " << "BmnShiIn + BmnF" << iv  << (NWIRELAYERNEW-NSENSENEW)*il+jj;
+  count++;
       }
     }
   }
@@ -699,10 +699,10 @@ string TABMparGeo::PrintRegions(){
   for (int iv =0; iv<2;iv++){      // loop on views
     for (int il=0;il<NLAYERNEW;il++){ // loop on layers
       for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
-	if ((( count  % 4 ) == 0) && count>0 )
-	  ss << "\n              ";
-	ss << " | " << "BmnC" << iv << NSENSENEW*il+ic << " + BmnS" << iv  << NSENSENEW*il+ic;
-	count++;
+  if ((( count  % 4 ) == 0) && count>0 )
+    ss << "\n              ";
+  ss << " | " << "BmnC" << iv << NSENSENEW*il+ic << " + BmnS" << iv  << NSENSENEW*il+ic;
+  count++;
       }
     }
   }
@@ -713,19 +713,20 @@ string TABMparGeo::PrintRegions(){
   for (int iv =0; iv<2;iv++){      // loop on views
     for (int il=0;il<NLAYERNEW;il++){ // loop on layers
       for (int ic =0; ic<(NWIRELAYERNEW-NSENSENEW);ic++){  // loop on field wires
-	if ((( count  % 6 ) == 0) )
-	  ss << "\n              ";
-	ss << " | " << "-BmnF" << iv << (NWIRELAYERNEW-NSENSENEW)*il+ic;
-	count++;
+  if ((( count  % 6 ) == 0) )
+    ss << "\n              ";
+  ss << " -BmnF" << iv << (NWIRELAYERNEW-NSENSENEW)*il+ic;
+  count++;
       }
       for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
-	if ((( count  % 6 ) == 0) )
-	  ss << "\n              ";
-	ss << " | " << "-BmnC" << iv << NSENSENEW*il+ic;
-	count++;
+  if ((( count  % 6 ) == 0) )
+    ss << "\n              ";
+  ss << " -BmnC" << iv << NSENSENEW*il+ic;
+  count++;
       }
     }
   }
+  
   
   outstr << ss.str() << endl; 
 

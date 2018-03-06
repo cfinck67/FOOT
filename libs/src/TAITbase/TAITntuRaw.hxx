@@ -28,6 +28,7 @@ class TAITntuHit : public TObject {
    
 private:
 
+
   TAITparGeo* m_geometry;
 
    Int_t              fSensorNumber;                 // number of the plane
