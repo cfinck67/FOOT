@@ -21,13 +21,11 @@ class TAITrawHit;
 
 /** TAITntuHit class contains information respect to a pixel in cmos detectors
  index, position, noise, pulse height, size, etc...
- 
  */
 
 class TAITntuHit : public TObject {
    
 private:
-
 
   TAITparGeo* m_geometry;
 
@@ -35,9 +33,8 @@ private:
    TVector3           fPosition;                     // position in uvw coordinates in the plane
    TVector3           fSize;                         // size in uvw directions
    
-   TVector3           m_hitCoord;                       // hit pixel coordinate
+   TVector3           m_hitCoord;                    // hit pixel coordinate
    // TVector3           resolution;                       // useful?
-
 
    Int_t              fMCid;                         // MC index
    TVector3           fMCPos;                        // position in uvw coordinates in the plane
@@ -54,13 +51,13 @@ private:
    
    Int_t              fDebugLevel;                   // debug level
 
-  Double_t            fEneLoss;        // energy loss by MC particle VM 3/11/13
+  Double_t            fEneLoss;                     // energy loss by MC particle
    
 public:
    TAITntuHit();
    TAITntuHit( Int_t iSensor, TAITrawHit* pixel);
    TAITntuHit( Int_t iSensor, const Int_t aIndex, Double_t aValue);
-   TAITntuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn); 
+   TAITntuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn);   // up to date
    ~TAITntuHit();
    
    //! Compute distance from a given pixel
@@ -101,13 +98,15 @@ public:
    //! Set MC truth matching index
    void               SetMCid(Int_t a_id)             { fMCid = a_id;            }
    //! Set MC truth position
-   void               SetMCPosition(TVector3 a_pos)   { fMCPos = a_pos;          }
+   void               SetMCPosition(TVector3 a_pos)   { m_geometry->Global2Local( &a_pos ), fMCPos = a_pos;   }
    //! Set MC truth momentum
-   void               SetMCMomentum(TVector3 a_mom)   { fMCP = a_mom;            }
+   void               SetMCMomentum(TVector3 a_mom)   { m_geometry->Global2Local( &a_mom ), fMCP = a_mom;  }
    //
    void               SetItrGeo( TAITparGeo* ageometry )  { m_geometry = ageometry; };
-
-   // Frank
+  // set MC energy loss 
+  void SetEneLoss(Double_t de) { fEneLoss=de; }  
+  // get MC energy loss
+  Double_t           GetEneLoss() { return fEneLoss; }
     void SetGeneratedParticleInfo ( int genPartID, int genPartFLUKAid, int genPartCharge,
                         int genPartBarionNum, float genPartMass,
                         TVector3 genPartPosition,
@@ -130,8 +129,7 @@ public:
     TVector3 m_genPartPosition;
     TVector3 m_genPartMomentum;
 
-  // set MC energy loss (VM 3/11/13)
-  void SetEneLoss(Double_t de) { fEneLoss=de; }  
+  
    
    //! Get pixel index
    Int_t              GetPixelIndex()           const { return  fPixelIndex;     }
@@ -154,27 +152,46 @@ public:
    //! Get plane number
    // Int_t              GetSensorNumber()               { return  fSensorNumber;   }
    Int_t              GetLayer()               { return  m_layer;   }
-   
    //! Get MC truth matching index
    Int_t              GetMCid()                       { return  fMCid;           }
+   
+
    //! Get MC truth position
    TVector3&          GetMCPosition_Local()                 { return  fMCPos;          }
+   
    TVector3          GetMCPosition_Global()          { 
         TVector3 globPos = fMCPos;
         m_geometry->Local2Global( &globPos ); 
         return globPos; 
     };   //! Get MC truth momentum
+   
    TVector3&          GetMCMomentum_Local()                 { return  fMCP;            }
+  
   TVector3          GetMCMomentum_Global()          { 
         TVector3 globP = fMCP;
         m_geometry->Local2Global_RotationOnly( &globP ); 
         return globP; 
     };
-  // get MC energy loss (VM 3/11/13)
-  Double_t           GetEneLoss() { return fEneLoss; }
+  
 
    ClassDef(TAITntuHit,3)                            // Pixel or Pixel of a Detector Plane
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //##############################################################################
 

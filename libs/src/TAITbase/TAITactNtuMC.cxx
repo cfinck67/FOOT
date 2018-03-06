@@ -95,217 +95,131 @@ void TAITactNtuMC::CreateHistogram()
 //------------------------------------------+-----------------------------------
 //! Action.
 
-Bool_t TAITactNtuMC::Action()
-{
-  TAITntuRaw* pNtuRaw = (TAITntuRaw*) fpNtuRaw->Object();
-  TAITparMap* pParMap = (TAITparMap*) fpParMap->Object();
-  TAITparGeo* pGeoMap  = (TAITparGeo*) fpGeoMap->Object();
+Bool_t TAITactNtuMC::Action()   {
 
-  // bool doXchk = kFALSE;    // era della vecchia ricostruzione
-
-  TAGgeoTrafo *fGeoTrafo =  (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-  if (fGeoTrafo == 0x0)
-    Error("SetGeoTrafoName","No GeoTrafo action called %s available", TAGgeoTrafo::GetDefaultActName().Data());
-
-  pNtuRaw->Clear();
-
-  Int_t mcID(-1000);
-
-   if (fDebugLevel) Info("Action()","Processing n :: %2d hits \n",fpEvtStr->ITRn);
-    if ( GlobalPar::GetPar()->Debug() > 0 )         cout<< endl << "ITn   " << fpEvtStr->ITRn<< endl;
-   
     vector<int> blackList;
+    if ( GlobalPar::GetPar()->Debug() > 0 )         cout<< endl << "ITn :  " << fpEvtStr->ITRn<< endl;
 
-   //AS  To be completely rechecked...
+    // container of the hits
+    TAITntuRaw* pNtuRaw = (TAITntuRaw*) fpNtuRaw->Object();
+    pNtuRaw->Clear();
+
+    TAITparMap* pParMap = (TAITparMap*) fpParMap->Object(); // deprecated 
+    // detector geometry class
+    TAITparGeo* pGeoMap  = (TAITparGeo*) fpGeoMap->Object();
+
+
+   // loop over hits
    for (Int_t i = 0; i < fpEvtStr->ITRn; i++) {
 
-     /*
-     // position in global transform in local
-     // missing value set to 1. cos binary
-     // miSigChips starts at 1 !!!
-     Int_t sensorId    = pParMap->GetRealId(fpEvtStr->miSigChip[i]-1);
-     //     TAITntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., fpEvtStr->miSigRow[i], fpEvtStr->miSigCol[i]);
-     */
+        int sensorId  = 0;
+        // int sensorId  = 1*fpEvtStr->ITRimimo[i] + 4*fpEvtStr->ITRiplume[i] + 16*fpEvtStr->ITRilay[i];
+
+        if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "sensorId "<< fpEvtStr->ITRimimo[i] << " + "<< fpEvtStr->ITRiplume[i] << " + "<< fpEvtStr->ITRilay[i] << endl;
+
+        //The column refer to Y!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!  in ntuple, the row and col start from 0  !!!!!!!!!!!!!!!!!!!!!!!
+        int myTrow, myTcol;
+        myTrow = fpEvtStr->ITRirow[i];
+        myTcol = fpEvtStr->ITRicol[i];
 
 
-     int sensorId  = 0;
-     // int sensorId  = 1*fpEvtStr->ITRimimo[i] + 4*fpEvtStr->ITRiplume[i] + 16*fpEvtStr->ITRilay[i];
 
-     // cout << "sensorId "<< fpEvtStr->ITRimimo[i] << " + "<< fpEvtStr->ITRiplume[i] << " + "<< fpEvtStr->ITRilay[i] << endl;
-     // if ( fpEvtStr->ITRimimo[i] != 0 || fpEvtStr->ITRiplume[i] != 0 || fpEvtStr->ITRilay[i] != 0 )
-     //    continue;
+        ////////  "DECLUSTER" HACK waiting for clustering   ///////////////////////////////////////
+        // remove all the hits adiacent to the current one
 
-     //What About a decent post processing?
-     //The column refer to Y!!!
-     // !!!!!!!!!!!!!!!!!!!!!!!!!!!  in ntuple, the row and col start from 0  !!!!!!!!!!!!!!!!!!!!!!!
-     int myTrow, myTcol;
-     myTrow = fpEvtStr->ITRirow[i];
-     myTcol = fpEvtStr->ITRicol[i];
-     
-
-
-     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-     for ( int bl = 0; bl<blackList.size(); bl++ ) {
-        if ( blackList.at(bl) == i )
-          continue;   // next event
-      }
-
-
-    // DECLUSTER
-      bool decluster = false;
-      for ( int j = i+1; j < fpEvtStr->ITRn; j++) {   // other hit loop
-
-        // same sensor .....
-        bool decluster_inner = false;
-        for ( int k = -1; k <= 1; k++ ) {
-          for ( int h = -1; h <= 1; h++ ) {
-            if   ( myTrow == fpEvtStr->ITRirow[j]+k && myTcol == fpEvtStr->ITRicol[j]+h )   {
-              decluster_inner = true;
-              break;
-            }
-          }
-          if ( decluster_inner )    break;
+        // check if the current event is in the blacklist. if so skip.
+        for ( int bl = 0; bl<blackList.size(); bl++ ) {
+            if ( blackList.at(bl) == i )
+            continue;   // next event
         }
 
-        if ( decluster_inner ) {
-           blackList.push_back( j );
-           decluster = true;
-         }
+        // loop on the remaining hits
+        for ( int j = i+1; j < fpEvtStr->ITRn; j++) {   
 
-      }
-      if ( decluster )   {
-        blackList.push_back( i );
-        continue;  // next event
-      }
-        
-      // DECLUSTER end
+            // check if same sensor 
+            if ( (fpEvtStr->ITRimimo[i] != fpEvtStr->ITRimimo[j]) || (fpEvtStr->ITRiplume[i] != fpEvtStr->ITRiplume[j]) || (fpEvtStr->ITRilay[i] != fpEvtStr->ITRilay[j]) )
+                continue;
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            bool decluster_inner = false;
+            // search if the j-hit is close to the i-hit. is so decluster_inner TRUE
+            for ( int k = -1; k <= 1; k++ ) {
+                for ( int h = -1; h <= 1; h++ ) {
+                    if   ( myTrow == fpEvtStr->ITRirow[j]+k && myTcol == fpEvtStr->ITRicol[j]+h )   {
+                        decluster_inner = true;
+                        break;
+                    }
+                }
+                if ( decluster_inner )    break;
+            }
+
+            // 
+            if ( decluster_inner ) {
+                blackList.push_back( j );
+            }
+
+        }
+        // DECLUSTER end
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
-      // Generated particle ID 
-     int genPartID = fpEvtStr->ITRid[i] - 1;
+        // Generated particle ID 
+        int genPartID = fpEvtStr->ITRid[i] - 1;
     
-    // check true particle ID linked to the hit is in the correct range
-    if ( genPartID < 0 || genPartID > fpEvtStr->TRn-1 ) {
-        cout << "TAITactNtuMC::Action :: ERROR >> wrong generate particle ID: "<< genPartID << " (nPart= " << fpEvtStr->TRn << endl;
-        exit(0);
-    }
+        // check true particle ID linked to the hit is in the correct range
+        if ( genPartID < 0 || genPartID > fpEvtStr->TRn-1 ) {
+            cout << "TAITactNtuMC::Action :: ERROR >> wrong generate particle ID: "<< genPartID << " (nPart= " << fpEvtStr->TRn << endl;
+            exit(0);
+        }
 
-    // take only hits linked to specific particle
-    // if ( fpEvtStr->TRfid[genPartID] != -6 || fpEvtStr->TRcha[genPartID] != 2 )    continue;
-    // cout << "ALPHA found! "  << endl;
-    // if ( fpEvtStr->TRfid[genPartID] != -2 || fpEvtStr->TRcha[genPartID] != 3 )    continue;
-    // if ( fpEvtStr->TRfid[genPartID] != -2 )    continue;
-    // cout << "LITIUM found! "  << endl;
-    // if ( fpEvtStr->TRfid[genPartID] != -2 || fpEvtStr->TRcha[genPartID] != 6 )    continue;
-    // if ( fpEvtStr->TRfid[genPartID] != -2 || fpEvtStr->TRcha[genPartID] != 6 ||
-    //               fpEvtStr->TRmass[genPartID] < 10 ||  fpEvtStr->TRmass[genPartID] > 10.5 )    continue;
-    // if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "CARBONIUM found! "  << endl;
+        if ( GlobalPar::GetPar()->Debug() > 0 )     {
+            cout << "Part type: " << fpEvtStr->TRfid[genPartID] << " and charge: " << fpEvtStr->TRcha[genPartID] << " and mass = " << fpEvtStr->TRmass[genPartID] << endl;
+            cout << "Generated Position: " << fpEvtStr->TRix[genPartID] <<" "<<fpEvtStr->TRiy[genPartID]<<" "<<fpEvtStr->TRiz[genPartID] << endl;
+            cout << "Generated Momentum: " << fpEvtStr->TRipx[genPartID] <<" "<<fpEvtStr->TRipy[genPartID]<<" "<<fpEvtStr->TRipz[genPartID] << endl;
+        }
+         
+        // CREATE HERE THE HIT OBJECT
+        TAITntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol);    // sensor id is fake here   ----   fix once a stable geometry
+        // start filling hit with info!
+        pixel->SetItrGeo(pGeoMap); // first to set!!!!
+        pixel->SetMCid( fpEvtStr->ITRid[i] );
+        pixel->SetLayer( fpEvtStr->ITRilay[i] );
 
-    if ( GlobalPar::GetPar()->Debug() > 0 )     {
-         cout << "Part type: " << fpEvtStr->TRfid[genPartID] << " and charge: " << fpEvtStr->TRcha[genPartID] << " and mass = " << fpEvtStr->TRmass[genPartID] << endl;
-        // double momentum = sqrt( fpEvtStr->TRipx[genPartID]*fpEvtStr->TRipx[genPartID] +
-        //                   fpEvtStr->TRipy[genPartID]*fpEvtStr->TRipy[genPartID] +
-        //                   fpEvtStr->TRipz[genPartID]*fpEvtStr->TRipz[genPartID] );
-        // cout << "\t\t\tmomentum: " << momentum << endl;
-        cout << "Generated Position: " << fpEvtStr->TRix[genPartID] <<" "<<fpEvtStr->TRiy[genPartID]<<" "<<fpEvtStr->TRiz[genPartID] << endl;
-        cout << "Generated Momentum: " << fpEvtStr->TRipx[genPartID] <<" "<<fpEvtStr->TRipy[genPartID]<<" "<<fpEvtStr->TRipz[genPartID] << endl;
-    }
+        //Need IDX matching
+        TVector3 MCmom(0,0,0); 
+        TVector3 MCpos(0,0,0); 
+        MCpos.SetXYZ((fpEvtStr->ITRxin[i]+fpEvtStr->ITRxout[i])/2,(fpEvtStr->ITRyin[i]+fpEvtStr->ITRyout[i])/2,(fpEvtStr->ITRzin[i]+fpEvtStr->ITRzout[i])/2);
+        MCmom.SetXYZ((fpEvtStr->ITRpxin[i]+fpEvtStr->ITRpxout[i])/2,(fpEvtStr->ITRpyin[i]+fpEvtStr->ITRpyout[i])/2,(fpEvtStr->ITRpzin[i]+fpEvtStr->ITRpzout[i])/2);
+         
+        if ( GlobalPar::GetPar()->Debug() > 0 )     {
+            cout << "InnerTracker pixel " << i << " col " << myTcol << " row "<< myTrow << endl;
+            cout << "\tGlobal kinematic: \n\t\tPos:\t"; 
+            MCpos.Print();
+            cout << "\t\tMom:\t";
+            MCmom.Print();
+        }
      
+        // input in global cartesian coordinates, change to local in pixel
+        pixel->SetMCPosition(MCpos);
+        pixel->SetMCMomentum(MCmom);
+        pixel->SetEneLoss(fpEvtStr->ITRde[i]);
+
+        double v = pParMap->GetPositionV(myTrow);
+        double u = pParMap->GetPositionU(myTcol);
+        TVector3 pos(v,u,0);
+        pixel->SetPosition(pos);
+
+        // in global frame
+        pixel->SetHitCoordinate( pGeoMap->GetPosition( fpEvtStr->ITRilay[i], fpEvtStr->ITRimimo[i], fpEvtStr->ITRiplume[i],  myTcol, myTrow ) );
+
+        // set info of the generating particle  --  waiting to resurrect the proper class
+        pixel->SetGeneratedParticleInfo ( genPartID, fpEvtStr->TRfid[genPartID], fpEvtStr->TRcha[genPartID],
+                            fpEvtStr->TRbar[genPartID], fpEvtStr->TRmass[genPartID],
+                            TVector3(fpEvtStr->TRix[genPartID], fpEvtStr->TRiy[genPartID], fpEvtStr->TRiz[genPartID]),
+                            TVector3(fpEvtStr->TRipx[genPartID], fpEvtStr->TRipy[genPartID], fpEvtStr->TRipz[genPartID])  );
 
 
-    // TAITntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol);
-    TAITntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol);
-    //ID matching for the "trk" block
-    //     mcID = fpEvtStr->miSigId[i];
-    pixel->SetItrGeo(pGeoMap);
-    mcID = fpEvtStr->ITRid[i];
-    pixel->SetMCid(mcID);
-    pixel->SetLayer( fpEvtStr->ITRilay[i] );
-
-    //Need IDX matching
-    TVector3 MCmom(0,0,0); 
-    TVector3 MCpos(0,0,0); 
-
-    MCpos.SetXYZ((fpEvtStr->ITRxin[i]+fpEvtStr->ITRxout[i])/2,(fpEvtStr->ITRyin[i]+fpEvtStr->ITRyout[i])/2,(fpEvtStr->ITRzin[i]+fpEvtStr->ITRzout[i])/2);
-    MCmom.SetXYZ((fpEvtStr->ITRpxin[i]+fpEvtStr->ITRpxout[i])/2,(fpEvtStr->ITRpyin[i]+fpEvtStr->ITRpyout[i])/2,(fpEvtStr->ITRpzin[i]+fpEvtStr->ITRpzout[i])/2);
-     
-    if ( GlobalPar::GetPar()->Debug() > 0 )     {
-        cout << "InnerTracker pixel " << i << " col " << myTcol << " row "<< myTrow << endl;
-        cout << "\tGlobal kinematic: \n\t\tPos:\t"; 
-        MCpos.Print();
-        cout << "\t\tMom:\t";
-        MCmom.Print();
-    }
-     
-     // change to local
-     pGeoMap->Global2Local( &MCpos );
-     pGeoMap->Global2Local_RotationOnly( &MCmom );
-
-     pixel->SetMCPosition(MCpos);
-     pixel->SetMCMomentum(MCmom);
-     //     pixel->SetEneLoss(fpEvtStr->miSigDE[i]);  // VM added 3/11/13
-     pixel->SetEneLoss(fpEvtStr->ITRde[i]);  // VM added 3/11/13
-
-     /*
-     if (fDebugLevel)
-       printf("Sensor %d line %d col %d\n", sensorId, fpEvtStr->miSigRow[i], fpEvtStr->miSigCol[i]);
-     
-     if (fDebugLevel) {
-       printf("Recoed Id %d X %f Y %f Z %f\n", sensorId, fpEvtStr->miSigX[i], fpEvtStr->miSigY[i], fpEvtStr->miSigZ[i]);
-       printf("Id %d X %f Y %f\n",      sensorId, pParMap->GetPositionU(fpEvtStr->miSigCol[i]), pParMap->GetPositionV(fpEvtStr->miSigRow[i]));
-       printf("Id %d X %f Y %f\n",      sensorId, -pParMap->GetPositionV(fpEvtStr->miSigCol[i]), pParMap->GetPositionU(fpEvtStr->miSigRow[i]));
-     }
-     */
-     double v = pParMap->GetPositionV(myTrow);
-     double u = pParMap->GetPositionU(myTcol);
-     TVector3 pos(v,u,0);
-     pixel->SetPosition(pos);
-
-     // in global frame
-     pixel->SetHitCoordinate( pGeoMap->GetPosition( fpEvtStr->ITRilay[i], fpEvtStr->ITRimimo[i], fpEvtStr->ITRiplume[i],  myTcol, myTrow ) );
-
-     pixel->SetGeneratedParticleInfo ( genPartID, fpEvtStr->TRfid[genPartID], fpEvtStr->TRcha[genPartID],
-                    fpEvtStr->TRbar[genPartID], fpEvtStr->TRmass[genPartID],
-                    TVector3(fpEvtStr->TRix[genPartID], fpEvtStr->TRiy[genPartID], fpEvtStr->TRiz[genPartID]),
-                    TVector3(fpEvtStr->TRipx[genPartID], fpEvtStr->TRipy[genPartID], fpEvtStr->TRipz[genPartID])  );
-
-
-
-   /*
-     if(doXchk) {
-       TVector3* senCen = pGeoMap->GetPosition(sensorId);
-       TVector3 posi = pixel->GetPosition();
-       TVector3 posiCm(posi.X()/10000,posi.Y()/10000,posi.Z()/10000);
-       TVector3 posGlb = fGeoTrafo->FromVTLocalToGlobal(posiCm);
-       
-       if( (fabs(MCpos.X() - (posGlb.X()+senCen->X()/10000))>0.007) || (fabs(MCpos.Y() - (posGlb.Y()+senCen->Y()/10000))>0.007) ) {
-     
-     cout<<"mc:: "<<MCpos.X()<<" "<<MCpos.Y()<<" "<<MCpos.Z()<<" "<<sensorId<<" "<<fpEvtStr->miSigChip[i]<<endl;
-     
-     cout<<"GLB:: "<<posGlb.X()+senCen->X()/10000<<" "<<posGlb.Y()+senCen->Y()/10000<<" "<<posGlb.Z()+senCen->Z()/10000<<endl;
-       }
-     }
-
-     if (ValidHistogram()) {
-       if (TAITparConf::IsMapHistOn()) {
-     fpHisPixelMap[sensorId]->Fill(fpEvtStr->miSigCol[i], fpEvtStr->miSigRow[i]);
-     fpHisPosMap[sensorId]->Fill(pos[0], pos[1]);
-       }
-       Int_t aColumn = fpEvtStr->miSigCol[i];
-       fpHisRateMap[sensorId]->Fill(aColumn);
-       
-       for (Int_t k = 0; k < 4; ++k) {
-     if (aColumn >= 258*k && aColumn < (k+1)*258)
-       fpHisRateMapQ[sensorId]->Fill(k+1);
-       }
-     }   
-   */
-   }
+   }    // END - loop over hits
    
    fpNtuRaw->SetBit(kValid);
    return kTRUE;
