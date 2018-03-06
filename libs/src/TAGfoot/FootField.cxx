@@ -13,12 +13,13 @@ FootField::FootField ( string fileName ) {
 	m_fieldSetting = "realFieldMap";
 
 	ifstream ifile;
-    ifile.open( ( (string)getenv("FOOTSIMU")+"/"+fileName ).c_str() );
+	string fullFileName = (string)getenv("FOOTSIMU")+"/"+fileName;
+    ifile.open( fullFileName.c_str() );
 
     cout << "\tB center =  " << MAG_AIR_X <<"  "<< MAG_AIR_Y << "  "<< MAG_AIR_Z << endl;
 
     if ( !ifile.is_open() )        
-    	cout<< "ERROR >> FootField::FootField  ::  cannot open magnatic map for file " << fileName << endl, exit(0);
+    	cout<< "ERROR >> FootField::FootField  ::  cannot open magnetic map for file " << fullFileName << endl, exit(0);
 
     // read position and field  -->	 fill a multidimensional map called lattice3D = map< double, map< double, map< double, TVector3 > > >
     string line = "";

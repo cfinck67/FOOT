@@ -202,7 +202,8 @@ void GlobalPar::ReadParamFile () {
                 m_printoutfile = false;
         }
         else if ( line.find("Output Filename:") != string::npos ) {
-            m_outputfilename = StrReplace( line, "Output Filename:", "" ).c_str();
+            m_outputfilename = StrReplace( line, "Output Filename:", "" );
+            RemoveSpace( &m_outputfilename );
         }
         else if ( line.find("Print OutputNtuple") != string::npos ) {
             string rev =StrReplace( line, "Print OutputNtuple:", "" );
@@ -211,11 +212,71 @@ void GlobalPar::ReadParamFile () {
                     m_printoutntuple = true;
                 else 
                     m_printoutntuple = false;
-            }
+        }
         else if ( line.find("Output Ntuplename:") != string::npos ) {
-            m_outputntuplename = StrReplace( line, "Output Ntuplename:", "" ).c_str();
+            m_outputntuplename = StrReplace( line, "Output Ntuplename:", "" );
+            RemoveSpace( &m_outputntuplename );
         }
 
+        else if ( line.find("IncludeBM:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeBM:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeBM = true;
+            else                     m_includeBM = false;
+        }
+        else if ( line.find("IncludeIR:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeIR:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeIR = true;
+            else                     m_includeIR = false;
+        }
+        else if ( line.find("IncludeTW:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeTW:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeTW = true;
+            else                     m_includeTW = false;
+        }
+        else if ( line.find("IncludeMSD:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeMSD:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeMSD = true;
+            else                     m_includeMSD = false;
+        }
+        else if ( line.find("IncludeCA:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeCA:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeCA = true;
+            else                     m_includeCA = false;
+        }
+        else if ( line.find("IncludeVertex:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeVertex:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeVertex = true;
+            else                     m_includeVertex = false;
+        }
+        else if ( line.find("IncludeInnerTracker:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeInnerTracker:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeInnerTracker = true;
+            else                     m_includeInnerTracker = false;
+        }
+        else if ( line.find("IncludeKalman:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeKalman:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeKalman = true;
+            else                     m_includeKalman = false;
+        }
+        else if ( line.find("IncludeEvent:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeEvent:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeEvent = true;
+            else                     m_includeEvent = false;
+        }
+
+        else if ( line.find("Magnetic field map name:") != string::npos ) {
+            m_magFieldMap = StrReplace( line, "Magnetic field map name:", "" );
+            RemoveSpace( &m_magFieldMap );
+        }
 
 
         // // btagging WP - default = 77%

@@ -7,8 +7,11 @@
 
 
 //----------------------------------------------------------------------------------------------------
-KFitter::KFitter ( int nIter, double dPVal ) {
+KFitter::KFitter () {
 	
+    int nIter = 20; // max number of iterations
+    double dPVal = 1.E-3; // convergence criterion
+
 	gROOT->SetStyle("Plain");
 	gStyle->SetFrameBorderMode(0);
 	gStyle->SetStatW(0.2);                	// Set width of stat-box (fraction of pad size)

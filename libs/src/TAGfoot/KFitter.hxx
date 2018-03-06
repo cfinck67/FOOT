@@ -90,7 +90,7 @@ class KFitter {
 public:
 
 	
-	KFitter( int nIter, double dPVal  );
+	KFitter();
 	~KFitter() {
 		delete m_fitter;
 	};

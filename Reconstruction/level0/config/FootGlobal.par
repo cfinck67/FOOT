@@ -5,18 +5,18 @@
 ################################################################
 
 
-Debug:	1
+Debug:	0
 
 
 
 ############	MC selection Control Parameters	################
-
 MC Particle Types:	C10	C11	C12	Li6	Li7	B7	B8	B9	Be9	Be10	N12	N14	O15 
 
 
 ############	Kalman Filter Control Parameters	################
 
-Kalman Mode: ON
+IncludeKalman: 		y
+Kalman Mode: 		ON
 Tracking Systems Considered:		all
 Reverse Tracking:	false
 
@@ -25,6 +25,24 @@ IT  Reso: 0.0006
 MSD Reso: 0.001
 
 Kalman Particle Types:	C
+
+############	END - Kalman Filter Control Parameters	################
+
+
+IncludeBM:			n
+IncludeIR:			n
+IncludeVertex:		y
+IncludeInnerTracker:	y
+IncludeMSD:			y
+IncludeTW:			n
+IncludeCA:			n
+
+IncludeEvent:		n
+
+
+Magnetic field map name:  DoubleDipole.table
+#Magnetic field map name:  DoubleGaussMag.table
+
 
 Print OutputFile: true
 Output Filename: RecoHistos.root

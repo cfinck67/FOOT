@@ -55,6 +55,32 @@ public:
     bool IsPrintOutputNtuple() { return m_printoutntuple; };
     string OutputNtuple() { return m_outputntuplename; };
 	
+    bool IncludeBM() { return m_includeBM; };
+    bool IncludeIR() { return m_includeIR; };
+    bool IncludeTW() { return m_includeTW; };
+    bool IncludeMSD() { return m_includeMSD; };
+    bool IncludeCA() { return m_includeCA; };
+    bool IncludeVertex() { return m_includeVertex; };
+    bool IncludeInnerTracker() { return m_includeInnerTracker; };
+    
+    bool IncludeKalman() { return m_includeKalman; };
+    bool IncludeEvent() { return m_includeEvent; };
+
+
+    string MagFieldInputMapName() { return m_magFieldMap; };
+
+
+
+
+
+
+
+
+
+
+
+
+
     
 	bool Find_MCParticle( string villain ) 
 		{ return ( find( m_mcParticles.begin(), m_mcParticles.end(), villain ) == m_mcParticles.end() ? false : true ); };
@@ -101,6 +127,12 @@ public:
 		}
 		return "default";
 	};
+
+
+
+
+
+
 
 
 	//____________________________________________________________________________
@@ -204,6 +236,19 @@ private:
        
     string  m_outputntuplename;
     bool m_printoutntuple;
+
+    string m_magFieldMap;
+
+    bool m_includeBM;
+    bool m_includeIR;
+    bool m_includeTW;
+    bool m_includeMSD;
+    bool m_includeCA;
+    bool m_includeInnerTracker;
+    bool m_includeVertex;
+    
+    bool m_includeEvent;
+    bool m_includeKalman;
 
 };
 
