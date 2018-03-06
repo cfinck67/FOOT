@@ -71,12 +71,6 @@ int main (int argc, char *argv[]) {
 
   // start time
   start_tot = clock();
-  // time_t now = time(0);
-  // tm *ltm = localtime(&now);
-  // cout << "Date: "<<  ltm->tm_mday <<" / "<< 1 + ltm->tm_mon 
-  //       <<" / "<< 1900 + ltm->tm_year << "  Time: "<< 1 + ltm->tm_hour << ":";
-  // cout << 1 + ltm->tm_min << ":";
-  // cout << 1 + ltm->tm_sec << endl;
 
   TApplication::CreateApplication();
 
@@ -107,13 +101,8 @@ int main (int argc, char *argv[]) {
 
   RecoTools d(debug,in,alist,out,wdir,nTotEv, hF);
 
-  // d.bookHisto(hF);
-
   d.RecoLoop(&tagroot,pl_freq);
 
-  // hF->cd();
-
-  // hF->Write();
   hF->Close();
 
   // stop time
