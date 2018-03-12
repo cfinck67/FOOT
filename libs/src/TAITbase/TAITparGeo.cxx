@@ -258,7 +258,7 @@ void TAITparGeo::InitGeo()  {
         for (int j=0; j<m_nSensors_Y; j++) {
             double sensor_newY = offset_y + j * chipDimension.y();
 
-            double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + board_z/2 + m_siliconSensorThick_Lz ) ); // board center
+            double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * m_plumeDistace_Z/2 ); // board center
 
             double offset_x = m_origin.X() - 1.5*ITR_M28_DIST - 2*chipDimension.x() +    // end chip part of the chip line on the board 
                                                 senseDimension.x()/2 + (j < 2 ? chipDead_X : 0) ;     // now = first sensor center
@@ -320,8 +320,8 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
         double chipOffset_y = offset_y - boardDimension.y()/2 +    // lower part of the board
                         (j < 2 ? m_boardDeadMin : m_boardDeadMax) + chipDimension.y()/2;  // distance of the chip center from the board border
 
-        double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + m_siliconSensorThick_Lz + (j%2 == 0 ? board_z : 0) ) );    // board begin 
-        double board_center = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + board_z/2 + m_siliconSensorThick_Lz ) ); // board center
+        double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + m_siliconSensorThick_Lz + board_z/2 ) );    // board begin 
+        double board_center = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 ) ); // board center
 
         // m_passiveMatrix[i][j].resize( m_passiveMaterial.size() );
         // m_chipMatrix[i][j].resize( m_nSensors_Z );
@@ -358,7 +358,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
 //---------------------------------------------------------------------
         if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init CHIP passive materials geometry" << endl;
 
-        double chipOffset_x = m_origin.X() - 1.5*ITR_M28_DIST - 2.5*chipDimension.x();   // first chip center
+        double chipOffset_x = m_origin.X() - 1.5*ITR_M28_DIST - 1.5*chipDimension.x();   // first chip center
         for ( int f=0; f<m_nSensors_X; f++ ) {
 
             double chip_x = chipOffset_x + f * ( ITR_M28_DIST + chipDimension.x() );
