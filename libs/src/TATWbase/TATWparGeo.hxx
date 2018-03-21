@@ -57,7 +57,7 @@ public:
 
   // Return the bar center position 
   //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
-  TVector3 GetBarPosition( int layer, int bar );
+  // TVector3 GetBarPosition( int layer, int bar );
 
   //  Return Scintillator center coord. in the global frame
   TVector3 GetCenter() { return m_center; };
@@ -78,6 +78,7 @@ public:
   string PrintRegions();
   string PrintAssignMaterial();
   string PrintSubtractBodiesFromAir();
+  string PrintParameters();
 
   // Return a vector with the number of sensors along the cartesian directions
   TVector2        GetNumberOfSensorAlongDirections() { return m_NBar; };
@@ -107,6 +108,8 @@ private:
   TVector2 m_NBar;   
 
   double m_barThick_Lz;
+  double m_barLongDim;
+  double m_barShortDim;
   double m_layerDistance;
 
   string m_material;

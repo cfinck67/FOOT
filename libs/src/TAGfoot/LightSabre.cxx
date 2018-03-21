@@ -17,28 +17,31 @@ LightSabre::LightSabre() {
 
 
 
-//***************serve????????
 
-TVector3 LightSabre::GetPosition( int layer, int bar ) { 
+// TVector3 LightSabre::GetPosition( int layer, int bar ) { 
 
-  if ( layer < 0 || layer > m_nLayer || bar < 0 || bar > m_nBar ) {
-    cout << "ERROR!!  ::  LightSabre::GetPosition  -->  layer("<<layer<<") or bar("<<bar<<") out of boundaries ("<<m_nBar<<"x"<<m_nLayer<<")"<<endl;
-    exit(0);
-  }
+//   if ( layer < 0 || layer > m_nLayer || bar < 0 || bar > m_nBar ) {
+//     cout << "ERROR!!  ::  LightSabre::GetPosition  -->  layer("<<layer<<") or bar("<<bar<<") out of boundaries ("<<m_nBar<<"x"<<m_nLayer<<")"<<endl;
+//     exit(0);
+//   }
 
-  // evaluate position of the pixel
-  double tmpX = - m_halfLength.X() + (bar+0.5)*m_barLength_X;
-  double tmpY = - m_halfLength.Y() + (bar+0.5)*m_barLength_Y;
-  TVector3 pos ( tmpX, tmpY, m_barLength_Z );
+//   // evaluate position of the bar
+//   // double tmpX = - m_halfLength.X() + (bar+0.5)*m_barLength_X;
+//   // double tmpY = - m_halfLength.Y() + (bar+0.5)*m_barLength_Y;
+//   double tmpX = m_center.X();
+//   double tmpY = m_center.Y();
+//   double tmpZ = m_center.Z();
 
-  Local2Global(&pos);
-  return pos;
-};
+//   TVector3 pos ( tmpX, tmpY, tmpZ );
+
+//   // Local2Global(&pos);
+//   return pos;
+// };
 
 
 
 void LightSabre::SetBar( TVector3 acenter, TVector3 adimension,
-			 int nlayer, int nbar,
+			 // int nlayer, int nbar,
 			 double bar_StepX, double bar_StepY, double bar_StepZ,
 			 TVector3 aeuler
 			 ) {
@@ -46,8 +49,8 @@ void LightSabre::SetBar( TVector3 acenter, TVector3 adimension,
   m_center = acenter;
   m_dimension = adimension;
   m_halfLength = 0.5 * m_dimension;
-  m_nLayer = nlayer;
-  m_nBar = nbar;
+  // m_nLayer = nlayer;
+  // m_nBar = nbar;
   m_tilt_eulerAngle = aeuler;
 
   m_barDistance_X = bar_StepX;
@@ -72,11 +75,11 @@ void LightSabre::SetBar( TVector3 acenter, TVector3 adimension,
 
   // if the volume of the box is NOT defined  -->  define it
   if ( !gGeoManager->GetVolume( m_materialRegionName.c_str() ) ) {
-    TGeoVolume *rootVolume = gGeoManager->MakeBox( m_materialRegionName.c_str() ,gGeoManager->GetMedium( m_materialName.c_str() ),
-						   m_dimension.x()/2, m_dimension.y()/2, m_dimension.z()/2); 
-    rootVolume->SetLineColor(kOrange); 
+    TGeoVolume *rootVolume = gGeoManager->MakeBox( m_materialRegionName.c_str(), gGeoManager->GetMedium( m_materialName.c_str() ),
+						   m_dimension.X()/2, m_dimension.Y()/2, m_dimension.Z()/2); 
+    rootVolume->SetLineColor(kOrange);
 
-  }
+   }
 
 
   m_readyCheck["coordinates"] = true;
@@ -86,22 +89,21 @@ void LightSabre::SetBar( TVector3 acenter, TVector3 adimension,
 
 
 
-void LightSabre::SetBar( double x, double y, double z, 
-			 double length_dx, double length_dy, double length_dz,
-			 int nlayer, int nbar,
-			 // double bar_Lx, double bar_Ly, double bar_Lz,
-			 double bar_StepX, double bar_StepY, double bar_StepZ,
-			 double euler_dx, double euler_dy, double euler_dz
-			 ) {
+// void LightSabre::SetBar( double x, double y, double z, 
+// 			 double length_dx, double length_dy, double length_dz,
+// 			 int nlayer, int nbar,
+// 			 // double bar_Lx, double bar_Ly, double bar_Lz,
+// 			 double bar_StepX, double bar_StepY, double bar_StepZ,
+// 			 double euler_dx, double euler_dy, double euler_dz
+// 			 ) {
 
-  SetBar( TVector3( x, y, z ), TVector3( length_dx, length_dy, length_dz ),
-	  nlayer, nbar,
-	  // bar_Lx,  bar_Ly,  bar_Lz, 
-	  bar_StepX,  bar_StepY,  bar_StepZ,
-	  TVector3( euler_dx, euler_dy, euler_dz ) );
+//   SetBar( TVector3( x, y, z ), TVector3( length_dx, length_dy, length_dz ),
+// 	  nlayer, nbar,
+// 	  // bar_Lx,  bar_Ly,  bar_Lz, 
+// 	  bar_StepX,  bar_StepY,  bar_StepZ,
+// 	  TVector3( euler_dx, euler_dy, euler_dz ) );
 
-}
-
+// }
 
 
 //_____________________________________________________________________________

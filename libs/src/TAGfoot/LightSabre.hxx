@@ -35,34 +35,43 @@ public:
   LightSabre();
   ~LightSabre() {};
 
-  TVector3 GetCenter() { return m_center; };
-  TVector3 GetDimension() { return m_dimension; };
+  // TVector3 GetCenter() { return m_center; };
   TVector3 GetEuler() { return m_tilt_eulerAngle; };
 
   string GetMaterialName() {return m_materialName;};
+  string GetMaterialRegionName() { return m_materialRegionName; };
 
-  TVector3 GetPosition( int layer, int bar );
+  TVector3 GetPosition() { return m_center; };
+  TVector3 GetDimension() { return m_dimension; };
   
   string GetBodyName() { return m_bodyName; };
   string GetRegionName() { return m_regionName; };
 
+  int GetNodeID() { return m_volumeID; };
+
   TVector3 GetMinCoord() { 
     TVector3 tmpCenter = TVector3(m_origin);
-    Local2Global_TranslationOnly(&tmpCenter);
-    return tmpCenter - m_halfLength; 
+    tmpCenter = tmpCenter - m_halfLength; 
+    Local2Global(&tmpCenter);
+    return tmpCenter;
+    
+    // Local2Global_TranslationOnly(&tmpCenter);
+    // return tmpCenter - m_halfLength; 
   };
 
   TVector3 GetMaxCoord() { 
     TVector3 tmpCenter = TVector3(m_origin);
-    Local2Global_TranslationOnly(&tmpCenter);
-    return tmpCenter + m_halfLength; 
+    tmpCenter = tmpCenter + m_halfLength; 
+    Local2Global(&tmpCenter);
+    return tmpCenter; 
+    // Local2Global_TranslationOnly(&tmpCenter);
+    // return tmpCenter + m_halfLength; 
   };
 
-  void AddNodeToUniverse( TGeoVolume* universe ) {
-    universe->AddNode( gGeoManager->GetVolume( m_materialRegionName.c_str() ), m_volumeID , 
-		       new TGeoCombiTrans( m_origin.x(), m_origin.y(), m_origin.z(), new TGeoRotation("null,",0,0,0)) );
-  }
-
+  // void AddNodeToUniverse( TGeoVolume* universe ) {
+  //   universe->AddNode( gGeoManager->GetVolume( m_materialRegionName.c_str() ), m_volumeID , 
+  // 		       new TGeoCombiTrans( m_origin.x(), m_origin.y(), m_origin.z(), new TGeoRotation("null,",0,0,0)) );
+  // }
 
   TRotation GetRotationToGlobal() { return *m_rotation; };
   TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
@@ -82,18 +91,18 @@ public:
   // void SetMaterial( string barMat );
   
   void SetBar( TVector3 acenter, TVector3 adimension,
-	       int nlayer, int nbar, 
+	       // int nlayer, int nbar, 
 	       // double bar_Lx, double bar_Ly, double bar_Lz, 
 	       double bar_StepX, double bar_StepY, double bar_StepZ,
 	       TVector3 aeuler = TVector3( 0,0,0 )
 	       ) ;
-  void SetBar( double x, double y, double z, 
-	       double length_dx, double length_dy, double length_dz,
-	       int nlayer, int nbar, 
-	       // double bar_Lx, double bar_Ly, double bar_Lz, 
-	       double bar_StepX, double bar_StepY, double bar_StepZ,
-	       double euler_dx = 0, double euler_dy = 0, double euler_dz = 0
-	       ) ;
+  // void SetBar( double x, double y, double z, 
+  // 	       double length_dx, double length_dy, double length_dz,
+  // 	       int nlayer, int nbar, 
+  // 	       // double bar_Lx, double bar_Ly, double bar_Lz, 
+  // 	       double bar_StepX, double bar_StepY, double bar_StepZ,
+  // 	       double euler_dx = 0, double euler_dy = 0, double euler_dz = 0
+  // 	       ) ;
 
   // bool AddVolumeTo( TGeoVolume* volume ) {	
   //   return 0;

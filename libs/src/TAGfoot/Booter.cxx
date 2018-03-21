@@ -150,7 +150,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     listMaterials->PrintCompMap();
 	listMaterials->PrintMatMap();
 
-    top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 80.);
+    top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 120.);
     gGeoManager->SetTopVolume(top); // mandatory !
 
 
@@ -198,14 +198,14 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
         m_msdgeo->InitGeo();
         top->AddNode( m_msdgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("Strip",0,0,0)) );
     }
-
-
-    if( GlobalPar::GetPar()->IncludeTW() ) {
-        shared_ptr<TATWparGeo> m_twgeo = shared_ptr<TATWparGeo> ( (TATWparGeo*) myp_twgeo->Object() );
-        m_twgeo->InitGeo();
-        top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_twgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
-    }
     
+    if( GlobalPar::GetPar()->IncludeTW() ) {
+      shared_ptr<TATWparGeo> m_twgeo = shared_ptr<TATWparGeo> ( (TATWparGeo*) myp_twgeo->Object() );
+      //Initialization of SCINT parameters
+      m_twgeo->InitGeo();
+      top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
+      // top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_twgeo->GetCenter().z(), new TGeoRotation("Scint",0,0,0)) );
+    }    
 
     if( GlobalPar::GetPar()->IncludeCA() ) {
         // shared_ptr<TACAparGeo> m_cageo = shared_ptr<TACAparGeo> ( (TACAparGeo*) myp_cageo->Object() );
@@ -239,8 +239,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init!" << endl;
     m_kFitter = new KFitter();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
-
-
+    
 }
 
 
@@ -369,9 +368,11 @@ void Booter::GeoPrint() {
     mirror->SaveAs("footGeometry.png");
     mirror->SaveAs("footGeometry.root");
 
+    
     // save the geometry info in .root
     TFile *outfile = TFile::Open("genfitGeomFOOT.root","RECREATE");
     gGeoManager->Write();
+        
     outfile->Close();
 
 }
