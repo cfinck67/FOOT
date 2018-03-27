@@ -932,8 +932,8 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 		//! Get the accumulated X/X0 (path / radiation length) of the material crossed in the last extrapolation.
 		// virtual double getRadiationLenght() const = 0;
 
-		m_controlPlotter->SetControlMom_4eachState( hitSampleName, i, &KalmanMom, &tmpMom, &tmp_genMom );
-		m_controlPlotter->SetControlPos_4eachState( hitSampleName, i, &KalmanPos, &tmpPos, &tmp_genPos );
+		ControlPlotsRepository::GetControlObject( m_kalmanOutputDir )->SetControlMom_4eachState( hitSampleName, i, &KalmanMom, &tmpMom, &tmp_genMom );
+		ControlPlotsRepository::GetControlObject( m_kalmanOutputDir )->SetControlPos_4eachState( hitSampleName, i, &KalmanPos, &tmpPos, &tmp_genPos );
 
 		// keep quantities to be plotted of the state CLOSER to the interaction point
 		unsigned int measuredState = ( m_reverse ? m_hitCollectionToFit[ hitSampleName ].size()-1 : 0 );
@@ -1138,14 +1138,6 @@ void KFitter::Finalize() {
 	PrintEfficiency();
 
 	m_fitTrackCollection->EvaluateMomentumResolution();
-
-
-	m_printoutfile = GlobalPar::GetPar()->IsPrintOutputFile();
-	if (m_printoutfile)			m_controlPlotter->PrintOutputFile();
-	else   						m_controlPlotter->PrintMap();
-
-	m_printoutntuple = GlobalPar::GetPar()->IsPrintOutputNtuple();
-	if(m_printoutntuple) 		m_controlPlotter->PrintOutputNtuple();
 
 	m_categoryFitted.clear();
 

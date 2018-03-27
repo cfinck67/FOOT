@@ -35,12 +35,13 @@ ControlPlotsRepository* ControlPlotsRepository::Instance() {
 
 ControlPlotsRepository* ControlPlotsRepository::GetControlObject( string outputDir ) {
 	if (!m_pInstance) 
-       cout << "ERROR::GlobalPar::GetPar()  -->  called a get before GlobalPar object istance." << endl, exit(0);
+       cout << "ERROR::ControlPlotsRepository::GetControlObject()  -->  called a get before GlobalPar object istance." << endl, exit(0);
 
    	m_pInstance->SetOutputDir( outputDir );
 
     return m_pInstance;
 };
+
 
 
 

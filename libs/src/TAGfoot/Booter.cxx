@@ -306,6 +306,15 @@ void Booter::Finalize() {
 
 	if ( GlobalPar::GetPar()->IncludeKalman() )      m_kFitter->Finalize();
 
+    if ( GlobalPar::GetPar()->IsPrintOutputFile() )         
+        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputFile();
+    else                        
+        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintMap();
+    
+    if( GlobalPar::GetPar()->IsPrintOutputNtuple() )        
+        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputNtuple();
+
+
     if (GlobalPar::GetPar()->Debug() > 1)   eventListFile.close();
 
 }
