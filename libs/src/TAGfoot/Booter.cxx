@@ -162,6 +162,10 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 
     MagFieldTest();
 
+    // include the nucleon into the genfit pdg repository
+    if ( GlobalPar::GetPar()->IncludeBM() || GlobalPar::GetPar()->IncludeKalman() )
+      UpdatePDG::Instance();
+
 
     if( GlobalPar::GetPar()->IncludeBM() ) {
     //     // DisplayBeamMonitor(pg);

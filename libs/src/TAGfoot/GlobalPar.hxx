@@ -73,14 +73,6 @@ public:
 
 
 
-
-
-
-
-
-
-
-
     
 	bool Find_MCParticle( string villain ) 
 		{ return ( find( m_mcParticles.begin(), m_mcParticles.end(), villain ) == m_mcParticles.end() ? false : true ); };

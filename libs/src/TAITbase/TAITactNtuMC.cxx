@@ -129,10 +129,15 @@ Bool_t TAITactNtuMC::Action()   {
         // remove all the hits adiacent to the current one
 
         // check if the current event is in the blacklist. if so skip.
+        bool skip = false;
         for ( int bl = 0; bl<blackList.size(); bl++ ) {
-            if ( blackList.at(bl) == i )
-            continue;   // next event
+            if ( blackList.at(bl) == i ) {
+                skip = true;
+                continue;
+            }
         }
+        if ( skip )            continue;   // next event
+        
 
         // loop on the remaining hits
         bool decluster = false;
@@ -146,7 +151,8 @@ Bool_t TAITactNtuMC::Action()   {
             // search if the j-hit is close to the i-hit. is so decluster_inner TRUE
             for ( int k = -1; k <= 1; k++ ) {
                 for ( int h = -1; h <= 1; h++ ) {
-                    if   ( myTrow == fpEvtStr->ITRirow[j]+k && myTcol == fpEvtStr->ITRicol[j]+h )   {
+                    if   ( myTrow+k == fpEvtStr->ITRirow[j] && myTcol+h == fpEvtStr->ITRicol[j] )   {
+                        blackList.push_back( j );
                         decluster_inner = true;
                         break;
                     }
@@ -155,15 +161,13 @@ Bool_t TAITactNtuMC::Action()   {
             }
 
             // 
-            if ( decluster_inner ) {
-                blackList.push_back( j );
+            if ( decluster_inner ) 
                 decluster = true;
-            }
 
         }
         if ( decluster )   {
             blackList.push_back( i );
-            continue;  // next event
+            // continue;  // next event
        }
         // DECLUSTER end
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////

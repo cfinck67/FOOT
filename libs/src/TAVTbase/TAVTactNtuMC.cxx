@@ -142,10 +142,15 @@ Bool_t TAVTactNtuMC::Action() {
    
      /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-     for ( int bl = 0; bl<blackList.size(); bl++ ) {
-        if ( blackList.at(bl) == i )
-          continue;   // next event
-      }
+// check if the current event is in the blacklist. if so skip.
+    bool skip = false;
+    for ( int bl = 0; bl<blackList.size(); bl++ ) {
+        if ( blackList.at(bl) == i ) {
+          skip = true;
+          continue;
+        }
+    }
+    if ( skip )            continue;   // next event
 
 
     // DECLUSTER
@@ -172,7 +177,7 @@ Bool_t TAVTactNtuMC::Action() {
       }
       if ( decluster )   {
         blackList.push_back( i );
-        continue;  // next event
+        // continue;  // next event
       }
         
       // DECLUSTER end
