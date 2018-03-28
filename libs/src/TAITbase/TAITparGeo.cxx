@@ -530,6 +530,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
 if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT and FLUKA" << endl;
 
     for ( unsigned int k=0; k<m_nSensors_Z; k++ ) {
+        vector<double> xmin, ymin;
         for ( unsigned int j=0; j<m_nSensors_Y; j++ ) {
             for ( unsigned int i=0; i<m_nSensors_X; i++ ) {    
 
@@ -554,6 +555,11 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
                     TVector3 maxCoord = TVector3( m_sensorMatrix[k][j][i]->GetMaxCoord().x(), m_sensorMatrix[k][j][i]->GetMaxCoord().y(), m_sensorMatrix[k][j][i]->GetMaxCoord().z() );
                     Local2Global( &minCoord );
                     Local2Global( &maxCoord );
+
+                    if ( i==0 ) {
+       	              xmin.push_back(minCoord.X());
+   	              ymin.push_back(minCoord.Y());
+         	    }
 
                     stringstream ss;
                     ss << setiosflags(ios::fixed) << setprecision(6);
@@ -582,6 +588,10 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
 
             }
        }
+	
+    m_xmin.push_back(xmin);
+    m_ymin.push_back(ymin);
+	
     } 
 
 }
@@ -777,6 +787,63 @@ string TAITparGeo::PrintAssignMaterial() {
 
 
 
+
+//_____________________________________________________________________________
+string TAITparGeo::PrintParameters() {
+  
+  stringstream outstr;
+  string precision = "D+00";
+
+  outstr << "c     INTERMEDIATE TRACKER PARAMETERS " << endl;
+  outstr << endl;    
+  
+  map<string, int> intp;
+  intp["xpixITR"] = m_nPixel_X;
+  intp["ypixITR"] = m_nPixel_Y;
+  intp["nlayITR"] = m_nSensors_Z;
+  intp["nplumeITR"] = m_nSensors_Y;
+  intp["nmimoITR"] = m_nSensors_X;
+  for (auto i : intp){
+    outstr << "      integer " << i.first << endl;
+    outstr << "      parameter (" << i.first << " = " << i.second << ")" << endl;
+  }
+  
+  map<string, double> doublep;
+  doublep["dxITR"] = ITR_DX;
+  doublep["dyITR"] = ITR_DY;
+  doublep["widthITR"] =  ITR_SENSE_WIDTH;
+  doublep["heightITR"] =  ITR_SENSE_HEIGHT;
+  doublep["deadITR"] = ITR_M28_WIDTH - ITR_SENSE_WIDTH + ITR_M28_DIST;
+  for (auto i : doublep){
+    outstr << "      double precision " << i.first << endl;
+    outstr << "      parameter (" << i.first << " = " << i.second << precision << ")" << endl;
+  }
+  
+  map<string, vector<double>> dvectorp;
+  string name;
+  for ( int j = 0; j<m_xmin.size(); j++ ){
+    name = "xminITR" + to_string(j);
+    dvectorp[name] = m_xmin[j];
+    name = "yminITR" + to_string(j);
+    dvectorp[name] = m_ymin[j];
+  }
+  for (auto i : dvectorp){
+    outstr << "      double precision " << i.first << "(" << dvectorp.size() << ")" << endl;
+    outstr << "      data " << i.first << "/";
+    for ( double d : i.second ){
+      outstr << d << precision << ",";
+    }
+    outstr.seekp(-1, std::ios_base::end);
+    outstr << "/" << endl;
+ 
+  }
+  
+  outstr << endl;
+  // cout<<outstr.str().length()<<endl;
+  
+  return outstr.str();
+
+}
 
 
 
