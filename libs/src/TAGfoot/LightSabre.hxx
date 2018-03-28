@@ -3,6 +3,7 @@
 
 #include <stdio.h>      /* printf, scanf, puts, NULL */
 #include <stdlib.h>  
+#include <math.h>  
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -51,21 +52,33 @@ public:
 
   TVector3 GetMinCoord() { 
     TVector3 tmpCenter = TVector3(m_origin);
-    tmpCenter = tmpCenter - m_halfLength; 
-    Local2Global(&tmpCenter);
+
+    TVector3 tmpHalf = TVector3(m_halfLength);
+    Local2Global_RotationOnly(&tmpHalf);
+    tmpHalf.SetX(fabs(tmpHalf.x()));
+    tmpHalf.SetY(fabs(tmpHalf.y()));
+    tmpHalf.SetZ(fabs(tmpHalf.z()));
+
+    tmpCenter = tmpCenter - tmpHalf; 
+    Local2Global_TranslationOnly(&tmpCenter);
+
     return tmpCenter;
     
-    // Local2Global_TranslationOnly(&tmpCenter);
-    // return tmpCenter - m_halfLength; 
   };
 
   TVector3 GetMaxCoord() { 
     TVector3 tmpCenter = TVector3(m_origin);
-    tmpCenter = tmpCenter + m_halfLength; 
-    Local2Global(&tmpCenter);
+    
+    TVector3 tmpHalf = TVector3(m_halfLength);
+    Local2Global_RotationOnly(&tmpHalf);
+    tmpHalf.SetX(fabs(tmpHalf.x()));
+    tmpHalf.SetY(fabs(tmpHalf.y()));
+    tmpHalf.SetZ(fabs(tmpHalf.z()));
+    
+    tmpCenter = tmpCenter + tmpHalf; 
+    Local2Global_TranslationOnly(&tmpCenter);
+    
     return tmpCenter; 
-    // Local2Global_TranslationOnly(&tmpCenter);
-    // return tmpCenter + m_halfLength; 
   };
 
   // void AddNodeToUniverse( TGeoVolume* universe ) {

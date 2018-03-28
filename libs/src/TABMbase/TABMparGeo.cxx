@@ -598,9 +598,12 @@ string TABMparGeo::PrintBodies(){
 	
   // Cells
   // prima lungo x, poi lungo y
+  int cella=0;
   for (int il=0;il<NLAYERNEW;il++){ // loop on layers
-    for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
-      for (int iv =0; iv<2;iv++){      // loop on views
+    for (int ic =0; ic<NWIRELAYERNEW;ic++){  // loop on cells
+      if ( (ic==bm_idsense[0]) ||(ic==bm_idsense[1]) ||
+      	   (ic==bm_idsense[2]) ){
+	for (int iv =0; iv<2;iv++){      // loop on views
 	  if ( iv == 0 ){
 	    xmin = - BMWIDTHNEW/2. + shift;
 	    xmax = + BMWIDTHNEW/2. - shift;
@@ -614,9 +617,11 @@ string TABMparGeo::PrintBodies(){
 	  }
 	  zmin = z_pos[ic][il][iv] - bm_step + BMN_RFIELD + shift;
 	  zmax = z_pos[ic][il][iv] + bm_step - BMN_RFIELD -shift;
-	  ss << "RPP BmnC" << iv << il*NSENSENEW+ic << "   "
+	  ss << "RPP BmnC" << iv << cella << "   "
 	     << xmin << " " << xmax << " " << ymin << " " << ymax
 	     << " " << zmin << " " << zmax << endl;
+	}
+	  cella++;
       }
     }
   }
@@ -827,6 +832,26 @@ string TABMparGeo::PrintAssignMaterial() {
 
 
 
+//_____________________________________________________________________________
+string TABMparGeo::PrintParameters() {
+  
+  stringstream outstr;
+
+  outstr << "c     BEAM MONITOR PARAMETERS " << endl;
+  outstr << endl;    
+  
+  map<string, int> intp;
+  intp["nlayBMN"] = NLAYERNEW;
+  intp["ncellBMN"] = NSENSENEW;
+  for (auto i : intp){
+    outstr << "      integer " << i.first << endl;
+    outstr << "      parameter (" << i.first << " = " << i.second << ")" << endl;
+  }
+  outstr << endl;    
+  
+  return outstr.str();
+
+}
 
 
 

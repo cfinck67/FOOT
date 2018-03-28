@@ -478,6 +478,33 @@ string TAMSDparGeo::PrintAssignMaterial() {
 
 
 
+//_____________________________________________________________________________
+string TAMSDparGeo::PrintParameters() {
+  
+  stringstream outstr;
+  string precision = "D+00";
+
+  outstr << "c     MICRO STRIP DETECTOR PARAMETERS " << endl;
+  outstr << endl;    
+  
+  map<string, int> intp;
+  intp["xstripMSD"] = m_nPixel_X;
+  intp["ystripMSD"] = m_nPixel_Y;
+  intp["nlayMSD"] = m_nSensors_Z;
+  for (auto i : intp){
+    outstr << "      integer " << i.first << endl;
+    outstr << "      parameter (" << i.first << " = " << i.second << ")" << endl;
+    // outstr << "ciao"<< endl;
+  }
+    
+  outstr << endl;
+  // cout<<outstr.str().length()<<endl;
+  
+  return outstr.str();
+
+}
+
+
 
 
 

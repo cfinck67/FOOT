@@ -117,6 +117,7 @@ public:
     string PrintRegions();
     string PrintAssignMaterial();
     string PrintSubtractBodiesFromAir();
+    string PrintParameters();
 
     // Return a vector with the number of sensors along the cartesian directions
     TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
@@ -175,6 +176,9 @@ private:
 
     int m_nPixel_X;
     int m_nPixel_Y;
+
+    vector<vector<double>> m_xmin;
+    vector<vector<double>> m_ymin;
 
     int m_debug;
     int m_setW_0number;

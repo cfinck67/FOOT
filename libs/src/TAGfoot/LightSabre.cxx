@@ -51,6 +51,7 @@ void LightSabre::SetBar( TVector3 acenter, TVector3 adimension,
   m_halfLength = 0.5 * m_dimension;
   // m_nLayer = nlayer;
   // m_nBar = nbar;
+  // double deg2rad = (TMath::Pi())/2.;
   m_tilt_eulerAngle = aeuler;
 
   m_barDistance_X = bar_StepX;
