@@ -311,16 +311,28 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
     // m_chipMatrix[i].resize( m_nSensors_Y );
     
     // double sensor_newY = m_origin.Y() - 1.5*boardDimension.y();
+    double sensor_offset_y = m_origin.Y() - (2 - 0.5)*chipDimension.y();    // center of the bottom sensor in Y
     for (int j=0; j<m_nSensors_Y; j++) {
         // sensor_newY += j * boardDimension.y();
 
         double offset_x = m_origin.x() + (j < 2 ? 1.5 : -1.5);
         
-        double offset_y = m_origin.y() + (j < 2 ? -1 : 1)*senseDimension.y() + (j%2 == 0 ? -1 : 1)*boardDimension.y()/2 ;  // board center y
-        double chipOffset_y = offset_y - boardDimension.y()/2 +    // lower part of the board
-                        (j < 2 ? m_boardDeadMin : m_boardDeadMax) + chipDimension.y()/2;  // distance of the chip center from the board border
+        double sensor_newY = sensor_offset_y + j * chipDimension.y();
+        double offset_y = sensor_newY + 0.5*senseDimension.y() + 
+                                        (j < 2 ? m_boardDeadMin : m_boardDeadMax) + 
+                                        ITR_M28_YDEAD -
+                                        boardDimension.y()/2 ;  // board center y
+        double chipOffset_y = sensor_newY + 0.5*senseDimension.y() +
+                                            ITR_M28_YDEAD -  
+                                            chipDimension.y()/2;  // distance of the chip center from the board border
 
-        double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + m_siliconSensorThick_Lz + board_z/2 ) );    // board begin 
+
+        // double offset_y = m_origin.y() + (j < 2 ? -1 : 1)*senseDimension.y() + (j%2 == 0 ? -1 : 1)*boardDimension.y()/2 ;  // board center y
+        // double chipOffset_y = offset_y - boardDimension.y()/2 +    // lower part of the board
+        //                 (j < 2 ? m_boardDeadMin : m_boardDeadMax) + chipDimension.y()/2;  // distance of the chip center from the board border
+
+        double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + board_z/2 ) );    // board begin 
+        // double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + m_siliconSensorThick_Lz + board_z/2 ) );    // board begin 
         double board_center = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 ) ); // board center
 
         // m_passiveMatrix[i][j].resize( m_passiveMaterial.size() );
@@ -331,7 +343,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
         for ( unsigned int k=0; k<m_passiveMaterial.size(); k++ ) {
 
             string matID = m_passiveMaterial.at(k);
-            position += m_materialThick[ matID ]/2;    // increase or decrease the z coordinate
+            position += (-1) * (j%2 == 0 ? -1 : 1) * m_materialThick[ matID ]/2;    // increase or decrease the z coordinate
 
             ++m_passiveCount;
             stringstream ss_bodyPassiveName;      ss_bodyPassiveName << "itrp" << m_passiveCount;
@@ -381,7 +393,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
                                                         ss_regionPassiveName.str(),         // FLUKA region name
                                                         ++m_volumeCount                       // volume ID num
                                                         );
-                if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "chip center ",    TVector3( offset_x, offset_y, offset_z + position ).Print();
+                if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "chip center ",    TVector3( chip_x, chipOffset_y , board_center +  boardSide ).Print();
 
             }
         }
