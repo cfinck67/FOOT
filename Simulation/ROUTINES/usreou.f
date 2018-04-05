@@ -42,7 +42,7 @@ C      idbflg = 1
       if (tgtfrag.eq.1) trig_tgt = .true.
       if (airfrag.eq.1) trig_air = .true.
       if (elsfrag.eq.1) trig_els = .true.
-      if(idbflg.gt.0 .AND. idbflg.lt.4) then
+      if(idbflg.gt.0) then
          write(*,*) '---------------------------'
          write(*,*)'Usreou. Ev= ',numev,
      &        ' trig_stc: ', trig_stc,
@@ -97,7 +97,7 @@ C
          if (trig_stc .and. .not.trig_bmn .and. .not.trig_tgt .and.
      &        .not.trig_air .and. .not.trig_els) then
             trigger = .true.
-            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+            if(idbflg.gt.0) then
                write(*,*)'STC Ev= ',numev,
      &              ' trig_stc: ', trig_stc,
      &              ' trig_bmn: ', trig_bmn,
@@ -113,7 +113,7 @@ C
          if (trig_bmn .and. .not.trig_stc .and. .not.trig_tgt .and.
      &        .not.trig_air .and. .not.trig_els) then
             trigger = .true.
-            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+            if(idbflg.gt.0) then
                write(*,*)'BMN Ev= ',numev,
      &              ' trig_stc: ', trig_stc,
      &              ' trig_bmn: ', trig_bmn,
@@ -129,7 +129,7 @@ C
          if (trig_tgt .and. .not.trig_stc .and. .not.trig_bmn .and.
      &        .not.trig_air .and. .not.trig_els) then
             trigger = .true.
-            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+            if(idbflg.gt.0) then
                write(*,*)'TGT Ev= ',numev,
      &              ' trig_stc: ', trig_stc,
      &              ' trig_bmn: ', trig_bmn,
@@ -145,7 +145,7 @@ C
          if (trig_air .and. .not.trig_stc .and. .not.trig_bmn .and.
      &        .not.trig_tgt .and. .not.trig_els) then
             trigger = .true.
-            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+            if(idbflg.gt.0) then
                write(*,*)'AIR Ev= ',numev,
      &              ' trig_stc: ', trig_stc,
      &              ' trig_bmn: ', trig_bmn,
@@ -159,8 +159,8 @@ C
          endif
       else if (fragtrig.eq.5) then
          if (trig_stc) then
-            trigger = .true.
-            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+            trigger =  .true.
+            if(idbflg.gt.0) then
                write(*,*)'STC+X Ev= ',numev,
      &              ' trig_stc: ', trig_stc,
      &              ' trig_bmn: ', trig_bmn,
@@ -175,7 +175,7 @@ C
       else if (fragtrig.eq.6) then
          if (trig_tgt) then
             trigger = .true.
-            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+            if(idbflg.gt.0) then
                write(*,*)'TGT+X Ev= ',numev,
      &              ' trig_stc: ', trig_stc,
      &              ' trig_bmn: ', trig_bmn,
@@ -190,7 +190,7 @@ C
       else if (fragtrig.eq.7) then
          if (trig_air) then
             trigger = .true.
-            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+            if(idbflg.gt.0) then
                write(*,*)'AIR+X Ev= ',numev,
      &              ' trig_stc: ', trig_stc,
      &              ' trig_bmn: ', trig_bmn,
@@ -205,7 +205,7 @@ C
       else if (fragtrig.eq.8) then
          if (trig_els) then
             trigger = .true.
-            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+            if(idbflg.gt.0) then
                write(*,*)'ELS+X Ev= ',numev,
      &              ' trig_stc: ', trig_stc,
      &              ' trig_bmn: ', trig_bmn,
@@ -220,7 +220,7 @@ C
       else if (fragtrig.eq.9) then
          if (trig_bmn) then
             trigger = .true.
-            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+            if(idbflg.gt.0) then
                write(*,*)'BMN+X Ev= ',numev,
      &              ' trig_stc: ', trig_stc,
      &              ' trig_bmn: ', trig_bmn,
@@ -235,7 +235,7 @@ C
       else if (fragtrig.eq.10) then
          if (trig_stc .and. .not.trig_bmn) then
             trigger = .true.
-            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+            if(idbflg.gt.0) then
                write(*,*)'SCT -BMN +X Ev= ',numev,
      &              ' trig_stc: ', trig_stc,
      &              ' trig_bmn: ', trig_bmn,
@@ -250,7 +250,7 @@ C
       else if (fragtrig.eq.11) then
          if (trig_bmn .and. .not.trig_stc) then
             trigger = .true.
-            if(idbflg.gt.0 .AND. idbflg.lt.4) then
+            if(idbflg.gt.0) then
                write(*,*)'BMN -STC +X Ev= ',numev,
      &              ' trig_stc: ', trig_stc,
      &              ' trig_bmn: ', trig_bmn,
@@ -305,7 +305,7 @@ C
       endif
 c
 C      idbflg = 0
-      if(idbflg.gt.0 .AND. idbflg.lt.4) then
+      if(idbflg.gt.0) then
          write(*,*)'ev= ',numev,' Equench= ',Eqcalo,
      &        ' Eqscint= ',Eqscint,
      &        ' trigger= ', Trigger,
@@ -314,6 +314,7 @@ C      idbflg = 0
       endif
 c
 c
+      if (idbflg.eq.10) trigger = .false.
       if(trigger) then
 c
          write(outunit,*) ncase,nump,nSTC,nBMN,nVTX,nITR,nMSD,nSCN,nCAL,
@@ -365,20 +366,20 @@ c
 c     scrivo l'inner tracker
 c         
          do ii = 1,nITR
-            write(outunit,*) idITR(ii), ilayITR(ii), irowITR(ii),
-     &           icolITR(ii), xinITR(ii), yinITR(ii), zinITR(ii),
+            write(outunit,*) idITR(ii), iplumeITR(ii), imimoITR(ii),
+     &           ilayITR(ii),irowITR(ii), icolITR(ii), 
+     &           xinITR(ii), yinITR(ii), zinITR(ii),
      &           xoutITR(ii), youtITR(ii), zoutITR(ii),
      &           pxinITR(ii), pyinITR(ii), pzinITR(ii), 
      &           pxoutITR(ii), pyoutITR(ii), pzoutITR(ii),
      &           deITR(ii), alITR(ii), timITR(ii)
          end do
-
 c     
-c     scrivo la seconda camera a drift
+c     scrivo le microstrip
 c         
          do ii = 1,nMSD   
-            write(outunit,*) idMSD(ii), iviewMSD(ii),
-     &           ilayMSD(ii), istripMSD(ii), 
+            write(outunit,*) idMSD(ii), 
+     &           ilayMSD(ii), istripxMSD(ii), istripyMSD(ii),
      &           xinMSD(ii), yinMSD(ii), zinMSD(ii),
      &           xoutMSD(ii), youtMSD(ii), zoutMSD(ii),
      &           pxinMSD(ii), pyinMSD(ii), pzinMSD(ii), 
@@ -422,7 +423,7 @@ c
 c
       endif
 c     
-      if(idbflg .gt. 0 .AND. idbflg.lt.4) then
+      if(idbflg .gt. 0) then
          call dump_common()
          write(*,*)'***************************************************'
          write(*,*)'***************** EVENT END ***********************'

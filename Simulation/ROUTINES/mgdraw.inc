@@ -76,10 +76,6 @@ c
 c     *************************************************************
 c     common needed to score the hit in the beam monitor
 c     
-c     iview = x and y view(1-2)
-c     ilay  = first drift chamber layer index (1-6)
-c     icell = first drift chamber cell index (1-3)
-c      
       integer nBMN, maxBMN 
       parameter (maxBMN=1000)
       integer idBMN (maxBMN), iviewBMN(maxBMN),ilayBMN(maxBMN),
@@ -106,10 +102,6 @@ c
 c     *************************************************************
 c     common needed to score the hit in the vertex
 c 
-c     ilayVTX  =  vertex layer (1-3) 
-c     icolVTX  =  vertex pixel column index (1-1000)
-c     irowVTX  =  vertex pixel row index (1-1000)
-
       integer nVTX, maxVTX 
       parameter (maxVTX=300)
       integer idVTX (maxVTX), ilayVTX(maxVTX), irowVTX(maxVTX), 
@@ -128,14 +120,10 @@ c     irowVTX  =  vertex pixel row index (1-1000)
 c     *************************************************************
 c     common needed to score the hit in the inner tracker
 c     
-c     ilayITR  =  inner tracker layer (1-2) 
-c     icolITR  =  inner tracker pixel column index (1-2400)
-c     irowITR  =  inner tracker pixel row index (1-2400)
-
       integer nITR, maxITR 
       parameter (maxITR=300)
-      integer idITR (maxITR), ilayITR(maxITR), irowITR(maxITR), 
-     &     icolITR(maxITR) 
+      integer idITR (maxITR), iplumeITR(maxITR), ilayITR(maxITR), 
+     &     imimoITR(maxITR), irowITR(maxITR), icolITR(maxITR) 
 
       real xinITR(maxITR), xoutITR(maxITR), yinITR(maxITR),
      &     youtITR(maxITR), zinITR(maxITR), zoutITR(maxITR)
@@ -145,19 +133,24 @@ c     irowITR  =  inner tracker pixel row index (1-2400)
       common /ITR_common/ xinITR, xoutITR, yinITR, youtITR, 
      &     zinITR, zoutITR, pxinITR, pxoutITR, pyinITR, pyoutITR,
      &     pzinITR, pzoutITR, deITR, alITR, timITR, nITR, idITR,
-     &     ilayITR, irowITR, icolITR
+     &     iplumeITR, ilayITR, imimoITR, irowITR, icolITR
+c     
+c  common for the indexing of the ITR
+c
+       integer MAXITRREG
+       parameter (MAXITRREG=300)
+       integer ireg2plumeITR(MAXITRREG), ireg2layITR(MAXITRREG),
+     &      ireg2mimoITR(MAXITRREG)
+       common /ITR_index_common/ireg2plumeITR, ireg2layITR,
+     &      ireg2mimoITR
       
 c     *************************************************************
-c     common needed to score the hit in the second drift chamber
-c
-c     iview = x and y view (1-2)
-c     ilay  = second drift chamber layer index (1-6)
-c     icell = second drift chamber cell index (1-6)
+c     common needed to score the hit in the microstrip detector
 c
       integer nMSD, maxMSD 
       parameter (maxMSD=1000)
-      integer idMSD (maxMSD), iviewMSD(maxMSD), ilayMSD(maxMSD),
-     &     istripMSD(maxMSD) 
+      integer idMSD (maxMSD), ilayMSD(maxMSD), istripxMSD(maxMSD),
+     &     istripyMSD(maxMSD) 
 
       real xinMSD(maxMSD), xoutMSD(maxMSD), yinMSD(maxMSD), 
      &     youtMSD(maxMSD), zinMSD(maxMSD), zoutMSD(maxMSD)
@@ -166,16 +159,15 @@ c
       real deMSD(maxMSD), timMSD(maxMSD), alMSD(maxMSD)
       common /MSD_common/ xinMSD, xoutMSD, yinMSD, youtMSD, zinMSD, 
      &     zoutMSD, pxinMSD, pxoutMSD, pyinMSD, pyoutMSD, pzinMSD, 
-     &     pzoutMSD,deMSD, alMSD, timMSD, nMSD, idMSD, iviewMSD,
-     &     ilayMSD, istripMSD
+     &     pzoutMSD,deMSD, alMSD, timMSD, nMSD, idMSD, 
+     &     ilayMSD, istripxMSD, istripyMSD
 c     
-c  common for the indexing of the second drift chamber
+c  common for the indexing of the microstrip detector
 c
       integer MAXMSDREG
       parameter (MAXMSDREG=300)
-      integer ireg2layMSD(MAXMSDREG), ireg2viewMSD(MAXMSDREG), 
-     & ireg2stripMSD(MAXMSD)
-      common /MSD_index_common/ireg2layMSD, ireg2viewMSD, ireg2stripMSD
+      integer ireg2layMSD(MAXMSDREG)
+      common /MSD_index_common/ireg2layMSD
 
 c      
 c     *************************************************************

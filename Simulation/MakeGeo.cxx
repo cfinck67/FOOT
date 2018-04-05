@@ -25,6 +25,9 @@
 
 using namespace std;
 
+string PrintCard(TString fTitle, TString fWHAT1, TString fWHAT2, TString fWHAT3,
+		 TString fWHAT4, TString fWHAT5, TString fWHAT6, TString fSDUM);
+
 int main (int argc, char *argv[]) {
 
     clock_t start_tot, end_tot;
@@ -85,35 +88,74 @@ int main (int argc, char *argv[]) {
     if ( !file.is_open() )        cout<< "ERROR  -->  wrong input in GlobalPar::ReadParemFile file "<< endl, exit(0);
     
     string line = "";
-    stringstream before, after;
-    bool readBefore = true;
-    bool readAfter = false;
+    stringstream init, geomat, end;
+    bool readInit = true;
+    bool readGeoMat = false;
+    bool readEnd = false;
     // read the old file
     while( getline( file, line ) ) {  
 
-        if ( readBefore )        before << line << endl;
+      if ( readInit )           init    << line << endl;
 
-        if ( readAfter )         after << line << endl;
+      if ( line == "* @@@START GENERATED, DO NOT MODIFY:GENERAL@@@ *********************************" ) 
+	readInit = false;
+      	  
+      if ( line == "* @@@END GENERATED:GENERAL@@@ **************************************************" ) 
+	readGeoMat = true;
 
-        if ( line == "* @@@START GENERATED, DO NOT MODIFY:MATERIAL&MAGFIELD@@@ ***********************" && readBefore ) { 
-            readBefore = false;
-            for (int i=0; i<6; i++) {
-                getline( file, line );
-                before << line << endl;
-            }
-        }
-        else if ( line == "*" && !readBefore ) {
-            readAfter = true;
-            after << "*" << endl;
-        }
+      if ( readGeoMat )         geomat  << line << endl;
+	  
+      if ( line == "* @@@START GENERATED, DO NOT MODIFY:MATERIAL&MAGFIELD@@@ ***********************" ) 
+	readGeoMat = false;
+	  
+      if ( line == "* @@@END GENERATED:MATERIAL&MAGFIELD@@@ ****************************************" ) 
+	readEnd = true;
+
+      if ( readEnd )            end     << line << endl;
+      
     }
+
+    
     file.close();
 
     // rewrite the file in the correct way
     ofstream outfile;
     outfile.open( fileName.c_str(), fstream::trunc );
 
-    outfile << before.str();
+    outfile << init.str();
+
+    if ( GlobalPar::GetPar()->verFLUKA() )
+       outfile << PrintCard("PHYSICS","1.","","","","","","COALESCE") << endl;
+    else
+      outfile << PrintCard("PHYSICS","12001.","1.","1.","","","","COALESCE") << endl;
+    
+    outfile << PrintCard("BEAM",TString::Format("%f",-PRIM_T),
+			 TString::Format("%f",PRIM_dP),
+			 TString::Format("%f",PRIM_DIV),
+			 TString::Format("%f",-PRIM_RMAX),
+			 TString::Format("%f",-PRIM_RMAX),
+			 "1.0","HEAVYION") << endl;
+    outfile << PrintCard("HI-PROPE",TString::Format("%f",(double)PRIM_Z),
+			 TString::Format("%f",(double)PRIM_A),"","","","","")
+	    << endl;
+    outfile << PrintCard("BEAMPOS",TString::Format("%.3f",PRIM_Pos_X),
+			 TString::Format("%.3f",PRIM_Pos_Y),
+			 TString::Format("%.3f",PRIM_Pos_Z),
+			 TString::Format("%.3f",PRIM_Pos_CX),
+			 TString::Format("%.3f",PRIM_Pos_CY),"","") << endl;
+    
+    outfile << PrintCard("EMFCUT",TString::Format("%f",-TRANS_THRES_EM),
+			 TString::Format("%f",TRANS_THRES_EM)
+			 ,"","BLACK","@LASTREG","1.0","") << endl;
+    outfile << PrintCard("EMFCUT",TString::Format("%f",-PROD_THRES_EM),
+			 TString::Format("%f",PROD_THRES_EM),
+			 "1.","BLCKHOLE","@LASTMAT","1.0","PROD-CUT") << endl;
+    outfile << PrintCard("DELTARAY",TString::Format("%f",DELTA_THRES_EM),
+			 "","","BLCKHOLE","@LASTMAT","1.0","") << endl;
+    outfile << PrintCard("PAIRBREM","-3.","","","BLCKHOLE",
+			 "@LASTMAT","","") << endl;
+
+    outfile << geomat.str();
 
     outfile << "ASSIGNMA    BLCKHOLE     BLACK\n";
     outfile << "ASSIGNMA         AIR       AIR\n";
@@ -133,9 +175,13 @@ int main (int argc, char *argv[]) {
     outfile << twGeo->PrintAssignMaterial();
     outfile << caGeo->PrintAssignMaterial();
 
-    outfile << "MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000" << endl;
+    outfile << PrintCard("MGNFIELD",TString::Format("%f",MaxAng),
+			 TString::Format("%f",BoundAcc),"",
+			 TString::Format("%f",Bx),TString::Format("%f",By),
+			 TString::Format("%f",Bz),"") << endl;
+    // outfile << "MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000" << endl;
 
-    outfile << after.str();
+    outfile << end.str();
 
     outfile.close();
 
@@ -160,28 +206,53 @@ int main (int argc, char *argv[]) {
     geofile << bmGeo->PrintBodies(  );
 
     geofile << "* ***Target\n";
-    geofile << "RPP tgt        -0.750000 0.750000 -0.750000 0.750000 -0.100000 0.100000\n";
+    geofile << "RPP tgt        " << ( TG_X - TG_WIDTH/2. ) << " "
+	    << ( TG_X + TG_WIDTH/2. ) << " "
+	    << ( TG_Y - TG_HEIGHT/2. ) << " "
+	    << ( TG_Y + TG_HEIGHT/2. ) << " "
+	    << ( TG_Z - TG_THICK/2. ) << " "
+	    << ( TG_Z + TG_THICK/2. ) << endl;
     
     geofile << vtxGeo->PrintBodies(  );
     geofile << itrGeo->PrintBodies(  );
     
-    geofile << "* ***Magnets\n";
-    geofile << "RCC MagCvOu0   0.000000 0.000000 2.800000 0.000000 0.000000 10.400000 15.000000\n";
-    geofile << "RCC MagCvOu1   0.000000 0.000000 14.800000 0.000000 0.000000 10.400000 15.000000\n";
-    geofile << "RCC MagPMOu0   0.000000 0.000000 3.000000 0.000000 0.000000 10.000000 14.800000\n";
-    geofile << "RCC MagPMOu1   0.000000 0.000000 15.000000 0.000000 0.000000 10.000000 14.800000\n";
-    geofile << "RCC MagPMIn0   0.000000 0.000000 3.000000 0.000000 0.000000 10.000000 4.800000\n";
-    geofile << "RCC MagPMIn1   0.000000 0.000000 15.000000 0.000000 0.000000 10.000000 4.800000\n";
+    geofile << "* ***Magnets\n";    
+    geofile << "RCC MagCvOu0   " << MAG_X << " " << MAG_Y << " "
+	    << MAG_Z - MAG_CV_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
+	    << MAG_CV_LENGTH << " " << MAG_CV0_OUTRAD << endl;
+    geofile << "RCC MagCvOu1   " << MAG_X << " " << MAG_Y << " "
+	    << MAG_Z - MAG_CV_LENGTH/2. + MAG_DIST/2. << " 0.000000 0.000000 "
+	    << MAG_CV_LENGTH << " " << MAG_CV1_OUTRAD << endl;
+    geofile << "RCC MagPMOu0   " << MAG_X << " " << MAG_Y << " "
+	    << MAG_Z - MAG_PM_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
+	    << MAG_PM_LENGTH << " " << MAG_PM0_OUTRAD << endl;
+    geofile << "RCC MagPMOu1   " << MAG_X << " " << MAG_Y << " "
+	    << MAG_Z - MAG_PM_LENGTH/2. + MAG_DIST/2. << " 0.000000 0.000000 "
+	    << MAG_PM_LENGTH << " " << MAG_PM1_OUTRAD << endl;
+    geofile << "RCC MagPMIn0   " << MAG_X << " " << MAG_Y << " "
+	    << MAG_Z - MAG_PM_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
+	    << MAG_PM_LENGTH << " " << MAG_PM0_INRAD << endl;
+    geofile << "RCC MagPMIn1   " << MAG_X << " " << MAG_Y << " "
+	    << MAG_Z - MAG_PM_LENGTH/2. + MAG_DIST/2. << " 0.000000 0.000000 "
+	    << MAG_PM_LENGTH << " " << MAG_PM1_INRAD << endl;
     geofile << "* ***Gap for magnets\n";
-    geofile << "ZCC Gap0       0.000000 0.000000 4.600000\n";
-    geofile << "ZCC Gap1       0.000000 0.000000 4.600000\n";
+    geofile << "ZCC Gap0       0.000000 0.000000 " << MAG_CV0_INRAD << endl;
+    geofile << "ZCC Gap1       0.000000 0.000000 " << MAG_CV1_INRAD << endl;
     geofile << "* ***Magnetic field air region\n";
-    geofile << "RPP MagAir     -5.000000 5.000000 -5.000000 5.000000 -16.000000 44.000000\n";
+    //mappa sanelli si estende per: -5<x<5 , -5<y<5 , -30<z<30
+    geofile << "RPP MagAir     " << MAG_X - 5. << " " << MAG_X + 5. << " "
+	    << MAG_Y - 5. << " " << MAG_Y + 5. << " "
+	    << MAG_Z - 30. << " " << MAG_Z + 30. << endl;
     
     geofile << msdGeo->PrintBodies(  );
     
     geofile << "* ***Air Box for Scintillator and Calorimeter\n";
-    geofile << "RPP box     -23.000000 23.000000 -23.000000 23.000000 99.000000 122.000000\n";
+    geofile << "RPP box     " << SCN_X - SCN_BAR_HEIGHT/2. - 1. << " "
+	    << SCN_X + SCN_BAR_HEIGHT/2. + 1. << " "
+	    << SCN_Y - SCN_BAR_HEIGHT/2. - 1. << " "
+	    << SCN_Y + SCN_BAR_HEIGHT/2. + 1. << " "
+	    << SCN_Z - SCN_BAR_THICK/2. - 1. << " "
+	    << CAL_Z + CAL_CRY_THICK/2. +1. << endl;
     
     geofile << twGeo->PrintBodies(  );
     geofile << caGeo->PrintBodies(  );
@@ -247,7 +318,7 @@ int main (int argc, char *argv[]) {
 
 
     ofstream paramfile;
-    paramfile.open("parametersnew.inc");
+    paramfile.open("ROUTINES/parameters.inc");
     
     paramfile << bmGeo->PrintParameters();
     paramfile << vtxGeo->PrintParameters();
@@ -276,11 +347,25 @@ int main (int argc, char *argv[]) {
 
 
 
+string PrintCard(TString fTitle, TString fWHAT1, TString fWHAT2, TString fWHAT3,
+		 TString fWHAT4, TString fWHAT5, TString fWHAT6, TString fSDUM) {
+  
+  stringstream fLine;
+	
+  if (fTitle.Sizeof() != 10) fTitle.Resize(10);
+  if (fSDUM.Sizeof() != 10) fSDUM.Resize(10);
+  if (fWHAT1.Sizeof() > 10) fWHAT1.Resize(10);
+  if (fWHAT2.Sizeof() > 10) fWHAT2.Resize(10);
+  if (fWHAT3.Sizeof() > 10) fWHAT3.Resize(10);
+  if (fWHAT4.Sizeof() > 10) fWHAT4.Resize(10);
+  if (fWHAT5.Sizeof() > 10) fWHAT5.Resize(10);
+  if (fWHAT6.Sizeof() > 10) fWHAT6.Resize(10);
 
-
-
-
-
-
-
+  fLine << setw(10) << fTitle << setw(10) << fWHAT1 << setw(10) << fWHAT2
+	<< setw(10) << fWHAT3 << setw(10) << fWHAT4 << setw(10) << fWHAT5
+	<< setw(10) << fWHAT6 << setw(10) << fSDUM;
+	
+  return fLine.str();
+  
+}
 

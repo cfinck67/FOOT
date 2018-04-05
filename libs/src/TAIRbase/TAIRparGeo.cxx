@@ -132,11 +132,11 @@ string TAIRparGeo::PrintBodies( ) {
   stringstream ss;
   double zero = 0.;
 
-  ss << setiosflags(ios::fixed) << setprecision(6);
-  ss << "RCC stc     "  << STC_X << " " << STC_Y << " " << STC_Z
-     << " " << zero << " " << zero << " " << STC_THICK << " " << STC_RAD << endl;
+  outstr << setiosflags(ios::fixed) << setprecision(6);
+  outstr << "RCC stc     "  << STC_X << " " << STC_Y << " " << STC_Z
+	 << " " << zero << " " << zero << " " << STC_THICK << " "
+	 << STC_RAD << endl;
   
-  outstr << ss.str() << endl;
   return outstr.str();
 }
 

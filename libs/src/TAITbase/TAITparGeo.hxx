@@ -153,8 +153,10 @@ private:
 
     double m_plumeDistace_Z;
     double m_plumeDistace_Y;
-    double m_boardDeadMin;
-    double m_boardDeadMax;
+    double m_boardXDeadMin;
+    double m_boardXDeadMax;
+    double m_boardYDeadMin;
+    double m_boardYDeadMax;
 
     vector<string> m_materialOrder;
     vector<string> m_passiveMaterial;

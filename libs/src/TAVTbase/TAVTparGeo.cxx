@@ -368,7 +368,7 @@ void TAVTparGeo::InitGeo()  {
                                 << minCoord.z() << " " << maxCoord.z() << endl;
                     
                     m_bodyPrintOut  [ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( ss.str() );
-                    m_bodyName      [ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( m_sensorMatrix[k][i][j]->GetBodyName() );
+                    // m_bodyName      [ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( m_sensorMatrix[k][i][j]->GetBodyName() );
 
                     // regions
                     stringstream ssr;
@@ -594,6 +594,8 @@ string TAVTparGeo::PrintAssignMaterial() {
 string TAVTparGeo::PrintParameters() {
   
   stringstream outstr;
+  outstr << setiosflags(ios::fixed) << setprecision(5);
+
   string precision = "D+00";
 
   outstr << "c     VERTEX PARAMETERS " << endl;

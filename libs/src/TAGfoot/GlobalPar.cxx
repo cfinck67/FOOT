@@ -51,6 +51,7 @@ GlobalPar::GlobalPar( string aparFileName ) {
     m_kalReverse = false;
     m_geoROOT = true;
     m_geoFLUKA = false;
+    m_verFLUKA = false;
 
 
     ReadParamFile();
@@ -171,6 +172,16 @@ void GlobalPar::ReadParamFile () {
                 m_geoFLUKA = true;
             else
                 m_geoFLUKA = false;
+        } 
+
+
+        else if ( line.find("FLUKA version:") != string::npos ) {
+            string rev =StrReplace( line, "FLUKA version:", "" );
+            RemoveSpace( &rev );
+            if ( rev == "pro" )
+                m_verFLUKA = true;
+            else if ( rev == "dev" )
+                m_verFLUKA = false;
         } 
 
 

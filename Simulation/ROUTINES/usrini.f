@@ -35,6 +35,7 @@ c
       include "parameters.inc"
       character*8 REGNAM
       integer cellBMN, strip, cry, layMSD
+      integer plmITR, layITR, mimoITR
       integer ia,ib,ic,id,ie,ig,ih,il,im
 *
 *
@@ -56,7 +57,7 @@ c
 c
 c writing the header
 c
-      write(outunit,*) int(abs(fragtrig)), Ethrdep
+      if(idbflg.ne.10) write(outunit,*) int(abs(fragtrig)), Ethrdep
 c
 c find the region number of the region of interest
 c
@@ -67,10 +68,10 @@ c
       nregFirstVTX = 1000000
       nregLastVTX = 0
       nregFirstBMN = 1000000
-      nregFirstBMN = 1000000
+      nregLastBMN = 0
       nregFirstITR = 1000000
       nregLastITR = 0
-      nregLastMSD = 0
+      nregFirstMSD = 1000000
       nregLastMSD = 0
       nregFirstSCN = 1000000
       nregLastSCN = 0
@@ -89,20 +90,24 @@ c
        im = 1
 c
       do nn = 1,MAXBMNREG
-         ireg2viewBMN(nn) = -10
-         ireg2cellBMN(nn) = -10
-         ireg2layBMN(nn) = -10
+         ireg2viewBMN(nn)  = -10
+         ireg2cellBMN(nn)  = -10
+         ireg2layBMN(nn)   = -10
+      end do
+      do nn = 1,MAXITRREG
+         ireg2plumeITR(nn) = -10
+         ireg2layITR(nn)   = -10
+         ireg2mimoITR(nn)  = -10
       end do
       do nn = 1,MAXMSDREG
-         ireg2viewMSD(nn) = -10
-         ireg2layMSD(nn) = -10
+         ireg2layMSD(nn)   = -10
       end do
       do nn = 1,MAXSCNREG
          ireg2stripSCN(nn) = -10
-         ireg2viewSCN(nn) = -10
+         ireg2viewSCN(nn)  = -10
       end do
       do nn = 1,MAXCALREG
-         ireg2cryCAL(nn) = -10
+         ireg2cryCAL(nn)   = -10
       end do
 c
 c
@@ -117,11 +122,11 @@ c
                nregSTC=ii
             elseif(REGNAM(1:5).eq.'BMN_C') then
                read(REGNAM(7:8),*) cellBMN
-               if (REGNAM(6:6).eq.'U')then
+               if (REGNAM(6:6).eq.'0')then
                   ireg2viewBMN(ii) = 1
                   ireg2layBMN(ii) = cellBMN/ncellBMN
                   ireg2cellBMN(ii) = cellBMN - cellBMN/ncellBMN*ncellBMN
-               elseif(REGNAM(6:6).eq.'V') then
+               elseif(REGNAM(6:6).eq.'1') then
                   ireg2viewBMN(ii) = -1
                   ireg2layBMN(ii) = cellBMN/ncellBMN
                   ireg2cellBMN(ii) = cellBMN - cellBMN/ncellBMN*ncellBMN
@@ -134,39 +139,39 @@ c
                ig = ig + 1
             elseif(REGNAM.eq.'TARGET')then
                nregtarg = ii
-            elseif(REGNAM(1:3).eq.'VTX') then
+            elseif(REGNAM(1:4).eq.'VTXS') then
                if(ia.eq.1) then
                   nregFirstVTX=ii
                elseif(ia.eq.nlayVTX) then
                   nregLastVTX=ii
                endif
                ia = ia + 1
-            elseif(REGNAM(1:3).eq.'ITR') then
+            elseif(REGNAM(1:4).eq.'ITRS') then
+               read(REGNAM(5:5),*) plmITR
+               ireg2plumeITR(ii) = plmITR
+               read(REGNAM(6:6),*) layITR
+               ireg2layITR(ii) = layITR
+               read(REGNAM(7:7),*) mimoITR
+               ireg2mimoITR(ii) = mimoITR
                if(ib.eq.1) then
                   nregFirstITR=ii
-               elseif(ib.eq.nlayITR) then
+               elseif(ib.eq.nlayITR*nplumeITR*nmimoITR) then
                   nregLastITR=ii
                endif
                ib = ib + 1
-            elseif(REGNAM(1:3).eq.'MSD') then
-               if (REGNAM(4:4).eq.'U')then
+            elseif(REGNAM(1:4).eq.'MSDS') then
                read(REGNAM(5:5),*) layMSD
-                  ireg2viewMSD(ii) = 1
-               elseif(REGNAM(4:4).eq.'V') then
-               read(REGNAM(5:5),*) layMSD
-                  ireg2viewMSD(ii) = -1
-               endif
                ireg2layMSD(ii) = layMSD
                if(il.eq.1) then
                   nregFirstMSD=ii
-               elseif(il.eq.(nlayMSD*nviewMSD)) then
+               elseif(il.eq.(nlayMSD)) then
                   nregLastMSD=ii
                endif
                il = il + 1
             elseif(REGNAM(1:3).eq.'SCN') then
-               if (REGNAM(4:4).eq.'U')then
+               if (REGNAM(4:4).eq.'0')then
                   ireg2viewSCN(ii) = 1
-               elseif(REGNAM(4:4).eq.'V') then
+               elseif(REGNAM(4:4).eq.'1') then
                   ireg2viewSCN(ii) = -1
                endif
                read(REGNAM(5:6),*) strip
@@ -219,8 +224,8 @@ c
       write(*,*)'        nregLastMSD        = ',nregLastMSD
       write(*,*)'        nregFirstSCN       = ',nregFirstSCN
       write(*,*)'        nregLastSCN        = ',nregLastSCN
-      write(*,*)'        nregFirstcrystal   = ',nregFirstCAL
-      write(*,*)'        nregLastcrystal    = ',nregLastCAL
+      write(*,*)'        nregFirstCAL       = ',nregFirstCAL
+      write(*,*)'        nregLastCAL        = ',nregLastCAL
       write(*,*)'**************** Fine Geometria *******************'
       write(*,*)''
       write(*,*)' '

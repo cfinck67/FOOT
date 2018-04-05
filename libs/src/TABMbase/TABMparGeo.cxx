@@ -569,31 +569,30 @@ string TABMparGeo::PrintBodies(){
   char bodyname[20];
   double xmin, xmax, ymin, ymax, zmin, zmax;
   
-  stringstream ss;
   double shift = 0.00001;
   
-  ss << setiosflags(ios::fixed) << setprecision(6);
+  outstr << setiosflags(ios::fixed) << setprecision(6);
 
-  ss << "RPP BmnShiOu    "
-     << BMN_X-BMN_WIDTH/2.-BMN_SHI_THICK << "   "
-     << BMN_X+BMN_WIDTH/2.+BMN_SHI_THICK << " "
-     << BMN_Y-BMN_HEIGHT/2.-BMN_SHI_THICK << " "
-     << BMN_Y+BMN_HEIGHT/2.+BMN_SHI_THICK << " "
-     << BMN_Z-BMN_SHI_LENGTH/2. << " "
-     << BMN_Z+BMN_SHI_LENGTH/2. << endl;
+  outstr << "RPP BmnShiOu    "
+	 << BMN_X-BMN_WIDTH/2.-BMN_SHI_THICK << "   "
+	 << BMN_X+BMN_WIDTH/2.+BMN_SHI_THICK << " "
+	 << BMN_Y-BMN_HEIGHT/2.-BMN_SHI_THICK << " "
+	 << BMN_Y+BMN_HEIGHT/2.+BMN_SHI_THICK << " "
+	 << BMN_Z-BMN_SHI_LENGTH/2. << " "
+	 << BMN_Z+BMN_SHI_LENGTH/2. << endl;
   
-  ss << "RPP BmnShiIn    "
-     << BMN_X-BMN_WIDTH/2. << "   "
-     << BMN_X+BMN_WIDTH/2. << " "
-     << BMN_Y-BMN_HEIGHT/2. << " "
-     << BMN_Y+BMN_HEIGHT/2. << " "
-     << BMN_Z-BMN_SHI_LENGTH/2. << " "
-     << BMN_Z+BMN_SHI_LENGTH/2. << endl;
+  outstr << "RPP BmnShiIn    "
+	 << BMN_X-BMN_WIDTH/2. << "   "
+	 << BMN_X+BMN_WIDTH/2. << " "
+	 << BMN_Y-BMN_HEIGHT/2. << " "
+	 << BMN_Y+BMN_HEIGHT/2. << " "
+	 << BMN_Z-BMN_SHI_LENGTH/2. << " "
+	 << BMN_Z+BMN_SHI_LENGTH/2. << endl;
   
-  ss << "XYP BmnMyl0     " << BMN_Z-BMN_LENGTH/2.-BMN_MYL_THICK << endl;
-  ss << "XYP BmnMyl1     " << BMN_Z-BMN_LENGTH/2. << endl;
-  ss << "XYP BmnMyl2     " << BMN_Z+BMN_LENGTH/2. << endl;
-  ss << "XYP BmnMyl3     " << BMN_Z+BMN_LENGTH/2.+BMN_MYL_THICK << endl;
+  outstr << "XYP BmnMyl0     " << BMN_Z-BMN_LENGTH/2.-BMN_MYL_THICK << endl;
+  outstr << "XYP BmnMyl1     " << BMN_Z-BMN_LENGTH/2. << endl;
+  outstr << "XYP BmnMyl2     " << BMN_Z+BMN_LENGTH/2. << endl;
+  outstr << "XYP BmnMyl3     " << BMN_Z+BMN_LENGTH/2.+BMN_MYL_THICK << endl;
   
 	
   // Cells
@@ -617,11 +616,11 @@ string TABMparGeo::PrintBodies(){
 	  }
 	  zmin = z_pos[ic][il][iv] - bm_step + BMN_RFIELD + shift;
 	  zmax = z_pos[ic][il][iv] + bm_step - BMN_RFIELD -shift;
-	  ss << "RPP BmnC" << iv << cella << "   "
-	     << xmin << " " << xmax << " " << ymin << " " << ymax
-	     << " " << zmin << " " << zmax << endl;
+	  outstr << "RPP BmnC" << iv << cella << "   "
+		 << xmin << " " << xmax << " " << ymin << " " << ymax
+		 << " " << zmin << " " << zmax << endl;
 	}
-	  cella++;
+	cella++;
       }
     }
   }
@@ -630,29 +629,27 @@ string TABMparGeo::PrintBodies(){
   for (int il=0;il<NLAYERNEW;il++){
     for (int iw =0; iw<NWIRELAYERNEW;iw++){ 
       for (int iv =0; iv<2;iv++){
-      // int iv=1;
+	// int iv=1;
 	if ( (iw==bm_idsense[0]) ||(iw==bm_idsense[1]) ||
 	     (iw==bm_idsense[2]) ){	
 	  iSense[iv]++;	
-	  ss << "RCC BmnS" << iv << iSense[iv] << "   "
-	       << x_pos[iw][il][iv] << " " << y_pos[iw][il][iv] << " "
-	       << z_pos[iw][il][iv] << " "
-	       << cx_pos[iw][il][iv] << " " << cy_pos[iw][il][iv] << " "
-	       << cz_pos[iw][il][iv] << " " << BMN_RSENSE << endl;
+	  outstr << "RCC BmnS" << iv << iSense[iv] << "   "
+		 << x_pos[iw][il][iv] << " " << y_pos[iw][il][iv] << " "
+		 << z_pos[iw][il][iv] << " "
+		 << cx_pos[iw][il][iv] << " " << cy_pos[iw][il][iv] << " "
+		 << cz_pos[iw][il][iv] << " " << BMN_RSENSE << endl;
 	} else {
 	  iField[iv]++;     // loop on views    		
-	  ss << "RCC BmnF" << iv << iField[iv] << "   "
-	       << x_pos[iw][il][iv] << " " << y_pos[iw][il][iv] << " "
-	       << z_pos[iw][il][iv] << " "
-	       << cx_pos[iw][il][iv] << " " << cy_pos[iw][il][iv] << " "
-	       << cz_pos[iw][il][iv] << " " << BMN_RFIELD << endl;
+	  outstr << "RCC BmnF" << iv << iField[iv] << "   "
+		 << x_pos[iw][il][iv] << " " << y_pos[iw][il][iv] << " "
+		 << z_pos[iw][il][iv] << " "
+		 << cx_pos[iw][il][iv] << " " << cy_pos[iw][il][iv] << " "
+		 << cz_pos[iw][il][iv] << " " << BMN_RFIELD << endl;
 	}
       }
     }
   }
   
-  outstr << ss.str() << endl;
- 
   return outstr.str();
 }
 
@@ -668,72 +665,70 @@ string TABMparGeo::PrintRegions(){
 
   int iCell[2]={-1,-1}, iSense[2]={-1,-1}, iField[2]={-1,-1};
   char stringa[100];
-  stringstream ss;
   
-  ss << "BMN_SHI      5 BmnShiOu -BmnShiIn" << endl;
-  ss << "BMN_MYL0     5 BmnShiIn -BmnMyl0 +BmnMyl1" << endl;
-  ss << "BMN_MYL1     5 BmnShiIn -BmnMyl2 +BmnMyl3" << endl;
+  outstr << "BMN_SHI      5 BmnShiOu -BmnShiIn" << endl;
+  outstr << "BMN_MYL0     5 BmnShiIn -BmnMyl0 +BmnMyl1" << endl;
+  outstr << "BMN_MYL1     5 BmnShiIn -BmnMyl2 +BmnMyl3" << endl;
 
   for (int iv =0; iv<2;iv++){      // loop on views
     for (int il=0;il<NLAYERNEW;il++){ // loop on layers
       for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
   iCell[iv]++;
-  ss << "BMN_C" << iv << setw(2) << setfill('0') << iCell[iv]
+  outstr << "BMN_C" << iv << setw(2) << setfill('0') << iCell[iv]
      << "     5 BmnC" << iv << iCell[iv]
      << " -BmnS" << iv << iCell[iv] << endl;
       }
     }
   }
   
-  ss << "BMN_FWI      5";
+  outstr << "BMN_FWI      5";
   int count=0;
   for (int iv = 0; iv<2; iv++){
     for (int il=0;il<NLAYERNEW;il++){ // loop on layers
       for (int jj = 0; jj < (NWIRELAYERNEW-NSENSENEW); jj++) {
-  if ((( count  % 4 ) == 0) && count>0 )
-    ss << "\n              ";
-  ss << " | " << "BmnShiIn + BmnF" << iv  << (NWIRELAYERNEW-NSENSENEW)*il+jj;
-  count++;
+	if ((( count  % 4 ) == 0) && count>0 )
+	  outstr << "\n              ";
+	outstr << " | " << "BmnShiIn + BmnF" << iv  << (NWIRELAYERNEW-NSENSENEW)*il+jj;
+	count++;
       }
     }
   }
-  ss << endl;
+  outstr << endl;
   
-  ss << "BMN_SWI      5";
+  outstr << "BMN_SWI      5";
   count =0;
   for (int iv =0; iv<2;iv++){      // loop on views
     for (int il=0;il<NLAYERNEW;il++){ // loop on layers
       for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
   if ((( count  % 4 ) == 0) && count>0 )
-    ss << "\n              ";
-  ss << " | " << "BmnC" << iv << NSENSENEW*il+ic << " + BmnS" << iv  << NSENSENEW*il+ic;
+    outstr << "\n              ";
+  outstr << " | " << "BmnC" << iv << NSENSENEW*il+ic << " + BmnS" << iv  << NSENSENEW*il+ic;
   count++;
       }
     }
   }
 
-  ss << endl;
-  ss << "BMN_GAS      5 BmnShiIn -BmnMyl1 +BmnMyl2";
+  outstr << endl;
+  outstr << "BMN_GAS      5 BmnShiIn -BmnMyl1 +BmnMyl2";
   count =0;
   for (int iv =0; iv<2;iv++){      // loop on views
     for (int il=0;il<NLAYERNEW;il++){ // loop on layers
       for (int ic =0; ic<(NWIRELAYERNEW-NSENSENEW);ic++){  // loop on field wires
   if ((( count  % 6 ) == 0) )
-    ss << "\n              ";
-  ss << " -BmnF" << iv << (NWIRELAYERNEW-NSENSENEW)*il+ic;
+    outstr << "\n              ";
+  outstr << " -BmnF" << iv << (NWIRELAYERNEW-NSENSENEW)*il+ic;
   count++;
       }
       for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
   if ((( count  % 6 ) == 0) )
-    ss << "\n              ";
-  ss << " -BmnC" << iv << NSENSENEW*il+ic;
+    outstr << "\n              ";
+  outstr << " -BmnC" << iv << NSENSENEW*il+ic;
   count++;
       }
     }
   }
   
-  
-  outstr << ss.str() << endl; 
+  outstr << endl; 
 
   return outstr.str();
   
@@ -836,6 +831,8 @@ string TABMparGeo::PrintAssignMaterial() {
 string TABMparGeo::PrintParameters() {
   
   stringstream outstr;
+  outstr << setiosflags(ios::fixed) << setprecision(5);
+
 
   outstr << "c     BEAM MONITOR PARAMETERS " << endl;
   outstr << endl;    

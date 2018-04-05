@@ -202,6 +202,19 @@ void TAITparGeo::InitGeo()  {
 
     // evaluate detector dimension and layer distance using materials
     // !!!!!!!!!!!!!!!!!!!!  better put a variable in the footgeo.h  !!!!!!!!!!!!!!!!!!!!!
+
+    TVector3 senseDimension = TVector3( ITR_SENSE_WIDTH, ITR_SENSE_HEIGHT, ITR_M28_THICK );
+
+    TVector3 chipDimension = TVector3( ITR_M28_WIDTH, ITR_M28_HEIGHT, ITR_M28_THICK );
+    double chipDead_X = chipDimension.x() - senseDimension.x();
+    double chipDead_Ymax = ITR_M28_YDEAD;
+    double chipDead_Ymin = chipDimension.y() - senseDimension.y() - chipDead_Ymax;
+
+    m_siliconSensorThick_Lz = ITR_M28_THICK;     // ONLY silicon
+    m_layerDistance = m_passiveMaterialThick + m_siliconSensorThick_Lz;   // from center to center
+    m_plumeDistace_Z = ITR_PLMZDIST;                // from center to center
+    m_plumeDistace_Y = ITR_PLMYDIST;                // from border to border
+
     double plume_Lz = 0;       // from edge to edge
     m_passiveMaterialThick = 0;
     for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
@@ -210,29 +223,21 @@ void TAITparGeo::InitGeo()  {
         if ( ( m_materialOrder[i] != "ITR_MEDIUM" ) )  // only passive material
             m_passiveMaterialThick += m_materialThick[ m_materialOrder[i] ];
     }
+    
     double board_z = m_passiveMaterialThick;
 
-    double boardStagger_x = 1.5;  // distance from center
+    TVector3 boardDimension = TVector3( ITR_BOARD_WIDTH, ITR_BOARD_HEIGHT, board_z );
+    m_boardXDeadMin = ITR_BOARD_XDEAD1;
+    m_boardXDeadMax = ITR_BOARD_XDEAD2;
+    m_boardYDeadMin = ITR_BOARD_YDEAD1;
+    m_boardYDeadMax = ITR_BOARD_YDEAD2;
+    
+    // double boardStagger_x = 1.5;  // distance from center
+    double boardStagger_x = m_origin.x() +chipDimension.x()*m_nSensors_X/2.+ITR_M28_DIST*(m_nSensors_X-1)/2.+m_boardXDeadMin-boardDimension.x()/2.; // distance from center
     m_dimension = TVector3( ITR_BOARD_WIDTH + 2*boardStagger_x,  4*ITR_SENSE_HEIGHT + 2*ITR_BOARD_YDEAD2 , ITR_PLMZDIST + board_z );     // detector dim
 
     
-    TVector3 boardDimension = TVector3( ITR_BOARD_WIDTH, ITR_BOARD_HEIGHT, board_z );
-    m_boardDeadMin = ITR_BOARD_YDEAD2;
-    m_boardDeadMax = ITR_BOARD_YDEAD1;
-
-    TVector3 senseDimension = TVector3( ITR_SENSE_WIDTH, ITR_SENSE_HEIGHT, ITR_M28_THICK );
-
-    TVector3 chipDimension = TVector3( ITR_M28_WIDTH, ITR_M28_HEIGHT, ITR_M28_THICK );
-    double chipDead_X = chipDimension.x() - senseDimension.x();
-    double chipDead_Ymax = ITR_M28_YDEAD;
-    double chipDead_Ymin = chipDimension.y() - chipDead_Ymax;
-
-    m_siliconSensorThick_Lz = ITR_M28_THICK;     // ONLY silicon
-    m_layerDistance = m_passiveMaterialThick + m_siliconSensorThick_Lz;   // from center to center
-    m_plumeDistace_Z = ITR_PLMZDIST;                // from center to center
-    m_plumeDistace_Y = ITR_PLMYDIST;                // from border to border
-
-
+    
 //---------------------------------------------------------------------
 //     Init SENSOR geometry
 //---------------------------------------------------------------------
@@ -248,22 +253,31 @@ void TAITparGeo::InitGeo()  {
     m_nPixel_X = ITR_XPIX;
     m_nPixel_Y = ITR_YPIX;
 
-    
+    double smalloffset_x;
+    //sovrapposizione in y dei sensori:
+    double displacement_y = senseDimension.y() - 0.3;
 
     // fill sensor matrix
     for (int k=0; k<m_nSensors_Z; k++) {
         double sensor_newZ = ( (k%2 == 0 ? -1 : 1) * ( board_z/2 + m_siliconSensorThick_Lz/2 )  );      // distance of the center of sensors from the board center
 
-        double offset_y = m_origin.Y() - (2 - 0.5)*chipDimension.y();    // center of the bottom sensor in Y
+        double offset_y = m_origin.Y() - ((m_nSensors_Y-1)/2.)*displacement_y;    // center of the bottom sensor in Y
         for (int j=0; j<m_nSensors_Y; j++) {
-            double sensor_newY = offset_y + j * chipDimension.y();
+            // double sensor_newY = offset_y + j * chipDimension.y();
+            double sensor_newY = offset_y + j * displacement_y;
 
             double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * m_plumeDistace_Z/2 ); // board center
 
-            double offset_x = m_origin.X() - 1.5*ITR_M28_DIST - 2*chipDimension.x() +    // end chip part of the chip line on the board 
-                                                senseDimension.x()/2 + (j < 2 ? chipDead_X : 0) ;     // now = first sensor center
+	    //offset of the sensor wrt the chip -> sensore allineato alla dx o alla sx del chip
+	    if ((j < 2 && k < 1) || (j >= 2 && k >= 1) ) smalloffset_x = 0.;
+	    else smalloffset_x = chipDead_X;
+
+            double offset_x = m_origin.X() - ((m_nSensors_X-1)/2.)*ITR_M28_DIST - (m_nSensors_X/2.)*chipDimension.x() +    // end chip part of the chip line on the board 
+	      senseDimension.x()/2 + smalloffset_x;     // now = first sensor center
+
             for (int i=0; i<m_nSensors_X; i++) {
                 double sensor_newX = offset_x + i * (chipDimension.x() + ITR_M28_DIST );
+		// cout<<k<<"  "<<sensor_newX<<endl;
 
                 stringstream ss_bodySensorName; ss_bodySensorName << "itrs" << j << k << i;
                 stringstream ss_regionSensorName; ss_regionSensorName << "ITRS" << j << k << i;
@@ -311,35 +325,38 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
     // m_chipMatrix[i].resize( m_nSensors_Y );
     
     // double sensor_newY = m_origin.Y() - 1.5*boardDimension.y();
-    double sensor_offset_y = m_origin.Y() - (2 - 0.5)*chipDimension.y();    // center of the bottom sensor in Y
+    double sensor_offset_y = m_origin.Y() - ((m_nSensors_Y-1)/2.)* displacement_y;    // center of the bottom sensor in Y
     for (int j=0; j<m_nSensors_Y; j++) {
         // sensor_newY += j * boardDimension.y();
 
-        double offset_x = m_origin.x() + (j < 2 ? 1.5 : -1.5);
+        double offset_x = m_origin.x() + (j < 2 ? boardStagger_x : -boardStagger_x);
         
-        double sensor_newY = sensor_offset_y + j * chipDimension.y();
-        double offset_y = sensor_newY + 0.5*senseDimension.y() + 
-                                        (j < 2 ? m_boardDeadMin : m_boardDeadMax) + 
-                                        ITR_M28_YDEAD -
-                                        boardDimension.y()/2 ;  // board center y
+        double sensor_newY = sensor_offset_y + j * displacement_y;
         double chipOffset_y = sensor_newY + 0.5*senseDimension.y() +
-                                            ITR_M28_YDEAD -  
-                                            chipDimension.y()/2;  // distance of the chip center from the board border
+                                            (j < 2 ? chipDead_Ymin : chipDead_Ymax ) -
+                                            chipDimension.y()/2;  // distance of the chip center from the sensor center
+        double offset_y = sensor_newY + 0.5*senseDimension.y() + 
+                                        (j < 2 ? chipDead_Ymin : chipDead_Ymax ) +
+                                        (j < 2 ? m_boardYDeadMin : m_boardYDeadMax) -	  
+                                        boardDimension.y()/2 ;  // board center y
 
+	
 
         // double offset_y = m_origin.y() + (j < 2 ? -1 : 1)*senseDimension.y() + (j%2 == 0 ? -1 : 1)*boardDimension.y()/2 ;  // board center y
         // double chipOffset_y = offset_y - boardDimension.y()/2 +    // lower part of the board
         //                 (j < 2 ? m_boardDeadMin : m_boardDeadMax) + chipDimension.y()/2;  // distance of the chip center from the board border
 
-        double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + board_z/2 ) );    // board begin 
+        double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + board_z/2 ) );    // board begin
         // double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + m_siliconSensorThick_Lz + board_z/2 ) );    // board begin 
-        double board_center = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 ) ); // board center
+        double board_center = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 ) ); // board center in z
+	// cout << j << " board_center " << board_center << endl;
 
         // m_passiveMatrix[i][j].resize( m_passiveMaterial.size() );
         // m_chipMatrix[i][j].resize( m_nSensors_Z );
 
         // loop over the board passive layers
         float position = 0;
+
         for ( unsigned int k=0; k<m_passiveMaterial.size(); k++ ) {
 
             string matID = m_passiveMaterial.at(k);
@@ -359,7 +376,8 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
                                                     ++m_volumeCount                       // volume ID num
                                                     );
             if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "passive center ",    TVector3( offset_x, offset_y, offset_z + position ).Print();
-            position += m_materialThick[ matID ]/2;
+
+            position += (-1) * (j%2 == 0 ? -1 : 1) * m_materialThick[ matID ]/2;
 
         }
 
@@ -570,7 +588,10 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
 
                     if ( i==0 ) {
        	              xmin.push_back(minCoord.X());
-   	              ymin.push_back(minCoord.Y());
+		      if (fabs(minCoord.Y())<1.e-15)  {
+			ymin.push_back(0.);// invece he ymin=0 mi viene =1.11022e-16D+00 -> nel parameters.in mi allunga la riga e va oltre il limite di caratteri in fortran
+		      }
+   	              else ymin.push_back(minCoord.Y());
          	    }
 
                     stringstream ss;
@@ -581,7 +602,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
                                 << minCoord.z() << " " << maxCoord.z() << endl;
 
                     m_bodyPrintOut  [ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( ss.str() );
-                    m_bodyName      [ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( m_sensorMatrix[k][j][i]->GetBodyName() );
+                    // m_bodyName      [ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( m_sensorMatrix[k][j][i]->GetBodyName() );
 
                     // regions
                     stringstream ssr;
@@ -719,10 +740,14 @@ string TAITparGeo::PrintSubtractBodiesFromAir() {
         cout << "ERROR << TAITparGeo::PrintSubtractMaterialFromAir()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
 
     stringstream outstr;
+    int count=0;
     // loop in order of the material alfabeth
     for ( map<string, vector<string> >::iterator itMat = m_bodyName.begin(); itMat != m_bodyName.end(); itMat++ ) {
         // loop over all bodies of the same material
         for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
+	    if ( count % 10 == 0  )
+	      outstr << "\n              ";
+	    count++;
             outstr << " -" << (*itRegion);
         }        
     }
@@ -804,6 +829,7 @@ string TAITparGeo::PrintAssignMaterial() {
 string TAITparGeo::PrintParameters() {
   
   stringstream outstr;
+  outstr << setiosflags(ios::fixed) << setprecision(5);
   string precision = "D+00";
 
   outstr << "c     INTERMEDIATE TRACKER PARAMETERS " << endl;

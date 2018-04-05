@@ -482,6 +482,8 @@ string TAMSDparGeo::PrintAssignMaterial() {
 string TAMSDparGeo::PrintParameters() {
   
   stringstream outstr;
+  outstr << setiosflags(ios::fixed) << setprecision(5);
+
   string precision = "D+00";
 
   outstr << "c     MICRO STRIP DETECTOR PARAMETERS " << endl;
@@ -496,7 +498,18 @@ string TAMSDparGeo::PrintParameters() {
     outstr << "      parameter (" << i.first << " = " << i.second << ")" << endl;
     // outstr << "ciao"<< endl;
   }
-    
+
+  map<string, double> doublep;
+  doublep["dxMSD"] = MSD_DX;
+  doublep["dyMSD"] = MSD_DY;
+  doublep["xminMSD"] = MSD_XMIN;
+  doublep["yminMSD"] = MSD_YMIN;
+  for (auto i : doublep){
+    outstr << "      double precision " << i.first << endl;
+    outstr << "      parameter (" << i.first << " = " << i.second << precision << ")" << endl;
+    // outstr << endl;    
+  }
+  
   outstr << endl;
   // cout<<outstr.str().length()<<endl;
   

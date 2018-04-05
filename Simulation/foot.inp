@@ -5,30 +5,22 @@ GLOBAL         9999.                                      1.
 DEFAULTS                                                              PRECISIO
 PHYSICS           3.                                                  EVAPORAT
 IONTRANS    HEAVYION
-* @@@START GENERATED, DO NOT MODIFY:GENERAL@@@ *********************************
+RADDECAY          2.                  1.
 * ******************************************************************************
 *                           GENERAL & PRIMARY                                  *
 * ******************************************************************************
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
+* @@@START GENERATED, DO NOT MODIFY:GENERAL@@@ *********************************
 PHYSICS           1.                                                  COALESCE
 BEAM       -0.200000       0.0       0.0 -0.480000 -0.480000        1.HEAVYION
 HI-PROPE          8.       16.
 BEAMPOS          0.0       0.0      -30.       0.0       0.0
-* **************************************************
-* * EM TRANSPORT THRESHOLD FOR EVERY REGION
 EMFCUT           -1.        1.               BLACK  @LASTREG        1.
-* ***************************************************
-* * EM PRODUCTION THRESHOLD FOR EVERY MATERIAL
 EMFCUT           -1.        1.        1.  BLCKHOLE  @LASTMAT        1.PROD-CUT
-* ***********************************************
-* * DELTA-RAY THRESHOLD FOR ALL REGIONS
 DELTARAY          1.                      BLCKHOLE  @LASTMAT        1.
-* ***********************************************
-* * PAIR-BREM THRESHOLD FOR ALL REGIONS
 PAIRBREM         -3.                      BLCKHOLE  @LASTMAT
-*
 * @@@END GENERATED:GENERAL@@@ **************************************************
 * ******************************************************************************
 *                          GEOMETRY                                            *
@@ -43,12 +35,12 @@ GEOEND
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * *** Aggiunte manuali
-MATERIAL         0.0        0.       0.0                              BLCKHOLE
-MATERIAL         0.0        0.       0.0                              VACUUM
+MATERIAL         0.0       0.0       0.0                              BLCKHOLE
+MATERIAL         0.0       0.0       0.0                              VACUUM
 MATERIAL          1.   1.00794 8.3748E-5                              HYDROGEN
 MATERIAL          2.  4.002602 1.6632E-4                              HELIUM
 MATERIAL          4.  9.012182     1.848                              BERYLLIU
-MATERIAL          6.   12.0107       2.0                              CARBON
+MATERIAL          6.   12.0107        2.                              CARBON
 MATERIAL          7.   14.0067 0.0011653                              NITROGEN
 MATERIAL          8.   15.9994 0.0013315                              OXYGEN
 MATERIAL         12.   24.3050      1.74                              MAGNESIU
@@ -62,9 +54,9 @@ MATERIAL         80.    200.59    13.546                              MERCURY
 MATERIAL         82.     207.2     11.35                              LEAD
 MATERIAL         73.  180.9479    16.654                              TANTALUM
 MATERIAL         11. 22.989770     0.971                              SODIUM
-MATERIAL         18.  39.948  0.001662                              ARGON
-MATERIAL         20.  40.078      1.55                              CALCIUM
-MATERIAL         50. 118.710      7.31                              TIN
+MATERIAL         18.    39.948  0.001662                              ARGON
+MATERIAL         20.    40.078      1.55                              CALCIUM
+MATERIAL         50.   118.710      7.31                              TIN
 MATERIAL         74.    183.84      19.3                              TUNGSTEN
 MATERIAL         22.    47.867      4.54                              TITANIUM
 MATERIAL         28.   58.6934     8.902                              NICKEL
@@ -163,93 +155,53 @@ COMPOUND         -1.   SILICON       -1.    CARBON                    SiC
 MATERIAL                          0.1288                              SiCFoam
 COMPOUND         -4.       SiC      -96.       AIR                    SiCFoam
 *
-* @@@START GENERATED, DO NOT MODIFY:MATERIAL&MAGFIELD@@@ ***********************
 * ******************************************************************************
 *                         MEDIA & MAGFIELD                                     *
 * ******************************************************************************
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
+* @@@START GENERATED, DO NOT MODIFY:MATERIAL&MAGFIELD@@@ ***********************
 ASSIGNMA    BLCKHOLE     BLACK
 ASSIGNMA         AIR       AIR
 ASSIGNMA      EJ-232       STC
 ASSIGNMA    ALUMINUM   BMN_SHI
 ASSIGNMA       Mylar  BMN_MYL0
 ASSIGNMA       Mylar  BMN_MYL1
-ASSIGNMA      Ar-CO2  BMN_C000  BMN_C017         1
-ASSIGNMA      Ar-CO2  BMN_C100  BMN_C117         1
+ASSIGNMA      Ar-CO2  BMN_C000  BMN_C017        1.
+ASSIGNMA      Ar-CO2  BMN_C100  BMN_C117        1.
 ASSIGNMA      Ar-CO2   BMN_GAS
 ASSIGNMA    ALUMINUM   BMN_FWI
 ASSIGNMA    TUNGSTEN   BMN_SWI
-ASSIGNMA    Polyethy    TARGET                             1
-ASSIGNMA     SILICON     VTXP0     VTXS3         1         1
-ASSIGNMA    ALUMINUM     ITRP2    ITRP73         1         1
-ASSIGNMA       Epoxy     ITRP0    ITRP75         1         1
-ASSIGNMA      KAPTON     ITRP1    ITRP74         1         1
-ASSIGNMA     SILICON    ITRP13   ITRS313         1         1
-ASSIGNMA     SiCFoam     ITRP6    ITRP69         1         1
+ASSIGNMA    Polyethy    TARGET                            1.
+ASSIGNMA     SILICON     VTXP0     VTXS3        1.        1.
+ASSIGNMA    ALUMINUM     ITRP2    ITRP73        1.
+ASSIGNMA       Epoxy     ITRP0    ITRP75        1.
+ASSIGNMA      KAPTON     ITRP1    ITRP74        1.
+ASSIGNMA     SILICON    ITRP13   ITRS313        1.        1.
+ASSIGNMA     SiCFoam     ITRP6    ITRP69        1.
 ASSIGNMA        SmCo   MAG_PM0
 ASSIGNMA    ALUMINUM   MAG_CV0
 ASSIGNMA        SmCo   MAG_PM1
 ASSIGNMA    ALUMINUM   MAG_CV1
-ASSIGNMA         AIR   MAG_AIR                             1
-ASSIGNMA     SILICON     MSDS0     MSDS2         1         1
+ASSIGNMA         AIR   MAG_AIR                            1.
+ASSIGNMA     SILICON     MSDS0     MSDS2        1.        1.
 ASSIGNMA         AIR       BOX
-ASSIGNMA      EJ-232    SCN000    SCN121         1          
-ASSIGNMA         BGO    CAL000    CAL359         1
-MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000
-*
+ASSIGNMA      EJ-232    SCN000    SCN121        1.
+ASSIGNMA         BGO    CAL000    CAL359        1.
+MGNFIELD    0.100000  0.000010                 0.0       0.0       0.0
 * @@@END GENERATED:MATERIAL&MAGFIELD@@@ ****************************************
+*
 * ******************************************************************************
-* *
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| idbflg  | FragTrg |Eth(Mev) |unused   |unused   |unused | SDUM      |
 * -------1---------2---------3---------4---------5---------6---------7---------8
-USRICALL         0.0       0.0       0.1       0.0       0.0       0.0
-* -------1---------2---------3---------4---------5---------6---------7---------8
-* command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
-* -------1---------2---------3---------4---------5---------6---------7---------8
-STEPSIZE    -0.00001            BMN_MYL0   MAG_AIR
-STEPSIZE    -0.00001             MAG_AIR    TARGET
-STEPSIZE    -0.00001              TARGET   MAG_AIR
-STEPSIZE    -0.00001             MAG_AIR      VTX0
-STEPSIZE    -0.00001                VTX0   MAG_AIR
-STEPSIZE    -0.00001             MAG_AIR      VTX1
-STEPSIZE    -0.00001                VTX1   MAG_AIR
-STEPSIZE    -0.00001             MAG_AIR      VTX2
-STEPSIZE    -0.00001                VTX2   MAG_AIR
-STEPSIZE    -0.00001             MAG_AIR      VTX3
-STEPSIZE    -0.00001                VTX3   MAG_AIR
-STEPSIZE    -0.00001             MAG_AIR      ITR0
-STEPSIZE    -0.00001                ITR0   ITREPO0
-STEPSIZE    -0.00001             ITREPO0   ITRCOV0
-STEPSIZE    -0.00001             ITRCOV0    ITRAL0
-STEPSIZE    -0.00001              ITRAL0   ITRKAP0
-STEPSIZE    -0.00001             ITRKAP0    ITRAL1
-STEPSIZE    -0.00001              ITRAL1   ITRCOV1
-STEPSIZE    -0.00001             ITRCOV1   ITRFOAM
-STEPSIZE    -0.00001             ITRFOAM   ITRCOV2
-STEPSIZE    -0.00001             ITRCOV2    ITRAL2
-STEPSIZE    -0.00001              ITRAL2   ITRKAP1
-STEPSIZE    -0.00001             ITRKAP1    ITRAL3
-STEPSIZE    -0.00001              ITRAL3   ITRCOV3
-STEPSIZE    -0.00001             ITRCOV3   ITREPO1
-STEPSIZE    -0.00001             ITREPO1      ITR1
-STEPSIZE    -0.00001                ITR1   MAG_AIR
-STEPSIZE    -0.00001             MAG_AIR     MSDV0
-STEPSIZE    -0.00001               MSDV0     MSDU0
-STEPSIZE    -0.00001               MSDU0   MAG_AIR
-STEPSIZE    -0.00001             MAG_AIR     MSDV1
-STEPSIZE    -0.00001               MSDV1     MSDU1
-STEPSIZE    -0.00001               MSDU1   MAG_AIR
-STEPSIZE    -0.00001             MAG_AIR     MSDV2
-STEPSIZE    -0.00001               MSDV2     MSDU2
-STEPSIZE    -0.00001               MSDU2   MAG_AIR
+USRICALL         0.0        6.       0.1       0.0       0.0       0.0
 USERDUMP        100.       69.       0.0        1.                    Opt
 USROCALL
 RANDOMIZ          1.   593585.
 * ******************************************************************************
 *                          RUN                                                 *
 * ******************************************************************************
-START             1.
+START          1000.
 STOP

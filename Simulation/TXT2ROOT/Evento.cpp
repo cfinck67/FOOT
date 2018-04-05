@@ -116,9 +116,9 @@ Evento::Evento()
 
   for(int kk=0;kk<MAXITR;kk++){
     eve.ITRid[kk]    = 0;
-    eve.ITRilay[kk]  = 0;
     eve.ITRiplume[kk]  = 0;
     eve.ITRimimo[kk]  = 0;
+    eve.ITRilay[kk]  = 0;
     eve.ITRirow[kk]  = 0;
     eve.ITRicol[kk]  = 0;
     eve.ITRxin[kk]   = 0.;
@@ -162,7 +162,7 @@ Evento::Evento()
   
   for(int kk=0;kk<MAXSCN;kk++){
     eve.SCNid[kk]     = 0;
-    eve.SCNistrip[kk] = 0;
+    eve.SCNibar[kk] = 0;
     eve.SCNiview[kk]  = 0;
     eve.SCNxin[kk]    = 0.;
     eve.SCNyin[kk]    = 0.;
@@ -322,9 +322,9 @@ Int_t Evento::Clean(){
 
   for(int kk=0;kk<eve.ITRn;kk++){
     eve.ITRid[kk]    = 0;
-    eve.ITRilay[kk]  = 0;
     eve.ITRiplume[kk]  = 0;
     eve.ITRimimo[kk]  = 0;
+    eve.ITRilay[kk]  = 0;
     eve.ITRirow[kk]  = 0;
     eve.ITRicol[kk]  = 0;
     eve.ITRxin[kk]   = 0.;
@@ -347,8 +347,8 @@ Int_t Evento::Clean(){
   for(int kk=0;kk<eve.MSDn;kk++){
     eve.MSDid[kk]    = 0;
     eve.MSDilay[kk]  = 0;
-    eve.MSDistripy[kk]= 0;
     eve.MSDistripx[kk]= 0;
+    eve.MSDistripy[kk]= 0;
     eve.MSDxin[kk]   = 0.;
     eve.MSDyin[kk]   = 0.;
     eve.MSDzin[kk]   = 0.;
@@ -368,7 +368,7 @@ Int_t Evento::Clean(){
 
   for(int kk=0;kk<eve.SCNn;kk++){
     eve.SCNid[kk]     = 0;
-    eve.SCNistrip[kk] = 0;
+    eve.SCNibar[kk] = 0;
     eve.SCNiview[kk]  = 0;
     eve.SCNxin[kk]    = 0.;
     eve.SCNyin[kk]    = 0.;
@@ -595,8 +595,8 @@ Int_t Evento::AddVTX(Int_t fVTXid, Int_t fVTXilay,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddITR(Int_t fITRid, Int_t fITRilay, Int_t fITRiplume,
-		     Int_t fITRimimo, Int_t fITRirow, Int_t fITRicol,
+Int_t Evento::AddITR(Int_t fITRid, Int_t fITRilay,Int_t fITRirow,
+		     Int_t fITRicol,Int_t fITRiplume, Int_t fITRimimo,
 		     Double_t fITRxin, Double_t fITRyin, Double_t fITRzin,
 		     Double_t fITRxout, Double_t fITRyout, Double_t fITRzout,
 		     Double_t fITRpxin, Double_t fITRpyin, Double_t fITRpzin,
@@ -606,13 +606,11 @@ Int_t Evento::AddITR(Int_t fITRid, Int_t fITRilay, Int_t fITRiplume,
   if(eve.ITRn<MAXITR){
       eve.ITRn ++;
       eve.ITRilay[eve.ITRn-1] = fITRilay;
-      eve.ITRiplume[eve.ITRn-1] = fITRiplume;
-      eve.ITRimimo[eve.ITRn-1] = fITRimimo;
-      // std::cout << "fITRimimo" << fITRimimo << std::endl;
-      // exit(0);
       eve.ITRid[eve.ITRn-1] = fITRid;
       eve.ITRirow[eve.ITRn-1] = fITRirow;
       eve.ITRicol[eve.ITRn-1] = fITRicol;
+      eve.ITRiplume[eve.ITRn-1] = fITRiplume;
+      eve.ITRimimo[eve.ITRn-1] = fITRimimo;
       eve.ITRxin[eve.ITRn-1] = fITRxin;
       eve.ITRyin[eve.ITRn-1] = fITRyin;
       eve.ITRzin[eve.ITRn-1] = fITRzin;
@@ -638,7 +636,8 @@ Int_t Evento::AddITR(Int_t fITRid, Int_t fITRilay, Int_t fITRiplume,
 
 /*-----------------------------------------------------------------*/
 
-Int_t Evento::AddMSD(Int_t fMSDid, Int_t fMSDilay, Int_t fMSDistripx, Int_t fMSDistripy,
+Int_t Evento::AddMSD(Int_t fMSDid, Int_t fMSDilay,
+		     Int_t fMSDistripx, Int_t fMSDistripy,
 		     Double_t fMSDxin, Double_t fMSDyin, Double_t fMSDzin,
 		     Double_t fMSDxout, Double_t fMSDyout, Double_t fMSDzout,
 		     Double_t fMSDpxin, Double_t fMSDpyin, Double_t fMSDpzin,
@@ -677,7 +676,7 @@ Int_t Evento::AddMSD(Int_t fMSDid, Int_t fMSDilay, Int_t fMSDistripx, Int_t fMSD
 /*-----------------------------------------------------------------*/
 
 Int_t Evento::AddSCN(Int_t fSCNid,
-		       Int_t fSCNistrip, Int_t fSCNiview,
+		       Int_t fSCNibar, Int_t fSCNiview,
 		       Double_t fSCNxin, Double_t fSCNyin, 
 		       Double_t fSCNzin,
 		       Double_t fSCNxout, Double_t fSCNyout, 
@@ -690,7 +689,7 @@ Int_t Evento::AddSCN(Int_t fSCNid,
   if(eve.SCNn<MAXSCN){
     eve.SCNn ++;
     eve.SCNid[eve.SCNn-1] = fSCNid;
-    eve.SCNistrip[eve.SCNn-1] = fSCNistrip;
+    eve.SCNibar[eve.SCNn-1] = fSCNibar;
     eve.SCNiview[eve.SCNn-1] = fSCNiview;
     eve.SCNxin[eve.SCNn-1] = fSCNxin;
     eve.SCNyin[eve.SCNn-1] = fSCNyin;
@@ -912,7 +911,7 @@ int Evento::FindBranches(TTree *RootTree, EVENT_STRUCT *eve){
   
   RootTree->SetBranchAddress("SCNn",&(eve->SCNn));
   RootTree->SetBranchAddress("SCNid",&(eve->SCNid));
-  RootTree->SetBranchAddress("SCNistrip",&(eve->SCNistrip));
+  RootTree->SetBranchAddress("SCNibar",&(eve->SCNibar));
   RootTree->SetBranchAddress("SCNiview",&(eve->SCNiview));
   RootTree->SetBranchAddress("SCNxin",&(eve->SCNxin));
   RootTree->SetBranchAddress("SCNyin",&(eve->SCNyin));

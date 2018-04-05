@@ -165,7 +165,7 @@ const Double_t VTX_Y 		=0.0;//center y coordinate of sensitive pixelated area
 const Double_t VTX_Z 		=1.5;//center z coordinate of sensitive pixelated area
 				     
 const Double_t VTX_WIDTH   	=2.271;//total x dimension (sens+insens)
-const Double_t VTX_HEIGHT  	=2.024;//total y dimension (sens+insens)
+const Double_t VTX_HEIGHT  	=2.022;//total y dimension (sens+insens)
 const Double_t VTX_THICK   	=0.005;//total z dimension (sens+insens)
 
 const Int_t    VTX_NLAY         =4;//no. of layers
@@ -193,7 +193,7 @@ const bool VTX_MAG		=true;
 //************************************************************
 // Inner Tracker
 
-const Double_t ITR_X 		=0.0; //center x coordinate
+const Double_t ITR_X 		=0.5; //center x coordinate
 const Double_t ITR_Y 		=0.0; //center y coordinate
 const Double_t ITR_Z 		=14.;//center z coordinate
 
@@ -210,20 +210,25 @@ const Double_t ITR_DY		=ITR_DX;//y dimension of pixel
 const Int_t ITR_XPIX		=960;//n. pixel in x
 const Int_t ITR_YPIX		=928;//n. pixel in y
 
-const Double_t ITR_M28_XDEAD	=VTX_YDEAD;//dead space in x (risp al vtx sono ruotati di 90°)
-const Double_t ITR_M28_YDEAD	=VTX_XDEAD;//dead space in y
 const Double_t ITR_SENSE_WIDTH	=ITR_DX*ITR_XPIX;//x dimension of sensitive pixelated area
 const Double_t ITR_SENSE_HEIGHT	=ITR_DY*ITR_YPIX;//x dimension of sensitive pixelated area
 const Double_t ITR_SENSE_XMIN	=ITR_SENSE_WIDTH/2.;
 const Double_t ITR_SENSE_YMIN	=ITR_SENSE_HEIGHT/2.;
+const Double_t ITR_M28_XDEAD	=VTX_YDEAD;//dead space in x (risp al vtx sono ruotati di 90°)
+const Double_t ITR_M28_YDEAD	=VTX_XDEAD;//dead space in y
+/* const Double_t ITR_M28_YDEADMIN	=ITR_M28_HEIGHT - ITR_SENSE_HEIGHT - ITR_YDEADMAX;//dead space in y */
 
 const Int_t    ITR_NPLM		=4;//numero di plumes
 const Double_t ITR_PLMZDIST	=1.;//distance in z btw staggered plumes
 const Double_t ITR_PLMYDIST	=ITR_SENSE_HEIGHT;//distance in y btw plumes
 
-const Double_t ITR_BOARD_YDEAD1 =0.4;//y dimension of the board y dead space
-const Double_t ITR_BOARD_YDEAD2 =0.05;//y dimension of the board y dead space
-const Double_t ITR_BOARD_WIDTH  =ITR_NPLM*VTX_WIDTH+3.;//x dimension of the board 
+//board dimensions have been guessed starting from the m26 plume version
+const Double_t ITR_BOARD_YDEAD1 =0.2;//y dimension of the board y dead space
+const Double_t ITR_BOARD_YDEAD2 =0.4;//y dimension of the board y dead space
+const Double_t ITR_BOARD_XDEAD1 =1.5;//x dimension of the board y dead space
+const Double_t ITR_BOARD_XDEAD2 =6.04;//x dimension of the board y dead space
+const Double_t ITR_BOARD_WIDTH  =ITR_NPLM*ITR_M28_WIDTH+ITR_M28_DIST*(ITR_NPLM-1)+ITR_BOARD_XDEAD1+ITR_BOARD_XDEAD2;//x dimension of the board
+/* const Double_t ITR_BOARD_WIDTH  =ITR_NPLM*VTX_WIDTH+3.;//x dimension of the board */
 const Double_t ITR_BOARD_HEIGHT =ITR_M28_HEIGHT+ITR_BOARD_YDEAD1+ITR_BOARD_YDEAD2;//y dimension of the board 
 
 const Double_t ITR_EPO_THICK    =0.001;//epoxy glue layers thickness
@@ -245,9 +250,9 @@ const bool ITR_MAG		=true;
 //************************************************************
 // Magnets
 
-const Double_t MAG_X 		=0.0;//center x coordinate of the first magnet
-const Double_t MAG_Y 		=0.0;//center y coordinate of the first magnet
-const Double_t MAG_Z 		=8.;//center z coordinate of the first magnet
+const Double_t MAG_X 		=0.0;//center x coordinate of the first magnets
+const Double_t MAG_Y 		=0.0;//center y coordinate of the first magnets
+const Double_t MAG_Z 		=14.;//center z coordinate btw the magnets
 
 const Double_t MAG_DIST		=12.0;//distance btw magnets (from zmin1 to zmin2)
 const Int_t    MAG_N		=2;//no. of magnets
@@ -337,7 +342,7 @@ const Double_t CAL_HEIGHT  	=CAL_WIDTH;//calorimeter dimension along Y
 
 const Double_t CAL_CRY_WIDTH  	=2.0;//crystal dimension along X
 const Double_t CAL_CRY_HEIGHT  	=CAL_CRY_WIDTH;//crystal dimension along Y
-const Double_t CAL_CRY_THICK   	=21.0;//crystal thickness
+const Double_t CAL_CRY_THICK   	=24.0;//crystal thickness
 
 
 const Double_t CAL_X 		=0.0;  //center x coordinate

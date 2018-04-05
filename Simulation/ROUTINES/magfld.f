@@ -68,7 +68,7 @@
       IF (LFIRST) THEN 
          
 *         CALL OAUXFI('DoubleDipole.table',22,'OLD',IERR)
-         CALL OAUXFI('MyMagMap.table',22,'OLD',IERR)
+         CALL OAUXFI('DoubleDipole.table',22,'OLD',IERR)
          
          DO I=1,NX
             DO J=1,NY

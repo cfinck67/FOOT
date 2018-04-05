@@ -71,7 +71,7 @@ c
 *                                                                      *
 c      write(*,*)"sono in mgdraw"
 *  +-------------------------------------------------------------------*
-      if(idbflg.eq.4) then
+      if(idbflg.lt.0) then
          IF ( .NOT. LFCOPE ) THEN
             LFCOPE = .TRUE.
             IF ( KOMPUT .EQ. 2 ) THEN
@@ -89,7 +89,7 @@ c      write(*,*)"sono in mgdraw"
      &        ( SNGL (DTRACK (I)), I = 1, MTRACK ),
      &        SNGL (CTRACK)
       endif
-      if(idbflg.gt.1 .AND. idbflg.lt.4) then
+      if(idbflg.gt.1) then
          call GEOR2N ( mreg, MREGNAM, IERR ) 
          write(*,*)' '
          write(*,*)'------------- mgdraw: Ev =',ncase,' -------------'
@@ -121,7 +121,7 @@ c**************************************************************
 *      CALL GEOL2N(MLATTC,MLATNAM,IRTLAT,IERR)
 c      write(*,*) jtrack, mreg,' ',MREGNAM, MLATTC
 c
-      if(idbflg.gt.1 .AND. idbflg.lt.4) then
+      if(idbflg.gt.1) then
          write(*,*)'ptrack = ',ptrack,' ekin = ',etrack-ampart
          write(*,*)'zfrttk = ',zfrttk,' icpart = ',icpart,'  m =',ampart
          WRITE (*,*)'x,y,z = ', ( SNGL (XTRACK (I)), SNGL (YTRACK (I)),
@@ -147,7 +147,7 @@ c
      &     xtrack(0),ytrack(0),ztrack(0),JRUN)
 c      call UpdateCurrPart(mreg,icpart,ibpart,ampart,icode)
 c
-      if (idbflg.eq.4) then
+      if (idbflg.lt.0) then
          IF ( LQEMGD )THEN
             RULLL  = ZERZER
             CALL QUENMG ( ICODE, MREG, RULLL, DTQUEN )
@@ -403,7 +403,7 @@ c************* HEAVY IONS WITH JTRACK.LT.-6
 c
 c debug printing
 c
-      if(idbflg.gt.0 .AND. idbflg.lt.4) then
+      if(idbflg.gt.0) then
          call GEOR2N ( newreg, NEWREGNAM, IERR ) 
          call GEOR2N ( mreg, MREGNAM, IERR ) 
 *         CALL GEOL2N ( MLATTC,MLATNAM,IRTLAT,IERR )
@@ -454,7 +454,7 @@ c
 *======================================================================*
 *                                                                      *
       ENTRY EEDRAW ( ICODE )
-      if(idbflg.gt.2 .AND. idbflg.lt.4) then
+      if(idbflg.gt.2) then
          call dump_common()
       endif
       RETURN
@@ -497,7 +497,7 @@ c
 c
 c debug
 c
-      if (idbflg.eq.4) then
+      if (idbflg.lt.0) then
          IF ( .NOT. LFCOPE ) THEN
             LFCOPE = .TRUE.
             IF ( KOMPUT .EQ. 2 ) THEN
@@ -513,7 +513,7 @@ c
      &           SNGL (RULL)
          endif
       endif
-      if(idbflg.gt.1 .AND. idbflg.lt.4 ) then
+      if(idbflg.gt.1) then
          write(*,*)'------------- endraw: Ev =',ncase,' -------------'
          write(*,*)'jtrack = ',jtrack,' mreg = ',mreg
          write(*,*)'rull = ',rull,' icode = ',icode,' idcurr = ',idcurr
@@ -527,7 +527,7 @@ Cgb   to preserve idead flag correctly
 Cgb
       idead (idcurr) = icode
 Cgb
-      if(idbflg.gt.1 .AND. idbflg.lt.4) then
+      if(idbflg.gt.1) then
          write(*,*)'ENDRAW: Now idead(idcurr) = ',idead(idcurr)
       endif
 Cgb
@@ -563,7 +563,7 @@ c            write(*,*)'***********************************************'
             endif
          endif
       endif
-      if (idbflg.eq.4) then
+      if (idbflg.lt.0) then
          IF ( LQEMGD) THEN
             RULLL = RULL
             CALL QUENMG ( ICODE, MREG, RULL, DTQUEN )
@@ -687,7 +687,7 @@ c
 *
       ENTRY SODRAW
 c
-      if (idbflg.eq.4) then
+      if (idbflg.lt.0) then
          IF ( .NOT. LFCOPE ) THEN
             LFCOPE = .TRUE.
             IF ( KOMPUT .EQ. 2 ) THEN
@@ -701,7 +701,7 @@ c
          WRITE (IODRAW) -NCASE, NPFLKA, NSTMAX, SNGL (TKESUM),
      &        SNGL (WEIPRI)
       endif
-      if(idbflg.gt.1 .AND. idbflg.lt.4) then
+      if(idbflg.gt.1) then
          write(*,*)'------------- sodraw: Ev =',ncase,' -------------'
       endif
 *  +-------------------------------------------------------------------*
@@ -712,7 +712,7 @@ c
          IZRES  = MOD ( ILOFLK (NPFLKA), 10000000 ) / 100000
          IISRES = ILOFLK (NPFLKA) / 10000000
          IONID  = ILOFLK (NPFLKA)
-         if (idbflg.eq.4) then
+         if (idbflg.lt.0) then
             WRITE (IODRAW) ( IONID,SNGL(-TKEFLK(I)),
      &           SNGL (WTFLK(I)), SNGL (XFLK (I)),
      &           SNGL (YFLK (I)), SNGL (ZFLK (I)),
@@ -727,7 +727,7 @@ c
       ELSE IF ( ABS (ILOFLK (NPFLKA)) .GE. 10000 ) THEN
          IONID = ILOFLK (NPFLKA)
          CALL DCDION ( IONID )
-         if (idbflg.eq.4) then
+         if (idbflg.lt.0) then
             WRITE (IODRAW) ( IONID,SNGL(TKEFLK(I)+AMNHEA(-IONID)),
      &           SNGL (WTFLK(I)), SNGL (XFLK (I)),
      &           SNGL (YFLK (I)), SNGL (ZFLK (I)),
@@ -738,7 +738,7 @@ c
 *  +-------------------------------------------------------------------*
 *  |  Patch for heavy ions: ???
       ELSE IF ( ILOFLK (NPFLKA) .LT. -6 ) THEN
-         if (idbflg.eq.4) then
+         if (idbflg.lt.0) then
             WRITE (IODRAW)
      &           ( IONID,SNGL(TKEFLK(I)+AMNHEA(-ILOFLK(NPFLKA))),
      &           SNGL (WTFLK(I)), SNGL (XFLK (I)),
@@ -751,7 +751,7 @@ c
 *  |
       ELSE
          IONID = ILOFLK (NPFLKA)
-         if (idbflg.eq.4) then
+         if (idbflg.lt.0) then
             WRITE (IODRAW) ( ILOFLK(I), SNGL (TKEFLK(I)+AM(ILOFLK(I))),
      &           SNGL (WTFLK(I)), SNGL (XFLK (I)),
      &           SNGL (YFLK (I)), SNGL (ZFLK (I)),
@@ -765,7 +765,7 @@ c
       call UpdateCurrPart(mreg,icpart,ibpart,ampart,icode,
      &     0.d+00,0.d+00,0.d+00,JSTART)
 c
-      if(idbflg.gt.0 .AND. idbflg.lt.4) then
+      if(idbflg.gt.0) then
          write(*,*)'reg = ',numreg(nump),' tprod = ',tempo(nump),
      &        ' jpa = ',jpa(nump)
          write(*,*)'vert = ',vxi(nump),vyi(nump),vzi(nump),
@@ -815,7 +815,7 @@ Cgb
 c     
 c debug printing
 c
-      if (idblfg.eq.4) then
+      if (idblfg.lt.0) then
          IF ( .NOT. LFCOPE ) THEN
             LFCOPE = .TRUE.
             IF ( KOMPUT .EQ. 2 ) THEN
@@ -827,14 +827,14 @@ c
      &           FORM = 'UNFORMATTED' )
          END IF
       endif
-      if(idbflg.gt.0 .AND. idbflg.lt.4) then
+      if(idbflg.gt.0) then
          call GEOR2N ( mreg, MREGNAM, IERR ) 
          write(*,*)' '
          write(*,*)'------------- usdraw: Ev =',ncase,' -------------'
          write(*,*)' Fluka index= ',ISPUSR(MKBMX2),' idcurr= ',idcurr,
      &        'jtrack = ',jtrack,' icode = ',icode
          write(*,*)'regione = ',mregnam, 'x,y,z = ',XSCO,YSCO,ZSCO
-         if(idbflg.gt.2 .AND. idbflg.lt.4) then
+         if(idbflg.gt.2) then
             write(*,*)'zfrttk = ',zfrttk,' icpart = ',icpart,',m = ',
      &           AMPART
             write(*,*)'ptrack = ',ptrack,' ekin = ',etrack-AMPART,
@@ -857,7 +857,7 @@ c
       IF (icode.eq.101) THEN   !! inelastic interaction
          IF (MREG.eq.nregSTC) THEN
             stcfrag = LTRACK
-            if (idbflg.gt.2 .AND. idbflg.lt.4) then
+            if (idbflg.gt.2) then
                write(*,*) ' mgdraw: STC ',stcfrag
                do  ip = 1, NP
                   if(kpart(ip).lt.-1) then
@@ -874,7 +874,7 @@ c
          ENDIF
          IF (MREG.ge.4 .AND. MREG.le.45) THEN
             bmnfrag = LTRACK
-            if (idbflg.gt.2 .AND. idbflg.lt.4) then
+            if (idbflg.gt.2) then
                write(*,*) ' mgdraw: BMN ',bmnfrag
                do  ip = 1, NP
                   if(kpart(ip).lt.-1) then
@@ -891,7 +891,7 @@ c
          ENDIF
          IF (MREG.eq.nregtarg) THEN
             tgtfrag = LTRACK
-            if (idbflg.gt.2 .AND. idbflg.lt.4) then
+            if (idbflg.gt.2) then
                write(*,*) ' mgdraw: TGT ',tgtfrag
                do  ip = 1, NP
                   if(kpart(ip).lt.-1) then
@@ -908,7 +908,7 @@ c
          ENDIF
          IF ( (MREG.eq.nregaria .or. MREG.eq.nregMagAir) ) THEN
             airfrag = LTRACK
-            if (idbflg.gt.2 .AND. idbflg.lt.4) then
+            if (idbflg.gt.2) then
                write(*,*) ' mgdraw: AIR ',airfrag
                do  ip = 1, NP
                   if(kpart(ip).lt.-1) then
@@ -928,7 +928,7 @@ c
      &        .AND. MREG.ne.nregtarg
      &        .AND. MREG.lt.nregFirstSCN ) THEN
             elsfrag = LTRACK
-            if (idbflg.gt.2 .AND. idbflg.lt.4) then
+            if (idbflg.gt.2) then
                write(*,*) ' mgdraw: Else ', elsfrag
                do  ip = 1, NP
                   if(kpart(ip).lt.-1) then
@@ -1011,7 +1011,7 @@ c      if ( icode .eq.  100) return
       zint(numint) = zsco
       intpa(numint) = idcurr
 C      idead(numint) = idead(idcurr)
-      if(idbflg.gt.1 .AND. idbflg.lt.4) then
+      if(idbflg.gt.1) then
          write(*,*)'USDRAW: Now numint, idead(numint) = ',
      &        numint,intpa(numint)
       endif
@@ -1031,7 +1031,7 @@ c
       if ( ldead ) then
          idead (idcurr) = icode
 c         idead (idcurr) = intcode(idcurr)
-         if(idbflg.gt.1 .AND. idbflg.lt.4) then
+         if(idbflg.gt.1) then
             write(*,*)'USDRAW: ldead Now idcurr, idead(idcurr) = ',
      &           idcurr,idead(idcurr),icode
          endif

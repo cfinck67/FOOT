@@ -6,7 +6,7 @@ Input: foot.inp
 Exec: fluka_FOOT_mag.exe
 Submit: *Default
 Tabs: 0.1 0.32 0.56 0.81 1.0
-Page: Run
+Page: Input
 DefMain: True
 LinkPrg: lfluka
 F77bound: True
@@ -24,433 +24,619 @@ End
 
 # Material
 Material: BaSO4
-	shine: 10.0
-	color: #7030D0
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #7030D0
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: SAMARIUM
-	shine: 10.0
-	color: #A05010
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #A05010
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: BARIUM
-	shine: 10.0
-	color: #907010
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #907010
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: BGO
-	shine: 10.0
-	color: #80B090
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #80B090
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B14
+	alpha: 0
+	color: #B05050
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: 7.6
+	alpha: 0
+	color: #7090D0
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B13
+	alpha: 0
+	color: #C030B0
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: SmCo
-	shine: 10.0
-	color: #505070
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #505070
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: Ar-CO2
-	shine: 10.0
-	color: #4bd6e4
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #4bd6e4
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: EJ-232
-	shine: 10.0
-	color: #E0B090
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #E0B090
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B18
+	alpha: 0
+	color: #509030
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: 8.3
+	alpha: 0
+	color: #B09050
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B73
+	alpha: 0
+	color: #6090D0
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B50
+	alpha: 0
+	color: #1070B0
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: 1.18
+	alpha: 0
+	color: #9070B0
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: SiC
-	shine: 10.0
-	color: #5050D0
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #5050D0
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: 3.22
+	alpha: 0
+	color: #4070D0
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: NEODYMIU
-	shine: 10.0
-	color: #D07010
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #D07010
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: Mylar
-	shine: 10.0
-	color: #905050
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #905050
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: BISMUTH
-	shine: 10.0
-	color: #401030
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #401030
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B80
+	alpha: 0
+	color: #603050
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: NIOBIUM
-	shine: 10.0
-	color: #7030D0
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #7030D0
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: TEDLAR
-	shine: 10.0
-	color: #50B010
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #50B010
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B60
+	alpha: 0
+	color: #C050B0
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: Graphite
-	shine: 10.0
-	color: #1070D0
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #1070D0
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: DYSPROSI
-	shine: 10.0
-	color: #A070B0
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #A070B0
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: Epoxy
-	shine: 10.0
-	color: #3090B0
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #3090B0
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: NdFeB
-	shine: 10.0
-	color: #B05010
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #B05010
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: SiCFoam
-	shine: 10.0
-	color: #E0D0B0
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #E0D0B0
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: FLUORINE
-	shine: 10.0
-	color: #503010
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #503010
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B62
+	alpha: 0
+	color: #A0D070
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: BAKELITE
-	shine: 10.0
-	color: #407050
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #407050
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: Polyethy
-	shine: 10.0
-	color: #70B010
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #70B010
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B66
+	alpha: 0
+	color: #803010
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B29
+	alpha: 0
+	color: #301010
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: PilotB
-	shine: 10.0
-	color: #9030B0
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #9030B0
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B22
+	alpha: 0
+	color: #209090
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B6
+	alpha: 0
+	color: #301010
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Material
 Material: GERMANIU
-	shine: 10.0
-	color: #B0D010
-	ior: 1.0
-	specular: 0.0
 	alpha: 0
+	color: #B0D010
 	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B2
+	alpha: 0
+	color: #10B030
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: B8
+	alpha: 0
+	color: #10D090
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
+End
+
+# Material
+Material: 0.1288
+	alpha: 0
+	color: #605030
+	fuzz: 0.0
+	ior: 1.0
+	shine: 10.0
+	specular: 0.0
 End
 
 # Geometry Information
 Geometry:
-	Frame.bsplit: 0.99
+	Frame.bsplit: 0.5
 	Frame.tsplit: 0.5
-	Frame.vsplit: 0.01
+	Frame.vsplit: 0.5
 
 	# Layer
 	Layer: 3D
-		Userdump.AOMEGA+: 0
-		3D._visible: True
-		layer: 3D
-		Userdump.D0: 0
-		Userdump.AKAONZER: 0
-		Userdump.NEUTRIM: 0
-		Userdump.AXSIC0: 0
-		Userdump.PROTON: 0
-		Userdump.RAY: 0
-		Userdump.ELECTRON: 0
-		Userdump.LAMBDA: 0
-		Userdump.WWLOWNEU: 0
-		Userdump.MUON+: 0
-		Userdump.D-: 0
-		Userdump.XSIPC+: 0
-		Userdump.KAON-: 0
-		Userdump.ALAMBDC-: 0
-		Userdump.KAONSHRT: 0
 		3D: True
-		Userdump.TAU+: 0
-		Userdump.ANEUTRIT: 0
-		Userdump.LAMBDAC+: 0
-		Userdump.XSIZERO: 0
-		Userdump.APROTON: 0
-		Userdump.AXSIPC-: 0
-		Userdump.XSIC0: 0
-		Userdump.OMEGAC0: 0
-		Userdump.AXSIPC0: 0
-		Userdump.KAONLONG: 0
-		Userdump.ANEUTRIE: 0
-		Show.voxel: True
-		Userdump.ANEUTRON: 0
-		Userdump.OPTIPHOT: 0
-		Userdump.KAON+: 0
-		Userdump.ANEUTRIM: 0
-		Userdump.DEUTERON: 0
-		Userdump.XSIC+: 0
-		Userdump.ASIGMA+: 0
-		Userdump.ASIGMA-: 0
-		Userdump.NEUTRIT: 0
-		deflights: 1
-		Userdump.D+: 0
-		Userdump.AXSIZERO: 0
-		Userdump.D0BAR: 0
-		Userdump.PION+: 0
-		Userdump.XSI-: 0
-		Userdump.PION-: 0
+		3D._visible: True
+		3D.xray: 128
 		Options.shortcut: F4
-		Userdump.HEAVYION: 0
-		Userdump.ALAMBDA: 0
-		Userdump.SIGMAZER: 0
-		Userdump.PIZERO: 0
-		Userdump.MUON-: 0
-		Userdump.OMEGA-: 0
-		Userdump.3-HELIUM: 0
-		Userdump.KAONZERO: 0
-		Userdump.XSIPC0: 0
-		Show.lattice: True
-		Userdump.POSITRON: 0
-		Userdump.DS-: 0
 		Options.viewport: False
 		Show: 0
-		Userdump.SIGMA-: 0
-		Userdump.SIGMA+: 0
-		Userdump.AOMEGAC0: 0
-		Userdump.TRITON: 0
-		Userdump.NEUTRIE: 0
-		Userdump.AXSIC-: 0
-		Userdump.AXSI+: 0
-		Userdump.PHOTON: 0
-		Userdump.NEUTRON: 0
-		Userdump.TAU-: 0
-		Userdump.DS+: 0
+		Show.lattice: True
+		Show.voxel: True
+		Userdump.3-HELIUM: 0
 		Userdump.4-HELIUM: 0
-		3D.xray: 128
+		Userdump.AKAONZER: 0
+		Userdump.ALAMBDA: 0
+		Userdump.ALAMBDC-: 0
+		Userdump.ANEUTRIE: 0
+		Userdump.ANEUTRIM: 0
+		Userdump.ANEUTRIT: 0
+		Userdump.ANEUTRON: 0
+		Userdump.AOMEGA+: 0
+		Userdump.AOMEGAC0: 0
+		Userdump.APROTON: 0
+		Userdump.ASIGMA+: 0
+		Userdump.ASIGMA-: 0
 		Userdump.ASIGMAZE: 0
+		Userdump.AXSI+: 0
+		Userdump.AXSIC-: 0
+		Userdump.AXSIC0: 0
+		Userdump.AXSIPC-: 0
+		Userdump.AXSIPC0: 0
+		Userdump.AXSIZERO: 0
+		Userdump.D+: 0
+		Userdump.D-: 0
+		Userdump.D0: 0
+		Userdump.D0BAR: 0
+		Userdump.DEUTERON: 0
+		Userdump.DS+: 0
+		Userdump.DS-: 0
+		Userdump.ELECTRON: 0
+		Userdump.HEAVYION: 0
+		Userdump.KAON+: 0
+		Userdump.KAON-: 0
+		Userdump.KAONLONG: 0
+		Userdump.KAONSHRT: 0
+		Userdump.KAONZERO: 0
+		Userdump.LAMBDA: 0
+		Userdump.LAMBDAC+: 0
+		Userdump.MUON+: 0
+		Userdump.MUON-: 0
+		Userdump.NEUTRIE: 0
+		Userdump.NEUTRIM: 0
+		Userdump.NEUTRIT: 0
+		Userdump.NEUTRON: 0
+		Userdump.OMEGA-: 0
+		Userdump.OMEGAC0: 0
+		Userdump.OPTIPHOT: 0
+		Userdump.PHOTON: 0
+		Userdump.PION+: 0
+		Userdump.PION-: 0
+		Userdump.PIZERO: 0
+		Userdump.POSITRON: 0
+		Userdump.PROTON: 0
+		Userdump.RAY: 0
+		Userdump.SIGMA+: 0
+		Userdump.SIGMA-: 0
+		Userdump.SIGMAZER: 0
+		Userdump.TAU+: 0
+		Userdump.TAU-: 0
+		Userdump.TRITON: 0
+		Userdump.WWLOWNEU: 0
+		Userdump.XSI-: 0
+		Userdump.XSIC+: 0
+		Userdump.XSIC0: 0
+		Userdump.XSIPC+: 0
+		Userdump.XSIPC0: 0
+		Userdump.XSIZERO: 0
+		deflights: 1
+		layer: 3D
 	End
-End
-
-# Pet
-Pet: pet
 End
 
 # Geometry plot "GeoViewer Red plot"
 Plot: Red
 	Format: .eps
 	Type:   Geometry
-	labels: 1
-	cbcolors: 0
-	title: GeoViewer Red plot
-	extends: 23.2568 0.0421319
-	grid: 0
-	cbpalette: FLUKA
-	coord: X-Y
-	x2log: False
-	index: 0
-	subtype: Material
-	y2log: False
-	boundaries: 1
-	ztics: 0
-	cblog: False
-	origin: 0 0 0
-	cbround: 0
-	ylog: False
-	zlog: False
-	y2tics: 0
-	cbtics: 0
-	layer: Media
-	cpd: 0
-	xlog: False
 	basisu: 1 0 0
 	basisv: 0 1 0
+	boundaries: 1
+	cbcolors: 0
+	cblog: False
+	cbpalette: FLUKA
+	cbround: 0
+	cbtics: 0
+	coord: X-Y
+	cpd: 0
+	extends: 23.2568 9.51763
+	grid: 0
+	index: 0
+	labels: 1
+	layer: Media
+	origin: 0 0 0
+	subtype: Material
+	title: GeoViewer Red plot
+	x2log: False
 	x2tics: 0
+	xlog: False
+	y2log: False
+	y2tics: 0
+	ylog: False
+	zlog: False
+	ztics: 0
 End
 
 # Geometry plot "GeoViewer Green plot"
 Plot: Green
 	Format: .eps
 	Type:   Geometry
-	origin: 0 0 0
-	layer: Media
-	title: GeoViewer Green plot
-	labels: 1
-	coord: Z-X
-	boundaries: 1
-	subtype: Material
-	extends: 86.6788 0.157027
 	basisu: 0 0 1
 	basisv: 1 0 0
+	boundaries: 1
+	coord: Z-X
+	extends: 86.6788 35.4725
+	labels: 1
+	layer: Media
+	origin: 0 0 0
+	subtype: Material
+	title: GeoViewer Green plot
 End
 
 # Geometry plot "GeoViewer Blue plot"
 Plot: Blue
 	Format: .eps
 	Type:   Geometry
-	origin: 0 0 0
-	layer: Media
-	title: GeoViewer Blue plot
-	labels: 1
-	coord: Z-Y
-	boundaries: 1
-	subtype: Material
-	extends: 120 58.1918
 	basisu: 0 0 1
 	basisv: 0 1 0
+	boundaries: 1
+	coord: Z-Y
+	extends: 33.4898 13.7054
+	labels: 1
+	layer: Media
+	origin: 0 -6.85229 29.4078
+	subtype: Material
+	title: GeoViewer Blue plot
 End
 
 # Geometry plot "GeoViewer Magenta plot"
 Plot: Magenta
 	Format: .eps
 	Type:   Geometry
-	origin: 0 0 0
-	layer: Media
-	title: GeoViewer Magenta plot
-	labels: 1
-	coord: X-Y
-	boundaries: 1
-	subtype: Material
-	extends: 57.8705 3414.36
 	basisu: -1 0 0
 	basisv: 0 1 0
+	boundaries: 1
+	coord: X-Y
+	extends: 57.8705 23.683
+	labels: 1
+	layer: Media
+	origin: 0 0 0
+	subtype: Material
+	title: GeoViewer Magenta plot
 End
 
 # Geometry plot "Magnetic Field"
 Plot: foot_plot05
 	Format: .eps
 	Type:   Geometry
-	labels: 1
-	cbcolors: 0
-	title: Magnetic Field
-	extends: 40 30
-	grid: 0
-	cbpalette: FLUKA
-	coord: Z-X
-	x2log: False
-	index: 0
-	subtype: Field Intensity
-	y2log: False
-	boundaries: 0
-	run: <foot>
-	ztics: 0
-	cblog: False
-	origin: 0 0 14
-	cbround: 0
-	ylog: False
-	zlog: False
-	y2tics: 0
-	cbtics: 0
-	cpd: 0
-	xlog: False
 	basisu: 0 0 1
 	basisv: 1 0 0
+	boundaries: 0
+	cbcolors: 0
+	cblog: False
+	cbpalette: FLUKA
+	cbround: 0
+	cbtics: 0
+	coord: Z-X
+	cpd: 0
+	extends: 40 30
+	grid: 0
+	index: 0
+	labels: 1
+	origin: 0 0 14
+	run: <foot>
+	subtype: Field Intensity
+	title: Magnetic Field
+	x2log: False
 	x2tics: 0
+	xlog: False
+	y2log: False
+	y2tics: 0
+	ylog: False
+	zlog: False
+	ztics: 0
 End

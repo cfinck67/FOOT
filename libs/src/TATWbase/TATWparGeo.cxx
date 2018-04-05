@@ -342,10 +342,14 @@ string TATWparGeo::PrintRegions() {
 string TATWparGeo::PrintSubtractBodiesFromAir() {
 
   stringstream outstr;
+  int count=0;
   // loop in order of the material alfabeth
   for ( map<string, vector<string> >::iterator itMat = m_bodyName.begin(); itMat != m_bodyName.end(); itMat++ ) {
     // loop over all region of the same material
     for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
+      if ( count % 10 == 0 && count>0 )
+	outstr << "\n              ";
+      count++;
       outstr << " -" << (*itRegion);
     }        
   }
@@ -428,6 +432,7 @@ string TATWparGeo::PrintAssignMaterial() {
 string TATWparGeo::PrintParameters() {
 
   stringstream outstr;
+  outstr << setiosflags(ios::fixed) << setprecision(5);
 
   outstr << "c     SCINTILLATOR PARAMETERS " << endl;
   outstr << endl;

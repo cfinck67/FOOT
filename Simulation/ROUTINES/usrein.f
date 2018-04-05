@@ -31,7 +31,7 @@ c
       include 'mgdraw.inc'
       integer ii  
 c
-      if(idbflg .gt. 0 .AND. idbflg.lt.4)then
+      if(idbflg .gt. 0)then
          write(*,*)'***************************************************'
          write(*,*)'                   EVENT',ncase
          write(*,*)'***************************************************'
@@ -159,6 +159,8 @@ c
       nITR = 0
       do ii = 1,maxITR
          idITR(ii)    = 0
+         iplumeITR(ii)= 0
+         imimoITR(ii) = 0
          ilayITR(ii)  = 0
          irowITR(ii)  = 0
          icolITR(ii)  = 0
@@ -184,9 +186,9 @@ c
       nMSD = 0
       do ii = 1,maxMSD
          idMSD(ii)     = 0
-         iviewMSD(ii)  = 0
          ilayMSD(ii)   = 0
-         istripMSD(ii)  = 0
+         istripxMSD(ii)  = 0
+         istripyMSD(ii) = 0
          xinMSD(ii)    = 0.  
          xoutMSD(ii)   = 0. 
          yinMSD(ii)    = 0. 

@@ -57,15 +57,16 @@ class Evento : public TObject {
 	       Double_t fVTXpxout, Double_t fVTXpyout, Double_t fVTXpzout,
 	       Double_t fVTXde, Double_t fVTXal, Double_t fVTXtim);
 
-  Int_t AddITR(Int_t fITRid, Int_t fITRilay,  Int_t fITRiplume,Int_t fITRimimo,
-	       Int_t fITRirow, Int_t fITRicol,
+  Int_t AddITR(Int_t fITRid, Int_t fITRilay, Int_t fITRirow, Int_t fITRicol,
+	       Int_t fITRiplume, Int_t fITRimimo,
 	       Double_t fITRxin, Double_t fITRyin, Double_t fITRzin,
 	       Double_t fITRxout, Double_t fITRyout, Double_t fITRzout,
 	       Double_t fITRpxin, Double_t fITRpyin, Double_t fITRpzin,
 	       Double_t fITRpxout, Double_t fITRpyoutITR, Double_t fITRpzout,
 	       Double_t fITRde, Double_t fITRal, Double_t fITRtim);
 
-  Int_t AddMSD(Int_t fMSDid, Int_t fMSDilay,  Int_t fMSDistripx, Int_t fMSDistripy,
+  Int_t AddMSD(Int_t fMSDid, Int_t fMSDilay, Int_t fMSDistripx,
+	       Int_t fMSDistripy,
 	       Double_t fMSDxin, Double_t fMSDyin, Double_t fMSDzin,
 	       Double_t fMSDxout, Double_t fMSDyout, Double_t fMSDzout,
 	       Double_t fMSDpxin, Double_t fpMSDyin, Double_t fMSDpzin,
@@ -73,7 +74,7 @@ class Evento : public TObject {
 	       Double_t fMSDpzout,
 	       Double_t fMSDde, Double_t fMSDal, Double_t fMSDtim);
  
-  Int_t AddSCN(Int_t fSCNid, Int_t fSCNistrip, Int_t fSCNiview,
+  Int_t AddSCN(Int_t fSCNid, Int_t fSCNibar, Int_t fSCNiview,
 	       Double_t fSCNxin, Double_t fSCNyin, Double_t fSCNzin,
 	       Double_t fSCNxout, Double_t fyout, Double_t fSCNzout,
 	       Double_t fSCNpxin, Double_t fpyin, Double_t fSCNpzin,

@@ -41,6 +41,7 @@ public:
 	bool IsKalReverse() { return m_kalReverse; };
 	bool geoROOT() { return m_geoROOT; };
 	bool geoFLUKA() { return m_geoFLUKA; };
+	bool verFLUKA() { return m_verFLUKA; };
 	vector<string> KalSystems() { return m_trackingSystems; };
 	vector<string> KalParticles() { return m_kalParticles; };
 	vector<string> MCParticles() { return m_mcParticles; };
@@ -216,6 +217,7 @@ private:
 	bool m_kalReverse;
 	bool m_geoROOT;
 	bool m_geoFLUKA;
+	bool m_verFLUKA;
 	vector<string> m_trackingSystems;
 	vector<string> m_kalParticles;
 

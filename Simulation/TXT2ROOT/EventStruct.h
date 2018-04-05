@@ -6,7 +6,7 @@ const int MAXTR    = 2000;
 const int MAXSTC   = 200;   
 const int MAXBMN   = 1000;   
 const int MAXVTX   = 300;   
-const int MAXITR   = 3000;   
+const int MAXITR   = 300;   
 const int MAXMSD   = 1000;   
 const int MAXSCN   = 5000;  
 const int MAXCAL   = 6000;  
@@ -147,7 +147,7 @@ typedef struct {
 
   Int_t    SCNn;                   
   Int_t    SCNid[MAXSCN];	      
-  Int_t    SCNistrip[MAXSCN];      
+  Int_t    SCNibar[MAXSCN];      
   Int_t    SCNiview[MAXSCN];      
   Double_t SCNxin[MAXSCN];    
   Double_t SCNyin[MAXSCN];    

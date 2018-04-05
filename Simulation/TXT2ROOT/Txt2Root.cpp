@@ -179,6 +179,8 @@ int main(int argc, char *argv[])
 
   RootTree->Branch("ITRn",&eve.ITRn,"ITRn/I");
   RootTree->Branch("ITRid",&eve.ITRid,"ITRid[ITRn]/I");
+  RootTree->Branch("ITRiplume",&eve.ITRiplume,"ITRiplume[ITRn]/I");
+  RootTree->Branch("ITRimimo",&eve.ITRimimo,"ITRimimo[ITRn]/I");
   RootTree->Branch("ITRilay",&eve.ITRilay,"ITRilay[ITRn]/I");
   RootTree->Branch("ITRirow",&eve.ITRirow,"ITRirow[ITRn]/I");
   RootTree->Branch("ITRicol",&eve.ITRicol,"ITRicol[ITRn]/I");
@@ -201,8 +203,8 @@ int main(int argc, char *argv[])
   RootTree->Branch("MSDn",&eve.MSDn,"MSDn/I");
   RootTree->Branch("MSDid",&eve.MSDid,"MSDid[MSDn]/I");
   RootTree->Branch("MSDilay",&eve.MSDilay,"MSDilay[MSDn]/I");
-  RootTree->Branch("MSDiview",&eve.MSDiview,"MSDiview[MSDn]/I");
-  RootTree->Branch("MSDistrip",&eve.MSDistrip,"MSDistrip[MSDn]/I");
+  RootTree->Branch("MSDistripx",&eve.MSDistripx,"MSDistripx[MSDn]/I");
+  RootTree->Branch("MSDistripy",&eve.MSDistripy,"MSDistripy[MSDn]/I");
   RootTree->Branch("MSDxin",&eve.MSDxin,"MSDxin[MSDn]/D");
   RootTree->Branch("MSDyin",&eve.MSDyin,"MSDyin[MSDn]/D");
   RootTree->Branch("MSDzin",&eve.MSDzin,"MSDzin[MSDn]/D");
@@ -221,7 +223,7 @@ int main(int argc, char *argv[])
 
   RootTree->Branch("SCNn",&eve.SCNn,"SCNn/I");
   RootTree->Branch("SCNid",&eve.SCNid,"SCNid[SCNn]/I");
-  RootTree->Branch("SCNistrip",&eve.SCNistrip,"SCNistrip[SCNn]/I");
+  RootTree->Branch("SCNibar",&eve.SCNibar,"SCNibar[SCNn]/I");
   RootTree->Branch("SCNiview",&eve.SCNiview,"SCNiview[SCNn]/I");
   RootTree->Branch("SCNxin",&eve.SCNxin,"SCNxin[SCNn]/D");
   RootTree->Branch("SCNyin",&eve.SCNyin,"SCNyin[SCNn]/D");
@@ -418,18 +420,18 @@ int main(int argc, char *argv[])
  
 	for(int jj=0; jj<eve.ITRn;jj++){
 	  nread = fscanf(pfile,
-			 "%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
-			 &eve.ITRid[jj],&eve.ITRilay[jj],&eve.ITRirow[jj],
-			 &eve.ITRicol[jj],
+			 "%d %d %d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
+			 &eve.ITRid[jj],&eve.ITRiplume[jj],&eve.ITRimimo[jj],
+			 &eve.ITRilay[jj],&eve.ITRirow[jj],&eve.ITRicol[jj],
 			 &eve.ITRxin[jj],&eve.ITRyin[jj],&eve.ITRzin[jj],
 			 &eve.ITRxout[jj],&eve.ITRyout[jj],&eve.ITRzout[jj],
 			 &eve.ITRpxin[jj],&eve.ITRpyin[jj],&eve.ITRpzin[jj],
 			 &eve.ITRpxout[jj],&eve.ITRpyout[jj],&eve.ITRpzout[jj],
 			 &eve.ITRde[jj],&eve.ITRal[jj],&eve.ITRtim[jj]);
-	  if(nread!=19){
+	  if(nread!=21){
 	    ReadError = true;
 	    cout<<"ReadError in ITR section: nread = "<<nread<<
-	      " instead of 19; ev= "<<NumProcessed<<endl;
+	      " instead of 21; ev= "<<NumProcessed<<endl;
 	    break;
 	  }
 	}
@@ -443,8 +445,8 @@ int main(int argc, char *argv[])
 	for(int jj=0; jj<eve.MSDn;jj++){
 	  nread = fscanf(pfile,
 			 "%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
-			 &eve.MSDid[jj],&eve.MSDiview[jj],&eve.MSDilay[jj],
-			 &eve.MSDistrip[jj],
+			 &eve.MSDid[jj],&eve.MSDilay[jj],
+			 &eve.MSDistripx[jj],&eve.MSDistripy[jj],
 			 &eve.MSDxin[jj],&eve.MSDyin[jj],&eve.MSDzin[jj],
 			 &eve.MSDxout[jj],&eve.MSDyout[jj],&eve.MSDzout[jj],
 			 &eve.MSDpxin[jj],&eve.MSDpyin[jj],&eve.MSDpzin[jj],
@@ -464,7 +466,7 @@ int main(int argc, char *argv[])
       if(!ReadError){
 	for(int jj=0; jj<eve.SCNn;jj++){
 	  nread= fscanf(pfile,"%d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
-			&eve.SCNid[jj],&eve.SCNistrip[jj],
+			&eve.SCNid[jj],&eve.SCNibar[jj],
 			&eve.SCNiview[jj],&eve.SCNxin[jj],
 			&eve.SCNyin[jj],&eve.SCNzin[jj],&eve.SCNxout[jj],
 			&eve.SCNyout[jj],&eve.SCNzout[jj],&eve.SCNpxin[jj],
