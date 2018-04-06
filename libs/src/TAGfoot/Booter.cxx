@@ -41,7 +41,7 @@
 #include "TAVTdatRaw.hxx"
 #include "TAVTntuRaw.hxx"
 // #include "TAVTntuCluster.hxx"
-// #include "TAVTntuTrack.hxx"
+//#include "TAVTntuTrack.hxx"
 // #include "TAVTntuVertex.hxx"
 // #include "TAVTactNtuVertex.hxx"
 // #include "TAVTactNtuVertexPD.hxx"
@@ -147,8 +147,8 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     TGeoManager *masterGeo = new TGeoManager("genfitGeom", "GENFIT geometry");
     
 	Materials* listMaterials = new Materials() ;
-    listMaterials->PrintCompMap();
-	listMaterials->PrintMatMap();
+    // listMaterials->PrintCompMap();
+    // 	listMaterials->PrintMatMap();
 
     top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 120.);
     gGeoManager->SetTopVolume(top); // mandatory !
@@ -160,7 +160,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     genfit::FieldManager::getInstance()->init( new FootField(magFieldMapName.c_str()) ); // variable field
     // genfit::FieldManager::getInstance()->init( new FootField( 7 ) ); // const field
 
-    MagFieldTest();
+    // MagFieldTest();
 
 
     if( GlobalPar::GetPar()->IncludeBM() ) {
@@ -232,7 +232,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     //--- draw the ROOT box
     gGeoManager->SetVisLevel(10);
 
-    GeoPrint();
+    //    GeoPrint();
 
 
     // Initialisation of KFfitter
@@ -257,8 +257,8 @@ void Booter::Process( Long64_t jentry ) {
         }
 
         // //to be moved to framework
-        // if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeInnerTracker() )
-        //     AssociateHitsToParticle();
+	// if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeInnerTracker() )
+	// AssociateHitsToParticle();
 
 
         // Kalman
@@ -387,14 +387,13 @@ void Booter::GeoPrint() {
 void Booter::AssociateHitsToParticle() {
 
     // to be done for all particles ---  full revision
-
   TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->GenerateObject();
-
   vector<int> FragIdxs;
   int nhitmc = p_ntumceve->nhit;
+  cout << " nhitmc   "<< nhitmc << endl;
   for(int i=0; i<nhitmc; i++){
     TAGntuMCeveHit *myPart = p_ntumceve->Hit(i);
-
+    
     int part_reg = myPart->Reg();
 
     //Require that particle is produced inside the TG
@@ -403,17 +402,17 @@ void Booter::AssociateHitsToParticle() {
     }
   }
 
-  //Pixels stuff
-  TAVTntuRaw*  p_nturaw = (TAVTntuRaw*)   myn_vtraw->GenerateObject();
+  // //Pixels stuff
+  // TAVTntuRaw*  p_nturaw = (TAVTntuRaw*)   myn_vtraw->GenerateObject();
 
-  int tmp_vtxid(0);
-  TAVTntuHit* hit;
+  // int tmp_vtxid(0);
+  // TAVTntuHit* hit;
 
-  //inner tracker stuff
-  TAITntuRaw*  p_itnturaw = (TAITntuRaw*)   myn_itraw->GenerateObject();
+  // //inner tracker stuff
+  // TAITntuRaw*  p_itnturaw = (TAITntuRaw*)   myn_itraw->GenerateObject();
 
-  int tmp_itid(0);
-  TAITntuHit* hitIT;
+  // int tmp_itid(0);
+  // TAITntuHit* hitIT;
 
   // accociate maybe a pointer instead?
   // for(int t_frg = 0; t_frg<FragIdxs.size(); t_frg++) {
@@ -469,13 +468,16 @@ void Booter::AssociateHitsToParticle() {
 void Booter::FillMCEvent(EVENT_STRUCT *myStr) {
 
   /*Ntupling the general MC event information*/
-  myn_mceve    = new TAGdataDsc("myn_mceve", new TAGntuMCeve());
-  new TAGactNtuMCeve("an_mceve", myn_mceve, myStr);
-  // my_out->SetupElementBranch(myn_mceve,     "mceve.");
 
-  /*Ntupling the general MC mimosa information*/
-  myn_mcmimo    = new TAGdataDsc("myn_mcmimo", new TAGntuMCmimo());
-  new TAGactNtuMCmimo("an_mcmimo", myn_mcmimo, myStr);
+
+  myn_mceve    = new TAGdataDsc("myn_mceve", new TAGntuMCeve());
+  mya_mceve    = new TAGactNtuMCeve("mya_mceve", myn_mceve, myStr);
+
+  //  my_out->SetupElementBranch(myn_mceve,     "mceve.");
+    /*Ntupling the general MC mimosa information*/
+  
+  // myn_mcmimo    = new TAGdataDsc("myn_mcmimo", new TAGntuMCmimo());
+  // new TAGactNtuMCmimo("an_mcmimo", myn_mcmimo, myStr);
   // my_out->SetupElementBranch(myn_mcmimo,     "mcmimo.");
 
 }
@@ -570,7 +572,7 @@ void Booter::FillMCInteractionRegion(EVENT_STRUCT *myStr) {
 
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
-
+  
    /*Ntupling the MC Vertex information*/
    myn_vtraw    = new TAGdataDsc("vtRaw", new TAVTntuRaw());
    // myn_vtclus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
@@ -586,7 +588,7 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
    myp_vtgeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());
    
    mya_vtraw   = new TAVTactNtuMC("vtActRaw", myn_vtraw, myp_vtgeo, myp_vtmap, myStr);
-
+  
 }
 
 

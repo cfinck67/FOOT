@@ -90,7 +90,9 @@ void TAGdataDsc::SetConsumer(TAGaction* p_action)
 
 TAGdata* TAGdataDsc::GenerateObject()
 {
-  if (!Valid()) Generate();
+  if (!Valid()){
+    Generate();
+  }
   return Object();
 }
 
@@ -110,11 +112,15 @@ void TAGdataDsc::Clear(Option_t*)
 
 Bool_t TAGdataDsc::Generate()
 {
+ 
   if (Valid()) return kTRUE;
-
+ 
   if (fpProducer) {
+ 
     fpProducer->Process();
+ 
   } else {
+ 
     Error("Generate()", "no action registered for '%s'", GetName());
     SetBit(kFail);
   }  

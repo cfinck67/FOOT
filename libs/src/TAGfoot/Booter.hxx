@@ -16,8 +16,8 @@
 // #include "TAGpadGroup.hxx"
 #include "TAGgeoTrafo.hxx"
 
-// #include "TAGactTreeWriter.hxx"
-// #include "TAGdataDsc.hxx"
+#include "TAGactTreeWriter.hxx"
+#include "TAGdataDsc.hxx"
 #include "TAGroot.hxx"
 
 #include "KFitter.hxx"
@@ -151,7 +151,7 @@ class Booter {
 
   //Actions
 
-  // TAGactTreeWriter* my_out;
+  TAGactTreeWriter* my_out;
   TAGaction* mya_vtraw;
   TAGaction* mya_vtclus;
   TAGaction* mya_vttrack;
@@ -162,7 +162,7 @@ class Booter {
   TAGaction* mya_ittrack;
 
   TAGaction* mya_msdraw;
-
+  TAGaction* mya_mceve;
 };
 
 #endif

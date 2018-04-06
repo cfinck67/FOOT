@@ -96,7 +96,8 @@ void TAVTactNtuMC::CreateHistogram()  {
 //! Action.
 
 Bool_t TAVTactNtuMC::Action() {
-
+  
+   
   TAVTntuRaw* pNtuRaw = (TAVTntuRaw*) fpNtuRaw->Object();
   TAVTparMap* pParMap = (TAVTparMap*) fpParMap->Object();
   TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();

@@ -268,7 +268,10 @@ ClassImp(TAGntuMCeve);
 TAGntuMCeve::TAGntuMCeve()
   : nhit(0),
     h(0)
-{}
+    
+{
+  SetupClones();
+}
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
@@ -296,6 +299,7 @@ void TAGntuMCeve::Clear(Option_t*)
   TAGdata::Clear();
 
   nhit  = 0;
+  //Alberto
   h->Delete();
 
   return;

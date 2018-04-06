@@ -83,9 +83,19 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     if (my_out->Open(m_oustr, "RECREATE")) return;
 
 
+
+   
+    
+
     Booter* booter = new Booter();
     booter->Initialize( &evStr );
 
+
+ 
+    
+    MultiTrackCheck* multiTrackCheck = new MultiTrackCheck();
+    multiTrackCheck->Initialize( &evStr );
+    
     
     /***********  The event Loop   ****************************************   */
     tagr->BeginEventLoop();
@@ -110,8 +120,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         ///////////////  Call here your Process() functions    /////////////////////////////////////////////
 
 
-        booter->Process( jentry );
-
+	booter->Process( jentry );
+	multiTrackCheck->Process( jentry );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -133,7 +143,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     cout << "End of the event loop " << endl;
 
     booter->Finalize();
-    
+    multiTrackCheck->Finalize();
+
     tagr->EndEventLoop();
     
     my_out->Print();
@@ -143,10 +154,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     return;
 }
-
-
-
-
 
 
 
