@@ -61,9 +61,6 @@ KFitter::KFitter () {
 	}
 	if (m_debug > 0)	cout << "Detector systems for Kalman:  " << m_systemsON << endl;
 
-	// add ions in the genfit database
-	MakePdgDatabase();		
-
 	// print-out of the particle hypothesis used for the fit
     cout << "GlobalPar::GetPar()->MCParticles()";
 	for (unsigned int i=0; i<GlobalPar::GetPar()->MCParticles().size(); i++ ) {
@@ -92,65 +89,6 @@ KFitter::KFitter () {
 }
 
 
-
-
-
-//----------------------------------------------------------------------------------------------------
-// create the fragment database
-void KFitter::MakePdgDatabase() {
-
-	// clean the particle datatbase. Important!
-	TDatabasePDG::Instance()->~TDatabasePDG();
-
-	int nNewParticles = 18;
-	int pdgCode = 66666600;
-	// particle name
-	vector<string> nameVector 		 = { 	"C10", "C11", "C12", 
-											"Li6", "Li7",
-											"B7", "B8", "B9",
-											"Be9", "Be10", "Be11",
-											"N12", "N13", "N14",
-											"Alpha", "H",
-											"O15", "O16" };
-	if ( (int)nameVector.size() != nNewParticles ) 	{
-		cout << "ERROR::KFitter::MakePdgDatabase  -->  particle collection name size not match "<< nameVector.size() <<endl;
-		exit(0);
-	}
-
-
-
-	// particle mass
-	double massV [] = { 	10.254, 11.1749, 12.1095, 
-										6.53383, 7,
-										7, 8, 9.3255,
-										9.32444, 10.2525, 11,
-										12.1112, 13, 14,
-										4, 1,
-										15, 16 };
-
-	// particle cherge x3
-	double chargeV [] = { 	18, 18, 18, 
-										9, 9,
-										12, 12, 12,
-										15, 15, 15,
-										21, 21, 21,
-										6, 3,
-										24, 24  };
-
-	// check that every particle defined in the parameter file is defined in nameVector
-	for ( unsigned int i=0; i<GlobalPar::GetPar()->MCParticles().size(); i++) {
-		if ( find( nameVector.begin(), nameVector.end(), GlobalPar::GetPar()->MCParticles()[i] ) == nameVector.end() ) {
-			cout << "ERROR::KFitter::MakePdgDatabase()  -->  required " << GlobalPar::GetPar()->MCParticles()[i] << " particle from input parameter not defined" << endl;
-			exit(0);
-		}
-	}
-
-	// add the new particles to the standard TDatabasePDG
-	for ( int i=0; i<nNewParticles; i++) {
-		TDatabasePDG::Instance()->AddParticle(nameVector[i].c_str(), nameVector[i].c_str(), massV[i], true, 0., chargeV[i], "ion", ++pdgCode);	
-		m_pdgCodeMap[ nameVector[i] ] = pdgCode;	
-	}
-}
 
 
 
@@ -764,14 +702,15 @@ int KFitter::MakeFit( long evNum ) {
 	// loop over all hit category
 	for ( map< string, vector<AbsMeasurement*> >::iterator hitSample=m_hitCollectionToFit.begin(); hitSample != m_hitCollectionToFit.end(); hitSample++ ) {
 
-		// check if the category is defined in m_pdgCodeMap
-		if ( m_pdgCodeMap.find( (*hitSample).first ) == m_pdgCodeMap.end() ) 
-			cout << "ERROR :: KFitter::MakeFit  -->	 in m_pdgCodeMap not found the category " << (*hitSample).first << endl;
-
-		if ( m_debug > 0 )		cout << "\tCategory under fit  =  " << (*hitSample).first << " of size "<< (*hitSample).second.size() << endl;
+		if ( m_debug > 0 )	{	
+			// check if the category is defined in UpdatePDG  -->  also done in GetPdgCode()
+			if ( !UpdatePDG::GetPDG()->IsParticleDefined( (*hitSample).first ) )
+				cout << "ERROR :: KFitter::MakeFit  -->	 in UpdatePDG not found the category " << (*hitSample).first << endl;
+			cout << "\tCategory under fit  =  " << (*hitSample).first << " of size "<< (*hitSample).second.size() << endl;
+		}
 
 		// SET PARTICLE HYPOTHESIS  --> set repository
-		AbsTrackRep* rep = new RKTrackRep( m_pdgCodeMap[ (*hitSample).first ] );
+		AbsTrackRep* rep = new RKTrackRep( (UpdatePDG::GetPDG()->GetPdgCode( (*hitSample).first )) );
 		fitTrack->addTrackRep( rep );
 
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -993,8 +932,8 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 		//! Get the accumulated X/X0 (path / radiation length) of the material crossed in the last extrapolation.
 		// virtual double getRadiationLenght() const = 0;
 
-		m_controlPlotter->SetControlMom_4eachState( hitSampleName, i, &KalmanMom, &tmpMom, &tmp_genMom );
-		m_controlPlotter->SetControlPos_4eachState( hitSampleName, i, &KalmanPos, &tmpPos, &tmp_genPos );
+		ControlPlotsRepository::GetControlObject( m_kalmanOutputDir )->SetControlMom_4eachState( hitSampleName, i, &KalmanMom, &tmpMom, &tmp_genMom );
+		ControlPlotsRepository::GetControlObject( m_kalmanOutputDir )->SetControlPos_4eachState( hitSampleName, i, &KalmanPos, &tmpPos, &tmp_genPos );
 
 		// keep quantities to be plotted of the state CLOSER to the interaction point
 		unsigned int measuredState = ( m_reverse ? m_hitCollectionToFit[ hitSampleName ].size()-1 : 0 );
@@ -1199,14 +1138,6 @@ void KFitter::Finalize() {
 	PrintEfficiency();
 
 	m_fitTrackCollection->EvaluateMomentumResolution();
-
-
-	m_printoutfile = GlobalPar::GetPar()->IsPrintOutputFile();
-	if (m_printoutfile)			m_controlPlotter->PrintOutputFile();
-	else   						m_controlPlotter->PrintMap();
-
-	m_printoutntuple = GlobalPar::GetPar()->IsPrintOutputNtuple();
-	if(m_printoutntuple) 		m_controlPlotter->PrintOutputNtuple();
 
 	m_categoryFitted.clear();
 

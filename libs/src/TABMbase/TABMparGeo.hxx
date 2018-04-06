@@ -65,6 +65,7 @@ public:
   string PrintBodies();
   string PrintRegions();
   string PrintAssignMaterial();
+  string PrintParameters();
 
   void        SetWidth(double wid);
   void        SetLength(double len);

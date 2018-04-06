@@ -27,10 +27,11 @@ TOBJ_all   =   TATRdatRaw.hxx \
              TATRparGeo.hxx  TATRparMap.hxx \
              TinCan.hxx  KFitter.hxx	FootField.hxx  GlobalTrackRepostory.hxx   GlobalTrackKalman.hxx  MagicSkills.hxx	\
              IronPlate.hxx GlobalPar.hxx	Materials.hxx  ControlPlotsRepository.hxx  ControlPlotInfo.hxx \
-             FootBox.hxx  LightSabre.hxx  Booter.hxx  MultiTrackCheck.hxx
+             FootBox.hxx  LightSabre.hxx  Booter.hxx	UpdatePDG.hxx  MultiTrackCheck.hxx
+
 
              # TAGvieHorzIR.hxx TAGvieHorzMCIR.hxx    \		// rimosso by Frank
-             
+
 
 #	     TAGvieHorzTracks.hxx TAGvieHorzFIRST.hxx  GlobalTrackCandidate.hxx \
       #        GlobalTrack.hxx TATRactDatRaw.hxx \
@@ -39,7 +40,7 @@ TOBJ_all   =   TATRdatRaw.hxx \
 	     # TAGntuGlbTracks.hxx TADIparGeo.hxx \
       #        EventDisplay.hxx GlbEventDisplay.hxx \
       #        ChargeBetheBlock.hxx	
-      
+
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #
 OBJ_all    = $(CXX_all:.cxx=.o) $(TOBJ_all:.hxx=.cint.o) 

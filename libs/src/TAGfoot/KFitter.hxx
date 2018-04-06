@@ -13,7 +13,6 @@
 #include <RKTrackRep.h>
 #include <Track.h>
 
-
 #include <Exception.h>
 #include <FieldManager.h>
 #include <StateOnPlane.h>
@@ -44,7 +43,6 @@
 // #include <array>
 #include <vector>
 
-#include "TDatabasePDG.h"
 #include <TMath.h>
 
 #include "TAGdataDsc.hxx"
@@ -65,6 +63,7 @@
 #include "ControlPlotsRepository.hxx"
 #include "GlobalTrackRepostory.hxx"
 #include "MagicSkills.hxx"
+#include "UpdatePDG.hxx"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -95,7 +94,6 @@ public:
 		delete m_fitter;
 	};
 
-	void MakePdgDatabase();
 
 	// int PrepareData4Fit( string option );
 	int PrepareData4Fit( Track* fitTrack );
@@ -200,8 +198,6 @@ private:
 
 	TRandom3* m_diceRoll;
 
-	// TDatabasePDG* m_pdgDatabase;
-	map<string, int> m_pdgCodeMap;
 
 	//  delete non va fatto il delete perche APPARENTEMENTE gia fatto
 	vector<TAVTntuHit*> m_VT_hitCollection;

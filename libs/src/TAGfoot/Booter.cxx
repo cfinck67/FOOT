@@ -162,6 +162,10 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 
     // MagFieldTest();
 
+    // include the nucleon into the genfit pdg repository
+    if ( GlobalPar::GetPar()->IncludeBM() || GlobalPar::GetPar()->IncludeKalman() )
+      UpdatePDG::Instance();
+
 
     if( GlobalPar::GetPar()->IncludeBM() ) {
     //     // DisplayBeamMonitor(pg);
@@ -301,6 +305,15 @@ void Booter::Process( Long64_t jentry ) {
 void Booter::Finalize() {
 
 	if ( GlobalPar::GetPar()->IncludeKalman() )      m_kFitter->Finalize();
+
+    if ( GlobalPar::GetPar()->IsPrintOutputFile() )         
+        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputFile();
+    else                        
+        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintMap();
+    
+    if( GlobalPar::GetPar()->IsPrintOutputNtuple() )        
+        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputNtuple();
+
 
     if (GlobalPar::GetPar()->Debug() > 1)   eventListFile.close();
 

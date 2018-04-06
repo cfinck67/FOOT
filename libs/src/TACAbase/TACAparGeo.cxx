@@ -29,7 +29,7 @@
 //_____________________________________________________________________________
 TACAparGeo::TACAparGeo() {
 
-    m_nCry=-1;
+    m_nCry=0;
     m_debug = GlobalPar::GetPar()->Debug();
 
     // fill m_materialOrder, m_materialThick, m_materialType
@@ -121,7 +121,6 @@ string TACAparGeo::PrintBodies(){
     for (int j=0;j<CAL_NCOL;j++){
       double x = CAL_X - CAL_WIDTH/2 + j * CAL_CRY_WIDTH + CAL_CRY_WIDTH/2;
       if( sqrt(x*x+y*y) <= CAL_WIDTH/2 - 0.7){
-	m_nCry++;
 	sprintf(bodyname,"cal%d     ",m_nCry);
 	double xmin = x - CAL_CRY_WIDTH/2.;
 	double xmax = x + CAL_CRY_WIDTH/2.;
@@ -134,7 +133,7 @@ string TACAparGeo::PrintBodies(){
 	ss << "RPP " << bodyname << xmin << " " << xmax << " "
 	   << ymin << " " << ymax << " " 
 	   << zmin << " " << zmax << endl;
-
+	m_nCry++;
       }
     }
   }
@@ -155,7 +154,7 @@ string TACAparGeo::PrintRegions(){
   outstr << "* ***Calorimeter" << endl;
 
   char stringa[100];
-  for (int i=0; i<=m_nCry; i++){
+  for (int i=0; i<m_nCry; i++){
     sprintf(stringa,"CAL%03d       5 cal%d",i,i);
     outstr << stringa << endl;
   }  
@@ -164,7 +163,22 @@ string TACAparGeo::PrintRegions(){
 }
 
 
+//_____________________________________________________________________________
+string TACAparGeo::PrintParameters() {
+  
+  stringstream outstr;
 
+  outstr << "c     CALORIMETER PARAMETERS " << endl;
+  outstr << endl;    
+  
+  string ncrystal = "ncryCAL";
+  outstr << "      integer " << ncrystal << endl;
+  outstr << "      parameter(" << ncrystal << " = " << m_nCry << ")" << endl;
+  outstr << endl;    
+  
+  return outstr.str();
+
+}
 
 
 

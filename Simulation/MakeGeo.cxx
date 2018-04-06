@@ -181,7 +181,7 @@ int main (int argc, char *argv[]) {
     geofile << msdGeo->PrintBodies(  );
     
     geofile << "* ***Air Box for Scintillator and Calorimeter\n";
-    geofile << "RPP box     -23.000000 23.000000 -23.000000 23.000000 99.400000 121.000000\n";
+    geofile << "RPP box     -23.000000 23.000000 -23.000000 23.000000 99.000000 122.000000\n";
     
     geofile << twGeo->PrintBodies(  );
     geofile << caGeo->PrintBodies(  );
@@ -244,6 +244,19 @@ int main (int argc, char *argv[]) {
 
     geofile << "END        " <<endl;
     geofile.close();
+
+
+    ofstream paramfile;
+    paramfile.open("parametersnew.inc");
+    
+    paramfile << bmGeo->PrintParameters();
+    paramfile << vtxGeo->PrintParameters();
+    paramfile << itrGeo->PrintParameters();
+    paramfile << msdGeo->PrintParameters();
+    paramfile << twGeo->PrintParameters();
+    paramfile << caGeo->PrintParameters();
+    
+    paramfile.close();
     
 
     // stop time

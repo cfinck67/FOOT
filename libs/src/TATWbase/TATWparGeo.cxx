@@ -158,7 +158,7 @@ void TATWparGeo::InitGeo()  {
 				 TVector3( barShortDim, barLongDim, m_barThick_Lz),    // bar dimension
 				 // TVector3( barXdim, barYdim, m_barThick_Lz),    // bar dimension
 				 barDistance, barDistance, m_layerDistance,
-				 TVector3( -k*90,0,0 )
+				 TVector3( (k*TMath::Pi()*0.5),0,0 )
 				 );
   
       if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "bar center ",    TVector3( bar_newX, bar_newY, bar_newZ ).Print();
@@ -191,6 +191,7 @@ void TATWparGeo::InitGeo()  {
 	TVector3 globalCoord = m_barMatrix[k][j]->GetPosition();
 	Local2Global(&globalCoord);
 	TVector3 barRotation = m_barMatrix[k][j]->GetEuler();
+	barRotation = barRotation*180.*pow(TMath::Pi(),-1);//TGeoRotation wants the angles in DEG!!! (while our transformations, as Loc2Glob ecc, need rad angles)
 	m_universe->AddNode( gGeoManager->GetVolume( m_barMatrix[k][j]->GetMaterialRegionName().c_str() ), 
 			     m_barMatrix[k][j]->GetNodeID() , 
 			     new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
@@ -209,9 +210,10 @@ void TATWparGeo::InitGeo()  {
 	Local2Global( &minCoord );
 	Local2Global( &maxCoord );
 
+
 	stringstream ss;
 	ss << setiosflags(ios::fixed) << setprecision(6);
-	ss <<  "RPP " << m_barMatrix[k][j]->GetBodyName() <<  "     " 
+	ss << "RPP " << m_barMatrix[k][j]->GetBodyName() << "     " 
 	   << minCoord.x() << " " << maxCoord.x() << " "
 	   << minCoord.y() << " " << maxCoord.y() << " "
 	   << minCoord.z() << " " << maxCoord.z() << endl;
@@ -427,10 +429,14 @@ string TATWparGeo::PrintParameters() {
 
   stringstream outstr;
 
+  outstr << "c     SCINTILLATOR PARAMETERS " << endl;
+  outstr << endl;
+  
   string nstrip = "nstripSCN";
   outstr << "      integer " << nstrip << endl;
   outstr << "      parameter(" << nstrip << " = " << m_nBar << ")" << endl;
-  outstr <<typeid(m_nBar).name()<< endl;
+  // outstr << typeid(m_nBar).name()<< endl;
+  outstr << endl;  
 
   return outstr.str();
 

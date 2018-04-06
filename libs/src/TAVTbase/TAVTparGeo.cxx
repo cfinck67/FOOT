@@ -277,7 +277,7 @@ void TAVTparGeo::InitGeo()  {
                     Local2Global( &maxCoord );
                     // minCoord.Print();
                     // maxCoord.Print();
-
+		    
                     stringstream ss;    
                     ss << setiosflags(ios::fixed) << setprecision(6);
                     ss <<  "RPP " << m_passiveMatrix[k][i][j]->GetBodyName() <<  "     " 
@@ -343,6 +343,22 @@ void TAVTparGeo::InitGeo()  {
                     TVector3 maxCoord = TVector3( m_sensorMatrix[k][i][j]->GetMaxCoord().x(), m_sensorMatrix[k][i][j]->GetMaxCoord().y(), m_sensorMatrix[k][i][j]->GetMaxCoord().z() );
                     Local2Global( &minCoord );
                     Local2Global( &maxCoord );
+
+		    if ( k==0 && j==0 && i==0 ) m_xmin = minCoord.x();
+		    else{
+		      if ( m_xmin != minCoord.x()){
+			cout << "Error in VTX xmin coord " << m_xmin
+			     << "  " << minCoord.x() << endl;
+		      }
+		    }
+							    
+		    if ( k==0 && j==0 && i==0 ) m_ymin = minCoord.y();
+		    else{
+		      if ( m_ymin != minCoord.y()){
+			cout << "Error in VTX ymin coord" << m_ymin
+			     << "  " << minCoord.y() << endl;
+		      }
+		    }
 
                     stringstream ss;
                     ss << setiosflags(ios::fixed) << setprecision(6);
@@ -573,6 +589,41 @@ string TAVTparGeo::PrintAssignMaterial() {
 }
 
 
+
+//_____________________________________________________________________________
+string TAVTparGeo::PrintParameters() {
+  
+  stringstream outstr;
+  string precision = "D+00";
+
+  outstr << "c     VERTEX PARAMETERS " << endl;
+  outstr << endl;    
+  
+  map<string, int> intp;
+  intp["xpixVTX"] = m_nPixel_X;
+  intp["ypixVTX"] = m_nPixel_Y;
+  intp["nlayVTX"] = m_nSensors_Z;
+  for (auto i : intp){
+    outstr << "      integer " << i.first << endl;
+    outstr << "      parameter (" << i.first << " = " << i.second << ")" << endl;
+    // outstr << endl;    
+  }
+  
+  map<string, double> doublep;
+  doublep["dxVTX"] = VTX_DX;
+  doublep["dyVTX"] = VTX_DY;
+  doublep["xminVTX"] = m_xmin;
+  doublep["yminVTX"] = m_ymin;
+  for (auto i : doublep){
+    outstr << "      double precision " << i.first << endl;
+    outstr << "      parameter (" << i.first << " = " << i.second << precision << ")" << endl;
+    // outstr << endl;    
+  }
+  outstr << endl;    
+  
+  return outstr.str();
+
+}
 
 
 

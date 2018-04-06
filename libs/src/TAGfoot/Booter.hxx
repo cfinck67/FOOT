@@ -22,6 +22,8 @@
 
 #include "KFitter.hxx"
 #include "GlobalPar.hxx"
+#include "UpdatePDG.hxx"
+
 
 #include <ctime>
 #include <time.h>
