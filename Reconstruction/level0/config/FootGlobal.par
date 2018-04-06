@@ -37,7 +37,7 @@ IncludeMSD:			y
 IncludeTW:			n
 IncludeCA:			n
 
-IncludeEvent:		        y
+IncludeEvent:		y
 
 
 Magnetic field map name:  DoubleDipole.table

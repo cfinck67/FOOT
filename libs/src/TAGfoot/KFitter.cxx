@@ -117,7 +117,8 @@ int KFitter::UploadHitsVT( TAGdataDsc* footDataObj, shared_ptr<TAVTparGeo> vt_ge
 int KFitter::UploadHitsIT( TAGdataDsc* footDataObj, shared_ptr<TAITparGeo> it_geo ) {
 	
 	m_IT_geo = it_geo;
-	TAITntuRaw* ntup = (TAITntuRaw*) footDataObj->GenerateObject();
+	TAITntuRaw* ntup = (TAITntuRaw*) footDataObj->Object();
+	// TAITntuRaw* ntup = (TAITntuRaw*) footDataObj->GenerateObject();
 	if ( m_debug > 0 )		cout << "N inner pixel read: " << ntup->GetPixelsN(0) << endl;
 
 	// save pixels in the collection

@@ -215,8 +215,8 @@ void TAVTparGeo::InitGeo()  {
                                                 TVector3( passiveSiDimension.x(), passiveSiDimension.y(), passiveSiDimension.z() ),   // dimension passive
                                                 (string)VTX_MEDIUM,                         // name of the material
                                                 "VTX_MEDIUM",                       // name of the material-region in the foot_geo.h
-                                                ss_bodyPassiveName.str(),                  // FLUKA body name
-                                                ss_regionPassiveName.str(),          // FLUKA region name
+                                                ss_bodyPassiveName.str(),           // FLUKA body name
+                                                ss_regionPassiveName.str(),         // FLUKA region name
                                                 m_volumeCount                       // volume ID num
                                                 );
 

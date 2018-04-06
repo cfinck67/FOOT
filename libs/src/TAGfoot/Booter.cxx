@@ -261,6 +261,7 @@ void Booter::Process( Long64_t jentry ) {
         }
 
         // //to be moved to framework
+
 	// if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeInnerTracker() )
 	// AssociateHitsToParticle();
 
@@ -401,9 +402,11 @@ void Booter::AssociateHitsToParticle() {
 
     // to be done for all particles ---  full revision
   TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->GenerateObject();
+  // TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->Object();
+
   vector<int> FragIdxs;
   int nhitmc = p_ntumceve->nhit;
-  cout << " nhitmc   "<< nhitmc << endl;
+
   for(int i=0; i<nhitmc; i++){
     TAGntuMCeveHit *myPart = p_ntumceve->Hit(i);
     

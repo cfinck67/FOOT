@@ -299,7 +299,6 @@ void TAGntuMCeve::Clear(Option_t*)
   TAGdata::Clear();
 
   nhit  = 0;
-  //Alberto
   h->Delete();
 
   return;

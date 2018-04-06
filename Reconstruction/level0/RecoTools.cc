@@ -75,12 +75,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     tagr->SetRunNumber(1);
 
     //Define the output file content.
-    my_out = new TAGactTreeWriter("my_out");
-
-
-    tagr->AddRequiredItem("my_out");
-    tagr->Print();
-    if (my_out->Open(m_oustr, "RECREATE")) return;
+    // my_out = new TAGactTreeWriter("my_out");
+    // tagr->AddRequiredItem("my_out");
+    // tagr->Print();
+    // if (my_out->Open(m_oustr, "RECREATE")) return;
 
 
 
@@ -90,12 +88,15 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     Booter* booter = new Booter();
     booter->Initialize( &evStr );
 
-
- 
     
     MultiTrackCheck* multiTrackCheck = new MultiTrackCheck();
     multiTrackCheck->Initialize( &evStr );
     
+    tagr->AddRequiredItem("itRaw");
+    // tagr->AddRequiredItem("myn_mceve");
+    // tagr->AddRequiredItem("an_mceve");
+    // tagr->Print();
+
     
     /***********  The event Loop   ****************************************   */
     tagr->BeginEventLoop();
@@ -147,8 +148,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     tagr->EndEventLoop();
     
-    my_out->Print();
-    my_out->Close();
+    // my_out->Print();
+    // my_out->Close();
 
     // materialEffects->drawdEdx( 11 );  // to look at it in genfit
 
