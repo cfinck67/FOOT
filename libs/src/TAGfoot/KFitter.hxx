@@ -60,9 +60,6 @@
 
 #include "TAGntuMCeve.hxx"
 
-#include <KalmanFitterInfo.h>
-#include <KalmanFitStatus.h>
-
 #include "TAGroot.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGparaDsc.hxx"

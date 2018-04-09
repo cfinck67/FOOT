@@ -94,15 +94,11 @@ public:
 
 	bool isDoub;
 	bool isInt;
-	bool m_printoutfile;
 
 	int m_nBin;
 	double m_minBin;
 	double m_maxBin;
 
-       
-        bool m_printoutfile;
-	
 
 private:
 

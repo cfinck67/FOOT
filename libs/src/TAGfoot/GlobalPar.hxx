@@ -45,10 +45,6 @@ public:
 	vector<string> KalParticles() { return m_kalParticles; };
 	vector<string> MCParticles() { return m_mcParticles; };
   
-        double VTReso() 	{return m_VTreso; };
-        double ITReso() 	{return m_ITreso; };
-        double MSDReso()        {return m_MSDreso; };
-
 	double VTReso() 	{return m_VTreso; };
     double ITReso() 	{return m_ITreso; };
     double MSDReso()        {return m_MSDreso; };

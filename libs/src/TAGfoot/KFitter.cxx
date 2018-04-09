@@ -789,9 +789,6 @@ int KFitter::MakeFit( long evNum ) {
 			if ( m_debug > 0 )		cout << "Fitted " << fitTrack->getFitStatus(rep)->isFitted() << endl;
 			if ( fitTrack->getFitStatus(rep)->isFitConverged() &&  fitTrack->getFitStatus(rep)->isFitted() )	isConverged = 1;	// convergence check
 			if ( m_debug > 3 )		fitTrack->Print("C");
-			
-			// cout << "track print"  << endl;
-			// fitTrack->Print();
 
 			// map of the tracked particles for each category
 			if ( m_nTotTracks.find( (*hitSample).first ) == m_nTotTracks.end() )	m_nTotTracks[ (*hitSample).first ] = 0;
@@ -1194,13 +1191,6 @@ void KFitter::Finalize() {
 	PrintEfficiency();
 
 	m_fitTrackCollection->EvaluateMomentumResolution();
-	
-	m_printoutfile = GlobalPar::GetPar()->IsPrintOutputFile();
-	if (m_printoutfile)	m_controlPlotter->PrintOutputFile();
-	else   m_controlPlotter->PrintMap();
-	
-	m_printoutntuple = GlobalPar::GetPar()->IsPrintOutputNtuple();
-	if(m_printoutntuple) m_controlPlotter->PrintOutputNtuple();
 	
 	m_categoryFitted.clear();
 	
