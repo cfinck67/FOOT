@@ -270,8 +270,8 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
 		hitCoords(1)=hitPos.y();
 		hitCoords(2)=hitPos.z();
 		// set covariance matrix
-		double pixReso = 0.001;
-		// double pixReso = GlobalPar::GetPar()->VTReso();
+		// double pixReso = 0.001;
+		double pixReso = GlobalPar::GetPar()->VTReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
 		double zErr = 0.001;
@@ -314,8 +314,8 @@ void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
 		hitCoords(1)=hitPos.y();
 		hitCoords(2)=hitPos.z();
 		// set covariance matrix
-		double pixReso = 0.001;
-		// double pixReso = GlobalPar::GetPar()->ITReso();
+		// double pixReso = 0.001;
+		double pixReso = GlobalPar::GetPar()->ITReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
 		double zErr = 0.001;
@@ -353,8 +353,8 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
         
 
         // set covariance matrix
-        double stripReso = 0.001;
-		// double stripReso = GlobalPar::GetPar()->MSDReso();
+        // double stripReso = 0.001;
+		double stripReso = GlobalPar::GetPar()->MSDReso();
 		hitCov.UnitMatrix();         
 		hitCov *= stripReso*stripReso; 
 		double zErr = 0.001;
