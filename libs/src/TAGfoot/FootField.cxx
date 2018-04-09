@@ -13,12 +13,13 @@ FootField::FootField ( string fileName ) {
 	m_fieldSetting = "realFieldMap";
 
 	ifstream ifile;
-    ifile.open( ("../../Simulation/"+fileName).c_str() );
+	string fullFileName = (string)getenv("FOOTSIMU")+"/"+fileName;
+    ifile.open( fullFileName.c_str() );
 
     cout << "\tB center =  " << MAG_AIR_X <<"  "<< MAG_AIR_Y << "  "<< MAG_AIR_Z << endl;
 
     if ( !ifile.is_open() )        
-    	cout<< "wrong input in AbsBField constructor for file " << fileName << endl, exit(0);
+    	cout<< "ERROR >> FootField::FootField  ::  cannot open magnetic map for file " << fullFileName << endl, exit(0);
 
     // read position and field  -->	 fill a multidimensional map called lattice3D = map< double, map< double, map< double, TVector3 > > >
     string line = "";
@@ -123,6 +124,23 @@ double FootField::IntegralField( int step, double start, double end ) {  // in c
 
 
 
+double FootField::IntegralField( int step, double start, double end ) {  // in cm
+
+	double integral = 0;
+	double dz = ( end - start ) / step;
+	TVector3 startVec = TVector3( 0, 0, start );
+
+	for ( int i=0; i<step; i++ ) {
+		TVector3 dzVec = TVector3 ( 0, 0, dz );
+		startVec += dzVec;
+		integral += ( Interpolate( startVec ) ).Mag();
+	}
+
+	return integral * dz;
+}
+
+
+
 // same for real and const field
 TVector3 FootField::Interpolate( const TVector3 &position ) {
 	//    il procedimento seguente prende spunto da
@@ -139,6 +157,7 @@ TVector3 FootField::Interpolate( const TVector3 &position ) {
 	if ( position.y() < m_filedMap.begin()->second.begin()->first || position.y() > m_filedMap.rbegin()->second.rbegin()->first )	return outField;
 	// cout << "\tAlong Z: " << position.z() << "  "<< m_filedMap.begin()->second.begin()->second.begin()->first <<"  "<< m_filedMap.rbegin()->second.rbegin()->second.rbegin()->first << endl;
 	if ( position.z() < m_filedMap.begin()->second.begin()->second.begin()->first || position.z() > m_filedMap.rbegin()->second.rbegin()->second.rbegin()->first )	return outField;
+
 
 	if (m_fieldSetting == "constField") {
 		// cout << "Const magnetic val: ";

@@ -6,7 +6,7 @@ const int MAXTR    = 2000;
 const int MAXSTC   = 200;   
 const int MAXBMN   = 1000;   
 const int MAXVTX   = 300;   
-const int MAXITR   = 300;   
+const int MAXITR   = 3000;   
 const int MAXMSD   = 1000;   
 const int MAXSCN   = 5000;  
 const int MAXCAL   = 6000;  
@@ -103,7 +103,9 @@ typedef struct {
 
   Int_t    ITRn;                
   Int_t    ITRid[MAXITR];	       
-  Int_t    ITRilay[MAXITR];       
+  Int_t    ITRilay[MAXITR];    	       
+  Int_t    ITRiplume[MAXITR]; 	       
+  Int_t    ITRimimo[MAXITR];    
   Int_t    ITRirow[MAXITR];       
   Int_t    ITRicol[MAXITR];       
   Double_t ITRxin[MAXITR];   
@@ -125,8 +127,8 @@ typedef struct {
   Int_t    MSDn;				
   Int_t    MSDid[MAXMSD];		
   Int_t    MSDilay[MAXMSD];		
-  Int_t    MSDistrip[MAXMSD];		
-  Int_t    MSDiview[MAXMSD];		
+  Int_t    MSDistripx[MAXMSD];		
+  Int_t    MSDistripy[MAXMSD];		
   Double_t MSDxin[MAXMSD];		
   Double_t MSDyin[MAXMSD];		
   Double_t MSDzin[MAXMSD];		

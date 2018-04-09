@@ -15,7 +15,7 @@
 
 ClassImp(TAITparMap);
 
-const Int_t TAITparMap::fgkSensorsN = 8;
+const Int_t TAITparMap::fgkSensorsN = 32;
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 

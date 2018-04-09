@@ -71,12 +71,6 @@ int main (int argc, char *argv[]) {
 
   // start time
   start_tot = clock();
-  // time_t now = time(0);
-  // tm *ltm = localtime(&now);
-  // cout << "Date: "<<  ltm->tm_mday <<" / "<< 1 + ltm->tm_mon 
-  //       <<" / "<< 1900 + ltm->tm_year << "  Time: "<< 1 + ltm->tm_hour << ":";
-  // cout << 1 + ltm->tm_min << ":";
-  // cout << 1 + ltm->tm_sec << endl;
 
   TApplication::CreateApplication();
 
@@ -107,13 +101,8 @@ int main (int argc, char *argv[]) {
 
   RecoTools d(debug,in,alist,out,wdir,nTotEv, hF);
 
-  // d.bookHisto(hF);
+  d.RecoLoop(pl_freq);
 
-  d.RecoLoop(&tagroot,pl_freq);
-
-  // hF->cd();
-
-  // hF->Write();
   hF->Close();
 
   // stop time
@@ -125,7 +114,7 @@ int main (int argc, char *argv[]) {
   cout<< "Execution Time: "<< tempo << " seconds" << endl;
   cout<< "Execution Time in human units: "<< t_h <<" : "<< t_m <<" : "<< t_s << endl;
   
-  double tempoKal = d.tempo_kal / CLOCKS_PER_SEC;
+  double tempoKal = d.m_tempo_kal / CLOCKS_PER_SEC;
   int t_h2 = trunc( tempoKal/3600 );
   int t_m2 = trunc( fmod(tempoKal, 3600)/60 );
   int t_s2 = trunc( fmod(fmod(tempoKal, 3600), 60) );

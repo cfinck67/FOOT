@@ -24,7 +24,8 @@ TOBJ_all   = TABMdatRaw.hxx  TABMntuRaw.hxx \
 	     TABMactNtuRaw.hxx \
 	     TABMactNtuMC.hxx  TABMvieTrackFOOT.hxx \
 	     TABMntuTrack.hxx TABMactNtuTrack.hxx \
-	     TABMparCon.hxx
+	     TABMparCon.hxx  TABMparTools.hxx
+
 #           TABMactDatRaw.hxx 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #

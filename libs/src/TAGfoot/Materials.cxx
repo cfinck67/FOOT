@@ -18,28 +18,9 @@ Materials::Materials(){
 
 	m_debug = GlobalPar::GetPar()->Debug();
 
-	//********temporary definition of some materials not defined in .inp**********
-	//****************************************************************************
-	// TGeoMaterial *maAr = new TGeoMaterial( "ARGON", 39.948, 18., 0.001662 );
-	// TGeoMaterial *maC = new TGeoMaterial(  "CARBON", 12.0107, 6., 2.6 );
-	// TGeoMaterial *maO = new TGeoMaterial( "OXYGEN", 16., 8., 0.0013315 );
-	// TGeoMaterial *maAl = new TGeoMaterial( "ALUMINUM", 26.981539, 13., 2.6989 );
-	// TGeoMaterial *maH = new TGeoMaterial( "HYDROGEN", 1.008, 1., 0.000089 );
-	// TGeoMaterial *maN = new TGeoMaterial( "NITROGEN", 14.007, 7., 0.001251 );
-	// TGeoMaterial *maFe = new TGeoMaterial( "IRON", 55.845, 26., 7.874 );
-	// TGeoMaterial *maSi = new TGeoMaterial( "SILICON", 28.085, 14., 2.329 );
-
-	// m_storeMat["ARGON"] = maAr;
-	// m_storeMat["CARBON"] = maC;
-	// m_storeMat["OXYGEN"] = maO;
-	// m_storeMat["ALUMINUM"] = maAl;
-	// m_storeMat["HYDROGEN"] = maH;
-	// m_storeMat["NITROGEN"] = maN;
-	// m_storeMat["IRON"] = maFe;
-	// m_storeMat["SILICON"] = maSi;
-
-	//****************************************************************************
-	//****************************************************************************
+	TGeoMaterial *vacuum = new TGeoMaterial("Vacuum",0,0,0);//a,z,rho
+    TGeoMedium *vacuum_med = new TGeoMedium("Vacuum_med",666, gGeoManager->GetMaterial("Vacuum"));
+	
 	ReadFile();
 }
 
@@ -405,7 +386,7 @@ void Materials::ReadFile(){
 			string marcopolo="";
 
 			streampos oldPos = proofinput.tellg();
-			getline( proofinput,marcopolo );
+			getline( proofinput, marcopolo );
 			bool flagWriteCompound = ChooseIfWriteCompound( marcopolo );
 			// cout << "**********************************" << endl;
 			// for ( unsigned int j=0; j < dataCompound.size(); ++j ){ cout << dataCompound[j] << endl; }
@@ -429,7 +410,8 @@ void Materials::ReadFile(){
 void Materials::PrintMatMap(){
 
 	for ( map<string, TGeoMaterial*>::iterator it=m_storeMat.begin(); it!=m_storeMat.end(); ++it )
-	cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << '\n';
+		cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << '\n';
+	cout << endl << endl;
 }
 
 
@@ -440,10 +422,23 @@ void Materials::PrintMatMap(){
 void Materials::PrintCompMap(){
 
 	for ( map<string, TGeoMixture*>::iterator it=m_storeComp.begin(); it!=m_storeComp.end(); ++it )
-	cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << "\t" << it->second->GetNelements() << '\n';
+		cout << it->first << " => " << it->second->GetName() << " => "<< it->second->GetDensity() << "\t" << it->second->GetNelements() << '\n';
+	cout << endl << endl;
 }
 
 
+
+
+//     cout << endl << "List of Materil\n ";
+//     TIter next( gGeoManager->GetListOfMaterials() );
+//     while ( TGeoMaterial *obj = (TGeoMaterial*) next() ) {
+//       cout << obj->GetName () << endl;
+//     }
+// cout << endl << "List of Media\n ";
+//     TIter nnext( gGeoManager->GetListOfMedia() );
+//     while ( TGeoMedium *obj = (TGeoMedium *) nnext()  ) {
+//       cout << obj->GetName () << endl;
+//     }
 
 
 

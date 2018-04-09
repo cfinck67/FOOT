@@ -35,12 +35,13 @@ ControlPlotsRepository* ControlPlotsRepository::Instance() {
 
 ControlPlotsRepository* ControlPlotsRepository::GetControlObject( string outputDir ) {
 	if (!m_pInstance) 
-       cout << "ERROR::GlobalPar::GetPar()  -->  called a get before GlobalPar object istance." << endl, exit(0);
+       cout << "ERROR::ControlPlotsRepository::GetControlObject()  -->  called a get before GlobalPar object istance." << endl, exit(0);
 
    	m_pInstance->SetOutputDir( outputDir );
 
     return m_pInstance;
 };
+
 
 
 
@@ -104,34 +105,66 @@ void ControlPlotsRepository::PrintOutputFile() {
 	f_out->Close();
 };
 
+
+void ControlPlotsRepository::PrintOutputFile() {
+ 
+	m_outputfilename = GlobalPar::GetPar()->OutputFile();
+	TFile* f_out = new TFile(m_outputfilename.c_str(),"RECREATE");  
+
+	TCanvas* mirror = new TCanvas( "mirror", "mirror", 700, 700);
+
+	for ( map< string, ControlPlotInfo >::iterator it = m_chizu.begin(); it != m_chizu.end(); it++ ) {
+
+		vector<string> token = Tokenize((*it).first, "__" );	
+		string first_token =  token[0];	
+		TDirectory *dir = f_out->GetDirectory(first_token.c_str());
+
+		if(!dir)	  	{
+			f_out->mkdir(first_token.c_str());
+			f_out->cd(first_token.c_str()); 
+		}
+
+		(*it).second.PrintHisto( mirror);	
+	}
+
+	f_out->Write();
+	f_out->Close();
+};
+
+
+
+
+
+ 
 void ControlPlotsRepository::PrintOutputNtuple() {
   
-  m_outputntuplename = GlobalPar::GetPar()->OutputNtuple();
-  TFile* n_out = new TFile(m_outputntuplename.c_str(),"RECREATE");  
-  
-  //  cout <<" outputntuplename  " << m_outputntuplename.c_str() << endl;
-  
-  TTree* tree_out = new TTree("EventTree","Reco Event Tree");
-  
-  for (int i = 0; i< ntuple_out.Reco_track_px.size(); i++){
-    //cout <<" Reco_px "  << ntuple_out.Reco_px.at(i) << endl;
-    tree_out->Branch("Reco_track_px",            &ntuple_out.Reco_track_px.at(i)   );
-    tree_out->Branch("Reco_track_py",            &ntuple_out.Reco_track_py.at(i)   );
-    tree_out->Branch("Reco_track_pz",            &ntuple_out.Reco_track_pz.at(i)   );
-    tree_out->Branch("Reco_track_x",             &ntuple_out.Reco_track_x.at(i)    );
-    tree_out->Branch("Reco_track_y",             &ntuple_out.Reco_track_y.at(i)    );
-    tree_out->Branch("Reco_track_z",             &ntuple_out.Reco_track_z.at(i)    );
-    tree_out->Branch("Truth_track_px",           &ntuple_out.Truth_track_px.at(i)  );
-    tree_out->Branch("Truth_track_py",           &ntuple_out.Truth_track_py.at(i)  );
-    tree_out->Branch("Truth_track_pz",           &ntuple_out.Truth_track_pz.at(i)  );
+	m_outputntuplename = GlobalPar::GetPar()->OutputNtuple();
+	TFile* n_out = new TFile(m_outputntuplename.c_str(),"RECREATE");  
 
-    tree_out->Fill();
-  
-  }
-  
-  n_out->Write();
-  n_out->Close();
+	//  cout <<" outputntuplename  " << m_outputntuplename.c_str() << endl;
+
+	TTree* tree_out = new TTree("EventTree","Reco Event Tree");
+
+	for (int i = 0; i< ntuple_out.Reco_track_px.size(); i++){
+		//cout <<" Reco_px "  << ntuple_out.Reco_px.at(i) << endl;
+		tree_out->Branch("Reco_track_px",            &ntuple_out.Reco_track_px.at(i)   );
+		tree_out->Branch("Reco_track_py",            &ntuple_out.Reco_track_py.at(i)   );
+		tree_out->Branch("Reco_track_pz",            &ntuple_out.Reco_track_pz.at(i)   );
+		tree_out->Branch("Reco_track_x",             &ntuple_out.Reco_track_x.at(i)    );
+		tree_out->Branch("Reco_track_y",             &ntuple_out.Reco_track_y.at(i)    );
+		tree_out->Branch("Reco_track_z",             &ntuple_out.Reco_track_z.at(i)    );
+		tree_out->Branch("Truth_track_px",           &ntuple_out.Truth_track_px.at(i)  );
+		tree_out->Branch("Truth_track_py",           &ntuple_out.Truth_track_py.at(i)  );
+		tree_out->Branch("Truth_track_pz",           &ntuple_out.Truth_track_pz.at(i)  );
+
+		tree_out->Fill();
+
+	}
+
+	n_out->Write();
+	n_out->Close();
 }
+
 
 
 

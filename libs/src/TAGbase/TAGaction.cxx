@@ -247,7 +247,7 @@ void TAGaction::AddDataOut(TAGdataDsc* p_data, const char* baseclass)
     MakeZombie();
     return;
   }
-
+  
   p_data->SetProducer(this);
   return;
 }

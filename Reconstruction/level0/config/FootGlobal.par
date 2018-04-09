@@ -10,25 +10,39 @@ Debug:	0
 
 
 ############	MC selection Control Parameters	################
-
 MC Particle Types:	C10	C11	C12	Li6	Li7	B7	B8	B9	Be9	Be10	N12	N14	O15 
 
 
 ############	Kalman Filter Control Parameters	################
 
-Kalman Mode: ON
-Tracking Systems Considered:	all
+IncludeKalman: 		y
+Kalman Mode: 		ON
+Tracking Systems Considered:		all
 Reverse Tracking:	false
+
+VT  Reso: 0.0006
+IT  Reso: 0.0006
+MSD Reso: 0.001
 
 Kalman Particle Types:	C
 
-VT  Reso: 0.0006
+############	END - Kalman Filter Control Parameters	################
 
-IT  Reso: 0.0006
 
-MSD Reso: 0.0006
+IncludeBM:			n
+IncludeIR:			n
+IncludeVertex:		        y
+IncludeInnerTracker:	        y
+IncludeMSD:			y
+IncludeTW:			n
+IncludeCA:			n
 
-############ Output File Parameters	################
+IncludeEvent:		y
+
+
+Magnetic field map name:  DoubleDipole.table
+#Magnetic field map name:  DoubleGaussMag.table
+
 
 Print OutputFile: true
 Output Filename: RecoHistos.root
@@ -37,4 +51,4 @@ Print OutputNtuple: false
 Output Ntuplename: RecoTree.root
 
 Create Reconstruction Geo: y
-Print FLUKA Geo input files: y
+Print FLUKA Geo input files: n

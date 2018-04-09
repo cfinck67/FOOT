@@ -58,23 +58,49 @@ void  ControlPlotInfo::PrintHisto( TCanvas* mirror) {
 	if ( m_titleX != "" )		histo->GetXaxis()->SetTitle( m_titleX.c_str() );
 	if ( m_titleY != "" )		histo->GetYaxis()->SetTitle( m_titleY.c_str() );
 
-
 	m_printoutfile = GlobalPar::GetPar()->IsPrintOutputFile();
-	
-	// save histo
+
 	if (!m_printoutfile) { 
-	  struct stat info;
-	  if( stat( m_dir.c_str(), &info ) != 0 )		//cannot access
-	    system(("mkdir "+m_dir).c_str());
-	  
-	  histo->Draw();
-	  mirror->SaveAs(  (m_dir + "/" + m_name + ".png").c_str() ); // very slow operation !!!!!!!!!!!!!!!!
+
+		struct stat info;
+		if( stat( m_dir.c_str(), &info ) != 0 )		//cannot access
+		    system(("mkdir "+m_dir).c_str());
+
+		// save histo
+		histo->Draw();
+		mirror->SaveAs(  (m_dir + "/" + m_name + ".png").c_str() ); // very slow operation !!!!!!!!!!!!!!!!
 	}
-	
-	
+
 	// clear histo ???
 
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

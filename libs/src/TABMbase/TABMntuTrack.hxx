@@ -6,7 +6,7 @@
   \brief   Declaration of TABMntuTrack.
 */
 #define RAD2DEG 57.2957795130823208768
-#define DEG2RAD 0.01745329251994329577
+// #define DEG2RAD 0.01745329251994329577
 /*------------------------------------------+---------------------------------*/
 
 #include "TObject.h"

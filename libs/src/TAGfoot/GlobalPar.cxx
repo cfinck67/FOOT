@@ -48,6 +48,11 @@ GlobalPar::GlobalPar( string aparFileName ) {
 
     m_kalmanMode = -1;
 
+    m_kalReverse = false;
+    m_geoROOT = true;
+    m_geoFLUKA = false;
+
+
     ReadParamFile();
 
     m_nBin_map.clear();
@@ -138,7 +143,7 @@ void GlobalPar::ReadParamFile () {
         } 
 
 
-        else if ( line.find("Reverse Tracking") != string::npos ) {
+        else if ( line.find("Reverse Tracking:") != string::npos ) {
             string rev =StrReplace( line, "Reverse Tracking:", "" );
             RemoveSpace( &rev );
             if ( rev == "true" )
@@ -146,6 +151,28 @@ void GlobalPar::ReadParamFile () {
             else
                 m_kalReverse = false;
         } 
+
+
+
+        else if ( line.find("Create Reconstruction Geo:") != string::npos ) {
+            string rev =StrReplace( line, "Create Reconstruction Geo:", "" );
+            RemoveSpace( &rev );
+            if ( rev == "y" )
+                m_geoROOT = true;
+            else
+                m_geoROOT = false;
+        } 
+
+
+        else if ( line.find("Print FLUKA Geo input files:") != string::npos ) {
+            string rev =StrReplace( line, "Print FLUKA Geo input files:", "" );
+            RemoveSpace( &rev );
+            if ( rev == "y" )
+                m_geoFLUKA = true;
+            else
+                m_geoFLUKA = false;
+        } 
+
 
         else if ( line.find("Kalman Particle Types:") != string::npos ) {
             m_kalParticles.clear();
@@ -155,42 +182,106 @@ void GlobalPar::ReadParamFile () {
             while ( formulasStream >> tmpString )
                 m_kalParticles.push_back(tmpString);
         } 
-	
-	else if ( line.find("VT  Reso") != string::npos ) {
-	  m_VTreso = atof ( StrReplace( line, "VT  Reso:", "" ).c_str() );
-	} 
-	else if ( line.find("IT  Reso") != string::npos ) {
-	  m_ITreso = atof ( StrReplace( line, "IT  Reso:", "" ).c_str() );
-	}
-	else if ( line.find("MSD Reso") != string::npos ) {
-	  m_MSDreso = atof ( StrReplace( line, "MSD Reso:", "" ).c_str() );	  
-	}
-	else if ( line.find("Print OutputFile") != string::npos ) {
-	  string rev =StrReplace( line, "Print OutputFile:", "" );
+         
+
+        else if ( line.find("VT  Reso") != string::npos ) {
+            m_VTreso = atof ( StrReplace( line, "VT  Reso:", "" ).c_str() );
+        } 
+        else if ( line.find("IT  Reso") != string::npos ) {
+            m_ITreso = atof ( StrReplace( line, "IT  Reso:", "" ).c_str() );
+        }
+        else if ( line.find("MSD Reso") != string::npos ) {
+            m_MSDreso = atof ( StrReplace( line, "MSD Reso:", "" ).c_str() );   
+        }
+        else if ( line.find("Print OutputFile") != string::npos ) {
+            string rev =StrReplace( line, "Print OutputFile:", "" );
             RemoveSpace( &rev );
             if ( rev == "true" )
-	      m_printoutfile = true;
-            else
-	      m_printoutfile = false;
-        } 
-	else if ( line.find("Output Filename:") != string::npos ) {
-	  m_outputfilename = StrReplace( line, "Output Filename:", "" ).c_str();
-	}
-	else if ( line.find("Print OutputNtuple") != string::npos ) {
-	  string rev =StrReplace( line, "Print OutputNtuple:", "" );
+                m_printoutfile = true;
+             else
+                m_printoutfile = false;
+        }
+        else if ( line.find("Output Filename:") != string::npos ) {
+            m_outputfilename = StrReplace( line, "Output Filename:", "" );
+            RemoveSpace( &m_outputfilename );
+        }
+        else if ( line.find("Print OutputNtuple") != string::npos ) {
+            string rev =StrReplace( line, "Print OutputNtuple:", "" );
             RemoveSpace( &rev );
-            if ( rev == "true" )
-	      m_printoutntuple = true;
-            else
-	      m_printoutntuple = false;
-        } 
-	else if ( line.find("Output Ntuplename:") != string::npos ) {
-	  m_outputntuplename = StrReplace( line, "Output Ntuplename:", "" ).c_str();
-	}
+                if ( rev == "true" )
+                    m_printoutntuple = true;
+                else 
+                    m_printoutntuple = false;
+        }
+        else if ( line.find("Output Ntuplename:") != string::npos ) {
+            m_outputntuplename = StrReplace( line, "Output Ntuplename:", "" );
+            RemoveSpace( &m_outputntuplename );
+        }
+
+        else if ( line.find("IncludeBM:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeBM:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeBM = true;
+            else                     m_includeBM = false;
+        }
+        else if ( line.find("IncludeIR:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeIR:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeIR = true;
+            else                     m_includeIR = false;
+        }
+        else if ( line.find("IncludeTW:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeTW:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeTW = true;
+            else                     m_includeTW = false;
+        }
+        else if ( line.find("IncludeMSD:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeMSD:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeMSD = true;
+            else                     m_includeMSD = false;
+        }
+        else if ( line.find("IncludeCA:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeCA:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeCA = true;
+            else                     m_includeCA = false;
+        }
+        else if ( line.find("IncludeVertex:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeVertex:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeVertex = true;
+            else                     m_includeVertex = false;
+        }
+        else if ( line.find("IncludeInnerTracker:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeInnerTracker:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeInnerTracker = true;
+            else                     m_includeInnerTracker = false;
+        }
+        else if ( line.find("IncludeKalman:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeKalman:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeKalman = true;
+            else                     m_includeKalman = false;
+        }
+        else if ( line.find("IncludeEvent:") != string::npos ) {
+            string rev =StrReplace( line, "IncludeEvent:", "" );   
+            RemoveSpace( &rev );
+            if ( rev == "y" )        m_includeEvent = true;
+            else                     m_includeEvent = false;
+        }
+
+        else if ( line.find("Magnetic field map name:") != string::npos ) {
+            m_magFieldMap = StrReplace( line, "Magnetic field map name:", "" );
+            RemoveSpace( &m_magFieldMap );
+        }
 
 
-
-	//     btaggingWP = atoi ( StrReplace( line, "BtaggingWP:", "" ).c_str() );
+        // // btagging WP - default = 77%
+        // else if ( line.find("BtaggingWP:") != string::npos ) {
+        //     btaggingWP = atoi ( StrReplace( line, "BtaggingWP:", "" ).c_str() );
         // } 
         // // if we're using the B-filtered samples
         // else if ( line.find("UsingBFilter") != string::npos ) {

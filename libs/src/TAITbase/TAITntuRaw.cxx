@@ -261,7 +261,7 @@ const TAITntuHit* TAITntuRaw::GetPixel(Int_t iSensor, Int_t iPixel) const
 void TAITntuRaw::SetupClones()
 {
    if (fListOfPixels) return;
-   fListOfPixels = new TObjArray();
+   fListOfPixels = new TObjArray( TAITparMap::GetSensorsN() );
    
    for (Int_t i = 0; i < TAITparMap::GetSensorsN(); ++i) {
 	  TClonesArray* arr = new TClonesArray("TAITntuHit", 500);

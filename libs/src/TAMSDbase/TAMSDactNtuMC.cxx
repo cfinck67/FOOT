@@ -115,6 +115,8 @@ Bool_t TAMSDactNtuMC::Action() {
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "MSDn   " << fpEvtStr->MSDn<< endl;
 // cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx << "  "<< fpEvtStr->TRfy << "  "<< fpEvtStr->TRfz << endl;
 
+    
+    vector<int> blackList;
    //AS  To be completely rechecked...
    for (Int_t i = 0; i < fpEvtStr->MSDn; i++) {
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx[i] << "  "<< fpEvtStr->TRfy[i] << "  "<< fpEvtStr->TRfz[i] << endl;
@@ -130,13 +132,59 @@ Bool_t TAMSDactNtuMC::Action() {
      //What About a decent post processing?
      //The column refer to Y!!!
      // !!!!!!!!!!!!!!!!!!!!!!!!!!!  in ntuple, the row and col start from 0  !!!!!!!!!!!!!!!!!!!!!!!
-     int myTview, myTstrip;
-     myTview = ( fpEvtStr->MSDiview[i] == 1 ? 1 : 0 );
-     myTstrip = fpEvtStr->MSDistrip[i] - 1;
+     int myTview, myTstrip;   // USELESS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     myTview = 1;
+     myTstrip = -1;
+     // myTview = fpEvtStr->MSDistripx[i] == 1 ? 1 : 0 );
+     // myTstrip = fpEvtStr->MSDistripy[i] - 1;
+
+     // int myTview, myTstrip;
+     int stripX = fpEvtStr->MSDistripx[i];
+     int stripY  = fpEvtStr->MSDistripy[i];
+
      /*
      myTstrip = pParMap->GetPixelsNu()-fpEvtStr->miSigCol[i];
      myTview = pParMap->GetPixelsNv()-fpEvtStr->miSigRow[i];
      */
+
+     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+     for ( int bl = 0; bl<blackList.size(); bl++ ) {
+        if ( blackList.at(bl) == i )
+          continue;   // next event
+      }
+
+
+    // DECLUSTER
+      bool decluster = false;
+      for ( int j = i+1; j < fpEvtStr->MSDn; j++) {   // other hit loop
+
+        // same sensor .....
+        bool decluster_inner = false;
+        for ( int k = -1; k <= 1; k++ ) {
+          for ( int h = -1; h <= 1; h++ ) {
+            if   ( stripX == fpEvtStr->MSDistripx[j]+k && stripY == fpEvtStr->MSDistripy[j]+h )   {
+              decluster_inner = true;
+              break;
+            }
+          }
+          if ( decluster_inner )    break;
+        }
+
+        if ( decluster_inner ) {
+           blackList.push_back( j );
+           decluster = true;
+         }
+
+      }
+      if ( decluster )   {
+        blackList.push_back( i );
+        continue;  // next event
+      }
+        
+      // DECLUSTER end
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
      // Generated particle ID 
@@ -169,7 +217,7 @@ Bool_t TAMSDactNtuMC::Action() {
     }
      
 
-     TAMSDntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTview, myTstrip);
+     TAMSDntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., stripX, stripY);
      //ID matching for the "trk" block
      // set geometry
      pixel->SetMsdGeo(pGeoMap);
@@ -186,7 +234,7 @@ Bool_t TAMSDactNtuMC::Action() {
      MCmom.SetXYZ((fpEvtStr->MSDpxin[i]+fpEvtStr->MSDpxout[i])/2,(fpEvtStr->MSDpyin[i]+fpEvtStr->MSDpyout[i])/2,(fpEvtStr->MSDpzin[i]+fpEvtStr->MSDpzout[i])/2);
      
     if ( GlobalPar::GetPar()->Debug() > 0 )     {
-        cout << "Vertex pixel " << i << " col " << myTstrip << " row "<< myTview << endl;
+        cout << "MSD pixel " << i << " lay " << fpEvtStr->MSDilay[i] << " col " << myTstrip << " row "<< myTview << endl;
         cout << "\tGlobal kinematic: \n\t\tPos:\t"; 
         MCpos.Print();
         cout << "\t\tMom:\t";
@@ -221,8 +269,8 @@ Bool_t TAMSDactNtuMC::Action() {
        printf("Id %d X %f Y %f\n",      sensorId, -pParMap->GetPositionV(fpEvtStr->miSigCol[i]), pParMap->GetPositionU(fpEvtStr->miSigRow[i]));
      }
      */
-     double v = pParMap->GetPositionV(myTview);
-     double u = pParMap->GetPositionU(myTstrip);
+     double v = pParMap->GetPositionV(stripX);
+     double u = pParMap->GetPositionU(stripY);
      TVector3 pos(v,u,0);
      pixel->SetPosition(pos);
 

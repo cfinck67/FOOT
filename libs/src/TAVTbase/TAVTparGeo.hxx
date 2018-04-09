@@ -12,13 +12,16 @@
 #include "TEveGeoShapeExtract.h"
 
 #include "TObject.h"
-#include "TString.h"
-#include "TVector3.h"
-#include "TRotation.h"
 
 #include "TAVTparTools.hxx"
 
 #include "IronPlate.hxx"
+#include "FootBox.hxx"
+#include "GlobalPar.hxx"
+#include "FootField.hxx"
+
+#include <FieldManager.h>
+
 
 class TGeoHMatrix;
 class TGeoVolume;
@@ -28,14 +31,30 @@ class TAVTparGeo : public TAVTparTools {
 
 
 typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
-// typedef map< int, map< int, map< int, IronPlate* > > > SensorMatrix;
+typedef vector< vector< IronPlate* > > SensorPlane;
+typedef vector< IronPlate* > SensorLine;
 
+typedef vector< vector< vector< FootBox* > > > PassiveMatrix;
+typedef vector< vector< FootBox* > > PassivePlane;
+typedef vector< FootBox* > PassiveLine;
 
 public:
 
-    TAVTparGeo() {};
+    TAVTparGeo();
     TAVTparGeo( TAVTparGeo* original );
-    virtual ~TAVTparGeo() {};
+    virtual ~TAVTparGeo() {
+      // sensor matrix
+      for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
+        for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+            for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+                delete (*itZ);
+            }
+            (*itY).clear();
+        }
+        (*itX).clear();
+      }
+      m_sensorMatrix.clear();
+    };
 
     void InitGeo();
     void InitMaterial();
@@ -60,22 +79,24 @@ public:
     //  Return Vertex center coord. in the global frame
     TVector3 GetCenter() { return m_center; };
 
-    // Return Inner Trakcker full dimension.
+    // Return Vertex full dimension.
     TVector3 GetDimension() { return m_dimension; };
 
     double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
 
     // Return distance from center to center
-    double GetLayerDistance() { return m_layerDistance; };
+    // double GetLayerDistance() { return m_layerDistance; };
 
     double GetNPixelX() { return m_nPixel_X; };
     double GetNPixelY() { return m_nPixel_Y; };
     int GetNLayers() { return m_nSensors_Z; };
 
-    void AssignMaterial() {};
-    void AssignMagnetField() {};
-    void PrintBodies( string geoFileName );
-    void PrintRegions( string geoFileName );
+    
+    string PrintBodies();
+    string PrintRegions();
+    string PrintAssignMaterial();
+    string PrintSubtractBodiesFromAir();
+    string PrintParameters();
 
     // Return a vector with the number of sensors along the cartesian directions
     TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
@@ -89,13 +110,17 @@ public:
 private:
 
     SensorMatrix m_sensorMatrix;
+    PassiveMatrix m_passiveMatrix;
     TRotation* m_rotation;
 
+    TGeoVolume* m_universe;
 
-    // TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each sensor)
-    TVector3  m_origin;  // current position
-    TVector3  m_center;  // current position
+    TVector3  m_origin;  // current position in local coord.
+    TVector3  m_center;  // current position in global coord.
     TVector3  m_dimension;
+
+    int m_volumeCount;
+    int m_passiveCount;
 
     int m_nSensors_X;
     int m_nSensors_Y;
@@ -103,19 +128,32 @@ private:
     TVector3 m_NSensors;
 
     vector<string> m_materialOrder;
+    vector<string> m_passiveMaterial;
+
     map<string, double> m_materialThick;
     map<string, string> m_materialType;
 
+    map<string, vector<string> > m_regionPrintOut;
+    map<string, vector<string> > m_bodyPrintOut;
+    map<string, vector<string> > m_regionName;
+    map<string, vector<string> > m_bodyName;
+    map<string, int > m_magneticRegion;
 
+    int m_nPassiveLayersPerBoard_z;
+    double m_passiveMaterialThick;
     double m_siliconSensorThick_Lz;
-    double m_layerDistance;
-
-    vector<string> m_regionOrder;
-    stringstream m_streamRegion;
-    map<string, string> m_regionMap;
+    double m_layerDistance_samePair;
+    double m_layerDistance_interPair;
 
     int m_nPixel_X;
     int m_nPixel_Y;
+
+    int m_debug;
+    int m_setW_0number;
+
+    double m_xmin, m_ymin;
+
+
 
 
 

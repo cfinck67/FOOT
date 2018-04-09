@@ -30,7 +30,6 @@ TAGactNtuMCeve::TAGactNtuMCeve(const char* name,
     fpNtuMC(p_nturaw),
     fpEvtStr(evStr)
 {
-  cout<<" Entering TAGactNtuMCeve::TAGactNtuMCeve()"<<endl;
   AddDataOut(p_nturaw, "TAGntuMCeve");
 }
 
@@ -45,9 +44,14 @@ TAGactNtuMCeve::~TAGactNtuMCeve()
 
 Bool_t TAGactNtuMCeve::Action() {
 
+ 
+  
   Info("Action()"," Entering TAGactNtuMCeve");
+  
   TAGntuMCeve* p_nturaw = (TAGntuMCeve*) fpNtuMC->Object();
 
+ 
+  
   Int_t nh(0);
   p_nturaw->Clear();
 
@@ -82,14 +86,17 @@ Bool_t TAGactNtuMCeve::Action() {
     //    Int_t i_pileup = fpEvtStr->TRpileup[i]; // VM added 17/11/13 for pileup
     Int_t i_pileup = 0; // VM added 17/11/13 for pileup
 
+ 
+    
     Info("Action()","MCeve : %d %d %lf ",i_id,i_chg,i_mass);
 
     // VM changed 17/11/13
-    new((*(p_nturaw->h))[i]) 
+     new((*(p_nturaw->h))[i]) 
       TAGntuMCeveHit(i_id,i_chg,i_type,i_reg,i_bar,i_dead,i_mass,i_moth,i_time,i_tof,i_trlen,ipos,fpos,ip,fp,mothip,mothfp,i_pileup);
-    
+ 
   }
-
+ 
+  
   p_nturaw->nhit  = nh;
 
   fpNtuMC->SetBit(kValid);

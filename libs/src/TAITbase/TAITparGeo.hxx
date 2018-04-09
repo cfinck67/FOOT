@@ -12,13 +12,17 @@
 #include "TEveGeoShapeExtract.h"
 
 #include "TObject.h"
-#include "TString.h"
-#include "TVector3.h"
 
 #include "TAITparTools.hxx"
 
 #include "IronPlate.hxx"
-#include <vector>
+#include "FootBox.hxx"
+#include "GlobalPar.hxx"
+#include "FootField.hxx"
+
+#include <FieldManager.h>
+
+
 
 class TGeoHMatrix;
 class TGeoVolume;
@@ -28,17 +32,58 @@ class TAITparGeo : public TAITparTools {
 
 // object to be used as 3D matrix of sensors
 typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
+typedef vector< vector< IronPlate* > > SensorPlane;
+typedef vector< IronPlate* > SensorLine;
+
+typedef vector< vector< vector< FootBox* > > > PassiveMatrix;
+typedef vector< vector< FootBox* > > PassivePlane;
+typedef vector< FootBox* > PassiveLine;
 
 public:
 
-    TAITparGeo() {};
+    TAITparGeo();
     TAITparGeo( TAITparGeo* original );
-    virtual ~TAITparGeo() {};
+    virtual ~TAITparGeo() {
+      // sensor matrix
+      for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
+        for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+            for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+                delete (*itZ);
+            }
+            (*itY).clear();
+        }
+        (*itX).clear();
+      }
+      m_sensorMatrix.clear();
+
+      // // passive matrix
+      // for ( SensorMatrix::iterator itX = m_passiveMatrix.begin(); itX != m_passiveMatrix.end(); itX++ ) {
+      //   for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+      //       for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+      //           delete (*itZ);
+      //       }
+      //       (*itY).clear();
+      //   }
+      //   (*itX).clear();
+      // }
+      // m_sensorMatrix.clear();
+
+      // // chip matrix
+      // for ( SensorMatrix::iterator itX = m_chipMatrix.begin(); itX != m_chipMatrix.end(); itX++ ) {
+      //   for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+      //       for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+      //           delete (*itZ);
+      //       }
+      //       (*itY).clear();
+      //   }
+      //   (*itX).clear();
+      // }
+      // m_sensorMatrix.clear();
+
+    };
 
     void InitGeo();
     void InitMaterial();
-    void PrintBodies( string geoFileName );
-    void PrintRegions( string geoFileName);
 
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id and vice versa
@@ -52,9 +97,7 @@ public:
 
     // Return the pixel position  -->  change name! in GetPixelPos()
     //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
-    TVector3 GetPosition( int layer, int col, int row );
-
-
+    TVector3 GetPosition( int layer, int plume, int chip, int col, int row );
 
     // Return Inner Trakcker center coord. in the global frame
     TVector3 GetCenter() { return m_center; };
@@ -70,6 +113,11 @@ public:
     double GetNPixelY() { return m_nPixel_Y; };
     int GetNLayers() { return m_nSensors_Z; };
 
+    string PrintBodies();
+    string PrintRegions();
+    string PrintAssignMaterial();
+    string PrintSubtractBodiesFromAir();
+    string PrintParameters();
 
     // Return a vector with the number of sensors along the cartesian directions
     TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
@@ -85,34 +133,55 @@ public:
 private:
 
     SensorMatrix m_sensorMatrix;
+    PassiveMatrix m_passiveMatrix;
+    PassiveMatrix m_chipMatrix;
     TRotation* m_rotation;
+
+    TGeoVolume* m_universe;
 
     TVector3  m_origin;  // current position in local coord.
     TVector3  m_center;  // current position in global coord.
     TVector3  m_dimension;
+
+    int m_volumeCount;
+    int m_passiveCount;
 
     int m_nSensors_X;
     int m_nSensors_Y;
     int m_nSensors_Z;
     TVector3 m_NSensors;
 
+    double m_plumeDistace_Z;
+    double m_plumeDistace_Y;
+    double m_boardDeadMin;
+    double m_boardDeadMax;
+
     vector<string> m_materialOrder;
+    vector<string> m_passiveMaterial;
+
     map<string, double> m_materialThick;
     map<string, string> m_materialType;
 
-    vector<string> m_regionOrder;
-    vector<string> m_regPrintOrder;
-    map<string,string> m_regionMap;
-    stringstream m_streamRegion;
+    map<string, vector<string> > m_bodyPrintOut;
+    map<string, vector<string> > m_regionPrintOut;
+    map<string, vector<string> > m_regionName;
+    map<string, vector<string> > m_bodyName;
+    map<string, int > m_magneticRegion;
+    
 
-
-
-
+    int m_nPassiveLayersPerBoard_z;
+    double m_passiveMaterialThick;
     double m_siliconSensorThick_Lz;
     double m_layerDistance;
 
     int m_nPixel_X;
     int m_nPixel_Y;
+
+    vector<vector<double>> m_xmin;
+    vector<vector<double>> m_ymin;
+
+    int m_debug;
+    int m_setW_0number;
 
 
 
