@@ -99,7 +99,8 @@ KFitter::KFitter () {
 int KFitter::UploadHitsVT( TAGdataDsc* footDataObj, shared_ptr<TAVTparGeo> vt_geo ) {
 	
 	m_VT_geo = vt_geo;
-	TAVTntuRaw* ntup = (TAVTntuRaw*) footDataObj->GenerateObject();
+	TAVTntuRaw* ntup = (TAVTntuRaw*) footDataObj->Object();
+	// TAVTntuRaw* ntup = (TAVTntuRaw*) footDataObj->GenerateObject();
 	if ( m_debug > 0 )		cout << "N vertex pixel read: " << ntup->GetPixelsN(0) << endl;
 	
 	// save pixels in the collection
@@ -135,7 +136,8 @@ int KFitter::UploadHitsIT( TAGdataDsc* footDataObj, shared_ptr<TAITparGeo> it_ge
 int KFitter::UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd_geo ) {
 	
 	m_MSD_geo = msd_geo;
-	TAMSDntuRaw* ntup = (TAMSDntuRaw*) footDataObj->GenerateObject();
+	TAMSDntuRaw* ntup = (TAMSDntuRaw*) footDataObj->Object();
+	// TAMSDntuRaw* ntup = (TAMSDntuRaw*) footDataObj->GenerateObject();
 
 	if ( m_debug > 0 )		cout << "Strip detector hits read: " << ntup->GetPixelsN(0) << endl;
 

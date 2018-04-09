@@ -489,6 +489,8 @@ void Booter::FillMCEvent(EVENT_STRUCT *myStr) {
   myn_mceve    = new TAGdataDsc("myn_mceve", new TAGntuMCeve());
   mya_mceve    = new TAGactNtuMCeve("mya_mceve", myn_mceve, myStr);
 
+  gTAGroot->AddRequiredItem("myn_mceve");
+
   //  my_out->SetupElementBranch(myn_mceve,     "mceve.");
     /*Ntupling the general MC mimosa information*/
   
@@ -546,6 +548,8 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
   myp_twgeo    = new TAGparaDsc("twGeo", new TATWparGeo());
   new TATWactNtuMC("an_twraw", myn_twraw, myStr);
   // my_out->SetupElementBranch(myn_twraw,     "twrh.");
+
+  gTAGroot->AddRequiredItem("myn_twraw");
 }
 
 
@@ -560,6 +564,8 @@ void Booter::FillMCCalorimeter(EVENT_STRUCT *myStr) {
   myn_caraw    = new TAGdataDsc("myn_caraw", new TACAdatRaw());
   new TACAactNtuMC("an_caraw", myn_caraw, myStr);
   // my_out->SetupElementBranch(myn_caraw,     "carh.");
+
+  gTAGroot->AddRequiredItem("myn_caraw");
 }
 
 
@@ -578,6 +584,7 @@ void Booter::FillMCInteractionRegion(EVENT_STRUCT *myStr) {
   new TAIRactNtuMC("an_irraw", myn_irraw, myStr);
   // my_out->SetupElementBranch(myn_irraw,     "irrh.");
 
+  gTAGroot->AddRequiredItem("myn_irraw");
 }
 
 
@@ -604,6 +611,8 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
    myp_vtgeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());
    
    mya_vtraw   = new TAVTactNtuMC("vtActRaw", myn_vtraw, myp_vtgeo, myp_vtmap, myStr);
+
+   gTAGroot->AddRequiredItem("vtRaw");
   
 }
 
@@ -629,6 +638,8 @@ void Booter::FillMCMSD(EVENT_STRUCT *myStr) {
    myp_msdgeo    = new TAGparaDsc("msdGeo", new TAMSDparGeo());
 
    mya_msdraw   = new TAMSDactNtuMC("msdActRaw", myn_msdraw, myp_msdgeo, myp_msdmap, myStr);
+
+   gTAGroot->AddRequiredItem("msdRaw");
 }
 
 
@@ -653,6 +664,8 @@ void Booter::FillMCInnerTracker(EVENT_STRUCT *myStr) {
 
    myp_itgeo    = new TAGparaDsc("itGeo", new TAITparGeo());
    mya_itraw   = new TAITactNtuMC("itActRaw", myn_itraw, myp_itgeo, myp_itmap, myStr);
+
+   gTAGroot->AddRequiredItem("itRaw");
 
 }
 
