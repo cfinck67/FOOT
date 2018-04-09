@@ -7,6 +7,7 @@
 
 #include "ControlPlotInfo.hxx"
 
+
 #define build_string(expr) \
     (static_cast<ostringstream*>(&(ostringstream().flush() << expr))->str())
 
@@ -117,10 +118,9 @@ public:
 
 
 	void SetTrackInfo( string hitSampleName, Track* track ) {
-
 		FillMap( hitSampleName + "__chi2__kalman", track->getFitStatus(track->getCardinalRep())->getChi2() );
 		// if ( m_debug > 0 )		cout << "Chi2 = "<< track->getFitStatus(track->getCardinalRep())->getChi2() << endl;
-
+		
 		// 		!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!                ±  
 		FillMap( hitSampleName + "__mass__kalman", track->getFittedState(0).getMass() );
 			
@@ -221,8 +221,8 @@ private:
 
 	ControlPlotsRepository();
 	static ControlPlotsRepository* m_pInstance;
-
-
+  
+  
 };
 
 #endif

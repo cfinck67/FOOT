@@ -80,9 +80,8 @@ public:
 		m_dir = outDir +"/"+ token[0]; 
 	};
 
-	void PrintHisto( TCanvas* mirror );
-
-
+  void PrintHisto( TCanvas* mirror);
+  
 
 /***	variables	***/
 
@@ -101,7 +100,8 @@ public:
 	double m_minBin;
 	double m_maxBin;
 
-	
+       
+        bool m_printoutfile;
 	
 
 private:

@@ -59,8 +59,6 @@ void ControlPlotsRepository::FillMap( string mapName, double x ) {
 
 };
 
-
-
 void ControlPlotsRepository::PrintMap() {
 
 	if( m_alreadyPrintedOut ) {
@@ -74,14 +72,38 @@ void ControlPlotsRepository::PrintMap() {
 	TCanvas* mirror = new TCanvas( "mirror", "mirror", 700, 700);
 	for ( map< string, ControlPlotInfo >::iterator it = m_chizu.begin(); it != m_chizu.end(); it++ ) {
 
-		(*it).second.PrintHisto( mirror );
+	  (*it).second.PrintHisto( mirror);
 
+	 
 	}
 
 };
 
+void ControlPlotsRepository::PrintOutputFile() {
 
+        m_outputfilename = GlobalPar::GetPar()->OutputFile();
+	TFile* f_out = new TFile(m_outputfilename.c_str(),"RECREATE");  
+	
+	TCanvas* mirror = new TCanvas( "mirror", "mirror", 700, 700);
 
+	for ( map< string, ControlPlotInfo >::iterator it = m_chizu.begin(); it != m_chizu.end(); it++ ) {
+	  
+	  vector<string> token = Tokenize((*it).first, "__" );	
+	  string first_token =  token[0];	
+	  TDirectory *dir = f_out->GetDirectory(first_token.c_str());
+	 
+	  if(!dir)	  
+	    {
+	      f_out->mkdir(first_token.c_str());
+	      f_out->cd(first_token.c_str()); 
+	    }
+	  
+	  (*it).second.PrintHisto( mirror);	
+	
+	}
+	f_out->Write();
+	f_out->Close();
+};
 
 
 void ControlPlotsRepository::PrintOutputFile() {

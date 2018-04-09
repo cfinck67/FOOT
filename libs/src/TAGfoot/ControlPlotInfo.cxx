@@ -1,9 +1,7 @@
 
 #include "ControlPlotInfo.hxx"
 
-
-
-void  ControlPlotInfo::PrintHisto( TCanvas* mirror ) {
+void  ControlPlotInfo::PrintHisto( TCanvas* mirror) {
 	// check if parameter from file is enabled		-> 		otherwise guess them
 
 	// nBin

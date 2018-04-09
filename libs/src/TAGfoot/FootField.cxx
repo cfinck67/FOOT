@@ -106,6 +106,23 @@ void FootField::get(const double& posX, const double& posY, const double& posZ, 
 
 
 
+double FootField::IntegralField( int step, double start, double end ) {  // in cm
+
+	double integral = 0;
+	double dz = ( end - start ) / step;
+	TVector3 startVec = TVector3( 0, 0, start );
+
+	for ( int i=0; i<step; i++ ) {
+		TVector3 dzVec = TVector3 ( 0, 0, dz );
+		startVec += dzVec;
+		integral += ( Interpolate( startVec ) ).Mag();
+	}
+
+	return integral * dz;
+}
+
+
+
 
 double FootField::IntegralField( int step, double start, double end ) {  // in cm
 
