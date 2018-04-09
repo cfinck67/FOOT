@@ -56,8 +56,14 @@
 #include "TAITparGeo.hxx"
 #include "TAITntuRaw.hxx"
 
+#include "TAGntuMCeve.hxx"
+
 #include <KalmanFitterInfo.h>
 #include <KalmanFitStatus.h>
+
+#include "TAGroot.hxx"
+#include "TAGdataDsc.hxx"
+#include "TAGparaDsc.hxx"
 
 #include "GlobalPar.hxx"
 #include "ControlPlotsRepository.hxx"
@@ -121,9 +127,11 @@ public:
 	
 	void RecordTrackInfo( Track* track, string hitSampleName );
 
-	int UploadHitsVT( TAGdataDsc* footDataObj, shared_ptr<TAVTparGeo> vt_geo );
-	int UploadHitsIT( TAGdataDsc* footDataObj, shared_ptr<TAITparGeo> it_geo );
-	int UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd_geo );
+	void IncludeDetectors();
+
+	int UploadHitsVT();
+	int UploadHitsIT();
+	int UploadHitsMSD();
 
 	void Finalize();	// save control plot and calculate resolutions
 
@@ -234,9 +242,6 @@ private:
 	int m_debug;
 
 	long m_evNum;
-
-	bool m_printoutfile;
-    bool m_printoutntuple;
 
 	bool m_reverse;
 	

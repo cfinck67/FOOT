@@ -105,9 +105,6 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 Booter::Booter() {
-
-
-
 }
 
 
@@ -130,25 +127,14 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     fGeoTrafo->InitGeo(filename.Data());
 
 
-    
-    // Setting up the detectors that we want to decode.    
-    if( GlobalPar::GetPar()->IncludeEvent() )           FillMCEvent(evStr);
-    if( GlobalPar::GetPar()->IncludeBM() )              FillMCBeamMonitor(evStr);
-    if( GlobalPar::GetPar()->IncludeIR() )              FillMCInteractionRegion(evStr);
-    if( GlobalPar::GetPar()->IncludeInnerTracker() )    FillMCInnerTracker(evStr);
-    if( GlobalPar::GetPar()->IncludeVertex() )          FillMCVertex(evStr);
-    if( GlobalPar::GetPar()->IncludeMSD() )             FillMCMSD(evStr);
-    if( GlobalPar::GetPar()->IncludeTW() )              FillMCTofWall(evStr);
-    if( GlobalPar::GetPar()->IncludeCA() )              FillMCCalorimeter(evStr);
-
-
 	cout << "Make Geo" << endl;
-
-    TGeoManager *masterGeo = new TGeoManager("genfitGeom", "GENFIT geometry");
+    new TGeoManager("genfitGeom", "GENFIT geometry");
     
-	Materials* listMaterials = new Materials() ;
-    // listMaterials->PrintCompMap();
-    // 	listMaterials->PrintMatMap();
+    Materials* listMaterials = new Materials();
+    if ( GlobalPar::GetPar()->Debug() > 1 ) {
+        listMaterials->PrintCompMap();
+        listMaterials->PrintMatMap();
+    }
 
     top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 120.);
     gGeoManager->SetTopVolume(top); // mandatory !
@@ -162,68 +148,22 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 
     // MagFieldTest();
 
+
     // include the nucleon into the genfit pdg repository
     if ( GlobalPar::GetPar()->IncludeBM() || GlobalPar::GetPar()->IncludeKalman() )
       UpdatePDG::Instance();
 
 
-    if( GlobalPar::GetPar()->IncludeBM() ) {
-    //     // DisplayBeamMonitor(pg);
-      shared_ptr<TABMparGeo> m_bmgeo = shared_ptr<TABMparGeo> ( (TABMparGeo*) myp_bmgeo->Object() );
-      m_bmgeo->InitGeo();
-      m_bmgeo->ShiftBmon();
-    //     //    DisplayIRMonitor(pg,&evStr);
-    }
-
-
-    if ( GlobalPar::GetPar()->IncludeVertex() ) {
-        m_vtgeo = shared_ptr<TAVTparGeo> ( (TAVTparGeo*) myp_vtgeo->Object() );
-        //Initialization of VTX parameters
-        m_vtgeo->InitGeo();
-        top->AddNode( m_vtgeo->GetVolume(), 0, new TGeoCombiTrans( 0,0,0,new TGeoRotation("Vertex",0,0,0)) );
-
-    }
-
-
-    if( GlobalPar::GetPar()->IncludeInnerTracker() ) {
-      m_itgeo = shared_ptr<TAITparGeo> ( (TAITparGeo*) myp_itgeo->Object() );
-        //Initialization of IT parameters
-        m_itgeo->InitGeo();
-        // m_itgeo->PrintBodies("geppo");
-        // m_itgeo->PrintRegions("geppo");
-        // m_itgeo->PrintAssignMaterial("geppo");
-        top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("InnerTracker",0,0,0)) );
-    }
-
-
-    if( GlobalPar::GetPar()->IncludeMSD() ) {
-      m_msdgeo = shared_ptr<TAMSDparGeo> ( (TAMSDparGeo*) myp_msdgeo->Object() );
-        //Initialization of MSD parameters
-        m_msdgeo->InitGeo();
-        top->AddNode( m_msdgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("Strip",0,0,0)) );
-    }
-    
-    if( GlobalPar::GetPar()->IncludeTW() ) {
-      shared_ptr<TATWparGeo> m_twgeo = shared_ptr<TATWparGeo> ( (TATWparGeo*) myp_twgeo->Object() );
-      //Initialization of SCINT parameters
-      m_twgeo->InitGeo();
-      top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
-      // top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_twgeo->GetCenter().z(), new TGeoRotation("Scint",0,0,0)) );
-    }    
-
-    if( GlobalPar::GetPar()->IncludeCA() ) {
-        // shared_ptr<TACAparGeo> m_cageo = shared_ptr<TACAparGeo> ( (TACAparGeo*) myp_cageo->Object() );
-        // m_cageo->InitGeo();
-        // top->AddNode( m_cageo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_cageo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
-    
-    }
- 
-
-    if( GlobalPar::GetPar()->IncludeIR() ) {
-        // shared_ptr<TAIRparGeo>  m_irgeo = shared_ptr<TAIRparGeo> ( (TAIRparGeo*) myp_irgeo->Object() );
-        // m_irgeo->InitGeo();
-        // top->AddNode( m_irgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_irgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
-    }
+    // Setting up the detectors that we want to decode.
+    // Initialization of detectors parameters, geometry and materials   
+    if( GlobalPar::GetPar()->IncludeEvent() )           FillMCEvent(evStr);
+    if( GlobalPar::GetPar()->IncludeBM() )              FillMCBeamMonitor(evStr);
+    if( GlobalPar::GetPar()->IncludeIR() )              FillMCInteractionRegion(evStr);
+    if( GlobalPar::GetPar()->IncludeInnerTracker() )    FillMCInnerTracker(evStr);
+    if( GlobalPar::GetPar()->IncludeVertex() )          FillMCVertex(evStr);
+    if( GlobalPar::GetPar()->IncludeMSD() )             FillMCMSD(evStr);
+    if( GlobalPar::GetPar()->IncludeTW() )              FillMCTofWall(evStr);
+    if( GlobalPar::GetPar()->IncludeCA() )              FillMCCalorimeter(evStr);
 
 
     // set material and geometry into genfit
@@ -263,22 +203,7 @@ void Booter::Process( Long64_t jentry ) {
         // //to be moved to framework
 
 	// if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeInnerTracker() )
-	// AssociateHitsToParticle();
-
-
-        // Kalman
-        if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeKalman() ) {
-            m_kFitter->UploadHitsVT( myn_vtraw, m_vtgeo );
-        }
-
-        if( GlobalPar::GetPar()->IncludeInnerTracker() && GlobalPar::GetPar()->IncludeKalman() ) {
-            m_kFitter->UploadHitsIT( myn_itraw, m_itgeo );
-        }
-
-        if( GlobalPar::GetPar()->IncludeMSD() && GlobalPar::GetPar()->IncludeKalman() ) {
-            m_kFitter->UploadHitsMSD( myn_msdraw, m_msdgeo );
-        }
-
+	AssociateHitsToParticle();
 
         // start time
         start_kal = clock();
@@ -401,14 +326,16 @@ void Booter::GeoPrint() {
 void Booter::AssociateHitsToParticle() {
 
     // to be done for all particles ---  full revision
-  TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->GenerateObject();
-  // TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->Object();
+  // TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->GenerateObject();
+  TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->Object();
 
   vector<int> FragIdxs;
   int nhitmc = p_ntumceve->nhit;
 
   for(int i=0; i<nhitmc; i++){
     TAGntuMCeveHit *myPart = p_ntumceve->Hit(i);
+
+    // cout << "CAZZO" << myPart->Chg() << endl;
     
     int part_reg = myPart->Reg();
 
@@ -506,85 +433,51 @@ void Booter::FillMCEvent(EVENT_STRUCT *myStr) {
 
 
 
+//----------------------------------------------------------------------------------------------------
+void Booter::FillMCInteractionRegion(EVENT_STRUCT *myStr) {
+
+    /*Ntupling the MC Beam Monitor information*/
+    myn_irraw    = new TAGdataDsc("myn_irraw", new TAIRdatRaw());
+    new TAIRactNtuMC("an_irraw", myn_irraw, myStr);
+    // my_out->SetupElementBranch(myn_irraw,     "irrh.");
+
+    gTAGroot->AddRequiredItem("myn_irraw");
+
+    // Geo to be defined ...
+    // m_irgeo->InitGeo();
+    // top->AddNode( m_irgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_irgeo->GetCenter().z(), new TGeoRotation("Marghe",0,0,0)) );
+}
+
+
+
+
+
 
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
 
-  /*Ntupling the MC Beam Monitor information*/
-  myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
-  myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
+    /*Ntupling the MC Beam Monitor information*/
+    myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
+    myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
 
-  initBMCon(myp_bmcon);
+    initBMCon(myp_bmcon);
 
-  myp_bmgeo  = new TAGparaDsc("p_bmgeo", new TABMparGeo());
+    myp_bmgeo  = new TAGparaDsc("p_bmgeo", new TABMparGeo());
 
-  initBMGeo(myp_bmgeo);
+    initBMGeo(myp_bmgeo);
 
-  new TABMactNtuMC("an_bmraw", myn_bmraw, myp_bmcon, myp_bmgeo, myStr);
+    // ((TABMparGeo*) myp_bmgeo->Object())->InitGeo();
+    ((TABMparGeo*) myp_bmgeo->Object())->ShiftBmon();
 
-  // my_out->SetupElementBranch(myn_bmraw,     "bmrh.");
+    new TABMactNtuMC("an_bmraw", myn_bmraw, myp_bmcon, myp_bmgeo, myStr);
 
-  myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
+    // my_out->SetupElementBranch(myn_bmraw,     "bmrh.");
 
-  new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
+    myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
 
-  // my_out->SetupElementBranch(myn_bmtrk,     "bmtrk.");
+    new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
 
-}
-
-
-
-
-
-
-
-
-
-//----------------------------------------------------------------------------------------------------
-void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
-
-  /*Ntupling the MC Tof Wall information*/
-  myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
-  myp_twgeo    = new TAGparaDsc("twGeo", new TATWparGeo());
-  new TATWactNtuMC("an_twraw", myn_twraw, myStr);
-  // my_out->SetupElementBranch(myn_twraw,     "twrh.");
-
-  gTAGroot->AddRequiredItem("myn_twraw");
-}
-
-
-
-
-
-
-//----------------------------------------------------------------------------------------------------
-void Booter::FillMCCalorimeter(EVENT_STRUCT *myStr) {
-
-  /*Ntupling the MC Calorimeter information*/
-  myn_caraw    = new TAGdataDsc("myn_caraw", new TACAdatRaw());
-  new TACAactNtuMC("an_caraw", myn_caraw, myStr);
-  // my_out->SetupElementBranch(myn_caraw,     "carh.");
-
-  gTAGroot->AddRequiredItem("myn_caraw");
-}
-
-
-
-
-
-
-
-
-
-//----------------------------------------------------------------------------------------------------
-void Booter::FillMCInteractionRegion(EVENT_STRUCT *myStr) {
-
-  /*Ntupling the MC Beam Monitor information*/
-  myn_irraw    = new TAGdataDsc("myn_irraw", new TAIRdatRaw());
-  new TAIRactNtuMC("an_irraw", myn_irraw, myStr);
-  // my_out->SetupElementBranch(myn_irraw,     "irrh.");
-
-  gTAGroot->AddRequiredItem("myn_irraw");
+    // my_out->SetupElementBranch(myn_bmtrk,     "bmtrk.");
 }
 
 
@@ -596,24 +489,60 @@ void Booter::FillMCInteractionRegion(EVENT_STRUCT *myStr) {
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
   
-   /*Ntupling the MC Vertex information*/
-   myn_vtraw    = new TAGdataDsc("vtRaw", new TAVTntuRaw());
-   // myn_vtclus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
-   // myn_vtrk     = new TAGdataDsc("vtTrack", new TAVTntuTrack());
+    /*Ntupling the MC Vertex information*/
+    myn_vtraw    = new TAGdataDsc("vtRaw", new TAVTntuRaw());
+    // myn_vtclus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
+    // myn_vtrk     = new TAGdataDsc("vtTrack", new TAVTntuTrack());
 
-   myp_vtmap    = new TAGparaDsc("vtMap", new TAVTparMap());
+    myp_vtmap    = new TAGparaDsc("vtMap", new TAVTparMap());
 
-   myp_vtconf  = new TAGparaDsc("vtConf", new TAVTparConf());
-   TAVTparConf* parconf = (TAVTparConf*) myp_vtconf->Object();
-   TString filename = m_wd + "/config/TAVTdetector.cfg";
-   parconf->FromFile(filename.Data());
+    myp_vtconf  = new TAGparaDsc("vtConf", new TAVTparConf());
+    TAVTparConf* parconf = (TAVTparConf*) myp_vtconf->Object();
+    TString filename = m_wd + "/config/TAVTdetector.cfg";
+    parconf->FromFile(filename.Data());
 
-   myp_vtgeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());
-   
-   mya_vtraw   = new TAVTactNtuMC("vtActRaw", myn_vtraw, myp_vtgeo, myp_vtmap, myStr);
+    myp_vtgeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());
+    ((TAVTparGeo*) myp_vtgeo->Object())->InitGeo();
+    top->AddNode( ((TAVTparGeo*) myp_vtgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0,0,0,new TGeoRotation("Vertex",0,0,0)) );
 
-   gTAGroot->AddRequiredItem("vtRaw");
+    mya_vtraw   = new TAVTactNtuMC("vtActRaw", myn_vtraw, myp_vtgeo, myp_vtmap, myStr);
+
+    gTAGroot->AddRequiredItem("vtRaw");
   
+}
+
+
+
+
+
+
+
+//----------------------------------------------------------------------------------------------------
+void Booter::FillMCInnerTracker(EVENT_STRUCT *myStr) {
+
+    /*Ntupling the MC Vertex information*/
+    myn_itraw    = new TAGdataDsc("itRaw", new TAITntuRaw());
+    // myn_itclus   = new TAGdataDsc("itClus", new TAITntuCluster());
+
+    myp_itmap    = new TAGparaDsc("itMap", new TAITparMap());
+
+    // remove?
+    myp_itconf  = new TAGparaDsc("itConf", new TAITparConf());
+    TAITparConf* parconf = (TAITparConf*) myp_itconf->Object();
+    TString filename = m_wd + "/config/TAITdetector.cfg";
+    parconf->FromFile(filename.Data());
+
+    myp_itgeo    = new TAGparaDsc("itGeo", new TAITparGeo());
+    ((TAITparGeo*) myp_itgeo->Object())->InitGeo();
+    // ((TAITparGeo*) myp_itgeo->Object())->PrintBodies("geppo");
+    // ((TAITparGeo*) myp_itgeo->Object())->PrintRegions("geppo");
+    // ((TAITparGeo*) myp_itgeo->Object())->PrintAssignMaterial("geppo");
+    top->AddNode( ((TAITparGeo*) myp_itgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("InnerTracker",0,0,0)) );
+
+    mya_itraw   = new TAITactNtuMC("itActRaw", myn_itraw, myp_itgeo, myp_itmap, myStr);
+
+    gTAGroot->AddRequiredItem("itRaw");
+
 }
 
 
@@ -624,22 +553,47 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCMSD(EVENT_STRUCT *myStr) {
 
-   /*Ntupling the MC Vertex information*/
-   myn_msdraw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
-   // myn_msdclus   = new TAGdataDsc("msdClus", new TAMSDntuCluster());
+    /*Ntupling the MC Vertex information*/
+    myn_msdraw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
+    // myn_msdclus   = new TAGdataDsc("msdClus", new TAMSDntuCluster());
 
-   myp_msdmap    = new TAGparaDsc("msdMap", new TAMSDparMap());
+    myp_msdmap    = new TAGparaDsc("msdMap", new TAMSDparMap());
 
-   myp_msdconf  = new TAGparaDsc("msdConf", new TAMSDparConf());
-   TAMSDparConf* parconf = (TAMSDparConf*) myp_msdconf->Object();
-   TString filename = m_wd + "/config/TAMSDdetector.cfg";
-   parconf->FromFile(filename.Data());
+    myp_msdconf  = new TAGparaDsc("msdConf", new TAMSDparConf());
+    TAMSDparConf* parconf = (TAMSDparConf*) myp_msdconf->Object();
+    TString filename = m_wd + "/config/TAMSDdetector.cfg";
+    parconf->FromFile(filename.Data());
 
-   myp_msdgeo    = new TAGparaDsc("msdGeo", new TAMSDparGeo());
+    myp_msdgeo    = new TAGparaDsc("msdGeo", new TAMSDparGeo());
+    ((TAMSDparGeo*) myp_msdgeo->Object())->InitGeo();
+    top->AddNode( ((TAMSDparGeo*) myp_msdgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("Strip",0,0,0)) );
 
-   mya_msdraw   = new TAMSDactNtuMC("msdActRaw", myn_msdraw, myp_msdgeo, myp_msdmap, myStr);
+    mya_msdraw   = new TAMSDactNtuMC("msdActRaw", myn_msdraw, myp_msdgeo, myp_msdmap, myStr);
 
-   gTAGroot->AddRequiredItem("msdRaw");
+    gTAGroot->AddRequiredItem("msdRaw");
+}
+
+
+
+
+
+
+
+
+//----------------------------------------------------------------------------------------------------
+void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
+
+    /*Ntupling the MC Tof Wall information*/
+    myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
+    
+    myp_twgeo    = new TAGparaDsc("twGeo", new TATWparGeo());
+    ((TATWparGeo*) myp_twgeo->Object())->InitGeo();
+    top->AddNode( ((TATWparGeo*) myp_twgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
+
+    new TATWactNtuMC("an_twraw", myn_twraw, myStr);
+    // my_out->SetupElementBranch(myn_twraw,     "twrh.");
+
+    gTAGroot->AddRequiredItem("myn_twraw");
 }
 
 
@@ -648,26 +602,19 @@ void Booter::FillMCMSD(EVENT_STRUCT *myStr) {
 
 
 //----------------------------------------------------------------------------------------------------
-void Booter::FillMCInnerTracker(EVENT_STRUCT *myStr) {
+void Booter::FillMCCalorimeter(EVENT_STRUCT *myStr) {
 
-   /*Ntupling the MC Vertex information*/
-   myn_itraw    = new TAGdataDsc("itRaw", new TAITntuRaw());
-   // myn_itclus   = new TAGdataDsc("itClus", new TAITntuCluster());
+    /*Ntupling the MC Calorimeter information*/
+    myn_caraw    = new TAGdataDsc("myn_caraw", new TACAdatRaw());
+    new TACAactNtuMC("an_caraw", myn_caraw, myStr);
+    // my_out->SetupElementBranch(myn_caraw,     "carh.");
 
-   myp_itmap    = new TAGparaDsc("itMap", new TAITparMap());
+    // m_cageo->InitGeo();
+    // top->AddNode( m_cageo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_cageo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
 
-   // remove?
-   myp_itconf  = new TAGparaDsc("itConf", new TAITparConf());
-   TAITparConf* parconf = (TAITparConf*) myp_itconf->Object();
-   TString filename = m_wd + "/config/TAITdetector.cfg";
-   parconf->FromFile(filename.Data());
-
-   myp_itgeo    = new TAGparaDsc("itGeo", new TAITparGeo());
-   mya_itraw   = new TAITactNtuMC("itActRaw", myn_itraw, myp_itgeo, myp_itmap, myStr);
-
-   gTAGroot->AddRequiredItem("itRaw");
-
+    gTAGroot->AddRequiredItem("myn_caraw");
 }
+
 
 
 

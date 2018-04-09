@@ -37,7 +37,7 @@ class RecoTools {
   ~RecoTools() {};
 
   //Reconstructions
-  void RecoLoop(TAGroot *tagr, int fr);
+  void RecoLoop(int fr);
 
   // //Actions for Tupling MC info for the various subdetectors
   void FillMCEvent(EVENT_STRUCT *myStr);

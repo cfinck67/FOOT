@@ -101,7 +101,7 @@ int main (int argc, char *argv[]) {
 
   RecoTools d(debug,in,alist,out,wdir,nTotEv, hF);
 
-  d.RecoLoop(&tagroot,pl_freq);
+  d.RecoLoop(pl_freq);
 
   hF->Close();
 
