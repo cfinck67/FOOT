@@ -24,7 +24,7 @@ TOBJ_all   = TAITdatRaw.hxx  TAITntuRaw.hxx \
 			 # TAITactAscReader.hxx TAITrawEvent.hxx TAITactAscRaw.hxx TAITparCal.hxx\
 			 #  TAITntuCluster.hxx \
 			 # TAITntuTrack.hxx TAITactBaseNtuCluster.hxx TAITactNtuClusterF.hxx\
-			 # TAITactNtuCluster.hxx TAITactBaseNtuTrack.hxx \
+			 # TAITactBaseNtuTrack.hxx \
 			 # TAITactNtuTrack.hxx  TAITactNtuTrackF.hxx  TAITactNtuTrackH.hxx 
 #	   TAITactNtuPostTrack.hxx         TAITeventDisplay.hxx TAITntuAlign.hxx TAITalign.hxx TAITactDatRaw.hxx 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
