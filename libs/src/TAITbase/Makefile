@@ -21,12 +21,12 @@ TOBJ_all   = TAITdatRaw.hxx  TAITntuRaw.hxx \
 	         TAITparMap.hxx TAITparGeo.hxx  TAITparConf.hxx  TAITparTools.hxx\
 			 TAITactNtuRaw.hxx TAITactNtuMC.hxx
 			 # TAITactBaseRaw.hxx \
-			 # TAITactAscReader.hxx TAITrawEvent.hxx TAITactAscRaw.hxx TAITparCal.hxx\
+			 #  TAITrawEvent.hxx  TAITparCal.hxx\
 			 #  TAITntuCluster.hxx \
 			 # TAITntuTrack.hxx TAITactBaseNtuCluster.hxx TAITactNtuClusterF.hxx\
 			 # TAITactBaseNtuTrack.hxx \
-			 # TAITactNtuTrack.hxx  TAITactNtuTrackF.hxx  TAITactNtuTrackH.hxx 
-#	   TAITactNtuPostTrack.hxx         TAITeventDisplay.hxx TAITntuAlign.hxx TAITalign.hxx TAITactDatRaw.hxx 
+			 # TAITactNtuTrack.hxx  TAITactNtuTrackF.hxx
+#	   TAITactNtuPostTrack.hxx         TAITeventDisplay.hxx   TAITactDatRaw.hxx 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #
 OBJ_all    = $(CXX_all:.cxx=.o) $(TOBJ_all:.hxx=.cint.o) 
