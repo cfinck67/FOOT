@@ -49,11 +49,11 @@ Bool_t TATWactNtuMC::Action()
   for (Int_t i = 0; i < fpEvtStr->SCNn; i++) {
     //First two numbers make sense only for data (typ, channel)
     
-    TATWrawHit *mytmp = new((*(p_nturaw->hir))[i]) 
-      TATWrawHit(0,0,fpEvtStr->SCNde[i],fpEvtStr->SCNtim[i]);
+     TATWrawHit *mytmp = new((*(p_nturaw->hir))[i])
+     TATWrawHit(0,0,fpEvtStr->SCNde[i],fpEvtStr->SCNtim[i]);
     
-    mytmp->SetMCID(fpEvtStr->SCNid[i]);
-    nhits++;
+     mytmp->SetMCID(fpEvtStr->SCNid[i]);
+     nhits++;
   }
   
   p_nturaw->nirhit  = nhits;
