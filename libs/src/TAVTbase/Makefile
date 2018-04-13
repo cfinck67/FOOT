@@ -23,8 +23,8 @@ TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTparTools.hxx \
 	         TAVTactNtuRaw.hxx TAVTactNtuMC.hxx 	TAVTbaseDigitizer.hxx TAVTdigitizer.hxx TAVTdigitizerE.hxx \
 			   TAVTntuCluster.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx 
 
-          # TAVTactAscReader.hxx TAVTrawEvent.hxx TAVTactBaseRaw.hxx  \
-			 # TAVTactAscRaw.hxx	TAVTparCal.hxx 	\
+          # TAVTrawEvent.hxx TAVTactBaseRaw.hxx  \
+			 #	TAVTparCal.hxx 	\
 			 # TAVTntuTrack.hxx TAVTactBaseNtuTrack.hxx \
 			 # TAVTactNtuTrack.hxx  TAVTactNtuTrackF.hxx  TAVTactNtuTrackH.hxx TAVTactNtuPostTrack.hxx\
           # TAVTntuVertex.hxx TAVTactBaseNtuVertex.hxx TAVTactNtuVertex.hxx TAVTactNtuVertexPD.hxx\
