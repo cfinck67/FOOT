@@ -52,8 +52,8 @@ void TAITactNtuRaw::CreateHistogram()
    // for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
 	  // if (TAITparConf::IsMapHistOn()) {
 		 // fpHisPosMap[i] = new TH2F(Form("vtPosMap%d", i+1), Form("Vertex - position map for sensor %d", i+1), 
-			// 						 pGeoMap->GetPixelsNv(), -pGeoMap->GetPitchV()/2*pGeoMap->GetPixelsNv(), pGeoMap->GetPitchV()/2*pGeoMap->GetPixelsNv(),
-			// 						 pGeoMap->GetPixelsNu(), -pGeoMap->GetPitchU()/2*pGeoMap->GetPixelsNu(), pGeoMap->GetPitchU()/2*pGeoMap->GetPixelsNu());
+			// 						 pGeoMap->GetNPixelY(), -pGeoMap->GetPitchY()/2*pGeoMap->GetNPixelY(), pGeoMap->GetPitchY()/2*pGeoMap->GetNPixelY(),
+			// 						 pGeoMap->GetNPixelX(), -pGeoMap->GetPitchX()/2*pGeoMap->GetNPixelX(), pGeoMap->GetPitchX()/2*pGeoMap->GetNPixelX());
 		 // fpHisPosMap[i]->SetStats(kFALSE);
 		 // AddHistogram(fpHisPosMap[i]);
 	  // }

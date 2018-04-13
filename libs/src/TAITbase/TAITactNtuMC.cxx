@@ -60,8 +60,8 @@ void TAITactNtuMC::CreateHistogram()
  //      fpHisPixelMap[i] 
     // = new TH2F(Form("vtPixelMap%d", i+1)
     //     , Form("Vertex - pixel map for sensor %d", i+1), 
-    //     pGeoMap->GetPixelsNu(), 0, pGeoMap->GetPixelsNu(), 
-    //     pGeoMap->GetPixelsNv(), 0, pGeoMap->GetPixelsNv());
+    //     pGeoMap->GetNPixelX(), 0, pGeoMap->GetNPixelX(), 
+    //     pGeoMap->GetNPixelY(), 0, pGeoMap->GetNPixelY());
  //      fpHisPixelMap[i]->SetStats(kFALSE);
  //      AddHistogram(fpHisPixelMap[i]);
  //    }
@@ -72,14 +72,14 @@ void TAITactNtuMC::CreateHistogram()
  //      fpHisPosMap[i] = 
     // new TH2F(Form("vtPosMap%d", i+1), 
     //   Form("Vertex - position map for sensor %d", i+1), 
-    //   pGeoMap->GetPixelsNu(), -pGeoMap->GetPitchU()/2*pGeoMap->GetPixelsNu(), pGeoMap->GetPitchU()/2*pGeoMap->GetPixelsNu(),
-    //   pGeoMap->GetPixelsNv(), -pGeoMap->GetPitchV()/2*pGeoMap->GetPixelsNv(), pGeoMap->GetPitchV()/2*pGeoMap->GetPixelsNv());
+    //   pGeoMap->GetNPixelX(), -pGeoMap->GetPitchX()/2*pGeoMap->GetNPixelX(), pGeoMap->GetPitchX()/2*pGeoMap->GetNPixelX(),
+    //   pGeoMap->GetNPixelY(), -pGeoMap->GetPitchY()/2*pGeoMap->GetNPixelY(), pGeoMap->GetPitchY()/2*pGeoMap->GetNPixelY());
  //      fpHisPosMap[i]->SetStats(kFALSE);
  //      AddHistogram(fpHisPosMap[i]);
  //    }
     
  //    fpHisRateMap[i] = new TH1F(Form("vtRateMap%d", i+1), Form("Vertex - rate per line for sensor %d", i+1), 
-    //             pGeoMap->GetPixelsNu(), 0, pGeoMap->GetPixelsNu());
+    //             pGeoMap->GetNPixelX(), 0, pGeoMap->GetNPixelX());
  //    AddHistogram(fpHisRateMap[i]);
     
  //    fpHisRateMapQ[i] = new TH1F(Form("vtRateMapQ%d", i+1), Form("Vertex - rate per quadrant for sensor %d", i+1), 
@@ -133,8 +133,8 @@ Bool_t TAITactNtuMC::Action()
      myTrow = fpEvtStr->ITRirow[i] - 1;
      myTcol = fpEvtStr->ITRicol[i] - 1;
      /*
-     myTcol = pParMap->GetPixelsNu()-fpEvtStr->miSigCol[i];
-     myTrow = pParMap->GetPixelsNv()-fpEvtStr->miSigRow[i];
+     myTcol = pParMap->GetNPixelX()-fpEvtStr->miSigCol[i];
+     myTrow = pParMap->GetNPixelY()-fpEvtStr->miSigRow[i];
      */
 
 
