@@ -41,11 +41,11 @@ TAVTactNtuTrackH::TAVTactNtuTrackH(const char* name,
    TAVTparGeo* geoMap  = (TAVTparGeo*) fpGeoMap->Object();
 
    fpHisHoughXZ = new TH2F("vtHoughXZ", "Hough Transform XZ space",534,-1.6,1.6,
-						   140,-geoMap->GetPitchU()*geoMap->GetPixelsNu()/2., geoMap->GetPitchU()*geoMap->GetPixelsNu()/2.);
+						   140,-geoMap->GetPitchX()*geoMap->GetNPixelX()/2., geoMap->GetPitchX()*geoMap->GetNPixelX()/2.);
    fpHisHoughXZ->SetStats(kFALSE);
    
    fpHisHoughYZ = new TH2F("vtHoughYZ", "Hough Transform YZ space",400,-1.6,1.6,
-						   140,-geoMap->GetPitchU()*geoMap->GetPixelsNu()/2., geoMap->GetPitchU()*geoMap->GetPixelsNu()/2.);
+						   140,-geoMap->GetPitchX()*geoMap->GetNPixelX()/2., geoMap->GetPitchX()*geoMap->GetNPixelX()/2.);
    fpHisHoughYZ->SetStats(kFALSE);
    
    fListOfVertices->SetOwner(true);

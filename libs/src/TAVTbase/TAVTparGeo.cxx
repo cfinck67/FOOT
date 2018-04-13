@@ -37,6 +37,8 @@ TAVTparGeo::TAVTparGeo() {
     m_passiveCount = -1;
     m_setW_0number = 2;
 
+    m_numberOfSensors = 0;
+
     m_debug = GlobalPar::GetPar()->Debug();
 
     // fill m_materialOrder, m_materialThick, m_materialType
@@ -91,8 +93,9 @@ TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
     m_layerDistance_interPair(original->m_layerDistance_interPair),
 
     m_nPixel_X(original->m_nPixel_X),
-    m_nPixel_Y(original->m_nPixel_Y)         {
+    m_nPixel_Y(original->m_nPixel_Y)         
 
+{
     SensorMatrix m_sensorMatrix = original->m_sensorMatrix;
 }
 
@@ -404,6 +407,17 @@ TVector3 TAVTparGeo::GetPosition( int layer, int col, int row )  {
 }
 
 
+
+//_____________________________________________________________________________
+Float_t TAVTparGeo::GetPositionU(Int_t column) const {
+   return ((2*column - m_nPixel_X + 1 ) * m_Pitch_X)/2 ;
+ }
+ 
+//_____________________________________________________________________________
+Float_t TAVTparGeo::GetPositionV(Int_t line) const{
+   return -((2*line - m_nPixel_Y + 1 ) * m_Pitch_Y)/2 ;   
+}
+ 
 
 
 

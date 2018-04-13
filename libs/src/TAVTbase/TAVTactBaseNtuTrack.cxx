@@ -102,8 +102,8 @@ void TAVTactBaseNtuTrack::CreateHistogram()
    for (Int_t i = 0; i < pConfig->GetSensorsN(); ++i) {
 	  if (TAVTparConf::IsMapHistOn()) {
 		 fpHisTrackMap[i] = new TH2F(Form("vtTrackMap%d", i+1), Form("Vertex - Tracks map for sensor %d", i+1), 
-									 100, -pGeoMap->GetPitchV()*pGeoMap->GetPixelsNv()/2., pGeoMap->GetPitchV()*pGeoMap->GetPixelsNv()/2., 
-									 100, -pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2., pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2.);
+									 100, -pGeoMap->GetPitchY()*pGeoMap->GetNPixelY()/2., pGeoMap->GetPitchY()*pGeoMap->GetNPixelY()/2., 
+									 100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2.);
 		 fpHisTrackMap[i]->SetMarkerStyle(24);
 		 fpHisTrackMap[i]->SetMarkerSize(1.);
 		 fpHisTrackMap[i]->SetMarkerColor(3);
@@ -146,14 +146,14 @@ void TAVTactBaseNtuTrack::CreateHistogram()
    AddHistogram(fpHisPhi);
    
    fpHisBeamProf = new TH2F("vtBeamProf", "Vertex Beam Profile", 
-							100, -pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2., pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2., 
-							100, -pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2., pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2.);
+							100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., 
+							100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2.);
    fpHisBeamProf->SetStats(kFALSE);
    AddHistogram(fpHisBeamProf);
    
    fpHisBmBeamProf = new TH2F("bmBeamProf", "BM Beam Profile", 
-							  100, -pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2., pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2., 
-							  100, -pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2., pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2.);
+							  100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., 
+							  100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2.);
    fpHisBmBeamProf->SetStats(kFALSE);
    AddHistogram(fpHisBmBeamProf);
    

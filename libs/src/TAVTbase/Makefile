@@ -18,20 +18,12 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 # Files to be included
 #
-TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTparTools.hxx \
-	         TAVTparMap.hxx TAVTparGeo.hxx  TAVTparConf.hxx \
-	         TAVTactNtuRaw.hxx TAVTactNtuMC.hxx 	
-			 # TAVTactAscReader.hxx TAVTrawEvent.hxx TAVTactBaseRaw.hxx  \	
-			 # TAVTactAscRaw.hxx	TAVTparCal.hxx 	\
-			 
-			 # TAVTntuCluster.hxx \
-			 # TAVTntuTrack.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx\
-			 # TAVTactNtuCluster.hxx TAVTactBaseNtuTrack.hxx \
-			 # TAVTactNtuTrack.hxx  TAVTactNtuTrackF.hxx  TAVTactNtuTrackH.hxx TAVTactNtuPostTrack.hxx\
-    #          TAVTntuVertex.hxx TAVTactBaseNtuVertex.hxx TAVTactNtuVertex.hxx TAVTactNtuVertexPD.hxx\
-	   #           TAVTeventDisplayMC.hxx TAVTbaseEventDisplay.hxx 
+TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTntuHit.hxx TAVTparTools.hxx \
+	         TAVTparMap.hxx TAVTparGeo.hxx  TAVTparConf.hxx  \
+	         TAVTactNtuRaw.hxx TAVTactNtuMC.hxx 	TAVTbaseDigitizer.hxx TAVTdigitizer.hxx TAVTdigitizerE.hxx \
+			 TAVTntuCluster.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx TAVTactNtuCluster.hxx	
 
-
+			
 #	            TAVTeventDisplay.hxx TAVTntuAlign.hxx TAVTalign.hxx TAVTactDatRaw.hxx 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #

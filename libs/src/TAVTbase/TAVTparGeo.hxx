@@ -59,6 +59,9 @@ public:
     void InitGeo();
     void InitMaterial();
 
+    Float_t GetPositionU(Int_t column)         const;
+    Float_t GetPositionV(Int_t line)           const;
+
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id
     void Global2Local( TVector3* glob );
@@ -89,8 +92,11 @@ public:
 
     double GetNPixelX() { return m_nPixel_X; };
     double GetNPixelY() { return m_nPixel_Y; };
-    int GetNLayers() { return m_nSensors_Z; };
+    int GetNLayers()    { return m_nSensors_Z; };
+    int GetNSensors()    { return m_numberOfSensors; };
 
+    double GetPitchX()  { return m_Pitch_X; };
+    double GetPitchY()  { return m_Pitch_Y; };
     
     string PrintBodies();
     string PrintRegions();
@@ -125,6 +131,7 @@ private:
     int m_nSensors_X;
     int m_nSensors_Y;
     int m_nSensors_Z;
+    int m_numberOfSensors;
     TVector3 m_NSensors;
 
     vector<string> m_materialOrder;
@@ -150,6 +157,8 @@ private:
 
     int m_debug;
     int m_setW_0number;
+    double m_Pitch_X;
+    double m_Pitch_Y;
 
     double m_xmin, m_ymin;
 

@@ -4,11 +4,6 @@
   \brief   Implementation of TAVTntuRaw.
 */
 
-#include "TString.h"
-#include "TClonesArray.h"
-
-#include "TAVTntuRaw.hxx"
-#include "TAVTparMap.hxx"
 
 /*!
   \class TAVTntuRaw TAVTntuRaw.hxx "TAVTntuRaw.hxx"
@@ -22,154 +17,18 @@
 ////////////////////////////////////////////////////////////
 
 
+#include "TString.h"
+#include "TClonesArray.h"
+
 #include "TAVTntuRaw.hxx"
+#include "TAVTparMap.hxx"
+
+
+#include "TAVTntuRaw.hxx"
+
 #include "TAVTdatRaw.hxx"
 
-ClassImp(TAVTntuHit) // Description of Single Detector TAVTntuHit 
-//______________________________________________________________________________
-//  
-TAVTntuHit::TAVTntuHit()
-{ 
-   // TAVTntuHit default constructor
-}
 
-//______________________________________________________________________________
-//  
-
-TAVTntuHit::~TAVTntuHit()
-{
-   // TAVTntuHit default destructor
-   
-}
-//______________________________________________________________________________
-//  
-TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, TAVTrawHit* pixel)
-: TObject(),
-  fSensorNumber(aSensorNumber),
-  fMCid(-1),
-  fFound(kFALSE),
-  fDebugLevel(0)
-{
-   // constructor of a TAVTntuHit from a base pixel
-   
-   fPixelLine    = pixel->GetLineNumber();
-   fPixelColumn  = pixel->GetColumnNumber();
-   fPixelIndex   = pixel->GetIndex();
-
-   fRawValue     = pixel->GetValue();
-   fPulseHeight  = fRawValue;   
-
-   fPosition.SetXYZ(0, 0, 0);
-   fSize.SetXYZ(0, 0, 0);
-   
-   fMCPos.SetXYZ(0, 0, 0);
-   fMCP.SetXYZ(0, 0, 0);
-   
-   if(fDebugLevel > 1)
-	  printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
-}
-
-//______________________________________________________________________________
-//  
-TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aValue)
-: TObject(),
-  fSensorNumber(aSensorNumber),
-  fMCid(-1),
-  fPixelIndex(aPixelIndex),
-  fPixelLine(0),
-  fPixelColumn(0),
-  fRawValue(aValue),
-  fFound(kFALSE),
-  fDebugLevel(0)
-{
-   // constructor of a Pixel 
-   fPosition.SetXYZ(0, 0, 0);
-   fSize.SetXYZ(0, 0, 0);
-   
-   fMCPos.SetXYZ(0, 0, 0);
-   fMCP.SetXYZ(0, 0, 0);
-   
-   fPulseHeight    = fRawValue; 
-   
-   if(fDebugLevel>1)
-	  printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
-   
-}
-
-//______________________________________________________________________________
-//  
-TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t aColumn)
-: TObject(),
-  fSensorNumber(aSensorNumber),
-  fMCid(-1),
-  fPixelIndex(0),
-  fPixelLine(aLine),
-  fPixelColumn(aColumn),
-  fRawValue(aValue),
-  fFound(kFALSE),
-  fDebugLevel(0)
-{
-   // constructor of a Pixel with column and line 
-   
-   fPosition.SetXYZ(0, 0, 0);
-   fSize.SetXYZ(0, 0, 0);
-   
-   fMCPos.SetXYZ(0, 0, 0);
-   fMCP.SetXYZ(0, 0, 0);
-   
-   fPulseHeight    = fRawValue; 
-   
-   if(fDebugLevel > 1) 
-	  printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
-}
-
-//______________________________________________________________________________
-//  
-Double_t TAVTntuHit::Distance(TAVTntuHit &aPixel)
-{
-   return Distance(aPixel.GetPosition());
-}
-
-//______________________________________________________________________________
-//  
-Double_t TAVTntuHit::Distance(const TVector3& aPosition)
-{
-   TVector3 result(fPosition);
-   result -= aPosition; 
-   return result.Perp();
-}
-
-//______________________________________________________________________________
-//  
-Double_t TAVTntuHit::DistanceU(TAVTntuHit &aPixel)
-{
-   return DistanceU(aPixel.GetPosition());
-}
-
-//______________________________________________________________________________
-//  
-Double_t TAVTntuHit::DistanceU(const TVector3& aPosition)
-{
-   TVector3 result(fPosition);
-   result -= aPosition; 
-   return result(0);
-}
-
-//______________________________________________________________________________
-//  
-Double_t TAVTntuHit::DistanceV(TAVTntuHit &aPixel)
-{
-   return DistanceV(aPixel.GetPosition());
-}
-
-//______________________________________________________________________________
-//  
-Double_t TAVTntuHit::DistanceV(const TVector3& aPosition)
-{
-   TVector3 result(fPosition);
-   result -= aPosition; 
-   return result(1);
-}
 
 //##############################################################################
 
@@ -243,6 +102,8 @@ TAVTntuHit* TAVTntuRaw::GetPixel(Int_t iSensor, Int_t iPixel)
    }   
 }
 
+
+
 //------------------------------------------+-----------------------------------
 //! return a pixel for a given sensor
 const TAVTntuHit* TAVTntuRaw::GetPixel(Int_t iSensor, Int_t iPixel) const
@@ -255,6 +116,8 @@ const TAVTntuHit* TAVTntuRaw::GetPixel(Int_t iSensor, Int_t iPixel) const
 	  return 0x0;
    }   
 }
+
+
 
 //------------------------------------------+-----------------------------------
 //! Setup clones.
@@ -271,16 +134,21 @@ void TAVTntuRaw::SetupClones()
    fListOfPixels->SetOwner(true);
 }
 
+
+
 //------------------------------------------+-----------------------------------
 //! Clear event.
-void TAVTntuRaw::Clear(Option_t*)
-{
+void TAVTntuRaw::Clear(Option_t*) {
+
    for (Int_t i = 0; i < TAVTparMap::GetSensorsN(); ++i) {
-	  TClonesArray* list = GetListOfPixels(i);
-	  list->Delete();   
-   list->Clear();
+        TClonesArray* list = GetListOfPixels(i);
+        // list->Delete();   
+        // list->Clear();
+        list->Clear("C");
  }
 }
+
+
 
 //______________________________________________________________________________
 //  
@@ -296,6 +164,8 @@ TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, Double_t value, Int_t aLine, Int
    }
 }
 
+
+
 //______________________________________________________________________________
 //  
 TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, TAVTrawHit* rawPixel)
@@ -309,6 +179,28 @@ TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, TAVTrawHit* rawPixel)
 	  return 0x0;
    }   
 }
+
+
+//______________________________________________________________________________
+//  
+TAVTntuHit* TAVTntuRaw::AddPixel(int iSensor, double value, int aLine, int aColumn) {
+
+    if ( iSensor >= 0  || iSensor < TAVTparMap::GetSensorsN() ) {  
+
+        // loop over already saved pixel
+        for ( int j = 0; j < GetPixelsN(iSensor); j++ ) {
+            // check if already saved an hit on the same pixel 
+            if ( GetPixel(iSensor,j)->GetPixelLine() == aLine && GetPixel(iSensor,j)->GetPixelColumn() == aColumn ) {
+                
+                // GetPixel(iSensor,j)->AddSuperimposedPixel( value, hitSource );
+                return GetPixel(iSensor,j);
+            }
+        }
+    }
+    // if not find same coordinate pixel, add it
+    return NewPixel(iSensor, value, aLine, aColumn);
+}
+
 
 /*------------------------------------------+---------------------------------*/
 //! ostream insertion.
@@ -330,3 +222,32 @@ void TAVTntuRaw::ToStream(ostream& os, Option_t* option) const
 	  }
    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

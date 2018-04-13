@@ -61,19 +61,18 @@ void TAVTactBaseNtuCluster::CreateHistogram()
    fpHisPixelTot = new TH1F("vtClusPixelTot", "Vertex - Total # pixels per clusters", 100, 0., 100.);
    AddHistogram(fpHisPixelTot);
    
-   TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
    
-   for (Int_t i = 0; i < pConfig->GetSensorsN(); ++i) {
+   for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
 	  fpHisPixel[i] = new TH1F(Form("vtClusPixel%d", i+1), Form("Vertex - # pixels per clusters for sensor %d", i+1), 100, 0., 100.);
 	  AddHistogram(fpHisPixel[i]);
    }
    
-   for (Int_t i = 0; i < pConfig->GetSensorsN(); ++i) {
+   for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
 	  if (TAVTparConf::IsMapHistOn()) {
 		 fpHisClusMap[i] = new TH2F(Form("vtClusMap%d", i+1), Form("Vertex - clusters map for sensor %d", i+1), 
-									100, -pGeoMap->GetPitchV()*pGeoMap->GetPixelsNv()/2., pGeoMap->GetPitchV()*pGeoMap->GetPixelsNv()/2., 
-									100, -pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2., pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2.);
+									100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchY()*pGeoMap->GetNPixelX()/2.,
+									100, -pGeoMap->GetPitchY()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchY()*pGeoMap->GetNPixelX()/2.);
 		 fpHisClusMap[i]->SetMarkerStyle(20);
 		 fpHisClusMap[i]->SetMarkerSize(.6);
 		 fpHisClusMap[i]->SetMarkerColor(1);
