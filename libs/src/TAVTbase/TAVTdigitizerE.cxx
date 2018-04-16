@@ -129,8 +129,8 @@ Bool_t TAVTdigitizerE::MakeCluster(Double_t x0, Double_t y0, Double_t /*zin*/, D
    // remove pixels until the pixels number is reached
    RemovePixels(rpixels);
    
-   return true;}
-
+   return true;
+}
 
 //_____________________________________________________________________________
 Bool_t TAVTdigitizerE::SetRegion(Float_t x0, Float_t y0)
