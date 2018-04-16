@@ -13,7 +13,7 @@
 
 #include "TObject.h"
 
-#include "TAITparTools.hxx"
+#include "TAVTparTools.hxx"
 
 #include "IronPlate.hxx"
 #include "FootBox.hxx"
@@ -28,7 +28,7 @@ class TGeoHMatrix;
 class TGeoVolume;
 //##############################################################################
 
-class TAITparGeo : public TAITparTools {
+class TAITparGeo : public TAVTparTools {
 
 // object to be used as 3D matrix of sensors
 typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
