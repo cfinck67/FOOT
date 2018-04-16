@@ -254,15 +254,16 @@ const Double_t MAG_X 		=0.0;//center x coordinate of the first magnets
 const Double_t MAG_Y 		=0.0;//center y coordinate of the first magnets
 const Double_t MAG_Z 		=14.;//center z coordinate btw the magnets
 
-const Double_t MAG_DIST		=12.0;//distance btw magnets (from zmin1 to zmin2)
 const Int_t    MAG_N		=2;//no. of magnets
 
 const Double_t MAG_ANG		=10.*DEG2RAD;//required semiapertura angolare
 
 const Double_t MAG_PM_THICK 	=10.;//thickness of permanent magnets
-const Double_t MAG_PM_LENGTH 	=7.;//length of permanent magnets
+const Double_t MAG_PM_LENGTH 	=10.;//length of permanent magnets
 const Double_t MAG_CV_THICK 	=0.2;//thickness of Al cover
 const Double_t MAG_CV_LENGTH 	=MAG_PM_LENGTH+2*MAG_CV_THICK;//length of magnets Al cover
+/* const Double_t MAG_DIST		=5.+MAG_PM_LENGTH;//distance btw magnets (from zmin1 to zmin2) */
+const Double_t MAG_DIST		=12.;//distance btw magnets (from zmin1 to zmin2center to center)
 
 const Double_t MAG_CV1_INRAD 	=3.5;//(MAG_Z+MAG_CV_LENGTH/2+MAG_DIST-TG_Z)*tan(MAG_ANG);//inner radius of magnet 1 Al cover
 const Double_t MAG_PM1_INRAD 	=MAG_CV1_INRAD+MAG_CV_THICK;//inner radius of permanent magnet 1

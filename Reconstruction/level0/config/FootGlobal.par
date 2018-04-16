@@ -34,13 +34,14 @@ IncludeIR:			n
 IncludeVertex:		y
 IncludeInnerTracker:	y
 IncludeMSD:			y
-IncludeTW:			n
+IncludeTW:			y
 IncludeCA:			n
 
 IncludeEvent:		n
 
 
-Magnetic field map name:  DoubleDipole.table
+Magnetic field map name:  SummedSingleMap.table
+#Magnetic field map name:  DoubleDipole.table
 #Magnetic field map name:  DoubleGaussMag.table
 
 
@@ -51,4 +52,4 @@ Print OutputNtuple: false
 Output Ntuplename: RecoTree.root
 
 Create Reconstruction Geo: y
-Print FLUKA Geo input files: n
+Print FLUKA Geo input files: y

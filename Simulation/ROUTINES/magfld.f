@@ -40,7 +40,8 @@
       PARAMETER (NX=21) 
       PARAMETER (NY=21) 
       PARAMETER (NZ=121)
-      PARAMETER (ZSHIFT=14.D+00)
+      PARAMETER (ZSHIFT=0.D+00)
+*      PARAMETER (ZSHIFT=14.D+00)
 *      PARAMETER (ZSHIFT=14.7D+00)
       PARAMETER (G2T=1.D-04)
 
@@ -67,8 +68,8 @@
          
       IF (LFIRST) THEN 
          
+         CALL OAUXFI('SummedSingleMap.table',22,'OLD',IERR)
 *         CALL OAUXFI('DoubleDipole.table',22,'OLD',IERR)
-         CALL OAUXFI('DoubleDipole.table',22,'OLD',IERR)
          
          DO I=1,NX
             DO J=1,NY

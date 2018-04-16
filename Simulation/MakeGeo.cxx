@@ -219,21 +219,27 @@ int main (int argc, char *argv[]) {
     geofile << "* ***Magnets\n";    
     geofile << "RCC MagCvOu0   " << MAG_X << " " << MAG_Y << " "
 	    << MAG_Z - MAG_CV_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
+	    // << MAG_Z - MAG_DIST/2. << " 0.000000 0.000000 "
 	    << MAG_CV_LENGTH << " " << MAG_CV0_OUTRAD << endl;
     geofile << "RCC MagCvOu1   " << MAG_X << " " << MAG_Y << " "
 	    << MAG_Z - MAG_CV_LENGTH/2. + MAG_DIST/2. << " 0.000000 0.000000 "
+	    // << MAG_Z + MAG_DIST/2. << " 0.000000 0.000000 "
 	    << MAG_CV_LENGTH << " " << MAG_CV1_OUTRAD << endl;
     geofile << "RCC MagPMOu0   " << MAG_X << " " << MAG_Y << " "
 	    << MAG_Z - MAG_PM_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
+	    // << MAG_Z - MAG_DIST/2. << " 0.000000 0.000000 "
 	    << MAG_PM_LENGTH << " " << MAG_PM0_OUTRAD << endl;
     geofile << "RCC MagPMOu1   " << MAG_X << " " << MAG_Y << " "
 	    << MAG_Z - MAG_PM_LENGTH/2. + MAG_DIST/2. << " 0.000000 0.000000 "
+	    // << MAG_Z + MAG_DIST/2. << " 0.000000 0.000000 "
 	    << MAG_PM_LENGTH << " " << MAG_PM1_OUTRAD << endl;
     geofile << "RCC MagPMIn0   " << MAG_X << " " << MAG_Y << " "
 	    << MAG_Z - MAG_PM_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
+	    // << MAG_Z - MAG_DIST/2. << " 0.000000 0.000000 "
 	    << MAG_PM_LENGTH << " " << MAG_PM0_INRAD << endl;
     geofile << "RCC MagPMIn1   " << MAG_X << " " << MAG_Y << " "
 	    << MAG_Z - MAG_PM_LENGTH/2. + MAG_DIST/2. << " 0.000000 0.000000 "
+	    // << MAG_Z + MAG_DIST/2. << " 0.000000 0.000000 "
 	    << MAG_PM_LENGTH << " " << MAG_PM1_INRAD << endl;
     geofile << "* ***Gap for magnets\n";
     geofile << "ZCC Gap0       0.000000 0.000000 " << MAG_CV0_INRAD << endl;

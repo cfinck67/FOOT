@@ -52,7 +52,14 @@ public:
 
   TVector3 GetMinCoord() { 
     TVector3 tmpCenter = TVector3(m_origin);
-
+    //per definire lo spigolo in cui ho xmin,ymin,zmin
+    //all'origine sottraggo il vettore m_halfLength ma,
+    // se c'è una rotazione, la applico subito a m_halfLength,
+    //in modo da trovare lo spigolo corretto, altrimenti
+    //se faccio la rotazione solo dopo la sottrazione c'è
+    //il rischio che lo spigolo trovato non corrisponda più
+    //a xmin,ymin,zmin ma, per es a xmax,ymin,zmin o
+    //xmin,ymax,zmin a seconda della rotazione che deve fare.
     TVector3 tmpHalf = TVector3(m_halfLength);
     Local2Global_RotationOnly(&tmpHalf);
     tmpHalf.SetX(fabs(tmpHalf.x()));
@@ -68,7 +75,7 @@ public:
 
   TVector3 GetMaxCoord() { 
     TVector3 tmpCenter = TVector3(m_origin);
-    
+    //faccio come per getmincoord
     TVector3 tmpHalf = TVector3(m_halfLength);
     Local2Global_RotationOnly(&tmpHalf);
     tmpHalf.SetX(fabs(tmpHalf.x()));
