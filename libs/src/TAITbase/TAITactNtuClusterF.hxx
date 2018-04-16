@@ -6,15 +6,10 @@
  \brief   Declaration of TAITactNtuClusterF.
  */
 /*------------------------------------------+---------------------------------*/
-#include <map>
-#include "TArrayI.h"
 
-#include "TAITactBaseNtuCluster.hxx"
+#include "TAVTactNtuClusterF.hxx"
 
-class TAITcluster;
-class TAITntuHit;
-
-class TAITactNtuClusterF : public TAITactBaseNtuCluster {
+class TAITactNtuClusterF : public TAVTactNtuClusterF {
    
 public:
    explicit  TAITactNtuClusterF(const char* name     =  0,
@@ -25,20 +20,6 @@ public:
    
    virtual ~TAITactNtuClusterF();
    
-   //! Find cluster charge, noise & position
-   Bool_t  FindClusters(Int_t iSensor);  
-   
-   //! Compute position
-   void    ComputePosition();
-   
-private: 
-   Bool_t  ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY);
-   
-private:
-   
-   map<Int_t, Int_t> fPixelMap; // pixel map;
-   map<Int_t, Int_t> fIndexMap; // index map of the pixel;
-   TArrayI fFlagMap;
    
    ClassDef(TAITactNtuClusterF,0)
 };
