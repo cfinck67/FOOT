@@ -25,12 +25,11 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 TOBJ_all   = TAITdatRaw.hxx  TAITntuRaw.hxx \
 	         TAITparMap.hxx TAITparGeo.hxx  TAITparConf.hxx  TAITparTools.hxx\
 			 TAITactNtuRaw.hxx TAITactNtuMC.hxx
-			 # TAITactBaseRaw.hxx \
-			 # TAITactAscReader.hxx TAITrawEvent.hxx TAITactAscRaw.hxx TAITparCal.hxx\
+			 #  TAITrawEvent.hxx TAITactAscRaw.hxx TAITparCal.hxx\
 			 #  TAITntuCluster.hxx \
 			 # TAITntuTrack.hxx TAITactBaseNtuCluster.hxx TAITactNtuClusterF.hxx\
-			 # TAITactNtuCluster.hxx TAITactBaseNtuTrack.hxx \
-			 # TAITactNtuTrack.hxx  TAITactNtuTrackF.hxx  TAITactNtuTrackH.hxx 
+			 #  TAITactBaseNtuTrack.hxx \
+			 # TAITactNtuTrack.hxx  TAITactNtuTrackF.hxx
 #	   TAITactNtuPostTrack.hxx         TAITeventDisplay.hxx TAITntuAlign.hxx TAITalign.hxx TAITactDatRaw.hxx 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #
