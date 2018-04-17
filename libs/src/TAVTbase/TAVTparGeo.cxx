@@ -37,8 +37,6 @@ TAVTparGeo::TAVTparGeo() {
     m_passiveCount = -1;
     m_setW_0number = 2;
 
-    m_numberOfSensors = 0;
-
     m_debug = GlobalPar::GetPar()->Debug();
 
     // fill m_materialOrder, m_materialThick, m_materialType
@@ -78,10 +76,10 @@ TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
     m_center(original->m_center),  // current position
     m_dimension(original->m_dimension),
 
-    m_nSensors_X(original->m_nSensors_X),
-    m_nSensors_Y(original->m_nSensors_Y),
-    m_nSensors_Z(original->m_nSensors_Z),
-    m_NSensors (original->m_NSensors),
+    // m_nSensors_X(original->m_nSensors_X),
+    // m_nSensors_Y(original->m_nSensors_Y),
+    // m_nSensors_Z(original->m_nSensors_Z),
+    m_nSensors (original->m_nSensors),
 
     m_materialOrder(original->m_materialOrder),
 
@@ -111,10 +109,10 @@ void TAVTparGeo::InitGeo()  {
     m_origin = TVector3(0,0,0);                         // center in local coord.
     m_center = TVector3(VTX_X, VTX_Y, VTX_Z);           // center in global coord.
 
-    m_nSensors_X = 1;
-    m_nSensors_Y = 1;
-    m_nSensors_Z = VTX_NLAY;
-    TVector3 m_NSensors = TVector3( m_nSensors_X, m_nSensors_Y, m_nSensors_Z );
+    // m_nSensors_X = 1;
+    // m_nSensors_Y = 1;
+    // m_nSensors_Z = VTX_NLAY;
+    m_nSensors = TVector3( 1, 1, VTX_NLAY );
 
 
 //---------------------------------------------------------------------
@@ -154,15 +152,15 @@ void TAVTparGeo::InitGeo()  {
 
     // fill sensor matrix
     double sensor_newZ = m_origin.Z() - m_dimension.z()/2 +0.5*m_siliconSensorThick_Lz;
-    m_sensorMatrix.resize( m_nSensors_Z );
-    for (int k=0; k<m_nSensors_Z; k++) {
+    m_sensorMatrix.resize( m_nSensors.Z() );
+    for (int k=0; k<m_nSensors.Z(); k++) {
         if ( k!=0 )     // increment the layer distance Z, distance not uniform
             sensor_newZ += ( k%2 != 0 ? m_layerDistance_samePair : m_layerDistance_interPair );
-        m_sensorMatrix[k].resize( m_nSensors_X );
-        for (int i=0; i<m_nSensors_X; i++) {
+        m_sensorMatrix[k].resize( m_nSensors.X() );
+        for (int i=0; i<m_nSensors.X(); i++) {
             double sensor_newX = m_origin.X();  
-            m_sensorMatrix[k][i].resize( m_nSensors_Y );
-            for (int j=0; j<m_nSensors_Y; j++) {
+            m_sensorMatrix[k][i].resize( m_nSensors.Y() );
+            for (int j=0; j<m_nSensors.Y(); j++) {
                 double sensor_newY = m_origin.Y();
 
                 m_sensorMatrix[k][i][j] = new IronPlate();
@@ -196,16 +194,16 @@ void TAVTparGeo::InitGeo()  {
     if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry" << endl;
 
     double passiveSi_Z = m_origin.Z() - m_dimension.z()/2 +0.5*m_siliconSensorThick_Lz;
-    m_passiveMatrix.resize( m_nSensors_Z );
-    for (int k=0; k<m_nSensors_Z; k++) {
+    m_passiveMatrix.resize( m_nSensors.Z() );
+    for (int k=0; k<m_nSensors.Z(); k++) {
         if ( k!=0 )     // increment the layer distance Z, distance not uniform
             passiveSi_Z += ( k%2 != 0 ? m_layerDistance_samePair : m_layerDistance_interPair );
-        m_passiveMatrix[k].resize( m_nSensors_X );
-        for (int i=0; i<m_nSensors_X; i++) {
+        m_passiveMatrix[k].resize( m_nSensors.X() );
+        for (int i=0; i<m_nSensors.X(); i++) {
             double passiveSi_X = m_origin.X() + sensorDimension.x()/2 + VTX_XDEAD - passiveSiDimension.x()/2;
             passiveSi_X *= ( i>1 ? -1 : 1 );   // commenta!
-            m_passiveMatrix[k][i].resize( m_nSensors_Y );
-            for (int j=0; j<m_nSensors_Y; j++) {
+            m_passiveMatrix[k][i].resize( m_nSensors.Y() );
+            for (int j=0; j<m_nSensors.Y(); j++) {
                 double passiveSi_Y = m_origin.Y() + passiveSiDimension.y()/2 - sensorDimension.y()/2;
                 passiveSi_Y *= ( j%2 == 0 ? -1 : 1 );   // commenta!
 
@@ -252,9 +250,9 @@ void TAVTparGeo::InitGeo()  {
     //         int sensor_j = 0;
     //         for ( PassiveLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
 
-    for ( unsigned int k=0; k<m_nSensors_Z; k++ ) {
-        for ( unsigned int j=0; j<m_nSensors_Y; j++ ) {
-            for ( unsigned int i=0; i<m_nSensors_X; i++ ) {    
+    for ( unsigned int k=0; k<m_nSensors.Z(); k++ ) {
+        for ( unsigned int j=0; j<m_nSensors.Y(); j++ ) {
+            for ( unsigned int i=0; i<m_nSensors.X(); i++ ) {    
                 
                 //ROOT addNode
                 if ( GlobalPar::GetPar()->geoROOT() )    {
@@ -322,9 +320,9 @@ void TAVTparGeo::InitGeo()  {
     //     for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
     //         for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
 
-    for ( unsigned int k=0; k<m_nSensors_Z; k++ ) {
-        for ( unsigned int j=0; j<m_nSensors_Y; j++ ) {
-            for ( unsigned int i=0; i<m_nSensors_X; i++ ) {    
+    for ( unsigned int k=0; k<m_nSensors.Z(); k++ ) {
+        for ( unsigned int j=0; j<m_nSensors.Y(); j++ ) {
+            for ( unsigned int i=0; i<m_nSensors.X(); i++ ) {    
 
                 //ROOT addNode
                 if ( GlobalPar::GetPar()->geoROOT() )   {
@@ -616,7 +614,7 @@ string TAVTparGeo::PrintParameters() {
   map<string, int> intp;
   intp["xpixVTX"] = m_nPixel_X;
   intp["ypixVTX"] = m_nPixel_Y;
-  intp["nlayVTX"] = m_nSensors_Z;
+  intp["nlayVTX"] = m_nSensors.Z();
   for (auto i : intp){
     outstr << "      integer " << i.first << endl;
     outstr << "      parameter (" << i.first << " = " << i.second << ")" << endl;

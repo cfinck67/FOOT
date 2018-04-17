@@ -139,6 +139,8 @@ void TAVTactNtuMC::CreateHistogram() {
 
 
 
+
+
 //------------------------------------------+-----------------------------------
 //! Action.
 Bool_t TAVTactNtuMC::Action() {
@@ -172,10 +174,11 @@ Bool_t TAVTactNtuMC::Action() {
         int myTrow, myTcol;
         myTrow = fpEvtStr->VTXirow[i];
         myTcol = fpEvtStr->VTXicol[i];
-        int sensorId    = 0;
         // layer
-        int layer = fpEvtStr->VTXilay[i];
-        // Int_t sensorId = layer;  
+        // int layer = fpEvtStr->VTXilay[i];
+        // int sensorId    = 0;
+        int sensorId    = fpEvtStr->VTXilay[i];
+        
 
      
 
@@ -225,13 +228,10 @@ Bool_t TAVTactNtuMC::Action() {
 
 
        
-        TAVTntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol);
-        // TAVTntuHit* pixel = pNtuRaw->AddPixel(sensorId, 1., myTrow, myTcol);
+        // TAVTntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol);
+        int genPartID = fpEvtStr->VTXid[i] - 1;
+        TAVTntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol, "mc_hit", i, genPartID );
         
-        //!!!!!!!!!!!!!!!!!!!!!!!   Add in the hitClass constructor!!!
-        // set global position in cartesian coordinates  put in Hits 
-        pixel->SetPosition( pGeoMap->GetPosition( fpEvtStr->VTXilay[i], myTcol, myTrow ) );
-
         // used for pileup ...
         if (fgPileup && storedEvents <= fgPileupEventsN) {
             mcHit.id  = sensorId;
@@ -254,12 +254,12 @@ Bool_t TAVTactNtuMC::Action() {
 // ****************************************************************************************************
 
         // fill MC info
-        if ( fpEvtStr->VTXid[i] > 0 )        SetMCinfo( pixel, i );
+        SetMCinfo( pixel, i );
 
 
         if (ValidHistogram()) {
             Int_t pixelsN = fDigitizer->GetPixelsN();
-            fpHisPixel[layer]->Fill(pixelsN);
+            fpHisPixel[sensorId]->Fill(pixelsN);
         }
 
 
@@ -300,6 +300,50 @@ Bool_t TAVTactNtuMC::Action() {
 
 
 //------------------------------------------+-----------------------------------
+void TAVTactNtuMC::FillPixels ( TAVTntuHit* originatingHit, int sensorId, int hitId ) {
+   
+    TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
+    TAVTntuRaw* pNtuRaw = (TAVTntuRaw*) fpNtuRaw->Object();
+ 
+    map<int, int> digiMap = fDigitizer->GetMap();
+    int nPixelX = fDigitizer->GetNPixelX();
+ 
+    // fill pixels from map
+    for ( map< int, int >::iterator it = digiMap.begin(); it != digiMap.end(); ++it) {
+
+       if ( digiMap[it->first] == 1 ) {
+
+            // ???????????????????????????????????????????????????
+            int line = it->first / nPixelX;
+            int col  = it->first % nPixelX;
+
+            // TAVTntuHit* pixel = (TAVTntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col);
+            TAVTntuHit* pixel = (TAVTntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col, "mc_cluster", originatingHit);
+
+            // if ( fpEvtStr->VTXid[hitId] < 0 )
+            //     SetMCinfo(pixel, hitId);
+            // else
+            // pixel->SetMCid(fgMcNoiseId);
+
+            if ( GlobalPar::GetPar()->Debug() > 0 )
+                printf("line %d col %d\n", line, col);
+
+            double v = pGeoMap->GetPositionV(line);
+            double u = pGeoMap->GetPositionU(col);
+
+            if (ValidHistogram()) {
+                fpHisPixelMap[sensorId]->Fill(line, col);
+                fpHisPosMap[sensorId]->Fill(u, v);
+            }
+        }
+   }
+}
+
+
+
+
+
+//------------------------------------------+-----------------------------------
 void TAVTactNtuMC::FillPixels ( int sensorId, int hitId ) {
    
     TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
@@ -317,18 +361,13 @@ void TAVTactNtuMC::FillPixels ( int sensorId, int hitId ) {
             int line = it->first / nPixelX;
             int col  = it->first % nPixelX;
 
-            TAVTntuHit* pixel = (TAVTntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col);
-            // TAVTntuHit* pixel = (TAVTntuHit*)pNtuRaw->AddPixel(sensorId, 1., line, col);
+            // TAVTntuHit* pixel = (TAVTntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col);
+            TAVTntuHit* pixel = (TAVTntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col, "pileup");
 
-            //!!!!!!!!!!!!!!!!!!!!!!!   Add in the hitClass constructor!!!
-            // set global position in cartesian coordinates  put in Hits
-            pixel->SetPosition( pGeoMap->GetPosition( fpEvtStr->VTXilay[hitId], col, line ) );
-
-
-            if ( fpEvtStr->VTXid[hitId] < 0 )
-                SetMCinfo(pixel, hitId);
-            else
-                pixel->SetMCid(fgMcNoiseId);
+            // if ( fpEvtStr->VTXid[hitId] < 0 )
+            //     SetMCinfo(pixel, hitId);
+            // else
+            // pixel->SetMCid(fgMcNoiseId);
 
             if ( GlobalPar::GetPar()->Debug() > 0 )
                 printf("line %d col %d\n", line, col);
@@ -395,12 +434,13 @@ void TAVTactNtuMC::FillNoise(Int_t sensorId) {
     for (Int_t i = 0; i < pixelsN; ++i) {
        Int_t col  = gRandom->Uniform(0,fDigitizer->GetNPixelX());
        Int_t line = gRandom->Uniform(0,fDigitizer->GetNPixelY());
-       TAVTntuHit* pixel = (TAVTntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col);
+       // TAVTntuHit* pixel = (TAVTntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col);
+       TAVTntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., line, col, "mc_noise" );
        double v = pGeoMap->GetPositionV(line);
        double u = pGeoMap->GetPositionU(col);
        TVector3 pos(v,u,0);
-       pixel->SetPosition(pos);     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       pixel->SetMCid(fgMcNoiseId);
+       // pixel->SetPosition(pos);     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       // pixel->SetMCid(fgMcNoiseId);
     }
 }
 
@@ -413,23 +453,16 @@ void TAVTactNtuMC::SetMCinfo(TAVTntuHit* pixel, int hitId) {
     TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
     
     // set geometry !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    pixel->SetVtxGeo(pGeoMap);
+    // pixel->SetVtxGeo(pGeoMap);
 
     // Generated particle ID
     int genPartID = fpEvtStr->VTXid[hitId] - 1;
-    pixel->SetMCid( genPartID );
+    // pixel->SetMCid( hitId );
 
     // check true particle ID linked to the hit is in the correct range
     if ( genPartID < 0 || genPartID > fpEvtStr->TRn-1 ) {
        cout << "TAVTactNtuMC::Action :: ERROR >> wrong generate particle ID: "<< genPartID << " nPart= " << fpEvtStr->TRn << endl;
        exit(0);
-    }
-
-
-    // check true particle ID linked to the hit is in the correct range
-    if ( genPartID < 0 || genPartID > fpEvtStr->TRn-1 ) {
-        cout << "TAVTactNtuMC::Action :: ERROR >> wrong generate particle ID: "<< genPartID << " nPart= " << fpEvtStr->TRn << endl;
-        exit(0);
     }
 
     // take only hits linked to specific particle
@@ -454,7 +487,7 @@ void TAVTactNtuMC::SetMCinfo(TAVTntuHit* pixel, int hitId) {
 
 
     // layer
-    pixel->SetLayer( fpEvtStr->VTXilay[hitId] );
+    // pixel->SetLayer( fpEvtStr->VTXilay[hitId] );
 
     //Need IDX matching
     TVector3 MCmom(0,0,0);
@@ -522,7 +555,7 @@ void  TAVTactNtuMC::GeneratePileup()
           RawMcHit_t hit = mcInfo[j];
           
           if (!fDigitizer->Process(hit.de, hit.x, hit.y, hit.zi, hit.zo)) continue;
-          FillPixels(hit.id, -1); // !!!!!!!!!!!!!!!!!!!!!
+          FillPixels( hit.id, -1); // !!!!!!!!!!!!!!!!!!!!!
        }
     }
 }

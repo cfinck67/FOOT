@@ -8,80 +8,124 @@
 #include "TClonesArray.h"
 #include "TVector3.h"
 
-#include "TAVTparGeo.hxx"
 #include "TAVTdatRaw.hxx"
 
+// all 3 needed to take from gTagROOT
+#include "TAGroot.hxx"
+#include "TAVTparGeo.hxx"
+#include "TAGparaDsc.hxx"
 
-class TAVTrawHit;
+// #include "TAGntuMCeveHit.hxx"
+
+
+
+
+
+// class TAVTrawHit;
 
 /** TAVTntuHit class contains information respect to a pixel in cmos detectors
  index, position, noise, pulse height, size, etc...
  
  */
 
+extern vector<string> 					m_originAllowed;
+
+
 class TAVTntuHit : public TObject {
    
 private:
 
-  TAVTparGeo* m_geometry;
+	TAVTparGeo* m_geometry;
 
-   Int_t              fSensorNumber;                 // number of the plane
-   TVector3           fPosition;                     // position in uvw coordinates in the plane
-   TVector3           fSize;                         // size in uvw directions
-   
-   Int_t              fMCid;                         // MC index
-   TVector3           fMCPos;                        // position in uvw coordinates in the plane
-   TVector3           fMCP;                          // size in uvw directions
-   
-   Int_t              fPixelIndex;                   // index of the pixel
-   Int_t              fPixelLine;                    // line in the matrix
-   Int_t              fPixelColumn;                  // column in the matrix
-   int                m_layer;
-   Double_t           fRawValue;                     // the rawvalue
-   Double_t           fPulseHeight;                  // pulseheight on pixel
-   
-   Bool_t             fFound;                        // flag, that strip is found in hit
-   
-   Int_t              fDebugLevel;                   // debug level
+	Int_t              fSensorNumber;                 // number of the plane
+	TVector3           fPosition;                     // position in uvw coordinates in the plane
+	TVector3           fSize;                         // size in uvw directions
 
-  Double_t            fEneLoss;        // energy loss by MC particle VM 3/11/13
+	Int_t              fMCid;                         // MC index
+	TVector3           fMCPos;                        // position in uvw coordinates in the plane
+	TVector3           fMCP;                          // size in uvw directions
+
+	Int_t              fPixelIndex;                   // index of the pixel
+	Int_t              fPixelLine;                    // line in the matrix
+	Int_t              fPixelColumn;                  // column in the matrix
+	int                m_layer;
+
+	Double_t           fRawValue;                     // the rawvalue
+	Double_t           fPulseHeight;                  // pulseheight on pixel
+
+	Bool_t             fFound;                        // flag, that strip is found in hit
+
+	Int_t              fDebugLevel;                   // debug level
+
+	Double_t           fEneLoss;        // energy loss by MC particle VM 3/11/13
    
+	//////////////////////////
+
+	// vector<string> 					m_originAllowed; 
+
+	string 					m_origins;
+	int 					m_mcID;
+	TAVTntuHit*				m_clusterSeed;  // hit index, mcID
+	int 					m_genPartIndex;
+	TObject* 				m_genPartPointer;
+	// TAGntuMCeveHit* 		m_genPartPointer;
+
+
 public:
-   TAVTntuHit() {};
-   TAVTntuHit( Int_t iSensor, TAVTrawHit* pixel);
-   TAVTntuHit( Int_t iSensor, const Int_t aIndex, Double_t aValue);
-   TAVTntuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn); 
-   ~TAVTntuHit() {};
+	TAVTntuHit() {};
+	TAVTntuHit( Int_t iSensor, TAVTrawHit* pixel);
+	TAVTntuHit( Int_t iSensor, const Int_t aIndex, Double_t aValue, string aorigin);
+	TAVTntuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn, string aorigin); 
+	~TAVTntuHit() {};
+
+	void Initialise();
+
+	void SetMcID( int amcID ) { m_mcID = amcID; };
+	void SetGenPartID( int agenPartID ) { 
+			m_genPartIndex = agenPartID; 
+			// find the pointer in the list
+		};
+	void SetClusterSeed( TAVTntuHit* aseedID ) { m_clusterSeed = aseedID; };
+
+
+	string 				GetOrigin() {return m_origins;};
+	int 				GetMcID() {return m_mcID;};
+	int 				GetGenPartID() {return m_genPartIndex;};
+	TAVTntuHit*  		GetClusterSeed() {return m_clusterSeed;}; // danger, to fix
+
+
+	//! Compute distance from a given pixel
+	Double_t           Distance( TAVTntuHit&         aPixel);
+	//! Compute distance from a given position
+	Double_t           Distance( const TVector3&     aPosition);
+	//! Compute distance in U direction from a given pixel
+	Double_t           DistanceU( TAVTntuHit&        aPixel);
+	//! Compute distance in U direction from a given position
+	Double_t           DistanceU( const TVector3&     aPosition);
+	//! Compute distance in V direction from a given pixel
+	Double_t           DistanceV( TAVTntuHit&         aPixel);
+	//! Compute distance in V direction from a given position
+	Double_t           DistanceV( const TVector3&     aPosition);
    
-   //! Compute distance from a given pixel
-   Double_t           Distance( TAVTntuHit&         aPixel);
-   //! Compute distance from a given position
-   Double_t           Distance( const TVector3&     aPosition);
-   //! Compute distance in U direction from a given pixel
-   Double_t           DistanceU( TAVTntuHit&        aPixel);
-   //! Compute distance in U direction from a given position
-   Double_t           DistanceU( const TVector3&     aPosition);
-   //! Compute distance in V direction from a given pixel
-   Double_t           DistanceV( TAVTntuHit&         aPixel);
-   //! Compute distance in V direction from a given position
-   Double_t           DistanceV( const TVector3&     aPosition);
+
    
-   //! Set Plane number
-   void               SetSensorNumber(Int_t aNumber)  { fSensorNumber = aNumber; }
+   // //! Set Plane number  -- danger!
+   // void               SetSensorNumber(Int_t aNumber)  { fSensorNumber = aNumber; }
    //! Set raw value
    void               SetRawValue(Double_t aRV)       { fRawValue = aRV;         }
    //! Set pulse height
    void               SetPulseHeight(Double_t aPH)    { fPulseHeight = aPH;      }
-   //! Set pixel line
-   void               SetPixelLine(Int_t aLin)        { fPixelLine = aLin;       }
-   //! Set pixel column
-   void               SetPixelColumn(Int_t aCol)      { fPixelColumn = aCol;     }
+   // //! Set pixel line
+   // void               SetPixelLine(Int_t aLin)        { fPixelLine = aLin;       }
+   // //! Set pixel column
+   // void               SetPixelColumn(Int_t aCol)      { fPixelColumn = aCol;     }
 
-   void               SetLayer(Int_t aLay)            { m_layer = aLay;     }
+   // danger - useless
+   // void               SetLayer(Int_t aLay)            { m_layer = aLay;     }
    //! Set pixel position
    void               SetPosition(TVector3 aPosition) { fPosition = aPosition;   }
-   //! Set pixel size
-   void               SetSize(TVector3 aSize)         { fSize = aSize;           }
+   // //! Set pixel size
+   // void               SetSize(TVector3 aSize)         { fSize = aSize;           }
    //! Set found flag
    void               SetFound(Bool_t b)              { fFound = b;              }
    //! Set pixel index
@@ -94,7 +138,7 @@ public:
    //! Set MC truth momentum
    void               SetMCMomentum(TVector3 a_mom)   { fMCP = a_mom;            }
    //
-   void               SetVtxGeo( TAVTparGeo* ageometry )  { m_geometry = ageometry; };
+   // void               SetVtxGeo( TAVTparGeo* ageometry )  { m_geometry = ageometry; };
 
    // Frank
     void SetGeneratedParticleInfo ( int genPartID, int genPartFLUKAid, int genPartCharge,
@@ -133,8 +177,8 @@ public:
    Double_t           GetRawValue()             const { return  fRawValue;       }
    //! Get pulse height
    Double_t           GetPulseHeight()          const { return  fPulseHeight;    }
-   // Quik hack by Frank, put it better
-   Int_t              GetLayer()               { return  m_layer;   }
+   // Return the hit layer
+   int                GetLayer()                { return  m_layer;   }
    
    //! Get position
    TVector3&          GetPosition()                   { return  fPosition;       }

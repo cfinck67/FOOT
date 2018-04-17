@@ -53,8 +53,8 @@ void MultiTrackCheck::Process( Long64_t jentry ){
    int ntrackonMSD = 0;
 
    // cout << myn_vtraw->GetPixelsN(0) << endl;
-   for (int i = 0; i < myn_vtraw->GetPixelsN(0); i++)  {                    
-     TAVTntuHit* vt_hit = myn_vtraw->GetPixel(0,i); 
+   for (int i = 0; i < myn_vtraw->GetPixelsN(0, "mc_hit"); i++)  {                    
+     TAVTntuHit* vt_hit = myn_vtraw->GetPixel(0,i, "mc_hit"); 
      tmpVT_partID =  vt_hit->m_genPartID;
      if(vt_hit->GetMCPosition_Global().Z() < 0.7) ntrackonVT++;
 

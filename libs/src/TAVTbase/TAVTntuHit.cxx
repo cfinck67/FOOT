@@ -14,10 +14,12 @@
 
 
 
-
+vector<string> m_originAllowed = { "mc_cluster", "mc_hit", "pileup", "noise", "data" };
 
 
 ClassImp(TAVTntuHit) // Description of Single Detector TAVTntuHit 
+
+
 
 //______________________________________________________________________________
 //  
@@ -30,21 +32,19 @@ TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, TAVTrawHit* pixel)
 {
    // constructor of a TAVTntuHit from a base pixel
    
-   fPixelLine    = pixel->GetLineNumber();
-   fPixelColumn  = pixel->GetColumnNumber();
-   fPixelIndex   = pixel->GetIndex();
+    fPixelLine    = pixel->GetLineNumber();
+    fPixelColumn  = pixel->GetColumnNumber();
+    fPixelIndex   = pixel->GetIndex();
 
-   fRawValue     = pixel->GetValue();
-   fPulseHeight  = fRawValue;   
+    fRawValue     = pixel->GetValue();
+    fPulseHeight  = fRawValue;   
 
-   fPosition.SetXYZ(0, 0, 0);
-   fSize.SetXYZ(0, 0, 0);
-   
-   fMCPos.SetXYZ(0, 0, 0);
-   fMCP.SetXYZ(0, 0, 0);
-   
-   if(fDebugLevel > 1)
-	  printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
+    m_origins = "data";
+    m_layer = aSensorNumber;
+    Initialise();
+
+    if(fDebugLevel > 1)
+        printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
 }
 
 
@@ -52,7 +52,7 @@ TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, TAVTrawHit* pixel)
 
 //______________________________________________________________________________
 //  
-TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aValue)
+TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aValue, string aorigin )
 : TObject(),
   fSensorNumber(aSensorNumber),
   fMCid(-1),
@@ -63,17 +63,14 @@ TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aV
   fFound(kFALSE),
   fDebugLevel(0)
 {
-   // constructor of a Pixel 
-   fPosition.SetXYZ(0, 0, 0);
-   fSize.SetXYZ(0, 0, 0);
-   
-   fMCPos.SetXYZ(0, 0, 0);
-   fMCP.SetXYZ(0, 0, 0);
-   
-   fPulseHeight    = fRawValue; 
-   
-   if(fDebugLevel>1)
-	  printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
+    m_origins = aorigin;
+    m_layer = aSensorNumber;
+    Initialise();
+
+    fPulseHeight    = fRawValue; 
+
+    if(fDebugLevel>1)
+        printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
    
 }
 
@@ -82,7 +79,7 @@ TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aV
 
 //______________________________________________________________________________
 //  
-TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t aColumn)
+TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t aColumn, string aorigin )
 : TObject(),
   fSensorNumber(aSensorNumber),
   fMCid(-1),
@@ -93,20 +90,48 @@ TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t 
   fFound(kFALSE),
   fDebugLevel(0)
 {
-   // constructor of a Pixel with column and line 
-   
-   fPosition.SetXYZ(0, 0, 0);
-   fSize.SetXYZ(0, 0, 0);
-   
-   fMCPos.SetXYZ(0, 0, 0);
-   fMCP.SetXYZ(0, 0, 0);
-   
-   fPulseHeight    = fRawValue; 
-   
-   if(fDebugLevel > 1) 
-	  printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
+    // constructor of a Pixel with column and line 
+    m_origins = aorigin;
+    m_layer = aSensorNumber;
+    Initialise();
+
+    fPulseHeight    = fRawValue; 
+
+    if(fDebugLevel > 1) 
+        printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
 }
 
+
+
+//______________________________________________________________________________
+//  
+void TAVTntuHit::Initialise() {
+
+    fPosition.SetXYZ(0, 0, 0);
+    fSize.SetXYZ(0, 0, 0);
+
+    fMCPos.SetXYZ(0, 0, 0);
+    fMCP.SetXYZ(0, 0, 0);
+
+    m_mcID = -1;
+    m_genPartIndex = -1;
+    m_clusterSeed = NULL;
+    m_genPartPointer = NULL;
+
+    // if ( find( m_originAllowed.begin(), m_originAllowed.end(), m_originAllowed ) == m_originAllowed.end() )  {
+    //  cout << 
+    //  exit(0);
+    // }
+
+    m_geometry = (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object();
+
+    // set center position
+    SetPosition( m_geometry->GetPosition( fSensorNumber, fPixelColumn, fPixelLine ) );
+    // SetPosition( m_geometry->GetPosition( m_layer, fPixelColumn, fPixelLine ) );
+
+    // m_originAllowed = { "MC_cluster", "MC_hit", "MC_pileup", "MC_noise", "data" };
+
+}
 
 
 

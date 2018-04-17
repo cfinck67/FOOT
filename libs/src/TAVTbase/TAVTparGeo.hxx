@@ -76,7 +76,7 @@ public:
     TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
 
     // Return the pixel position  -->  change name! in GetPixelPos()
-    //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
+    //    it should be changed accordingly with the simulation choice when more than one sensors will be used
     TVector3 GetPosition( int layer, int col, int row );
 
     //  Return Vertex center coord. in the global frame
@@ -90,10 +90,14 @@ public:
     // Return distance from center to center
     // double GetLayerDistance() { return m_layerDistance; };
 
-    double GetNPixelX() { return m_nPixel_X; };
-    double GetNPixelY() { return m_nPixel_Y; };
-    int GetNLayers()    { return m_nSensors_Z; };
-    int GetNSensors()    { return m_numberOfSensors; };
+    int GetNPixelX() { return m_nPixel_X; };
+    int GetNPixelY() { return m_nPixel_Y; };
+    int GetNLayers()    { return m_nSensors.Z(); };
+    int GetNSensors()    { return m_nSensors.X()*m_nSensors.Y()*m_nSensors.Z(); };  // return tot number of sensors
+    // Return a vector with the number of sensors along the cartesian directions 
+    TVector3        GetNumberOfSensorAlongDirections() { return m_nSensors; }; 
+    
+    int GetSensorID( int layer, int col, int row )    { return layer; };
 
     double GetPitchX()  { return m_Pitch_X; };
     double GetPitchY()  { return m_Pitch_Y; };
@@ -104,8 +108,7 @@ public:
     string PrintSubtractBodiesFromAir();
     string PrintParameters();
 
-    // Return a vector with the number of sensors along the cartesian directions
-    TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
+    
 
     TGeoVolume*     GetVolume();
 
@@ -128,11 +131,10 @@ private:
     int m_volumeCount;
     int m_passiveCount;
 
-    int m_nSensors_X;
-    int m_nSensors_Y;
-    int m_nSensors_Z;
-    int m_numberOfSensors;
-    TVector3 m_NSensors;
+    // int m_nSensors_X;
+    // int m_nSensors_Y;
+    // int m_nSensors_Z;
+    TVector3 m_nSensors;
 
     vector<string> m_materialOrder;
     vector<string> m_passiveMaterial;

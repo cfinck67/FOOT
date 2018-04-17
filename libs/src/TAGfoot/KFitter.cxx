@@ -117,17 +117,24 @@ int KFitter::UploadHitsVT() {
 
 	// take the ntuple object already filled
 	TAVTntuRaw* ntup = (TAVTntuRaw*) gTAGroot->FindDataDsc("vtRaw", "TAVTntuRaw")->Object();
-	if ( m_debug > 0 )		cout << "N vertex pixel read: " << ntup->GetPixelsN(0) << endl;
+	if ( m_debug > 0 )		cout << "N vertex sensors: " << ntup->GetNSensors() << endl;
 
 	// MC hits example
 	// TAGntuMCeve* ntuMC = (TAGntuMCeve*) gTAGroot->FindDataDsc("myn_mceve", "TAGntuMCeve")->Object();
 	// cout << "Number of MC tracks from repo  " << ntuMC->nhit  << endl;
 	
+	int totPix = 0;
 	// save pixels in the collection
-	for (int i = 0; i < ntup->GetPixelsN(0); i++) 
-        m_VT_hitCollection.push_back( ntup->GetPixel(0,i) );
+	for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {	// over all sensors
+		// totPix += ntup->GetPixelsN( nSensor );
+		totPix += ntup->GetPixelsN( nSensor, "mc_hit" );
+		if ( m_debug > 0 )		cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetPixelsN( nSensor, "mc_hit" ) << endl;
 
-	return ntup->GetPixelsN(0);
+		for (int nPx = 0; nPx < ntup->GetPixelsN( nSensor, "mc_hit" ); nPx++) 		// over all pixels for each sensor
+	        m_VT_hitCollection.push_back( ntup->GetPixel( nSensor, nPx, "mc_hit" ) );
+	}
+
+	return totPix;
 }
 
 

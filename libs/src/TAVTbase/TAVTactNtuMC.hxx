@@ -91,7 +91,8 @@ private:
    private:
    void            SetMCinfo(TAVTntuHit* pixel, Int_t hitId);
    void            GeneratePileup();
-   void            FillPixels(Int_t sensorId, Int_t mcId = -1);
+   void            FillPixels( Int_t sensorId, Int_t mcId );  // for pileup
+   void            FillPixels( TAVTntuHit* originatingHit, Int_t sensorId, Int_t mcId );  // for mc_cluster
    void            ComputeNoiseLevel();
    void            FillNoise(Int_t sensorId);
 

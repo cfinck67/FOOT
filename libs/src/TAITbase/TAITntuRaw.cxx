@@ -22,7 +22,6 @@
 ////////////////////////////////////////////////////////////
 
 
-#include "TAITntuRaw.hxx"
 #include "TAITdatRaw.hxx"
 
 ClassImp(TAITntuHit) // Description of Single Detector TAITntuHit 

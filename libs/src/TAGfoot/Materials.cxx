@@ -38,18 +38,15 @@ void Materials::WriteMaterial( vector<string> tmpVecStr ){
 	switch ( tmpVecStr.size() ) {
 	  case 2:
 	    mat->SetDensity( atof( tmpVecStr[0].c_str() ) );
-	    if ( m_debug > 0 ) cout<<"case 2 done!"<<endl;
 	    break;
 	  case 3:
 	    mat->SetZ( atof( tmpVecStr[0].c_str() ) );
 	    mat->SetDensity( atof(tmpVecStr[1].c_str() ) );
-	    if ( m_debug > 0 ) cout<<"case 3 done!"<<endl;
 	    break;
 	  case 4:
 	    mat->SetZ( atof( tmpVecStr[0].c_str() ) );
 	    mat->SetA( atof( tmpVecStr[1].c_str() ) );
 	    mat->SetDensity( atof( tmpVecStr[2].c_str() ) );
-	    if ( m_debug > 0 ) cout<<"case 4 done!"<<endl;
 	    break;
 	  default:
 			cout << "ERROR::Materials::WriteMaterial  -->  Material vector size is not 2, 3, 4" << endl; exit(0);
