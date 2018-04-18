@@ -8,7 +8,7 @@
 
 #include "TObject.h"
 
-#include "TAIRparTools.hxx"
+#include "TAGparTools.hxx"
 
 #include "GlobalPar.hxx"
 
@@ -19,7 +19,7 @@ class TGeoHMatrix;
 class TGeoVolume;
 //##############################################################################
 
-class TAIRparGeo : public TAIRparTools {
+class TAIRparGeo : public TAGparTools {
   
 public:
 
