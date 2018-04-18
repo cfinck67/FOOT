@@ -20,7 +20,7 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 # Files to be included
 #
 TOBJ_all   = TATWdatRaw.hxx  TATWparMap.hxx \
-             TATWactNtuMC.hxx TATWparGeo.hxx  TATWparTools.hxx
+             TATWactNtuMC.hxx TATWparGeo.hxx 
 
 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
