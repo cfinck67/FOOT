@@ -16,7 +16,7 @@
 #include "TVector3.h"
 #include "TRotation.h"
 
-#include "TAMSDparTools.hxx"
+#include "TAGparTools.hxx"
 #include "IronPlate.hxx"
 #include "FootField.hxx"
 
@@ -26,7 +26,7 @@ class TGeoHMatrix;
 class TGeoVolume;
 //##############################################################################
 
-class TAMSDparGeo : public TAMSDparTools {
+class TAMSDparGeo : public TAGparTools {
 
 
 typedef vector< vector< vector< IronPlate* > > > SensorMatrix;

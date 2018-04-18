@@ -20,7 +20,7 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 TOBJ_all   = TAMSDntuRaw.hxx TAMSDactNtuMC.hxx \
 	         TAMSDparMap.hxx TAMSDparGeo.hxx  TAMSDparConf.hxx \
-	         TAMSDparTools.hxx TAMSDdatRaw.hxx 	
+	          TAMSDdatRaw.hxx 	
 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #
