@@ -411,13 +411,14 @@ double TAVTparGeo::GetColumnCenter( int layer, int col )        { return GetPixe
 double TAVTparGeo::GetRowCenter_Local( int layer, int row )     { return GetPixelPos_Local( layer, 0, row ).y();   }
 double TAVTparGeo::GetRowCenter( int layer, int row )    { return GetPixelPos( layer, 0, row ).y();     }
 
- 
+
+
 
 //_____________________________________________________________________________
 Float_t TAVTparGeo::GetPositionU(Int_t column) const {
    return ((2*column - m_nPixel_X + 1 ) * m_Pitch_X)/2 ;
  }
- 
+
 //_____________________________________________________________________________
 Float_t TAVTparGeo::GetPositionV(Int_t line) const{
    return -((2*line - m_nPixel_Y + 1 ) * m_Pitch_Y)/2 ;   
