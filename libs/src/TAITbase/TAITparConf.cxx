@@ -33,7 +33,7 @@ TString TAITparConf::fgkDefaultConfName = "./config/TAITdetector.cfg";
 
 //______________________________________________________________________________
 TAITparConf::TAITparConf()
-: TAVTparTools(),
+: TAGparTools(),
   fSensorsN(0)
 {
    // Standard constructor
