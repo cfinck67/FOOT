@@ -396,15 +396,22 @@ void TAVTparGeo::InitGeo()  {
 
 
 //_____________________________________________________________________________
-TVector3 TAVTparGeo::GetPosition( int layer, int col, int row )  {
-    // TVector3 sensorCoord = GetSensorCoortdinates( int layer, int col, int row );
-    // TVector3 pos = m_sensorMatrix[sensorCoord.z()][sensorCoord.x()][sensorCoord.y()]->GetPosition();
-    TVector3 pos = m_sensorMatrix[layer][0][0]->GetPosition( col, row );
+TVector3 TAVTparGeo::GetPixelPos_Local( int layer, int col, int row )  { return m_sensorMatrix[layer][0][0]->GetPosition( col, row );  }
+
+TVector3 TAVTparGeo::GetPixelPos( int layer, int col, int row )  {
+    TVector3 pos = GetPixelPos_Local( layer, col, row );
     Local2Global(&pos);
     return pos;
 }
 
 
+double TAVTparGeo::GetColumnCenter_Local( int layer, int col )  { return GetPixelPos_Local( layer, col, 0 ).x(); }
+double TAVTparGeo::GetColumnCenter( int layer, int col )        { return GetPixelPos( layer, col, 0 ).x(); }
+
+double TAVTparGeo::GetRowCenter_Local( int layer, int row )     { return GetPixelPos_Local( layer, 0, row ).y();   }
+double TAVTparGeo::GetRowCenter( int layer, int row )    { return GetPixelPos( layer, 0, row ).y();     }
+
+ 
 
 //_____________________________________________________________________________
 Float_t TAVTparGeo::GetPositionU(Int_t column) const {
@@ -415,7 +422,7 @@ Float_t TAVTparGeo::GetPositionU(Int_t column) const {
 Float_t TAVTparGeo::GetPositionV(Int_t line) const{
    return -((2*line - m_nPixel_Y + 1 ) * m_Pitch_Y)/2 ;   
 }
- 
+
 
 
 

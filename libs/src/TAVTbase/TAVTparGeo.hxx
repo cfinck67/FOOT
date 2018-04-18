@@ -59,8 +59,18 @@ public:
     void InitGeo();
     void InitMaterial();
 
+    // to be removed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Float_t GetPositionU(Int_t column)         const;
     Float_t GetPositionV(Int_t line)           const;
+
+//    it should be changed accordingly with the simulation choice when more than one sensors will be used
+    TVector3 GetPixelPos( int layer, int col, int row );
+    TVector3 GetPixelPos_Local( int layer, int col, int row );
+
+    double GetColumnCenter_Local ( int layer, int col);
+    double GetRowCenter_Local ( int layer, int row);
+    double GetColumnCenter (int layer, int col);
+    double GetRowCenter ( int layer, int row);
 
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id
@@ -75,10 +85,7 @@ public:
     TRotation GetRotationToGlobal() { return *m_rotation; };
     TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
 
-    // Return the pixel position  -->  change name! in GetPixelPos()
-    //    it should be changed accordingly with the simulation choice when more than one sensors will be used
-    TVector3 GetPosition( int layer, int col, int row );
-
+    
     //  Return Vertex center coord. in the global frame
     TVector3 GetCenter() { return m_center; };
 
