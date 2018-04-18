@@ -33,7 +33,7 @@ TString TAMSDparConf::fgkDefaultConfName = "./config/TAMSDdetector.cfg";
 
 //______________________________________________________________________________
 TAMSDparConf::TAMSDparConf()
-: TAMSDparTools(),
+: TAGparTools(),
   fSensorsN(0)
 {
    // Standard constructor
