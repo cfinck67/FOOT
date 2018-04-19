@@ -160,7 +160,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     genfit::FieldManager::getInstance()->init( new FootField(magFieldMapName.c_str()) ); // variable field
     // genfit::FieldManager::getInstance()->init( new FootField( 7 ) ); // const field
 
-    MagFieldTest();
+    if ( GlobalPar::GetPar()->Debug() > 0 )       MagFieldTest();
 
     // include the nucleon into the genfit pdg repository
     if ( GlobalPar::GetPar()->IncludeBM() || GlobalPar::GetPar()->IncludeKalman() )
@@ -331,15 +331,13 @@ void Booter::Finalize() {
 void Booter::MagFieldTest() {
 
     FootField * ff = new FootField( GlobalPar::GetPar()->MagFieldInputMapName().c_str() );
-    // if ( GlobalPar::GetPar()->Debug() > 1 )       
-      cout << endl << "Magnetic Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 1,1,14.7 ) ).Print();
-    // if ( GlobalPar::GetPar()->Debug() > 1 )       
-      cout << endl << "Magnetic no Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,2 ) ).Print();
+    cout << endl << "Magnetic Field in kGauss test in 0,0,14 : ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,14 ) ).Print();
+    cout << endl << "Magnetic no Field in kGauss test in 0,0,0 : ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,0 ) ).Print();
     cout << "Total mag field on the FOOT axis (from 0 to 40 cm) = " << ff->IntegralField( 4000, 0, 40 ) << endl;
 
 
     // print out of the magnetic field
-    // if ( GlobalPar::GetPar()->Debug() > 1 ) {
+    if ( GlobalPar::GetPar()->Debug() > 1 ) {
         ofstream bFieldTest;
         bFieldTest.open("bField.test", std::ofstream::out | std::ofstream::trunc );
 
@@ -365,7 +363,7 @@ void Booter::MagFieldTest() {
             zCoord += 0.5;
         }
         bFieldTest.close();
-    // }
+    }
 
 
 }
