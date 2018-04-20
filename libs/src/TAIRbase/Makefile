@@ -18,8 +18,8 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 # Files to be included
 #
-TOBJ_all   = TAIRdatRaw.hxx  TAIRparMap.hxx \
-                  TAIRactNtuMC.hxx TAIRparGeo.hxx 
+TOBJ_all   = TAIRdatRaw.hxx  TAIRntuHit.hxx TAIRparMap.hxx \
+                  TAIRactNtuMC.hxx TAIRdigitizer.hxx TAIRparGeo.hxx 
 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #
