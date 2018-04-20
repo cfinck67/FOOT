@@ -31,7 +31,7 @@ TOBJ_all   = TAGobject.hxx TAGnamed.hxx TAGroot.hxx \
 		TAGconfigFile.hxx  TAGgeoTrafo.hxx \
 		TAGstlUtil.hxx TAGlineFit.hxx \
 		TAGclusterDisplay.hxx TAGtrackDisplay.hxx TAGwireDisplay.hxx \
-		TAGeventDisplay.hxx TAGparTools.hxx
+		TAGeventDisplay.hxx TAGparTools.hxx TAGbaseDigitizer.hxx
 	
 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
