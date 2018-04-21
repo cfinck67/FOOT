@@ -145,7 +145,7 @@ void TAVTparGeo::InitGeo()  {
     TVector3 sensorDimension = TVector3( VTX_SENSE_WIDTH, VTX_SENSE_HEIGHT, m_siliconSensorThick_Lz );
     TVector3 passiveSiDimension = TVector3( VTX_WIDTH, VTX_HEIGHT, m_siliconSensorThick_Lz );
 
-    // pixels per sensors, same as above as far as we use 1 sensor
+    // pixels per sensors
     m_nPixel_X = VTX_XPIX;
     m_nPixel_Y = VTX_YPIX;
 

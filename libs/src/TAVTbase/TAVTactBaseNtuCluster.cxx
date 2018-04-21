@@ -104,23 +104,22 @@ Bool_t TAVTactBaseNtuCluster::ApplyCuts(TAVTcluster* cluster)
 
 //______________________________________________________________________________
 //  
-Bool_t TAVTactBaseNtuCluster::Action()
-{
-   TAVTntuRaw* pNtuHit  = (TAVTntuRaw*) fpNtuRaw->Object();
-   TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
-   
-   Bool_t ok = true;
-   
-   for (Int_t i = 0; i < pConfig->GetSensorsN(); ++i) {
-	  fListOfPixels = pNtuHit->GetListOfPixels(i);
-	  if (fListOfPixels->GetEntries() > pConfig->GetAnalysisPar().HitsInPlaneMaximum) continue; 
-	  if (fListOfPixels->GetEntries() == 0) continue; 
-	  ok += FindClusters(i);
-   }
-   
-   if(ok)
-	  fpNtuClus->SetBit(kValid);
-   return ok;
+Bool_t TAVTactBaseNtuCluster::Action()  {
+
+    TAVTntuRaw* pNtuHit  = (TAVTntuRaw*) fpNtuRaw->Object();
+    // TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
+
+    Bool_t ok = true;
+
+    for (Int_t i = 0; i < pNtuHit->GetSensorsN(); ++i) {
+        fListOfPixels = pNtuHit->GetListOfPixels(i);
+        // if (fListOfPixels->GetEntries() > pConfig->GetAnalysisPar().HitsInPlaneMaximum) continue;    // old
+        if (fListOfPixels->GetEntries() == 0) continue; 
+        ok += FindClusters(i);
+    }
+
+    if(ok)    fpNtuClus->SetBit(kValid);
+    return ok;
 }
 
 //______________________________________________________________________________
@@ -151,9 +150,10 @@ void TAVTactBaseNtuCluster::ComputeSeedPosition()
 
 //______________________________________________________________________________
 //
-void TAVTactBaseNtuCluster::ComputeCoGPosition()
-{
-   if (!fCurListOfPixels) return;
+void TAVTactBaseNtuCluster::ComputeCoGPosition() {
+
+    // fCurListOfPixels = pixels of the current cluster
+   if (!fCurListOfPixels) return;   
 
    TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
    
@@ -166,41 +166,48 @@ void TAVTactBaseNtuCluster::ComputeCoGPosition()
    
    Float_t tClusterPulseSum = 0.;
    
+   // GetPulseHeight = 1 by default (at least in MC)
+
+   // center of mass
    if (positionAlgorithm == 1) {
 	  for (Int_t i = 0; i < fCurListOfPixels->GetEntries(); ++i) {
 		 TAVTntuHit* pixel = (TAVTntuHit*)fCurListOfPixels->At(i);
 		 tCorTemp.SetXYZ(pixel->GetPosition()(0)*pixel->GetPulseHeight(), pixel->GetPosition()(1)*pixel->GetPulseHeight(), pixel->GetPosition()(2));
-		 tCorrection  += tCorTemp;
-		 tClusterPulseSum  += pixel->GetPulseHeight();
+		 tCorrection  += tCorTemp;    // sum of distance vectors
+		 tClusterPulseSum  += pixel->GetPulseHeight();    // num of cluster
 	  }
 	  
-   } else if (positionAlgorithm == 11) { // 3*3 pixels clusters
+   //    // useless
+   // } else if (positionAlgorithm == 11) { // 3*3 pixels clusters
 	  
-	  TAVTntuHit* pixelSeed = (TAVTntuHit*)fCurListOfPixels->At(0);
-	  for (Int_t i = 0; i < fCurListOfPixels->GetEntries(); ++i) {
-		 TAVTntuHit* pixel = (TAVTntuHit*)fCurListOfPixels->At(i);
+	  // TAVTntuHit* pixelSeed = (TAVTntuHit*)fCurListOfPixels->At(0);
+	  // for (Int_t i = 0; i < fCurListOfPixels->GetEntries(); ++i) {
+		 // TAVTntuHit* pixel = (TAVTntuHit*)fCurListOfPixels->At(i);
 		 
-		 if( TMath::Abs(pixelSeed->DistanceU(pixel->GetPosition())) <= pixelSeed->GetSize()(0) && 
-			TMath::Abs(pixelSeed->DistanceV(pixel->GetPosition())) <= pixelSeed->GetSize()(1) ) {
+		 // if( TMath::Abs(pixelSeed->DistanceU(pixel->GetPosition())) <= pixelSeed->GetSize()(0) && 
+			// TMath::Abs(pixelSeed->DistanceV(pixel->GetPosition())) <= pixelSeed->GetSize()(1) ) {
 			
-			tCorTemp.SetXYZ(pixel->GetPosition()(0)*pixel->GetPulseHeight(), pixel->GetPosition()(1)*pixel->GetPulseHeight(), pixel->GetPosition()(2));
-			tCorrection  += tCorTemp;
-			tClusterPulseSum += pixel->GetPulseHeight();
-		 }
-	  }
+			// tCorTemp.SetXYZ(pixel->GetPosition()(0)*pixel->GetPulseHeight(), pixel->GetPosition()(1)*pixel->GetPulseHeight(), pixel->GetPosition()(2));
+			// tCorrection  += tCorTemp;
+			// tClusterPulseSum += pixel->GetPulseHeight();
+		 // }
+	  // }
 	  
-   } else if (positionAlgorithm == 12) { // 2*2 pixels clusters
+   //    // useless
+   // } else if (positionAlgorithm == 12) { // 2*2 pixels clusters
 	  
-	  for (Int_t i = 0; i < TMath::Min( 4, fCurListOfPixels->GetEntries()); ++i) {
-		 TAVTntuHit* pixel = (TAVTntuHit*)fCurListOfPixels->At(i);
-		 tCorTemp.SetXYZ(pixel->GetPosition()(0)*pixel->GetPulseHeight(), pixel->GetPosition()(1)*pixel->GetPulseHeight(), pixel->GetPosition()(2));
-		 tCorrection  += tCorTemp;
-		 tClusterPulseSum += pixel->GetPulseHeight();
-	  }
-   }
+	  // for (Int_t i = 0; i < TMath::Min( 4, fCurListOfPixels->GetEntries()); ++i) {
+		 // TAVTntuHit* pixel = (TAVTntuHit*)fCurListOfPixels->At(i);
+		 // tCorTemp.SetXYZ(pixel->GetPosition()(0)*pixel->GetPulseHeight(), pixel->GetPosition()(1)*pixel->GetPulseHeight(), pixel->GetPosition()(2));
+		 // tCorrection  += tCorTemp;
+		 // tClusterPulseSum += pixel->GetPulseHeight();
+	  // }
+   // }
    
+   // make the (weighted) center of mass
    pos = tCorrection*(1./tClusterPulseSum);
    
+   // evaluate uncertainty... does not propagate uncertainties... wtf
    for (Int_t i = 0; i < fCurListOfPixels->GetEntries(); ++i) {
 	  TAVTntuHit* pixel = (TAVTntuHit*)fCurListOfPixels->At(i);
 	  tCorrection2.SetXYZ(pixel->GetPulseHeight()*(pixel->GetPosition()(0)-(pos)(0))*(pixel->GetPosition()(0)-(pos)(0)), 
@@ -217,5 +224,19 @@ void TAVTactBaseNtuCluster::ComputeCoGPosition()
    
    GetCurrentPosition()->SetXYZ((pos)(0), (pos)(1), 0);  
    GetCurrentPosError()->SetXYZ(TMath::Sqrt((posErr)(0)), TMath::Sqrt((posErr)(1)), 0);
+
+   // return local position
+
 }
+
+
+
+
+
+
+
+
+
+
+
 

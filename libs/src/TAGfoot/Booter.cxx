@@ -40,13 +40,13 @@
 // #include "TAVTparCal.hxx"
 #include "TAVTdatRaw.hxx"
 #include "TAVTntuRaw.hxx"
-// #include "TAVTntuCluster.hxx"
+#include "TAVTntuCluster.hxx"
 //#include "TAVTntuTrack.hxx"
 // #include "TAVTntuVertex.hxx"
 // #include "TAVTactNtuVertex.hxx"
 // #include "TAVTactNtuVertexPD.hxx"
 #include "TAVTactNtuMC.hxx"
-// #include "TAVTactNtuClusterF.hxx"
+#include "TAVTactNtuClusterF.hxx"
 // #include "TAVTactNtuTrack.hxx"
 // #include "TAVTactNtuTrackH.hxx"
 // #include "TAVTactNtuTrackF.hxx"
@@ -494,7 +494,7 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
 
 	/*Ntupling the MC Vertex information*/
 	myn_vtraw    = new TAGdataDsc("vtRaw", new TAVTntuRaw());
-	// myn_vtclus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
+	myn_vtclus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
 	// myn_vtrk     = new TAGdataDsc("vtTrack", new TAVTntuTrack());
 	myp_vtmap    = new TAGparaDsc("vtMap", new TAVTparMap());
 
@@ -505,6 +505,7 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
 
 
 	mya_vtraw   = new TAVTactNtuMC("vtActRaw", myn_vtraw, myp_vtgeo, myp_vtmap, myStr);
+	mya_vtraw   = new TAVTactNtuClusterF("vtActCluster", myn_vtraw, myn_vtclus, myp_vtmap, myp_vtgeo);
 
 	gTAGroot->AddRequiredItem("vtRaw");
 }

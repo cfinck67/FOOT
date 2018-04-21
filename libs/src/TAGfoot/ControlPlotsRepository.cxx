@@ -81,7 +81,7 @@ void ControlPlotsRepository::PrintMap() {
 
 void ControlPlotsRepository::PrintOutputFile() {
 
-        m_outputfilename = GlobalPar::GetPar()->OutputFile();
+    m_outputfilename = GlobalPar::GetPar()->OutputFile();
 	TFile* f_out = new TFile(m_outputfilename.c_str(),"RECREATE");  
 	
 	TCanvas* mirror = new TCanvas( "mirror", "mirror", 700, 700);

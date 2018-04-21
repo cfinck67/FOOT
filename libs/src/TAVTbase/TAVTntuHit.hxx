@@ -115,17 +115,8 @@ public:
    void               SetRawValue(Double_t aRV)       { fRawValue = aRV;         }
    //! Set pulse height
    void               SetPulseHeight(Double_t aPH)    { fPulseHeight = aPH;      }
-   // //! Set pixel line
-   // void               SetPixelLine(Int_t aLin)        { fPixelLine = aLin;       }
-   // //! Set pixel column
-   // void               SetPixelColumn(Int_t aCol)      { fPixelColumn = aCol;     }
-
-   // danger - useless
-   // void               SetLayer(Int_t aLay)            { m_layer = aLay;     }
    //! Set pixel position
    void               SetPosition(TVector3 aPosition) { fPosition = aPosition;   }
-   // //! Set pixel size
-   // void               SetSize(TVector3 aSize)         { fSize = aSize;           }
    //! Set found flag
    void               SetFound(Bool_t b)              { fFound = b;              }
    //! Set pixel index

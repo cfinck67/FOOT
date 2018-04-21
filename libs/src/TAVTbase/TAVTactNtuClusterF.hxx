@@ -23,10 +23,10 @@ public:
 								   TAGparaDsc* p_config =  0,
 							       TAGparaDsc* p_geomap =  0);
    
-   virtual ~TAVTactNtuClusterF();
+   virtual ~TAVTactNtuClusterF() {};
    
    //! Find cluster charge, noise & position
-   Bool_t  FindClusters(Int_t iSensor);  
+   Bool_t  FindClusters(Int_t iSensor);   // called by action() of the parent class TAVTactBaseNtuCluster
    
    //! Compute position
    void    ComputePosition();
