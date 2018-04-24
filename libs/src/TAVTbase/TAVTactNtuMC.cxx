@@ -92,7 +92,7 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name,
 //------------------------------------------+-----------------------------------
 //! Destructor.
 TAVTactNtuMC::~TAVTactNtuMC() {
-    delete fDigitizer;
+    // delete fDigitizer;
 }
 
 
@@ -232,6 +232,13 @@ Bool_t TAVTactNtuMC::Action() {
         int genPartID = fpEvtStr->VTXid[i] - 1;
         TAVTntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol, "mc_hit", i, genPartID );
         
+        // Digitization test
+        // for ( int io=-10; io<10; io++ ) {
+        //     for ( int jo=-10; jo<10; jo++ ) {
+        //         pNtuRaw->NewPixel(sensorId, 1., myTrow+io, myTcol+jo, "mc_cluster", pixel );
+        //     }
+        // }
+
         // used for pileup ...
         if (fgPileup && storedEvents <= fgPileupEventsN) {
             mcHit.id  = sensorId;
@@ -248,8 +255,9 @@ Bool_t TAVTactNtuMC::Action() {
 
 // ************  fDigitizer  ****************************************************************************************
 
-        // if (!fDigitizer->Process(eloss, x, y, zin, zout)) continue;     // when false?
-        // FillPixels( sensorId, i );
+        // gives all empty
+        // if (!fDigitizer->Process(fpEvtStr->VTXde[i], fpEvtStr->VTXpxin[i], fpEvtStr->VTXpyin[i], fpEvtStr->VTXzin[i], fpEvtStr->VTXpxout[i])) continue;     // when false?
+        // FillPixels( pixel, sensorId, i );
         
 // ****************************************************************************************************
 
@@ -313,7 +321,6 @@ void TAVTactNtuMC::FillPixels ( TAVTntuHit* originatingHit, int sensorId, int hi
 
        if ( digiMap[it->first] == 1 ) {
 
-            // ???????????????????????????????????????????????????
             int line = it->first / nPixelX;
             int col  = it->first % nPixelX;
 

@@ -37,7 +37,7 @@ private:
 
 	TAVTparGeo* m_geometry;
 
-	Int_t              fSensorNumber;                 // number of the plane
+	Int_t              fSensorNumber;                 // number of the sensor
 	TVector3           fPosition;                     // position in uvw coordinates in the plane
 	TVector3           fSize;                         // size in uvw directions
 
@@ -64,9 +64,9 @@ private:
 	// vector<string> 					m_originAllowed; 
 
 	string 					m_origins;
-	int 					m_mcID;
-	TAVTntuHit*				m_clusterSeed;  // hit index, mcID
-	int 					m_genPartIndex;
+	int 					  m_mcID;
+	TAVTntuHit*			m_clusterSeed;  // hit index, mcID
+	int 					  m_genPartIndex;
 	TObject* 				m_genPartPointer;
 	// TAGntuMCeveHit* 		m_genPartPointer;
 
@@ -173,6 +173,10 @@ public:
    
    //! Get position
    TVector3&          GetPosition()                   { return  fPosition;       }
+   TVector3&          GetPixelPos_Global()            { 
+    TVector3 globPos = fPosition;
+        m_geometry->Local2Global( &globPos ); 
+        return globPos;     };
    //! Get Size
    TVector3&          GetSize()                       { return  fSize;           }
    //! Get found flag

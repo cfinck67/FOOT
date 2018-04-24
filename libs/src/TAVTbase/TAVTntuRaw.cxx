@@ -101,7 +101,7 @@ TAVTntuHit* TAVTntuRaw::NewPixel(int iSensor, double value, int aLine, int aColu
         cout << "ERROR >> TAVTntuRaw::NewPixel  -->  developer error, input command not allowed " << aorigin << endl, exit(0);
     }
 
-    cout << "TAVTntuRaw::NewPixel  " << iSensor << "  " << agenPartID << endl;
+    if ( GlobalPar::GetPar()->Debug() > 1 )  cout << "TAVTntuRaw::NewPixel  " << iSensor << "  " << agenPartID << endl;
 
     TAVTntuHit* pixel = NewPixel( iSensor, value, aLine, aColumn, aorigin );
 
@@ -251,13 +251,13 @@ TAVTntuHit* TAVTntuRaw::GetPixel(Int_t iSensor, Int_t iPixel, string command ) {
         return (TAVTntuHit*)list->At( m_mcHitList[iSensor].at(iPixel) );
     }
     else if ( command == "mc_cluster" ) {
-        return (TAVTntuHit*)list->At( m_mcHitList[iSensor].at(iPixel) );
+        return (TAVTntuHit*)list->At( m_mcClusterList[iSensor].at(iPixel) );
     }
     else if ( command == "noise" ) {
-        return (TAVTntuHit*)list->At( m_mcHitList[iSensor].at(iPixel) );
+        return (TAVTntuHit*)list->At( m_noiseList[iSensor].at(iPixel) );
     }
     else if ( command == "pileup" ) {
-        return (TAVTntuHit*)list->At( m_mcHitList[iSensor].at(iPixel) );
+        return (TAVTntuHit*)list->At( m_pileUpList[iSensor].at(iPixel) );
     }
     else if ( command == "forPhys" ) {
         if ( iPixel >= 0 && iPixel < m_mcHitList[iSensor].size() )

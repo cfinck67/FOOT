@@ -34,6 +34,8 @@ class Booter {
   
  public :
 
+ TH2F* pos2D;
+
   Booter();
   ~Booter() {};
 

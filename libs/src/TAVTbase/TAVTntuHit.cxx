@@ -126,7 +126,7 @@ void TAVTntuHit::Initialise() {
     m_geometry = (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object();
 
     // set center position
-    SetPosition( m_geometry->GetPixelPos( fSensorNumber, fPixelColumn, fPixelLine ) );
+    SetPosition( m_geometry->GetPixelPos_Local( fSensorNumber, fPixelColumn, fPixelLine ) );
     // SetPosition( m_geometry->GetPosition( m_layer, fPixelColumn, fPixelLine ) );
 
     // m_originAllowed = { "MC_cluster", "MC_hit", "MC_pileup", "MC_noise", "data" };

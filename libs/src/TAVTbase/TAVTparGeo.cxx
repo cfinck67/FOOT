@@ -398,7 +398,7 @@ void TAVTparGeo::InitGeo()  {
 //_____________________________________________________________________________
 TVector3 TAVTparGeo::GetPixelPos_Local( int layer, int col, int row )  { return m_sensorMatrix[layer][0][0]->GetPosition( col, row );  }
 
-TVector3 TAVTparGeo::GetPixelPos( int layer, int col, int row )  {
+TVector3 TAVTparGeo::GetPixelPos_Global( int layer, int col, int row )  {
     TVector3 pos = GetPixelPos_Local( layer, col, row );
     Local2Global(&pos);
     return pos;
@@ -406,10 +406,10 @@ TVector3 TAVTparGeo::GetPixelPos( int layer, int col, int row )  {
 
 
 double TAVTparGeo::GetColumnCenter_Local( int layer, int col )  { return GetPixelPos_Local( layer, col, 0 ).x(); }
-double TAVTparGeo::GetColumnCenter( int layer, int col )        { return GetPixelPos( layer, col, 0 ).x(); }
+double TAVTparGeo::GetColumnCenter_Global( int layer, int col )        { return GetPixelPos_Global( layer, col, 0 ).x(); }
 
 double TAVTparGeo::GetRowCenter_Local( int layer, int row )     { return GetPixelPos_Local( layer, 0, row ).y();   }
-double TAVTparGeo::GetRowCenter( int layer, int row )    { return GetPixelPos( layer, 0, row ).y();     }
+double TAVTparGeo::GetRowCenter_Global( int layer, int row )    { return GetPixelPos_Global( layer, 0, row ).y();     }
 
 
 

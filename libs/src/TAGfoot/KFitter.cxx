@@ -262,7 +262,7 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
         TAVTntuHit* p_hit = m_VT_hitCollection.at(i);
 
         // get pixel coord
-        TVector3 hitPos = m_VT_geo->GetPixelPos( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
+        TVector3 hitPos = m_VT_geo->GetPixelPos_Global( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
         // get true MC coord
         // TVector3 hitPos = m_VT_hitCollection.at(i)->GetMCPosition_Global();
 
@@ -1045,7 +1045,7 @@ void KFitter::GetTrueMCInfo( string hitSampleName, int x,
 		*tmp_genPos = m_VT_hitCollection.at( hitID )->m_genPartPosition;   // genaration position
 		*tmp_genMom = m_VT_hitCollection.at( hitID )->m_genPartMomentum;		// genaration momentum
 		TAVTntuHit* p_hit = m_VT_hitCollection.at(hitID);
-        *hitPos = m_VT_geo->GetPixelPos( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() ); // pixel coord
+        *hitPos = m_VT_geo->GetPixelPos_Global( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() ); // pixel coord
 
 	}
 	else if ( detID == m_detectorID_map["IT"] ) {

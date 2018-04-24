@@ -62,15 +62,16 @@ public:
     // to be removed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Float_t GetPositionU(Int_t column)         const;
     Float_t GetPositionV(Int_t line)           const;
+    TVector3 GetSensorPosition( int sensorID )   { return m_sensorMatrix[sensorID][0][0]->GetCenter(); };
 
 //    it should be changed accordingly with the simulation choice when more than one sensors will be used
-    TVector3 GetPixelPos( int layer, int col, int row );
+    TVector3 GetPixelPos_Global( int layer, int col, int row );
     TVector3 GetPixelPos_Local( int layer, int col, int row );
 
     double GetColumnCenter_Local ( int layer, int col);
     double GetRowCenter_Local ( int layer, int row);
-    double GetColumnCenter (int layer, int col);
-    double GetRowCenter ( int layer, int row);
+    double GetColumnCenter_Global (int layer, int col);
+    double GetRowCenter_Global ( int layer, int row);
 
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id

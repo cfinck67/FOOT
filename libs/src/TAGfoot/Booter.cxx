@@ -183,7 +183,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 	if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init!" << endl;
 	m_kFitter = new KFitter();
 	if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
-	
+	pos2D = new TH2F( "pos2D", "pos2D", 500, -1, 1 , 500, -1, 1 );
 }
 
 
@@ -196,32 +196,57 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 void Booter::Process( Long64_t jentry ) {
 
 
-		if ( GlobalPar::GetPar()->IncludeBM() ) {
-				MonitorBMNew(jentry); // Yun
-		}
+	if ( GlobalPar::GetPar()->IncludeBM() ) {
+			MonitorBMNew(jentry); // Yun
+	}
 
-		// //to be moved to framework
+	// //to be moved to framework
 
 	// if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeInnerTracker() )
-	AssociateHitsToParticle();
+	// AssociateHitsToParticle();
 
-		// start time
-		start_kal = clock();
+	// start time
+	start_kal = clock();
+    
 
-		// Kalman Filter
-		int isKalmanConverged = 0;
-		if ( GlobalPar::GetPar()->IncludeKalman() ) {
-			 // check other tracking systems are enabled
-			if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit" << endl;
-			isKalmanConverged = m_kFitter->MakeFit( jentry );
-			if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit done. Converged = " << isKalmanConverged << endl;
 
-			if ( isKalmanConverged == 1 && GlobalPar::GetPar()->Debug() > 1 )    eventListFile << jentry<< endl;
+	// Kalman Filter
+	int isKalmanConverged = 0;
+	if ( GlobalPar::GetPar()->IncludeKalman() ) {
+		 // check other tracking systems are enabled
+		// if ( GlobalPar::GetPar()->Debug() > 0 )         
+            cout << "MakeFit" << endl;
+		isKalmanConverged = m_kFitter->MakeFit( jentry );
+		// if ( GlobalPar::GetPar()->Debug() > 0 )         
+            cout << "MakeFit done. Converged = " << isKalmanConverged << endl;
 
-		}
-		// stop time
-		end_kal = clock();
-		m_tempo_kal+=(double)(end_kal-start_kal);
+		if ( isKalmanConverged == 1 && GlobalPar::GetPar()->Debug() > 1 )    eventListFile << jentry<< endl;
+
+	}
+
+    // myn_vtclus
+    // TAVTntuCluster* ntup = (TAVTntuCluster*)myn_vtclus->Object();
+    TAVTntuCluster* ntup = (TAVTntuCluster*) gTAGroot->FindDataDsc("vtClus", "TAVTntuCluster")->Object();
+    // for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {   // over all sensors
+
+    for (int nSensor = 0; nSensor < 4; nSensor++) {   // over all sensors
+        // if ( m_debug > 0 )      
+        cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetClustersN( nSensor ) << endl;
+
+        for (int nPx = 0; nPx < ntup->GetClustersN( nSensor ); nPx++)  {     // over all pixels for each sensor
+            cout << "Cluster Test :: cluster number = " << ntup->GetClustersN(nSensor) << " and sensorID = " << ntup->GetCluster( nSensor, nPx )->GetSensorID() << endl;
+            TClonesArray* arra = ntup->GetCluster( nSensor, nPx )->GetListOfPixels();
+            for ( int n=0; n<arra->GetEntries(); n++ ) {
+                TVector3 vPos = ( (TAVTntuHit*) arra->At(n) )->GetPosition();
+                if ( nSensor == 0 )
+                    pos2D->Fill( vPos.x(), vPos.y() );
+            }
+        }
+    }
+
+	// stop time
+	end_kal = clock();
+	m_tempo_kal+=(double)(end_kal-start_kal);
 
 
 
@@ -229,6 +254,10 @@ void Booter::Process( Long64_t jentry ) {
 
 
 void Booter::Finalize() {
+
+    TCanvas* quadrante = new TCanvas( "q","q", 1000, 800 );
+    pos2D->Draw("colz");
+    quadrante->SaveAs("cluster.png");
 
 	if ( GlobalPar::GetPar()->IncludeKalman() )      m_kFitter->Finalize();
 
@@ -487,7 +516,7 @@ void Booter::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
 
-	  myp_vtgeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());  // put fist!!!!!!!
+	myp_vtgeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());  // put fist!!!!!!!
 	((TAVTparGeo*) myp_vtgeo->Object())->InitGeo();
 	top->AddNode( ((TAVTparGeo*) myp_vtgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0,0,0,new TGeoRotation("Vertex",0,0,0)) );
 
@@ -505,9 +534,12 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
 
 
 	mya_vtraw   = new TAVTactNtuMC("vtActRaw", myn_vtraw, myp_vtgeo, myp_vtmap, myStr);
-	mya_vtraw   = new TAVTactNtuClusterF("vtActCluster", myn_vtraw, myn_vtclus, myp_vtmap, myp_vtgeo);
+    mya_vtclus = new TAVTactNtuClusterF("vtxActCluster", myn_vtraw, myn_vtclus, myp_vtconf, myp_vtgeo, "mc_hit");
+    // mya_vtclus = new TAVTactNtuClusterF("vtxActCluster", myn_vtraw, myn_vtclus, myp_vtconf, myp_vtgeo, "mc_cluster");
+	// TAGaction* m_vtxCluster_action = new TAVTactNtuClusterF("vtxActCluster", myn_vtraw, myn_vtclus, myp_vtconf, myp_vtgeo, "mc_cluster");       // nope
 
-	gTAGroot->AddRequiredItem("vtRaw");
+    gTAGroot->AddRequiredItem("vtRaw");
+	gTAGroot->AddRequiredItem("vtClus");
 }
 
 
