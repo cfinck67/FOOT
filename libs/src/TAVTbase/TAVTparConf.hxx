@@ -13,11 +13,11 @@
 #include "TString.h"
 #include "TVector3.h"
 
-#include "TAVTparTools.hxx"
+#include "TAGparTools.hxx"
 
 //##############################################################################
 
-class TAVTparConf : public TAVTparTools {
+class TAVTparConf : public TAGparTools {
       
 private:
    Int_t      fSensorsN;         // Number of sensors	 

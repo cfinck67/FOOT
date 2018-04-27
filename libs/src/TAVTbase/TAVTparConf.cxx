@@ -33,7 +33,7 @@ TString TAVTparConf::fgkDefaultConfName = "./config/TAVTdetector.cfg";
 
 //______________________________________________________________________________
 TAVTparConf::TAVTparConf()
-: TAVTparTools(),
+: TAGparTools(),
   fSensorsN(0)
 {
    // Standard constructor

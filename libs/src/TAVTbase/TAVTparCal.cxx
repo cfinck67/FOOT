@@ -28,7 +28,7 @@ Int_t   TAVTparCal::fgkChargesN       = 6;
 
 //------------------------------------------+-----------------------------------
 TAVTparCal::TAVTparCal()
-: TAVTparTools(),
+: TAGparTools(),
   fChargeProba(new TArrayF(6)),
   fChargeProbaNorm(new TArrayF(6)),
   fChargeWithMaxProba(0),
