@@ -10,7 +10,6 @@
 #include "TABMparCon.hxx"
 #include "TABMntuRaw.hxx"
 #include "TABMntuTrack.hxx"
-using namespace std;
 #include <iostream>
 #include "TABMactNtuTrack.hxx"
 #include "FieldManager.h"
@@ -24,7 +23,9 @@ using namespace std;
 #include "DAF.h"
 #include <TDecompChol.h>
 #include <TDatabasePDG.h>
+#include "foot_geo.h"
 
+using namespace std;
 /*!
   \class TABMactNtuTrack TABMactNtuTrack.hxx "TABMactNtuTrack.hxx"
   \brief Track builder for Beam Monitor. **
@@ -142,9 +143,9 @@ Bool_t TABMactNtuTrack::Action()
   const Int_t det_Id = 1; //beam monitor Id (useless parameter necessary to genfit)
   TMatrixDSym hitCov(7);
   TVectorD hitCoords(7);
-  vector<vector<Int_t>> hitxplane(p_bmgeo->GetLayersNumber()*2); //number of hit for every bm plane (plane should be 12 in BM)
+  vector<vector<Int_t>> hitxplane(BMN_NLAY*2); //number of hit for every bm plane (plane should be 12 in BM)
   TABMntuHit* p_hit;
-  Int_t firedPlane=p_bmgeo->GetLayersNumber()*2; //number of plane fired
+  Int_t firedPlane=BMN_NLAY*2; //number of plane fired
   TDecompChol fitTrack_cov;  
   //~ TVector3 wire_a_x, wire_b_x, wire_a_y, wire_b_y;
   Double_t wire_a_x=-1000., wire_a_y=-1000.;
@@ -152,7 +153,7 @@ Bool_t TABMactNtuTrack::Action()
   bool tmp_bool;  
   Int_t fit_index=0;  
     
-  TVector3 init_pos(0.,0.,p_bmgeo->GetCenter().z()-p_bmgeo->GetLength()/2. -3.);
+  TVector3 init_pos(0.,0.,p_bmgeo->GetCenter().z()-BMN_LENGTH/2. -3.);
   Track* fitTrack(nullptr);
   AbsTrackRep* rep(nullptr);  
   
@@ -357,7 +358,7 @@ Bool_t TABMactNtuTrack::Action()
 
         do{
           fitTrack->deleteFitterInfo();
-          SetInitPos(init_pos, fit_index, wire_a_x, rdrift_a_x, wire_a_y, rdrift_a_y, p_bmgeo->GetCenter().z()-p_bmgeo->GetLength()/2. -3.);
+          SetInitPos(init_pos, fit_index, wire_a_x, rdrift_a_x, wire_a_y, rdrift_a_y, p_bmgeo->GetCenter().z()-BMN_LENGTH/2. -3.);
           fitTrack->setStateSeed(init_pos, init_mom);
           if(readyToFit==1) {simpleFitter->processTrack(fitTrack); 
           }else if(readyToFit==2) {refFitter->processTrack(fitTrack); 

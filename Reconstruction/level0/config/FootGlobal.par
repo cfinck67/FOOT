@@ -29,7 +29,7 @@ Kalman Particle Types:	C
 ############	END - Kalman Filter Control Parameters	################
 
 
-IncludeBM:			n
+IncludeBM:			y
 IncludeIR:			n
 IncludeVertex:		y
 IncludeInnerTracker:	y

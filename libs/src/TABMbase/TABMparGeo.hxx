@@ -10,6 +10,7 @@
 #include "TEveGeoShapeExtract.h"
 #include "TString.h"
 #include "TVector3.h"
+#include "TGeoVolume.h"
 
 #include "TAGpara.hxx"
 #include "foot_geo.h"
@@ -17,6 +18,7 @@
 #include "GlobalPar.hxx"
 #include "FootField.hxx"
 
+#include <TRotation.h>
 #include <FieldManager.h>
 
 //##############################################################################
@@ -29,130 +31,85 @@ public:
   TABMparGeo();
   virtual         ~TABMparGeo();
 
-  Double_t        GetWidth();
-  Double_t        GetLength();
-  Double_t        GetHeigth();
-
-  //Id sense as function of cell
-  Int_t           GetID(int cell);
-    
-  //get a number from 0 to 35 to identify any cell (ivew=1 or -1)
-  Int_t GetBMNcell(Int_t ilay, Int_t iview, Int_t icell){return icell+((iview==1) ? 0:1)*3+ilay*6;};
-
-  //get a number from 0 to 12 to identify real wire plane (iview=1 or -1)
-  Int_t GetWirePlane(Int_t ilay, Int_t iview){return ((iview==1) ? 0:1) + ilay*2;};
-
-
-  //X,Y,Z as a function of wire, plane, view
-  Double_t        GetX(int w, int p, int v);
-  Double_t        GetY(int w, int p, int v);
-  Double_t        GetZ(int w, int p, int v);
-
-  Double_t        GetCX(int w, int p, int v);
-  Double_t        GetCY(int w, int p, int v);
-  Double_t        GetCZ(int w, int p, int v);
-
-  Int_t GetLayersNumber();
-  Int_t GetCellsNumber();
-
-  Double_t GetCellHeight();
-  Double_t GetCellWidth();
-
+  //manca un copy constructor...
   void InitGeo();
-  int RotateBmon();
-  int ShiftBmon();
+  void CreateLocalBMGeo();//create an output file LocalBM.root with the geometry of the BM
   
   string PrintBodies();
   string PrintRegions();
   string PrintAssignMaterial();
   string PrintParameters();
+  
+  //transformers
+  int RotateBmon();//to rotate the x_pos...cx_pos coordinate with GOLDSTEIN CONVENTION
+  //~ int ShiftBmon(); //to shift (not rotate!) the local coordinate of the x_pos...cx_pos wires in the global coordinate
+  TRotation GetRotationToGlobal()                   {return *m_rotation;};
+  TRotation GetRotationToLocal()                    {return m_rotation->Inverse();};
+  void Global2Local(TVector3* glob)                 {glob->Transform(m_rotation->Inverse());*glob=*glob-m_center;return;};  
+  void Global2Local_TranslationOnly(TVector3* glob) {*glob = *glob - m_center;return;};
+  void Global2Local_RotationOnly(TVector3* glob)    {glob->Transform(m_rotation->Inverse());return;}
+  void Local2Global(TVector3* loc)                  {loc->Transform(*m_rotation);*loc = *loc + m_center;return;};    
+  void Local2Global_TranslationOnly(TVector3* loc)  {*loc = *loc + m_center;return;};
+  void Local2Global_RotationOnly(TVector3* loc)     {loc->Transform(*m_rotation);return;};
+    
+  //inline getters
+  Int_t    GetID(int cell);//Id sense as function of cell
+  Double_t GetX(int w, int p, int v); //X,Y,Z as a function of wire, plane, view
+  Double_t GetY(int w, int p, int v);
+  Double_t GetZ(int w, int p, int v);
+  Double_t GetCX(int w, int p, int v);
+  Double_t GetCY(int w, int p, int v);
+  Double_t GetCZ(int w, int p, int v);
+  
+  //other getters:
+  TGeoVolume*     GetVolume();
+  void GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_x, Double_t& h_y, Double_t& h_z, Double_t& h_cx, Double_t& h_cy, Double_t& h_cz);
+  //get a number from 0 to 35 to identify any cell (ivew=1 or -1)
+  Int_t GetBMNcell(Int_t ilay, Int_t iview, Int_t icell){return icell+((iview==1) ? 0:1)*3+ilay*6;};
+  //get a number from 0 to 12 to identify real wire plane (iview=1 or -1)
+  Int_t GetWirePlane(Int_t ilay, Int_t iview){return ((iview==1) ? 0:1) + ilay*2;};
+  TVector3    GetCenter(){return m_center;};
+  TVector3    GetSide(){return bm_SideDch;};
+  TVector3    GetDelta(){return bm_DeltaDch;};
 
-  void        SetWidth(double wid);
-  void        SetLength(double len);
-  void        SetHeigth(double hei);
-
-  void        SetCenter(TVector3 h_vec);
-  TVector3    GetCenter();
-
-  void        SetSide(TVector3 h_vec);
-  TVector3    GetSide();
-
-  void        SetDelta(TVector3 h_vec);
-  TVector3    GetDelta();
-
-  void        SetAngles(TVector3 h_vec);
-  TVector3    GetAngles();
-
-  void        SetDirection(TVector3 dir);
-  TVector3    GetDirection();
-
-
-  void        GetCellInfo(Int_t view, Int_t plane, Int_t cellID, 
-			  Double_t& h_x, Double_t& h_y, Double_t& h_z, 
-			  Double_t& h_cx, Double_t& h_cy, Double_t& h_cz);
 
   virtual void    Clear(Option_t* opt="");
 
   virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
-   
-  void CreateLocalBMGeo();
-       
-  TGeoVolume*     AddBM(const char *bmName = "BM");
+          
+  TGeoVolume*     AddBM(const char *bmName = "BM");//used in TAIR and TACA eventDisplay.cxx to draw a box representing the BM
    
   TEveGeoShapeExtract* AddExtractBM(const char *bmName = "BM");
 
   ClassDef(TABMparGeo,1)
 
+
   private:
 
-    int m_debug;
-
-  Int_t NWIRELAYERNEW;
-  Int_t NLAYERNEW;
-  Int_t NSENSENEW;
-
-  int m_nCell[2];//number of cells (or sense wires) per layer
-  int m_nFieldW[2];//number of field wires per layer
-
-  Double_t bm_step;
-  Double_t bm_cellwide;
-  Double_t bm_dplane;
-
-  Double_t  BMHEIGHTNEW;
-  Double_t  BMWIDTHNEW ;
-  Double_t  BMLENGHTNEW;
-
-  /*  cordinates of the Beam Monitor center */
-  Double_t  XMONNEW; 
-  Double_t  YMONNEW; 
-  Double_t  ZMONNEW; // 51 cm + half leght away from origin 
+  int m_debug;
+  //~ int m_nCell[2];//number of cells (or sense wires) per layer
+  //~ int m_nFieldW[2];//number of field wires per layer
     
-  /* Euler angles that defines the BEAM monitor orientation ( degrees)*/
-  Double_t  EULER1MONNEW;
-  Double_t  EULER2MONNEW;
-  Double_t  EULER3MONNEW;
-    
-  /*  shift dei fili rispetto ai lati della camera */
-  Double_t  DELTAZNEW; 
-  Double_t  DELTAYNEW;
-  Double_t  DELTAXNEW;
 
-  Int_t bm_idsense[3];
-
-  TVector3 bm_CenterDch;    /* Chamber center positioning */
+  Int_t bm_idsense[3]; //sense wire index
+  TVector3  m_origin;  // current position in local coord.
+  TVector3  m_center;  // current position in global coord.
+  TRotation* m_rotation; //rotation to the global coord. following the Goldstein conv, WARNING: other detector follow Yconv
+  
   TVector3 bm_SideDch;      /* Chamber side dimensions */
   TVector3 bm_DeltaDch;     /* displacement of 1st wire wrt chmb side */
-  TVector3 bm_AnglesDch;    /* Euler chamb. rotations angles */  
-  TVector3 bm_Direction;    /* Chamber direction (wrt z) */  
 
-  //x,y,z center positions of the wires and dimensions
-  Double_t x_pos[50][6][2];
-  Double_t y_pos[50][6][2];
-  Double_t z_pos[50][6][2];
+  //x,y,z center positions of the wires
+  Double_t x_pos[BMN_NWIRELAY][BMN_NLAY][2];
+  Double_t y_pos[BMN_NWIRELAY][BMN_NLAY][2];
+  Double_t z_pos[BMN_NWIRELAY][BMN_NLAY][2];
 
-  Double_t cx_pos[50][6][2];
-  Double_t cy_pos[50][6][2];
-  Double_t cz_pos[50][6][2];
+  //lenght of the wires... maybe useless
+  Double_t cx_pos[BMN_NWIRELAY][BMN_NLAY][2];
+  Double_t cy_pos[BMN_NWIRELAY][BMN_NLAY][2];
+  Double_t cz_pos[BMN_NWIRELAY][BMN_NLAY][2];
+
+  TGeoVolume* m_universe;
 
 };
 

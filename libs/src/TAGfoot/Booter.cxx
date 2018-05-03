@@ -129,11 +129,9 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     TString filename = m_wd + "/FOOT_geo.map";   // obsolete, to be removed carefully
     fGeoTrafo->InitGeo(filename.Data());
 
-
-    
     // Setting up the detectors that we want to decode.    
     if( GlobalPar::GetPar()->IncludeEvent() )           FillMCEvent(evStr);
-    if( GlobalPar::GetPar()->IncludeBM() )              FillMCBeamMonitor(evStr);
+    //~ if( GlobalPar::GetPar()->IncludeBM() )              FillMCBeamMonitor(evStr);
     if( GlobalPar::GetPar()->IncludeIR() )              FillMCInteractionRegion(evStr);
     if( GlobalPar::GetPar()->IncludeInnerTracker() )    FillMCInnerTracker(evStr);
     if( GlobalPar::GetPar()->IncludeVertex() )          FillMCVertex(evStr);
@@ -141,18 +139,16 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     if( GlobalPar::GetPar()->IncludeTW() )              FillMCTofWall(evStr);
     if( GlobalPar::GetPar()->IncludeCA() )              FillMCCalorimeter(evStr);
 
-
-	cout << "Make Geo" << endl;
+  	cout << "Make Geo" << endl;
 
     TGeoManager *masterGeo = new TGeoManager("genfitGeom", "GENFIT geometry");
     
-	Materials* listMaterials = new Materials() ;
+  	Materials* listMaterials = new Materials() ;
     listMaterials->PrintCompMap();
-	listMaterials->PrintMatMap();
+	  listMaterials->PrintMatMap();
 
     top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 120.);
     gGeoManager->SetTopVolume(top); // mandatory !
-
 
     string magFieldMapName = GlobalPar::GetPar()->MagFieldInputMapName();
     // genfit::FieldManager::getInstance()->init(new genfit::ConstField(0. ,10., 0.)); // 1 T
@@ -168,11 +164,11 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 
 
     if( GlobalPar::GetPar()->IncludeBM() ) {
-    //     // DisplayBeamMonitor(pg);
-      shared_ptr<TABMparGeo> m_bmgeo = shared_ptr<TABMparGeo> ( (TABMparGeo*) myp_bmgeo->Object() );
-      m_bmgeo->InitGeo();
-      m_bmgeo->ShiftBmon();
-    //     //    DisplayIRMonitor(pg,&evStr);
+    //~ //     // DisplayBeamMonitor(pg);
+      myp_bmgeo  = new TAGparaDsc("p_bmgeo", new TABMparGeo());
+      initBMGeo(myp_bmgeo);
+      //~ FillMCBeamMonitor(evStr);//provv
+
     }
 
 
@@ -181,7 +177,6 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
         //Initialization of VTX parameters
         m_vtgeo->InitGeo();
         top->AddNode( m_vtgeo->GetVolume(), 0, new TGeoCombiTrans( 0,0,0,new TGeoRotation("Vertex",0,0,0)) );
-
     }
 
 
@@ -225,7 +220,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
         // top->AddNode( m_irgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_irgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
     }
 
-
+    
     // set material and geometry into genfit
     MaterialEffects* materialEffects = MaterialEffects::getInstance();
     materialEffects->init(new TGeoMaterialInterface());
@@ -244,6 +239,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     m_kFitter = new KFitter();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
     
+    
 }
 
 
@@ -255,10 +251,9 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 
 void Booter::Process( Long64_t jentry ) {
 
-
-        if ( GlobalPar::GetPar()->IncludeBM() ) {
-                MonitorBMNew(jentry); // Yun
-        }
+        //~ if ( GlobalPar::GetPar()->IncludeBM() ) {
+                //~ MonitorBMNew(jentry); // Yun 
+        //~ }
 
         // //to be moved to framework
         // if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeInnerTracker() )
@@ -297,6 +292,7 @@ void Booter::Process( Long64_t jentry ) {
         end_kal = clock();
         m_tempo_kal+=(double)(end_kal-start_kal);
 
+cout<<"fine process"<<endl;
 
 
 }
@@ -373,7 +369,7 @@ void Booter::MagFieldTest() {
 
 
 void Booter::GeoPrint() {
-
+    
     // save an image of the foot geometry
     //top->Draw("ogl");
     TCanvas* mirror = new TCanvas("footGeometry", "footGeometry",  700, 700);
@@ -503,15 +499,17 @@ void Booter::FillMCEvent(EVENT_STRUCT *myStr) {
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
 
+  //~ cout<<"sono in FIllBMBeamMonitor"<<endl;
+  
   /*Ntupling the MC Beam Monitor information*/
   myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
   myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
 
   initBMCon(myp_bmcon);
 
-  myp_bmgeo  = new TAGparaDsc("p_bmgeo", new TABMparGeo());
+  //~ myp_bmgeo  = new TAGparaDsc("p_bmgeo", new TABMparGeo());
 
-  initBMGeo(myp_bmgeo);
+  //~ initBMGeo(myp_bmgeo);
 
   new TABMactNtuMC("an_bmraw", myn_bmraw, myp_bmcon, myp_bmgeo, myStr);
 
@@ -519,10 +517,12 @@ void Booter::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
 
   myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
 
+  
   new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
 
   // my_out->SetupElementBranch(myn_bmtrk,     "bmtrk.");
 
+  //~ cout<<"finito con FIllMCBEamMonitor"<<endl;
 }
 
 
@@ -716,10 +716,10 @@ void Booter::initBMGeo(TAGparaDsc* p_bmgeo)  {
 
   Info("Booter::initBMGeo","Loading p_bmgeo for cam/run = %d / %d",i_cam,i_run);
 
-  TABMparGeo* o_bmgeo = (TABMparGeo*) p_bmgeo->Object();
-
   //Initialization of BM parameters
+  TABMparGeo* o_bmgeo = (TABMparGeo*) p_bmgeo->Object();
   o_bmgeo->InitGeo();
+  top->AddNode( o_bmgeo->GetVolume(), 0, new TGeoCombiTrans( 0,0,0,new TGeoRotation("BeamMonitor",0,0,0)) );
 
   p_bmgeo->SetBit(TAGparaDsc::kValid);
 

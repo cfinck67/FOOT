@@ -937,12 +937,12 @@ void TABMntuTrack::SetupClones()
 
 void TABMntuTrack::Clear(Option_t*)
 {
-  TAGdata::Clear();
+  TAGdata::Clear();//prima non era commentato
 
-  ntrk   = 0;
-    
-  t->Delete();
-
+  ntrk   = 0;//bha, non dovrebbe dare problemi...
+     
+  t->Delete();//presente prima
+  
   return;
 }
 

@@ -101,7 +101,7 @@ class Booter {
 
   //Parameters
   TAGparaDsc* myp_bmgeo;
-  
+    
   shared_ptr<TAVTparGeo> m_vtgeo;
   shared_ptr<TAITparGeo> m_itgeo;
   shared_ptr<TAMSDparGeo> m_msdgeo;

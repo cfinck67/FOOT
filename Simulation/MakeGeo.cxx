@@ -73,7 +73,6 @@ int main (int argc, char *argv[]) {
     //  si costruisce le coordinate di ogni oggetto geometrico e sensibile
     stcGeo->InitGeo();
     bmGeo->InitGeo();
-    bmGeo->ShiftBmon();
     vtxGeo->InitGeo();
     itrGeo->InitGeo();
     msdGeo->InitGeo();
