@@ -1,61 +1,54 @@
 #ifndef _TAVTdigitizerE_HXX
 #define _TAVTdigitizerE_HXX
-/*!
- \file
- \version $Id: TAVTdigitizerE.hxx,v $
- \brief   Declaration of TAVTdigitizerE.
- */
-/*------------------------------------------+---------------------------------*/
 
-#include "Riostream.h"
 #include <map>
 
+#include "Riostream.h"
+#include "TF1.h"
 #include "TH2F.h"
+#include "TMath.h"
 #include "TObject.h"
+#include "TRandom3.h"
 #include "TString.h"
-#include "TList.h"
 
-#include "TAGparaDsc.hxx"
 #include "TAVTbaseDigitizer.hxx"
 
-
-class TF1;
+// --------------------------------------------------------------------------------------
+class TAVTparGeo;
 class TAVTdigitizerE : public TAVTbaseDigitizer {
    
+   // Class to digitize the energy into pixel based on given patterns
 public:
    TAVTdigitizerE(TAGparaDsc* parGeo);
    virtual ~TAVTdigitizerE();
    
-   Bool_t MakeCluster(Double_t x0, Double_t y0, Double_t zin = 0, Double_t zout = 0);
+   void           DefineRadii();
 
-private:
-   std::vector<std::pair<int, float> > fDistance;
-   Int_t*         fDeltaRad;
+   Bool_t         MakeCluster(Double_t x0, Double_t y0, Double_t zin, Double_t zout);
    
 private:
-   void            RemovePixels(Int_t rpixels); // remove number of pixels from last shell randomly
-   Bool_t          SetRegion(Float_t x0, Float_t y0);
+   std::map<Int_t, Float_t>  fMapRadius55;
+   std::map<Int_t, Float_t>  fMapRadius50;
+   std::map<Int_t, Float_t>  fMapRadius00;
+   std::map<Int_t, Float_t>* fMapRadius;
+
+private:
+   Bool_t          SetRegion(Double_t x0, Double_t y0);
+   void            DefineRadius00();
+   void            DefineRadius50();
+   void            DefineRadius55();
    
 private:
    static Int_t    fgkMaxTurn;
-   static  Float_t fgkFactorRad;
-   
-   //00
    static Int_t    fgkShel00[];
-   static Int_t    fgkDeltaRad00[];
-   
-   //55
    static Int_t    fgkShel55[];
-   static Int_t    fgkDeltaRad55[];
-   
-   //05
    static Int_t    fgkShel50[];
-   static Int_t    fgkDeltaRad50[];
-   
-public:
-   static Bool_t    SortBack (const std::pair<Int_t, Float_t>  x, const std::pair<Int_t, Float_t>  y) { return (x.second > y.second); }
-   
+   static Int_t    fgkMeshWidth;
+
    ClassDef(TAVTdigitizerE,0)
+
 };
+        
 
 #endif
+
