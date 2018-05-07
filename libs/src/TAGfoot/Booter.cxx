@@ -31,7 +31,7 @@
 #include "TABMntuTrack.hxx"
 #include "TABMactNtuMC.hxx"
 #include "TABMactNtuTrack.hxx"
-#include "TABMvieTrackFOOT.hxx"
+//~ #include "TABMvieTrackFOOT.hxx"
 
 //Vertex
 #include "TAVTparMap.hxx"
@@ -113,7 +113,7 @@ Booter::Booter() {
 
 
 
-void Booter::Initialize( EVENT_STRUCT* evStr ) {
+void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in ) {
 
 
     // debug fie
@@ -122,7 +122,8 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
         if ( !eventListFile.is_open() )        cout<< "ERROR  -->  eventListFile.dat cannot open file."<< endl, exit(0);
     }
 
-
+    m_wd=wd_in;  
+  
 	//Initializing the Geometry class that handles the
     //detector positioning and global to local transformations
     fGeoTrafo = new TAGgeoTrafo();   
@@ -167,7 +168,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     //~ //     // DisplayBeamMonitor(pg);
       myp_bmgeo  = new TAGparaDsc("p_bmgeo", new TABMparGeo());
       initBMGeo(myp_bmgeo);
-      //~ FillMCBeamMonitor(evStr);//provv
+      //~ FillMCBeamMonitor(evStr);//da modificare: se lo abilito qua la geometria degli altri detectors non funzia... 
 
     }
 
@@ -220,7 +221,8 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
         // top->AddNode( m_irgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_irgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
     }
 
-    
+
+          
     // set material and geometry into genfit
     MaterialEffects* materialEffects = MaterialEffects::getInstance();
     materialEffects->init(new TGeoMaterialInterface());
@@ -238,7 +240,10 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init!" << endl;
     m_kFitter = new KFitter();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
-    
+
+    if( GlobalPar::GetPar()->IncludeBM() )              FillMCBeamMonitor(evStr);//da modificare: va messo qua... così non crea problemi, 
+    if (GlobalPar::GetPar()->Debug()>10)
+      cout<<"I finish Booter::Initialize"<<endl;
     
 }
 
@@ -251,50 +256,48 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 
 void Booter::Process( Long64_t jentry ) {
 
-        //~ if ( GlobalPar::GetPar()->IncludeBM() ) {
-                //~ MonitorBMNew(jentry); // Yun 
-        //~ }
+  if (GlobalPar::GetPar()->Debug()>10)
+    cout<<"I'm in Booter::Process"<<endl;
 
-        // //to be moved to framework
-        // if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeInnerTracker() )
-        //     AssociateHitsToParticle();
+  // //to be moved to framework
+  // if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeInnerTracker() )
+  //     AssociateHitsToParticle();
+  
+  // Kalman
+  if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeKalman() ) {
+      m_kFitter->UploadHitsVT( myn_vtraw, m_vtgeo );
+  }
 
+  if( GlobalPar::GetPar()->IncludeInnerTracker() && GlobalPar::GetPar()->IncludeKalman() ) {
+      m_kFitter->UploadHitsIT( myn_itraw, m_itgeo );
+  }
 
-        // Kalman
-        if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeKalman() ) {
-            m_kFitter->UploadHitsVT( myn_vtraw, m_vtgeo );
-        }
-
-        if( GlobalPar::GetPar()->IncludeInnerTracker() && GlobalPar::GetPar()->IncludeKalman() ) {
-            m_kFitter->UploadHitsIT( myn_itraw, m_itgeo );
-        }
-
-        if( GlobalPar::GetPar()->IncludeMSD() && GlobalPar::GetPar()->IncludeKalman() ) {
-            m_kFitter->UploadHitsMSD( myn_msdraw, m_msdgeo );
-        }
+  if( GlobalPar::GetPar()->IncludeMSD() && GlobalPar::GetPar()->IncludeKalman() ) {
+      m_kFitter->UploadHitsMSD( myn_msdraw, m_msdgeo );
+  }
 
 
-        // start time
-        start_kal = clock();
+  // start time
+  start_kal = clock();
 
-        // Kalman Filter
-        int isKalmanConverged = 0;
-        if ( GlobalPar::GetPar()->IncludeKalman() ) {
-             // check other tracking systems are enabled
-            if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit" << endl;
-            isKalmanConverged = m_kFitter->MakeFit( jentry );
-            if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit done. Converged = " << isKalmanConverged << endl;
+  // Kalman Filter
+  int isKalmanConverged = 0;
+  if ( GlobalPar::GetPar()->IncludeKalman() ) {
+       // check other tracking systems are enabled
+      if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit" << endl;
+      isKalmanConverged = m_kFitter->MakeFit( jentry );
+      if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit done. Converged = " << isKalmanConverged << endl;
 
-            if ( isKalmanConverged == 1 && GlobalPar::GetPar()->Debug() > 1 )    eventListFile << jentry<< endl;
+      if ( isKalmanConverged == 1 && GlobalPar::GetPar()->Debug() > 1 )    eventListFile << jentry<< endl;
 
-        }
-        // stop time
-        end_kal = clock();
-        m_tempo_kal+=(double)(end_kal-start_kal);
+  }
+  // stop time
+  end_kal = clock();
+  m_tempo_kal+=(double)(end_kal-start_kal);
 
-cout<<"fine process"<<endl;
-
-
+  if (GlobalPar::GetPar()->Debug()>10)
+    cout<<"I finish Booter::Process"<<endl;  
+        
 }
 
 
@@ -498,31 +501,31 @@ void Booter::FillMCEvent(EVENT_STRUCT *myStr) {
 
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
-
-  //~ cout<<"sono in FIllBMBeamMonitor"<<endl;
-  
+  if (GlobalPar::GetPar()->Debug()>10)
+    cout<<"I'm in Booter::FillMCBeamMonitor"<<endl;
   /*Ntupling the MC Beam Monitor information*/
   myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
+  myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
   myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
 
   initBMCon(myp_bmcon);
 
   //~ myp_bmgeo  = new TAGparaDsc("p_bmgeo", new TABMparGeo());
 
-  //~ initBMGeo(myp_bmgeo);
+  //~ initBMGeo(myp_bmgeo);//già inizializzato prima in teoria
 
   new TABMactNtuMC("an_bmraw", myn_bmraw, myp_bmcon, myp_bmgeo, myStr);
 
   // my_out->SetupElementBranch(myn_bmraw,     "bmrh.");
 
-  myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
 
   
   new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
 
-  // my_out->SetupElementBranch(myn_bmtrk,     "bmtrk.");
+   // my_out->SetupElementBranch(myn_bmtrk,     "bmtrk.");
 
-  //~ cout<<"finito con FIllMCBEamMonitor"<<endl;
+  if (GlobalPar::GetPar()->Debug()>10)
+    cout<<"I finish Booter::FillMCBeamMonitor"<<endl;
 }
 
 
@@ -609,7 +612,8 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
 
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCMSD(EVENT_STRUCT *myStr) {
-
+  
+  
    /*Ntupling the MC Vertex information*/
    myn_msdraw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
    // myn_msdclus   = new TAGdataDsc("msdClus", new TAMSDntuCluster());
@@ -624,6 +628,7 @@ void Booter::FillMCMSD(EVENT_STRUCT *myStr) {
    myp_msdgeo    = new TAGparaDsc("msdGeo", new TAMSDparGeo());
 
    mya_msdraw   = new TAMSDactNtuMC("msdActRaw", myn_msdraw, myp_msdgeo, myp_msdmap, myStr);
+      
 }
 
 
@@ -654,9 +659,15 @@ void Booter::FillMCInnerTracker(EVENT_STRUCT *myStr) {
 
 
 
-void Booter::MonitorBM() {}
+//~ void Booter::MonitorBM() {}
 //Yun new graphs:
-void Booter::MonitorBMNew(Long64_t jentry) {}
+void Booter::MonitorBMNew(Long64_t jentry) {
+  
+  
+  
+  
+  return;
+  }
 // void Booter::MonitorBMVTMat() {}
 // void Booter::CalibBMVT() {}
 
@@ -719,8 +730,8 @@ void Booter::initBMGeo(TAGparaDsc* p_bmgeo)  {
   //Initialization of BM parameters
   TABMparGeo* o_bmgeo = (TABMparGeo*) p_bmgeo->Object();
   o_bmgeo->InitGeo();
-  top->AddNode( o_bmgeo->GetVolume(), 0, new TGeoCombiTrans( 0,0,0,new TGeoRotation("BeamMonitor",0,0,0)) );
-
+  top->AddNode( o_bmgeo->GetVolume(), 0, new TGeoCombiTrans( o_bmgeo->GetCenter().X(),o_bmgeo->GetCenter().Y(),o_bmgeo->GetCenter().Z(),new TGeoRotation("BeamMonitor",0,0,0)) );
+  
   p_bmgeo->SetBit(TAGparaDsc::kValid);
 
   return;

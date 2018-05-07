@@ -40,7 +40,7 @@ class Booter {
   Booter();
   ~Booter() {};
 
-  void Initialize( EVENT_STRUCT* evStr );
+  void Initialize( EVENT_STRUCT* evStr, TString wd_in );
   void Process( Long64_t jentry );
   void Finalize();
 
@@ -70,7 +70,7 @@ class Booter {
   void CalibBMVT();
   void MonitorBMVTMat();
   void MonitorBMNew(Long64_t jentry);
-  void MonitorBM();
+  //~ void MonitorBM();
   void AssociateHitsToParticle();
 
   TAGgeoTrafo* fGeoTrafo;

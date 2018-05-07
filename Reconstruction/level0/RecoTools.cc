@@ -84,7 +84,10 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
 
     Booter* booter = new Booter();
-    booter->Initialize( &evStr );
+    BmBooter* bmbooter = new BmBooter();
+    booter->Initialize( &evStr, m_wd );
+    if (GlobalPar::GetPar()->IncludeBM())
+      bmbooter->Initialize( &evStr);
 
     
     /***********  The event Loop   ****************************************   */
@@ -111,6 +114,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
 
         booter->Process( jentry );
+        if (GlobalPar::GetPar()->IncludeBM())
+          bmbooter->Process( jentry );
 
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +138,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     cout << "End of the event loop " << endl;
 
     booter->Finalize();
+    if (GlobalPar::GetPar()->IncludeBM())
+      bmbooter->Finalize();
     
     tagr->EndEventLoop();
     

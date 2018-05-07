@@ -42,7 +42,7 @@ public:
   
   //transformers
   int RotateBmon();//to rotate the x_pos...cx_pos coordinate with GOLDSTEIN CONVENTION
-  //~ int ShiftBmon(); //to shift (not rotate!) the local coordinate of the x_pos...cx_pos wires in the global coordinate
+  int ShiftBmon(bool global2local); //if global2local is false: it shifts (not rotate!) the local coordinate of the x_pos...cx_pos wires in the global coordinate, otherwise if global2local is true
   TRotation GetRotationToGlobal()                   {return *m_rotation;};
   TRotation GetRotationToLocal()                    {return m_rotation->Inverse();};
   void Global2Local(TVector3* glob)                 {glob->Transform(m_rotation->Inverse());*glob=*glob-m_center;return;};  

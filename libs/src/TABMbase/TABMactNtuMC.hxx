@@ -19,8 +19,8 @@ class TABMactNtuMC : public TAGaction {
   public:
     explicit        TABMactNtuMC(const char* name=0,
 				 TAGdataDsc* p_nturaw=0, 
-				 TAGparaDsc* p_parcon=0, 
-				 TAGparaDsc* p_pargeo=0, 
+				 TAGparaDsc* p_bmcon=0, 
+				 TAGparaDsc* p_bmgeo=0, 
 				 EVENT_STRUCT* evStr=0);
     virtual         ~TABMactNtuMC();
 

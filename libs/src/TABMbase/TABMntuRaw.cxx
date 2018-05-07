@@ -142,8 +142,7 @@ ClassImp(TABMntuRaw);
 //! Default constructor.
 
 TABMntuRaw::TABMntuRaw() :
-  nhit(0), h(0) {
-}
+  nhit(0), h(0) {}
 
 //------------------------------------------+-----------------------------------
 //! Destructor.

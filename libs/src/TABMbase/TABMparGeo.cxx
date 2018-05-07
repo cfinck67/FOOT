@@ -116,26 +116,26 @@ void TABMparGeo::InitGeo(){
   for(int il=0; il<BMN_NLAY;il++){
     for (int kk =0; kk<BMN_NWIRELAY;kk++){       
       /*  U wires -> along x, SIDE view */
-      x_pos[kk][il][0] = - bm_SideDch[0]/2+m_center.X();
-      z_pos[kk][il][0] = - bm_SideDch[2]/2 + bm_DeltaDch[2] +	aa[kk] + (2*il)*(2*BMN_STEP + BMN_LAYDIST)+m_center.Z();
+      x_pos[kk][il][0] = - bm_SideDch[0]/2;
+      z_pos[kk][il][0] = - bm_SideDch[2]/2 + bm_DeltaDch[2] +	aa[kk] + (2*il)*(2*BMN_STEP + BMN_LAYDIST);
       if( (il==0) || (il==2) || (il==4) ){
-        y_pos[kk][il][0] = - bm_SideDch[1]/2 + bm_DeltaDch[1] + bb[kk] + BMN_PASSO+m_center.Y();
+        y_pos[kk][il][0] = - bm_SideDch[1]/2 + bm_DeltaDch[1] + bb[kk] + BMN_PASSO;
       }
       else{
-        y_pos[kk][il][0] = - bm_SideDch[1]/2 + bm_DeltaDch[1] + bb[kk]+m_center.Y();
+        y_pos[kk][il][0] = - bm_SideDch[1]/2 + bm_DeltaDch[1] + bb[kk];
       }
       cx_pos[kk][il][0] = bm_SideDch[0];
       cy_pos[kk][il][0] = 0.;
       cz_pos[kk][il][0] = 0.;
 
       /* V wires -> along y, TOP view*/
-      y_pos[kk][il][1] = - bm_SideDch[1]/2+m_center.Y();
-      z_pos[kk][il][1] = - bm_SideDch[2]/2 + bm_DeltaDch[2] + aa[kk] + (2*il+1)*(2*BMN_STEP + BMN_LAYDIST)+m_center.Z();
+      y_pos[kk][il][1] = - bm_SideDch[1]/2;
+      z_pos[kk][il][1] = - bm_SideDch[2]/2 + bm_DeltaDch[2] + aa[kk] + (2*il+1)*(2*BMN_STEP + BMN_LAYDIST);
       if( (il==0) || (il==2) || (il==4) ){
-        x_pos[kk][il][1] = - bm_SideDch[0]/2 + bm_DeltaDch[0] + bb[kk]+m_center.X();
+        x_pos[kk][il][1] = - bm_SideDch[0]/2 + bm_DeltaDch[0] + bb[kk];
       }
       else{
-        x_pos[kk][il][1] = - bm_SideDch[0]/2 + bm_DeltaDch[0] + bb[kk] + BMN_PASSO+m_center.X();
+        x_pos[kk][il][1] = - bm_SideDch[0]/2 + bm_DeltaDch[0] + bb[kk] + BMN_PASSO;
       }
       cx_pos[kk][il][1] = 0.;
       cy_pos[kk][il][1] = bm_SideDch[1];
@@ -147,15 +147,22 @@ void TABMparGeo::InitGeo(){
   //Create root geometry:
   //create the universe volume
   if (GlobalPar::GetPar()->geoROOT()) {
-      m_universe = gGeoManager->MakeBox("BMNuniverse",gGeoManager->GetMedium("Ar-CO2"),bm_SideDch.X()/2.,bm_SideDch.Y()/2.,bm_SideDch.Z()/2.); //top è scatola che conterrà tutto (dimensioni in cm)
+      m_universe = gGeoManager->MakeBox("BMNuniverse",gGeoManager->GetMedium(BMN_GAS_MEDIUM),(BMN_WIDTH+BMN_SHI_THICK)/2.,(BMN_HEIGHT+BMN_SHI_THICK)/2.,BMN_SHI_LENGTH/2.); //top è scatola che conterrà tutto (dimensioni in cm)
       gGeoManager->SetTopVisible(1);
   }
   if(m_debug) cout<<"Build BM ROOT geometry"<<endl;   
   //create BM's wire volume
   TGeoVolume *c_x_wire = gGeoManager->MakeTubs("c_x_wire", gGeoManager->GetMedium(BMN_FWIRE_MEDIUM), 0, BMN_RFIELD,BMN_HEIGHT/2.,0.,0.); //cathod along x 
-  //~ TGeoVolume *c_y_wire = gGeoManager->MakeTubs("c_y_wire", gGeoManager->GetMedium(BMN_FWIRE_MEDIUM), 0, BMN_RFIELD, BMN_HEIGHT/2.,0.,0.); //cathod along y
+  c_x_wire->SetLineColor(kYellow);
   TGeoVolume *a_x_wire = gGeoManager->MakeTubs("a_x_wire", gGeoManager->GetMedium(BMN_SWIRE_MEDIUM), 0, BMN_RSENSE, BMN_HEIGHT/2.,0.,0.); //anod along x
-  //~ TGeoVolume *a_y_wire = gGeoManager->MakeTubs("a_y_wire", gGeoManager->GetMedium(BMN_SWIRE_MEDIUM), 0, BMN_RSENSE, BMN_HEIGHT/2.,0.,0.); //anod along y 
+  a_x_wire->SetLineColor(kBlue);
+  TGeoVolume *mylar = gGeoManager->MakeBox("mylar",gGeoManager->GetMedium(BMN_MYL_MEDIUM),BMN_WIDTH/2.,BMN_HEIGHT/2., BMN_MYL_THICK/2.);
+  mylar->SetLineColor(kMagenta);
+  TGeoVolume *shield_x = gGeoManager->MakeBox("shield_x",gGeoManager->GetMedium(BMN_SHI_MEDIUM),BMN_WIDTH/2.,BMN_SHI_THICK/2., BMN_SHI_LENGTH/2.);
+  shield_x->SetLineColor(kGray);
+  TGeoVolume *shield_y = gGeoManager->MakeBox("shield_y",gGeoManager->GetMedium(BMN_SHI_MEDIUM),BMN_SHI_THICK/2.,BMN_HEIGHT/2.+BMN_SHI_THICK, BMN_SHI_LENGTH/2.);//shield_y is longer than shield_x
+  shield_y->SetLineColor(kGray);
+
 
   Int_t c=0;    
   if (GlobalPar::GetPar()->geoROOT()) {  
@@ -173,29 +180,36 @@ void TABMparGeo::InitGeo(){
       }
     }
   }
+  m_universe->AddNode(mylar, c++, new TGeoCombiTrans(0.,0.,-BMN_LENGTH/2.+ BMN_MYL_THICK/2., new TGeoRotation("null",0.,0.,0.)));
+  m_universe->AddNode(mylar, c++, new TGeoCombiTrans(0.,0.,+BMN_LENGTH/2.- BMN_MYL_THICK/2., new TGeoRotation("null",0.,0.,0.)));
+  m_universe->AddNode(shield_x, c++, new TGeoCombiTrans(0.,(BMN_HEIGHT+BMN_SHI_THICK)/2.,0., new TGeoRotation("null",0.,0.,0.)));
+  m_universe->AddNode(shield_x, c++, new TGeoCombiTrans(0.,-(BMN_HEIGHT+BMN_SHI_THICK)/2.,0., new TGeoRotation("null",0.,0.,0.)));
+  m_universe->AddNode(shield_y, c++, new TGeoCombiTrans((BMN_WIDTH+BMN_SHI_THICK)/2.,0.,0., new TGeoRotation("null",0.,0.,0.)));
+  m_universe->AddNode(shield_y, c++, new TGeoCombiTrans(-(BMN_WIDTH+BMN_SHI_THICK)/2.,0.,0., new TGeoRotation("null",0.,0.,0.)));
 
   return;
 }
 
-//yun: non usarlo, perchè lo shift è già fatto in initgeo di default!
-//~ int TABMparGeo::ShiftBmon(){
+int TABMparGeo::ShiftBmon(bool global2local){
 
-  //~ TVector3 cen = GetCenter();
+  TVector3 cen = GetCenter();
+  if(global2local)
+    cen=-cen;
 
-  //~ for(int il=0; il<BMN_NLAY;il++){
-    //~ for (int kk =0; kk<BMN_NWIRELAY;kk++){
+  for(int il=0; il<BMN_NLAY;il++){
+    for (int kk =0; kk<BMN_NWIRELAY;kk++){
 
-      //~ x_pos[kk][il][0]  += cen.X();
-      //~ y_pos[kk][il][0]  += cen.Y();
-      //~ z_pos[kk][il][0]  += cen.Z();
+      x_pos[kk][il][0]  += cen.X();
+      y_pos[kk][il][0]  += cen.Y();
+      z_pos[kk][il][0]  += cen.Z();
 
-      //~ x_pos[kk][il][1]  += cen.X();
-      //~ y_pos[kk][il][1]  += cen.Y();
-      //~ z_pos[kk][il][1]  += cen.Z();
-    //~ }
-  //~ }
-  //~ return 0 ;
-//~ }
+      x_pos[kk][il][1]  += cen.X();
+      y_pos[kk][il][1]  += cen.Y();
+      z_pos[kk][il][1]  += cen.Z();
+    }
+  }
+  return 0 ;
+}
 
 
 /*-----------------------------------------------------------------*/
@@ -525,18 +539,18 @@ string TABMparGeo::PrintBodies(){
       if ( (ic==bm_idsense[0]) ||(ic==bm_idsense[1]) || (ic==bm_idsense[2]) ){
         for (int iv =0; iv<2;iv++){      // loop on views
           if ( iv == 0 ){
-            xmin = - BMN_WIDTH/2. + shift;
-            xmax = + BMN_WIDTH/2. - shift;
-            ymin = y_pos[ic][il][iv] - BMN_PASSO + BMN_RFIELD + shift;
-            ymax = y_pos[ic][il][iv] + BMN_PASSO - BMN_RFIELD -shift;
+            xmin = - BMN_WIDTH/2. + shift + BMN_X;
+            xmax = + BMN_WIDTH/2. - shift + BMN_X;
+            ymin = y_pos[ic][il][iv] - BMN_PASSO + BMN_RFIELD + shift + BMN_Y;
+            ymax = y_pos[ic][il][iv] + BMN_PASSO - BMN_RFIELD -shift + BMN_Y;
           }else{
-            xmin = x_pos[ic][il][iv] - BMN_PASSO + BMN_RFIELD + shift;
-            xmax = x_pos[ic][il][iv] + BMN_PASSO - BMN_RFIELD - shift;
-            ymin = - BMN_WIDTH/2. + shift;
-            ymax = + BMN_WIDTH/2. - shift;
+            xmin = x_pos[ic][il][iv] - BMN_PASSO + BMN_RFIELD + shift + BMN_X;
+            xmax = x_pos[ic][il][iv] + BMN_PASSO - BMN_RFIELD - shift + BMN_X;
+            ymin = - BMN_WIDTH/2. + shift + BMN_Y;
+            ymax = + BMN_WIDTH/2. - shift + BMN_Y;
           }
-          zmin = z_pos[ic][il][iv] - BMN_STEP + BMN_RFIELD + shift;
-          zmax = z_pos[ic][il][iv] + BMN_STEP - BMN_RFIELD -shift;
+          zmin = z_pos[ic][il][iv] - BMN_STEP + BMN_RFIELD + shift + BMN_Z;
+          zmax = z_pos[ic][il][iv] + BMN_STEP - BMN_RFIELD -shift + BMN_Z;
           outstr << "RPP BmnC" << iv << cella << "   "
            << xmin << " " << xmax << " " << ymin << " " << ymax
            << " " << zmin << " " << zmax << endl;
@@ -554,15 +568,15 @@ string TABMparGeo::PrintBodies(){
         if ( (iw==bm_idsense[0]) ||(iw==bm_idsense[1]) || (iw==bm_idsense[2]) ){	
           iSense[iv]++;	
           outstr << "RCC BmnS" << iv << iSense[iv] << "   "
-           << x_pos[iw][il][iv] << " " << y_pos[iw][il][iv] << " "
-           << z_pos[iw][il][iv] << " "
+           << x_pos[iw][il][iv] + BMN_X << " " << y_pos[iw][il][iv] + BMN_Y << " "
+           << z_pos[iw][il][iv]  + BMN_Z<< " "
            << cx_pos[iw][il][iv] << " " << cy_pos[iw][il][iv] << " "
            << cz_pos[iw][il][iv] << " " << BMN_RSENSE << endl;
         } else {
           iField[iv]++;     // loop on views    		
           outstr << "RCC BmnF" << iv << iField[iv] << "   "
-           << x_pos[iw][il][iv] << " " << y_pos[iw][il][iv] << " "
-           << z_pos[iw][il][iv] << " "
+           << x_pos[iw][il][iv]  + BMN_X << " " << y_pos[iw][il][iv] + BMN_Y << " "
+           << z_pos[iw][il][iv] + BMN_Z << " "
            << cx_pos[iw][il][iv] << " " << cy_pos[iw][il][iv] << " "
            << cz_pos[iw][il][iv] << " " << BMN_RFIELD << endl;
         }

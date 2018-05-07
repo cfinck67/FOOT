@@ -40,7 +40,7 @@ int main (int argc, char *argv[]) {
   char name[200];
   TString out("DecodedMC.root");
   TString in("../data/mc/MC_ID040_Evt1k.root");
-  TString wdir("./");
+  TString wdir(".");
   int nTotEv = 0;
   int debug = 0; int pl_freq(100);
   int ke_display = 0;

@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include "GlobalPar.hxx"
 #include "TAGpara.hxx"
 
 
@@ -25,12 +26,13 @@ class TABMparCon : public TAGpara {
                     TABMparCon();
     virtual         ~TABMparCon();
 
-
+    //setters
     void SetVDrift(Double_t v){vdrift=v; return;};
     void SetIsMC(bool ism){m_isMC=ism; return;};
     void SetRdriftCut(Double_t Rdcut){rdrift_cut=Rdcut; return;};
     void SetEnxcellcut(Double_t Encut){enxcell_cut=Encut; return;};
     
+    //getters
     bool     IsMC(){return m_isMC;};
     Double_t GetVDrift(){return vdrift;};
     Double_t GetRdriftCut(){return rdrift_cut;};
@@ -39,7 +41,9 @@ class TABMparCon : public TAGpara {
     Double_t GetAngZCut(){return angz_cut;};
     Double_t GetAngZRescut(){return angzres_cut;};
     Int_t GetFitterIndex(){return fitter_index;};
+    Int_t GetBMdebug(){return bm_debug;};
 
+    //acquisition stuff
     void        loadT0s(const TString& name); 
     void        SetT0s(vector<double> t0s);
     Double_t    GetT0(int view, int plane, int cell);
@@ -75,6 +79,7 @@ class TABMparCon : public TAGpara {
     Double_t angz_cut;
     Double_t angzres_cut;
     Int_t    fitter_index;
+    Int_t    bm_debug;//index for the bm_debug, (it is set at least to the global debug level)
     
     vector<double> v_t0s;
 

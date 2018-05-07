@@ -26,6 +26,7 @@
 #include <time.h>
 
 #include "Booter.hxx"
+#include "BmBooter.hxx"
  
 
 class RecoTools {

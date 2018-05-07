@@ -135,7 +135,6 @@ int KFitter::UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd
 	
 	m_MSD_geo = msd_geo;
 	TAMSDntuRaw* ntup = (TAMSDntuRaw*) footDataObj->GenerateObject();
-
 	if ( m_debug > 0 )		cout << "Strip detector hits read: " << ntup->GetPixelsN(0) << endl;
 
 	// save strips hits in the collection
