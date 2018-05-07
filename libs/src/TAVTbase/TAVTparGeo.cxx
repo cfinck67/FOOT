@@ -140,6 +140,9 @@ void TAVTparGeo::InitGeo()  {
     double pixelWidth_Lx = VTX_DX;
     double pixelHeight_Ly = VTX_DY;    
 
+   m_Pitch_X = VTX_DX;
+   m_Pitch_Y = VTX_DY;
+      
     // evaluate sensor dimension 
     // double sensor_Width_Lx = VTX_SENSE_WIDTH;
     // double sensor_Height_Ly = VTX_SENSE_HEIGHT;
