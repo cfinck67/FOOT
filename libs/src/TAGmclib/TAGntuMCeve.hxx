@@ -111,7 +111,9 @@ class TAGntuMCeve : public TAGdata {
 
     ClassDef(TAGntuMCeve,1)
 
-  public:
+    short GetHitN()     { return nhit; };
+
+  private:
     Short_t         nhit;		    // nhit
     TClonesArray*   h;			    // hits
 };

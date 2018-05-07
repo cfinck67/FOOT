@@ -67,8 +67,8 @@ private:
 	int 					  m_mcID;
 	TAVTntuHit*			m_clusterSeed;  // hit index, mcID
 	int 					  m_genPartIndex;
-	TObject* 				m_genPartPointer;
-	// TAGntuMCeveHit* 		m_genPartPointer;
+	// TObject* 				m_genPartPointer;
+	TAGntuMCeveHit* 		m_genPartPointer;
 
 
 public:
@@ -82,9 +82,23 @@ public:
 
 	void SetMcID( int amcID ) { m_mcID = amcID; };
 	void SetGenPartID( int agenPartID ) { 
-			m_genPartIndex = agenPartID; 
-			// find the pointer in the list
-		};
+		m_genPartIndex = agenPartID; 
+		
+        // find the pointer in the list
+        if( !GlobalPar::GetPar()->IncludeEvent() )  return;
+
+        TAGntuMCeve* ntup = (TAGntuMCeve*) gTAGroot->FindDataDsc("myn_mceve", "TAGntuMCeve")->Object();
+        for (int i = 0; i < ntup->GetHitN(); i++) {   // over all sensors
+            if ( ntup->Hit( i )->FlukaID() == m_genPartIndex ) {
+                m_genPartPointer = ntup->Hit( i );
+                // ntup->Hit( i )->AddVTXhit( this );  // x Alberto to implement <3
+                return;
+            }
+        }
+
+
+	};
+
 	void SetClusterSeed( TAVTntuHit* aseedID ) { m_clusterSeed = aseedID; };
 
 

@@ -464,7 +464,8 @@ void TAVTactNtuMC::SetMCinfo(TAVTntuHit* pixel, int hitId) {
 
     // Generated particle ID
     int genPartID = fpEvtStr->VTXid[hitId] - 1;
-    // pixel->SetMCid( hitId );
+    pixel->SetGenPartID( genPartID );
+    // pixel->SetMCid( hitId );   // intendevano quello della part generatrice
 
     // check true particle ID linked to the hit is in the correct range
     if ( genPartID < 0 || genPartID > fpEvtStr->TRn-1 ) {

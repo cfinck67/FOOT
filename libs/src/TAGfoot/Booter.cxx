@@ -122,21 +122,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     TString filename = m_wd + "/FOOT_geo.map";   // obsolete, to be removed carefully
     fGeoTrafo->InitGeo(filename.Data());
 
-
-    
-    // Setting up the detectors that we want to decode.    
-    if( GlobalPar::GetPar()->IncludeEvent() )           FillMCEvent(evStr);
-    if( GlobalPar::GetPar()->IncludeBM() )              FillMCBeamMonitor(evStr);
-    if( GlobalPar::GetPar()->IncludeIR() )              FillMCInteractionRegion(evStr);
-    if( GlobalPar::GetPar()->IncludeInnerTracker() )    FillMCInnerTracker(evStr);
-    if( GlobalPar::GetPar()->IncludeVertex() )          FillMCVertex(evStr);
-    if( GlobalPar::GetPar()->IncludeMSD() )             FillMCMSD(evStr);
-    if( GlobalPar::GetPar()->IncludeTW() )              FillMCTofWall(evStr);
-    if( GlobalPar::GetPar()->IncludeCA() )              FillMCCalorimeter(evStr);
-
-
 	cout << "Make Geo" << endl;
-
     TGeoManager *masterGeo = new TGeoManager("genfitGeom", "GENFIT geometry");
     
 	Materials* listMaterials = new Materials() ;
@@ -181,9 +167,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 
     //--- draw the ROOT box
     gGeoManager->SetVisLevel(10);
-
     GeoPrint();
-
 
     // Initialisation of KFfitter
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init!" << endl;
@@ -363,45 +347,53 @@ void Booter::GeoPrint() {
 //----------------------------------------------------------------------------------------------------
 void Booter::AssociateHitsToParticle() {
 
-    // to be done for all particles ---  full revision
-    // TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->GenerateObject();
-    TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->Object();
+  //   // to be done for all particles ---  full revision
+  //   // TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->GenerateObject();
+  //   TAGntuMCeve*  mcNtup = (TAGntuMCeve*)   myn_mceve->Object();
 
-  vector<int> FragIdxs;
-  int nhitmc = p_ntumceve->nhit;
-  for(int i=0; i<nhitmc; i++){
-    TAGntuMCeveHit *myPart = p_ntumceve->Hit(i);
+  //   // // vector<int> FragIdxs;
+  //   // for(int i=0; i<mcNtup->GetHitN(); i++){
+  //   //     TAGntuMCeveHit *myPart = mcNtup->Hit(i);
 
-    int part_reg = myPart->Reg();
+  //   //     int part_reg = myPart->Reg();
 
-    //Require that particle is produced inside the TG
-    if(part_reg == 3) {
-      FragIdxs.push_back(i);
-    }
-  }
+  //   //     //Require that particle is produced inside the TG
+  //   //     if(part_reg == 3) {
+  //   //         FragIdxs.push_back(i);
+  //   //     }
+  //   // }
 
-  //Pixels stuff
-  TAVTntuRaw*  p_nturaw = (TAVTntuRaw*)   myn_vtraw->GenerateObject();
+  //   //Pixels stuff
+  //   TAVTntuRaw*  vtxNtup = (TAVTntuRaw*)   myn_vtraw->GenerateObject();
+  //   int tmp_vtxid(0);
+  //   TAVTntuHit* vtxHit;
 
-  int tmp_vtxid(0);
-  TAVTntuHit* hit;
+  //   //inner tracker stuff
+  //   TAITntuRaw*  p_itnturaw = (TAITntuRaw*)   myn_itraw->GenerateObject();
 
-  //inner tracker stuff
-  TAITntuRaw*  p_itnturaw = (TAITntuRaw*)   myn_itraw->GenerateObject();
+  //   int tmp_itid(0);
+  //   TAITntuHit* hitIT;
 
-  int tmp_itid(0);
-  TAITntuHit* hitIT;
+  //   // associate maybe a pointer instead?
+  //   for(int i=0; i<mcNtup->GetHitN(); i++){
 
-  // accociate maybe a pointer instead?
-  // for(int t_frg = 0; t_frg<FragIdxs.size(); t_frg++) {
+  //   //Require that particle is produced inside the TG
+  //   //     if(part_reg == 3) {
+  //   //         FragIdxs.push_back(i);
+  //   //     }
 
   //   //Check VTX pixels
-  //   for(int i=0; i<p_nturaw->GetPixelsN(0); i++){
-  //     hit = p_nturaw->GetPixel(0,i);
-  //     tmp_vtxid = hit->GetMCid()-1;
-  //     if(tmp_vtxid == FragIdxs.at(t_frg)){
-  //   if(m_debug) cout<<" Vtx hit associated to part "<<t_frg<<" That is a:: "<<p_ntumceve->Hit(t_frg)->FlukaID()<<"and has charge, mass:: "<<p_ntumceve->Hit(t_frg)->Chg()<<" "<<p_ntumceve->Hit(t_frg)->Mass()<<" "<<endl;
-  //     }
+  //   for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {   // over all sensors
+
+  //       for (int nPx = 0; nPx < ntup->GetPixelsN( nSensor, "mc_hit" ); nPx++)       // over all pixels for each sensor
+
+  //           vtxHit = p_nturaw->GetPixel( nSensor, nPx );
+  //           tmp_vtxid = vtxHit->GetMCid(); 
+
+  //       //     if(tmp_vtxid == FragIdxs.at(t_frg)){
+
+  //       // if(m_debug) cout<<" Vtx hit associated to part "<<t_frg<<" That is a:: "<<mcNtup->Hit(t_frg)->FlukaID()<<"and has charge, mass:: "<<mcNtup->Hit(t_frg)->Chg()<<" "<<mcNtup->Hit(t_frg)->Mass()<<" "<<endl;
+  //       //   }
   //   }
 
   //   //Check IT pixels
@@ -409,7 +401,7 @@ void Booter::AssociateHitsToParticle() {
   //     hitIT = p_itnturaw->GetPixel(0,i);
   //     tmp_itid = hitIT->GetMCid()-1;
   //     if(tmp_itid == FragIdxs.at(t_frg)){
-  //   if(m_debug) cout<<" IT hit associated to part "<<t_frg<<" That is a:: "<<p_ntumceve->Hit(t_frg)->FlukaID()<<"and has charge, mass:: "<<p_ntumceve->Hit(t_frg)->Chg()<<" "<<p_ntumceve->Hit(t_frg)->Mass()<<" "<<endl;
+  //   if(m_debug) cout<<" IT hit associated to part "<<t_frg<<" That is a:: "<<mcNtup->Hit(t_frg)->FlukaID()<<"and has charge, mass:: "<<mcNtup->Hit(t_frg)->Chg()<<" "<<mcNtup->Hit(t_frg)->Mass()<<" "<<endl;
   //     }
   //   }
 
