@@ -36,7 +36,7 @@ private:
    Int_t              fPixelIndex;                   // index of the pixel
    Int_t              fPixelLine;                    // line in the matrix
    Int_t              fPixelColumn;                  // column in the matrix
-   int                m_layer;
+
    Double_t           fRawValue;                     // the rawvalue
    Double_t           fPulseHeight;                  // pulseheight on pixel
    
@@ -77,7 +77,7 @@ public:
    //! Set pixel column
    void               SetPixelColumn(Int_t aCol)      { fPixelColumn = aCol;     }
 
-   void               SetLayer(Int_t aLay)            { m_layer = aLay;     }
+   void               SetLayer(Int_t aLay)            { fSensorNumber = aLay;     }
    //! Set pixel position
    void               SetPosition(TVector3 aPosition) { fPosition = aPosition;   }
    //! Set pixel size
@@ -134,7 +134,7 @@ public:
    //! Get pulse height
    Double_t           GetPulseHeight()          const { return  fPulseHeight;    }
    // Quik hack by Frank, put it better
-   Int_t              GetLayer()               { return  m_layer;   }
+   Int_t              GetLayer()                const { return  fSensorNumber;   }
    
    //! Get position
    TVector3&          GetPosition()                   { return  fPosition;       }
