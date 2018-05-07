@@ -41,9 +41,9 @@ TAVTbaseDigitizer::TAVTbaseDigitizer(TAGparaDsc* parGeo)
 {
    SetFunctions();
    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpParGeo->Object();
-   fPitchX   = pGeoMap->GetPitchX();
+   fPitchX   = pGeoMap->GetPitchX()*fgkCm2Mu;
    fPixelsNx = pGeoMap->GetNPixelX();
-   fPitchY   = pGeoMap->GetPitchY();
+   fPitchY   = pGeoMap->GetPitchY()*fgkCm2Mu;
    fPixelsNy = pGeoMap->GetNPixelY();
 }
 
