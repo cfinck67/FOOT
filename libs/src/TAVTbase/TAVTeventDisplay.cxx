@@ -203,14 +203,14 @@ void TAVTeventDisplay::DrawRate()
    for( Int_t iPlane = 0; iPlane < nPlanes; iPlane++) {
 	  
 	  TH1F* pHisRateMap = (TH1F*)histoDat->FindObject(Form("vtRateMap%d", iPlane+1));
-	  pHisRateMap->Scale(1./(entries*3.*geoMap->GetPixelsNv()));
+	  pHisRateMap->Scale(1./(entries*3.*geoMap->GetNPixelY()));
 	  pad6->cd(iPlane+1);
 	  if (pHisRateMap->GetEntries() != 0)
 		 gPad->SetLogy();
 	  pHisRateMap->DrawCopy(); 
 	  
 	  TH1F* pHisQRate = (TH1F*)histoDat->FindObject(Form("vtRateMapQ%d", iPlane+1));
-	  pHisQRate->Scale(1./(entries*3.*geoMap->GetPixelsNv()));
+	  pHisQRate->Scale(1./(entries*3.*geoMap->GetNPixelY()));
 	  pad10->cd(iPlane+1);
 	  pHisQRate->DrawCopy();
 	  

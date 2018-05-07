@@ -26,7 +26,7 @@
 #include <time.h>
 
 #include "Booter.hxx"
- 
+#include "MultiTrackCheck.hxx"
 
 class RecoTools {
   
@@ -37,10 +37,10 @@ class RecoTools {
   ~RecoTools() {};
 
   //Reconstructions
-  void RecoLoop(TAGroot *tagr, int fr);
+  void RecoLoop(int fr);
 
   // //Actions for Tupling MC info for the various subdetectors
-  // void FillMCEvent(EVENT_STRUCT *myStr);
+  void FillMCEvent(EVENT_STRUCT *myStr);
   // void FillMCBeamMonitor(EVENT_STRUCT *myStr);
   // void FillMCDriftChamber(EVENT_STRUCT *myStr);
   // void FillMCVertex(EVENT_STRUCT *myStr);
@@ -62,7 +62,7 @@ class RecoTools {
   // void MonitorBMVTMat();
   // void MonitorBMNew(Long64_t jentry);
   // void MonitorBM();
-  // void AssociateHitsToParticle();
+  void AssociateHitsToParticle();
 
   // TAGgeoTrafo* fGeoTrafo;
 
@@ -82,7 +82,7 @@ class RecoTools {
   TString m_wd;
 
   //MC block
-  // TAGdataDsc* myn_mceve;
+  TAGdataDsc* myn_mceve;
   // TAGdataDsc* myn_mcmimo;
 
   vector<string> my_files;
@@ -151,7 +151,8 @@ class RecoTools {
   // TAGaction* mya_ittrack;
 
   // TAGaction* mya_msdraw;
-
+  TAGaction* mya_mceve;
 };
-
 #endif
+
+

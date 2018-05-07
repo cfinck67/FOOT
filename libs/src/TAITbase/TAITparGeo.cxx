@@ -277,7 +277,6 @@ void TAITparGeo::InitGeo()  {
 
             for (int i=0; i<m_nSensors_X; i++) {
                 double sensor_newX = offset_x + i * (chipDimension.x() + ITR_M28_DIST );
-		// cout<<k<<"  "<<sensor_newX<<endl;
 
                 stringstream ss_bodySensorName; ss_bodySensorName << "itrs" << j << k << i;
                 stringstream ss_regionSensorName; ss_regionSensorName << "ITRS" << j << k << i;
@@ -349,7 +348,6 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
         double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + board_z/2 ) );    // board begin
         // double offset_z = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 + m_siliconSensorThick_Lz + board_z/2 ) );    // board begin 
         double board_center = m_origin.z() + ( (j%2 == 0 ? -1 : 1) * ( m_plumeDistace_Z/2 ) ); // board center in z
-	// cout << j << " board_center " << board_center << endl;
 
         // m_passiveMatrix[i][j].resize( m_passiveMaterial.size() );
         // m_chipMatrix[i][j].resize( m_nSensors_Z );

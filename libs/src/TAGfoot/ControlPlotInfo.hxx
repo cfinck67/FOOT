@@ -95,7 +95,6 @@ public:
 
 	bool isDoub;
 	bool isInt;
-	bool m_printoutfile;
 
 	int m_nBin;
 	double m_minBin;

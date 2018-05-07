@@ -40,6 +40,45 @@ KFitter::KFitter () {
 	// class for control plot dumping
 	m_controlPlotter = ControlPlotsRepository::GetControlObject( m_kalmanOutputDir );
 
+
+	IncludeDetectors();
+
+	// take the geometry object
+	if ( (m_systemsON == "all" || m_systemsON.find( "VT" ) != string::npos) && GlobalPar::GetPar()->IncludeVertex() )
+		m_VT_geo = shared_ptr<TAVTparGeo> ( (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object() );
+	if ( (m_systemsON == "all" || m_systemsON.find( "IT" ) != string::npos) && GlobalPar::GetPar()->IncludeInnerTracker() )
+		m_IT_geo = shared_ptr<TAITparGeo> ( (TAITparGeo*) gTAGroot->FindParaDsc("itGeo", "TAITparGeo")->Object() );
+	if ( (m_systemsON == "all" || m_systemsON.find( "MSD" ) != string::npos) && GlobalPar::GetPar()->IncludeMSD() ) 
+		m_MSD_geo = shared_ptr<TAMSDparGeo> ( (TAMSDparGeo*) gTAGroot->FindParaDsc("msdGeo", "TAMSDparGeo")->Object() );
+
+	
+	// initialise the kalman method selected from param file
+	if ( GlobalPar::GetPar()->KalMode() == 1 )
+		m_fitter = new KalmanFitter(nIter, dPVal);
+	else if ( GlobalPar::GetPar()->KalMode() == 2 )
+		m_refFitter = new KalmanFitterRefTrack(nIter, dPVal);  
+	else if ( GlobalPar::GetPar()->KalMode() == 3 ) 
+		m_dafRefFitter = new DAF(true, nIter, dPVal);
+	else if ( GlobalPar::GetPar()->KalMode() == 4 )
+		m_dafSimpleFitter = new DAF(false, nIter, dPVal);
+
+	InitEventDisplay();		// empty!!!!
+
+
+	m_vecHistoColor = { kBlack, kRed-9, kRed+1, kRed-2, kOrange+7, kOrange, kOrange+3, kGreen+1, 
+						kGreen+3, kBlue+1, kBlue+3, kAzure+8, kAzure+1, kMagenta+2, 
+						kMagenta+3, kViolet+1, kViolet+6, kViolet-4 };
+
+}
+
+
+
+
+
+//----------------------------------------------------------------------------------------------------
+// check and print which detectors included and/or used in the kalman
+void KFitter::IncludeDetectors() {
+
 	// all possible detector and a map with an ID num
 	vector<string> tmp_detName = { "STC", "BM", "TG", "VT", "IT", "MSD" };
 	for (unsigned int i=0; i<tmp_detName.size(); i++)
@@ -67,25 +106,6 @@ KFitter::KFitter () {
 		cout << "   " << GlobalPar::GetPar()->MCParticles().at(i);
 	}
 	cout << endl;
-
-	
-	// initialise the kalman method selected from param file
-	if ( GlobalPar::GetPar()->KalMode() == 1 )
-		m_fitter = new KalmanFitter(nIter, dPVal);
-	else if ( GlobalPar::GetPar()->KalMode() == 2 )
-		m_refFitter = new KalmanFitterRefTrack(nIter, dPVal);  
-	else if ( GlobalPar::GetPar()->KalMode() == 3 ) 
-		m_dafRefFitter = new DAF(true, nIter, dPVal);
-	else if ( GlobalPar::GetPar()->KalMode() == 4 )
-		m_dafSimpleFitter = new DAF(false, nIter, dPVal);
-
-	InitEventDisplay();		// empty!!!!
-
-
-	m_vecHistoColor = { kBlack, kRed-9, kRed+1, kRed-2, kOrange+7, kOrange, kOrange+3, kGreen+1, 
-						kGreen+3, kBlue+1, kBlue+3, kAzure+8, kAzure+1, kMagenta+2, 
-						kMagenta+3, kViolet+1, kViolet+6, kViolet-4 };
-
 }
 
 
@@ -96,17 +116,27 @@ KFitter::KFitter () {
 
 //----------------------------------------------------------------------------------------------------
 // upload measurement points from vertex pixel
-int KFitter::UploadHitsVT( TAGdataDsc* footDataObj, shared_ptr<TAVTparGeo> vt_geo ) {
+int KFitter::UploadHitsVT() {
 	
-	m_VT_geo = vt_geo;
-	TAVTntuRaw* ntup = (TAVTntuRaw*) footDataObj->GenerateObject();
-	if ( m_debug > 0 )		cout << "N vertex pixel read: " << ntup->GetPixelsN(0) << endl;
-	
-	// save pixels in the collection
-	for (int i = 0; i < ntup->GetPixelsN(0); i++) 
-        m_VT_hitCollection.push_back( ntup->GetPixel(0,i) );
+	// take the ntuple object already filled
+	TAVTntuRaw* ntup = (TAVTntuRaw*) gTAGroot->FindDataDsc("vtRaw", "TAVTntuRaw")->Object();
+	if ( m_debug > 0 )		cout << "N vertex sensors: " << ntup->GetNSensors() << endl;
 
-	return ntup->GetPixelsN(0);
+	// MC hits example
+	// TAGntuMCeve* ntuMC = (TAGntuMCeve*) gTAGroot->FindDataDsc("myn_mceve", "TAGntuMCeve")->Object();
+	// cout << "Number of MC tracks from repo  " << ntuMC->nhit  << endl;
+	
+	int totPix = 0;
+	// save pixels in the collection
+	for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {	// over all sensors
+		totPix += ntup->GetPixelsN( nSensor, "mc_hit" );
+		if ( m_debug > 0 )		cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetPixelsN( nSensor, "mc_hit" ) << endl;
+
+		for (int nPx = 0; nPx < ntup->GetPixelsN( nSensor, "mc_hit" ); nPx++) 		// over all pixels for each sensor
+	        m_VT_hitCollection.push_back( ntup->GetPixel( nSensor, nPx, "mc_hit" ) );
+	}
+
+	return totPix;
 }
 
 
@@ -114,10 +144,10 @@ int KFitter::UploadHitsVT( TAGdataDsc* footDataObj, shared_ptr<TAVTparGeo> vt_ge
 
 //----------------------------------------------------------------------------------------------------
 // upload measurement points from Inner Tracker pixel
-int KFitter::UploadHitsIT( TAGdataDsc* footDataObj, shared_ptr<TAITparGeo> it_geo ) {
+int KFitter::UploadHitsIT() {
 	
-	m_IT_geo = it_geo;
-	TAITntuRaw* ntup = (TAITntuRaw*) footDataObj->GenerateObject();
+	// take the ntuple object already filled
+	TAITntuRaw* ntup = (TAITntuRaw*) gTAGroot->FindDataDsc("itRaw", "TAITntuRaw")->Object();
 	if ( m_debug > 0 )		cout << "N inner pixel read: " << ntup->GetPixelsN(0) << endl;
 
 	// save pixels in the collection
@@ -131,11 +161,10 @@ int KFitter::UploadHitsIT( TAGdataDsc* footDataObj, shared_ptr<TAITparGeo> it_ge
 
 //----------------------------------------------------------------------------------------------------
 // upload measurement points from Strip
-int KFitter::UploadHitsMSD( TAGdataDsc* footDataObj, shared_ptr<TAMSDparGeo> msd_geo ) {
+int KFitter::UploadHitsMSD() {
 	
-	m_MSD_geo = msd_geo;
-	TAMSDntuRaw* ntup = (TAMSDntuRaw*) footDataObj->GenerateObject();
-
+	// take the ntuple object already filled
+	TAMSDntuRaw* ntup = (TAMSDntuRaw*) gTAGroot->FindDataDsc("msdRaw", "TAMSDntuRaw")->Object();
 	if ( m_debug > 0 )		cout << "Strip detector hits read: " << ntup->GetPixelsN(0) << endl;
 
 	// save strips hits in the collection
@@ -156,17 +185,21 @@ int KFitter::PrepareData4Fit( Track* fitTrack ) {
 	if ( m_debug > 0 )		cout << "\n\n*******\tKFitter::PrepareData4Fit\t*******\n" << endl;
 
 	// Vertex -  fill fitter collections
-	if ( m_systemsON == "all" ||  m_systemsON.find( "VT" ) != string::npos ) {
+	// Vertex -  fill fitter collections
+	if ( (m_systemsON == "all" || m_systemsON.find( "VT" ) != string::npos) && GlobalPar::GetPar()->IncludeVertex() ) {
+		UploadHitsVT();
 		if ( m_debug > 0 )		cout << endl<<endl << "Filling vertex hit collection  = " << m_VT_hitCollection.size() << endl;
 		Prepare4Vertex(fitTrack);
 	}
 	// Inner Tracker -  fill fitter collections
-	if ( m_systemsON == "all" || m_systemsON.find( "IT" ) != string::npos) {
+	if ( (m_systemsON == "all" || m_systemsON.find( "IT" ) != string::npos) && GlobalPar::GetPar()->IncludeInnerTracker() ) {
+		UploadHitsIT();
 		if ( m_debug > 0 )		cout <<endl<<endl << "Filling inner detector hit collection = " << m_IT_hitCollection.size() << endl;
 		Prepare4InnerTracker(fitTrack);    
 	}
 	// MSD -  fill fitter collections
-	if ( m_systemsON == "all" || m_systemsON.find( "MSD" ) != string::npos ) {
+	if ( (m_systemsON == "all" || m_systemsON.find( "MSD" ) != string::npos) && GlobalPar::GetPar()->IncludeMSD() ) {
+		UploadHitsMSD();
 		if ( m_debug > 0 )		cout << endl<<endl << "Filling Strip hit collection = " << m_MSD_hitCollection.size() << endl;		
 		Prepare4Strip(fitTrack);
 	}
@@ -230,7 +263,7 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
         TAVTntuHit* p_hit = m_VT_hitCollection.at(i);
 
         // get pixel coord
-        TVector3 hitPos = m_VT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
+        TVector3 hitPos = m_VT_geo->GetPixelPos_Global( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
         // get true MC coord
         // TVector3 hitPos = m_VT_hitCollection.at(i)->GetMCPosition_Global();
 
@@ -245,8 +278,8 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
 		hitCoords(1)=hitPos.y();
 		hitCoords(2)=hitPos.z();
 		// set covariance matrix
-		double pixReso = 0.001;
-		// double pixReso = GlobalPar::GetPar()->VTReso();
+		// double pixReso = 0.001;
+		double pixReso = GlobalPar::GetPar()->VTReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
 		double zErr = 0.001;
@@ -289,8 +322,8 @@ void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
 		hitCoords(1)=hitPos.y();
 		hitCoords(2)=hitPos.z();
 		// set covariance matrix
-		double pixReso = 0.001;
-		// double pixReso = GlobalPar::GetPar()->ITReso();
+		// double pixReso = 0.001;
+		double pixReso = GlobalPar::GetPar()->ITReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
 		double zErr = 0.001;
@@ -328,8 +361,8 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
         
 
         // set covariance matrix
-        double stripReso = 0.001;
-		// double stripReso = GlobalPar::GetPar()->MSDReso();
+        // double stripReso = 0.001;
+		double stripReso = GlobalPar::GetPar()->MSDReso();
 		hitCov.UnitMatrix();         
 		hitCov *= stripReso*stripReso; 
 		double zErr = 0.001;
@@ -933,7 +966,7 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 		// virtual double getRadiationLenght() const = 0;
 
 		ControlPlotsRepository::GetControlObject( m_kalmanOutputDir )->SetControlMom_4eachState( hitSampleName, i, &KalmanMom, &tmpMom, &tmp_genMom );
-		ControlPlotsRepository::GetControlObject( m_kalmanOutputDir )->SetControlPos_4eachState( hitSampleName, i, &KalmanPos, &tmpPos, &tmp_genPos );
+		ControlPlotsRepository::GetControlObject( m_kalmanOutputDir )->SetControlPos_4eachState( hitSampleName, i, &KalmanPos, &tmpPos, &hitPos );
 
 		// keep quantities to be plotted of the state CLOSER to the interaction point
 		unsigned int measuredState = ( m_reverse ? m_hitCollectionToFit[ hitSampleName ].size()-1 : 0 );
@@ -961,8 +994,8 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			m_controlPlotter->SetTrackInfo( hitSampleName, track );
 
 
-			m_printoutntuple = GlobalPar::GetPar()->IsPrintOutputNtuple();
-			if (m_printoutntuple) m_controlPlotter->Set_Outputntuple(&kalmanMom, &kalmanPos, &tmp_genMom);
+			if ( GlobalPar::GetPar()->IsPrintOutputNtuple() ) 
+				m_controlPlotter->Set_Outputntuple(&kalmanMom, &kalmanPos, &tmp_genMom);
 
 		}
 	}
@@ -989,7 +1022,7 @@ void KFitter::GetTrueMCInfo( string hitSampleName, int x,
 		*tmp_genPos = m_VT_hitCollection.at( hitID )->m_genPartPosition;   // genaration position
 		*tmp_genMom = m_VT_hitCollection.at( hitID )->m_genPartMomentum;		// genaration momentum
 		TAVTntuHit* p_hit = m_VT_hitCollection.at(hitID);
-        *hitPos = m_VT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() ); // pixel coord
+        *hitPos = m_VT_geo->GetPixelPos_Global( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() ); // pixel coord
 
 	}
 	else if ( detID == m_detectorID_map["IT"] ) {

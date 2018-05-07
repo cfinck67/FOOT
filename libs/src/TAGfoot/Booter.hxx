@@ -34,7 +34,9 @@ class Booter {
   
  public :
 
-  Booter();
+ TH2F* pos2D;
+
+  Booter() {};
   ~Booter() {};
 
   void Initialize( EVENT_STRUCT* evStr );
@@ -98,10 +100,6 @@ class Booter {
 
   //Parameters
   TAGparaDsc* myp_bmgeo;
-  
-  shared_ptr<TAVTparGeo> m_vtgeo;
-  shared_ptr<TAITparGeo> m_itgeo;
-  shared_ptr<TAMSDparGeo> m_msdgeo;
 
   TAGparaDsc* myp_vtmap;
   TAGparaDsc* myp_vtcal;
@@ -161,6 +159,7 @@ class Booter {
   TAGaction* mya_ittrack;
 
   TAGaction* mya_msdraw;
+  TAGaction* mya_mceve;
 
 };
 

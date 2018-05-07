@@ -50,8 +50,7 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
 
 
 //----------------------------------------------------------------------------------------------------
-void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
-    
+void RecoTools::RecoLoop(int fr) {
 
     // input ntuple tree
     TChain *tree = new TChain("EventTree");
@@ -71,24 +70,35 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     if(m_debug) cout<<" Found branches "<<endl;
 
     //Configure the output flagging
-    tagr->SetCampaignNumber(100);
-    tagr->SetRunNumber(1);
+    gTAGroot->SetCampaignNumber(100);
+    gTAGroot->SetRunNumber(1);
 
     //Define the output file content.
-    my_out = new TAGactTreeWriter("my_out");
+    // my_out = new TAGactTreeWriter("my_out");
+    // gTAGroot->AddRequiredItem("my_out");
+    // gTAGroot->Print();
+    // if (my_out->Open(m_oustr, "RECREATE")) return;
 
 
-    tagr->AddRequiredItem("my_out");
-    tagr->Print();
-    if (my_out->Open(m_oustr, "RECREATE")) return;
 
+   
+    
 
     Booter* booter = new Booter();
     booter->Initialize( &evStr );
 
     
+    MultiTrackCheck* multiTrackCheck = new MultiTrackCheck();
+    multiTrackCheck->Initialize( &evStr );
+    
+    // gTAGroot->AddRequiredItem("itRaw");
+    // gTAGroot->AddRequiredItem("myn_mceve");
+    // gTAGroot->AddRequiredItem("an_mceve");
+    // gTAGroot->Print();
+
+    
     /***********  The event Loop   ****************************************   */
-    tagr->BeginEventLoop();
+    gTAGroot->BeginEventLoop();
     Long64_t nentries = tree->GetEntries();
     Long64_t nbytes = 0, nb = 0;
     char flag[200]; bool tobedrawn = kFALSE;
@@ -103,15 +113,15 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         // if (jentry>1)  break;
         // if (jentry<33061)  continue;
 
-        tagr->NextEvent();
+        gTAGroot->NextEvent();
         if(!(jentry%fr))        cout<<"Processed:: "<<jentry<<" evts!"<<endl;
 
 
         ///////////////  Call here your Process() functions    /////////////////////////////////////////////
 
 
-        booter->Process( jentry );
-
+	booter->Process( jentry );
+	multiTrackCheck->Process( jentry );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -133,20 +143,17 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     cout << "End of the event loop " << endl;
 
     booter->Finalize();
+    multiTrackCheck->Finalize();
+
+    gTAGroot->EndEventLoop();
     
-    tagr->EndEventLoop();
-    
-    my_out->Print();
-    my_out->Close();
+    // my_out->Print();
+    // my_out->Close();
 
     // materialEffects->drawdEdx( 11 );  // to look at it in genfit
 
     return;
 }
-
-
-
-
 
 
 

@@ -268,7 +268,9 @@ ClassImp(TAGntuMCeve);
 TAGntuMCeve::TAGntuMCeve()
   : nhit(0),
     h(0)
-{}
+{
+    SetupClones();
+}
 
 //------------------------------------------+-----------------------------------
 //! Destructor.

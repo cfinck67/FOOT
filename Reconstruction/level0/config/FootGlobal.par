@@ -52,4 +52,4 @@ Print OutputNtuple: false
 Output Ntuplename: RecoTree.root
 
 Create Reconstruction Geo: y
-Print FLUKA Geo input files: y
+Print FLUKA Geo input files: n

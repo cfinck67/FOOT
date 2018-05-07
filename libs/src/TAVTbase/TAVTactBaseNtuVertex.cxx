@@ -80,8 +80,8 @@ void TAVTactBaseNtuVertex::CreateHistogram()
    
    if (TAVTparConf::IsMapHistOn()) {
 	  fpHisPosXY = new TH2F( "vtVtxPosXY", "Vertex position at XY", 
-							100, -pGeoMap->GetPitchU()*pGeoMap->GetPixelsNv()/2., pGeoMap->GetPitchU()*pGeoMap->GetPixelsNv()/2., 
-							100, -pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2., pGeoMap->GetPitchU()*pGeoMap->GetPixelsNu()/2.);
+							100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelY()/2., pGeoMap->GetPitchX()*pGeoMap->GetNPixelY()/2., 
+							100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2.);
 	  fpHisPosXY->SetMarkerColor(3);
 	  fpHisPosXY->SetStats(kFALSE);
 	  AddHistogram(fpHisPosXY);

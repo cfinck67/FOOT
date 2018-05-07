@@ -43,7 +43,7 @@ public:
     TAVTparGeo();
     TAVTparGeo( TAVTparGeo* original );
     virtual ~TAVTparGeo() {
-      // sensor matrix
+      // sensor matrix cleaning
       for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
         for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
             for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
@@ -59,6 +59,21 @@ public:
     void InitGeo();
     void InitMaterial();
 
+    // to be removed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Float_t GetPositionU(Int_t column)         const;
+    Float_t GetPositionV(Int_t line)           const;
+    TVector3 GetSensorPosition( int sensorID )   { return m_sensorMatrix[sensorID][0][0]->GetCenter(); };
+
+    //    it should be changed accordingly with the simulation choice when more than one sensors will be used
+    TVector3 GetPixelPos_Global( int layer, int col, int row );
+    TVector3 GetPixelPos_Local( int layer, int col, int row );
+
+    double GetColumnCenter_Local ( int layer, int col);
+    double GetRowCenter_Local ( int layer, int row);
+    double GetColumnCenter_Global (int layer, int col);
+    double GetRowCenter_Global ( int layer, int row);
+
+
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id
     void Global2Local( TVector3* glob );
@@ -71,10 +86,6 @@ public:
 
     TRotation GetRotationToGlobal() { return *m_rotation; };
     TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
-
-    // Return the pixel position  -->  change name! in GetPixelPos()
-    //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
-    TVector3 GetPosition( int layer, int col, int row );
 
     //  Return Vertex center coord. in the global frame
     TVector3 GetCenter() { return m_center; };
@@ -89,8 +100,16 @@ public:
 
     double GetNPixelX() { return m_nPixel_X; };
     double GetNPixelY() { return m_nPixel_Y; };
-    int GetNLayers() { return m_nSensors_Z; };
+    int GetNLayers() { return m_nSensors.Z(); };
+    
+    int GetNSensors()    { return m_nSensors.X()*m_nSensors.Y()*m_nSensors.Z(); };  // return tot number of sensors
+    // Return a vector with the number of sensors along the cartesian directions 
+    TVector3        GetNumberOfSensorAlongDirections() { return m_nSensors; }; 
+    
+    int GetSensorID( int layer, int col, int row )    { return layer; };
 
+    double GetPitchX()  { return m_Pitch_X; };
+    double GetPitchY()  { return m_Pitch_Y; };
     
     string PrintBodies();
     string PrintRegions();
@@ -98,8 +117,6 @@ public:
     string PrintSubtractBodiesFromAir();
     string PrintParameters();
 
-    // Return a vector with the number of sensors along the cartesian directions
-    TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
 
     TGeoVolume*     GetVolume();
 
@@ -122,10 +139,10 @@ private:
     int m_volumeCount;
     int m_passiveCount;
 
-    int m_nSensors_X;
-    int m_nSensors_Y;
-    int m_nSensors_Z;
-    TVector3 m_NSensors;
+    // int m_nSensors_X;
+    // int m_nSensors_Y;
+    // int m_nSensors_Z;
+    TVector3 m_nSensors;
 
     vector<string> m_materialOrder;
     vector<string> m_passiveMaterial;
@@ -150,6 +167,10 @@ private:
 
     int m_debug;
     int m_setW_0number;
+
+
+    double m_Pitch_X;
+    double m_Pitch_Y;
 
     double m_xmin, m_ymin;
 
