@@ -37,8 +37,6 @@ TAVTdigitizerE::~TAVTdigitizerE()
 // --------------------------------------------------------------------------------------
 Bool_t TAVTdigitizerE::MakeCluster(Double_t x0, Double_t y0, Double_t /*zin*/, Double_t /*zout*/)
 {
-   TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpParGeo->Object();
-
    // std array
    fMap.clear();
 
@@ -87,15 +85,15 @@ Bool_t TAVTdigitizerE::MakeCluster(Double_t x0, Double_t y0, Double_t /*zin*/, D
    Int_t col1  = col0  - sigma;
    Int_t line1 = line0 + sigma;
    
-   Float_t x1  = pGeoMap->GetPositionU(col1);
-   Float_t y1  = pGeoMap->GetPositionV(line1);
+   Float_t x1  = GetPositionU(col1);
+   Float_t y1  = GetPositionV(line1);
    
    // x2 - y2
    Int_t col2  = col0  + sigma;
    Int_t line2 = line0 - sigma;
    
-   Float_t x2  = pGeoMap->GetPositionU(col2);
-   Float_t y2  = pGeoMap->GetPositionV(line2);
+   Float_t x2  = GetPositionU(col2);
+   Float_t y2  = GetPositionV(line2);
    
    if (fDebugLevel) {
       printf("%.1f %.1f %d %d\n", x1, x2, col1, line1);

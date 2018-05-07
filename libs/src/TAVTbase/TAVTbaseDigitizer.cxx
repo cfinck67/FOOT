@@ -132,11 +132,27 @@ Int_t TAVTbaseDigitizer::GetLine(Float_t y) const
    return fPixelsNy - line - 1;
 }
 
+
 //-----------------------------------------+---------------------------------
 Int_t TAVTbaseDigitizer::GetIndex(Int_t line, Int_t column) const
 {
    return line*fPixelsNx + column;
 }
+
+//_____________________________________________________________________________
+Float_t TAVTbaseDigitizer::GetPositionU(Int_t column) const
+{
+   Float_t x = (float(2*column - fPixelsNx + 1) * fPitchX)/2.;
+   return  x;
+}
+
+//_____________________________________________________________________________
+Float_t TAVTbaseDigitizer::GetPositionV(Int_t line) const
+{
+   Float_t y = -(float(2*line - fPixelsNy + 1) * fPitchY)/2.;
+   return  y;
+}
+
 
 //_____________________________________________________________________________
 Float_t TAVTbaseDigitizer::GetColRemainder(Float_t x) const
