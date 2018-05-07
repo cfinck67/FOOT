@@ -13,11 +13,11 @@
 #include "TArrayF.h"
 #include "TF1.h"
 
-#include "TAVTparTools.hxx"
+#include "TAGparTools.hxx"
 
 //##############################################################################
 
-class TAITparCal : public TAVTparTools {
+class TAITparCal : public TAGparTools {
       
 private:
    TF1*     fLandau[6];

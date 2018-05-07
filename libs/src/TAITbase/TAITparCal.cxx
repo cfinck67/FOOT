@@ -28,7 +28,7 @@ Int_t   TAITparCal::fgkChargesN       = 6;
 
 //------------------------------------------+-----------------------------------
 TAITparCal::TAITparCal()
-: TAVTparTools(),
+: TAGparTools(),
   fChargeProba(new TArrayF(6)),
   fChargeProbaNorm(new TArrayF(6)),
   fChargeWithMaxProba(0),
