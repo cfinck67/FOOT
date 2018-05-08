@@ -84,15 +84,31 @@ Bool_t TAGactNtuMCeve::Action() {
 
     Info("Action()","MCeve : %d %d %lf ",i_id,i_chg,i_mass);
 
-    // VM changed 17/11/13
-    new((*(p_nturaw->h))[i]) 
+    // VM changed 17/11/13   -->  male!
+    new((*(p_nturaw->h))[i])    // to be changed!!!!!!!!!!!!!!!
       TAGntuMCeveHit(i_id,i_chg,i_type,i_reg,i_bar,i_dead,i_mass,i_moth,i_time,i_tof,i_trlen,ipos,fpos,ip,fp,mothip,mothfp,i_pileup);
     
   }
 
-  p_nturaw->nhit  = nh;
+  p_nturaw->nhit  = nh;    // to be changed!!!!!!!!!!!!!!!
 
   fpNtuMC->SetBit(kValid);
   return kTRUE;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

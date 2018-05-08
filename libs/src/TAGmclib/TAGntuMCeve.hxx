@@ -104,6 +104,8 @@ class TAGntuMCeve : public TAGdata {
     TAGntuMCeveHit*       Hit(Int_t i);
     const TAGntuMCeveHit* Hit(Int_t i) const;
 
+    // manca AddHit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     virtual void    SetupClones();
     virtual void    Clear(Option_t* opt="");
 
@@ -113,7 +115,7 @@ class TAGntuMCeve : public TAGdata {
 
     short GetHitN()     { return nhit; };
 
-  private:
+  // private:           // to be private!!!!!!!!!!!!!!!
     Short_t         nhit;		    // nhit
     TClonesArray*   h;			    // hits
 };

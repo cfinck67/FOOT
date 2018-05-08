@@ -90,7 +90,7 @@ void MultiTrackCheck::Process( Long64_t jentry ){
    
    //// Read track ntuple variable//// 
    TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->GenerateObject();
-   int ntrackMC =  p_ntumceve->nhit;
+   int ntrackMC =  p_ntumceve->GetHitN();
    histo_Track->Fill(ntrackMC);
    
    for(int i=0; i<ntrackMC; i++){

@@ -15,6 +15,7 @@
 #include "TAVTparGeo.hxx"
 #include "TAGparaDsc.hxx"
 
+#include "TAGntuMCeve.hxx"
 // #include "TAGntuMCeveHit.hxx"
 
 
