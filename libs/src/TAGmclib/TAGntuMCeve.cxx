@@ -266,7 +266,8 @@ ClassImp(TAGntuMCeve);
 //! Default constructor.
 
 TAGntuMCeve::TAGntuMCeve()
-  : nhit(0),
+  : 
+  // nhit(0),
     h(0)
 {
     SetupClones();
@@ -279,6 +280,24 @@ TAGntuMCeve::~TAGntuMCeve()
 {
   delete h;
 }
+
+TAGntuMCeveHit* TAGntuMCeve::AddHit(  Int_t i_id, Int_t i_chg, Int_t i_type, 
+                                      Int_t i_reg, Int_t i_bar, Int_t i_dead,
+                                      Double_t i_mass, Int_t i_moth, 
+                                      Double_t i_time,
+                                      Double_t i_tof, Double_t i_trlen,
+                                      TVector3 i_ipos, TVector3 i_fpos, 
+                                      TVector3 i_ip,TVector3 i_fp,
+                                      TVector3 i_mothip,
+                                      TVector3 i_mothfp,Int_t i_pileup ) {
+
+    TClonesArray &hitCollection = *h;
+    TAGntuMCeveHit* hit = new( hitCollection[hitCollection.GetEntriesFast()] ) TAGntuMCeveHit( 
+                                            i_id,i_chg,i_type,i_reg,i_bar,i_dead,i_mass,i_moth,
+                                            i_time,i_tof,i_trlen,i_ipos,i_fpos,i_ip,i_fp,i_mothip,i_mothfp,i_pileup );
+    return hit;
+
+};
 
 //------------------------------------------+-----------------------------------
 //! Setup clones.
@@ -297,7 +316,7 @@ void TAGntuMCeve::Clear(Option_t*)
 
   TAGdata::Clear();
 
-  nhit  = 0;
+  // nhit  = 0;
   h->Delete();
 
   return;
@@ -308,20 +327,20 @@ void TAGntuMCeve::Clear(Option_t*)
 
 void TAGntuMCeve::ToStream(ostream& os, Option_t* option) const
 {
-  os << "TAGntuMCeve" 
-     << Form("  nhit=%3d", nhit) 
-     << endl;
+  // os << "TAGntuMCeve" 
+  //    // << Form("  nhit=%3d", nhit) 
+  //    << endl;
 
-  if (nhit == 0) return;
+  // // if (nhit == 0) return;
   
-  os << "ind slat stat  adct  adcb  tdct  tdcb" << endl;
+  // os << "ind slat stat  adct  adcb  tdct  tdcb" << endl;
   
-  for (Int_t i = 0; i < nhit; i++) {
-    const TAGntuMCeveHit* p_hit = Hit(i);
-    os << Form("%3d %4lf", i, p_hit->mass)
-       << endl;
-  }
+  // // for (Int_t i = 0; i < nhit; i++) {
+  // //   const TAGntuMCeveHit* p_hit = Hit(i);
+  // //   os << Form("%3d %4lf", i, p_hit->mass)
+  // //      << endl;
+  // // }
 
-  return;
+  // return;
 }
 

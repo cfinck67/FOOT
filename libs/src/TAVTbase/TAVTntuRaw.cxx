@@ -58,7 +58,7 @@ TAVTntuRaw::~TAVTntuRaw() {
 
 
 //______________________________________________________________________________
-//  Deprecated
+//  Deprecated, to be private
 TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, Double_t value, Int_t aLine, Int_t aColumn){
    if (iSensor >= 0  || iSensor < m_vtxGeo->GetNSensors()) {      
       TClonesArray &pixelArray = *GetListOfPixels(iSensor);

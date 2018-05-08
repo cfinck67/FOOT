@@ -48,11 +48,11 @@ Bool_t TAGactNtuMCeve::Action() {
   Info("Action()"," Entering TAGactNtuMCeve");
   TAGntuMCeve* p_nturaw = (TAGntuMCeve*) fpNtuMC->Object();
 
-  Int_t nh(0);
+  // Int_t nh(0);
   p_nturaw->Clear();
 
   //Number of hits/tracks
-  nh = fpEvtStr->TRn;
+  // nh = fpEvtStr->TRn;
 
   for (Int_t i = 0; i < fpEvtStr->TRn; i++) {
     Double_t i_mass = fpEvtStr->TRmass[i];
@@ -90,7 +90,7 @@ Bool_t TAGactNtuMCeve::Action() {
     
   }
 
-  p_nturaw->nhit  = nh;    // to be changed!!!!!!!!!!!!!!!
+  // p_nturaw->nhit  = nh;    // to be changed!!!!!!!!!!!!!!!
 
   fpNtuMC->SetBit(kValid);
   return kTRUE;
