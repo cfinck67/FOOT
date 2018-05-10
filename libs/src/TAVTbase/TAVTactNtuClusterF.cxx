@@ -62,7 +62,7 @@ COMMENTI
 //  
 Bool_t TAVTactNtuClusterF::FindClusters(int iSensor)	{
 
-	// if ( GlobalPar::GetPar()->Debug() > 0 )         
+	if ( GlobalPar::GetPar()->Debug() > 0 )         
 		cout << "\tTAVTactNtuClusterF::FindClusters  :  Clustering on sensor " << iSensor << endl;
 
     // Look in a iterative way to next neighbour

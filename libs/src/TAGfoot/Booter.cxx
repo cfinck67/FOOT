@@ -211,25 +211,25 @@ void Booter::Process( Long64_t jentry ) {
     }
 
 
-    // cluster test  -  myn_vtclus
-    // TAVTntuCluster* ntup = (TAVTntuCluster*)myn_vtclus->Object();
-    TAVTntuCluster* ntup = (TAVTntuCluster*) gTAGroot->FindDataDsc("vtClus", "TAVTntuCluster")->Object();
-    // for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {   // over all sensors
+    // // cluster test  -  myn_vtclus
+    // // TAVTntuCluster* ntup = (TAVTntuCluster*)myn_vtclus->Object();
+    // TAVTntuCluster* ntup = (TAVTntuCluster*) gTAGroot->FindDataDsc("vtClus", "TAVTntuCluster")->Object();
+    // // for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {   // over all sensors
 
-    for (int nSensor = 0; nSensor < 4; nSensor++) {   // over all sensors
-        // if ( m_debug > 0 )      
-        cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetClustersN( nSensor ) << endl;
+    // for (int nSensor = 0; nSensor < 4; nSensor++) {   // over all sensors
+    //     if ( m_debug > 0 )      
+    //     cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetClustersN( nSensor ) << endl;
 
-        for (int nPx = 0; nPx < ntup->GetClustersN( nSensor ); nPx++)  {     // over all pixels for each sensor
-            cout << "Cluster Test :: cluster number = " << ntup->GetClustersN(nSensor) << " and sensorID = " << ntup->GetCluster( nSensor, nPx )->GetSensorID() << endl;
-            TClonesArray* arra = ntup->GetCluster( nSensor, nPx )->GetListOfPixels();
-            for ( int n=0; n<arra->GetEntries(); n++ ) {
-                TVector3 vPos = ( (TAVTntuHit*) arra->At(n) )->GetPosition();
-                if ( nSensor == 0 )
-                    pos2D->Fill( vPos.x(), vPos.y() );
-            }
-        }
-    }
+    //     for (int nPx = 0; nPx < ntup->GetClustersN( nSensor ); nPx++)  {     // over all pixels for each sensor
+    //         cout << "Cluster Test :: cluster number = " << ntup->GetClustersN(nSensor) << " and sensorID = " << ntup->GetCluster( nSensor, nPx )->GetSensorID() << endl;
+    //         TClonesArray* arra = ntup->GetCluster( nSensor, nPx )->GetListOfPixels();
+    //         for ( int n=0; n<arra->GetEntries(); n++ ) {
+    //             TVector3 vPos = ( (TAVTntuHit*) arra->At(n) )->GetPosition();
+    //             if ( nSensor == 0 )
+    //                 pos2D->Fill( vPos.x(), vPos.y() );
+    //         }
+    //     }
+    // }
 
 
         // stop time
@@ -247,9 +247,9 @@ void Booter::Process( Long64_t jentry ) {
 void Booter::Finalize() {
 
     // cluster test
-    TCanvas* quadrante = new TCanvas( "q","q", 1000, 800 );
-    pos2D->Draw("colz");
-    quadrante->SaveAs("cluster.png");
+    // TCanvas* quadrante = new TCanvas( "q","q", 1000, 800 );
+    // pos2D->Draw("colz");
+    // quadrante->SaveAs("cluster.png");
 
 	if ( GlobalPar::GetPar()->IncludeKalman() )      m_kFitter->Finalize();
 

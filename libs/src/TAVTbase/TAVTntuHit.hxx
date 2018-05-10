@@ -14,6 +14,7 @@
 #include "TAGroot.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAGparaDsc.hxx"
+#include "TAGdataDsc.hxx"
 
 #include "TAGntuMCeve.hxx"
 // #include "TAGntuMCeveHit.hxx"
@@ -82,23 +83,7 @@ public:
 	void Initialise();
 
 	void SetMcID( int amcID ) { m_mcID = amcID; };
-	void SetGenPartID( int agenPartID ) { 
-		m_genPartIndex = agenPartID; 
-		
-        // find the pointer in the list
-        if( !GlobalPar::GetPar()->IncludeEvent() )  return;
-
-        TAGntuMCeve* ntup = (TAGntuMCeve*) gTAGroot->FindDataDsc("myn_mceve", "TAGntuMCeve")->Object();
-        for (int i = 0; i < ntup->GetHitN(); i++) {   // over all sensors
-            if ( ntup->Hit( i )->FlukaID() == m_genPartIndex ) {
-                m_genPartPointer = ntup->Hit( i );
-                // ntup->Hit( i )->AddVTXhit( this );  // x Alberto to implement <3
-                return;
-            }
-        }
-
-
-	};
+	void SetGenPartID( int agenPartID );
 
 	void SetClusterSeed( TAVTntuHit* aseedID ) { m_clusterSeed = aseedID; };
 

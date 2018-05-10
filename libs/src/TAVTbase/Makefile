@@ -11,7 +11,7 @@ SOMINV     = 0
 #
 TINCLFLAGS += $(shell root-config --cflags)
 INCLFLAGS  = $(filter-out -stdlib=libc++, $(TINCLFLAGS))
-INCLFLAGS += -I../TAGbase -I../TAGfoot -I../TABMbase 
+INCLFLAGS += -I../TAGbase -I../TAGfoot -I../TABMbase -I../TAGmclib 
 INCLFLAGS += -I../../../Simulation/TXT2ROOT -I../../../Simulation
 INCLFLAGS += -I../../../libs/GenFit/fitters/include -I../../../libs/GenFit/core/include
 LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
@@ -20,7 +20,7 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTntuHit.hxx TAVTparTools.hxx \
 	         TAVTparMap.hxx TAVTparGeo.hxx  TAVTparConf.hxx \
-	         TAVTactNtuRaw.hxx TAVTactNtuMC.hxx TAGntuMCeve.hxx \
+	         TAVTactNtuRaw.hxx TAVTactNtuMC.hxx \
 	         TAVTbaseDigitizer.hxx TAVTdigitizer.hxx TAVTdigitizerE.hxx \
 			 TAVTntuCluster.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx 
 			 # TAVTactNtuCluster.hxx	

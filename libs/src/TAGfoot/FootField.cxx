@@ -85,7 +85,7 @@ FootField::FootField ( float constValue ) {
 
 // return B as a vector, given vector position
 TVector3 FootField::get(const TVector3& position) const {
-	const TVector3 localPosition = TVector3( position.x() - MAG_AIR_X, position.y() - MAG_AIR_Y, position.z() );	// v14.0.1  map is in global coord ...
+	const TVector3 localPosition = TVector3( position.x(), position.y(), position.z() );	// v14.0.1  map is in global coord ...
 	// const TVector3 localPosition = TVector3( position.x() - MAG_AIR_X, position.y() - MAG_AIR_Y, position.z() - MAG_AIR_Z );	//to local coord
 	return const_cast<FootField*>(this)->Interpolate( localPosition );
 }
@@ -96,7 +96,7 @@ TVector3 FootField::get(const TVector3& position) const {
 // first 3 variables are the input position components, last 3 var are the output b components
 void FootField::get(const double& posX, const double& posY, const double& posZ, double& Bx, double& By, double& Bz) const { 
 		
-	const TVector3 position = TVector3(posX - MAG_AIR_X, posY - MAG_AIR_Y, posZ - MAG_AIR_Z );	// v14.0.1  map is in global coord ...
+	const TVector3 position = TVector3(posX, posY, posZ );	// v14.0.1  map is in global coord ...
 	// const TVector3 position = TVector3(posX - MAG_AIR_X, posY - MAG_AIR_Y, posZ - MAG_AIR_Z );	//to local coord
 
 	TVector3 outField = const_cast<FootField*>(this)->Interpolate( position );

@@ -108,7 +108,7 @@ Bool_t TAVTactBaseNtuCluster::ApplyCuts(TAVTcluster* cluster)
 //  
 Bool_t TAVTactBaseNtuCluster::Action()  {
 
-    // if ( GlobalPar::GetPar()->Debug() > 0 )         
+    if ( GlobalPar::GetPar()->Debug() > 0 )         
         cout << "\tTAVTactBaseNtuCluster::Action start " << endl;
 
 

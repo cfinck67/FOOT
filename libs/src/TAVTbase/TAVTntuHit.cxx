@@ -42,9 +42,6 @@ TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, TAVTrawHit* pixel)
     m_origins = "data";
     m_layer = aSensorNumber;
     Initialise();
-
-    if(fDebugLevel > 1)
-        printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
 }
 
 
@@ -68,10 +65,6 @@ TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t a
     Initialise();
 
     fPulseHeight    = fRawValue; 
-
-    if(fDebugLevel>1)
-        printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
-   
 }
 
 
@@ -96,9 +89,6 @@ TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t
     Initialise();
 
     fPulseHeight    = fRawValue; 
-
-    if(fDebugLevel > 1) 
-        printf("TAVTntuHit: pixel %d from plane %d with value %f built\n", fPixelIndex, fSensorNumber, fRawValue);
 }
 
 
@@ -126,12 +116,34 @@ void TAVTntuHit::Initialise() {
     m_geometry = (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object();
 
     // set center position
+    if ( GlobalPar::GetPar()->Debug() > 1 )   cout << "TAVTntuHit::Initialise()  ::  line = " << fPixelLine << " col = " << fPixelColumn << endl;
     SetPosition( m_geometry->GetPixelPos_Local( fSensorNumber, fPixelColumn, fPixelLine ) );
-    // SetPosition( m_geometry->GetPosition( m_layer, fPixelColumn, fPixelLine ) );
 
     // m_originAllowed = { "MC_cluster", "MC_hit", "MC_pileup", "MC_noise", "data" };
 
 }
+
+
+
+//______________________________________________________________________________
+void TAVTntuHit::SetGenPartID( int agenPartID ) { 
+    m_genPartIndex = agenPartID; 
+    
+        // find the pointer in the list
+        if( !GlobalPar::GetPar()->IncludeEvent() )  return;
+
+        TAGntuMCeve* ntup = (TAGntuMCeve*) gTAGroot->FindDataDsc("myn_mceve", "TAGntuMCeve")->Object();
+        for (int i = 0; i < ntup->GetHitN(); i++) {   // over all sensors
+            if ( ntup->Hit( i )->FlukaID() == m_genPartIndex ) {
+                m_genPartPointer = ntup->Hit( i );
+                // ntup->Hit( i )->AddVTXhit( this );  // x Alberto to implement <3
+                return;
+            }
+        }
+
+
+  };
+
 
 
 

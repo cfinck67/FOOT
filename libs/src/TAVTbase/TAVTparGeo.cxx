@@ -113,7 +113,7 @@ void TAVTparGeo::InitGeo()  {
     // m_nSensors_X = 1;
     // m_nSensors_Y = 1;
     // m_nSensors_Z = VTX_NLAY;
-    TVector3 m_nSensors = TVector3( 1, 1, VTX_NLAY );
+    m_nSensors = TVector3( 1, 1, VTX_NLAY );
 
 
 //---------------------------------------------------------------------

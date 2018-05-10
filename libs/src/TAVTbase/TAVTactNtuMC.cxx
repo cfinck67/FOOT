@@ -145,6 +145,8 @@ void TAVTactNtuMC::CreateHistogram() {
 //! Action.
 Bool_t TAVTactNtuMC::Action() {
   
+    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "TAVTactNtuMC::Action() start" << endl;
+
     static Int_t storedEvents = 0;
     std::vector<RawMcHit_t> storedEvtInfo;
     RawMcHit_t mcHit;
@@ -232,12 +234,13 @@ Bool_t TAVTactNtuMC::Action() {
         int genPartID = fpEvtStr->VTXid[i] - 1;
         TAVTntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., myTrow, myTcol, "mc_hit", i, genPartID );
         
-        // Digitization test
-        for ( int io=-10; io<10; io++ ) {
-            for ( int jo=-10; jo<10; jo++ ) {
-                pNtuRaw->NewPixel(sensorId, 1., myTrow+io, myTcol+jo, "mc_cluster", pixel );
-            }
-        }
+        // // Digitization test
+        // for ( int io=-10; io<10; io++ ) {
+        //     if (myTrow+io < ) ..........
+        //     for ( int jo=-10; jo<10; jo++ ) {
+        //         pNtuRaw->NewPixel(sensorId, 1., myTrow+io, myTcol+jo, "mc_cluster", pixel );
+        //     }
+        // }
 
         // used for pileup ...
         if (fgPileup && storedEvents <= fgPileupEventsN) {

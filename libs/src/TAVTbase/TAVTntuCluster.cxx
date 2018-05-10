@@ -32,7 +32,7 @@ TAVTcluster::TAVTcluster()
    fIndexSeed(0)
 {
    // TAVTcluster constructor
-   cout << "\tTAVTcluster::TAVTcluster " << endl;
+   // cout << "\tTAVTcluster::TAVTcluster " << endl;
 
    fListOfPixels->SetOwner(true);
    m_geometry = (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object();

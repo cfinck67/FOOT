@@ -47,8 +47,6 @@
 
 #include <TMath.h>
 
-#include "TAGdataDsc.hxx"
-
 #include "TAMSDparGeo.hxx"
 #include "TAMSDntuRaw.hxx"
 
