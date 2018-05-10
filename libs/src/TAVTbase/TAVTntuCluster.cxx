@@ -10,26 +10,25 @@
 
 ClassImp(TAVTcluster) // Description of a cluster
 
+
+
+
 //______________________________________________________________________________
 //  
 TAVTcluster::TAVTcluster()
 :  TObject(),
    fPosition(TVector3(0., 0., 0.)),
    fPosError(TVector3(0., 0., 0.)),
-   // fPositionG(new TVector3(0., 0., 0.)),
    fListOfPixels(new TClonesArray("TAVTntuHit")),
    fDebugLevel(0),
    m_clusterID(0),
    m_sensorID(0),
- //   fFound(kFALSE),
-	// fFoundXZ(kFALSE),
-	// fFoundYZ(kFALSE),
-   fClusterPulseSum(-99.),
-   fClusterAreaPulseSum(-99.),
-   fSNneighbour(-99.),
-   fStripsInClusterArea(-99.),
-   fPhSeed(0),  
-   fIndexSeed(0)
+   fClusterPulseSum(-99.)
+   // fClusterAreaPulseSum(-99.),
+   // fSNneighbour(-99.),
+   // fStripsInClusterArea(-99.),
+   // fPhSeed(0),  
+   // fIndexSeed(0)
 {
    // TAVTcluster constructor
    // cout << "\tTAVTcluster::TAVTcluster " << endl;
@@ -38,58 +37,42 @@ TAVTcluster::TAVTcluster()
    m_geometry = (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object();
 }
 
+
+
+
+
 //______________________________________________________________________________
 //  
 TAVTcluster::TAVTcluster(const TAVTcluster& cluster)
 :  TObject(),
    fPosition(cluster.fPosition),
    fPosError(cluster.fPosError),
-   // fPositionG(new TVector3(*cluster.fPositionG)),
    fDebugLevel(cluster.fDebugLevel),
    m_clusterID(cluster.m_clusterID),
    m_sensorID(cluster.m_sensorID),
-   // fFound(cluster.fFound),
-   // fFoundXZ(cluster.fFoundXZ),
-   // fFoundYZ(cluster.fFoundYZ),
-   fClusterPulseSum(cluster.fClusterPulseSum),
-   fClusterAreaPulseSum(cluster.fClusterAreaPulseSum),
-   fSNneighbour(cluster.fSNneighbour),
-   fStripsInClusterArea(cluster.fStripsInClusterArea),
-   fPhSeed(cluster.fPhSeed),  
-   fIndexSeed(cluster.fIndexSeed)
+   fClusterPulseSum(cluster.fClusterPulseSum)
+   // fClusterAreaPulseSum(cluster.fClusterAreaPulseSum),
+   // fSNneighbour(cluster.fSNneighbour),
+   // fStripsInClusterArea(cluster.fStripsInClusterArea),
+   // fPhSeed(cluster.fPhSeed),  
+   // fIndexSeed(cluster.fIndexSeed)
 {
    // TAVTcluster constructor
    fListOfPixels = (TClonesArray*)cluster.fListOfPixels->Clone();
    m_geometry = (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object();
 }
 
+
+
+
+
 //______________________________________________________________________________
 //  
-TAVTcluster::~TAVTcluster()
-{ 
-   // TAVTcluster default destructor 
-   
-   // delete fPosition;
-   // // delete fPositionG;
-   // delete fPosError;
+TAVTcluster::~TAVTcluster()   { 
    // delete fListOfPixels;
 }
 
-//______________________________________________________________________________
-//  
-void TAVTcluster::SetPosition(TVector3 pos)  { fPosition = pos; }
 
-//______________________________________________________________________________
-//  
-void TAVTcluster::SetPosError(TVector3 pos)  { fPosError = pos; }
-
-
-// //______________________________________________________________________________
-// //  
-// void TAVTcluster::SetPositionG(TVector3 posGlo)
-// {
-//    fPositionG->SetXYZ(posGlo->Px(), posGlo->Py(), posGlo->Pz());
-// }
 
 //______________________________________________________________________________
 // 
@@ -116,7 +99,7 @@ Float_t TAVTcluster::GetClusterPulseSum()
 	  return  fClusterPulseSum; 
 }
 
-
+////////////////////// CORREGGI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //______________________________________________________________________________
 //  
 Float_t TAVTcluster::GetPixelDistanceU(Int_t index) const
@@ -124,12 +107,14 @@ Float_t TAVTcluster::GetPixelDistanceU(Int_t index) const
    TAVTntuHit* pixelSeed = (TAVTntuHit*)fListOfPixels->At(0);
    if (index >= 0 && index < fListOfPixels->GetEntries()) {
 	  TAVTntuHit* aNeighbour = (TAVTntuHit*)fListOfPixels->At(index);
-	  return pixelSeed->DistanceU(aNeighbour->GetPosition());
+	  return pixelSeed->DistanceU(aNeighbour->GetPosition_detectorFrame());
    } else {
 	  return -1;
    }   
 }
 
+
+////////////////////// CORREGGI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //______________________________________________________________________________
 //  
 Float_t TAVTcluster::GetPixelDistanceV(Int_t index) const
@@ -137,27 +122,27 @@ Float_t TAVTcluster::GetPixelDistanceV(Int_t index) const
    TAVTntuHit* pixelSeed = (TAVTntuHit*)fListOfPixels->At(0);
    if (index >= 0 && index < fListOfPixels->GetEntries()) {
 	  TAVTntuHit* aNeighbour = (TAVTntuHit*)fListOfPixels->At(index);
-	  return pixelSeed->DistanceV(aNeighbour->GetPosition());
+	  return pixelSeed->DistanceV(aNeighbour->GetPosition_detectorFrame());
    } else {
 	  return -1;
    }   
 }
 
-//______________________________________________________________________________
-//  
-Float_t TAVTcluster::GetSeedU() const 
-{ 
-   TAVTntuHit* pixelSeed = (TAVTntuHit*)fListOfPixels->At(0);
-   return pixelSeed->GetPosition().Px();
-}
+// //______________________________________________________________________________
+// //  
+// Float_t TAVTcluster::GetSeedU() const 
+// { 
+//    TAVTntuHit* pixelSeed = (TAVTntuHit*)fListOfPixels->At(0);
+//    return pixelSeed->GetPosition().Px();
+// }
 
-//______________________________________________________________________________
-//  
-Float_t TAVTcluster::GetSeedV() const 
-{ 
-   TAVTntuHit* pixelSeed = (TAVTntuHit*)fListOfPixels->At(0);
-   return pixelSeed->GetPosition().Py();
-}
+// //______________________________________________________________________________
+// //  
+// Float_t TAVTcluster::GetSeedV() const 
+// { 
+//    TAVTntuHit* pixelSeed = (TAVTntuHit*)fListOfPixels->At(0);
+//    return pixelSeed->GetPosition().Py();
+// }
 
 //______________________________________________________________________________
 //  
@@ -165,10 +150,10 @@ Float_t TAVTcluster::Distance( TAVTcluster *aClus) {
    // Return the distance between this clusters and the pointed cluster
    // regardless of the plane
    
-   TVector3 clusPosition( aClus->GetPosition_Global() );
+   TVector3 clusPosition( aClus->GetPosition_detectorFrame() );
    
    // Now compute the distance beetween the two hits
-   clusPosition -= (GetPosition_Global());
+   clusPosition -= (GetPosition_detectorFrame());
    
    // Insure that z position is 0 for 2D length computation
    clusPosition.SetXYZ( clusPosition[0], clusPosition[1], 0.);
@@ -177,19 +162,19 @@ Float_t TAVTcluster::Distance( TAVTcluster *aClus) {
 }
 
 
-//______________________________________________________________________________
-//  
-Float_t TAVTcluster::Distance( TAVTtrack *aTrack) {
-   // Return the distance between this cluster and the pointed track impact in the plane
-   //
+// //______________________________________________________________________________
+// //  
+// Float_t TAVTcluster::Distance( TAVTtrack *aTrack) {
+//    // Return the distance between this cluster and the pointed track impact in the plane
+//    //
    
-   TVector3 impactPosition( aTrack->Intersection( GetPosition_Global()[2]) );
-   impactPosition -= GetPosition_Global();
-   // Insure that z position is 0 for 2D length computation
-   impactPosition.SetXYZ(impactPosition(0), impactPosition(1), 0.);
+//    TVector3 impactPosition( aTrack->Intersection( GetPosition_detectorFrame()[2]) );
+//    impactPosition -= GetPosition_detectorFrame();
+//    // Insure that z position is 0 for 2D length computation
+//    impactPosition.SetXYZ(impactPosition(0), impactPosition(1), 0.);
    
-   return impactPosition.Mag();
-}
+//    return impactPosition.Mag();
+// }
 
 //______________________________________________________________________________
 //  
@@ -198,6 +183,24 @@ void TAVTcluster::AddPixel(TAVTntuHit* pixel)
    TClonesArray &pixelArray = *fListOfPixels;
    new(pixelArray[pixelArray.GetEntriesFast()]) TAVTntuHit(*pixel);
 }
+
+
+//______________________________________________________________________________
+TVector3 TAVTcluster::GetPosition_sensorFrame()  { 
+   TVector3 globPos = fPosition;
+   m_geometry->Detector2Sensor_frame( m_sensorID, &globPos ); 
+   return globPos; 
+}
+
+
+//______________________________________________________________________________
+TVector3 TAVTcluster::GetPosition_footFrame()  { 
+   TVector3 globPos = fPosition;
+   m_geometry->Local2Global( &globPos ); 
+   return globPos; 
+}
+
+
 
 //______________________________________________________________________________
 //  
@@ -358,20 +361,20 @@ TAVTcluster* TAVTntuCluster::NewCluster(TAVTcluster* clus, Int_t iSensor)
 //! ostream insertion.
 void TAVTntuCluster::ToStream(ostream& os, Option_t* option) const
 {
-   for (Int_t i = 0; i < TAVTparMap::GetSensorsN(); ++i) {
-   os << "TAVTntuCluster " << GetName()
-   << Form("  nClus=%3d", GetClustersN(i))
-   << endl;
+   // for (Int_t i = 0; i < TAVTparMap::GetSensorsN(); ++i) {
+   // os << "TAVTntuCluster " << GetName()
+   // << Form("  nClus=%3d", GetClustersN(i))
+   // << endl;
    
-   //TODO properly
-   //os << "slat stat    adct    adcb    tdct    tdcb" << endl;
-   for (Int_t j = 0; j < GetClustersN(i); j++) {
-	  const TAVTcluster*  cluster = GetCluster(i,j);
-	  if (cluster)
-		 os << Form("%4d", cluster->GetClusterID());
-	  os << endl;
+   // //TODO properly
+   // //os << "slat stat    adct    adcb    tdct    tdcb" << endl;
+   // for (Int_t j = 0; j < GetClustersN(i); j++) {
+	  // const TAVTcluster*  cluster = GetCluster(i,j);
+	  // if (cluster)
+		 // os << Form("%4d", cluster->GetClusterID());
+	  // os << endl;
 	  
-   }
-   }
+   // }
+   // }
 }
 

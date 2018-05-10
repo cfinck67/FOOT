@@ -153,7 +153,7 @@ Bool_t TAVTactNtuMC::Action() {
    
     TAVTntuRaw* pNtuRaw = (TAVTntuRaw*) fpNtuRaw->Object();
     // TAVTparMap* pParMap = (TAVTparMap*) fpParMap->Object();      // remove everywhere
-    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();     // remove everywhere
+    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();     
 
 
     TAGgeoTrafo *fGeoTrafo =  (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
@@ -171,15 +171,11 @@ Bool_t TAVTactNtuMC::Action() {
     for (Int_t i = 0; i < fpEvtStr->VTXn; i++) {
         if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx[i] << "  "<< fpEvtStr->TRfy[i] << "  "<< fpEvtStr->TRfz[i] << endl;
 
-        //The column refer to Y!!!
         // !!  in ntuple, the row and col start from 0  !!!
         int myTrow, myTcol;
         myTrow = fpEvtStr->VTXirow[i];
         myTcol = fpEvtStr->VTXicol[i];
-        // layer
-        // int layer = fpEvtStr->VTXilay[i];
-        // int sensorId    = 0;
-        int sensorId    = fpEvtStr->VTXilay[i];
+        int sensorId = pGeoMap->GetSensorID( fpEvtStr->VTXilay[i], myTcol, myTrow );
         
 
      
@@ -338,6 +334,7 @@ void TAVTactNtuMC::FillPixels ( TAVTntuHit* originatingHit, int sensorId, int hi
             if ( GlobalPar::GetPar()->Debug() > 0 )
                 printf("line %d col %d\n", line, col);
 
+            // sensor frame
             double v = pGeoMap->GetPositionV(line);
             double u = pGeoMap->GetPositionU(col);
 
@@ -461,14 +458,7 @@ void TAVTactNtuMC::FillNoise(Int_t sensorId) {
 void TAVTactNtuMC::SetMCinfo(TAVTntuHit* pixel, int hitId) {
     
     TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
-    
-    // set geometry !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // pixel->SetVtxGeo(pGeoMap);
-
-    // Generated particle ID
     int genPartID = fpEvtStr->VTXid[hitId] - 1;
-    pixel->SetGenPartID( genPartID );
-    // pixel->SetMCid( hitId );   // intendevano quello della part generatrice
 
     // check true particle ID linked to the hit is in the correct range
     if ( genPartID < 0 || genPartID > fpEvtStr->TRn-1 ) {
@@ -496,17 +486,9 @@ void TAVTactNtuMC::SetMCinfo(TAVTntuHit* pixel, int hitId) {
         cout << "Generated Momentum: " << fpEvtStr->TRipx[genPartID] <<" "<<fpEvtStr->TRipy[genPartID]<<" "<<fpEvtStr->TRipz[genPartID] << endl;
     }
 
-
-    // layer
-    // pixel->SetLayer( fpEvtStr->VTXilay[hitId] );
-
     //Need IDX matching
-    TVector3 MCmom(0,0,0);
-    // TVector3 MCpos(0,0,0);
     // global coordinates
-    // MCpos.SetXYZ((fpEvtStr->VTXxin[hitId]  + fpEvtStr->VTXxout[hitId])/2,  (fpEvtStr->VTXyin[hitId]  + fpEvtStr->VTXyout[hitId])/2,  (fpEvtStr->VTXzin[hitId]  + fpEvtStr->VTXzout[hitId])/2);
-    MCmom.SetXYZ((fpEvtStr->VTXpxin[hitId] + fpEvtStr->VTXpxout[hitId])/2, (fpEvtStr->VTXpyin[hitId] + fpEvtStr->VTXpyout[hitId])/2, (fpEvtStr->VTXpzin[hitId] + fpEvtStr->VTXpzout[hitId])/2);
-    
+    TVector3 MCmom = TVector3((fpEvtStr->VTXpxin[hitId] + fpEvtStr->VTXpxout[hitId])/2, (fpEvtStr->VTXpyin[hitId] + fpEvtStr->VTXpyout[hitId])/2, (fpEvtStr->VTXpzin[hitId] + fpEvtStr->VTXpzout[hitId])/2);    
     TVector3 MCpos = TVector3((fpEvtStr->VTXxin[hitId]  + fpEvtStr->VTXxout[hitId])/2,  (fpEvtStr->VTXyin[hitId]  + fpEvtStr->VTXyout[hitId])/2,  (fpEvtStr->VTXzin[hitId]  + fpEvtStr->VTXzout[hitId])/2);
 
     if ( GlobalPar::GetPar()->Debug() > 0 )     {
@@ -523,7 +505,7 @@ void TAVTactNtuMC::SetMCinfo(TAVTntuHit* pixel, int hitId) {
     
     pixel->SetMCPosition(MCpos);   // set in local coord
     pixel->SetMCMomentum(MCmom);   // set in local coord
-    pixel->SetEneLoss(fpEvtStr->VTXde[hitId]);  // VM added 3/11/13
+    pixel->SetEneLoss(fpEvtStr->VTXde[hitId]);  
     
     // store generated particle info
     pixel->SetGeneratedParticleInfo( genPartID, fpEvtStr->TRfid[genPartID], fpEvtStr->TRcha[genPartID],

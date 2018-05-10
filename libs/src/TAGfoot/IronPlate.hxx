@@ -43,6 +43,7 @@ public:
 	int GetNCol() { return m_nColPixel; };
 	int GetNRow() { return m_nRowPixel; };
 
+	TVector3 GetPosition_local( int col, int row );
 	TVector3 GetPosition( int col, int row );
 
 	string GetMaterialName() { return m_materialName; };

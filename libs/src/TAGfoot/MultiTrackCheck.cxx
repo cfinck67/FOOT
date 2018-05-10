@@ -56,7 +56,7 @@ void MultiTrackCheck::Process( Long64_t jentry ){
    for (int i = 0; i < myn_vtraw->GetPixelsN(0, "mc_hit"); i++)  {                    
      TAVTntuHit* vt_hit = myn_vtraw->GetPixel(0,i, "mc_hit"); 
      tmpVT_partID =  vt_hit->m_genPartID;
-     if(vt_hit->GetMCPosition_Global().Z() < 0.7) ntrackonVT++;
+     if(vt_hit->GetMCPosition_footFrame().Z() < 0.7) ntrackonVT++;
 
      m_VT_hitCollection.push_back(vt_hit);
      m_VT_partIDColl.push_back(tmpVT_partID);
@@ -184,23 +184,23 @@ void MultiTrackCheck::Process( Long64_t jentry ){
 	 if ( m_Trcks9index.at(i) == m_VT_hitCollection.at(j)->GetMCid()-1)
 	   { 
 	     //cout <<  " GetMCPosition_Global().Z() " << m_VT_hitCollection.at(j)->GetMCPosition_Global().Z() << endl;
-	     TVector3 vtxpos = TVector3 (m_VT_hitCollection.at(j)->GetMCPosition_Global().X(),m_VT_hitCollection.at(j)->GetMCPosition_Global().Y(),m_VT_hitCollection.at(j)->GetMCPosition_Global().Z());
+	     TVector3 vtxpos = TVector3 (m_VT_hitCollection.at(j)->GetMCPosition_footFrame().X(),m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Y(),m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Z());
 	     m_VTX_Trackpos.push_back(vtxpos);
 	     
 	     // control histograms
-	     h_zx->Fill(m_VT_hitCollection.at(j)->GetMCPosition_Global().Z(), m_VT_hitCollection.at(j)->GetMCPosition_Global().X());
-	     h_zy->Fill(m_VT_hitCollection.at(j)->GetMCPosition_Global().Z(), m_VT_hitCollection.at(j)->GetMCPosition_Global().Y());
-	     h_yx->Fill(m_VT_hitCollection.at(j)->GetMCPosition_Global().Y(), m_VT_hitCollection.at(j)->GetMCPosition_Global().X());
+	     h_zx->Fill(m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Z(), m_VT_hitCollection.at(j)->GetMCPosition_footFrame().X());
+	     h_zy->Fill(m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Z(), m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Y());
+	     h_yx->Fill(m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Y(), m_VT_hitCollection.at(j)->GetMCPosition_footFrame().X());
 
 	     
-	     float r=pow(m_VT_hitCollection.at(j)->GetMCPosition_Global().X()*m_VT_hitCollection.at(j)->GetMCPosition_Global().X()+
-			 m_VT_hitCollection.at(j)->GetMCPosition_Global().Y()*m_VT_hitCollection.at(j)->GetMCPosition_Global().Y(),0.5);
+	     float r=pow(m_VT_hitCollection.at(j)->GetMCPosition_footFrame().X()*m_VT_hitCollection.at(j)->GetMCPosition_footFrame().X()+
+			 m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Y()*m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Y(),0.5);
 	     
-	     double th=atan2(r,m_VT_hitCollection.at(j)->GetMCPosition_Global().Z());
+	     double th=atan2(r,m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Z());
 	     double eta=-log(tan(0.5*th));
-	     double phi = atan2(m_VT_hitCollection.at(j)->GetMCPosition_Global().Y(), m_VT_hitCollection.at(j)->GetMCPosition_Global().X());
+	     double phi = atan2(m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Y(), m_VT_hitCollection.at(j)->GetMCPosition_footFrame().X());
 	     
-	     h_zr->Fill(m_VT_hitCollection.at(j)->GetMCPosition_Global().Z(),r);
+	     h_zr->Fill(m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Z(),r);
 	     h_rphi->Fill(r,phi);
 	     h_etaphi->Fill(eta,phi);
 	     h_thetaphi->Fill(th,phi);

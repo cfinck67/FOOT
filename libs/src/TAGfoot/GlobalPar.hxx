@@ -71,7 +71,8 @@ public:
     string MagFieldInputMapName() { return m_magFieldMap; };
 
 
-
+    bool CheckAllowedHitOrigin( string origin );
+    void PrintAllowedHitOrigin();
 
 
     
@@ -199,6 +200,8 @@ private:
 	static GlobalPar* m_pInstance;
 
 	vector<string> m_copyInputFile;
+
+	vector<string> m_originAllowed;
 
 	map< string, pair< double, double > > m_map_range;
 	map< string, int > m_nBin_map;

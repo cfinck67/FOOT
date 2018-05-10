@@ -145,7 +145,7 @@ Bool_t TAVTactNtuClusterF::FindClusters(int iSensor)	{
 					fpHisPixelTot->Fill(cluster->GetPixelsN());
 					fpHisPixel[iSensor]->Fill(cluster->GetPixelsN());
 					if (TAVTparConf::IsMapHistOn()) {
-						fpHisClusMap[iSensor]->Fill(cluster->GetPosition()[0], cluster->GetPosition()[1]);
+						fpHisClusMap[iSensor]->Fill(cluster->GetPosition_detectorFrame()[0], cluster->GetPosition_detectorFrame()[1]);
 					}
 				}
 			}	

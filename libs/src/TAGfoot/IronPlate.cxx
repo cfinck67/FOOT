@@ -17,7 +17,7 @@ IronPlate::IronPlate() {
 
 
 
-TVector3 IronPlate::GetPosition( int col, int row ) { 
+TVector3 IronPlate::GetPosition_local( int col, int row ) { 
 		
 	if ( col < 0 || col > m_nColPixel || row < 0 || row > m_nRowPixel )	{
 		cout << "ERROR!!  ::  IronPlate::GetPosition  -->  column("<<col<<") or row("<<row<<") out of boundaries ("<<m_nColPixel<<"x"<<m_nRowPixel<<")"<<endl;
@@ -29,9 +29,19 @@ TVector3 IronPlate::GetPosition( int col, int row ) {
 	double tmpY = - m_halfLength.Y() + (row+1)*m_pixelDistance_Y + ( (float)row+0.5 )*m_pixelLength_Y;
 	TVector3 pos ( tmpX, tmpY, m_pixelDistance_Z );
 
+	return pos;
+};
+
+
+
+
+TVector3 IronPlate::GetPosition( int col, int row ) { 
+		
+	TVector3 pos ( GetPosition_local(col, row) );
 	Local2Global(&pos);
 	return pos;
 };
+
 
 
 

@@ -1,9 +1,19 @@
 #ifndef _TAVTparGeo_HXX
 #define _TAVTparGeo_HXX
 /*!
-  \file
   \version $Id: TAVTparGeo.hxx,v 1.2 2003/06/22 19:33:36 mueller Exp $
-  \brief   Declaration of TAVTparGeo.
+  
+    Fully revised in 2017 by Matteo Franchini franchinim@bo.infn.it
+
+    Three reference frames are possible and all the transformation from one to another 
+    are defined in this class:
+        - sensor frame
+        - detector frame
+        - FOOT frame
+
+    All the coordinates are in cm and in the detector reference frame, i.e. the center
+    is the center of the detector.
+
 */
 /*------------------------------------------+---------------------------------*/
 
@@ -62,32 +72,54 @@ public:
     // to be removed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Float_t GetPositionU(Int_t column)         const;
     Float_t GetPositionV(Int_t line)           const;
+
+
     TVector3 GetSensorPosition( int sensorID )   { return m_sensorMatrix[sensorID][0][0]->GetCenter(); };
 
     //    it should be changed accordingly with the simulation choice when more than one sensors will be used
-    TVector3 GetPixelPos_Global( int layer, int col, int row );
-    TVector3 GetPixelPos_Local( int layer, int col, int row );
+    // TVector3 GetPixelPos_Global( int layer, int col, int row );
+    // TVector3 GetPixelPos_Local( int layer, int col, int row );
 
-    double GetColumnCenter_Local ( int layer, int col);
-    double GetRowCenter_Local ( int layer, int row);
-    double GetColumnCenter_Global (int layer, int col);
-    double GetRowCenter_Global ( int layer, int row);
+    // new
+    TVector3 GetPixelPos_sensorFrame( int layer, int col, int row );
+    TVector3 GetPixelPos_detectorFrame( int layer, int col, int row );
+    TVector3 GetPixelPos_footFrame( int layer, int col, int row );
+
+    // float GetColumnCenter_Local ( int layer, int col);
+    // float GetRowCenter_Local ( int layer, int row);
+    // float GetColumnCenter_Global (int layer, int col);
+    // float GetRowCenter_Global ( int layer, int row);
+
+// new
+    float GetColumnCenter_sensorFrame ( int col);
+    float GetColumnCenter_detectorFrame ( int layer, int col);
+    float GetColumnCenter_footFrame ( int layer, int col);
+    // new
+    float GetRowCenter_sensorFrame ( int row);
+    float GetRowCenter_detectorFrame ( int layer, int row);
+    float GetRowCenter_footFrame ( int layer, int row);
 
 
-    //! Transform point from the global reference frame
-    //! to the local reference frame of the detection id
+    //! Transform point from the foot global reference frame
+    //! to the detector local reference frame.  Transformation between detector and sensor are managed by IronPlate
+    void Detector2Sensor_frame( int sensorID, TVector3* coord );
+    void Sensor2Detector_frame( int sensorID, TVector3* coord );
+
+    // foot to detector
     void Global2Local( TVector3* glob );
     void Global2Local_TranslationOnly( TVector3* glob );
     void Global2Local_RotationOnly( TVector3* glob );
+
+    // detector to foot
     void Local2Global( TVector3* loc );
     void Local2Global_TranslationOnly( TVector3* loc );
     void Local2Global_RotationOnly( TVector3* loc );
 
-
     TRotation GetRotationToGlobal() { return *m_rotation; };
     TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
 
-    //  Return Vertex center coord. in the global frame
+
+    //  Return Vertex center coord. in the foot global frame
     TVector3 GetCenter() { return m_center; };
 
     // Return Vertex full dimension.
@@ -98,26 +130,31 @@ public:
     // Return distance from center to center
     // double GetLayerDistance() { return m_layerDistance; };
 
-    double GetNPixelX() { return m_nPixel_X; };
-    double GetNPixelY() { return m_nPixel_Y; };
+    int GetNPixelX() { return m_nPixel_X; };
+    int GetNPixelY() { return m_nPixel_Y; };
     int GetNLayers() { return m_nSensors.Z(); };
     
     int GetNSensors()    { return m_nSensors.X()*m_nSensors.Y()*m_nSensors.Z(); };  // return tot number of sensors
+    
     // Return a vector with the number of sensors along the cartesian directions 
     TVector3        GetNumberOfSensorAlongDirections() { return m_nSensors; }; 
     
+    // define the agloritm to map the sensor with a single variable. For VTX is too easy :).
     int GetSensorID( int layer, int col, int row )    { return layer; };
+    int GetLayerFromSensorID( int sensID )            { return sensID; };
 
+    // pixel dimension
     double GetPitchX()  { return m_Pitch_X; };
     double GetPitchY()  { return m_Pitch_Y; };
     
+    // function for the FRUKA geometry creation
     string PrintBodies();
     string PrintRegions();
     string PrintAssignMaterial();
     string PrintSubtractBodiesFromAir();
     string PrintParameters();
 
-
+    // Return the ROOT volume of the entire detector
     TGeoVolume*     GetVolume();
 
     virtual void    Clear(Option_t* opt="");
@@ -173,19 +210,6 @@ private:
     double m_Pitch_Y;
 
     double m_xmin, m_ymin;
-
-
-
-
-
-    // static Float_t GetTargetWidth()            { return fgTargetWidth; }
-    // static void    SetTargetWidth(Float_t w)   { fgTargetWidth = w;    }
-
-    // static Float_t GetTargetSize()             { return fgTargetSize;  }
-    // static void    SetTargetSize(Float_t s)    { fgTargetSize = s;     }
-
-    // static const Char_t* GetDefaultGeoName()   { return fgkDefaultGeoName.Data();    }
-    // static const Char_t* GetDefaultGeoNameMC() { return fgkDefaultGeoNameMC.Data();  }
 
 
 

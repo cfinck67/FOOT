@@ -263,7 +263,7 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
         TAVTntuHit* p_hit = m_VT_hitCollection.at(i);
 
         // get pixel coord
-        TVector3 hitPos = m_VT_geo->GetPixelPos_Global( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
+        TVector3 hitPos = m_VT_geo->GetPixelPos_footFrame( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
         // get true MC coord
         // TVector3 hitPos = m_VT_hitCollection.at(i)->GetMCPosition_Global();
 
@@ -640,7 +640,7 @@ void KFitter::CategoriseHitsToFit_withTrueInfo() {
 		if ( !GlobalPar::GetPar()->Find_MCParticle( outName ) )
 			continue;
 
-		if ( m_debug > 0 )		cout << "\tSelected Category: " << outName << "  flukaID=" << flukaID << "  partID="<<partID << "  charge="<<charge << "  mass="<<mass<< endl;
+		if ( m_debug > 2 )		cout << "\tSelected Category: " << outName << "  flukaID=" << flukaID << "  partID="<<partID << "  charge="<<charge << "  mass="<<mass<< endl;
 
 		// if a category already defineed but with particle with a different partID  ->  make a new category with an incremental index
 		int coll = 0;
@@ -676,7 +676,7 @@ void KFitter::GetTrueParticleType( AbsMeasurement* hit, int* flukaID, int* partI
 	int detID = hit->getDetId();
 	int hitID = hit->getHitId();
 
-	// if ( m_debug > 0 )		cout << "\t\tDetector Type = " << detID << "    HitID = " << hitID << endl;
+	if ( m_debug > 3 )		cout << "\t\tDetector Type = " << detID << "    HitID = " << hitID << endl;
 
 	// Generated positions and momentums
 	if ( detID == m_detectorID_map["VT"] ) {
@@ -1015,14 +1015,14 @@ void KFitter::GetTrueMCInfo( string hitSampleName, int x,
 
 	// Generated positions and momentums
 	if ( detID == m_detectorID_map["VT"] ) {
-		*tmpPos = m_VT_hitCollection.at( hitID )->GetMCPosition_Global();
-		*tmpMom = m_VT_hitCollection.at( hitID )->GetMCMomentum_Global();
+		*tmpPos = m_VT_hitCollection.at( hitID )->GetPosition_footFrame();
+		*tmpMom = m_VT_hitCollection.at( hitID )->GetMCMomentum_footFrame();
 		// information on the particle that genearated the hit
 		*tmp_mass = m_VT_hitCollection.at( hitID )->m_genPartMass;
 		*tmp_genPos = m_VT_hitCollection.at( hitID )->m_genPartPosition;   // genaration position
 		*tmp_genMom = m_VT_hitCollection.at( hitID )->m_genPartMomentum;		// genaration momentum
 		TAVTntuHit* p_hit = m_VT_hitCollection.at(hitID);
-        *hitPos = m_VT_geo->GetPixelPos_Global( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() ); // pixel coord
+        *hitPos = m_VT_geo->GetPixelPos_footFrame( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() ); // pixel coord
 
 	}
 	else if ( detID == m_detectorID_map["IT"] ) {

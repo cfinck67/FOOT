@@ -394,16 +394,19 @@ void TAVTparGeo::InitGeo()  {
 
 
 
-
-
 //_____________________________________________________________________________
-TVector3 TAVTparGeo::GetPixelPos_Local( int layer, int col, int row )  { return m_sensorMatrix[layer][0][0]->GetPosition( col, row );  }
+TVector3 TAVTparGeo::GetPixelPos_sensorFrame( int layer, int col, int row )  { return m_sensorMatrix[layer][0][0]->GetPosition_local( col, row );  }
 
 
 
 //_____________________________________________________________________________
-TVector3 TAVTparGeo::GetPixelPos_Global( int layer, int col, int row )  {
-    TVector3 pos = GetPixelPos_Local( layer, col, row );
+TVector3 TAVTparGeo::GetPixelPos_detectorFrame( int layer, int col, int row )  { return m_sensorMatrix[layer][0][0]->GetPosition( col, row );  }
+
+
+
+//_____________________________________________________________________________
+TVector3 TAVTparGeo::GetPixelPos_footFrame( int layer, int col, int row )  {
+    TVector3 pos = GetPixelPos_detectorFrame( layer, col, row );
     Local2Global(&pos);
     return pos;
 }
@@ -411,28 +414,39 @@ TVector3 TAVTparGeo::GetPixelPos_Global( int layer, int col, int row )  {
 
 
 //_____________________________________________________________________________
-double TAVTparGeo::GetColumnCenter_Local( int layer, int col )  { return GetPixelPos_Local( layer, col, 0 ).x(); }
-double TAVTparGeo::GetColumnCenter_Global( int layer, int col )        { return GetPixelPos_Global( layer, col, 0 ).x(); }
+float TAVTparGeo::GetColumnCenter_sensorFrame( int col )  { return GetPixelPos_sensorFrame( 0, col, 0 ).x(); }
+float TAVTparGeo::GetColumnCenter_detectorFrame( int layer, int col )  { return GetPixelPos_detectorFrame( layer, col, 0 ).x(); }
+float TAVTparGeo::GetColumnCenter_footFrame( int layer, int col ) { return GetPixelPos_footFrame( layer, col, 0 ).x(); }
 //_____________________________________________________________________________
-double TAVTparGeo::GetRowCenter_Local( int layer, int row )     { return GetPixelPos_Local( layer, 0, row ).y();   }
-double TAVTparGeo::GetRowCenter_Global( int layer, int row )    { return GetPixelPos_Global( layer, 0, row ).y();     }
-
-
+float TAVTparGeo::GetRowCenter_sensorFrame( int row )     { return GetPixelPos_sensorFrame( 0, 0, row ).y();   }
+float TAVTparGeo::GetRowCenter_detectorFrame( int layer, int row )     { return GetPixelPos_detectorFrame( layer, 0, row ).y();   }
+float TAVTparGeo::GetRowCenter_footFrame( int layer, int row )    { return GetPixelPos_footFrame( layer, 0, row ).y();     }
 
 
 //_____________________________________________________________________________
-Float_t TAVTparGeo::GetPositionU(Int_t column) const {
+Float_t TAVTparGeo::GetPositionU(Int_t column) const {      // GetColumnCenter_sensorFrame
    return ((2*column - m_nPixel_X + 1 ) * m_Pitch_X)/2 ;
  }
 
 //_____________________________________________________________________________
-Float_t TAVTparGeo::GetPositionV(Int_t line) const{
+Float_t TAVTparGeo::GetPositionV(Int_t line) const{         //TAVTparGeo::GetRowCenter_sensorFrame(
    return -((2*line - m_nPixel_Y + 1 ) * m_Pitch_Y)/2 ;   
 }
 
 
 
 
+
+
+//_____________________________________________________________________________
+void TAVTparGeo::Detector2Sensor_frame( int sensorID, TVector3* coord ) {
+    m_sensorMatrix[sensorID][0][0]->Global2Local( coord );
+}
+
+//_____________________________________________________________________________
+void TAVTparGeo::Sensor2Detector_frame( int sensorID, TVector3* coord ) {
+    m_sensorMatrix[sensorID][0][0]->Local2Global( coord );
+}
 
 //_____________________________________________________________________________
 void TAVTparGeo::Global2Local( TVector3* glob ) {

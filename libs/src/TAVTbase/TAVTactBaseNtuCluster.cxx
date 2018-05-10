@@ -155,7 +155,7 @@ void TAVTactBaseNtuCluster::ComputePosition()   {
 // }
 
 //______________________________________________________________________________
-//
+// compute position in the detector local frame
 void TAVTactBaseNtuCluster::ComputeCoGPosition() {
 
     // fCurListOfPixels = pixels of the current cluster
@@ -178,7 +178,7 @@ void TAVTactBaseNtuCluster::ComputeCoGPosition() {
     // if (positionAlgorithm == 1) {
     for (Int_t i = 0; i < fCurListOfPixels->GetEntries(); ++i) {
         TAVTntuHit* pixel = (TAVTntuHit*)fCurListOfPixels->At(i);
-        tCorTemp.SetXYZ( pixel->GetPosition().X()*pixel->GetPulseHeight(), pixel->GetPosition().Y()*pixel->GetPulseHeight(), pixel->GetPosition().Z() );
+        tCorTemp.SetXYZ( pixel->GetPosition_detectorFrame().X()*pixel->GetPulseHeight(), pixel->GetPosition_detectorFrame().Y()*pixel->GetPulseHeight(), pixel->GetPosition_detectorFrame().Z() );
         tCorrection  += tCorTemp;    // sum of distance vectors
         tClusterPulseSum  += pixel->GetPulseHeight();    // num of cluster
     }
@@ -214,12 +214,12 @@ void TAVTactBaseNtuCluster::ComputeCoGPosition() {
    // make the (weighted) center of mass
    pos = tCorrection*(1./tClusterPulseSum);
 
-   // evaluate uncertainty... does not propagate uncertainties... wtf
+   // evaluate uncertainty... does not propagate uncertainties... why?
    for (Int_t i = 0; i < fCurListOfPixels->GetEntries(); ++i) {
 	  TAVTntuHit* pixel = (TAVTntuHit*)fCurListOfPixels->At(i);
-	  tCorrection2.SetXYZ(  pixel->GetPulseHeight() * (pixel->GetPosition().X()-pos.X()) * (pixel->GetPosition().X()-pos.X()), 
-							pixel->GetPulseHeight() * (pixel->GetPosition().Y()-pos.Y()) * (pixel->GetPosition().Y()-pos.Y()), 
-							pixel->GetPosition().Z());
+	  tCorrection2.SetXYZ(  pixel->GetPulseHeight() * (pixel->GetPosition_detectorFrame().X()-pos.X()) * (pixel->GetPosition_detectorFrame().X()-pos.X()), 
+							pixel->GetPulseHeight() * (pixel->GetPosition_detectorFrame().Y()-pos.Y()) * (pixel->GetPosition_detectorFrame().Y()-pos.Y()), 
+							pixel->GetPosition_detectorFrame().Z());
 	  posErr += tCorrection2;
    }
    

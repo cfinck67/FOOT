@@ -32,7 +32,7 @@ class TAVTntuRaw : public TAGdata {
 private:
    //using TObjArray here
    TObjArray*        fListOfPixels; 
-   static TString    fgkBranchName;    // Branch name in TTree
+   // static TString    fgkBranchName;    // Branch name in TTree
    
    TAVTparGeo* m_vtxGeo;
 
@@ -44,16 +44,15 @@ private:
 
     // map< map<int, vector<int> > >       m_pixelIndexList;
 
-
-   // TAVTntuHit*       AddPixel(int iSensor, double value, int aLine, int aColumn);
     int               GetPixelsN(int iSensor) const; 
+    TAVTntuHit*       NewPixel(Int_t sensor, Double_t value, Int_t aLine, Int_t aColumn); //  Deprecated, to be private
 
 public:
     TAVTntuRaw();
     virtual          ~TAVTntuRaw();
 
     // to be put private!
-    TAVTntuHit*         NewPixel(Int_t sensor, Double_t value, Int_t aLine, Int_t aColumn);
+    
     TAVTntuHit*         NewPixel(Int_t sensor, TAVTrawHit* pixel);
 
     TAVTntuHit*         NewPixel(int iSensor, double value, int aLine, int aColumn, string aorigin);
@@ -71,15 +70,15 @@ public:
     int               GetPixelsN( int iSensor, string command ); 
     int               GetNSensors() { return m_vtxGeo->GetNSensors(); };
 
-
     virtual void      SetupClones();
 
     virtual void      Clear(Option_t* opt="");
 
+    // delete?
     virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
  
 public:   
-   static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
+   // static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
    
    ClassDef(TAVTntuRaw,1)
 };

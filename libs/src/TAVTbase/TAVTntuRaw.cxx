@@ -30,7 +30,7 @@
 
 ClassImp(TAVTntuRaw);
 
-TString TAVTntuRaw::fgkBranchName   = "vtrh.";
+// TString TAVTntuRaw::fgkBranchName   = "vtrh.";
 
 
 
@@ -107,7 +107,7 @@ TAVTntuHit* TAVTntuRaw::NewPixel(int iSensor, double value, int aLine, int aColu
 
     // pixel->SetOrigin( aorigin );
     if ( aorigin == "mc_hit" ) {
-        pixel->SetMcID( amcID );
+        pixel->SetMCid( amcID );
         pixel->SetGenPartID( agenPartID );
     }
     return pixel;
@@ -126,7 +126,8 @@ TAVTntuHit* TAVTntuRaw::NewPixel(int iSensor, double value, int aLine, int aColu
     TAVTntuHit* pixel = NewPixel( iSensor, value, aLine, aColumn, aorigin );
 
     if ( aorigin == "mc_cluster" ) {
-        pixel->SetClusterSeed( originatingHit );
+        pixel->SetOriginalMC_Hit( originatingHit );
+
     }
     
     return pixel;
@@ -272,7 +273,11 @@ TAVTntuHit* TAVTntuRaw::GetPixel(Int_t iSensor, Int_t iPixel, string command ) {
     else if ( command == "all" ) {
         return (TAVTntuHit*)list->At( iPixel );
     }
-     
+    else {
+        cout << "ERROR >> TAVTntuRaw::GetPixel  -->  command "<<command<<" not allowed " << endl;
+        exit(0);
+    }
+    return NULL;  // never happens, but compiler doesn't complain
 }
 
 
@@ -372,21 +377,21 @@ void TAVTntuRaw::Clear(Option_t*) {
 //! ostream insertion.
 void TAVTntuRaw::ToStream(ostream& os, Option_t* option) const
 {
-   for (Int_t i = 0; i < m_vtxGeo->GetNSensors(); ++i) {
+   // for (Int_t i = 0; i < m_vtxGeo->GetNSensors(); ++i) {
 	  
-	  os << "TAVTntuRaw " << GetName()
-	  << Form("  nPixels=%3d", GetPixelsN(i))
-	  << endl;
+	  // os << "TAVTntuRaw " << GetName()
+	  // << Form("  nPixels=%3d", GetPixelsN(i))
+	  // << endl;
 	  
-	  //TODO properly
-	  //os << "slat stat    adct    adcb    tdct    tdcb" << endl;
-	  for (Int_t j = 0; j < GetPixelsN(i); j++) {  // all by default
-		 const TAVTntuHit*  pixel = GetPixel(i,j, "all");
-		 if (pixel)
-			os << Form("%4d", pixel->GetPixelIndex());
-		 os << endl;
-	  }
-   }
+	  // //TODO properly
+	  // //os << "slat stat    adct    adcb    tdct    tdcb" << endl;
+	  // for (Int_t j = 0; j < GetPixelsN(i); j++) {  // all by default
+		 // const TAVTntuHit*  pixel = GetPixel(i,j, "all");
+		 // if (pixel)
+			// os << Form("%4d", pixel->GetPixelIndex());
+		 // os << endl;
+	  // }
+   // }
 }
 
 

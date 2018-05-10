@@ -53,6 +53,7 @@ GlobalPar::GlobalPar( string aparFileName ) {
     m_geoFLUKA = false;
     m_verFLUKA = false;
 
+    m_originAllowed = { "mc_cluster", "mc_hit", "pileup", "noise", "data" };
 
     ReadParamFile();
 
@@ -413,6 +414,33 @@ void GlobalPar::ReadHistoRange( map< string, pair< double, double > >* map_range
 
     }  
     ifile.close();
+}
+
+
+
+
+
+//________________________________________________________________________________________
+bool GlobalPar::CheckAllowedHitOrigin( string origin ) {
+    if ( find( m_originAllowed.begin(), m_originAllowed.end(), origin ) == m_originAllowed.end() )
+        return false;
+    
+    return true;
+}
+
+
+
+
+
+//________________________________________________________________________________________
+void GlobalPar::PrintAllowedHitOrigin() {
+    cout << "m_originAllowed = "; 
+    for ( unsigned int i=0; i < m_originAllowed.size(); i++ ) {
+        cout << m_originAllowed.at(i);
+        if ( i == m_originAllowed.size()-1 )        cout << ".";
+        else                                        cout << ", ";
+    }
+    cout << endl;
 }
 
 
