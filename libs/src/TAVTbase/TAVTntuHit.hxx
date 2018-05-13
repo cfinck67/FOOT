@@ -121,9 +121,9 @@ public:
     TAVTntuHit*         GetOriginalMC_Hit() {return m_originalMC_Hit;}; // danger, to fix
 
     
-    TVector3          GetPosition_sensorFrame()        { return m_geometry->GetPixelPos_sensorFrame(fSensorNumber, fPixelColumn, fPixelLine); };
-    TVector3          GetPosition_detectorFrame()      { return fPosition; };
-    TVector3          GetPosition_footFrame()          { return m_geometry->GetPixelPos_footFrame( fSensorNumber, fPixelColumn, fPixelLine ); };
+    TVector3          GetPixelPosition_sensorFrame()        { return m_geometry->GetPixelPos_sensorFrame(fSensorNumber, fPixelColumn, fPixelLine); };
+    TVector3          GetPixelPosition_detectorFrame()      { return fPosition; };
+    TVector3          GetPixelPosition_footFrame()          { return m_geometry->GetPixelPos_footFrame( fSensorNumber, fPixelColumn, fPixelLine ); };
     
     TVector3          GetMCPosition_sensorFrame();
     TVector3          GetMCPosition_detectorFrame()      { return  fMCPos;            }

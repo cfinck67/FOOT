@@ -49,6 +49,7 @@ public:
 	double VTReso() 	{return m_VTreso; };
     double ITReso() 	{return m_ITreso; };
     double MSDReso()        {return m_MSDreso; };
+    double TWReso()        {return m_TWreso; };
 
     bool IsPrintOutputFile() { return m_printoutfile; };
     string OutputFile() { return m_outputfilename; };
@@ -227,6 +228,7 @@ private:
 	double m_VTreso;
     double m_ITreso;
     double m_MSDreso; 
+    double m_TWreso; 
 
     string  m_outputfilename;
     bool m_printoutfile;

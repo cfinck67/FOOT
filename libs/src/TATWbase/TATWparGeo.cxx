@@ -72,7 +72,7 @@ TATWparGeo::TATWparGeo( TATWparGeo* original ) :
   // m_materialType(original->m_materialType)
 
   
-  BarMatrix m_barMatrix = original->m_barMatrix;
+  m_barMatrix = original->m_barMatrix;
 }
 
 
@@ -127,7 +127,7 @@ void TATWparGeo::InitGeo()  {
 
   // fill sensor matrix
   double coord_x = m_origin.X() - m_dimension.x()/2.; 	// x coordinate of the bar center in layer 0
-  double coord_y = m_origin.y() - m_dimension.y()/2.;	// t coordinate of the bar center in layer 1
+  double coord_y = m_origin.y() - m_dimension.y()/2.;	// y coordinate of the bar center in layer 1
   for (int k=0; k<m_nLayer; k++) {
     bar_newZ = m_origin.Z() - m_dimension.z()/2. + (k+0.5)*m_barThick_Lz + k*m_layerDistance;
     // if(k==0) {
@@ -238,6 +238,16 @@ void TATWparGeo::InitGeo()  {
   } 
 }
 
+//_____________________________________________________________________________
+void TATWparGeo::Detector2Sensor_frame( int view, int bar, TVector3* coord ) {
+    m_barMatrix[view][bar]->Global2Local( coord );
+}
+
+//_____________________________________________________________________________
+void TATWparGeo::Sensor2Detector_frame( int bar, int view, TVector3* coord ) {
+    m_barMatrix[view][bar]->Local2Global( coord );
+}
+
 
 
 //_____________________________________________________________________________
@@ -279,6 +289,28 @@ void TATWparGeo::Local2Global_TranslationOnly( TVector3* loc ) {
 void TATWparGeo::Local2Global_RotationOnly( TVector3* loc ) {
   loc->Transform( GetRotationToGlobal() );
 }
+
+
+
+
+
+//_____________________________________________________________________________
+float TATWparGeo::GetCoordiante_footFrame( int view, int bar )  {
+    TVector3 pos = m_barMatrix[view][bar]->GetPosition();     // bar center
+    Local2Global(&pos);
+    return ( view == 0 ? pos.X() : pos.Y() );
+}
+
+
+
+
+//_____________________________________________________________________________
+float TATWparGeo::GetZ_footFrame( int view, int bar )  {
+    TVector3 pos = m_barMatrix[view][bar]->GetPosition();     // bar center
+    Local2Global(&pos);
+    return pos.Z();
+}
+
 
 
 

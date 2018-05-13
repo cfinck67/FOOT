@@ -178,7 +178,7 @@ void TAVTactBaseNtuCluster::ComputeCoGPosition() {
     // if (positionAlgorithm == 1) {
     for (Int_t i = 0; i < fCurListOfPixels->GetEntries(); ++i) {
         TAVTntuHit* pixel = (TAVTntuHit*)fCurListOfPixels->At(i);
-        tCorTemp.SetXYZ( pixel->GetPosition_detectorFrame().X()*pixel->GetPulseHeight(), pixel->GetPosition_detectorFrame().Y()*pixel->GetPulseHeight(), pixel->GetPosition_detectorFrame().Z() );
+        tCorTemp.SetXYZ( pixel->GetPixelPosition_detectorFrame().X()*pixel->GetPulseHeight(), pixel->GetPixelPosition_detectorFrame().Y()*pixel->GetPulseHeight(), pixel->GetPixelPosition_detectorFrame().Z() );
         tCorrection  += tCorTemp;    // sum of distance vectors
         tClusterPulseSum  += pixel->GetPulseHeight();    // num of cluster
     }
@@ -217,9 +217,9 @@ void TAVTactBaseNtuCluster::ComputeCoGPosition() {
    // evaluate uncertainty... does not propagate uncertainties... why?
    for (Int_t i = 0; i < fCurListOfPixels->GetEntries(); ++i) {
 	  TAVTntuHit* pixel = (TAVTntuHit*)fCurListOfPixels->At(i);
-	  tCorrection2.SetXYZ(  pixel->GetPulseHeight() * (pixel->GetPosition_detectorFrame().X()-pos.X()) * (pixel->GetPosition_detectorFrame().X()-pos.X()), 
-							pixel->GetPulseHeight() * (pixel->GetPosition_detectorFrame().Y()-pos.Y()) * (pixel->GetPosition_detectorFrame().Y()-pos.Y()), 
-							pixel->GetPosition_detectorFrame().Z());
+	  tCorrection2.SetXYZ(  pixel->GetPulseHeight() * (pixel->GetPixelPosition_detectorFrame().X()-pos.X()) * (pixel->GetPixelPosition_detectorFrame().X()-pos.X()), 
+							pixel->GetPulseHeight() * (pixel->GetPixelPosition_detectorFrame().Y()-pos.Y()) * (pixel->GetPixelPosition_detectorFrame().Y()-pos.Y()), 
+							pixel->GetPixelPosition_detectorFrame().Z());
 	  posErr += tCorrection2;
    }
    

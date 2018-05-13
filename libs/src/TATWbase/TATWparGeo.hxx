@@ -35,58 +35,70 @@ class TATWparGeo : public TATWparTools {
 
 public:
 
-  TATWparGeo();
-  TATWparGeo( TATWparGeo* original );
-  virtual ~TATWparGeo() {};
+    TATWparGeo();
+    TATWparGeo( TATWparGeo* original );
+    virtual ~TATWparGeo() {};
 
-  void InitGeo();
-  void InitMaterial();
+    void InitGeo();
+    void InitMaterial();
 
-  //! Transform point from the global reference frame
-  //! to the local reference frame of the detection id
-  void Global2Local( TVector3* glob );
-  void Global2Local_TranslationOnly( TVector3* glob );
-  void Global2Local_RotationOnly( TVector3* glob );
-  void Local2Global( TVector3* loc );
-  void Local2Global_TranslationOnly( TVector3* loc );
-  void Local2Global_RotationOnly( TVector3* loc );
-
-
-  TRotation GetRotationToGlobal() { return *m_rotation; };
-  TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
-
-  // Return the bar center position 
-  //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
-  // TVector3 GetBarPosition( int layer, int bar );
-
-  //  Return Scintillator center coord. in the global frame
-  TVector3 GetCenter() { return m_center; };
-
-  // Return Scintillator full dimension.
-  TVector3 GetDimension() { return m_dimension; };
-
-  double GetSingleBarThickness() { return m_barThick_Lz; };
-
-  // Return distance from center to center
-  double GetLayerDistance() { return m_layerDistance; };
-
-  double GetBars() { return m_nBar; };
-  int GetNLayers() { return m_nLayer; };
+    //! Transform point from the global reference frame
+    //! to the local reference frame of the detection id
+    void Detector2Sensor_frame( int view, int bar, TVector3* coord );
+    void Sensor2Detector_frame( int view, int bar, TVector3* coord );
+    // foot to detector
+    void Global2Local( TVector3* glob );
+    void Global2Local_TranslationOnly( TVector3* glob );
+    void Global2Local_RotationOnly( TVector3* glob );
+    // detector to foot
+    void Local2Global( TVector3* loc );
+    void Local2Global_TranslationOnly( TVector3* loc );
+    void Local2Global_RotationOnly( TVector3* loc );
 
 
-  string PrintBodies();
-  string PrintRegions();
-  string PrintAssignMaterial();
-  string PrintSubtractBodiesFromAir();
-  string PrintParameters();
 
-  // Return a vector with the number of sensors along the cartesian directions
-  TVector2        GetNumberOfSensorAlongDirections() { return m_NBar; };
+    TRotation GetRotationToGlobal() { return *m_rotation; };
+    TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
 
-  TGeoVolume*     GetVolume(); 
+    // Return the bar center position 
+    //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
+    // TVector3 GetBarPosition( int layer, int bar );
 
-  virtual void    Clear(Option_t* opt="");
-  virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
+    //  Return Scintillator center coord. in the global frame
+    TVector3 GetCenter() { return m_center; };
+
+    // Return Scintillator full dimension.
+    TVector3 GetDimension() { return m_dimension; };
+
+    double GetSingleBarThickness() { return m_barThick_Lz; };
+
+    // Return distance from center to center
+    double GetLayerDistance() { return m_layerDistance; };
+
+    int GetNBars() { return m_nBar; };
+    int GetNLayers() { return m_nLayer; };
+
+    float GetCoordiante_sensorFrame( int view, int bar )    { return ( view == 0 ? m_barMatrix[view][bar]->GetPosition_local().X() : m_barMatrix[view][bar]->GetPosition_local().Y() ); };
+    float GetCoordiante_detectorFrame( int view, int bar )  { return ( view == 0 ? m_barMatrix[view][bar]->GetPosition().X() : m_barMatrix[view][bar]->GetPosition().Y() ); };
+    float GetCoordiante_footFrame( int view, int bar );
+
+    float GetZ_sensorFrame( int view, int bar )    { return m_barMatrix[view][bar]->GetPosition_local().Z(); };
+    float GetZ_detectorFrame( int view, int bar )  { return m_barMatrix[view][bar]->GetPosition().Z(); };
+    float GetZ_footFrame( int view, int bar );
+
+    string PrintBodies();
+    string PrintRegions();
+    string PrintAssignMaterial();
+    string PrintSubtractBodiesFromAir();
+    string PrintParameters();
+
+    // Return a vector with the number of sensors along the cartesian directions
+    TVector2        GetNumberOfSensorAlongDirections() { return m_NBar; };
+
+    TGeoVolume*     GetVolume(); 
+
+    virtual void    Clear(Option_t* opt="");
+    virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
 
 
 private:

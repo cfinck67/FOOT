@@ -107,6 +107,16 @@ void LightSabre::SetBar( TVector3 acenter, TVector3 adimension,
 // }
 
 
+
+
+//_____________________________________________________________________________
+TVector3 LightSabre::GetPosition() { 
+    TVector3 pos (m_center);
+    Local2Global(&pos);
+    return pos;
+}
+
+
 //_____________________________________________________________________________
 void LightSabre::Global2Local( TVector3* glob ) {
   glob->Transform( GetRotationToLocal() );

@@ -7,25 +7,29 @@
 */
 /*------------------------------------------+---------------------------------*/
 
+#include "TVector3.h"
+
 #include "Evento.h"
+
+#include "TATW_ContainerHit.hxx"
+#include "TATW_ContainerPoint.hxx"
+#include "TATWparGeo.hxx"
 
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 
 class TATWactNtuMC : public TAGaction {
   public:
-    explicit        TATWactNtuMC(const char* name=0,
-				 TAGdataDsc* p_datraw=0, 
-				 EVENT_STRUCT* evStr=0);
-    virtual         ~TATWactNtuMC();
+    explicit TATWactNtuMC(const char* name=0, TAGdataDsc* p_datraw=0, EVENT_STRUCT* evStr=0);
+    virtual  ~TATWactNtuMC() {};
 
-    virtual Bool_t  Action();
+    virtual bool  Action();
 
     ClassDef(TATWactNtuMC,0)
 
   private:
-    TAGdataDsc*     fpNtuMC;		    // output data dsc
-    EVENT_STRUCT*   fpEvtStr;
+    TAGdataDsc*     m_hitContainer;		    // output data dsc
+    EVENT_STRUCT*   m_eventStruct;
 };
 
 #endif

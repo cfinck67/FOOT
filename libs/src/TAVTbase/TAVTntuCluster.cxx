@@ -107,7 +107,7 @@ Float_t TAVTcluster::GetPixelDistanceU(Int_t index) const
    TAVTntuHit* pixelSeed = (TAVTntuHit*)fListOfPixels->At(0);
    if (index >= 0 && index < fListOfPixels->GetEntries()) {
 	  TAVTntuHit* aNeighbour = (TAVTntuHit*)fListOfPixels->At(index);
-	  return pixelSeed->DistanceU(aNeighbour->GetPosition_detectorFrame());
+	  return pixelSeed->DistanceU(aNeighbour->GetPixelPosition_detectorFrame());
    } else {
 	  return -1;
    }   
@@ -122,7 +122,7 @@ Float_t TAVTcluster::GetPixelDistanceV(Int_t index) const
    TAVTntuHit* pixelSeed = (TAVTntuHit*)fListOfPixels->At(0);
    if (index >= 0 && index < fListOfPixels->GetEntries()) {
 	  TAVTntuHit* aNeighbour = (TAVTntuHit*)fListOfPixels->At(index);
-	  return pixelSeed->DistanceV(aNeighbour->GetPosition_detectorFrame());
+	  return pixelSeed->DistanceV(aNeighbour->GetPixelPosition_detectorFrame());
    } else {
 	  return -1;
    }   
@@ -168,8 +168,8 @@ Float_t TAVTcluster::Distance( TAVTcluster *aClus) {
 //    // Return the distance between this cluster and the pointed track impact in the plane
 //    //
    
-//    TVector3 impactPosition( aTrack->Intersection( GetPosition_detectorFrame()[2]) );
-//    impactPosition -= GetPosition_detectorFrame();
+//    TVector3 impactPosition( aTrack->Intersection( GetPixelPosition_detectorFrame()[2]) );
+//    impactPosition -= GetPixelPosition_detectorFrame();
 //    // Insure that z position is 0 for 2D length computation
 //    impactPosition.SetXYZ(impactPosition(0), impactPosition(1), 0.);
    

@@ -60,7 +60,7 @@ TAVTntuRaw::~TAVTntuRaw() {
 //______________________________________________________________________________
 //  Deprecated, to be private
 TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, Double_t value, Int_t aLine, Int_t aColumn){
-   if (iSensor >= 0  || iSensor < m_vtxGeo->GetNSensors()) {      
+   if (iSensor >= 0  && iSensor < m_vtxGeo->GetNSensors()) {      
       TClonesArray &pixelArray = *GetListOfPixels(iSensor);
       TAVTntuHit* pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TAVTntuHit(iSensor, value, aLine, aColumn, "deprecated");
       return pixel;
@@ -76,7 +76,7 @@ TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, Double_t value, Int_t aLine, Int
 //  standard 
 TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, Double_t value, Int_t aLine, Int_t aColumn, string aorigin) {
 
-   if (iSensor >= 0  || iSensor < m_vtxGeo->GetNSensors()) {
+   if ( iSensor >= 0  && iSensor < m_vtxGeo->GetNSensors() ) {
 
         // check on aorigin
         TClonesArray &pixelArray = *GetListOfPixels(iSensor);
@@ -137,9 +137,9 @@ TAVTntuHit* TAVTntuRaw::NewPixel(int iSensor, double value, int aLine, int aColu
 
 //______________________________________________________________________________
 //  
-TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, TAVTrawHit* rawPixel) {
+TAVTntuHit* TAVTntuRaw::NewPixel( int iSensor, TAVTrawHit* rawPixel ) {
 
-   if (iSensor >= 0  && iSensor < m_vtxGeo->GetNSensors()) {      
+   if ( iSensor >= 0  && iSensor < m_vtxGeo->GetNSensors()) {      
    // if (iSensor >= 0  || iSensor < m_vtxGeo->GetNSensors()) {      
       TClonesArray &pixelArray = *GetListOfPixels(iSensor);
       TAVTntuHit* pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TAVTntuHit(iSensor, rawPixel);
@@ -181,7 +181,7 @@ void TAVTntuRaw::FillPixelList(int iSensor, string command, int id ) {
 Int_t TAVTntuRaw::GetPixelsN(Int_t iSensor) const {
 
    // if (iSensor >= 0  || iSensor < TAVTparMap::GetSensorsN()) {
-   if (iSensor >= 0  || iSensor < m_vtxGeo->GetNSensors()) {
+   if (iSensor >= 0  && iSensor < m_vtxGeo->GetNSensors()) {
       TClonesArray*list = GetListOfPixels(iSensor);
       return list->GetEntries();
    } else  {
@@ -199,8 +199,7 @@ int TAVTntuRaw::GetPixelsN( int iSensor, string command ) {
 
     // if ( iSensor >= 0  || iSensor < m_vtxGeo->GetNSensors() ) {
     if ( iSensor < 0 || iSensor >= m_vtxGeo->GetNSensors() ) {
-        cout << "ERROR >> TAVTntuRaw::GetPixelsN  -->  number of sensor required is wrong" << endl;
-        Error("GetPixelsN()", "Wrong sensor number %d\n", iSensor);
+        cout << "ERROR >> TAVTntuRaw::GetPixelsN  -->  number of sensor required is wrong" << iSensor<< endl;
         exit(0);
     }
 
@@ -237,14 +236,15 @@ int TAVTntuRaw::GetPixelsN( int iSensor, string command ) {
 
 //------------------------------------------+-----------------------------------
 //! return a pixel for a given sensor
-TAVTntuHit* TAVTntuRaw::GetPixel(Int_t iSensor, Int_t iPixel, string command ) {
+TAVTntuHit* TAVTntuRaw::GetPixel( int iSensor, int iPixel, string command ) {
 
-    // if (iPixel >=0 || iPixel < GetPixelsN(iSensor)) {
+    if (  iSensor < 0 || iSensor >= m_vtxGeo->GetNSensors() ) {
+        cout << "ERROR >> TAVTntuRaw::GetPixel  -->  number of sensor required is wrong" << iSensor << endl;
+        exit(0);
+    }
     if ( iPixel < 0 || iPixel >= GetPixelsN(iSensor) ) {    // wrong check by Frank
-    // if ( iPixel < 0 || iPixel >= GetPixelsN(iSensor, command) ) {    // wrong check by Frank
         cout << "ERROR >> TAVTntuRaw::GetPixel  -->  number of pixel "<<iPixel<<" required is wrong " << GetPixelsN(iSensor) << endl;
-        Error("GetPixel()", "Wrong sensor number %d\n", iPixel);
-        return 0x0;
+        exit(0);
     }
 
     TClonesArray* list = GetListOfPixels( iSensor );
@@ -303,7 +303,7 @@ const TAVTntuHit* TAVTntuRaw::GetPixel(Int_t iSensor, Int_t iPixel, string comma
 //------------------------------------------+-----------------------------------
 TClonesArray* TAVTntuRaw::GetListOfPixels(Int_t iSensor)
 {
-   if (iSensor >= 0  || iSensor < m_vtxGeo->GetNSensors()) {
+   if (iSensor >= 0  && iSensor < m_vtxGeo->GetNSensors()) {
 	  TClonesArray* list = (TClonesArray*)fListOfPixels->At(iSensor);
 	  return list;
    } else {
@@ -319,7 +319,7 @@ TClonesArray* TAVTntuRaw::GetListOfPixels(Int_t iSensor)
 //------------------------------------------+-----------------------------------
 TClonesArray* TAVTntuRaw::GetListOfPixels(Int_t iSensor) const
 {
-   if (iSensor >= 0  || iSensor < m_vtxGeo->GetNSensors()) {
+   if (iSensor >= 0  && iSensor < m_vtxGeo->GetNSensors()) {
 	  TClonesArray* list = (TClonesArray*)fListOfPixels->At(iSensor);
 	  return list;
    } else {

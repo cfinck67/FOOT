@@ -47,14 +47,17 @@
 
 #include <TMath.h>
 
-#include "TAMSDparGeo.hxx"
-#include "TAMSDntuRaw.hxx"
-
 #include "TAVTparGeo.hxx"
 #include "TAVTntuRaw.hxx"
 
 #include "TAITparGeo.hxx"
 #include "TAITntuRaw.hxx"
+
+#include "TAMSDparGeo.hxx"
+#include "TAMSDntuRaw.hxx"
+
+#include "TATWparGeo.hxx"
+#include "TATW_ContainerPoint.hxx"
 
 #include "TAGntuMCeve.hxx"
 
@@ -103,6 +106,7 @@ public:
 	void Prepare4Vertex( Track* fitTrack );
 	void Prepare4InnerTracker( Track* fitTrack );
 	void Prepare4Strip( Track* fitTrack );
+	void Prepare4TofWall( Track* fitTrack );
 
 	bool PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterator element );
 
@@ -129,6 +133,7 @@ public:
 	int UploadHitsVT();
 	int UploadHitsIT();
 	int UploadHitsMSD();
+	int UploadHitsTW();
 
 	void Finalize();	// save control plot and calculate resolutions
 
@@ -208,6 +213,7 @@ private:
 	vector<TAVTntuHit*> m_VT_hitCollection;
 	vector<TAITntuHit*> m_IT_hitCollection;
 	vector<TAMSDntuHit*> m_MSD_hitCollection;
+	vector<TATW_Point*> m_TW_hitCollection;
 
 	vector<TVector3> m_MSD_posVectorSmearedHit;
 	vector<TVector3> m_MSD_momVectorSmearedHit;
@@ -222,6 +228,7 @@ private:
 	shared_ptr<TAVTparGeo> m_VT_geo;
 	shared_ptr<TAITparGeo> m_IT_geo;
 	shared_ptr<TAMSDparGeo> m_MSD_geo;
+	shared_ptr<TATWparGeo> m_TW_geo;
 
 	// TrackVector* m_fitTrackCollection;
 	vector<int> m_evNum_vect;

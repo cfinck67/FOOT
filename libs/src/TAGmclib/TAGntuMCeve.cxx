@@ -302,15 +302,12 @@ TAGntuMCeveHit* TAGntuMCeve::AddHit(  Int_t i_id, Int_t i_chg, Int_t i_type,
 //------------------------------------------+-----------------------------------
 //! Setup clones.
 
-void TAGntuMCeve::SetupClones()
-{
-  if (!h) h = new TClonesArray("TAGntuMCeveHit");
-  return;
+void TAGntuMCeve::SetupClones()   {
+  if (!h) h = new TClonesArray("TAGntuMCeveHit", 500);
 }
 
 //------------------------------------------+-----------------------------------
 //! Clear.
-
 void TAGntuMCeve::Clear(Option_t*)
 {
 

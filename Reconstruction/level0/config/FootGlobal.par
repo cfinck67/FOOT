@@ -17,12 +17,13 @@ MC Particle Types:	C10	C11	C12	Li6	Li7	B7	B8	B9	Be9	Be10	N12	N14	O15
 
 IncludeKalman: 		y
 Kalman Mode: 		ON
-Tracking Systems Considered:		all
+Tracking Systems Considered:		all	TW
 Reverse Tracking:	false
 
 VT  Reso: 0.0006
 IT  Reso: 0.0006
 MSD Reso: 0.001
+TW  Reso: 0.57
 
 Kalman Particle Types:	C
 

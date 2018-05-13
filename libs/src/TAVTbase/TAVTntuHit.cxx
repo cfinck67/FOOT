@@ -175,7 +175,7 @@ TVector3 TAVTntuHit::GetMCMomentum_footFrame() {
 //  
 Double_t TAVTntuHit::Distance(TAVTntuHit &aPixel)
 {
-   return Distance(aPixel.GetPosition_detectorFrame());
+   return Distance(aPixel.GetPixelPosition_detectorFrame());
 }
 
 //______________________________________________________________________________
@@ -193,7 +193,7 @@ Double_t TAVTntuHit::Distance(const TVector3& aPosition)
 //  
 Double_t TAVTntuHit::DistanceU(TAVTntuHit &aPixel)
 {
-   return DistanceU(aPixel.GetPosition_detectorFrame());
+   return DistanceU(aPixel.GetPixelPosition_detectorFrame());
 }
 
 //______________________________________________________________________________
@@ -209,7 +209,7 @@ Double_t TAVTntuHit::DistanceU(const TVector3& aPosition)
 //  
 Double_t TAVTntuHit::DistanceV(TAVTntuHit &aPixel)
 {
-   return DistanceV(aPixel.GetPosition_detectorFrame());
+   return DistanceV(aPixel.GetPixelPosition_detectorFrame());
 }
 
 //______________________________________________________________________________

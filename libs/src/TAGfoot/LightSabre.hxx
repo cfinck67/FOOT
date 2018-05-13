@@ -42,7 +42,9 @@ public:
   string GetMaterialName() {return m_materialName;};
   string GetMaterialRegionName() { return m_materialRegionName; };
 
-  TVector3 GetPosition() { return m_center; };
+  TVector3 GetPosition();
+  TVector3 GetPosition_local()  { return m_center; };
+
   TVector3 GetDimension() { return m_dimension; };
   
   string GetBodyName() { return m_bodyName; };

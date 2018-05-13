@@ -115,6 +115,10 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
         if ( !eventListFile.is_open() )        cout<< "ERROR  -->  eventListFile.dat cannot open file."<< endl, exit(0);
     }
 
+    gROOT->SetStyle("Plain");
+    gStyle->SetFrameBorderMode(0);
+    gStyle->SetStatW(0.2);                  // Set width of stat-box (fraction of pad size)
+    gStyle->SetStatH(0.1);                  // Set height of stat-box (fraction of pad size)
 
 	//Initializing the Geometry class that handles the
     //detector positioning and global to local transformations
@@ -622,10 +626,14 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
     top->AddNode( ((TATWparGeo*) myp_twgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
 
     /*Ntupling the MC Tof Wall information*/
-    myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
+    // myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
+    myn_twraw    = new TAGdataDsc("containerHIt", new TATW_ContainerHit());
     
     new TATWactNtuMC("an_twraw", myn_twraw, myStr);
-    gTAGroot->AddRequiredItem("myn_twraw");
+
+    // gTAGroot->AddRequiredItem("myn_twraw");
+    gTAGroot->AddRequiredItem("containerHIt");
+    // gTAGroot->AddRequiredItem("an_twraw");   // prova
 
     // my_out->SetupElementBranch(myn_twraw,     "twrh.");
 }
