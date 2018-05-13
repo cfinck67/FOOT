@@ -205,8 +205,8 @@ void GlobalPar::ReadParamFile () {
         else if ( line.find("MSD Reso") != string::npos ) {
             m_MSDreso = atof ( StrReplace( line, "MSD Reso:", "" ).c_str() );   
         }
-        else if ( line.find("TW Reso") != string::npos ) {
-            m_TWreso = atof ( StrReplace( line, "TW Reso:", "" ).c_str() );   
+        else if ( line.find("TW  Reso:") != string::npos ) {
+            m_TWreso = atof ( StrReplace( line, "TW  Reso:", "" ).c_str() );   
         }
         else if ( line.find("Print OutputFile") != string::npos ) {
             string rev =StrReplace( line, "Print OutputFile:", "" );

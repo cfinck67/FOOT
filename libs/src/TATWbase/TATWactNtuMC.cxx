@@ -37,13 +37,17 @@ TATWactNtuMC::TATWactNtuMC(const char* name,
 
 bool TATWactNtuMC::Action() {
 
-    TATW_ContainerHit* containerHit = (TATW_ContainerHit*) m_hitContainer->Object();
+    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "TATWactNtuMC::Action() start" << endl;
+
+
+    // TATW_ContainerHit* containerHit = (TATW_ContainerHit*) m_hitContainer->Object();
+    TATW_ContainerHit* containerHit = (TATW_ContainerHit*) gTAGroot->FindDataDsc("containerHIt", "TATW_ContainerHit")->Object();
     TATWparGeo* geoMap = (TATWparGeo*) gTAGroot->FindParaDsc("twGeo", "TATWparGeo")->Object();
     // int nhits(0);
     // if (!containerHit->m_listOfHits) containerHit->SetupClones();
 
     //The number of hits inside the Start Counter is stn
-    Info("Action()","Processing n Scint :: %2d hits \n",m_eventStruct->SCNn);
+    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "Processing n Scint " << m_eventStruct->SCNn << endl;
 
     // fill the container of hits, divided by layer, i.e. the column at 0 and row at 1
     for (int i=0; i < m_eventStruct->SCNn; i++) { 
@@ -53,44 +57,47 @@ bool TATWactNtuMC::Action() {
         // TATWrawHit(0,0,m_eventStruct->SCNde[i],m_eventStruct->SCNtim[i]);
 
         // layer, bar, de, time, ntupID, parentID
-        TATW_Hit* hit = containerHit->NewHit( m_eventStruct->SCNiview[i], m_eventStruct->SCNibar[i], m_eventStruct->SCNde[i], 
+        cout << "cazzo i "<< i << endl;
+        int view = ( m_eventStruct->SCNiview[i] == -1 ? 0 : 1 );    // in ntuple layers are -1 and 1
+        cout << m_eventStruct->SCNiview[i] <<" cazzo v "<< view << endl;
+        TATW_Hit* hit = containerHit->NewHit( view, m_eventStruct->SCNibar[i], m_eventStruct->SCNde[i], 
                                                 m_eventStruct->SCNtim[i], i, m_eventStruct->SCNid[i] );
-        
+        cout << "cazzo  " << endl;
         TVector3 MCpos = TVector3(  (m_eventStruct->SCNxin[i]  + m_eventStruct->SCNxout[i])/2,  
                                     (m_eventStruct->SCNyin[i]  + m_eventStruct->SCNyout[i])/2,  
                                     (m_eventStruct->SCNzin[i]  + m_eventStruct->SCNzout[i])/2 );
         TVector3 MCmom = TVector3(  (m_eventStruct->SCNpxin[i] + m_eventStruct->SCNpxout[i])/2, 
                                     (m_eventStruct->SCNpyin[i] + m_eventStruct->SCNpyout[i])/2, 
                                     (m_eventStruct->SCNpzin[i] + m_eventStruct->SCNpzout[i])/2 );    
-        
+        cout << "cazzo222 " << endl;
         geoMap->Global2Local( &MCpos );
         geoMap->Global2Local_RotationOnly( &MCmom );
-
+cout << "cazzo3333 " << endl;
         hit->SetMCPosition( MCpos );
         hit->SetMCMomentum( MCmom );
-        
+        cout << "cazzo end "<< endl;
     }
-
+    cout << "containerPoint" << endl;
 
     // container of points
-    TATW_ContainerPoint* containerPoint = (TATW_ContainerPoint*) gTAGroot->FindParaDsc("twPoints", "TATW_ContainerPoint")->Object();
-
+    TATW_ContainerPoint* containerPoint = (TATW_ContainerPoint*) gTAGroot->FindDataDsc("containerPoint", "TATW_ContainerPoint")->Object();
+cout << "containerPoint fill" << endl;
     // built the points from the hits
     for (int iCol=0; iCol < containerHit->GetHitN( 0 ); iCol++) {  // col loop
         
         // FOR TEST, REMOVE
         if ( !containerHit->GetHit( 0, iCol )->IsColumn() )       cout <<"TATWactNtuMC::Action() cazzoCol"<<endl, exit(0);
-        
+        cout <<"TATWactNtuMC::Action() cazzoCol"<<endl;
         TATW_Hit* colHit = containerHit->GetHit( 0, iCol );
        
 
         for (int iRow=0; iRow < containerHit->GetHitN( 1 ); iRow++) {  // row loop 
             
             // FOR TEST, REMOVE
-            if ( !containerHit->GetHit( 1, iRow )->IsRow() )        cout <<"TATWactNtuMC::Action() cazzoCol"<<endl, exit(0);
-            
+            if ( !containerHit->GetHit( 1, iRow )->IsRow() )        cout <<"TATWactNtuMC::Action() cazzoRow"<<endl, exit(0);
+            cout <<"TATWactNtuMC::Action() cazzorow" << endl;
             TATW_Hit* rowHit = containerHit->GetHit( 1, iRow );
-
+cout << "Fregna" << endl;
             // TVector3 rowPos = rowHit->GetHitPosition_detector();
             // TVector3 colPos = colHit->GetHitPosition_detector();
             // TVector3 position ( colHit->GetHitCoordinate_detectorFrame().x(), rowHit->GetHitCoordinate_detectorFrame().y(), 
@@ -110,7 +117,7 @@ bool TATWactNtuMC::Action() {
         }
 
     }
-
+cout << "containerPoint filled" << endl;
     // containerHit->nirhit  = nhits;
 
     // m_hitContainer->SetBit(kValid);

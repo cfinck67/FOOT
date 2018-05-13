@@ -444,7 +444,9 @@ void Booter::FillMCEvent(EVENT_STRUCT *myStr) {
   /*Ntupling the general MC event information*/
   myn_mceve    = new TAGdataDsc("myn_mceve", new TAGntuMCeve());
   mya_mceve    = new TAGactNtuMCeve("mya_mceve", myn_mceve, myStr);
-  gTAGroot->AddRequiredItem("myn_mceve");
+  
+  gTAGroot->AddRequiredItem("mya_mceve");
+  // gTAGroot->AddRequiredItem("myn_mceve");
 
   // my_out->SetupElementBranch(myn_mceve,     "mceve.");
 
@@ -626,14 +628,17 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
     top->AddNode( ((TATWparGeo*) myp_twgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
 
     /*Ntupling the MC Tof Wall information*/
-    // myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
-    myn_twraw    = new TAGdataDsc("containerHIt", new TATW_ContainerHit());
+    myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
+    containerHIt    = new TAGdataDsc("containerHIt", new TATW_ContainerHit());
+    containerPoint  = new TAGdataDsc("containerPoint", new TATW_ContainerPoint());
     
+
     new TATWactNtuMC("an_twraw", myn_twraw, myStr);
 
     // gTAGroot->AddRequiredItem("myn_twraw");
     gTAGroot->AddRequiredItem("containerHIt");
-    // gTAGroot->AddRequiredItem("an_twraw");   // prova
+    gTAGroot->AddRequiredItem("containerPoint");
+    gTAGroot->AddRequiredItem("an_twraw");   // prova --> funge!!!
 
     // my_out->SetupElementBranch(myn_twraw,     "twrh.");
 }

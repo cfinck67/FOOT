@@ -181,7 +181,7 @@ int KFitter::UploadHitsMSD() {
 int KFitter::UploadHitsTW() {
 	
 	// take the ntuple object already filled
-	TATW_ContainerPoint* ntup = (TATW_ContainerPoint*) gTAGroot->FindDataDsc("twRaw", "TATW_ContainerPoint")->Object();
+	TATW_ContainerPoint* ntup = (TATW_ContainerPoint*) gTAGroot->FindDataDsc("containerPoint", "TATW_ContainerPoint")->Object();
 	if ( m_debug > 0 )		cout << "N hits read: " << ntup->GetPointN() << endl;
 
 	// save hits in the collection
@@ -390,6 +390,7 @@ void KFitter::Prepare4TofWall( Track* fitTrack ) {
 		// set covariance matrix
 		// double pixReso = 0.001;
 		double pixReso = GlobalPar::GetPar()->TWReso();
+		cout << "TWReso:"<< pixReso << endl;
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
 		double zErr = 0.1;

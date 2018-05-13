@@ -145,7 +145,8 @@ void TAVTactNtuMC::CreateHistogram() {
 //! Action.
 Bool_t TAVTactNtuMC::Action() {
   
-    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "TAVTactNtuMC::Action() start" << endl;
+    // if ( GlobalPar::GetPar()->Debug() > 0 )     
+      cout << "TAVTactNtuMC::Action() start" << endl;
 
     static Int_t storedEvents = 0;
     std::vector<RawMcHit_t> storedEvtInfo;
