@@ -45,7 +45,7 @@ TAGactNtuMCeve::~TAGactNtuMCeve()
 
 Bool_t TAGactNtuMCeve::Action() {
 
-  cout << " Entering TAGactNtuMCeve" << endl;
+  if ( GlobalPar::GetPar()->Debug() > 1 )  cout << " Entering TAGactNtuMCeve" << endl;
   TAGntuMCeve* p_nturaw = (TAGntuMCeve*) fpNtuMC->Object();
 
   // Int_t nh(0);
@@ -89,7 +89,7 @@ Bool_t TAGactNtuMCeve::Action() {
       TAGntuMCeveHit(i_id,i_chg,i_type,i_reg,i_bar,i_dead,i_mass,i_moth,i_time,i_tof,i_trlen,ipos,fpos,ip,fp,mothip,mothfp,i_pileup);
     
   }
-  cout << "TRn = " << fpEvtStr->TRn << "  MChit = "<< p_nturaw->GetHitN() << endl;
+  if ( GlobalPar::GetPar()->Debug() > 1 )  cout << "TRn = " << fpEvtStr->TRn << "  MChit = "<< p_nturaw->GetHitN() << endl;
 
   // p_nturaw->nhit  = nh;    // to be changed!!!!!!!!!!!!!!!
 

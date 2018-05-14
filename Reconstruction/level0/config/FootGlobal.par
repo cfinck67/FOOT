@@ -35,7 +35,7 @@ IncludeIR:			n
 IncludeVertex:		y
 IncludeInnerTracker:	y
 IncludeMSD:			y
-IncludeTW:			y
+IncludeTW:			n
 IncludeCA:			n
 
 IncludeEvent:		y

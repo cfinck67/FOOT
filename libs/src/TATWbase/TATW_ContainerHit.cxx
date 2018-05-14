@@ -59,7 +59,6 @@ TATW_ContainerHit::~TATW_ContainerHit() {
 //  standard 
 TATW_Hit* TATW_ContainerHit::NewHit( int layer, int bar, double energyLoss, double atime, int ntupID, int parentID ) {
 
-    cout << "TATW_ContainerHit::NewHit lay " << m_twGeo->GetNLayers() << endl;
     if ( layer >= 0  && layer < m_twGeo->GetNLayers() ) {
 
         // check on aorigin

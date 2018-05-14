@@ -12,6 +12,8 @@
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 
+#include "GlobalPar.hxx"
+
 class TAGactNtuMCeve : public TAGaction {
   public:
     explicit        TAGactNtuMCeve(const char* name=0,

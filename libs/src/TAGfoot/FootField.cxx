@@ -1,5 +1,6 @@
 
 
+#include <TRandom3.h>
 
 #include "FootField.hxx"
 
@@ -20,6 +21,15 @@ FootField::FootField ( string fileName ) {
 
     if ( !ifile.is_open() )        
     	cout<< "ERROR >> FootField::FootField  ::  cannot open magnetic map for file " << fullFileName << endl, exit(0);
+
+    TRandom3* m_diceRoll;
+    bool bFieldSmearTest = false;
+    float smearingPerc = 0.01;
+    if ( bFieldSmearTest ) {
+    	m_diceRoll = new TRandom3();
+	    m_diceRoll->SetSeed(0);
+    }
+
 
     // read position and field  -->	 fill a multidimensional map called lattice3D = map< double, map< double, map< double, TVector3 > > >
     string line = "";
@@ -47,7 +57,16 @@ FootField::FootField ( string fileName ) {
 
         // cout << "x " << x << " y " << y << " z " << z << " px " <<  bx << " by " << by << " bz " << bz << endl;
         // multidimensional map called lattice3D = map< double, map< double, map< double, TVector3 > > >
-        m_filedMap[x][y][z] = TVector3(bx, by, bz);
+        
+        // m_filedMap[x][y][z] = TVector3(bx, by, bz);
+        if ( !bFieldSmearTest ) {
+	        m_filedMap[x][y][z] = TVector3(bx, by, bz);
+	    }
+	    else {
+		    m_filedMap[x][y][z] = TVector3(	bx * (1 + m_diceRoll->Gaus(0.,1.) * smearingPerc), 
+	        								by * (1 + m_diceRoll->Gaus(0.,1.) * smearingPerc), 
+	        								bz * (1 + m_diceRoll->Gaus(0.,1.) * smearingPerc) );
+		}
 
     }  
     ifile.close();

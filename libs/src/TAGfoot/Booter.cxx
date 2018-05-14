@@ -629,14 +629,14 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
 
     /*Ntupling the MC Tof Wall information*/
     myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
-    containerHIt    = new TAGdataDsc("containerHIt", new TATW_ContainerHit());
+    containerHit    = new TAGdataDsc("containerHit", new TATW_ContainerHit());
     containerPoint  = new TAGdataDsc("containerPoint", new TATW_ContainerPoint());
     
 
     new TATWactNtuMC("an_twraw", myn_twraw, myStr);
 
     // gTAGroot->AddRequiredItem("myn_twraw");
-    gTAGroot->AddRequiredItem("containerHIt");
+    gTAGroot->AddRequiredItem("containerHit");
     gTAGroot->AddRequiredItem("containerPoint");
     gTAGroot->AddRequiredItem("an_twraw");   // prova --> funge!!!
 

@@ -649,7 +649,7 @@ bool KFitter::PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterat
 	}
 	// test the num of hits per each detector
 	if ( nHitVT != testHit_VT || nHitIT != testHit_IT || nHitMSD != testHit_MSD ){
-		// if ( m_debug > 0 )		
+		if ( m_debug > 0 )		
 			cout << "WARNING :: KFitter::PrefitRequirements  -->  number of elements different wrt the expected ones : " << 
 									"\n\t nVTX = " << nHitVT << "  Nexp = " << testHit_VT << endl <<
 									"\n\t nITR = " << nHitIT << "  Nexp = " << testHit_IT << endl <<

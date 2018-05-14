@@ -142,7 +142,7 @@ class Booter {
   TAGdataDsc* myn_trtrk;
   TAGdataDsc* myn_trtin;
 
-  TAGdataDsc* containerHIt;
+  TAGdataDsc* containerHit;
   TAGdataDsc* containerPoint;
   TAGdataDsc* myn_twraw;
   TAGparaDsc* myp_twgeo;
