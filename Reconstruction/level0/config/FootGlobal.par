@@ -22,7 +22,7 @@ Reverse Tracking:	false
 
 VT  Reso: 0.0006
 IT  Reso: 0.0006
-MSD Reso: 0.001
+MSD Reso: 0.003
 TW  Reso: 0.57
 
 Kalman Particle Types:	C
@@ -41,6 +41,9 @@ IncludeCA:			n
 IncludeEvent:		y
 
 
+#Magnetic field map name:  SummedSingleMap_v14.2.table
+#Magnetic field map name:  SummedSingleMap_OnlySecondMagrot1.table
+#Magnetic field map name:  SummedSingleMap_Bothrot1deg.table
 Magnetic field map name:  SummedSingleMap.table
 #Magnetic field map name:  DoubleDipole.table
 #Magnetic field map name:  DoubleGaussMag.table

@@ -308,7 +308,7 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
 		double pixReso = GlobalPar::GetPar()->VTReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
-		double zErr = 0.001;
+		double zErr = 0.005;
 		hitCov[2][2] = zErr*zErr; 
 
         // nullptr e' un TrackPoint(fitTrack). Leave like this otherwise it gives memory leak problems!!!!
@@ -352,7 +352,7 @@ void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
 		double pixReso = GlobalPar::GetPar()->ITReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
-		double zErr = 0.001;
+		double zErr = 0.005;
 		hitCov[2][2] = zErr*zErr; 
 
         // nullptr e' un TrackPoint(fitTrack). Leave like this otherwise it gives memory leak problems!!!!
@@ -393,7 +393,7 @@ void KFitter::Prepare4TofWall( Track* fitTrack ) {
 		cout << "TWReso:"<< pixReso << endl;
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
-		double zErr = 0.1;
+		double zErr = 0.5;
 		hitCov[2][2] = zErr*zErr; 
 
         // nullptr e' un TrackPoint(fitTrack). Leave like this otherwise it gives memory leak problems!!!!
@@ -432,7 +432,7 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 		double stripReso = GlobalPar::GetPar()->MSDReso();
 		hitCov.UnitMatrix();         
 		hitCov *= stripReso*stripReso; 
-		double zErr = 0.001;
+		double zErr = 0.01;
 		hitCov[2][2] = zErr*zErr; 
 
 		double simulatedStripHit_X = p_hit->GetMCPosition_Global().X();
