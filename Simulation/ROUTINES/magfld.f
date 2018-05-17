@@ -36,10 +36,10 @@
       INTEGER NX, NY, NZ, NROW
       DOUBLE PRECISION G2T, ZSHIFT
 
-      PARAMETER (NROW=53361) 
+      PARAMETER (NROW=67473) 
       PARAMETER (NX=21) 
       PARAMETER (NY=21) 
-      PARAMETER (NZ=121)
+      PARAMETER (NZ=153)
       PARAMETER (ZSHIFT=0.D+00)
 *      PARAMETER (ZSHIFT=14.D+00)
 *      PARAMETER (ZSHIFT=14.7D+00)
@@ -68,7 +68,7 @@
          
       IF (LFIRST) THEN 
          
-         CALL OAUXFI('SummedSingleMap.table',22,'OLD',IERR)
+         CALL OAUXFI('NewMap.table',22,'OLD',IERR)
 *         CALL OAUXFI('DoubleDipole.table',22,'OLD',IERR)
          
          DO I=1,NX

@@ -195,7 +195,8 @@ const bool VTX_MAG		=true;
 
 const Double_t ITR_X 		=0.5; //center x coordinate
 const Double_t ITR_Y 		=0.0; //center y coordinate
-const Double_t ITR_Z 		=14.;//center z coordinate
+/* const Double_t ITR_Z 		=14.;//center z coordinate */
+const Double_t ITR_Z 		=18.;//center z coordinate
 
 const Int_t    ITR_NLAY         =2;//no. of silicon layers per plume
 const Int_t    ITR_NM28		=4;//no. of M28 chips per layer
@@ -252,7 +253,8 @@ const bool ITR_MAG		=true;
 
 const Double_t MAG_X 		=0.0;//center x coordinate of the first magnets
 const Double_t MAG_Y 		=0.0;//center y coordinate of the first magnets
-const Double_t MAG_Z 		=14.;//center z coordinate btw the magnets
+/* const Double_t MAG_Z 		=14.;//center z coordinate btw the magnets */
+const Double_t MAG_Z 		=18.;//center z coordinate btw the magnets
 
 const Int_t    MAG_N		=2;//no. of magnets
 
@@ -263,7 +265,8 @@ const Double_t MAG_PM_LENGTH 	=10.;//length of permanent magnets
 const Double_t MAG_CV_THICK 	=0.2;//thickness of Al cover
 const Double_t MAG_CV_LENGTH 	=MAG_PM_LENGTH+2*MAG_CV_THICK;//length of magnets Al cover
 /* const Double_t MAG_DIST		=5.+MAG_PM_LENGTH;//distance btw magnets (from zmin1 to zmin2) */
-const Double_t MAG_DIST		=12.;//distance btw magnets (from zmin1 to zmin2center to center)
+/* const Double_t MAG_DIST		=12.;//distance btw magnets (from center to center) */
+const Double_t MAG_DIST		=MAG_CV_LENGTH+5.1;//distance btw magnets (from center to center)
 
 const Double_t MAG_CV1_INRAD 	=3.5;//(MAG_Z+MAG_CV_LENGTH/2+MAG_DIST-TG_Z)*tan(MAG_ANG);//inner radius of magnet 1 Al cover
 const Double_t MAG_PM1_INRAD 	=MAG_CV1_INRAD+MAG_CV_THICK;//inner radius of permanent magnet 1
@@ -281,7 +284,7 @@ const Double_t MAG_AIR_Z 	=MAG_Z+MAG_DIST/2;//_mean of magnetic field region
 
 const Double_t MAG_AIR_WIDTH	=10.0;//width of magnetic field region
 const Double_t MAG_AIR_HEIGHT 	=10.0;//height of magnetic field region
-const Double_t MAG_AIR_LENGTH 	=60.0;//length of magnets
+const Double_t MAG_AIR_LENGTH 	=60.0+MAG_DIST;//length of magnets
 
 const TString  MAG_PM_MEDIUM    ="SmCo";
 const TString  MAG_CV_MEDIUM    ="ALUMINUM";
@@ -295,7 +298,8 @@ const bool MAG_AIR_MAG		=true;
 
 const double MSD_X		=0.0; //center x coordinate of the detector system
 const double MSD_Y		=0.0; //center y coordinate of the detector system
-const double MSD_Z		=29.0;//center z coordinate of the detector system
+/* const double MSD_Z		=29.0;//center z coordinate of the detector system */
+const double MSD_Z		=35.0;//center z coordinate of the detector system
 
 const Double_t MSD_WIDTH   	=9.0;//x dimension
 const Double_t MSD_HEIGHT  	=9.0;//y dimension
