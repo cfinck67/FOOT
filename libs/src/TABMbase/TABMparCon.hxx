@@ -42,6 +42,7 @@ class TABMparCon : public TAGpara {
     Double_t GetAngZRescut(){return angzres_cut;};
     Int_t GetFitterIndex(){return fitter_index;};
     Int_t GetBMdebug(){return bm_debug;};
+    Int_t GetBMvietrack(){return bm_vietrack;};
 
     //acquisition stuff
     void        loadT0s(const TString& name); 
@@ -80,6 +81,7 @@ class TABMparCon : public TAGpara {
     Double_t angzres_cut;
     Int_t    fitter_index;
     Int_t    bm_debug;//index for the bm_debug, (it is set at least to the global debug level)
+    Int_t    bm_vietrack;//ogni quanto vanno fatti i grafici delle tracce
     
     vector<double> v_t0s;
 

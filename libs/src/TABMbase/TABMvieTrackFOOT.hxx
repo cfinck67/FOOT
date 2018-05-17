@@ -12,12 +12,14 @@
 #include "TAGview.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGparaDsc.hxx"
+#include "TABMntuTrack.hxx"
+#include "TABMntuRaw.hxx"
+#include "TABMparGeo.hxx"
 
 class TABMvieTrackFOOT : public TAGview {
   public:
-    explicit        TABMvieTrackFOOT(TAGdataDsc* p_ntutrk=0,
-					  TAGdataDsc* p_nturaw=0,
-					  TAGparaDsc* p_bmgeo=0);
+    //~ explicit        TABMvieTrackFOOT(TAGdataDsc* p_ntutrk=0, TAGdataDsc* p_nturaw=0, TAGparaDsc* p_bmgeo=0);
+    explicit        TABMvieTrackFOOT(TABMntuTrack* p_ntutrk=nullptr, TABMntuRaw* p_nturaw=nullptr, TABMparGeo* p_bmgeo=nullptr);
     virtual         ~TABMvieTrackFOOT();
 
     virtual char*   GetObjectInfo(Int_t px, Int_t py) const;
@@ -28,9 +30,13 @@ class TABMvieTrackFOOT : public TAGview {
     ClassDef(TABMvieTrackFOOT,0)
 
   private:
-    TAGdataDsc*     fpNtuTrk;
-    TAGdataDsc*     fpNtuRaw;
-    TAGparaDsc*     fpParBMGeo;
+    //~ TAGdataDsc*     fpNtuTrk;
+    //~ TAGdataDsc*     fpNtuRaw;
+    //~ TAGparaDsc*     fpParBMGeo;
+    TABMntuTrack* p_ntutrk;
+    TABMntuRaw* p_nturaw;
+    TABMparGeo* p_bmgeo;
+    
 };
 
 #endif

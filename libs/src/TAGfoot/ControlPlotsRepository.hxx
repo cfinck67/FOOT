@@ -6,6 +6,8 @@
 #include <TMath.h>
 
 #include "ControlPlotInfo.hxx"
+#include "TABMntuTrack.hxx"
+#include "TABMntuRaw.hxx"
 
 #define build_string(expr) \
     (static_cast<ostringstream*>(&(ostringstream().flush() << expr))->str())
@@ -172,7 +174,37 @@ public:
 
 	}
 
-
+  //Beam Monitor OutputFile
+  void BM_setnturaw_info(string hitSampleName, TABMntuHit* p_hit){
+    FillMap( hitSampleName + "__raw_rdrift", p_hit->Dist());
+    FillMap( hitSampleName + "__raw_cell_id", p_hit->Cell());
+    FillMap( hitSampleName + "__raw_chi2", p_hit->GetChi2());
+    return;  
+  }
+  
+  void BM_setntutrack_info(string hitSampleName, TABMntuTrackTr* p_tracktr){
+    FillMap( hitSampleName + "__track_chi2red", p_tracktr->GetMyChi2Red());
+    FillMap( hitSampleName + "__track_mylar1_x", p_tracktr->GetMylar1Pos().X());
+    FillMap( hitSampleName + "__track_mylar1_y", p_tracktr->GetMylar1Pos().Y());
+    FillMap( hitSampleName + "__track_mylar1_z", p_tracktr->GetMylar1Pos().Z());
+    FillMap( hitSampleName + "__track_mylar2_x", p_tracktr->GetMylar2Pos().X());
+    FillMap( hitSampleName + "__track_mylar2_y", p_tracktr->GetMylar2Pos().Y());
+    FillMap( hitSampleName + "__track_mylar2_z", p_tracktr->GetMylar2Pos().Z());
+    FillMap( hitSampleName + "__track_target_x", p_tracktr->GetTargetPos().X());
+    FillMap( hitSampleName + "__track_target_y", p_tracktr->GetTargetPos().Y());
+    FillMap( hitSampleName + "__track_target_z", p_tracktr->GetTargetPos().Z());
+    return;  
+  }
+  
+  //Beam Monitor OutputNtuple
+  void BM_setntuple_hit(Double_t rdrift){
+    ntuple_out.BM_hit_rdrift.push_back(rdrift);
+  return;
+  }
+  void BM_setntuple_track(Double_t chi2){
+    ntuple_out.BM_track_chi2.push_back(chi2);
+  return;
+  }
 
 
 	struct Ntuple_out {
@@ -185,9 +217,14 @@ public:
 		vector< double >  Truth_track_px;
 		vector< double >  Truth_track_py;
 		vector< double >  Truth_track_pz;
+		
+    //Beam Monitor stuff
+    vector< double >  BM_hit_rdrift;
+		vector< double >  BM_track_chi2;
 	};
   
   Ntuple_out  ntuple_out;
+  
   
 	void Set_Outputntuple( TVector3 *Reco_mom, TVector3 *Reco_pos, TVector3 *Truth_mom) {
 

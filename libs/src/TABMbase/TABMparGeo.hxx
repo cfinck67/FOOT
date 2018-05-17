@@ -63,7 +63,7 @@ public:
   
   //other getters:
   TGeoVolume*     GetVolume();
-  void GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_x, Double_t& h_y, Double_t& h_z, Double_t& h_cx, Double_t& h_cy, Double_t& h_cz);
+  void GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_x, Double_t& h_y, Double_t& h_z, Double_t& h_cx, Double_t& h_cy, Double_t& h_cz); //used in TABMvieTrackFOOT
   //get a number from 0 to 35 to identify any cell (ivew=1 or -1)
   Int_t GetBMNcell(Int_t ilay, Int_t iview, Int_t icell){return icell+((iview==1) ? 0:1)*3+ilay*6;};
   //get a number from 0 to 12 to identify real wire plane (iview=1 or -1)
@@ -71,6 +71,9 @@ public:
   TVector3    GetCenter(){return m_center;};
   TVector3    GetSide(){return bm_SideDch;};
   TVector3    GetDelta(){return bm_DeltaDch;};
+  TVector3    GetMylar1(){return bm_mylar1;};
+  TVector3    GetMylar2(){return bm_mylar2;};
+  TVector3    GetTarget(){return bm_target;};
 
 
   virtual void    Clear(Option_t* opt="");
@@ -91,10 +94,14 @@ public:
   //~ int m_nFieldW[2];//number of field wires per layer
     
 
-  Int_t bm_idsense[3]; //sense wire index
-  TVector3  m_origin;  // current position in local coord.
+  Int_t bm_idsense[3]; //sense wire index (used in TABMvieTrackFOOT)
+  TVector3  m_origin;  // current position in local coord. (not used...)
   TVector3  m_center;  // current position in global coord.
   TRotation* m_rotation; //rotation to the global coord. following the Goldstein conv, WARNING: other detector follow Yconv
+
+  TVector3  bm_mylar1;  // mylar1 center position in local coord.
+  TVector3  bm_mylar2;  // mylar2 center position in local coord.
+  TVector3  bm_target;  // target center position in local coord.
   
   TVector3 bm_SideDch;      /* Chamber side dimensions */
   TVector3 bm_DeltaDch;     /* displacement of 1st wire wrt chmb side */

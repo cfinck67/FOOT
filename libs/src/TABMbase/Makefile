@@ -22,10 +22,10 @@ LDLIBS    += $(shell root-config --libs) -L../../../libs/GenFit/lib -lgenfit2
 TOBJ_all   = TABMdatRaw.hxx  TABMntuRaw.hxx \
 	     TABMparMap.hxx TABMparGeo.hxx \
 	     TABMactNtuRaw.hxx \
-	     TABMactNtuMC.hxx   \
+	     TABMactNtuMC.hxx  TABMvieTrackFOOT.hxx \
 	     TABMntuTrack.hxx TABMactNtuTrack.hxx \
 	     TABMparCon.hxx  TABMparTools.hxx
-#            TABMvieTrackFOOT.hxx \       disabilitato per ora l'event display, da capire se usare genfit o quello di prima
+
 #           TABMactDatRaw.hxx 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #

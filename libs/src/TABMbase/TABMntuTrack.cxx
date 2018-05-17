@@ -32,9 +32,11 @@ ClassImp(TABMntuTrackTr);
 TABMntuTrackTr::TABMntuTrackTr():
   //~ nwire(0), nass(0),
     //~ x0(0.), y0(0.), ux(0.), uy(0.),
-    nhit(0), chi2(999.),
-    ndf(0), failedPoint(0), mychi2(160), mychi2Red(15), 
-    isConverged(0)
+    nhit(0), chi2(999.), chi2Red(999),
+    mychi2(160), mychi2Red(15), ndf(0), failedPoint(0), 
+    isConverged(0), MaxRdriftErr(100), AngZ(100), AngZRes(100),
+    AngZResAv(100), AngPhi(100), AngPhiRes(100), RTarget(100)
+    
 {
 
   //~ trackrho.Zero();
@@ -48,20 +50,45 @@ TABMntuTrackTr::TABMntuTrackTr():
   //~ trackpar(1) = y0;
   //~ trackpar(2) = ux;
   //~ trackpar(3) = uy;
-  MaxRdriftErr=100;
-  AngZ=100;
-  AngZRes=100;
-  AngZResAv=100;
-  AngPhi=100;
-  AngPhiRes=100;
-  RTarget=100;
+  
+    //~ nhit=0;
+  //~ chi2=999.;
+  //~ chi2Red=999;
+  //~ mychi2=160;
+  //~ mychi2Red=15;
+  //~ ndf=0;
+  //~ failedPoint=0;
+  //~ isConverged=0;
+  //~ MaxRdriftErr=100;
+  //~ AngZ=100;
+  //~ AngZRes=100;
+  //~ AngZResAv=100;
+  //~ AngPhi=100;
+  //~ AngPhiRes=100;
+  //~ RTarget=100;
+  target_pos.SetXYZ(0.,0.,0.);
+  mylar1_pos.SetXYZ(0.,0.,0.);
+  mylar2_pos.SetXYZ(0.,0.,0.);
+  
+  
+  //~ MaxRdriftErr=100;
+  //~ AngZ=100;
+  //~ AngZRes=100;
+  //~ AngZResAv=100;
+  //~ AngPhi=100;
+  //~ AngPhiRes=100;
+  //~ RTarget=100;
+  //~ chi2Red=999;
+  //~ target_pos.SetXYZ(0.,0.,0.);
+  //~ mylar1_pos.SetXYZ(0.,0.,0.);
+  //~ mylar2_pos.SetXYZ(0.,0.,0.);
+
 }
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
-TABMntuTrackTr::~TABMntuTrackTr()
-{}
+TABMntuTrackTr::~TABMntuTrackTr(){}
 
 /*-----------------------------------------------------------------*/
 //**************************OLD AND NEW TRACKING***************************
@@ -99,6 +126,7 @@ void TABMntuTrackTr::Clean()
   //new tracking
   nhit=0;
   chi2=999.;
+  chi2Red=999;
   mychi2=160;
   mychi2Red=15;
   ndf=0;
@@ -111,12 +139,43 @@ void TABMntuTrackTr::Clean()
   AngPhi=100;
   AngPhiRes=100;
   RTarget=100;
+  target_pos.SetXYZ(0.,0.,0.);
+  mylar1_pos.SetXYZ(0.,0.,0.);
+  mylar2_pos.SetXYZ(0.,0.,0.);
 }
+
+TABMntuTrackTr::TABMntuTrackTr(const TABMntuTrackTr &tr_in){
+  nhit=tr_in.nhit;
+  ndf=tr_in.ndf;
+  failedPoint=tr_in.failedPoint;
+  chi2=tr_in.chi2;
+  chi2Red=tr_in.chi2Red;
+  mychi2=tr_in.mychi2;
+  mychi2Red=tr_in.mychi2Red;
+  isConverged=tr_in.isConverged;
+  MaxRdriftErr=tr_in.MaxRdriftErr;
+  AngZ=tr_in.AngZ;
+  AngZRes=tr_in.AngZRes;
+  AngZResAv=tr_in.AngZResAv;
+  AngPhi=tr_in.AngPhi;
+  AngPhiRes=tr_in.AngPhiRes;
+  RTarget=tr_in.RTarget;
+  target_pos=tr_in.target_pos;
+  mylar1_pos=tr_in.mylar1_pos;
+  mylar2_pos=tr_in.mylar2_pos;
+  
+}
+
+//~ TABMntuTrackTr* TABMntuTrack::NewTrack(TABMntuTrackTr& trk)
+//~ {
+   //~ TClonesArray &trackArray = *t;
+   //~ TABMntuTrackTr* track = new(trackArray[trackArray.GetEntriesFast()]) TABMntuTrackTr(trk);
+   //~ return track;
+//~ }
 
 //********************************* NEW TRACKING  **********************************
 
-//da modificare: il BMdebug
-void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, Int_t BMdebug, vector<Double_t>& hit_res){
+void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mychi2, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo){
   Int_t hit_num=fitTrack->getNumPointsWithMeasurement();
   Int_t hit_num_withcov=0;
   Double_t tmp_double, old_rdrift, new_rdrift, mychi2_in=0., rdrift_err_max=0;
@@ -126,10 +185,10 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, Int_t BMdebug, vector<Doub
   vector<TVector3> state_pos_vec;
   AbsMeasurement* measurement;
   TDecompChol fitTrack_cov;  
-  MeasuredStateOnPlane state;
+  MeasuredStateOnPlane state, first_state;
   KalmanFitterInfo* kalmanInfo;
-  
-  if(BMdebug>=4)
+    
+  if(p_bmcon->GetBMdebug()>=4)
     cout<<"sono in calculate, numero hit="<<hit_num<<"  ora inizio loop"<<endl;
   if(hit_res.size()!=hit_num){
     cout<<"WARNING:    hit_res and hit_num is different!!!!!!!!!!!!!!!!!!!!!!!!!   hit_res.size="<<hit_res.size()<<"   hit_num="<<hit_num<<endl;
@@ -140,15 +199,17 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, Int_t BMdebug, vector<Doub
   for(Int_t i=0;i<hit_num;i++){
     if(fitTrack->getPointWithMeasurement(i)->hasFitterInfo(fitTrack->getTrackRep(0))){
       kalmanInfo=fitTrack->getPointWithMeasurement(i)->getKalmanFitterInfo(fitTrack->getTrackRep(0));
-      if(BMdebug>4)
+      if(p_bmcon->GetBMdebug()>4)
         cout<<"ho preso kalmaninfo"<<endl;
       fitTrack_cov=fitTrack->getPointWithMeasurement(i)->getRawMeasurement(0)->getRawHitCov();
       if(fitTrack_cov.Decompose()) {// questo check in più forse è inutile!!!!!!
-        if(BMdebug>4) 
+        if(p_bmcon->GetBMdebug()>4) 
           cout<<"mi carico state, trackrep number="<<fitTrack->getNumReps()<<endl;
         state=fitTrack->getFittedState(i);
+        if(hit_num_withcov==0)
+          first_state=fitTrack->getFittedState(i);
         measurement=fitTrack->getPointWithMeasurement(i)->getRawMeasurement(0);
-        if(BMdebug>4)
+        if(p_bmcon->GetBMdebug()>4)
           cout<<"estratto stato e misura, numero di misure="<<fitTrack->getPointWithMeasurement(i)->getNumRawMeasurements()<<endl;
         angZ_vec.push_back(state.getMom().Theta()*RAD2DEG);
         angPhi_vec.push_back(state.getMom().Phi()*RAD2DEG);
@@ -159,6 +220,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, Int_t BMdebug, vector<Doub
         wire_dir=wire_dir-wire_pos;
         wire_dir.SetMag(1.);
         new_rdrift=FindRdrift(state.getPos(), state.getMom(), wire_pos, wire_dir);//da check
+        hit_mychi2[i]=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i];
         mychi2_in+=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i];        
         if(fabs(old_rdrift-new_rdrift)>rdrift_err_max)
           rdrift_err_max=fabs(old_rdrift-new_rdrift);
@@ -169,7 +231,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, Int_t BMdebug, vector<Doub
         
         if(wire_dir.Z()!=0 || !(wire_dir.X()==1 || wire_dir.Y()==1))
           cout<<"WARNING:    wire_dir have a problem:   wire_dir=("<<wire_dir.X()<<", "<<wire_dir.Y()<<", "<<wire_dir.Z()<<")"<<endl;
-        if(BMdebug>4){
+        if(p_bmcon->GetBMdebug()>4){
           cout<<"wire_pos=("<<wire_pos.X()<<", "<<wire_pos.Y()<<", "<<wire_pos.Z()<<")"<<"   wire_dir=("<<wire_dir.X()<<", "<<wire_dir.Y()<<", "<<wire_dir.Z()<<")"<<endl;
           cout<<"old rdrift ="<<old_rdrift<<"  new rdrift="<<new_rdrift<<"  diff="<<fabs(old_rdrift-new_rdrift)<<"  res="<<hit_res[i]<<"  contributo chi2="<<(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i]<<endl;
           }
@@ -186,10 +248,10 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, Int_t BMdebug, vector<Doub
   else
     cout<<"WARNING: you have 0 Ndf!!!!!!! cannot set mychi2Red!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
     
-  if(BMdebug>3)
+  if(p_bmcon->GetBMdebug()>3)
     cout<<"mychi2="<<mychi2_in<<"  mychi2Red="<<mychi2Red<<"  ndf="<<fitTrack->getFitStatus()->getNdf()<<endl;
   
-  //out of cicle state should be the state of last measurement
+  //out of cicle state should be the state of last measurement and first_state should be the state of the first measurement
   //other fitpos parameter
   if(hit_num_withcov>0){
     
@@ -219,14 +281,33 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, Int_t BMdebug, vector<Doub
       AngZResAv=avAngZres/angZ_vec.size();
       }
       
-    if(BMdebug>=3)
+    if(p_bmcon->GetBMdebug()>=3)
       cout<<"angZRes="<<AngZRes<<"  numero misure="<<angZ_vec.size()<<"  converge?"<<fitTrack->getFitStatus(fitTrack->getTrackRep(0))->isFitConverged()<<"   angZ medio="<<AngZ<<endl;
       
     if(state_pos_vec.size()!=angZ_vec.size())
       cout<<"WARNING: state_pos_vec.size is different from angZ_vec.size!!!!!!!!!!!!!!!!!!!!!  something is wrong in TABMntuTrack::CalculatefitPar"<<endl;
         
+    //extrapolate track on mylar1 with first_state
+    SharedPlanePtr mylar1_plane(new DetPlane(p_bmgeo->GetMylar1(), Xvers, Yvers));     
+    fitTrack->getTrackRep(0)->extrapolateToPlane(first_state, mylar1_plane);
+    mylar1_pos=first_state.getPos();
+    
+    //extrapolate track on mylar2 with state
+    SharedPlanePtr mylar2_plane(new DetPlane(p_bmgeo->GetMylar2(), Xvers, Yvers));     
+    fitTrack->getTrackRep(0)->extrapolateToPlane(state, mylar2_plane);
+    mylar2_pos=state.getPos();
+  
+    //extrapolate track on target with state
+    SharedPlanePtr target_plane(new DetPlane(p_bmgeo->GetTarget(), Xvers, Yvers));     
+    fitTrack->getTrackRep(0)->extrapolateToPlane(state, target_plane);
+    target_pos=state.getPos();
+    
+ 
+    //DA MODIFICARE: USARE EXTRAPOLATE TO PLANE    
     TVector3 target_o(0.,0.,13.9);//messo a mano!!!, punto di origine superficie target NEL SISTEMA DI RIFERIMENTO DEL BM
     RTarget=tan(AngZ*DEG2RAD)*(target_o.Z()-state_pos_vec[0].Z());   //Calculate RTarget using AngZ from first state position, without state xy bias 
+  
+  
   
   
     //~ //Calculate RTarget (distance on the surface of target), calculated from the state of the last measurement
@@ -258,7 +339,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, Int_t BMdebug, vector<Doub
       //~ RTargetRes=RTargetMax-RTargetMin;
        
       
-    }
+    }//fine if hit_num_withcov>0 
     
     
   return;
@@ -910,19 +991,19 @@ ClassImp(TABMntuTrack);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TABMntuTrack::TABMntuTrack()
-  : ntrk(0),
-    t(new TClonesArray("TABMntuTrack")) 
-    //~ t(0)
-{
- t->SetOwner(true);//copiato da TAVTntuTrack.cxx  
-}
+TABMntuTrack::TABMntuTrack() :
+   //~ TAGdata(),//da capire se serve...
+     ntrk(0),
+    t(0)
+{}
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
 TABMntuTrack::~TABMntuTrack()
 {
+  if(t)
+    //~ t->Delete();
   delete t;
 }
 
@@ -939,15 +1020,13 @@ void TABMntuTrack::SetupClones()
 //------------------------------------------+-----------------------------------
 //! Clear.
 
-void TABMntuTrack::Clear(Option_t*)
-{
-  TAGdata::Clear();//prima non era commentato
-
-  ntrk   = 0;//bha, non dovrebbe dare problemi...
-  
+void TABMntuTrack::Clear(Option_t*)//capire cos'è l'opzione t...
+{ 
+  TAGdata::Clear();
+  ntrk   = 0;
   if(t) 
     t->Delete();//presente prima
-  
+    //~ t->Clear();    
   return;
 }
 

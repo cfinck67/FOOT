@@ -37,6 +37,8 @@ TABMparCon::TABMparCon() {
   angz_cut = 5.;
   angzres_cut=5.;
   fitter_index = 0;
+  bm_debug=0;
+  bm_vietrack=0;
   
   
   vector<double> myt0s;
@@ -83,7 +85,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
       if(myArg1>0 && myArg1<1) 
         vdrift = myArg1;
       else {
-	      Error(""," Plane Map Error:: check config file!!");
+	      Error(""," Plane Map Error:: check config file!! (V)");
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'R')) {
@@ -91,24 +93,32 @@ Bool_t TABMparCon::FromFile(const TString& name) {
       if(myArg1>0) 
         rdrift_cut = myArg1;
       else {
-	      Error(""," Plane Map Error:: check config file!!");
+	      Error(""," Plane Map Error:: check config file!! (R)");
 	      return kTRUE;
         }
-    }else if(strchr(bufConf,'R')) {
+    }else if(strchr(bufConf,'D')) {
       sscanf(bufConf, "D %lf",&myArg1);
-      if(myArg1>0) 
+      if(myArg1>=0) 
         bm_debug = myArg1;
       else {
-	      Error(""," Plane Map Error:: check config file!!");
+	      Error(""," Plane Map Error:: check config file!! (D)");
 	      return kTRUE;
         }
         bm_debug=max(bm_debug,GlobalPar::GetPar()->Debug());
+    }else if(strchr(bufConf,'P')) {
+      sscanf(bufConf, "P %lf",&myArg1);
+      if(myArg1>=0) 
+        bm_vietrack = myArg1;
+      else {
+	      Error(""," Plane Map Error:: check config file!! (P)");
+	      return kTRUE;
+        }
     }else if(strchr(bufConf,'N')) {
       sscanf(bufConf, "N %lf",&myArg1);
       if(myArg1>0) 
         angzres_cut = myArg1;
       else {
-	      Error(""," Plane Map Error:: check config file!!");
+	      Error(""," Plane Map Error:: check config file!! (N)");
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'E')) {
@@ -116,7 +126,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
       if(myArg1>0)
         enxcell_cut = myArg1;
       else {
-	      Error(""," Plane Map Error:: check config file!!");
+	      Error(""," Plane Map Error:: check config file!! (E)");
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'C')) {
@@ -124,7 +134,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
       if(myArg1>0)
         chi2red_cut = myArg1;
       else {
-	      Error(""," Plane Map Error:: check config file!!");
+	      Error(""," Plane Map Error:: check config file!! (C)");
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'A')) {
@@ -132,15 +142,15 @@ Bool_t TABMparCon::FromFile(const TString& name) {
       if(myArg1>0)
         angz_cut = myArg1;
       else {
-	      Error(""," Plane Map Error:: check config file!!");
+	      Error(""," Plane Map Error:: check config file!! (A)");
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'F')) {
       sscanf(bufConf, "F %lf",&myArg1);
-      if(myArg1>0)
+      if(myArg1>=0)
         fitter_index = myArg1;
       else {
-	      Error(""," Plane Map Error:: check config file!!");
+	      Error(""," Plane Map Error:: check config file!! (F)");
 	      return kTRUE;
         }
       }

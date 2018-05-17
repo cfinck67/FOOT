@@ -33,7 +33,7 @@ TABMntuHit::~TABMntuHit()
 //! Default constructor.
 
 TABMntuHit::TABMntuHit()
-  : idmon(0),    iview(0),    ilayer(0),    icell(0), itrkass(0), ichi2(0),
+  : idmon(0),    iview(0),    ilayer(0),    icell(0), ichi2(0),
     xcamon(0.),    ycamon(0.),    zcamon(0.),
     pxcamon(0.),   pycamon(0.),   pzcamon(0.),
     rdrift(0.),    tdrift(0.),    timmon(0.)
@@ -167,7 +167,8 @@ void TABMntuRaw::SetupClones()
 void TABMntuRaw::Clear(Option_t*)
 {
   nhit = 0;
-  if (h) h->Clear();
+  if (h) 
+    h->Clear();
   return;
 }
 

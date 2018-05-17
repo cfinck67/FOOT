@@ -18,6 +18,7 @@
 
 #include "TAGdata.hxx"
 #include "TABMparGeo.hxx"
+#include "TABMparCon.hxx"
 #include "TABMntuRaw.hxx"
 
 #include "Track.h"
@@ -27,6 +28,7 @@
 //~ #define NUMPAR 4
 
 using namespace std;
+using namespace genfit;
 
 /* lines defined in the plane by  y=mx+q*/  //used for old tracking
 //~ typedef struct{
@@ -85,6 +87,7 @@ class TABMntuTrackTr : public TObject {
     void Calibrate(TF1* mypol, TF1* mypol2); //DA CAPIRE COME MODIFICARE!!!!!
     void Clean(); //da modificare ogni volta che aggiungo variabile etc., come costruttore default, SetNew etc.
     void Dump() const; //idem come sopra
+    TABMntuTrackTr(const TABMntuTrackTr &tr_in);//copy constructor definito da me
 
   //******************************************NEW TRACKING:*********************************************
 
@@ -113,8 +116,11 @@ class TABMntuTrackTr : public TObject {
     Double_t GetAngPhi(){return AngPhi;};
     Double_t GetAngPhiRes(){return AngPhiRes;};
     Double_t GetRTarget(){return RTarget;};
+    TVector3 GetMylar1Pos(){return mylar1_pos;};
+    TVector3 GetMylar2Pos(){return mylar2_pos;};
+    TVector3 GetTargetPos(){return target_pos;};
     
-    void CalculateFitPar(genfit::Track* fitTrack, Int_t BMdebug, vector<Double_t>& hit_res);
+    void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mychi2, TABMparCon* p_bmcon, TABMparGeo* b_bmgeo);
     Double_t FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers);    
     
     //parameters
@@ -133,6 +139,9 @@ class TABMntuTrackTr : public TObject {
     Double_t      AngPhi;         //angle of fitted track on xy plane (calculated from average of all fitted state momentum)
     Double_t      AngPhiRes;      //resolution of AngZ (calculated as AngPhimax-AngPhimin)
     Double_t      RTarget;        //distance of fitted track from the center of target on the target surface (calculated from first AngZ)//useless
+    TVector3      target_pos;     //position of the track extrapolate to the target plane
+    TVector3      mylar1_pos;     //position of the track extrapolate to the first mylar plane
+    TVector3      mylar2_pos;     //position of the track extrapolate to the second mylar plane
     
   private:
 
@@ -149,6 +158,8 @@ class TABMntuTrack : public TAGdata {
 
     TABMntuTrackTr*       Track(Int_t i);
     const TABMntuTrackTr* Track(Int_t i) const;
+    
+    //~ TABMntuTrackTr*       NewTrack(TABMntuTrackTr& track);//prova
 
     virtual void    SetupClones();
     virtual void    Clear(Option_t* opt="");

@@ -13,7 +13,7 @@
 #include "Geometry.h"
 // #include "Trigger.h"
 
-// #include "TAGpadGroup.hxx"
+#include "TAGpadGroup.hxx"
 #include "TAGgeoTrafo.hxx"
 
 // #include "TAGactTreeWriter.hxx"
@@ -23,6 +23,7 @@
 #include "TVector3.h"
 
 #include "TAGroot.hxx"
+#include "TAGview.hxx"
 #include "GlobalPar.hxx"
 #include "ControlPlotsRepository.hxx"
 #include "TABMparGeo.hxx"
@@ -30,6 +31,7 @@
 #include "TABMdatRaw.hxx"
 #include "TABMntuRaw.hxx"
 #include "TABMntuTrack.hxx"
+#include "TABMvieTrackFOOT.hxx"
 
 
 class BmBooter {
@@ -45,11 +47,19 @@ void Finalize();
 
 private:
 
-TH1F* histo1;
+//~ TH1F* histo1;
 
+//~ TAGdataDsc* myn_bmraw;
+//~ TAGdataDsc* myn_bmtrk;
 TABMntuRaw* bmraw;
 TABMntuTrack* bmtrack;
-ControlPlotsRepository* m_controlPlotter;
+TABMparCon* bmcon;
+TABMparGeo* bmgeo;
+TABMntuTrackTr* p_tracktr;
+TABMntuHit* p_hit;
+//~ TAGpadGroup* pg;
+ControlPlotsRepository* m_controlPlotter;//prova
+string bm_outputdir;
 
 
 };

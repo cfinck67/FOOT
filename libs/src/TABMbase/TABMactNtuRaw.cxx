@@ -272,7 +272,7 @@ Bool_t TABMactNtuRaw::Action()
 		   i_timmon );
 
       mytmp->SetSigma(resolution);
-      mytmp->SetTrkAss(0);
+      //~ mytmp->SetTrkAss(0);
       tmp_hi++;
       p_nturaw->nhit++;
 
@@ -288,7 +288,7 @@ Bool_t TABMactNtuRaw::Action()
 		  i_drift,  i_time,
 		  i_timmon );
       tm->SetSigma(resolution);
-      tm->SetTrkAss(0);
+      //~ tm->SetTrkAss(0);
     }
   }
   

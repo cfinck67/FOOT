@@ -12,6 +12,7 @@
 #include "TAttLine.h"
 #include "TAttText.h"
 #include "TArc.h"
+#include "foot_geo.h"
 
 #include "TABMntuTrack.hxx"
 #include "TABMntuRaw.hxx"
@@ -30,16 +31,28 @@ ClassImp(TABMvieTrackFOOT);
 //------------------------------------------+-----------------------------------
 //! Construct with observables.
 
-TABMvieTrackFOOT::TABMvieTrackFOOT(TAGdataDsc* p_ntutrk,
-					     TAGdataDsc* p_nturaw,
-					     TAGparaDsc* p_bmgeo)
-  : fpNtuTrk(p_ntutrk),
-    fpNtuRaw(p_nturaw),
-    fpParBMGeo(p_bmgeo)
+//~ TABMvieTrackFOOT::TABMvieTrackFOOT(TAGdataDsc* p_ntutrk,
+					     //~ TAGdataDsc* p_nturaw,
+					     //~ TAGparaDsc* p_bmgeo)
+  //~ : fpNtuTrk(p_ntutrk),
+    //~ fpNtuRaw(p_nturaw),
+    //~ fpParBMGeo(p_bmgeo)
+//~ {
+  //~ if (p_ntutrk)  AddObservable(p_ntutrk,  "@TABMntuTrack");
+  //~ if (p_nturaw)  AddObservable(p_nturaw,  "@TABMntuRaw");
+  //~ if (p_bmgeo)   AddObservable(p_bmgeo,   "@TABMparGeo");
+  //~ SetName("TABMvieTrackFOOT");
+  //~ SetTitle("TABMvieTrackFOOT");
+//~ }
+
+TABMvieTrackFOOT::TABMvieTrackFOOT(TABMntuTrack* p_ntutrk_in,
+					     TABMntuRaw* p_nturaw_in,
+					     TABMparGeo* p_bmgeo_in)
+  : p_ntutrk(p_ntutrk_in),
+    p_nturaw(p_nturaw_in),
+    p_bmgeo(p_bmgeo_in)
 {
-  if (p_ntutrk)  AddObservable(p_ntutrk,  "@TABMntuTrack");
-  if (p_nturaw)  AddObservable(p_nturaw,  "@TABMntuRaw");
-  if (p_bmgeo)   AddObservable(p_bmgeo,   "@TABMparGeo");
+
   SetName("TABMvieTrackFOOT");
   SetTitle("TABMvieTrackFOOT");
 }
@@ -78,11 +91,9 @@ void TABMvieTrackFOOT::ExecuteEvent(Int_t i_event, Int_t i_px, Int_t i_py)
 
 void TABMvieTrackFOOT::Paint(Option_t* option)
 {
-  TABMntuTrack* p_ntutrk  = 
-    (TABMntuTrack*) fpNtuTrk->GenerateObject();
-  TABMntuRaw*   p_nturaw = 
-    (TABMntuRaw*)   fpNtuRaw->GenerateObject();
-  TABMparGeo*   p_bmgeo = (TABMparGeo*) fpParBMGeo->Object();
+  //~ TABMntuTrack* p_ntutrk  =(TABMntuTrack*) fpNtuTrk->GenerateObject();//penso che non serva più il generate ma il find
+  //~ TABMntuRaw*   p_nturaw = (TABMntuRaw*)   fpNtuRaw->GenerateObject();
+  //~ TABMparGeo*   p_bmgeo = (TABMparGeo*) fpParBMGeo->Object();
 
   if (IsZombie() || !gPad) return;
 
@@ -111,16 +122,12 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   TAttText atttext_small_hlvc(12, 0., 1, 83, 10);
   TAttText atttext_small_hcvb_v(21, 90., 1, 83, 15);
 
-  double bm_w = p_bmgeo->GetWidth();
-  double bm_h = p_bmgeo->GetHeigth();
-  double bm_l = p_bmgeo->GetLength();
-
   //Pad range
-  gPad->Range(-1.02*bm_w, -0.51*bm_l, +1.02*bm_w, +0.51*bm_l);
+  gPad->Range(-1.02*BMN_WIDTH, -0.51*BMN_LENGTH, +1.02*BMN_WIDTH, +0.51*BMN_LENGTH);
 
   // BM space frame boundary
   Double_t h_x(0), h_y(0), h_z(0), h_cx(0), h_cy(0), h_cz(0);
-  Double_t cm_w, cm_h;
+  Double_t BMN_PASSO, BMN_STEP;
   double pversx(0),pversy(0);
   double x_target(0), y_target(0);
   double xch_i, xch_f, ych_i, ych_f;
@@ -128,33 +135,31 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   Int_t i_ntrk;
 
   /*
-    Starting with Top View
+    Starting with Top View (XZ)       View  == -1 (Top view, V view)
   */
 
-  attline_black_soli_nor.Modify();  attfill_box.Modify();
-  gPad->PaintBox(-1.*bm_w, -0.5*bm_l, +0.*bm_w, +0.5*bm_l);
-  gPad->PaintText(-0.6*bm_w, +0.46*bm_l, "TOP VIEW");
+  attline_black_soli_nor.Modify();  
+  attfill_box.Modify();
+  gPad->PaintBox(-1.*BMN_WIDTH, -0.5*BMN_LENGTH, +0.*BMN_WIDTH, +0.5*BMN_LENGTH);
+  gPad->PaintText(-0.6*BMN_WIDTH, +0.46*BMN_LENGTH, "TOP VIEW");
 
-  cm_h = p_bmgeo->GetCellHeight();
-  cm_w = p_bmgeo->GetCellWidth();
 
   /* Drawing the cells */
-  for(int il= 0; il<p_bmgeo->GetLayersNumber(); il++) {
-    for(int ic= 0; ic<p_bmgeo->GetCellsNumber(); ic++) {
+  for(int il= 0; il<BMN_NLAY; il++) {
+    for(int ic= 0; ic<BMN_NSENSELAY; ic++) {
       //V view, (X,Z)
       p_bmgeo->GetCellInfo(-1, il, ic, h_x, h_y, h_z, h_cx, h_cy, h_cz);
 
-      //Reverse needed
+      //Reverse needed  ATTENZIONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! DA CAPIRE PERCHÈ STA COSA!!!!!!!!!!!!!!!!!!!
       h_x *= -1;
 
       attline_black_soli_nor.Modify();  attfill_box.Modify();
-      gPad->PaintBox(-cm_w+h_x-0.5*bm_w, -cm_h+h_z, +cm_w+h_x-0.5*bm_w, +cm_h+h_z);      
+      gPad->PaintBox(-BMN_PASSO+h_x-0.5*BMN_WIDTH, -BMN_STEP+h_z, +BMN_PASSO+h_x-0.5*BMN_WIDTH, +BMN_STEP+h_z);      
     }
   }
   
-  TVector3 sid = p_bmgeo->GetSide();
-  char text[200]; double chi2;
-  //Beam Monitor tracks
+  char text[200];
+  //Beam Monitor tracks 
   if (p_ntutrk) {
     //Displays the fitted tracks
     Info("Viewer()","Displaying the BM Tracks");
@@ -162,43 +167,42 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
     i_ntrk = p_ntutrk->ntrk;
     for (Int_t i_t = 0; i_t < i_ntrk; i_t++) {
       TABMntuTrackTr* p_trk = p_ntutrk->Track(i_t);
-      chi2 = p_trk->GetChi2();
-      sprintf(text,"chi2 :: %lf",chi2);
-      gPad->PaintText(-0.6*bm_w, +0.42*bm_l,text);
+      sprintf(text,"chi2new :: %lf",p_trk->GetChi2New());
+      gPad->PaintText(-0.6*BMN_WIDTH, +0.42*BMN_LENGTH,text);
 
-      x_target = p_trk->GetX0();
-      y_target = p_trk->GetY0();
-      pversx = p_trk->GetUx();
-      pversy = p_trk->GetUy();
+      //~ x_target = p_trk->GetX0();//yun: sono arrivato qua
+      //~ y_target = p_trk->GetY0();
+      //~ pversx = p_trk->GetUx();
+      //~ pversy = p_trk->GetUy();
 
-      double ptra2 = pversx*pversx + pversy*pversy;
-      if(ptra2>1.){
-	ptra2 = 1.;
-	cout <<"warning : wrong output from the fit"<<endl;
-      }
-      double pversz = sqrt(1. - ptra2);
+      //~ double ptra2 = pversx*pversx + pversy*pversy;
+      //~ if(ptra2>1.){
+        //~ ptra2 = 1.;
+        //~ cout <<"warning : wrong output from the fit"<<endl;
+      //~ }
+      //~ double pversz = sqrt(1. - ptra2);
       
-      /* 
-	 use parametric equation for track : 
-	 ti, tf = parameter at 2 Z edges of the BM
-      */
-      zmin = - sid.Z()/2;
-      zmax = + sid.Z()/2;
-      t_i = (zmin)/pversz;
-      t_f = (zmax)/pversz;
+      //~ /* 
+       //~ use parametric equation for track : 
+       //~ ti, tf = parameter at 2 Z edges of the BM
+      //~ */
+      //~ zmin = - BMN_LENGTH/2;
+      //~ zmax = + BMN_LENGTH/2;
+      //~ t_i = (zmin)/pversz;
+      //~ t_f = (zmax)/pversz;
       
-      xch_i = x_target + pversx*t_i ;
-      xch_f = x_target + pversx*t_f ;
-      ych_i = y_target + pversy*t_i ;
-      ych_f = y_target + pversy*t_f ;
+      //~ xch_i = x_target + pversx*t_i ;
+      //~ xch_f = x_target + pversx*t_f ;
+      //~ ych_i = y_target + pversy*t_i ;
+      //~ ych_f = y_target + pversy*t_f ;
       
       attline_trk_4.Modify();
 
       //X,Z (view V, TOP view)   
-      //(X needs to be reversed SINCE TOP view has x increasing towards left)
-      gPad->PaintLine(-xch_i-0.5*bm_w,zmin,-xch_f-0.5*bm_w,zmax);
-
-    }
+      //(X needs to be reversed SINCE TOP view has x increasing towards left)... ma perchè?
+      //~ gPad->PaintLine(-xch_i-0.5*BMN_WIDTH,zmin,-xch_f-0.5*BMN_WIDTH,zmax);
+      gPad->PaintLine(-p_trk->GetMylar1Pos().X(),p_trk->GetMylar1Pos().Z(),-p_trk->GetMylar2Pos().X(),p_trk->GetMylar2Pos().Z());
+    }//attenzione, ho messo dei meno per la posizione, controllare che vada bene
   }
 
   if (p_nturaw) {
@@ -209,54 +213,52 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
     for (Int_t i_h = 0; i_h < i_nhit; i_h++) {
 
       TABMntuHit* hit = p_nturaw->Hit(i_h);
-      //View  == -1 (Top view, V view)
-      if(hit->HorView() && hit->TrkAss()) {
-	//Top view, V view, (X,Z)
-	p_bmgeo->GetCellInfo(-1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
-	//X has a consistent view (x points to the top) 
-	attline_black_soli_nor.Modify();  attfill_tof_up.Modify();
-	gPad->PaintBox(-(h_x-hit->Dist())-0.5*bm_w,h_z-hit->Dist(),-(h_x+hit->Dist())-0.5*bm_w,h_z+hit->Dist());
-
-	atttext_small_hlvc.Modify();
-	chi2 = hit->GetChi2();
-	sprintf(text,"chi2 :: %lf",chi2);
-	gPad->PaintText(-0.95*bm_w, h_z, text);
+      if(hit->View()==-1 && hit->GetIsSelected()) {
+        //Top view, V view, (X,Z)
+        p_bmgeo->GetCellInfo(-1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);//charge the wire position and direction in h_x.. and h_cx...
+        //X has a consistent view (x points to the top) 
+        attline_black_soli_nor.Modify();  
+        attfill_tof_up.Modify();
+        gPad->PaintBox(-(h_x-hit->Dist())-0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_x+hit->Dist())-0.5*BMN_WIDTH,h_z+hit->Dist());
+        //~ gPad->PaintEllipse(-h_x,h_z,hit->Dist());
+        atttext_small_hlvc.Modify();
+        sprintf(text,"chi2 :: %lf",hit->GetChi2());
+        gPad->PaintText(-0.95*BMN_WIDTH, h_z, text);
 
       }
-      if(hit->HorView() && !(hit->TrkAss())) {
-	//Top view, V view, (X,Z)
-	p_bmgeo->GetCellInfo(-1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
-	//X has a consistent view (x points to the top) 
-	attline_black_soli_nor.Modify();  attfill_tof_m.Modify();
-	gPad->PaintBox(-(h_x-hit->Dist())-0.5*bm_w,h_z-hit->Dist(),-(h_x+hit->Dist())-0.5*bm_w,h_z+hit->Dist());
+      else if(hit->View()==-1 && !hit->GetIsSelected()) {
+        //Top view, V view, (X,Z)
+        p_bmgeo->GetCellInfo(-1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
+        //X has a consistent view (x points to the top) 
+        attline_black_soli_nor.Modify();  attfill_tof_m.Modify();
+        gPad->PaintBox(-(h_x-hit->Dist())-0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_x+hit->Dist())-0.5*BMN_WIDTH,h_z+hit->Dist());
       }
-    }
+    }//end loop on hits
 
   }
 
 
   /*
-    Proceeding with Side View
+    Proceeding with Side View  U view, view==1
   */
 
-  attline_black_soli_nor.Modify();  attfill_box.Modify();
-  gPad->PaintBox(-0.*bm_w, -0.5*bm_l, +1.*bm_w, +0.5*bm_l);
-  gPad->PaintText(+0.4*bm_w, +0.46*bm_l, "SIDE VIEW");
-
-  cm_h = p_bmgeo->GetCellHeight();
-  cm_w = p_bmgeo->GetCellWidth();
+  attline_black_soli_nor.Modify();  
+  attfill_box.Modify();
+  gPad->PaintBox(-0.*BMN_WIDTH, -0.5*BMN_LENGTH, +1.*BMN_WIDTH, +0.5*BMN_LENGTH);
+  gPad->PaintText(+0.4*BMN_WIDTH, +0.46*BMN_LENGTH, "SIDE VIEW");
 
   /* Drawing the cells */
-  for(int il= 0; il<p_bmgeo->GetLayersNumber(); il++) {
-    for(int ic= 0; ic<p_bmgeo->GetCellsNumber(); ic++) {
+  for(int il= 0; il<BMN_NLAY; il++) {
+    for(int ic= 0; ic<BMN_NSENSELAY; ic++) {
       //U view, (Y,Z)
       p_bmgeo->GetCellInfo(1, il, ic, h_x, h_y, h_z, h_cx, h_cy, h_cz);
 
-      //Reverse needed (once again y increase from lf to rg)
+      //Reverse needed (once again y increase from left to right)... DA CAPIRE SE È VERO O NO...
       h_y *= -1;
 
-      attline_black_soli_nor.Modify();  attfill_box.Modify();
-      gPad->PaintBox(-cm_w+h_y+0.5*bm_w, -cm_h+h_z, +cm_w+h_y+0.5*bm_w, +cm_h+h_z);      
+      attline_black_soli_nor.Modify();  
+      attfill_box.Modify();
+      gPad->PaintBox(-BMN_PASSO+h_y+0.5*BMN_WIDTH, -BMN_STEP+h_z, +BMN_PASSO+h_y+0.5*BMN_WIDTH, +BMN_STEP+h_z);      
     }
   }
   
@@ -268,37 +270,37 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
     i_ntrk = p_ntutrk->ntrk;
     for (Int_t i_t = 0; i_t < i_ntrk; i_t++) {
       TABMntuTrackTr* p_trk = p_ntutrk->Track(i_t);
-      x_target = p_trk->GetX0();
-      y_target = p_trk->GetY0();
-      pversx = p_trk->GetUx();
-      pversy = p_trk->GetUy();
+      //~ x_target = p_trk->GetX0();
+      //~ y_target = p_trk->GetY0();
+      //~ pversx = p_trk->GetUx();
+      //~ pversy = p_trk->GetUy();
 
-      double ptra2 = pversx*pversx + pversy*pversy;
-      if(ptra2>1.){
-	ptra2 = 1.;
-	cout <<"warning : wrong output from the fit"<<endl;
-      }
-      double pversz = sqrt(1. - ptra2);
+      //~ double ptra2 = pversx*pversx + pversy*pversy;
+      //~ if(ptra2>1.){
+        //~ ptra2 = 1.;
+        //~ cout <<"warning : wrong output from the fit"<<endl;
+      //~ }
+      //~ double pversz = sqrt(1. - ptra2);
       
-      /* 
-	 use parametric equation for track : 
-	 ti, tf = parameter at 2 Z edges of the BM
-      */
-      zmin = - sid.Z()/2;
-      zmax = + sid.Z()/2;
-      t_i = (zmin)/pversz;
-      t_f = (zmax)/pversz;
+      //~ /* 
+	 //~ use parametric equation for track : 
+	 //~ ti, tf = parameter at 2 Z edges of the BM
+      //~ */
+      //~ zmin = - BMN_LENGTH/2;
+      //~ zmax = + BMN_LENGTH/2;
+      //~ t_i = (zmin)/pversz;
+      //~ t_f = (zmax)/pversz;
       
-      xch_i = x_target + pversx*t_i ;
-      xch_f = x_target + pversx*t_f ;
-      ych_i = y_target + pversy*t_i ;
-      ych_f = y_target + pversy*t_f ;
+      //~ xch_i = x_target + pversx*t_i ;
+      //~ xch_f = x_target + pversx*t_f ;
+      //~ ych_i = y_target + pversy*t_i ;
+      //~ ych_f = y_target + pversy*t_f ;
       
       attline_trk_4.Modify();
 
       //Y,Z (view U, Side view)   
-      gPad->PaintLine(-ych_i+0.5*bm_w,zmin,-ych_f+0.5*bm_w,zmax);
-
+      //~ gPad->PaintLine(-ych_i+0.5*BMN_WIDTH,zmin,-ych_f+0.5*BMN_WIDTH,zmax);
+      gPad->PaintLine(p_trk->GetMylar1Pos().Y(),p_trk->GetMylar1Pos().Z(),p_trk->GetMylar2Pos().Y(),p_trk->GetMylar2Pos().Z());
     }
   }
 
@@ -311,25 +313,26 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
 
       TABMntuHit* hit = p_nturaw->Hit(i_h);
       //View  == 1 (Side view, U view)
-      if(hit->VertView() && hit->TrkAss()) {
-	//Side view, U view, (Y,Z)
-	p_bmgeo->GetCellInfo(1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
-	//Y has a consistent view (Y points to the top) 
-	attline_black_soli_nor.Modify();  attfill_tof_up.Modify();
-	gPad->PaintBox(-(h_y-hit->Dist())+0.5*bm_w,h_z-hit->Dist(),-(h_y+hit->Dist())+0.5*bm_w,h_z+hit->Dist());
-
+      if(hit->View()==1 && hit->GetIsSelected()) {
+        //Side view, U view, (Y,Z)
+        p_bmgeo->GetCellInfo(1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
+        //Y has a consistent view (Y points to the top) 
+        attline_black_soli_nor.Modify();  
+        attfill_tof_up.Modify();
+        gPad->PaintBox(-(h_y-hit->Dist())+0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_y+hit->Dist())+0.5*BMN_WIDTH,h_z+hit->Dist());
+        //~ gPad->PaintEllipse(h_y,h_z,hit->Dist());
         atttext_small_hlvc.Modify();
-	chi2 = hit->GetChi2();
-	sprintf(text,"chi2 :: %lf",chi2);
-	gPad->PaintText(0.05*bm_w, h_z, text);
+        sprintf(text,"chi2 :: %lf",hit->GetChi2());
+        gPad->PaintText(0.05*BMN_WIDTH, h_z, text);
 
       }
-      if(hit->VertView() && !(hit->TrkAss())) {
-	//Side view, U view, (Y,Z)
-	p_bmgeo->GetCellInfo(1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
-	//Y has a consistent view (Y points to the top) 
-	attline_black_soli_nor.Modify();  attfill_tof_m.Modify();
-	gPad->PaintBox(-(h_y-hit->Dist())+0.5*bm_w,h_z-hit->Dist(),-(h_y+hit->Dist())+0.5*bm_w,h_z+hit->Dist());
+      if(hit->View() && !hit->GetIsSelected()) {
+        //Side view, U view, (Y,Z)
+        p_bmgeo->GetCellInfo(1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
+        //Y has a consistent view (Y points to the top) 
+        attline_black_soli_nor.Modify();  
+        attfill_tof_m.Modify();
+        gPad->PaintBox(-(h_y-hit->Dist())+0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_y+hit->Dist())+0.5*BMN_WIDTH,h_z+hit->Dist());
       }
     }
 

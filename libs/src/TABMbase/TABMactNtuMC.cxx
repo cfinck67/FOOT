@@ -50,13 +50,13 @@ TABMactNtuMC::~TABMactNtuMC()
 //! Action.
 
 Bool_t TABMactNtuMC::Action()
-{
+{ 
   TAGgeoTrafo* fpFirstGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
 
   TABMntuRaw* p_nturaw = (TABMntuRaw*) fpNtuMC->Object();
   TABMparCon* p_bmcon = (TABMparCon*) fpParCon->Object();
   TABMparGeo* p_bmgeo = (TABMparGeo*) fpParGeo->Object();
-
+  
   //parameters:
   Int_t smeary_type=5;     //smearing (0=no smearing, 1=gauss 1sigma, 2=gauss 2sigma, 3=gauss 3sigma, 4=flat, 5=gauss all)
   Double_t rdrift_err=0.015;  //errore di default su rdrift (da usare nel caso da parcon non c'è errore)
@@ -64,10 +64,10 @@ Bool_t TABMactNtuMC::Action()
   Int_t cell, view, lay, ipoint;
   vector<Int_t> hitxcell(fpEvtStr->BMNn, 99); 
   vector<bool> tobecharged(fpEvtStr->BMNn, true);
-  vector<Double_t> rdriftxcell(fpEvtStr->BMNn, 99);
+  vector<Double_t> rdriftxcell(fpEvtStr->BMNn, 99.);
   Int_t nhits=0;
   TVector3 loc, gmom, mom, A0, Wvers;
-  if (!p_nturaw->h) p_nturaw->SetupClones();
+  if (!p_nturaw->h) p_nturaw->SetupClones();//se non c'è l'array di h, lo crea
   //The number of hits inside the BM is nmon
   Info("Action()","Processing n :: %2d hits \n",fpEvtStr->BMNn);
 
@@ -107,6 +107,7 @@ Bool_t TABMactNtuMC::Action()
     
   if((fpEvtStr->BMNn > 12 && p_bmcon->GetBMdebug()>=2) || p_bmcon->GetBMdebug()>=3)
     cout<<"number of hit totale="<<fpEvtStr->BMNn<<" dimensioni tobecharged="<<tobecharged.size()<<endl;   
+      
       
   //charge the hits:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
@@ -148,7 +149,7 @@ Bool_t TABMactNtuMC::Action()
     }
   
   if(nhits>12 && p_bmcon->GetBMdebug()>=1)
-    cout<<" more than 12 hit charged in tabmactntuMC:"<<nhits<<endl;
+    cout<<"more than 12 hit charged in tabmactntuMC:"<<nhits<<endl;
   
   if(p_bmcon->GetBMdebug()>=2)
     cout<<"number of hits charged="<<nhits<<endl;

@@ -24,6 +24,8 @@
 #include <TDecompChol.h>
 #include <TDatabasePDG.h>
 #include "foot_geo.h"
+#include "TAGroot.hxx"
+
 
 using namespace std;
 /*!
@@ -65,20 +67,15 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
 
   // init geometry and mag. field
   
-  //f_BMgeoMan = p_bmgeo->GetGeoManager();
-
-  TABMparGeo*   geo = (TABMparGeo*)    fpBMGeo->Object();
-  geo->AddBM("BeamMonitor");
-
   new TGeoManager("Geometry", "Geane geometry");//load geometry
   //~ TGeoManager::Import("LocalBM.root");//da modificare
   TGeoManager::Import("genfitGeomFOOT.root");//da modificare, prendere geometria stanziata da Matteo
   
-  TDatabasePDG* pdg_base = new TDatabasePDG();//per caricare particelle non presenti in database standard di root
+  //~ TDatabasePDG* pdg_base = new TDatabasePDG();//per caricare particelle non presenti in database standard di root
   char nome_carbonio[]="carbon";
   char title_carbonio[]="Carbon12";
   char class_carbonio[]="ion";
-  pdg_base->AddParticle(nome_carbonio, title_carbonio, 11.1749, true, 0., 18., class_carbonio, 1006661212120);
+  //~ pdg_base->AddParticle(nome_carbonio, title_carbonio, 11.1749, true, 0., 18., class_carbonio, 1006661212120);//tanto non lo carica, e cmq devo vedere come ha fatto matteo
   
   //Bfield is along Y in our case.
   
@@ -90,7 +87,7 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
 //! Destructor.
 
 TABMactNtuTrack::~TABMactNtuTrack()
-{
+{ 
   delete simpleFitter;
   delete refFitter;
   delete dafSimpleFitter;
@@ -101,7 +98,7 @@ TABMactNtuTrack::~TABMactNtuTrack()
 //------------------------------------------+-----------------------------------
 //! Action.
 Bool_t TABMactNtuTrack::Action()
-{
+{  
   TABMntuTrack* p_ntutrk = (TABMntuTrack*) fpNtuTrk->Object();
   TABMntuRaw*   p_ntuhit = (TABMntuRaw*)   fpNtuHit->Object();
   TABMparGeo*   p_bmgeo = (TABMparGeo*)    fpBMGeo->Object();
@@ -111,7 +108,7 @@ Bool_t TABMactNtuTrack::Action()
   m_mypol = p_bmcon->GetCalibX();
   m_mypol2 = p_bmcon->GetCalibY();
   
-  p_ntutrk->Clear();
+  //~ p_ntutrk->Clear();//penso non serva visto che viene inizializzato con 0 
 
   Double_t chisquare_cut = 5.;
 
@@ -122,15 +119,20 @@ Bool_t TABMactNtuTrack::Action()
   
 //******************************************************NEW tracking********************************************
    //NB.: If the preselection reject the event no track will be saved     
+  
+  if(p_bmcon->GetBMdebug()>=3)
+    cout<<"I'm in TABMactNtuTrack::Action"<<endl;  
+                
+                
                 
   //parameters
   Int_t readyToFit = p_bmcon->GetFitterIndex();
-  bool useMyChi2=false;   //temporary: if true the tracking save the best mychi2red track, else it save the best chi2red (by GenFit) 
+  bool useMyChi2=true;   //temporary: if true the tracking save the best mychi2red track, else it save the best chi2red (by GenFit) DA TOGLIERE, USARE SEMPRE IL PROPRIO CHI2 PERCHÈ COSÌ LO CALCOLO PUNTO PER PUNTO E POSSO SAPERE TUTTO
   TVector3 init_mom(0.,0.,2.4);//initial momentum for tracking, for BM porpouse the primary track should always have these inital values  
   
   Double_t tmp_double, res;
   bool onlyPrimary, converged;
-  TABMntuTrackTr tmp_trackTr;
+  TABMntuTrackTr *tmp_trackTr=new TABMntuTrackTr();
   Double_t x, y, z, cx, cy, cz;
   Double_t wire_err=0.03; //is the error on the wire position... maybe this value is not correct
 
@@ -150,7 +152,9 @@ Bool_t TABMactNtuTrack::Action()
     
   TVector3 init_pos(0.,0.,p_bmgeo->GetCenter().z()-BMN_LENGTH/2. -3.);
   Track* fitTrack(nullptr);
-  AbsTrackRep* rep(nullptr);  
+  //~ AbsTrackRep* rep(nullptr);  
+
+  
   
   if(i_nhit==0)
     readyToFit=0;
@@ -174,10 +178,11 @@ Bool_t TABMactNtuTrack::Action()
     Print_matrix(hitxplane);    
     }
     
-  vector<TABMntuTrackTr> alltrack; 
+  vector<TABMntuTrackTr*> alltrack; 
   vector<bool> possiblePrimary(tracknum, true);
   vector<vector<Int_t>> hitxtrack(tracknum); 
   vector<Double_t> hit_res(firedPlane); //needed in CalculateMyChi2 
+  vector<Double_t> hit_mychi2(firedPlane,999.); //needed in CalculateMyChi2 
   for(Int_t j=0; j<tracknum; j++)
     hitxtrack[j].resize(firedPlane);  
 
@@ -257,17 +262,17 @@ Bool_t TABMactNtuTrack::Action()
 
       if(p_bmcon->GetBMdebug()>=2) 
         cout<<"charging track number "<<i<<endl;
-
-      tmp_trackTr.Clean(); 
-      tmp_trackTr.SetNhit(firedPlane); 
+      tmp_trackTr->Clean(); 
+      tmp_trackTr->SetNhit(firedPlane); 
       
       delete fitTrack;
-      delete rep;
+      //~ delete rep;
       fitTrack = nullptr;
-      rep=nullptr;
+      //~ rep=nullptr;
       //~ AbsTrackRep* rep = new RKTrackRep(sign*pdg);
-      AbsTrackRep* rep = new RKTrackRep(1006661212120);
-      fitTrack = new Track(rep, init_pos, init_mom); 
+      //~ AbsTrackRep* rep = new RKTrackRep(1006661212120);//provv lo cancello per ora perchè non va 
+      AbsTrackRep *rep = new RKTrackRep(2212);//provv ci metto protoni per ora 
+      Track* fitTrack = new Track(rep, init_pos, init_mom); 
               
       //charge hits
       for(Int_t i_h = 0; i_h <firedPlane ; i_h++) {
@@ -375,13 +380,13 @@ Bool_t TABMactNtuTrack::Action()
           
         if(p_bmcon->GetBMdebug()>=3)
           cout<<"fit is converged"<<endl;
-        tmp_trackTr.SetIsConverged((converged) ? 1:2);
-        tmp_trackTr.SetChi2New(fitTrack->getFitStatus(rep)->getChi2());
-        tmp_trackTr.SetNdf(fitTrack->getFitStatus(rep)->getNdf());  
-        tmp_trackTr.SetFailedPoint(fitTrack->getFitStatus(rep)->getNFailedPoints());  
+        tmp_trackTr->SetIsConverged((converged) ? 1:2);
+        tmp_trackTr->SetChi2New(fitTrack->getFitStatus(rep)->getChi2());
+        tmp_trackTr->SetNdf(fitTrack->getFitStatus(rep)->getNdf());  
+        tmp_trackTr->SetFailedPoint(fitTrack->getFitStatus(rep)->getNFailedPoints());  
         if(fitTrack->getFitStatus(rep)->getNdf()!=0)        
-          tmp_trackTr.SetChi2NewRed(fitTrack->getFitStatus(rep)->getChi2()/fitTrack->getFitStatus(rep)->getNdf());
-        tmp_trackTr.CalculateFitPar(fitTrack, p_bmcon->GetBMdebug(), hit_res);
+          tmp_trackTr->SetChi2NewRed(fitTrack->getFitStatus(rep)->getChi2()/fitTrack->getFitStatus(rep)->getNdf());
+        tmp_trackTr->CalculateFitPar(fitTrack, hit_res, hit_mychi2, p_bmcon, p_bmgeo);
         
                   
         if(p_bmcon->GetBMdebug()>=2 && converged){
@@ -390,26 +395,28 @@ Bool_t TABMactNtuTrack::Action()
           }
       
       alltrack.push_back(tmp_trackTr);
-      }//end of fitting (readytofit)      
-  }//end of possiblePrimary if condition
-}//end of loop on all possible track
+      }//end of fitting (readytofit)    
+      delete fitTrack;
+      //~ delete rep;        
+    }//end of possiblePrimary if condition
+  }//end of loop on all possible track
   
   if(alltrack.size()!=0 && !useMyChi2){
     tmp_int=0;
-    tmp_double=alltrack[0].GetChi2New();
+    tmp_double=alltrack[0]->GetChi2New();
     for(Int_t i=1;i<alltrack.size();i++){
-      if(tmp_double>alltrack[i].GetChi2New()){
-        tmp_double=alltrack[i].GetChi2New();
+      if(tmp_double>alltrack[i]->GetChi2New()){
+        tmp_double=alltrack[i]->GetChi2New();
         tmp_int=i;
         }
       }
     }
   else if(alltrack.size()!=0 && useMyChi2){
     tmp_int=0;
-    tmp_double=alltrack[0].GetMyChi2Red();
+    tmp_double=alltrack[0]->GetMyChi2Red();
     for(Int_t i=1;i<alltrack.size();i++){
-      if(tmp_double>alltrack[i].GetMyChi2Red()){
-        tmp_double=alltrack[i].GetMyChi2Red();
+      if(tmp_double>alltrack[i]->GetMyChi2Red()){
+        tmp_double=alltrack[i]->GetMyChi2Red();
         tmp_int=i;
         }
       }
@@ -418,28 +425,31 @@ Bool_t TABMactNtuTrack::Action()
     
   if(p_bmcon->GetBMdebug()>=3){
     cout<<"tracks with smallest chi2="<<tmp_int<<" alltrack.size="<<alltrack.size()<<endl;  
-    cout<<"registered  mychi2reduced="<<alltrack[tmp_int].GetMyChi2Red()<<"   mychi2registered="<<alltrack[tmp_int].GetMyChi2()<<endl;
+    if(alltrack.size()>0)
+      cout<<"registered  mychi2reduced="<<alltrack[tmp_int]->GetMyChi2Red()<<"   mychi2registered="<<alltrack[tmp_int]->GetMyChi2()<<endl;
     }
             
   //set and store trackTr parameters:
   if(alltrack.size()!=0){
-    new((*(p_ntutrk->t))[p_ntutrk->ntrk]) TABMntuTrackTr(alltrack[tmp_int]);
+    new((*(p_ntutrk->t))[p_ntutrk->ntrk]) TABMntuTrackTr(*alltrack[tmp_int]);
     p_ntutrk->ntrk++;
-    
+
     //flag the hit of the best track
     for(Int_t i=0;i<firedPlane;i++){
       p_hit = p_ntuhit->Hit(hitxtrack[tmp_int][i]);    
       p_hit->SetIsSelected(true);
+      p_hit->SetChi2(hit_mychi2[i]);
       }    
     }
   if(p_bmcon->GetBMdebug()>=3)
     cout<<"end of NEW tabmactntutrack"<<endl;
   
   delete fitTrack;
-  delete rep;
-  
+  //~ delete rep; //included in fitTrack delete
+  delete tmp_trackTr;
+    
   fpNtuTrk->SetBit(kValid);
-  return kTRUE; //in this way I cut off the old tracking
+  return kTRUE;
   
 // ************************************************** OLD TRACKING*********************************************
   

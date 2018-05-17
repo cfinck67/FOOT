@@ -63,8 +63,8 @@ class Booter {
   // void DisplayIRMonitor(TAGpadGroup* pg, EVENT_STRUCT *myStr);
   // void DisplayBeamMonitor(TAGpadGroup* pg);
 
-  void initBMGeo(TAGparaDsc* p_bmgeo); //Beam Monitor Geometry
-  void initBMCon(TAGparaDsc* beamcon);
+  void initBMGeo(); //Beam Monitor Geometry
+  void initBMCon();
 
   void bookHisto(TFile *f);
   void CalibBMVT();

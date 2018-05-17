@@ -34,6 +34,7 @@ libs/GenFit/include/
 libs/GenFit/lib/
 libs/GenFit/tests/*.png
 libs/GenFit/tests/*.pdf
+libs/GenFit/doc/
 
 Reconstruction/level0/results/
 Reconstruction/level0/bField.test

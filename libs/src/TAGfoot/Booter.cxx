@@ -166,8 +166,8 @@ void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in ) {
 
     if( GlobalPar::GetPar()->IncludeBM() ) {
     //~ //     // DisplayBeamMonitor(pg);
-      myp_bmgeo  = new TAGparaDsc("p_bmgeo", new TABMparGeo());
-      initBMGeo(myp_bmgeo);
+      myp_bmgeo  = new TAGparaDsc("myp_bmgeo", new TABMparGeo());
+      initBMGeo();
       //~ FillMCBeamMonitor(evStr);//da modificare: se lo abilito qua la geometria degli altri detectors non funzia... 
 
     }
@@ -508,11 +508,11 @@ void Booter::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
   myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
   myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
 
-  initBMCon(myp_bmcon);
+  initBMCon();
 
   //~ myp_bmgeo  = new TAGparaDsc("p_bmgeo", new TABMparGeo());
 
-  //~ initBMGeo(myp_bmgeo);//già inizializzato prima in teoria
+  //~ initBMGeo();//già inizializzato prima in teoria
 
   new TABMactNtuMC("an_bmraw", myn_bmraw, myp_bmcon, myp_bmgeo, myStr);
 
@@ -673,14 +673,14 @@ void Booter::MonitorBMNew(Long64_t jentry) {
 
 
 //----------------------------------------------------------------------------------------------------
-void Booter::initBMCon(TAGparaDsc* beamcon)  {
+void Booter::initBMCon()  {
 
   Int_t i_run = gTAGroot->CurrentRunNumber();
   Int_t i_cam = gTAGroot->CurrentCampaignNumber();
 
   cout << "Loading beamcon for cam/run = " << i_cam << "/" << i_run << endl;
 
-  TABMparCon* o_beamcon = (TABMparCon*) beamcon->Object();
+  TABMparCon* o_beamcon = (TABMparCon*) myp_bmcon->Object();
 
   o_beamcon->Clear();
 
@@ -708,16 +708,16 @@ void Booter::initBMCon(TAGparaDsc* beamcon)  {
   filename = m_wd + "/config/bmreso_vs_r.root";
   o_beamcon->LoadReso(filename);
 
-  if (!b_bad) beamcon->SetBit(TAGparaDsc::kValid);
+  if (!b_bad) myp_bmcon->SetBit(TAGparaDsc::kValid);
 
   return;
 }
 
 
-void Booter::initBMGeo(TAGparaDsc* p_bmgeo)  {
+void Booter::initBMGeo()  {
 
-  p_bmgeo = gTAGroot->FindParaDsc("p_bmgeo", "TABMparGeo");
-  if (p_bmgeo == 0) {
+  myp_bmgeo = gTAGroot->FindParaDsc("myp_bmgeo", "TABMparGeo");
+  if (myp_bmgeo == 0) {
     cout << "p_bmgeo not found or holding wrong parameter object type" << endl;
     return;
   }
@@ -728,11 +728,11 @@ void Booter::initBMGeo(TAGparaDsc* p_bmgeo)  {
   Info("Booter::initBMGeo","Loading p_bmgeo for cam/run = %d / %d",i_cam,i_run);
 
   //Initialization of BM parameters
-  TABMparGeo* o_bmgeo = (TABMparGeo*) p_bmgeo->Object();
+  TABMparGeo* o_bmgeo = (TABMparGeo*) myp_bmgeo->Object();
   o_bmgeo->InitGeo();
   top->AddNode( o_bmgeo->GetVolume(), 0, new TGeoCombiTrans( o_bmgeo->GetCenter().X(),o_bmgeo->GetCenter().Y(),o_bmgeo->GetCenter().Z(),new TGeoRotation("BeamMonitor",0,0,0)) );
   
-  p_bmgeo->SetBit(TAGparaDsc::kValid);
+  myp_bmgeo->SetBit(TAGparaDsc::kValid);
 
   return;
 

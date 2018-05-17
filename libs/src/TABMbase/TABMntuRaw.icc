@@ -59,15 +59,15 @@ inline Double_t TABMntuHit::Timmon() const
 }
 
 /* X,Z (V) view */
-inline Bool_t TABMntuHit::HorView() const
-{
-  return (iview==-1);
-}
-/* Y,Z (U) view */
-inline Bool_t TABMntuHit::VertView() const
-{
-  return (iview==1);
-}
+//~ inline Bool_t TABMntuHit::HorView() const
+//~ {
+  //~ return (iview==-1);
+//~ }
+//~ /* Y,Z (U) view */
+//~ inline Bool_t TABMntuHit::VertView() const
+//~ {
+  //~ return (iview==1);
+//~ }
 
 //------------------------------------------+-----------------------------------
 //! Returns Plane number [0-5].

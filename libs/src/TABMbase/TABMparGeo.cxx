@@ -52,7 +52,9 @@ TABMparGeo::TABMparGeo() {
 //! Destructor.
 
 TABMparGeo::~TABMparGeo()
-{}
+{
+delete m_rotation;  
+}
 
 void TABMparGeo::GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_x, Double_t& h_y, Double_t& h_z, Double_t& h_cx, Double_t& h_cy, Double_t& h_cz) {
   
@@ -77,12 +79,15 @@ void TABMparGeo::InitGeo(){
   if ( GlobalPar::GetPar()->Debug() > 0 )     
     cout << "\n\nTABMparGeo::InitGeo" << endl<< endl;
 
-  m_origin=TVector3( 0, 0, 0 );
+  m_origin=TVector3(0., 0., 0.);
   m_center = TVector3( BMN_X, BMN_Y, BMN_Z );
   m_rotation = new TRotation();  //è davvero necessario???
   //WARNING!!!!! other detector use YEulerAngles!!! chiedere a Matteo quale usare di default
   //WARNING!!!!! rotations aren't implemented in FLUKA geometry yet
   m_rotation->SetXEulerAngles(0.,0.,0.);//XEulerAngles to adopt the Goldstein convention
+  bm_mylar1=TVector3(0.,0.,(BMN_LENGTH+BMN_MYL_THICK)/2.);
+  bm_mylar1=TVector3(0.,0.,-(BMN_LENGTH+BMN_MYL_THICK)/2.);
+  bm_target=TVector3(TG_X,TG_Y,-BMN_Z+TG_Z+TG_THICK/2.);
   bm_DeltaDch=TVector3(BMN_DELTAX,BMN_DELTAY,BMN_DELTAZ);
   bm_SideDch=TVector3(BMN_WIDTH,BMN_HEIGHT,BMN_LENGTH);
   bm_idsense[0]=8;
