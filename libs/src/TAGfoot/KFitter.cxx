@@ -1195,12 +1195,12 @@ void KFitter::Finalize() {
 
 	m_fitTrackCollection->EvaluateMomentumResolution();
 	
-	m_printoutfile = GlobalPar::GetPar()->IsPrintOutputFile();
-	if (m_printoutfile)	m_controlPlotter->PrintOutputFile();
-	else   m_controlPlotter->PrintMap();
+	// m_printoutfile = GlobalPar::GetPar()->IsPrintOutputFile();
+	// if (m_printoutfile)	m_controlPlotter->PrintOutputFile();
+	// else   m_controlPlotter->PrintMap();
 	
-	m_printoutntuple = GlobalPar::GetPar()->IsPrintOutputNtuple();
-	if(m_printoutntuple) m_controlPlotter->PrintOutputNtuple();
+	// m_printoutntuple = GlobalPar::GetPar()->IsPrintOutputNtuple();
+	// if(m_printoutntuple) m_controlPlotter->PrintOutputNtuple();
 	
 	m_categoryFitted.clear();
 	

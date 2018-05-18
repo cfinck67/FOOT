@@ -25,10 +25,10 @@ public:
 
 	void SetOutputDir( string outputDir ) { m_outputDir = outputDir; };
 	void FillMap( string mapName, double x );
-	
-	void PrintMap();
-    void PrintOutputFile();
-    void PrintOutputNtuple();
+        void FillMap( string mapName, double x,  double y);
+       void PrintMap();
+       void PrintOutputFile();
+       void PrintOutputNtuple();
 
 
 	//change dir
@@ -172,20 +172,134 @@ public:
 
 	}
 
+  void SetMultiTrackPlots( string hitSampleName,  TVector3* Truepos, TVector3* Recopos) { 
+   
+    FillMap( hitSampleName + "__trueMC__x", Truepos->x() );
+    FillMap( hitSampleName + "__trueMC__y", Truepos->y() );
+    FillMap( hitSampleName + "__trueMC__z", Truepos->z() );
 
+    FillMap( hitSampleName + "__recoMC__x", Recopos->x() );
+    FillMap( hitSampleName + "__recoMC__y", Recopos->y() );
+    FillMap( hitSampleName + "__recoMC__z", Recopos->z() );
 
+    FillMap( hitSampleName + "__recoVStrue__x", Recopos->x(), Truepos->x());
+    FillMap( hitSampleName + "__recoVStrue__y", Recopos->y(), Truepos->y());
+    FillMap( hitSampleName + "__recoVStrue__z", Recopos->z(), Truepos->z());
 
-	struct Ntuple_out {
-		vector< double >  Reco_track_px;
-		vector< double >  Reco_track_py;
-		vector< double >  Reco_track_pz;
-		vector< double >  Reco_track_x;
-		vector< double >  Reco_track_y;
-		vector< double >  Reco_track_z;
-		vector< double >  Truth_track_px;
-		vector< double >  Truth_track_py;
-		vector< double >  Truth_track_pz;
-	};
+    FillMap( hitSampleName + "__recoMC__zx", Recopos->z(), Recopos->x());
+    FillMap( hitSampleName + "__recoMC__zy", Recopos->z(), Recopos->y());
+    FillMap( hitSampleName + "__trueMC__zx", Truepos->z(), Truepos->x());
+    FillMap( hitSampleName + "__trueMC__zy", Truepos->z(), Truepos->y());
+    
+    FillMap( hitSampleName + "__recoMC__xy", Recopos->x(), Recopos->y());
+    FillMap( hitSampleName + "__trueMC__xy", Truepos->x(), Truepos->y());
+
+    FillMap( hitSampleName + "__recotrue__diff__x", Recopos->x() - Truepos->x());
+    FillMap( hitSampleName + "__recotrue__diff__y", Recopos->y() - Truepos->y());
+    FillMap( hitSampleName + "__recotrue__diff__z", Recopos->z() - Truepos->z());
+    
+
+    //only for reco 
+    float r=pow(Recopos->x()*Recopos->x() + Recopos->y()*Recopos->y() + Recopos->z()*Recopos->z(),0.5);	     
+    double th=acos(Recopos->z()/r);
+    double eta=-log(tan(0.5*th));
+    double phi = atan2(Recopos->y(), Recopos->x());
+    
+    FillMap( hitSampleName + "__recoMC__rphi", r, phi);
+    FillMap( hitSampleName + "__recoMC__etaphi", eta, phi);
+    FillMap( hitSampleName + "__recoMC__thetaphi", th, phi);
+    
+    
+  }
+
+  void SetMultiTrackChi2( string hitSampleName,  double Chi2_zx, double Chi2_zy, bool Truetrack) { 
+    FillMap( hitSampleName + "__Chi2__zx__all",  Chi2_zx);
+    FillMap( hitSampleName + "__Chi2__zy__all",  Chi2_zy);
+    FillMap( hitSampleName + "__Chi2zx__VS__Chi2zy__all",   Chi2_zx, Chi2_zy);
+    if (!Truetrack) {
+      FillMap( hitSampleName + "__Chi2__zx__nottrue",  Chi2_zx);
+      FillMap( hitSampleName + "__Chi2__zy__nottrue",  Chi2_zy);
+      FillMap( hitSampleName + "__Chi2zx__VS__Chi2zy__nottrue",   Chi2_zx, Chi2_zy);
+    }else{
+      FillMap( hitSampleName + "__Chi2__zx__true",  Chi2_zx);
+      FillMap( hitSampleName + "__Chi2__zy__true",  Chi2_zy);
+      FillMap( hitSampleName + "__Chi2zx__VS__Chi2zy__true",   Chi2_zx, Chi2_zy);	
+    }
+
+    for ( int j=1; j<11; j++ ) {
+      if ((Chi2_zx < j) &&  (Chi2_zy < j)){
+	if (!Truetrack)
+	  { FillMap( hitSampleName + "__Chi2zxANDzy__<__" +build_string(j)+ " __nottrue",  Chi2_zx, Chi2_zy);
+	  } else{ FillMap( hitSampleName + "__Chi2zxANDzy__<__" +build_string(j)+ " __true",  Chi2_zx, Chi2_zy);}
+      }
+      
+      if ((Chi2_zx < j) ||  (Chi2_zy < j)){
+	if (!Truetrack)
+	  { FillMap( hitSampleName + "__Chi2zxORzy__<__" +build_string(j)+ " __nottrue",  Chi2_zx, Chi2_zy);
+	  } else{ FillMap( hitSampleName + "__Chi2zxORzy__<__" +build_string(j)+ " __true",  Chi2_zx, Chi2_zy);}
+      }
+      
+    }
+  }
+
+  void SetMultiTrackChi2PerFrag ( string hitSampleName,  double Chi2_zx, double Chi2_zy, string fragtype) {
+    
+    FillMap( hitSampleName + "__Chi2__zx__ChargeMass__"+fragtype,  Chi2_zx);
+    FillMap( hitSampleName + "__Chi2__zy__ChargeMass__"+fragtype,  Chi2_zy);
+    FillMap( hitSampleName + "__Chi2zx__VS__Chi2zy__"+fragtype,   Chi2_zx, Chi2_zy);
+    
+  }
+    
+  void SetMultiTrackHitInfo( string hitSampleName, int nVT,  int nIT, int nMSD){
+
+    FillMap( hitSampleName + "__VT__hit",  nVT);
+    FillMap( hitSampleName + "__IT__hit",  nIT);
+    FillMap( hitSampleName + "__MSD__hit", nMSD);
+    
+    int TrackSystem__hit = nMSD+nIT+nVT;
+    FillMap( hitSampleName + "__MC__hit", TrackSystem__hit);
+    
+    
+  }
+
+  void SetMultiTrackInfo( string hitSampleName, int trackonVT,  int trackonIT, int trackonMSD, int ntrackMC){
+     
+     FillMap( hitSampleName + "__VT__track" , trackonVT);
+     FillMap( hitSampleName + "__IT__track" , trackonIT);
+     FillMap( hitSampleName + "__MSD__track", trackonMSD);
+    
+     FillMap( hitSampleName + "__MC__Track", ntrackMC);
+    
+    
+  }
+
+  void SetVertexCoord(string hitSampleName, double zx_Vertex, double zy_Vertex ){
+
+    if (fabs(zx_Vertex) < 0.1 && fabs(zy_Vertex) < 0.1){
+      
+      FillMap( hitSampleName + "__zxvert__z" , zx_Vertex);
+      FillMap( hitSampleName + "__zyvert__z" , zy_Vertex);
+      FillMap( hitSampleName + "__zxdiffzy__z", zx_Vertex-zy_Vertex );
+      
+    }
+    
+    else{
+      if (fabs(zx_Vertex) >= 0.1) FillMap( hitSampleName + "__Nosensezx__z" , zx_Vertex);
+      else if (fabs(zy_Vertex) >= 0.1) FillMap( hitSampleName + "__Nosensezy__z" , zy_Vertex);
+    }
+  }
+  
+  struct Ntuple_out {
+    vector< double >  Reco_track_px;
+    vector< double >  Reco_track_py;
+    vector< double >  Reco_track_pz;
+    vector< double >  Reco_track_x;
+    vector< double >  Reco_track_y;
+    vector< double >  Reco_track_z;
+    vector< double >  Truth_track_px;
+    vector< double >  Truth_track_py;
+    vector< double >  Truth_track_pz;
+  };
   
   Ntuple_out  ntuple_out;
   
