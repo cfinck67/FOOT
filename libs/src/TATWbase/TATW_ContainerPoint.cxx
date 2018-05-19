@@ -62,11 +62,7 @@ TATW_ContainerPoint::~TATW_ContainerPoint() {
 //  standard 
 TATW_Point* TATW_ContainerPoint::NewPoint( int iCol, TATW_Hit* colHit, int iRow, TATW_Hit* rowHit ) {
 
-	if ( iCol < 0  || iCol >= m_twGeo->GetNBars() || iRow < 0  || iRow >= m_twGeo->GetNBars() ) {
-		cout << "ERROR >> TATW_ContainerHit::NewPoint  -->  number of column "<<iCol<<" or/and row "<<iRow<<" required is wrong. Max num  " << m_twGeo->GetNBars() << endl;
-        exit(0);
-	}
-
+	
 	// check on aorigin
 	TClonesArray &pixelArray = *m_listOfPoints;
 	TATW_Point* pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TATW_Point( iCol, colHit, iRow, rowHit );
@@ -118,12 +114,12 @@ int TATW_ContainerPoint::GetPointN() {
 TATW_Point* TATW_ContainerPoint::GetPoint( int iPoint ) {
 
 	if ( m_degeneratePointMap.size() != m_pointVector.size() ) 	{	// sanity check
-		cout << "ERROR >> TATW_ContainerHit::GetPoint  -->  different size of m_degeneratePointMap "<<m_degeneratePointMap.size()<<" and m_pointVector.size() " << m_pointVector.size() << endl;
+		cout << "ERROR >> TATW_ContainerPoint::GetPoint  -->  different size of m_degeneratePointMap "<<m_degeneratePointMap.size()<<" and m_pointVector.size() " << m_pointVector.size() << endl;
         exit(0);
 	}
 
 	if ( iPoint < 0  || iPoint >= GetPointN() ) {
-		cout << "ERROR >> TATW_ContainerHit::GetPoint  -->  number of point "<<iPoint<<" required is wrong. Max num  " << m_degeneratePointMap.size() << endl;
+		cout << "ERROR >> TATW_ContainerPoint::GetPoint  -->  number of point "<<iPoint<<" required is wrong. Max num  " << m_degeneratePointMap.size() << endl;
         exit(0);
 	}
 
@@ -140,12 +136,12 @@ TATW_Point* TATW_ContainerPoint::GetPoint( int iPoint ) {
 vector<TATW_Point*> TATW_ContainerPoint::GetPoint_AllTheDegenerate( int iPoint ) {
 
 	if ( m_degeneratePointMap.size() != m_pointVector.size() ) 	{	// sanity check
-		cout << "ERROR >> TATW_ContainerHit::GetPoint  -->  different size of m_degeneratePointMap "<<m_degeneratePointMap.size()<<" and m_pointVector.size() " << m_pointVector.size() << endl;
+		cout << "ERROR >> TATW_ContainerPoint::GetPoint  -->  different size of m_degeneratePointMap "<<m_degeneratePointMap.size()<<" and m_pointVector.size() " << m_pointVector.size() << endl;
         exit(0);
 	}
 
 	if ( iPoint < 0  || iPoint >= GetPointN() ) {
-		cout << "ERROR >> TATW_ContainerHit::GetPoint  -->  number of point "<<iPoint<<" required is wrong. Max num  " << m_degeneratePointMap.size() << endl;
+		cout << "ERROR >> TATW_ContainerPoint::GetPoint  -->  number of point "<<iPoint<<" required is wrong. Max num  " << m_degeneratePointMap.size() << endl;
         exit(0);
 	}
 
@@ -169,7 +165,7 @@ int TATW_ContainerPoint::GetPointN_includingDuplicates() {
 TATW_Point* TATW_ContainerPoint::GetPoint_includingDuplicates( int iPoint ) {
 
 	if ( iPoint < 0  || iPoint >= GetPointN_includingDuplicates() ) {
-		cout << "ERROR >> TATW_ContainerHit::GetPoint_includingDuplicates  -->  number of point "<<iPoint<<" required is wrong. Max num  " << GetPointN_includingDuplicates() << endl;
+		cout << "ERROR >> TATW_ContainerPoint::GetPoint_includingDuplicates  -->  number of point "<<iPoint<<" required is wrong. Max num  " << GetPointN_includingDuplicates() << endl;
         exit(0);
 	}
 

@@ -40,7 +40,7 @@ TAVTntuRaw::TAVTntuRaw()
 : TAGdata(),
   fListOfPixels(0x0)
 {
-
+    cout << "TAVTntuRaw::TAVTntuRaw()" << endl;
     m_vtxGeo = (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object();
     SetupClones();
 }

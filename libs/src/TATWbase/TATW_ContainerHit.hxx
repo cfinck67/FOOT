@@ -28,8 +28,8 @@ private:
 
     TATWparGeo* m_twGeo;
 
-    virtual void      SetupClones();
-    TClonesArray*     GetListOfHits( int layer );
+    // virtual void      SetupClones();
+    // TClonesArray*     GetListOfHits( int layer );
 
 public:
 
@@ -43,6 +43,8 @@ public:
     TATW_Hit*         GetHit(  int layer, int hitID );
     
     
+    virtual void      SetupClones();
+    TClonesArray*     GetListOfHits( int layer );
 
     virtual void      Clear(Option_t* opt="");
 

@@ -60,7 +60,7 @@ bool TATWactNtuMC::Action() {
         int view = ( m_eventStruct->SCNiview[i] == -1 ? 0 : 1 );    // in ntuple layers are -1 and 1
         
         TATW_Hit* hit = containerHit->NewHit( view, m_eventStruct->SCNibar[i], m_eventStruct->SCNde[i], 
-                                                m_eventStruct->SCNtim[i], i, m_eventStruct->SCNid[i] );
+                                                m_eventStruct->SCNtim[i], i, m_eventStruct->SCNid[i]-1 );
         
         TVector3 MCpos = TVector3(  (m_eventStruct->SCNxin[i]  + m_eventStruct->SCNxout[i])/2,  
                                     (m_eventStruct->SCNyin[i]  + m_eventStruct->SCNyout[i])/2,  
@@ -75,6 +75,7 @@ bool TATWactNtuMC::Action() {
         hit->SetMCPosition( MCpos );
         hit->SetMCMomentum( MCmom );
     }
+
 
 
     // container of points

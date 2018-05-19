@@ -39,6 +39,7 @@ TATW_ContainerHit::TATW_ContainerHit()
 : TAGdata(),
     m_listOfHits(0x0)
 {
+    cout << "TATW_ContainerHit::TATW_ContainerHit()" << endl;
     m_twGeo = (TATWparGeo*) gTAGroot->FindParaDsc("twGeo", "TATWparGeo")->Object();
     SetupClones();
 }
