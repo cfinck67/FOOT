@@ -308,7 +308,8 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
 		double pixReso = GlobalPar::GetPar()->VTReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
-		double zErr = 0.005;
+		double zErr = 0.02;
+		// double zErr = 0.005;
 		hitCov[2][2] = zErr*zErr; 
 
         // nullptr e' un TrackPoint(fitTrack). Leave like this otherwise it gives memory leak problems!!!!
@@ -352,7 +353,10 @@ void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
 		double pixReso = GlobalPar::GetPar()->ITReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
-		double zErr = 0.005;
+		// double zErr = 0.01;	// >95%
+		double zErr = 0.02;	// >90%
+		// double zErr = 0.005; // >99%
+		// double zErr = 0.05;	// >86%
 		hitCov[2][2] = zErr*zErr; 
 
         // nullptr e' un TrackPoint(fitTrack). Leave like this otherwise it gives memory leak problems!!!!
