@@ -11,13 +11,15 @@
 
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
+
 #include "TAVTbaseDigitizer.hxx"
+#include "TAVTdigitizerE.hxx"
+#include "TAVTdigitizer.hxx"
+
 #include "TAVTntuHit.hxx"
 
 class TH2F;
 class TH1F;
-
-
 class TAVTactNtuMC : public TAGaction {
 
 // class TAVTbaseDigitizerg;
@@ -36,10 +38,10 @@ class TAVTactNtuMC : public TAGaction {
 
 public:
    explicit TAVTactNtuMC(const char* name=0, TAGdataDsc* p_nturaw=0, TAGparaDsc* p_geomap = 0, TAGparaDsc* pParMap =0,EVENT_STRUCT* evtStr=0);
-   virtual ~TAVTactNtuMC();
+   virtual ~TAVTactNtuMC() {};
    
    //! Base action 
-   virtual Bool_t  Action();
+   virtual bool  Action();
 
    //! Base creation of histogram
    virtual  void   CreateHistogram();
@@ -48,7 +50,6 @@ public:
    // Fill noise over sensors
    void           FillNoise();
    
-public:
    //! Set refit flag
    static void   SetPileup(Bool_t flag)      { fgPileup = flag;         }
    
@@ -68,6 +69,12 @@ public:
    static Float_t GetPoissonPar()            { return fgPoissonPar;     }
 
     
+   static Float_t GetSigmaNoiseLevel()              { return fgSigmaNoiseLevel;  }
+   static void    SetSigmaNoiseLevel(Float_t level) { fgSigmaNoiseLevel = level; }
+   
+   static Int_t   GetMcNoiseId()                    { return fgMcNoiseId;        }
+   static void    SetMcNoiseId(Int_t id)            { fgMcNoiseId = id;          }
+   
 
    
 private:
@@ -88,7 +95,6 @@ private:
 
    std::vector<std::vector<RawMcHit_t>> fStoredEvents;
 
-   private:
    void            SetMCinfo(TAVTntuHit* pixel, Int_t hitId);
    void            GeneratePileup();
    void            FillPixels( Int_t sensorId, Int_t mcId );  // for pileup
@@ -96,14 +102,7 @@ private:
    void            ComputeNoiseLevel();
    void            FillNoise(Int_t sensorId);
 
-public:
-   static Float_t GetSigmaNoiseLevel()              { return fgSigmaNoiseLevel;  }
-   static void    SetSigmaNoiseLevel(Float_t level) { fgSigmaNoiseLevel = level; }
-   
-   static Int_t   GetMcNoiseId()                    { return fgMcNoiseId;        }
-   static void    SetMcNoiseId(Int_t id)            { fgMcNoiseId = id;          }
-   
-private:
+
    static Bool_t   fgPileup;           // flag to generated pileup events
    static Int_t    fgPileupEventsN;    // number of pileup events to be stored
    static Float_t  fgPoissonPar;       // Poisson parameter for pileup simulation

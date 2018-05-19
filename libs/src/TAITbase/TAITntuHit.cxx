@@ -5,29 +5,29 @@
 #include "TString.h"
 #include "TClonesArray.h"
 
-#include "TAVTntuRaw.hxx"
-#include "TAVTparMap.hxx"
+#include "TAITntuRaw.hxx"
+#include "TAITparMap.hxx"
 
 
 
-#include "TAVTntuHit.hxx"
+#include "TAITntuHit.hxx"
 
 
 
 
 
-ClassImp(TAVTntuHit) // Description of Single Detector TAVTntuHit 
+ClassImp(TAITntuHit) // Description of Single Detector TAITntuHit 
 
 
 
 //______________________________________________________________________________
 //  build a hit from a rawHit
-TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, TAVTrawHit* pixel)
+TAITntuHit::TAITntuHit(Int_t aSensorNumber, TAITrawHit* pixel)
 : TObject(),
   m_sensorID(aSensorNumber),
   fMCid(-1)
 {
-   // constructor of a TAVTntuHit from a base pixel
+   // constructor of a TAITntuHit from a base pixel
    
     fPixelLine    = pixel->GetLineNumber();
     fPixelColumn  = pixel->GetColumnNumber();
@@ -39,6 +39,8 @@ TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, TAVTrawHit* pixel)
     m_origins = "data";
     Initialise();
     m_layer = m_geometry->GetLayerFromSensorID( aSensorNumber );
+    m_plume = m_geometry->GetPlumeFromSensorID( aSensorNumber );
+    m_chip = m_geometry->GetChipFromSensorID( aSensorNumber );
 }
 
 
@@ -46,7 +48,7 @@ TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, TAVTrawHit* pixel)
 // lo cancellerei....................................................................................................
 //______________________________________________________________________________
 //  build the hit from the index
-TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aValue, string aorigin )
+TAITntuHit::TAITntuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aValue, string aorigin )
 : TObject(),
   m_sensorID(aSensorNumber),
   fMCid(-1),
@@ -59,6 +61,8 @@ TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t a
     Initialise();
 
     m_layer = m_geometry->GetLayerFromSensorID( aSensorNumber );
+    m_plume = m_geometry->GetPlumeFromSensorID( aSensorNumber );
+    m_chip = m_geometry->GetChipFromSensorID( aSensorNumber );
 
     fPulseHeight    = fRawValue; 
 }
@@ -68,7 +72,7 @@ TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t a
 
 //______________________________________________________________________________
 // Build the pixel from its sensor, line and column// constructor of a Pixel with column and line 
-TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t aColumn, string aorigin )
+TAITntuHit::TAITntuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t aColumn, string aorigin )
 : TObject(),
   m_sensorID(aSensorNumber),
   fMCid(-1),
@@ -82,6 +86,8 @@ TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t
     Initialise();
 
     m_layer = m_geometry->GetLayerFromSensorID( aSensorNumber );
+    m_plume = m_geometry->GetPlumeFromSensorID( aSensorNumber );
+    m_chip = m_geometry->GetChipFromSensorID( aSensorNumber );
 
     fPulseHeight    = fRawValue; 
 }
@@ -90,7 +96,7 @@ TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t
 
 //______________________________________________________________________________
 //  
-void TAVTntuHit::Initialise() {
+void TAITntuHit::Initialise() {
 
     fPosition.SetXYZ(0, 0, 0);
 
@@ -105,16 +111,16 @@ void TAVTntuHit::Initialise() {
 
     // check the hit origin is allowed
     if ( !GlobalPar::GetPar()->CheckAllowedHitOrigin(m_origins) )  {
-        cout << "ERROR >> TAVTntuHit::Initialise()  -->  the required hit origin (" << m_origins<< ") is not allowed. \nThe allowed ones are: ";
+        cout << "ERROR >> TAITntuHit::Initialise()  -->  the required hit origin (" << m_origins<< ") is not allowed. \nThe allowed ones are: ";
         GlobalPar::GetPar()->PrintAllowedHitOrigin();
         exit(0);
     }
 
     // take the detector geometry
-    m_geometry = (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object();
+    m_geometry = (TAITparGeo*) gTAGroot->FindParaDsc("itGeo", "TAITparGeo")->Object();
 
     // set center position
-    if ( GlobalPar::GetPar()->Debug() > 1 )   cout << "TAVTntuHit::Initialise()  ::  line = " << fPixelLine << " col = " << fPixelColumn << endl;
+    if ( GlobalPar::GetPar()->Debug() > 1 )   cout << "TAITntuHit::Initialise()  ::  line = " << fPixelLine << " col = " << fPixelColumn << endl;
     SetPosition( m_geometry->GetPixelPos_detectorFrame( m_sensorID, fPixelColumn, fPixelLine ) );
     // SetPosition( m_geometry->GetPixelPos_Local( m_sensorID, fPixelColumn, fPixelLine ) );
 
@@ -126,7 +132,7 @@ void TAVTntuHit::Initialise() {
 
 
 //______________________________________________________________________________
-void TAVTntuHit::SetGenPartID( int agenPartID ) { 
+void TAITntuHit::SetGenPartID( int agenPartID ) { 
     m_genPartIndex = agenPartID; 
     
     // find the pointer in the list
@@ -136,7 +142,7 @@ void TAVTntuHit::SetGenPartID( int agenPartID ) {
     for (int i = 0; i < ntup->GetHitN(); i++) {   // over all sensors
         if ( ntup->Hit( i )->FlukaID() == m_genPartIndex ) {
             m_genPartPointer = ntup->Hit( i );
-            // ntup->Hit( i )->AddVTXhit( this );  // x Alberto to implement <3
+            // ntup->Hit( i )->AddITXhit( this );  // x Alberto to implement <3
             return;
         }
     }
@@ -146,7 +152,7 @@ void TAVTntuHit::SetGenPartID( int agenPartID ) {
 
 
 //______________________________________________________________________________
-TVector3 TAVTntuHit::GetMCPosition_sensorFrame() {
+TVector3 TAITntuHit::GetMCPosition_sensorFrame() {
     TVector3 glob = fMCPos;
     m_geometry->Detector2Sensor_frame( m_sensorID, &glob ); 
     return glob; 
@@ -154,7 +160,7 @@ TVector3 TAVTntuHit::GetMCPosition_sensorFrame() {
 
 
 //______________________________________________________________________________
-TVector3 TAVTntuHit::GetMCPosition_footFrame() { 
+TVector3 TAITntuHit::GetMCPosition_footFrame() { 
     TVector3 glob = fMCPos;
     m_geometry->Local2Global( &glob ); 
     return glob; 
@@ -163,7 +169,7 @@ TVector3 TAVTntuHit::GetMCPosition_footFrame() {
 
 
 //______________________________________________________________________________
-TVector3 TAVTntuHit::GetMCMomentum_footFrame() { 
+TVector3 TAITntuHit::GetMCMomentum_footFrame() { 
     TVector3 globP = fMCP;
     m_geometry->Local2Global_RotationOnly( &globP ); 
     return globP; 
@@ -173,14 +179,14 @@ TVector3 TAVTntuHit::GetMCMomentum_footFrame() {
 
 //______________________________________________________________________________
 //  
-Double_t TAVTntuHit::Distance(TAVTntuHit &aPixel)
+Double_t TAITntuHit::Distance(TAITntuHit &aPixel)
 {
    return Distance(aPixel.GetPixelPosition_detectorFrame());
 }
 
 //______________________________________________________________________________
 //  
-Double_t TAVTntuHit::Distance(const TVector3& aPosition)
+Double_t TAITntuHit::Distance(const TVector3& aPosition)
 {
    TVector3 result(fPosition);
    result -= aPosition; 
@@ -191,14 +197,14 @@ Double_t TAVTntuHit::Distance(const TVector3& aPosition)
 
 //______________________________________________________________________________
 //  
-Double_t TAVTntuHit::DistanceU(TAVTntuHit &aPixel)
+Double_t TAITntuHit::DistanceU(TAITntuHit &aPixel)
 {
    return DistanceU(aPixel.GetPixelPosition_detectorFrame());
 }
 
 //______________________________________________________________________________
 //  
-Double_t TAVTntuHit::DistanceU(const TVector3& aPosition)
+Double_t TAITntuHit::DistanceU(const TVector3& aPosition)
 {
    TVector3 result(fPosition);
    result -= aPosition; 
@@ -207,14 +213,14 @@ Double_t TAVTntuHit::DistanceU(const TVector3& aPosition)
 
 //______________________________________________________________________________
 //  
-Double_t TAVTntuHit::DistanceV(TAVTntuHit &aPixel)
+Double_t TAITntuHit::DistanceV(TAITntuHit &aPixel)
 {
    return DistanceV(aPixel.GetPixelPosition_detectorFrame());
 }
 
 //______________________________________________________________________________
 //  
-Double_t TAVTntuHit::DistanceV(const TVector3& aPosition)
+Double_t TAITntuHit::DistanceV(const TVector3& aPosition)
 {
    TVector3 result(fPosition);
    result -= aPosition; 

@@ -79,17 +79,19 @@ KFitter::KFitter () {
 void KFitter::IncludeDetectors() {
 
 	// all possible detector and a map with an ID num
-	vector<string> tmp_detName = { "STC", "BM", "TG", "VT", "IT", "MSD", "TW", "CALO" };
+	vector<string> tmp_detName = { "all", "STC", "BM", "TG", "VT", "IT", "MSD", "TW", "CALO" };
 	for (unsigned int i=0; i<tmp_detName.size(); i++)
 		m_detectorID_map[ tmp_detName[i] ] = i;
 
 	// check kalman detectors set in param file are correct
-	if ( !(GlobalPar::GetPar()->KalSystems().size() == 1 && GlobalPar::GetPar()->KalSystems().at(0) == "all") )	 {
+	// if ( !(GlobalPar::GetPar()->KalSystems().size() == 1 && GlobalPar::GetPar()->KalSystems().at(0) == "all") )	 {
+	if ( GlobalPar::GetPar()->KalSystems().size() != 0 )	 {
 		for (unsigned int i=0; i<GlobalPar::GetPar()->KalSystems().size(); i++ ) {
 			if ( m_detectorID_map.find( GlobalPar::GetPar()->KalSystems().at(i) ) == m_detectorID_map.end() ) 
 				cout<< "ERROR::KFitter::KFitter  --> KalSystems parameter not set properly, check befor continue."<< endl, exit(0);
 		}
 	}
+	else 		cout<< "ERROR::KFitter::KFitter  --> KalSystems parameter not set properly, zero parameters, check befor continue."<< endl, exit(0);
 
 	// list of detectors used for kalman
 	m_systemsON = "";  
@@ -147,13 +149,20 @@ int KFitter::UploadHitsIT() {
 	
 	// take the ntuple object already filled
 	TAITntuRaw* ntup = (TAITntuRaw*) gTAGroot->FindDataDsc("itRaw", "TAITntuRaw")->Object();
-	if ( m_debug > 0 )		cout << "N inner pixel read: " << ntup->GetPixelsN(0) << endl;
+	if ( m_debug > 0 )		cout << "N IT sensors: " << ntup->GetNSensors() << endl;
 
+
+	int totPix = 0;
 	// save pixels in the collection
-	for (int i = 0; i < ntup->GetPixelsN(0); i++) 
-        m_IT_hitCollection.push_back( ntup->GetPixel(0,i) );
+	for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {	// over all sensors
+		totPix += ntup->GetPixelsN( nSensor, "mc_hit" );
+		if ( m_debug > 0 )		cout << "N IT pixel in sensor " << nSensor << ": " << ntup->GetPixelsN( nSensor, "mc_hit" ) << endl;
 
-	return ntup->GetPixelsN(0);
+		for (int nPx = 0; nPx < ntup->GetPixelsN( nSensor, "mc_hit" ); nPx++) 		// over all pixels for each sensor
+	        m_IT_hitCollection.push_back( ntup->GetPixel( nSensor, nPx, "mc_hit" ) );
+	}
+
+	return totPix;
 }
 
 
@@ -333,8 +342,7 @@ void KFitter::Prepare4InnerTracker( Track* fitTrack ) {
         TAITntuHit* p_hit = m_IT_hitCollection.at(i);
 
         // get pixel coord
-        TVector3 hitPos = p_hit->GetHitCoordinate();
-        // TVector3 hitPos = m_IT_geo->GetPosition( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
+        TVector3 hitPos = m_IT_geo->GetPixelPos_footFrame( p_hit->GetSensorID(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
         // get true MC coord
         // TVector3 hitPos = m_IT_hitCollection.at(i)->GetMCPosition_Global();
 
@@ -394,7 +402,7 @@ void KFitter::Prepare4TofWall( Track* fitTrack ) {
 		// set covariance matrix
 		// double pixReso = 0.001;
 		double pixReso = GlobalPar::GetPar()->TWReso();
-		cout << "TWReso:"<< pixReso << endl;
+		
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
 		double zErr = 0.5;
@@ -839,7 +847,7 @@ int KFitter::MakeFit( long evNum ) {
 		//  usa DEtermineCardinalRepresentation per discriminare la CardinalRep con minChi2. Se no ti prende la prima della fila
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-		SetTrueSeed( &pos, &mom );	// get seed from MC for debug
+		// SetTrueSeed( &pos, &mom );	// get seed from MC for debug
 		// set seed
 		fitTrack->setStateSeed(pos, mom);		
 
@@ -1117,14 +1125,14 @@ void KFitter::GetTrueMCInfo( string hitSampleName, int x,
 
 	}
 	else if ( detID == m_detectorID_map["IT"] ) {
-		*tmpPos = m_IT_hitCollection.at( hitID )->GetMCPosition_Global();
-		*tmpMom = m_IT_hitCollection.at( hitID )->GetMCMomentum_Global();
+		*tmpPos = m_IT_hitCollection.at( hitID )->GetMCPosition_footFrame();
+		*tmpMom = m_IT_hitCollection.at( hitID )->GetMCMomentum_footFrame();
 		// information on the particle that genearated the hit
 		*tmp_mass = m_IT_hitCollection.at( hitID )->m_genPartMass;
 		*tmp_genPos = m_IT_hitCollection.at( hitID )->m_genPartPosition;	// genaration position
 		*tmp_genMom = m_IT_hitCollection.at( hitID )->m_genPartMomentum;	// genaration momentum
 		// TAITntuHit* p_hit = m_IT_hitCollection.at(hitID);
-        *hitPos = m_IT_hitCollection.at(hitID)->GetHitCoordinate(); // pixel coord
+        *hitPos = m_IT_hitCollection.at(hitID)->GetPixelPosition_footFrame(); // pixel coord
 	}
 	else if ( detID == m_detectorID_map["MSD"] ) {
 		*tmpPos = m_MSD_posVectorSmearedHit.at( hitID );

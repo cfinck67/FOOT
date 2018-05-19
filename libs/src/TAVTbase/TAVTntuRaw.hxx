@@ -48,10 +48,10 @@ private:
     TAVTntuHit*       NewPixel(Int_t sensor, Double_t value, Int_t aLine, Int_t aColumn); //  Deprecated, to be private
 
 public:
+
     TAVTntuRaw();
     virtual          ~TAVTntuRaw();
 
-    // to be put private!
     
     TAVTntuHit*         NewPixel(Int_t sensor, TAVTrawHit* pixel);
 
@@ -77,10 +77,35 @@ public:
     // delete?
     virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
  
-public:   
+
    // static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
    
    ClassDef(TAVTntuRaw,1)
 };
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

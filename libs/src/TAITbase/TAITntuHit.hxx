@@ -1,6 +1,6 @@
 
-#ifndef _TAVTntuHit_HXX
-#define _TAVTntuHit_HXX
+#ifndef _TAITntuHit_HXX
+#define _TAITntuHit_HXX
 
 // ROOT classes
 #include "TObject.h"
@@ -8,11 +8,11 @@
 #include "TClonesArray.h"
 #include "TVector3.h"
 
-#include "TAVTdatRaw.hxx"
+#include "TAITdatRaw.hxx"
 
 // all 3 needed to take from gTagROOT
 #include "TAGroot.hxx"
-#include "TAVTparGeo.hxx"
+#include "TAITparGeo.hxx"
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
 
@@ -20,9 +20,9 @@
 // #include "TAGntuMCeveHit.hxx"
 
 
-// class TAVTrawHit;
+// class TAITrawHit;
 
-/** TAVTntuHit class contains information respect to a pixel in cmos detectors
+/** TAITntuHit class contains information respect to a pixel in cmos detectors
  index, position, noise, pulse height, size, etc...
  
     Revised in 2018 by Matteo Franchini franchinim@bo.infn.it
@@ -35,11 +35,11 @@
 
 
 
-class TAVTntuHit : public TObject {
+class TAITntuHit : public TObject {
    
 private:
 
-	TAVTparGeo* m_geometry;
+	TAITparGeo* m_geometry;
 
 	Int_t              m_sensorID;                 // number of the sensor
 	TVector3           fPosition;                     // pixel position in the detector frame
@@ -52,7 +52,9 @@ private:
 	// Int_t              fPixelIndex;                   // index of the pixel
 	Int_t              fPixelLine;                    // line in the matrix
 	Int_t              fPixelColumn;                  // column in the matrix
-	int                m_layer;
+    int                m_layer;
+    int                m_plume;
+	int                m_chip;
 
 	Double_t           fRawValue;                     // the rawvalue
 	Double_t           fPulseHeight;                  // pulseheight on pixel
@@ -64,7 +66,7 @@ private:
 	string 					  m_origins;               // how the hit is produced: mc, noise, digitalization, data, ...
 
 	int 					  m_originalMC_HitID;         // index of the hit that has generated it, Different from -1 only for cluster pix
-	TAVTntuHit*			      m_originalMC_Hit;        // hit index, mcID
+	TAITntuHit*			      m_originalMC_Hit;        // hit index, mcID
 	
     int 					  m_genPartIndex;          // the index of the particle generating the hit = TRid in ntupla
 	TAGntuMCeveHit* 		  m_genPartPointer;        // the particle generating the hit
@@ -75,11 +77,11 @@ private:
 
 public:
 
-	TAVTntuHit() {};
-	TAVTntuHit( Int_t iSensor, TAVTrawHit* pixel);
-	TAVTntuHit( Int_t iSensor, const Int_t aIndex, Double_t aValue, string aorigin);
-	TAVTntuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn, string aorigin); 
-	~TAVTntuHit() {};
+	TAITntuHit() {};
+	TAITntuHit( Int_t iSensor, TAITrawHit* pixel);
+	TAITntuHit( Int_t iSensor, const Int_t aIndex, Double_t aValue, string aorigin);
+	TAITntuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn, string aorigin); 
+	~TAITntuHit() {};
 
 	void Initialise();
 
@@ -93,7 +95,7 @@ public:
     void               SetGenPartID( int agenPartID );  // also the m_genPartPointer
 
     void               SetOriginalMC_HitID( int amcID )         { m_originalMC_HitID = amcID; };
-    void               SetOriginalMC_Hit( TAVTntuHit* aseedID ) { m_originalMC_Hit = aseedID; };
+    void               SetOriginalMC_Hit( TAITntuHit* aseedID ) { m_originalMC_Hit = aseedID; };
 
     void               SetRawValue(Double_t aRV)       { fRawValue = aRV;         }
     void               SetPulseHeight(Double_t aPH)    { fPulseHeight = aPH;      }
@@ -106,10 +108,12 @@ public:
     //    All the Get methods
   
     // Int_t              GetPixelIndex()           { return  fPixelIndex;     }
-    int              GetPixelLine()             { return  fPixelLine;      }
-    int              GetPixelColumn()           { return  fPixelColumn;    }
-    int              GetLayer()                 { return  m_layer;         }
-    int              GetSensorID()              { return  m_sensorID;   }
+    int                GetPixelLine()            { return  fPixelLine;      }
+    int                GetPixelColumn()          { return  fPixelColumn;    }
+    int                GetLayer()                { return  m_layer;         }
+    int                GetPlume()                { return  m_plume;         }
+    int                GetChip()                 { return  m_chip;         }
+    int                GetSensorID()             { return  m_sensorID;   }
     // TVector3&          GetSize()                       { return  fSize;           }
     
     Int_t               GetMCid()                       { return  fMCid;           }  //MC index of the hit in the ntuple
@@ -118,7 +122,7 @@ public:
 
     string              GetOrigin() {return m_origins;};
     int                 GetOriginalMC_HitID() {return m_originalMC_HitID;};
-    TAVTntuHit*         GetOriginalMC_Hit() {return m_originalMC_Hit;}; // danger, to fix
+    TAITntuHit*         GetOriginalMC_Hit() {return m_originalMC_Hit;}; // danger, to fix
 
     
     TVector3          GetPixelPosition_sensorFrame()        { return m_geometry->GetPixelPos_sensorFrame(m_sensorID, fPixelColumn, fPixelLine); };
@@ -161,15 +165,15 @@ public:
 
     
     //! Compute distance from a given pixel
-    Double_t           Distance( TAVTntuHit&         aPixel);
+    Double_t           Distance( TAITntuHit&         aPixel);
     //! Compute distance from a given position
     Double_t           Distance( const TVector3&     aPosition);
     //! Compute distance in U direction from a given pixel
-    Double_t           DistanceU( TAVTntuHit&        aPixel);
+    Double_t           DistanceU( TAITntuHit&        aPixel);
     //! Compute distance in U direction from a given position
     Double_t           DistanceU( const TVector3&     aPosition);
     //! Compute distance in V direction from a given pixel
-    Double_t           DistanceV( TAVTntuHit&         aPixel);
+    Double_t           DistanceV( TAITntuHit&         aPixel);
     //! Compute distance in V direction from a given position
     Double_t           DistanceV( const TVector3&     aPosition);
    
@@ -200,7 +204,7 @@ public:
 
 
    
-    ClassDef(TAVTntuHit,3)                            // Pixel or Pixel of a Detector Plane
+    ClassDef(TAITntuHit,3)                            // Pixel or Pixel of a Detector Plane
 };
 
 //##############################################################################

@@ -127,9 +127,6 @@ public:
 
     double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
 
-    // Return distance from center to center
-    // double GetLayerDistance() { return m_layerDistance; };
-
     int GetNPixelX() { return m_nPixel_X; };
     int GetNPixelY() { return m_nPixel_Y; };
     int GetNLayers() { return m_nSensors.Z(); };
@@ -176,9 +173,6 @@ private:
     int m_volumeCount;
     int m_passiveCount;
 
-    // int m_nSensors_X;
-    // int m_nSensors_Y;
-    // int m_nSensors_Z;
     TVector3 m_nSensors;
 
     vector<string> m_materialOrder;

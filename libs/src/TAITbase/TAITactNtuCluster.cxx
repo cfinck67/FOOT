@@ -82,7 +82,9 @@ Bool_t TAITactNtuCluster::FindClusters(Int_t iSensor)
 			cluster->SetNumber(pNtuClus->GetClustersN(iSensor));
 			fCurListOfPixels = cluster->GetListOfPixels();
 			ComputePosition();
-			TVector3 posG = pGeoMap->Local2Global(iSensor, *GetCurrentPosition());
+			// TVector3 posG = pGeoMap->Local2Global(iSensor, *GetCurrentPosition());
+			TVector3 posG = *GetCurrentPosition();
+			pGeoMap->Local2Global(&posG);
 			cluster->SetPositionG(&posG);
 			cluster->SetPosition(GetCurrentPosition());
 			cluster->SetPosError(GetCurrentPosError());

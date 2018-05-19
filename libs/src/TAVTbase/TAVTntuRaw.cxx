@@ -72,6 +72,7 @@ TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, Double_t value, Int_t aLine, Int
 
 
 
+
 //______________________________________________________________________________
 //  standard 
 TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, Double_t value, Int_t aLine, Int_t aColumn, string aorigin) {
@@ -152,6 +153,8 @@ TAVTntuHit* TAVTntuRaw::NewPixel( int iSensor, TAVTrawHit* rawPixel ) {
 
 
 
+
+//______________________________________________________________________________
 void TAVTntuRaw::FillPixelList(int iSensor, string command, int id ) {
 
     if ( command == "mc_hit" ) {
@@ -172,6 +175,7 @@ void TAVTntuRaw::FillPixelList(int iSensor, string command, int id ) {
     }
 
 }
+
 
 
 
@@ -301,8 +305,8 @@ const TAVTntuHit* TAVTntuRaw::GetPixel(Int_t iSensor, Int_t iPixel, string comma
 
 
 //------------------------------------------+-----------------------------------
-TClonesArray* TAVTntuRaw::GetListOfPixels(Int_t iSensor)
-{
+TClonesArray* TAVTntuRaw::GetListOfPixels(int iSensor)  {
+
    if (iSensor >= 0  && iSensor < m_vtxGeo->GetNSensors()) {
 	  TClonesArray* list = (TClonesArray*)fListOfPixels->At(iSensor);
 	  return list;
@@ -317,8 +321,8 @@ TClonesArray* TAVTntuRaw::GetListOfPixels(Int_t iSensor)
 
 
 //------------------------------------------+-----------------------------------
-TClonesArray* TAVTntuRaw::GetListOfPixels(Int_t iSensor) const
-{
+TClonesArray* TAVTntuRaw::GetListOfPixels(int iSensor) const {
+
    if (iSensor >= 0  && iSensor < m_vtxGeo->GetNSensors()) {
 	  TClonesArray* list = (TClonesArray*)fListOfPixels->At(iSensor);
 	  return list;

@@ -1,9 +1,19 @@
 #ifndef _TAITparGeo_HXX
 #define _TAITparGeo_HXX
 /*!
-  \file
   \version $Id: TAITparGeo.hxx,v 1.2 2003/06/22 19:33:36 mueller Exp $
-  \brief   Declaration of TAITparGeo.
+  
+    Fully revised in 2017 by Matteo Franchini franchinim@bo.infn.it
+
+    Three reference frames are possible and all the transformation from one to another 
+    are defined in this class:
+        - sensor frame
+        - detector frame
+        - FOOT frame
+
+    All the coordinates are in cm and in the detector reference frame, i.e. the center
+    is the center of the detector.
+
 */
 /*------------------------------------------+---------------------------------*/
 
@@ -55,49 +65,53 @@ public:
         (*itX).clear();
       }
       m_sensorMatrix.clear();
-
-      // // passive matrix
-      // for ( SensorMatrix::iterator itX = m_passiveMatrix.begin(); itX != m_passiveMatrix.end(); itX++ ) {
-      //   for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
-      //       for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
-      //           delete (*itZ);
-      //       }
-      //       (*itY).clear();
-      //   }
-      //   (*itX).clear();
-      // }
-      // m_sensorMatrix.clear();
-
-      // // chip matrix
-      // for ( SensorMatrix::iterator itX = m_chipMatrix.begin(); itX != m_chipMatrix.end(); itX++ ) {
-      //   for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
-      //       for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
-      //           delete (*itZ);
-      //       }
-      //       (*itY).clear();
-      //   }
-      //   (*itX).clear();
-      // }
-      // m_sensorMatrix.clear();
-
     };
 
     void InitGeo();
     void InitMaterial();
 
+    TVector3 GetSensorPosition( int sensorID );
+
+    // new
+    TVector3 GetPixelPos_sensorFrame( int layer, int plume, int chip, int col, int row );
+    TVector3 GetPixelPos_detectorFrame( int layer, int plume, int chip, int col, int row );
+    TVector3 GetPixelPos_footFrame( int layer, int plume, int chip, int col, int row );
+
+    TVector3 GetPixelPos_sensorFrame( int sensorID, int col, int row );
+    TVector3 GetPixelPos_detectorFrame( int sensorID, int col, int row );
+    TVector3 GetPixelPos_footFrame( int sensorID, int col, int row );
+
+// new
+    float GetColumnCenter_sensorFrame ( int col);
+    float GetColumnCenter_detectorFrame ( int layer, int plume, int chip, int col);
+    float GetColumnCenter_detectorFrame( int sensorID, int col );
+    float GetColumnCenter_footFrame ( int layer, int plume, int chip, int col);
+    float GetColumnCenter_footFrame ( int sensorID, int col);
+    // new
+    float GetRowCenter_sensorFrame ( int row);
+    float GetRowCenter_detectorFrame ( int layer, int plume, int chip, int row);
+    float GetRowCenter_detectorFrame ( int sensorID, int row);
+    float GetRowCenter_footFrame ( int layer, int plume, int chip, int row);
+    float GetRowCenter_footFrame ( int sensorID, int row);
+
+
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id and vice versa
+    void Detector2Sensor_frame( int sensorID, TVector3* coord );
+    void Sensor2Detector_frame( int sensorID, TVector3* coord );
+
+    // foot to detector
     void Global2Local( TVector3* glob );
     void Global2Local_RotationOnly( TVector3* glob );
+    
+    // detector to foot
     void Local2Global( TVector3* loc );
     void Local2Global_RotationOnly( TVector3* loc );
 
     TRotation GetRotationToGlobal() { return *m_rotation; };
     TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
 
-    // Return the pixel position  -->  change name! in GetPixelPos()
-    //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
-    TVector3 GetPosition( int layer, int plume, int chip, int col, int row );
+
 
     // Return Inner Trakcker center coord. in the global frame
     TVector3 GetCenter() { return m_center; };
@@ -111,16 +125,38 @@ public:
     double GetLayerDistance() { return m_layerDistance; };
     double GetNPixelX() { return m_nPixel_X; };
     double GetNPixelY() { return m_nPixel_Y; };
-    int GetNLayers() { return m_nSensors_Z; };
 
+    int GetNSensors()    { return m_nSensors.X()*m_nSensors.Y()*m_nSensors.Z(); };  // return tot number of sensors
+
+    // Return a vector with the number of sensors along the cartesian directions 
+    TVector3        GetNumberOfSensorAlongDirections() { return m_nSensors; };
+    int GetNChip() { return m_nSensors.X(); }; 
+    int GetNPlume() { return m_nSensors.Y(); }; 
+    int GetNLayers() { return m_nSensors.Z(); }; 
+    
+    // define the agloritm to map the sensor with a single variable. 
+    int GetSensorID( int layer, int col, int row )    { return layer*GetNPlume()*GetNChip() + col*GetNChip() + row; };
+    int GetLayerFromSensorID( int sensID )            { return sensID/( GetNPlume()*GetNChip() ); };
+    int GetPlumeFromSensorID( int sensID )            { 
+        int singleLayerID = sensID - ( GetLayerFromSensorID( sensID ) * GetNPlume()*GetNChip() ); 
+        return singleLayerID / GetNChip();
+    };
+    int GetChipFromSensorID( int sensID )            { 
+        int singleLayerID = sensID - ( GetLayerFromSensorID( sensID ) * GetNPlume()*GetNChip() ); 
+        return singleLayerID % GetNChip();
+    };
+
+    // pixel dimension
+    // double GetPitchX()  { return m_Pitch_X; };
+    // double GetPitchY()  { return m_Pitch_Y; };
+
+    // function for the FRUKA geometry creation
     string PrintBodies();
     string PrintRegions();
     string PrintAssignMaterial();
     string PrintSubtractBodiesFromAir();
     string PrintParameters();
 
-    // Return a vector with the number of sensors along the cartesian directions
-    TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
 
     TGeoVolume*     GetVolume();
 
@@ -146,10 +182,7 @@ private:
     int m_volumeCount;
     int m_passiveCount;
 
-    int m_nSensors_X;
-    int m_nSensors_Y;
-    int m_nSensors_Z;
-    TVector3 m_NSensors;
+    TVector3 m_nSensors;
 
     double m_plumeDistace_Z;
     double m_plumeDistace_Y;

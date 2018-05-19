@@ -10,87 +10,69 @@
 
 ClassImp(TAITcluster) // Description of a cluster
 
+
+
+
 //______________________________________________________________________________
 //  
 TAITcluster::TAITcluster()
 :  TObject(),
-   fPosition(new TVector3(0., 0., 0.)),
-   fPosError(new TVector3(0., 0., 0.)),
-   fPositionG(new TVector3(0., 0., 0.)),
+   fPosition(TVector3(0., 0., 0.)),
+   fPosError(TVector3(0., 0., 0.)),
    fListOfPixels(new TClonesArray("TAITntuHit")),
    fDebugLevel(0),
-   fNumber(0),
-   fPlaneNumber(10),
-   fFound(kFALSE),
-	fFoundXZ(kFALSE),
-	fFoundYZ(kFALSE),
-   fClusterPulseSum(-99.),
-   fClusterAreaPulseSum(-99.),
-   fSNneighbour(-99.),
-   fStripsInClusterArea(-99.),
-   fPhSeed(0),  
-   fIndexSeed(0)
+   m_clusterID(0),
+   m_sensorID(0),
+   fClusterPulseSum(-99.)
+   // fClusterAreaPulseSum(-99.),
+   // fSNneighbour(-99.),
+   // fStripsInClusterArea(-99.),
+   // fPhSeed(0),  
+   // fIndexSeed(0)
 {
    // TAITcluster constructor
+   // cout << "\tTAITcluster::TAITcluster " << endl;
+
    fListOfPixels->SetOwner(true);
+   m_geometry = (TAITparGeo*) gTAGroot->FindParaDsc("itGeo", "TAITparGeo")->Object();
 }
+
+
+
+
 
 //______________________________________________________________________________
 //  
 TAITcluster::TAITcluster(const TAITcluster& cluster)
 :  TObject(),
-   fPosition(new TVector3(*cluster.fPosition)),
-   fPosError(new TVector3(*cluster.fPosError)),
-   fPositionG(new TVector3(*cluster.fPositionG)),
+   fPosition(cluster.fPosition),
+   fPosError(cluster.fPosError),
    fDebugLevel(cluster.fDebugLevel),
-   fNumber(cluster.fNumber),
-   fPlaneNumber(cluster.fPlaneNumber),
-   fFound(cluster.fFound),
-   fFoundXZ(cluster.fFoundXZ),
-   fFoundYZ(cluster.fFoundYZ),
-   fClusterPulseSum(cluster.fClusterPulseSum),
-   fClusterAreaPulseSum(cluster.fClusterAreaPulseSum),
-   fSNneighbour(cluster.fSNneighbour),
-   fStripsInClusterArea(cluster.fStripsInClusterArea),
-   fPhSeed(cluster.fPhSeed),  
-   fIndexSeed(cluster.fIndexSeed)
+   m_clusterID(cluster.m_clusterID),
+   m_sensorID(cluster.m_sensorID),
+   fClusterPulseSum(cluster.fClusterPulseSum)
+   // fClusterAreaPulseSum(cluster.fClusterAreaPulseSum),
+   // fSNneighbour(cluster.fSNneighbour),
+   // fStripsInClusterArea(cluster.fStripsInClusterArea),
+   // fPhSeed(cluster.fPhSeed),  
+   // fIndexSeed(cluster.fIndexSeed)
 {
    // TAITcluster constructor
    fListOfPixels = (TClonesArray*)cluster.fListOfPixels->Clone();
+   m_geometry = (TAITparGeo*) gTAGroot->FindParaDsc("itGeo", "TAITparGeo")->Object();
 }
+
+
+
+
 
 //______________________________________________________________________________
 //  
-TAITcluster::~TAITcluster()
-{ 
-   // TAITcluster default destructor 
-   
-   delete fPosition;
-   delete fPositionG;
-   delete fPosError;
-   delete fListOfPixels;
+TAITcluster::~TAITcluster()   { 
+   // delete fListOfPixels;
 }
 
-//______________________________________________________________________________
-//  
-void TAITcluster::SetPosition(TVector3* pos)
-{
-   fPosition->SetXYZ(pos->Px(), pos->Py(), pos->Pz());
-}
 
-//______________________________________________________________________________
-//  
-void TAITcluster::SetPosError(TVector3* pos)
-{
-   fPosError->SetXYZ(pos->Px(), pos->Py(), pos->Pz());
-}
-
-//______________________________________________________________________________
-//  
-void TAITcluster::SetPositionG(TVector3* posGlo)
-{
-   fPositionG->SetXYZ(posGlo->Px(), posGlo->Py(), posGlo->Pz());
-}
 
 //______________________________________________________________________________
 // 
@@ -117,7 +99,7 @@ Float_t TAITcluster::GetClusterPulseSum()
 	  return  fClusterPulseSum; 
 }
 
-
+////////////////////// CORREGGI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //______________________________________________________________________________
 //  
 Float_t TAITcluster::GetPixelDistanceU(Int_t index) const
@@ -125,12 +107,14 @@ Float_t TAITcluster::GetPixelDistanceU(Int_t index) const
    TAITntuHit* pixelSeed = (TAITntuHit*)fListOfPixels->At(0);
    if (index >= 0 && index < fListOfPixels->GetEntries()) {
 	  TAITntuHit* aNeighbour = (TAITntuHit*)fListOfPixels->At(index);
-	  return pixelSeed->DistanceU(aNeighbour->GetPosition());
+	  return pixelSeed->DistanceU(aNeighbour->GetPixelPosition_detectorFrame());
    } else {
 	  return -1;
    }   
 }
 
+
+////////////////////// CORREGGI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //______________________________________________________________________________
 //  
 Float_t TAITcluster::GetPixelDistanceV(Int_t index) const
@@ -138,27 +122,27 @@ Float_t TAITcluster::GetPixelDistanceV(Int_t index) const
    TAITntuHit* pixelSeed = (TAITntuHit*)fListOfPixels->At(0);
    if (index >= 0 && index < fListOfPixels->GetEntries()) {
 	  TAITntuHit* aNeighbour = (TAITntuHit*)fListOfPixels->At(index);
-	  return pixelSeed->DistanceV(aNeighbour->GetPosition());
+	  return pixelSeed->DistanceV(aNeighbour->GetPixelPosition_detectorFrame());
    } else {
 	  return -1;
    }   
 }
 
-//______________________________________________________________________________
-//  
-Float_t TAITcluster::GetSeedU() const 
-{ 
-   TAITntuHit* pixelSeed = (TAITntuHit*)fListOfPixels->At(0);
-   return pixelSeed->GetPosition().Px();
-}
+// //______________________________________________________________________________
+// //  
+// Float_t TAITcluster::GetSeedU() const 
+// { 
+//    TAITntuHit* pixelSeed = (TAITntuHit*)fListOfPixels->At(0);
+//    return pixelSeed->GetPosition().Px();
+// }
 
-//______________________________________________________________________________
-//  
-Float_t TAITcluster::GetSeedV() const 
-{ 
-   TAITntuHit* pixelSeed = (TAITntuHit*)fListOfPixels->At(0);
-   return pixelSeed->GetPosition().Py();
-}
+// //______________________________________________________________________________
+// //  
+// Float_t TAITcluster::GetSeedV() const 
+// { 
+//    TAITntuHit* pixelSeed = (TAITntuHit*)fListOfPixels->At(0);
+//    return pixelSeed->GetPosition().Py();
+// }
 
 //______________________________________________________________________________
 //  
@@ -166,10 +150,10 @@ Float_t TAITcluster::Distance( TAITcluster *aClus) {
    // Return the distance between this clusters and the pointed cluster
    // regardless of the plane
    
-   TVector3 clusPosition( aClus->GetPositionG() );
+   TVector3 clusPosition( aClus->GetPosition_detectorFrame() );
    
    // Now compute the distance beetween the two hits
-   clusPosition -= (GetPositionG());
+   clusPosition -= (GetPosition_detectorFrame());
    
    // Insure that z position is 0 for 2D length computation
    clusPosition.SetXYZ( clusPosition[0], clusPosition[1], 0.);
@@ -178,19 +162,19 @@ Float_t TAITcluster::Distance( TAITcluster *aClus) {
 }
 
 
-//______________________________________________________________________________
-//  
-Float_t TAITcluster::Distance( TAITtrack *aTrack) {
-   // Return the distance between this cluster and the pointed track impact in the plane
-   //
+// //______________________________________________________________________________
+// //  
+// Float_t TAITcluster::Distance( TAITtrack *aTrack) {
+//    // Return the distance between this cluster and the pointed track impact in the plane
+//    //
    
-   TVector3 impactPosition( aTrack->Intersection( GetPositionG()[2]) );
-   impactPosition -= GetPositionG();
-   // Insure that z position is 0 for 2D length computation
-   impactPosition.SetXYZ(impactPosition(0), impactPosition(1), 0.);
+//    TVector3 impactPosition( aTrack->Intersection( GetPixelPosition_detectorFrame()[2]) );
+//    impactPosition -= GetPixelPosition_detectorFrame();
+//    // Insure that z position is 0 for 2D length computation
+//    impactPosition.SetXYZ(impactPosition(0), impactPosition(1), 0.);
    
-   return impactPosition.Mag();
-}
+//    return impactPosition.Mag();
+// }
 
 //______________________________________________________________________________
 //  
@@ -200,12 +184,45 @@ void TAITcluster::AddPixel(TAITntuHit* pixel)
    new(pixelArray[pixelArray.GetEntriesFast()]) TAITntuHit(*pixel);
 }
 
+
+//______________________________________________________________________________
+TVector3 TAITcluster::GetPosition_sensorFrame()  { 
+   TVector3 globPos = fPosition;
+   m_geometry->Detector2Sensor_frame( m_sensorID, &globPos ); 
+   return globPos; 
+}
+
+
+//______________________________________________________________________________
+TVector3 TAITcluster::GetPosition_footFrame()  { 
+   TVector3 globPos = fPosition;
+   m_geometry->Local2Global( &globPos ); 
+   return globPos; 
+}
+
+
+
 //______________________________________________________________________________
 //  
 void TAITcluster::ResetPixels()
 {
    fListOfPixels->Delete();
+   // fListOfPixels->Clear();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -213,7 +230,7 @@ void TAITcluster::ResetPixels()
 
 ClassImp(TAITntuCluster);
 
-TString TAITntuCluster::fgkBranchName   = "vtclus.";
+TString TAITntuCluster::fgkBranchName   = "itclus.";
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
@@ -221,6 +238,7 @@ TAITntuCluster::TAITntuCluster()
 : TAGdata(),
   fListOfClusters(0x0)
 {
+   cout << "TAITntuCluster::TAITntuCluster()" << endl;
    SetupClones();
 }
 
@@ -343,20 +361,20 @@ TAITcluster* TAITntuCluster::NewCluster(TAITcluster* clus, Int_t iSensor)
 //! ostream insertion.
 void TAITntuCluster::ToStream(ostream& os, Option_t* option) const
 {
-   for (Int_t i = 0; i < TAITparMap::GetSensorsN(); ++i) {
-   os << "TAITntuCluster " << GetName()
-   << Form("  nClus=%3d", GetClustersN(i))
-   << endl;
+   // for (Int_t i = 0; i < TAITparMap::GetSensorsN(); ++i) {
+   // os << "TAITntuCluster " << GetName()
+   // << Form("  nClus=%3d", GetClustersN(i))
+   // << endl;
    
-   //TODO properly
-   //os << "slat stat    adct    adcb    tdct    tdcb" << endl;
-   for (Int_t j = 0; j < GetClustersN(i); j++) {
-	  const TAITcluster*  cluster = GetCluster(i,j);
-	  if (cluster)
-		 os << Form("%4d", cluster->GetNumber());
-	  os << endl;
+   // //TODO properly
+   // //os << "slat stat    adct    adcb    tdct    tdcb" << endl;
+   // for (Int_t j = 0; j < GetClustersN(i); j++) {
+	  // const TAITcluster*  cluster = GetCluster(i,j);
+	  // if (cluster)
+		 // os << Form("%4d", cluster->GetClusterID());
+	  // os << endl;
 	  
-   }
-   }
+   // }
+   // }
 }
 

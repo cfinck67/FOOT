@@ -64,10 +64,10 @@ void MultiTrackCheck::Process( Long64_t jentry ){
    }
    
    // save pixels in the collection     
-   for (int i = 0; i < myn_itraw->GetPixelsN(0); i++)  {                   
-     TAITntuHit* it_hit = myn_itraw->GetPixel(0,i);         
+   for (int i = 0; i < myn_itraw->GetPixelsN(0, "mc_hit"); i++)  {                   
+     TAITntuHit* it_hit = myn_itraw->GetPixel(0,i, "mc_hit");         
  
-     if((it_hit->GetMCPosition_Global().Z() > 13.3 && it_hit->GetMCPosition_Global().Z() < 13.5) || (it_hit->GetMCPosition_Global().Z() > 14.3 && it_hit->GetMCPosition_Global().Z() < 14.5))  ntrackonIT++;
+     if((it_hit->GetMCPosition_footFrame().Z() > 13.3 && it_hit->GetMCPosition_footFrame().Z() < 13.5) || (it_hit->GetMCPosition_footFrame().Z() > 14.3 && it_hit->GetMCPosition_footFrame().Z() < 14.5))  ntrackonIT++;
      
     m_IT_hitCollection.push_back(it_hit);   
     
@@ -184,7 +184,7 @@ void MultiTrackCheck::Process( Long64_t jentry ){
        for(int j=0; j<m_VT_hitCollection.size(); j++){
 	 if ( m_Trcks9index.at(i) == m_VT_hitCollection.at(j)->GetMCid()-1)
 	   { 
-	     //cout <<  " GetMCPosition_Global().Z() " << m_VT_hitCollection.at(j)->GetMCPosition_Global().Z() << endl;
+	     //cout <<  " GetMCPosition_footFrame().Z() " << m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Z() << endl;
 	     TVector3 vtxpos = TVector3 (m_VT_hitCollection.at(j)->GetMCPosition_footFrame().X(),m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Y(),m_VT_hitCollection.at(j)->GetMCPosition_footFrame().Z());
 	     m_VTX_Trackpos.push_back(vtxpos);
 	     
@@ -211,13 +211,13 @@ void MultiTrackCheck::Process( Long64_t jentry ){
        for(int k=0; k<m_IT_hitCollection.size(); k++){
 	 if ( m_Trcks9index.at(i) == m_IT_hitCollection.at(k)->GetMCid()-1)
 	   { 
-	     // cout <<  " GetMCPosition_Global().Z() " << m_IT_hitCollection.at(k)->GetMCPosition_Global().Z() << endl;
+	     // cout <<  " GetMCPosition_footFrame().Z() " << m_IT_hitCollection.at(k)->GetMCPosition_footFrame().Z() << endl;
 	     
-	     h_zx->Fill(m_IT_hitCollection.at(k)->GetMCPosition_Global().Z(), m_IT_hitCollection.at(k)->GetMCPosition_Global().X());
-	     h_zy->Fill(m_IT_hitCollection.at(k)->GetMCPosition_Global().Z(), m_IT_hitCollection.at(k)->GetMCPosition_Global().Y());
-	     h_yx->Fill(m_IT_hitCollection.at(k)->GetMCPosition_Global().Y(), m_IT_hitCollection.at(k)->GetMCPosition_Global().X());
+	     h_zx->Fill(m_IT_hitCollection.at(k)->GetMCPosition_footFrame().Z(), m_IT_hitCollection.at(k)->GetMCPosition_footFrame().X());
+	     h_zy->Fill(m_IT_hitCollection.at(k)->GetMCPosition_footFrame().Z(), m_IT_hitCollection.at(k)->GetMCPosition_footFrame().Y());
+	     h_yx->Fill(m_IT_hitCollection.at(k)->GetMCPosition_footFrame().Y(), m_IT_hitCollection.at(k)->GetMCPosition_footFrame().X());
 	     
-	     TVector3 itpos = TVector3 (m_IT_hitCollection.at(k)->GetMCPosition_Global().X(),m_IT_hitCollection.at(k)->GetMCPosition_Global().Y(),m_IT_hitCollection.at(k)->GetMCPosition_Global().Z());
+	     TVector3 itpos = TVector3 (m_IT_hitCollection.at(k)->GetMCPosition_footFrame().X(),m_IT_hitCollection.at(k)->GetMCPosition_footFrame().Y(),m_IT_hitCollection.at(k)->GetMCPosition_footFrame().Z());
 	     m_IT_Trackpos.push_back(itpos);
 	   }
 	  

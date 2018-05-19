@@ -76,9 +76,6 @@ TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
     m_center(original->m_center),  // current position
     m_dimension(original->m_dimension),
 
-    // m_nSensors_X(original->m_nSensors_X),
-    // m_nSensors_Y(original->m_nSensors_Y),
-    // m_nSensors_Z(original->m_nSensors_Z),
     m_nSensors (original->m_nSensors),
 
     m_materialOrder(original->m_materialOrder),
@@ -92,10 +89,9 @@ TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
 
     m_nPixel_X(original->m_nPixel_X),
     m_nPixel_Y(original->m_nPixel_Y)         
-
     {
 
-    SensorMatrix m_sensorMatrix = original->m_sensorMatrix;
+        SensorMatrix m_sensorMatrix = original->m_sensorMatrix;
 }
 
 
@@ -109,11 +105,8 @@ void TAVTparGeo::InitGeo()  {
 
     m_origin = TVector3(0,0,0);                         // center in local coord.
     m_center = TVector3(VTX_X, VTX_Y, VTX_Z);           // center in global coord.
-
-    // m_nSensors_X = 1;
-    // m_nSensors_Y = 1;
-    // m_nSensors_Z = VTX_NLAY;
-    m_nSensors = TVector3( 1, 1, VTX_NLAY );
+    
+    m_nSensors = TVector3( 1, 1, VTX_NLAY );            // set number of sensors
 
 
 //---------------------------------------------------------------------
@@ -349,17 +342,17 @@ void TAVTparGeo::InitGeo()  {
 		    if ( k==0 && j==0 && i==0 ) m_xmin = minCoord.x();
 		    else{
 		      if ( m_xmin != minCoord.x()){
-			cout << "Error in VTX xmin coord " << m_xmin
-			     << "  " << minCoord.x() << endl;
+    			cout << "Error in VTX xmin coord " << m_xmin
+    			     << "  " << minCoord.x() << endl;
 		      }
 		    }
 							    
 		    if ( k==0 && j==0 && i==0 ) m_ymin = minCoord.y();
 		    else{
-		      if ( m_ymin != minCoord.y()){
-			cout << "Error in VTX ymin coord" << m_ymin
-			     << "  " << minCoord.y() << endl;
-		      }
+                if ( m_ymin != minCoord.y()){
+                    cout << "Error in VTX ymin coord" << m_ymin
+                         << "  " << minCoord.y() << endl;
+                }
 		    }
 
                     stringstream ss;

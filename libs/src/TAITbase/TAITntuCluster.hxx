@@ -12,125 +12,115 @@
 #include "TAITntuRaw.hxx"
 
 
-class TAITtrack;
-
 /** TAITcluster class, simple container class for tracks with the associated clusters                    
- 
  \author Ch. Finck
  */
+
 
 class TAITcluster : public TObject {
    
 private:
    
-   TVector3*          fPosition;                 // position of the cluster in plane frame 
-   TVector3*          fPosError;                 // position's errors of the cluster in plane frame 
-   TVector3*          fPositionG;                // position of the clus in tracker frame
+   TAITparGeo* m_geometry;
+
+   TVector3          fPosition;                 // position of the cluster in plane frame 
+   TVector3          fPosError;                 // position's errors of the cluster in plane frame 
    TClonesArray*      fListOfPixels;             // list of pixel attached to this cluster
    
+   // string             m_command;                 // type of pixel to be used for clustering
+
    Int_t              fDebugLevel;             // debug level
-   Int_t              fNumber;                   // number
-   Int_t              fPlaneNumber;              // plane number
-   Bool_t             fFound;                    // kTRUE is associated to a track
-   Bool_t             fFoundXZ;					 // kTRUE is associated to a track in XZ Projection
-   Bool_t             fFoundYZ;					 // kTRUE is associated to a track in YZ Projection
+   int              m_clusterID;                   // number  -->  maybe its position
+   int              m_sensorID;              // plane number
 	
    Float_t            fClusterPulseSum;          // sum of pulseheight on strips in hit cluster, involves noise cuts
-   Float_t            fClusterAreaPulseSum;      // sum of pulseheight on strips in hit cluster area, no noise cuts
-   Float_t            fClusterNoiseAverage;      // hit cluster signal noise average
-   Float_t            fSNneighbour;              // signal / Noise of neighbours.;
-   Int_t              fStripsInClusterArea;      // # strips in cluster area
+   // Float_t            fClusterAreaPulseSum;      // sum of pulseheight on strips in hit cluster area, no noise cuts
+   // Float_t            fClusterNoiseAverage;      // hit cluster signal noise average
+   // Float_t            fSNneighbour;              // signal / Noise of neighbours.;
+   // Int_t              fStripsInClusterArea;      // # strips in cluster area
    
-   Float_t            fPhSeed;                   // pulseheight on seed strip
-   Int_t              fIndexSeed;                // index of seed strip
+   // Float_t            fPhSeed;                   // pulseheight on seed strip
+   // Int_t              fIndexSeed;                // index of seed strip
    
 public:
-   TAITcluster(); 
-   TAITcluster(const TAITcluster& cluster);
-   ~TAITcluster();
+
+    TAITcluster(); 
+    TAITcluster(const TAITcluster& cluster);
+    ~TAITcluster();
    
-   //! Set position in local frame
-   void               SetPosition(TVector3* pos); 
-   //! Set position error in local frame
-   void               SetPosError(TVector3* pos); 
-   void               SetPosition(Float_t u, Float_t v, Float_t z) { fPosition->SetXYZ(u,v,z); }
-   //! Set position in global tracker frame
-   void               SetPositionG(TVector3* pos); 
-   //! Set pixel index for a given pixel
-   void               SetIndexSeed(Int_t index)              { fIndexSeed = index;     } 
-   //! Found flag for this cluster
-   void               SetFound(Bool_t flag = true)           { fFound = flag;          }
-   //! Found flag for this cluster (Hough Transform XZ)
-   void               SetFoundXZ(Bool_t flag = true)         { fFoundXZ = flag;        }
-   //! Found flag for this cluster ((Hough Transform YZ)
-   void               SetFoundYZ(Bool_t flag = true)         { fFoundYZ = flag;        }
-   //! Set cluster number
-   void               SetNumber(Int_t nb)                    { fNumber = nb;           } 
-   //! Set plane number
-   void               SetPlaneNumber(Int_t nb)               { fPlaneNumber = nb;      }
-   //! Set debug level
-   void               SetDebug( Int_t aDebug)                { fDebugLevel = aDebug; }   
+
+    void               AddPixel(TAITntuHit* pixel);    //! Add pixel to the list
+    void               ResetPixels();
+
+
+
+    void               SetPosition(TVector3 pos)  { fPosition = pos; };     //! Set position in local detector frame
+    void               SetPosError(TVector3 pos)  { fPosError = pos; };     //! Set position error in local frame
+    
+    //! Set pixel index for a given pixel  -->  remove
+    // void               SetIndexSeed(Int_t index)              { fIndexSeed = index;     } 
+
+
+    void               SetClusterID(int nb)                 { m_clusterID = nb; }     //! Set cluster number   -->  remove?
+    
+    void               SetSensorID(Int_t nb)               { m_sensorID = nb; }    
+    
+ 
+    //! Get U position in local frame
+    // Float_t            GetPositionU()                   const { return (*fPosition)(0); }
+    // //! Get V position in local frame
+    // Float_t            GetPositionV()                   const { return (*fPosition)(1); }
+
+    TVector3           GetPosition_sensorFrame();
+    TVector3           GetPosition_detectorFrame()     { return fPosition;      }
+    TVector3           GetPosition_footFrame();
+
+    TVector3           GetPosError()                   { return fPosError;      }   
+
+    TAITntuHit*        GetPixel(Int_t idx);    //! Get pixel, takes the index of the list interal to the cluster
+    
+    TClonesArray*      GetListOfPixels()                const { return fListOfPixels;   }    //! Get Pixel list  -->  not safe
+    int                GetClusterID()                   { return m_clusterID; }
+    int                GetSensorID()                    { return m_sensorID; }
+
+    //! Get index of seed pixel  -->  remove
+    // Int_t              GetIndexSeed()                   const { return fIndexSeed;      }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //! Get index for a given pixel
+    // Int_t              GetIndex(Int_t tSk)              const { return ((TAITntuHit*)fListOfPixels->At(tSk))->GetPixelIndex();  } 
+    //! Get pulse height for a given pixel
+    Float_t            GetPulseHeight(Int_t tSk)        const { return ((TAITntuHit*)fListOfPixels->At(tSk))->GetPulseHeight(); } 
+    //! Get number of pixels in this clusters
+    Int_t              GetPixelsN()                     const { return  fListOfPixels->GetEntries(); }
+    // /! Get position of seed pixel  -->  change
+    // Float_t            GetSeedU()                       const;
+    // Float_t            GetSeedV()                       const;
+
+    //! Get distance from cluster position to a given pixel
+    Float_t            GetPixelDistanceU(Int_t index)   const;
+    Float_t            GetPixelDistanceV(Int_t index)   const;
+
+    //! Compute distance from another cluster
+    Float_t            Distance(TAITcluster *aClus);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // //! Get Sum of neighbour (not used)
+    // Float_t            GetSNneighbour()                 const { return  fSNneighbour;          } 
+    // //! Get sum of pulse of cluster for a given area
+    // Float_t            GetClusterAreaPulseSum()         const { return fClusterAreaPulseSum;  }
+    //! Get sum of pulse of cluster 
+    Float_t            GetClusterPulseSum();
+
    
-   //! Get position in local frame
-   TVector3&           GetPosition()                    const { return *fPosition;      }
-   //! Get position error in local frame
-   TVector3&           GetPosError()                    const { return *fPosError;      }   
-   //! Get position in global tracker frame
-   TVector3&           GetPositionG()                   const { return *fPositionG ;    }
-   //! Get U position in local frame
-   Float_t            GetPositionU()                   const { return (*fPosition)(0); }
-   //! Get V position in local frame
-   Float_t            GetPositionV()                   const { return (*fPosition)(1); }
-   //! Get Pixel list
-   TClonesArray*      GetListOfPixels()                const { return fListOfPixels;   }
-   //! Get cluster number
-   Int_t              GetNumber()                      const { return fNumber;         }
-   //! Get cluster number
-   Int_t              GetPlaneNumber()                 const { return fPlaneNumber;    }
-   //! Get found flag this cluster
-   Bool_t             GetFound()                       const { return fFound;          }
-   //! Get found flag this cluster
-   Bool_t             GetFoundXZ()                     const { return fFoundXZ;        }
-   //! Get found flag this cluster
-   Bool_t             GetFoundYZ()                     const { return fFoundYZ;        }
-   //! Get debug level
-   Int_t              GetDebug()                       const { return fDebugLevel;   }
-   //! Get index of seed pixel
-   Int_t              GetIndexSeed()                   const { return fIndexSeed;      }
    
-   //! Get index for a given pixel
-   Int_t              GetIndex(Int_t tSk)              const { return ((TAITntuHit*)fListOfPixels->At(tSk))->GetPixelIndex();  } 
-   //! Get pulse height for a given pixel
-   Float_t            GetPulseHeight(Int_t tSk)        const { return ((TAITntuHit*)fListOfPixels->At(tSk))->GetPulseHeight(); } 
-   //! Get number of pixels in this clusters
-   Int_t              GetPixelsN()                     const { return  fListOfPixels->GetEntries(); }
-   //! Get Sum of neighbour (not used)
-   Float_t            GetSNneighbour()                 const { return  fSNneighbour;          } 
-   //! Get sum of pulse of cluster for a given area
-   Float_t            GetClusterAreaPulseSum()         const { return fClusterAreaPulseSum;  }
-   //! Get sum of pulse of cluster 
-   Float_t            GetClusterPulseSum();
-   //! Get pixel
-   TAITntuHit*        GetPixel(Int_t idx);
-   //! Get position of seed pixel
-   Float_t            GetSeedU()                       const;
-   Float_t            GetSeedV()                       const;
-   
-   //! Get distance from cluster position to a given pixel
-   Float_t            GetPixelDistanceU(Int_t index)   const;
-   Float_t            GetPixelDistanceV(Int_t index)   const;
-   
-   //! Compute distance from another cluster
-   Float_t            Distance(TAITcluster *aClus);
-   //! Compute distance from a track 
-   Float_t            Distance(TAITtrack *aTrack); 
-   //! Add pixel to the list
-   void               AddPixel(TAITntuHit* pixel);
-   //! reset pixels
-   void               ResetPixels();
    
    ClassDef(TAITcluster,2)                          // Describes TAITcluster
 };
+
+
+
 
 
 //##############################################################################
@@ -145,7 +135,7 @@ private:
 
 public:
    TAITntuCluster();
-   virtual          ~TAITntuCluster();
+   virtual            ~TAITntuCluster();
    
    TAITcluster*       GetCluster(Int_t iSensor, Int_t i);
    const TAITcluster* GetCluster(Int_t iSensor, Int_t i) const;
