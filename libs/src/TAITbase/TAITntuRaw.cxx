@@ -37,7 +37,7 @@ ClassImp(TAITntuRaw);
 //! Default constructor.
 TAITntuRaw::TAITntuRaw() 
 : TAGdata(),
-  fListOfPixels(0x0)
+  m_listOfPixels(0x0)
 {
     cout << "TAITntuRaw::TAITntuRaw()" << endl;
     m_itxGeo = (TAITparGeo*) gTAGroot->FindParaDsc("itGeo", "TAITparGeo")->Object();
@@ -49,7 +49,11 @@ TAITntuRaw::TAITntuRaw()
 //------------------------------------------+-----------------------------------
 //! Destructor.
 TAITntuRaw::~TAITntuRaw()  {
-   delete fListOfPixels;
+    delete m_listOfPixels;
+    m_mcHitList.clear();
+    m_mcClusterList.clear();
+    m_noiseList.clear();
+    m_pileUpList.clear();
 }
 
 
@@ -320,7 +324,7 @@ const TAITntuHit* TAITntuRaw::GetPixel( int iSensor, int iPixel, string command 
 TClonesArray* TAITntuRaw::GetListOfPixels(int iSensor)    {
 
     if (iSensor >= 0  && iSensor < m_itxGeo->GetNSensors()) {
-        TClonesArray* list = (TClonesArray*)fListOfPixels->At(iSensor);
+        TClonesArray* list = (TClonesArray*)m_listOfPixels->At(iSensor);
         return list;
     } else {
         Error("GetListOfPixels()", "Wrong sensor number %d\n", iSensor);
@@ -336,7 +340,7 @@ TClonesArray* TAITntuRaw::GetListOfPixels(int iSensor)    {
 TClonesArray* TAITntuRaw::GetListOfPixels(int iSensor) const  {
 
     if (iSensor >= 0  && iSensor < m_itxGeo->GetNSensors()) {
-        TClonesArray* list = (TClonesArray*)fListOfPixels->At(iSensor);
+        TClonesArray* list = (TClonesArray*)m_listOfPixels->At(iSensor);
         return list;
     } else {
         Error("GetListOfPixels()", "Wrong sensor number %d\n", iSensor);
@@ -353,15 +357,15 @@ TClonesArray* TAITntuRaw::GetListOfPixels(int iSensor) const  {
 //! Setup clones.
 void TAITntuRaw::SetupClones()
 {
-   if (fListOfPixels) return;
-   fListOfPixels = new TObjArray( m_itxGeo->GetNSensors() );
+   if (m_listOfPixels) return;
+   m_listOfPixels = new TObjArray( m_itxGeo->GetNSensors() );
    
    for (Int_t i = 0; i < m_itxGeo->GetNSensors(); ++i) {
       TClonesArray* arr = new TClonesArray("TAITntuHit", 500);
       arr->SetOwner(true);
-      fListOfPixels->AddAt(arr, i);
+      m_listOfPixels->AddAt(arr, i);
    }
-   fListOfPixels->SetOwner(true);
+   m_listOfPixels->SetOwner(true);
 }
 
 

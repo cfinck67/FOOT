@@ -30,7 +30,7 @@ class TAITntuRaw : public TAGdata {
    
 private:
 	//using TObjArray here
-	TObjArray*        fListOfPixels; 
+	TObjArray*        m_listOfPixels; 
 	// static TString    fgkBranchName;    // Branch name in TTree
 	
 

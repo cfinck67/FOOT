@@ -8,7 +8,7 @@ LightSabre::LightSabre() {
 
   vector<string> checkTic = { "coordinates", "material"};
   for ( unsigned int i=0; i<checkTic.size(); i++ ) {
-    m_readyCheck[ checkTic.at(i) ] = false;
+	m_readyCheck[ checkTic.at(i) ] = false;
   }
 
   m_origin = TVector3( 0, 0, 0 );
@@ -46,44 +46,44 @@ void LightSabre::SetBar( TVector3 acenter, TVector3 adimension,
 			 TVector3 aeuler
 			 ) {
 
-  m_center = acenter;
-  m_dimension = adimension;
-  m_halfLength = 0.5 * m_dimension;
-  // m_nLayer = nlayer;
-  // m_nBar = nbar;
-  // double deg2rad = (TMath::Pi())/2.;
-  m_tilt_eulerAngle = aeuler;
+	m_center = acenter;
+	m_dimension = adimension;
+	m_halfLength = 0.5 * m_dimension;
+	// m_nLayer = nlayer;
+	// m_nBar = nbar;
+	// double deg2rad = (TMath::Pi())/2.;
+	m_tilt_eulerAngle = aeuler;
 
-  m_barDistance_X = bar_StepX;
-  m_barDistance_Y = bar_StepY;
-  m_barDistance_Z = bar_StepZ;
+	m_barDistance_X = bar_StepX;
+	m_barDistance_Y = bar_StepY;
+	m_barDistance_Z = bar_StepZ;
 
-  // define rotation matrix - local to global
-  m_rotation = new TRotation();
-  m_rotation->SetYEulerAngles( m_tilt_eulerAngle.x(), m_tilt_eulerAngle.y(), m_tilt_eulerAngle.z() );
+	// define rotation matrix - local to global
+	m_rotation = new TRotation();
+	m_rotation->SetYEulerAngles( m_tilt_eulerAngle.x(), m_tilt_eulerAngle.y(), m_tilt_eulerAngle.z() );
 
-  if ( !m_readyCheck["material"] ) {
-    cout << "LightSabre::SetSensor :: ERROR >> Set the bar material BEFORE the coordinates!" << endl;
-    exit(0);
-  }
+	if ( !m_readyCheck["material"] ) {
+		cout << "LightSabre::SetSensor :: ERROR >> Set the bar material BEFORE the coordinates!" << endl;
+		exit(0);
+	}
 
-  // box == region
-  m_name = m_regionName;
+	// box == region
+	m_name = m_regionName;
 
-  // check if the material of the box is defined
-  if ( !gGeoManager->GetMedium( m_materialName.c_str() ) ) 
-    cout << "ERROR >> FootBox::FootBox  :  Material " << m_materialName << " not defined in gGeoManager for the region " << m_regionName, exit(0);
+	// check if the material of the box is defined
+	if ( !gGeoManager->GetMedium( m_materialName.c_str() ) ) 
+		cout << "ERROR >> FootBox::FootBox  :  Material " << m_materialName << " not defined in gGeoManager for the region " << m_regionName, exit(0);
 
-  // if the volume of the box is NOT defined  -->  define it
-  if ( !gGeoManager->GetVolume( m_materialRegionName.c_str() ) ) {
-    TGeoVolume *rootVolume = gGeoManager->MakeBox( m_materialRegionName.c_str(), gGeoManager->GetMedium( m_materialName.c_str() ),
-						   m_dimension.X()/2, m_dimension.Y()/2, m_dimension.Z()/2); 
-    rootVolume->SetLineColor(kOrange);
+	// if the volume of the box is NOT defined  -->  define it
+	if ( !gGeoManager->GetVolume( m_materialRegionName.c_str() ) ) {
+		TGeoVolume *rootVolume = gGeoManager->MakeBox( m_materialRegionName.c_str(), gGeoManager->GetMedium( m_materialName.c_str() ),
+							   m_dimension.X()/2, m_dimension.Y()/2, m_dimension.Z()/2); 
+		rootVolume->SetLineColor(kOrange);
 
-   }
+	}
 
 
-  m_readyCheck["coordinates"] = true;
+	  m_readyCheck["coordinates"] = true;
 
 }
 
@@ -111,9 +111,10 @@ void LightSabre::SetBar( TVector3 acenter, TVector3 adimension,
 
 //_____________________________________________________________________________
 TVector3 LightSabre::GetPosition() { 
-    TVector3 pos (m_center);
-    Local2Global(&pos);
-    return pos;
+	// TVector3 pos (m_center);
+	TVector3 pos (m_origin);
+	Local2Global(&pos);
+	return pos;
 }
 
 

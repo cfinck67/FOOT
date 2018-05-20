@@ -37,7 +37,6 @@ TATW_ContainerPoint::TATW_ContainerPoint()
 : TAGdata(),
   m_listOfPoints(0x0)
 {
-	m_pointVector.clear();
 	m_twGeo = (TATWparGeo*) gTAGroot->FindParaDsc("twGeo", "TATWparGeo")->Object();
 	SetupClones();
 }
@@ -49,7 +48,9 @@ TATW_ContainerPoint::TATW_ContainerPoint()
 //------------------------------------------+-----------------------------------
 //! Destructor.
 TATW_ContainerPoint::~TATW_ContainerPoint() {
-   delete m_listOfPoints;
+	delete m_listOfPoints;
+	m_pointVector.clear();
+	m_degeneratePointMap.clear();
 }
 
 
@@ -62,35 +63,30 @@ TATW_ContainerPoint::~TATW_ContainerPoint() {
 //  standard 
 TATW_Point* TATW_ContainerPoint::NewPoint( int iCol, TATW_Hit* colHit, int iRow, TATW_Hit* rowHit ) {
 
-	
 	// check on aorigin
 	TClonesArray &pixelArray = *m_listOfPoints;
 	TATW_Point* pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TATW_Point( iCol, colHit, iRow, rowHit );
 
-	int mask = AlgoColRow( iCol, iRow );
+	int mask = AlgoColRow( colHit->GetBar(), rowHit->GetBar() );
 
 	// fill DegeneratePoint map
 	if ( m_degeneratePointMap.find( mask ) == m_degeneratePointMap.end() ) {	// if element doesn't exist
-		
 		// m_degeneratePointMap[mask].SetPrimaryPoint( pixel );
 		m_degeneratePointMap[mask].primaryPoint = pixel;
 		m_pointVector.push_back( mask );
 
 	}
 	else if ( !pixel->IsTrueGhost() ) {
-		
 		// m_degeneratePointMap[mask].SetPrimaryPoint( pixel );
 		m_degeneratePointMap[mask].primaryPoint = pixel;
 
 	}
-
 	// m_degeneratePointMap[mask].AddPoint( pixel );
 	m_degeneratePointMap[mask].allPoints.push_back( pixel );
 
 	return pixel;
-
-
 }
+
 
 
 
@@ -191,6 +187,8 @@ void TATW_ContainerPoint::Clear(Option_t*) {
 	m_listOfPoints->Delete();   
 	m_listOfPoints->Clear();
 	// m_listOfPoints->Clear("C");
+	m_pointVector.clear();
+	m_degeneratePointMap.clear();
 }
 
 

@@ -68,6 +68,7 @@ public:
 	vector<int> m_pointVector;
 	map<int, DegeneratePoint> m_degeneratePointMap;
 
+
 	TATW_ContainerPoint();
 	virtual ~TATW_ContainerPoint();
 	

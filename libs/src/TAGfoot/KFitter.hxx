@@ -206,7 +206,7 @@ private:
 	ControlPlotsRepository* m_controlPlotter;
 	GlobalTrackRepostory* m_fitTrackCollection;
 
-	TRandom3* m_diceRoll;
+	// TRandom3* m_diceRoll;
 
 
 	//  delete non va fatto il delete perche APPARENTEMENTE gia fatto

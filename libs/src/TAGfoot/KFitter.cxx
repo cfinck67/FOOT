@@ -79,13 +79,13 @@ KFitter::KFitter () {
 void KFitter::IncludeDetectors() {
 
 	// all possible detector and a map with an ID num
-	vector<string> tmp_detName = { "all", "STC", "BM", "TG", "VT", "IT", "MSD", "TW", "CALO" };
+	vector<string> tmp_detName = { "STC", "BM", "TG", "VT", "IT", "MSD", "TW", "CALO" };
 	for (unsigned int i=0; i<tmp_detName.size(); i++)
 		m_detectorID_map[ tmp_detName[i] ] = i;
 
 	// check kalman detectors set in param file are correct
-	// if ( !(GlobalPar::GetPar()->KalSystems().size() == 1 && GlobalPar::GetPar()->KalSystems().at(0) == "all") )	 {
-	if ( GlobalPar::GetPar()->KalSystems().size() != 0 )	 {
+	if ( !(GlobalPar::GetPar()->KalSystems().size() == 1 && GlobalPar::GetPar()->KalSystems().at(0) == "all") )	 {
+	// if ( GlobalPar::GetPar()->KalSystems().size() != 0 )	 {
 		for (unsigned int i=0; i<GlobalPar::GetPar()->KalSystems().size(); i++ ) {
 			if ( m_detectorID_map.find( GlobalPar::GetPar()->KalSystems().at(i) ) == m_detectorID_map.end() ) 
 				cout<< "ERROR::KFitter::KFitter  --> KalSystems parameter not set properly, check befor continue."<< endl, exit(0);
@@ -191,7 +191,7 @@ int KFitter::UploadHitsTW() {
 	
 	// take the ntuple object already filled
 	TATW_ContainerPoint* ntup = (TATW_ContainerPoint*) gTAGroot->FindDataDsc("containerPoint", "TATW_ContainerPoint")->Object();
-	if ( m_debug > 0 )		cout << "N hits read: " << ntup->GetPointN() << endl;
+	if ( m_debug > 0 )		cout << "N point read: " << ntup->GetPointN() << endl;
 
 	// save hits in the collection
 	for (int i = 0; i < ntup->GetPointN(); i++) {
@@ -389,9 +389,10 @@ void KFitter::Prepare4TofWall( Track* fitTrack ) {
         // get pixel coord
         TVector3 hitPos = p_hit->GetPosition_footFrame();
 
-        if ( m_debug > 0 )		cout << "TW hit = col:"<< p_hit->GetColumn() <<" row:"<< p_hit->GetRow() << endl;
-        								// " \n\t\tGEN Type: " << p_hit->m_genPartFLUKAid << 
-        								// "  genID= " << p_hit->m_genPartID << endl;
+        if ( m_debug > 0 )		cout << "TW hit = col:"<< p_hit->GetColumn() <<" row:"<< p_hit->GetRow() << 
+        								" \n\t\tGEN genID: " << p_hit->GetColumnHit()->GetGenPartID() << 
+        								"   flukaID " << p_hit->GetColumnHit()->GetGenParticle()->FlukaID() <<
+        								"  charge= " << p_hit->GetColumnHit()->GetGenParticle()->Chg() << endl;
         // if ( m_debug > 0 )		cout << "Hit " << i;
         if ( m_debug > 0 )		hitPos.Print();
 
@@ -426,6 +427,10 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 	 
 	vector<TAMSDntuHit*> allStripSignals_x; 
 	vector<TAMSDntuHit*> allStripSignals_y; 
+
+	m_MSD_posVectorSmearedHit.clear();
+	m_MSD_momVectorSmearedHit.clear();
+	m_MSD_mass.clear();
     
     for (unsigned int i = 0; i < m_MSD_hitCollection.size(); i++) {
         
@@ -684,7 +689,7 @@ bool KFitter::PrefitRequirements( map< string, vector<AbsMeasurement*> >::iterat
 // categorise the hit depending on the generating particle!
 void KFitter::CategoriseHitsToFit_withTrueInfo() {
 
-	if ( m_debug > 0 )		cout << "KFitter::CategoriseHitsToFit_withTrueInfo()  -  allHitsInMeasurement size = " << m_allHitsInMeasurementFormat.size() << endl;
+	if ( m_debug > 0 )		cout <<endl<< "KFitter::CategoriseHitsToFit_withTrueInfo()  -  allHitsInMeasurement size = " << m_allHitsInMeasurementFormat.size() << endl;
 
 	int flukaID, partID, charge;
 	double mass;
@@ -1054,8 +1059,9 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 			cout << "\t Kalman Pos da State6D = " << KalmanPos.Mag() << "  = Pos " << track->getFittedState(i).getPos().Mag() << endl;
 			// cout << "\t Kalman Pos da State6D = "; KalmanPos.Print();
 			// cout << "\t Kalman Pos Error da State6D = "; KalmanPos_err.Print();
-			cout <<endl<< "\t GenMom = "<< tmpMom.Mag() << endl;
-			// cout <<endl<< "\t MCMom = "<< tmpMom.Mag() <<"     "; tmpMom.Print();
+			cout <<endl<< "\t Gen_Mom = "<< tmp_genMom.Mag() << endl;
+			cout <<endl<< "\t MC_Mom = "<< tmpMom.Mag() <<"     " <<endl; 
+			// tmpMom.Print();
 			cout << "\t Kalman Mom da State6D = "<< KalmanMom.Mag() << "  = Mom " << track->getFittedState(i).getMom().Mag() << endl;
 			// cout << "\t Kalman Mom da State6D = "<< KalmanMom.Mag() <<"    "; KalmanMom.Print();
 			// cout << "\t Kalman Mom Error da State6D = "; KalmanMom_err.Print();

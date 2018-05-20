@@ -20,8 +20,6 @@ ClassImp(TATW_Point) // Description of Single Detector TATW_Point
 //  build a point
 TATW_Point::TATW_Point( int iCol, TATW_Hit* colHit, int iRow, TATW_Hit* rowHit )   {
    
-	// m_position = position;
-
 	m_columnHitID = iCol;
 	m_rowHitID = iRow;
 
@@ -47,8 +45,8 @@ void TATW_Point::Initialise() {
 	m_geometry = (TATWparGeo*) gTAGroot->FindParaDsc("twGeo", "TATWparGeo")->Object();
 
 	// set center position
-	TVector3 position ( m_columnHit->GetHitCoordinate_detectorFrame(), m_rowHit->GetHitCoordinate_detectorFrame(), 
-                        ( m_columnHit->GetHitZ_detectorFrame() + m_rowHit->GetHitZ_detectorFrame() )/2 );
+	m_position = TVector3( m_columnHit->GetHitCoordinate_detectorFrame(), m_rowHit->GetHitCoordinate_detectorFrame(), 
+                        	( m_columnHit->GetHitZ_detectorFrame() + m_rowHit->GetHitZ_detectorFrame() )/2 );
 
 	m_column = m_columnHit->GetBar();
 	m_row = m_rowHit->GetBar();
