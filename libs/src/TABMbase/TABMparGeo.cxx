@@ -86,7 +86,7 @@ void TABMparGeo::InitGeo(){
   //WARNING!!!!! rotations aren't implemented in FLUKA geometry yet
   m_rotation->SetXEulerAngles(0.,0.,0.);//XEulerAngles to adopt the Goldstein convention
   bm_mylar1=TVector3(0.,0.,(BMN_LENGTH+BMN_MYL_THICK)/2.);
-  bm_mylar1=TVector3(0.,0.,-(BMN_LENGTH+BMN_MYL_THICK)/2.);
+  bm_mylar2=TVector3(0.,0.,-(BMN_LENGTH+BMN_MYL_THICK)/2.);
   bm_target=TVector3(TG_X,TG_Y,-BMN_Z+TG_Z+TG_THICK/2.);
   bm_DeltaDch=TVector3(BMN_DELTAX,BMN_DELTAY,BMN_DELTAZ);
   bm_SideDch=TVector3(BMN_WIDTH,BMN_HEIGHT,BMN_LENGTH);

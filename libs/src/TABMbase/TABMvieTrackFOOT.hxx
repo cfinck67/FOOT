@@ -20,13 +20,16 @@ class TABMvieTrackFOOT : public TAGview {
   public:
     //~ explicit        TABMvieTrackFOOT(TAGdataDsc* p_ntutrk=0, TAGdataDsc* p_nturaw=0, TAGparaDsc* p_bmgeo=0);
     explicit        TABMvieTrackFOOT(TABMntuTrack* p_ntutrk=nullptr, TABMntuRaw* p_nturaw=nullptr, TABMparGeo* p_bmgeo=nullptr);
+    //~ explicit        TABMvieTrackFOOT(TABMparGeo* p_bmgeo=nullptr);
     virtual         ~TABMvieTrackFOOT();
 
     virtual char*   GetObjectInfo(Int_t px, Int_t py) const;
     virtual void    ExecuteEvent(Int_t i_event, Int_t i_px, Int_t i_py);
 
     virtual void    Paint(Option_t* option="");
-
+    
+    void SetTrackRaw(TABMntuTrack* p_ntutrk_in, TABMntuRaw* p_nturaw_in);
+    
     ClassDef(TABMvieTrackFOOT,0)
 
   private:

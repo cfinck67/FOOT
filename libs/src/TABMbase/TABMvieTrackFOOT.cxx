@@ -45,12 +45,10 @@ ClassImp(TABMvieTrackFOOT);
   //~ SetTitle("TABMvieTrackFOOT");
 //~ }
 
-TABMvieTrackFOOT::TABMvieTrackFOOT(TABMntuTrack* p_ntutrk_in,
-					     TABMntuRaw* p_nturaw_in,
-					     TABMparGeo* p_bmgeo_in)
-  : p_ntutrk(p_ntutrk_in),
-    p_nturaw(p_nturaw_in),
-    p_bmgeo(p_bmgeo_in)
+//~ TABMvieTrackFOOT::TABMvieTrackFOOT(TABMparGeo* p_bmgeo_in)
+  //~ : p_bmgeo(p_bmgeo_in)
+TABMvieTrackFOOT::TABMvieTrackFOOT(TABMntuTrack* p_ntutrk_in, TABMntuRaw* p_nturaw_in, TABMparGeo* p_bmgeo_in)
+  : p_ntutrk(p_ntutrk_in), p_nturaw(p_nturaw_in), p_bmgeo(p_bmgeo_in)
 {
 
   SetName("TABMvieTrackFOOT");
@@ -89,6 +87,12 @@ void TABMvieTrackFOOT::ExecuteEvent(Int_t i_event, Int_t i_px, Int_t i_py)
 //------------------------------------------+-----------------------------------
 //! Paint.
 
+void SetTrackRaw(TABMntuTrack* p_ntutrk_in, TABMntuRaw* p_nturaw_in){
+  //~ p_ntutrk=p_ntutrk_in;
+  //~ p_nturaw=p_nturaw_in;
+  return;
+}
+
 void TABMvieTrackFOOT::Paint(Option_t* option)
 {
   //~ TABMntuTrack* p_ntutrk  =(TABMntuTrack*) fpNtuTrk->GenerateObject();//penso che non serva più il generate ma il find
@@ -97,7 +101,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
 
   if (IsZombie() || !gPad) return;
 
-  TAttLine attline_black_soli_fat(1, 1, 2); // (col, sty, wid)
+  TAttLine attline_black_soli_fat(1, 1, 2); // (color, style, width)
   TAttLine attline_black_soli_nor(1, 1, 1);
   TAttLine attline_black_dash_nor(1, 2, 1);
   TAttLine attline_black_dot_nor(1, 3, 1);
@@ -105,7 +109,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   TAttLine attline_trk_4(1, 1, 1);	    // (col,sty,wid) = bla,sol,1
   TAttLine attline_trk_3(1, 2, 1);	    // (col,sty,wid) = bla,das,1
 
-  TAttLine attline_hit_u(2, 1, 1);	    // (col,sty,wid) = red,sol,1  use
+  TAttLine attline_hit_u(2, 3, 1);	    // (col,sty,wid) = red,sol,1  use
   TAttLine attline_hit_b(3, 1, 1);	    // (col,sty,wid) = gre,sol,1  bad
   TAttLine attline_hit_m(4, 1, 1);	    // (col,sty,wid) = blu,sol,1  mis
 
@@ -117,7 +121,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   TAttFill attfill_tof_b(3, 1001);	    // (col,sty) = gre, solid  bad
   TAttFill attfill_tof_m(4, 1001);	    // (col,sty) = blu, solid  mis
 
-  TAttText atttext_small_hcvb(21, 0., 1, 83, 10);
+  TAttText atttext_small_hcvb(21, 0., 1, 83, 10);   //allign, angle, color, font, size
   TAttText atttext_small_hcvt(23, 0., 1, 83, 10);
   TAttText atttext_small_hlvc(12, 0., 1, 83, 10);
   TAttText atttext_small_hcvb_v(21, 90., 1, 83, 15);
@@ -127,7 +131,6 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
 
   // BM space frame boundary
   Double_t h_x(0), h_y(0), h_z(0), h_cx(0), h_cy(0), h_cz(0);
-  Double_t BMN_PASSO, BMN_STEP;
   double pversx(0),pversy(0);
   double x_target(0), y_target(0);
   double xch_i, xch_f, ych_i, ych_f;
@@ -140,21 +143,21 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
 
   attline_black_soli_nor.Modify();  
   attfill_box.Modify();
-  gPad->PaintBox(-1.*BMN_WIDTH, -0.5*BMN_LENGTH, +0.*BMN_WIDTH, +0.5*BMN_LENGTH);
-  gPad->PaintText(-0.6*BMN_WIDTH, +0.46*BMN_LENGTH, "TOP VIEW");
+  //~ atttext_small_hcvb.Modify();
+  gPad->PaintBox(-BMN_WIDTH, -0.5*BMN_LENGTH, 0., +0.5*BMN_LENGTH);
+  gPad->PaintText(-BMN_WIDTH+0.2, BMN_LENGTH/2.-0.8, "Top V view (XZ)              Top U view (YZ)");
 
 
   /* Drawing the cells */
   for(int il= 0; il<BMN_NLAY; il++) {
     for(int ic= 0; ic<BMN_NSENSELAY; ic++) {
       //V view, (X,Z)
-      p_bmgeo->GetCellInfo(-1, il, ic, h_x, h_y, h_z, h_cx, h_cy, h_cz);
-
-      //Reverse needed  ATTENZIONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! DA CAPIRE PERCHÈ STA COSA!!!!!!!!!!!!!!!!!!!
-      h_x *= -1;
-
-      attline_black_soli_nor.Modify();  attfill_box.Modify();
-      gPad->PaintBox(-BMN_PASSO+h_x-0.5*BMN_WIDTH, -BMN_STEP+h_z, +BMN_PASSO+h_x-0.5*BMN_WIDTH, +BMN_STEP+h_z);      
+      p_bmgeo->GetCellInfo(-1, il, ic, h_x, h_y, h_z, h_cx, h_cy, h_cz);//(view,plane,id,wirepos_xyz,wiredir_xyz)
+      //~ cout<<"il="<<il<<"  ic="<<ic<<"  hx="<<h_x<<"  h_Y="<<h_y<<"  hz="<<h_z<<"  il="<<il<<"  ic="<<ic<<endl;
+      attline_black_soli_nor.Modify();  
+      attfill_box.Modify();
+      gPad->PaintBox(-BMN_PASSO-h_x-0.5*BMN_WIDTH, -BMN_STEP+h_z , BMN_PASSO-h_x-0.5*BMN_WIDTH , BMN_STEP+h_z);      
+      //~ cout<<"x_min="<<-BMN_PASSO-h_x-0.5*BMN_WIDTH<<"  ymin="<<-BMN_STEP+h_z<<"  xmax="<<-h_x-0.5*BMN_WIDTH+BMN_PASSO<<"  ymax"<<BMN_STEP+h_z<<endl;
     }
   }
   
@@ -168,7 +171,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
     for (Int_t i_t = 0; i_t < i_ntrk; i_t++) {
       TABMntuTrackTr* p_trk = p_ntutrk->Track(i_t);
       sprintf(text,"chi2new :: %lf",p_trk->GetChi2New());
-      gPad->PaintText(-0.6*BMN_WIDTH, +0.42*BMN_LENGTH,text);
+      gPad->PaintText(-0.6*BMN_WIDTH, +0.40*BMN_LENGTH,text);
 
       //~ x_target = p_trk->GetX0();//yun: sono arrivato qua
       //~ y_target = p_trk->GetY0();
@@ -196,12 +199,14 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
       //~ ych_i = y_target + pversy*t_i ;
       //~ ych_f = y_target + pversy*t_f ;
       
-      attline_trk_4.Modify();
+      //~ attline_trk_4.Modify();
 
       //X,Z (view V, TOP view)   
       //(X needs to be reversed SINCE TOP view has x increasing towards left)... ma perchè?
       //~ gPad->PaintLine(-xch_i-0.5*BMN_WIDTH,zmin,-xch_f-0.5*BMN_WIDTH,zmax);
-      gPad->PaintLine(-p_trk->GetMylar1Pos().X(),p_trk->GetMylar1Pos().Z(),-p_trk->GetMylar2Pos().X(),p_trk->GetMylar2Pos().Z());
+      attline_hit_u.Modify();
+      gPad->PaintLine(-p_trk->GetMylar1Pos().X()-BMN_WIDTH/2.,p_trk->GetMylar1Pos().Z(),-p_trk->GetMylar2Pos().X()-BMN_WIDTH/2.,p_trk->GetMylar2Pos().Z());
+      //~ cout<<"zmin="<<p_trk->GetMylar1Pos().Z()<<"  zmax="<<p_trk->GetMylar2Pos().Z()<<endl;
     }//attenzione, ho messo dei meno per la posizione, controllare che vada bene
   }
 
@@ -244,8 +249,8 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
 
   attline_black_soli_nor.Modify();  
   attfill_box.Modify();
-  gPad->PaintBox(-0.*BMN_WIDTH, -0.5*BMN_LENGTH, +1.*BMN_WIDTH, +0.5*BMN_LENGTH);
-  gPad->PaintText(+0.4*BMN_WIDTH, +0.46*BMN_LENGTH, "SIDE VIEW");
+  gPad->PaintBox(0., -0.5*BMN_LENGTH, BMN_WIDTH, +0.5*BMN_LENGTH);
+  //~ gPad->PaintText(0, BMN_LENGTH/2.-1, "Top U view (YZ)");
 
   /* Drawing the cells */
   for(int il= 0; il<BMN_NLAY; il++) {
@@ -296,11 +301,12 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
       //~ ych_i = y_target + pversy*t_i ;
       //~ ych_f = y_target + pversy*t_f ;
       
-      attline_trk_4.Modify();
+      //~ attline_trk_4.Modify();
+      attline_hit_u.Modify();
 
       //Y,Z (view U, Side view)   
       //~ gPad->PaintLine(-ych_i+0.5*BMN_WIDTH,zmin,-ych_f+0.5*BMN_WIDTH,zmax);
-      gPad->PaintLine(p_trk->GetMylar1Pos().Y(),p_trk->GetMylar1Pos().Z(),p_trk->GetMylar2Pos().Y(),p_trk->GetMylar2Pos().Z());
+      gPad->PaintLine(p_trk->GetMylar1Pos().Y()+BMN_WIDTH/2.,p_trk->GetMylar1Pos().Z(),p_trk->GetMylar2Pos().Y()+BMN_WIDTH/2.,p_trk->GetMylar2Pos().Z());
     }
   }
 

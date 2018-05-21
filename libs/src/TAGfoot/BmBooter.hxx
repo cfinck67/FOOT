@@ -57,9 +57,11 @@ TABMparCon* bmcon;
 TABMparGeo* bmgeo;
 TABMntuTrackTr* p_tracktr;
 TABMntuHit* p_hit;
-//~ TAGpadGroup* pg;
+//~ TABMvieTrackFOOT* pbmh_view;
+TAGpadGroup* pg;
 ControlPlotsRepository* m_controlPlotter;//prova
 string bm_outputdir;
+string plot_name;
 
 
 };
