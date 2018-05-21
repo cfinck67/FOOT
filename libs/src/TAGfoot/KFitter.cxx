@@ -11,6 +11,7 @@ KFitter::KFitter () {
 	
     int nIter = 20; // max number of iterations
     double dPVal = 1.E-3; // convergence criterion
+    m_AMU = 0.9310986964; // in GeV // conversion betweem mass in GeV and atomic mass unit
 
 	m_debug = GlobalPar::GetPar()->Debug();
 
@@ -91,7 +92,7 @@ void KFitter::IncludeDetectors() {
 				cout<< "ERROR::KFitter::KFitter  --> KalSystems parameter not set properly, check befor continue."<< endl, exit(0);
 		}
 	}
-	else 		cout<< "ERROR::KFitter::KFitter  --> KalSystems parameter not set properly, zero parameters, check befor continue."<< endl, exit(0);
+	if (GlobalPar::GetPar()->KalSystems().size() == 0)		cout<< "ERROR::KFitter::KFitter  --> KalSystems parameter not set properly, zero parameters, check befor continue."<< endl, exit(0);
 
 	// list of detectors used for kalman
 	m_systemsON = "";  
@@ -317,8 +318,8 @@ void KFitter::Prepare4Vertex( Track* fitTrack ) {
 		double pixReso = GlobalPar::GetPar()->VTReso();
 		hitCov.UnitMatrix();         
 		hitCov *= pixReso*pixReso; 
-		double zErr = 0.02;
-		// double zErr = 0.005;
+		// double zErr = 0.02;
+		double zErr = 0.005;
 		hitCov[2][2] = zErr*zErr; 
 
         // nullptr e' un TrackPoint(fitTrack). Leave like this otherwise it gives memory leak problems!!!!
@@ -699,26 +700,33 @@ void KFitter::CategoriseHitsToFit_withTrueInfo() {
 
 		string outName = "fail";
 
-		if ( flukaID == -2 && charge == 6 &&  round(mass) == 10 )  outName =  "C10";
-		if ( flukaID == -2 && charge == 6 &&  round(mass) == 11 )  outName =  "C11";
-		if ( flukaID == -2 && charge == 6 &&  round(mass) == 12 )  outName =  "C12";
+		if ( flukaID == -2 && charge == 6 )  outName =  "C"  + build_string( round(mass/m_AMU) );
+		if ( flukaID == -2 && charge == 3 )  outName =  "Li" + build_string( round(mass/m_AMU) );
+		if ( flukaID == -2 && charge == 4 )  outName =  "B"  + build_string( round(mass/m_AMU) );
+		if ( flukaID == -2 && charge == 5 )  outName =  "Be" + build_string( round(mass/m_AMU) );
+		if ( flukaID == -2 && charge == 7 )  outName =  "N"  + build_string( round(mass/m_AMU) );
+		if ( flukaID == -2 && charge == 8 )  outName =  "O"  + build_string( round(mass/m_AMU) );
+
+		// if ( flukaID == -2 && charge == 6 &&  round(mass) == 10 )  outName =  "C10";
+		// if ( flukaID == -2 && charge == 6 &&  round(mass) == 11 )  outName =  "C11";
+		// if ( flukaID == -2 && charge == 6 &&  round(mass) == 12 )  outName =  "C12";
 		
-		if ( flukaID == -2 && charge == 3 &&  round(mass) == 6 )  outName =  "Li6";
-		if ( flukaID == -2 && charge == 3 &&  round(mass) == 7 && mass < 7 )  outName =  "Li7";
+		// if ( flukaID == -2 && charge == 3 &&  round(mass) == 6 )  outName =  "Li6";
+		// if ( flukaID == -2 && charge == 3 &&  round(mass) == 7 && mass < 7 )  outName =  "Li7";
 		
-		if ( flukaID == -2 && charge == 4 &&  round(mass) == 7 )  outName =  "B7";
-		if ( flukaID == -2 && charge == 4 &&  round(mass) == 8 )  outName =  "B8";
-		if ( flukaID == -2 && charge == 4 &&  round(mass) == 9 )  outName =  "B9";
+		// if ( flukaID == -2 && charge == 4 &&  round(mass) == 7 )  outName =  "B7";
+		// if ( flukaID == -2 && charge == 4 &&  round(mass) == 8 )  outName =  "B8";
+		// if ( flukaID == -2 && charge == 4 &&  round(mass) == 9 )  outName =  "B9";
 
-		if ( flukaID == -2 && charge == 5 &&  round(mass) == 9 )  outName =  "Be9";
-		if ( flukaID == -2 && charge == 5 &&  round(mass) == 10 )  outName =  "Be10";
+		// if ( flukaID == -2 && charge == 5 &&  round(mass) == 9 )  outName =  "Be9";
+		// if ( flukaID == -2 && charge == 5 &&  round(mass) == 10 )  outName =  "Be10";
 
-		if ( flukaID == -2 && charge == 7 &&  round(mass) == 12 )  outName =  "N12";
-		// if ( flukaID == -2 && charge == 7 &&  round(mass) == 13 )  outName =  "N13";
-		if ( flukaID == -2 && charge == 7 &&  round(mass) == 14 )  outName =  "N14";
+		// if ( flukaID == -2 && charge == 7 &&  round(mass) == 12 )  outName =  "N12";
+		// // if ( flukaID == -2 && charge == 7 &&  round(mass) == 13 )  outName =  "N13";
+		// if ( flukaID == -2 && charge == 7 &&  round(mass) == 14 )  outName =  "N14";
 
-		if ( flukaID == -2 && charge == 8 &&  round(mass) == 15 )  outName =  "O15";
-		if ( flukaID == -2 && charge == 8 &&  round(mass) == 16 )  outName =  "O16";
+		// if ( flukaID == -2 && charge == 8 &&  round(mass) == 15 )  outName =  "O15";
+		// if ( flukaID == -2 && charge == 8 &&  round(mass) == 16 )  outName =  "O16";
 
 		if ( flukaID == -6 && charge == 2 )  outName =  "Alpha";
 		if ( flukaID == 1 && charge == 1 )  outName =  "H";
@@ -839,7 +847,7 @@ int KFitter::MakeFit( long evNum ) {
 		if ( m_debug > 0 )	{	
 			// check if the category is defined in UpdatePDG  -->  also done in GetPdgCode()
 			if ( !UpdatePDG::GetPDG()->IsParticleDefined( (*hitSample).first ) )
-				cout << "ERROR :: KFitter::MakeFit  -->	 in UpdatePDG not found the category " << (*hitSample).first << endl;
+				cout << "ERROR :: KFitter::MakeFit  -->	 in UpdatePDG not found the category " << (*hitSample).first << endl, exit(0);
 			cout << "\tCategory under fit  =  " << (*hitSample).first << " of size "<< (*hitSample).second.size() << endl;
 		}
 

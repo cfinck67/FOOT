@@ -22,6 +22,9 @@
 
 #include <FieldManager.h>
 
+#include "foot_geo.h"
+#include "GlobalPar.hxx"
+
 class TGeoHMatrix;
 class TGeoVolume;
 //##############################################################################
@@ -38,19 +41,7 @@ public:
 
     TAMSDparGeo();
     TAMSDparGeo( TAMSDparGeo* original );
-    virtual ~TAMSDparGeo() {
-      // sensor matrix
-      for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
-        for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
-            for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
-                delete (*itZ);
-            }
-            (*itY).clear();
-        }
-        (*itX).clear();
-      }
-      m_sensorMatrix.clear();
-    };
+    virtual ~TAMSDparGeo();
 
     void InitGeo();
     void InitMaterial();

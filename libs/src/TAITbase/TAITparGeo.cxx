@@ -415,6 +415,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
 	// create the universe volume
 	if ( GlobalPar::GetPar()->geoROOT() ) {
 		m_universe = gGeoManager->MakeBox("ITuniverse",gGeoManager->GetMedium("AIR"),m_dimension.x()/2,m_dimension.y()/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
+		m_universe->SetLineColor(kCyan);
 		gGeoManager->SetTopVisible(1);
 	}
 

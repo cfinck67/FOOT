@@ -226,7 +226,9 @@ void TAVTparGeo::InitGeo()  {
     // create the universe volume
     if ( GlobalPar::GetPar()->geoROOT() ) {
         m_universe = gGeoManager->MakeBox("VTXuniverse",gGeoManager->GetMedium("AIR"),m_dimension.x()/2,m_dimension.y()/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
-        gGeoManager->SetTopVisible(1);
+        m_universe->SetLineColor(kGreen);
+        m_universe->SetVisibility(kTRUE);
+        gGeoManager->SetTopVisible(10);
     }
 
 //---------------------------------------------------------------------
@@ -253,7 +255,7 @@ void TAVTparGeo::InitGeo()  {
                     if ( !gGeoManager->GetVolume( m_passiveMatrix[k][i][j]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_passiveMatrix[k][i][j]->GetMaterialRegionName() << endl;
 
                     TVector3 globalCoord = m_passiveMatrix[k][i][j]->GetPosition();
-                    // Local2Global(&globalCoord);
+                    Local2Global(&globalCoord);
                     m_universe->AddNode( gGeoManager->GetVolume( m_passiveMatrix[k][i][j]->GetMaterialRegionName().c_str() ), 
                                         m_passiveMatrix[k][i][j]->GetNodeID() , 
                                         new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 

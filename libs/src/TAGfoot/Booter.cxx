@@ -166,18 +166,17 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     MaterialEffects* materialEffects = MaterialEffects::getInstance();
     materialEffects->init(new TGeoMaterialInterface());
 
-    //--- close the geometry
-    // gGeoManager->CloseGeometry();
-
     //--- draw the ROOT box
-    gGeoManager->SetVisLevel(10);
     GeoPrint();
 
     // Initialisation of KFfitter
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init!" << endl;
     m_kFitter = new KFitter();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
-    
+    // // cluster test  -  myn_vtclus
+    // pos2D = new TH2F( "pos2D", "pos2D", 500, -4, 4 , 500, -4, 4 );
+    // pos2D = new TH2F( "pos2D", "pos2D", 500, -1, 1 , 500, -1, 1 );
+
 }
 
 
@@ -194,10 +193,7 @@ void Booter::Process( Long64_t jentry ) {
             MonitorBMNew(jentry); // Yun
     }
 
-    // //to be moved to framework
-    // if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeInnerTracker() )
-    //     AssociateHitsToParticle();
-
+    
 
     // start time
     start_kal = clock();
@@ -228,7 +224,7 @@ void Booter::Process( Long64_t jentry ) {
     //         cout << "Cluster Test :: cluster number = " << ntup->GetClustersN(nSensor) << " and sensorID = " << ntup->GetCluster( nSensor, nPx )->GetSensorID() << endl;
     //         TClonesArray* arra = ntup->GetCluster( nSensor, nPx )->GetListOfPixels();
     //         for ( int n=0; n<arra->GetEntries(); n++ ) {
-    //             TVector3 vPos = ( (TAVTntuHit*) arra->At(n) )->GetPosition();
+    //             TVector3 vPos = ( (TAVTntuHit*) arra->At(n) )->GetPixelPosition_footFrame();
     //             if ( nSensor == 0 )
     //                 pos2D->Fill( vPos.x(), vPos.y() );
     //         }
@@ -236,9 +232,31 @@ void Booter::Process( Long64_t jentry ) {
     // }
 
 
-        // stop time
-        end_kal = clock();
-        m_tempo_kal+=(double)(end_kal-start_kal);
+    // cluster test  -  myn_vtclus
+    // // TAVTntuCluster* ntup = (TAVTntuCluster*)myn_vtclus->Object();
+    // TAITntuCluster* ntup = (TAITntuCluster*) gTAGroot->FindDataDsc("itClus", "TAITntuCluster")->Object();
+    // // for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {   // over all sensors
+
+    // for (int nSensor = 0; nSensor < 32; nSensor++) {   // over all sensors
+    //     // if ( m_debug > 0 )      
+    //     cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetClustersN( nSensor ) << endl;
+
+    //     for (int nPx = 0; nPx < ntup->GetClustersN( nSensor ); nPx++)  {     // over all pixels for each sensor
+    //         cout << "Cluster Test :: cluster number = " << ntup->GetClustersN(nSensor) << " and sensorID = " << ntup->GetCluster( nSensor, nPx )->GetSensorID() << endl;
+    //         TClonesArray* arra = ntup->GetCluster( nSensor, nPx )->GetListOfPixels();
+    //         for ( int n=0; n<arra->GetEntries(); n++ ) {
+    //             TVector3 vPos = ( (TAITntuHit*) arra->At(n) )->GetPixelPosition_footFrame();
+    //             if ( nSensor < 16 )
+    //                 pos2D->Fill( vPos.x(), vPos.y() );
+    //         }
+    //     }
+    // }
+
+
+
+    // stop time
+    end_kal = clock();
+    m_tempo_kal+=(double)(end_kal-start_kal);
 
 }
 
@@ -250,7 +268,7 @@ void Booter::Process( Long64_t jentry ) {
 //------------------------------------------------------------------------------
 void Booter::Finalize() {
 
-    // cluster test
+    // // cluster test
     // TCanvas* quadrante = new TCanvas( "q","q", 1000, 800 );
     // pos2D->Draw("colz");
     // quadrante->SaveAs("cluster.png");
@@ -326,14 +344,23 @@ void Booter::MagFieldTest() {
 //------------------------------------------------------------------------------
 void Booter::GeoPrint() {
 
+    //--- close the geometry
+    gGeoManager->CloseGeometry();
+
+    //--- draw the ROOT box
+    gGeoManager->SetVisLevel(10);
+
     // save an image of the foot geometry
     //top->Draw("ogl");
     TCanvas* mirror = new TCanvas("footGeometry", "footGeometry",  700, 700);
+    // gGeoManager->GetMasterVolume()->Draw();
+    // top->Draw("");
     top->Draw("ap");
     mirror->SaveAs("footGeometry.png");
     mirror->SaveAs("footGeometry.root");
 
     
+
     // save the geometry info in .root
     TFile *outfile = TFile::Open("genfitGeomFOOT.root","RECREATE");
     gGeoManager->Write();
@@ -524,8 +551,10 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
 
     myp_vtgeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());  // put fist!!!!!!!
     ((TAVTparGeo*) myp_vtgeo->Object())->InitGeo();
+    // TVector3 transf (0,0,0);    ((TAVTparGeo*) myp_vtgeo->Object())->Local2Global( &transf );
+    // top->AddNode( ((TAVTparGeo*) myp_vtgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( transf.x(),transf.y(),transf.z(),new TGeoRotation("Vertex",0,0,0)) );
     top->AddNode( ((TAVTparGeo*) myp_vtgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0,0,0,new TGeoRotation("Vertex",0,0,0)) );
-
+    
     /*Ntupling the MC Vertex information*/
     myn_vtraw    = new TAGdataDsc("vtRaw", new TAVTntuRaw());
     myn_vtclus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
@@ -560,15 +589,18 @@ void Booter::FillMCInnerTracker(EVENT_STRUCT *myStr) {
 
     myp_itgeo    = new TAGparaDsc("itGeo", new TAITparGeo());
     ((TAITparGeo*) myp_itgeo->Object())->InitGeo();
+    // TVector3 transf (0,0,0);    ((TAITparGeo*) myp_itgeo->Object())->Local2Global( &transf );
+    // top->AddNode( ((TAITparGeo*) myp_itgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( transf.x(),transf.y(),transf.z(), new TGeoRotation("InnerTracker",0,0,0)) );
+    top->AddNode( ((TAITparGeo*) myp_itgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("InnerTracker",0,0,0)) );
+
     // ((TAITparGeo*) myp_itgeo->Object())->PrintBodies("geppo");
     // ((TAITparGeo*) myp_itgeo->Object())->PrintRegions("geppo");
     // ((TAITparGeo*) myp_itgeo->Object())->PrintAssignMaterial("geppo");
-    top->AddNode( ((TAITparGeo*) myp_itgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("InnerTracker",0,0,0)) );
 
-
+    
     /*Ntupling the MC Vertex information*/
     myn_itraw    = new TAGdataDsc("itRaw", new TAITntuRaw());
-    // myn_itclus   = new TAGdataDsc("itClus", new TAITntuCluster());
+    myn_itclus   = new TAGdataDsc("itClus", new TAITntuCluster());
 
     myp_itmap    = new TAGparaDsc("itMap", new TAITparMap());
 
@@ -579,8 +611,10 @@ void Booter::FillMCInnerTracker(EVENT_STRUCT *myStr) {
     parconf->FromFile(filename.Data());
 
     mya_itraw   = new TAITactNtuMC("itActRaw", myn_itraw, myp_itgeo, myp_itmap, myStr);
+    mya_itclus = new TAITactNtuClusterF("itActCluster", myn_itraw, myn_itclus, myp_itconf, myp_itgeo, "mc_cluster");
 
     gTAGroot->AddRequiredItem("itRaw");
+    gTAGroot->AddRequiredItem("itClus");
 
 }
 
@@ -595,8 +629,9 @@ void Booter::FillMCMSD(EVENT_STRUCT *myStr) {
 
     myp_msdgeo    = new TAGparaDsc("msdGeo", new TAMSDparGeo());
     ((TAMSDparGeo*) myp_msdgeo->Object())->InitGeo();
+    // TVector3 transf (0,0,0);    ((TAMSDparGeo*) myp_msdgeo->Object())->Local2Global( &transf );
+    // top->AddNode( ((TAMSDparGeo*) myp_msdgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( transf.x(),transf.y(),transf.z(), new TGeoRotation("Strip",0,0,0)) );
     top->AddNode( ((TAMSDparGeo*) myp_msdgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("Strip",0,0,0)) );
-
 
     /*Ntupling the MC Vertex information*/
     myn_msdraw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
@@ -625,6 +660,8 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
 
     myp_twgeo    = new TAGparaDsc("twGeo", new TATWparGeo());
     ((TATWparGeo*) myp_twgeo->Object())->InitGeo();
+    // TVector3 transf (0,0,0);    ((TATWparGeo*) myp_twgeo->Object())->Local2Global( &transf );
+    // top->AddNode( ((TATWparGeo*) myp_twgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( transf.x(),transf.y(),transf.z(), new TGeoRotation("Scint",0,0,0)) );
     top->AddNode( ((TATWparGeo*) myp_twgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
 
     /*Ntupling the MC Tof Wall information*/

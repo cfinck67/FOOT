@@ -18,8 +18,8 @@
 // #include "TATWparMap.hxx"
 #include "TATWparGeo.hxx"
 
-#include "foot_geo.h"
-#include "GlobalPar.hxx"
+// #include "foot_geo.h"
+// #include "GlobalPar.hxx"
 
 
 
@@ -65,7 +65,7 @@ TATWparGeo::TATWparGeo( TATWparGeo* original ) :
   m_nLayer (original->m_nLayer),
   m_NBar (original->m_NBar),
 
-  m_barThick_Lz(original->m_barThick_Lz),
+  m_dimensionBar(original->m_dimensionBar),
   m_layerDistance(original->m_layerDistance){	
 
   // m_materialThick(original->m_materialThick),
@@ -103,49 +103,34 @@ void TATWparGeo::InitGeo()  {
 	//---------------------------------------------------------------------
 
 	m_layerDistance = 0.;      // from center to center
-	m_barThick_Lz =SCN_BAR_THICK;        // ONLY plastic scint
-
-	double barShortDim =  SCN_BAR_WIDTH ; // = 2 cm
-	double barLongDim =  SCN_BAR_HEIGHT; // = 44 cm
-
-	// set detector dimension
-	double length_Lz = m_barThick_Lz*2. + m_layerDistance; // from edge to edge
+	
 	//V13 m_dimension = TVector3( SCN_WIDTH, SCN_HEIGHT, length_Lz );
-	m_dimension = TVector3( barLongDim, barLongDim, length_Lz );
+	m_dimensionBar = TVector3( SCN_BAR_WIDTH, SCN_BAR_HEIGHT, SCN_BAR_THICK );;   // ( shorter dim (2 cm), longer dim (44 cm), z dim )
+	
+	// set detector dimension
+	double length_Lz = m_dimensionBar.z()*2. + m_layerDistance; // from edge to edge
+	m_dimension = TVector3( m_dimensionBar.y(), m_dimensionBar.y(), length_Lz );
+
 
 	//---------------------------------------------------------------------
 	//     Init BAR geometry
 	//---------------------------------------------------------------------
 	if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SCINT BAR geometry " << endl;
 	double barDistance = 0;
-	double barXdim=-1000., barYdim=-1000.;
 	double bar_newX=-1000., bar_newY=-1000., bar_newZ=-1000.;
-
-	// evaluate sensor dimension 
-	// double barXdim;// = SCN_BAR_WIDTH;	// 2 cm
-	// double barYdim;// = SCN_BAR_HEIGHT;	// 44 cm
 
 	// fill sensor matrix
 	double coord_x = m_origin.X() - m_dimension.x()/2.; 	// x coordinate of the bar center in layer 0
 	double coord_y = m_origin.y() - m_dimension.y()/2.;		// y coordinate of the bar center in layer 1
 	for (int k=0; k<m_nLayer; k++) {
-		bar_newZ = m_origin.Z() - m_dimension.z()/2. + (k+0.5)*m_barThick_Lz + k*m_layerDistance;
-		// if(k==0) {
-		  // barXdim = barShortDim;
-		  // barYdim = barLongDim;
-		//   }else if (k==1){
-		//     barXdim = barLongDim;
-		//     barYdim = barShortDim;
-		//   }
-		barXdim = ( k == 0 ? barShortDim : barLongDim );
-		barYdim = ( k == 0 ? barLongDim : barShortDim );
-
+		bar_newZ = m_origin.Z() - m_dimension.z()/2. + (k+0.5)*m_dimensionBar.z() + k*m_layerDistance;
+		
 		//prima lungo y poi lungo x
 		// for (int i=0; i<m_nBar; i++) {
 		for (int j=0; j<m_nBar; j++) {
-		  bar_newX = ( k == 0 ? ( coord_x + (0.5+j)*barShortDim ) : m_origin.x() );
+		  bar_newX = ( k == 0 ? ( coord_x + (0.5+j)*m_dimensionBar.x() ) : m_origin.x() );
 		  
-		  bar_newY = ( k == 1 ? ( coord_y + (0.5+j)*barShortDim ) : m_origin.y() );
+		  bar_newY = ( k == 1 ? ( coord_y + (0.5+j)*m_dimensionBar.x() ) : m_origin.y() );
 
 		  stringstream ss_bodyBarName; ss_bodyBarName << "scn" << k << setw(2) << setfill('0') << j;
 		  stringstream ss_regionBarName; ss_regionBarName << "SCN" << k << setw(2) << setfill('0') << j;
@@ -155,8 +140,7 @@ void TATWparGeo::InitGeo()  {
 		  m_barMatrix[k][j]->SetMaterial( (string)SCN_MEDIUM, "SCN_MEDIUM", ss_bodyBarName.str(), ss_regionBarName.str(), m_volumeCount );
 
 		  m_barMatrix[k][j]->SetBar( TVector3( bar_newX, bar_newY, bar_newZ),  // bar center
-				 TVector3( barShortDim, barLongDim, m_barThick_Lz),    // bar dimension
-				 // TVector3( barXdim, barYdim, m_barThick_Lz),    // bar dimension
+				 m_dimensionBar,    // bar dimension
 				 barDistance, barDistance, m_layerDistance,
 				 TVector3( (k*TMath::Pi()*0.5),0,0 )
 				 );
@@ -174,6 +158,7 @@ void TATWparGeo::InitGeo()  {
   // create the detector universe volume
   if ( GlobalPar::GetPar()->geoROOT() ) {
 	m_universe = gGeoManager->MakeBox("TWuniverse",gGeoManager->GetMedium("AIR"),m_dimension.x()/2.,m_dimension.y()/2.,m_dimension.z()/2.); 
+	m_universe->SetLineColor(kRed);
 	gGeoManager->SetTopVisible(1);
   }
 

@@ -21,11 +21,11 @@
 
 #include "TAGgeoTrafo.hxx" 
 
-#include "TAMSDparMap.hxx"
+// #include "TAMSDparMap.hxx"
 #include "TAMSDparGeo.hxx"
 
-#include "foot_geo.h"
-#include "GlobalPar.hxx"
+// #include "foot_geo.h"
+// #include "GlobalPar.hxx"
 
 
 
@@ -44,6 +44,22 @@ TAMSDparGeo::TAMSDparGeo() {
 
 };
 
+
+
+//_____________________________________________________________________________
+TAMSDparGeo::~TAMSDparGeo() {
+    // sensor matrix
+    for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
+        for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+            for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+                delete (*itZ);
+            }
+            (*itY).clear();
+        }
+        (*itX).clear();
+    }
+    m_sensorMatrix.clear();
+}
 
 
 
@@ -198,6 +214,7 @@ void TAMSDparGeo::InitGeo()  {
     // create the universe volume
     if ( GlobalPar::GetPar()->geoROOT() ) {
         m_universe = gGeoManager->MakeBox("MSDuniverse",gGeoManager->GetMedium("AIR"),m_dimension.x()/2,m_dimension.y()/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
+        m_universe->SetLineColor(kRed);
         gGeoManager->SetTopVisible(1);
     }
 

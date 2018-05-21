@@ -129,9 +129,8 @@ class TAITntuCluster : public TAGdata {
    
 private:
    TObjArray*         fListOfClusters; 
-
-private:   
    static TString    fgkBranchName;    // Branch name in TTree
+   TAITparGeo* m_geometry;
 
 public:
    TAITntuCluster();
@@ -153,7 +152,6 @@ public:
    
    virtual void       ToStream(ostream& os=cout, Option_t* option="") const;
    
-public:
    static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
 
    ClassDef(TAITntuCluster,1)

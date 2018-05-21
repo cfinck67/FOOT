@@ -129,9 +129,8 @@ class TAVTntuCluster : public TAGdata {
    
 private:
    TObjArray*         fListOfClusters; 
-
-private:   
    static TString    fgkBranchName;    // Branch name in TTree
+   TAVTparGeo* m_geometry;
 
 public:
    TAVTntuCluster();
@@ -153,7 +152,6 @@ public:
    
    virtual void       ToStream(ostream& os=cout, Option_t* option="") const;
    
-public:
    static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
 
    ClassDef(TAVTntuCluster,1)

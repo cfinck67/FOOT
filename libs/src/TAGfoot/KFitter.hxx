@@ -243,6 +243,8 @@ private:
 	string m_systemsON;
 	string m_kalmanOutputDir;
 
+	double m_AMU; // conversion betweem mass in GeV and atomic mass unit
+	
 	int m_debug;
 
 	long m_evNum;

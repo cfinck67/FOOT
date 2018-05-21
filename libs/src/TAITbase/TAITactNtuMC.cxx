@@ -212,7 +212,7 @@ bool TAITactNtuMC::Action()   {
 
         // // Digitization test
         // for ( int io=-10; io<10; io++ ) {
-        //     if (myTrow+io < ) ..........
+        //     // if (myTrow+io < ) ..........
         //     for ( int jo=-10; jo<10; jo++ ) {
         //         pNtuRaw->NewPixel(sensorId, 1., myTrow+io, myTcol+jo, "mc_cluster", pixel );
         //     }
@@ -315,6 +315,7 @@ void TAITactNtuMC::SetMCinfo(TAITntuHit* pixel, int hitId) {
             
     if ( GlobalPar::GetPar()->Debug() > 0 )     {
         cout << "InnerTracker pixel " << hitId << " col " << pixel->GetPixelColumn() << " row "<< pixel->GetPixelLine() << endl;
+        cout << "\tpixel global pos = ";    pixel->GetPixelPosition_footFrame().Print();
         cout << "\tGlobal kinematic: \n\t\tPos:\t"; 
         MCpos.Print();
         cout << "\t\tMom:\t";

@@ -4,7 +4,7 @@
 //                                                        //
 ////////////////////////////////////////////////////////////
 
-#include "TAVTparMap.hxx"
+
 #include "TAVTntuCluster.hxx"
 #include "TAVTntuTrack.hxx"
 
@@ -239,6 +239,7 @@ TAVTntuCluster::TAVTntuCluster()
   fListOfClusters(0x0)
 {
    cout << "TAVTntuCluster::TAVTntuCluster()" << endl;
+   m_geometry = (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object();
    SetupClones();
 }
 
@@ -253,7 +254,7 @@ TAVTntuCluster::~TAVTntuCluster()
 //! return number of clusters
 Int_t TAVTntuCluster::GetClustersN(Int_t iSensor) const
 {
-   if (iSensor >= 0  || iSensor < TAVTparMap::GetSensorsN()) {
+   if (iSensor >= 0  && iSensor < m_geometry->GetNSensors()) {
 	  TClonesArray*list = GetListOfClusters(iSensor);
 	  return list->GetEntries();   
    } else 
@@ -264,7 +265,7 @@ Int_t TAVTntuCluster::GetClustersN(Int_t iSensor) const
 //! return number of clusters
 TClonesArray* TAVTntuCluster::GetListOfClusters(Int_t iSensor)
 {
-   if (iSensor >= 0  || iSensor < TAVTparMap::GetSensorsN()) {
+   if (iSensor >= 0  && iSensor < m_geometry->GetNSensors()) {
 	  TClonesArray* list = (TClonesArray*)fListOfClusters->At(iSensor);
 	  return list;
    } else 
@@ -275,7 +276,7 @@ TClonesArray* TAVTntuCluster::GetListOfClusters(Int_t iSensor)
 //! return number of clusters
 TClonesArray* TAVTntuCluster::GetListOfClusters(Int_t iSensor) const
 {
-   if (iSensor >= 0  || iSensor < TAVTparMap::GetSensorsN()) {
+   if (iSensor >= 0  && iSensor < m_geometry->GetNSensors()) {
 	  TClonesArray* list = (TClonesArray*)fListOfClusters->At(iSensor);
 	  return list;
 	  
@@ -287,7 +288,7 @@ TClonesArray* TAVTntuCluster::GetListOfClusters(Int_t iSensor) const
 //! return a cluster
 TAVTcluster* TAVTntuCluster::GetCluster(Int_t iSensor, Int_t iCluster)
 {
-   if (iCluster >=0 || iCluster < GetClustersN(iSensor)) {
+   if (iCluster >=0 && iCluster < GetClustersN(iSensor)) {
 	  TClonesArray* list = GetListOfClusters(iSensor);
 	  return (TAVTcluster*)list->At(iCluster);
    } else
@@ -298,7 +299,7 @@ TAVTcluster* TAVTntuCluster::GetCluster(Int_t iSensor, Int_t iCluster)
 //! return a pixel for a given sensor
 const TAVTcluster* TAVTntuCluster::GetCluster(Int_t iSensor, Int_t iCluster) const
 {
-   if (iCluster >=0 || iCluster < GetClustersN(iSensor)) {
+   if (iCluster >=0 && iCluster < GetClustersN(iSensor)) {
 	  TClonesArray* list = GetListOfClusters(iSensor);
 	  return (TAVTcluster*)list->At(iCluster);
    } else
@@ -307,12 +308,13 @@ const TAVTcluster* TAVTntuCluster::GetCluster(Int_t iSensor, Int_t iCluster) con
 
 //------------------------------------------+-----------------------------------
 //! Setup clones.
-void TAVTntuCluster::SetupClones()
-{
+void TAVTntuCluster::SetupClones()  {
+   
    if (fListOfClusters) return;
-   fListOfClusters    = new TObjArray();
-   for (Int_t i = 0; i < TAVTparMap::GetSensorsN(); ++i) {
-	  TClonesArray* arr = new TClonesArray("TAVTcluster");
+   fListOfClusters    = new TObjArray( m_geometry->GetNSensors() );
+
+   for (Int_t i = 0; i < m_geometry->GetNSensors(); ++i) {
+	  TClonesArray* arr = new TClonesArray("TAVTcluster", 500);
 	  arr->SetOwner(true);
 	  fListOfClusters->AddAt(arr, i);
    }
@@ -323,7 +325,7 @@ void TAVTntuCluster::SetupClones()
 //! Clear event.
 void TAVTntuCluster::Clear(Option_t*)
 {
-   for (Int_t i = 0; i < TAVTparMap::GetSensorsN(); ++i) {
+   for (Int_t i = 0; i < m_geometry->GetNSensors(); ++i) {
 	  TClonesArray* list = GetListOfClusters(i);
 	  list->Delete();
    }   
@@ -333,7 +335,7 @@ void TAVTntuCluster::Clear(Option_t*)
 //  
 TAVTcluster* TAVTntuCluster::NewCluster(Int_t iSensor)
 {
-   if (iSensor >= 0  || iSensor < TAVTparMap::GetSensorsN()) {	  
+   if (iSensor >= 0  && iSensor < m_geometry->GetNSensors()) {	  
 	  TClonesArray &clusterArray = *GetListOfClusters(iSensor);
 	  TAVTcluster* cluster = new(clusterArray[clusterArray.GetEntriesFast()]) TAVTcluster();
 	  return cluster;
@@ -347,7 +349,7 @@ TAVTcluster* TAVTntuCluster::NewCluster(Int_t iSensor)
 //  
 TAVTcluster* TAVTntuCluster::NewCluster(TAVTcluster* clus, Int_t iSensor)
 {
-   if (iSensor >= 0  || iSensor < TAVTparMap::GetSensorsN()) {	  
+   if (iSensor >= 0  && iSensor < m_geometry->GetNSensors()) {	  
 	  TClonesArray &clusterArray = *GetListOfClusters(iSensor);
 	  TAVTcluster* cluster = new(clusterArray[clusterArray.GetEntriesFast()]) TAVTcluster(*clus);
 	  return cluster;
@@ -361,7 +363,7 @@ TAVTcluster* TAVTntuCluster::NewCluster(TAVTcluster* clus, Int_t iSensor)
 //! ostream insertion.
 void TAVTntuCluster::ToStream(ostream& os, Option_t* option) const
 {
-   // for (Int_t i = 0; i < TAVTparMap::GetSensorsN(); ++i) {
+   // for (Int_t i = 0; i < m_geometry->GetNSensors(); ++i) {
    // os << "TAVTntuCluster " << GetName()
    // << Form("  nClus=%3d", GetClustersN(i))
    // << endl;

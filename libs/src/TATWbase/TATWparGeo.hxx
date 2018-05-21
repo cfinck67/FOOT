@@ -60,17 +60,16 @@ public:
     TRotation GetRotationToGlobal() { return *m_rotation; };
     TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
 
-    // Return the bar center position 
-    //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
-    // TVector3 GetBarPosition( int layer, int bar );
-
+    
     //  Return Scintillator center coord. in the global frame
     TVector3 GetCenter() { return m_center; };
 
     // Return Scintillator full dimension.
     TVector3 GetDimension() { return m_dimension; };
 
-    double GetSingleBarThickness() { return m_barThick_Lz; };
+    TVector3 GetBarDimension() { return m_dimensionBar; };   // ( shorter dim, longer dim, z dim )
+
+    double GetSingleBarThickness() { return m_dimensionBar.z(); };
 
     // Return distance from center to center
     double GetLayerDistance() { return m_layerDistance; };
@@ -78,6 +77,7 @@ public:
     int GetNBars() { return m_nBar; };
     int GetNLayers() { return m_nLayer; };
 
+    // Return the bar center position 
     float GetCoordiante_sensorFrame( int view, int bar )    { return ( view == 0 ? m_barMatrix[view][bar]->GetPosition_local().X() : m_barMatrix[view][bar]->GetPosition_local().Y() ); };
     float GetCoordiante_detectorFrame( int view, int bar )  { return ( view == 0 ? m_barMatrix[view][bar]->GetPosition().X() : m_barMatrix[view][bar]->GetPosition().Y() ); };
     float GetCoordiante_footFrame( int view, int bar );
@@ -112,6 +112,7 @@ private:
   TVector3  m_origin;  // current position
   TVector3  m_center;  // current position
   TVector3  m_dimension;  
+  TVector3  m_dimensionBar;  
 
   int m_volumeCount;
 
@@ -119,15 +120,11 @@ private:
   int m_nLayer;
   TVector2 m_NBar;   
 
-  double m_barThick_Lz;
   double m_barLongDim;
   double m_barShortDim;
   double m_layerDistance;
 
   string m_material;
-
-  // map<string, double> m_materialThick;
-  // map<string, string> m_materialType;
 
   map<string, vector<string> > m_regionPrintOut;
   map<string, vector<string> > m_bodyPrintOut;
