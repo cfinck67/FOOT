@@ -306,7 +306,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
 
       //Y,Z (view U, Side view)   
       //~ gPad->PaintLine(-ych_i+0.5*BMN_WIDTH,zmin,-ych_f+0.5*BMN_WIDTH,zmax);
-      gPad->PaintLine(p_trk->GetMylar1Pos().Y()+BMN_WIDTH/2.,p_trk->GetMylar1Pos().Z(),p_trk->GetMylar2Pos().Y()+BMN_WIDTH/2.,p_trk->GetMylar2Pos().Z());
+      gPad->PaintLine(-p_trk->GetMylar1Pos().Y()+BMN_WIDTH/2.,p_trk->GetMylar1Pos().Z(),-p_trk->GetMylar2Pos().Y()+BMN_WIDTH/2.,p_trk->GetMylar2Pos().Z());
     }
   }
 

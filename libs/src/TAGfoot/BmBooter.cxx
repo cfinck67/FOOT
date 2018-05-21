@@ -99,24 +99,16 @@ void BmBooter::Process( Long64_t jentry ) {
 
   //draw and save tracks
   if(bmcon->GetBMvietrack()>0 && jentry%bmcon->GetBMvietrack()==0){
-      cout<<"creo canvas"<<endl;
       TCanvas *c_bmhview = new TCanvas("bmhview", "BM_tracks",20,20,800,900);
-      cout<<"faccio addpad"<<endl;
       pg->AddPad(c_bmhview);
-      cout<<"creo pbmh_view"<<endl;
       TAGview* pbmh_view = new TABMvieTrackFOOT(bmtrack, bmraw, bmgeo);
       //~ pbmh_view->SetTrackRaw(bmtrack,bmraw);
-      cout<<"faccio draw"<<endl;
       pbmh_view->Draw();
-      cout<<"faccio modified"<<endl;
       pg->Modified();//marca i pad come modificati
       //~ cout<<"faccio update"<<endl;
       //~ pg->Update();//fa update del canvas
-      cout<<"salvo il file"<<endl;
       plot_name=bm_outputdir+"/BM_track_"+to_string(jentry);
-      cout<<"printo il tutto"<<endl;
       pg->Print(&plot_name[0]);  
-      cout<<"finito if vietrack"<<endl;
   }
   
   if (bmcon->GetBMdebug()>10)

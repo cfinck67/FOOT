@@ -296,7 +296,6 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
     SharedPlanePtr mylar2_plane(new DetPlane(p_bmgeo->GetMylar2(), Xvers, Yvers));     
     fitTrack->getTrackRep(0)->extrapolateToPlane(state, mylar2_plane);
     mylar2_pos=state.getPos();
-    cout<<"posizione su mylar2: X="<<mylar2_pos.X()<<"   Y="<<mylar2_pos.Y()<<"   Z="<<mylar2_pos.Z()<<endl;
   
     //extrapolate track on target with state
     SharedPlanePtr target_plane(new DetPlane(p_bmgeo->GetTarget(), Xvers, Yvers));     
