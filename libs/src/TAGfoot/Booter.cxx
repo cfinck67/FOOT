@@ -359,7 +359,7 @@ void Booter::GeoPrint() {
     mirror->SaveAs("footGeometry.png");
     mirror->SaveAs("footGeometry.root");
 
-    
+    gGeoManager->Export("completeFootGeometry.root");
 
     // save the geometry info in .root
     TFile *outfile = TFile::Open("genfitGeomFOOT.root","RECREATE");
