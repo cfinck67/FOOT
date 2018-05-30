@@ -281,7 +281,7 @@ const Double_t MAG_AIR_Z 	=MAG_Z+MAG_DIST/2;//_mean of magnetic field region
 
 const Double_t MAG_AIR_WIDTH	=10.0;//width of magnetic field region
 const Double_t MAG_AIR_HEIGHT 	=10.0;//height of magnetic field region
-const Double_t MAG_AIR_LENGTH 	=60.0;//length of magnets
+const Double_t MAG_AIR_LENGTH 	=72.0;//length of magnets
 
 const TString  MAG_PM_MEDIUM    ="SmCo";
 const TString  MAG_CV_MEDIUM    ="ALUMINUM";
