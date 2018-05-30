@@ -261,12 +261,12 @@ const Int_t    MAG_N		=2;//no. of magnets
 const Double_t MAG_ANG		=10.*DEG2RAD;//required semiapertura angolare
 
 const Double_t MAG_PM_THICK 	=10.;//thickness of permanent magnets
-const Double_t MAG_PM_LENGTH 	=10.;//length of permanent magnets
-const Double_t MAG_CV_THICK 	=0.2;//thickness of Al cover
+const Double_t MAG_PM_LENGTH 	=9.;//length of permanent magnets
+const Double_t MAG_CV_THICK 	=0.5;//thickness of Al cover
 const Double_t MAG_CV_LENGTH 	=MAG_PM_LENGTH+2*MAG_CV_THICK;//length of magnets Al cover
 /* const Double_t MAG_DIST		=5.+MAG_PM_LENGTH;//distance btw magnets (from zmin1 to zmin2) */
 /* const Double_t MAG_DIST		=12.;//distance btw magnets (from center to center) */
-const Double_t MAG_DIST		=MAG_CV_LENGTH+5.1;//distance btw magnets (from center to center)
+const Double_t MAG_DIST		=MAG_CV_LENGTH+5.;//distance btw magnets (from center to center)
 
 const Double_t MAG_CV1_INRAD 	=3.5;//(MAG_Z+MAG_CV_LENGTH/2+MAG_DIST-TG_Z)*tan(MAG_ANG);//inner radius of magnet 1 Al cover
 const Double_t MAG_PM1_INRAD 	=MAG_CV1_INRAD+MAG_CV_THICK;//inner radius of permanent magnet 1
@@ -284,7 +284,7 @@ const Double_t MAG_AIR_Z 	=MAG_Z+MAG_DIST/2;//_mean of magnetic field region
 
 const Double_t MAG_AIR_WIDTH	=10.0;//width of magnetic field region
 const Double_t MAG_AIR_HEIGHT 	=10.0;//height of magnetic field region
-const Double_t MAG_AIR_LENGTH 	=60.0+MAG_DIST;//length of magnets
+const Double_t MAG_AIR_LENGTH 	=76.;//length of magnets
 
 const TString  MAG_PM_MEDIUM    ="SmCo";
 const TString  MAG_CV_MEDIUM    ="ALUMINUM";

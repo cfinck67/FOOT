@@ -39,8 +39,8 @@ IncludeCA:			n
 
 IncludeEvent:		n
 
-
-Magnetic field map name:  NewMap.table
+Magnetic field map name:  MagFieldMap.table
+#Magnetic field map name:  NewMap.table
 #Magnetic field map name:  SummedSingleMap.table
 #Magnetic field map name:  DoubleDipole.table
 #Magnetic field map name:  DoubleGaussMag.table
