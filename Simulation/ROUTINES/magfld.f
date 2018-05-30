@@ -73,7 +73,7 @@
          
       IF (LFIRST) THEN 
          
-         CALL OAUXFI('MagFieldMapRot.table',22,'OLD',IERR)
+         CALL OAUXFI('MagFieldMap.table',22,'OLD',IERR)
 *         CALL OAUXFI('SummedSingleMap.table',22,'OLD',IERR)
 *         CALL OAUXFI('DoubleDipole.table',22,'OLD',IERR)
          

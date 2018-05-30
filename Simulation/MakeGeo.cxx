@@ -55,7 +55,8 @@ int main (int argc, char *argv[]) {
     // Materials* listOfMaterials = new Materials();
     // listOfMaterials->PrintMap();
 
-    genfit::FieldManager::getInstance()->init(new FootField( "DoubleDipole.table" ) ); // variable field
+    genfit::FieldManager::getInstance()->init(new FootField( "MagFieldMap.table" ) ); // variable field
+    // genfit::FieldManager::getInstance()->init(new FootField( "DoubleDipole.table" ) ); // variable field
     // genfit::FieldManager::getInstance()->init(new FootField("DoubleGaussMag.table")); // variable field
 
     Materials* listMaterials = new Materials() ;

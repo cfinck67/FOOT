@@ -175,11 +175,11 @@ ASSIGNMA    ALUMINUM   BMN_FWI
 ASSIGNMA    TUNGSTEN   BMN_SWI
 ASSIGNMA    Polyethy    TARGET                             1
 ASSIGNMA     SILICON     VTXP0     VTXS3         1         1
-ASSIGNMA    ALUMINUM     ITRP2    ITRP73         1          
-ASSIGNMA       Epoxy     ITRP0    ITRP75         1          
-ASSIGNMA      KAPTON     ITRP1    ITRP74         1          
+ASSIGNMA    ALUMINUM     ITRP2    ITRP73         1         1
+ASSIGNMA       Epoxy     ITRP0    ITRP75         1         1
+ASSIGNMA      KAPTON     ITRP1    ITRP74         1         1
 ASSIGNMA     SILICON    ITRP13   ITRS313         1         1
-ASSIGNMA     SiCFoam     ITRP6    ITRP69         1          
+ASSIGNMA     SiCFoam     ITRP6    ITRP69         1         1
 ASSIGNMA        SmCo   MAG_PM0
 ASSIGNMA    ALUMINUM   MAG_CV0
 ASSIGNMA        SmCo   MAG_PM1

@@ -259,8 +259,8 @@ const Int_t    MAG_N		=2;//no. of magnets
 const Double_t MAG_ANG		=10.*DEG2RAD;//required semiapertura angolare
 
 const Double_t MAG_PM_THICK 	=10.;//thickness of permanent magnets
-const Double_t MAG_PM_LENGTH 	=10.;//length of permanent magnets
-const Double_t MAG_CV_THICK 	=0.2;//thickness of Al cover
+const Double_t MAG_PM_LENGTH 	=9.;//length of permanent magnets
+const Double_t MAG_CV_THICK 	=0.5;//thickness of Al cover
 const Double_t MAG_CV_LENGTH 	=MAG_PM_LENGTH+2*MAG_CV_THICK;//length of magnets Al cover
 /* const Double_t MAG_DIST		=5.+MAG_PM_LENGTH;//distance btw magnets (from zmin1 to zmin2) */
 const Double_t MAG_DIST		=12.;//distance btw magnets (from zmin1 to zmin2center to center)
