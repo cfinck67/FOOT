@@ -61,9 +61,15 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name,
 	AddPara(pGeoMap, "TAVTparGeo");
 	AddPara(pParMap, "TAVTparMap");
 
+	cout << "Pre digit" << endl;
+
 	fDigitizer = new TAVTdigitizerE(pGeoMap);
 
+	cout << "Post digit" << endl;
+
 	fpHisPoisson = (TH1F*)gDirectory->FindObject("vtPoisson");
+	cout << "poisson digit" << endl;
+
 	if (fpHisPoisson == 0x0) {
 	   
 		Double_t tot = 0.;
@@ -72,7 +78,7 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name,
 		for (Int_t i = 1; i < 10; ++i) {
 			tot += TMath::PoissonI(i, par);
 		}
-
+cout << "loop digit" << endl;
 		fpHisPoisson = new TH1F("vtPoisson", "Poisson", 12, -0.5, 11.5);
 
 		for (Int_t i = 1; i < 10; ++i) {
@@ -80,7 +86,7 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name,
 			fpHisPoisson->Fill(i, val);
 		}
 	}
-
+cout << "end digit" << endl;
 }
 
 
@@ -141,6 +147,7 @@ bool TAVTactNtuMC::Action() {
 	TAVTntuRaw* pNtuRaw = (TAVTntuRaw*) fpNtuRaw->Object();
 	pNtuRaw->Clear();
 
+	// used for pileup ...
 	static Int_t storedEvents = 0;
 	std::vector<RawMcHit_t> storedEvtInfo;
 	RawMcHit_t mcHit;
@@ -232,20 +239,21 @@ bool TAVTactNtuMC::Action() {
 			storedEvtInfo.push_back(mcHit);
 		}
 
-
-
+		
+		// fill MC info
+		SetMCinfo( pixel, i );
 
 // ************  fDigitizer  ****************************************************************************************
 
 		// gives all empty
-		// if (!fDigitizer->Process(fpEvtStr->VTXde[i], fpEvtStr->VTXpxin[i], fpEvtStr->VTXpyin[i], fpEvtStr->VTXzin[i], fpEvtStr->VTXpxout[i])) continue;     // when false?
-		// FillPixels( pixel, sensorId, i );
+		if (!fDigitizer->Process(fpEvtStr->VTXde[i], fpEvtStr->VTXpxin[i], fpEvtStr->VTXpyin[i], fpEvtStr->VTXzin[i], fpEvtStr->VTXpxout[i])) 
+			continue;     // when false?
+		cout << "\tDigitization passed " <<endl;
+		FillPixels( pixel, sensorId, i );
 		
 // ****************************************************************************************************
 
-		// fill MC info
-		SetMCinfo( pixel, i );
-
+		
 
 		if (ValidHistogram()) {
 			Int_t pixelsN = fDigitizer->GetPixelsN();
@@ -258,13 +266,13 @@ bool TAVTactNtuMC::Action() {
 
    // PILEUP
 
-   // if (fgPileup && storedEvents <= fgPileupEventsN) {
-   //     fStoredEvents.push_back(storedEvtInfo);
-   //     storedEvents++;
-   //  }
+   if (fgPileup && storedEvents <= fgPileupEventsN) {
+       fStoredEvents.push_back(storedEvtInfo);
+       storedEvents++;
+    }
 	
-   //  if (fgPileup && storedEvents >= fgPileupEventsN)
-   //     GeneratePileup();
+    if (fgPileup && storedEvents >= fgPileupEventsN)
+       GeneratePileup();
 
 
    //  if(fDebugLevel) {
@@ -299,6 +307,7 @@ void TAVTactNtuMC::FillPixels ( TAVTntuHit* originatingHit, int sensorId, int hi
 	int nPixelX = fDigitizer->GetNPixelX();
  
 	// fill pixels from map
+	cout << "digiMap.size()  " << digiMap.size() << endl;
 	for ( map< int, int >::iterator it = digiMap.begin(); it != digiMap.end(); ++it) {
 
 	   if ( digiMap[it->first] == 1 ) {
@@ -307,7 +316,8 @@ void TAVTactNtuMC::FillPixels ( TAVTntuHit* originatingHit, int sensorId, int hi
 			int col  = it->first % nPixelX;
 
 
-			TAVTntuHit* pixel = (TAVTntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col, "mc_cluster", originatingHit);
+			// TAVTntuHit* pixel = (TAVTntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col, "mc_cluster", originatingHit);
+			pNtuRaw->NewPixel(sensorId, 1., line, col, "mc_cluster", originatingHit);
 			
 			if ( GlobalPar::GetPar()->Debug() > 0 )
 				printf("line %d col %d\n", line, col);
@@ -498,9 +508,9 @@ void  TAVTactNtuMC::GeneratePileup()
 	std::vector<int> rarray;
 
 	for (Int_t i = 0; i < fgPileupEventsN; ++i) {
-	   if (i > pileupEvents-1)
-		  rarray.push_back(0);
-	   else
+	    if (i > pileupEvents-1)
+		    rarray.push_back(0);
+	    else
 		  rarray.push_back(1);
 	}
 	
@@ -510,16 +520,16 @@ void  TAVTactNtuMC::GeneratePileup()
 
 	for (Int_t p = 0; p < fgPileupEventsN; ++p) {
 	   
-	   if (rarray[p] == 0) continue;
+	    if (rarray[p] == 0) continue;
 	   
-	   mcInfo = fStoredEvents[p];
+	    mcInfo = fStoredEvents[p];
 	   
-	   for (Int_t j = 0; j < mcInfo.size(); ++j) {
-		  RawMcHit_t hit = mcInfo[j];
+	    for (Int_t j = 0; j < mcInfo.size(); ++j) {
+		    RawMcHit_t hit = mcInfo[j];
 		  
-		  if (!fDigitizer->Process(hit.de, hit.x, hit.y, hit.zi, hit.zo)) continue;
-		  FillPixels( hit.id, -1); // !!!!!!!!!!!!!!!!!!!!!
-	   }
+		    if (!fDigitizer->Process(hit.de, hit.x, hit.y, hit.zi, hit.zo)) continue;
+		    FillPixels( hit.id, -1); // !!!!!!!!!!!!!!!!!!!!!
+	    }
 	}
 }
 

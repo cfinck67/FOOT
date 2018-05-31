@@ -369,8 +369,8 @@ void TAITactNtuMC::FillPixels ( TAITntuHit* originatingHit, int sensorId, int hi
    //              printf("line %d col %d\n", line, col);
 
    //          // sensor frame
-   //          double v = pGeoMap->GetPositionV(line);
-   //          double u = pGeoMap->GetPositionU(col);
+   //          double v = pGeoMap->GetRowCenter_sensorFrame(line);
+   //          double u = pGeoMap->GetColumnCenter_sensorFrame(col);
 
    //          if (ValidHistogram()) {
    //              fpHisPixelMap[sensorId]->Fill(line, col);
@@ -408,8 +408,8 @@ void TAITactNtuMC::FillPixels ( int sensorId, int hitId ) {
    //          if ( GlobalPar::GetPar()->Debug() > 0 )
    //              printf("line %d col %d\n", line, col);
 
-   //          double v = pGeoMap->GetPositionV(line);
-   //          double u = pGeoMap->GetPositionU(col);
+   //          double v = pGeoMap->GetRowCenter_sensorFrame(line);
+   //          double u = pGeoMap->GetColumnCenter_sensorFrame(col);
 
    //          if (ValidHistogram()) {
    //              fpHisPixelMap[sensorId]->Fill(line, col);
@@ -476,8 +476,8 @@ void TAITactNtuMC::FillNoise(Int_t sensorId) {
     //    Int_t line = gRandom->Uniform(0,fDigitizer->GetNPixelY());
     //    // TAITntuHit* pixel = (TAITntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col);
     //    TAITntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., line, col, "mc_noise" );
-    //    double v = pGeoMap->GetPositionV(line);
-    //    double u = pGeoMap->GetPositionU(col);
+    //    double v = pGeoMap->GetRowCenter_sensorFrame(line);
+    //    double u = pGeoMap->GetColumnCenter_sensorFrame(col);
     //    TVector3 pos(v,u,0);
     //    // pixel->SetPosition(pos);     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //    // pixel->SetMCid(fgMcNoiseId);

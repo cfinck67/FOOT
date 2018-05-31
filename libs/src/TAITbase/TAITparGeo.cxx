@@ -468,9 +468,12 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
 					stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << m_passiveMatrix[i][j][k]->GetRegionName()
 											<< "5 " << m_passiveMatrix[i][j][k]->GetBodyName() << endl;
 					
+					
 					m_regionPrintOut[ m_passiveMatrix[i][j][k]->GetMaterialName() ].push_back( ssr.str() );
 					m_regionName    [ m_passiveMatrix[i][j][k]->GetMaterialName() ].push_back( m_passiveMatrix[i][j][k]->GetRegionName() );
-					if ( genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 )
+					if ( 	genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && 
+							genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 && 
+							genfit::FieldManager::getInstance()->getFieldVal( m_passiveMatrix[i][j][k]->GetPosition() ).Mag() == 0 )
 						m_magneticRegion[ m_passiveMatrix[i][j][k]->GetRegionName() ] = 0;
 					else 
 						m_magneticRegion[ m_passiveMatrix[i][j][k]->GetRegionName() ] = 1;
@@ -534,7 +537,9 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
 					m_regionPrintOut[ m_chipMatrix[i][j][k]->GetMaterialName() ].push_back( ssr.str() );
 					m_regionName    [ m_chipMatrix[i][j][k]->GetMaterialName() ].push_back( m_chipMatrix[i][j][k]->GetRegionName() );
 					
-					if ( genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 )
+					if ( 	genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && 
+							genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 && 
+							genfit::FieldManager::getInstance()->getFieldVal( m_chipMatrix[i][j][k]->GetPosition() ).Mag() == 0 )
 						m_magneticRegion[ m_chipMatrix[i][j][k]->GetRegionName() ] = 0;
 					else 
 						m_magneticRegion[ m_chipMatrix[i][j][k]->GetRegionName() ] = 1;
@@ -606,7 +611,9 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
 					m_regionPrintOut[ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( ssr.str() );
 					m_regionName    [ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( m_sensorMatrix[k][j][i]->GetRegionName() );
 					
-					if ( genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 )
+					if ( 	genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && 
+							genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 && 
+							genfit::FieldManager::getInstance()->getFieldVal( m_sensorMatrix[k][j][i]->GetCenter() ).Mag() == 0 )
 						m_magneticRegion[ m_sensorMatrix[k][j][i]->GetRegionName() ] = 0;
 					else 
 						m_magneticRegion[ m_sensorMatrix[k][j][i]->GetRegionName() ] = 1;
@@ -879,6 +886,8 @@ string TAITparGeo::PrintAssignMaterial() {
 		// region in the magnetic filed condition
 		bool isMag = true;
 		for (int i=0; i<(*itMat).second.size(); i++) {
+			// check if all regions ar defined in the magnetic map
+			if ( m_magneticRegion.find( (*itMat).second.at(i) ) == m_magneticRegion.end() )		cout << "ERROR << TAITparGeo::PrintAssignMaterial()  -->  region not defined in the magnetic map: " << (*itMat).second.at(i) << endl, exit(0);
 			if ( m_magneticRegion[ (*itMat).second.at(i) ] == 0 ) {
 				isMag = false;
 				break;

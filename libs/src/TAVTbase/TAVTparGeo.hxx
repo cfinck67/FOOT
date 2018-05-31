@@ -125,6 +125,9 @@ public:
     // Return Vertex full dimension.
     TVector3 GetDimension() { return m_dimension; };
 
+    // pixel dimension
+    double GetPitchX()  { return m_Pitch_X; };
+    double GetPitchY()  { return m_Pitch_Y; };
     double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
 
     int GetNPixelX() { return m_nPixel_X; };
@@ -140,9 +143,7 @@ public:
     int GetSensorID( int layer, int col, int row )    { return layer; };
     int GetLayerFromSensorID( int sensID )            { return sensID; };
 
-    // pixel dimension
-    double GetPitchX()  { return m_Pitch_X; };
-    double GetPitchY()  { return m_Pitch_Y; };
+    
     
     // function for the FRUKA geometry creation
     string PrintBodies();
