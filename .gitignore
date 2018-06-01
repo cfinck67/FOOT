@@ -23,8 +23,19 @@ Reconstruction/level0/DecodeMC
 Simulation/foot.geo
 Simulation/foot.inp.tmp
 Simulation/foot.reg
+Simulation/makegeo
 Simulation/foot_geo
 Simulation/parameters.inc
+Simulation/*.err
+Simulation/*.log
+Simulation/*.out
+Simulation/*_TXT.dat
+Simulation/*fort*
+Simulation/ranfoot*
+Simulation/fluka_FOOT_mag.exe
+Simulation/ROUTINES/fluka_FOOT_mag.exe.map
+Simulation/TXT2ROOT/Txt2Root
+
 .DS_Store
 
 libs/lib/

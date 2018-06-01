@@ -185,7 +185,7 @@ ASSIGNMA    ALUMINUM   MAG_CV0
 ASSIGNMA        SmCo   MAG_PM1
 ASSIGNMA    ALUMINUM   MAG_CV1
 ASSIGNMA         AIR   MAG_AIR                             1
-ASSIGNMA     SILICON     MSDS0     MSDS2         1          
+ASSIGNMA     SILICON     MSDS0     MSDS2         1         1
 ASSIGNMA         AIR       BOX
 ASSIGNMA      EJ-232    SCN000    SCN121         1          
 ASSIGNMA         BGO    CAL000    CAL359         1
