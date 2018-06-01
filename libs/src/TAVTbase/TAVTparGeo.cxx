@@ -295,7 +295,9 @@ void TAVTparGeo::InitGeo()  {
                     // cout << "Build passive materials in ROOT and FLUKA " << ssr.str() <<  endl;
                     m_regionPrintOut[ m_passiveMatrix[k][i][j]->GetMaterialName() ].push_back( ssr.str() );
                     m_regionName    [ m_passiveMatrix[k][i][j]->GetMaterialName() ].push_back( m_passiveMatrix[k][i][j]->GetRegionName() );
-                    if ( genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 )
+                    if (    genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( m_passiveMatrix[k][i][j]->GetPosition() ).Mag() == 0 )
                         m_magneticRegion[ m_passiveMatrix[k][i][j]->GetRegionName() ] = 0;
                     else 
                         m_magneticRegion[ m_passiveMatrix[k][i][j]->GetRegionName() ] = 1;
@@ -377,7 +379,9 @@ void TAVTparGeo::InitGeo()  {
                         
                     m_regionPrintOut[ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( ssr.str() );
                     m_regionName    [ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( m_sensorMatrix[k][i][j]->GetRegionName() );
-                    if ( genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 )
+                    if (    genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( m_sensorMatrix[k][i][j]->GetCenter() ).Mag() == 0 )
                         m_magneticRegion[ m_sensorMatrix[k][i][j]->GetRegionName() ] = 0;
                     else 
                         m_magneticRegion[ m_sensorMatrix[k][i][j]->GetRegionName() ] = 1;
