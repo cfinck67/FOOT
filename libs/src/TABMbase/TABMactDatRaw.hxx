@@ -10,13 +10,17 @@
 #include "TAGaction.hxx"
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
+#include "TABMparCon.hxx"
+#include <fstream>
 
 class TABMactDatRaw : public TAGaction {
   public:
 
+    Bool_t openFile(TABMparCon*);  //load in datastream the data file
+
     explicit        TABMactDatRaw(const char* name=0,
 				 TAGdataDsc* p_datraw=0,
-				 TAGdataDsc* p_datmbs=0,
+				 //~ TAGdataDsc* p_datmbs=0,
 				 TAGparaDsc* p_parmap=0,
 				 TAGparaDsc* p_parcon=0);
     virtual         ~TABMactDatRaw();
@@ -27,9 +31,10 @@ class TABMactDatRaw : public TAGaction {
 
   private:
     TAGdataDsc*     fpDatRaw;		    // output data dsc
-    TAGdataDsc*     fpDatMbs;		    // input data dsc
+    //~ TAGdataDsc*     fpDatMbs;		    // input data dsc
     TAGparaDsc*     fpParMap;		    // parameter dsc
     TAGparaDsc*     fpParCon;		    // parameter dsc
+    ifstream datastream;                  // file di dati in input (cosa provvisoria per test calibrazione)
   
 };
 

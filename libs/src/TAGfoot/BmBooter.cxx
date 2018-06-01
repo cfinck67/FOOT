@@ -56,7 +56,7 @@ return;
 void BmBooter::Process( Long64_t jentry ) {
   if (bmcon->GetBMdebug()>10)
     cout<<"I'm in BmBooter::Process, evento numero="<<jentry<<endl;
-    
+  
   //~ myn_bmraw  = gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw");
   //~ myn_bmtrk  = gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack");
   //~ if (myn_bmtrk == 0 || myn_bmraw==0) {
@@ -67,9 +67,9 @@ void BmBooter::Process( Long64_t jentry ) {
   //~ bmraw = (TABMntuRaw*) myn_bmraw->GenerateObject();
   //~ bmtrack = (TABMntuTrack*) myn_bmtrk->GenerateObject();
  
- bmraw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
- bmtrack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
- 
+  //~ bmdatraw = (TABMdatRaw*) (gTAGroot->FindDataDsc("myn_bmdatraw", "TABMdatRaw")->GenerateObject());
+  bmraw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
+  bmtrack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
  
   if (bmcon->GetBMdebug()>10)
     cout<<"in BmBooter::Process, I finished to create the BM hits and tracks"<<endl<<"Now I'll printout BM hits if enable"<<endl;
@@ -95,7 +95,6 @@ void BmBooter::Process( Long64_t jentry ) {
     if (GlobalPar::GetPar()->IsPrintOutputNtuple())
       m_controlPlotter->BM_setntuple_track(p_tracktr->GetChi2New());
   }
-  
 
   //draw and save tracks
   if(bmcon->GetBMvietrack()>0 && jentry%bmcon->GetBMvietrack()==0){
@@ -127,9 +126,30 @@ void BmBooter::Finalize() {
   if (bmcon->GetBMdebug()>10)
     cout<<"I'm in BmBooter::Finalize"<<endl;
   
-  //~ TCanvas* mirror = new TCanvas("bmstuff", "bmstuff",  700, 700);
-  //~ histo1->Draw();
-  //~ mirror->SaveAs("bmstuff.png");
+  //~ cout<<"filename="<<m_controlPlotter->GetTFile()->GetName()<<"  è aperto="<<m_controlPlotter->GetTFile()->IsOpen()<<endl;
+  //~ m_controlPlotter->GetTFile()->ls();
+  //~ TH1F *graph=nullptr;
+  //~ m_controlPlotter->GetTFile()->GetObject("BM_output/BM_output__track_chi2red",graph);
+  //~ cout<<"media="<<((TH1F*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__track_chi2red")))->GetMean()<<endl;
+  //~ cout<<"vediamo media="<<graph->GetMean()<<endl;
+  
+	TH1F* histo = new TH1F( "prova", "prova", 100, 0., 100.);
+  for(int i=0;i<100;i++)
+    histo->SetBinContent(i,pow(i,2));
+  histo->Draw();
+	((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Add(histo);  
+  
+  //vediamo le strel:
+  histo=new TH1F( "strel", "strel", 4000, 0., 400.);
+  histo->GetXaxis()->SetTitle("time [ns]");
+  histo->GetYaxis()->SetTitle("distance [cm]");
+  double time=0.;
+  for(int i=0;i<4000;i++){
+    histo->SetBinContent(i,time*bmcon->GetVDrift()+bmcon->STrelCorr(time,0,0,0));
+    time+=0.1;
+  }
+  histo->Draw();
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Add(histo);    
   
   if (bmcon->GetBMdebug()>10)
     cout<<"I finished BmBooter::Finalize"<<endl;

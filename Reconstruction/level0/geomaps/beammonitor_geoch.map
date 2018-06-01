@@ -1,7 +1,7 @@
 !Trigger channel
 T63
-!Chamber LUT
-!TDC cha; Plane [0-5]; View 1==S, -1==T; Idsense: 0,1,2    
+!Chamber LUT  ???
+!chaID; TDC cha (chaBoID); Plane [0-5]; View 1==S, -1==T; Idsense: 0,1,2    
 #36  17  0	-1	2
 #37  17  0	-1	1
 #38  17  0	-1	0

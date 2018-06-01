@@ -17,6 +17,7 @@
 
 #include "GlobalPar.hxx"
 #include "TAGpara.hxx"
+#include "foot_geo.h"
 
 
 //##############################################################################
@@ -43,6 +44,9 @@ class TABMparCon : public TAGpara {
     Int_t GetFitterIndex(){return fitter_index;};
     Int_t GetBMdebug(){return bm_debug;};
     Int_t GetBMvietrack(){return bm_vietrack;};
+    string GetBMdataFileName(){return datafile_name;};
+    Int_t GetBMcharge(){return part_in_charge;};
+    Double_t GetBMmom(){return part_in_mom;};
 
     //acquisition stuff
     void        loadT0s(const TString& name); 
@@ -81,8 +85,12 @@ class TABMparCon : public TAGpara {
     Double_t angzres_cut;
     Int_t    fitter_index;
     Int_t    bm_debug;//index for the bm_debug, (it is set at least to the global debug level)
-    Int_t    bm_vietrack;//ogni quanto vanno fatti i grafici delle tracce
+    Int_t    bm_vietrack;//every bm_vietrack events SHOE will plot the BM track
+    string   datafile_name;//name of the input data file 
+    Int_t    part_in_charge;//for BM Genfit tracking
+    Double_t part_in_mom;//for BM Genfit tracking
     
+    //old framework stuff...:
     vector<double> v_t0s;
 
     TF1* f_mypol;

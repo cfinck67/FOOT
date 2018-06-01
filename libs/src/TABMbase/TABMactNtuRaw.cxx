@@ -27,22 +27,23 @@ ClassImp(TABMactNtuRaw);
 TABMactNtuRaw::TABMactNtuRaw(const char* name,
 			   TAGdataDsc* p_nturaw, 
 			   TAGdataDsc* p_datraw, 
-			   TAGdataDsc* p_timraw, 
-			   TAGdataDsc* p_triraw, 
+			   //~ TAGdataDsc* p_timraw, 
+			   //~ TAGdataDsc* p_triraw, 
 			   TAGparaDsc* p_geomap, 
 			   TAGparaDsc* p_parcon)
   : TAGaction(name, "TABMactNtuRaw - NTuplize BM raw data"),
     fpNtuRaw(p_nturaw),
     fpDatRaw(p_datraw),
-    fpTimRaw(p_timraw),
-    fpTriRaw(p_triraw),
+    //~ fpTimRaw(p_timraw),
+    //~ fpTriRaw(p_triraw),
     fpGeoMap(p_geomap),
     fpParCon(p_parcon)
 {
+  cout<<"CREO IN TABMACTNTURAW"<<endl;
   AddDataOut(p_nturaw, "TABMntuRaw");
   AddDataIn(p_datraw, "TABMdatRaw");
-  AddDataIn(p_timraw, "TAIRdatRaw");
-  AddDataIn(p_triraw, "TATRdatRaw");
+  //~ AddDataIn(p_timraw, "TAIRdatRaw");
+  //~ AddDataIn(p_triraw, "TATRdatRaw");
   AddPara(p_geomap, "TABMparGeo");
   AddPara(p_parcon, "TABMparCon");
 
@@ -137,9 +138,10 @@ vector<double> TABMactNtuRaw::retrieve_U() {
 
 Bool_t TABMactNtuRaw::Action()
 {
+  cout<<"sono in bmactnturaw"<<endl;
   TABMdatRaw* p_datraw = (TABMdatRaw*) fpDatRaw->Object();
-  TAIRdatRaw* p_timraw = (TAIRdatRaw*) fpTimRaw->Object();
-  TATRdatRaw* p_triraw = (TATRdatRaw*) fpTriRaw->Object();
+  //~ TAIRdatRaw* p_timraw = (TAIRdatRaw*) fpTimRaw->Object();//start counter per ora non lo includo
+  //~ TATRdatRaw* p_triraw = (TATRdatRaw*) fpTriRaw->Object();//è l'equivalente del BM...
   TABMntuRaw* p_nturaw = (TABMntuRaw*) fpNtuRaw->Object();
   TABMparGeo* p_geomap = (TABMparGeo*) fpGeoMap->Object();
   TABMparCon* p_parcon = (TABMparCon*) fpParCon->Object();
@@ -148,9 +150,12 @@ Bool_t TABMactNtuRaw::Action()
 
   if (!p_nturaw->h) p_nturaw->SetupClones();
 
+
+//old stuff
+/*
   Int_t i_nhit = p_datraw->NHit();
   double irtime(-10000);
-  double trigtime(-10000);
+  //~ double trigtime(-10000);
   
   Int_t timhit = p_timraw->nirhit;
   for (Int_t i = 0; i < timhit; i++) {
@@ -160,21 +165,22 @@ Bool_t TABMactNtuRaw::Action()
     }
   }
 
-  Int_t trihit = p_triraw->ntrhit;
-  if(trihit>1) 
-    Error("Action()","Multiple Trig hits :: %d",trihit);
-  for (Int_t i = 0; i < trihit; i++) {
-    const TATRrawHit* aTrHi = p_triraw->Hit(i);
-    //0 : trigger
-    //1 : master trigger (should be the same as 0)
-    trigtime = aTrHi->TrigTime(1);
-  }
-
-  if(trigtime == -10000) {
-    Info("Action()","Trigger Time is Missing!!!");
-    fpNtuRaw->SetBit(kValid);
-    return kTRUE;
-  }
+  //old method to charge the trigger time
+  //~ Int_t trihit = p_triraw->ntrhit;
+  //~ if(trihit>1) 
+    //~ Error("Action()","Multiple Trig hits :: %d",trihit);
+  //~ for (Int_t i = 0; i < trihit; i++) {
+    //~ const TATRrawHit* aTrHi = p_triraw->Hit(i);
+    //~ //0 : trigger
+    //~ //1 : master trigger (should be the same as 0)
+    //~ trigtime = aTrHi->TrigTime(1);
+  //~ }
+  
+  //~ if(trigtime == -10000) {
+    //~ Info("Action()","Trigger Time is Missing!!!");
+    //~ fpNtuRaw->SetBit(kValid);
+    //~ return kTRUE;
+  //~ }
 
   if(irtime == -10000) {
     Info("Action()","Trigger IR Time is Missing!!!");
@@ -255,21 +261,16 @@ Bool_t TABMactNtuRaw::Action()
     if(doAdd) {
       
       if (i_view == -1) {
-	v_occPla[i_plane]++;
-	v_cellPla[i_plane] = i_cell;
+        v_occPla[i_plane]++;
+        v_cellPla[i_plane] = i_cell;
       }
       if (i_view == 1) {
-	u_occPla[i_plane]++;
-	u_cellPla[i_plane] = i_cell;
+        u_occPla[i_plane]++;
+        u_cellPla[i_plane] = i_cell;
       }
 
       TABMntuHit *mytmp = new((*(p_nturaw->h))[tmp_hi]) 
-	TABMntuHit(i_idmon,   i_view,
-		   i_plane,   i_cell,  
-		   h_x, h_y, h_z,
-		   h_cx, h_cy, h_cz,
-		   i_drift,  i_time,
-		   i_timmon );
+      TABMntuHit(i_idmon, i_view, i_plane, i_cell, h_x, h_y, h_z, h_cx, h_cy, h_cz, i_drift, i_time, i_timmon );
 
       mytmp->SetSigma(resolution);
       //~ mytmp->SetTrkAss(0);
@@ -325,6 +326,11 @@ Bool_t TABMactNtuRaw::Action()
     if(u_occPla[2] == 0) m_missedY[2]++;
     if(u_occPla[4] == 0) m_missedY[4]++;
   }
+  
+  
+  */
+  
+  
   
   fpNtuRaw->SetBit(kValid);
   return kTRUE;

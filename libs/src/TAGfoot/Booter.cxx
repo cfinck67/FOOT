@@ -27,10 +27,14 @@
 //Beam Monitor
 #include "TABMparGeo.hxx"
 #include "TABMparCon.hxx"
+#include "TABMparMap.hxx"
 #include "TABMntuRaw.hxx"
+#include "TABMdatRaw.hxx"
 #include "TABMntuTrack.hxx"
 #include "TABMactNtuMC.hxx"
 #include "TABMactNtuTrack.hxx"
+#include "TABMactNtuRaw.hxx"
+#include "TABMactDatRaw.hxx"
 //~ #include "TABMvieTrackFOOT.hxx"
 
 //Vertex
@@ -167,7 +171,9 @@ void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in ) {
     if( GlobalPar::GetPar()->IncludeBM() ) {
     //~ //     // DisplayBeamMonitor(pg);
       myp_bmgeo  = new TAGparaDsc("myp_bmgeo", new TABMparGeo());
+      myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
       initBMGeo();
+      initBMCon();
       //~ FillMCBeamMonitor(evStr);//da modificare: se lo abilito qua la geometria degli altri detectors non funzia... 
 
     }
@@ -241,15 +247,13 @@ void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in ) {
     m_kFitter = new KFitter();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
 
-    if( GlobalPar::GetPar()->IncludeBM() )              FillMCBeamMonitor(evStr);//da modificare: va messo qua... così non crea problemi, 
+    if( GlobalPar::GetPar()->IncludeBM()) 
+      FillMCBeamMonitor(evStr);//da modificare: va messo qua... così non crea problemi
+      
     if (GlobalPar::GetPar()->Debug()>10)
       cout<<"I finish Booter::Initialize"<<endl;
     
 }
-
-
-
-
 
 
 
@@ -305,8 +309,9 @@ void Booter::Finalize() {
 
 	if ( GlobalPar::GetPar()->IncludeKalman() )      m_kFitter->Finalize();
 
-    if ( GlobalPar::GetPar()->IsPrintOutputFile() )         
+    if ( GlobalPar::GetPar()->IsPrintOutputFile() ) {
         ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputFile();
+      }
     else                        
         ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintMap();
     
@@ -493,7 +498,23 @@ void Booter::FillMCEvent(EVENT_STRUCT *myStr) {
 }
 
 
-
+void Booter::FillDataBeamMonitor() {
+  if (GlobalPar::GetPar()->Debug()>10)
+    cout<<"I'm in Booter::FillDataBeamMonitor"<<endl;  
+  
+  myn_bmdatraw    = new TAGdataDsc("myn_bmdatraw", new TABMdatRaw());
+  new TABMactDatRaw("an_bmdatraw",myn_bmdatraw, myp_bmmap, myp_bmcon); 
+   
+  myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
+  new TABMactNtuRaw("an_bmraw", myn_bmraw, myn_bmdatraw, myp_bmgeo, myp_bmcon); 
+  
+  myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());  
+  new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
+    
+  if (GlobalPar::GetPar()->Debug()>10)
+    cout<<"I finish Booter::FillDataBeamMonitor"<<endl;  
+  return;
+}
 
 
 
@@ -506,13 +527,6 @@ void Booter::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
   /*Ntupling the MC Beam Monitor information*/
   myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
   myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
-  myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
-
-  initBMCon();
-
-  //~ myp_bmgeo  = new TAGparaDsc("p_bmgeo", new TABMparGeo());
-
-  //~ initBMGeo();//già inizializzato prima in teoria
 
   new TABMactNtuMC("an_bmraw", myn_bmraw, myp_bmcon, myp_bmgeo, myStr);
 
@@ -696,14 +710,14 @@ void Booter::initBMCon()  {
 
   o_beamcon->loadT0s(filename);
 
-  filename = m_wd + "/config/file_stlist_FIRST.txt";
+  //~ filename = m_wd + "/config/file_stlist_FIRST.txt";
   //  filename = "config/file_stlist_8020_Cst1_1750.txt";
 
-  o_beamcon->LoadSTrel(filename);
+  //~ o_beamcon->LoadSTrel(filename);
 
-  o_beamcon->SetIsMC(true);
+  //~ o_beamcon->SetIsMC(true);//provv dovrebbe farlo nel momento della lettura del file
 
-  o_beamcon->ConfigureTrkCalib();
+  //~ o_beamcon->ConfigureTrkCalib();
 
   filename = m_wd + "/config/bmreso_vs_r.root";
   o_beamcon->LoadReso(filename);

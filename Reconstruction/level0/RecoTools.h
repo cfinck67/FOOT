@@ -27,6 +27,7 @@
 
 #include "Booter.hxx"
 #include "BmBooter.hxx"
+#include "BMcalBooter.hxx"
  
 
 class RecoTools {
@@ -39,6 +40,7 @@ class RecoTools {
 
   //Reconstructions
   void RecoLoop(TAGroot *tagr, int fr);
+  void RecoBMcal(TAGroot *tagr);  
 
   // //Actions for Tupling MC info for the various subdetectors
   // void FillMCEvent(EVENT_STRUCT *myStr);
@@ -76,6 +78,7 @@ class RecoTools {
 
   int m_nev;
   int m_debug;
+  int m_isdata;
   TFile* m_of;
   TFile* m_hf;
   TString m_oustr;

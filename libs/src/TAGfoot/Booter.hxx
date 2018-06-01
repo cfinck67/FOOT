@@ -59,6 +59,9 @@ class Booter {
   void FillMCCalorimeter(EVENT_STRUCT *myStr);
   void FillMCTofWall(EVENT_STRUCT *myStr);
 
+  //Actions for Tupling DATA info for the various subdetectors
+  void FillDataBeamMonitor();
+
   //Monitors/Displays
   // void DisplayIRMonitor(TAGpadGroup* pg, EVENT_STRUCT *myStr);
   // void DisplayBeamMonitor(TAGpadGroup* pg);
@@ -101,6 +104,8 @@ class Booter {
 
   //Parameters
   TAGparaDsc* myp_bmgeo;
+  TAGparaDsc* myp_bmcon;
+  TAGparaDsc* myp_bmmap;
     
   shared_ptr<TAVTparGeo> m_vtgeo;
   shared_ptr<TAITparGeo> m_itgeo;
@@ -125,8 +130,8 @@ class Booter {
  
   TAGdataDsc* myn_irraw;
 
-  TAGparaDsc* myp_bmcon;
   TAGdataDsc* myn_bmraw;
+  TAGdataDsc* myn_bmdatraw;
   TAGdataDsc* myn_bmtrk;
 
   TAGparaDsc* myp_dccon;

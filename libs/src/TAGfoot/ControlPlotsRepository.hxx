@@ -28,9 +28,13 @@ public:
 	void FillMap( string mapName, double x );
 	
 	void PrintMap();
-    void PrintOutputFile();
-    void PrintOutputNtuple();
-
+  void PrintOutputFile();
+  void PrintOutputNtuple();
+  void SaveOutputFile();
+  TFile* GetTFile(){return f_out;};
+  
+  TFile* f_out;
+  
 
 	//change dir
 	void SetControlPos_4eachState( string hitSampleName, int i, TVector3 *kal, TVector3 *trueMC, TVector3 *detector ) {

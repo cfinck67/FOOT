@@ -87,7 +87,7 @@ void ControlPlotsRepository::PrintMap() {
 void ControlPlotsRepository::PrintOutputFile() {
  
 	m_outputfilename = GlobalPar::GetPar()->OutputFile();
-	TFile* f_out = new TFile(m_outputfilename.c_str(),"RECREATE");  
+	f_out = new TFile(m_outputfilename.c_str(),"RECREATE");  
 
 	TCanvas* mirror = new TCanvas( "mirror", "mirror", 700, 700);
 
@@ -105,13 +105,15 @@ void ControlPlotsRepository::PrintOutputFile() {
 		(*it).second.PrintHisto( mirror);	
 	}
 
-	f_out->Write();
-	f_out->Close();
+	//~ f_out->Write();
+	//~ f_out->Close();
 };
 
-
-
-
+void ControlPlotsRepository::SaveOutputFile() {
+  f_out->Write();
+  f_out->Close();
+return;
+}
 
  
 void ControlPlotsRepository::PrintOutputNtuple() {

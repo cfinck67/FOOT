@@ -67,7 +67,7 @@ Bool_t TABMparMap::FromFile(const TString& name) {
   ifstream incF;
   incF.open(name_exp.Data());
   if (!incF) {
-    Error("FromFile()", "failed to open file '%s'", name_exp.Data());
+    Error("ERROR in TABMparMap::FromFile()", "failed to open file '%s'", name_exp.Data());
     return kTRUE;
   }
 
@@ -77,22 +77,20 @@ Bool_t TABMparMap::FromFile(const TString& name) {
     } else if(strchr(bufConf,'#')) {
       sscanf(bufConf, "#%d %d %d %d %d",&myArg1,&myArg2,&myArg3,&myArg4,&myArg5);
       if((myArg1>-1 && myArg1<128) && (myArg2>=0 && myArg2<24) && (myArg3>=0 || myArg3<=5) && (myArg4==-1 || myArg4==1) && (myArg5>-1 && myArg5<6)) {
-	chaID.push_back(myArg1);
-	chaBoID.push_back(myArg2);
-	chaPlane.push_back(myArg3);
-	chaView.push_back(myArg4);
-	chaSense.push_back(myArg5);
+        chaID.push_back(myArg1);
+        chaBoID.push_back(myArg2);
+        chaPlane.push_back(myArg3);
+        chaView.push_back(myArg4);
+        chaSense.push_back(myArg5);
       } else {
-	Error(""," Plane Map Error:: check config file!!");
-	return kTRUE;
+        Error(""," Plane Map Error:: check config file!!");
+        return kTRUE;
       }
     } else if(strchr(bufConf,'T')) {
-      sscanf(bufConf, "T%d",&trefCh);
-      if(trefCh>-1 && trefCh<64) {
-	//	Warning("FromFile()","Reference Trigger channel:: %d",trefCh);
-      } else {
-	Error("FromFile()","Reference Tr channel:: check config file!!");
-	return kTRUE;
+        sscanf(bufConf, "T%d",&trefCh);
+      if(trefCh<-1 || trefCh>64) {
+        Error("FromFile()","Reference Tr channel:: check config file!!");
+        return kTRUE;
       }
     }
   }

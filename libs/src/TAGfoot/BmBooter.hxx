@@ -41,27 +41,29 @@ public :
 BmBooter();
 ~BmBooter() {};
 
-void Initialize( EVENT_STRUCT* evStr );
-void Process( Long64_t jentry );
-void Finalize();
+public:
+  void Initialize( EVENT_STRUCT* evStr );
+  void Process( Long64_t jentry );
+  void Finalize();
 
 private:
 
-//~ TH1F* histo1;
-
-//~ TAGdataDsc* myn_bmraw;
-//~ TAGdataDsc* myn_bmtrk;
-TABMntuRaw* bmraw;
-TABMntuTrack* bmtrack;
-TABMparCon* bmcon;
-TABMparGeo* bmgeo;
-TABMntuTrackTr* p_tracktr;
-TABMntuHit* p_hit;
-//~ TABMvieTrackFOOT* pbmh_view;
-TAGpadGroup* pg;
-ControlPlotsRepository* m_controlPlotter;//prova
-string bm_outputdir;
-string plot_name;
+  //~ TH1F* histo1;
+  
+  //~ TAGdataDsc* myn_bmraw;
+  //~ TAGdataDsc* myn_bmtrk;
+  TABMdatRaw* bmdatraw;
+  TABMntuRaw* bmraw;
+  TABMntuTrack* bmtrack;
+  TABMparCon* bmcon;
+  TABMparGeo* bmgeo;
+  TABMntuTrackTr* p_tracktr;
+  TABMntuHit* p_hit;
+  //~ TABMvieTrackFOOT* pbmh_view;
+  TAGpadGroup* pg;
+  ControlPlotsRepository* m_controlPlotter;//prova
+  string bm_outputdir;
+  string plot_name;
 
 
 };

@@ -45,6 +45,7 @@ int main (int argc, char *argv[]) {
   int debug = 0; int pl_freq(100);
   int ke_display = 0;
   TString outH("DecodeMC_histo.root");
+  bool isdata(kFALSE); //0=MC, 1=real data analysis 
   bool alist(kFALSE);
   for (int i = 0; i < argc; i++){
     if(strcmp(argv[i],"-out") == 0)   { out =TString(argv[++i]);  }                        // Root file name for output
@@ -55,6 +56,7 @@ int main (int argc, char *argv[]) {
     if(strcmp(argv[i],"-nev") == 0)   { nTotEv = atoi(argv[++i]);      }                   // Number of events to be analized
     if(strcmp(argv[i],"-pl_fr") == 0) { pl_freq = atoi(argv[++i]);    }                  // Plot Frequency Number 
     if(strcmp(argv[i],"-list") == 0)  { alist = kTRUE;                 }                  // Input File is a list
+    if(strcmp(argv[i],"-data") == 0)  { isdata = kTRUE;               }          // iteration on data/MC
 
     if(strcmp(argv[i],"-help") == 0)  { 
       cout<<" Decoder help:"<<endl;
@@ -101,7 +103,10 @@ int main (int argc, char *argv[]) {
 
   RecoTools d(debug,in,alist,out,wdir,nTotEv, hF);
 
-  d.RecoLoop(&tagroot,pl_freq);
+  if(isdata)
+    d.RecoBMcal(&tagroot);
+  else
+    d.RecoLoop(&tagroot,pl_freq);
 
   hF->Close();
 

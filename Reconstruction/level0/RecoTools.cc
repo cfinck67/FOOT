@@ -39,7 +39,6 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
 
     m_nev = nev;
     gErrorIgnoreLevel = kError;
-
     m_hf = hf;
     cout << "\tend Constructor RecoTools\n";
 }
@@ -51,7 +50,6 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
 
 //----------------------------------------------------------------------------------------------------
 void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
-    
 
     // input ntuple tree
     TChain *tree = new TChain("EventTree");
@@ -101,7 +99,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     for (Long64_t jentry=0; jentry<nentries;jentry++) {
         if(m_debug) cout<<" New Eve "<<endl;
-        nb = tree->GetEntry(jentry);   nbytes += nb;
+        nb = tree->GetEntry(jentry);   
+        nbytes += nb;
         // if (Cut(ientry) < 0) continue;
         // if (jentry>1)  break;
         // if (jentry<33061)  continue;
@@ -140,6 +139,9 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     if (GlobalPar::GetPar()->IncludeBM())
       bmbooter->Finalize();
     
+    if(GlobalPar::GetPar()->IsPrintOutputFile())
+      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->SaveOutputFile();//close and save OutputFile
+    
     tagr->EndEventLoop();
     
     my_out->Print();
@@ -150,6 +152,80 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     return;
 }
 
+
+//recoloop for the bm calibration
+void RecoTools::RecoBMcal(TAGroot *tagr) {
+  TAGpadGroup* pg = new TAGpadGroup();
+
+  //Configure the output flagging
+  tagr->SetCampaignNumber(100);
+  tagr->SetRunNumber(1);
+
+  //Define the output file content.
+  //~ my_out = new TAGactTreeWriter("my_out");
+
+
+  tagr->AddRequiredItem("my_out");
+  tagr->Print();
+  //~ if (my_out->Open(m_oustr, "RECREATE")) return;
+
+
+  BMcalBooter* bmcalbooter = new BMcalBooter();
+  bmcalbooter->Initialize( m_wd );
+
+  /***********  The event Loop   ****************************************   */    
+  tagr->BeginEventLoop();
+  Long64_t nentries = m_nev;
+  //~ Long64_t nbytes = 0, nb = 0;
+  char flag[200]; bool tobedrawn = kFALSE;
+
+  if(m_debug)         cout<<" Starting first Loop "<<endl;
+
+  //first loop to read the .dat file, evaluate the T0, nentries etc.
+ 
+
+  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+      if(m_debug) cout<<" New Eve "<<endl;
+      //~ nb = tree->GetEntry(jentry);   
+      //~ nbytes += nb;
+      // if (Cut(ientry) < 0) continue;
+      // if (jentry>1)  break;
+      // if (jentry<33061)  continue;
+      tagr->NextEvent();
+
+
+      ///////////////  Call here your Process() functions    /////////////////////////////////////////////
+
+
+      //~ booter->Process( jentry );
+      //~ if (GlobalPar::GetPar()->IncludeBM())
+      bmcalbooter->Process();
+
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+      if(m_debug) cout<<" Loaded Event:: "<<jentry<<endl;
+
+      if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "End event n: " << jentry << endl;
+
+  }
+  cout << "End of the event loop " << endl;
+
+  //~ booter->Finalize();
+  //~ bmbooter->Finalize();
+  bmcalbooter->Finalize();
+  
+  if(GlobalPar::GetPar()->IsPrintOutputFile())
+    ControlPlotsRepository::GetControlObject( "BooterFinalize" )->SaveOutputFile();//close and save OutputFile
+  
+  tagr->EndEventLoop();
+  
+  //~ my_out->Print();
+  //~ my_out->Close();
+
+
+}
 
 
 

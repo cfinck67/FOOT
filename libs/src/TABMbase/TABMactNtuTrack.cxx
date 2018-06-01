@@ -88,6 +88,7 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
 
 TABMactNtuTrack::~TABMactNtuTrack()
 { 
+  cout<<"DISTRUGGO TABMACTNTUTRACK"<<endl;
   delete simpleFitter;
   delete refFitter;
   delete dafSimpleFitter;
@@ -127,8 +128,7 @@ Bool_t TABMactNtuTrack::Action()
                 
   //parameters
   Int_t readyToFit = p_bmcon->GetFitterIndex();
-  bool useMyChi2=true;   //temporary: if true the tracking save the best mychi2red track, else it save the best chi2red (by GenFit) DA TOGLIERE, USARE SEMPRE IL PROPRIO CHI2 PERCHÈ COSÌ LO CALCOLO PUNTO PER PUNTO E POSSO SAPERE TUTTO
-  TVector3 init_mom(0.,0.,2.4);//initial momentum for tracking, for BM porpouse the primary track should always have these inital values  
+  TVector3 init_mom(0.,0.,p_bmcon->GetBMmom());//initial momentum for tracking, for BM porpouse the primary track should always have these inital values  
   
   Double_t tmp_double, res;
   bool onlyPrimary, converged;
@@ -162,8 +162,8 @@ Bool_t TABMactNtuTrack::Action()
   //counter for number of possible tracks:
   for(Int_t i_h = 0; i_h < i_nhit; i_h++) {
     p_hit = p_ntuhit->Hit(i_h);
-    if(ToBeConsider(p_hit->Cell(), p_hit->View(), p_hit->Plane()))
-      hitxplane[p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())].push_back(i_h);
+    //~ if(ToBeConsider(p_hit->Cell(), p_hit->View(), p_hit->Plane())) 
+    hitxplane[p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())].push_back(i_h);
     }
   for(Int_t j = 0; j < hitxplane.size(); j++) {  
     if(hitxplane[j].size()!=0)
@@ -401,17 +401,7 @@ Bool_t TABMactNtuTrack::Action()
     }//end of possiblePrimary if condition
   }//end of loop on all possible track
   
-  if(alltrack.size()!=0 && !useMyChi2){
-    tmp_int=0;
-    tmp_double=alltrack[0]->GetChi2New();
-    for(Int_t i=1;i<alltrack.size();i++){
-      if(tmp_double>alltrack[i]->GetChi2New()){
-        tmp_double=alltrack[i]->GetChi2New();
-        tmp_int=i;
-        }
-      }
-    }
-  else if(alltrack.size()!=0 && useMyChi2){
+  if(alltrack.size()!=0){
     tmp_int=0;
     tmp_double=alltrack[0]->GetMyChi2Red();
     for(Int_t i=1;i<alltrack.size();i++){

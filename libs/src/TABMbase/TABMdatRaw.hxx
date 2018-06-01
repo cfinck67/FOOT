@@ -58,7 +58,7 @@ class TABMdatRaw : public TAGdata {
   private:
     Int_t           fiNTdc;		    // 
     Int_t           fiNDrop;		    // 
-    vector<TABMrawHit> fHitList;		    // 
+    vector<TABMrawHit> fHitList;		    //list of TABMrawHit 
 };
 
 #include "TABMdatRaw.icc"
