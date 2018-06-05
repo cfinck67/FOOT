@@ -10,6 +10,9 @@ void  ControlPlotInfo::PrintHisto( TCanvas* mirror) {
 	else 
 		m_nBin = 100;
 
+	m_nBinX = 100;
+	m_nBinY = 100;
+
 	// range
 	if ( GlobalPar::GetPar()->GetNBinHisto( m_name ) != -666 ) {
 		m_minBin_x = GlobalPar::GetPar()->GetNBinHisto( m_name ); 
@@ -38,39 +41,70 @@ void  ControlPlotInfo::PrintHisto( TCanvas* mirror) {
 		if ( isInt ) {
 			m_minBin_x = *min_element( m_variablesInt_x.begin(), m_variablesInt_x.end() ) - 1;
 			m_maxBin_x = *max_element( m_variablesInt_x.begin(), m_variablesInt_x.end() ) + 1;
+			if ( GlobalPar::GetPar()->GetLowBinHisto( m_name ) == -666 )
+				m_nBin =  m_maxBin_x - m_maxBin_x + 2;
 		}
-	  }
-	  else if(isHisto2D){
+	}
+	else if(isHisto2D){
 	    
 	    	// automatic calculation of the range if not defined in the parameters
 	    if ( isDoub ) {
-	      double min_x =  *min_element( m_variablesDoub_x.begin(), m_variablesDoub_x.end() );
-	      double max_x =  *max_element( m_variablesDoub_x.begin(), m_variablesDoub_x.end() );
+			double min_x =  *min_element( m_variablesDoub_x.begin(), m_variablesDoub_x.end() );
+			double max_x =  *max_element( m_variablesDoub_x.begin(), m_variablesDoub_x.end() );
 
-	      double min_y =  *min_element( m_variablesDoub_y.begin(), m_variablesDoub_y.end() );
-	      double max_y =  *max_element( m_variablesDoub_y.begin(), m_variablesDoub_y.end() );
+			double min_y =  *min_element( m_variablesDoub_y.begin(), m_variablesDoub_y.end() );
+			double max_y =  *max_element( m_variablesDoub_y.begin(), m_variablesDoub_y.end() );
 
-	      double length_x = max_x - min_x;
-	      m_minBin_x = min_x - length_x*0.1;
-	      m_maxBin_x = max_x + length_x*0.1;
-	      
-	      double length_y = max_y - min_y;
-	      m_minBin_y = min_y - length_y*0.1;
-	      m_maxBin_y = max_y + length_y*0.1;
+			double length_x = max_x - min_x;
+			m_minBin_x = min_x - length_x*0.1;
+			m_maxBin_x = max_x + length_x*0.1;
+
+			double length_y = max_y - min_y;
+			m_minBin_y = min_y - length_y*0.1;
+			m_maxBin_y = max_y + length_y*0.1;
 	      
 	      
 	    }
 	    if ( isInt ) {
-	      m_minBin_x = *min_element( m_variablesInt_x.begin(), m_variablesInt_x.end() ) - 1;
-	      m_maxBin_x = *max_element( m_variablesInt_x.begin(), m_variablesInt_x.end() ) + 1;
+			m_minBin_x = *min_element( m_variablesInt_x.begin(), m_variablesInt_x.end() ) - 1;
+			m_maxBin_x = *max_element( m_variablesInt_x.begin(), m_variablesInt_x.end() ) + 1;
+			if ( GlobalPar::GetPar()->GetLowBinHisto( m_name ) == -666 )
+				m_nBin =  m_maxBin_x - m_maxBin_x + 2;
 
-	      m_minBin_y = *min_element( m_variablesInt_y.begin(), m_variablesInt_y.end() ) - 1;
-	      m_maxBin_y = *max_element( m_variablesInt_y.begin(), m_variablesInt_y.end() ) + 1;
+			m_minBin_y = *min_element( m_variablesInt_y.begin(), m_variablesInt_y.end() ) - 1;
+			m_maxBin_y = *max_element( m_variablesInt_y.begin(), m_variablesInt_y.end() ) + 1;
+			// if ( GlobalPar::GetPar()->GetLowBinHisto( m_name ) == -666 )
+			// 	m_nBin =  m_maxBin_x - m_maxBin_x + 2;
 	      
 
 	    }
 	    
-	    
+	    // if ( GlobalPar::GetPar()->GetLowBinHisto( m_name ) == -666 )
+
+	    if ( m_name.find("Hit__column") != string::npos ) {
+		    m_minBin_x = 0;
+		    m_maxBin_x = 21;
+		    m_minBin_y = 0;
+		    m_maxBin_y = 1;
+			m_nBinX =  22;
+			m_nBinY =  1;
+		}
+		if ( m_name.find("Hit__row") != string::npos ) {
+		    m_minBin_x = 0;
+		    m_maxBin_x = 1;
+		    m_minBin_y = 0;
+		    m_maxBin_y = 21;
+			m_nBinX =  1;
+			m_nBinY =  22;
+		}
+		if ( m_name.find("Point") != string::npos ) {
+		    m_minBin_x = 0;
+		    m_maxBin_x = 21;
+		    m_minBin_y = 0;
+		    m_maxBin_y = 21;
+			m_nBinX =  22;
+			m_nBinY =  22;
+		}
 	    
 
 	  }
@@ -109,7 +143,7 @@ void  ControlPlotInfo::PrintHisto( TCanvas* mirror) {
 	}
 	else if(isHisto2D){
 	  // init histo 2D
-	  histo2D = new TH2F( m_name.c_str(), m_title.c_str(), m_nBin, m_minBin_x, m_maxBin_x, m_nBin, m_minBin_y, m_maxBin_y );
+	  histo2D = new TH2F( m_name.c_str(), m_title.c_str(), m_nBinX, m_minBin_x, m_maxBin_x, m_nBinY, m_minBin_y, m_maxBin_y );
 	  
 	  // fill histo 2D
 	  if (isDoub) {

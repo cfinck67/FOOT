@@ -144,8 +144,6 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     // genfit::FieldManager::getInstance()->init(new genfit::ConstField(0. ,0., 0.)); // no mag
     // genfit::FieldManager::getInstance()->init( new FootField( 7 ) ); // const field
     genfit::FieldManager::getInstance()->init( new FootField(magFieldMapName.c_str()) ); // variable field
-    
-    if ( GlobalPar::GetPar()->Debug() > 0 )       MagFieldTest();
 
     // include the nucleon into the genfit pdg repository
     if ( GlobalPar::GetPar()->IncludeBM() || GlobalPar::GetPar()->IncludeKalman() )
@@ -165,6 +163,8 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     // set material and geometry into genfit
     MaterialEffects* materialEffects = MaterialEffects::getInstance();
     materialEffects->init(new TGeoMaterialInterface());
+
+    if ( GlobalPar::GetPar()->Debug() > 0 )       MagFieldTest();
 
     //--- draw the ROOT box
     GeoPrint();
@@ -213,41 +213,44 @@ void Booter::Process( Long64_t jentry ) {
 
     // // cluster test  -  myn_vtclus
     // // TAVTntuCluster* ntup = (TAVTntuCluster*)myn_vtclus->Object();
-    // TAVTntuCluster* ntup = (TAVTntuCluster*) gTAGroot->FindDataDsc("vtClus", "TAVTntuCluster")->Object();
+    // TAVTntuCluster* ntupVT = (TAVTntuCluster*) gTAGroot->FindDataDsc("vtClus", "TAVTntuCluster")->Object();
     // // for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {   // over all sensors
 
     // for (int nSensor = 0; nSensor < 4; nSensor++) {   // over all sensors
     //     if ( m_debug > 0 )      
-    //     cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetClustersN( nSensor ) << endl;
+    //     // cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetClustersN( nSensor ) << endl;
 
-    //     for (int nPx = 0; nPx < ntup->GetClustersN( nSensor ); nPx++)  {     // over all pixels for each sensor
-    //         cout << "Cluster Test :: cluster number = " << ntup->GetClustersN(nSensor) << " and sensorID = " << ntup->GetCluster( nSensor, nPx )->GetSensorID() << endl;
-    //         TClonesArray* arra = ntup->GetCluster( nSensor, nPx )->GetListOfPixels();
+    //     for (int nPx = 0; nPx < ntupVT->GetClustersN( nSensor ); nPx++)  {     // over all pixels for each sensor
+    //         // cout << "Cluster Test :: cluster number = " << ntup->GetClustersN(nSensor) << " and sensorID = " << ntup->GetCluster( nSensor, nPx )->GetSensorID() << endl;
+    //         TClonesArray* arra = ntupVT->GetCluster( nSensor, nPx )->GetListOfPixels();
     //         for ( int n=0; n<arra->GetEntries(); n++ ) {
     //             TVector3 vPos = ( (TAVTntuHit*) arra->At(n) )->GetPixelPosition_footFrame();
     //             if ( nSensor == 0 )
-    //                 pos2D->Fill( vPos.x(), vPos.y() );
+    //                 ControlPlotsRepository::GetControlObject( "BooterProcess" )->SetClusterView( "clusterVT",vPos.x(), vPos.y() );
+
+    //                 // pos2D->Fill( vPos.x(), vPos.y() );
     //         }
     //     }
     // }
 
-
-    // cluster test  -  myn_vtclus
+    // // cluster test  -  myn_vtclus
     // // TAVTntuCluster* ntup = (TAVTntuCluster*)myn_vtclus->Object();
     // TAITntuCluster* ntup = (TAITntuCluster*) gTAGroot->FindDataDsc("itClus", "TAITntuCluster")->Object();
     // // for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {   // over all sensors
 
     // for (int nSensor = 0; nSensor < 32; nSensor++) {   // over all sensors
     //     // if ( m_debug > 0 )      
-    //     cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetClustersN( nSensor ) << endl;
+    //     // cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetClustersN( nSensor ) << endl;
 
     //     for (int nPx = 0; nPx < ntup->GetClustersN( nSensor ); nPx++)  {     // over all pixels for each sensor
-    //         cout << "Cluster Test :: cluster number = " << ntup->GetClustersN(nSensor) << " and sensorID = " << ntup->GetCluster( nSensor, nPx )->GetSensorID() << endl;
+    //         // cout << "Cluster Test :: cluster number = " << ntup->GetClustersN(nSensor) << " and sensorID = " << ntup->GetCluster( nSensor, nPx )->GetSensorID() << endl;
     //         TClonesArray* arra = ntup->GetCluster( nSensor, nPx )->GetListOfPixels();
     //         for ( int n=0; n<arra->GetEntries(); n++ ) {
     //             TVector3 vPos = ( (TAITntuHit*) arra->At(n) )->GetPixelPosition_footFrame();
     //             if ( nSensor < 16 )
-    //                 pos2D->Fill( vPos.x(), vPos.y() );
+    //                 ControlPlotsRepository::GetControlObject( "BooterProcess" )->SetClusterView( "clusterIT",vPos.x(), vPos.y() );
+
+    //                 // pos2D->Fill( vPos.x(), vPos.y() );
     //         }
     //     }
     // }
@@ -273,7 +276,8 @@ void Booter::Finalize() {
     // pos2D->Draw("colz");
     // quadrante->SaveAs("cluster.png");
 
-	if ( GlobalPar::GetPar()->IncludeKalman() )      m_kFitter->Finalize();
+
+  	if ( GlobalPar::GetPar()->IncludeKalman() )      m_kFitter->Finalize();
 
     if ( GlobalPar::GetPar()->IsPrintOutputFile() )         
         ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputFile();
@@ -302,7 +306,8 @@ void Booter::MagFieldTest() {
     FootField * ff = new FootField( GlobalPar::GetPar()->MagFieldInputMapName().c_str() );
     cout << endl << "Magnetic Field in kGauss test in 0,0,14 : ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,14 ) ).Print();
     cout << endl << "Magnetic no Field in kGauss test in 0,0,0 : ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,0 ) ).Print();
-    cout << "Total mag field on the FOOT axis (from 0 to 40 cm) = " << ff->IntegralField( 4000, 0, 40 ) << " kG" << endl;
+    // cout << "Total mag field on the FOOT axis (from 0 to 40 cm) = " << ff->IntegralField( 4000, 0, 40 ) << " kG*cm" << endl;
+    cout << "Total mag field on the FOOT axis (from VT to MDS cm) = " << ff->IntegralField( 4000, ((TAVTparGeo*) myp_vtgeo->Object())->GetSensorPosition(0).z(), ((TAMSDparGeo*) myp_msdgeo->Object())->GetLayerCenter(2).z() ) << " kG*cm" << endl;
 
 
     // print out of the magnetic field

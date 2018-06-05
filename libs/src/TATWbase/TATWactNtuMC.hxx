@@ -18,6 +18,8 @@
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 
+#include "ControlPlotsRepository.hxx"
+
 class TATWactNtuMC : public TAGaction {
   public:
     explicit TATWactNtuMC(const char* name=0, TAGdataDsc* p_datraw=0, EVENT_STRUCT* evStr=0);

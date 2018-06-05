@@ -288,6 +288,20 @@ public:
       else if (fabs(zy_Vertex) >= 0.1) FillMap( hitSampleName + "__Nosensezy__z" , zy_Vertex);
     }
   }
+
+	void SetClusterView( string hitSampleName, double x, double y  ) {
+		FillMap( hitSampleName + "__clusterView",  x, y);
+	}
+
+	void SetTW_HitView( string hitSampleName, bool isCol, int bar  ) {
+		if ( isCol )		FillMap( hitSampleName + "__column",  bar, (int)0 );
+		else 				FillMap( hitSampleName + "__row",  (int)0, bar );
+	}
+
+	void SetTW_HitPoint( string hitSampleName, int x, int y  ) {
+		FillMap( hitSampleName + "",  x, y);
+	}
+
   
   struct Ntuple_out {
     vector< double >  Reco_track_px;

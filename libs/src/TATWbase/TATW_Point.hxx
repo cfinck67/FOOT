@@ -88,8 +88,11 @@ public:
 	TVector3 GetPosition_detectorFrame();
 	TVector3 GetPosition_footFrame();
 
-	int GetColumn()         { return m_column; };
-	int GetRow()            { return m_row; };
+	int GetColumnID()         { return m_column; };
+	int GetRowID()            { return m_row; };
+
+	int GetColumn()         { return m_columnHit->GetBar(); };
+	int GetRow()            { return m_rowHit->GetBar(); };
 
 	bool IsMC()             { return m_isMC; };
 	bool IsTrueGhost()      { return m_isTrueGhost; };

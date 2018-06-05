@@ -215,8 +215,9 @@ bool TAVTactNtuMC::Action() {
 		
 		// // Digitization test
 		// for ( int io=-10; io<10; io++ ) {
-		//     if (myTrow+io < ) ..........
+		//     if ( myTrow+io >= pGeoMap->GetNPixelY() ||  myTrow+io < 0 ) continue;
 		//     for ( int jo=-10; jo<10; jo++ ) {
+		//     	if ( myTcol+jo >= pGeoMap->GetNPixelX() ||  myTcol+jo < 0 ) continue;
 		//         pNtuRaw->NewPixel(sensorId, 1., myTrow+io, myTcol+jo, "mc_cluster", pixel );
 		//     }
 		// }

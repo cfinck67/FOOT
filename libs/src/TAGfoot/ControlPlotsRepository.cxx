@@ -95,6 +95,8 @@ void ControlPlotsRepository::PrintMap() {
 	m_alreadyPrintedOut = true;
 	m_lastPrintedDir = m_outputDir;
 
+	// fare struttura a cartelle come nel root file
+
 	TCanvas* mirror = new TCanvas( "mirror", "mirror", 700, 700);
 	for ( map< string, ControlPlotInfo >::iterator it = m_chizu.begin(); it != m_chizu.end(); it++ ) {
 

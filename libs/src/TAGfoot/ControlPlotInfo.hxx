@@ -65,7 +65,7 @@ public:
 		m_variablesInt_y.push_back( y );
 		isInt = true;
 		isDoub = false;
-                isHisto2D = true;  
+        isHisto2D = true;  
 		Initialise();
 	};
 
@@ -147,10 +147,10 @@ public:
 
 	bool isDoub;
 	bool isInt;
-        bool isHisto2D;
+    bool isHisto2D;
 
 
-	int m_nBin;
+	int m_nBin, m_nBinX, m_nBinY;
 	double m_minBin_x;
 	double m_maxBin_x;
   

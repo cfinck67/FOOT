@@ -18,7 +18,7 @@ MC Particle Types:	C11	C12	C13 C14	Li6	Li7	B7	B9	B10	Be10	Be11	N14	N15	O16 O15
 
 IncludeKalman: 		y
 Kalman Mode: 		ON
-Tracking Systems Considered:		all
+Tracking Systems Considered:		all 
 Reverse Tracking:	false
 
 VT  Reso: 0.0006
@@ -31,18 +31,19 @@ Kalman Particle Types:	C
 ############	END - Kalman Filter Control Parameters	################
 
 
-IncludeBM:			n
-IncludeIR:			n
-IncludeVertex:		y
+IncludeBM:				n
+IncludeIR:				n
+IncludeVertex:			y
 IncludeInnerTracker:	y
-IncludeMSD:			y
-IncludeTW:			y
-IncludeCA:			n
+IncludeMSD:				y
+IncludeTW:				y
+IncludeCA:				n
 
-IncludeEvent:		y
+IncludeEvent:			y
 
 
 
+#Magnetic field map name:  SummedSingleMap_v14.2.table
 Magnetic field map name:  SummedSingleMap.table
 #Magnetic field map name:  DoubleDipole.table
 #Magnetic field map name:  DoubleGaussMag.table
