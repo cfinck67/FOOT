@@ -307,7 +307,7 @@ void Booter::MagFieldTest() {
     cout << endl << "Magnetic Field in kGauss test in 0,0,14 : ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,14 ) ).Print();
     cout << endl << "Magnetic no Field in kGauss test in 0,0,0 : ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,0 ) ).Print();
     // cout << "Total mag field on the FOOT axis (from 0 to 40 cm) = " << ff->IntegralField( 4000, 0, 40 ) << " kG*cm" << endl;
-    cout << "Total mag field on the FOOT axis (from VT to MDS cm) = " << ff->IntegralField( 4000, ((TAVTparGeo*) myp_vtgeo->Object())->GetSensorPosition(0).z(), ((TAMSDparGeo*) myp_msdgeo->Object())->GetLayerCenter(2).z() ) << " kG*cm" << endl;
+    cout << "Total mag field on the FOOT axis (from VT to MDS cm) = " << ff->IntegralField( 400, ((TAVTparGeo*) myp_vtgeo->Object())->GetSensorPosition(0).z(), ((TAMSDparGeo*) myp_msdgeo->Object())->GetLayerCenter(2).z() ) << " kG*cm" << endl;
 
 
     // print out of the magnetic field

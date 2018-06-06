@@ -138,7 +138,9 @@ double FootField::IntegralField( int step, double start, double end ) {  // in c
 		TVector3 dzVec = TVector3 ( 0, 0, dz );
 		startVec += dzVec;
 		integral += ( Interpolate( startVec ) ).Mag();
+		cout << "Position " << startVec.z() << "  " << ( Interpolate( startVec ) ).Mag() << "   " << integral << endl;
 	}
+	cout << "\tTOTAL (dz= "<<dz<<" ): " << integral * dz << endl;
 
 	return integral * dz;
 }
