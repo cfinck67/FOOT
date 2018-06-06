@@ -146,7 +146,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     genfit::FieldManager::getInstance()->init( new FootField(magFieldMapName.c_str()) ); // variable field
     // genfit::FieldManager::getInstance()->init( new FootField( 7 ) ); // const field
 
-    // MagFieldTest();
+    MagFieldTest();
 
 
     // include the nucleon into the genfit pdg repository
@@ -259,7 +259,8 @@ void Booter::MagFieldTest() {
     FootField * ff = new FootField( GlobalPar::GetPar()->MagFieldInputMapName().c_str() );
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 1,1,14.7 ) ).Print();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic no Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,2 ) ).Print();
-    cout << "Total mag field on the FOOT axis (from 0 to 40 cm) = " << ff->IntegralField( 4000, 0, 40 ) << endl;
+    // cout << "Total mag field on the FOOT axis (from 0 to 40 cm) = " << ff->IntegralField( 4000, 0, 40 ) << endl;
+    cout << "Total mag field on the FOOT axis (from VT to MDS cm) = " << ff->IntegralField( 400, 0.65, 31 ) << " kG*cm" << endl;
 
 
     // print out of the magnetic field
