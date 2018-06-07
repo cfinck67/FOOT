@@ -9,6 +9,8 @@
 
 #include <KalmanFitterRefTrack.h>
 #include <KalmanFitter.h>
+#include <KalmanFitterInfo.h>
+#include <KalmanFitStatus.h>
 #include <DAF.h>
 #include <RKTrackRep.h>
 #include <Track.h>

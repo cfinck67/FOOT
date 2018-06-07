@@ -44,16 +44,19 @@ public:
 	vector<string> KalSystems() { return m_trackingSystems; };
 	vector<string> KalParticles() { return m_kalParticles; };
 	vector<string> MCParticles() { return m_mcParticles; };
+  
+        double VTReso() 	{return m_VTreso; };
+        double ITReso() 	{return m_ITreso; };
+        double MSDReso()        {return m_MSDreso; };
 
-	double VTReso() 	{return m_VTreso; };
-    double ITReso() 	{return m_ITreso; };
-    double MSDReso()        {return m_MSDreso; };
 
     bool IsPrintOutputFile() { return m_printoutfile; };
     string OutputFile() { return m_outputfilename; };
- 
-    bool IsPrintOutputNtuple() { return m_printoutntuple; };
-    string OutputNtuple() { return m_outputntuplename; };
+
+  bool IsPrintOutputNtuple() { return m_printoutntuple; };
+  string OutputNtuple() { return m_outputntuplename; };
+  
+  
 	
     bool IncludeBM() { return m_includeBM; };
     bool IncludeIR() { return m_includeIR; };

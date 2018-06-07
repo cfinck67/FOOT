@@ -107,7 +107,6 @@ void FootField::get(const double& posX, const double& posY, const double& posZ, 
 
 
 
-
 double FootField::IntegralField( int step, double start, double end ) {  // in cm
 
 	double integral = 0;
@@ -126,7 +125,6 @@ double FootField::IntegralField( int step, double start, double end ) {  // in c
 	cout << "\tTOTAL (dz= "<<dz<<" ): " << integral * dz << endl;
 	return integral * dz;
 }
-
 
 
 // same for real and const field

@@ -203,14 +203,14 @@ int KFitter::PrepareData4Fit( Track* fitTrack ) {
 	vector <int> hitsToBeRemoved;
 	int hitsCount = 0;
 	for ( map< string, vector<AbsMeasurement*> >::iterator it=m_hitCollectionToFit.begin(); it != m_hitCollectionToFit.end(); it++ ) {
-		if ( !PrefitRequirements( it ) )	{	// to be exactely 1 hit per layer
-			hitsToBeRemoved.push_back( hitsCount );
-			// // if requirements are FALSE -> delete each AbsMeasurement objects
-			// for ( vector<AbsMeasurement*>::iterator it2=(*it).second.begin(); it2 != (*it).second.end(); it2++ ) {
-			// 	delete (*it2);
-			// 	// delete (*it).second.at(i);	// wrong!
-			// }
-		}
+	  if ( !PrefitRequirements( it ) )	{	// to be exactely 1 hit per layer
+	    hitsToBeRemoved.push_back( hitsCount );
+	    // // if requirements are FALSE -> delete each AbsMeasurement objects
+	    // for ( vector<AbsMeasurement*>::iterator it2=(*it).second.begin(); it2 != (*it).second.end(); it2++ ) {
+	    // 	delete (*it2);
+	    // 	// delete (*it).second.at(i);	// wrong!
+	    // }
+	  }
 		hitsCount++;
 	}
 	hitsCount = 0;
@@ -718,8 +718,8 @@ int KFitter::MakeFit( long evNum ) {
 	Track*  fitTrack = new Track();  // container of the tracking objects
 
 	// fill m_hitCollectionToFit
-    PrepareData4Fit( fitTrack );
-    // check the hit vector not empty otherwise clear
+        PrepareData4Fit( fitTrack );
+	// check the hit vector not empty otherwise clear
 	if ( m_hitCollectionToFit.size() <= 0 )	{	
 		if ( m_debug > 0 )		cout << "No category to fit in this event..." << endl;
 		// m_VT_hitCollection.clear();
@@ -755,7 +755,7 @@ int KFitter::MakeFit( long evNum ) {
 		SetTrueSeed( &pos, &mom );	// get seed from MC for debug
 		// set seed
 		fitTrack->setStateSeed(pos, mom);		
-
+		
 		// insert points to be fitted  -   loop over each measurement in the current collection
 		for ( unsigned int i=0; i < (*hitSample).second.size(); i++ )	{
 			fitTrack->insertMeasurement( (*hitSample).second.at(i) );
@@ -769,6 +769,8 @@ int KFitter::MakeFit( long evNum ) {
 		fitTrack->checkConsistency();
 		if ( m_debug > 3 )		fitTrack->Print();
 
+
+
 		//pre-fit
 		MakePrefit();
 
@@ -779,14 +781,17 @@ int KFitter::MakeFit( long evNum ) {
 			else if ( GlobalPar::GetPar()->KalMode() == 2 )
 				m_refFitter->processTrack(fitTrack);
 			else if ( GlobalPar::GetPar()->KalMode() == 3 )
-				m_dafRefFitter->processTrack(fitTrack);
+			        m_dafRefFitter->processTrack(fitTrack);
 			else if ( GlobalPar::GetPar()->KalMode() == 4 )
-				m_dafSimpleFitter->processTrack(fitTrack);
-		
+			        m_dafSimpleFitter->processTrack(fitTrack);
+			        
 			if ( m_debug > 3 )		fitTrack->Print();
 			if ( m_debug > 0 )		cout << "Fitted " << fitTrack->getFitStatus(rep)->isFitted() << endl;
 			if ( fitTrack->getFitStatus(rep)->isFitConverged() &&  fitTrack->getFitStatus(rep)->isFitted() )	isConverged = 1;	// convergence check
 			if ( m_debug > 3 )		fitTrack->Print("C");
+			
+			// cout << "track print"  << endl;
+			// fitTrack->Print();
 
 			// map of the tracked particles for each category
 			if ( m_nTotTracks.find( (*hitSample).first ) == m_nTotTracks.end() )	m_nTotTracks[ (*hitSample).first ] = 0;
@@ -957,6 +962,9 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 								&KalmanMass );
 		/////////////////////////////////////////////////
 		
+		
+		
+		
 		if ( m_debug > 0 )	{
 			cout <<endl<< "Single Event Debug\t--\t" << hitSampleName << endl;
 			cout << "Hit num = " << i << "  --  MC mass = " << tmp_mass << endl;
@@ -1007,6 +1015,9 @@ void KFitter::RecordTrackInfo( Track* track, string hitSampleName ) {
 				m_controlPlotter->Set_Outputntuple(&kalmanMom, &kalmanPos, &tmp_genMom);
 		}
 	}
+
+	
+
 	
 }
 
@@ -1079,6 +1090,9 @@ void KFitter::GetKalmanTrackInfo ( string hitSampleName, int i, Track* track,
 			(*KalmanPos_cov)(j,k) = (track->getFittedState(i).get6DCov())[j][k];
 		}
 	}
+
+
+
 
 }
 
@@ -1168,7 +1182,7 @@ double KFitter::EvalError( TVector3 mom, TMatrixD cov ) {
 // Called from outside!
 void KFitter::Finalize() {
 
-	// make a directory for each hit category that forms a track candidate
+	// // make a directory for each hit category that forms a track candidate
 	struct stat info;
 	for ( unsigned int i=0; i < m_categoryFitted.size(); i++ ) {
 		string pathName = m_kalmanOutputDir+"/"+m_categoryFitted.at(i);
@@ -1176,12 +1190,21 @@ void KFitter::Finalize() {
 		    system(("mkdir "+pathName).c_str());
 	}
 
+	
 	PrintEfficiency();
 
 	m_fitTrackCollection->EvaluateMomentumResolution();
-
+	
+	// m_printoutfile = GlobalPar::GetPar()->IsPrintOutputFile();
+	// if (m_printoutfile)	m_controlPlotter->PrintOutputFile();
+	// else   m_controlPlotter->PrintMap();
+	
+	// m_printoutntuple = GlobalPar::GetPar()->IsPrintOutputNtuple();
+	// if(m_printoutntuple) m_controlPlotter->PrintOutputNtuple();
+	
 	m_categoryFitted.clear();
-
+	
+	
 }
 
 

@@ -9,6 +9,8 @@
 #include <math.h>
 
 #include "Booter.hxx"
+#include "TGraphErrors.h"
+#include "TF1.h"
 
 //MC block
 #include "TAGntuMCeve.hxx"
@@ -43,34 +45,35 @@ public :
   void Finalize();
 
 private:
+  
+  #define UMA 0.9310986964
 
   int debug_multi;
+  bool doMinDist;
   
-  void BookHisto();
+  void EfficiencyChi2Fit();
+  void EfficiencyMinimumDistance();
+  //void FindVertexCoordinate();
+  void fint(TF1 *f1, TF1 *f2);
 
+  double VertexZ( vector<double> m_p0,  vector<double> m_p1 ); 
+  
   // //MC block
   TAGdataDsc* myn_mceve;
   TAGaction* mya_mceve;
-  
- 
-  TAITntuRaw* myn_itraw;
+
+  // //VT block
   TAVTntuRaw* myn_vtraw;
+  TAGparaDsc* myp_vtgeo;
+  shared_ptr<TAVTparGeo> m_VT_geo;
+
+  // //IT block
+  TAITntuRaw* myn_itraw;
+
+  // //MSD block
   TAMSDntuRaw* myn_msdraw;
- 
-  
-  TFile* f;
-  TH1F* histo_Track;
-  TH1F* histo_VT;
-  TH1F* histo_IT;
-  TH1F* histo_MSD;
-  TH1F* histo_TrackingHit;
-  TH2F* h_zx;
-  TH2F* h_zy;
-  TH2F* h_yx;
-  TH2F* h_zr;
-  TH2F* h_rphi;
-  TH2F* h_etaphi;
-  TH2F* h_thetaphi;
+
+
   
   vector<TAVTntuHit*> m_VT_hitCollection;
   vector<TAITntuHit*> m_IT_hitCollection;
@@ -80,22 +83,54 @@ private:
   
   vector<int> m_Frag_indexCollection;
   vector< int > m_VT_partIDColl;
-
+  
   vector<int> m_FragIdxs;
   vector<int> m_Trcks9index;
   map< string, vector<TVector3>> m_DetTrackpos;
-  vector<TVector3> m_VTX_Trackpos;
+
+  vector<TVector3> m_VT_Trackpos;
   vector<TVector3> m_IT_Trackpos;
   vector<TVector3> m_MSD_Trackpos;
 
+  vector <TVector3> firstVThitlist;
+  vector <TVector3> secondVThitlist;
+  vector <TVector3> thirdVThitlist;
+  vector <TVector3> lastVThitlist;
+
+  vector <TVector3> firstIThitlist;
+  vector <TVector3> secondIThitlist;
+
+  vector <TVector3> firstMSDhitlist;
+  vector <TVector3> secondMSDhitlist;
+  vector <TVector3> thirdMSDhitlist;
+  
   int tmpVT_partID, VT_partID, VT_charge;
   int tmpIT_partID, IT_partID, IT_charge;
   int tmpMSD_partID, MSD_partID, MSD_charge;
+  
+  int distanceok;
+  int distancetot;
+  int pos1, pos2, pos3, pos4;
+  
+  int  badchi2truetrack;
+  int  tottrackwith9hits;
+  int  tottrackwithatleastonehitperdet;
+  int  tottrack;
+  int  Chi2oftruetrack;
+  int  Chi2ofallgoodtrack;
+  int  Chi2goodwithtruetrack;
+  int  goodchi2truetrack;
+  
+  bool Truetrack;
+  bool TwoTrackEvent;
+  
+  vector<double> m_p0_zx;
+  vector<double> m_p0_zy;
 
+  vector<double> m_p1_zx;
+  vector<double> m_p1_zy;
   
- 
   
-  //map< int,  vector<TAITntuHit*>> m_IT_hitColl;
-  // map< int,  vector<TAMSDntuHit*>> m_MSD_hitColl;
-};
+  ControlPlotsRepository* m_Plotter;
+  };
 #endif
