@@ -47,7 +47,8 @@ FootField::FootField ( string fileName ) {
 
         // cout << "x " << x << " y " << y << " z " << z << " px " <<  bx << " by " << by << " bz " << bz << endl;
         // multidimensional map called lattice3D = map< double, map< double, map< double, TVector3 > > >
-        m_filedMap[x][y][z] = TVector3(bx, by, bz);
+        m_filedMap[x + MAG_AIR_X][y + MAG_AIR_Y][z + MAG_AIR_Z] = TVector3(bx, by, bz);
+        // m_filedMap[x][y][z] = TVector3(bx, by, bz);
 
     }  
     ifile.close();
@@ -85,7 +86,7 @@ FootField::FootField ( float constValue ) {
 
 // return B as a vector, given vector position
 TVector3 FootField::get(const TVector3& position) const {
-	const TVector3 localPosition = TVector3( position.x() - MAG_AIR_X, position.y() - MAG_AIR_Y, position.z() - MAG_AIR_Z );	//to local coord
+	const TVector3 localPosition = TVector3( position.x(), position.y(), position.z() );	//to local coord
 	return const_cast<FootField*>(this)->Interpolate( localPosition );
 }
 
@@ -95,7 +96,7 @@ TVector3 FootField::get(const TVector3& position) const {
 // first 3 variables are the input position components, last 3 var are the output b components
 void FootField::get(const double& posX, const double& posY, const double& posZ, double& Bx, double& By, double& Bz) const { 
 		
-	const TVector3 position = TVector3(posX - MAG_AIR_X, posY - MAG_AIR_Y, posZ - MAG_AIR_Z );	//to local coord
+	const TVector3 position = TVector3(posX, posY, posZ );	//to local coord
 
 	TVector3 outField = const_cast<FootField*>(this)->Interpolate( position );
 
@@ -112,14 +113,17 @@ double FootField::IntegralField( int step, double start, double end ) {  // in c
 	double integral = 0;
 	double dz = ( end - start ) / step;
 	TVector3 startVec = TVector3( 0, 0, start );
+	double start2 = start;
 
 	for ( int i=0; i<step; i++ ) {
 		TVector3 dzVec = TVector3 ( 0, 0, dz );
+		start2+=dz;
+		cout << "start "<<start << " dz "<< dz<< " pos " <<  start2 << endl;
 		startVec += dzVec;
 		integral += ( Interpolate( startVec ) ).Mag();
-		// cout << "Position " << startVec.z() << "  " << ( Interpolate( startVec ) ).Mag() << "   " << integral << endl;
+		cout << "Position " << startVec.z() << "  " << ( Interpolate( startVec ) ).Mag() << "   " << integral << endl;
 	}
-	// cout << "\tTOTAL (dz= "<<dz<<" ): " << integral * dz << endl;
+	cout << "\tTOTAL (dz= "<<dz<<" ): " << integral * dz << endl;
 	return integral * dz;
 }
 
