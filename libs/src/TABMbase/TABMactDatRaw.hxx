@@ -16,7 +16,7 @@
 class TABMactDatRaw : public TAGaction {
   public:
 
-    Bool_t openFile(TABMparCon*);  //load in datastream the data file
+    //~ Bool_t openFile(TABMparCon*);  //load in datastream the data file, provv da modificare cancellare
 
     explicit        TABMactDatRaw(const char* name=0,
 				 TAGdataDsc* p_datraw=0,
@@ -34,7 +34,7 @@ class TABMactDatRaw : public TAGaction {
     //~ TAGdataDsc*     fpDatMbs;		    // input data dsc
     TAGparaDsc*     fpParMap;		    // parameter dsc
     TAGparaDsc*     fpParCon;		    // parameter dsc
-    ifstream datastream;                  // file di dati in input (cosa provvisoria per test calibrazione)
+    //~ ifstream datastream;                  // file di dati in input (cosa provvisoria per test calibrazione)
   
 };
 

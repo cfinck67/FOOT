@@ -8,6 +8,8 @@
 
 #include <fstream>
 #include <math.h>
+#include <vector>
+
 using namespace std; 
 #include "TSystem.h"
 #include "TString.h"
@@ -39,7 +41,8 @@ TABMparCon::TABMparCon() {
   fitter_index = 0;
   bm_debug=0;
   bm_vietrack=0;
-  
+  total_ev_num=0;
+  tdc_maxcha=64;
   
   vector<double> myt0s;
   myt0s.resize(36);
@@ -146,15 +149,15 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      Error(""," Plane Map Error:: check config file!! (A)");
 	      return kTRUE;
         }
-    }else if(strchr(bufConf,'M')) {
-      sscanf(bufConf, "M %d %s",&myArgInt, tmp_char);
-      if(myArgInt==0 || myArgInt==1){
-        m_isMC = myArgInt;
-        datafile_name=tmp_char;
-      }else {
-	      Error(""," Plane Map Error:: check config file!! (M)");
-	      return kTRUE;
-        }
+    //~ }else if(strchr(bufConf,'M')) {
+      //~ sscanf(bufConf, "M %d %s",&myArgInt, tmp_char);
+      //~ if(myArgInt==0 || myArgInt==1){
+        //~ m_isMC = myArgInt;
+        //~ datafile_name=tmp_char;
+      //~ }else {
+	      //~ Error(""," Plane Map Error:: check config file!! (M)");
+	      //~ return kTRUE;
+        //~ }
     }else if(strchr(bufConf,'T')) {
       sscanf(bufConf, "T %d %lf",&myArgInt, &myArg1);
       if(myArgInt>0 || myArg1>0.){
@@ -183,7 +186,6 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 }
 
 
-
 void TABMparCon::loadT0s(const TString& name) {
 
   TString name_exp = name;
@@ -209,7 +211,7 @@ void TABMparCon::loadT0s(const TString& name) {
       sscanf(bufConf, "#%lf %d %d %d",&myArg1,&myArg2,&myArg3,&myArg4);
       if((myArg2== -1 || myArg2==1) && (myArg3>=0 && myArg3<=5) && (myArg4>=0 || myArg4<=2)) {
 	int tmpv = myArg2;
-	if(myArg2<0)tmpv = 0;
+	if(myArg2<0)tmpv = 0;//per shift delle view che in file sono -1 e 1, mentre qua serve 0 e 1
 	int chidx = myArg4+myArg3*3+tmpv*18;
 	v_t0s.at(chidx) = myArg1;
       } else {

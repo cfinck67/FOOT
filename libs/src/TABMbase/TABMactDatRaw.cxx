@@ -44,19 +44,19 @@ TABMactDatRaw::TABMactDatRaw(const char* name,
 
 TABMactDatRaw::~TABMactDatRaw()
 {
-  datastream.close();    
+  //~ datastream.close();    
 }
 
 //------------------------------------------+-----------------------------------
 //! Action.
 
-Bool_t TABMactDatRaw::openFile(TABMparCon* p_parcon) {
+//~ Bool_t TABMactDatRaw::openFile(TABMparCon* p_parcon) {
   
-  datastream.open(p_parcon->GetBMdataFileName(), ios::in | ios::binary);
-  if(datastream.is_open())
-    return kTRUE;
-  return kFALSE;
-}
+  //~ datastream.open(p_parcon->GetBMdataFileName(), ios::in | ios::binary);
+  //~ if(datastream.is_open())
+    //~ return kTRUE;
+  //~ return kFALSE;
+//~ }
 
 Bool_t TABMactDatRaw::Action() {
   cout<<"sono in action di tabmactdatraw"<<endl;
@@ -69,13 +69,13 @@ Bool_t TABMactDatRaw::Action() {
   TABMparCon*    p_parcon = (TABMparCon*)    fpParCon->Object();
   Int_t sID, plane, view;
   
-  if(!datastream.is_open()){
-    if(!openFile(p_parcon)){
-      cout<<"ERROR in TABMactDatRaw::Action: I can not open data file="<<p_parcon->GetBMdataFileName()<<endl;
-      return kFALSE;
-    }else
-      cout<<"BM data file open!  data file name="<<p_parcon->GetBMdataFileName()<<endl;
-  }
+  //~ if(!datastream.is_open()){
+    //~ if(!openFile(p_parcon)){
+      //~ cout<<"ERROR in TABMactDatRaw::Action: I can not open data file="<<p_parcon->GetBMdataFileName()<<endl;
+      //~ return kFALSE;
+    //~ }else
+      //~ cout<<"BM data file open!  data file name="<<p_parcon->GetBMdataFileName()<<endl;
+  //~ }
   
   //my acquisition software (not the official FOOT DAQ) stuff
   

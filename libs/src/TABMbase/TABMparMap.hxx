@@ -40,7 +40,8 @@ class TABMparMap : public TAGpara {
     inline int getSense(int add) { return chaSense.at(add); }
     inline int getPlane(int add) { return chaPlane.at(add); }
     inline int getView(int add) { return chaView.at(add); }
-
+    inline int getTrefch(){return trefCh;}
+    
     ClassDef(TABMparMap,1)
 
   private:
@@ -48,7 +49,7 @@ class TABMparMap : public TAGpara {
     Bool_t          CheckAddr(Int_t i_c) const;
 
   private:
-    int trefCh;
+    int trefCh;  //trigger reference channel
     vector<int> chaID;
     vector<int> chaBoID;
     vector<int> chaPlane;

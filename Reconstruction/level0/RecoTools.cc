@@ -156,6 +156,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 //recoloop for the bm calibration
 void RecoTools::RecoBMcal(TAGroot *tagr) {
   TAGpadGroup* pg = new TAGpadGroup();
+  //~ ifstream inF; //input file
+  //~ int eSwSize; //dummy variable to read the input file 
 
   //Configure the output flagging
   tagr->SetCampaignNumber(100);
@@ -171,7 +173,7 @@ void RecoTools::RecoBMcal(TAGroot *tagr) {
 
 
   BMcalBooter* bmcalbooter = new BMcalBooter();
-  bmcalbooter->Initialize( m_wd );
+  bmcalbooter->Initialize(m_wd,m_instr);
 
   /***********  The event Loop   ****************************************   */    
   tagr->BeginEventLoop();
@@ -179,9 +181,17 @@ void RecoTools::RecoBMcal(TAGroot *tagr) {
   //~ Long64_t nbytes = 0, nb = 0;
   char flag[200]; bool tobedrawn = kFALSE;
 
-  if(m_debug)         cout<<" Starting first Loop "<<endl;
+  //first loop to read the .dat file, charge the TABMdatRaw (without the T0!), evaluate T0,nentries etc.
+  //~ for(unsigned int ifi=0; ifi<my_files.size(); ifi++) {//BE CARFUL!: actually, more input data files isn't supported/tested
+    //~ if(m_debug)         
+      //~ cout<<" Starting first Loop: reading "<<my_files.at(ifi).data()<<" file"<<endl;    
+    //~ inF.open(myfiles.at(ifi).data(), ios::in | ios::binary);
+    //~ while(inF.read((char *) &eSwSize,sizeof(int))) {//loop sul file .dat    
 
-  //first loop to read the .dat file, evaluate the T0, nentries etc.
+    //~ }
+  //~ }//end of loop on files
+  
+  
  
 
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
@@ -196,11 +206,7 @@ void RecoTools::RecoBMcal(TAGroot *tagr) {
 
       ///////////////  Call here your Process() functions    /////////////////////////////////////////////
 
-
-      //~ booter->Process( jentry );
-      //~ if (GlobalPar::GetPar()->IncludeBM())
       bmcalbooter->Process();
-
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -212,8 +218,6 @@ void RecoTools::RecoBMcal(TAGroot *tagr) {
   }
   cout << "End of the event loop " << endl;
 
-  //~ booter->Finalize();
-  //~ bmbooter->Finalize();
   bmcalbooter->Finalize();
   
   if(GlobalPar::GetPar()->IsPrintOutputFile())

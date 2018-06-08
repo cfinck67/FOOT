@@ -66,6 +66,8 @@ public:
   void GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_x, Double_t& h_y, Double_t& h_z, Double_t& h_cx, Double_t& h_cy, Double_t& h_cz); //used in TABMvieTrackFOOT
   //get a number from 0 to 35 to identify any cell (ivew=1 or -1)
   Int_t GetBMNcell(Int_t ilay, Int_t iview, Int_t icell){return icell+((iview==1) ? 0:1)*3+ilay*6;};
+  //for a given cellid, it sets the ilay (0-5), view (1 or-1) and icell (0-2) 
+  Bool_t GetBMNcell(Int_t cellid, Int_t& ilay, Int_t& iview, Int_t& icell);
   //get a number from 0 to 12 to identify real wire plane (iview=1 or -1)
   Int_t GetWirePlane(Int_t ilay, Int_t iview){return ((iview==1) ? 0:1) + ilay*2;};
   TVector3    GetCenter(){return m_center;};

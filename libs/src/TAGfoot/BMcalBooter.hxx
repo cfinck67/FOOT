@@ -23,6 +23,7 @@
 #include "KFitter.hxx"
 #include "GlobalPar.hxx"
 #include "UpdatePDG.hxx"
+#include "BM_struct.h"
 
 
 #include <ctime>
@@ -40,12 +41,14 @@ class BMcalBooter {
   BMcalBooter();
   ~BMcalBooter() {};
 
-  void Initialize( TString wd_in );
+  void Initialize( TString wd_in,TString instr_in);
   void Process();
   void Finalize();
 
   void GeoPrint();
-
+  Bool_t CalculateT0();
+  Bool_t read_event();
+  void evaluateT0();
 
   //Actions for Tupling DATA info for the various subdetectors
   void FillDataBeamMonitor();
@@ -57,32 +60,30 @@ class BMcalBooter {
 
   void initBMGeo(); //Beam Monitor Geometry
   void initBMCon();
+  void initBMMap();
 
-  void bookHisto(TFile *f);
-  void CalibBMVT();
-  void MonitorBMVTMat();
-  void MonitorBMNew(Long64_t jentry);
+  //~ void bookHisto(TFile *f);
+  //~ void CalibBMVT();
+  //~ void MonitorBMVTMat();
+  //~ void MonitorBMNew(Long64_t jentry);
   //~ void MonitorBM();
 
   TAGgeoTrafo* fGeoTrafo;
   TGeoVolume *top;
-
-  KFitter* m_kFitter;
-
-  fstream eventListFile;
-
+  //~ KFitter* m_kFitter;
+  //~ fstream eventListFile;
   // time variables
   clock_t start_tot, end_tot;
   clock_t start_kal, end_kal;
-  double m_tempo_kal;
-
-  int m_nev;
-  int m_debug;
-  TFile* m_of;
-  TFile* m_hf;
-  TString m_oustr;
-  TString m_instr;
+  //~ double m_tempo_kal;
+  //~ int m_nev;
+  //~ int m_debug;
+  //~ TFile* m_of;
+  //~ TFile* m_hf;
+  //~ TString m_oustr;
+  //~ TString m_instr;
   TString m_wd;//working dir (from level0)
+  TString m_instr;//input file name
 
   // vector<string> my_files;
 
@@ -90,27 +91,24 @@ class BMcalBooter {
   TAGparaDsc* myp_bmgeo;
   TAGparaDsc* myp_bmcon;
   TAGparaDsc* myp_bmmap;
-    
   shared_ptr<TAMSDparGeo> m_msdgeo;
-
   TAGparaDsc* myp_msdmap;
   TAGparaDsc* myp_msdcal;
   TAGparaDsc* myp_msdgeo;
   TAGparaDsc* myp_msdconf;
 
-  //Data descriptions
- 
+  //Data descriptions 
   TAGdataDsc* myn_bmraw;
   TAGdataDsc* myn_bmdatraw;
   TAGdataDsc* myn_bmtrk;
-
   TAGdataDsc* myn_msdraw;
-
-  //Actions
 
   // TAGactTreeWriter* my_out;
   TAGaction* mya_msdraw;
 
+  ifstream datafile;
+  BM_struct bmstruct;
+  
 };
 
 #endif
