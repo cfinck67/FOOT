@@ -60,7 +60,7 @@ class Booter {
   void FillMCTofWall(EVENT_STRUCT *myStr);
 
   //Actions for Tupling DATA info for the various subdetectors
-  void FillDataBeamMonitor();
+  //~ void FillDataBeamMonitor();
 
   //Monitors/Displays
   // void DisplayIRMonitor(TAGpadGroup* pg, EVENT_STRUCT *myStr);

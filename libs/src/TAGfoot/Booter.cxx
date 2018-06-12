@@ -498,23 +498,23 @@ void Booter::FillMCEvent(EVENT_STRUCT *myStr) {
 }
 
 
-void Booter::FillDataBeamMonitor() {
-  if (GlobalPar::GetPar()->Debug()>10)
-    cout<<"I'm in Booter::FillDataBeamMonitor"<<endl;  
+//~ void Booter::FillDataBeamMonitor() {
+  //~ if (GlobalPar::GetPar()->Debug()>10)
+    //~ cout<<"I'm in Booter::FillDataBeamMonitor"<<endl;  
   
-  myn_bmdatraw    = new TAGdataDsc("myn_bmdatraw", new TABMdatRaw());
-  new TABMactDatRaw("an_bmdatraw",myn_bmdatraw, myp_bmmap, myp_bmcon); 
+  //~ myn_bmdatraw    = new TAGdataDsc("myn_bmdatraw", new TABMdatRaw());
+  //~ new TABMactDatRaw("an_bmdatraw",myn_bmdatraw, myp_bmmap, myp_bmcon); 
    
-  myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
-  new TABMactNtuRaw("an_bmraw", myn_bmraw, myn_bmdatraw, myp_bmgeo, myp_bmcon); 
+  //~ myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
+  //~ new TABMactNtuRaw("an_bmraw", myn_bmraw, myn_bmdatraw, myp_bmgeo, myp_bmcon); 
   
-  myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());  
-  new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
+  //~ myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());  
+  //~ new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
     
-  if (GlobalPar::GetPar()->Debug()>10)
-    cout<<"I finish Booter::FillDataBeamMonitor"<<endl;  
-  return;
-}
+  //~ if (GlobalPar::GetPar()->Debug()>10)
+    //~ cout<<"I finish Booter::FillDataBeamMonitor"<<endl;  
+  //~ return;
+//~ }
 
 
 

@@ -42,7 +42,6 @@ TABMparCon::TABMparCon() {
   bm_debug=0;
   bm_vietrack=0;
   total_ev_num=0;
-  tdc_maxcha=64;
   
   vector<double> myt0s;
   myt0s.resize(36);
@@ -210,13 +209,13 @@ void TABMparCon::loadT0s(const TString& name) {
     } else if(strchr(bufConf,'#')) {
       sscanf(bufConf, "#%lf %d %d %d",&myArg1,&myArg2,&myArg3,&myArg4);
       if((myArg2== -1 || myArg2==1) && (myArg3>=0 && myArg3<=5) && (myArg4>=0 || myArg4<=2)) {
-	int tmpv = myArg2;
-	if(myArg2<0)tmpv = 0;//per shift delle view che in file sono -1 e 1, mentre qua serve 0 e 1
-	int chidx = myArg4+myArg3*3+tmpv*18;
-	v_t0s.at(chidx) = myArg1;
+        int tmpv = myArg2;
+        if(myArg2<0)tmpv = 0;//per shift delle view che in file sono -1 e 1, mentre qua serve 0 e 1
+        int chidx = myArg4+myArg3*3+tmpv*18;
+        v_t0s.at(chidx) = myArg1;
       } else {
-	Error(""," Plane Map Error:: check config file!!");
-	return;
+        Error(""," Plane Map Error:: check config file!!");
+        return;
       }
     }
   }
@@ -235,20 +234,21 @@ void TABMparCon::SetT0s(vector<double> t0s) {
   return;
 }
 
-Double_t TABMparCon::GetT0(int view, int plane, int cell) {
+//~ Double_t TABMparCon::GetT0(int view, int plane, int cell) {
 
-  Double_t t0(0.);
+  //~ Double_t t0(0.);
 
-  int my_view = 0; 
-  if(view<0) my_view = 1;
+  //~ int my_view = 0; 
+  //~ if(view<0) my_view = 1;
   
-  int my_idx = my_view*18+plane*3+cell;
+  //~ int my_idx = my_view*18+plane*3+cell;
 
-  t0 = v_t0s.at(my_idx);
+  //~ t0 = v_t0s.at(my_idx);
+  
+  
+  //~ return t0;
 
-  return t0;
-
-}
+//~ }
 
 
 //------------------------------------------+-----------------------------------

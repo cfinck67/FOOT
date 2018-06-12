@@ -41,7 +41,12 @@ class RecoTools {
   //Reconstructions
   void RecoLoop(TAGroot *tagr, int fr);
   void RecoBMcal(TAGroot *tagr);  
+  
+  //setters
+  void SetIsData(int isdata){m_isdata=isdata;};
+  void IsRoma(){m_isroma=kTRUE;};
 
+  
   // //Actions for Tupling MC info for the various subdetectors
   // void FillMCEvent(EVENT_STRUCT *myStr);
   // void FillMCBeamMonitor(EVENT_STRUCT *myStr);
@@ -79,6 +84,7 @@ class RecoTools {
   int m_nev;
   int m_debug;
   int m_isdata;
+  bool m_isroma;//provv
   TFile* m_of;
   TFile* m_hf;
   TString m_oustr;
@@ -90,6 +96,10 @@ class RecoTools {
   // TAGdataDsc* myn_mcmimo;
 
   vector<string> my_files;
+  TChain *tree;
+  BMcalBooter* bmcalbooter;
+  Booter* booter;
+  BmBooter* bmbooter;
 
   //Parameters
   // TAGparaDsc* myp_bmgeo;

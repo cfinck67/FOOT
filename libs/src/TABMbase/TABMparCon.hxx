@@ -48,13 +48,13 @@ class TABMparCon : public TAGpara {
     //~ string GetBMdataFileName(){return datafile_name;};
     Int_t GetBMcharge(){return part_in_charge;};
     Double_t GetBMmom(){return part_in_mom;};
-    Int_t GetTdcMaxcha(){return tdc_maxcha;};
 
     //acquisition stuff
     //~ void        CalculateT0(TABMparMap* o_bmmap, TString datafile_name);//calculate the T0
     void        loadT0s(const TString& name); 
     void        SetT0s(vector<double> t0s);
-    Double_t    GetT0(int view, int plane, int cell);
+    Double_t    GetT0(int view, int plane, int cell){return GetT0(cell+((view==-1) ? 1:0)*3+plane*6);};
+    Double_t    GetT0(int index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
 
     void LoadSTrel(TString sF);
     double STrelCorr(double time, int ic, int ip, int iv);
@@ -93,10 +93,9 @@ class TABMparCon : public TAGpara {
     Int_t    part_in_charge;//for BM Genfit tracking
     Double_t part_in_mom;//for BM Genfit tracking
     Int_t    total_ev_num;//total number of events
-    Int_t    tdc_maxcha;//tdc number of channel
     
     //old framework stuff...:
-    vector<double> v_t0s;
+    vector<double> v_t0s;//T0
 
     TF1* f_mypol;
     TF1* f_mypol2;

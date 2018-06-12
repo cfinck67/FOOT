@@ -40,7 +40,7 @@ class TABMdatRaw : public TAGdata {
                     TABMdatRaw();
     virtual         ~TABMdatRaw();
 
-    void            SetHitData(Int_t view, Int_t lay, Int_t cell, double time);
+    void            SetHitData(Int_t lay, Int_t view, Int_t cell, double time);
     void            SetCounter(Int_t i_ntdc, Int_t i_ndrop);
 
     Int_t           NHit() const;
@@ -56,8 +56,8 @@ class TABMdatRaw : public TAGdata {
     ClassDef(TABMdatRaw,1)
 
   private:
-    Int_t           fiNTdc;		    // 
-    Int_t           fiNDrop;		    // 
+    Int_t           fiNTdc;		      //number of accepted tdc values
+    Int_t           fiNDrop;		    //number of discharged tdc values
     vector<TABMrawHit> fHitList;		    //list of TABMrawHit 
 };
 

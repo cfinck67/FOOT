@@ -51,7 +51,6 @@ TABMactNtuMC::~TABMactNtuMC()
 
 Bool_t TABMactNtuMC::Action()
 { 
-  cout<<"sono in action di actntumc"<<endl;//provv
   TAGgeoTrafo* fpFirstGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
 
   TABMntuRaw* p_nturaw = (TABMntuRaw*) fpNtuMC->Object();

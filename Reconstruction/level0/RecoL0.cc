@@ -47,6 +47,7 @@ int main (int argc, char *argv[]) {
   TString outH("DecodeMC_histo.root");
   bool isdata(kFALSE); //0=MC, 1=real data analysis 
   bool alist(kFALSE);
+  bool roma(kFALSE);//provv, to read the data taken in Roma 2017 for the BM refurbishment
   for (int i = 0; i < argc; i++){
     if(strcmp(argv[i],"-out") == 0)   { out =TString(argv[++i]);  }                        // Root file name for output
     if(strcmp(argv[i],"-outh") == 0)  { outH =TString(argv[++i]);  }                      // Root file name for histo output
@@ -57,6 +58,7 @@ int main (int argc, char *argv[]) {
     if(strcmp(argv[i],"-pl_fr") == 0) { pl_freq = atoi(argv[++i]);    }                  // Plot Frequency Number 
     if(strcmp(argv[i],"-list") == 0)  { alist = kTRUE;                 }                  // Input File is a list
     if(strcmp(argv[i],"-data") == 0)  { isdata = kTRUE;               }          // iteration on data/MC
+    if(strcmp(argv[i],"-roma") == 0)  { roma = kTRUE;               }          // iteration on data/MC
 
     if(strcmp(argv[i],"-help") == 0)  { 
       cout<<" Decoder help:"<<endl;
@@ -104,8 +106,13 @@ int main (int argc, char *argv[]) {
   RecoTools d(debug,in,alist,out,wdir,nTotEv, hF);
 
   if(isdata)
-    d.RecoBMcal(&tagroot);
-  else
+    d.SetIsData(isdata);
+  if(roma)
+    d.IsRoma();
+
+  //~ if(isdata)
+    //~ d.RecoBMcal(&tagroot);
+  //~ else
     d.RecoLoop(&tagroot,pl_freq);
 
   hF->Close();

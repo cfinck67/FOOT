@@ -25,18 +25,23 @@ ClassImp(TABMactDatRaw);
 TABMactDatRaw::TABMactDatRaw(const char* name,
 			     TAGdataDsc* p_datraw, 
 			     //~ TAGdataDsc* p_datmbs,
-			     TAGparaDsc* p_parmap,
-			     TAGparaDsc* p_parcon)
+			     //~ TAGparaDsc* p_parmap,
+			     //~ TAGparaDsc* p_parcon,
+			     TAGparaDsc* p_pargeo,
+           BM_struct*  p_bmstruct)
   : TAGaction(name, "TABMactDatRaw - Unpack BM raw data"),
     fpDatRaw(p_datraw),
     //~ fpDatMbs(p_datmbs),
-    fpParMap(p_parmap),
-    fpParCon(p_parcon)
+    //~ fpParMap(p_parmap),
+    //~ fpParCon(p_parcon),
+    fpParGeo(p_pargeo),
+    bmstruct(p_bmstruct)
 {
   AddDataOut(p_datraw, "TABMdatRaw");
   //~ AddDataIn(p_datmbs, "TAGmbsEvent");
-  AddPara(p_parmap, "TABMparMap");
-  AddPara(p_parcon, "TABMparCon");
+  //~ AddPara(p_parmap, "TABMparMap");
+  //~ AddPara(p_parcon, "TABMparCon");
+  AddPara(p_pargeo, "TABMparGeo");
 }
 
 //------------------------------------------+-----------------------------------
@@ -59,34 +64,28 @@ TABMactDatRaw::~TABMactDatRaw()
 //~ }
 
 Bool_t TABMactDatRaw::Action() {
-  cout<<"sono in action di tabmactdatraw"<<endl;
+  //~ cout<<"sono in action di tabmactdatraw"<<endl;
   
   TABMdatRaw*    p_datraw = (TABMdatRaw*)    fpDatRaw->Object();
-  //~ TAGmbsEvent*   p_datmbs = (TAGmbsEvent*)  fpDatMbs->Object();//waiting for the new TAGmbsEvent
   
   //From there we get the Mapping of the wires into the Chamber to the TDC channels
-  TABMparMap*    p_parmap = (TABMparMap*)    fpParMap->Object();
-  TABMparCon*    p_parcon = (TABMparCon*)    fpParCon->Object();
-  Int_t sID, plane, view;
+  //~ TABMparMap*    p_parmap = (TABMparMap*)    fpParMap->Object();
+  //~ TABMparCon*    p_parcon = (TABMparCon*)    fpParCon->Object();
+  TABMparGeo*    p_pargeo = (TABMparGeo*)    fpParGeo->Object();
   
-  //~ if(!datastream.is_open()){
-    //~ if(!openFile(p_parcon)){
-      //~ cout<<"ERROR in TABMactDatRaw::Action: I can not open data file="<<p_parcon->GetBMdataFileName()<<endl;
-      //~ return kFALSE;
-    //~ }else
-      //~ cout<<"BM data file open!  data file name="<<p_parcon->GetBMdataFileName()<<endl;
-  //~ }
-  
-  //my acquisition software (not the official FOOT DAQ) stuff
-  
-  
-  
-  
-  
-  
-  
+  Int_t view,plane,cell;
+    
+    
+  for(Int_t i=0;i<bmstruct->hitnum;i++){
+    if(bmstruct->hit_id[i]>=0){//-1000=syncTime, -1=not set
+      p_pargeo->GetBMNlvc(bmstruct->hit_id[i],plane,view,cell);
+      p_datraw->SetHitData(plane,view,cell,bmstruct->hit_meas[i]);
+    }
+  }
   
   //OLD FIRST STUFF
+  //~ TAGmbsEvent*   p_datmbs = (TAGmbsEvent*)  fpDatMbs->Object();//waiting for the new TAGmbsEvent
+  //~ Int_t sID, plane, view;
   //~ Int_t i_nse = p_datmbs->NSubEvent();
   //~ unsigned long geo_add,measurement,channel,trailing;
   //~ int nwords, overflow, board_id, board_ty;

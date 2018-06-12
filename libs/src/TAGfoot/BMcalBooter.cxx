@@ -14,7 +14,6 @@
 #include "TABMparCon.hxx"
 #include "TABMparMap.hxx"
 #include "TABMntuRaw.hxx"
-#include "TABMdatRaw.hxx"
 #include "TABMntuTrack.hxx"
 #include "TABMactNtuMC.hxx"
 #include "TABMactNtuTrack.hxx"
@@ -53,8 +52,10 @@ BMcalBooter::BMcalBooter() {
 
 
 
-void BMcalBooter::Initialize( TString wd_in, TString instr_in ) {
+void BMcalBooter::Initialize( TString wd_in, TString instr_in, bool isroma_in ) {
     cout<<"sono in initialize"<<endl;
+    isroma=isroma_in;
+    data_num_ev=0;
     m_wd=wd_in;  
     m_instr=instr_in;
     //detector positioning and global to local transformations
@@ -81,14 +82,22 @@ void BMcalBooter::Initialize( TString wd_in, TString instr_in ) {
     myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
     myp_bmmap = new TAGparaDsc("myp_bmmap", new TABMparMap());
     initBMGeo();
-    initBMMap();
     initBMCon();
-    CalculateT0();
+    initBMMap();
+    bmcon = (TABMparCon*) myp_bmcon->Object();
+    bmmap = (TABMparMap*) myp_bmmap->Object();
+    //~ bmgeo = (TABMparGeo*) myp_bmgeo->Object();
+
+    //~ CalculateT0();
     
     datafile.open(m_instr.Data(), ios::in | ios::binary);
     if(!datafile.is_open())
       cout<<"ERROR in BMcalBooter::CalculateT0: cannot open the datafile="<<m_instr.Data()<<endl;
-    //~ evaluateT0();
+    evaluateT0();
+    datafile.close();
+    datafile.open(m_instr.Data(), ios::in | ios::binary);
+    if(!datafile.is_open())
+      cout<<"ERROR in BMcalBooter::CalculateT0: cannot open the datafile="<<m_instr.Data()<<endl;
 
     //~ if( GlobalPar::GetPar()->IncludeMSD() ) {
       //~ m_msdgeo = shared_ptr<TAMSDparGeo> ( (TAMSDparGeo*) myp_msdgeo->Object() );
@@ -107,6 +116,8 @@ void BMcalBooter::Initialize( TString wd_in, TString instr_in ) {
     
     FillDataBeamMonitor();
       
+    data_num_ev=0;
+      
     if (GlobalPar::GetPar()->Debug()>10)
       cout<<"I finish BMcalBooter::Initialize"<<endl;
     
@@ -116,19 +127,31 @@ void BMcalBooter::Initialize( TString wd_in, TString instr_in ) {
 
 
 void BMcalBooter::Process() {
-
+    
   if (GlobalPar::GetPar()->Debug()>0)
     cout<<"I'm in BMcalBooter::Process"<<endl;
-
+  
+  
+  if(data_num_ev==0 || (isroma && data_num_ev==1)){
+    drop_event();
+    data_num_ev++;
+    return;
+  }
+  
   // start time
   start_kal = clock();
-
-
-
+  
+  bool error;
+  read_event(error);
+  if(!error)
+    TABMdatRaw* bmdatraw = (TABMdatRaw*) (gTAGroot->FindDataDsc("myn_bmdatraw", "TABMdatRaw")->GenerateObject());  
 
   // stop time
   end_kal = clock();
   //~ m_tempo_kal+=(double)(end_kal-start_kal);
+  
+
+  data_num_ev++;
 
   if (GlobalPar::GetPar()->Debug()>0)
     cout<<"I finish BMcalBooter::Process"<<endl;  
@@ -138,71 +161,20 @@ void BMcalBooter::Process() {
 
 void BMcalBooter::Finalize() {
 
-    if ( GlobalPar::GetPar()->IsPrintOutputFile() ) {
-        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputFile();//oggeto lascio BooterFinalize?????
-      }
-    else                        
-        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintMap();
+    //~ if ( GlobalPar::GetPar()->IsPrintOutputFile() ) {
+        //~ ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputFile();//oggeto lascio BooterFinalize?????
+      //~ }
+    //~ else                        
+        //~ ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintMap();
     
-    if( GlobalPar::GetPar()->IsPrintOutputNtuple() )        
-        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputNtuple();
+    //~ if( GlobalPar::GetPar()->IsPrintOutputNtuple() )        
+        //~ ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputNtuple();
     
     datafile.close();
 
     //~ if (GlobalPar::GetPar()->Debug() > 1)   eventListFile.close();
 
 }
-
-
-
-void BMcalBooter::GeoPrint() {
-    
-    // save an image of the foot geometry
-    //top->Draw("ogl");
-    TCanvas* mirror = new TCanvas("footGeometry", "footGeometry",  700, 700);
-    top->Draw("ap");
-    mirror->SaveAs("footGeometry.png");
-    mirror->SaveAs("footGeometry.root");
-
-    
-    // save the geometry info in .root
-    TFile *outfile = TFile::Open("genfitGeomFOOT.root","RECREATE");
-    gGeoManager->Write();
-        
-    outfile->Close();
-
-}
-
-
-
-
-
-
-
-//--------------------------------------------------------------------------------------------------
-
-// void BMcalBooter::DisplayIRMonitor(TAGpadGroup* pg, EVENT_STRUCT *myStr) {}
-
-
-
-
-
-
-// //----------------------------------------------------------------------------------------------------
-// void BMcalBooter::DisplayBeamMonitor(TAGpadGroup* pg) {
-
-//   TCanvas *c_bmhview;
-//   c_bmhview = new TCanvas("bmhview", "Beam Monitor - horizontal view",20,20,700,900);
-//   pg->AddPad(c_bmhview);
-
-//   TAGview* pbmh_view = new TABMvieTrackFOOT(myn_bmtrk,
-// 					     myn_bmraw,
-// 					     myp_bmgeo);
-//   pbmh_view->Draw();
-// }
-
-
-
 
 
 
@@ -214,13 +186,13 @@ void BMcalBooter::FillDataBeamMonitor() {
     cout<<"I'm in BMcalBooter::FillDataBeamMonitor"<<endl;  
   
   myn_bmdatraw    = new TAGdataDsc("myn_bmdatraw", new TABMdatRaw());
-  new TABMactDatRaw("an_bmdatraw",myn_bmdatraw, myp_bmmap, myp_bmcon); 
+  new TABMactDatRaw("an_bmdatraw",myn_bmdatraw, myp_bmgeo, &bmstruct); 
    
   myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
   new TABMactNtuRaw("an_bmraw", myn_bmraw, myn_bmdatraw, myp_bmgeo, myp_bmcon); 
   
-  myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());  
-  new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
+  //~ myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());  
+  //~ new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
     
   if (GlobalPar::GetPar()->Debug()>10)
     cout<<"I finish BMcalBooter::FillDataBeamMonitor"<<endl;  
@@ -230,56 +202,19 @@ void BMcalBooter::FillDataBeamMonitor() {
 
 
 //----------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-//----------------------------------------------------------------------------------------------------
-//~ void BMcalBooter::FillMCMSD(EVENT_STRUCT *myStr) {
-  
-  
-   //~ /*Ntupling the MC Vertex information*/
-   //~ myn_msdraw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
-   //~ // myn_msdclus   = new TAGdataDsc("msdClus", new TAMSDntuCluster());
-
-   //~ myp_msdmap    = new TAGparaDsc("msdMap", new TAMSDparMap());
-
-   //~ myp_msdconf  = new TAGparaDsc("msdConf", new TAMSDparConf());
-   //~ TAMSDparConf* parconf = (TAMSDparConf*) myp_msdconf->Object();
-   //~ TString filename = m_wd + "/config/TAMSDdetector.cfg";
-   //~ parconf->FromFile(filename.Data());
-
-   //~ myp_msdgeo    = new TAGparaDsc("msdGeo", new TAMSDparGeo());
-
-   //~ mya_msdraw   = new TAMSDactNtuMC("msdActRaw", myn_msdraw, myp_msdgeo, myp_msdmap, myStr);
-      
-//~ }
-
-
-//~ void BMcalBooter::MonitorBM() {}
-//Yun new graphs:
-//~ void BMcalBooter::MonitorBMNew(Long64_t jentry) {
-  
-  
-  
-  
-  //~ return;
-  //~ }
-// void BMcalBooter::MonitorBMVTMat() {}
-// void BMcalBooter::CalibBMVT() {}
-
-
-//----------------------------------------------------------------------------------------------------
 void BMcalBooter::initBMMap(){
+  myp_bmmap = gTAGroot->FindParaDsc("myp_bmmap", "TABMparMap");
+  if (myp_bmmap == 0) {
+    cout << "p_bmmap not found or holding wrong parameter object type" << endl;
+    return;
+  }
   TABMparMap* o_bmmap = (TABMparMap*) myp_bmmap->Object();
+  TABMparGeo* o_bmgeo = (TABMparGeo*) myp_bmgeo->Object();
   o_bmmap->Clear();
   Bool_t b_bad = kTRUE;
   TString filename = m_wd + "/geomaps/beammonitor_geoch.map";
   //~ cout << "   from file " << filename << endl;
-  b_bad = o_bmmap->FromFile(filename);  
+  b_bad = o_bmmap->FromFile(filename, o_bmgeo);  
   if (!b_bad) myp_bmmap->SetBit(TAGparaDsc::kValid);  
   return;
 }
@@ -288,22 +223,27 @@ void BMcalBooter::initBMCon()  {
   //~ Int_t i_run = gTAGroot->CurrentRunNumber();
   //~ Int_t i_cam = gTAGroot->CurrentCampaignNumber();
   //~ cout << "Loading beamcon for cam/run = " << i_cam << "/" << i_run << endl;
-  TABMparCon* o_bmcon = (TABMparCon*) myp_bmcon->Object();
-  TABMparMap* o_bmmap = (TABMparMap*) myp_bmmap->Object();
-  o_bmcon->Clear();
+  myp_bmcon = gTAGroot->FindParaDsc("myp_bmcon", "TABMparCon");
+  if (myp_bmcon == 0) {
+    cout << "p_bmcon not found or holding wrong parameter object type" << endl;
+    return;
+  }
+  TABMparCon* pro_bmcon = (TABMparCon*) myp_bmcon->Object();
+  //~ TABMparMap* o_bmmap = (TABMparMap*) myp_bmmap->Object();
+  pro_bmcon->Clear();
   Bool_t b_bad = kTRUE;
   TString filename = m_wd + "/config/beammonitor.cfg";
   //~ cout << "   from file " << filename << endl;
-  b_bad = o_bmcon->FromFile(filename);
+  b_bad = pro_bmcon->FromFile(filename);
   //~ filename = m_wd + "/config/beammonitor_t0s.cfg";
-  //~ o_bmcon->loadT0s(filename);//da modificare!!!
+  //~ pro_bmcon->loadT0s(filename);//da modificare!!!
   //~ filename = m_wd + "/config/file_stlist_FIRST.txt";
   //  filename = "config/file_stlist_8020_Cst1_1750.txt";
-  //~ o_bmcon->LoadSTrel(filename);
-  //~ o_bmcon->SetIsMC(true);//provv dovrebbe farlo nel momento della lettura del file
-  //~ o_bmcon->ConfigureTrkCalib();
+  //~ pro_bmcon->LoadSTrel(filename);
+  //~ pro_bmcon->SetIsMC(true);//provv dovrebbe farlo nel momento della lettura del file
+  //~ pro_bmcon->ConfigureTrkCalib();
   filename = m_wd + "/config/bmreso_vs_r.root";
-  o_bmcon->LoadReso(filename);
+  pro_bmcon->LoadReso(filename);
   if (!b_bad) 
     myp_bmcon->SetBit(TAGparaDsc::kValid);
   
@@ -329,22 +269,200 @@ void BMcalBooter::initBMGeo()  {
   TABMparGeo* o_bmgeo = (TABMparGeo*) myp_bmgeo->Object();
   o_bmgeo->InitGeo();
   top->AddNode( o_bmgeo->GetVolume(), 0, new TGeoCombiTrans( o_bmgeo->GetCenter().X(),o_bmgeo->GetCenter().Y(),o_bmgeo->GetCenter().Z(),new TGeoRotation("BeamMonitor",0,0,0)) );
-  
+   
   myp_bmgeo->SetBit(TAGparaDsc::kValid);
 
   return;
 
 }
 
-Bool_t BMcalBooter::CalculateT0(){
-  TABMparCon* o_bmcon = (TABMparCon*) myp_bmcon->Object();
-  TABMparMap* o_bmmap = (TABMparMap*) myp_bmmap->Object();
 
-  if(o_bmcon->IsMC()){
-    cout<<"WARNING in TABMparCon::CalculateT0: is MC data, no need to calculate T0!!!!!!"<<endl;
+
+
+void BMcalBooter::evaluateT0() {
+  //~ TABMparCon* bmcon = (TABMparCon*) myp_bmcon->Object();  
+  TFile *f_out = new TFile("bm_t0.root","RECREATE");
+  f_out->cd();
+  TH1D* h=nullptr;
+  Int_t tmp_int, trash;
+  char tmp_char[200];
+  bool error;
+  for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
+    sprintf(tmp_char,"tdc_cha_%d",i);
+    h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",2000,0.,2000.);
+  }
+  h=new TH1D("all_tdc_chan","Number of tdc signals; TDC channel; counts",bmmap->GetTdcMaxcha(),0.,bmmap->GetTdcMaxcha());
+  h=new TH1D("tdc_error","Number of tdc signals with errors; Event number; counts",2,0.,2);//provv, distinguish the type of error!
+  
+  //jump the first event
+  drop_event();
+  if(isroma)//jump the second event if isroma    
+    drop_event();
+      
+  while(read_event(error)){
+    if(bmcon->GetBMdebug()>9)
+      cout<<"data_num_ev="<<data_num_ev<<endl;
+    if(!error){
+      for(Int_t i=0;i<bmstruct.hitnum;i++){
+        sprintf(tmp_char,"tdc_cha_%d",bmmap->cell2tdc(bmstruct.hit_id[i]));
+        ((TH1D*)gDirectory->Get(tmp_char))->Fill(bmstruct.hit_meas[i]);    
+        ((TH1D*)gDirectory->Get("all_tdc_chan"))->Fill(bmmap->cell2tdc(bmstruct.hit_id[i]));    
+      } 
+    }else{
+      if(bmcon->GetBMdebug()>1)
+        cout<<"BMcalBooter::evaluateT0::ERROR in the data detected at data_num_ev="<<data_num_ev<<endl;
+      ((TH1D*)gDirectory->Get("tdc_error"))->Fill(1);    
+    }
+    data_num_ev++;
+  }
+  
+  //qua fitto i grafici, trovo i T0 e li carico*****************************   TODO  *******************
+  
+  
+  
+  f_out->Write();
+  f_out->Close();    
+    
+  return;
+}
+
+
+Bool_t BMcalBooter::read_event(bool &error) {
+  //~ TABMparCon* bmcon = (TABMparCon*) myp_bmcon->Object();
+  //~ TABMparMap* o_bmmap = (TABMparMap*) myp_bmmap->Object();
+  
+  Int_t tmp_int; //dummy int variable to read and convert the input file
+  //~ vector<int> ev_words;//words of the event
+  Bool_t new_event, read_meas;
+  error=false;
+  //~ Int_t board_num=513;//number of board used in the acquisition //provv, da modificare: mettere in config file questo numero
+  Int_t ev_num=0;//number of events given by the acquisition
+  Int_t tdc_evnum;
+  double tdc_meas;
+  if(bmcon->GetBMdebug()>9)
+    cout<<"I'm in BMcalBooter:read_event"<<endl;
+  if(datafile.read((char *) &tmp_int,sizeof(int))){//read number of words of this event
+    bmstruct.words=tmp_int;
+    }
+  else{
     return kFALSE;
   }
-  vector<vector<int>> tdc_chtime(o_bmcon->GetTdcMaxcha());
+  Int_t ev_words[bmstruct.words];
+  for(Int_t i=0;i<bmstruct.words;i++){
+    datafile.read((char *) &tmp_int,sizeof(int));
+    //~ cout<<"i="<<i<<"  word="<<tmp_int<<endl;
+    ev_words[i]=tmp_int;
+  }
+  //some check on the event words:
+  if(ev_words[1]!=TDC_BOARDNUM){
+    cout<<"ERROR in BMcalBooter:read_event: board num != "<<TDC_BOARDNUM<<"  ev_words[1]="<<ev_words[1]<<endl;
+    error=true;
+  }
+  if((ev_words[0]-ev_num)!=1 && ev_num!=0){
+    cout<<"ERROR in BMcalBooter:read_event: previous ev_num="<<ev_num<<"  new ev_num="<<ev_words[0]<<endl;
+    error=true;    
+  }
+  if(ev_words[3]!=3){//provv, da modificare: da togliere nell'acquisizione e qua...
+    cout<<"ERROR in BMcalBooter:read_event: ev_words[3]="<<ev_words[3]<<" ,!=3"<<endl;
+    error=true;          
+  }
+  bmstruct.evnum=ev_words[0];
+  bmstruct.hitnum=0;
+  bmstruct.status=0;
+  bmstruct.synctime=-1000;
+  if(error || bmcon->GetBMdebug()>9)
+    for(Int_t i=0;i<bmstruct.words;i++)
+      cout<<"ev_words["<<i<<"]="<<ev_words[i]<<endl;
+  if(!error){//read the tdc words
+    new_event=true;
+    read_meas=false;
+    for(Int_t i=4;i<ev_words[2]+4;i++){
+      if(new_event){//global header found
+        tdc_evnum=ev_words[i++];
+        read_meas=true;
+        if(bmcon->GetBMdebug()>9)
+          cout<<"global header found, i="<<i<<"  tdc_evnum="<<tdc_evnum<<endl;
+        }
+      if(ev_words[i]<0 && isroma==kFALSE){//global trailer found //se uso acquisizione mio (yun)
+        read_meas=false;
+        new_event=true;
+        bmstruct.status=ev_words[i];
+        if(ev_words[i]!=-1000){
+          cout<<"Warning in BMcalBooter: global trailer found with error in tdc_evnum="<<tdc_evnum<<"  trailer="<<ev_words[i]<<endl;
+          error=true;
+        }
+        if(bmcon->GetBMdebug()>9)
+          cout<<"global trailer found, i="<<i<<"  ev_words="<<ev_words[i]<<endl;
+      }        
+      if(ev_words[i]==0 && isroma==kTRUE){//global trailer found //se uso dati letti a Roma per BM refurbishment
+        read_meas=false;
+        new_event=true;
+        bmstruct.status=-1000;
+        if(bmcon->GetBMdebug()>9)
+          cout<<"global trailer found, i="<<i<<"  ev_words="<<ev_words[i]<<endl;
+      }        
+      if(read_meas){  
+        if(ev_words[i++]!=tdc_evnum){
+          cout<<"ERROR in BMcalBooter:read_event: tdc_evnum="<<tdc_evnum<<"  measured event number="<<ev_words[i-1]<<"  i="<<i<<endl;
+          error=true;
+        }
+        if(ev_words[i]>-1 && ev_words[i]<bmmap->GetTdcMaxcha()){//found a measure
+          bmstruct.hit_id[bmstruct.hitnum]=bmmap->tdc2cell(ev_words[i++]);
+          bmstruct.hit_meas[bmstruct.hitnum]=ev_words[i]/10.;//conversion to ns
+          bmstruct.hitnum++;
+        }
+        else
+          cout<<"ERROR in BMcalBooter:read_event: tdc_channel out of range!!! tdc_channel="<<ev_words[i]<<endl;
+        new_event=false;
+        if(bmcon->GetBMdebug()>9)
+          cout<<"measure found: tdc_evnum="<<tdc_evnum<<" hit_id="<<bmstruct.hit_id<<" hit_meas="<<bmstruct.hit_meas<<endl;
+      }
+    }//end of reading tdc words for loop
+  }else{//read tdc words if    
+    cout<<"data_num_ev="<<data_num_ev<<endl;
+    for(Int_t i=0;i<bmstruct.words;i++)
+        cout<<"ev_words["<<i<<"]="<<ev_words[i]<<endl;
+  }
+  return kTRUE;
+}
+
+
+
+
+void BMcalBooter::GeoPrint() {
+    
+    // save an image of the foot geometry
+    //top->Draw("ogl");
+    TCanvas* mirror = new TCanvas("footGeometry", "footGeometry",  700, 700);
+    top->Draw("ap");
+    mirror->SaveAs("footGeometry.png");
+    mirror->SaveAs("footGeometry.root");
+
+    
+    // save the geometry info in .root
+    TFile *outfile = TFile::Open("genfitGeomFOOT.root","RECREATE");
+    gGeoManager->Write();
+        
+    outfile->Close();
+
+}
+
+Bool_t BMcalBooter::drop_event(){
+  Int_t tmp_int, trash;
+  if(datafile.read((char *) &tmp_int,sizeof(int))){
+    for(Int_t i=0;i<tmp_int;i++)
+      datafile.read((char *) &trash,sizeof(int));
+  }else
+    return kFALSE;  
+
+  return kTRUE;
+}
+
+
+//OLD METHOD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/*
+Bool_t BMcalBooter::CalculateT0() {
+  vector<vector<int>> tdc_chtime(bmmap->GetTdcMaxcha());
   
   ifstream inF;
   int words_num; //number of words of the event
@@ -356,8 +474,7 @@ Bool_t BMcalBooter::CalculateT0(){
   int tdc_evnum, tdc_cha;
   double tdc_meas;
   int rate=0;//provv, da aggiungere grafico rate...
-  //~ char tmp_char[200];
-  if(o_bmcon->GetBMdebug()>9)
+  if(bmcon->GetBMdebug()>9)
     cout<<"I'm in BMcalBooter:CalculateT0"<<endl;
   inF.open(m_instr.Data(), ios::in | ios::binary);
   if(!inF.is_open())
@@ -366,9 +483,8 @@ Bool_t BMcalBooter::CalculateT0(){
   //jump the first event (problem of the acquisition software...)
   inF.read((char *) &tmp_int,sizeof(int));
   words_num=tmp_int;
-  if(o_bmcon->GetBMdebug()>9)
+  if(bmcon->GetBMdebug()>9)
     cout<<"first words_num="<<words_num<<endl;
-  //~ cout<<"tmp_char[0]="<<tmp_char[0]<<"   tmp_char[0]-'0'="<<tmp_char[0]-'0'<<endl;
   for(int i=0;i<words_num;i++)
     inF.read((char *) &tmp_int,sizeof(int));
   while(inF.read((char *) &tmp_int,sizeof(int))) {//loop on .dat file    
@@ -379,26 +495,26 @@ Bool_t BMcalBooter::CalculateT0(){
       //~ inF.read((char *) &tmp_int,sizeof(int));
       //~ tmp_evwords[i]=tmp_int;
     //~ }//now ev_words contain all the words of the event
-    inF.read((char *) &tmp_evwords,sizeof(int)*words_num);
+    inF.read((char *) tmp_evwords,sizeof(int)*words_num);
     for(int i=0;i<words_num;i++)
       ev_words[i]=tmp_evwords[i];
     for(int i=0;i<words_num;i++)
       cout<<"ev_words["<<i<<"]="<<ev_words[i]<<endl;
     //some check on the event words:
     if(ev_words[1]!=513){
-      cout<<"ERROR in TABMparCon:CalculateT0: board num != "<<board_num<<"  ev_words[1]="<<ev_words[1]<<endl;
+      cout<<"ERROR in BMcalBooter:CalculateT0: board num != "<<board_num<<"  ev_words[1]="<<ev_words[1]<<endl;
       error=true;
     }
     if((ev_words[0]-ev_num)!=1 && ev_num!=0){
-      cout<<"ERROR in TABMparCon:CalculateT0: previous ev_num="<<ev_num<<"  new ev_num="<<ev_words[0]<<endl;
+      cout<<"ERROR in BMcalBooter:CalculateT0: previous ev_num="<<ev_num<<"  new ev_num="<<ev_words[0]<<endl;
       error=true;    
     }
     if(ev_words[3]!=3){//provv, da modificare: da togliere nell'acquisizione e qua...
-      cout<<"ERROR in TABMparCon:CalculateT0: ev_words[3]="<<ev_words[3]<<" ,!=3"<<endl;
+      cout<<"ERROR in BMcalBooter:CalculateT0: ev_words[3]="<<ev_words[3]<<" ,!=3"<<endl;
       error=true;          
     }
     ev_num=ev_words[0];
-    if(error || o_bmcon->GetBMdebug()>9)
+    if(error || bmcon->GetBMdebug()>9)
       for(int i=0;i<words_num;i++)
         cout<<"ev_words["<<i<<"]="<<ev_words[i]<<endl;
     if(!error){//read the tdc words
@@ -408,32 +524,32 @@ Bool_t BMcalBooter::CalculateT0(){
         if(new_event){//global header found
           tdc_evnum=ev_words[i++];
           read_meas=true;
-          if(o_bmcon->GetBMdebug()>9)
+          if(bmcon->GetBMdebug()>9)
             cout<<"global header found, i="<<i<<"  tdc_evnum="<<tdc_evnum<<endl;
           }
         if(read_meas){  
           if(ev_words[i++]!=tdc_evnum){
-            cout<<"ERROR in TABMparCon:CalculateT0: tdc_evnum="<<tdc_evnum<<"  measured event number="<<ev_words[i-1]<<endl;
+            cout<<"ERROR in BMcalBooter:CalculateT0: tdc_evnum="<<tdc_evnum<<"  measured event number="<<ev_words[i-1]<<endl;
             error=true;
           }
           tdc_cha=ev_words[i++];
           tdc_meas=ev_words[i++]/10.;//conversion to ns
-          if(tdc_cha>-1 && tdc_cha<o_bmcon->GetTdcMaxcha())
+          if(tdc_cha>-1 && tdc_cha<bmmap->GetTdcMaxcha())
             tdc_chtime[tdc_cha].push_back(tdc_meas);
           else
-            cout<<"ERROR in TABMparCon:CalculateT0: tdc_cha out of range!!! tdc_cha="<<tdc_cha<<endl;
+            cout<<"ERROR in BMcalBooter:CalculateT0: tdc_cha out of range!!! tdc_cha="<<tdc_cha<<endl;
           new_event=false;
-          if(o_bmcon->GetBMdebug()>9)
+          if(bmcon->GetBMdebug()>9)
             cout<<"measure found: tdc_evnum="<<tdc_evnum<<" tdc_cha="<<tdc_cha<<" tdc_meas="<<tdc_meas<<endl;
         }
         if(ev_words[i]<0){//global trailer found
           read_meas=false;
           new_event=true;
           if(ev_words[i]!=-1000){
-            cout<<"Warning in TABMparCon: global trailer found with error in tdc_evnum="<<tdc_evnum<<"  trailer="<<ev_words[i]<<endl;
+            cout<<"Warning in BMcalBooter: global trailer found with error in tdc_evnum="<<tdc_evnum<<"  trailer="<<ev_words[i]<<endl;
             error=true;
           }
-          if(o_bmcon->GetBMdebug()>9)
+          if(bmcon->GetBMdebug()>9)
             cout<<"global trailer found, i="<<i<<"  ev_words="<<ev_words[i]<<endl;
         }
       }//end of reading tdc words for loop
@@ -446,132 +562,16 @@ Bool_t BMcalBooter::CalculateT0(){
   f_out->cd();
   TH1D* h=nullptr;
   char tmp_char[200];
-  for(int i=0;i<o_bmcon->GetTdcMaxcha();i++){
+  for(int i=0;i<bmmap->GetTdcMaxcha();i++){
     sprintf(tmp_char,"tdc_cha_%d",i);
     h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",2000,0.,2000.);
     for(int j=0;j<tdc_chtime[i].size();j++)
       h->Fill(tdc_chtime[i][j]);
   }
+  
   f_out->Write();
   f_out->Close();  
     
   return kTRUE;
 }
-
-
-
-void BMcalBooter::evaluateT0(){
-  TABMparCon* o_bmcon = (TABMparCon*) myp_bmcon->Object();  
-  TFile *f_out = new TFile("bm_t0.root","RECREATE");
-  f_out->cd();
-  TH1D* h=nullptr;
-  char tmp_char[200];
-  for(Int_t i=0;i<o_bmcon->GetTdcMaxcha();i++){
-    sprintf(tmp_char,"tdc_cha_%d",i);
-    h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",2000,0.,2000.);
-  }
-  
-  while(read_event()){
-    for(Int_t i=0;i<bmstruct.hitnum;i++){
-      sprintf(tmp_char,"tdc_cha_%d",bmstruct.tdc_chan[i]);
-      ((TH1D*)gDirectory->Get("tmp_char"))->Fill(bmstruct.tdc_meas[i]);    
-    }
-  }
-  
-  f_out->Write();
-  f_out->Close();    
-    
-  return;
-}
-
-
-Bool_t BMcalBooter::read_event(){
-  TABMparCon* o_bmcon = (TABMparCon*) myp_bmcon->Object();
-  TABMparMap* o_bmmap = (TABMparMap*) myp_bmmap->Object();
-
-  vector<vector<int>> tdc_chtime(o_bmcon->GetTdcMaxcha());
-  
-  Int_t tmp_int; //dummy int variable to read and convert the input file
-  //~ vector<int> ev_words;//words of the event
-  Bool_t error=false, new_event, read_meas;
-  Int_t board_num=513;//number of board used in the acquisition //provv, da modificare: mettere in config file questo numero
-  Int_t ev_num=0;//number of events given by the acquisition
-  Int_t tdc_evnum, tdc_cha;
-  double tdc_meas;
-  if(o_bmcon->GetBMdebug()>9)
-    cout<<"I'm in BMcalBooter:read_event"<<endl;
-  //jump the first event (problem of the acquisition software...)
-  if(datafile.read((char *) &tmp_int,sizeof(int)))
-    bmstruct.words=tmp_int;
-  else{
-    return kFALSE;
-  }
-  Int_t ev_words[bmstruct.words];
-  for(Int_t i=0;i<bmstruct.words;i++){
-    datafile.read((char *) &tmp_int,sizeof(int));
-    //~ cout<<"i="<<i<<"  word="<<tmp_int<<endl;
-    ev_words[i]=tmp_int;
-  }
-  //some check on the event words:
-  if(ev_words[1]!=513){
-    cout<<"ERROR in TABMparCon:CalculateT0: board num != "<<board_num<<"  ev_words[1]="<<ev_words[1]<<endl;
-    error=true;
-  }
-  if((ev_words[0]-ev_num)!=1 && ev_num!=0){
-    cout<<"ERROR in TABMparCon:CalculateT0: previous ev_num="<<ev_num<<"  new ev_num="<<ev_words[0]<<endl;
-    error=true;    
-  }
-  if(ev_words[3]!=3){//provv, da modificare: da togliere nell'acquisizione e qua...
-    cout<<"ERROR in TABMparCon:CalculateT0: ev_words[3]="<<ev_words[3]<<" ,!=3"<<endl;
-    error=true;          
-  }
-  bmstruct.evnum=ev_words[0];
-  bmstruct.hitnum=0;
-  bmstruct.status=0;
-  bmstruct.synctime=-1000;
-  if(error || o_bmcon->GetBMdebug()>9)
-    for(Int_t i=0;i<bmstruct.words;i++)
-      cout<<"ev_words["<<i<<"]="<<ev_words[i]<<endl;
-  if(!error){//read the tdc words
-    new_event=true;
-    read_meas=false;
-    for(Int_t i=4;i<ev_words[2]+4;i++){
-      if(new_event){//global header found
-        tdc_evnum=ev_words[i++];
-        read_meas=true;
-        if(o_bmcon->GetBMdebug()>9)
-          cout<<"global header found, i="<<i<<"  tdc_evnum="<<tdc_evnum<<endl;
-        }
-      if(read_meas){  
-        if(ev_words[i++]!=tdc_evnum){
-          cout<<"ERROR in TABMparCon:CalculateT0: tdc_evnum="<<tdc_evnum<<"  measured event number="<<ev_words[i-1]<<endl;
-          error=true;
-        }
-        tmp_int=ev_words[i++];
-        if(tmp_int>-1 && tmp_int<o_bmcon->GetTdcMaxcha()){
-          bmstruct.tdc_chan[bmstruct.hitnum]=tmp_int;
-          bmstruct.tdc_meas[bmstruct.hitnum]=ev_words[i++]/10.;//conversion to ns
-          bmstruct.hitnum++;
-        }
-        else
-          cout<<"ERROR in TABMparCon:CalculateT0: tdc_cha out of range!!! tdc_cha="<<tdc_cha<<endl;
-        new_event=false;
-        if(o_bmcon->GetBMdebug()>9)
-          cout<<"measure found: tdc_evnum="<<tdc_evnum<<" tdc_cha="<<tdc_cha<<" tdc_meas="<<tdc_meas<<endl;
-      }
-      if(ev_words[i]<0){//global trailer found
-        read_meas=false;
-        new_event=true;
-        bmstruct.status=ev_words[i];
-        if(ev_words[i]!=-1000){
-          cout<<"Warning in TABMparCon: global trailer found with error in tdc_evnum="<<tdc_evnum<<"  trailer="<<ev_words[i]<<endl;
-          error=true;
-        }
-        if(o_bmcon->GetBMdebug()>9)
-          cout<<"global trailer found, i="<<i<<"  ev_words="<<ev_words[i]<<endl;
-      }
-    }//end of reading tdc words for loop
-  }//read tdc words if    
-  
-  return kTRUE;
-}
+*/

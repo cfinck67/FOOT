@@ -74,7 +74,7 @@ void TABMparGeo::GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_
   return;
 }
 
-Bool_t TABMparGeo::GetBMNcell(Int_t cellid, Int_t& ilay, Int_t& iview, Int_t& icell){
+Bool_t TABMparGeo::GetBMNlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_t& icell){
   if(cellid>35 || cellid<0){
     cout<<"ERROR in TABMparGeo::GetBMNcell, cellid is wrong: cellid="<<cellid<<endl;
     return kFALSE;
