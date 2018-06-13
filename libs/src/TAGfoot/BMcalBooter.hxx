@@ -7,6 +7,18 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
+#include <ctime>
+#include <iostream>
+#include <vector>
+#include <time.h>
+
+#include <TCanvas.h>
+#include <TError.h>
+#include <TMath.h>
+#include <TH2.h>
+#include <TH1.h>
+#include <TF1.h>
+
 
 #include "Evento.h"
 // #include "Segnale.h"
@@ -15,20 +27,43 @@
 
 // #include "TAGpadGroup.hxx"
 #include "TAGgeoTrafo.hxx"
-
 // #include "TAGactTreeWriter.hxx"
 // #include "TAGdataDsc.hxx"
 #include "TAGroot.hxx"
-
+#include "TAGaction.hxx"
+#include "BM_struct.h"
+#include "foot_geo.h"
+#include "Materials.hxx"
+#include "FootField.hxx"
+#include "MeasurementCreator.h"
+#include "TAGview.hxx"
 #include "KFitter.hxx"
 #include "GlobalPar.hxx"
 #include "UpdatePDG.hxx"
-#include "BM_struct.h"
+
+//Beam Monitor
 #include "TABMdatRaw.hxx"
+#include "TABMparGeo.hxx"
+#include "TABMparCon.hxx"
+#include "TABMparMap.hxx"
+#include "TABMntuRaw.hxx"
+#include "TABMntuTrack.hxx"
+#include "TABMactNtuMC.hxx"
+#include "TABMactNtuTrack.hxx"
+#include "TABMactNtuRaw.hxx"
+#include "TABMactDatRaw.hxx"
+//~ #include "TABMvieTrackFOOT.hxx"
 
-#include <ctime>
-#include <time.h>
+//Start Counter
+#include "TAIRdatRaw.hxx"
+#include "TAIRactDatRaw.hxx"
 
+//MicroStrip Detector
+#include "TAMSDparGeo.hxx"
+#include "TAMSDparConf.hxx"
+#include "TAMSDparMap.hxx"
+#include "TAMSDntuRaw.hxx"
+#include "TAMSDactNtuMC.hxx"
 
 #define TDC_BOARDNUM 513
 
@@ -47,6 +82,7 @@ class BMcalBooter {
 
   void GeoPrint();
   //~ Bool_t CalculateT0();
+  void clear_bmstruct(Bool_t forced);
   Bool_t read_event(bool &status);//read event from datafile and charge bmstruct, if status=true it means that this event contain some error, it return true if read the event, false if the file is end
   void evaluateT0();//evaluate the T0 from datafile
   Bool_t drop_event();//read event from datafile and discharge it, it return false if the file is end
@@ -104,20 +140,22 @@ class BMcalBooter {
   //~ TABMparGeo* bmgeo;
   TABMparMap* bmmap;
   //~ TABMdatRaw* bmdatraw;
+  //~ TAIRrawHit* sthit;
   
   //Data descriptions 
   TAGdataDsc* myn_bmraw;
   TAGdataDsc* myn_bmdatraw;
   TAGdataDsc* myn_bmtrk;
-  TAGdataDsc* myn_msdraw;
-
+  TAGdataDsc* myn_stdatraw;//TAIRdatRaw (start counter)
+  TAGdataDsc* myn_msdraw;//msd
   // TAGactTreeWriter* my_out;
   TAGaction* mya_msdraw;
   
   bool isroma;
   ifstream datafile;
   BM_struct bmstruct;
-  Long64_t data_num_ev;
+  Long64_t tot_num_ev;//current number of events
+  Long64_t data_num_ev;//total number of events
 };
 
 #endif

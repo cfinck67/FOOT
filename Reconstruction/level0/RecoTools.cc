@@ -94,8 +94,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     tagr->BeginEventLoop();
     Long64_t nentries; 
     if(m_isdata){
-      cout<<"numero eventi totali in file="<<bmcalbooter->data_num_ev<<endl;
-      nentries=(m_nev==0) ? bmcalbooter->data_num_ev : m_nev;
+      cout<<"numero eventi totali in file="<<bmcalbooter->tot_num_ev<<endl;
+      nentries=(m_nev==0) ? bmcalbooter->tot_num_ev : m_nev;
     }else 
       nentries = tree->GetEntries(); 
     Long64_t nbytes = 0, nb = 0;

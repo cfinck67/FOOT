@@ -239,7 +239,7 @@ Bool_t TAGroot::NextEvent()
     b_ok = kTRUE;
   }
 
-  if (!b_ok) Error("NextEvent()", "No required Items registered");
+  //~ if (!b_ok) Error("NextEvent()", "No required Items registered");
 
   return b_ok;
 }

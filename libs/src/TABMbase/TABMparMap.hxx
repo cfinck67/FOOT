@@ -46,7 +46,7 @@ class TABMparMap : public TAGpara {
     //~ inline int getSense(int add) { return chaSense.at(add); }
     //~ inline int getPlane(int add) { return chaPlane.at(add); }
     //~ inline int getView(int add) { return chaView.at(add); }
-    //~ inline int getTrefch(){return trefCh;}
+    inline int GetTrefCh(){return trefCh;}
     
     ClassDef(TABMparMap,1)
 

@@ -88,7 +88,6 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
 
 TABMactNtuTrack::~TABMactNtuTrack()
 { 
-  cout<<"DISTRUGGO TABMACTNTUTRACK"<<endl;
   delete simpleFitter;
   delete refFitter;
   delete dafSimpleFitter;

@@ -14,7 +14,7 @@ typedef struct BM_struct {
   Int_t hit_id[MAXHITTDC];//measurement channel
   Int_t hit_meas[MAXHITTDC];//measurement value (10^-8 sec.)
   Int_t status;//error flag: -1000=ok, 0=not set
-  Int_t synctime;//time of the sync channel -1000=not set,
+  Int_t synctime[MAXHITTDC];//time of the sync channel -1000=not set,
 
 } BM_struct;
 

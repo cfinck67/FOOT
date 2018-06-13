@@ -234,6 +234,18 @@ void TABMparCon::SetT0s(vector<double> t0s) {
   return;
 }
 
+
+void TABMparCon::SetT0(Int_t cha, Int_t t0in){
+
+if(cha<36 && cha>=0) 
+  v_t0s[cha]=t0in;   
+else {
+    Error("Parameter()","Channel out of Range!!! cha=%d",cha);
+  }
+
+  return;
+}
+
 //~ Double_t TABMparCon::GetT0(int view, int plane, int cell) {
 
   //~ Double_t t0(0.);
@@ -332,6 +344,7 @@ double TABMparCon::STrel_Delta3(double time) {
   return res;
 }
 
+//provv, da ottimizzare
 double TABMparCon::STrelCorr(double time, int ic, int ip, int iv) {//per ora serve solo il tempo perchè per ogni cella le strel sono le stesse...
 
   double res = 0;

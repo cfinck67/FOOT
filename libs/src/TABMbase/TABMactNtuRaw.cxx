@@ -27,22 +27,21 @@ ClassImp(TABMactNtuRaw);
 TABMactNtuRaw::TABMactNtuRaw(const char* name,
 			   TAGdataDsc* p_nturaw, 
 			   TAGdataDsc* p_datraw, 
-			   //~ TAGdataDsc* p_timraw, 
+			   TAGdataDsc* p_timraw, 
 			   //~ TAGdataDsc* p_triraw, 
 			   TAGparaDsc* p_geomap, 
 			   TAGparaDsc* p_parcon)
   : TAGaction(name, "TABMactNtuRaw - NTuplize BM raw data"),
     fpNtuRaw(p_nturaw),
     fpDatRaw(p_datraw),
-    //~ fpTimRaw(p_timraw),
+    fpTimRaw(p_timraw),
     //~ fpTriRaw(p_triraw),
     fpGeoMap(p_geomap),
     fpParCon(p_parcon)
 {
-  cout<<"CREO IN TABMACTNTURAW"<<endl;
   AddDataOut(p_nturaw, "TABMntuRaw");
   AddDataIn(p_datraw, "TABMdatRaw");
-  //~ AddDataIn(p_timraw, "TAIRdatRaw");
+  AddDataIn(p_timraw, "TAIRdatRaw");
   //~ AddDataIn(p_triraw, "TATRdatRaw");
   AddPara(p_geomap, "TABMparGeo");
   AddPara(p_parcon, "TABMparCon");
@@ -138,9 +137,8 @@ vector<double> TABMactNtuRaw::retrieve_U() {
 
 Bool_t TABMactNtuRaw::Action()
 {
-  cout<<"sono in bmactnturaw"<<endl;
   TABMdatRaw* p_datraw = (TABMdatRaw*) fpDatRaw->Object();
-  //~ TAIRdatRaw* p_timraw = (TAIRdatRaw*) fpTimRaw->Object();//start counter per ora non lo includo
+  TAIRdatRaw* p_timraw = (TAIRdatRaw*) fpTimRaw->Object();
   //~ TATRdatRaw* p_triraw = (TATRdatRaw*) fpTriRaw->Object();//è l'equivalente del BM...
   TABMntuRaw* p_nturaw = (TABMntuRaw*) fpNtuRaw->Object();
   TABMparGeo* p_geomap = (TABMparGeo*) fpGeoMap->Object();
@@ -152,18 +150,19 @@ Bool_t TABMactNtuRaw::Action()
 
 
 //old stuff
-/*
+
   Int_t i_nhit = p_datraw->NHit();
-  double irtime(-10000);
-  //~ double trigtime(-10000);
   
-  Int_t timhit = p_timraw->nirhit;
-  for (Int_t i = 0; i < timhit; i++) {
-    const TAIRrawHit* aHi = p_timraw->Hit(i);
-    if(aHi->ChID()==0 && !aHi->Type()) {
-      irtime = aHi->Time();
-    }
-  }
+  //FIRST trigger time irtime... why this loop?
+  //~ double irtime(-10000);
+  //~ double trigtime(-10000);  
+  //~ Int_t timhit = p_timraw->nirhit;
+  //~ for (Int_t i = 0; i < timhit; i++) {
+    //~ const TAIRrawHit* aHi = p_timraw->Hit(i);
+    //~ if(aHi->ChID()==0 && !aHi->Type()) {
+      //~ irtime = aHi->Time();
+    //~ }
+  //~ }
 
   //old method to charge the trigger time
   //~ Int_t trihit = p_triraw->ntrhit;
@@ -181,6 +180,8 @@ Bool_t TABMactNtuRaw::Action()
     //~ fpNtuRaw->SetBit(kValid);
     //~ return kTRUE;
   //~ }
+  
+  Int_t irtime=p_timraw->TrigTime();//prendo trigger direttamente dal datraw...
 
   if(irtime == -10000) {
     Info("Action()","Trigger IR Time is Missing!!!");
@@ -209,7 +210,7 @@ Bool_t TABMactNtuRaw::Action()
     v_cellPla[iD] = u_cellPla[iD] = -10;
   }
 
-  for (Int_t i = 0; i < i_nhit; i++) {
+  for (Int_t i = 0; i < i_nhit; i++) {//loop on p_datrawhit
     const TABMrawHit& hit = p_datraw->Hit(i);
     Int_t i_cell = hit.Cell();
     Int_t i_plane = hit.Plane();
@@ -221,14 +222,15 @@ Bool_t TABMactNtuRaw::Action()
     Int_t i_idmon = 0; //!dummy!
 
     //T0s from parameters.
-    Double_t t0_corr = p_parcon->GetT0(i_view,i_plane,i_cell);
-    Double_t i_time = hit.Time()-t0_corr-(irtime);
+    Double_t t0_corr = p_parcon->GetT0(i_view,i_plane,i_cell);//provv da ottimizzare
+    Double_t i_time = hit.Time()-t0_corr-irtime;
+    //~ cout<<"hit.time="<<hit.Time()<<"   t0_corr="<<t0_corr<<"  irtime="<<irtime<<endl;
     if(i_time<0) i_time = 0.;
     Double_t stcorr = p_parcon->STrelCorr(i_time,i_cell,i_plane,tmp_view);
 
     //Vdrift from parameters.
     Double_t vdrift = p_parcon->GetVDrift();
-    Double_t i_timmon = hit.Time()-(irtime);
+    Double_t i_timmon = hit.Time()-irtime;
     if(i_timmon<0) 
       Info("Action()","Time %lf, Tirgger %lf T0 %lf",hit.Time(),irtime,t0_corr);
     
@@ -328,7 +330,6 @@ Bool_t TABMactNtuRaw::Action()
   }
   
   
-  */
   
   
   

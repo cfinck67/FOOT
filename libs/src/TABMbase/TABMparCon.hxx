@@ -53,6 +53,7 @@ class TABMparCon : public TAGpara {
     //~ void        CalculateT0(TABMparMap* o_bmmap, TString datafile_name);//calculate the T0
     void        loadT0s(const TString& name); 
     void        SetT0s(vector<double> t0s);
+    void        SetT0(Int_t cha, Int_t t0in);
     Double_t    GetT0(int view, int plane, int cell){return GetT0(cell+((view==-1) ? 1:0)*3+plane*6);};
     Double_t    GetT0(int index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
 
@@ -95,7 +96,7 @@ class TABMparCon : public TAGpara {
     Int_t    total_ev_num;//total number of events
     
     //old framework stuff...:
-    vector<double> v_t0s;//T0
+    vector<double> v_t0s;//T0 in ns
 
     TF1* f_mypol;
     TF1* f_mypol2;

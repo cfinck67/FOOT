@@ -142,18 +142,18 @@ void ControlPlotsRepository::PrintOutputNtuple() {
 	}
 
   //Beam Monitor stuff
-  //~ if(GlobalPar::GetPar()->IncludeBM()){
-    //~ printf("rdrift.size= %d   track.size=%d \n",ntuple_out.BM_hit_rdrift.size(),ntuple_out.BM_track_chi2.size());
-    //~ for (int i = 0; i< ntuple_out.BM_hit_rdrift.size(); i++){//loop on BM hits
-      //printf("i=%d    rdrift=%f\n",i,ntuple_out.BM_hit_rdrift.at(i));
-      //~ tree_out->Branch("BM_rdrift",           &ntuple_out.BM_hit_rdrift.at(i) );
-      //~ tree_out->Fill();
-    //~ }
-    //~ for (int i = 0; i< ntuple_out.BM_track_chi2.size(); i++){//loop on BM tracks
-      //~ tree_out->Branch("BM_track_chi2",           &ntuple_out.BM_track_chi2.at(i) );
-      //~ tree_out->Fill();
-    //~ }
-  //~ }
+  if(GlobalPar::GetPar()->IncludeBM()){
+    printf("rdrift.size= %d   track.size=%d \n",ntuple_out.BM_hit_rdrift.size(),ntuple_out.BM_track_chi2.size());
+    for (int i = 0; i< ntuple_out.BM_hit_rdrift.size(); i++){//loop on BM hits
+      //~ //printf("i=%d    rdrift=%f\n",i,ntuple_out.BM_hit_rdrift.at(i));
+      tree_out->Branch("BM_rdrift",           &ntuple_out.BM_hit_rdrift.at(i) );
+      tree_out->Fill();
+    }
+    for (int i = 0; i< ntuple_out.BM_track_chi2.size(); i++){//loop on BM tracks
+      tree_out->Branch("BM_track_chi2",           &ntuple_out.BM_track_chi2.at(i) );
+      tree_out->Fill();
+    }
+  }
   
 
 	n_out->Write();

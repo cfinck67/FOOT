@@ -58,7 +58,7 @@ class TABMdatRaw : public TAGdata {
   private:
     Int_t           fiNTdc;		      //number of accepted tdc values
     Int_t           fiNDrop;		    //number of discharged tdc values
-    vector<TABMrawHit> fHitList;		    //list of TABMrawHit 
+    vector<TABMrawHit> fHitList;		    //list of TABMrawHit ATTENZIONE!! NON È UN TCLONESARRAY COME GLI ALTRI!!!
 };
 
 #include "TABMdatRaw.icc"

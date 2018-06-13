@@ -38,10 +38,10 @@ TAIRrawHit::TAIRrawHit()
 
 TAIRrawHit::TAIRrawHit(int typ, int cha, double charge, double time) {
 
-  ir_time = time;
-  ir_chg  = charge;
   ir_typ  = typ;
   ir_chid   = cha;
+  ir_chg  = charge;
+  ir_time = time;
 
 }
 
@@ -111,7 +111,6 @@ void TAIRdatRaw::Clear(Option_t*)
 
 void TAIRdatRaw::ToStream(ostream& os, Option_t* option) const
 {
-  os << "TAIRdatRaw " << GetName()
-     << endl;
+  os << "TAIRdatRaw " << GetName()  << endl;
   return;
 }

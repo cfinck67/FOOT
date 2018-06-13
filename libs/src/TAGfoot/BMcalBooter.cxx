@@ -1,44 +1,3 @@
-
-#include <TCanvas.h>
-#include <TError.h>
-#include <TMath.h>
-
-#include <TH2.h>
-#include <TH1.h>
-
-#include "TAGaction.hxx"
-#include "TAGview.hxx"
-
-//Beam Monitor
-#include "TABMparGeo.hxx"
-#include "TABMparCon.hxx"
-#include "TABMparMap.hxx"
-#include "TABMntuRaw.hxx"
-#include "TABMntuTrack.hxx"
-#include "TABMactNtuMC.hxx"
-#include "TABMactNtuTrack.hxx"
-#include "TABMactNtuRaw.hxx"
-#include "TABMactDatRaw.hxx"
-//~ #include "TABMvieTrackFOOT.hxx"
-
-//MicroStrip Detector
-#include "TAMSDparGeo.hxx"
-#include "TAMSDparConf.hxx"
-#include "TAMSDparMap.hxx"
-#include "TAMSDntuRaw.hxx"
-#include "TAMSDactNtuMC.hxx"
-
-#include "foot_geo.h"
-
-#include "Materials.hxx"
-#include "FootField.hxx"
-#include "MeasurementCreator.h"
-
-#include <iostream>
-#include <vector>
-
-
-
 #include "BMcalBooter.hxx"
 
 using namespace std;
@@ -53,15 +12,13 @@ BMcalBooter::BMcalBooter() {
 
 
 void BMcalBooter::Initialize( TString wd_in, TString instr_in, bool isroma_in ) {
-    cout<<"sono in initialize"<<endl;
     isroma=isroma_in;
     data_num_ev=0;
     m_wd=wd_in;  
     m_instr=instr_in;
+    clear_bmstruct(kTRUE);
     //detector positioning and global to local transformations
-    cout<<"prima di geotrafo"<<endl;
     fGeoTrafo = new TAGgeoTrafo();   
-    cout<<"fatto geotrafo"<<endl;
     TString filename = m_wd + "/FOOT_geo.map";   // obsolete, to be removed carefully
     fGeoTrafo->InitGeo(filename.Data());
     // Setting up the detectors that we want to decode.    ;
@@ -113,9 +70,9 @@ void BMcalBooter::Initialize( TString wd_in, TString instr_in, bool isroma_in ) 
     //--- draw the ROOT box
     gGeoManager->SetVisLevel(10);
     GeoPrint();
-    
     FillDataBeamMonitor();
-      
+    
+    tot_num_ev=data_num_ev;  
     data_num_ev=0;
       
     if (GlobalPar::GetPar()->Debug()>10)
@@ -141,11 +98,27 @@ void BMcalBooter::Process() {
   // start time
   start_kal = clock();
   
-  bool error;
+  Bool_t error;
   read_event(error);
-  if(!error)
+  if(!error){
     TABMdatRaw* bmdatraw = (TABMdatRaw*) (gTAGroot->FindDataDsc("myn_bmdatraw", "TABMdatRaw")->GenerateObject());  
+    TAIRdatRaw* stdatraw = (TAIRdatRaw*) (gTAGroot->FindDataDsc("myn_stdatraw", "TAIRdatRaw")->GenerateObject());
+    TABMntuRaw* bmraw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
+    //~ TABMntuTrack* bmtack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
 
+    TABMntuHit* bmntuhit;
+    const TABMrawHit* bmrawhit;
+    for(Int_t i=0;i<bmraw->nhit;i++){
+      bmntuhit = bmraw->Hit(i);
+      //~ cout<<"evento numero="<<data_num_ev<<"   numero hit="<<i<<"   tempo="<<bmntuhit->Tdrift()<<endl;
+    }
+    for(Int_t i=0;i<bmdatraw->NHit();i++){
+      bmrawhit=&bmdatraw->Hit(i);
+      //~ cout<<"evento numero="<<data_num_ev<<"  numero hit"<<i<<"raw hit time="<<bmrawhit->Time()<<endl;
+    }
+    
+  }
+  
   // stop time
   end_kal = clock();
   //~ m_tempo_kal+=(double)(end_kal-start_kal);
@@ -187,12 +160,15 @@ void BMcalBooter::FillDataBeamMonitor() {
   
   myn_bmdatraw    = new TAGdataDsc("myn_bmdatraw", new TABMdatRaw());
   new TABMactDatRaw("an_bmdatraw",myn_bmdatraw, myp_bmgeo, &bmstruct); 
+
+  myn_stdatraw    = new TAGdataDsc("myn_stdatraw", new TAIRdatRaw());
+  new TAIRactDatRaw("an_stdatraw", myn_stdatraw, myp_bmmap, &bmstruct);
    
   myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
-  new TABMactNtuRaw("an_bmraw", myn_bmraw, myn_bmdatraw, myp_bmgeo, myp_bmcon); 
+  new TABMactNtuRaw("an_bmraw", myn_bmraw, myn_bmdatraw, myn_stdatraw, myp_bmgeo, myp_bmcon); 
   
-  //~ myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());  
-  //~ new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
+  myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());  
+  new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
     
   if (GlobalPar::GetPar()->Debug()>10)
     cout<<"I finish BMcalBooter::FillDataBeamMonitor"<<endl;  
@@ -289,35 +265,62 @@ void BMcalBooter::evaluateT0() {
   bool error;
   for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
     sprintf(tmp_char,"tdc_cha_%d",i);
-    h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",2000,0.,2000.);
+    h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",3000,-1000.,2000.);
   }
   h=new TH1D("all_tdc_chan","Number of tdc signals; TDC channel; counts",bmmap->GetTdcMaxcha(),0.,bmmap->GetTdcMaxcha());
-  h=new TH1D("tdc_error","Number of tdc signals with errors; Event number; counts",2,0.,2);//provv, distinguish the type of error!
+  h=new TH1D("tdc_error","Number of tdc signals with errors; Event number; counts",3,0.,3);//provv, distinguish the type of error!
   
   //jump the first event
   drop_event();
   if(isroma)//jump the second event if isroma    
     drop_event();
       
+  //charge the tdc_cha_* TH1D graph of the tdc signals    
   while(read_event(error)){
     if(bmcon->GetBMdebug()>9)
       cout<<"data_num_ev="<<data_num_ev<<endl;
-    if(!error){
+    if(!error && bmstruct.synctime[0]!=-10000 && bmstruct.synctime[1]==-10000){
       for(Int_t i=0;i<bmstruct.hitnum;i++){
         sprintf(tmp_char,"tdc_cha_%d",bmmap->cell2tdc(bmstruct.hit_id[i]));
-        ((TH1D*)gDirectory->Get(tmp_char))->Fill(bmstruct.hit_meas[i]);    
+        ((TH1D*)gDirectory->Get(tmp_char))->Fill(bmstruct.hit_meas[i]-bmstruct.synctime[0]);    
         ((TH1D*)gDirectory->Get("all_tdc_chan"))->Fill(bmmap->cell2tdc(bmstruct.hit_id[i]));    
       } 
     }else{
       if(bmcon->GetBMdebug()>1)
         cout<<"BMcalBooter::evaluateT0::ERROR in the data detected at data_num_ev="<<data_num_ev<<endl;
-      ((TH1D*)gDirectory->Get("tdc_error"))->Fill(1);    
+      if(bmstruct.synctime[0]==-10000)
+        ((TH1D*)gDirectory->Get("tdc_error"))->Fill(1);//no synctime
+      if(bmstruct.synctime[1]!=-10000)      
+        ((TH1D*)gDirectory->Get("tdc_error"))->Fill(2);//multi synctime
     }
     data_num_ev++;
   }
   
-  //qua fitto i grafici, trovo i T0 e li carico*****************************   TODO  *******************
-  
+  //fit the tdc signals with a function to evaluate the T0, for the moment I take the shortest signal close to the peak
+  //~ TF1 *f1 = new TF1("f1","[0]*pow(([1]/[2]),(x/[2]))(TMath::Exp(-([1]/[2])))/TMath::Gamma((x/[2])+1)", 0, 2000);
+  //~ TF1 *f1 = new TF1("f1","[0]*pow([1]/[2],x/[2]-[3])/(TMath::Gamma(x/[2]-[3]+1))*(TMath::Exp(-[1]/[2]))", 0, 2000);
+  //~ TF1 *f1 = new TF1("f1","gaus(0)", ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
+  for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
+    sprintf(tmp_char,"tdc_cha_%d",i);
+    if(bmmap->tdc2cell(i)>0){
+      //~ cout<<"fit channel number="<<i<<endl;
+      //~ f1->SetParameters(1, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin(), 10);
+      //~ f1->SetParLimits(1,0,100);
+      //~ ((TH1D*)gDirectory->Get(tmp_char))->Fit(f1,"QR+","",((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100,((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
+    
+      //take the first signal, not too distant from other signals
+      tmp_int=((TH1D*)gDirectory->Get(tmp_char))->GetMinimumBin();
+      for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMinimumBin()+1;j<((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
+        if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>0)
+          if(j-tmp_int<50){
+            j=2000;
+          }else
+            tmp_int=j;
+      if(bmcon->GetBMdebug()>9)
+        cout<<"tdc channel="<<i<<"   T0="<<(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)/10.<<endl;
+      bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)/10.); 
+    }  
+  }  
   
   
   f_out->Write();
@@ -334,11 +337,14 @@ Bool_t BMcalBooter::read_event(bool &error) {
   Int_t tmp_int; //dummy int variable to read and convert the input file
   //~ vector<int> ev_words;//words of the event
   Bool_t new_event, read_meas;
+  Int_t tdc_evnum, sync_evnum=0;
+  double tdc_meas;
   error=false;
   //~ Int_t board_num=513;//number of board used in the acquisition //provv, da modificare: mettere in config file questo numero
   Int_t ev_num=0;//number of events given by the acquisition
-  Int_t tdc_evnum;
-  double tdc_meas;
+  
+  clear_bmstruct(kFALSE);
+  
   if(bmcon->GetBMdebug()>9)
     cout<<"I'm in BMcalBooter:read_event"<<endl;
   if(datafile.read((char *) &tmp_int,sizeof(int))){//read number of words of this event
@@ -367,12 +373,9 @@ Bool_t BMcalBooter::read_event(bool &error) {
     error=true;          
   }
   bmstruct.evnum=ev_words[0];
-  bmstruct.hitnum=0;
-  bmstruct.status=0;
-  bmstruct.synctime=-1000;
   if(error || bmcon->GetBMdebug()>9)
     for(Int_t i=0;i<bmstruct.words;i++)
-      cout<<"ev_words["<<i<<"]="<<ev_words[i]<<endl;
+      cout<<"event_num="<<data_num_ev<<"   ev_words["<<i<<"]="<<ev_words[i]<<endl;
   if(!error){//read the tdc words
     new_event=true;
     read_meas=false;
@@ -406,9 +409,13 @@ Bool_t BMcalBooter::read_event(bool &error) {
           cout<<"ERROR in BMcalBooter:read_event: tdc_evnum="<<tdc_evnum<<"  measured event number="<<ev_words[i-1]<<"  i="<<i<<endl;
           error=true;
         }
-        if(ev_words[i]>-1 && ev_words[i]<bmmap->GetTdcMaxcha()){//found a measure
+        if(ev_words[i]>-1 && ev_words[i]<bmmap->GetTdcMaxcha()){//measure found
           bmstruct.hit_id[bmstruct.hitnum]=bmmap->tdc2cell(ev_words[i++]);
           bmstruct.hit_meas[bmstruct.hitnum]=ev_words[i]/10.;//conversion to ns
+          if(ev_words[i-1]==bmmap->GetTrefCh()){
+            bmstruct.synctime[sync_evnum]=ev_words[i]/10.;
+            sync_evnum++;
+          }
           bmstruct.hitnum++;
         }
         else
@@ -447,6 +454,38 @@ void BMcalBooter::GeoPrint() {
 
 }
 
+void BMcalBooter::clear_bmstruct(Bool_t forced){
+  bmstruct.evnum=0;
+  bmstruct.words=0;
+  bmstruct.hitnum=0;
+  bmstruct.status=0;
+  if(forced){
+    for(Int_t i=0;i<MAXHITTDC;i++){
+     bmstruct.hit_id[i]=-10000;
+     bmstruct.hit_meas[i]=-10000;
+     bmstruct.synctime[i]=-10000;
+    }
+  return;
+  }
+  Int_t tmp_int=0;
+  while(bmstruct.synctime[tmp_int]!=-10000){
+    bmstruct.synctime[tmp_int]=-10000;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.hit_id[tmp_int]!=-10000){
+    bmstruct.hit_id[tmp_int]=-10000;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.hit_meas[tmp_int]!=-10000){
+    bmstruct.hit_meas[tmp_int]=-10000;
+    tmp_int++;
+  }
+return;
+}
+  
+  
 Bool_t BMcalBooter::drop_event(){
   Int_t tmp_int, trash;
   if(datafile.read((char *) &tmp_int,sizeof(int))){
