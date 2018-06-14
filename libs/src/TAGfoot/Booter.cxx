@@ -117,35 +117,36 @@ Booter::Booter() {
 
 
 
-void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in ) {
-
-
+void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in, Bool_t isdata_in ) {
     // debug fie
     if ( GlobalPar::GetPar()->Debug() > 1 ) {
         eventListFile.open( ((string)getenv("FOOTLEVEL0")+"/"+"eventListFile.dat").c_str(), fstream::trunc | fstream::out );
         if ( !eventListFile.is_open() )        cout<< "ERROR  -->  eventListFile.dat cannot open file."<< endl, exit(0);
     }
-
+    
+    isdata=isdata_in;
     m_wd=wd_in;  
-  
+    
 	//Initializing the Geometry class that handles the
     //detector positioning and global to local transformations
     fGeoTrafo = new TAGgeoTrafo();   
     TString filename = m_wd + "/FOOT_geo.map";   // obsolete, to be removed carefully
     fGeoTrafo->InitGeo(filename.Data());
 
+
     // Setting up the detectors that we want to decode.    
-    if( GlobalPar::GetPar()->IncludeEvent() )           FillMCEvent(evStr);
-    //~ if( GlobalPar::GetPar()->IncludeBM() )              FillMCBeamMonitor(evStr);
-    if( GlobalPar::GetPar()->IncludeIR() )              FillMCInteractionRegion(evStr);
-    if( GlobalPar::GetPar()->IncludeInnerTracker() )    FillMCInnerTracker(evStr);
-    if( GlobalPar::GetPar()->IncludeVertex() )          FillMCVertex(evStr);
-    if( GlobalPar::GetPar()->IncludeMSD() )             FillMCMSD(evStr);
-    if( GlobalPar::GetPar()->IncludeTW() )              FillMCTofWall(evStr);
-    if( GlobalPar::GetPar()->IncludeCA() )              FillMCCalorimeter(evStr);
+    if(!isdata){
+      if( GlobalPar::GetPar()->IncludeEvent() )           FillMCEvent(evStr);
+      //~ if( GlobalPar::GetPar()->IncludeBM() )              FillMCBeamMonitor(evStr);
+      if( GlobalPar::GetPar()->IncludeIR() )              FillMCInteractionRegion(evStr);
+      if( GlobalPar::GetPar()->IncludeInnerTracker() )    FillMCInnerTracker(evStr);
+      if( GlobalPar::GetPar()->IncludeVertex() )          FillMCVertex(evStr);
+      if( GlobalPar::GetPar()->IncludeMSD() )             FillMCMSD(evStr);
+      if( GlobalPar::GetPar()->IncludeTW() )              FillMCTofWall(evStr);
+      if( GlobalPar::GetPar()->IncludeCA() )              FillMCCalorimeter(evStr);
+    }
 
   	cout << "Make Geo" << endl;
-
     TGeoManager *masterGeo = new TGeoManager("genfitGeom", "GENFIT geometry");
     
   	Materials* listMaterials = new Materials() ;
@@ -167,67 +168,68 @@ void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in ) {
     if ( GlobalPar::GetPar()->IncludeBM() || GlobalPar::GetPar()->IncludeKalman() )
       UpdatePDG::Instance();
 
-
     if( GlobalPar::GetPar()->IncludeBM() ) {
     //~ //     // DisplayBeamMonitor(pg);
       myp_bmgeo  = new TAGparaDsc("myp_bmgeo", new TABMparGeo());
       myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
+      myp_bmmap = new TAGparaDsc("myp_bmmap", new TABMparMap());
       initBMGeo();
       initBMCon();
+      initBMMap();
+      //~ bmcon = (TABMparCon*) myp_bmcon->Object();
+      //~ bmmap = (TABMparMap*) myp_bmmap->Object();
       //~ FillMCBeamMonitor(evStr);//da modificare: se lo abilito qua la geometria degli altri detectors non funzia... 
-
     }
 
-
-    if ( GlobalPar::GetPar()->IncludeVertex() ) {
-        m_vtgeo = shared_ptr<TAVTparGeo> ( (TAVTparGeo*) myp_vtgeo->Object() );
-        //Initialization of VTX parameters
-        m_vtgeo->InitGeo();
-        top->AddNode( m_vtgeo->GetVolume(), 0, new TGeoCombiTrans( 0,0,0,new TGeoRotation("Vertex",0,0,0)) );
+    if(!isdata){    
+      if ( GlobalPar::GetPar()->IncludeVertex() ) {
+          m_vtgeo = shared_ptr<TAVTparGeo> ( (TAVTparGeo*) myp_vtgeo->Object() );
+          //Initialization of VTX parameters
+          m_vtgeo->InitGeo();
+          top->AddNode( m_vtgeo->GetVolume(), 0, new TGeoCombiTrans( 0,0,0,new TGeoRotation("Vertex",0,0,0)) );
+      }
+  
+  
+      if( GlobalPar::GetPar()->IncludeInnerTracker() ) {
+        m_itgeo = shared_ptr<TAITparGeo> ( (TAITparGeo*) myp_itgeo->Object() );
+          //Initialization of IT parameters
+          m_itgeo->InitGeo();
+          // m_itgeo->PrintBodies("geppo");
+          // m_itgeo->PrintRegions("geppo");
+          // m_itgeo->PrintAssignMaterial("geppo");
+          top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("InnerTracker",0,0,0)) );
+      }
+  
+  
+      if( GlobalPar::GetPar()->IncludeMSD() ) {
+        m_msdgeo = shared_ptr<TAMSDparGeo> ( (TAMSDparGeo*) myp_msdgeo->Object() );
+          //Initialization of MSD parameters
+          m_msdgeo->InitGeo();
+          top->AddNode( m_msdgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("Strip",0,0,0)) );
+      }
+      
+      if( GlobalPar::GetPar()->IncludeTW() ) {
+        shared_ptr<TATWparGeo> m_twgeo = shared_ptr<TATWparGeo> ( (TATWparGeo*) myp_twgeo->Object() );
+        //Initialization of SCINT parameters
+        m_twgeo->InitGeo();
+        top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
+        // top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_twgeo->GetCenter().z(), new TGeoRotation("Scint",0,0,0)) );
+      }    
+  
+      if( GlobalPar::GetPar()->IncludeCA() ) {
+          // shared_ptr<TACAparGeo> m_cageo = shared_ptr<TACAparGeo> ( (TACAparGeo*) myp_cageo->Object() );
+          // m_cageo->InitGeo();
+          // top->AddNode( m_cageo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_cageo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
+      
+      }
+   
+  
+      if( GlobalPar::GetPar()->IncludeIR() ) {
+          // shared_ptr<TAIRparGeo>  m_irgeo = shared_ptr<TAIRparGeo> ( (TAIRparGeo*) myp_irgeo->Object() );
+          // m_irgeo->InitGeo();
+          // top->AddNode( m_irgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_irgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
+      }
     }
-
-
-    if( GlobalPar::GetPar()->IncludeInnerTracker() ) {
-      m_itgeo = shared_ptr<TAITparGeo> ( (TAITparGeo*) myp_itgeo->Object() );
-        //Initialization of IT parameters
-        m_itgeo->InitGeo();
-        // m_itgeo->PrintBodies("geppo");
-        // m_itgeo->PrintRegions("geppo");
-        // m_itgeo->PrintAssignMaterial("geppo");
-        top->AddNode( m_itgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("InnerTracker",0,0,0)) );
-    }
-
-
-    if( GlobalPar::GetPar()->IncludeMSD() ) {
-      m_msdgeo = shared_ptr<TAMSDparGeo> ( (TAMSDparGeo*) myp_msdgeo->Object() );
-        //Initialization of MSD parameters
-        m_msdgeo->InitGeo();
-        top->AddNode( m_msdgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("Strip",0,0,0)) );
-    }
-    
-    if( GlobalPar::GetPar()->IncludeTW() ) {
-      shared_ptr<TATWparGeo> m_twgeo = shared_ptr<TATWparGeo> ( (TATWparGeo*) myp_twgeo->Object() );
-      //Initialization of SCINT parameters
-      m_twgeo->InitGeo();
-      top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
-      // top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_twgeo->GetCenter().z(), new TGeoRotation("Scint",0,0,0)) );
-    }    
-
-    if( GlobalPar::GetPar()->IncludeCA() ) {
-        // shared_ptr<TACAparGeo> m_cageo = shared_ptr<TACAparGeo> ( (TACAparGeo*) myp_cageo->Object() );
-        // m_cageo->InitGeo();
-        // top->AddNode( m_cageo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_cageo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
-    
-    }
- 
-
-    if( GlobalPar::GetPar()->IncludeIR() ) {
-        // shared_ptr<TAIRparGeo>  m_irgeo = shared_ptr<TAIRparGeo> ( (TAIRparGeo*) myp_irgeo->Object() );
-        // m_irgeo->InitGeo();
-        // top->AddNode( m_irgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_irgeo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
-    }
-
-
           
     // set material and geometry into genfit
     MaterialEffects* materialEffects = MaterialEffects::getInstance();
@@ -238,7 +240,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in ) {
 
     //--- draw the ROOT box
     gGeoManager->SetVisLevel(10);
-
+    
     GeoPrint();
 
 
@@ -247,12 +249,11 @@ void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in ) {
     m_kFitter = new KFitter();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
 
-    if( GlobalPar::GetPar()->IncludeBM()) 
+    if( GlobalPar::GetPar()->IncludeBM() && !isdata) 
       FillMCBeamMonitor(evStr);//da modificare: va messo qua... così non crea problemi
       
     if (GlobalPar::GetPar()->Debug()>10)
       cout<<"I finish Booter::Initialize"<<endl;
-    
 }
 
 
@@ -307,19 +308,18 @@ void Booter::Process( Long64_t jentry ) {
 
 void Booter::Finalize() {
 
-	if ( GlobalPar::GetPar()->IncludeKalman() )      m_kFitter->Finalize();
+  if ( GlobalPar::GetPar()->IncludeKalman() )      m_kFitter->Finalize();
 
-    if ( GlobalPar::GetPar()->IsPrintOutputFile() ) {
-        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputFile();
-      }
-    else                        
-        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintMap();
-    
-    if( GlobalPar::GetPar()->IsPrintOutputNtuple() )        
-        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputNtuple();
+  if ( GlobalPar::GetPar()->IsPrintOutputFile() ) {
+      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputFile();
+    }
+  else                        
+    ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintMap();
+  
+  if( GlobalPar::GetPar()->IsPrintOutputNtuple() )        
+      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputNtuple();
 
-
-    if (GlobalPar::GetPar()->Debug() > 1)   eventListFile.close();
+  if (GlobalPar::GetPar()->Debug() > 1)   eventListFile.close();
 
 }
 
@@ -751,6 +751,25 @@ void Booter::initBMGeo()  {
   return;
 
 }
+
+
+void Booter::initBMMap(){
+  myp_bmmap = gTAGroot->FindParaDsc("myp_bmmap", "TABMparMap");
+  if (myp_bmmap == 0) {
+    cout << "p_bmmap not found or holding wrong parameter object type" << endl;
+    return;
+  }
+  TABMparMap* o_bmmap = (TABMparMap*) myp_bmmap->Object();
+  TABMparGeo* o_bmgeo = (TABMparGeo*) myp_bmgeo->Object();
+  o_bmmap->Clear();
+  Bool_t b_bad = kTRUE;
+  TString filename = m_wd + "/geomaps/beammonitor_geoch.map";
+  //~ cout << "   from file " << filename << endl;
+  b_bad = o_bmmap->FromFile(filename, o_bmgeo);  
+  if (!b_bad) myp_bmmap->SetBit(TAGparaDsc::kValid);  
+  return;
+}
+
 
 
 void Booter::bookHisto(TFile *f) {}

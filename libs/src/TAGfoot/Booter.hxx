@@ -40,7 +40,7 @@ class Booter {
   Booter();
   ~Booter() {};
 
-  void Initialize( EVENT_STRUCT* evStr, TString wd_in );
+  void Initialize( EVENT_STRUCT* evStr, TString wd_in, Bool_t isdata_in );
   void Process( Long64_t jentry );
   void Finalize();
 
@@ -68,6 +68,7 @@ class Booter {
 
   void initBMGeo(); //Beam Monitor Geometry
   void initBMCon();
+  void initBMMap();
 
   void bookHisto(TFile *f);
   void CalibBMVT();
@@ -93,7 +94,7 @@ class Booter {
   TFile* m_of;
   TFile* m_hf;
   TString m_oustr;
-  TString m_instr;
+  TString m_instr;//input file name
   TString m_wd;
 
   //MC block
@@ -169,6 +170,8 @@ class Booter {
   TAGaction* mya_ittrack;
 
   TAGaction* mya_msdraw;
+
+  Bool_t isdata;
 
 };
 

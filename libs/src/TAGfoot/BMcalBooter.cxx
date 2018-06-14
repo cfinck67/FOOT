@@ -23,7 +23,6 @@ void BMcalBooter::Initialize( TString wd_in, TString instr_in, bool isroma_in ) 
     fGeoTrafo->InitGeo(filename.Data());
     // Setting up the detectors that we want to decode.    ;
     //~ if( GlobalPar::GetPar()->IncludeMSD() )             FillMCMSD(evStr);
-  	cout << "Make BM calibration Geo" << endl;
     TGeoManager *masterGeo = new TGeoManager("genfitGeom", "GENFIT geometry");
   	Materials* listMaterials = new Materials() ;
     listMaterials->PrintCompMap();

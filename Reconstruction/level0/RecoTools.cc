@@ -58,11 +58,15 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     TAGpadGroup* pg = new TAGpadGroup();
     
     //MC analysis
-    if(m_isdata){//if bm data
-      bmcalbooter = new BMcalBooter();
-      bmcalbooter->Initialize(m_wd,m_instr,m_isroma);
-    }else{
+    //~ if(m_isdata){//if bm data
+      //~ bmcalbooter = new BMcalBooter();
+      //~ bmcalbooter->Initialize(m_wd,m_instr,m_isroma);
+    //~ }else{
       // input ntuple tree
+    EVENT_STRUCT evStr;
+    
+    //MC tree
+    if(!m_isdata){
       tree = new TChain("EventTree");
       for(unsigned int ifi=0; ifi<my_files.size(); ifi++) {
           tree->Add(my_files.at(ifi).data());
@@ -72,35 +76,37 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
       // create the event object
       if(m_debug) cout<<" Creating Eve "<<endl;
       Evento *ev =  new Evento();
-      EVENT_STRUCT evStr;
       ev->FindBranches(tree,&evStr);
       if(m_debug) cout<<" Found branches "<<endl;
-    
       //Define the output file content.
       my_out = new TAGactTreeWriter("my_out");
       tagr->AddRequiredItem("my_out");
       tagr->Print();
       if (my_out->Open(m_oustr, "RECREATE")) return;    
+    }
 
       booter = new Booter();
       bmbooter = new BmBooter();
-      booter->Initialize( &evStr, m_wd );
+      cout<<"prima di initialize"<<endl;
+      booter->Initialize( &evStr, m_wd, m_isdata);
       if (GlobalPar::GetPar()->IncludeBM())
-        bmbooter->Initialize( &evStr);
-    }//end of MC initializers
+        bmbooter->Initialize( m_instr, m_isdata, m_isroma);
+    //~ }//end of MC initializers
 
     
     /***********  The event Loop   ****************************************   */
     tagr->BeginEventLoop();
     Long64_t nentries; 
-    if(m_isdata){
-      cout<<"numero eventi totali in file="<<bmcalbooter->tot_num_ev<<endl;
-      nentries=(m_nev==0) ? bmcalbooter->tot_num_ev : m_nev;
-    }else 
+    if(m_isdata && GlobalPar::GetPar()->IncludeBM()){
+      cout<<"numero eventi totali in file="<<bmbooter->GetTotnumev()<<endl;
+      nentries=(m_nev==0) ? bmbooter->GetTotnumev() : m_nev;
+    }else {
       nentries = tree->GetEntries(); 
+      if(m_nev != 0)      
+        nentries = m_nev;
+    }
     Long64_t nbytes = 0, nb = 0;
     char flag[200]; bool tobedrawn = kFALSE;
-    if(m_nev != 0)      nentries = m_nev;
 
     if(m_debug)         cout<<" Starting Event Loop "<<endl;
 
@@ -120,12 +126,12 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
         ///////////////  Call here your Process() functions    /////////////////////////////////////////////
 
-        if(m_isdata)
-          bmcalbooter->Process();
+        if(m_isdata && GlobalPar::GetPar()->IncludeBM())
+          bmbooter->Process();
         else{
           booter->Process( jentry );
           if (GlobalPar::GetPar()->IncludeBM())
-            bmbooter->Process( jentry );
+            bmbooter->Process();
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,14 +153,13 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     }
     cout << "End of the event loop " << endl;
 
-    if(m_isdata)
-      bmcalbooter->Finalize();
-    else{
-      booter->Finalize();
-      if (GlobalPar::GetPar()->IncludeBM())
-        bmbooter->Finalize();
-      if(GlobalPar::GetPar()->IsPrintOutputFile())
-        ControlPlotsRepository::GetControlObject( "BooterFinalize" )->SaveOutputFile();//close and save OutputFile    
+  
+    booter->Finalize();
+    if (GlobalPar::GetPar()->IncludeBM())
+      bmbooter->Finalize();
+    if(GlobalPar::GetPar()->IsPrintOutputFile())
+      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->SaveOutputFile();//close and save OutputFile    
+    if(!m_isdata){
       my_out->Print();
       my_out->Close();
     }

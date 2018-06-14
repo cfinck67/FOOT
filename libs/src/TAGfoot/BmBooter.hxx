@@ -28,11 +28,20 @@
 #include "ControlPlotsRepository.hxx"
 #include "TABMparGeo.hxx"
 #include "TABMparCon.hxx"
+#include "TABMactDatRaw.hxx"
+#include "TABMactNtuRaw.hxx"
+#include "TABMactNtuTrack.hxx"
 #include "TABMdatRaw.hxx"
 #include "TABMntuRaw.hxx"
 #include "TABMntuTrack.hxx"
 #include "TABMvieTrackFOOT.hxx"
+#include "BM_struct.h"
 
+//Start Counter
+#include "TAIRdatRaw.hxx"
+#include "TAIRactDatRaw.hxx"
+
+#define TDC_BOARDNUM 513
 
 class BmBooter {
   
@@ -42,21 +51,38 @@ BmBooter();
 ~BmBooter() {};
 
 public:
-  void Initialize( EVENT_STRUCT* evStr );
-  void Process( Long64_t jentry );
+  void Initialize( TString instr_in, Bool_t isdata_in, Bool_t isroma_in );
+  void Process();
   void Finalize();
-
+  
+  void FillDataBeamMonitor();
+  void evaluateT0();//evaluate the T0 from datafile
+  Bool_t drop_event();//read event from datafile and discharge it, it return false if the file is end
+  void clear_bmstruct(Bool_t forced);  
+  Bool_t read_event(Bool_t &status);//read event from datafile and charge bmstruct, if status=true it means that this event contain some error, it return true if read the event, false if the file is end
+  Long64_t GetTotnumev(){return tot_num_ev;};
+  Long64_t GetData_numev(){return data_num_ev;};
+  
 private:
 
   //~ TH1F* histo1;
+  //data descriptors
+  TAGdataDsc* myn_bmdatraw;
+  TAGdataDsc* myn_bmraw;
+  TAGdataDsc* myn_stdatraw;
+  TAGdataDsc* myn_bmtrk;
+
+  //parameters
+  TAGparaDsc* myp_bmcon;
+  TAGparaDsc* myp_bmgeo;
+  TAGparaDsc* myp_bmmap;
   
-  //~ TAGdataDsc* myn_bmraw;
-  //~ TAGdataDsc* myn_bmtrk;
   TABMdatRaw* bmdatraw;
   TABMntuRaw* bmraw;
   TABMntuTrack* bmtrack;
   TABMparCon* bmcon;
   TABMparGeo* bmgeo;
+  TABMparMap* bmmap;
   TABMntuTrackTr* p_tracktr;
   TABMntuHit* p_hit;
   //~ TABMvieTrackFOOT* pbmh_view;
@@ -65,6 +91,13 @@ private:
   string bm_outputdir;
   string plot_name;
 
+  TString m_instr;//input file name
+  Bool_t isdata;
+  Bool_t isroma;
+  ifstream datafile;
+  BM_struct bmstruct;
+  Long64_t tot_num_ev;//current number of events
+  Long64_t data_num_ev;//total number of events
 
 };
 

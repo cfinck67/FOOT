@@ -27,7 +27,7 @@
 
 #include "Booter.hxx"
 #include "BmBooter.hxx"
-#include "BMcalBooter.hxx"
+//~ #include "BMcalBooter.hxx"
  
 
 class RecoTools {
@@ -97,7 +97,7 @@ class RecoTools {
 
   vector<string> my_files;
   TChain *tree;
-  BMcalBooter* bmcalbooter;
+  //~ BMcalBooter* bmcalbooter;
   Booter* booter;
   BmBooter* bmbooter;
 
