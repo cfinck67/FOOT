@@ -42,9 +42,12 @@ TABMparCon::TABMparCon() {
   bm_debug=0;
   bm_vietrack=0;
   total_ev_num=0;
+  manageT0BM=0;
+  minnhit_cut=0;
+  maxnhit_cut=20;
   
-  vector<double> myt0s;
-  myt0s.resize(36);
+  vector<double> myt0s(36,-10000);
+  //~ myt0s.resize(36);
   v_t0s = myt0s;
 
   f_mypol = new TF1("mymcpol","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.003);
@@ -71,7 +74,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 
   char bufConf[1024], tmp_char[200];
   Double_t myArg1(0); 
-  Int_t myArgInt(-1);
+  Int_t myArgInt(-1), myArgIntmax(-1);
   
   ifstream incF;
   incF.open(name_exp.Data());
@@ -124,6 +127,15 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      Error(""," Plane Map Error:: check config file!! (N)");
 	      return kTRUE;
         }
+    }else if(strchr(bufConf,'H')) {
+      sscanf(bufConf, "H %d %d",&myArgInt, &myArgIntmax);
+      if(myArgInt>0 && myArgIntmax>0 && myArgIntmax<37 && myArgIntmax<=myArgInt){ 
+        minnhit_cut = myArgInt;
+        maxnhit_cut = myArgIntmax;
+      }else {
+	      Error(""," Plane Map Error:: check config file!! (H)");
+	      return kTRUE;
+        }
     }else if(strchr(bufConf,'E')) {
       sscanf(bufConf, "E %lf",&myArg1);
       if(myArg1>0)
@@ -138,6 +150,23 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         chi2red_cut = myArg1;
       else {
 	      Error(""," Plane Map Error:: check config file!! (C)");
+	      return kTRUE;
+        }
+    }else if(strchr(bufConf,'L')) {
+      sscanf(bufConf, "L %d",&myArgInt);
+      if(myArgInt>0 && myArgInt<7)
+        planehit_cut = myArgInt;
+      else {
+	      Error(""," Plane Map Error:: check config file!! (L)");
+	      return kTRUE;
+        }
+    }else if(strchr(bufConf,'Z')) {
+      sscanf(bufConf, "Z %d %s",&myArgInt, tmp_char);
+      if(myArgInt==0 || myArgInt==1){
+        manageT0BM = myArgInt;
+        bmt0file=tmp_char;
+      }else {
+	      Error(""," Plane Map Error:: check config file!! (L)");
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'A')) {
@@ -185,45 +214,85 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 }
 
 
-void TABMparCon::loadT0s(const TString& name) {
+void TABMparCon::PrintT0s(TString &input_file_name){
+  ofstream outfile;
+  TString name="./config/"+bmt0file;
+  outfile.open(name.Data(),ios::out);
+  outfile<<"calculated_from: "<<input_file_name.Data()<<"    number_of_events= "<<total_ev_num<<endl;
+  for(Int_t i=0;i<36;i++)
+    if(v_t0s[i]!=-10000)
+      outfile<<"cellid= "<<i<<"  T0_time= "<<v_t0s[i]<<endl;
+    else
+      cout<<"ERROR in TABMparCON::PrintT0s: v_t0s not set properly for cell_id="<<i<<"  v_t0s="<<v_t0s[i]<<endl;  
+  outfile.close();
+  return;
+}
 
-  TString name_exp = name;
-  gSystem->ExpandPathName(name_exp);
-
-  char bufConf[1024];
-  int myArg4(0); 
-  int myArg2(0); 
-  int myArg3(0); 
-  double myArg1(0);
-
-  ifstream incF;
-  incF.open(name_exp.Data());
-  if (!incF) {
-    Error("FromFile()", "failed to open file '%s'", name_exp.Data());
-    return;
-  }
-
-  while (incF.getline(bufConf, 200, '\n')) {
-    if(strchr(bufConf,'!')) {
-      //      Info("FromFile()","Skip comment line:: %s",bufConf);
-    } else if(strchr(bufConf,'#')) {
-      sscanf(bufConf, "#%lf %d %d %d",&myArg1,&myArg2,&myArg3,&myArg4);
-      if((myArg2== -1 || myArg2==1) && (myArg3>=0 && myArg3<=5) && (myArg4>=0 || myArg4<=2)) {
-        int tmpv = myArg2;
-        if(myArg2<0)tmpv = 0;//per shift delle view che in file sono -1 e 1, mentre qua serve 0 e 1
-        int chidx = myArg4+myArg3*3+tmpv*18;
-        v_t0s.at(chidx) = myArg1;
-      } else {
-        Error(""," Plane Map Error:: check config file!!");
-        return;
+void TABMparCon::loadT0s() {
+  ifstream infile;
+  TString name="./config/"+bmt0file;
+  infile.open(name.Data(),ios::in);
+  Int_t file_evnum;
+  char tmp_char[200], dataset[200];
+  vector<Double_t> fileT0(36,-1000.);
+  Int_t tmp_int=-1, status=0;  
+  if(infile.is_open() && infile.good())
+    infile>>tmp_char>>dataset>>tmp_char>>file_evnum;
+  else
+    status=1;
+  if(file_evnum<total_ev_num)
+    cout<<"TABMparCon::loadT0s::WARNING!!!!!!!!!!!!!!!!!!!!! you load a T0 file calculated from "<<dataset<<" which have only "<<file_evnum<<" events, while the input file have a larger number of events="<<total_ev_num<<endl;  
+  for(Int_t i=0;i<36;i++)
+    if(!infile.eof() && tmp_int==i-1)
+      infile>>tmp_char>>tmp_int>>tmp_char>>fileT0[i];
+    else{
+      cout<<"TABMparCon::loadT0s::Error in the T0 file "<<bmt0file<<"!!!!!! check if it is write properly"<<endl;  
+      status=1;
       }
-    }
-  }
+  infile.close();
+  if(status==0)
+    v_t0s=fileT0;
+  else
+    cout<<"TABMparCon::loadT0s::ERROR, the T0 are calculated from the input file directly"<<endl;
+
+
+  //~ TString name_exp = name;
+  //~ gSystem->ExpandPathName(name_exp);
+
+  //~ char bufConf[1024];
+  //~ int myArg4(0); 
+  //~ int myArg2(0); 
+  //~ int myArg3(0); 
+  //~ double myArg1(0);
+
+  //~ ifstream incF;
+  //~ incF.open(name_exp.Data());
+  //~ if (!incF) {
+    //~ Error("FromFile()", "failed to open file '%s'", name_exp.Data());
+    //~ return;
+  //~ }
+
+  //~ while (incF.getline(bufConf, 200, '\n')) {
+    //~ if(strchr(bufConf,'!')) {
+      //~ //      Info("FromFile()","Skip comment line:: %s",bufConf);
+    //~ } else if(strchr(bufConf,'#')) {
+      //~ sscanf(bufConf, "#%lf %d %d %d",&myArg1,&myArg2,&myArg3,&myArg4);
+      //~ if((myArg2== -1 || myArg2==1) && (myArg3>=0 && myArg3<=5) && (myArg4>=0 || myArg4<=2)) {
+        //~ int tmpv = myArg2;
+        //~ if(myArg2<0)tmpv = 0;//per shift delle view che in file sono -1 e 1, mentre qua serve 0 e 1
+        //~ int chidx = myArg4+myArg3*3+tmpv*18;
+        //~ v_t0s.at(chidx) = myArg1;
+      //~ } else {
+        //~ Error(""," Plane Map Error:: check config file!!");
+        //~ return;
+      //~ }
+    //~ }
+  //~ }
 
   return;
 }
 
-void TABMparCon::SetT0s(vector<double> t0s) {
+void TABMparCon::SetT0s(vector<Double_t> t0s) {
 
   if(t0s.size() == 36) {
     v_t0s = t0s;
@@ -235,7 +304,7 @@ void TABMparCon::SetT0s(vector<double> t0s) {
 }
 
 
-void TABMparCon::SetT0(Int_t cha, Int_t t0in){
+void TABMparCon::SetT0(Int_t cha, Double_t t0in){
 
 if(cha<36 && cha>=0) 
   v_t0s[cha]=t0in;   
@@ -246,21 +315,14 @@ else {
   return;
 }
 
-//~ Double_t TABMparCon::GetT0(int view, int plane, int cell) {
-
-  //~ Double_t t0(0.);
-
-  //~ int my_view = 0; 
-  //~ if(view<0) my_view = 1;
-  
-  //~ int my_idx = my_view*18+plane*3+cell;
-
-  //~ t0 = v_t0s.at(my_idx);
-  
-  
-  //~ return t0;
-
-//~ }
+void TABMparCon::CoutT0(){
+  //~ TAGparaDsc* myp_bmmap=gTAGroot->FindParaDsc("myp_bmmap", "TABMparMap");
+  //~ TABMparMap* bmmap = (TABMparMap*) myp_bmmap->Object();
+  cout<<"Print BM T0 time:"<<endl;
+  for(Int_t i=0;i<v_t0s.size();i++)
+    cout<<"cell_id="<<i<<"  T0="<<v_t0s[i]<<endl;
+    //~ cout<<"cell_id="<<i<<"  TDC_channel="<<bmmap->cell2tdc(i)<<"  T0="<<v_t0s[i]<<endl;
+}
 
 
 //------------------------------------------+-----------------------------------
@@ -388,7 +450,7 @@ void TABMparCon::LoadReso(TString sF) {
   
 }
 
-double TABMparCon::ResoEval(double dist) {
+double TABMparCon::ResoEval(Double_t dist) {
 
   double sigma(0.12);
   int mybin(-1);
@@ -396,7 +458,7 @@ double TABMparCon::ResoEval(double dist) {
     mybin = my_hreso->FindBin(dist);
     sigma = my_hreso->GetBinContent(mybin)/10000;
   }
-  return sigma;
+  return sigma>0 ? sigma:0.12;
   
 }
 

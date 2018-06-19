@@ -17,7 +17,7 @@ class TABMrawHit {
     TABMrawHit();
     virtual         ~TABMrawHit();
 
-    void            SetData(Int_t view, Int_t lay, Int_t cell, double time);
+    void            SetData(Int_t view, Int_t lay, Int_t cell, Double_t time);
     Int_t           Cell() const;
     Int_t           Plane() const;
     Int_t           View() const;
@@ -29,7 +29,7 @@ class TABMrawHit {
     Int_t iview;    
     Int_t ilayer;    
     Int_t icell;
-    Double_t tdctime;
+    Double_t tdctime;//ns
 };
 
 //##############################################################################
@@ -40,7 +40,7 @@ class TABMdatRaw : public TAGdata {
                     TABMdatRaw();
     virtual         ~TABMdatRaw();
 
-    void            SetHitData(Int_t lay, Int_t view, Int_t cell, double time);
+    void            SetHitData(Int_t lay, Int_t view, Int_t cell, Double_t time);
     void            SetCounter(Int_t i_ntdc, Int_t i_ndrop);
 
     Int_t           NHit() const;

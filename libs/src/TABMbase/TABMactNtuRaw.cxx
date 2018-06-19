@@ -215,16 +215,15 @@ Bool_t TABMactNtuRaw::Action()
     Int_t i_cell = hit.Cell();
     Int_t i_plane = hit.Plane();
     Int_t i_view = hit.View();
-    tmp_view = i_view;
-    if(i_view<0) tmp_view =  0; //TOP View, V view view == -1
+    tmp_view = (i_view<0)? 0:i_view;
     doAdd = kFALSE;
     doReplace = kFALSE;
     Int_t i_idmon = 0; //!dummy!
 
     //T0s from parameters.
-    Double_t t0_corr = p_parcon->GetT0(i_view,i_plane,i_cell);//provv da ottimizzare
+    Double_t t0_corr = p_parcon->GetT0(i_view,i_plane,i_cell);
     Double_t i_time = hit.Time()-t0_corr-irtime;
-    //~ cout<<"hit.time="<<hit.Time()<<"   t0_corr="<<t0_corr<<"  irtime="<<irtime<<endl;
+    //~ cout<<"i_time="<<i_time<<"    hit.time="<<hit.Time()<<"   t0_corr="<<t0_corr<<"  irtime="<<irtime<<endl;
     if(i_time<0) i_time = 0.;
     Double_t stcorr = p_parcon->STrelCorr(i_time,i_cell,i_plane,tmp_view);
 
@@ -236,7 +235,7 @@ Bool_t TABMactNtuRaw::Action()
     
     Double_t i_drift = i_time*vdrift + stcorr;
 
-    //    cout<<"DBG:: "<<t0_corr<<" "<<i_time<<" "<<(hit.Time()-(irtime)-t0_corr)*vdrift<<" "<<stcorr<<" "<<i_drift<<" "<<endl;
+    //~ cout<<"DBG:: i="<<i<<"   t0_corr"<<t0_corr<<"   i_time"<<i_time<<" "<<(hit.Time()-(irtime)-t0_corr)*vdrift<<" "<<stcorr<<" "<<i_drift<<" "<<endl;
 
     if(exi[i_cell][i_plane][tmp_view]==-1) {
       //First time that there's an hit here
@@ -245,7 +244,7 @@ Bool_t TABMactNtuRaw::Action()
     } else {
       //Hit already existing check time
       TABMntuHit *tm = p_nturaw->Hit(exi[i_cell][i_plane][tmp_view]);
-      if(tm->Timmon()>i_timmon) {
+      if(tm->Timmon()>i_timmon) {//PRENDO L'ULTIMO HIT!!!   
         doReplace = kTRUE;
       }
     }

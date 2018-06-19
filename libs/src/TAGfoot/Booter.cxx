@@ -708,7 +708,7 @@ void Booter::initBMCon()  {
 
   filename = m_wd + "/config/beammonitor_t0s.cfg";
 
-  o_beamcon->loadT0s(filename);
+  //~ o_beamcon->loadT0s(filename);
 
   //~ filename = m_wd + "/config/file_stlist_FIRST.txt";
   //  filename = "config/file_stlist_8020_Cst1_1750.txt";

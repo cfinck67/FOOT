@@ -120,7 +120,7 @@ Bool_t TABMactNtuTrack::Action()
 //******************************************************NEW tracking********************************************
    //NB.: If the preselection reject the event no track will be saved     
   
-  if(p_bmcon->GetBMdebug()>=3)
+  if(p_bmcon->GetBMdebug()>10)
     cout<<"I'm in TABMactNtuTrack::Action"<<endl;  
                 
                 
@@ -142,6 +142,8 @@ Bool_t TABMactNtuTrack::Action()
   vector<vector<Int_t>> hitxplane(BMN_NLAY*2); //number of hit for every bm plane (plane should be 12 in BM)
   TABMntuHit* p_hit;
   Int_t firedPlane=BMN_NLAY*2; //number of plane fired
+  Int_t firedUview=BMN_NLAY;
+  Int_t firedVview=BMN_NLAY;
   TDecompChol fitTrack_cov;  
   //~ TVector3 wire_a_x, wire_b_x, wire_a_y, wire_b_y;
   Double_t wire_a_x=-1000., wire_a_y=-1000.;
@@ -153,11 +155,6 @@ Bool_t TABMactNtuTrack::Action()
   Track* fitTrack(nullptr);
   //~ AbsTrackRep* rep(nullptr);  
 
-  
-  
-  if(i_nhit==0)
-    readyToFit=0;
-  
   //counter for number of possible tracks:
   for(Int_t i_h = 0; i_h < i_nhit; i_h++) {
     p_hit = p_ntuhit->Hit(i_h);
@@ -167,13 +164,32 @@ Bool_t TABMactNtuTrack::Action()
   for(Int_t j = 0; j < hitxplane.size(); j++) {  
     if(hitxplane[j].size()!=0)
       tracknum*=hitxplane[j].size();
-    else
+    else{
       firedPlane--;
+      if(j%2==0)
+        firedUview--;
+      else
+        firedVview--;   
     }
+  }
+  
+  if(firedUview<p_bmcon->GetPlanehitcut() || firedVview<p_bmcon->GetPlanehitcut()){
+    if(p_bmcon->GetBMdebug()>3)
+      cout<<"TABMactNtuTrack::WARNING!!::no possible track!!: firedUview="<<firedUview<<"  firedVview="<<firedVview<<"   planehitcut="<<p_bmcon->GetPlanehitcut()<<endl;
+    if(firedUview<p_bmcon->GetPlanehitcut())
+      p_ntutrk->trk_status=1;
+    else
+      p_ntutrk->trk_status=2;
+    delete fitTrack;
+    delete tmp_trackTr;
+    fpNtuTrk->SetBit(kValid);
+    return kTRUE;
+  }else
+    p_ntutrk->trk_status=0;
   
   //print hitxplane
-  if(p_bmcon->GetBMdebug()>=3){  
-    cout<<"print hitxplane"<<endl;  
+  if(p_bmcon->GetBMdebug()>10){  
+    cout<<"TABMactNtuTrack::print hitxplane"<<endl;  
     Print_matrix(hitxplane);    
     }
     
@@ -233,33 +249,33 @@ Bool_t TABMactNtuTrack::Action()
       tmp_int++;  
     }
     
-  if((tracknum>1 && p_bmcon->GetBMdebug()>1) || p_bmcon->GetBMdebug()>=3)
-    cout<<"number of total hits="<<i_nhit<<"   number of possible tracks="<<tmp_int<<"  number of fired plane="<<firedPlane<<endl;  
+  if((tracknum>1 && p_bmcon->GetBMdebug()>1) || p_bmcon->GetBMdebug()>10)
+    cout<<"TABMactNtuTrack::number of total hits="<<i_nhit<<"   number of possible tracks="<<tmp_int<<"  number of fired plane="<<firedPlane<<endl;  
 
   vector<TMatrixDSym> hitCov_vec(tmp_int);
   vector<TVectorD> hitCoords_vec(tmp_int);
 
 
-  if(tmp_int==0 || firedPlane<8){ //TAGLIO: se ho meno di 7 piani di celle colpite elimino evento NUMERO DA OTTIMIZZARE!!!
-    if(p_bmcon->GetBMdebug()>=1)
-      cout<<"no possible track!"<<endl;
-    readyToFit=0;
+  if(tmp_int==0){ 
+    if(p_bmcon->GetBMdebug()>0)
+      cout<<"TABMactNtuTrack::ERROR!!::no possible track!!!"<<endl;
+    delete fitTrack;
+    delete tmp_trackTr;
+    fpNtuTrk->SetBit(kValid);
+    return kTRUE;
     }
     
   //print hitxtrack
-  if(p_bmcon->GetBMdebug()>=3){
-    cout<<"print hitxtrack"<<endl;  
+  if(p_bmcon->GetBMdebug()>10){
+    cout<<"TABMactNtuTrack::print hitxtrack"<<endl;  
     Print_matrix(hitxtrack);
     }
-  
-  if(p_bmcon->GetBMdebug()>=3)
-    cout<<"index saved, going to loop on all tracks"<<endl;    
   
   //loop on all possible tracks:
   for(Int_t i=0; i<tracknum; i++){
     if(possiblePrimary[i]) {
 
-      if(p_bmcon->GetBMdebug()>=2) 
+      if(p_bmcon->GetBMdebug()>3) 
         cout<<"charging track number "<<i<<endl;
       tmp_trackTr->Clean(); 
       tmp_trackTr->SetNhit(firedPlane); 
@@ -308,7 +324,7 @@ Bool_t TABMactNtuTrack::Action()
         
         res=p_hit->GetSigma(); 
         if(res==0)
-          cout<<"WARNING:   something is wrong in hit sigma!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+          cout<<"TABMactNtuTrack::WARNING:   something is wrong in hit sigma!!!!!!!, p_hit->GetSigma==0..."<<endl;
         hitCov.UnitMatrix();         // matrice di covarianza da settare meglio: per ora metto solo matrice diagonale con errore su posizione fili 
         hitCov *= wire_err*wire_err; //ed errore su rdrift, manca studio sulla correlazione tra le componenti... ma forse non serve
         hitCov[6][6]=res*res; 
@@ -342,8 +358,8 @@ Bool_t TABMactNtuTrack::Action()
       //FITTING
       if(readyToFit!=0) { 
 
-        if(p_bmcon->GetBMdebug()>=3)
-          cout<<"ready to fit="<<readyToFit<<endl;
+        if(p_bmcon->GetBMdebug()>10)
+          cout<<"TABMactNtuTrack::ready to fit="<<readyToFit<<endl;
         fitTrack->checkConsistency();
         
 
@@ -365,20 +381,20 @@ Bool_t TABMactNtuTrack::Action()
         //~ }else if(readyToFit==4) {dafRefFitter->processTrack(fitTrack);}
         
         fitTrack->checkConsistency();
-        if(p_bmcon->GetBMdebug()>=3)
-          cout<<"end of fitting"<<endl;
+        if(p_bmcon->GetBMdebug()>10)
+          cout<<"TABMactNtuTrack::end of fitting"<<endl;
         
         converged=fitTrack->getFitStatus(rep)->isFitConverged();
         
         if(converged){
           if(fitTrack->getNumPoints()!=fitTrack->getNumPointsWithMeasurement()){
-            cout<<"WARNING: number of trackPoints is different from number of trackPointWithMeasurement.. something odd is happened"<<endl;
+            cout<<"TABMactNtuTrack::WARNING: number of trackPoints is different from number of trackPointWithMeasurement.. something odd happened"<<endl;
             converged=false;
             }
           } 
           
-        if(p_bmcon->GetBMdebug()>=3)
-          cout<<"fit is converged"<<endl;
+        if(p_bmcon->GetBMdebug()>10)
+          cout<<"TABMactNtuTrack::fit converged"<<endl;
         tmp_trackTr->SetIsConverged((converged) ? 1:2);
         tmp_trackTr->SetChi2New(fitTrack->getFitStatus(rep)->getChi2());
         tmp_trackTr->SetNdf(fitTrack->getFitStatus(rep)->getNdf());  
@@ -388,8 +404,8 @@ Bool_t TABMactNtuTrack::Action()
         tmp_trackTr->CalculateFitPar(fitTrack, hit_res, hit_mychi2, p_bmcon, p_bmgeo);
         
                   
-        if(p_bmcon->GetBMdebug()>=2 && converged){
-          cout<<"print fit status:"<<endl;
+        if(p_bmcon->GetBMdebug()>3 && converged){
+          cout<<"TABMactNtuTrack::print fit status:"<<endl;
           fitTrack->getFitStatus(rep)->Print();
           }
       
@@ -412,10 +428,10 @@ Bool_t TABMactNtuTrack::Action()
     }    
     
     
-  if(p_bmcon->GetBMdebug()>=3){
-    cout<<"tracks with smallest chi2="<<tmp_int<<" alltrack.size="<<alltrack.size()<<endl;  
+  if(p_bmcon->GetBMdebug()>4){
+    cout<<"TABMactNtuTrack::tracks with smallest chi2="<<tmp_int<<" alltrack.size="<<alltrack.size()<<endl;  
     if(alltrack.size()>0)
-      cout<<"registered  mychi2reduced="<<alltrack[tmp_int]->GetMyChi2Red()<<"   mychi2registered="<<alltrack[tmp_int]->GetMyChi2()<<endl;
+      cout<<"TABMactNtuTrack::registered  mychi2reduced="<<alltrack[tmp_int]->GetMyChi2Red()<<"   mychi2registered="<<alltrack[tmp_int]->GetMyChi2()<<endl;
     }
             
   //set and store trackTr parameters:
@@ -430,14 +446,16 @@ Bool_t TABMactNtuTrack::Action()
       p_hit->SetChi2(hit_mychi2[i]);
       }    
     }
-  if(p_bmcon->GetBMdebug()>=3)
-    cout<<"end of NEW tabmactntutrack"<<endl;
   
   delete fitTrack;
   //~ delete rep; //included in fitTrack delete
   delete tmp_trackTr;
     
   fpNtuTrk->SetBit(kValid);
+
+  if(p_bmcon->GetBMdebug()>10)
+    cout<<"end of TABMactNtuTrack"<<endl;
+
   return kTRUE;
   
 // ************************************************** OLD TRACKING*********************************************

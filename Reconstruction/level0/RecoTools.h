@@ -35,7 +35,7 @@ class RecoTools {
  public :
 
   RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev,
-      TFile *hf);
+      TFile *hf, int evStart);
   ~RecoTools() {};
 
   //Reconstructions
@@ -77,14 +77,15 @@ class RecoTools {
   // KFitter* m_kFitter;
 
   // time variables
- clock_t start_tot, end_tot;
- clock_t start_kal, end_kal;
- double m_tempo_kal;
+  clock_t start_tot, end_tot;
+  clock_t start_kal, end_kal;
+  double m_tempo_kal;
 
   int m_nev;
   int m_debug;
   int m_isdata;
   bool m_isroma;//provv
+  int m_evstart;
   TFile* m_of;
   TFile* m_hf;
   TString m_oustr;

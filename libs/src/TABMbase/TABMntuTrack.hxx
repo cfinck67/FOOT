@@ -115,7 +115,6 @@ class TABMntuTrackTr : public TObject {
     Double_t GetAngZResAv(){return AngZResAv;};
     Double_t GetAngPhi(){return AngPhi;};
     Double_t GetAngPhiRes(){return AngPhiRes;};
-    Double_t GetRTarget(){return RTarget;};
     TVector3 GetMylar1Pos(){return mylar1_pos;};
     TVector3 GetMylar2Pos(){return mylar2_pos;};
     TVector3 GetTargetPos(){return target_pos;};
@@ -138,7 +137,6 @@ class TABMntuTrackTr : public TObject {
     Double_t      AngZResAv;      //resolution of AngZ (calculated as average of AngZ_i-AngZ for all fitted state momentum i)
     Double_t      AngPhi;         //angle of fitted track on xy plane (calculated from average of all fitted state momentum)
     Double_t      AngPhiRes;      //resolution of AngZ (calculated as AngPhimax-AngPhimin)
-    Double_t      RTarget;        //distance of fitted track from the center of target on the target surface (calculated from first AngZ)//useless
     TVector3      target_pos;     //position of the track extrapolate to the target plane
     TVector3      mylar1_pos;     //position of the track extrapolate to the first mylar plane
     TVector3      mylar2_pos;     //position of the track extrapolate to the second mylar plane
@@ -166,7 +164,6 @@ class TABMntuTrack : public TAGdata {
 
     virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
 
-
 //OLD TRACKING METHODS:
     //~ void Chi2Fit(TABMntuRaw *hitp, TABMntuTrackTr *p_trk, int n_ite);
     //~ Double_t ComputeChiQua(TVectorD Dy, TMatrixD VV);
@@ -180,7 +177,8 @@ class TABMntuTrack : public TAGdata {
 
   public:
     Short_t         ntrk;		    // number of tracks old tracking 
-    
+    Int_t           trk_status; //-1=notset, 0=ok, 1=firedUplane<plane_mincut, 2=firedVplane<plane_mincut
+        
     TClonesArray*   t;			    // list of tracks
 };
 

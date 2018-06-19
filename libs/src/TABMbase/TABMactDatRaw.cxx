@@ -79,7 +79,7 @@ Bool_t TABMactDatRaw::Action() {
   for(Int_t i=0;i<bmstruct->hitnum;i++){
     if(bmstruct->hit_id[i]>=0){//-1000=syncTime, -1=not set
       p_pargeo->GetBMNlvc(bmstruct->hit_id[i],plane,view,cell);
-      p_datraw->SetHitData(plane,view,cell,bmstruct->hit_meas[i]);
+      p_datraw->SetHitData(plane,view,cell,(Double_t) (bmstruct->hit_meas[i])/10.);
     }
   }
   

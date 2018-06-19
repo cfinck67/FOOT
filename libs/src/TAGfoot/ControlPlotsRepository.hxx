@@ -179,24 +179,53 @@ public:
 	}
 
   //Beam Monitor OutputFile
-  void BM_setnturaw_info(string hitSampleName, TABMntuHit* p_hit){
-    FillMap( hitSampleName + "__raw_rdrift", p_hit->Dist());
-    FillMap( hitSampleName + "__raw_cell_id", p_hit->Cell());
-    FillMap( hitSampleName + "__raw_chi2", p_hit->GetChi2());
+  void BM_setnturaw_info(string hitSampleName, TABMntuRaw* bmnturaw, TABMparGeo* bmgeo, TABMparCon* bmcon){
+    
+    FillMap( hitSampleName + "__raw_nhitsxevent", bmnturaw->nhit);
+    if(bmnturaw->nhit < bmcon->GetMinnhit_cut())
+      FillMap( hitSampleName + "__track_error", -1);
+    if(bmnturaw->nhit > bmcon->GetMaxnhit_cut())
+      FillMap( hitSampleName + "__track_error", -2);
+    
+    //loop on hits
+    for (int i = 0; i < bmnturaw->nhit; i++) { 
+      bmntuhit = bmnturaw->Hit(i);    
+      if(bmntuhit->Dist()>0 && bmntuhit->Dist()<1.)
+        FillMap( hitSampleName + "__raw_rdrift_right", bmntuhit->Dist());
+      else if(bmntuhit->Dist()<0)
+        FillMap( hitSampleName + "__raw_rdrift_error", -1);
+      else if(bmntuhit->Dist()>1)
+        FillMap( hitSampleName + "__raw_error_rdrift", -2);
+      FillMap( hitSampleName + "__raw_cell", bmntuhit->Cell());
+      FillMap( hitSampleName + "__raw_view", bmntuhit->View());
+      FillMap( hitSampleName + "__raw_plane", bmntuhit->Plane());
+      FillMap( hitSampleName + "__raw_occupancy", bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(), bmntuhit->Cell()));
+      FillMap( hitSampleName + "__raw_chi2", bmntuhit->GetChi2());
+    }
     return;  
   }
   
-  void BM_setntutrack_info(string hitSampleName, TABMntuTrackTr* p_tracktr){
-    FillMap( hitSampleName + "__track_chi2red", p_tracktr->GetMyChi2Red());
-    FillMap( hitSampleName + "__track_mylar1_x", p_tracktr->GetMylar1Pos().X());
-    FillMap( hitSampleName + "__track_mylar1_y", p_tracktr->GetMylar1Pos().Y());
-    FillMap( hitSampleName + "__track_mylar1_z", p_tracktr->GetMylar1Pos().Z());
-    FillMap( hitSampleName + "__track_mylar2_x", p_tracktr->GetMylar2Pos().X());
-    FillMap( hitSampleName + "__track_mylar2_y", p_tracktr->GetMylar2Pos().Y());
-    FillMap( hitSampleName + "__track_mylar2_z", p_tracktr->GetMylar2Pos().Z());
-    FillMap( hitSampleName + "__track_target_x", p_tracktr->GetTargetPos().X());
-    FillMap( hitSampleName + "__track_target_y", p_tracktr->GetTargetPos().Y());
-    FillMap( hitSampleName + "__track_target_z", p_tracktr->GetTargetPos().Z());
+  
+  void BM_setntutrack_info(string hitSampleName, TABMntuTrack* bmntutrack){
+    
+    FillMap( hitSampleName + "__track_error", bmntutrack->trk_status);
+    FillMap( hitSampleName + "__track_tracknumxevent", bmntutrack->ntrk);
+    
+    //loop on ntrk (it should be only one for the moment)  
+    for (int i = 0; i < bmntutrack->ntrk; i++) {
+      bmntutracktr = bmntutrack->Track(i);
+      FillMap( hitSampleName + "__track_chi2red", bmntutracktr->GetMyChi2Red());
+      FillMap( hitSampleName + "__track_mylar1_x", bmntutracktr->GetMylar1Pos().X());
+      FillMap( hitSampleName + "__track_mylar1_y", bmntutracktr->GetMylar1Pos().Y());
+      FillMap( hitSampleName + "__track_mylar1_z", bmntutracktr->GetMylar1Pos().Z());
+      FillMap( hitSampleName + "__track_mylar2_x", bmntutracktr->GetMylar2Pos().X());
+      FillMap( hitSampleName + "__track_mylar2_y", bmntutracktr->GetMylar2Pos().Y());
+      FillMap( hitSampleName + "__track_mylar2_z", bmntutracktr->GetMylar2Pos().Z());
+      FillMap( hitSampleName + "__track_target_x", bmntutracktr->GetTargetPos().X());
+      FillMap( hitSampleName + "__track_target_y", bmntutracktr->GetTargetPos().Y());
+      FillMap( hitSampleName + "__track_target_z", bmntutracktr->GetTargetPos().Z());
+    }
+  
     return;  
   }
   
@@ -262,7 +291,8 @@ private:
 
 	ControlPlotsRepository();
 	static ControlPlotsRepository* m_pInstance;
-
+  TABMntuHit* bmntuhit;           //hit of tabmnturaw
+  TABMntuTrackTr* bmntutracktr;   //track of tabmntutrack
 
 };
 

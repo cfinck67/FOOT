@@ -60,8 +60,7 @@ void TABMparGeo::GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_
   
   /* Set Chamber center positioning */
   int my_ID = GetID(cellID);
-  int myview = 0; //U view is default (side view)
-  if(view == -1) myview = 1; //V view (top view)
+  int myview = (view==-1) ? 1:0 ; 
 
   h_x = x_pos[my_ID][plane][myview];
   h_y = y_pos[my_ID][plane][myview];
@@ -364,6 +363,7 @@ void TABMparGeo::ToStream(ostream& os, Option_t*) const
 
 //_____________________________________________________________________________
 
+//not used anymore
 void TABMparGeo::CreateLocalBMGeo() 
 {
    

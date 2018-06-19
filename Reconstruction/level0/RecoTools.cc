@@ -10,12 +10,13 @@ using namespace std;
 
 
 //----------------------------------------------------------------------------------------------------
-RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev, TFile *hf) {
+RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev, TFile *hf, int evstart) {
 
     cout << "\tstart Constructor RecoTools\n";
 
     my_files.clear();
     m_debug = GlobalPar::GetPar()->Debug();
+    m_evstart=evstart;
 
     m_oustr = ostr;
     m_wd = wd;
@@ -98,7 +99,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     tagr->BeginEventLoop();
     Long64_t nentries; 
     if(m_isdata && GlobalPar::GetPar()->IncludeBM()){
-      cout<<"numero eventi totali in file="<<bmbooter->GetTotnumev()<<endl;
+      cout<<"Total number of Beam Monitor events="<<bmbooter->GetTotnumev()<<endl;
       nentries=(m_nev==0) ? bmbooter->GetTotnumev() : m_nev;
     }else {
       nentries = tree->GetEntries(); 
@@ -109,7 +110,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     char flag[200]; bool tobedrawn = kFALSE;
 
     if(m_debug)         cout<<" Starting Event Loop "<<endl;
-
+    int skip_event=0;
     for (Long64_t jentry=0; jentry<nentries;jentry++) {
         if(m_debug) cout<<" New Eve "<<endl;
         
@@ -126,18 +127,18 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
         ///////////////  Call here your Process() functions    /////////////////////////////////////////////
 
-        if(m_isdata && GlobalPar::GetPar()->IncludeBM())
-          bmbooter->Process();
-        else{
+        
+        if(!m_isdata && skip_event>=m_evstart)
           booter->Process( jentry );
-          if (GlobalPar::GetPar()->IncludeBM())
-            bmbooter->Process();
-        }
-
+        if(GlobalPar::GetPar()->IncludeBM() && skip_event>=m_evstart)
+          bmbooter->Process();
+        else if(GlobalPar::GetPar()->IncludeBM() && skip_event<m_evstart)
+          bmbooter->drop_event();
+        
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        if (!pg->IsEmpty() && tobedrawn && !(jentry%fr) && !m_isdata) {
+        if (!pg->IsEmpty() && tobedrawn && !(jentry%fr) && !m_isdata && skip_event<m_evstart) {
             pg->Modified();
             pg->Update();
 
@@ -145,10 +146,11 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
             pg->Print(flag);
         }
 
-
         if(m_debug) cout<<" Loaded Event:: "<<jentry<<endl;
 
         if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "End event n: " << jentry << endl;
+
+        skip_event++;
 
     }
     cout << "End of the event loop " << endl;
@@ -172,7 +174,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 }
 
 
-//MY OLD STUFF!!!!!
+//OLD STUFF
 //recoloop for the bm calibration
 /*
 void RecoTools::RecoBMcal(TAGroot *tagr) {

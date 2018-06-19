@@ -30,16 +30,19 @@ class TABMparCon : public TAGpara {
 
     //setters
     void SetVDrift(Double_t v){vdrift=v; return;};
-    void SetIsMC(bool ism){m_isMC=ism; return;};
+    void SetIsMC(Bool_t ism){m_isMC=ism; return;};
     void SetRdriftCut(Double_t Rdcut){rdrift_cut=Rdcut; return;};
     void SetEnxcellcut(Double_t Encut){enxcell_cut=Encut; return;};
     
     //getters
-    bool     IsMC(){return m_isMC;};
+    Bool_t     IsMC(){return m_isMC;};
     Double_t GetVDrift(){return vdrift;};
     Double_t GetRdriftCut(){return rdrift_cut;};
     Double_t GetEnxcellcut(){return enxcell_cut;};
     Double_t GetChi2Redcut(){return chi2red_cut;};
+    Int_t GetPlanehitcut(){return planehit_cut;};
+    Int_t GetMinnhit_cut(){return minnhit_cut;};
+    Int_t GetMaxnhit_cut(){return maxnhit_cut;};
     Double_t GetAngZCut(){return angz_cut;};
     Double_t GetAngZRescut(){return angzres_cut;};
     Int_t GetFitterIndex(){return fitter_index;};
@@ -48,15 +51,18 @@ class TABMparCon : public TAGpara {
     //~ string GetBMdataFileName(){return datafile_name;};
     Int_t GetBMcharge(){return part_in_charge;};
     Double_t GetBMmom(){return part_in_mom;};
+    Int_t GetmanageT0BM(){return manageT0BM;};
 
-    //acquisition stuff
-    //~ void        CalculateT0(TABMparMap* o_bmmap, TString datafile_name);//calculate the T0
-    void        loadT0s(const TString& name); 
-    void        SetT0s(vector<double> t0s);
-    void        SetT0(Int_t cha, Int_t t0in);
+    //T0 stuff
+    void        PrintT0s(TString &input_file_name);
+    void        loadT0s(); 
+    void        SetT0s(vector<Double_t> t0s);
+    void        SetT0(Int_t cha, Double_t t0in);
     Double_t    GetT0(int view, int plane, int cell){return GetT0(cell+((view==-1) ? 1:0)*3+plane*6);};
     Double_t    GetT0(int index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
-
+    void        CoutT0();
+    
+    //strel stuff
     void LoadSTrel(TString sF);
     double STrelCorr(double time, int ic, int ip, int iv);
     double STrel_Delta1(double time);
@@ -68,7 +74,7 @@ class TABMparCon : public TAGpara {
     void ConfigureTrkCalib();
   
     void LoadReso(TString sF);
-    double ResoEval(double dist);
+    double ResoEval(Double_t dist);
 
     Bool_t FromFile(const TString& name);
 
@@ -80,11 +86,14 @@ class TABMparCon : public TAGpara {
 
   private:
 
-    bool m_isMC;
+    Bool_t m_isMC;
     Double_t vdrift;
     Double_t rdrift_cut;
     Double_t enxcell_cut;
     Double_t chi2red_cut;
+    Int_t    planehit_cut;
+    Int_t    minnhit_cut;
+    Int_t    maxnhit_cut;
     Double_t angz_cut;
     Double_t angzres_cut;
     Int_t    fitter_index;
@@ -94,9 +103,9 @@ class TABMparCon : public TAGpara {
     Int_t    part_in_charge;//for BM Genfit tracking
     Double_t part_in_mom;//for BM Genfit tracking
     Int_t    total_ev_num;//total number of events
-    
-    //old framework stuff...:
-    vector<double> v_t0s;//T0 in ns
+    Int_t    manageT0BM;
+    string   bmt0file; 
+    vector<Double_t> v_t0s;//T0 in ns
 
     TF1* f_mypol;
     TF1* f_mypol2;

@@ -82,8 +82,8 @@ class TABMntuHit : public TObject {
     Double_t pycamon;   
     Double_t pzcamon;
     Double_t rdrift;
-    Double_t tdrift;
-    Double_t timmon;
+    Double_t tdrift;//hit.time - T0 - irtime (irtime is the trigger time/start counter time) 
+    Double_t timmon;//hit.time - irtime
     Double_t sigma;
  
     //Track related params

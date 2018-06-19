@@ -319,11 +319,13 @@ void BMcalBooter::evaluateT0() {
         cout<<"tdc channel="<<i<<"   T0="<<(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)/10.<<endl;
       bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)/10.); 
     }  
-  }  
+  }
   
-  
+  bmcon->PrintT0();  
+    
   f_out->Write();
   f_out->Close();    
+  
     
   return;
 }

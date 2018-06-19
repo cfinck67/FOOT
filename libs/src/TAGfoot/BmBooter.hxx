@@ -77,23 +77,31 @@ private:
   TAGparaDsc* myp_bmgeo;
   TAGparaDsc* myp_bmmap;
   
-  TABMdatRaw* bmdatraw;
-  TABMntuRaw* bmraw;
-  TABMntuTrack* bmtrack;
+  //par objects
   TABMparCon* bmcon;
   TABMparGeo* bmgeo;
   TABMparMap* bmmap;
-  TABMntuTrackTr* p_tracktr;
-  TABMntuHit* p_hit;
+  
+  //real data objects
+  TABMdatRaw* bmdatraw;
+  const TABMrawHit* bmdathit;//hit of tabmdatraw  
+  TAIRdatRaw* stdatraw;
+  
+  //general data objects
+  TABMntuRaw* bmnturaw;
+  TABMntuHit* bmntuhit;//hit of tabmnturaw
+  TABMntuTrack* bmntutrack;
+  TABMntuTrackTr* bmntutracktr;//track of tabmntutrack
+
   //~ TABMvieTrackFOOT* pbmh_view;
   TAGpadGroup* pg;
-  ControlPlotsRepository* m_controlPlotter;//prova
-  string bm_outputdir;
+  ControlPlotsRepository* m_controlPlotter;
+  string bm_outputdir;   //FOOTRES/BeamMonitor
   string plot_name;
 
-  TString m_instr;//input file name
-  Bool_t isdata;
-  Bool_t isroma;
+  TString m_instr;   //input file name
+  Bool_t isdata;     //to separate MC and data
+  Bool_t isroma;     //true if the input data is the BM refurbishment data taken in 2017 in Rome
   ifstream datafile;
   BM_struct bmstruct;
   Long64_t tot_num_ev;//current number of events

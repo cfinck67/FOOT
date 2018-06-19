@@ -40,15 +40,16 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, Bool_t isroma_in 
   struct stat info;
   
   //cartella results/BeamMonitor: da capire come accederci e cosa metterci!
-  bm_outputdir=(string)getenv("FOOTRES")+"/BeamMonitor";
-  if(stat(bm_outputdir.c_str(), &info ) != 0)		//cannot access
-    system(("mkdir "+bm_outputdir).c_str());  
-  m_controlPlotter = ControlPlotsRepository::GetControlObject(bm_outputdir);
+  //~ bm_outputdir=(string)getenv("FOOTRES")+"/BeamMonitor";
+  //~ if(stat(bm_outputdir.c_str(), &info ) != 0)		//cannot access
+    //~ system(("mkdir "+bm_outputdir).c_str());  
+  m_controlPlotter = ControlPlotsRepository::GetControlObject("BooterFinalize");
   
   //if plot track is enable
   if(bmcon->GetBMvietrack()){
     pg = new TAGpadGroup();
-    bm_outputdir+="/Tracks";
+    bm_outputdir=(string)getenv("FOOTRES")+"/BMtracks";    
+    //~ bm_outputdir+="/Tracks";
     if(stat(bm_outputdir.c_str(), &info ) != 0)		//cannot access
       system(("mkdir "+bm_outputdir).c_str());   
     //~ pbmh_view = new TABMvieTrackFOOT(bmgeo);         
@@ -60,6 +61,12 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, Bool_t isroma_in 
       cout<<"ERROR in BmBooter::CalculateT0: cannot open the datafile="<<m_instr.Data()<<endl;
     evaluateT0();
     datafile.close();
+    if(bmcon->GetmanageT0BM()==0)
+      bmcon->PrintT0s(m_instr);
+    else
+      bmcon->loadT0s();
+    if(bmcon->GetBMdebug()>1)
+      bmcon->CoutT0();
     datafile.open(m_instr.Data(), ios::in | ios::binary);
     if(!datafile.is_open())
       cout<<"ERROR in BmBooter::CalculateT0: cannot open the datafile="<<m_instr.Data()<<endl;
@@ -78,24 +85,13 @@ return;
 
 //----------------------------------------------------------------------------------------------------
 void BmBooter::Process() {
-  if (bmcon->GetBMdebug()>10)
+  if (bmcon->GetBMdebug()>0)
     cout<<"I'm in BmBooter::Process, evento numero="<<data_num_ev<<endl;
   
-  //~ myn_bmraw  = gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw");
-  //~ myn_bmtrk  = gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack");
-  //~ if (myn_bmtrk == 0 || myn_bmraw==0) {
-      //~ cout << "ERROR in BmBooter:: myn_bmraw or myn_bmtrk not found" << endl;
-      //~ exit(0);
-    //~ }
-    
-  //~ bmraw = (TABMntuRaw*) myn_bmraw->GenerateObject();
-  //~ bmtrack = (TABMntuTrack*) myn_bmtrk->GenerateObject();
- 
-  //~ bmdatraw = (TABMdatRaw*) (gTAGroot->FindDataDsc("myn_bmdatraw", "TABMdatRaw")->GenerateObject());
-  
+  Bool_t track_ok=kTRUE;
+   
    if((data_num_ev==0 || (isroma && data_num_ev==1) && isdata )){
     drop_event();
-    data_num_ev++;
     return;
   }
   
@@ -103,64 +99,52 @@ void BmBooter::Process() {
     Bool_t error;
     read_event(error);
     if(!error){
-      TABMdatRaw* bmdatraw = (TABMdatRaw*) (gTAGroot->FindDataDsc("myn_bmdatraw", "TABMdatRaw")->GenerateObject());  
-      TAIRdatRaw* stdatraw = (TAIRdatRaw*) (gTAGroot->FindDataDsc("myn_stdatraw", "TAIRdatRaw")->GenerateObject());
-      //~ TABMntuTrack* bmtack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
+      bmdatraw = (TABMdatRaw*) (gTAGroot->FindDataDsc("myn_bmdatraw", "TABMdatRaw")->GenerateObject());  
+      stdatraw = (TAIRdatRaw*) (gTAGroot->FindDataDsc("myn_stdatraw", "TAIRdatRaw")->GenerateObject());
      
-     
-     /*
-      TABMntuHit* bmntuhit;
-      const TABMrawHit* bmrawhit;
-      for(Int_t i=0;i<bmraw->nhit;i++){
-        bmntuhit = bmraw->Hit(i);
-        //~ cout<<"evento numero="<<data_num_ev<<"   numero hit="<<i<<"   tempo="<<bmntuhit->Tdrift()<<endl;
-      }
+      //loop on dat hit, only for data
       for(Int_t i=0;i<bmdatraw->NHit();i++){
-        bmrawhit=&bmdatraw->Hit(i);
-        //~ cout<<"evento numero="<<data_num_ev<<"  numero hit"<<i<<"raw hit time="<<bmrawhit->Time()<<endl;
+        bmdathit=&bmdatraw->Hit(i);
+        //~ cout<<"evento numero="<<data_num_ev<<"  numero hit"<<i<<"raw hit time="<<bmdathit->Time()<<endl;
       }
-      */
-      
-      
     }
   }
   
   
-  bmraw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
-  //~ bmtrack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
+  bmnturaw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
+  if(bmnturaw->nhit < bmcon->GetMaxnhit_cut() && bmnturaw->nhit > bmcon->GetMinnhit_cut())
+    bmntutrack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
+ else
+   track_ok=kFALSE;
  
   if (bmcon->GetBMdebug()>10)
     cout<<"in BmBooter::Process, I finished to create the BM hits and tracks"<<endl<<"Now I'll printout BM hits if enable"<<endl;
 
-  //loop on hits
-  for (int i = 0; i < bmraw->nhit; i++) {
-    p_hit = bmraw->Hit(i);
-    //~ cout<<"hit number="<<i<<"  event number="<<data_num_ev<<"   distanza="<<p_hit->Dist()<<endl;
-    if (GlobalPar::GetPar()->IsPrintOutputFile())
-      m_controlPlotter->BM_setnturaw_info("BM_output",p_hit);  
-    if (GlobalPar::GetPar()->IsPrintOutputNtuple())
-      m_controlPlotter->BM_setntuple_hit(p_hit->Dist());
-  }
+  if (GlobalPar::GetPar()->IsPrintOutputFile())
+    m_controlPlotter->BM_setnturaw_info("BM_output",bmnturaw, bmgeo, bmcon);  
   
   if (bmcon->GetBMdebug()>10)
     cout<<"in BmBooter::Process, I finished to printout BM hits, it's BM tracks printout (if enable)"<<endl;
   
+  if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok==kTRUE)
+    m_controlPlotter->BM_setntutrack_info("BM_output", bmntutrack);       
   
-  /*
   //loop on tracks
-  for (int i = 0; i < bmtrack->ntrk; i++) {
-    p_tracktr = bmtrack->Track(i);
-    if (GlobalPar::GetPar()->IsPrintOutputFile())
-      m_controlPlotter->BM_setntutrack_info("BM_output", p_tracktr);       
-    if (GlobalPar::GetPar()->IsPrintOutputNtuple())
-      m_controlPlotter->BM_setntuple_track(p_tracktr->GetChi2New());
-  }
+  //~ for (int i = 0; i < bmntutrack->ntrk; i++) {
+    //~ bmntutracktr = bmntutrack->Track(i);
+    //~ if (GlobalPar::GetPar()->IsPrintOutputFile())
+      //~ m_controlPlotter->BM_setntutrack_info("BM_output", bmntutracktr);       
+    //~ if (GlobalPar::GetPar()->IsPrintOutputNtuple())
+      //~ m_controlPlotter->BM_setntuple_track(bmntutracktr->GetChi2New());
+  //~ }
+  
+  
 
   //draw and save tracks
-  if(bmcon->GetBMvietrack()>0 && data_num_ev%bmcon->GetBMvietrack()==0){
+  if(bmcon->GetBMvietrack()>0 && data_num_ev%bmcon->GetBMvietrack()==0 && track_ok==kTRUE){
       TCanvas *c_bmhview = new TCanvas("bmhview", "BM_tracks",20,20,800,900);
       pg->AddPad(c_bmhview);
-      TAGview* pbmh_view = new TABMvieTrackFOOT(bmtrack, bmraw, bmgeo);
+      TAGview* pbmh_view = new TABMvieTrackFOOT(bmntutrack, bmnturaw, bmgeo);
       //~ pbmh_view->SetTrackRaw(bmtrack,bmraw);
       pbmh_view->Draw();
       pg->Modified();//marca i pad come modificati
@@ -169,7 +153,7 @@ void BmBooter::Process() {
       plot_name=bm_outputdir+"/BM_track_"+to_string(data_num_ev);
       pg->Print(&plot_name[0]);  
   }
-  */
+  
   
   data_num_ev++;
 
@@ -196,14 +180,8 @@ void BmBooter::Finalize() {
   //~ cout<<"media="<<((TH1F*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__track_chi2red")))->GetMean()<<endl;
   //~ cout<<"vediamo media="<<graph->GetMean()<<endl;
   
-	TH1F* histo = new TH1F( "prova", "prova", 100, 0., 100.);
-  for(int i=0;i<100;i++)
-    histo->SetBinContent(i,pow(i,2));
-  histo->Draw();
-	((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Add(histo);  
-  
   //vediamo le strel:
-  histo=new TH1F( "strel", "strel", 4000, 0., 400.);
+  TH1D* histo=new TH1D( "strel", "strel", 4000, 0., 400.);
   histo->GetXaxis()->SetTitle("time [ns]");
   histo->GetYaxis()->SetTitle("distance [cm]");
   double time=0.;
@@ -231,7 +209,10 @@ void BmBooter::evaluateT0() {
   char tmp_char[200];
   bool error;
   for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
-    sprintf(tmp_char,"tdc_cha_%d",i);
+    if(i!=bmmap->GetTrefCh())
+      sprintf(tmp_char,"tdc_cha_%d",i);
+    else
+      sprintf(tmp_char,"tdc_synccha_%d",i);  
     h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",3000,-1000.,2000.);
   }
   h=new TH1D("all_tdc_chan","Number of tdc signals; TDC channel; counts",bmmap->GetTdcMaxcha(),0.,bmmap->GetTdcMaxcha());
@@ -247,9 +228,11 @@ void BmBooter::evaluateT0() {
     if(bmcon->GetBMdebug()>9)
       cout<<"data_num_ev="<<data_num_ev<<endl;
     if(!error && bmstruct.synctime[0]!=-10000 && bmstruct.synctime[1]==-10000){
+      sprintf(tmp_char,"tdc_synccha_%d",bmmap->GetTrefCh());  
+        ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.synctime[0])/10.);    
       for(Int_t i=0;i<bmstruct.hitnum;i++){
         sprintf(tmp_char,"tdc_cha_%d",bmmap->cell2tdc(bmstruct.hit_id[i]));
-        ((TH1D*)gDirectory->Get(tmp_char))->Fill(bmstruct.hit_meas[i]-bmstruct.synctime[0]);    
+        ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.hit_meas[i]-bmstruct.synctime[0])/10.);    
         ((TH1D*)gDirectory->Get("all_tdc_chan"))->Fill(bmmap->cell2tdc(bmstruct.hit_id[i]));    
       } 
     }else{
@@ -269,7 +252,7 @@ void BmBooter::evaluateT0() {
   //~ TF1 *f1 = new TF1("f1","gaus(0)", ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
   for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
     sprintf(tmp_char,"tdc_cha_%d",i);
-    if(bmmap->tdc2cell(i)>0){
+    if(bmmap->tdc2cell(i)>=0){
       //~ cout<<"fit channel number="<<i<<endl;
       //~ f1->SetParameters(1, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin(), 10);
       //~ f1->SetParLimits(1,0,100);
@@ -283,12 +266,11 @@ void BmBooter::evaluateT0() {
             j=2000;
           }else
             tmp_int=j;
-      if(bmcon->GetBMdebug()>9)
-        cout<<"tdc channel="<<i<<"   T0="<<(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)/10.<<endl;
-      bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)/10.); 
+      //~ if(bmcon->GetBMdebug()>9)
+        //~ cout<<"tdc channel="<<i<<"   T0="<<(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)/10.<<endl;
+      bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)); 
     }  
   }  
-  
   
   f_out->Write();
   f_out->Close();    
@@ -313,7 +295,7 @@ Bool_t BmBooter::read_event(Bool_t &error) {
   clear_bmstruct(kFALSE);
   
   if(bmcon->GetBMdebug()>9)
-    cout<<"I'm in BMcalBooter:read_event"<<endl;
+    cout<<"I'm in BmBooter:read_event"<<endl;
   if(datafile.read((char *) &tmp_int,sizeof(int))){//read number of words of this event
     bmstruct.words=tmp_int;
     }
@@ -328,15 +310,15 @@ Bool_t BmBooter::read_event(Bool_t &error) {
   }
   //some check on the event words:
   if(ev_words[1]!=TDC_BOARDNUM){
-    cout<<"ERROR in BMcalBooter:read_event: board num != "<<TDC_BOARDNUM<<"  ev_words[1]="<<ev_words[1]<<endl;
+    cout<<"ERROR in BmBooter:read_event: board num != "<<TDC_BOARDNUM<<"  ev_words[1]="<<ev_words[1]<<endl;
     error=true;
   }
   if((ev_words[0]-ev_num)!=1 && ev_num!=0){
-    cout<<"ERROR in BMcalBooter:read_event: previous ev_num="<<ev_num<<"  new ev_num="<<ev_words[0]<<endl;
+    cout<<"ERROR in BmBooter:read_event: previous ev_num="<<ev_num<<"  new ev_num="<<ev_words[0]<<endl;
     error=true;    
   }
   if(ev_words[3]!=3){//provv, da modificare: da togliere nell'acquisizione e qua...
-    cout<<"ERROR in BMcalBooter:read_event: ev_words[3]="<<ev_words[3]<<" ,!=3"<<endl;
+    cout<<"ERROR in BmBooter:read_event: ev_words[3]="<<ev_words[3]<<" ,!=3"<<endl;
     error=true;          
   }
   bmstruct.evnum=ev_words[0];
@@ -358,7 +340,7 @@ Bool_t BmBooter::read_event(Bool_t &error) {
         new_event=true;
         bmstruct.status=ev_words[i];
         if(ev_words[i]!=-1000){
-          cout<<"Warning in BMcalBooter: global trailer found with error in tdc_evnum="<<tdc_evnum<<"  trailer="<<ev_words[i]<<endl;
+          cout<<"Warning in BmBooter: global trailer found with error in tdc_evnum="<<tdc_evnum<<"  trailer="<<ev_words[i]<<endl;
           error=true;
         }
         if(bmcon->GetBMdebug()>9)
@@ -373,23 +355,24 @@ Bool_t BmBooter::read_event(Bool_t &error) {
       }        
       if(read_meas){  
         if(ev_words[i++]!=tdc_evnum){
-          cout<<"ERROR in BMcalBooter:read_event: tdc_evnum="<<tdc_evnum<<"  measured event number="<<ev_words[i-1]<<"  i="<<i<<endl;
+          cout<<"ERROR in BmBooter:read_event: tdc_evnum="<<tdc_evnum<<"  measured event number="<<ev_words[i-1]<<"  i="<<i<<endl;
           error=true;
         }
         if(ev_words[i]>-1 && ev_words[i]<bmmap->GetTdcMaxcha()){//measure found
-          bmstruct.hit_id[bmstruct.hitnum]=bmmap->tdc2cell(ev_words[i++]);
-          bmstruct.hit_meas[bmstruct.hitnum]=ev_words[i]/10.;//conversion to ns
-          if(ev_words[i-1]==bmmap->GetTrefCh()){
-            bmstruct.synctime[sync_evnum]=ev_words[i]/10.;
+          if(ev_words[i]==bmmap->GetTrefCh()){
+            bmstruct.synctime[sync_evnum]=ev_words[++i];
             sync_evnum++;
+          }else{      
+            bmstruct.hit_id[bmstruct.hitnum]=bmmap->tdc2cell(ev_words[i++]);
+            bmstruct.hit_meas[bmstruct.hitnum]=ev_words[i];
+            bmstruct.hitnum++;
           }
-          bmstruct.hitnum++;
         }
         else
-          cout<<"ERROR in BMcalBooter:read_event: tdc_channel out of range!!! tdc_channel="<<ev_words[i]<<endl;
+          cout<<"ERROR in BmBooter:read_event: tdc_channel out of range!!! tdc_channel="<<ev_words[i]<<endl;
         new_event=false;
         if(bmcon->GetBMdebug()>9)
-          cout<<"measure found: tdc_evnum="<<tdc_evnum<<" hit_id="<<bmstruct.hit_id<<" hit_meas="<<bmstruct.hit_meas<<endl;
+          cout<<"BMbooter::measure found: tdc_evnum="<<tdc_evnum<<" hit_id="<<bmstruct.hit_id[bmstruct.hitnum-1]<<" hit_meas="<<bmstruct.hit_meas[bmstruct.hitnum-1]<<endl;
       }
     }//end of reading tdc words for loop
   }else{//read tdc words if    
@@ -404,9 +387,15 @@ Bool_t BmBooter::read_event(Bool_t &error) {
 
 Bool_t BmBooter::drop_event(){
   Int_t tmp_int, trash;
+  if(!isdata){
+    data_num_ev++;
+    return kTRUE;
+  }
+  
   if(datafile.read((char *) &tmp_int,sizeof(int))){
     for(Int_t i=0;i<tmp_int;i++)
       datafile.read((char *) &trash,sizeof(int));
+    data_num_ev++;
   }else
     return kFALSE;  
 

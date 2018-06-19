@@ -36,7 +36,7 @@ TABMrawHit::TABMrawHit()
 {
 }
 
-void TABMrawHit::SetData(Int_t lay, Int_t view, Int_t cell, double time) {
+void TABMrawHit::SetData(Int_t lay, Int_t view, Int_t cell, Double_t time) {
 
   iview = view;
   ilayer = lay;
@@ -62,7 +62,7 @@ TABMdatRaw::~TABMdatRaw() {}
 //------------------------------------------+-----------------------------------
 //! Setup mapping data for a single slat.
 
-void TABMdatRaw::SetHitData(Int_t lay, Int_t view, Int_t cell, double time)
+void TABMdatRaw::SetHitData(Int_t lay, Int_t view, Int_t cell, Double_t time)
 {
 
   Int_t i_ind = (Int_t) fHitList.size();
