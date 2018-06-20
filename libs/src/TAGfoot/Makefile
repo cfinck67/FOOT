@@ -16,7 +16,7 @@ INCLFLAGS += -I../TAGfoot -I../TAVTbase -I../TAIRbase -I../TAMSDbase -I../TACAba
 INCLFLAGS += -I../TAGmclib -I../../../Simulation/TXT2ROOT -I../../../Simulation
 INCLFLAGS += -I../../../libs/GenFit/fitters/include 
 INCLFLAGS += -I../../../libs/GenFit/trackReps/include -I../../../libs/GenFit/fields/include 
-INCLFLAGS += -I../../../libs/GenFit/measurements/include -I../../../libs/GenFit/include
+INCLFLAGS += -I../../../libs/GenFit/measurements/include -I../../../libs/GenFit/core/include -I../../../libs/GenFit/utilities/include
 
 
 LDLIBS    = $(shell root-config --libs) 
