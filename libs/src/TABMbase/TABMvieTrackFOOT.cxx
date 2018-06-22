@@ -4,21 +4,6 @@
   \brief   Implementation of TABMvieTrackFOOT.
 */
 
-#include <math.h>
-
-#include "TROOT.h"
-#include "TString.h"
-#include "TAttFill.h"
-#include "TAttLine.h"
-#include "TAttText.h"
-#include "TArc.h"
-#include "foot_geo.h"
-
-#include "TABMntuTrack.hxx"
-#include "TABMntuRaw.hxx"
-
-#include "TABMparGeo.hxx"
-
 #include "TABMvieTrackFOOT.hxx"
 
 /*!

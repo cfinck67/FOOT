@@ -84,22 +84,3 @@ inline Int_t TABMntuHit::View() const
 {
   return iview;
 }
-
-//##############################################################################
-
-//------------------------------------------+-----------------------------------
-//! Access \a i 'th hit
-
-inline TABMntuHit* TABMntuRaw::Hit(Int_t i)
-{
-  return (TABMntuHit*) ((*h)[i]);;
-}
-
-//------------------------------------------+-----------------------------------
-//! Read-only access \a i 'th hit
-
-inline const TABMntuHit* TABMntuRaw::Hit(Int_t i) const
-{
-  return (const TABMntuHit*) ((*h)[i]);;
-}
-

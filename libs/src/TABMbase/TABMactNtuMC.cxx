@@ -4,13 +4,7 @@
   \brief   Implementation of TABMactNtuMC.
 */
 
-#include "TAGroot.hxx"
-#include "TABMntuRaw.hxx"
-#include "TABMparCon.hxx"
 #include "TABMactNtuMC.hxx"
-
-//First
-#include "TAGgeoTrafo.hxx"
 
 /*!
   \class TABMactNtuMC TABMactNtuMC.hxx "TABMactNtuMC.hxx"

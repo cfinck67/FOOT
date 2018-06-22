@@ -13,12 +13,35 @@ using namespace std;
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGparaDsc.hxx"
+#include "foot_geo.h"
+#include "TAGroot.hxx"
 #include "TABMntuTrack.hxx"
+#include "TABMparCon.hxx"
+#include "TABMntuRaw.hxx"
+#include "TABMntuHit.hxx"
+#include "TABMntuTrack.hxx" 
 
-#include "TGeoManager.h"
 #include <KalmanFitterRefTrack.h>
 #include <KalmanFitter.h>
 #include <DAF.h>
+#include "FieldManager.h"
+#include "MaterialEffects.h"
+#include "ConstField.h"
+#include "Track.h"
+#include "WireMeasurement.h"
+#include "EventDisplay.h"
+#include "TDatabasePDG.h"
+#include "DAF.h"
+#include <TDecompChol.h>
+
+#include "TF1.h"
+#include "TGeoManager.h"
+#include "TGeoMaterialInterface.h"
+#include <TDatabasePDG.h>
+
+#include <math.h>
+#include <iostream>
+
 
 using namespace genfit;
 

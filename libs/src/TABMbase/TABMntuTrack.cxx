@@ -4,20 +4,9 @@
   \brief   Implementation of TABMntuTrack.
 */
 
-#include "math.h"
-#include "TString.h"
-#include "TMath.h"
-
-#include "TAGroot.hxx"
-#include "TAGgeoTrafo.hxx"
 #include "TABMntuTrack.hxx"
-using namespace genfit;
-#include "DetPlane.h"
-#include "StateOnPlane.h"
-#include "SharedPlanePtr.h"
-#include "KalmanFitterInfo.h"
-#include <TDecompChol.h>
 
+using namespace genfit;
 
 /*!
   \class TABMntuTrackTr TABMntuTrack.hxx "TABMntuTrack.hxx"

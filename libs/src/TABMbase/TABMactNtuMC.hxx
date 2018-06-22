@@ -9,11 +9,16 @@
 
 #include "Evento.h"
 #include "foot_geo.h"
-
-#include "TVector3.h"
 #include "TAGaction.hxx"
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
+#include "TAGroot.hxx"
+#include "TABMntuRaw.hxx"
+#include "TABMntuHit.hxx"
+#include "TABMparCon.hxx"
+#include "TAGgeoTrafo.hxx"
+
+#include "TVector3.h"
 
 class TABMactNtuMC : public TAGaction {
   public:

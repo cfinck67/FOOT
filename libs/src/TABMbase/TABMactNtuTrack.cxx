@@ -4,28 +4,7 @@
   \brief   Implementation of TABMactNtuTrack.
 */
 
-#include <math.h>
-
-#include "TF1.h"
-#include "TABMparCon.hxx"
-#include "TABMntuRaw.hxx"
-#include "TABMntuTrack.hxx"
-#include <iostream>
 #include "TABMactNtuTrack.hxx"
-#include "FieldManager.h"
-#include "MaterialEffects.h"
-#include "TGeoMaterialInterface.h"
-#include "ConstField.h"
-#include "Track.h"
-#include "WireMeasurement.h"
-#include "EventDisplay.h"
-#include "TDatabasePDG.h"
-#include "DAF.h"
-#include <TDecompChol.h>
-#include <TDatabasePDG.h>
-#include "foot_geo.h"
-#include "TAGroot.hxx"
-
 
 using namespace std;
 /*!

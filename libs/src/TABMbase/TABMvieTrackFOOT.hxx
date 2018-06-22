@@ -7,14 +7,27 @@
 */
 /*------------------------------------------+---------------------------------*/
 
-#include "TPad.h"
-
 #include "TAGview.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGparaDsc.hxx"
 #include "TABMntuTrack.hxx"
 #include "TABMntuRaw.hxx"
 #include "TABMparGeo.hxx"
+#include "TABMntuTrack.hxx"
+#include "TABMntuRaw.hxx"
+#include "TABMntuHit.hxx"
+#include "TABMparGeo.hxx"
+#include "foot_geo.h"
+
+#include "TPad.h"
+#include "TROOT.h"
+#include "TString.h"
+#include "TAttFill.h"
+#include "TAttLine.h"
+#include "TAttText.h"
+#include "TArc.h"
+
+#include <math.h>
 
 class TABMvieTrackFOOT : public TAGview {
   public:

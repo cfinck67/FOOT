@@ -10,6 +10,14 @@
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGparaDsc.hxx"
+#include "TABMdatRaw.hxx"
+#include "TAIRdatRaw.hxx"
+#include "TATRdatRaw.hxx"
+#include "TABMparGeo.hxx"
+#include "TABMparCon.hxx"
+#include "TABMntuRaw.hxx"
+#include "TABMntuHit.hxx"
+
 
 class TABMactNtuRaw : public TAGaction {
   public:
