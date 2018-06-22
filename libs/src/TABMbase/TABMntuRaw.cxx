@@ -33,10 +33,10 @@ TABMntuHit::~TABMntuHit()
 //! Default constructor.
 
 TABMntuHit::TABMntuHit()
-  : idmon(0),    iview(0),    ilayer(0),    icell(0), ichi2(0),
+  : idmon(0),    iview(0),    ilayer(0),    icell(0), ichi2(999),
     xcamon(0.),    ycamon(0.),    zcamon(0.),
     pxcamon(0.),   pycamon(0.),   pzcamon(0.),
-    rdrift(0.),    tdrift(0.),    timmon(0.)
+    rdrift(0.),    tdrift(0.)
 {
   sigma = 0;
   A0.SetXYZ(0,0,0);
@@ -48,13 +48,14 @@ TABMntuHit::TABMntuHit()
   isCrossTalk=false;  
 }
 
-TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t tm) {
+TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x, Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t s) {
 
-  idmon = id;  iview = iv;  ilayer = il;      icell = ic;  
-  xcamon = x;   ycamon = y;  zcamon = z;
+  idmon = id;  
+  iview = iv;  ilayer = il;   icell = ic;  
+  xcamon = x;  ycamon = y;    zcamon = z;
   pxcamon = px;   pycamon = py;   pzcamon = pz;
-  rdrift = r;   tdrift = t;    timmon = tm;
-  sigma = 0; ichi2 = 0;
+  rdrift = r;   tdrift = t; 
+  sigma = 0; ichi2 = 999;
   A0.SetXYZ(0,0,0);
   Wvers.SetXYZ(0,0,0);
   rho = 0;
@@ -62,17 +63,20 @@ TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Do
   realRdrift=100.;
   isSelected=false;
   isCrossTalk=false;
+  sigma=s;
 }
 
-void TABMntuHit::SetData(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t tm) {
+//~ void TABMntuHit::SetData(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t s) {
   
-  idmon = id;  iview = iv;  ilayer = il;      icell = ic;  ichi2 = 0;
-  xcamon = x;   ycamon = y;  zcamon = z;
-  pxcamon = px;   pycamon = py;   pzcamon = pz;
-  rdrift = r;   tdrift = t;    timmon = tm;
+  //~ idmon = id;  
+  //~ iview = iv;  ilayer = il;  icell = ic; 
+  //~ xcamon = x;   ycamon = y;  zcamon = z;
+  //~ pxcamon = px;   pycamon = py;   pzcamon = pz;
+  //~ rdrift = r;   tdrift = t;
+  //~ ichi2 = 0;  
 
-  return;
-}
+  //~ return;
+//~ }
 
 void TABMntuHit::SetAW(TABMparGeo* f_bmgeo) {
 

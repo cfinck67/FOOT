@@ -129,7 +129,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         }
     }else if(strchr(bufConf,'H')) {
       sscanf(bufConf, "H %d %d",&myArgInt, &myArgIntmax);
-      if(myArgInt>0 && myArgIntmax>0 && myArgIntmax<37 && myArgIntmax<=myArgInt){ 
+      if(myArgInt>=0 && myArgIntmax>0 && myArgIntmax<37 && myArgIntmax>=myArgInt){ 
         minnhit_cut = myArgInt;
         maxnhit_cut = myArgIntmax;
       }else {
@@ -381,61 +381,10 @@ void TABMparCon::LoadSTrel(TString sF) {
 
  /*-------------------------------------------------*/
 
-double TABMparCon::STrel_Delta1(double time) {
-  double p0=0.007471, p1=-0.005854, p2= 6.38379e-05, p3=-2.61452e-07, p4= 3.78368e-10;
-  double res;
-  res = p0 + p1*time + p2*time*time + p3*pow(time,3) + p4*pow(time,4);
-  return res;
+Double_t TABMparCon::FirstSTrel(Double_t tdrift){
+  return 0.032891770+0.0050746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift; 
 }
 
- /*-------------------------------------------------*/
-
-double TABMparCon::STrel_Delta2(double time) {
-  double p0=-0.031722, p1=0.00055413, p2= -8.75471e-06, p3= 5.19529e-08, p4=-9.49872e-11 ;
-  double res;
-  res = p0 + p1*time + p2*time*time + p3*pow(time,3) + p4*pow(time,4);
-  return res;
-}
-
-/*----------------------------------------*/
-
-double TABMparCon::STrel_Delta3(double time) {
-  double p0= -0.00864077, p1= 0.000225237, p2= -3.39075e-06, p3=  2.02131e-08, p4=  -3.68566e-11;
-  double res;
-  res = p0 + p1*time + p2*time*time + p3*pow(time,3) + p4*pow(time,4);
-  return res;
-}
-
-//provv, da ottimizzare
-double TABMparCon::STrelCorr(double time, int ic, int ip, int iv) {//per ora serve solo il tempo perchè per ogni cella le strel sono le stesse...
-
-  double res = 0;
-  bool ana = kTRUE;
-
-  int t_ic, t_ip, t_iv;
-  t_ic = ic; t_ip = ip; t_iv = iv;
-
-  int howManyfiles(0);
-  if(!ana) {
-    howManyfiles = m_myVFunSpl.size();
-    for(int ih =0; ih<howManyfiles; ih++) {
-      Info("Action()","STrel:: %lf %d %lf %d ",time,ih,res,m_myVFunSpl.size());
-      if(m_myVFunSpl.at(ih)) {
-        res += (m_myVFunSpl.at(ih))->Eval(time);
-        Info("Action()","STrel:: %d %lf ",ih,(m_myVFunSpl.at(ih))->Eval(time));
-      }
-    }
-    
-    //  res *= 0.3;
-  } else {
-    res -= STrel_Delta1(fabs(time)); 
-    res -= STrel_Delta2(fabs(time)); 
-    res -= STrel_Delta3(fabs(time)); 
-  }
-
-  return res;
-
-}
 
 void TABMparCon::LoadReso(TString sF) {
 
@@ -536,3 +485,60 @@ void TABMparCon::ConfigureTrkCalib() {
   return;
 
 }
+
+//~ double TABMparCon::STrel_Delta1(double time) {
+  //~ double p0=0.007471, p1=-0.005854, p2= 6.38379e-05, p3=-2.61452e-07, p4= 3.78368e-10;
+  //~ double res;
+  //~ res = p0 + p1*time + p2*time*time + p3*pow(time,3) + p4*pow(time,4);
+  //~ return res;
+//~ }
+
+ //~ /*-------------------------------------------------*/
+
+//~ double TABMparCon::STrel_Delta2(double time) {
+  //~ double p0=-0.031722, p1=0.00055413, p2= -8.75471e-06, p3= 5.19529e-08, p4=-9.49872e-11 ;
+  //~ double res;
+  //~ res = p0 + p1*time + p2*time*time + p3*pow(time,3) + p4*pow(time,4);
+  //~ return res;
+//~ }
+
+//~ /*----------------------------------------*/
+
+//~ double TABMparCon::STrel_Delta3(double time) {
+  //~ double p0= -0.00864077, p1= 0.000225237, p2= -3.39075e-06, p3=  2.02131e-08, p4=  -3.68566e-11;
+  //~ double res;
+  //~ res = p0 + p1*time + p2*time*time + p3*pow(time,3) + p4*pow(time,4);
+  //~ return res;
+//~ }
+
+//~ //provv, da ottimizzare
+//~ double TABMparCon::STrelCorr(double time, int ic, int ip, int iv) {//per ora serve solo il tempo perchè per ogni cella le strel sono le stesse...
+
+  //~ double res = 0;
+  //~ bool ana = kTRUE;
+
+  //~ int t_ic, t_ip, t_iv;
+  //~ t_ic = ic; t_ip = ip; t_iv = iv;
+
+  //~ int howManyfiles(0);
+  //~ if(!ana) {
+    //~ howManyfiles = m_myVFunSpl.size();
+    //~ for(int ih =0; ih<howManyfiles; ih++) {
+      //~ Info("Action()","STrel:: %lf %d %lf %d ",time,ih,res,m_myVFunSpl.size());
+      //~ if(m_myVFunSpl.at(ih)) {
+        //~ res += (m_myVFunSpl.at(ih))->Eval(time);
+        //~ Info("Action()","STrel:: %d %lf ",ih,(m_myVFunSpl.at(ih))->Eval(time));
+      //~ }
+    //~ }
+    
+    //~ //  res *= 0.3;
+  //~ } else {
+    //~ res -= STrel_Delta1(fabs(time)); 
+    //~ res -= STrel_Delta2(fabs(time)); 
+    //~ res -= STrel_Delta3(fabs(time)); 
+  //~ }
+
+  //~ return res;
+
+//~ }
+

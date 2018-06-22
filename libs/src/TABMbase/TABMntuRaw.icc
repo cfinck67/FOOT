@@ -53,10 +53,10 @@ inline Double_t TABMntuHit::Tdrift() const
   return tdrift;
 }
 
-inline Double_t TABMntuHit::Timmon() const
-{
-  return timmon;
-}
+//~ inline Double_t TABMntuHit::Timmon() const
+//~ {
+  //~ return timmon;
+//~ }
 
 /* X,Z (V) view */
 //~ inline Bool_t TABMntuHit::HorView() const

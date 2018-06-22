@@ -173,10 +173,13 @@ TABMntuTrackTr::TABMntuTrackTr(const TABMntuTrackTr &tr_in){
 
 //********************************* NEW TRACKING  **********************************
 
-void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mychi2, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo){
+void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mychi2, vector<Int_t> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo){
   Int_t hit_num=fitTrack->getNumPointsWithMeasurement();
+  if(hit_num!=hit_mychi2.size())
+    cout<<"TABMntuTrack::CalculateFitPar::WARNING:: hit_num!=mychi2red.size()... some hits has been lost!!!!!"<<endl;
   Int_t hit_num_withcov=0;
-  Double_t tmp_double, old_rdrift, new_rdrift, mychi2_in=0., rdrift_err_max=0;
+  Double_t tmp_double, old_rdrift, new_rdrift, rdrift_err_max=0;
+  mychi2=0.;
   TVector3 wire_pos, wire_dir, Xvers(1.,0,0), Yvers(0.,1.,0.);
   TVector3 first_fit_pos(0,0,100), last_fit_pos(0,0,-100);//per calcolo angZ... ma no buono!!!
   vector<Double_t> angZ_vec, angPhi_vec;
@@ -215,7 +218,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
         wire_dir.SetMag(1.);
         new_rdrift=FindRdrift(state.getPos(), state.getMom(), wire_pos, wire_dir);//da check
         hit_mychi2[i]=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i];
-        mychi2_in+=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i];        
+        mychi2+=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i];        
         if(fabs(old_rdrift-new_rdrift)>rdrift_err_max)
           rdrift_err_max=fabs(old_rdrift-new_rdrift);
         if(state.getPos().Z()<first_fit_pos.Z())
@@ -235,15 +238,25 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
     }
   }
   
+  //calculate prunedhit, for the moment I refit when a hit has a chi2red contribution 3 times larger than the average contribution, the number 2 has to be optimized 
+  for(Int_t i=0;i<hit_mychi2.size();i++){
+    if(p_bmcon->GetBMdebug()>10)
+      cout<<"i="<<i<<"  hit_mychi2[i]="<<hit_mychi2[i]<<"  mychi2="<<mychi2<<"  hit_num="<<hit_num<<"  myc/hit="<<mychi2/hit_num<<"   hit_mychi2[i]/(mychi2/hit_num)="<<hit_mychi2[i]/(mychi2/hit_num)<<endl;
+    if(hit_mychi2[i]/(mychi2/hit_num)>2.){
+      prunedhit.push_back(i);
+      if(p_bmcon->GetBMdebug()>10)
+        cout<<"add prunedhit:  prunedhit.size()="<<prunedhit.size()<<"  val="<<prunedhit.back()<<endl;
+    }
+  }
+  
   MaxRdriftErr=rdrift_err_max;
-  mychi2=mychi2_in;
   if(fitTrack->getFitStatus()->getNdf()!=0)
-    mychi2Red=mychi2_in/fitTrack->getFitStatus()->getNdf();
+    mychi2Red=mychi2/fitTrack->getFitStatus()->getNdf();
   else
     cout<<"TABMntuTrack::CalculateFitPar::WARNING: you have 0 Ndf!!!!!!! cannot set mychi2Red!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
     
   if(p_bmcon->GetBMdebug()>3)
-    cout<<"TABMntuTrack::CalculateFitPar:: mychi2="<<mychi2_in<<"  mychi2Red="<<mychi2Red<<"  ndf="<<fitTrack->getFitStatus()->getNdf()<<endl;
+    cout<<"TABMntuTrack::CalculateFitPar:: mychi2="<<mychi2<<"  mychi2Red="<<mychi2Red<<"  ndf="<<fitTrack->getFitStatus()->getNdf()<<endl;
   
   //out of cicle state should be the state of last measurement and first_state should be the state of the first measurement
   //other fitpos parameter
@@ -1019,7 +1032,7 @@ void TABMntuTrack::Clear(Option_t*)//capire cos'è l'opzione t...
 { 
   TAGdata::Clear();
   ntrk   = 0;
-  trk_status=-1;
+  trk_status=-1000;
   if(t) 
     t->Delete();//presente prima
     //~ t->Clear();    

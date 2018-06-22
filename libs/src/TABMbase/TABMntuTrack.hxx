@@ -119,7 +119,7 @@ class TABMntuTrackTr : public TObject {
     TVector3 GetMylar2Pos(){return mylar2_pos;};
     TVector3 GetTargetPos(){return target_pos;};
     
-    void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mychi2, TABMparCon* p_bmcon, TABMparGeo* b_bmgeo);
+    void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mychi2red, vector<Int_t> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo);
     Double_t FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers);    
     
     //parameters
@@ -140,6 +140,7 @@ class TABMntuTrackTr : public TObject {
     TVector3      target_pos;     //position of the track extrapolate to the target plane
     TVector3      mylar1_pos;     //position of the track extrapolate to the first mylar plane
     TVector3      mylar2_pos;     //position of the track extrapolate to the second mylar plane
+    //~ Int_t         trktr_status;   //0=ok, 1=to be refitted pruning hits with mychi2Red over cut level 
     
   private:
 
@@ -177,7 +178,7 @@ class TABMntuTrack : public TAGdata {
 
   public:
     Short_t         ntrk;		    // number of tracks old tracking 
-    Int_t           trk_status; //-1=notset, 0=ok, 1=firedUplane<plane_mincut, 2=firedVplane<plane_mincut
+    Int_t           trk_status; //-1000=notset, 0=ok, 1=firedUplane<plane_mincut, 2=firedVplane<plane_mincut, 3=hits in too different cell positions
         
     TClonesArray*   t;			    // list of tracks
 };

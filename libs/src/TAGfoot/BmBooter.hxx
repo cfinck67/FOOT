@@ -56,6 +56,7 @@ public:
   void Finalize();
   
   void FillDataBeamMonitor();
+  void PrintSTrel();
   void evaluateT0();//evaluate the T0 from datafile
   Bool_t drop_event();//read event from datafile and discharge it, it return false if the file is end
   void clear_bmstruct(Bool_t forced);  

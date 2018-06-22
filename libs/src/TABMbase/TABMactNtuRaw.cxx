@@ -46,18 +46,18 @@ TABMactNtuRaw::TABMactNtuRaw(const char* name,
   AddPara(p_geomap, "TABMparGeo");
   AddPara(p_parcon, "TABMparCon");
 
-  m_fittedVO=0;
-  m_fittedVE=0;
-  m_fittedUO=0;
-  m_fittedUE=0;
+  //~ m_fittedVO=0;
+  //~ m_fittedVE=0;
+  //~ m_fittedUO=0;
+  //~ m_fittedUE=0;
 
-  eff_V.clear(); eff_V.resize(12);
-  eff_U.clear(); eff_U.resize(12);
+  //~ eff_V.clear(); eff_V.resize(12);
+  //~ eff_U.clear(); eff_U.resize(12);
 
-  for(int id=0; id<6; id++) m_missedX[id]=0;
-  for(int id=0; id<6; id++) m_missedY[id]=0;
-  for(int id=0; id<12; id++) eff_V.at(id)=0;
-  for(int id=0; id<12; id++) eff_U.at(id)=0;
+  //~ for(int id=0; id<6; id++) m_missedX[id]=0;
+  //~ for(int id=0; id<6; id++) m_missedY[id]=0;
+  //~ for(int id=0; id<12; id++) eff_V.at(id)=0;
+  //~ for(int id=0; id<12; id++) eff_U.at(id)=0;
 
 }
 
@@ -69,67 +69,67 @@ TABMactNtuRaw::~TABMactNtuRaw()
 
 void TABMactNtuRaw::cleanup() {
 
-  m_fittedVO=0;
-  m_fittedVE=0;
-  m_fittedUO=0;
-  m_fittedUE=0;
+  //~ m_fittedVO=0;
+  //~ m_fittedVE=0;
+  //~ m_fittedUO=0;
+  //~ m_fittedUE=0;
 
-  eff_V.clear(); eff_V.resize(12);
-  eff_U.clear(); eff_U.resize(12);
+  //~ eff_V.clear(); eff_V.resize(12);
+  //~ eff_U.clear(); eff_U.resize(12);
 
-  for(int id=0; id<6; id++) m_missedX[id]= 0;
-  for(int id=0; id<6; id++) m_missedY[id]= 0;
-  for(int id=0; id<12; id++) eff_V.at(id) = 0;
-  for(int id=0; id<12; id++) eff_U.at(id) = 0;
+  //~ for(int id=0; id<6; id++) m_missedX[id]= 0;
+  //~ for(int id=0; id<6; id++) m_missedY[id]= 0;
+  //~ for(int id=0; id<12; id++) eff_V.at(id) = 0;
+  //~ for(int id=0; id<12; id++) eff_U.at(id) = 0;
 }
 
-vector<double> TABMactNtuRaw::retrieve_V() {
+//~ vector<double> TABMactNtuRaw::retrieve_V() {
 
-  double nume(0), deno(0), erro(0), eff(0);
+  //~ double nume(0), deno(0), erro(0), eff(0);
 
-  for (int i = 0; i<3; i++) {
-    nume = m_fittedVE - m_missedX[2*i];
-    deno = m_fittedVE;
-    CalcEffi(nume, deno, eff, erro);
-    if (m_fittedVE!=0) {
-      eff_V.at(i*2) = eff;
-      eff_V.at((i+3)*2) = erro;
-    }
-    nume = m_fittedVO - m_missedX[2*i+1];
-    deno = m_fittedVO;
-    CalcEffi(nume, deno, eff, erro);
-    if (m_fittedVO!=0) {
-      eff_V.at(2*i+1)=eff;
-      eff_V.at(2*(i+3)+1)=erro;
-    }
-  }
+  //~ for (int i = 0; i<3; i++) {
+    //~ nume = m_fittedVE - m_missedX[2*i];
+    //~ deno = m_fittedVE;
+    //~ CalcEffi(nume, deno, eff, erro);
+    //~ if (m_fittedVE!=0) {
+      //~ eff_V.at(i*2) = eff;
+      //~ eff_V.at((i+3)*2) = erro;
+    //~ }
+    //~ nume = m_fittedVO - m_missedX[2*i+1];
+    //~ deno = m_fittedVO;
+    //~ CalcEffi(nume, deno, eff, erro);
+    //~ if (m_fittedVO!=0) {
+      //~ eff_V.at(2*i+1)=eff;
+      //~ eff_V.at(2*(i+3)+1)=erro;
+    //~ }
+  //~ }
 
-  return eff_V;
-}
+  //~ return eff_V;
+//~ }
 
-vector<double> TABMactNtuRaw::retrieve_U() {
+//~ vector<double> TABMactNtuRaw::retrieve_U() {
   
-  double nume(0), deno(0), erro(0), eff(0);
+  //~ double nume(0), deno(0), erro(0), eff(0);
 
-  for (int i = 0; i<3; i++) {
-    nume = m_fittedUE - m_missedY[2*i];
-    deno = m_fittedUE;
-    CalcEffi(nume, deno, eff, erro);
-    if (m_fittedUE!=0) {
-      eff_U.at(i*2) = eff;
-      eff_U.at((i+3)*2) = erro;
-    }
-    nume = m_fittedUO - m_missedY[2*i+1];
-    deno = m_fittedUO;
-    CalcEffi(nume, deno, eff, erro);
-    if (m_fittedUO!=0) {
-      eff_U.at(2*i+1)=eff;
-      eff_U.at(2*(i+3)+1)=erro;
-    }
-  }
+  //~ for (int i = 0; i<3; i++) {
+    //~ nume = m_fittedUE - m_missedY[2*i];
+    //~ deno = m_fittedUE;
+    //~ CalcEffi(nume, deno, eff, erro);
+    //~ if (m_fittedUE!=0) {
+      //~ eff_U.at(i*2) = eff;
+      //~ eff_U.at((i+3)*2) = erro;
+    //~ }
+    //~ nume = m_fittedUO - m_missedY[2*i+1];
+    //~ deno = m_fittedUO;
+    //~ CalcEffi(nume, deno, eff, erro);
+    //~ if (m_fittedUO!=0) {
+      //~ eff_U.at(2*i+1)=eff;
+      //~ eff_U.at(2*(i+3)+1)=erro;
+    //~ }
+  //~ }
 
-  return eff_U;
-}
+  //~ return eff_U;
+//~ }
 
 
 //------------------------------------------+-----------------------------------
@@ -144,16 +144,12 @@ Bool_t TABMactNtuRaw::Action()
   TABMparGeo* p_geomap = (TABMparGeo*) fpGeoMap->Object();
   TABMparCon* p_parcon = (TABMparCon*) fpParCon->Object();
 
-  Double_t h_x,h_y,h_z,h_cx,h_cy,h_cz;
 
   if (!p_nturaw->h) p_nturaw->SetupClones();
 
 
 //old stuff
-
-  Int_t i_nhit = p_datraw->NHit();
-  
-  //FIRST trigger time irtime... why this loop?
+  //FIRST trigger time irtime... 
   //~ double irtime(-10000);
   //~ double trigtime(-10000);  
   //~ Int_t timhit = p_timraw->nirhit;
@@ -182,7 +178,36 @@ Bool_t TABMactNtuRaw::Action()
   //~ }
   
   Int_t irtime=p_timraw->TrigTime();//prendo trigger direttamente dal datraw...
+  Int_t i_nhit = p_datraw->NHit();
+  Double_t h_x,h_y,h_z,h_cx,h_cy,h_cz;
+  if(irtime == -10000) {
+    Info("Action()","Trigger IR Time is Missing!!!");
+    fpNtuRaw->SetBit(kValid);
+    return kTRUE;
+  }
 
+  for (Int_t i = 0; i < i_nhit; i++) {//loop on p_datrawhit
+    const TABMrawHit& hit = p_datraw->Hit(i);
+    
+    //retrive hit parameters
+    Double_t t0_corr = p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell());
+    Double_t t_drift = hit.Time()-t0_corr-irtime;
+    Double_t i_time=(t_drift<0) ? 0:t_drift;
+    Double_t stcorr = p_parcon->FirstSTrel(i_time);
+    Double_t i_drift = i_time*p_parcon->GetVDrift() + stcorr;
+    p_geomap->GetCellInfo(hit.View(), hit.Plane(), hit.Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
+
+    //create the hit (no selection of hit)
+    TABMntuHit *mytmp = new((*(p_nturaw->h))[i]) TABMntuHit(0, hit.View(), hit.Plane(), hit.Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz, i_drift, i_time, p_parcon->ResoEval(i_drift));
+    p_nturaw->nhit++;
+  }
+
+  fpNtuRaw->SetBit(kValid);
+  return kTRUE;
+
+
+//old methods
+/*
   if(irtime == -10000) {
     Info("Action()","Trigger IR Time is Missing!!!");
     fpNtuRaw->SetBit(kValid);
@@ -235,7 +260,7 @@ Bool_t TABMactNtuRaw::Action()
     
     Double_t i_drift = i_time*vdrift + stcorr;
 
-    //~ cout<<"DBG:: i="<<i<<"   t0_corr"<<t0_corr<<"   i_time"<<i_time<<" "<<(hit.Time()-(irtime)-t0_corr)*vdrift<<" "<<stcorr<<" "<<i_drift<<" "<<endl;
+    // cout<<"DBG:: i="<<i<<"   t0_corr"<<t0_corr<<"   i_time"<<i_time<<" "<<(hit.Time()-(irtime)-t0_corr)*vdrift<<" "<<stcorr<<" "<<i_drift<<" "<<endl;
 
     if(exi[i_cell][i_plane][tmp_view]==-1) {
       //First time that there's an hit here
@@ -274,7 +299,7 @@ Bool_t TABMactNtuRaw::Action()
       TABMntuHit(i_idmon, i_view, i_plane, i_cell, h_x, h_y, h_z, h_cx, h_cy, h_cz, i_drift, i_time, i_timmon );
 
       mytmp->SetSigma(resolution);
-      //~ mytmp->SetTrkAss(0);
+      // mytmp->SetTrkAss(0);
       tmp_hi++;
       p_nturaw->nhit++;
 
@@ -290,7 +315,7 @@ Bool_t TABMactNtuRaw::Action()
 		  i_drift,  i_time,
 		  i_timmon );
       tm->SetSigma(resolution);
-      //~ tm->SetTrkAss(0);
+      // tm->SetTrkAss(0);
     }
   }
   
@@ -331,31 +356,31 @@ Bool_t TABMactNtuRaw::Action()
   
   
   
-  
   fpNtuRaw->SetBit(kValid);
   return kTRUE;
+  */
   
 }
 
 //=============================================================================
 // Calc the Error on the efficiency
 //=============================================================================
-void TABMactNtuRaw::CalcEffi(double nume, double deno, double &eff, double &erro) {
+//~ void TABMactNtuRaw::CalcEffi(double nume, double deno, double &eff, double &erro) {
 
-  double argone(0);
-  if(deno<=0) {
-    eff = 0;
-    erro = 0;
-    cout<<"deno<0 :: "<<deno<<endl;
-    return;
-  }
-  eff = nume/deno;
-  argone = 4.*eff*(1.-eff)/deno+1./pow(deno,2);
-  if(argone>0.) {
-    erro = sqrt(argone)/(2.*(1.+1./deno));
-  } else {
-    cout<<"arg(sqrt)<0 :: "<<argone<<endl;
-    erro= 1./(2.*(deno+1.));
-  }
-  return;
-}
+  //~ double argone(0);
+  //~ if(deno<=0) {
+    //~ eff = 0;
+    //~ erro = 0;
+    //~ cout<<"deno<0 :: "<<deno<<endl;
+    //~ return;
+  //~ }
+  //~ eff = nume/deno;
+  //~ argone = 4.*eff*(1.-eff)/deno+1./pow(deno,2);
+  //~ if(argone>0.) {
+    //~ erro = sqrt(argone)/(2.*(1.+1./deno));
+  //~ } else {
+    //~ cout<<"arg(sqrt)<0 :: "<<argone<<endl;
+    //~ erro= 1./(2.*(deno+1.));
+  //~ }
+  //~ return;
+//~ }

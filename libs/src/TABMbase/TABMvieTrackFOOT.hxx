@@ -19,7 +19,7 @@
 class TABMvieTrackFOOT : public TAGview {
   public:
     //~ explicit        TABMvieTrackFOOT(TAGdataDsc* p_ntutrk=0, TAGdataDsc* p_nturaw=0, TAGparaDsc* p_bmgeo=0);
-    explicit        TABMvieTrackFOOT(TABMntuTrack* p_ntutrk=nullptr, TABMntuRaw* p_nturaw=nullptr, TABMparGeo* p_bmgeo=nullptr);
+    explicit        TABMvieTrackFOOT(TABMntuTrack* p_ntutrk=nullptr, TABMntuRaw* p_nturaw=nullptr, TABMparGeo* p_bmgeo=nullptr, Int_t track_ok=-1000);
     //~ explicit        TABMvieTrackFOOT(TABMparGeo* p_bmgeo=nullptr);
     virtual         ~TABMvieTrackFOOT();
 
@@ -36,6 +36,7 @@ class TABMvieTrackFOOT : public TAGview {
     //~ TAGdataDsc*     fpNtuTrk;
     //~ TAGdataDsc*     fpNtuRaw;
     //~ TAGparaDsc*     fpParBMGeo;
+    Int_t         track_ok; //if !=0 the track is not set and it will not be drawn
     TABMntuTrack* p_ntutrk;
     TABMntuRaw* p_nturaw;
     TABMparGeo* p_bmgeo;

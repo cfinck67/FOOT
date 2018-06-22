@@ -47,8 +47,8 @@ ClassImp(TABMvieTrackFOOT);
 
 //~ TABMvieTrackFOOT::TABMvieTrackFOOT(TABMparGeo* p_bmgeo_in)
   //~ : p_bmgeo(p_bmgeo_in)
-TABMvieTrackFOOT::TABMvieTrackFOOT(TABMntuTrack* p_ntutrk_in, TABMntuRaw* p_nturaw_in, TABMparGeo* p_bmgeo_in)
-  : p_ntutrk(p_ntutrk_in), p_nturaw(p_nturaw_in), p_bmgeo(p_bmgeo_in)
+TABMvieTrackFOOT::TABMvieTrackFOOT(TABMntuTrack* p_ntutrk_in, TABMntuRaw* p_nturaw_in, TABMparGeo* p_bmgeo_in, Int_t track_ok_in)
+  : p_ntutrk(p_ntutrk_in), p_nturaw(p_nturaw_in), p_bmgeo(p_bmgeo_in), track_ok(track_ok_in)
 {
 
   SetName("TABMvieTrackFOOT");
@@ -87,18 +87,18 @@ void TABMvieTrackFOOT::ExecuteEvent(Int_t i_event, Int_t i_px, Int_t i_py)
 //------------------------------------------+-----------------------------------
 //! Paint.
 
-void SetTrackRaw(TABMntuTrack* p_ntutrk_in, TABMntuRaw* p_nturaw_in){
+//~ void SetTrackRaw(TABMntuTrack* p_ntutrk_in, TABMntuRaw* p_nturaw_in){
   //~ p_ntutrk=p_ntutrk_in;
   //~ p_nturaw=p_nturaw_in;
-  return;
-}
+  //~ return;
+//~ }
 
 void TABMvieTrackFOOT::Paint(Option_t* option)
 {
-  //~ TABMntuTrack* p_ntutrk  =(TABMntuTrack*) fpNtuTrk->GenerateObject();//penso che non serva più il generate ma il find
+  //~ TABMntuTrack* p_ntutrk  =(TABMntuTrack*) fpNtuTrk->GenerateObject();//non serve più il generate ma il find nel caso!
   //~ TABMntuRaw*   p_nturaw = (TABMntuRaw*)   fpNtuRaw->GenerateObject();
   //~ TABMparGeo*   p_bmgeo = (TABMparGeo*) fpParBMGeo->Object();
-
+    
   if (IsZombie() || !gPad) return;
 
   TAttLine attline_black_soli_fat(1, 1, 2); // (color, style, width)
@@ -163,7 +163,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   
   char text[200];
   //Beam Monitor tracks 
-  if (p_ntutrk) {
+  if (track_ok==0) {
     //Displays the fitted tracks
     Info("Viewer()","Displaying the BM Tracks");
 
@@ -209,7 +209,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
       //~ cout<<"zmin="<<p_trk->GetMylar1Pos().Z()<<"  zmax="<<p_trk->GetMylar2Pos().Z()<<endl;
     }//attenzione, ho messo dei meno per la posizione, controllare che vada bene
   }
-
+  
   if (p_nturaw) {
     //Displays the Reconstructed hits in the orizontal view
     Int_t i_nhit = p_nturaw->nhit;
@@ -235,7 +235,8 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
         //Top view, V view, (X,Z)
         p_bmgeo->GetCellInfo(-1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
         //X has a consistent view (x points to the top) 
-        attline_black_soli_nor.Modify();  attfill_tof_m.Modify();
+        attline_black_soli_nor.Modify();  
+        attfill_tof_m.Modify();
         gPad->PaintBox(-(h_x-hit->Dist())-0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_x+hit->Dist())-0.5*BMN_WIDTH,h_z+hit->Dist());
       }
     }//end loop on hits
@@ -268,7 +269,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   }
   
   //Beam Monitor tracks
-  if (p_ntutrk) {
+  if (track_ok==0) {
     //Displays the fitted tracks
     Info("Viewer()","Displaying the BM Tracks");
 

@@ -144,6 +144,7 @@ Bool_t TABMactNtuTrack::Action()
   Int_t firedPlane=BMN_NLAY*2; //number of plane fired
   Int_t firedUview=BMN_NLAY;
   Int_t firedVview=BMN_NLAY;
+  Int_t prunedUview, prunedVview;
   TDecompChol fitTrack_cov;  
   //~ TVector3 wire_a_x, wire_b_x, wire_a_y, wire_b_y;
   Double_t wire_a_x=-1000., wire_a_y=-1000.;
@@ -159,8 +160,11 @@ Bool_t TABMactNtuTrack::Action()
   for(Int_t i_h = 0; i_h < i_nhit; i_h++) {
     p_hit = p_ntuhit->Hit(i_h);
     //~ if(ToBeConsider(p_hit->Cell(), p_hit->View(), p_hit->Plane())) 
+    if(p_bmcon->GetBMdebug()>10)
+      cout<<"hit="<<i_h<<" plane="<<p_hit->Plane()<<"  view="<<p_hit->View()<<"  cell="<<p_hit->Cell()<<"  piano="<<p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())<<endl; 
     hitxplane[p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())].push_back(i_h);
-    }
+  }
+  //calculate number of possible tracks (tracknum), the number of the plane with at least one hit for each view (firedUview/firedVview) and for both the views (firedPlane)
   for(Int_t j = 0; j < hitxplane.size(); j++) {  
     if(hitxplane[j].size()!=0)
       tracknum*=hitxplane[j].size();
@@ -172,6 +176,9 @@ Bool_t TABMactNtuTrack::Action()
         firedVview--;   
     }
   }
+  
+  if(p_bmcon->GetBMdebug()>4)
+    cout<<"TABMactNtuTrack:: tracknum="<<tracknum<<"  firedPlane="<<firedPlane<<"  firedUview="<<firedUview<<"  firedVview="<<firedVview<<endl;    
   
   if(firedUview<p_bmcon->GetPlanehitcut() || firedVview<p_bmcon->GetPlanehitcut()){
     if(p_bmcon->GetBMdebug()>3)
@@ -188,63 +195,45 @@ Bool_t TABMactNtuTrack::Action()
     p_ntutrk->trk_status=0;
   
   //print hitxplane
-  if(p_bmcon->GetBMdebug()>10){  
+  if(p_bmcon->GetBMdebug()>4){  
     cout<<"TABMactNtuTrack::print hitxplane"<<endl;  
     Print_matrix(hitxplane);    
     }
     
   vector<TABMntuTrackTr*> alltrack; 
-  vector<bool> possiblePrimary(tracknum, true);
+  vector<Bool_t> possiblePrimary(tracknum, true);
   vector<vector<Int_t>> hitxtrack(tracknum); 
-  vector<Double_t> hit_res(firedPlane); //needed in CalculateMyChi2 
-  vector<Double_t> hit_mychi2(firedPlane,999.); //needed in CalculateMyChi2 
+  vector<Double_t> hit_res; //needed in CalculateMyChi2 
+  vector<Double_t> hit_mychi2; //needed in CalculateMyChi2 
+  vector<Int_t> prunedhit;//the current row of hitxtrack pruned in calculatefitpar
+  vector<Int_t> tmp_vec_int;//the current row of hitxtrack pruned in calculatefitpar
   for(Int_t j=0; j<tracknum; j++)
     hitxtrack[j].resize(firedPlane);  
-
-  tmp_int=0;
-  Int_t flip=1, jump;
   
-  //charge all possible tracks
-  for(Int_t i=0; i<hitxplane.size(); i++) {
-    if(hitxplane[i].size()!=0){
-      flip*=hitxplane[i].size();
-      jump=hitxtrack.size()/flip;
-      for(Int_t k=0; k<hitxplane[i].size(); k++) {
-        for(Int_t j=0; j<hitxtrack.size();) {
-          if(k==0){
-            hitxtrack[j][tmp_int]=hitxplane[i][k];
-            j++;
-            }
-          if(k!=0){
-            for(Int_t jj=j; jj<j+jump;jj++) 
-              hitxtrack[jj][tmp_int]=hitxplane[i][k];
-            j+=jump*2;  
-            }
+  //charge all possible tracks in hitxplane
+  Int_t block=1, planeindex=0, shift;
+  for(Int_t i=0;i<BMN_NLAY*2;i++){
+    if(hitxplane[i].size()>0){
+      tmp_int=0;
+      shift=0;
+      block*=hitxplane[i].size();
+      while(tmp_int<tracknum){
+        for(Int_t k=0;k<hitxplane[i].size();k++){
+          for(Int_t j=tmp_int;j<tracknum/block+shift;j++){
+            hitxtrack[tmp_int][planeindex]=hitxplane[i][k];
+            tmp_int++;
           }
+          shift=tmp_int;
         }
-      tmp_int++;
       }
+      planeindex++;
     }
-
+  }
   
   //check for possible tracks: reject tracks in which there are hits on the same view that are too different
   tmp_int=0;
   for(Int_t i=0; i<hitxtrack.size(); i++) {
-    tmp_cellx=1;
-    tmp_celly=1;
-    for(Int_t j=0; j<hitxtrack[i].size(); j++) {
-      if(possiblePrimary[i]==true){
-        p_hit = p_ntuhit->Hit(hitxtrack[i][j]);
-        if(p_hit->View()==1 && tmp_cellx==1 && p_hit->Cell()!=1)
-          tmp_cellx=p_hit->Cell();
-        if(p_hit->View()==-1 && tmp_celly==1 && p_hit->Cell()!=1)
-          tmp_celly=p_hit->Cell();
-        if(p_hit->View()==1 && tmp_cellx!=1 && p_hit->Cell()!=1 && p_hit->Cell()!=tmp_cellx)
-          possiblePrimary[i]=false;
-        if(p_hit->View()==-1 && tmp_celly!=1 && p_hit->Cell()!=1 && p_hit->Cell()!=tmp_celly)
-          possiblePrimary[i]=false;
-        }
-      }
+    RejectSlopedTrack(hitxtrack, possiblePrimary,p_hit, p_ntuhit, i);
     if(possiblePrimary[i]==true)
       tmp_int++;  
     }
@@ -255,10 +244,11 @@ Bool_t TABMactNtuTrack::Action()
   vector<TMatrixDSym> hitCov_vec(tmp_int);
   vector<TVectorD> hitCoords_vec(tmp_int);
 
-
+  //if no possible track
   if(tmp_int==0){ 
     if(p_bmcon->GetBMdebug()>0)
       cout<<"TABMactNtuTrack::ERROR!!::no possible track!!!"<<endl;
+    trk_status=3;  
     delete fitTrack;
     delete tmp_trackTr;
     fpNtuTrk->SetBit(kValid);
@@ -266,15 +256,23 @@ Bool_t TABMactNtuTrack::Action()
     }
     
   //print hitxtrack
-  if(p_bmcon->GetBMdebug()>10){
-    cout<<"TABMactNtuTrack::print hitxtrack"<<endl;  
+  if(p_bmcon->GetBMdebug()>4){
+    cout<<"TABMactNtuTrack::print hitxtrack.size()="<<hitxtrack.size()<<endl;  
     Print_matrix(hitxtrack);
     }
   
   //loop on all possible tracks:
-  for(Int_t i=0; i<tracknum; i++){
-    if(possiblePrimary[i]) {
+  for(Int_t i=0; i<hitxtrack.size(); i++){
+    
+    if(p_bmcon->GetBMdebug()>4){
+      cout<<"TABMactNtuTrack:: new hitxtrack: i="<<i<<" hitxtrack.size()="<<hitxtrack.size()<<endl;
+      for(Int_t kk=0;kk<hitxtrack[i].size();kk++)
+        cout<<hitxtrack[i][kk]<<" ";
+      cout<<endl;  
+    }
 
+    if(possiblePrimary[i]) {
+      
       if(p_bmcon->GetBMdebug()>3) 
         cout<<"charging track number "<<i<<endl;
       tmp_trackTr->Clean(); 
@@ -290,11 +288,11 @@ Bool_t TABMactNtuTrack::Action()
       Track* fitTrack = new Track(rep, init_pos, init_mom); 
               
       //charge hits
-      for(Int_t i_h = 0; i_h <firedPlane ; i_h++) {
+      hit_res.resize(hitxtrack[i].size(),999.);
+      for(Int_t i_h = 0; i_h <hitxtrack[i].size() ; i_h++) {
         
         Info("Action()","create WireHit");
         onlyPrimary=true;
-    
         p_hit = p_ntuhit->Hit(hitxtrack[i][i_h]);
         
         if(p_bmcon->IsMC())
@@ -401,17 +399,56 @@ Bool_t TABMactNtuTrack::Action()
         tmp_trackTr->SetFailedPoint(fitTrack->getFitStatus(rep)->getNFailedPoints());  
         if(fitTrack->getFitStatus(rep)->getNdf()!=0)        
           tmp_trackTr->SetChi2NewRed(fitTrack->getFitStatus(rep)->getChi2()/fitTrack->getFitStatus(rep)->getNdf());
-        tmp_trackTr->CalculateFitPar(fitTrack, hit_res, hit_mychi2, p_bmcon, p_bmgeo);
-        
+        hit_mychi2.clear();
+        hit_mychi2.resize(hitxtrack[i].size(),999.);
+        prunedhit.clear();
+        tmp_trackTr->CalculateFitPar(fitTrack, hit_res, hit_mychi2, prunedhit,p_bmcon, p_bmgeo);
+        //pruned track
+        if(prunedhit.size()!=0){//prunedhit contains the position of the hit in hitxtrack[i] that should be pruned
+          //check if the pruned track can pass the plane cuts
+          prunedUview=firedUview;
+          prunedVview=firedVview;
+          for(Int_t kk=0;kk<prunedhit.size();kk++){
+            if(p_bmcon->GetBMdebug()>4)
+              cout<<"TABMactNtuTrack::a track has to be pruned:"<<"kk="<<kk<<"  prunedhit="<<prunedhit[kk]<<"  hitxtrack[i][prunedhit[kk]]="<<hitxtrack[i][prunedhit[kk]]<<endl;
+            p_hit=p_ntuhit->Hit(hitxtrack[i][prunedhit[kk]]);
+            if(p_hit->View()==-1)
+              prunedUview--;
+            else
+              prunedVview--;
+          }
+          if(p_bmcon->GetBMdebug()>4)
+            cout<<"prunedUview="<<prunedUview<<"  prunedVview="<<prunedVview<<"  planehitcut="<<p_bmcon->GetPlanehitcut()<<"  new number_of_hit="<<hitxtrack[i].size()-prunedhit.size()<<"  minhitcut="<<p_bmcon->GetMinnhit_cut()<<endl;          
+          //if it can pass, add the pruned track to hitxtrack         
+          if(prunedUview>=p_bmcon->GetPlanehitcut() && prunedVview>=p_bmcon->GetPlanehitcut() && (hitxtrack[i].size()-prunedhit.size())>=p_bmcon->GetMinnhit_cut()){
+            tmp_vec_int=hitxtrack[i];
+            if(p_bmcon->GetBMdebug()>4){
+              cout<<"Before the pruning:"<<endl;
+              for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
+                cout<<tmp_vec_int[kk]<<" ";
+              cout<<endl;  
+            }
+            for(Int_t kk=0;kk<prunedhit.size();kk++)
+              tmp_vec_int.erase(tmp_vec_int.begin()+prunedhit[kk]);
+            if(p_bmcon->GetBMdebug()>4){
+              cout<<"After the pruning:"<<endl;
+              for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
+                cout<<tmp_vec_int[kk]<<" ";
+              cout<<endl;
+              }
+            hitxtrack.push_back(tmp_vec_int);
+            possiblePrimary.push_back(true);
+          }
+        }//end of pruned track
                   
         if(p_bmcon->GetBMdebug()>3 && converged){
           cout<<"TABMactNtuTrack::print fit status:"<<endl;
           fitTrack->getFitStatus(rep)->Print();
-          }
+        }
       
       alltrack.push_back(tmp_trackTr);
       }//end of fitting (readytofit)    
-      delete fitTrack;
+      //~ delete fitTrack;
       //~ delete rep;        
     }//end of possiblePrimary if condition
   }//end of loop on all possible track
@@ -428,8 +465,8 @@ Bool_t TABMactNtuTrack::Action()
     }    
     
     
-  if(p_bmcon->GetBMdebug()>4){
-    cout<<"TABMactNtuTrack::tracks with smallest chi2="<<tmp_int<<" alltrack.size="<<alltrack.size()<<endl;  
+  if(p_bmcon->GetBMdebug()>4 ){
+    cout<<"TABMactNtuTrack::tracks with smallest chi2="<<tmp_double<<"  alltrack position="<<tmp_int<<" alltrack.size="<<alltrack.size()<<endl;  
     if(alltrack.size()>0)
       cout<<"TABMactNtuTrack::registered  mychi2reduced="<<alltrack[tmp_int]->GetMyChi2Red()<<"   mychi2registered="<<alltrack[tmp_int]->GetMyChi2()<<endl;
     }
@@ -440,7 +477,7 @@ Bool_t TABMactNtuTrack::Action()
     p_ntutrk->ntrk++;
 
     //flag the hit of the best track
-    for(Int_t i=0;i<firedPlane;i++){
+    for(Int_t i=0;i<hitxtrack[tmp_int].size();i++){
       p_hit = p_ntuhit->Hit(hitxtrack[tmp_int][i]);    
       p_hit->SetIsSelected(true);
       p_hit->SetChi2(hit_mychi2[i]);
@@ -726,9 +763,8 @@ Bool_t TABMactNtuTrack::Action()
 //to print matrix
 void TABMactNtuTrack::Print_matrix(vector<vector<int>>& vec){
   for(int i=0;i<vec.size();i++){
-    for(int j=0;j<vec[i].size();j++){
+    for(int j=0;j<vec[i].size();j++)
       cout<<vec[i][j]<<" ";
-      }
     cout<<endl;
     }  
   cout<<endl;  
@@ -760,6 +796,66 @@ void TABMactNtuTrack::SetInitPos(TVector3 &init_pos, Int_t fit_index, Double_t x
   }
   return;  
 }
+
+//add a track in hitxtrack if it pass all the selection criteria eliminating the hit with mychi2>bmcon->GetChi2Redcut()
+//~ Bool_t TABMactNtuTrack::Refit(vector<Double_t> &prunedtrack, vector< vector<Int_t> > &hitxtrack,TABMntuRaw* p_ntuhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo){
+  
+  //~ TABMntuHit *p_hit;
+  
+  //~ //check if the prunedtrack pass the selection criteria:
+  //~ for(Int_t i=0;i<prunedtrack.size();i++){
+    //~ p_hit=p_ntuhit->Hit(prunedtrack[i]);
+    
+    
+  //~ }
+      
+    
+  //~ return kTRUE;
+//~ }
+
+
+//set the possiblePrimary to flase if the track contains hits from cells that can not be consistent with a straight trajectory 
+void TABMactNtuTrack::RejectSlopedTrack(vector< vector<Int_t> > &hitxtrack, vector<Bool_t>&possiblePrimary, TABMntuHit* p_hit, TABMntuRaw* p_ntuhit, Int_t &trk_index){
+    Int_t tmp_cellx=1;
+    Int_t tmp_celly=1;
+    for(Int_t j=0; j<hitxtrack[trk_index].size(); j++) {
+      if(possiblePrimary[trk_index]==true){
+        p_hit = p_ntuhit->Hit(hitxtrack[trk_index][j]);
+        if(p_hit->View()==1 && tmp_cellx==1 && p_hit->Cell()!=1)
+          tmp_cellx=p_hit->Cell();
+        if(p_hit->View()==-1 && tmp_celly==1 && p_hit->Cell()!=1)
+          tmp_celly=p_hit->Cell();
+        if(p_hit->View()==1 && tmp_cellx!=1 && p_hit->Cell()!=1 && p_hit->Cell()!=tmp_cellx)
+          possiblePrimary[trk_index]=kFALSE;
+        if(p_hit->View()==-1 && tmp_celly!=1 && p_hit->Cell()!=1 && p_hit->Cell()!=tmp_celly)
+          possiblePrimary[trk_index]=kFALSE;
+        }
+      }
+  
+  return;
+}
+
+//check for a given hitxtrack[i] if it pass the plane cut selection criteria
+//~ Bool_t TABMactNtuTrack::PlaneCounter(vector<Int_t> &hitxtrack_vec, TABMparCon *p_bmcon){
+  
+  //~ for(Int_t j = 0; j < hitxtrack.size(); j++) {  
+    //~ if(hitxplane[j].size()!=0)
+      //~ tracknum*=hitxplane[j].size();
+    //~ else{
+      //~ firedPlane--;
+      //~ if(j%2==0)
+        //~ firedUview--;
+      //~ else
+        //~ firedVview--;   
+    //~ }
+  //~ }  
+  
+  //~ if(firedUview)
+  
+  //~ return kFALSE;
+//~ }
+
+
 
 
 //***************************************************OLD TRACKING*********************************************

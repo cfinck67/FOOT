@@ -62,7 +62,7 @@ int main (int argc, char *argv[]) {
     if(strcmp(argv[i],"-data") == 0)  { isdata = kTRUE;               }          // iteration on data/MC
     if(strcmp(argv[i],"-roma") == 0)  { roma = kTRUE;               }          // iteration on data/MC for the BM, temporary
 
-    if(strcmp(argv[i],"-help") == 0 || (evstart>=nTotEv && nTotEv!=0))  { 
+    if(strcmp(argv[i],"-help") == 0)  { 
       cout<<" Decoder help:"<<endl;
       cout<<" Ex: Decoder [opts] "<<endl;
       cout<<" possible opts are:"<<endl;

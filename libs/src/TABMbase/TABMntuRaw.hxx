@@ -19,10 +19,10 @@ using namespace std;
 class TABMntuHit : public TObject {
   public:
     TABMntuHit();
-    TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t tm);
+    TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t s);
     virtual         ~TABMntuHit();
 
-    void            SetData(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t tm);
+    //~ void            SetData(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t,Double_t s);
     Int_t           Cell() const;
     Int_t           Plane() const;
     Int_t           View() const;
@@ -33,7 +33,7 @@ class TABMntuHit : public TObject {
     TVector3 Momentum() const;
     Double_t Dist() const; //return rdrift
     Double_t Tdrift() const;
-    Double_t Timmon() const;
+    //~ Double_t Timmon() const;
     
 
     //Getters
@@ -83,7 +83,7 @@ class TABMntuHit : public TObject {
     Double_t pzcamon;
     Double_t rdrift;
     Double_t tdrift;//hit.time - T0 - irtime (irtime is the trigger time/start counter time) 
-    Double_t timmon;//hit.time - irtime
+    //~ Double_t timmon;//hit.time - irtime
     Double_t sigma;
  
     //Track related params

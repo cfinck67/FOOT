@@ -43,7 +43,7 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, Bool_t isroma_in 
   //~ bm_outputdir=(string)getenv("FOOTRES")+"/BeamMonitor";
   //~ if(stat(bm_outputdir.c_str(), &info ) != 0)		//cannot access
     //~ system(("mkdir "+bm_outputdir).c_str());  
-  m_controlPlotter = ControlPlotsRepository::GetControlObject("BooterFinalize");
+  m_controlPlotter = ControlPlotsRepository::GetControlObject("BM_output"); //??? it work also if instead of "BM_output" I write "dlasjflasj"  
   
   //if plot track is enable
   if(bmcon->GetBMvietrack()){
@@ -86,9 +86,9 @@ return;
 //----------------------------------------------------------------------------------------------------
 void BmBooter::Process() {
   if (bmcon->GetBMdebug()>0)
-    cout<<"I'm in BmBooter::Process, evento numero="<<data_num_ev<<endl;
+    cout<<"I'm in BmBooter::Process, event number="<<data_num_ev<<endl;
   
-  Bool_t track_ok=kTRUE;
+  Int_t track_ok=0;
    
    if((data_num_ev==0 || (isroma && data_num_ev==1) && isdata )){
     drop_event();
@@ -112,10 +112,11 @@ void BmBooter::Process() {
   
   
   bmnturaw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
-  if(bmnturaw->nhit < bmcon->GetMaxnhit_cut() && bmnturaw->nhit > bmcon->GetMinnhit_cut())
+  if(bmnturaw->nhit < bmcon->GetMaxnhit_cut() && bmnturaw->nhit > bmcon->GetMinnhit_cut()){
     bmntutrack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
- else
-   track_ok=kFALSE;
+    track_ok=bmntutrack->trk_status;
+  }else
+   track_ok=-1000;
  
   if (bmcon->GetBMdebug()>10)
     cout<<"in BmBooter::Process, I finished to create the BM hits and tracks"<<endl<<"Now I'll printout BM hits if enable"<<endl;
@@ -126,29 +127,16 @@ void BmBooter::Process() {
   if (bmcon->GetBMdebug()>10)
     cout<<"in BmBooter::Process, I finished to printout BM hits, it's BM tracks printout (if enable)"<<endl;
   
-  if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok==kTRUE)
+  if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok!=-1000)
     m_controlPlotter->BM_setntutrack_info("BM_output", bmntutrack);       
-  
-  //loop on tracks
-  //~ for (int i = 0; i < bmntutrack->ntrk; i++) {
-    //~ bmntutracktr = bmntutrack->Track(i);
-    //~ if (GlobalPar::GetPar()->IsPrintOutputFile())
-      //~ m_controlPlotter->BM_setntutrack_info("BM_output", bmntutracktr);       
-    //~ if (GlobalPar::GetPar()->IsPrintOutputNtuple())
-      //~ m_controlPlotter->BM_setntuple_track(bmntutracktr->GetChi2New());
-  //~ }
-  
-  
 
   //draw and save tracks
-  if(bmcon->GetBMvietrack()>0 && data_num_ev%bmcon->GetBMvietrack()==0 && track_ok==kTRUE){
+  if(bmcon->GetBMvietrack()>0 && data_num_ev%bmcon->GetBMvietrack()==0){
       TCanvas *c_bmhview = new TCanvas("bmhview", "BM_tracks",20,20,800,900);
       pg->AddPad(c_bmhview);
-      TAGview* pbmh_view = new TABMvieTrackFOOT(bmntutrack, bmnturaw, bmgeo);
-      //~ pbmh_view->SetTrackRaw(bmtrack,bmraw);
+      TAGview* pbmh_view = new TABMvieTrackFOOT(bmntutrack, bmnturaw, bmgeo, track_ok);
       pbmh_view->Draw();
       pg->Modified();//marca i pad come modificati
-      //~ cout<<"faccio update"<<endl;
       //~ pg->Update();//fa update del canvas
       plot_name=bm_outputdir+"/BM_track_"+to_string(data_num_ev);
       pg->Print(&plot_name[0]);  
@@ -172,25 +160,8 @@ void BmBooter::Finalize() {
   
   if (bmcon->GetBMdebug()>10)
     cout<<"I'm in BmBooter::Finalize"<<endl;
-  
-  //~ cout<<"filename="<<m_controlPlotter->GetTFile()->GetName()<<"  è aperto="<<m_controlPlotter->GetTFile()->IsOpen()<<endl;
-  //~ m_controlPlotter->GetTFile()->ls();
-  //~ TH1F *graph=nullptr;
-  //~ m_controlPlotter->GetTFile()->GetObject("BM_output/BM_output__track_chi2red",graph);
-  //~ cout<<"media="<<((TH1F*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__track_chi2red")))->GetMean()<<endl;
-  //~ cout<<"vediamo media="<<graph->GetMean()<<endl;
-  
-  //vediamo le strel:
-  TH1D* histo=new TH1D( "strel", "strel", 4000, 0., 400.);
-  histo->GetXaxis()->SetTitle("time [ns]");
-  histo->GetYaxis()->SetTitle("distance [cm]");
-  double time=0.;
-  for(int i=0;i<4000;i++){
-    histo->SetBinContent(i,time*bmcon->GetVDrift()+bmcon->STrelCorr(time,0,0,0));
-    time+=0.1;
-  }
-  histo->Draw();
-  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Add(histo);    
+
+  PrintSTrel();  
   
   if (bmcon->GetBMdebug()>10)
     cout<<"I finished BmBooter::Finalize"<<endl;
@@ -198,6 +169,20 @@ void BmBooter::Finalize() {
 return;
 }
 
+void BmBooter::PrintSTrel(){
+  TH1D* histo=new TH1D( "strel", "strel", 4000, 0., 400.);
+  histo->GetXaxis()->SetTitle("time [ns]");
+  histo->GetYaxis()->SetTitle("distance [cm]");
+  double time=0.;
+  for(int i=0;i<4000;i++){
+    histo->SetBinContent(i,time*bmcon->GetVDrift()+bmcon->FirstSTrel(time));
+    time+=0.1;
+  }
+  histo->Draw();
+  if(((TDirectory*)(m_controlPlotter->GetTFile()))->IsFolder())
+    ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Add(histo);    
+return;
+}
 
 
 void BmBooter::evaluateT0() {

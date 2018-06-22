@@ -186,21 +186,30 @@ public:
       FillMap( hitSampleName + "__track_error", -1);
     if(bmnturaw->nhit > bmcon->GetMaxnhit_cut())
       FillMap( hitSampleName + "__track_error", -2);
+    // __track_error code: -1000=notset, 0=ok, 1=firedUplane<plane_mincut, 2=firedVplane<plane_mincut
     
     //loop on hits
     for (int i = 0; i < bmnturaw->nhit; i++) { 
       bmntuhit = bmnturaw->Hit(i);    
       if(bmntuhit->Dist()>0 && bmntuhit->Dist()<1.)
         FillMap( hitSampleName + "__raw_rdrift_right", bmntuhit->Dist());
-      else if(bmntuhit->Dist()<0)
-        FillMap( hitSampleName + "__raw_rdrift_error", -1);
-      else if(bmntuhit->Dist()>1)
-        FillMap( hitSampleName + "__raw_error_rdrift", -2);
+      else
+        FillMap( hitSampleName + "__raw_rdrift_error", bmntuhit->Dist());
       FillMap( hitSampleName + "__raw_cell", bmntuhit->Cell());
       FillMap( hitSampleName + "__raw_view", bmntuhit->View());
       FillMap( hitSampleName + "__raw_plane", bmntuhit->Plane());
       FillMap( hitSampleName + "__raw_occupancy", bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(), bmntuhit->Cell()));
-      FillMap( hitSampleName + "__raw_chi2", bmntuhit->GetChi2());
+      FillMap( hitSampleName + "__raw_selected_rejected", (bmntuhit->GetIsSelected()) ? 1:-1);
+      if(bmntuhit->GetIsSelected()){
+        FillMap( hitSampleName + "__rawsel_chi2", bmntuhit->GetChi2());
+        FillMap( hitSampleName + "__rawsel_rdrift", bmntuhit->Dist());
+        FillMap( hitSampleName + "__rawsel_cell", bmntuhit->Cell());
+        FillMap( hitSampleName + "__rawsel_view", bmntuhit->View());
+        FillMap( hitSampleName + "__rawsel_plane", bmntuhit->Plane());
+        FillMap( hitSampleName + "__rawsel_occupancy", bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(), bmntuhit->Cell()));
+        FillMap( hitSampleName + "__rawsel_selected_rejected", (bmntuhit->GetIsSelected()) ? 1:-1);
+
+      }
     }
     return;  
   }
@@ -210,6 +219,8 @@ public:
     
     FillMap( hitSampleName + "__track_error", bmntutrack->trk_status);
     FillMap( hitSampleName + "__track_tracknumxevent", bmntutrack->ntrk);
+    
+    //__track_error code meaning: 0=ok, -1=nhit<minnhit_cut, -2=nhit>nmaxhit, 1=firedUview<planehit_cut, 2=firedVview<planehit_cut
     
     //loop on ntrk (it should be only one for the moment)  
     for (int i = 0; i < bmntutrack->ntrk; i++) {

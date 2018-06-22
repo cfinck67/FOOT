@@ -58,16 +58,17 @@ class TABMparCon : public TAGpara {
     void        loadT0s(); 
     void        SetT0s(vector<Double_t> t0s);
     void        SetT0(Int_t cha, Double_t t0in);
-    Double_t    GetT0(int view, int plane, int cell){return GetT0(cell+((view==-1) ? 1:0)*3+plane*6);};
-    Double_t    GetT0(int index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
+    Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+((view==-1) ? 1:0)*3+plane*6);};
+    Double_t    GetT0(Int_t index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
     void        CoutT0();
     
     //strel stuff
     void LoadSTrel(TString sF);
-    double STrelCorr(double time, int ic, int ip, int iv);
-    double STrel_Delta1(double time);
-    double STrel_Delta2(double time);
-    double STrel_Delta3(double time);
+    Double_t FirstSTrel(Double_t tdrift);
+    //~ Double_t STrelCorr(double time, int ic, int ip, int iv);//old, included in FirstSTrel
+    //~ double STrel_Delta1(double time);//old, included in FirstSTrel
+    //~ double STrel_Delta2(double time);//old, included in FirstSTrel
+    //~ double STrel_Delta3(double time);//old, included in FirstSTrel
 
     TF1* GetCalibY();
     TF1* GetCalibX();
