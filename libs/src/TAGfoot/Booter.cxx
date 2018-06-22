@@ -261,9 +261,6 @@ void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in, Bool_t isdata_in ) 
 
 void Booter::Process( Long64_t jentry ) {
 
-  if (GlobalPar::GetPar()->Debug()>10)
-    cout<<"I'm in Booter::Process"<<endl;
-
   // //to be moved to framework
   // if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeInnerTracker() )
   //     AssociateHitsToParticle();
@@ -298,10 +295,7 @@ void Booter::Process( Long64_t jentry ) {
   }
   // stop time
   end_kal = clock();
-  m_tempo_kal+=(double)(end_kal-start_kal);
-
-  if (GlobalPar::GetPar()->Debug()>10)
-    cout<<"I finish Booter::Process"<<endl;  
+  m_tempo_kal+=(double)(end_kal-start_kal); 
         
 }
 

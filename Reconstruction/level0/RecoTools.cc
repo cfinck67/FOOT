@@ -10,18 +10,17 @@ using namespace std;
 
 
 //----------------------------------------------------------------------------------------------------
-RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev, TFile *hf, int evstart) {
+RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev, TFile *hf, int evstart, int isdata) {
 
     cout << "\tstart Constructor RecoTools\n";
 
     my_files.clear();
     m_debug = GlobalPar::GetPar()->Debug();
     m_evstart=evstart;
-
     m_oustr = ostr;
     m_wd = wd;
-
     m_tempo_kal=0;
+    m_isdata=isdata;
 
     // take input file list
     ifstream inS;

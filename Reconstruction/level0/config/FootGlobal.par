@@ -47,7 +47,7 @@ Magnetic field map name:  DoubleDipole.table
 Print OutputFile: true
 Output Filename: RecoHistos.root
 
-Print OutputNtuple: false
+Print OutputNtuple: true
 Output Ntuplename: RecoTree.root
 
 Create Reconstruction Geo: y

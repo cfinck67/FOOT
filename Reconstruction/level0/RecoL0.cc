@@ -105,10 +105,8 @@ int main (int argc, char *argv[]) {
 
   TFile *hF = new TFile(outH.Data(),"RECREATE"); hF->cd();
 
-  RecoTools d(debug,in,alist,out,wdir,nTotEv, hF, evstart);
+  RecoTools d(debug,in,alist,out,wdir,nTotEv, hF, evstart, isdata);
 
-  if(isdata)
-    d.SetIsData(isdata);
   if(roma)
     d.IsRoma();
 

@@ -230,30 +230,31 @@ Bool_t TABMactNtuTrack::Action()
     }
   }
   
-  //check for possible tracks: reject tracks in which there are hits on the same view that are too different
-  tmp_int=0;
-  for(Int_t i=0; i<hitxtrack.size(); i++) {
-    RejectSlopedTrack(hitxtrack, possiblePrimary,p_hit, p_ntuhit, i);
-    if(possiblePrimary[i]==true)
-      tmp_int++;  
-    }
+  //check for possible tracks: reject tracks in which there are hits on the same view that are too different-->bad idea if the bm is not alligned with the track!!!
+  // do not use this!
+  //~ tmp_int=0;
+  //~ for(Int_t i=0; i<hitxtrack.size(); i++) {
+    //~ RejectSlopedTrack(hitxtrack, possiblePrimary,p_hit, p_ntuhit, i);
+    //~ if(possiblePrimary[i]==true)
+      //~ tmp_int++;  
+    //~ }
+  //~ if(tmp_int==0){ 
+    //~ if(p_bmcon->GetBMdebug()>0)
+      //~ cout<<"TABMactNtuTrack::ERROR!!::no possible track!!!"<<endl;
+    //~ p_ntutrk->trk_status=3;  
+    //~ delete fitTrack;
+    //~ delete tmp_trackTr;
+    //~ fpNtuTrk->SetBit(kValid);
+    //~ return kTRUE;
+    //~ }
     
   if((tracknum>1 && p_bmcon->GetBMdebug()>1) || p_bmcon->GetBMdebug()>10)
-    cout<<"TABMactNtuTrack::number of total hits="<<i_nhit<<"   number of possible tracks="<<tmp_int<<"  number of fired plane="<<firedPlane<<endl;  
+    cout<<"TABMactNtuTrack::number of total hits="<<i_nhit<<"   number of possible tracks="<<hitxtrack.size()<<"  number of fired plane="<<firedPlane<<endl;  
 
-  vector<TMatrixDSym> hitCov_vec(tmp_int);
-  vector<TVectorD> hitCoords_vec(tmp_int);
+  vector<TMatrixDSym> hitCov_vec; 
+  vector<TVectorD> hitCoords_vec;
 
   //if no possible track
-  if(tmp_int==0){ 
-    if(p_bmcon->GetBMdebug()>0)
-      cout<<"TABMactNtuTrack::ERROR!!::no possible track!!!"<<endl;
-    trk_status=3;  
-    delete fitTrack;
-    delete tmp_trackTr;
-    fpNtuTrk->SetBit(kValid);
-    return kTRUE;
-    }
     
   //print hitxtrack
   if(p_bmcon->GetBMdebug()>4){
@@ -406,7 +407,8 @@ Bool_t TABMactNtuTrack::Action()
         //pruned track
         if(prunedhit.size()!=0){//prunedhit contains the position of the hit in hitxtrack[i] that should be pruned
           //check if the pruned track can pass the plane cuts
-          prunedUview=firedUview;
+          std::sort(prunedhit.rbegin(), prunedhit.rend());
+	  prunedUview=firedUview;
           prunedVview=firedVview;
           for(Int_t kk=0;kk<prunedhit.size();kk++){
             if(p_bmcon->GetBMdebug()>4)

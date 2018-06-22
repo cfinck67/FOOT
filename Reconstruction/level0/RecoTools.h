@@ -35,7 +35,7 @@ class RecoTools {
  public :
 
   RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev,
-      TFile *hf, int evStart);
+      TFile *hf, int evStart, int isdata);
   ~RecoTools() {};
 
   //Reconstructions
