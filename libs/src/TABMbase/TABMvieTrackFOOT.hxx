@@ -14,6 +14,7 @@
 #include "TABMntuRaw.hxx"
 #include "TABMparGeo.hxx"
 #include "TABMntuTrack.hxx"
+#include "TABMntuTrackTr.hxx"
 #include "TABMntuRaw.hxx"
 #include "TABMntuHit.hxx"
 #include "TABMparGeo.hxx"

@@ -94,7 +94,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   TAttLine attline_trk_4(1, 1, 1);	    // (col,sty,wid) = bla,sol,1
   TAttLine attline_trk_3(1, 2, 1);	    // (col,sty,wid) = bla,das,1
 
-  TAttLine attline_hit_u(2, 3, 1);	    // (col,sty,wid) = red,sol,1  use
+  TAttLine attline_hit_u(2, 1, 1);	    // (col,sty,wid) = red,sol,1  use
   TAttLine attline_hit_b(3, 1, 1);	    // (col,sty,wid) = gre,sol,1  bad
   TAttLine attline_hit_m(4, 1, 1);	    // (col,sty,wid) = blu,sol,1  mis
 
@@ -155,7 +155,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
     i_ntrk = p_ntutrk->ntrk;
     for (Int_t i_t = 0; i_t < i_ntrk; i_t++) {
       TABMntuTrackTr* p_trk = p_ntutrk->Track(i_t);
-      sprintf(text,"chi2new :: %lf",p_trk->GetChi2New());
+      sprintf(text,"MyChi2Red :: %lf",p_trk->GetMyChi2Red());
       gPad->PaintText(-0.6*BMN_WIDTH, +0.40*BMN_LENGTH,text);
 
       //~ x_target = p_trk->GetX0();//yun: sono arrivato qua
@@ -192,7 +192,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
       attline_hit_u.Modify();
       gPad->PaintLine(-p_trk->GetMylar1Pos().X()-BMN_WIDTH/2.,p_trk->GetMylar1Pos().Z(),-p_trk->GetMylar2Pos().X()-BMN_WIDTH/2.,p_trk->GetMylar2Pos().Z());
       //~ cout<<"zmin="<<p_trk->GetMylar1Pos().Z()<<"  zmax="<<p_trk->GetMylar2Pos().Z()<<endl;
-    }//attenzione, ho messo dei meno per la posizione, controllare che vada bene
+    }
   }
   
   if (p_nturaw) {
@@ -318,7 +318,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
         gPad->PaintText(0.05*BMN_WIDTH, h_z, text);
 
       }
-      if(hit->View() && !hit->GetIsSelected()) {
+      if(hit->View()==1 && !hit->GetIsSelected()) {
         //Side view, U view, (Y,Z)
         p_bmgeo->GetCellInfo(1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
         //Y has a consistent view (Y points to the top) 

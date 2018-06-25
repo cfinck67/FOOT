@@ -11,6 +11,7 @@
 #include "TAGdataDsc.hxx"
 #include "TAGparaDsc.hxx"
 #include "TABMdatRaw.hxx"
+#include "TABMrawHit.hxx"
 #include "TAIRdatRaw.hxx"
 #include "TATRdatRaw.hxx"
 #include "TABMparGeo.hxx"

@@ -30,6 +30,7 @@
 #include "TABMparMap.hxx"
 #include "TABMntuRaw.hxx"
 #include "TABMdatRaw.hxx"
+#include "TABMrawHit.hxx"
 #include "TABMntuTrack.hxx"
 #include "TABMactNtuMC.hxx"
 #include "TABMactNtuTrack.hxx"

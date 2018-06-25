@@ -16,6 +16,7 @@ using namespace std;
 #include "foot_geo.h"
 #include "TAGroot.hxx"
 #include "TABMntuTrack.hxx"
+#include "TABMntuTrackTr.hxx"
 #include "TABMparCon.hxx"
 #include "TABMntuRaw.hxx"
 #include "TABMntuHit.hxx"

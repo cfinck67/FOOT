@@ -19,11 +19,11 @@ LDLIBS    += $(shell root-config --libs) -L../../../libs/GenFit/lib -lgenfit2
 #
 # Files to be included
 #
-TOBJ_all   = TABMdatRaw.hxx  TABMntuRaw.hxx TABMntuHit.hxx \
+TOBJ_all   = TABMntuRaw.hxx TABMntuHit.hxx \
 	     TABMparGeo.hxx TABMparMap.hxx \
-	     TABMactNtuRaw.hxx \
+	     TABMactNtuRaw.hxx TABMdatRaw.hxx TABMrawHit.hxx \
 	     TABMactNtuMC.hxx  TABMvieTrackFOOT.hxx \
-	     TABMntuTrack.hxx TABMactNtuTrack.hxx \
+	     TABMntuTrackTr.hxx TABMntuTrack.hxx TABMactNtuTrack.hxx \
 	     TABMparCon.hxx  TABMparTools.hxx \
        TABMactDatRaw.hxx
         

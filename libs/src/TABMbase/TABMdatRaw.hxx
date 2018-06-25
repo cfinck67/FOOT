@@ -5,34 +5,19 @@
   \version $Id: TABMdatRaw.hxx,v 1.0 2011/04/01 18:11:59 asarti Exp $
   \brief   Declaration of TABMdatRaw.
 */
-/*------------------------------------------+---------------------------------*/
-
-#include <vector>
-using namespace std;
 
 #include "TAGdata.hxx"
+#include "TABMrawHit.hxx"
 
-class TABMrawHit {
-  public:
-    TABMrawHit();
-    virtual         ~TABMrawHit();
+#include <vector>
+#include <string.h>
+#include <fstream>
+#include <bitset>
+#include <algorithm>
 
-    void            SetData(Int_t view, Int_t lay, Int_t cell, Double_t time);
-    Int_t           Cell() const;
-    Int_t           Plane() const;
-    Int_t           View() const;
-    Double_t        Time() const;
+#include "TString.h"
 
-    ClassDef(TABMrawHit,1)
-
-  private:
-    Int_t iview;    
-    Int_t ilayer;    
-    Int_t icell;
-    Double_t tdctime;//ns
-};
-
-//##############################################################################
+using namespace std; 
 
 class TABMdatRaw : public TAGdata {
   public:

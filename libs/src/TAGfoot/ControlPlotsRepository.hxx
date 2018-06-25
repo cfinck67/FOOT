@@ -7,6 +7,7 @@
 
 #include "ControlPlotInfo.hxx"
 #include "TABMntuTrack.hxx"
+#include "TABMntuTrackTr.hxx"
 #include "TABMntuRaw.hxx"
 
 #define build_string(expr) \
@@ -215,7 +216,7 @@ public:
   }
   
   
-  void BM_setntutrack_info(string hitSampleName, TABMntuTrack* bmntutrack){
+  void BM_setntutrack_info(string hitSampleName, TABMntuTrack* bmntutrack, TABMparCon* bmcon){
     
     FillMap( hitSampleName + "__track_error", bmntutrack->trk_status);
     FillMap( hitSampleName + "__track_tracknumxevent", bmntutrack->ntrk);
@@ -228,13 +229,14 @@ public:
       FillMap( hitSampleName + "__track_chi2red", bmntutracktr->GetMyChi2Red());
       FillMap( hitSampleName + "__track_mylar1_x", bmntutracktr->GetMylar1Pos().X());
       FillMap( hitSampleName + "__track_mylar1_y", bmntutracktr->GetMylar1Pos().Y());
-      FillMap( hitSampleName + "__track_mylar1_z", bmntutracktr->GetMylar1Pos().Z());
       FillMap( hitSampleName + "__track_mylar2_x", bmntutracktr->GetMylar2Pos().X());
       FillMap( hitSampleName + "__track_mylar2_y", bmntutracktr->GetMylar2Pos().Y());
-      FillMap( hitSampleName + "__track_mylar2_z", bmntutracktr->GetMylar2Pos().Z());
       FillMap( hitSampleName + "__track_target_x", bmntutracktr->GetTargetPos().X());
       FillMap( hitSampleName + "__track_target_y", bmntutracktr->GetTargetPos().Y());
-      FillMap( hitSampleName + "__track_target_z", bmntutracktr->GetTargetPos().Z());
+      if(bmntutrack->trk_status==0){
+      FillMap( hitSampleName + "__tracksel_chi2red", bmntutracktr->GetMyChi2Red());
+	
+      }
     }
   
     return;  

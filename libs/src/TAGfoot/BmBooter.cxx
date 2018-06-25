@@ -128,7 +128,7 @@ void BmBooter::Process() {
     cout<<"in BmBooter::Process, I finished to printout BM hits, it's BM tracks printout (if enable)"<<endl;
   
   if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok!=-1000)
-    m_controlPlotter->BM_setntutrack_info("BM_output", bmntutrack);       
+    m_controlPlotter->BM_setntutrack_info("BM_output", bmntutrack, bmcon);       
 
   //draw and save tracks
   if(bmcon->GetBMvietrack()>0 && data_num_ev%bmcon->GetBMvietrack()==0){
@@ -138,7 +138,10 @@ void BmBooter::Process() {
       pbmh_view->Draw();
       pg->Modified();//marca i pad come modificati
       //~ pg->Update();//fa update del canvas
-      plot_name=bm_outputdir+"/BM_track_"+to_string(data_num_ev);
+      if(track_ok==0)
+        plot_name=bm_outputdir+"/BM_track_OK_"+to_string(data_num_ev);
+      else
+        plot_name=bm_outputdir+"/BM_track_"+to_string(data_num_ev);
       pg->Print(&plot_name[0]);  
   }
   

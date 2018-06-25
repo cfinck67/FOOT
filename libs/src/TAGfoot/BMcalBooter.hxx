@@ -43,6 +43,7 @@
 
 //Beam Monitor
 #include "TABMdatRaw.hxx"
+#include "TABMrawHit.hxx"
 #include "TABMparGeo.hxx"
 #include "TABMparCon.hxx"
 #include "TABMparMap.hxx"

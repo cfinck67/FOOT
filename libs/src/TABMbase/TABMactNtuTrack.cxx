@@ -337,7 +337,7 @@ Bool_t TABMactNtuTrack::Action()
       if(readyToFit!=0) { 
 
         if(p_bmcon->GetBMdebug()>10)
-          cout<<"TABMactNtuTrack::ready to fit="<<readyToFit<<endl;
+          cout<<"TABMactNtuTrack::readytofit="<<readyToFit<<endl;
         fitTrack->checkConsistency();
         
 
@@ -364,70 +364,72 @@ Bool_t TABMactNtuTrack::Action()
         
         converged=fitTrack->getFitStatus(rep)->isFitConverged();
         
-        if(converged){
-          if(fitTrack->getNumPoints()!=fitTrack->getNumPointsWithMeasurement()){
-            cout<<"TABMactNtuTrack::WARNING: number of trackPoints is different from number of trackPointWithMeasurement.. something odd happened"<<endl;
-            converged=false;
-            }
-          } 
+        if(converged && fitTrack->getNumPoints()!=fitTrack->getNumPointsWithMeasurement()){
+	  cout<<"TABMactNtuTrack::WARNING: number of trackPoints is different from number of trackPointWithMeasurement.. something odd happened"<<endl;
+	  converged=false;
+        } 
           
-        if(p_bmcon->GetBMdebug()>10)
+        if(p_bmcon->GetBMdebug()>10 && converged)
           cout<<"TABMactNtuTrack::fit converged"<<endl;
+	else if(p_bmcon->GetBMdebug()>4 && !converged)
+          cout<<"TABMactNtuTrack::fit NOT converged"<<endl;
         tmp_trackTr->SetIsConverged((converged) ? 1:2);
-        tmp_trackTr->SetChi2New(fitTrack->getFitStatus(rep)->getChi2());
-        tmp_trackTr->SetNdf(fitTrack->getFitStatus(rep)->getNdf());  
-        tmp_trackTr->SetFailedPoint(fitTrack->getFitStatus(rep)->getNFailedPoints());  
-        if(fitTrack->getFitStatus(rep)->getNdf()!=0)        
-          tmp_trackTr->SetChi2NewRed(fitTrack->getFitStatus(rep)->getChi2()/fitTrack->getFitStatus(rep)->getNdf());
-        hit_mychi2.clear();
-        hit_mychi2.resize(hitxtrack[i].size(),999.);
-        prunedhit.clear();
-        tmp_trackTr->CalculateFitPar(fitTrack, hit_res, hit_mychi2, prunedhit,p_bmcon, p_bmgeo);
-        //pruned track
-        if(prunedhit.size()!=0){//prunedhit contains the position of the hit in hitxtrack[i] that should be pruned
-          //check if the pruned track can pass the plane cuts
-          std::sort(prunedhit.rbegin(), prunedhit.rend());
-	  prunedUview=firedUview;
-          prunedVview=firedVview;
-          for(Int_t kk=0;kk<prunedhit.size();kk++){
-            if(p_bmcon->GetBMdebug()>4)
-              cout<<"TABMactNtuTrack::a track has to be pruned:"<<"kk="<<kk<<"  prunedhit="<<prunedhit[kk]<<"  hitxtrack[i][prunedhit[kk]]="<<hitxtrack[i][prunedhit[kk]]<<endl;
-            p_hit=p_ntuhit->Hit(hitxtrack[i][prunedhit[kk]]);
-            if(p_hit->View()==-1)
-              prunedUview--;
-            else
-              prunedVview--;
-          }
-          if(p_bmcon->GetBMdebug()>4)
-            cout<<"prunedUview="<<prunedUview<<"  prunedVview="<<prunedVview<<"  planehitcut="<<p_bmcon->GetPlanehitcut()<<"  new number_of_hit="<<hitxtrack[i].size()-prunedhit.size()<<"  minhitcut="<<p_bmcon->GetMinnhit_cut()<<endl;          
-          //if it can pass, add the pruned track to hitxtrack         
-          if(prunedUview>=p_bmcon->GetPlanehitcut() && prunedVview>=p_bmcon->GetPlanehitcut() && (hitxtrack[i].size()-prunedhit.size())>=p_bmcon->GetMinnhit_cut()){
-            tmp_vec_int=hitxtrack[i];
-            if(p_bmcon->GetBMdebug()>4){
-              cout<<"Before the pruning:"<<endl;
-              for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
-                cout<<tmp_vec_int[kk]<<" ";
-              cout<<endl;  
-            }
-            for(Int_t kk=0;kk<prunedhit.size();kk++)
-              tmp_vec_int.erase(tmp_vec_int.begin()+prunedhit[kk]);
-            if(p_bmcon->GetBMdebug()>4){
-              cout<<"After the pruning:"<<endl;
-              for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
-                cout<<tmp_vec_int[kk]<<" ";
-              cout<<endl;
-              }
-            hitxtrack.push_back(tmp_vec_int);
-            possiblePrimary.push_back(true);
-          }
-        }//end of pruned track
-                  
-        if(p_bmcon->GetBMdebug()>3 && converged){
-          cout<<"TABMactNtuTrack::print fit status:"<<endl;
-          fitTrack->getFitStatus(rep)->Print();
-        }
-      
-      alltrack.push_back(tmp_trackTr);
+        
+	if(converged) {
+	  tmp_trackTr->SetChi2New(fitTrack->getFitStatus(rep)->getChi2());
+	  tmp_trackTr->SetNdf(fitTrack->getFitStatus(rep)->getNdf());  
+	  tmp_trackTr->SetFailedPoint(fitTrack->getFitStatus(rep)->getNFailedPoints());  
+	  if(fitTrack->getFitStatus(rep)->getNdf()!=0)        
+	    tmp_trackTr->SetChi2NewRed(fitTrack->getFitStatus(rep)->getChi2()/fitTrack->getFitStatus(rep)->getNdf());
+	  hit_mychi2.clear();
+	  hit_mychi2.resize(hitxtrack[i].size(),999.);
+	  prunedhit.clear();
+	  tmp_trackTr->CalculateFitPar(fitTrack, hit_res, hit_mychi2, prunedhit,p_bmcon, p_bmgeo);
+	  //pruned track
+	  if(prunedhit.size()!=0){//prunedhit contains the position of the hit in hitxtrack[i] that should be pruned
+	    //check if the pruned track can pass the plane cuts
+	    std::sort(prunedhit.rbegin(), prunedhit.rend());
+	    prunedUview=firedUview;
+	    prunedVview=firedVview;
+	    for(Int_t kk=0;kk<prunedhit.size();kk++){
+	      if(p_bmcon->GetBMdebug()>4)
+		cout<<"TABMactNtuTrack::a track has to be pruned:"<<"kk="<<kk<<"  prunedhit(pos)="<<prunedhit[kk]<<"  hitxtrack[i][prunedhit[kk]]="<<hitxtrack[i][prunedhit[kk]]<<endl;
+	      p_hit=p_ntuhit->Hit(hitxtrack[i][prunedhit[kk]]);
+	      if(p_hit->View()==-1)
+		prunedUview--;
+	      else
+		prunedVview--;
+	    }
+	    if(p_bmcon->GetBMdebug()>4)
+	      cout<<"prunedUview="<<prunedUview<<"  prunedVview="<<prunedVview<<"  planehitcut="<<p_bmcon->GetPlanehitcut()<<"  new number_of_hit="<<hitxtrack[i].size()-prunedhit.size()<<"  minhitcut="<<p_bmcon->GetMinnhit_cut()<<endl;          
+	    //if it can pass, add the pruned track to hitxtrack         
+	    if(prunedUview>=p_bmcon->GetPlanehitcut() && prunedVview>=p_bmcon->GetPlanehitcut() && (hitxtrack[i].size()-prunedhit.size())>=p_bmcon->GetMinnhit_cut()){
+	      tmp_vec_int=hitxtrack[i];
+	      if(p_bmcon->GetBMdebug()>4){
+		cout<<"Before the pruning:"<<endl;
+		for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
+		  cout<<tmp_vec_int[kk]<<" ";
+		cout<<endl;  
+	      }
+	      for(Int_t kk=0;kk<prunedhit.size();kk++)
+		tmp_vec_int.erase(tmp_vec_int.begin()+prunedhit[kk]);
+	      if(p_bmcon->GetBMdebug()>4){
+		cout<<"After the pruning:"<<endl;
+		for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
+		  cout<<tmp_vec_int[kk]<<" ";
+		cout<<endl;
+		}
+	      hitxtrack.push_back(tmp_vec_int);
+	      possiblePrimary.push_back(true);
+	    }
+	  }//end of pruned track
+		    
+	  if(p_bmcon->GetBMdebug()>3 && converged){
+	    cout<<"TABMactNtuTrack::print fit status:"<<endl;
+	    fitTrack->getFitStatus(rep)->Print();
+	  }
+	  alltrack.push_back(tmp_trackTr);
+        }//end of converged
       }//end of fitting (readytofit)    
       //~ delete fitTrack;
       //~ delete rep;        
@@ -456,6 +458,8 @@ Bool_t TABMactNtuTrack::Action()
   if(alltrack.size()!=0){
     new((*(p_ntutrk->t))[p_ntutrk->ntrk]) TABMntuTrackTr(*alltrack[tmp_int]);
     p_ntutrk->ntrk++;
+    if(alltrack[tmp_int]->GetMyChi2Red()>=p_bmcon->GetChi2Redcut())
+      p_ntutrk->trk_status=4;
 
     //flag the hit of the best track
     for(Int_t i=0;i<hitxtrack[tmp_int].size();i++){

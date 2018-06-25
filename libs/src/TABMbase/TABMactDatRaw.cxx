@@ -8,6 +8,7 @@
 #include "TABMparCon.hxx"
 //~ #include "TAGmbsEvent.hxx"
 #include "TABMdatRaw.hxx"
+#include "TABMrawHit.hxx"
 
 #include "TABMactDatRaw.hxx"
 #include <iomanip>

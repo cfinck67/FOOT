@@ -32,8 +32,10 @@
 #include "TABMactNtuRaw.hxx"
 #include "TABMactNtuTrack.hxx"
 #include "TABMdatRaw.hxx"
+#include "TABMrawHit.hxx"
 #include "TABMntuRaw.hxx"
 #include "TABMntuTrack.hxx"
+#include "TABMntuTrackTr.hxx"
 #include "TABMvieTrackFOOT.hxx"
 #include "BM_struct.h"
 
