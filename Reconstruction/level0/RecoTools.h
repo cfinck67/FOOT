@@ -40,12 +40,10 @@ class RecoTools {
 
   //Reconstructions
   void RecoLoop(TAGroot *tagr, int fr);
-  void RecoBMcal(TAGroot *tagr);  
+  //~ void RecoBMcal(TAGroot *tagr);  
   
   //setters
   void SetIsData(int isdata){m_isdata=isdata;};
-  void IsRoma(){m_isroma=kTRUE;};
-
   
   // //Actions for Tupling MC info for the various subdetectors
   // void FillMCEvent(EVENT_STRUCT *myStr);
@@ -84,7 +82,6 @@ class RecoTools {
   int m_nev;
   int m_debug;
   int m_isdata;
-  bool m_isroma;//provv
   int m_evstart;
   TFile* m_of;
   TFile* m_hf;

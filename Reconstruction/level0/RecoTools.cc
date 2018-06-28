@@ -40,8 +40,7 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
     m_nev = nev;
     gErrorIgnoreLevel = kError;
     m_hf = hf;
-    m_isroma=kFALSE;//provv
-    cout << "\tend Constructor RecoTools\n";
+    cout << "\end Constructor RecoTools\n";
 }
 
 
@@ -90,7 +89,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
       cout<<"prima di initialize"<<endl;
       booter->Initialize( &evStr, m_wd, m_isdata);
       if (GlobalPar::GetPar()->IncludeBM())
-        bmbooter->Initialize( m_instr, m_isdata, m_isroma);
+        bmbooter->Initialize( m_instr, m_isdata);
     //~ }//end of MC initializers
 
     
@@ -173,7 +172,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 }
 
 
-//OLD STUFF
+//OLD STUFF if we want to separate the event loop for the data from the MC it could be useful, otherwise it's useless and it can be deleted
 //recoloop for the bm calibration
 /*
 void RecoTools::RecoBMcal(TAGroot *tagr) {

@@ -89,14 +89,38 @@ class TABMntuTrackTr : public TObject {
     //~ double tr_chi2;
 
     //*************************************In common or to be modified for new tracking*************************
-    void Calibrate(TF1* mypol, TF1* mypol2); //DA CAPIRE COME MODIFICARE!!!!!
-    void Clean(); //da modificare ogni volta che aggiungo variabile etc., come costruttore default, SetNew etc.
-    void Dump() const; //idem come sopra
-    TABMntuTrackTr(const TABMntuTrackTr &tr_in);//copy constructor definito da me
+    void Calibrate(TF1* mypol, TF1* mypol2); 
+    void Clean(); 
+    void Dump() const; 
+    TABMntuTrackTr(const TABMntuTrackTr &tr_in);
 
   //******************************************NEW TRACKING:*********************************************
 
     //~ Int_t SetNew(int nhi, double chi);
+    //~ TABMntuTrackTr& operator=(TABMntuTrackTr const& in);
+    TABMntuTrackTr& operator=(TABMntuTrackTr const& in){
+      if(this!=&in){
+        this->nhit=in.nhit;
+        this->ndf=in.ndf;
+        this->failedPoint=in.failedPoint;
+        this->chi2=in.chi2;
+        this->chi2Red=in.chi2Red;
+        this->mychi2=in.mychi2;
+        this->mychi2Red=in.mychi2Red;
+        this->isConverged=in.isConverged;
+        this->MaxRdriftErr=in.MaxRdriftErr;
+        this->AngZ=in.AngZ;
+        this->AngZRes=in.AngZRes;
+        this->AngZResAv=in.AngZResAv;
+        this->AngPhi=in.AngPhi;
+        this->AngPhiRes=in.AngPhiRes;
+        this->target_pos=in.target_pos;
+        this->mylar1_pos=in.mylar1_pos;
+        this->mylar2_pos=in.mylar2_pos;
+      }
+      return *this;
+    }
+
 
     //Setters
     void SetNhit (Int_t nhi) { nhit = nhi;};
@@ -124,11 +148,11 @@ class TABMntuTrackTr : public TObject {
     TVector3 GetMylar2Pos(){return mylar2_pos;};
     TVector3 GetTargetPos(){return target_pos;};
     
-    void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mychi2red, vector<Int_t> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo);
+    void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mychi2red, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit);
     Double_t FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers);    
     
     //parameters
-    Int_t         nhit;	          //number of associated hits (different from nwire because of Double_t hits in the same cell)
+    Int_t         nhit;	          //number of associated hits (different from nwire because of hits in the same cell)
     Double_t      ndf;            //degree of freedom (I don't know why Genfit uses double instead of int)
     Int_t         failedPoint;    //number of point rejected by the fit (only for DAF fitters)
     Double_t 		  chi2;           //new tracking chi2 from Genfit

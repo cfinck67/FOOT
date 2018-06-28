@@ -22,9 +22,8 @@ BmBooter::BmBooter() {
 
 
 //----------------------------------------------------------------------------------------------------
-void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, Bool_t isroma_in ) {  
+void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {  
   isdata=isdata_in;
-  isroma=isroma_in;
   m_instr=instr_in;
   data_num_ev=0;
   clear_bmstruct(kTRUE);
@@ -34,7 +33,12 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, Bool_t isroma_in 
   bmcon = (TABMparCon*) (gTAGroot->FindParaDsc("myp_bmcon", "TABMparCon")->Object()); 
   bmgeo = (TABMparGeo*) (gTAGroot->FindParaDsc("myp_bmgeo", "TABMparGeo")->Object());
   bmmap = (TABMparMap*) (gTAGroot->FindParaDsc("myp_bmmap", "TABMparMap")->Object());
-  
+  if(bmcon->GetParmapfile().compare("beammonitor_geoch_roma.map")==0)
+    isroma=kTRUE;
+  else
+    isroma=kFALSE;
+  cell_occupy.resize(36);
+    
   if (bmcon->GetBMdebug()>10) 
     cout<<"initialize BmBooter"<<endl;
   struct stat info;
@@ -88,9 +92,9 @@ void BmBooter::Process() {
   if (bmcon->GetBMdebug()>0)
     cout<<"I'm in BmBooter::Process, event number="<<data_num_ev<<endl;
   
-  Int_t track_ok=0;
+  Int_t track_ok;
    
-   if((data_num_ev==0 || (isroma && data_num_ev==1) && isdata )){
+   if((data_num_ev==0 || (isroma && data_num_ev==1)) && isdata ){
     drop_event();
     return;
   }
@@ -110,38 +114,45 @@ void BmBooter::Process() {
     }
   }
   
-  
   bmnturaw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
-  if(bmnturaw->nhit < bmcon->GetMaxnhit_cut() && bmnturaw->nhit > bmcon->GetMinnhit_cut()){
+  evaluate_cell_occupy();
+  
+  
+  if(bmnturaw->nhit > bmcon->GetMaxnhit_cut())
+    track_ok=-2;
+  else if(bmnturaw->nhit < bmcon->GetMinnhit_cut())
+    track_ok=-1;  
+  else{  
     bmntutrack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
     track_ok=bmntutrack->trk_status;
-  }else
-   track_ok=-1000;
+  }
  
   if (bmcon->GetBMdebug()>10)
     cout<<"in BmBooter::Process, I finished to create the BM hits and tracks"<<endl<<"Now I'll printout BM hits if enable"<<endl;
 
   if (GlobalPar::GetPar()->IsPrintOutputFile())
-    m_controlPlotter->BM_setnturaw_info("BM_output",bmnturaw, bmgeo, bmcon);  
+    m_controlPlotter->BM_setnturaw_info("BM_output",bmnturaw, bmgeo, bmcon, cell_occupy);  
   
   if (bmcon->GetBMdebug()>10)
     cout<<"in BmBooter::Process, I finished to printout BM hits, it's BM tracks printout (if enable)"<<endl;
   
-  if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok!=-1000)
-    m_controlPlotter->BM_setntutrack_info("BM_output", bmntutrack, bmcon);       
+  if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok>=0)
+    m_controlPlotter->BM_setntutrack_info("BM_output", bmntutrack, bmnturaw, bmcon);       
 
   //draw and save tracks
   if(bmcon->GetBMvietrack()>0 && data_num_ev%bmcon->GetBMvietrack()==0){
       TCanvas *c_bmhview = new TCanvas("bmhview", "BM_tracks",20,20,800,900);
       pg->AddPad(c_bmhview);
-      TAGview* pbmh_view = new TABMvieTrackFOOT(bmntutrack, bmnturaw, bmgeo, track_ok);
+      //~ TAGview* pbmh_view = new TABMvieTrackFOOT(bmntutrack, bmnturaw, bmgeo, track_ok);
+      TABMvieTrackFOOT* pbmh_view = new TABMvieTrackFOOT(bmntutrack, bmnturaw, bmgeo, track_ok);
+      pbmh_view->SetCelloccupy(cell_occupy);
       pbmh_view->Draw();
       pg->Modified();//marca i pad come modificati
       //~ pg->Update();//fa update del canvas
-      if(track_ok==0)
-        plot_name=bm_outputdir+"/BM_track_OK_"+to_string(data_num_ev);
-      else
-        plot_name=bm_outputdir+"/BM_track_"+to_string(data_num_ev);
+      //~ if(track_ok==0)
+      plot_name=bm_outputdir+"/BM_track_"+to_string(track_ok)+"_"+to_string(data_num_ev);
+      //~ else
+        //~ plot_name=bm_outputdir+"/BM_track_"+to_string(data_num_ev);
       pg->Print(&plot_name[0]);  
   }
   
@@ -213,7 +224,7 @@ void BmBooter::evaluateT0() {
       
   //charge the tdc_cha_* TH1D graph of the tdc signals    
   while(read_event(error)){
-    if(bmcon->GetBMdebug()>9)
+    if(bmcon->GetBMdebug()>11)
       cout<<"data_num_ev="<<data_num_ev<<endl;
     if(!error && bmstruct.synctime[0]!=-10000 && bmstruct.synctime[1]==-10000){
       sprintf(tmp_char,"tdc_synccha_%d",bmmap->GetTrefCh());  
@@ -282,7 +293,7 @@ Bool_t BmBooter::read_event(Bool_t &error) {
   
   clear_bmstruct(kFALSE);
   
-  if(bmcon->GetBMdebug()>9)
+  if(bmcon->GetBMdebug()>11)
     cout<<"I'm in BmBooter:read_event"<<endl;
   if(datafile.read((char *) &tmp_int,sizeof(int))){//read number of words of this event
     bmstruct.words=tmp_int;
@@ -310,7 +321,7 @@ Bool_t BmBooter::read_event(Bool_t &error) {
     error=true;          
   }
   bmstruct.evnum=ev_words[0];
-  if(error || bmcon->GetBMdebug()>9)
+  if(error || bmcon->GetBMdebug()>11)
     for(Int_t i=0;i<bmstruct.words;i++)
       cout<<"event_num="<<data_num_ev<<"   ev_words["<<i<<"]="<<ev_words[i]<<endl;
   if(!error){//read the tdc words
@@ -320,7 +331,7 @@ Bool_t BmBooter::read_event(Bool_t &error) {
       if(new_event){//global header found
         tdc_evnum=ev_words[i++];
         read_meas=true;
-        if(bmcon->GetBMdebug()>9)
+        if(bmcon->GetBMdebug()>11)
           cout<<"global header found, i="<<i<<"  tdc_evnum="<<tdc_evnum<<endl;
         }
       if(ev_words[i]<0 && isroma==kFALSE){//global trailer found //se uso acquisizione mio (yun)
@@ -331,14 +342,14 @@ Bool_t BmBooter::read_event(Bool_t &error) {
           cout<<"Warning in BmBooter: global trailer found with error in tdc_evnum="<<tdc_evnum<<"  trailer="<<ev_words[i]<<endl;
           error=true;
         }
-        if(bmcon->GetBMdebug()>9)
+        if(bmcon->GetBMdebug()>11)
           cout<<"global trailer found, i="<<i<<"  ev_words="<<ev_words[i]<<endl;
       }        
       if(ev_words[i]==0 && isroma==kTRUE){//global trailer found //se uso dati letti a Roma per BM refurbishment
         read_meas=false;
         new_event=true;
         bmstruct.status=-1000;
-        if(bmcon->GetBMdebug()>9)
+        if(bmcon->GetBMdebug()>11)
           cout<<"global trailer found, i="<<i<<"  ev_words="<<ev_words[i]<<endl;
       }        
       if(read_meas){  
@@ -359,7 +370,7 @@ Bool_t BmBooter::read_event(Bool_t &error) {
         else
           cout<<"ERROR in BmBooter:read_event: tdc_channel out of range!!! tdc_channel="<<ev_words[i]<<endl;
         new_event=false;
-        if(bmcon->GetBMdebug()>9)
+        if(bmcon->GetBMdebug()>11)
           cout<<"BMbooter::measure found: tdc_evnum="<<tdc_evnum<<" hit_id="<<bmstruct.hit_id[bmstruct.hitnum-1]<<" hit_meas="<<bmstruct.hit_meas[bmstruct.hitnum-1]<<endl;
       }
     }//end of reading tdc words for loop
@@ -388,6 +399,44 @@ Bool_t BmBooter::drop_event(){
     return kFALSE;  
 
   return kTRUE;
+}
+
+
+void BmBooter::evaluate_cell_occupy(){
+  Int_t cell_index, tmp_int;
+  TABMntuHit* oldhit;
+  for(Int_t i=0;i<36;i++)
+    cell_occupy[i].clear();
+  
+  //charge cell_occupy
+  for(Int_t i=0;i<bmnturaw->nhit;i++){
+    bmntuhit=bmnturaw->Hit(i);
+    cell_index=bmgeo->GetBMNcell(bmntuhit->Plane(),bmntuhit->View(), bmntuhit->Cell());
+    if(cell_occupy[cell_index].size()==0)
+      cell_occupy[cell_index].push_back(i);
+    else{
+      tmp_int=cell_occupy[cell_index].size();
+      while(tmp_int){
+        tmp_int--;
+        oldhit=bmnturaw->Hit(cell_occupy[cell_index][tmp_int]);
+        if(oldhit->Dist()<bmntuhit->Dist()){
+          cell_occupy[cell_index].insert(cell_occupy[cell_index].begin()+tmp_int+1, i);
+          tmp_int=0;//exit the while        
+        }
+      }  
+    }
+  }
+  
+  if(bmcon->GetBMdebug()>12){//provv
+    cout<<"BmBooter::evaluate_cell_occupy: print cell_occupy"<<endl;
+    for(Int_t i=0;i<36;i++){
+    cout<<endl;
+      for(Int_t j=0;j<cell_occupy[i].size();j++)
+        cout<<cell_occupy[i][j]<<" ";
+    }
+  }
+
+  return;
 }
 
 

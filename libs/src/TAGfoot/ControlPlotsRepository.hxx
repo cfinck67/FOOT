@@ -180,17 +180,16 @@ public:
 	}
 
   //Beam Monitor OutputFile
-  void BM_setnturaw_info(string hitSampleName, TABMntuRaw* bmnturaw, TABMparGeo* bmgeo, TABMparCon* bmcon){
-    
+  void BM_setnturaw_info(string hitSampleName, TABMntuRaw* bmnturaw, TABMparGeo* bmgeo, TABMparCon* bmcon, vector< vector<Int_t> > &cell_occupy){
     FillMap( hitSampleName + "__raw_nhitsxevent", bmnturaw->nhit);
     if(bmnturaw->nhit < bmcon->GetMinnhit_cut())
       FillMap( hitSampleName + "__track_error", -1);
     if(bmnturaw->nhit > bmcon->GetMaxnhit_cut())
       FillMap( hitSampleName + "__track_error", -2);
-    // __track_error code: -1000=notset, 0=ok, 1=firedUplane<plane_mincut, 2=firedVplane<plane_mincut
-    
+    //track_error code meaning: 0=ok, -1=nhit<minnhit_cut, -2=nhit>nmaxhit, 1=firedUview<planehit_cut, 2=firedVview<planehit_cut, 3=fit not converged, 4=track_chi2red>bmcon_chi2redcut
+
     //loop on hits
-    for (int i = 0; i < bmnturaw->nhit; i++) { 
+    for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
       bmntuhit = bmnturaw->Hit(i);    
       if(bmntuhit->Dist()>0 && bmntuhit->Dist()<1.)
         FillMap( hitSampleName + "__raw_rdrift_right", bmntuhit->Dist());
@@ -209,22 +208,26 @@ public:
         FillMap( hitSampleName + "__rawsel_plane", bmntuhit->Plane());
         FillMap( hitSampleName + "__rawsel_occupancy", bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(), bmntuhit->Cell()));
         FillMap( hitSampleName + "__rawsel_selected_rejected", (bmntuhit->GetIsSelected()) ? 1:-1);
-
       }
     }
+    
+    //loop on cell_occupy
+    for(Int_t i=0;i<36;i++)
+      FillMap( hitSampleName + "__raw_nhitsxcell", cell_occupy[i].size());
+            
     return;  
   }
   
   
-  void BM_setntutrack_info(string hitSampleName, TABMntuTrack* bmntutrack, TABMparCon* bmcon){
+  void BM_setntutrack_info(string hitSampleName, TABMntuTrack* bmntutrack,TABMntuRaw* bmnturaw, TABMparCon* bmcon){
     
     FillMap( hitSampleName + "__track_error", bmntutrack->trk_status);
     FillMap( hitSampleName + "__track_tracknumxevent", bmntutrack->ntrk);
     
-    //__track_error code meaning: 0=ok, -1=nhit<minnhit_cut, -2=nhit>nmaxhit, 1=firedUview<planehit_cut, 2=firedVview<planehit_cut
+    //__track_error code meaning: 0=ok, -1=nhit<minnhit_cut, -2=nhit>nmaxhit, 1=firedUview<planehit_cut, 2=firedVview<planehit_cut, 3=number of hit rejected > rejmax_cut ,4=fit not converged, 5=track_chi2red>bmcon_chi2redcut
     
     //loop on ntrk (it should be only one for the moment)  
-    for (int i = 0; i < bmntutrack->ntrk; i++) {
+    for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
       bmntutracktr = bmntutrack->Track(i);
       FillMap( hitSampleName + "__track_chi2red", bmntutracktr->GetMyChi2Red());
       FillMap( hitSampleName + "__track_mylar1_x", bmntutracktr->GetMylar1Pos().X());
@@ -234,8 +237,15 @@ public:
       FillMap( hitSampleName + "__track_target_x", bmntutracktr->GetTargetPos().X());
       FillMap( hitSampleName + "__track_target_y", bmntutracktr->GetTargetPos().Y());
       if(bmntutrack->trk_status==0){
-      FillMap( hitSampleName + "__tracksel_chi2red", bmntutracktr->GetMyChi2Red());
-	
+	FillMap( hitSampleName + "__tracksel_chi2red", bmntutracktr->GetMyChi2Red());
+	FillMap( hitSampleName + "__tracksel_hitselected", bmntutracktr->GetNhit());
+	FillMap( hitSampleName + "__tracksel_hitrejected", bmnturaw->nhit-bmntutracktr->GetNhit());
+	FillMap( hitSampleName + "__tracksel_mylar1_x", bmntutracktr->GetMylar1Pos().X());
+	FillMap( hitSampleName + "__tracksel_mylar1_y", bmntutracktr->GetMylar1Pos().Y());
+	FillMap( hitSampleName + "__tracksel_mylar2_x", bmntutracktr->GetMylar2Pos().X());
+	FillMap( hitSampleName + "__tracksel_mylar2_y", bmntutracktr->GetMylar2Pos().Y());
+	FillMap( hitSampleName + "__tracksel_target_x", bmntutracktr->GetTargetPos().X());
+	FillMap( hitSampleName + "__tracksel_target_y", bmntutracktr->GetTargetPos().Y());
       }
     }
   
@@ -254,19 +264,19 @@ public:
 
 
 	struct Ntuple_out {
-		vector< double >  Reco_track_px;
-		vector< double >  Reco_track_py;
-		vector< double >  Reco_track_pz;
-		vector< double >  Reco_track_x;
-		vector< double >  Reco_track_y;
-		vector< double >  Reco_track_z;
-		vector< double >  Truth_track_px;
-		vector< double >  Truth_track_py;
-		vector< double >  Truth_track_pz;
+		vector< Double_t >  Reco_track_px;
+		vector< Double_t >  Reco_track_py;
+		vector< Double_t >  Reco_track_pz;
+		vector< Double_t >  Reco_track_x;
+		vector< Double_t >  Reco_track_y;
+		vector< Double_t >  Reco_track_z;
+		vector< Double_t >  Truth_track_px;
+		vector< Double_t >  Truth_track_py;
+		vector< Double_t >  Truth_track_pz;
 		
     //Beam Monitor stuff
-    vector< double >  BM_hit_rdrift;
-		vector< double >  BM_track_chi2;
+    vector< Double_t >  BM_hit_rdrift;
+		vector< Double_t >  BM_track_chi2;
 	};
   
   Ntuple_out  ntuple_out;

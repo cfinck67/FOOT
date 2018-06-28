@@ -25,7 +25,7 @@ TABMntuTrack::TABMntuTrack() :
    //~ TAGdata(),//da capire se serve...
      ntrk(0),
     t(0),
-    trk_status(-1)
+    trk_status(-1000)
 {}
 
 //------------------------------------------+-----------------------------------

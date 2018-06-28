@@ -756,9 +756,11 @@ void Booter::initBMMap(){
   }
   TABMparMap* o_bmmap = (TABMparMap*) myp_bmmap->Object();
   TABMparGeo* o_bmgeo = (TABMparGeo*) myp_bmgeo->Object();
+  TABMparCon* o_bmcon = (TABMparCon*) myp_bmcon->Object();
   o_bmmap->Clear();
   Bool_t b_bad = kTRUE;
-  TString filename = m_wd + "/geomaps/beammonitor_geoch.map";
+  TString filename = m_wd + "/geomaps/";
+  filename += o_bmcon->GetParmapfile();
   //~ cout << "   from file " << filename << endl;
   b_bad = o_bmmap->FromFile(filename, o_bmgeo);  
   if (!b_bad) myp_bmmap->SetBit(TAGparaDsc::kValid);  

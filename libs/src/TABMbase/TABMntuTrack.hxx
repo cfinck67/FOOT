@@ -45,7 +45,7 @@ class TABMntuTrack : public TAGdata {
 
   public:
     Short_t         ntrk;		    // number of tracks old tracking 
-    Int_t           trk_status; //-1000=notset, 0=ok, 1=firedUplane<plane_mincut, 2=firedVplane<plane_mincut, 3=hits in too different cell positions, 4=chi2red>chi2redcut
+    Int_t           trk_status; //-1000=notset, 0=ok, 1=firedUplane<plane_mincut, 2=firedVplane<plane_mincut, 3=hit rejected > rejmax_cut, 4=Genfit fit is not converged, 5=chi2red>chi2redcut
         
     TClonesArray*   t;			    // list of tracks
 };

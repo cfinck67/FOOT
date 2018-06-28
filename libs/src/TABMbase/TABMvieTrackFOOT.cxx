@@ -35,7 +35,7 @@ ClassImp(TABMvieTrackFOOT);
 TABMvieTrackFOOT::TABMvieTrackFOOT(TABMntuTrack* p_ntutrk_in, TABMntuRaw* p_nturaw_in, TABMparGeo* p_bmgeo_in, Int_t track_ok_in)
   : p_ntutrk(p_ntutrk_in), p_nturaw(p_nturaw_in), p_bmgeo(p_bmgeo_in), track_ok(track_ok_in)
 {
-
+  cell_occupy=nullptr;
   SetName("TABMvieTrackFOOT");
   SetTitle("TABMvieTrackFOOT");
 }
@@ -72,44 +72,46 @@ void TABMvieTrackFOOT::ExecuteEvent(Int_t i_event, Int_t i_px, Int_t i_py)
 //------------------------------------------+-----------------------------------
 //! Paint.
 
-//~ void SetTrackRaw(TABMntuTrack* p_ntutrk_in, TABMntuRaw* p_nturaw_in){
-  //~ p_ntutrk=p_ntutrk_in;
-  //~ p_nturaw=p_nturaw_in;
-  //~ return;
-//~ }
 
 void TABMvieTrackFOOT::Paint(Option_t* option)
 {
   //~ TABMntuTrack* p_ntutrk  =(TABMntuTrack*) fpNtuTrk->GenerateObject();//non serve più il generate ma il find nel caso!
   //~ TABMntuRaw*   p_nturaw = (TABMntuRaw*)   fpNtuRaw->GenerateObject();
   //~ TABMparGeo*   p_bmgeo = (TABMparGeo*) fpParBMGeo->Object();
-    
+
+  //~ cout<<"TABMvieTrackFoot::evaluate_cell_occupy: print cell_occupy"<<endl;
+  //~ for(Int_t i=0;i<36;i++){
+  //~ cout<<endl;
+    //~ for(Int_t j=0;j<cell_occupy->at(i).size();j++)
+      //~ cout<<cell_occupy->at(i)[j]<<" ";
+  //~ }
+
   if (IsZombie() || !gPad) return;
 
-  TAttLine attline_black_soli_fat(1, 1, 2); // (color, style, width)
-  TAttLine attline_black_soli_nor(1, 1, 1);
-  TAttLine attline_black_dash_nor(1, 2, 1);
-  TAttLine attline_black_dot_nor(1, 3, 1);
+  TAttFill attfill_box(0, 1);	    // (col,sty) = empty, solidline for box
 
-  TAttLine attline_trk_4(1, 1, 1);	    // (col,sty,wid) = bla,sol,1
-  TAttLine attline_trk_3(1, 2, 1);	    // (col,sty,wid) = bla,das,1
+  //~ TAttLine attline_black_soli_fat(1, 1, 2); // (color, style, width)
+  //~ TAttLine attline_black_dash_nor(1, 2, 1);
+  //~ TAttLine attline_black_dot_nor(1, 3, 1);
+  //~ TAttLine attline_trk_4(1, 1, 1);	    // (col,sty,wid) = bla,sol,1
+  //~ TAttLine attline_trk_3(1, 2, 1);	    // (col,sty,wid) = bla,das,1
+  //~ TAttLine attline_hit_b(3, 1, 1);	    // (col,sty,wid) = gre,sol,1  bad
+  //~ TAttFill attfill_tof(1, 1001);	    // (col,sty) = bla, solid  ???
+  //~ TAttFill attfill_tof_us(6, 1001);	    // (col,sty) = red, solid  use sea
+  //~ TAttFill attfill_tof_b(3, 1001);	    // (col,sty) = gre, solid  bad
+  //~ TAttText atttext_small_hcvb(21, 0., 1, 83, 10);   //allign, angle, color, font, size
+  //~ TAttText atttext_small_hcvt(23, 0., 1, 83, 10);
+  //~ TAttText atttext_small_hcvb_v(21, 90., 1, 83, 15);
+  //~ TAttLine attline_hit_m(4, 1, 1);	    // (col,sty,wid) = blu,sol,1  mis
 
-  TAttLine attline_hit_u(2, 1, 1);	    // (col,sty,wid) = red,sol,1  use
-  TAttLine attline_hit_b(3, 1, 1);	    // (col,sty,wid) = gre,sol,1  bad
-  TAttLine attline_hit_m(4, 1, 1);	    // (col,sty,wid) = blu,sol,1  mis
-
-  TAttFill attfill_box(0, 1);	    // (col,sty) = empty, solidline
-
-  TAttFill attfill_tof(1, 1001);	    // (col,sty) = bla, solid  ???
-  TAttFill attfill_tof_up(2, 1001);	    // (col,sty) = red, solid  use pro
-  TAttFill attfill_tof_us(6, 1001);	    // (col,sty) = red, solid  use sea
-  TAttFill attfill_tof_b(3, 1001);	    // (col,sty) = gre, solid  bad
-  TAttFill attfill_tof_m(4, 1001);	    // (col,sty) = blu, solid  mis
-
-  TAttText atttext_small_hcvb(21, 0., 1, 83, 10);   //allign, angle, color, font, size
-  TAttText atttext_small_hcvt(23, 0., 1, 83, 10);
-  TAttText atttext_small_hlvc(12, 0., 1, 83, 10);
-  TAttText atttext_small_hcvb_v(21, 90., 1, 83, 15);
+  TAttLine attline_black_soli_nor(1, 1, 1); // to draw the cell side
+  TAttLine attline_trk(2, 1, 1);	    // (col,sty,wid) = red,sol,1  used for track
+  TAttFill attfill_hit_sel(2, 1001);	    // (col,sty) = red, solid  use pro for selected hit
+  TAttFill attfill_hit_mis(4, 1001);	    // (col,sty) = blu, solid  first miss hit for not selected hit
+  TAttFill attfill_hit_dmis(7, 1001);	    // (col,sty) = blu, solid  second miss hit for not selected hit
+  TAttFill attfill_hit_tmis(8, 1001);	    // (col,sty) = blu, solid  third miss hit for not selected hit
+  TAttFill attfill_hit_fmis(9, 1001);	    // (col,sty) = blu, solid  fourth or over miss hit for not selected hit
+  TAttText atttext_small_hlvc(12, 0., 1, 83, 10); //used for hit chi2
 
   //Pad range
   gPad->Range(-1.02*BMN_WIDTH, -0.51*BMN_LENGTH, +1.02*BMN_WIDTH, +0.51*BMN_LENGTH);
@@ -120,7 +122,6 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   double x_target(0), y_target(0);
   double xch_i, xch_f, ych_i, ych_f;
   double zmin, zmax, t_i, t_f;
-  Int_t i_ntrk;
 
   /*
     Starting with Top View (XZ)       View  == -1 (Top view, V view)
@@ -147,14 +148,14 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   }
   
   char text[200];
+  Int_t tmp_int;
   //Beam Monitor tracks 
-  if (track_ok==0) {
+  if (track_ok==0 || track_ok==5) {
     //Displays the fitted tracks
     Info("Viewer()","Displaying the BM Tracks");
 
-    i_ntrk = p_ntutrk->ntrk;
-    for (Int_t i_t = 0; i_t < i_ntrk; i_t++) {
-      TABMntuTrackTr* p_trk = p_ntutrk->Track(i_t);
+    for (Int_t i_t = 0; i_t < p_ntutrk->ntrk; i_t++) {
+      p_trk = p_ntutrk->Track(i_t);
       sprintf(text,"MyChi2Red :: %lf",p_trk->GetMyChi2Red());
       gPad->PaintText(-0.6*BMN_WIDTH, +0.40*BMN_LENGTH,text);
 
@@ -189,7 +190,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
       //X,Z (view V, TOP view)   
       //(X needs to be reversed SINCE TOP view has x increasing towards left)... ma perchè?
       //~ gPad->PaintLine(-xch_i-0.5*BMN_WIDTH,zmin,-xch_f-0.5*BMN_WIDTH,zmax);
-      attline_hit_u.Modify();
+      attline_trk.Modify();
       gPad->PaintLine(-p_trk->GetMylar1Pos().X()-BMN_WIDTH/2.,p_trk->GetMylar1Pos().Z(),-p_trk->GetMylar2Pos().X()-BMN_WIDTH/2.,p_trk->GetMylar2Pos().Z());
       //~ cout<<"zmin="<<p_trk->GetMylar1Pos().Z()<<"  zmax="<<p_trk->GetMylar2Pos().Z()<<endl;
     }
@@ -197,35 +198,44 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   
   if (p_nturaw) {
     //Displays the Reconstructed hits in the orizontal view
-    Int_t i_nhit = p_nturaw->nhit;
-    Info("Viewer()","Displaying the BM Hits %2d ",i_nhit);
+    Info("Viewer()","Displaying the BM Hits %2d ",p_nturaw->nhit);
 
-    for (Int_t i_h = 0; i_h < i_nhit; i_h++) {
-
-      TABMntuHit* hit = p_nturaw->Hit(i_h);
-      if(hit->View()==-1 && hit->GetIsSelected()) {
-        //Top view, V view, (X,Z)
-        p_bmgeo->GetCellInfo(-1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);//charge the wire position and direction in h_x.. and h_cx...
-        //X has a consistent view (x points to the top) 
-        attline_black_soli_nor.Modify();  
-        attfill_tof_up.Modify();
-        gPad->PaintBox(-(h_x-hit->Dist())-0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_x+hit->Dist())-0.5*BMN_WIDTH,h_z+hit->Dist());
-        //~ gPad->PaintEllipse(-h_x,h_z,hit->Dist());
-        atttext_small_hlvc.Modify();
-        sprintf(text,"chi2 :: %lf",hit->GetChi2());
-        gPad->PaintText(-0.95*BMN_WIDTH, h_z, text);
-
+    for (Int_t i=3; i<36;) {
+      tmp_int=0;
+      for (Int_t k=cell_occupy->at(i).size()-1; k>=0; k--) {
+        TABMntuHit* hit = p_nturaw->Hit(cell_occupy->at(i)[k]);
+        if(hit->View()==-1 && hit->GetIsSelected()) {
+          //Top view, V view, (X,Z)
+          p_bmgeo->GetCellInfo(-1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);//charge the wire position and direction in h_x.. and h_cx...
+          //X has a consistent view (x points to the top) 
+          attline_black_soli_nor.Modify();  
+          attfill_hit_sel.Modify();
+          gPad->PaintBox(-(h_x-hit->Dist())-0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_x+hit->Dist())-0.5*BMN_WIDTH,h_z+hit->Dist());
+          //~ gPad->PaintEllipse(-h_x,h_z,hit->Dist());
+          atttext_small_hlvc.Modify();
+          sprintf(text,"chi2 :: %lf",hit->GetChi2());
+          gPad->PaintText(-0.95*BMN_WIDTH, h_z, text);
+        }
+        else if(hit->View()==-1 && !hit->GetIsSelected()) {
+          //Top view, V view, (X,Z)
+          p_bmgeo->GetCellInfo(-1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
+          //X has a consistent view (x points to the top) 
+          attline_black_soli_nor.Modify();  
+          if(tmp_int==0)
+            attfill_hit_mis.Modify();
+          else if(tmp_int==1)
+            attfill_hit_dmis.Modify();
+          else if(tmp_int==2)
+            attfill_hit_tmis.Modify();
+          else
+            attfill_hit_fmis.Modify();
+          gPad->PaintBox(-(h_x-hit->Dist())-0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_x+hit->Dist())-0.5*BMN_WIDTH,h_z+hit->Dist());
+          tmp_int++;
+        }else
+          cout<<"in V view: hai sbagliato qualcosa  i="<<i<<"  hit="<<cell_occupy->at(i)[k]<<"  view="<<hit->View()<<endl;//provv
       }
-      else if(hit->View()==-1 && !hit->GetIsSelected()) {
-        //Top view, V view, (X,Z)
-        p_bmgeo->GetCellInfo(-1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
-        //X has a consistent view (x points to the top) 
-        attline_black_soli_nor.Modify();  
-        attfill_tof_m.Modify();
-        gPad->PaintBox(-(h_x-hit->Dist())-0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_x+hit->Dist())-0.5*BMN_WIDTH,h_z+hit->Dist());
-      }
-    }//end loop on hits
-
+      i+= (i%6==5) ? 4:1; 
+    }
   }
 
 
@@ -254,13 +264,12 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   }
   
   //Beam Monitor tracks
-  if (track_ok==0) {
+  if (track_ok==0 || track_ok==5) {
     //Displays the fitted tracks
     Info("Viewer()","Displaying the BM Tracks");
 
-    i_ntrk = p_ntutrk->ntrk;
-    for (Int_t i_t = 0; i_t < i_ntrk; i_t++) {
-      TABMntuTrackTr* p_trk = p_ntutrk->Track(i_t);
+    for (Int_t i_t = 0; i_t < p_ntutrk->ntrk; i_t++) {
+      p_trk = p_ntutrk->Track(i_t);
       //~ x_target = p_trk->GetX0();
       //~ y_target = p_trk->GetY0();
       //~ pversx = p_trk->GetUx();
@@ -288,7 +297,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
       //~ ych_f = y_target + pversy*t_f ;
       
       //~ attline_trk_4.Modify();
-      attline_hit_u.Modify();
+      attline_trk.Modify();
 
       //Y,Z (view U, Side view)   
       //~ gPad->PaintLine(-ych_i+0.5*BMN_WIDTH,zmin,-ych_f+0.5*BMN_WIDTH,zmax);
@@ -298,36 +307,44 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
 
   if (p_nturaw) {
     //Displays the Reconstructed hits in the orizontal view
-    Int_t i_nhit = p_nturaw->nhit;
-    Info("Viewer()","Displaying the BM Hits %2d ",i_nhit);
+    Info("Viewer()","Displaying the BM Hits %2d ",p_nturaw->nhit);
 
-    for (Int_t i_h = 0; i_h < i_nhit; i_h++) {
-
-      TABMntuHit* hit = p_nturaw->Hit(i_h);
-      //View  == 1 (Side view, U view)
-      if(hit->View()==1 && hit->GetIsSelected()) {
-        //Side view, U view, (Y,Z)
-        p_bmgeo->GetCellInfo(1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
-        //Y has a consistent view (Y points to the top) 
-        attline_black_soli_nor.Modify();  
-        attfill_tof_up.Modify();
-        gPad->PaintBox(-(h_y-hit->Dist())+0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_y+hit->Dist())+0.5*BMN_WIDTH,h_z+hit->Dist());
-        //~ gPad->PaintEllipse(h_y,h_z,hit->Dist());
-        atttext_small_hlvc.Modify();
-        sprintf(text,"chi2 :: %lf",hit->GetChi2());
-        gPad->PaintText(0.05*BMN_WIDTH, h_z, text);
-
+    for (Int_t i=0; i<33;) {
+      tmp_int=0;
+      for (Int_t k=cell_occupy->at(i).size()-1; k>=0; k--) {
+        TABMntuHit* hit = p_nturaw->Hit(cell_occupy->at(i)[k]);
+        //View  == 1 (Side view, U view)
+        if(hit->View()==1 && hit->GetIsSelected()) {
+          //Side view, U view, (Y,Z)
+          p_bmgeo->GetCellInfo(1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
+          //Y has a consistent view (Y points to the top) 
+          attline_black_soli_nor.Modify();  
+          attfill_hit_sel.Modify();
+          gPad->PaintBox(-(h_y-hit->Dist())+0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_y+hit->Dist())+0.5*BMN_WIDTH,h_z+hit->Dist());
+          //~ gPad->PaintEllipse(h_y,h_z,hit->Dist());
+          atttext_small_hlvc.Modify();
+          sprintf(text,"chi2 :: %lf",hit->GetChi2());
+          gPad->PaintText(0.05*BMN_WIDTH, h_z, text);
+  
+        }
+        if(hit->View()==1 && !hit->GetIsSelected()) {
+          //Side view, U view, (Y,Z)
+          p_bmgeo->GetCellInfo(1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
+          //Y has a consistent view (Y points to the top) 
+          attline_black_soli_nor.Modify();  
+          if(tmp_int==0)
+            attfill_hit_mis.Modify();
+          else if(tmp_int==1)
+            attfill_hit_dmis.Modify();
+          else if(tmp_int==2)
+            attfill_hit_tmis.Modify();
+          else
+            attfill_hit_fmis.Modify();
+          gPad->PaintBox(-(h_y-hit->Dist())+0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_y+hit->Dist())+0.5*BMN_WIDTH,h_z+hit->Dist());
+        }
       }
-      if(hit->View()==1 && !hit->GetIsSelected()) {
-        //Side view, U view, (Y,Z)
-        p_bmgeo->GetCellInfo(1, hit->Plane(), hit->Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
-        //Y has a consistent view (Y points to the top) 
-        attline_black_soli_nor.Modify();  
-        attfill_tof_m.Modify();
-        gPad->PaintBox(-(h_y-hit->Dist())+0.5*BMN_WIDTH,h_z-hit->Dist(),-(h_y+hit->Dist())+0.5*BMN_WIDTH,h_z+hit->Dist());
-      }
+      i+= (i%6==2) ? 4:1; 
     }
-
   }
   return;
 }

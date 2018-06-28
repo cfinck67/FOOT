@@ -53,7 +53,7 @@ BmBooter();
 ~BmBooter() {};
 
 public:
-  void Initialize( TString instr_in, Bool_t isdata_in, Bool_t isroma_in );
+  void Initialize( TString instr_in, Bool_t isdata_in);
   void Process();
   void Finalize();
   
@@ -65,6 +65,8 @@ public:
   Bool_t read_event(Bool_t &status);//read event from datafile and charge bmstruct, if status=true it means that this event contain some error, it return true if read the event, false if the file is end
   Long64_t GetTotnumev(){return tot_num_ev;};
   Long64_t GetData_numev(){return data_num_ev;};
+  void evaluate_cell_occupy(); //fill the cell_occupy matrix
+
   
 private:
 
@@ -102,6 +104,7 @@ private:
   string bm_outputdir;   //FOOTRES/BeamMonitor
   string plot_name;
 
+  vector<vector<Int_t>> cell_occupy;// occupancy of the cell for a given event, first index is the cellid, the value stored is the position of the hit in the bmnturaw vector
   TString m_instr;   //input file name
   Bool_t isdata;     //to separate MC and data
   Bool_t isroma;     //true if the input data is the BM refurbishment data taken in 2017 in Rome

@@ -45,6 +45,7 @@ TABMparCon::TABMparCon() {
   manageT0BM=0;
   minnhit_cut=0;
   maxnhit_cut=20;
+  rejmax_cut=36;
   
   vector<double> myt0s(36,-10000);
   //~ myt0s.resize(36);
@@ -195,6 +196,17 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      Error(""," Plane Map Error:: check config file!! (T)");
 	      return kTRUE;
         }
+    }else if(strchr(bufConf,'J')) {
+      sscanf(bufConf, "J %d",&myArgInt);
+      if(myArgInt>=0){
+        rejmax_cut = myArgInt;
+      }else {
+	      Error(""," Plane Map Error:: check config file!! (J)");
+	      return kTRUE;
+        }
+    }else if(strchr(bufConf,'K')) {
+      sscanf(bufConf, "K %s",tmp_char);
+        parmapfile=tmp_char;
     }else if(strchr(bufConf,'F')) {
       sscanf(bufConf, "F %d",&myArgInt);
       if(myArgInt>=0)

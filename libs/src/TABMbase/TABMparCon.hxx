@@ -45,6 +45,7 @@ class TABMparCon : public TAGpara {
     Int_t GetMaxnhit_cut(){return maxnhit_cut;};
     Double_t GetAngZCut(){return angz_cut;};
     Double_t GetAngZRescut(){return angzres_cut;};
+    Int_t GetRejmaxcut(){return rejmax_cut;};
     Int_t GetFitterIndex(){return fitter_index;};
     Int_t GetBMdebug(){return bm_debug;};
     Int_t GetBMvietrack(){return bm_vietrack;};
@@ -52,6 +53,7 @@ class TABMparCon : public TAGpara {
     Int_t GetBMcharge(){return part_in_charge;};
     Double_t GetBMmom(){return part_in_mom;};
     Int_t GetmanageT0BM(){return manageT0BM;};
+    string GetParmapfile(){return parmapfile;};
 
     //T0 stuff
     void        PrintT0s(TString &input_file_name);
@@ -97,6 +99,7 @@ class TABMparCon : public TAGpara {
     Int_t    maxnhit_cut;
     Double_t angz_cut;
     Double_t angzres_cut;
+    Int_t    rejmax_cut;
     Int_t    fitter_index;
     Int_t    bm_debug;//index for the bm_debug, (it is set at least to the global debug level)
     Int_t    bm_vietrack;//every bm_vietrack events SHOE will plot the BM track
@@ -105,7 +108,8 @@ class TABMparCon : public TAGpara {
     Double_t part_in_mom;//for BM Genfit tracking
     Int_t    total_ev_num;//total number of events
     Int_t    manageT0BM;
-    string   bmt0file; 
+    string   bmt0file; //name of the T0 value file tu be charged or to be written 
+    string   parmapfile; //name of the file with the tdc channel map for TABMparMap 
     vector<Double_t> v_t0s;//T0 in ns
 
     TF1* f_mypol;
