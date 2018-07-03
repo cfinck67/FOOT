@@ -42,6 +42,20 @@ TACAparGeo::TACAparGeo() {
 //_____________________________________________________________________________
 void TACAparGeo::InitMaterial() {
 
+    m_materialOrder = {   "CAL_MEDIUM",
+                          "CAL_MEDIUM"
+                             };
+
+    m_passiveMaterial = {};
+
+
+    for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
+        if( m_materialOrder[i] == "CAL_MEDIUM" ){
+            m_materialThick[ m_materialOrder[i] ] = CAL_CRY_THICK;
+            m_materialType[ m_materialOrder[i] ] = CAL_MEDIUM;
+        }
+    }
+
 }
 
 
@@ -50,6 +64,85 @@ void TACAparGeo::InitMaterial() {
 void TACAparGeo::InitGeo()  {
   
   if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTACAparGeo::InitGeo" << endl<< endl;
+
+  m_origin = TVector3(0,0,0);                         // center in local coord.
+  m_center = TVector3(CAL_X, CAL_Y, CAL_Z);           // center in global coord.
+    
+
+//---------------------------------------------------------------------
+//     Find DETECTOR dimension
+//---------------------------------------------------------------------
+
+  m_BGOSensorThick_Lz = CAL_CRY_THICK; 
+
+  m_dimension = TVector3( CAL_WIDTH , CAL_HEIGHT, m_BGOSensorThick_Lz );   //Manca la parte passiva
+
+
+//---------------------------------------------------------------------
+//     Init SENSOR geometry
+//---------------------------------------------------------------------
+
+if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR BGO geometry " << endl;
+
+    double BGO_Distance = 0;
+
+    m_BGO_Pitch_X = CAL_CRY_WIDTH;
+    m_BGO_Pitch_Y = CAL_CRY_HEIGHT;
+      
+    TVector3 BGOsensorDimension = TVector3( CAL_CRY_WIDTH, CAL_CRY_HEIGHT, m_BGOSensorThick_Lz );
+    //TVector3 passiveSiDimension = TVector3( VTX_WIDTH, VTX_HEIGHT, m_siliconSensorThick_Lz );
+
+    // BGO in the calorimeter
+    m_nBGO_X = CAL_WIDTH/CAL_CRY_WIDTH;
+    m_nBGO_Y = CAL_HEIGHT/CAL_CRY_HEIGHT;
+
+    m_nSensors = TVector3( m_nBGO_X, m_nBGO_Y, 1 );            // set number of sensors (BGOs)
+
+
+   // fill sensor matrix
+    double BGOsensor_newZ = m_origin.Z();
+    double BGOsensor_newX = m_origin.X() - CAL_WIDTH/2 + CAL_CRY_WIDTH/2;
+    double BGOsensor_newY = m_origin.Y() + CAL_HEIGHT/2 - CAL_CRY_HEIGHT/2;
+    m_BGOsensorMatrix.resize( m_nSensors.Z() );
+    for (int k=0; k<m_nSensors.Z(); k++) {
+        m_BGOsensorMatrix[k].resize( m_nSensors.X() );
+
+        for (int i=0; i<m_nSensors.X(); i++) {
+            if (i!=0) {
+              BGOsensor_newX += CAL_CRY_WIDTH; 
+              BGOsensor_newY = m_origin.Y() + CAL_HEIGHT/2 - CAL_CRY_HEIGHT/2; 
+            }
+            m_BGOsensorMatrix[k][i].resize( m_nSensors.Y() );
+
+            for (int j=0; j<m_nSensors.Y(); j++) {
+              if (j!=0){
+                BGOsensor_newY -= CAL_CRY_HEIGHT;
+              }
+
+                m_BGOsensorMatrix[k][i][j] = new LightSabre();   //sostituisci con LightSabre
+
+                m_volumeCount++;
+                stringstream ss_bodySensorName; ss_bodySensorName << "cal" << m_volumeCount;
+                stringstream ss_regionSensorName; ss_regionSensorName << "CAL" << m_volumeCount;
+                m_BGOsensorMatrix[k][i][j]->SetMaterial( m_materialType[ "CAL_MEDIUM" ], "CAL_MEDIUM", ss_bodySensorName.str(), ss_regionSensorName.str(), m_volumeCount );
+
+                m_BGOsensorMatrix[k][i][j]->SetBar(
+                        TVector3( BGOsensor_newX, BGOsensor_newY, BGOsensor_newZ ),  // sensor center
+                        TVector3( BGOsensorDimension.x(), BGOsensorDimension.y(), BGOsensorDimension.z() ),    // sensor dimension
+                        m_BGO_Pitch_X, m_BGO_Pitch_Y, m_BGOSensorThick_Lz,
+                        TVector3(0,0,0)
+                 );
+
+                if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "sensor center ",    TVector3( BGOsensor_newX, BGOsensor_newY, BGOsensor_newZ ).Print();
+            }
+        }
+    }
+
+    m_rotation = new TRotation();
+    // m_rotation->SetYEulerAngles( m_tilt_eulerAngle.x(), m_tilt_eulerAngle.y(), m_tilt_eulerAngle.z() );
+    m_rotation->SetYEulerAngles( 0,0,0 );
+
+
  
 }
 
