@@ -130,7 +130,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR BGO geometry " << 
                         TVector3( BGOsensor_newX, BGOsensor_newY, BGOsensor_newZ ),  // sensor center
                         TVector3( BGOsensorDimension.x(), BGOsensorDimension.y(), BGOsensorDimension.z() ),    // sensor dimension
                         m_BGO_Pitch_X, m_BGO_Pitch_Y, m_BGOSensorThick_Lz,
-                        TVector3(0,0,0)
+                        TVector3(0,0,0)    // rotation
                  );
 
                 if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "sensor center ",    TVector3( BGOsensor_newX, BGOsensor_newY, BGOsensor_newZ ).Print();
@@ -143,14 +143,98 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR BGO geometry " << 
     m_rotation->SetYEulerAngles( 0,0,0 );
 
 
+
+//---------------------------------------------------------------------
+//     Build sensor materials in ROOT and FLUKA
+//---------------------------------------------------------------------
+
+/*if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor BGO materials in ROOT and FLUKA" << endl;
+
+    // for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
+    //     for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+    //         for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+
+    for ( unsigned int k=0; k<m_nSensors.Z(); k++ ) {
+        for ( unsigned int j=0; j<m_nSensors.Y(); j++ ) {
+            for ( unsigned int i=0; i<m_nSensors.X(); i++ ) {    
+
+                //ROOT addNode
+                if ( GlobalPar::GetPar()->geoROOT() )   {
+                    if ( !gGeoManager->GetVolume( m_sensorMatrix[k][i][j]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_sensorMatrix[k][i][j]->GetMaterialRegionName() << endl;
+
+                    TVector3 globalCoord = m_sensorMatrix[k][i][j]->GetCenter();
+                    Local2Global(&globalCoord);
+                    m_universe->AddNode( gGeoManager->GetVolume( m_sensorMatrix[k][i][j]->GetMaterialRegionName().c_str() ), 
+                                        m_sensorMatrix[k][i][j]->GetNodeID() , 
+                                        new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
+                                        new TGeoRotation("null,",0,0,0) ) );
+                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout <<"\t"<<m_sensorMatrix[k][i][j]->GetMaterialRegionName()<<"  ", globalCoord.Print();
+                }
+
+                    // boidies
+                if ( GlobalPar::GetPar()->geoFLUKA() ) {
+                    
+                    TVector3 minCoord = TVector3( m_sensorMatrix[k][i][j]->GetMinCoord().x(), m_sensorMatrix[k][i][j]->GetMinCoord().y(), m_sensorMatrix[k][i][j]->GetMinCoord().z() );
+                    TVector3 maxCoord = TVector3( m_sensorMatrix[k][i][j]->GetMaxCoord().x(), m_sensorMatrix[k][i][j]->GetMaxCoord().y(), m_sensorMatrix[k][i][j]->GetMaxCoord().z() );
+                    Local2Global( &minCoord );
+                    Local2Global( &maxCoord );
+
+		    if ( k==0 && j==0 && i==0 ) m_xmin = minCoord.x();
+		    else{
+		      if ( m_xmin != minCoord.x()){
+    			cout << "Error in VTX xmin coord " << m_xmin
+    			     << "  " << minCoord.x() << endl;
+		      }
+		    }
+							    
+		    if ( k==0 && j==0 && i==0 ) m_ymin = minCoord.y();
+		    else{
+                if ( m_ymin != minCoord.y()){
+                    cout << "Error in VTX ymin coord" << m_ymin
+                         << "  " << minCoord.y() << endl;
+                }
+		    }
+
+                    stringstream ss;
+                    ss << setiosflags(ios::fixed) << setprecision(6);
+                    ss <<  "RPP " << m_sensorMatrix[k][i][j]->GetBodyName() <<  "     " 
+                                << minCoord.x() << " " << maxCoord.x() << " "
+                                << minCoord.y() << " " << maxCoord.y() << " "
+                                << minCoord.z() << " " << maxCoord.z() << endl;
+                    
+                    m_bodyPrintOut  [ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( ss.str() );
+                    // m_bodyName      [ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( m_sensorMatrix[k][i][j]->GetBodyName() );
+
+                    // regions
+                    stringstream ssr;
+                    ssr << setw(13) << setfill( ' ' ) << std::left << m_sensorMatrix[k][i][j]->GetRegionName()
+                        << "5 " << m_sensorMatrix[k][i][j]->GetBodyName() << endl;
+                        
+                    m_regionPrintOut[ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( ssr.str() );
+                    m_regionName    [ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( m_sensorMatrix[k][i][j]->GetRegionName() );
+                    if (    genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( m_sensorMatrix[k][i][j]->GetCenter() ).Mag() == 0 )
+                        m_magneticRegion[ m_sensorMatrix[k][i][j]->GetRegionName() ] = 0;
+                    else 
+                        m_magneticRegion[ m_sensorMatrix[k][i][j]->GetRegionName() ] = 1;
+                }
+
+
+            }
+        }
+    } */
+
+
+
  
 }
 
 
-/*
+
 //_____________________________________________________________________________
-TVector3 TACAparGeo::GetPosition( int col, int row )  {
-}
+//TVector3 TACAparGeo::GetPosition( int col, int row )  {
+//}
 
 
 
@@ -183,7 +267,7 @@ loc->Transform( GetRotationToGlobal() );
 }
 
 
-
+/*
 //_____________________________________________________________________________
 TGeoVolume* TACAparGeo::GetVolume() {
 
@@ -192,8 +276,8 @@ cout << "ERROR << TACAparGeo::GetVolume()  -->  Calling this function without en
 
 return m_universe;
 }
-
 */
+
 
 //_____________________________________________________________________________
 string TACAparGeo::PrintBodies(){

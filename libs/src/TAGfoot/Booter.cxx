@@ -684,20 +684,21 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
 
 
 
-
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCCalorimeter(EVENT_STRUCT *myStr) {
 
     // Geo to be defined ...  
-    // m_cageo->InitGeo();
-    // top->AddNode( m_cageo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_cageo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
+    m_cageo = new TAGparaDsc("caGeo", new TACAparGeo());
+    ((TACAparGeo*) m_cageo->Object())->InitGeo();
+    //top->AddNode( ((TACAparGeo) m_cageo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  ((TACAparGeo) m_cageo->Object())->GetCenter().z(), new TGeoRotation("Calo",0,0,0)) );
 
     /*Ntupling the MC Calorimeter information*/
     myn_caraw    = new TAGdataDsc("myn_caraw", new TACAdatRaw());
     new TACAactNtuMC("an_caraw", myn_caraw, myStr);
     // my_out->SetupElementBranch(myn_caraw,     "carh.");
 
-    gTAGroot->AddRequiredItem("myn_caraw");
+    //gTAGroot->AddRequiredItem("myn_caraw");
+    gTAGroot->AddRequiredItem("an_caraw");
 }
 
 

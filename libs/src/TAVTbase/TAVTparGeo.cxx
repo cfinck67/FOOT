@@ -125,7 +125,7 @@ void TAVTparGeo::InitGeo()  {
 //---------------------------------------------------------------------
 //     Init SENSOR geometry
 //---------------------------------------------------------------------
-    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR geometry " << endl;
+    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Initialization SENSOR geometry " << endl;
 
     double pixelDistance = 0;
 

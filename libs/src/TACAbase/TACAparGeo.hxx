@@ -10,6 +10,12 @@
 #include "TACAparTools.hxx"
 
 #include "GlobalPar.hxx"
+#include "IronPlate.hxx"
+#include "LightSabre.hxx"
+#include "FootBox.hxx"
+#include "FootField.hxx"
+
+#include <FieldManager.h>
 
 
 
@@ -19,6 +25,10 @@ class TGeoVolume;
 //##############################################################################
 
 class TACAparGeo : public TACAparTools {
+
+typedef vector< vector< vector< LightSabre* > > > BGO_SensorMatrix;
+
+//typedef vector< vector< vector< FootBox* > > > PassiveMatrix;
  
 public:
 
@@ -30,7 +40,7 @@ public:
 
   void InitGeo();
   void InitMaterial();
-  /*
+  
   //! Transform point from the global reference frame
   //! to the local reference frame of the detection id and vice versa
   void Global2Local( TVector3* glob );
@@ -38,6 +48,7 @@ public:
   void Local2Global( TVector3* loc );
   void Local2Global_RotationOnly( TVector3* loc );
   
+  /*
   TRotation GetRotationToGlobal() { return *m_rotation; };
   TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
   
@@ -81,10 +92,10 @@ public:
 
 private:
 
-  // SensorMatrix m_sensorMatrix;
-  // PassiveMatrix m_passiveMatrix;
+  BGO_SensorMatrix m_BGOsensorMatrix;
+  //PassiveMatrix m_passiveMatrix;
   // PassiveMatrix m_chipMatrix;
-  // TRotation* m_rotation;
+  TRotation* m_rotation;
 
   // TGeoVolume* m_universe;
 
@@ -92,25 +103,33 @@ private:
   TVector3  m_center;  // current position in global coord.
   TVector3  m_dimension;
 
+  vector<string> m_passiveMaterial;
+
   int m_nCry;
   int m_debug;
 
-  // int m_volumeCount;
+  int m_volumeCount;
   // int m_passiveCount;
 
-  // int m_nSensors_X;
-  // int m_nSensors_Y;
-  // int m_nSensors_Z;
-  // TVector3 m_NSensors;
+  int m_nBGO_X;
+  int m_nBGO_Y;
+  //int m_nSensors_Z;
+  TVector3 m_nSensors;
 
   // double m_plumeDistace_Z;
   // double m_plumeDistace_Y;
   // double m_boardDeadMin;
   // double m_boardDeadMax;
 
-  // map<string, double> m_materialThick;
-  // map<string, string> m_materialType;
+  vector<string> m_materialOrder;
 
+  map<string, double> m_materialThick;
+  map<string, string> m_materialType;
+
+  double m_BGOSensorThick_Lz;
+
+  double m_BGO_Pitch_X;
+  double m_BGO_Pitch_Y;
   // int m_debug;
   // int m_setW_0number;
 
