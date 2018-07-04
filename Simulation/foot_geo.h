@@ -103,6 +103,10 @@ const Double_t BMN_X 		=0.0;//center x coordinate
 const Double_t BMN_Y 		=0.0;//center y coordinate
 const Double_t BMN_Z 		=-14.0;//center z coordinate
 
+const Double_t BMN_XPHI         =0.;  //bm rotation phi angle
+const Double_t BMN_XTHETA       =0.;  //bm rotation theta angle
+const Double_t BMN_XPSI         =0.;  //bm rotation psi angle
+
 const Double_t BMN_SHI_LENGTH  	=23.0;//length (z dimension) of beam monitor shield
 const Double_t BMN_SHI_THICK   	=1.5;//thickness of beam monitor shield
 

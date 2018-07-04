@@ -6,6 +6,7 @@ RPP air        -900.0 900.0 -900.0 900.0 -900.0 900.0
 * ***Start Counter
 RCC stc     0.000000 0.000000 -29.000000 0.000000 0.000000 0.025000 2.600000
 * ***Beam Monitor
+$start_transform BM_rot
 RPP BmnShiOu    -7.100000   7.100000 -7.100000 7.100000 -25.500000 -2.500000
 RPP BmnShiIn    -5.600000   5.600000 -5.600000 5.600000 -25.500000 -2.500000
 XYP BmnMyl0     -24.502500
@@ -300,6 +301,7 @@ RCC BmnF0106   -5.600000 1.200000 -7.650000 11.200000 0.000000 0.000000 0.004500
 RCC BmnF1106   2.000000 -5.600000 -6.350000 0.000000 11.200000 0.000000 0.004500
 RCC BmnF0107   -5.600000 2.000000 -7.650000 11.200000 0.000000 0.000000 0.004500
 RCC BmnF1107   2.800000 -5.600000 -6.350000 0.000000 11.200000 0.000000 0.004500
+$end_transform
 * ***Target
 RPP tgt        -0.75 0.75 -0.75 0.75 -0.1 0.1
 * ***Vertex
@@ -1153,7 +1155,7 @@ MAG_CV0      5 MagCvOu0 -(MagPMOu0 -MagPMIn0) -Gap0
 MAG_PM1      5 MagPMOu1 -MagPMIn1
 MAG_CV1      5 MagCvOu1 -(MagPMOu1 -MagPMIn1) -Gap1
 * ***Magnetic field air region
-MAG_AIR      5 MagAir -tgt -(BmnShiIn -BmnMyl0 +BmnMyl3) -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1)  -vtxp0 -vtxp1 -vtxp2 -vtxp3
+MAG_AIR      5 MagAir -tgt -(BmnShiIn -BmnMyl0 +BmnMyl3) -(BmnShiOu -BmnShiIn) -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1)  -vtxp0 -vtxp1 -vtxp2 -vtxp3
                -itrp2 -itrp23 -itrp44 -itrp65 -itrp4 -itrp25 -itrp46 -itrp67 -itrp8 -itrp29
                -itrp50 -itrp71 -itrp10 -itrp31 -itrp52 -itrp73 -itrp0 -itrp21 -itrp42 -itrp63
                -itrp12 -itrp33 -itrp54 -itrp75 -itrp1 -itrp22 -itrp43 -itrp64 -itrp3 -itrp24

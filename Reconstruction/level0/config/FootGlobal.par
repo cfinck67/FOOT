@@ -31,9 +31,9 @@ Kalman Particle Types:	C
 
 IncludeBM:			y
 IncludeIR:			n
-IncludeVertex:		n
-IncludeInnerTracker:	n
-IncludeMSD:			n
+IncludeVertex:		y
+IncludeInnerTracker:	y
+IncludeMSD:			y
 IncludeTW:			n
 IncludeCA:			n
 
@@ -47,7 +47,7 @@ Magnetic field map name:  DoubleDipole.table
 Print OutputFile: true
 Output Filename: RecoHistos.root
 
-Print OutputNtuple: true
+Print OutputNtuple: false
 Output Ntuplename: RecoTree.root
 
 Create Reconstruction Geo: y

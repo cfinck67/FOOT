@@ -305,7 +305,7 @@ Bool_t TABMactNtuTrack::Action()
             onlyPrimary=false;
           
         if(p_hit->View()==1) firedUview++;
-	else firedVview++;
+	      else firedVview++;
         hit_view=(p_hit->View()==1) ? 0:1;
             
         x = p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
@@ -343,7 +343,7 @@ Bool_t TABMactNtuTrack::Action()
           cout<<"x:"<<x<<"  y:"<<y<<"  z:"<<z<<endl;
           cout<<"cx:"<<cx<<"  cy:"<<cy<<"  cz:"<<cz<<endl;
           cout<<"view"<<p_hit->View()<<"  rdrift="<<p_hit->Dist()<<endl;
-          }
+        }
           
         AbsMeasurement* measurement = new WireMeasurement(hitCoords_vec.back(), hitCov_vec.back(), det_Id, i_h, new TrackPoint(fitTrack));
         fitTrack->insertMeasurement(measurement); 	
@@ -391,46 +391,46 @@ Bool_t TABMactNtuTrack::Action()
         converged=fitTrack->getFitStatus(rep)->isFitConverged();
         
         if(converged && fitTrack->getNumPoints()!=fitTrack->getNumPointsWithMeasurement()){
-	  cout<<"TABMactNtuTrack::WARNING: number of trackPoints is different from number of trackPointWithMeasurement.. something odd happened"<<endl;
-	  converged=false;
+          cout<<"TABMactNtuTrack::WARNING: number of trackPoints is different from number of trackPointWithMeasurement.. something odd happened"<<endl;
+          converged=false;
         } 
           
         if(p_bmcon->GetBMdebug()>10 && converged)
           cout<<"TABMactNtuTrack::fit converged"<<endl;
-	else if(p_bmcon->GetBMdebug()>4 && !converged)
+        else if(p_bmcon->GetBMdebug()>4 && !converged)
           cout<<"TABMactNtuTrack::fit NOT converged"<<endl;
         tmp_trackTr->SetIsConverged((converged) ? 1:2);
         
-	if(converged) {
-	  tmp_trackTr->SetChi2New(fitTrack->getFitStatus(rep)->getChi2());
-	  tmp_trackTr->SetNdf(fitTrack->getFitStatus(rep)->getNdf());  
-	  tmp_trackTr->SetFailedPoint(fitTrack->getFitStatus(rep)->getNFailedPoints());  
-	  if(fitTrack->getFitStatus(rep)->getNdf()!=0)        
-	    tmp_trackTr->SetChi2NewRed(fitTrack->getFitStatus(rep)->getChi2()/fitTrack->getFitStatus(rep)->getNdf());
-	  hit_mychi2.clear();
-	  hit_mychi2.resize(hitxtrack[i].size(),999.);
-	  tmp_trackTr->CalculateFitPar(fitTrack, hit_res, hit_mychi2, prunedhit,p_bmcon, p_bmgeo, rejhit);
-	  if(p_bmcon->GetBMdebug()>3 && converged){
-	    cout<<"TABMactNtuTrack::print fit status:"<<endl;
-	    fitTrack->getFitStatus(rep)->Print();
-	  }
-	  //~ alltrack.push_back(tmp_trackTr);
-	  if(tmp_trackTr->GetMyChi2Red()<best_trackTr.GetMyChi2Red() || best_trackTr.GetNhit()==0){
-	    if(p_bmcon->GetBMdebug()>5)
-	      cout<<"New best_trackTr found!  previous mychi2red="<<best_trackTr.GetMyChi2Red()<<"  New mychi2red="<<tmp_trackTr->GetMyChi2Red()<<endl;
-	    best_trackTr=*tmp_trackTr;
-	    best_mychi2=hit_mychi2;
-	    best_index=i;
-	  }
-        }else if((rejhit+1)<=p_bmcon->GetRejmaxcut()) //end of converged
-	  PruneNotConvTrack(prunedhit,hitxtrack, i);
+        if(converged) {
+            tmp_trackTr->SetChi2New(fitTrack->getFitStatus(rep)->getChi2());
+            tmp_trackTr->SetNdf(fitTrack->getFitStatus(rep)->getNdf());  
+            tmp_trackTr->SetFailedPoint(fitTrack->getFitStatus(rep)->getNFailedPoints());  
+            if(fitTrack->getFitStatus(rep)->getNdf()!=0)        
+              tmp_trackTr->SetChi2NewRed(fitTrack->getFitStatus(rep)->getChi2()/fitTrack->getFitStatus(rep)->getNdf());
+            hit_mychi2.clear();
+            hit_mychi2.resize(hitxtrack[i].size(),999.);
+            tmp_trackTr->CalculateFitPar(fitTrack, hit_res, hit_mychi2, prunedhit,p_bmcon, p_bmgeo, rejhit);
+            if(p_bmcon->GetBMdebug()>3 && converged){
+              cout<<"TABMactNtuTrack::print fit status:"<<endl;
+              fitTrack->getFitStatus(rep)->Print();
+            }
+            //~ alltrack.push_back(tmp_trackTr);
+            if(tmp_trackTr->GetMyChi2Red()<best_trackTr.GetMyChi2Red() || best_trackTr.GetNhit()==0){
+              if(p_bmcon->GetBMdebug()>5)
+                cout<<"New best_trackTr found!  previous mychi2red="<<best_trackTr.GetMyChi2Red()<<"  New mychi2red="<<tmp_trackTr->GetMyChi2Red()<<endl;
+              best_trackTr=*tmp_trackTr;
+              best_mychi2=hit_mychi2;
+              best_index=i;
+            }
+          }else if((rejhit+1)<=p_bmcon->GetRejmaxcut()) //end of converged
+            PruneNotConvTrack(prunedhit,hitxtrack, i);
       }//end of fitting (readytofit)    
       //~ delete fitTrack;
       //~ delete rep;        
     }//end of possiblePrimary if condition
     if(prunedhit.size()>0)
       for(Int_t k=0;k<prunedhit.size();k++)
-	ChargePrunedTrack(prunedhit[k], firedUview, firedVview, hitxtrack, possiblePrimary, p_bmcon, p_ntuhit, p_hit, i);
+        ChargePrunedTrack(prunedhit[k], firedUview, firedVview, hitxtrack, possiblePrimary, p_bmcon, p_ntuhit, p_hit, i);
     prunedhit.clear();
   }//end of loop on all possible track
     

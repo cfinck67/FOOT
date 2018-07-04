@@ -21,6 +21,10 @@ EMFCUT     -1.000000  1.000000               BLACK  @LASTREG       1.0
 EMFCUT     -1.000000  1.000000        1.  BLCKHOLE  @LASTMAT       1.0PROD-CUT  
 DELTARAY    1.000000                      BLCKHOLE  @LASTMAT       1.0          
 PAIRBREM         -3.                      BLCKHOLE  @LASTMAT                    
+ROT-DEFI        300.            0.000000 -0.000000 -0.000000 14.000000BM_rot    
+ROT-DEFI        100.            0.000000                              BM_rot    
+ROT-DEFI        300.            0.000000                              BM_rot    
+ROT-DEFI         0.0                      0.000000  0.000000-14.000000BM_rot    
 * @@@END GENERATED:GENERAL@@@ **************************************************
 * ******************************************************************************
 *                          GEOMETRY                                            *

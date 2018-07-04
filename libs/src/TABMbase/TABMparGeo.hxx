@@ -31,7 +31,6 @@ public:
   TABMparGeo();
   virtual         ~TABMparGeo();
 
-  //manca un copy constructor...
   void InitGeo();
   void CreateLocalBMGeo();//create an output file LocalBM.root with the geometry of the BM
   
@@ -41,8 +40,9 @@ public:
   string PrintParameters();
   
   //transformers
-  int RotateBmon();//to rotate the x_pos...cx_pos coordinate with GOLDSTEIN CONVENTION
-  int ShiftBmon(bool global2local); //if global2local is false: it shifts (not rotate!) the local coordinate of the x_pos...cx_pos wires in the global coordinate, otherwise if global2local is true
+  Int_t RotateBmon();//to rotate the x_pos...cx_pos coordinate with GOLDSTEIN CONVENTION
+  void RotateNewBmon();//to rotate the x_pos...cx_pos coordinate with GOLDSTEIN CONVENTION
+  Int_t ShiftBmon(Bool_t global2local); //if global2local is false: it shifts (not rotate!) the local coordinate of the x_pos...cx_pos wires in the global coordinate, otherwise if global2local is true
   TRotation GetRotationToGlobal()                   {return *m_rotation;};
   TRotation GetRotationToLocal()                    {return m_rotation->Inverse();};
   void Global2Local(TVector3* glob)                 {glob->Transform(m_rotation->Inverse());*glob=*glob-m_center;return;};  
@@ -68,7 +68,7 @@ public:
   Int_t GetBMNcell(Int_t ilay, Int_t iview, Int_t icell){return icell+((iview==-1) ? 1:0)*3+ilay*6;};
   //for a given cellid, it sets the ilay (0-5), view (1 or-1) and icell (0-2) 
   Bool_t GetBMNlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_t& icell);
-  //get a number from 0 to 12 to identify real wire plane (iview=1 or -1)
+  //get a number from 0 to 11 to identify real wire plane (iview=1 or -1)
   Int_t GetWirePlane(Int_t ilay, Int_t iview){return ((iview==1) ? 0:1) + ilay*2;};
   TVector3    GetCenter(){return m_center;};
   TVector3    GetSide(){return bm_SideDch;};

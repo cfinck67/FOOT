@@ -84,16 +84,16 @@ Bool_t TABMparGeo::GetBMNlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_
   return kTRUE;
 }
 
-void TABMparGeo::InitGeo(){
+void TABMparGeo::InitGeo() {
   if ( GlobalPar::GetPar()->Debug() > 0 )     
     cout << "\n\nTABMparGeo::InitGeo" << endl<< endl;
 
   m_origin=TVector3(0., 0., 0.);
   m_center = TVector3( BMN_X, BMN_Y, BMN_Z );
-  m_rotation = new TRotation();  //è davvero necessario???
-  //WARNING!!!!! other detector use YEulerAngles!!! chiedere a Matteo quale usare di default
+  m_rotation = new TRotation();
+  //WARNING!!!!! other detector use YEulerAngles!!! 
   //WARNING!!!!! rotations aren't implemented in FLUKA geometry yet
-  m_rotation->SetXEulerAngles(0.,0.,0.);//XEulerAngles to adopt the Goldstein convention
+  m_rotation->SetXEulerAngles(BMN_XPHI,BMN_XTHETA,BMN_XPSI);//XEulerAngles to adopt the Goldstein convention
   bm_mylar1=TVector3(0.,0.,(BMN_LENGTH+BMN_MYL_THICK)/2.);
   bm_mylar2=TVector3(0.,0.,-(BMN_LENGTH+BMN_MYL_THICK)/2.);
   bm_target=TVector3(TG_X,TG_Y,-BMN_Z+TG_Z+TG_THICK/2.);
@@ -204,14 +204,14 @@ void TABMparGeo::InitGeo(){
   return;
 }
 
-int TABMparGeo::ShiftBmon(bool global2local){
+Int_t TABMparGeo::ShiftBmon(Bool_t global2local){
 
   TVector3 cen = GetCenter();
   if(global2local)
     cen=-cen;
 
-  for(int il=0; il<BMN_NLAY;il++){
-    for (int kk =0; kk<BMN_NWIRELAY;kk++){
+  for(Int_t il=0; il<BMN_NLAY;il++){
+    for (Int_t kk =0; kk<BMN_NWIRELAY;kk++){
 
       x_pos[kk][il][0]  += cen.X();
       y_pos[kk][il][0]  += cen.Y();
@@ -227,16 +227,57 @@ int TABMparGeo::ShiftBmon(bool global2local){
 
 
 /*-----------------------------------------------------------------*/
-int TABMparGeo::RotateBmon(){
+//rotation with extrinsic euler convention zxz (fixed axys)
+//same as adopted in FLUKA using three rot-defi cards
+//WARNING: THIS METHOD DO NOT USE TROTATION m_rotation...
+void TABMparGeo::RotateNewBmon(){
+  TVector3 PosWireIn,DirWireIn;
+  
+  for (int iw =0; iw<BMN_NWIRELAY;iw++){       
+    for(int il=0; il<BMN_NLAY;il++){
+      for(int iv=0; iv<2;iv++){
+        PosWireIn.SetX(x_pos[iw][il][iv]);
+        PosWireIn.SetY(y_pos[iw][il][iv]);
+        PosWireIn.SetZ(z_pos[iw][il][iv]);
+        DirWireIn.SetX(cx_pos[iw][il][iv]);
+        DirWireIn.SetY(cy_pos[iw][il][iv]);
+        DirWireIn.SetZ(cz_pos[iw][il][iv]);
+    
+        //~ PosWireIn.Transform(*m_rotation);
+        //~ DirWireIn.Transform(*m_rotation);
+        PosWireIn.RotateZ(BMN_XPHI);
+        PosWireIn.RotateX(BMN_XTHETA);
+        PosWireIn.RotateZ(BMN_XPSI);
+        
+        DirWireIn.RotateZ(BMN_XPHI);
+        DirWireIn.RotateX(BMN_XTHETA);
+        DirWireIn.RotateZ(BMN_XPSI);
+  
+        x_pos[iw][il][iv] = PosWireIn.X();
+        y_pos[iw][il][iv] = PosWireIn.Y();
+        z_pos[iw][il][iv] = PosWireIn.Z();
+        cx_pos[iw][il][iv] = DirWireIn.X();
+        cy_pos[iw][il][iv] = DirWireIn.Y();
+        cz_pos[iw][il][iv] = DirWireIn.Z();
+      }
+    }
+  }
 
+  
+  
+  return;
+}
+
+//rotation of the BM wires x_pos... cx_pos
+//rotation with euler angul xzx convention with INTRINSIC angles (the axys change the direction at each rotation)
+Int_t TABMparGeo::RotateBmon(){
   /*
     Rotate the chamber by means of the Euler angles (in degrees) 
     WE FOLLOW THE GOLDSTEIN CONVENTION for the Euler angles
   */
 
-  const int nrows = 3, ncols = 3;
-  const double epsilon = 1.0e-14;
-  const int DBG = 0;
+  const Int_t nrows = 3, ncols = 3;
+  const Double_t epsilon = 1.0e-14;
 
   TVectorD PosWireIn,PosWireOut,DirWireIn,DirWireOut;
   TMatrixD EulerRot(nrows,ncols);
@@ -245,42 +286,44 @@ int TABMparGeo::RotateBmon(){
   DirWireIn.ResizeTo(nrows); DirWireIn.Zero();
   DirWireOut.ResizeTo(nrows); DirWireOut.Zero();
   
-  double phi = m_rotation->GetXPhi();
-  double theta = m_rotation->GetXPsi();
-  double psi = m_rotation->GetXTheta();
+  //~ Double_t phi = BMN_XPHI;
+  //~ Double_t theta = BMN_XTHETA;
+  //~ Double_t psi =BMN_XPSI;
 
   /* definizione della matrice di rotazione tramite angoli di Eulero */
+  //  http://mathworld.wolfram.com/EulerAngles.html, first case
 
-  EulerRot[0][0] = cos(phi)*cos(psi) - sin(phi)*cos(theta)*sin(psi);
-  EulerRot[0][1] = sin(phi)*cos(psi) + cos(phi)*cos(theta)*sin(psi);
-  EulerRot[0][2] = sin(theta)*sin(psi) ;
-  EulerRot[1][0] = -cos(phi)*sin(psi) - sin(phi)*cos(theta)*cos(psi);
-  EulerRot[1][1] = -sin(phi)*sin(psi) + cos(phi)*cos(theta)*cos(psi);
-  EulerRot[1][2] = sin(theta)*cos(psi) ;
+  EulerRot[0][0] = cos(BMN_XPHI)*cos(BMN_XPSI) - sin(BMN_XPHI)*cos(BMN_XTHETA)*sin(BMN_XPSI);
+  EulerRot[0][1] = sin(BMN_XPHI)*cos(BMN_XPSI) + cos(BMN_XPHI)*cos(BMN_XTHETA)*sin(BMN_XPSI);
+  EulerRot[0][2] = sin(BMN_XTHETA)*sin(BMN_XPSI) ;
+  
+  EulerRot[1][0] = -cos(BMN_XPHI)*sin(BMN_XPSI) - sin(BMN_XPHI)*cos(BMN_XTHETA)*cos(BMN_XPSI);
+  EulerRot[1][1] = -sin(BMN_XPHI)*sin(BMN_XPSI) + cos(BMN_XPHI)*cos(BMN_XTHETA)*cos(BMN_XPSI);
+  EulerRot[1][2] = sin(BMN_XTHETA)*cos(BMN_XPSI) ;
 
-  EulerRot[2][0] = sin(phi)*sin(theta);
-  EulerRot[2][1] = -cos(phi)*sin(theta);
-  EulerRot[2][2] = cos(theta);
+  EulerRot[2][0] = sin(BMN_XPHI)*sin(BMN_XTHETA);
+  EulerRot[2][1] = -cos(BMN_XPHI)*sin(BMN_XTHETA);
+  EulerRot[2][2] = cos(BMN_XTHETA);
 
   /*  clean up very tiny matrix elements due to roundings */
 
-  for (int nc =0; nc<ncols;nc++){       
-    for(int nr=0; nr<nrows;nr++){
+  for(Int_t nc =0; nc<ncols;nc++){       
+    for(Int_t nr=0; nr<nrows;nr++){
       if(fabs(EulerRot(nr,nc)) < epsilon) EulerRot(nr,nc) = 0 ;
     }
   }
   
-  if(DBG>0) {
-    cout<<" Beam Monitor Rotation: phi = "<<phi<<"  theta= "<<
-      theta<<"  psi= "<<psi<<endl<<endl;
+  if(GlobalPar::GetPar()->Debug() > 0) {
+    cout<<" Beam Monitor Rotation: BMN_XPHI = "<<BMN_XPHI<<"  BMN_XTHETA= "<<
+      BMN_XTHETA<<"  BMN_XPSI= "<<BMN_XPSI<<endl<<endl;
     cout<<"  Rotation Matrix= "<<endl<<endl;
     cout<<"  "<<EulerRot(0,0)<<"  "<<EulerRot(0,1)<<"  "<<EulerRot(0,2)<<endl;
     cout<<"  "<<EulerRot(1,0)<<"  "<<EulerRot(1,1)<<"  "<<EulerRot(1,2)<<endl;
     cout<<"  "<<EulerRot(2,0)<<"  "<<EulerRot(2,1)<<"  "<<EulerRot(2,2)<<endl;
   }
   /*   rotate the U, SIDE view */
-  for(int il=0; il<BMN_NLAY;il++){
-    for (int iw =0; iw<BMN_NWIRELAY;iw++){       
+  for(Int_t il=0; il<BMN_NLAY;il++){
+    for (Int_t iw =0; iw<BMN_NWIRELAY;iw++){       
       
       PosWireIn(0) = x_pos[iw][il][0];
       PosWireIn(1) = y_pos[iw][il][0];
@@ -302,8 +345,8 @@ int TABMparGeo::RotateBmon(){
   }
 
   /*   rotate the V, TOP view */
-  for(int il=0; il<BMN_NLAY;il++){
-    for (int iw =0; iw<BMN_NWIRELAY;iw++){       
+  for(Int_t il=0; il<BMN_NLAY;il++){
+    for (Int_t iw =0; iw<BMN_NWIRELAY;iw++){       
       
       PosWireIn(0) = x_pos[iw][il][1];
       PosWireIn(1) = y_pos[iw][il][1];
@@ -514,7 +557,8 @@ string TABMparGeo::PrintBodies(){
 
   stringstream outstr;
   outstr << "* ***Beam Monitor" << endl;
-
+  outstr<<"$start_transform BM_rot"<<endl;
+  
   int iSense[2]={-1,-1}, iField[2]={-1,-1};
   // stringstream ss;
   char bodyname[20];
@@ -598,6 +642,7 @@ string TABMparGeo::PrintBodies(){
       }
     }
   }
+  outstr<<"$end_transform"<<endl;
   
   return outstr.str();
 }

@@ -79,7 +79,6 @@ int main (int argc, char *argv[]) {
     twGeo->InitGeo();
     caGeo->InitGeo();
 
-
     // assegna ad ogni oggetto se sta nel campo magnetico
     ifstream file;
     string fileName = "foot.inp";
@@ -154,6 +153,12 @@ int main (int argc, char *argv[]) {
     outfile << PrintCard("PAIRBREM","-3.","","","BLCKHOLE",
 			 "@LASTMAT","","") << endl;
 
+//beam monitor rotations:
+    outfile << PrintCard("ROT-DEFI","300.","",TString::Format("%f",BMN_XPHI), TString::Format("%f",-BMN_X),TString::Format("%f",-BMN_Y),TString::Format("%f",-BMN_Z),"BM_rot") << endl;
+    outfile << PrintCard("ROT-DEFI","100.","",TString::Format("%f",BMN_XTHETA),"","","","BM_rot") << endl;
+    outfile << PrintCard("ROT-DEFI","300.","",TString::Format("%f",BMN_XPSI),"","","","BM_rot") << endl;
+    outfile << PrintCard("ROT-DEFI","0.0","","", TString::Format("%f",BMN_X),TString::Format("%f",BMN_Y),TString::Format("%f",BMN_Z),"BM_rot") << endl;
+
     outfile << geomat.str();
 
     outfile << "ASSIGNMA    BLCKHOLE     BLACK\n";
@@ -184,7 +189,6 @@ int main (int argc, char *argv[]) {
 
     outfile.close();
 
-    
 
     // PRINT OUT foot.geo
     // per ora chiamati da qui, si puo fare una classe gestore separata se serve
@@ -295,7 +299,7 @@ int main (int argc, char *argv[]) {
     geofile <<"MAG_PM1      5 MagPMOu1 -MagPMIn1\n";
     geofile <<"MAG_CV1      5 MagCvOu1 -(MagPMOu1 -MagPMIn1) -Gap1\n";
     geofile <<"* ***Magnetic field air region\n";
-    geofile <<"MAG_AIR      5 MagAir -tgt -(BmnShiIn -BmnMyl0 +BmnMyl3) -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1) ";
+    geofile <<"MAG_AIR      5 MagAir -tgt -(BmnShiIn -BmnMyl0 +BmnMyl3) -(BmnShiOu -BmnShiIn) -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1) ";
     geofile << vtxGeo->PrintSubtractBodiesFromAir();
     geofile << itrGeo->PrintSubtractBodiesFromAir();
     geofile << msdGeo->PrintSubtractBodiesFromAir();
