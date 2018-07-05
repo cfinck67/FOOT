@@ -10,7 +10,7 @@
 #include "TACAparTools.hxx"
 
 #include "GlobalPar.hxx"
-#include "IronPlate.hxx"
+//#include "IronPlate.hxx"
 #include "LightSabre.hxx"
 #include "FootBox.hxx"
 #include "FootField.hxx"
@@ -43,10 +43,10 @@ public:
   
   //! Transform point from the global reference frame
   //! to the local reference frame of the detection id and vice versa
-  void Global2Local( TVector3* glob );
-  void Global2Local_RotationOnly( TVector3* glob );
-  void Local2Global( TVector3* loc );
-  void Local2Global_RotationOnly( TVector3* loc );
+  // void Global2Local( TVector3* glob );
+  // void Global2Local_RotationOnly( TVector3* glob );
+  // void Local2Global( TVector3* loc );
+  // void Local2Global_RotationOnly( TVector3* loc );
   
   /*
   TRotation GetRotationToGlobal() { return *m_rotation; };

@@ -147,8 +147,8 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR BGO geometry " << 
 //---------------------------------------------------------------------
 //     Build sensor materials in ROOT and FLUKA
 //---------------------------------------------------------------------
-
-/*if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor BGO materials in ROOT and FLUKA" << endl;
+/*
+if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor BGO materials in ROOT and FLUKA" << endl;
 
     // for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
     //     for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
@@ -182,7 +182,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR BGO geometry " << 
 		    if ( k==0 && j==0 && i==0 ) m_xmin = minCoord.x();
 		    else{
 		      if ( m_xmin != minCoord.x()){
-    			cout << "Error in VTX xmin coord " << m_xmin
+    			cout << "Error in BGO xmin coord " << m_xmin
     			     << "  " << minCoord.x() << endl;
 		      }
 		    }
@@ -190,7 +190,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR BGO geometry " << 
 		    if ( k==0 && j==0 && i==0 ) m_ymin = minCoord.y();
 		    else{
                 if ( m_ymin != minCoord.y()){
-                    cout << "Error in VTX ymin coord" << m_ymin
+                    cout << "Error in BGO ymin coord" << m_ymin
                          << "  " << minCoord.y() << endl;
                 }
 		    }
@@ -223,9 +223,9 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR BGO geometry " << 
 
             }
         }
-    } */
+    }
 
-
+*/
 
  
 }
@@ -237,7 +237,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR BGO geometry " << 
 //}
 
 
-
+/*
 //_____________________________________________________________________________
 void TACAparGeo::Global2Local( TVector3* glob ) {
 glob->Transform( GetRotationToLocal() );
@@ -265,7 +265,7 @@ loc->Transform( GetRotationToGlobal() );
 void TACAparGeo::Local2Global_RotationOnly( TVector3* loc ) {
 loc->Transform( GetRotationToGlobal() );
 }
-
+*/
 
 /*
 //_____________________________________________________________________________
