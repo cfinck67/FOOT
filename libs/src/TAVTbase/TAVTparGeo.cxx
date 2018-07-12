@@ -27,11 +27,9 @@
 #include "foot_geo.h"
 #include "GlobalPar.hxx"
 
-
-
 //_____________________________________________________________________________
-TAVTparGeo::TAVTparGeo() {
-
+TAVTparGeo::TAVTparGeo()
+{
     m_nPassiveLayersPerBoard_z = 13;
     m_volumeCount = -1;
     m_passiveCount = -1;
@@ -44,11 +42,9 @@ TAVTparGeo::TAVTparGeo() {
 
 };
 
-
-
 //_____________________________________________________________________________
-void TAVTparGeo::InitMaterial() {
-
+void TAVTparGeo::InitMaterial()
+{
     m_materialOrder = {     "VTX_MEDIUM",
                             "VTX_MEDIUM"
                              };
@@ -63,9 +59,6 @@ void TAVTparGeo::InitMaterial() {
         }
     }
 }
-
-
-
 
 //_____________________________________________________________________________
 //  copy constructor
@@ -89,14 +82,10 @@ TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
 
     m_nPixel_X(original->m_nPixel_X),
     m_nPixel_Y(original->m_nPixel_Y)         
-    {
+{
 
         SensorMatrix m_sensorMatrix = original->m_sensorMatrix;
 }
-
-
-
-
 
 //_____________________________________________________________________________
 void TAVTparGeo::InitGeo()  {
@@ -387,16 +376,17 @@ void TAVTparGeo::InitGeo()  {
 }
 
 
+//_____________________________________________________________________________
+TVector3 TAVTparGeo::GetPixelPos_sensorFrame( int layer, int col, int row )
+{
+   return m_sensorMatrix[layer][0][0]->GetPosition_local( col, row );
+}
 
 //_____________________________________________________________________________
-TVector3 TAVTparGeo::GetPixelPos_sensorFrame( int layer, int col, int row )  { return m_sensorMatrix[layer][0][0]->GetPosition_local( col, row );  }
-
-
-
-//_____________________________________________________________________________
-TVector3 TAVTparGeo::GetPixelPos_detectorFrame( int layer, int col, int row )  { return m_sensorMatrix[layer][0][0]->GetPosition( col, row );  }
-
-
+TVector3 TAVTparGeo::GetPixelPos_detectorFrame( int layer, int col, int row )
+{
+   return m_sensorMatrix[layer][0][0]->GetPosition( col, row );
+}
 
 //_____________________________________________________________________________
 TVector3 TAVTparGeo::GetPixelPos_footFrame( int layer, int col, int row )  {
@@ -404,8 +394,6 @@ TVector3 TAVTparGeo::GetPixelPos_footFrame( int layer, int col, int row )  {
     Local2Global(&pos);
     return pos;
 }
-
-
 
 //_____________________________________________________________________________
 float TAVTparGeo::GetColumnCenter_sensorFrame( int col )  { return GetPixelPos_sensorFrame( 0, col, 0 ).x(); }
@@ -418,68 +406,71 @@ float TAVTparGeo::GetRowCenter_footFrame( int layer, int row )    { return GetPi
 
 
 //_____________________________________________________________________________
-Float_t TAVTparGeo::GetPositionU(Int_t column) const {      // GetColumnCenter_sensorFrame
-   return ((2*column - m_pitchX + 1 ) * m_pitchX)/2 ;
+Float_t TAVTparGeo::GetPositionU(Int_t column) const
+{      // GetColumnCenter_sensorFrame
+   return ((2*column - m_nPixel_X + 1 ) * m_pitchX)/2 ;
  }
 
 //_____________________________________________________________________________
-Float_t TAVTparGeo::GetPositionV(Int_t line) const{         //TAVTparGeo::GetRowCenter_sensorFrame(
-   return -((2*line - m_pitchY + 1 ) * m_pitchY)/2 ;   
+Float_t TAVTparGeo::GetPositionV(Int_t line) const
+{         //TAVTparGeo::GetRowCenter_sensorFrame(
+   return -((2*line - m_nPixel_X + 1 ) * m_pitchY)/2 ;
 }
 
 
-
-
-
-
 //_____________________________________________________________________________
-void TAVTparGeo::Detector2Sensor_frame( int sensorID, TVector3* coord ) {
+void TAVTparGeo::Detector2Sensor_frame( int sensorID, TVector3* coord )
+{
     m_sensorMatrix[sensorID][0][0]->Global2Local( coord );
 }
 
 //_____________________________________________________________________________
-void TAVTparGeo::Sensor2Detector_frame( int sensorID, TVector3* coord ) {
+void TAVTparGeo::Sensor2Detector_frame( int sensorID, TVector3* coord )
+{
     m_sensorMatrix[sensorID][0][0]->Local2Global( coord );
 }
 
 //_____________________________________________________________________________
-void TAVTparGeo::Global2Local( TVector3* glob ) {
+void TAVTparGeo::Global2Local( TVector3* glob )
+{
     glob->Transform( GetRotationToLocal() );
     *glob = *glob - m_center;
 }
 
 //_____________________________________________________________________________
-void TAVTparGeo::Global2Local_TranslationOnly( TVector3* glob ) {
+void TAVTparGeo::Global2Local_TranslationOnly( TVector3* glob )
+{
     *glob = *glob - m_center;
 }
 
 //_____________________________________________________________________________
-void TAVTparGeo::Global2Local_RotationOnly( TVector3* glob ) {
+void TAVTparGeo::Global2Local_RotationOnly( TVector3* glob )
+{
     glob->Transform( GetRotationToLocal() );
 }
 
 //_____________________________________________________________________________
-void TAVTparGeo::Local2Global( TVector3* loc ) {
+void TAVTparGeo::Local2Global( TVector3* loc )
+{
     loc->Transform( GetRotationToGlobal() );
     *loc = *loc + m_center;
 }
 
 //_____________________________________________________________________________
-void TAVTparGeo::Local2Global_TranslationOnly( TVector3* loc ) {
+void TAVTparGeo::Local2Global_TranslationOnly( TVector3* loc )
+{
     *loc = *loc + m_center;
 }
 
 //_____________________________________________________________________________
-void TAVTparGeo::Local2Global_RotationOnly( TVector3* loc ) {
+void TAVTparGeo::Local2Global_RotationOnly( TVector3* loc )
+{
     loc->Transform( GetRotationToGlobal() );
 }
 
-
-
-
-
 //_____________________________________________________________________________
-TGeoVolume* TAVTparGeo::GetVolume() {
+TGeoVolume* TAVTparGeo::GetVolume()
+{
 
     if ( !GlobalPar::GetPar()->geoROOT() ) 
         cout << "ERROR << TAVTparGeo::GetVolume()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
@@ -488,12 +479,9 @@ TGeoVolume* TAVTparGeo::GetVolume() {
 }
 
 
-
-
-
 //_____________________________________________________________________________
-string TAVTparGeo::PrintBodies() {
-
+string TAVTparGeo::PrintBodies()
+{
     if ( !GlobalPar::GetPar()->geoFLUKA() ) 
         cout << "ERROR << TAVTparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
@@ -511,13 +499,9 @@ string TAVTparGeo::PrintBodies() {
     return outstr.str();
 }
 
-
-
-
-
 //_____________________________________________________________________________
-string TAVTparGeo::PrintRegions() {
-
+string TAVTparGeo::PrintRegions()
+{
     if ( !GlobalPar::GetPar()->geoFLUKA() ) 
         cout << "ERROR << TAVTparGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
 
@@ -535,10 +519,9 @@ string TAVTparGeo::PrintRegions() {
     return outstr.str();
 }
 
-
-
-
-string TAVTparGeo::PrintSubtractBodiesFromAir() {
+//_____________________________________________________________________________
+string TAVTparGeo::PrintSubtractBodiesFromAir()
+{
 
     if ( !GlobalPar::GetPar()->geoFLUKA() ) 
         cout << "ERROR << TAVTparGeo::PrintSubtractMaterialFromAir()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
@@ -556,13 +539,9 @@ string TAVTparGeo::PrintSubtractBodiesFromAir() {
 
 }
 
-
-
-
-
 //_____________________________________________________________________________
-string TAVTparGeo::PrintAssignMaterial() {
-
+string TAVTparGeo::PrintAssignMaterial()
+{
     if ( !GlobalPar::GetPar()->geoFLUKA() ) 
         cout << "ERROR << TAVTparGeo::PrintAssignMaterial()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
 
@@ -620,10 +599,7 @@ string TAVTparGeo::PrintAssignMaterial() {
     }
 
     return outstr.str();
-
 }
-
-
 
 //_____________________________________________________________________________
 string TAVTparGeo::PrintParameters() {
