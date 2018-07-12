@@ -124,6 +124,8 @@ Int_t TAGactTreeWriter::Open(const TString& name, Option_t* option)
     Int_t    i_compress   = p_chan->fiCompress;
     Bool_t   b_object     = p_chan->fbObject;
 
+    p_dataclass->SetCanSplit(1);
+
     if (b_object) {
       TBranch* p_branch   = fpTree->Branch(p_chan->fName, 
 					   p_dataclass->GetName(), 
