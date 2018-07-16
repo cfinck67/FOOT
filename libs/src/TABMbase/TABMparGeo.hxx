@@ -33,22 +33,26 @@ public:
 
   void InitGeo();
   void CreateLocalBMGeo();//create an output file LocalBM.root with the geometry of the BM
+  void CoutWirePosDir();
   
+  //fluka's stuff
   string PrintBodies();
   string PrintRegions();
   string PrintAssignMaterial();
   string PrintParameters();
   
   //transformers
-  Int_t RotateBmon();//to rotate the x_pos...cx_pos coordinate with GOLDSTEIN CONVENTION
-  void RotateNewBmon();//to rotate the x_pos...cx_pos coordinate with GOLDSTEIN CONVENTION
-  Int_t ShiftBmon(Bool_t global2local); //if global2local is false: it shifts (not rotate!) the local coordinate of the x_pos...cx_pos wires in the global coordinate, otherwise if global2local is true
+  Int_t RotateBmon();//to rotate the x_pos...cx_pos coordinate with GOLDSTEIN CONVENTION, 
+  void RotateNewBmon(Double_t phi, Double_t theta, Double_t psi, Bool_t reverse);//to rotate the x_pos...cx_pos coordinate, input in deg!
+  Int_t ShiftBmonLG(Bool_t global2local); //if global2local is false: it shifts (not rotate!) the local coordinate of the bm wires (xpos,ypos,zpos) in the global coordinate, otherwise if global2local is true
+  void ShiftBmon(TVector3 shift); //shift the BM wire position (xpos, ypos, zpos) of a TVector3 shift
+  void SetRotation(Double_t xrot, Double_t yrot, Double_t zrot);// set m_rotation
   TRotation GetRotationToGlobal()                   {return *m_rotation;};
   TRotation GetRotationToLocal()                    {return m_rotation->Inverse();};
-  void Global2Local(TVector3* glob)                 {glob->Transform(m_rotation->Inverse());*glob=*glob-m_center;return;};  
+  void Global2Local(TVector3* glob)                 {*glob=*glob-m_center;glob->Transform(m_rotation->Inverse()); return;};  
   void Global2Local_TranslationOnly(TVector3* glob) {*glob = *glob - m_center;return;};
   void Global2Local_RotationOnly(TVector3* glob)    {glob->Transform(m_rotation->Inverse());return;}
-  void Local2Global(TVector3* loc)                  {loc->Transform(*m_rotation);*loc = *loc + m_center;return;};    
+  void Local2Global(TVector3* loc)                  {*loc = *loc + m_center;loc->Transform(*m_rotation);return;};    
   void Local2Global_TranslationOnly(TVector3* loc)  {*loc = *loc + m_center;return;};
   void Local2Global_RotationOnly(TVector3* loc)     {loc->Transform(*m_rotation);return;};
     
@@ -99,7 +103,7 @@ public:
   Int_t bm_idsense[3]; //sense wire index (used in TABMvieTrackFOOT)
   TVector3  m_origin;  // current position in local coord. (not used...)
   TVector3  m_center;  // current position in global coord.
-  TRotation* m_rotation; //rotation to the global coord. following the Goldstein conv, WARNING: other detector follow Yconv
+  TRotation* m_rotation; //rotation to the global coord, WARNING: animuthal z angle not considered...
 
   TVector3  bm_mylar1;  // mylar1 center position in local coord.
   TVector3  bm_mylar2;  // mylar2 center position in local coord.

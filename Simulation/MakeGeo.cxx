@@ -154,9 +154,9 @@ int main (int argc, char *argv[]) {
 			 "@LASTMAT","","") << endl;
 
 //beam monitor rotations:
-    outfile << PrintCard("ROT-DEFI","300.","",TString::Format("%f",BMN_XPHI), TString::Format("%f",-BMN_X),TString::Format("%f",-BMN_Y),TString::Format("%f",-BMN_Z),"BM_rot") << endl;
-    outfile << PrintCard("ROT-DEFI","100.","",TString::Format("%f",BMN_XTHETA),"","","","BM_rot") << endl;
-    outfile << PrintCard("ROT-DEFI","300.","",TString::Format("%f",BMN_XPSI),"","","","BM_rot") << endl;
+    outfile << PrintCard("ROT-DEFI","100.","",TString::Format("%f",BMN_XANG), TString::Format("%f",-BMN_X),TString::Format("%f",-BMN_Y),TString::Format("%f",-BMN_Z),"BM_rot") << endl;
+    outfile << PrintCard("ROT-DEFI","200.","",TString::Format("%f",BMN_YANG),"","","","BM_rot") << endl;
+    outfile << PrintCard("ROT-DEFI","300.","",TString::Format("%f",BMN_ZANG),"","","","BM_rot") << endl;
     outfile << PrintCard("ROT-DEFI","0.0","","", TString::Format("%f",BMN_X),TString::Format("%f",BMN_Y),TString::Format("%f",BMN_Z),"BM_rot") << endl;
 
     outfile << geomat.str();

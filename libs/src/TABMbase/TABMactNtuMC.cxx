@@ -53,17 +53,32 @@ Bool_t TABMactNtuMC::Action()
   
   //parameters:
   Int_t smeary_type=5;     //smearing (0=no smearing, 1=gauss 1sigma, 2=gauss 2sigma, 3=gauss 3sigma, 4=flat, 5=gauss all)
-  Double_t rdrift_err=0.015;  //errore di default su rdrift (da usare nel caso da parcon non c'è errore)
+  Double_t rdrift_err=0.015;  //rdrift default error (used if from parcon file the error isn't loaded)
+  //~ TVector3 real_rotation(-3.,0.,0.);//proton_calib_x05_y01_theta3.root
+  TVector3 real_rotation(-1.2,-3.2,0.);//proton_calib_xy_rot_tras.root
 
   Int_t cell, view, lay, ipoint;
   vector<Int_t> hitxcell(fpEvtStr->BMNn, 99); 
   vector<bool> tobecharged(fpEvtStr->BMNn, true);
   vector<Double_t> rdriftxcell(fpEvtStr->BMNn, 99.);
   Int_t nhits=0;
-  TVector3 loc, gmom, mom, A0, Wvers;
+  TVector3 loc, gmom, mom, A0, Wvers, tmp_tvector;
   if (!p_nturaw->h) p_nturaw->SetupClones();//se non c'è l'array di h, lo crea
   //The number of hits inside the BM is nmon
   Info("Action()","Processing n :: %2d hits \n",fpEvtStr->BMNn);
+
+  if(p_bmcon->GetCalibro()!=0){
+    //~ cout<<"PRIMA DI SPOSTARE I FILI:"<<endl;//PROVV
+    //~ p_bmgeo->CoutWirePosDir();
+    //~ tmp_tvector.SetXYZ(0.5,0.1,0.);//proton_calib_x05_y01_theta3.root
+    tmp_tvector.SetXYZ(0.2,0.5,0.);//proton_calib_xy_rot_tras.root, proton_calib_x02_y05.root
+    if(p_bmcon->GetCalibro()==1)
+      p_bmgeo->RotateNewBmon(real_rotation.X(),real_rotation.Y(),real_rotation.Z(),false);//WARNING!!!! ROOT AND FLUKA ROTATE WITH DIFFERENT SIGN...
+    p_bmgeo->ShiftBmon(tmp_tvector);
+    //~ cout<<endl<<"DOPO AVER SPOSTATO I FILI"<<endl;
+    //~ p_bmgeo->CoutWirePosDir();
+    //~ cout<<endl<<"bm center position X="<<p_bmgeo->GetCenter().X()<<"  Y="<<p_bmgeo->GetCenter().Y()<<"  Z="<<p_bmgeo->GetCenter().Z()<<endl;
+  }
 
   //loop for double hits and hits with energy less than enxcell_cut:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
@@ -73,13 +88,14 @@ Bool_t TABMactNtuMC::Action()
       cell = fpEvtStr->BMNicell[i];
       lay = fpEvtStr->BMNilay[i]; 
       view = fpEvtStr->BMNiview[i];
-      hitxcell[i]=p_bmgeo->GetBMNcell(fpEvtStr->BMNilay[i], view, cell);
+      hitxcell[i]=p_bmgeo->GetBMNcell(lay, view, cell);
       loc.SetXYZ(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
       p_bmgeo->Global2Local(&loc);
+      
       gmom.SetXYZ(fpEvtStr->BMNpxin[i],fpEvtStr->BMNpyin[i],fpEvtStr->BMNpzin[i]);
       view=(view==-1)?1:0;
-      A0.SetXYZ(p_bmgeo->GetX(p_bmgeo->GetID(cell),lay,view),    //sarebbe più elegante mettere questa roba in FindRdrift,  
-                p_bmgeo->GetY(p_bmgeo->GetID(cell),lay,view),    //ma in FindRdrift dovrei caricare p_bmgeo, e forse non conviene
+      A0.SetXYZ(p_bmgeo->GetX(p_bmgeo->GetID(cell),lay,view),      
+                p_bmgeo->GetY(p_bmgeo->GetID(cell),lay,view),    
                 p_bmgeo->GetZ(p_bmgeo->GetID(cell),lay,view));  
       Wvers.SetXYZ(p_bmgeo->GetCX(p_bmgeo->GetID(cell),lay,view), 
                    p_bmgeo->GetCY(p_bmgeo->GetID(cell),lay,view), 
@@ -99,35 +115,44 @@ Bool_t TABMactNtuMC::Action()
       }
     }
     
+  if(p_bmcon->GetCalibro()!=0){
+    p_bmgeo->ShiftBmon(-tmp_tvector);
+    if(p_bmcon->GetCalibro()==1)
+      p_bmgeo->RotateNewBmon(real_rotation.X(),real_rotation.Y(),real_rotation.Z(),true);    
+    //~ cout<<"FINE CARICAMENTO HIT, HO RIMESSO A POSTO I FILI"<<endl;//PROVV
+    //~ p_bmgeo->CoutWirePosDir();
+    }
+    
+    
   if((fpEvtStr->BMNn > 12 && p_bmcon->GetBMdebug()>=2) || p_bmcon->GetBMdebug()>=3)
     cout<<"number of hit totale="<<fpEvtStr->BMNn<<" dimensioni tobecharged="<<tobecharged.size()<<endl;   
-      
       
   //charge the hits:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
     if(p_bmcon->GetBMdebug()>=3)
-      cout<<"In the charging hits loop: I'm going to charge hit number:"<<i<<endl;
+      cout<<"In the charging hits loop: I'm going to charge hit number:"<<i<<"/"<<fpEvtStr->BMNn<<"  tobecharged="<<tobecharged[i]<<endl;
     if(tobecharged[i]){
       ipoint=fpEvtStr->BMNid[i]-1;
       cell = fpEvtStr->BMNicell[i];
       lay = fpEvtStr->BMNilay[i];
       view = fpEvtStr->BMNiview[i];
       loc.SetXYZ(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
+      //~ cout<<"da global:   loc.X="<<loc.X()<<"  loc.Y()="<<loc.Y()<<"  loc.Z()="<<loc.Z()<<endl;
       p_bmgeo->Global2Local(&loc);
+      //~ cout<<"local:   loc.X="<<loc.X()<<"  loc.Y()="<<loc.Y()<<"  loc.Z()="<<loc.Z()<<endl;
       //create hit
       TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) TABMntuHit(    
                           fpEvtStr->BMNid[i],	view, lay, cell,        
-                          loc.X(), loc.Y(), loc.Z(),  //prima era zero...
+                          loc.X(), loc.Y(), loc.Z(),  
                           fpEvtStr->BMNpxin[i], fpEvtStr->BMNpyin[i], fpEvtStr->BMNpzin[i],  //mom @ entrance in cell
                           rdriftxcell[i], 0., fpEvtStr->BMNtim[i]);     //tdrift has no meaning for MC (now)
         
       //X,Y and Z needs to be placed in Local coordinates.
       mytmp->SetAW(p_bmgeo);
-      
       if(p_bmcon->ResoEval(rdriftxcell[i])!=0)
         mytmp->SetSigma(p_bmcon->ResoEval(rdriftxcell[i]));
-      if(rdriftxcell[i]>=0.8 && p_bmcon->ResoEval(rdriftxcell[i])==0) //messo a mano perchè in grafico non c'è caso oltre 0.8!!
-        mytmp->SetSigma(0.12);
+      if(rdriftxcell[i]>=0.8 && p_bmcon->ResoEval(rdriftxcell[i])==0) //set by hand becouse in the resoeval root file the resolution graph end at 0.8
+        mytmp->SetSigma(0.12); 
       
       if(rdriftxcell[i]<0.8 && p_bmcon->ResoEval(rdriftxcell[i])==0){  
         cout<<"WARNING: error from config resoEval! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<rdriftxcell[i]<<endl;
@@ -188,11 +213,14 @@ Double_t TABMactNtuMC::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVect
   else  //if they go parallel
     rdrift = sqrt(abs( D0.Mag2() - D0W*D0W)); 
 
-  if(rdrift<0)
+  if(rdrift<0){
     cout<<"WARNING!!!!! SOMETHING IS WRONG, YOU HAVE A NEGATIVE RDRIFT!!!!!!!!!  look at TABMactNtuMC::FindRdrift   rdrift="<<rdrift<<endl;
-  else if(rdrift>0.95)
+    rdrift=0;
+  }else if(rdrift>0.943){
     cout<<"WARNING!!!!! SOMETHING IS WRONG, YOU HAVE A TOO BIG RDRIFT!!!!!!!!! look at TABMactNtuMC::FindRdrift  rdrift="<<rdrift<<endl;
-  if(rdrift>0.95 || rdrift<0){
+    rdrift=0.943;
+  }
+  if(rdrift>0.943 || rdrift<0){
     cout<<"rdrift="<<rdrift<<endl;
     cout<<"pos=("<<pos.X()<<","<<pos.Y()<<","<<pos.Z()<<")  dir=("<<dir.X()<<","<<dir.Y()<<","<<dir.Z()<<")"<<endl;
     cout<<"A0=("<<A0.X()<<","<<A0.Y()<<","<<A0.Z()<<")  Wvers=("<<Wvers.X()<<","<<Wvers.Y()<<","<<Wvers.Z()<<")"<<endl;

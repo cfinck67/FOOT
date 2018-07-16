@@ -176,12 +176,60 @@ void BmBooter::Finalize() {
     cout<<"I'm in BmBooter::Finalize"<<endl;
 
   PrintSTrel();  
+  if(bmcon->GetCalibro()!=0)
+    Allign_estimate();
   
   if (bmcon->GetBMdebug()>10)
     cout<<"I finished BmBooter::Finalize"<<endl;
     
 return;
 }
+
+void BmBooter::Allign_estimate(){
+  //~ TString all("Beam Monitor allignment parameters");
+  //~ TObjString stringa;
+  //~ stringa.SetString(all);
+  Double_t xrot=-atan((((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetMean()-((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetMean())/(bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z()))*RAD2DEG;  
+  
+  Double_t yrot=atan((((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_x")))->GetMean()-((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_x")))->GetMean())/(bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z()))*RAD2DEG;
+   
+  Double_t xtra=-(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_x")))->GetMean()+((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_x")))->GetMean())/2.;  
+    
+  Double_t xtr_err=sqrt(pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_x")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_x")))->GetEntries()),2.)  + pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_x")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_x")))->GetEntries()),2.));  
+    
+  Double_t ytra=-(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetMean()+((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetMean())/2.;
+    
+  Double_t ytr_err=sqrt(pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetEntries()),2.)  +  pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetEntries()),2.));  
+    
+  cout<<"Beam Monitor allignment parameters"<<endl;
+  cout<<"estimated rotation around X axis= "<<xrot<<endl;
+  cout<<"estimated rotation around Y axis= "<<yrot<<endl;
+  cout<<"estimated translation in X="<<xtra<<"   +-   "<<xtr_err<<endl;
+  cout<<"estimated translation in Y="<<ytra<<"   +-   "<<ytr_err<<endl;
+  cout<<"AngPhi mean value="<<((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_AngPhi")))->GetMean()<<endl;
+  cout<<"AngPhi devstrd ="<<((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_AngPhi")))->GetStdDev()<<endl;
+  
+  if(((TDirectory*)(m_controlPlotter->GetTFile()))->IsFolder()){
+    //~ ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->WriteObject(&all, "allignment_par"); 
+    TString tmp_str("BM allign par: xrot=");
+    tmp_str+= xrot; 
+    tmp_str+="  yrot=";
+    tmp_str+=yrot;
+    tmp_str+="  x_tra=";
+    tmp_str+=xtra;
+    tmp_str+=" +- ";
+    tmp_str+=xtr_err;
+    tmp_str+="  y_tra=";
+    tmp_str+=ytra;
+    tmp_str+=" +- ";
+    tmp_str+=ytr_err;
+    TNamed n("allign_par_TNAMED",tmp_str.Data());
+    n.Write();
+  }
+  
+  return;
+}
+
 
 void BmBooter::PrintSTrel(){
   TH1D* histo=new TH1D( "strel", "strel", 4000, 0., 400.);

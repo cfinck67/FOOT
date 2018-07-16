@@ -181,9 +181,9 @@ Material: Epoxy
 End
 
 # Material
-Material: NdFeB
+Material: Polyethy
 	alpha: 0
-	color: #B05010
+	color: #70B010
 	fuzz: 0.0
 	ior: 1.0
 	shine: 10.0
@@ -221,9 +221,9 @@ Material: BAKELITE
 End
 
 # Material
-Material: Polyethy
+Material: NdFeB
 	alpha: 0
-	color: #70B010
+	color: #B05010
 	fuzz: 0.0
 	ior: 1.0
 	shine: 10.0
@@ -258,7 +258,7 @@ Plot: Red
 	extends: 100 51.5152
 	labels: 1
 	layer: Media
-	origin: 0 0 -20
+	origin: 0 0 0
 	subtype: Material
 	title: GeoViewer Red plot
 End
@@ -271,10 +271,10 @@ Plot: Green
 	basisv: 1 0 0
 	boundaries: 1
 	coord: Z-X
-	extends: 48.2253 24.8905
+	extends: 7.78866 4.01995
 	labels: 1
 	layer: Media
-	origin: -0.994418 0 -15.6108
+	origin: -9.84628 0 -88.0188
 	subtype: Material
 	title: GeoViewer Green plot
 End
@@ -287,10 +287,10 @@ Plot: Blue
 	basisv: 0 1 0
 	boundaries: 1
 	coord: Z-Y
-	extends: 57.8704 29.812
+	extends: 100 51.5152
 	labels: 1
 	layer: Media
-	origin: 0 0.638328 13.4049
+	origin: 0 -5.99597 -85.924
 	subtype: Material
 	title: GeoViewer Blue plot
 End
@@ -303,10 +303,10 @@ Plot: Magenta
 	basisv: 0 1 0
 	boundaries: 1
 	coord: X-Y
-	extends: 57.8704 29.8686
+	extends: 100 51.6129
 	labels: 1
 	layer: Media
-	origin: 0.81348 -1.19123 -12
+	origin: 0 0 0
 	subtype: Material
 	title: GeoViewer Magenta plot
 End

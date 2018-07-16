@@ -232,7 +232,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
         if(state.getPos().Z()>last_fit_pos.Z())
           last_fit_pos=state.getPos();  
         
-        if(wire_dir.Z()!=0 || !(wire_dir.X()==1 || wire_dir.Y()==1))
+        if(wire_dir.Mag()>1.1 || wire_dir.Mag()<0.9)
           cout<<"TABMntuTrack::CalculateFitPar::WARNING:    wire_dir have a problem:   wire_dir=("<<wire_dir.X()<<", "<<wire_dir.Y()<<", "<<wire_dir.Z()<<")"<<endl;
         if(p_bmcon->GetBMdebug()>10){
           cout<<"TABMntuTrack::CalculateFitPar:  wire_pos=("<<wire_pos.X()<<", "<<wire_pos.Y()<<", "<<wire_pos.Z()<<")"<<"   wire_dir=("<<wire_dir.X()<<", "<<wire_dir.Y()<<", "<<wire_dir.Z()<<")"<<endl;
@@ -254,7 +254,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
     cout<<"TABMntuTrack::CalculateFitPar:: hit_num="<<hit_num<<"  mychi2="<<mychi2<<"  mychi2Red="<<mychi2Red<<"  ndf="<<fitTrack->getFitStatus()->getNdf()<<endl;
   
   //calculate prunedhit, for the moment I refit when a hit has a chi2red contribution 2 times larger than the average contribution (the number 2 has to be optimized) 
-  if((rejhit+1)<=p_bmcon->GetRejmaxcut()){
+  if((rejhit+1)<=p_bmcon->GetRejmaxcut() && mychi2Red>p_bmcon->GetChi2Redcut()){
     prunedhit.resize(1);
     for(Int_t i=0;i<hit_mychi2.size();i++){
       if(hit_mychi2[i]/(mychi2/hit_num)>2.){

@@ -74,7 +74,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
   gSystem->ExpandPathName(name_exp);
 
   char bufConf[1024], tmp_char[200];
-  Double_t myArg1(0); 
+  Double_t myArg1(-1),myArg2(-1),myArg3(-1),myArg4(-1),myArg5(-1),myArg6(-1); 
   Int_t myArgInt(-1), myArgIntmax(-1);
   
   ifstream incF;
@@ -204,6 +204,16 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      Error(""," Plane Map Error:: check config file!! (J)");
 	      return kTRUE;
         }
+    }else if(strchr(bufConf,'S')) {
+      sscanf(bufConf, "S %d %lf %lf %lf %lf %lf %lf",&myArgInt,&myArg1, &myArg2, &myArg3, &myArg4, &myArg5, &myArg6);
+      if(myArgInt>=0 && myArg4<180. && myArg5<180. && myArg6<180.){
+        calibro=myArgInt;
+        //~ meas_shift.SetXYZ(myArg1,myArg2,myArg3);
+        //~ meas_tilt.SetXYZ(myArg1,myArg2,myArg3);
+      }else {
+	      Error(""," Plane Map Error:: check config file!! (S)");
+	      return kTRUE;
+        }  
     }else if(strchr(bufConf,'K')) {
       sscanf(bufConf, "K %s",tmp_char);
         parmapfile=tmp_char;

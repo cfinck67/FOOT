@@ -21,6 +21,8 @@
 #include "TCanvas.h"
 #include "TH1F.h"
 #include "TVector3.h"
+#include "TObjString.h"
+#include "TNamed.h"
 
 #include "TAGroot.hxx"
 #include "TAGview.hxx"
@@ -59,6 +61,7 @@ public:
   
   void FillDataBeamMonitor();
   void PrintSTrel();
+  void Allign_estimate();
   void evaluateT0();//evaluate the T0 from datafile
   Bool_t drop_event();//read event from datafile and discharge it, it return false if the file is end
   void clear_bmstruct(Bool_t forced);  

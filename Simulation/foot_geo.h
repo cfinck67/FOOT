@@ -99,13 +99,14 @@ const TString  STC_MEDIUM	="EJ-232";
 //************************************************************
 // Beam Monitor
 
-const Double_t BMN_X 		=0.0;//center x coordinate
-const Double_t BMN_Y 		=0.0;//center y coordinate
+const Double_t BMN_X 		=0.;//center x coordinate
+const Double_t BMN_Y 		=0.;//center y coordinate
 const Double_t BMN_Z 		=-14.0;//center z coordinate
 
-const Double_t BMN_XPHI         =0.;  //bm rotation phi angle
-const Double_t BMN_XTHETA       =0.;  //bm rotation theta angle
-const Double_t BMN_XPSI         =0.;  //bm rotation psi angle
+//using FLUKA 3d rotation convention
+const Double_t BMN_XANG         =0.;  //bm rotation azimuthal angle on X axis
+const Double_t BMN_YANG         =0.;  //bm rotation azimuthal angle on Y axis
+const Double_t BMN_ZANG         =0.;  //bm rotation azimutahl angle on Z axis
 
 const Double_t BMN_SHI_LENGTH  	=23.0;//length (z dimension) of beam monitor shield
 const Double_t BMN_SHI_THICK   	=1.5;//thickness of beam monitor shield
@@ -298,15 +299,15 @@ const bool MAG_AIR_MAG		=true;
 
 const double MSD_X		=0.0; //center x coordinate of the detector system
 const double MSD_Y		=0.0; //center y coordinate of the detector system
-const double MSD_Z		=29.0;//center z coordinate of the detector system
+const double MSD_Z		=-70.0;//center z coordinate of the detector system
 
 const Double_t MSD_WIDTH   	=9.0;//x dimension
 const Double_t MSD_HEIGHT  	=9.0;//y dimension
 const Double_t MSD_THICK   	=0.015;//z dimension
 
 const Int_t    MSD_NVIEW        =2;//no.planes(x and y)
-const Int_t    MSD_NLAY         =3;//no.layers
-const Double_t MSD_LAYDIST   	=2.;//distance btw layers
+const Int_t    MSD_NLAY         =2;//no.layers
+const Double_t MSD_LAYDIST   	=30.;//distance btw layers
 
 //strip parameters
 const Double_t MSD_XMIN		=-MSD_WIDTH/2.; 

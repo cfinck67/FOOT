@@ -90,10 +90,36 @@ void TABMparGeo::InitGeo() {
 
   m_origin=TVector3(0., 0., 0.);
   m_center = TVector3( BMN_X, BMN_Y, BMN_Z );
-  m_rotation = new TRotation();
   //WARNING!!!!! other detector use YEulerAngles!!! 
   //WARNING!!!!! rotations aren't implemented in FLUKA geometry yet
-  m_rotation->SetXEulerAngles(BMN_XPHI,BMN_XTHETA,BMN_XPSI);//XEulerAngles to adopt the Goldstein convention
+  //~ m_rotation->SetXEulerAngles(BMN_XPHI,BMN_XTHETA,BMN_XPSI);//XEulerAngles to adopt the Goldstein convention
+  TRotation x_rot, y_rot, z_rot, tot_rot;
+  x_rot.RotateX(-BMN_XANG*DEG2RAD);
+  y_rot.RotateY(-BMN_YANG*DEG2RAD);
+  z_rot.RotateZ(-BMN_ZANG*DEG2RAD);
+  
+  tot_rot=z_rot*(y_rot*x_rot);
+  m_rotation = new TRotation();
+  m_rotation->Transform(tot_rot); 
+  
+  //provv
+  //~ TVector3 xasse(1.,0.,0.), yasse(0.,1.,0.), zasse(0.,0.,1.);
+  //~ xasse.Print();
+  //~ yasse.Print();
+  //~ zasse.Print();
+  //~ cout<<"mrot  IsIdentity()="<<m_rotation->IsIdentity()<<endl;
+  //~ cout<<"totrot  IsIdentity()="<<tot_rot.IsIdentity()<<endl;
+  //~ cout<<"xrot  IsIdentity()="<<x_rot.IsIdentity()<<endl;
+  //~ cout<<"yrot  IsIdentity()="<<y_rot.IsIdentity()<<endl;
+  //~ cout<<"zrot  IsIdentity()="<<z_rot.IsIdentity()<<endl;
+  //~ cout<<"PROVO A RUOTSÌARE "<<endl;
+  //~ xasse.Transform(*m_rotation);
+  //~ yasse.Transform(*m_rotation);
+  //~ zasse.Transform(*m_rotation);
+  //~ xasse.Print();
+  //~ yasse.Print();
+  //~ zasse.Print();
+  
   bm_mylar1=TVector3(0.,0.,(BMN_LENGTH+BMN_MYL_THICK)/2.);
   bm_mylar2=TVector3(0.,0.,-(BMN_LENGTH+BMN_MYL_THICK)/2.);
   bm_target=TVector3(TG_X,TG_Y,-BMN_Z+TG_Z+TG_THICK/2.);
@@ -204,7 +230,7 @@ void TABMparGeo::InitGeo() {
   return;
 }
 
-Int_t TABMparGeo::ShiftBmon(Bool_t global2local){
+Int_t TABMparGeo::ShiftBmonLG(Bool_t global2local){
 
   TVector3 cen = GetCenter();
   if(global2local)
@@ -226,12 +252,60 @@ Int_t TABMparGeo::ShiftBmon(Bool_t global2local){
 }
 
 
-/*-----------------------------------------------------------------*/
+void TABMparGeo::ShiftBmon(TVector3 shift){
+
+  for (Int_t kk =0; kk<BMN_NWIRELAY;kk++){
+    for(Int_t il=0; il<BMN_NLAY;il++){
+      for (Int_t vie =0; vie<2;vie++){
+      x_pos[kk][il][vie]  += shift.X();
+      y_pos[kk][il][vie]  += shift.Y();
+      z_pos[kk][il][vie]  += shift.Z();
+      }
+    }
+  }
+  return;
+}
+
+
+void TABMparGeo::CoutWirePosDir(){
+  cout<<"TABMparGeo::CoutWirePosDir: now I'll print the wire positions:"<<endl;
+  cout<<"U view: wire along X:"<<endl;
+  for(Int_t k=0;k<BMN_NLAY;k++){
+    for(Int_t i=0;i<BMN_NWIRELAY;i++){
+      cout<<"i="<<i<<" k="<<k<<" x="<<x_pos[i][k][0]<<" y="<<y_pos[i][k][0]<<"  z="<<z_pos[i][k][0]<<endl;
+    }  
+  }
+  cout<<endl<<"V view: wire along Y:"<<endl;
+  for(Int_t i=0;i<BMN_NWIRELAY;i++){
+    for(Int_t k=0;k<BMN_NLAY;k++){
+      cout<<"i="<<i<<" k="<<k<<" x="<<x_pos[i][k][1]<<" y="<<y_pos[i][k][1]<<"  z="<<z_pos[i][k][1]<<endl;
+    }  
+  }
+  
+return;
+}
+
+//-------------------------------------------------------------
+void TABMparGeo::SetRotation(Double_t xrot, Double_t yrot, Double_t zrot){
+  TRotation x_rot, y_rot, z_rot, tot_rot;
+  x_rot.RotateX(BMN_XANG*DEG2RAD);
+  y_rot.RotateX(BMN_YANG*DEG2RAD);
+  z_rot.RotateX(BMN_ZANG*DEG2RAD);
+  tot_rot=z_rot*(y_rot*x_rot);
+  m_rotation->Transform(tot_rot);  
+  return;
+}
+
+
+//-----------------------------------------------------------------
 //rotation with extrinsic euler convention zxz (fixed axys)
 //same as adopted in FLUKA using three rot-defi cards
 //WARNING: THIS METHOD DO NOT USE TROTATION m_rotation...
-void TABMparGeo::RotateNewBmon(){
+void TABMparGeo::RotateNewBmon(Double_t xang, Double_t yang, Double_t zang, Bool_t reverse){//input in deg
   TVector3 PosWireIn,DirWireIn;
+  xang*=DEG2RAD;
+  yang*=DEG2RAD;
+  zang*=DEG2RAD;
   
   for (int iw =0; iw<BMN_NWIRELAY;iw++){       
     for(int il=0; il<BMN_NLAY;il++){
@@ -245,13 +319,24 @@ void TABMparGeo::RotateNewBmon(){
     
         //~ PosWireIn.Transform(*m_rotation);
         //~ DirWireIn.Transform(*m_rotation);
-        PosWireIn.RotateZ(BMN_XPHI);
-        PosWireIn.RotateX(BMN_XTHETA);
-        PosWireIn.RotateZ(BMN_XPSI);
+        if(reverse==false){
+          PosWireIn.RotateX(xang);
+          PosWireIn.RotateY(yang);
+          PosWireIn.RotateZ(zang);
+          
+          DirWireIn.RotateX(xang);
+          DirWireIn.RotateY(yang);
+          DirWireIn.RotateZ(zang);
+        }else{
+          PosWireIn.RotateZ(-zang);
+          PosWireIn.RotateY(-yang);
+          PosWireIn.RotateX(-xang);
+          
+          DirWireIn.RotateZ(-zang);
+          DirWireIn.RotateY(-yang);
+          DirWireIn.RotateX(-xang);
+        }
         
-        DirWireIn.RotateZ(BMN_XPHI);
-        DirWireIn.RotateX(BMN_XTHETA);
-        DirWireIn.RotateZ(BMN_XPSI);
   
         x_pos[iw][il][iv] = PosWireIn.X();
         y_pos[iw][il][iv] = PosWireIn.Y();
@@ -272,9 +357,9 @@ void TABMparGeo::RotateNewBmon(){
 //rotation with euler angul xzx convention with INTRINSIC angles (the axys change the direction at each rotation)
 Int_t TABMparGeo::RotateBmon(){
   /*
-    Rotate the chamber by means of the Euler angles (in degrees) 
-    WE FOLLOW THE GOLDSTEIN CONVENTION for the Euler angles
-  */
+  //  Rotate the chamber by means of the Euler angles (in degrees) 
+  //  WE FOLLOW THE GOLDSTEIN CONVENTION for the Euler angles
+  
 
   const Int_t nrows = 3, ncols = 3;
   const Double_t epsilon = 1.0e-14;
@@ -285,12 +370,8 @@ Int_t TABMparGeo::RotateBmon(){
   PosWireOut.ResizeTo(nrows); PosWireOut.Zero();
   DirWireIn.ResizeTo(nrows); DirWireIn.Zero();
   DirWireOut.ResizeTo(nrows); DirWireOut.Zero();
-  
-  //~ Double_t phi = BMN_XPHI;
-  //~ Double_t theta = BMN_XTHETA;
-  //~ Double_t psi =BMN_XPSI;
 
-  /* definizione della matrice di rotazione tramite angoli di Eulero */
+  // definizione della matrice di rotazione tramite angoli di Eulero 
   //  http://mathworld.wolfram.com/EulerAngles.html, first case
 
   EulerRot[0][0] = cos(BMN_XPHI)*cos(BMN_XPSI) - sin(BMN_XPHI)*cos(BMN_XTHETA)*sin(BMN_XPSI);
@@ -305,7 +386,7 @@ Int_t TABMparGeo::RotateBmon(){
   EulerRot[2][1] = -cos(BMN_XPHI)*sin(BMN_XTHETA);
   EulerRot[2][2] = cos(BMN_XTHETA);
 
-  /*  clean up very tiny matrix elements due to roundings */
+  //  clean up very tiny matrix elements due to roundings 
 
   for(Int_t nc =0; nc<ncols;nc++){       
     for(Int_t nr=0; nr<nrows;nr++){
@@ -321,7 +402,7 @@ Int_t TABMparGeo::RotateBmon(){
     cout<<"  "<<EulerRot(1,0)<<"  "<<EulerRot(1,1)<<"  "<<EulerRot(1,2)<<endl;
     cout<<"  "<<EulerRot(2,0)<<"  "<<EulerRot(2,1)<<"  "<<EulerRot(2,2)<<endl;
   }
-  /*   rotate the U, SIDE view */
+  //   rotate the U, SIDE view 
   for(Int_t il=0; il<BMN_NLAY;il++){
     for (Int_t iw =0; iw<BMN_NWIRELAY;iw++){       
       
@@ -344,7 +425,7 @@ Int_t TABMparGeo::RotateBmon(){
     }
   }
 
-  /*   rotate the V, TOP view */
+  //   rotate the V, TOP view 
   for(Int_t il=0; il<BMN_NLAY;il++){
     for (Int_t iw =0; iw<BMN_NWIRELAY;iw++){       
       
@@ -367,7 +448,7 @@ Int_t TABMparGeo::RotateBmon(){
 
     }
   }
-
+*/
   return 0;
 }
 

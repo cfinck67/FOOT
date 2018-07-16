@@ -739,15 +739,14 @@ void Booter::initBMGeo()  {
   //Initialization of BM parameters
   TABMparGeo* o_bmgeo = (TABMparGeo*) myp_bmgeo->Object();
   o_bmgeo->InitGeo();
-  //~ top->AddNode( o_bmgeo->GetVolume(), 0, new TGeoCombiTrans( o_bmgeo->GetCenter().X(),o_bmgeo->GetCenter().Y(),o_bmgeo->GetCenter().Z(),new TGeoRotation("BeamMonitor",BMN_XPHI,BMN_XTHETA,BMN_XPSI)));
     
-  TGeoRotation bmphirot ("BM_XPHI_rot");
-  TGeoRotation bmthetarot("BM_XTHETA_rot");
-  TGeoRotation bmpsirot ("BM_XPSI_rot");  
-  bmphirot.RotateZ(BMN_XPHI);  
-  bmthetarot.RotateX(BMN_XTHETA);  
-  bmpsirot.RotateZ(BMN_XPSI);    
-  top->AddNode( o_bmgeo->GetVolume(), 0, new TGeoCombiTrans( o_bmgeo->GetCenter().X(),o_bmgeo->GetCenter().Y(),o_bmgeo->GetCenter().Z(),new TGeoRotation( (bmphirot*bmthetarot)*bmpsirot )));
+  TGeoRotation bmxrot ("BM_XANG_rot");
+  TGeoRotation bmyrot("BM_YANG_rot");
+  TGeoRotation bmzrot ("BM_ZANG_rot");  
+  bmxrot.RotateX(BMN_XANG*DEG2RAD);  
+  bmyrot.RotateY(BMN_YANG*DEG2RAD);  
+  bmzrot.RotateZ(BMN_ZANG*DEG2RAD);    
+  top->AddNode( o_bmgeo->GetVolume(), 0, new TGeoCombiTrans( o_bmgeo->GetCenter().X(),o_bmgeo->GetCenter().Y(),o_bmgeo->GetCenter().Z(),new TGeoRotation( bmzrot*(bmyrot*bmxrot) )));
   
   
   
