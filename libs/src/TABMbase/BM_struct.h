@@ -4,6 +4,7 @@
 using namespace std;
 
 #define MAXHITTDC 200
+//~ #define SCA830MAX 32     //max channel read=32
 
 //The BM acquisition software structure
 typedef struct BM_struct {
@@ -15,6 +16,7 @@ typedef struct BM_struct {
   Int_t hit_meas[MAXHITTDC];//measurement value (10^-8 sec.)
   Int_t status;//error flag: -1000=ok, 0=not set
   Int_t synctime[MAXHITTDC];//time of the sync channel -1000=not set, (10^-8 sec.)
+  //~ Int_t sca830_meas[SCA830MAX];//scaler measurement for each channell
 
 } BM_struct;
 

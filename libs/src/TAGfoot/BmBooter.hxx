@@ -111,10 +111,11 @@ private:
   TString m_instr;   //input file name
   Bool_t isdata;     //to separate MC and data
   Bool_t isroma;     //true if the input data is the BM refurbishment data taken in 2017 in Rome
+  Bool_t isallign;   //true if the allign parameters can be shown
   ifstream datafile;
   BM_struct bmstruct;
-  Long64_t tot_num_ev;//current number of events
-  Long64_t data_num_ev;//total number of events
+  Long64_t tot_num_ev;  //total number of events
+  Long64_t data_num_ev; //current number of events
 
 };
 

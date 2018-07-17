@@ -87,24 +87,42 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
           return kTRUE;
         }
       } else {
-        Error(""," Plane Map Error:: check config file!!");
+        Error(""," TABMparMap Plane Map Error:: check config file!! (#)");
         return kTRUE;
       }
     } else if(strchr(bufConf,'T')) {
-        sscanf(bufConf, "T%d",&trefCh);
+        sscanf(bufConf, "T %d",&myArg1);
+      if(myArg1<0 || myArg1>tdc_maxcha) {
+        Error("FromFile()","TABMparMap::Reference Tr channel:: check config file!!(T)");
+        return kTRUE;
+      }else{
+        trefCh=myArg1;
         tdc2cell_vec[trefCh]=-1000;
-      if(trefCh<0 || trefCh>tdc_maxcha) {
-        Error("FromFile()","Reference Tr channel:: check config file!!");
-        return kTRUE;
       }
+    } else if(strchr(bufConf,'S')) {
+        sscanf(bufConf, "S %d",&myArg1);
+      if(myArg1<0) {
+        Error("FromFile()","TABMparMap::Scaler sca830ch ERROR:: check config file!!(S)");
+        return kTRUE;
+      }else
+        sca830ch=myArg1;
+    } else if(strchr(bufConf,'H')) {
+        sscanf(bufConf, "H %d",&myArg1);
+      if(myArg1<0) {
+        Error("FromFile()","TABMparMap::hm_ev_read ERROR:: check config file!!(H)");
+        return kTRUE;
+      }else
+        hm_ev_read=myArg1;
     } else if(strchr(bufConf,'M')) {
-        sscanf(bufConf, "M%d",&tdc_maxcha);
-        for(Int_t i=0;i<tdc_maxcha;i++)
-          tdc2cell_vec.push_back(-1);
-      if(!(tdc_maxcha==64 || tdc_maxcha==128 || tdc_maxcha==256)) {
-        Error("FromFile()","tdc_maxcha not = 64 || 128 || 256:: check config file!!");
-        return kTRUE;
-      }
+        sscanf(bufConf, "M %d",&myArg1);
+        if(!(myArg1==64 || myArg1==128 || myArg1==256)) {
+          Error("FromFile()","TABMparMap::tdc_maxcha not = 64 || 128 || 256:: check config file!!(M)");
+          return kTRUE;
+        }else{
+          tdc_maxcha=myArg1;
+          for(Int_t i=0;i<tdc_maxcha;i++)
+            tdc2cell_vec.push_back(-1);
+          }
     }
   }
 

@@ -31,9 +31,9 @@ Kalman Particle Types:	C
 
 IncludeBM:			y
 IncludeIR:			n
-IncludeVertex:		y
-IncludeInnerTracker:	y
-IncludeMSD:			y
+IncludeVertex:		n
+IncludeInnerTracker:	n
+IncludeMSD:			n
 IncludeTW:			n
 IncludeCA:			n
 

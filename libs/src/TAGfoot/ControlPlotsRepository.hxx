@@ -219,7 +219,7 @@ public:
   }
   
   
-  void BM_setntutrack_info(string hitSampleName, TABMntuTrack* bmntutrack,TABMntuRaw* bmnturaw, TABMparCon* bmcon){
+  Bool_t BM_setntutrack_info(string hitSampleName, TABMntuTrack* bmntutrack,TABMntuRaw* bmnturaw, TABMparCon* bmcon){
     
     FillMap( hitSampleName + "__track_error", bmntutrack->trk_status);
     FillMap( hitSampleName + "__track_tracknumxevent", bmntutrack->ntrk);
@@ -237,25 +237,25 @@ public:
       FillMap( hitSampleName + "__track_target_x", bmntutracktr->GetTargetPos().X());
       FillMap( hitSampleName + "__track_target_y", bmntutracktr->GetTargetPos().Y());
       if(bmntutrack->trk_status==0){//selected tracks
-	FillMap( hitSampleName + "__tracksel_chi2red", bmntutracktr->GetMyChi2Red());
-	FillMap( hitSampleName + "__tracksel_hitselected", bmntutracktr->GetNhit());
-	FillMap( hitSampleName + "__tracksel_hitrejected", bmnturaw->nhit-bmntutracktr->GetNhit());
-	FillMap( hitSampleName + "__tracksel_AngZ", bmntutracktr->GetAngZ());
-	FillMap( hitSampleName + "__tracksel_AngZRes", bmntutracktr->GetAngZRes());
-	FillMap( hitSampleName + "__tracksel_AngPhi", bmntutracktr->GetAngPhi());
-	FillMap( hitSampleName + "__tracksel_AngPhiRes", bmntutracktr->GetAngPhiRes());
-	FillMap( hitSampleName + "__tracksel_AngXZ", atan((bmntutracktr->GetMylar2Pos().X()-bmntutracktr->GetMylar1Pos().X())/(bmntutracktr->GetMylar2Pos().Z()-bmntutracktr->GetMylar1Pos().Z())));
-	FillMap( hitSampleName + "__tracksel_AngYZ", atan((bmntutracktr->GetMylar2Pos().Y()-bmntutracktr->GetMylar1Pos().Y())/(bmntutracktr->GetMylar2Pos().Z()-bmntutracktr->GetMylar1Pos().Z())));
-	FillMap( hitSampleName + "__tracksel_mylar1_x", bmntutracktr->GetMylar1Pos().X());
-	FillMap( hitSampleName + "__tracksel_mylar1_y", bmntutracktr->GetMylar1Pos().Y());
-	FillMap( hitSampleName + "__tracksel_mylar2_x", bmntutracktr->GetMylar2Pos().X());
-	FillMap( hitSampleName + "__tracksel_mylar2_y", bmntutracktr->GetMylar2Pos().Y());
-	FillMap( hitSampleName + "__tracksel_target_x", bmntutracktr->GetTargetPos().X());
-	FillMap( hitSampleName + "__tracksel_target_y", bmntutracktr->GetTargetPos().Y());
+        FillMap( hitSampleName + "__tracksel_chi2red", bmntutracktr->GetMyChi2Red());
+        FillMap( hitSampleName + "__tracksel_hitselected", bmntutracktr->GetNhit());
+        FillMap( hitSampleName + "__tracksel_hitrejected", bmnturaw->nhit-bmntutracktr->GetNhit());
+        FillMap( hitSampleName + "__tracksel_AngZ", bmntutracktr->GetAngZ());
+        FillMap( hitSampleName + "__tracksel_AngZRes", bmntutracktr->GetAngZRes());
+        FillMap( hitSampleName + "__tracksel_AngPhi", bmntutracktr->GetAngPhi());
+        FillMap( hitSampleName + "__tracksel_AngPhiRes", bmntutracktr->GetAngPhiRes());
+        FillMap( hitSampleName + "__tracksel_AngXZ", atan((bmntutracktr->GetMylar2Pos().X()-bmntutracktr->GetMylar1Pos().X())/(bmntutracktr->GetMylar2Pos().Z()-bmntutracktr->GetMylar1Pos().Z())));
+        FillMap( hitSampleName + "__tracksel_AngYZ", atan((bmntutracktr->GetMylar2Pos().Y()-bmntutracktr->GetMylar1Pos().Y())/(bmntutracktr->GetMylar2Pos().Z()-bmntutracktr->GetMylar1Pos().Z())));
+        FillMap( hitSampleName + "__tracksel_mylar1_x", bmntutracktr->GetMylar1Pos().X());
+        FillMap( hitSampleName + "__tracksel_mylar1_y", bmntutracktr->GetMylar1Pos().Y());
+        FillMap( hitSampleName + "__tracksel_mylar2_x", bmntutracktr->GetMylar2Pos().X());
+        FillMap( hitSampleName + "__tracksel_mylar2_y", bmntutracktr->GetMylar2Pos().Y());
+        FillMap( hitSampleName + "__tracksel_target_x", bmntutracktr->GetTargetPos().X());
+        FillMap( hitSampleName + "__tracksel_target_y", bmntutracktr->GetTargetPos().Y());
       }
     }
   
-    return;  
+    return bmntutrack->trk_status;  
   }
   
   //Beam Monitor OutputNtuple

@@ -1,8 +1,12 @@
 !Trigger max channel number (must be the first parameter, trigger channel goes from 0 to this number -1)
-M64
+M 64
 !Trigger channel
-T47
+T 47
 !Chamber LUT  ???
+!SCALER830 readed channel (sca830ch)
+S 0
+!read scaler each hm_evt_read event (hm_evt_read)
+H 1 
 !TDC cha (chaBoID); Plane [0-5]; View 1==S, -1==T; Idsense: 0,1,2    
 #0   0	 1	0
 #1   0	 1	1

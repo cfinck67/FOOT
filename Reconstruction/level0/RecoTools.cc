@@ -86,7 +86,6 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
       booter = new Booter();
       bmbooter = new BmBooter();
-      cout<<"prima di initialize"<<endl;
       booter->Initialize( &evStr, m_wd, m_isdata);
       if (GlobalPar::GetPar()->IncludeBM())
         bmbooter->Initialize( m_instr, m_isdata);

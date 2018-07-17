@@ -26,6 +26,7 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {
   isdata=isdata_in;
   m_instr=instr_in;
   data_num_ev=0;
+  isallign=kFALSE;
   clear_bmstruct(kTRUE);
   myp_bmgeo = gTAGroot->FindParaDsc("myp_bmgeo", "TABMparGeo");  
   myp_bmcon = gTAGroot->FindParaDsc("myp_bmcon", "TABMparCon");  
@@ -94,7 +95,7 @@ void BmBooter::Process() {
   
   Int_t track_ok;
    
-   if((data_num_ev==0 || (isroma && data_num_ev==1)) && isdata ){
+   if(isroma && (data_num_ev==0 || data_num_ev==1) && isdata ){
     drop_event();
     return;
   }
@@ -111,7 +112,8 @@ void BmBooter::Process() {
         bmdathit=&bmdatraw->Hit(i);
         //~ cout<<"evento numero="<<data_num_ev<<"  numero hit"<<i<<"raw hit time="<<bmdathit->Time()<<endl;
       }
-    }
+    }else
+      return;
   }
   
   bmnturaw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
@@ -137,7 +139,8 @@ void BmBooter::Process() {
     cout<<"in BmBooter::Process, I finished to printout BM hits, it's BM tracks printout (if enable)"<<endl;
   
   if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok>=0)
-    m_controlPlotter->BM_setntutrack_info("BM_output", bmntutrack, bmnturaw, bmcon);       
+    if(m_controlPlotter->BM_setntutrack_info("BM_output", bmntutrack, bmnturaw, bmcon)==0)
+      isallign=kTRUE;      
 
   //draw and save tracks
   if(bmcon->GetBMvietrack()>0 && data_num_ev%bmcon->GetBMvietrack()==0){
@@ -176,7 +179,7 @@ void BmBooter::Finalize() {
     cout<<"I'm in BmBooter::Finalize"<<endl;
 
   PrintSTrel();  
-  if(bmcon->GetCalibro()!=0)
+  if(isallign)
     Allign_estimate();
   
   if (bmcon->GetBMdebug()>10)
@@ -186,31 +189,30 @@ return;
 }
 
 void BmBooter::Allign_estimate(){
-  //~ TString all("Beam Monitor allignment parameters");
-  //~ TObjString stringa;
-  //~ stringa.SetString(all);
+  
   Double_t xrot=-atan((((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetMean()-((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetMean())/(bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z()))*RAD2DEG;  
   
   Double_t yrot=atan((((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_x")))->GetMean()-((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_x")))->GetMean())/(bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z()))*RAD2DEG;
    
   Double_t xtra=-(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_x")))->GetMean()+((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_x")))->GetMean())/2.;  
-    
+      
   Double_t xtr_err=sqrt(pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_x")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_x")))->GetEntries()),2.)  + pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_x")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_x")))->GetEntries()),2.));  
     
   Double_t ytra=-(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetMean()+((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetMean())/2.;
     
   Double_t ytr_err=sqrt(pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetEntries()),2.)  +  pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetEntries()),2.));  
     
-  cout<<"Beam Monitor allignment parameters"<<endl;
-  cout<<"estimated rotation around X axis= "<<xrot<<endl;
-  cout<<"estimated rotation around Y axis= "<<yrot<<endl;
-  cout<<"estimated translation in X="<<xtra<<"   +-   "<<xtr_err<<endl;
-  cout<<"estimated translation in Y="<<ytra<<"   +-   "<<ytr_err<<endl;
-  cout<<"AngPhi mean value="<<((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_AngPhi")))->GetMean()<<endl;
-  cout<<"AngPhi devstrd ="<<((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_AngPhi")))->GetStdDev()<<endl;
+  if(bmcon->GetBMdebug()>3){  
+    cout<<"Beam Monitor allignment parameters"<<endl;
+    cout<<"estimated rotation around X axis= "<<xrot<<endl;
+    cout<<"estimated rotation around Y axis= "<<yrot<<endl;
+    cout<<"estimated translation in X="<<xtra<<"   +-   "<<xtr_err<<endl;
+    cout<<"estimated translation in Y="<<ytra<<"   +-   "<<ytr_err<<endl;
+    cout<<"AngPhi mean value="<<((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_AngPhi")))->GetMean()<<endl;
+    cout<<"AngPhi devstrd ="<<((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_AngPhi")))->GetStdDev()<<endl;
+  }
   
   if(((TDirectory*)(m_controlPlotter->GetTFile()))->IsFolder()){
-    //~ ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->WriteObject(&all, "allignment_par"); 
     TString tmp_str("BM allign par: xrot=");
     tmp_str+= xrot; 
     tmp_str+="  yrot=";
@@ -223,7 +225,7 @@ void BmBooter::Allign_estimate(){
     tmp_str+=ytra;
     tmp_str+=" +- ";
     tmp_str+=ytr_err;
-    TNamed n("allign_par_TNAMED",tmp_str.Data());
+    TNamed n("BM_allign_par",tmp_str.Data());
     n.Write();
   }
   
@@ -263,7 +265,7 @@ void BmBooter::evaluateT0() {
     h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",3000,-1000.,2000.);
   }
   h=new TH1D("all_tdc_chan","Number of tdc signals; TDC channel; counts",bmmap->GetTdcMaxcha(),0.,bmmap->GetTdcMaxcha());
-  h=new TH1D("tdc_error","Number of tdc signals with errors; Event number; counts",3,0.,3);//provv, distinguish the type of error!
+  h=new TH1D("tdc_error","Number of tdc signals with errors; Event number; counts",4,0.,4);//provv, distinguish the type of error!
   
   //jump the first event
   drop_event();
@@ -275,6 +277,7 @@ void BmBooter::evaluateT0() {
     if(bmcon->GetBMdebug()>11)
       cout<<"data_num_ev="<<data_num_ev<<endl;
     if(!error && bmstruct.synctime[0]!=-10000 && bmstruct.synctime[1]==-10000){
+      ((TH1D*)gDirectory->Get("tdc_error"))->Fill(0);//no error
       sprintf(tmp_char,"tdc_synccha_%d",bmmap->GetTrefCh());  
         ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.synctime[0])/10.);    
       for(Int_t i=0;i<bmstruct.hitnum;i++){
@@ -287,8 +290,10 @@ void BmBooter::evaluateT0() {
         cout<<"BmBooter::evaluateT0::ERROR in the data detected at data_num_ev="<<data_num_ev<<endl;
       if(bmstruct.synctime[0]==-10000)
         ((TH1D*)gDirectory->Get("tdc_error"))->Fill(1);//no synctime
-      if(bmstruct.synctime[1]!=-10000)      
+      else if(bmstruct.synctime[1]!=-10000)      
         ((TH1D*)gDirectory->Get("tdc_error"))->Fill(2);//multi synctime
+      else if(error)
+        ((TH1D*)gDirectory->Get("tdc_error"))->Fill(3);//generic reading error  
     }
     data_num_ev++;
   }
@@ -299,23 +304,25 @@ void BmBooter::evaluateT0() {
   //~ TF1 *f1 = new TF1("f1","gaus(0)", ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
   for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
     sprintf(tmp_char,"tdc_cha_%d",i);
-    if(bmmap->tdc2cell(i)>=0){
-      //~ cout<<"fit channel number="<<i<<endl;
-      //~ f1->SetParameters(1, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin(), 10);
-      //~ f1->SetParLimits(1,0,100);
-      //~ ((TH1D*)gDirectory->Get(tmp_char))->Fit(f1,"QR+","",((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100,((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
-    
-      //take the first signal, not too distant from other signals
-      tmp_int=((TH1D*)gDirectory->Get(tmp_char))->GetMinimumBin();
-      for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMinimumBin()+1;j<((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
-        if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>0)
-          if(j-tmp_int<50){
-            j=2000;
-          }else
-            tmp_int=j;
-      //~ if(bmcon->GetBMdebug()>9)
-        //~ cout<<"tdc channel="<<i<<"   T0="<<(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)/10.<<endl;
-      bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)); 
+    if(bmmap->tdc2cell(i)>=0 && i!=bmmap->GetTrefCh()){
+      if(((TH1D*)gDirectory->Get(tmp_char))->GetEntries()>0){
+        //~ cout<<"fit channel number="<<i<<endl;
+        //~ f1->SetParameters(1, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin(), 10);
+        //~ f1->SetParLimits(1,0,100);
+        //~ ((TH1D*)gDirectory->Get(tmp_char))->Fit(f1,"QR+","",((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100,((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
+      
+        //take the first signal, not too distant from other signals
+        tmp_int=((TH1D*)gDirectory->Get(tmp_char))->GetMinimumBin();
+        for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMinimumBin()+1;j<((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
+          if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>0)
+            if(j-tmp_int<50){
+              j=2000;
+            }else
+              tmp_int=j;
+        //~ if(bmcon->GetBMdebug()>9)
+          //~ cout<<"tdc channel="<<i<<"   T0="<<(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)/10.<<endl;
+        bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)); 
+      }
     }  
   }  
   
@@ -337,7 +344,6 @@ Bool_t BmBooter::read_event(Bool_t &error) {
   double tdc_meas;
   error=false;
   //~ Int_t board_num=513;//number of board used in the acquisition //provv, da modificare: mettere in config file questo numero
-  Int_t ev_num=0;//number of events given by the acquisition
   
   clear_bmstruct(kFALSE);
   
@@ -347,6 +353,8 @@ Bool_t BmBooter::read_event(Bool_t &error) {
     bmstruct.words=tmp_int;
     }
   else{
+    if(bmcon->GetBMdebug()>11)
+      cout<<"file ended"<<endl;
     return kFALSE;
   }
   Int_t ev_words[bmstruct.words];
@@ -360,47 +368,44 @@ Bool_t BmBooter::read_event(Bool_t &error) {
     cout<<"ERROR in BmBooter:read_event: board num != "<<TDC_BOARDNUM<<"  ev_words[1]="<<ev_words[1]<<endl;
     error=true;
   }
-  if((ev_words[0]-ev_num)!=1 && ev_num!=0){
-    cout<<"ERROR in BmBooter:read_event: previous ev_num="<<ev_num<<"  new ev_num="<<ev_words[0]<<endl;
-    error=true;    
-  }
   if(ev_words[3]!=3){//provv, da modificare: da togliere nell'acquisizione e qua...
     cout<<"ERROR in BmBooter:read_event: ev_words[3]="<<ev_words[3]<<" ,!=3"<<endl;
     error=true;          
   }
   bmstruct.evnum=ev_words[0];
-  if(error || bmcon->GetBMdebug()>11)
+  if((error && bmcon->GetBMdebug()>0) || bmcon->GetBMdebug()>11)
     for(Int_t i=0;i<bmstruct.words;i++)
       cout<<"event_num="<<data_num_ev<<"   ev_words["<<i<<"]="<<ev_words[i]<<endl;
   if(!error){//read the tdc words
     new_event=true;
     read_meas=false;
-    for(Int_t i=4;i<ev_words[2]+4;i++){
-      if(new_event){//global header found
+    for(Int_t i=4;i<ev_words[2]+4 && !error;i++){
+      if(new_event && !error){//global header found
         tdc_evnum=ev_words[i++];
         read_meas=true;
         if(bmcon->GetBMdebug()>11)
           cout<<"global header found, i="<<i<<"  tdc_evnum="<<tdc_evnum<<endl;
         }
-      if(ev_words[i]<0 && isroma==kFALSE){//global trailer found //se uso acquisizione mio (yun)
+      if(ev_words[i]<0 && isroma==kFALSE && !error){//global trailer found //se uso acquisizione mio (yun)
         read_meas=false;
         new_event=true;
         bmstruct.status=ev_words[i];
         if(ev_words[i]!=-1000){
           cout<<"Warning in BmBooter: global trailer found with error in tdc_evnum="<<tdc_evnum<<"  trailer="<<ev_words[i]<<endl;
           error=true;
+          new_event=false;
         }
         if(bmcon->GetBMdebug()>11)
           cout<<"global trailer found, i="<<i<<"  ev_words="<<ev_words[i]<<endl;
       }        
-      if(ev_words[i]==0 && isroma==kTRUE){//global trailer found //se uso dati letti a Roma per BM refurbishment
+      if(ev_words[i]==0 && isroma==kTRUE && !error){//global trailer found //se uso dati letti a Roma per BM refurbishment
         read_meas=false;
         new_event=true;
         bmstruct.status=-1000;
         if(bmcon->GetBMdebug()>11)
           cout<<"global trailer found, i="<<i<<"  ev_words="<<ev_words[i]<<endl;
       }        
-      if(read_meas){  
+      if(read_meas && !error){  
         if(ev_words[i++]!=tdc_evnum){
           cout<<"ERROR in BmBooter:read_event: tdc_evnum="<<tdc_evnum<<"  measured event number="<<ev_words[i-1]<<"  i="<<i<<endl;
           error=true;
@@ -415,18 +420,28 @@ Bool_t BmBooter::read_event(Bool_t &error) {
             bmstruct.hitnum++;
           }
         }
-        else
+        else{
           cout<<"ERROR in BmBooter:read_event: tdc_channel out of range!!! tdc_channel="<<ev_words[i]<<endl;
+          error=true;
+        }
         new_event=false;
-        if(bmcon->GetBMdebug()>11)
+        if(bmcon->GetBMdebug()>11 && ev_words[i-1]!=bmmap->GetTrefCh())
           cout<<"BMbooter::measure found: tdc_evnum="<<tdc_evnum<<" hit_id="<<bmstruct.hit_id[bmstruct.hitnum-1]<<" hit_meas="<<bmstruct.hit_meas[bmstruct.hitnum-1]<<endl;
+        else if(bmcon->GetBMdebug()>11 && ev_words[i-1]==bmmap->GetTrefCh())
+          cout<<"BMbooter::trigger found: sync registered="<<sync_evnum<<"  time="<<bmstruct.synctime[sync_evnum-1]<<endl;
       }
     }//end of reading tdc words for loop
-  }else{//read tdc words if    
-    cout<<"data_num_ev="<<data_num_ev<<endl;
-    for(Int_t i=0;i<bmstruct.words;i++)
+    if(error && bmcon->GetBMdebug()>0){
+      cout<<"BMbooter::read_event::error detected previously, the whole event read is:    data_num_ev="<<data_num_ev<<endl;
+      for(Int_t i=0;i<bmstruct.words;i++)
         cout<<"ev_words["<<i<<"]="<<ev_words[i]<<endl;
+    }
   }
+  //~ else{//read tdc words if    
+    //~ cout<<"data_num_ev="<<data_num_ev<<endl;
+    //~ for(Int_t i=0;i<bmstruct.words;i++)
+        //~ cout<<"ev_words["<<i<<"]="<<ev_words[i]<<endl;
+  //~ }
   return kTRUE;
 }
 

@@ -58,6 +58,8 @@ class TABMparMap : public TAGpara {
     Int_t trefCh;  //trigger reference channel
     Int_t    tdc_maxcha;//tdc number of channel
     vector<Int_t> tdc2cell_vec;//each position of this vector correspond to a tdc channel, the value stored correspond to the bm cell index (0-35) or -1000 if is the trefCh, otherwise is -1
+    Int_t sca830ch;//number of the scaler channel read
+    Int_t hm_ev_read;//read the scaler each hm_ev_read
 
     //~ vector<int> chaID;
     //~ vector<int> chaBoID;
