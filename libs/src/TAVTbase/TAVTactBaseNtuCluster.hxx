@@ -9,7 +9,6 @@
 
 #include "TClonesArray.h"
 #include "TVector3.h"
-#include <string>
 
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
@@ -24,12 +23,10 @@ class TAVTactBaseNtuCluster : public TAGaction {
    
 public:
    explicit  TAVTactBaseNtuCluster(const char* name     =  0,
-   								   TAGdataDsc* p_nturaw =  0, 
-   								   TAGdataDsc* p_ntuclus = 0, 
-   								   TAGparaDsc* p_config =  0,
-   								   TAGparaDsc* p_geomap =  0,
-                              string command = ""
-                           );
+								   TAGdataDsc* p_nturaw =  0, 
+								   TAGdataDsc* p_ntuclus = 0, 
+								   TAGparaDsc* p_config =  0,
+								   TAGparaDsc* p_geomap =  0);
    
    virtual ~TAVTactBaseNtuCluster();
    
@@ -46,21 +43,21 @@ public:
    virtual  Bool_t FindClusters(Int_t /*iSensor*/) = 0;
    
     //! Get list of pixels for a given plane
-   // TClonesArray*   GetListOfPixels()   const { return fListOfPixels; }
+   TClonesArray*   GetListOfPixels()   const { return fListOfPixels; }
     //! Return seed pixel
    TAVTntuHit*     GetSeedPixel()      const { return fPSeed; }  
    
-   // //! Get position of current cluster
-   // TVector3*       GetCurrentPosition()        { return fCurrentPosition; }
-   // //! Get position error of current cluster
-   // TVector3*       GetCurrentPosError()        { return fCurrentPosError; }
+   //! Get position of current cluster
+   TVector3*       GetCurrentPosition()        { return fCurrentPosition; }
+   //! Get position error of current cluster
+   TVector3*       GetCurrentPosError()        { return fCurrentPosError; }
    
    //! Set list of pixels
-   // void SetListOfPixels(TClonesArray* list)    { fListOfPixels = list;    }
+   void SetListOfPixels(TClonesArray* list)    { fListOfPixels = list;    }
    //! Set debug level
    void SetDebugLevel(Int_t debug)             { fDebugLevel = debug;     }
    //! Set position of current cluster
-   // void SetCurrentPosition(Float_t u, Float_t v, Float_t z)   { fCurrentPosition->SetXYZ(u,v,z); }
+   void SetCurrentPosition(Float_t u, Float_t v, Float_t z)   { fCurrentPosition->SetXYZ(u,v,z); }
    
    //! Compute position
    virtual void ComputePosition();
@@ -72,23 +69,19 @@ protected:
    TAGparaDsc*     fpGeoMap;		  // geometry para dsc
    
    TAVTntuHit*    fPSeed;             // seed pixel
-   TVector3      fCurrentPosition;   // pointer to current position
-   TVector3      fCurrentPosError;  // pointer to current position error
-   // TClonesArray*  fListOfPixels;      // list of pixels 
+   TVector3*      fCurrentPosition;   // pointer to current position
+   TVector3*      fCurrentPosError ;  // pointer to current position error
+   TClonesArray*  fListOfPixels;      // list of pixels 
    TClonesArray*  fCurListOfPixels;   // list of pixels in current cluster
    
-   string         m_command;          // type of pixel to be used for clustering
-
    Int_t          fDebugLevel;        // debug level
    
    TH1F*          fpHisPixelTot;	  // Total number of pixels per cluster
    TH1F*          fpHisPixel[8];	  // number of pixels per cluster per sensor
    TH2F*          fpHisClusMap[8];    // cluster map per sensor
    
-
-
 protected:
-   // void ComputeSeedPosition();
+   void ComputeSeedPosition();
    void ComputeCoGPosition();
    
    ClassDef(TAVTactBaseNtuCluster,0)
