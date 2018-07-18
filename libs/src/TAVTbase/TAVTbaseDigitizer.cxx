@@ -41,9 +41,9 @@ TAVTbaseDigitizer::TAVTbaseDigitizer(TAGparaDsc* parGeo)
 {
    SetFunctions();
    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpParGeo->Object();
-   fPitchX   = pGeoMap->GetPitchX();
+   fPitchX   = pGeoMap->GetPitchX()*fgkCm2Mu;
    fPixelsNx = pGeoMap->GetNPixelX();
-   fPitchY   = pGeoMap->GetPitchY();
+   fPitchY   = pGeoMap->GetPitchY()*fgkCm2Mu;
    fPixelsNy = pGeoMap->GetNPixelY();
 }
 
@@ -58,9 +58,8 @@ TAVTbaseDigitizer::~TAVTbaseDigitizer()
 //! fill pixel signal
 Bool_t TAVTbaseDigitizer::Process( Double_t edep, Double_t x0, Double_t y0, Double_t zin, Double_t zout)
 {
-   // leave everything in cm
-   // x0 *= fgkCm2Mu;
-   // y0 *= fgkCm2Mu;
+   x0 *= fgkCm2Mu;
+   y0 *= fgkCm2Mu;
    
    Double_t deltaE = edep*fgkGeV2keV;
    Double_t  smear = 0;
@@ -73,7 +72,7 @@ Bool_t TAVTbaseDigitizer::Process( Double_t edep, Double_t x0, Double_t y0, Doub
    
    fPixelsN = TMath::Nint(fFuncClusterSize->Eval(deltaE));
    
-   if (fPixelsN <= 0) fPixelsN = 1;
+   if (fPixelsN <= 0) return false;
    
    if (fDebugLevel) {
       printf("\nnext hit:\n");
@@ -133,11 +132,27 @@ Int_t TAVTbaseDigitizer::GetLine(Float_t y) const
    return fPixelsNy - line - 1;
 }
 
+
 //-----------------------------------------+---------------------------------
 Int_t TAVTbaseDigitizer::GetIndex(Int_t line, Int_t column) const
 {
    return line*fPixelsNx + column;
 }
+
+//_____________________________________________________________________________
+Float_t TAVTbaseDigitizer::GetPositionU(Int_t column) const
+{
+   Float_t x = (float(2*column - fPixelsNx + 1) * fPitchX)/2.;
+   return  x;
+}
+
+//_____________________________________________________________________________
+Float_t TAVTbaseDigitizer::GetPositionV(Int_t line) const
+{
+   Float_t y = -(float(2*line - fPixelsNy + 1) * fPitchY)/2.;
+   return  y;
+}
+
 
 //_____________________________________________________________________________
 Float_t TAVTbaseDigitizer::GetColRemainder(Float_t x) const

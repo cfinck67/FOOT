@@ -52,6 +52,10 @@ public:
    Int_t        GetLine(Float_t y)   const;
    Int_t        GetIndex(Int_t line, Int_t column) const;
    
+   //! Get position from pixel line/column
+   Float_t      GetPositionU(Int_t column)         const;
+   Float_t      GetPositionV(Int_t line)           const;
+   
    //! Get remainder of column/line
    Float_t      GetColRemainder(Float_t x)  const;
    Float_t      GetLineRemainder(Float_t y) const;
