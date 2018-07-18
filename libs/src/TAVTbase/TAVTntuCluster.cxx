@@ -222,7 +222,7 @@ TAVTntuCluster::TAVTntuCluster()
   fGeometry(0x0),
   fListOfClusters(0x0)
 {
-   fGeometry = (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object();
+   fGeometry = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAVTparGeo")->Object();
    SetupClones();
 }
 

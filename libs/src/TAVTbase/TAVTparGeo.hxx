@@ -22,6 +22,7 @@
 #include "TEveGeoShapeExtract.h"
 
 #include "TObject.h"
+#include "TString.h"
 
 #include "TAVTparTools.hxx"
 
@@ -49,7 +50,6 @@ typedef vector< vector< FootBox* > > PassivePlane;
 typedef vector< FootBox* > PassiveLine;
 
 public:
-
     TAVTparGeo();
     TAVTparGeo( TAVTparGeo* original );
     virtual ~TAVTparGeo() {
@@ -157,9 +157,10 @@ public:
     virtual void    Clear(Option_t* opt="");
     virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
 
-
+public:
+   static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
+   
 private:
-
     SensorMatrix m_sensorMatrix;
     PassiveMatrix m_passiveMatrix;
     TRotation* m_rotation;
@@ -203,7 +204,8 @@ private:
 
     double m_xmin, m_ymin;
 
-
+private:
+   static TString fgkDefParaName;
 
 ////////////////////////////////////////////////////////////////////////////////
 
