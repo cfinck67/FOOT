@@ -33,8 +33,8 @@ TAVTbaseDigitizer::TAVTbaseDigitizer(TAGparaDsc* parGeo)
 : TObject(),
   fpParGeo(parGeo),
   fPixelsN(-1),
-  fRsPar(1.6),
-  fRsParErr(0.2),
+  fRsPar(0.65),
+  fRsParErr(0.05),
   fThresPar(885),
   fThresParErr(250),
   fDebugLevel(0)
@@ -64,10 +64,10 @@ Bool_t TAVTbaseDigitizer::Process( Double_t edep, Double_t x0, Double_t y0, Doub
    Double_t deltaE = edep*fgkGeV2keV;
    Double_t  smear = 0;
    
-  // smear = gRandom->Gaus(0, fRsParErr);
+   smear = gRandom->Gaus(0, fRsParErr);
    fFuncClusterSize->SetParameter(0, fRsPar+smear);
 
- //  smear = gRandom->Gaus(0, fThresParErr);
+   smear = gRandom->Gaus(0, fThresParErr);
    fFuncClusterSize->SetParameter(1, fThresPar+smear);
    
    fPixelsN = TMath::Nint(fFuncClusterSize->Eval(deltaE));
