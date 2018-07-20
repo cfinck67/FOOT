@@ -177,14 +177,14 @@ public:
 	    	if( where.find( what.substr( wildcard_pos+1 ) ) != string::npos )
 		        return true;
 	    }
-	    else if( wildcard_pos == what.size()-1 )    {
+	    else if( wildcard_pos == (int)what.size()-1 )    {
 	    	if( where.find( what.substr( 0, wildcard_pos ) ) != string::npos )
 		        return true;
 	    }
-	    else if ( wildcard_pos != string::npos )    {
+	    else if ( wildcard_pos != (int)string::npos )    {
 	        int pre = where.find( what.substr( 0, wildcard_pos ) );
 	        int post = where.find( what.substr( wildcard_pos+1 ) );
-	        if( pre!=string::npos && post!=string::npos )
+	        if( pre!=(int)string::npos && post!=(int)string::npos )
 		        return true;
 	    }
 
