@@ -26,6 +26,7 @@
  index, position, noise, pulse height, size, etc...
  
     Revised in 2018 by Matteo Franchini franchinim@bo.infn.it
+    Back to a class compliant with storing in a root file by Ch. Finck
 
     All the coordinates are in cm and in the detector reference frame, i.e. the center
     is the center of the detector.
@@ -33,133 +34,89 @@
 */
 /*------------------------------------------+---------------------------------*/
 
-
-
 class TAVTntuHit : public TObject {
    
 private:
 
-	TAVTparGeo* m_geometry;
+	TAVTparGeo*        fGeometry;                 //! do NOT stored such a useless pointer !
 
-	Int_t              m_sensorID;                 // number of the sensor
-	TVector3           fPosition;                     // pixel position in the detector frame
-	// TVector3           fSize;                         // size in uvw directions
+	Int_t              fSensorId;                 // number of the sensor
+	TVector3           fPosition;                 // pixel position in the detector frame
+	// TVector3           fSize;                  // size in uvw directions
 
-	Int_t              fMCid;                         // MC index of the hit in the ntuple
-	TVector3           fMCPos;                        // MC hit position = track hitting the pixel
-	TVector3           fMCP;                          // MC momentum of the hit
+	Int_t              fMCid;                     // MC index of the hit in the ntuple
+	TVector3           fMCPos;                    // MC hit position = track hitting the pixel
+	TVector3           fMCP;                      // MC momentum of the hit
+   Double_t           fMCEnLoss;                 // MC energy loss by MC particle VM 3/11/13
 
-	// Int_t              fPixelIndex;                   // index of the pixel
-	Int_t              fPixelLine;                    // line in the matrix
-	Int_t              fPixelColumn;                  // column in the matrix
-	int                m_layer;
+   Int_t              fPixelIndex;               // index of the pixel
+	Int_t              fPixelLine;                // line in the matrix
+	Int_t              fPixelColumn;              // column in the matrix
+	int                fLayer;
 
-	Double_t           fRawValue;                     // the rawvalue
-	Double_t           fPulseHeight;                  // pulseheight on pixel
+	Double_t           fRawValue;                 // the rawvalue
+	Double_t           fPulseHeight;              // pulseheight on pixel
 
-	Double_t           fEneLoss;        // energy loss by MC particle VM 3/11/13
-   
-	//////////////////////////
-
-	string 					  m_origins;               // how the hit is produced: mc, noise, digitalization, data, ...
-
-	int 					  m_originalMC_HitID;         // index of the hit that has generated it, Different from -1 only for cluster pix
-	TAVTntuHit*			      m_originalMC_Hit;        // hit index, mcID
-	
-    int 					  m_genPartIndex;          // the index of the particle generating the hit = TRid in ntupla
-	TAGntuMCeveHit* 		  m_genPartPointer;        // the particle generating the hit
-
-    //! Set pixel position in detector frame
-    void               SetPosition(TVector3 aPosition) { fPosition = aPosition; }
-
+   Bool_t             fFound;                    // flag, that pixel is found in hit
 
 public:
 
-	TAVTntuHit() {};
-	TAVTntuHit( Int_t iSensor, TAVTrawHit* pixel);
-	TAVTntuHit( Int_t iSensor, const Int_t aIndex, Double_t aValue, string aorigin);
-	TAVTntuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn, string aorigin); 
-	~TAVTntuHit() {};
+    TAVTntuHit() {};
+    TAVTntuHit( Int_t iSensor, TAVTrawHit* pixel);
+    TAVTntuHit( Int_t iSensor, const Int_t aIndex, Double_t aValue);
+    TAVTntuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn);
+    ~TAVTntuHit() {};
 
-	void Initialise();
+   
+    void               Clear(Option_t* option = "C");
+	 void               Initialise();
 
+    Bool_t	           IsEqual(const TObject* obj) const;
 
-    // all the Set methods 
+    // all the Set methods
+    void               SetMCid(Int_t id)               { fMCid = id;            }    //MC index of the hit in the ntuple
+    void               SetMCPosition(TVector3 a_pos)   { fGeometry->Global2Local( &a_pos ), fMCPos = a_pos; }    //! Set MC truth position
+    void               SetMCMomentum(TVector3 a_mom)   { fGeometry->Global2Local_RotationOnly( &a_mom ), fMCP = a_mom; }    //! Set MC truth momentum
 
-    void               SetMCid(Int_t a_id)             { fMCid = a_id;            }    //MC index of the hit in the ntuple
-    void               SetMCPosition(TVector3 a_pos)   { m_geometry->Global2Local( &a_pos ), fMCPos = a_pos; }    //! Set MC truth position
-    void               SetMCMomentum(TVector3 a_mom)   { m_geometry->Global2Local_RotationOnly( &a_mom ), fMCP = a_mom; }    //! Set MC truth momentum
-
-    void               SetGenPartID( int agenPartID );  // also the m_genPartPointer
-
-    void               SetOriginalMC_HitID( int amcID )         { m_originalMC_HitID = amcID; };
-    void               SetOriginalMC_Hit( TAVTntuHit* aseedID ) { m_originalMC_Hit = aseedID; };
 
     void               SetRawValue(Double_t aRV)       { fRawValue = aRV;         }
     void               SetPulseHeight(Double_t aPH)    { fPulseHeight = aPH;      }
-    void               SetEneLoss(Double_t de) { fEneLoss=de; }  
+    void               SetEneLoss(Double_t de)         { fMCEnLoss = de;          }
 
-    
-    
-
-
+    void               SetFound(Bool_t b)              { fFound = b;              }
+   
     //    All the Get methods
-  
-    // Int_t              GetPixelIndex()           { return  fPixelIndex;     }
-    int              GetPixelLine()             { return  fPixelLine;      }
-    int              GetPixelColumn()           { return  fPixelColumn;    }
-    int              GetLayer()                 { return  m_layer;         }
-    int              GetSensorID()              { return  m_sensorID;   }
+    Int_t              GetPixelIndex()   const         { return  fPixelIndex;     }
+    Int_t              GetPixelLine()    const         { return  fPixelLine;      }
+    Int_t              GetPixelColumn()  const         { return  fPixelColumn;    }
+    Int_t              GetLayer()        const         { return  fLayer;          }
+    Int_t              GetSensorID()     const         { return  fSensorId;       }
+   
+   
+    Double_t           GetRawValue()     const         { return  fRawValue;       }
+    Double_t           GetPulseHeight()  const         { return  fPulseHeight;    }
+    Double_t           GetEneLoss()      const         { return  fMCEnLoss;       }
+
     // TVector3&          GetSize()                       { return  fSize;           }
-    
-    Int_t               GetMCid()                       { return  fMCid;           }  //MC index of the hit in the ntuple
-    int                 GetGenPartID() {return m_genPartIndex;};
-    TAGntuMCeveHit*     GetGenParticle() {return m_genPartPointer;};
+   
+    Bool_t             Found()          const         { return  fFound;          }
 
-    string              GetOrigin() {return m_origins;};
-    int                 GetOriginalMC_HitID() {return m_originalMC_HitID;};
-    TAVTntuHit*         GetOriginalMC_Hit() {return m_originalMC_Hit;}; // danger, to fix
-
-    
-    TVector3          GetPixelPosition_sensorFrame()        { return m_geometry->GetPixelPos_sensorFrame(m_sensorID, fPixelColumn, fPixelLine); };
+    Int_t             GetMCid()          const         { return  fMCid;           }  //MC index of the hit in the ntuple
+   
+    TVector3          GetPixelPosition_sensorFrame()        { return fGeometry->GetPixelPos_sensorFrame(fSensorId, fPixelColumn, fPixelLine); };
     TVector3          GetPixelPosition_detectorFrame()      { return fPosition; };
-    TVector3          GetPixelPosition_footFrame()          { return m_geometry->GetPixelPos_footFrame( m_sensorID, fPixelColumn, fPixelLine ); };
+    TVector3&         GetPosition()                         { return fPosition; };
+    TVector3          GetPixelPosition_footFrame()          { return fGeometry->GetPixelPos_footFrame( fSensorId, fPixelColumn, fPixelLine ); };
     
     TVector3          GetMCPosition_sensorFrame();
-    TVector3          GetMCPosition_detectorFrame()      { return  fMCPos;            }
+    TVector3          GetMCPosition_detectorFrame()         { return  fMCPos;          }
     TVector3          GetMCPosition_footFrame();
 
-    // TVector3          GetMCMomentum_sensorFrame()        { return  fMCP;            }
-    TVector3           GetMCMomentum_detectorFrame()      { return  fMCP;            }
-    TVector3           GetMCMomentum_footFrame();
+    TVector3          GetMCMomentum_detectorFrame()         { return  fMCP;            }
+    TVector3          GetMCMomentum_footFrame();
 
-    Double_t           GetRawValue()              { return  fRawValue;       }
-    Double_t           GetPulseHeight()           { return  fPulseHeight;    }
-    Double_t           GetEneLoss()               { return fEneLoss; };
-
-
-   //  // old
-   //  TVector3&          GetPosition()                   { return  fPosition;       }
-   //  TVector3           GetPixelPos_Global()            { 
-   //      TVector3 globPos = fPosition;
-   //      m_geometry->Local2Global( &globPos ); 
-   //      return globPos;     
-   //  };
-   //  TVector3&          GetMCPosition_Local()                 { return  fMCPos;          }
-   //  TVector3           GetMCPosition_Global()          { 
-   //      TVector3 globPos = fMCPos;
-   //      m_geometry->Local2Global( &globPos ); 
-   //      return globPos; 
-   //  };
-   // TVector3&          GetMCMomentum_Local()                 { return  fMCP;            }
-   // TVector3           GetMCMomentum_Global()          { 
-   //      TVector3 globP = fMCP;
-   //      m_geometry->Local2Global_RotationOnly( &globP ); 
-   //      return globP; 
-   //  };
-
-
-    
+    void              SetPosition(TVector3 aPosition)       { fPosition = aPosition;   }
+   
     //! Compute distance from a given pixel
     Double_t           Distance( TAVTntuHit&         aPixel);
     //! Compute distance from a given position
@@ -175,6 +132,10 @@ public:
    
 
 
+   // this is a tmp solution
+   // MUST BE REMOVED
+   // no respect of C++ encapsulation basic rule
+   
      // Frank  ->  bad hack
     void SetGeneratedParticleInfo ( int genPartID, int genPartFLUKAid, int genPartCharge,
                         int genPartBarionNum, float genPartMass,
@@ -197,8 +158,6 @@ public:
     float m_genPartMass;
     TVector3 m_genPartPosition;
     TVector3 m_genPartMomentum;
-
-
    
     ClassDef(TAVTntuHit,3)                            // Pixel or Pixel of a Detector Plane
 };

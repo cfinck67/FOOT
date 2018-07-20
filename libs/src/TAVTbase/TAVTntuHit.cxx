@@ -1,175 +1,129 @@
 
-
-
-
 #include "TString.h"
 #include "TClonesArray.h"
 
 #include "TAVTntuRaw.hxx"
-#include "TAVTparMap.hxx"
-
-
-
 #include "TAVTntuHit.hxx"
 
-
-
-
-
 ClassImp(TAVTntuHit) // Description of Single Detector TAVTntuHit 
-
 
 
 //______________________________________________________________________________
 //  build a hit from a rawHit
 TAVTntuHit::TAVTntuHit(Int_t aSensorNumber, TAVTrawHit* pixel)
 : TObject(),
-  m_sensorID(aSensorNumber),
-  fMCid(-1)
+  fSensorId(aSensorNumber),
+  fMCid(-1),
+  fFound(false)
 {
    // constructor of a TAVTntuHit from a base pixel
    
     fPixelLine    = pixel->GetLineNumber();
     fPixelColumn  = pixel->GetColumnNumber();
-    // fPixelIndex   = pixel->GetIndex();
+    fPixelIndex   = pixel->GetIndex();
 
     fRawValue     = pixel->GetValue();
     fPulseHeight  = fRawValue;   
 
-    m_origins = "data";
     Initialise();
-    m_layer = m_geometry->GetLayerFromSensorID( aSensorNumber );
+    fLayer = fGeometry->GetLayerFromSensorID( aSensorNumber );
 }
 
-
-
-// lo cancellerei....................................................................................................
 //______________________________________________________________________________
 //  build the hit from the index
-TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aValue, string aorigin )
+TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aValue)
 : TObject(),
-  m_sensorID(aSensorNumber),
+  fSensorId(aSensorNumber),
   fMCid(-1),
-  // fPixelIndex(aPixelIndex),
+  fPixelIndex(aPixelIndex),
   fPixelLine(0),
   fPixelColumn(0),
-  fRawValue(aValue)
+  fRawValue(aValue),
+  fFound(false)
 {
-    m_origins = aorigin;
     Initialise();
 
-    m_layer = m_geometry->GetLayerFromSensorID( aSensorNumber );
+    fLayer = fGeometry->GetLayerFromSensorID( aSensorNumber );
 
-    fPulseHeight    = fRawValue; 
+    fPulseHeight = fRawValue;
 }
-
-
-
 
 //______________________________________________________________________________
 // Build the pixel from its sensor, line and column// constructor of a Pixel with column and line 
-TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t aColumn, string aorigin )
+TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t aColumn )
 : TObject(),
-  m_sensorID(aSensorNumber),
+  fSensorId(aSensorNumber),
   fMCid(-1),
-  // fPixelIndex(0),
+  fPixelIndex(0),
   fPixelLine(aLine),
   fPixelColumn(aColumn),
-  fRawValue(aValue)
+  fRawValue(aValue),
+  fFound(false)
 {
-    
-    m_origins = aorigin;
     Initialise();
 
-    m_layer = m_geometry->GetLayerFromSensorID( aSensorNumber );
+    fLayer = fGeometry->GetLayerFromSensorID( aSensorNumber );
 
-    fPulseHeight    = fRawValue; 
+    fPulseHeight = fRawValue;
 }
 
+//______________________________________________________________________________
+//
+void TAVTntuHit::Clear(Option_t* /*option*/)
+{
+}
 
+//______________________________________________________________________________
+//
+Bool_t TAVTntuHit::IsEqual(const TObject* hit) const
+{
+   return ((fSensorId    == ((TAVTntuHit*)hit)->fSensorId)    &&
+           (fPixelLine   == ((TAVTntuHit*)hit)->fPixelLine)   &&
+           (fPixelColumn == ((TAVTntuHit*)hit)->fPixelColumn)
+           );
+}
 
 //______________________________________________________________________________
 //  
-void TAVTntuHit::Initialise() {
-
+void TAVTntuHit::Initialise()
+{
     fPosition.SetXYZ(0, 0, 0);
-
     fMCPos.SetXYZ(0, 0, 0);
     fMCP.SetXYZ(0, 0, 0);
 
-    m_genPartIndex = -1;
-    m_genPartPointer = NULL;
-
-    m_originalMC_HitID = -1;
-    m_originalMC_Hit = NULL;   
-
-    // check the hit origin is allowed
-    if ( !GlobalPar::GetPar()->CheckAllowedHitOrigin(m_origins) )  {
-        cout << "ERROR >> TAVTntuHit::Initialise()  -->  the required hit origin (" << m_origins<< ") is not allowed. \nThe allowed ones are: ";
-        GlobalPar::GetPar()->PrintAllowedHitOrigin();
-        exit(0);
-    }
-
     // take the detector geometry
-    m_geometry = (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object();
+    fGeometry = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAVTparGeo")->Object();
 
     // set center position
-    if ( GlobalPar::GetPar()->Debug() > 1 )   cout << "TAVTntuHit::Initialise()  ::  line = " << fPixelLine << " col = " << fPixelColumn << endl;
-    SetPosition( m_geometry->GetPixelPos_detectorFrame( m_sensorID, fPixelColumn, fPixelLine ) );
-    // SetPosition( m_geometry->GetPixelPos_Local( m_sensorID, fPixelColumn, fPixelLine ) );
-
-
+    if ( GlobalPar::GetPar()->Debug() > 1 )
+       Info("Initialise()", "line =  %d col = %d", fPixelLine, fPixelColumn);
+   
+    SetPosition( fGeometry->GetPixelPos_detectorFrame(fSensorId, fPixelColumn, fPixelLine ) );
 }
 
-
-
-
-
 //______________________________________________________________________________
-void TAVTntuHit::SetGenPartID( int agenPartID ) { 
-    m_genPartIndex = agenPartID; 
-    
-    // find the pointer in the list
-    if( !GlobalPar::GetPar()->IncludeEvent() )  return;
-
-    TAGntuMCeve* ntup = (TAGntuMCeve*) gTAGroot->FindDataDsc("myn_mceve", "TAGntuMCeve")->Object();
-    for (int i = 0; i < ntup->GetHitN(); i++) {   // over all sensors
-        if ( ntup->Hit( i )->FlukaID() == m_genPartIndex ) {
-            m_genPartPointer = ntup->Hit( i );
-            // ntup->Hit( i )->AddVTXhit( this );  // x Alberto to implement <3
-            return;
-        }
-    }
-}
-
-
-
-
-//______________________________________________________________________________
-TVector3 TAVTntuHit::GetMCPosition_sensorFrame() {
+TVector3 TAVTntuHit::GetMCPosition_sensorFrame()
+{
     TVector3 glob = fMCPos;
-    m_geometry->Detector2Sensor_frame( m_sensorID, &glob ); 
+    fGeometry->Detector2Sensor_frame( fSensorId, &glob );
     return glob; 
 }
 
-
 //______________________________________________________________________________
-TVector3 TAVTntuHit::GetMCPosition_footFrame() { 
+TVector3 TAVTntuHit::GetMCPosition_footFrame()
+{
     TVector3 glob = fMCPos;
-    m_geometry->Local2Global( &glob ); 
+    fGeometry->Local2Global( &glob ); 
     return glob; 
-};
-
-
+}
 
 //______________________________________________________________________________
-TVector3 TAVTntuHit::GetMCMomentum_footFrame() { 
+TVector3 TAVTntuHit::GetMCMomentum_footFrame()
+{
     TVector3 globP = fMCP;
-    m_geometry->Local2Global_RotationOnly( &globP ); 
+    fGeometry->Local2Global_RotationOnly( &globP ); 
     return globP; 
-};
-
-
+}
 
 //______________________________________________________________________________
 //  
