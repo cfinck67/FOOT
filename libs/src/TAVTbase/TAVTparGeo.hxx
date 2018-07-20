@@ -137,7 +137,7 @@ public:
     TVector3        GetNumberOfSensorAlongDirections() { return m_nSensors; }; 
     
     // define the agloritm to map the sensor with a single variable. For VTX is too easy :).
-    int GetSensorID( int layer, int col, int row )    { return layer; };
+    int GetSensorID( int layer, int /*col*/, int /*row*/ )    { return layer; };
     int GetLayerFromSensorID( int sensID )            { return sensID; };
 
     // pixel dimension
