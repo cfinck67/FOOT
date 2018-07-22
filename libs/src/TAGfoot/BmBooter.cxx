@@ -25,7 +25,8 @@ BmBooter::BmBooter() {
 void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {  
   isdata=isdata_in;
   m_instr=instr_in;
-  data_num_ev=0;
+  data_num_ev= (isdata==true) ? -1000:0;
+  acq_start_ev=1;
   isallign=kFALSE;
   clear_bmstruct(kTRUE);
   myp_bmgeo = gTAGroot->FindParaDsc("myp_bmgeo", "TABMparGeo");  
@@ -34,7 +35,7 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {
   bmcon = (TABMparCon*) (gTAGroot->FindParaDsc("myp_bmcon", "TABMparCon")->Object()); 
   bmgeo = (TABMparGeo*) (gTAGroot->FindParaDsc("myp_bmgeo", "TABMparGeo")->Object());
   bmmap = (TABMparMap*) (gTAGroot->FindParaDsc("myp_bmmap", "TABMparMap")->Object());
-  if(bmcon->GetParmapfile().compare("beammonitor_geoch_roma.map")==0)
+  if(bmcon->GetParmapfile().compare("beammonitor_geoch_roma.map")==0 || bmcon->GetParmapfile().compare("beammonitor_geoch_trento.map")==0)
     isroma=kTRUE;
   else
     isroma=kFALSE;
@@ -66,12 +67,21 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {
       cout<<"ERROR in BmBooter::CalculateT0: cannot open the datafile="<<m_instr.Data()<<endl;
     evaluateT0();
     datafile.close();
+    //T0
     if(bmcon->GetmanageT0BM()==0)
-      bmcon->PrintT0s(m_instr);
+      bmcon->PrintT0s(m_instr, data_num_ev);
     else
-      bmcon->loadT0s();
-    if(bmcon->GetBMdebug()>1)
+      bmcon->loadT0s(data_num_ev);
+    if(bmcon->GetBMdebug()>1 || bmcon->GetmanageT0BM()>1)
       bmcon->CoutT0();
+    //ADC pedestals  
+    if(bmmap->GetAdc792Ch()>0){
+      if(bmcon->GetmanageADCped()==0)
+        bmcon->PrintADCped(m_instr, data_num_ev);
+      if(bmcon->GetBMdebug()>1 || bmcon->GetmanageADCped()>1)
+        bmcon->CoutADCped();
+    }
+
     datafile.open(m_instr.Data(), ios::in | ios::binary);
     if(!datafile.is_open())
       cout<<"ERROR in BmBooter::CalculateT0: cannot open the datafile="<<m_instr.Data()<<endl;
@@ -79,7 +89,7 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {
   }
     
   tot_num_ev=data_num_ev;  
-  data_num_ev=0;
+  data_num_ev= (isdata==true) ? -1000:0;
   
 return;
 }
@@ -95,15 +105,14 @@ void BmBooter::Process() {
   
   Int_t track_ok;
    
-   if(isroma && (data_num_ev==0 || data_num_ev==1) && isdata ){
-    drop_event();
-    return;
-  }
+   //~ if(isroma && (data_num_ev==-1000 || data_num_ev==-999) && isdata ){
+    //~ drop_event();
+    //~ return;
+  //~ }
   
   if(isdata){
-    Bool_t error;
-    read_event(error);
-    if(!error){
+    read_event(kFALSE);
+    if(bmstruct.tot_status==0 && bmstruct.tdc_status==-1000){
       bmdatraw = (TABMdatRaw*) (gTAGroot->FindDataDsc("myn_bmdatraw", "TABMdatRaw")->GenerateObject());  
       stdatraw = (TAIRdatRaw*) (gTAGroot->FindDataDsc("myn_stdatraw", "TAIRdatRaw")->GenerateObject());
      
@@ -112,8 +121,10 @@ void BmBooter::Process() {
         bmdathit=&bmdatraw->Hit(i);
         //~ cout<<"evento numero="<<data_num_ev<<"  numero hit"<<i<<"raw hit time="<<bmdathit->Time()<<endl;
       }
-    }else
+    }else{
+      data_num_ev++;
       return;
+    }
   }
   
   bmnturaw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
@@ -158,7 +169,6 @@ void BmBooter::Process() {
         //~ plot_name=bm_outputdir+"/BM_track_"+to_string(data_num_ev);
       pg->Print(&plot_name[0]);  
   }
-  
   
   data_num_ev++;
 
@@ -234,6 +244,8 @@ void BmBooter::Allign_estimate(){
 
 
 void BmBooter::PrintSTrel(){
+  if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
+    return;
   TH1D* histo=new TH1D( "strel", "strel", 4000, 0., 400.);
   histo->GetXaxis()->SetTitle("time [ns]");
   histo->GetYaxis()->SetTitle("distance [cm]");
@@ -255,8 +267,12 @@ void BmBooter::evaluateT0() {
   f_out->cd();
   TH1D* h=nullptr;
   Int_t tmp_int, trash;
+  Int_t adc_maxbin=4200;
   char tmp_char[200];
-  bool error;
+
+  //book histos
+  f_out->mkdir("TDC");
+  f_out->cd("TDC");
   for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
     if(i!=bmmap->GetTrefCh())
       sprintf(tmp_char,"tdc_cha_%d",i);
@@ -265,66 +281,195 @@ void BmBooter::evaluateT0() {
     h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",3000,-1000.,2000.);
   }
   h=new TH1D("all_tdc_chan","Number of tdc signals; TDC channel; counts",bmmap->GetTdcMaxcha(),0.,bmmap->GetTdcMaxcha());
-  h=new TH1D("tdc_error","Number of tdc signals with errors; Event number; counts",4,0.,4);//provv, distinguish the type of error!
+  h=new TH1D("tdc_error","Number of tdc signals with errors; Event number; counts",5,0.,5);//provv, distinguish the type of error!
+  f_out->cd("..");
+  if(bmmap->GetSca830Ch()>0){
+    f_out->mkdir("SCA");
+    f_out->cd("SCA");
+    for(Int_t i=0;i<bmmap->GetSca830Ch();i++){
+      sprintf(tmp_char,"sca_cha_%d",i);  
+      h=new TH1D(tmp_char,"Scaler counts;Scaler counts; Number of events",1000,0.,1000.);
+    }    
+    h=new TH1D("sca_allch","Scaler channel with at least 1 count x event;Scaler channel; Number of events",bmmap->GetSca830Ch(),0.,bmmap->GetSca830Ch());
+    h=new TH1D("sca_error","Scaler Error;0=no_error    1=error; Number of events",2,0.,2);
+    f_out->cd("..");
+  }
+  if(bmmap->GetAdc792Ch()>0){
+    f_out->mkdir("ADC");
+    f_out->cd("ADC");
+    h=new TH1D("adc_error","Adc Error;0=no_error  1=read data error  2=overflow channels  3=channel overflow not set; Number of events",3,0.,3);
+    h=new TH1D("adc_pedmeas","Adc pedestals level ;channel; Number of counts",bmmap->GetAdc792Ch(),0.,bmmap->GetAdc792Ch());
+    h=new TH1D("adc_pedrms","Adc pedestals rms ;channel; Counts rms",bmmap->GetAdc792Ch(),0.,bmmap->GetAdc792Ch());   
+    gDirectory->mkdir("ADC_meas");
+    gDirectory->cd("ADC_meas");
+      for(Int_t i=0;i<bmmap->GetAdc792Ch();i++){
+        sprintf(tmp_char,"adc_meas_cha_%d",i);  
+        h=new TH1D(tmp_char,"adc measurements;Adc measurements; Number of events",adc_maxbin,0.,adc_maxbin);
+      }
+    gDirectory->cd("..");
+    gDirectory->mkdir("ADC_over");
+    gDirectory->cd("ADC_over");
+      for(Int_t i=0;i<bmmap->GetAdc792Ch();i++){
+        sprintf(tmp_char,"adc_over_cha_%d",i);  
+        h=new TH1D(tmp_char,"adc overflow;Adc overflow events: 0=no overr, 1=over, 2=not set; Number of events",3,0.,3.);
+      }    
+    gDirectory->cd("..");
+    if(bmcon->GetmanageADCped()!=0){
+      bmcon->loadADCped(bmmap->GetAdc792Ch());
+      gDirectory->mkdir("ADC_noped");
+      gDirectory->cd("ADC_noped");
+        for(Int_t i=0;i<bmmap->GetAdc792Ch();i++){
+          sprintf(tmp_char,"adc_noped_cha_%d",i);  
+          h=new TH1D(tmp_char,"ADC measurements - pedestals;ADC measurements - pedestals; Number of events",adc_maxbin,0.,adc_maxbin);
+        }    
+      gDirectory->cd("..");      
+    }
+    f_out->cd("..");
+  }
+  gDirectory->cd("..");
   
-  //jump the first event
-  drop_event();
-  if(isroma)//jump the second event if isroma    
+  //~ if(bmmap->GetAdc792Ch()>0){
+    //~ f_out->mkdir("ADC");
+    //~ f_out->cd("ADC");
+    //~ for(Int_t i=0;i<bmmap->GetAdc792Ch();i++){
+      //~ sprintf(tmp_char,"adc_cha_%d",i);  
+      //~ h=new TH1D(tmp_char,"Adc counts;adc counts; Number of events",3000,-1000.,2000.);
+    //~ }    
+    //~ f_out->cd("..");
+  //~ }
+  
+  
+  //~ f_out->ls();
+  
+  //jump the first event IS NECESSARY????????????
+  //~ drop_event();
+  if(isroma){//jump two event if isroma    
     drop_event();
+    drop_event();
+  }
       
   //charge the tdc_cha_* TH1D graph of the tdc signals    
-  while(read_event(error)){
-    if(bmcon->GetBMdebug()>11)
+  while(read_event(kTRUE)) {
+    if(bmcon->GetBMdebug()>11 && bmcon->GetBMdebug()!=99)
       cout<<"data_num_ev="<<data_num_ev<<endl;
-    if(!error && bmstruct.synctime[0]!=-10000 && bmstruct.synctime[1]==-10000){
-      ((TH1D*)gDirectory->Get("tdc_error"))->Fill(0);//no error
-      sprintf(tmp_char,"tdc_synccha_%d",bmmap->GetTrefCh());  
-        ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.synctime[0])/10.);    
-      for(Int_t i=0;i<bmstruct.hitnum;i++){
-        sprintf(tmp_char,"tdc_cha_%d",bmmap->cell2tdc(bmstruct.hit_id[i]));
-        ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.hit_meas[i]-bmstruct.synctime[0])/10.);    
-        ((TH1D*)gDirectory->Get("all_tdc_chan"))->Fill(bmmap->cell2tdc(bmstruct.hit_id[i]));    
-      } 
-    }else{
-      if(bmcon->GetBMdebug()>1)
-        cout<<"BmBooter::evaluateT0::ERROR in the data detected at data_num_ev="<<data_num_ev<<endl;
-      if(bmstruct.synctime[0]==-10000)
-        ((TH1D*)gDirectory->Get("tdc_error"))->Fill(1);//no synctime
-      else if(bmstruct.synctime[1]!=-10000)      
-        ((TH1D*)gDirectory->Get("tdc_error"))->Fill(2);//multi synctime
-      else if(error)
-        ((TH1D*)gDirectory->Get("tdc_error"))->Fill(3);//generic reading error  
+    //TDC  
+    if(bmstruct.tot_status==0 && bmstruct.tdc_status==-1000){ 
+      if(bmstruct.tdcev==1 && bmstruct.tdc_sync[0]!=-10000 && bmstruct.tdc_sync[1]==-10000){
+        ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(0);//no error
+        sprintf(tmp_char,"TDC/tdc_synccha_%d",bmmap->GetTrefCh());  
+          ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_sync[0])/10.);    
+        for(Int_t i=0;i<bmstruct.tdc_hitnum[0];i++){
+          sprintf(tmp_char,"TDC/tdc_cha_%d",bmmap->cell2tdc(bmstruct.tdc_id[i]));
+          ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[i]-bmstruct.tdc_sync[0])/10.);    
+          ((TH1D*)gDirectory->Get("TDC/all_tdc_chan"))->Fill(bmmap->cell2tdc(bmstruct.tdc_id[i]));    
+        } 
+      }else{
+        if(bmstruct.tdc_sync[0]==-10000){
+          cout<<"BmBooter::evaluateT0::ERROR no sync in the TDC data at data_num_ev="<<data_num_ev<<endl;
+          ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(3);//no synctime
+        }
+        else if(bmstruct.tdc_sync[1]!=-10000){      
+          if(bmcon->GetBMdebug()>0)
+            cout<<"BmBooter::evaluateT0::ERROR multisync in the TDC data at data_num_ev="<<data_num_ev<<endl;
+          ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(4);//multi synctime   
+        }
+        else{
+          if(bmcon->GetBMdebug()>0)
+            cout<<"BmBooter::evaluateT0::ERROR multievent in the TDC data at data_num_ev="<<data_num_ev<<endl;
+          ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(5);//multi event             
+        }   
+      }
+    }else if(bmstruct.tdc_status!=-1000){
+      ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(bmstruct.tdc_status);//other tdc error  
+    }
+    
+    //SCALER
+    if(bmmap->GetSca830Ch()>0){    
+      ((TH1D*)gDirectory->Get("SCA/sca_error"))->Fill(bmstruct.sca_status);
+      if(bmstruct.sca_status==0)
+        for(Int_t i=0;i<bmmap->GetSca830Ch();i++){
+          sprintf(tmp_char,"SCA/sca_cha_%d",i);  
+          ((TH1D*)gDirectory->Get(tmp_char))->Fill(bmstruct.sca830_meas[i]);
+          if(bmstruct.sca830_meas[i]>0)
+            ((TH1D*)gDirectory->Get("SCA/sca_allch"))->Fill(i);
+        }    
+    }
+    //ADC
+    if(bmmap->GetAdc792Ch()>0){
+      Double_t mulf_qdc = 400./4095;// perchè c'è fattore di conversione?
+      ((TH1D*)gDirectory->Get("ADC/adc_error"))->Fill(bmstruct.adc_status);
+      if(bmstruct.sca_status!=1){
+        for(Int_t i=0;i<bmmap->GetAdc792Ch();i++){
+          sprintf(tmp_char,"ADC/ADC_meas/adc_meas_cha_%d",i);
+          ((TH1D*)gDirectory->Get(tmp_char))->Fill(bmstruct.adc792_meas[i]);
+          sprintf(tmp_char,"ADC/ADC_over/adc_over_cha_%d",i);  
+          ((TH1D*)gDirectory->Get(tmp_char))->Fill((bmstruct.adc792_over[i]==-10000) ? 3:bmstruct.adc792_over[i]);
+        }
+        if(bmcon->GetmanageADCped()!=0)
+          for(Int_t i=0;i<bmmap->GetAdc792Ch();i++){
+            sprintf(tmp_char,"ADC/ADC_noped/adc_noped_cha_%d",i);
+            ((TH1D*)gDirectory->Get(tmp_char))->Fill(bmstruct.adc792_meas[i]-bmcon->GetADCped(i));
+          }
+      }
     }
     data_num_ev++;
   }
+  data_num_ev--;
   
   //fit the tdc signals with a function to evaluate the T0, for the moment I take the shortest signal close to the peak
   //~ TF1 *f1 = new TF1("f1","[0]*pow(([1]/[2]),(x/[2]))(TMath::Exp(-([1]/[2])))/TMath::Gamma((x/[2])+1)", 0, 2000);
   //~ TF1 *f1 = new TF1("f1","[0]*pow([1]/[2],x/[2]-[3])/(TMath::Gamma(x/[2]-[3]+1))*(TMath::Exp(-[1]/[2]))", 0, 2000);
   //~ TF1 *f1 = new TF1("f1","gaus(0)", ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
-  for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
-    sprintf(tmp_char,"tdc_cha_%d",i);
-    if(bmmap->tdc2cell(i)>=0 && i!=bmmap->GetTrefCh()){
-      if(((TH1D*)gDirectory->Get(tmp_char))->GetEntries()>0){
-        //~ cout<<"fit channel number="<<i<<endl;
-        //~ f1->SetParameters(1, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin(), 10);
-        //~ f1->SetParLimits(1,0,100);
-        //~ ((TH1D*)gDirectory->Get(tmp_char))->Fit(f1,"QR+","",((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100,((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
-      
-        //take the first signal, not too distant from other signals
-        tmp_int=((TH1D*)gDirectory->Get(tmp_char))->GetMinimumBin();
-        for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMinimumBin()+1;j<((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
-          if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>0)
-            if(j-tmp_int<50){
-              j=2000;
-            }else
-              tmp_int=j;
-        //~ if(bmcon->GetBMdebug()>9)
-          //~ cout<<"tdc channel="<<i<<"   T0="<<(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)/10.<<endl;
-        bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)); 
-      }
-    }  
-  }  
+
+  TF1 *fb = new TF1("fb","gaus", -1000,5000);
+
+  //EVALUATE T0
+  if(bmcon->GetmanageT0BM()==0){
+    for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
+      sprintf(tmp_char,"TDC/tdc_cha_%d",i);
+      if(bmmap->tdc2cell(i)>=0 && i!=bmmap->GetTrefCh()){
+        if(((TH1D*)gDirectory->Get(tmp_char))->GetEntries()>0){
+          //~ cout<<"fit channel number="<<i<<endl;
+          //~ f1->SetParameters(1, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin(), 10);
+          //~ f1->SetParLimits(1,0,100);
+          //~ ((TH1D*)gDirectory->Get(tmp_char))->Fit(f1,"QR+","",((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100,((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
+        
+          //take the first signal, not too distant from other signals
+          tmp_int=((TH1D*)gDirectory->Get(tmp_char))->GetMinimumBin();
+          for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMinimumBin()+1;j<((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
+            if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>0)
+              if(j-tmp_int<50){
+                j=2000;
+              }else
+                tmp_int=j;
+          //~ if(bmcon->GetBMdebug()>9)
+            //~ cout<<"tdc channel="<<i<<"   T0="<<(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)/10.<<endl;
+          bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)); 
+        }
+      }  
+    }
+  }
+  
+  //Evaluate ADC pedestals  
+  if(bmcon->GetmanageADCped()==0 &&  bmmap->GetAdc792Ch()>0){
+    bmcon->SetADCchanum(bmmap->GetAdc792Ch());
+    //~ fb->SetParLimits(1,10,150);//parametri trovati in Analizer
+    //~ fb->SetParLimits(2,1,10);
+    for(Int_t i=0;i<bmmap->GetAdc792Ch();i++){
+      sprintf(tmp_char,"ADC/ADC_meas/adc_meas_cha_%d",i);  
+      ((TH1D*)gDirectory->Get(tmp_char))->Fit("fb","Q+","", 0., adc_maxbin);
+      //~ if(bmcon->GetBMdebug()>11)
+        //~ cout<<"ADC pedestals: cha="<<i<<"  mean="<<fb->GetParameter(1)<<"  rms="<<fb->GetParameter(2)<<endl;
+      bmcon->SetADCped(i, fb->GetParameter(1), fb->GetParameter(2));
+      ((TH1D*)gDirectory->Get("ADC/adc_pedmeas"))->SetBinContent(i+1,fb->GetParameter(1));
+      ((TH1D*)gDirectory->Get("ADC/adc_pedrms"))->SetBinContent(i+1,fb->GetParameter(2));
+    }
+  }else if (bmcon->GetmanageADCped()!=0 &&  bmmap->GetAdc792Ch()>0)
+    for(Int_t i=0;i<bmmap->GetAdc792Ch();i++){
+      ((TH1D*)gDirectory->Get("ADC/adc_pedmeas"))->SetBinContent(i+1,bmcon->GetADCped(i));
+      ((TH1D*)gDirectory->Get("ADC/adc_pedrms"))->SetBinContent(i+1,bmcon->GetADCrms(i));  
+    }
+   
   
   f_out->Write();
   f_out->Close();    
@@ -332,28 +477,25 @@ void BmBooter::evaluateT0() {
   return;
 }
 
-
-Bool_t BmBooter::read_event(Bool_t &error) {
+Bool_t BmBooter::read_event(Bool_t evt0) {
   //~ TABMparCon* bmcon = (TABMparCon*) myp_bmcon->Object();
   //~ TABMparMap* o_bmmap = (TABMparMap*) myp_bmmap->Object();
   
   Int_t tmp_int; //dummy int variable to read and convert the input file
   //~ vector<int> ev_words;//words of the event
   Bool_t new_event, read_meas;
-  Int_t tdc_evnum, sync_evnum=0;
-  double tdc_meas;
-  error=false;
-  //~ Int_t board_num=513;//number of board used in the acquisition //provv, da modificare: mettere in config file questo numero
+  Int_t sync_evnum=0, windex, endindex;
+  Int_t tdc_wnum=0, adc_wnum=0, sca_wnum=0;
   
   clear_bmstruct(kFALSE);
   
-  if(bmcon->GetBMdebug()>11)
+  if(bmcon->GetBMdebug()>11 && !(evt0 && bmcon->GetBMdebug()==99))
     cout<<"I'm in BmBooter:read_event"<<endl;
   if(datafile.read((char *) &tmp_int,sizeof(int))){//read number of words of this event
     bmstruct.words=tmp_int;
     }
   else{
-    if(bmcon->GetBMdebug()>11)
+    if(bmcon->GetBMdebug()>11 && !(evt0 && bmcon->GetBMdebug()==99))
       cout<<"file ended"<<endl;
     return kFALSE;
   }
@@ -364,85 +506,221 @@ Bool_t BmBooter::read_event(Bool_t &error) {
     ev_words[i]=tmp_int;
   }
   //some check on the event words:
-  if(ev_words[1]!=TDC_BOARDNUM){
-    cout<<"ERROR in BmBooter:read_event: board num != "<<TDC_BOARDNUM<<"  ev_words[1]="<<ev_words[1]<<endl;
-    error=true;
-  }
-  if(ev_words[3]!=3){//provv, da modificare: da togliere nell'acquisizione e qua...
-    cout<<"ERROR in BmBooter:read_event: ev_words[3]="<<ev_words[3]<<" ,!=3"<<endl;
-    error=true;          
-  }
   bmstruct.evnum=ev_words[0];
-  if((error && bmcon->GetBMdebug()>0) || bmcon->GetBMdebug()>11)
-    for(Int_t i=0;i<bmstruct.words;i++)
-      cout<<"event_num="<<data_num_ev<<"   ev_words["<<i<<"]="<<ev_words[i]<<endl;
-  if(!error){//read the tdc words
+  if(data_num_ev<0){
+    acq_start_ev=bmstruct.evnum;
+    data_num_ev=bmstruct.evnum;
+  } else if(data_num_ev!=bmstruct.evnum){
+    cout<<"ERROR in BmBooter:read_event: data_num_ev="<<data_num_ev<<"  bmstruct.evnum="<<bmstruct.evnum<<endl; 
+    bmstruct.tot_status=-1;
+  } 
+  if(ev_words[1]!=bmmap->GetBoardNum()){
+    cout<<"ERROR in BmBooter:read_event: board num != "<<bmmap->GetBoardNum()<<"  ev_words[1]="<<ev_words[1]<<endl;
+    bmstruct.tot_status=1;
+  }
+
+  tdc_wnum=ev_words[2];
+  if(tdc_wnum<=0)
+    bmstruct.tdc_status=3;
+  windex=2;
+  if(bmmap->GetAdc792Ch()>=0){
+    windex++;
+    adc_wnum=ev_words[windex];
+    if(adc_wnum!=bmmap->GetAdc792Ch()+2 && adc_wnum!=0){
+      cout<<"ERROR in BmBooter:read_event: adc_wnum="<<adc_wnum<<"  bmmap->GetAdc792Ch()+2="<<bmmap->GetAdc792Ch()+2<<endl;
+      bmstruct.adc_status=1;
+    }
+  }
+  if(bmmap->GetSca830Ch()>=0){
+    windex++;
+    sca_wnum=ev_words[windex];
+    if(sca_wnum!=bmmap->GetSca830Ch() && sca_wnum!=0){
+      cout<<"ERROR in BmBooter:read_event: sca_wnum="<<sca_wnum<<"  bmmap->GetSca830Ch()="<<bmmap->GetSca830Ch()<<endl;
+      bmstruct.sca_status=1;
+    }
+  }
+  
+  if(ev_words[++windex]!=3){//provv, da modificare: da togliere nell'acquisizione e qua...
+    cout<<"ERROR in BmBooter:read_event: ev_words["<<windex<<"]="<<ev_words[windex]<<" ,!=3"<<endl;
+    bmstruct.tot_status=3;          
+  }
+  
+  if((windex+tdc_wnum+adc_wnum+sca_wnum+4) != bmstruct.words){
+    cout<<"ERROR in BmBooter:read_event: counter for the event is wrong:  windex="<<windex<<"  tdc_wnum="<<tdc_wnum<<"  adc_wnum="<<adc_wnum<<"  sca_wnum="<<sca_wnum<<"  total number of words="<<bmstruct.words<<"  windex+tdc_wnum+adc_wnum+sca_wnum+4="<<windex+tdc_wnum+adc_wnum+sca_wnum+4<<endl;
+    bmstruct.tot_status=4;
+  }
+  
+  //~ if((bmstruct.tot_status!=0 && bmcon->GetBMdebug()>0) || bmcon->GetBMdebug()>11)
+    //~ for(Int_t i=0;i<bmstruct.words;i++)
+      //~ cout<<"data_num_ev="<<data_num_ev<<"   ev_words["<<i<<"]="<<ev_words[i]<<endl;
+  
+  //board reading
+  windex++;
+
+  if(bmstruct.tot_status==0 && tdc_wnum>0 && tdc_wnum>0) {//read the tdc words
+    endindex=windex+tdc_wnum;//endindex-1 is the position of the last tdc word
     new_event=true;
     read_meas=false;
-    for(Int_t i=4;i<ev_words[2]+4 && !error;i++){
-      if(new_event && !error){//global header found
-        tdc_evnum=ev_words[i++];
+    for(;windex<endindex;windex++){
+      if(new_event && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//global header found
+        bmstruct.tdcev++;
+        bmstruct.tdc_evnum[bmstruct.tdcev-1]=ev_words[windex++];
         read_meas=true;
-        if(bmcon->GetBMdebug()>11)
-          cout<<"global header found, i="<<i<<"  tdc_evnum="<<tdc_evnum<<endl;
+        if(bmcon->GetBMdebug()>11 && !(evt0 && bmcon->GetBMdebug()==99))
+          cout<<"global header found, windex="<<windex<<"  tdcev="<<bmstruct.tdcev<<endl;
         }
-      if(ev_words[i]<0 && isroma==kFALSE && !error){//global trailer found //se uso acquisizione mio (yun)
+      if(read_meas && ev_words[windex]<0 && isroma==kFALSE && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//global trailer found //se uso acquisizione mio (yun)
         read_meas=false;
         new_event=true;
-        bmstruct.status=ev_words[i];
-        if(ev_words[i]!=-1000){
-          cout<<"Warning in BmBooter: global trailer found with error in tdc_evnum="<<tdc_evnum<<"  trailer="<<ev_words[i]<<endl;
-          error=true;
+        bmstruct.tdc_status=ev_words[windex];
+        if(ev_words[windex]!=-1000){
+          cout<<"Warning in BmBooter: global trailer found with error in tdc_evnum="<<bmstruct.tdc_evnum[bmstruct.tdcev-1]<<"  trailer="<<ev_words[windex]<<endl;
           new_event=false;
         }
-        if(bmcon->GetBMdebug()>11)
-          cout<<"global trailer found, i="<<i<<"  ev_words="<<ev_words[i]<<endl;
+        if(bmcon->GetBMdebug()>11 && !(evt0 && bmcon->GetBMdebug()==99))
+          cout<<"global trailer found, windex="<<windex<<"  ev_words="<<ev_words[windex]<<endl;
       }        
-      if(ev_words[i]==0 && isroma==kTRUE && !error){//global trailer found //se uso dati letti a Roma per BM refurbishment
+      if(read_meas && ev_words[windex]==0 && isroma==kTRUE && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//global trailer found //se uso dati letti a Roma per BM refurbishment
         read_meas=false;
         new_event=true;
-        bmstruct.status=-1000;
-        if(bmcon->GetBMdebug()>11)
-          cout<<"global trailer found, i="<<i<<"  ev_words="<<ev_words[i]<<endl;
+        bmstruct.tdc_status=-1000;
+        if(bmcon->GetBMdebug()>11 && !(evt0 && bmcon->GetBMdebug()==99))
+          cout<<"global trailer found, i="<<windex<<"  ev_words="<<ev_words[windex]<<endl;
       }        
-      if(read_meas && !error){  
-        if(ev_words[i++]!=tdc_evnum){
-          cout<<"ERROR in BmBooter:read_event: tdc_evnum="<<tdc_evnum<<"  measured event number="<<ev_words[i-1]<<"  i="<<i<<endl;
-          error=true;
+      if(read_meas && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//read measure  
+        if(ev_words[windex++]!=bmstruct.tdc_evnum[bmstruct.tdcev-1]){
+          cout<<"ERROR in BmBooter:read_event: tdc_evnum="<<bmstruct.tdc_evnum[bmstruct.tdcev-1]<<"  measured event number="<<ev_words[windex-1]<<"  windex="<<windex<<"  data_num_ev="<<data_num_ev<<endl;
+          bmstruct.tdc_status=1;
         }
-        if(ev_words[i]>-1 && ev_words[i]<bmmap->GetTdcMaxcha()){//measure found
-          if(ev_words[i]==bmmap->GetTrefCh()){
-            bmstruct.synctime[sync_evnum]=ev_words[++i];
+        if(ev_words[windex]>-1 && ev_words[windex]<bmmap->GetTdcMaxcha()){//measure found
+          if(ev_words[windex]==bmmap->GetTrefCh()){
+            bmstruct.tdc_sync[sync_evnum]=ev_words[++windex];
             sync_evnum++;
           }else{      
-            bmstruct.hit_id[bmstruct.hitnum]=bmmap->tdc2cell(ev_words[i++]);
-            bmstruct.hit_meas[bmstruct.hitnum]=ev_words[i];
-            bmstruct.hitnum++;
+            bmstruct.tdc_id[bmstruct.tdc_hitnum[bmstruct.tdcev-1]]=bmmap->tdc2cell(ev_words[windex++]);
+            bmstruct.tdc_meas[bmstruct.tdc_hitnum[bmstruct.tdcev-1]]=ev_words[windex];
+            bmstruct.tdc_hitnum[bmstruct.tdcev-1]++;
           }
         }
         else{
-          cout<<"ERROR in BmBooter:read_event: tdc_channel out of range!!! tdc_channel="<<ev_words[i]<<endl;
-          error=true;
+          cout<<"ERROR in BmBooter:read_event: tdc_channel out of range!!! tdc_channel="<<ev_words[windex]<<endl;
+          bmstruct.tdc_status=2;
         }
         new_event=false;
-        if(bmcon->GetBMdebug()>11 && ev_words[i-1]!=bmmap->GetTrefCh())
-          cout<<"BMbooter::measure found: tdc_evnum="<<tdc_evnum<<" hit_id="<<bmstruct.hit_id[bmstruct.hitnum-1]<<" hit_meas="<<bmstruct.hit_meas[bmstruct.hitnum-1]<<endl;
-        else if(bmcon->GetBMdebug()>11 && ev_words[i-1]==bmmap->GetTrefCh())
-          cout<<"BMbooter::trigger found: sync registered="<<sync_evnum<<"  time="<<bmstruct.synctime[sync_evnum-1]<<endl;
+        if(bmcon->GetBMdebug()>11 && ev_words[windex-1]!=bmmap->GetTrefCh() && !(evt0 && bmcon->GetBMdebug()==99))
+          cout<<"BMbooter::measure found: tdc_evnum="<<bmstruct.tdc_evnum[bmstruct.tdcev-1]<<" tdc_id="<<bmstruct.tdc_id[bmstruct.tdc_hitnum[bmstruct.tdcev-1]-1]<<" hit_meas="<<bmstruct.tdc_meas[bmstruct.tdc_hitnum[bmstruct.tdcev-1]-1]<<endl;
+        else if(bmcon->GetBMdebug()>11 && ev_words[windex-1]==bmmap->GetTrefCh() && !(evt0 && bmcon->GetBMdebug()==99))
+          cout<<"BMbooter::trigger found: sync registered="<<sync_evnum<<"  time="<<bmstruct.tdc_sync[sync_evnum-1]<<endl;
       }
     }//end of reading tdc words for loop
-    if(error && bmcon->GetBMdebug()>0){
-      cout<<"BMbooter::read_event::error detected previously, the whole event read is:    data_num_ev="<<data_num_ev<<endl;
-      for(Int_t i=0;i<bmstruct.words;i++)
-        cout<<"ev_words["<<i<<"]="<<ev_words[i]<<endl;
-    }
+  }//end of tdc reading
+  
+  vector<Int_t> adc792_words;
+  if(adc_wnum>0 && bmstruct.tot_status==0 && bmstruct.adc_status==0){//adc reading
+    endindex=windex+adc_wnum;
+    for(;windex<endindex;windex++)
+      adc792_words.push_back(ev_words[windex]);
+    monitorQDC(adc792_words);
   }
+
+  if(sca_wnum>0 && bmstruct.tot_status==0 && bmstruct.sca_status==0){//scaler reading
+    endindex=windex+sca_wnum;
+    tmp_int=0;
+    for(;windex<endindex;windex++)
+      bmstruct.sca830_meas[tmp_int++]=ev_words[windex];
+  }
+  
+  bmstruct.time_evtoev=ev_words[windex++];
+  bmstruct.time_read=ev_words[windex++];
+  bmstruct.time_acq=ev_words[windex++];
+  
+  if(windex!=bmstruct.words){
+    cout<<"ERROR in BmBooter:read_event: there are missing words: read word="<<windex<<"  bmstruct.words="<<bmstruct.words<<endl;
+    bmstruct.tot_status=4;
+  }
+  
+  if((((bmstruct.tdc_status!=-1000 || bmstruct.tot_status!=0 || bmstruct.adc_status!=0 || bmstruct.sca_status!=0) && bmcon->GetBMdebug()>0) || bmcon->GetBMdebug()>11) && !(evt0 && bmcon->GetBMdebug()==99)){
+    cout<<"BMbooter::read_event::bmstruct.tdc_status="<<bmstruct.tdc_status<<" bmstruct.tot_status="<<bmstruct.tot_status<<" bmstruct.adc_status="<<bmstruct.adc_status<<" bmstruct.sca_status="<<bmstruct.sca_status<<endl;
+    if(bmstruct.tdc_status!=-1000 || bmstruct.tot_status!=0 || bmstruct.adc_status!=0 || bmstruct.sca_status!=0)
+      cout<<"Error detected previously; ";
+    cout<<"The whole event read is:    data_num_ev="<<data_num_ev<<endl;
+    for(Int_t i=0;i<bmstruct.words;i++)
+      cout<<"ev_words["<<i<<"]="<<ev_words[i]<<endl;
+  }
+  
+  if(bmcon->GetBMdebug()>12 && !(evt0 && bmcon->GetBMdebug()==99))
+    PrintBMstruct();
+  
   //~ else{//read tdc words if    
     //~ cout<<"data_num_ev="<<data_num_ev<<endl;
     //~ for(Int_t i=0;i<bmstruct.words;i++)
         //~ cout<<"ev_words["<<i<<"]="<<ev_words[i]<<endl;
   //~ }
   return kTRUE;
+}
+
+//provv per qdc/adc
+void BmBooter::monitorQDC(vector<Int_t>& adc792_words) {
+  
+  Int_t qdc_cnt(0);
+  Int_t data, dt_type, evtnum, chan;
+
+  Bool_t bltread = kTRUE;
+  //~ Double_t mulf = 400./4095;  //not used...
+  
+  //12 bit scale --> 400 pc
+
+  for(Int_t iac=0; iac<bmmap->GetAdc792Ch()+2; iac++) {
+    
+    qdc_cnt = 0;
+    data = adc792_words[iac];
+    if(bltread) {
+      dt_type = data>>24 & 0x7;
+      if(bmcon->GetBMdebug()>3)      
+        cout<<"BMbooter::monitorQDC:: dt_type="<<dt_type<<endl;
+      if(!(dt_type & 0x7)) {
+        qdc_cnt = data & 0xFFF;
+        chan = data>>17 & 0xF;
+        if(bmcon->GetBMdebug()>11) 
+          cout<<"BMbooter::monitorQDC:: ?? qdc_cnt="<<qdc_cnt<<"   chan="<<chan<<" "<<endl;
+        if(data>>12 & 0x1) {
+          if(bmcon->GetBMdebug()>3) 
+            cout<<"BMbooter::monitorQDC:: Overflow, my dear !!  chan="<<chan<<" qdc_cnt="<<qdc_cnt<<endl;
+          bmstruct.adc792_over[chan]=1;
+          bmstruct.adc_status=2;
+        }
+        else
+          bmstruct.adc792_over[chan]=0;//non ne sono sicuro...
+      } else if(dt_type & 0x4) {
+        //EOB
+        evtnum = data & 0xFFFFFF;
+        if(bmcon->GetBMdebug()>1) 
+          cout<<"EvtNum "<<evtnum<<endl;
+      } else if(dt_type & 0x2) {
+        //Header
+        if(bmcon->GetBMdebug()>11) 
+          cout<<"BMbooter::monitorQDC:: Header found. "<<endl;
+      }
+    } else {//end of bltread==true
+      dt_type = 0;
+      qdc_cnt = data;
+      chan = iac;
+    }
+    if(!dt_type) {
+      if(bmcon->GetBMdebug()>5) 
+        cout<<"BMbooter::monitorQDC::chan="<<chan<<" meas="<<qdc_cnt<<endl;
+      if(chan>=0 && chan<bmmap->GetAdc792Ch()){
+        bmstruct.adc792_meas[chan] = qdc_cnt;
+      }
+    } 
+   
+  }
+  
+  for(Int_t i=0;i<bmmap->GetAdc792Ch();i++)
+    if(bmstruct.adc792_over[i]==-10000)
+      bmstruct.adc_status=3;
+      
+  return;
 }
 
 
@@ -457,7 +735,7 @@ Bool_t BmBooter::drop_event(){
   if(datafile.read((char *) &tmp_int,sizeof(int))){
     for(Int_t i=0;i<tmp_int;i++)
       datafile.read((char *) &trash,sizeof(int));
-    data_num_ev++;
+    //~ data_num_ev++;
   }else
     return kFALSE;  
 
@@ -503,32 +781,130 @@ void BmBooter::evaluate_cell_occupy(){
 }
 
 
+void BmBooter::PrintBMstruct(){
+  cout<<"PrintBMstruct:"<<endl;
+  cout<<"bmstruct.evnum="<<bmstruct.evnum<<endl;
+  cout<<"bmstruct.words="<<bmstruct.words<<endl;
+  cout<<"bmstruct.tdcev="<<bmstruct.tdcev<<endl;
+  cout<<"bmstruct.tot_status="<<bmstruct.tot_status<<endl;
+  cout<<"bmstruct.adc_status="<<bmstruct.adc_status<<endl;
+  cout<<"bmstruct.sca_status="<<bmstruct.sca_status<<endl;
+  cout<<"bmstruct.tdc_status="<<bmstruct.tdc_status<<endl;
+  cout<<"bmstruct.time_evtoev="<<bmstruct.time_evtoev<<endl;
+  cout<<"bmstruct.time_read="<<bmstruct.time_read<<endl;
+  cout<<"bmstruct.time_acq="<<bmstruct.time_acq<<endl;
+  Int_t tmp_int=0;
+  while(bmstruct.tdc_sync[tmp_int]!=-10000){
+    cout<<"i="<<tmp_int<<"  bmstruct.tdc_sync[i]="<<bmstruct.tdc_sync[tmp_int]<<endl;;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.tdc_id[tmp_int]!=-10000){
+    cout<<"i="<<tmp_int<<"  bmstruct.tdc_id[i]="<<bmstruct.tdc_id[tmp_int]<<endl;;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.tdc_meas[tmp_int]!=-10000){
+    cout<<"i="<<tmp_int<<"  bmstruct.tdc_meas[i]="<<bmstruct.tdc_meas[tmp_int]<<endl;;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.tdc_evnum[tmp_int]!=-10000){
+    cout<<"i="<<tmp_int<<"  bmstruct.tdc_evnum[i]="<<bmstruct.tdc_evnum[tmp_int]<<endl;;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.tdc_hitnum[tmp_int]!=0){
+    cout<<"i="<<tmp_int<<"  bmstruct.tdc_hitnum[i]="<<bmstruct.tdc_hitnum[tmp_int]<<endl;;
+    bmstruct.tdc_hitnum[tmp_int]=0;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.sca830_meas[tmp_int]!=-10000){
+    cout<<"i="<<tmp_int<<"  bmstruct.sca830_meas[i]="<<bmstruct.sca830_meas[tmp_int]<<endl;;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.adc792_meas[tmp_int]!=-10000){
+    cout<<"i="<<tmp_int<<"  bmstruct.adc792_meas[i]="<<bmstruct.adc792_meas[tmp_int]<<endl;;
+    tmp_int++;
+  }
+  while(bmstruct.adc792_over[tmp_int]!=-10000){
+    cout<<"i="<<tmp_int<<"  bmstruct.adc792_over[i]="<<bmstruct.adc792_over[tmp_int]<<endl;;
+    tmp_int++;
+  }
+
+  cout<<endl;
+  
+}
+
 void BmBooter::clear_bmstruct(Bool_t forced){
   bmstruct.evnum=0;
   bmstruct.words=0;
-  bmstruct.hitnum=0;
-  bmstruct.status=0;
+  bmstruct.tdcev=0;
+  bmstruct.tot_status=0;
+  bmstruct.tdc_status=0;
+  bmstruct.adc_status=0;
+  bmstruct.sca_status=0;
+  bmstruct.time_evtoev=0;
+  bmstruct.time_read=0;
+  bmstruct.time_acq=0;
   if(forced){
     for(Int_t i=0;i<MAXHITTDC;i++){
-     bmstruct.hit_id[i]=-10000;
-     bmstruct.hit_meas[i]=-10000;
-     bmstruct.synctime[i]=-10000;
+     bmstruct.tdc_id[i]=-10000;
+     bmstruct.tdc_meas[i]=-10000;
+     bmstruct.tdc_sync[i]=-10000;
     }
-  return;
+    for(Int_t i=0;i<MAXEVTDC;i++){
+     bmstruct.tdc_hitnum[i]=0;
+     bmstruct.tdc_evnum[i]=-10000;
+    }
+    for(Int_t i=0;i<SCA830MAX;i++)
+      bmstruct.sca830_meas[i]=-10000;
+    for(Int_t i=0;i<ADC792MAX;i++){
+      bmstruct.adc792_meas[i]=-10000;
+      bmstruct.adc792_over[i]=-10000;
+    }
+    return;
   }
   Int_t tmp_int=0;
-  while(bmstruct.synctime[tmp_int]!=-10000){
-    bmstruct.synctime[tmp_int]=-10000;
+  while(bmstruct.tdc_sync[tmp_int]!=-10000){
+    bmstruct.tdc_sync[tmp_int]=-10000;
     tmp_int++;
   }
   tmp_int=0;
-  while(bmstruct.hit_id[tmp_int]!=-10000){
-    bmstruct.hit_id[tmp_int]=-10000;
+  while(bmstruct.tdc_id[tmp_int]!=-10000){
+    bmstruct.tdc_id[tmp_int]=-10000;
     tmp_int++;
   }
   tmp_int=0;
-  while(bmstruct.hit_meas[tmp_int]!=-10000){
-    bmstruct.hit_meas[tmp_int]=-10000;
+  while(bmstruct.tdc_meas[tmp_int]!=-10000){
+    bmstruct.tdc_meas[tmp_int]=-10000;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.tdc_evnum[tmp_int]!=-10000){
+    bmstruct.tdc_evnum[tmp_int]=-10000;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.tdc_hitnum[tmp_int]!=0){
+    bmstruct.tdc_hitnum[tmp_int]=0;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.sca830_meas[tmp_int]!=-10000){
+    bmstruct.sca830_meas[tmp_int]=-10000;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.adc792_meas[tmp_int]!=-10000){
+    bmstruct.adc792_meas[tmp_int]=-10000;
+    tmp_int++;
+  }
+  tmp_int=0;
+  while(bmstruct.adc792_over[tmp_int]!=-10000){
+    bmstruct.adc792_over[tmp_int]=-10000;
     tmp_int++;
   }
 return;

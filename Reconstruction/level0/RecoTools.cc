@@ -97,7 +97,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     Long64_t nentries; 
     if(m_isdata && GlobalPar::GetPar()->IncludeBM()){
       cout<<"Total number of Beam Monitor events="<<bmbooter->GetTotnumev()<<endl;
-      nentries=(m_nev==0) ? bmbooter->GetTotnumev() : m_nev;
+      nentries=(m_nev==0) ? bmbooter->GetTotnumev()-bmbooter->GetAcqStartEv()+1 : m_nev;
     }else {
       nentries = tree->GetEntries(); 
       if(m_nev != 0)      

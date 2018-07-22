@@ -3,8 +3,10 @@ M 64
 !Trigger channel
 T 47
 !Chamber LUT  ???
-!SCALER830 readed channel (sca830ch)
-S 0
+!SCALER830 readed channel (sca830ch)  (-1 if scaler not included)
+S -1
+!ADC792 readed channel (adc792ch)  (-1 if adc not included)
+A -1
 !read scaler each hm_evt_read event (hm_evt_read)
 H 1 
 !TDC cha (chaBoID); Plane [0-5]; View 1==S, -1==T; Idsense: 0,1,2    

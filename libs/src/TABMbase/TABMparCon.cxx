@@ -41,13 +41,12 @@ TABMparCon::TABMparCon() {
   fitter_index = 0;
   bm_debug=0;
   bm_vietrack=0;
-  total_ev_num=0;
   manageT0BM=0;
   minnhit_cut=0;
   maxnhit_cut=20;
   rejmax_cut=36;
   
-  vector<double> myt0s(36,-10000);
+  vector<Double_t> myt0s(36,-10000);
   //~ myt0s.resize(36);
   v_t0s = myt0s;
 
@@ -84,7 +83,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
     return kTRUE;
   }
 
-  while (incF.getline(bufConf, 200, '\n')) {
+  while (incF.getline(bufConf, 200, '\n')) {    
     if(strchr(bufConf,'!')) {
       //      Info("FromFile()","Skip comment line:: %s",bufConf);
     }else if(strchr(bufConf,'V')) {
@@ -111,7 +110,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      Error(""," Plane Map Error:: check config file!! (D)");
 	      return kTRUE;
         }
-        bm_debug=max(bm_debug,GlobalPar::GetPar()->Debug());
+      bm_debug=max(bm_debug,GlobalPar::GetPar()->Debug());
     }else if(strchr(bufConf,'P')) {
       sscanf(bufConf, "P %d",&myArgInt);
       if(myArgInt>=0) 
@@ -167,7 +166,16 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         manageT0BM = myArgInt;
         bmt0file=tmp_char;
       }else {
-	      Error(""," Plane Map Error:: check config file!! (L)");
+	      Error(""," Plane Map Error:: check config file!! (Z)");
+	      return kTRUE;
+        }
+    }else if(strchr(bufConf,'B')) {
+      sscanf(bufConf, "B %d %s",&myArgInt, tmp_char);
+      if(myArgInt==0 || myArgInt==1){
+        manageADCped=myArgInt;
+        bmpedfile=tmp_char;
+      }else {
+	      Error(""," Plane Map Error:: check config file!! (B)");
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'A')) {
@@ -236,11 +244,11 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 }
 
 
-void TABMparCon::PrintT0s(TString &input_file_name){
+void TABMparCon::PrintT0s(TString &input_file_name, Long64_t tot_num_ev){
   ofstream outfile;
   TString name="./config/"+bmt0file;
   outfile.open(name.Data(),ios::out);
-  outfile<<"calculated_from: "<<input_file_name.Data()<<"    number_of_events= "<<total_ev_num<<endl;
+  outfile<<"calculated_from: "<<input_file_name.Data()<<"    number_of_events= "<<tot_num_ev<<endl;
   for(Int_t i=0;i<36;i++)
     if(v_t0s[i]!=-10000)
       outfile<<"cellid= "<<i<<"  T0_time= "<<v_t0s[i]<<endl;
@@ -250,7 +258,8 @@ void TABMparCon::PrintT0s(TString &input_file_name){
   return;
 }
 
-void TABMparCon::loadT0s() {
+
+void TABMparCon::loadT0s(Long64_t tot_num_ev) {
   ifstream infile;
   TString name="./config/"+bmt0file;
   infile.open(name.Data(),ios::in);
@@ -262,8 +271,8 @@ void TABMparCon::loadT0s() {
     infile>>tmp_char>>dataset>>tmp_char>>file_evnum;
   else
     status=1;
-  if(file_evnum<total_ev_num)
-    cout<<"TABMparCon::loadT0s::WARNING!!!!!!!!!!!!!!!!!!!!! you load a T0 file calculated from "<<dataset<<" which have only "<<file_evnum<<" events, while the input file have a larger number of events="<<total_ev_num<<endl;  
+  if(file_evnum<tot_num_ev)
+    cout<<"TABMparCon::loadT0s::WARNING!!!!!!!!!!!!!!!!!!!!! you load a T0 file calculated from "<<dataset<<" which have only "<<file_evnum<<" events, while the input file have a larger number of events="<<tot_num_ev<<endl;  
   for(Int_t i=0;i<36;i++)
     if(!infile.eof() && tmp_int==i-1)
       infile>>tmp_char>>tmp_int>>tmp_char>>fileT0[i];
@@ -314,6 +323,8 @@ void TABMparCon::loadT0s() {
   return;
 }
 
+
+
 void TABMparCon::SetT0s(vector<Double_t> t0s) {
 
   if(t0s.size() == 36) {
@@ -344,6 +355,88 @@ void TABMparCon::CoutT0(){
   for(Int_t i=0;i<v_t0s.size();i++)
     cout<<"cell_id="<<i<<"  T0="<<v_t0s[i]<<endl;
     //~ cout<<"cell_id="<<i<<"  TDC_channel="<<bmmap->cell2tdc(i)<<"  T0="<<v_t0s[i]<<endl;
+}
+
+
+void TABMparCon::loadADCped(Int_t mapcha) {
+  ifstream infile;
+  TString name="./config/"+bmpedfile;
+  infile.open(name.Data(),ios::in);
+  Int_t file_evnum, chanum;
+  Double_t tmp_double, tmp_2double;
+  char tmp_char[200], dataset[200];
+  Int_t tmp_int=-1, status=0;  
+  if(infile.is_open() && infile.good())
+    infile>>tmp_char>>dataset>>tmp_char>>file_evnum>>tmp_char>>chanum;
+  else{
+    cout<<"ERROR!   TABMparCon::loadADCped:: the ADCped file="<<bmpedfile<<" not found"<<endl;  
+    return;
+  }
+  if(chanum!=mapcha){
+    cout<<"ERROR! TABMparCon::loadADCped::chanum!=mapcha   chanum="<<chanum<<"  mapcha="<<mapcha<<endl;
+    return;    
+  }
+  vector<Double_t> pedmean(chanum,-1000.);
+  vector<Double_t> pedrms(chanum,-1000.);
+  for(Int_t i=0;i<chanum;i++){
+    if(!infile.eof() && tmp_int==i-1){
+      infile>>tmp_char>>tmp_int>>tmp_char>>tmp_double>>tmp_char>>tmp_2double;
+      pedmean[i]=tmp_double;
+      pedrms[i]=tmp_2double;
+    }else{
+      cout<<"ERROR!  TABMparCon::loadADCped::Error in the ADCped file="<<bmpedfile<<"!!!!!! check if it is write properly"<<endl;  
+      return;
+      }
+  }
+  infile.close();
+  adc_ped_mean=pedmean;
+  adc_ped_rms=pedrms;
+
+  return;
+}
+
+
+void TABMparCon::PrintADCped(TString &input_file_name, Long64_t tot_num_ev){
+  ofstream outfile;
+  TString name="./config/"+bmpedfile;
+  outfile.open(name.Data(),ios::out);
+  outfile<<"calculated_from: "<<input_file_name.Data()<<"    number_of_events= "<<tot_num_ev<<"    number_of_channel= "<<adc_ped_mean.size()<<endl;
+  for(Int_t i=0;i<adc_ped_mean.size();i++)
+      outfile<<"adc_chan= "<<i<<"  ped_mean= "<<adc_ped_mean[i]<<"   ped_rms= "<<adc_ped_rms[i]<<endl;
+  outfile.close();
+  return;
+}
+
+
+
+void TABMparCon::SetADCchanum(Int_t cha){
+if(adc_ped_mean.size()>0){
+    cout<<"ERROR in TABMparCon::SetADCchanum:: adc_ped_mean.size()!=0;    cha="<<cha<<"  adc_ped_mean.size()="<<adc_ped_mean.size()<<endl;
+    return;  
+}  
+adc_ped_mean.resize(cha);  
+adc_ped_rms.resize(cha);  
+
+return;
+}
+
+
+void TABMparCon::SetADCped(Int_t cha, Double_t pedin, Double_t rmsin){
+  if(cha>adc_ped_mean.size()-1){
+    cout<<"ERROR in TABMparCon::SetADCped:: cha>adc_ped_mean.size()-1;    cha="<<cha<<"  adc_ped_mean.size()-1="<<adc_ped_mean.size()-1<<endl;
+    return;
+  }
+  
+  adc_ped_mean[cha]=pedin;
+  adc_ped_rms[cha]=rmsin;
+return;
+}
+
+
+void TABMparCon::CoutADCped(){
+  cout<<"Print BM ADC pedestals and rms:"<<endl;
+  for(Int_t i=0;i<adc_ped_mean.size();i++)
+    cout<<"channel="<<i<<"  ped mean="<<adc_ped_mean[i]<<"   ped_rms="<<adc_ped_rms[i]<<endl;
 }
 
 

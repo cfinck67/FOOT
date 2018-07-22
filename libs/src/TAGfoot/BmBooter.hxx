@@ -45,8 +45,6 @@
 #include "TAIRdatRaw.hxx"
 #include "TAIRactDatRaw.hxx"
 
-#define TDC_BOARDNUM 513
-
 class BmBooter {
   
 public :
@@ -65,11 +63,15 @@ public:
   void evaluateT0();//evaluate the T0 from datafile
   Bool_t drop_event();//read event from datafile and discharge it, it return false if the file is end
   void clear_bmstruct(Bool_t forced);  
-  Bool_t read_event(Bool_t &status);//read event from datafile and charge bmstruct, if status=true it means that this event contain some error, it return true if read the event, false if the file is end
+  void PrintBMstruct();// to print the content of bmstruct  
+  Bool_t read_event(Bool_t);//read event from datafile and charge bmstruct, if status=true it means that this event contain some error, it return true if read the event, false if the file is end
+  void evaluate_cell_occupy(); //fill the cell_occupy matrix
+  void monitorQDC(vector<Int_t>& adc792_words);
+
+  //getters
   Long64_t GetTotnumev(){return tot_num_ev;};
   Long64_t GetData_numev(){return data_num_ev;};
-  void evaluate_cell_occupy(); //fill the cell_occupy matrix
-
+  Int_t GetAcqStartEv(){return acq_start_ev;};
   
 private:
 
@@ -116,7 +118,7 @@ private:
   BM_struct bmstruct;
   Long64_t tot_num_ev;  //total number of events
   Long64_t data_num_ev; //current number of events
-
+  Int_t    acq_start_ev;//acquisition start event
 };
 
 #endif

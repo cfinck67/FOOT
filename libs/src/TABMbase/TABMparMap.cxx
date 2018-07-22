@@ -100,12 +100,9 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
         tdc2cell_vec[trefCh]=-1000;
       }
     } else if(strchr(bufConf,'S')) {
-        sscanf(bufConf, "S %d",&myArg1);
-      if(myArg1<0) {
-        Error("FromFile()","TABMparMap::Scaler sca830ch ERROR:: check config file!!(S)");
-        return kTRUE;
-      }else
-        sca830ch=myArg1;
+        sscanf(bufConf, "S %d",&sca830ch);
+    } else if(strchr(bufConf,'A')) {
+        sscanf(bufConf, "A %d",&adc792ch);
     } else if(strchr(bufConf,'H')) {
         sscanf(bufConf, "H %d",&myArg1);
       if(myArg1<0) {
@@ -126,6 +123,12 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
     }
   }
 
+  board_num=513; //512 is fixed + 1=tdc (mandatory)
+  if(sca830ch>=0)
+    board_num+= 256;
+  if(adc792ch>=0)
+    board_num+= 16;
+    
   //check on the map
   Int_t tmp_int(0);
   for(Int_t i=0;i<tdc_maxcha;i++)

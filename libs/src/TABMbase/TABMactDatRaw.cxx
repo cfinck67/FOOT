@@ -76,11 +76,12 @@ Bool_t TABMactDatRaw::Action() {
   
   Int_t view,plane,cell;
     
-    
-  for(Int_t i=0;i<bmstruct->hitnum;i++){
-    if(bmstruct->hit_id[i]>=0){//-1000=syncTime, -1=not set
-      p_pargeo->GetBMNlvc(bmstruct->hit_id[i],plane,view,cell);
-      p_datraw->SetHitData(plane,view,cell,(Double_t) (bmstruct->hit_meas[i])/10.);
+  
+  //for the moment I consider only the first event registered by the tdc  
+  for(Int_t i=0;i<bmstruct->tdc_hitnum[0];i++){
+    if(bmstruct->tdc_id[i]>=0){//-1000=syncTime, -1=not set
+      p_pargeo->GetBMNlvc(bmstruct->tdc_id[i],plane,view,cell);
+      p_datraw->SetHitData(plane,view,cell,(Double_t) (bmstruct->tdc_meas[i])/10.);
     }
   }
   

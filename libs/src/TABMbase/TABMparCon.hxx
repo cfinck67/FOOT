@@ -53,6 +53,7 @@ class TABMparCon : public TAGpara {
     Int_t GetBMcharge(){return part_in_charge;};
     Double_t GetBMmom(){return part_in_mom;};
     Int_t GetmanageT0BM(){return manageT0BM;};
+    Int_t GetmanageADCped(){return manageADCped;};
     string GetParmapfile(){return parmapfile;};
     Int_t GetCalibro(){return calibro;};
     //~ Double_t GetXShift(){return meas_shift.X();};
@@ -64,13 +65,22 @@ class TABMparCon : public TAGpara {
 
 
     //T0 stuff
-    void        PrintT0s(TString &input_file_name);
-    void        loadT0s(); 
+    void        PrintT0s(TString &input_file_name, Long64_t);
+    void        loadT0s(Long64_t); 
     void        SetT0s(vector<Double_t> t0s);
     void        SetT0(Int_t cha, Double_t t0in);
     Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+((view==-1) ? 1:0)*3+plane*6);};
     Double_t    GetT0(Int_t index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
     void        CoutT0();
+    
+    //ADC stuff
+    void        PrintADCped(TString &input_file_name, Long64_t tot_num_ev);    
+    void        loadADCped(Int_t mapcha);
+    void        SetADCchanum(Int_t cha);
+    void        SetADCped(Int_t cha, Double_t pedin, Double_t rmsin);
+    void        CoutADCped();
+    Double_t    GetADCped(Int_t cha){return (cha<adc_ped_mean.size()) ? adc_ped_mean[cha]:10000.;};
+    Double_t    GetADCrms(Int_t cha){return (cha<adc_ped_rms.size()) ? adc_ped_rms[cha]:10000.;};
     
     //strel stuff
     void LoadSTrel(TString sF);
@@ -114,14 +124,17 @@ class TABMparCon : public TAGpara {
     //~ string   datafile_name;//name of the input data file 
     Int_t    part_in_charge;//for BM Genfit tracking
     Double_t part_in_mom;//for BM Genfit tracking
-    Int_t    total_ev_num;//total number of events
     Int_t    calibro;//flag for the calibration
     //~ TVector3 meas_shift;//shift for the calibration
     //~ TVector3 meas_tilt;//tilt for the calibration
-    Int_t    manageT0BM;
-    string   bmt0file; //name of the T0 value file tu be charged or to be written 
+    Int_t    manageT0BM; //0=calculate T0 and save v_t0s in bmt0file, 1=loadT0 from bmt0file
+    Int_t    manageADCped; //0=calculate and save ADCped in bmpedfile, 1=loadadcped from bmpedfile
+    string   bmt0file; //name of the T0 value file to be charged or to be written 
+    string   bmpedfile; //name of the ped value file to be charged or to be written 
     string   parmapfile; //name of the file with the tdc channel map for TABMparMap 
     vector<Double_t> v_t0s;//T0 in ns
+    vector<Double_t> adc_ped_mean;//pedestals mean 
+    vector<Double_t> adc_ped_rms;//pedestals rms
 
     TF1* f_mypol;
     TF1* f_mypol2;

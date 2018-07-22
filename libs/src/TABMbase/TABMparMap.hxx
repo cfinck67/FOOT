@@ -33,9 +33,16 @@ class TABMparMap : public TAGpara {
 
     Bool_t          FromFile(const TString& name, TABMparGeo *bmgeo);
     bool            GetWireIDFromTDC(int channel, int board, int &senseID, int &plane, int &view);
-    Int_t GetTdcMaxcha(){return tdc_maxcha;};
     Int_t tdc2cell(Int_t tdccha){return tdc2cell_vec[tdccha];};
     Int_t cell2tdc(Int_t cell){return std::find(tdc2cell_vec.begin(),tdc2cell_vec.end(),cell)-tdc2cell_vec.begin();};
+    
+    //getters
+    Int_t GetTrefCh(){return trefCh;}
+    Int_t GetTdcMaxcha(){return tdc_maxcha;};
+    Int_t GetSca830Ch(){return sca830ch;};
+    Int_t GetAdc792Ch(){return adc792ch;};
+    Int_t GetHmEvRead(){return hm_ev_read;};
+    Int_t GetBoardNum(){return board_num;};
     
     virtual void    Clear(Option_t* opt="");
 
@@ -46,7 +53,6 @@ class TABMparMap : public TAGpara {
     //~ inline int getSense(int add) { return chaSense.at(add); }
     //~ inline int getPlane(int add) { return chaPlane.at(add); }
     //~ inline int getView(int add) { return chaView.at(add); }
-    inline int GetTrefCh(){return trefCh;}
     
     ClassDef(TABMparMap,1)
 
@@ -59,7 +65,9 @@ class TABMparMap : public TAGpara {
     Int_t    tdc_maxcha;//tdc number of channel
     vector<Int_t> tdc2cell_vec;//each position of this vector correspond to a tdc channel, the value stored correspond to the bm cell index (0-35) or -1000 if is the trefCh, otherwise is -1
     Int_t sca830ch;//number of the scaler channel read
+    Int_t adc792ch;//number of the adc channel read
     Int_t hm_ev_read;//read the scaler each hm_ev_read
+    Int_t board_num;//board_num of the BM acquisition software
 
     //~ vector<int> chaID;
     //~ vector<int> chaBoID;
