@@ -33,8 +33,6 @@ private:
    };
    
    struct AnalysisParameter_t : public  TObject {
-	  Int_t      PosAlgo;                // Position Algorithm 1= Center of Gravity, 2 = eta, 3 = kappa, +100  =  Complex Algorithm
-	  Int_t      SearchPixelDistance;    // max half distance to search for pixel in a cluster 
 	  Int_t      TracksMaximum;          // maximum number of tracks to be allowed
 	  Int_t      PlanesForTrackMinimum;  // min # planes to build a track in an event
 	  Float_t    SearchHitDistance;      // max distance hit-track to add hit to track

@@ -59,14 +59,6 @@ Bool_t TAVTparConf::FromFile(const TString& name)
    if (Open(nameExp)) return kTRUE;
    
    // read position algorithme
-   ReadItem(fAnalysisParameter.PosAlgo);
-   if(fDebugLevel)
-     cout << "Position algorithm: "<< fAnalysisParameter.PosAlgo << endl;
-   
-   ReadItem(fAnalysisParameter.SearchPixelDistance);
-   if(fDebugLevel)
-	  cout << "Maximum half distance to search for pixel in a cluster: "<< fAnalysisParameter.SearchPixelDistance << endl;
-   
    ReadItem(fAnalysisParameter.TracksMaximum);  
    if(fDebugLevel)
      cout << "Maximum tracks per event: "<< fAnalysisParameter.TracksMaximum << endl;
