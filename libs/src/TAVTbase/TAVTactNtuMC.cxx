@@ -97,6 +97,12 @@ void TAVTactNtuMC::CreateHistogram()
    fpHisDeTot = new TH1F("vtMcDeTot", "Vertex - MC total energy loss", 1000, 0., 10000.);
    AddHistogram(fpHisDeTot);
 
+   
+   for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
+      fpHisDeSensor[i] = new TH1F(Form("vtMcDe%d", i+1), Form("Vertex - MC energy loss for sensor %d", i+1), 1000, 0., 10000.);
+      AddHistogram(fpHisDeSensor[i]);
+   }
+   
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
       if (TAVTparConf::IsMapHistOn()) {
          fpHisPixelMap[i]  = new TH2F(Form("vtMcPixelMap%d", i+1) , Form("Vertex - pixel map for sensor %d", i+1),
@@ -159,16 +165,18 @@ bool TAVTactNtuMC::Action()
 		// Digitizing
       if (fpEvtStr->TRcha[i] < 1) continue;
       
-      fpHisDeTot->Fill(fpEvtStr->VTXde[i]*TAVTbaseDigitizer::GeV2keV());
+      if (ValidHistogram()) {
+         fpHisDeTot->Fill(fpEvtStr->VTXde[i]*TAVTbaseDigitizer::GeV2keV());
+         fpHisDeSensor[sensorId]->Fill(fpEvtStr->VTXde[i]*TAVTbaseDigitizer::GeV2keV());
+      }
+      
 		if (!fDigitizer->Process(fpEvtStr->VTXde[i], fpEvtStr->VTXxin[i], fpEvtStr->VTXyin[i], fpEvtStr->VTXzin[i], fpEvtStr->VTXzout[i])) continue;
-   //   printf("  id %d chg %d x-y %.1f %.1f\n", fpEvtStr->TRfid[i], fpEvtStr->TRcha[i], fpEvtStr->VTXxin[i]*10000, fpEvtStr->VTXyin[i]*10000);
 		FillPixels(sensorId, i);
 		
 		if (ValidHistogram()) {
          Int_t pixelsN = fDigitizer->GetMap().size();
          fpHisPixel[sensorId]->Fill(pixelsN);
          fpHisPixelTot->Fill(pixelsN);
-        // printf("sensor %d %d\n", sensorId, pixelsN);
 		}
    }
 

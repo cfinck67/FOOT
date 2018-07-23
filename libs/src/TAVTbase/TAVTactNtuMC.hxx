@@ -93,6 +93,7 @@ private:
    TH1F*           fpHisPixel[8];     // number pixels per cluster MC
    TH1F*           fpHisPixelTot;     // total number pixels per cluster MC
    TH1F*           fpHisDeTot;        // Total energy loss
+   TH1F*           fpHisDeSensor[8];  // Energy loss per sensor
    TH1F*           fpHisPoisson;      // Poisson distribution for pileup
 
    std::vector<std::vector<RawMcHit_t>> fStoredEvents;
