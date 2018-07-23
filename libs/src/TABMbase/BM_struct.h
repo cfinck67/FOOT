@@ -20,6 +20,7 @@ typedef struct BM_struct {
   Int_t tdc_meas[MAXHITTDC];    //measurement value (10^-8 sec.)
   Int_t tdc_sync[MAXHITTDC];    //time of the sync channel -10000=not set, (10^-8 sec.)
   Int_t sca830_meas[SCA830MAX]; //scaler measurement for each channel
+  Int_t sca830_counts[SCA830MAX]; //scaler counts for each channel
   Int_t adc792_meas[ADC792MAX]; //ADC measurement for each channel
   Int_t adc792_over[ADC792MAX]; //ADC overflow cannel, -1000=not set, 1=overflow, 0=ok
   Int_t tot_status;             //global error flag: 0=ok

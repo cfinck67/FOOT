@@ -626,8 +626,10 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
   if(sca_wnum>0 && bmstruct.tot_status==0 && bmstruct.sca_status==0){//scaler reading
     endindex=windex+sca_wnum;
     tmp_int=0;
-    for(;windex<endindex;windex++)
-      bmstruct.sca830_meas[tmp_int++]=ev_words[windex];
+    for(;windex<endindex;windex++){
+      bmstruct.sca830_meas[tmp_int]=ev_words[windex]-bmstruct.sca830_counts[tmp_int];
+      bmstruct.sca830_counts[tmp_int++]=ev_words[windex];
+    }
   }
   
   bmstruct.time_evtoev=ev_words[windex++];
@@ -859,8 +861,10 @@ void BmBooter::clear_bmstruct(Bool_t forced){
      bmstruct.tdc_hitnum[i]=0;
      bmstruct.tdc_evnum[i]=-10000;
     }
-    for(Int_t i=0;i<SCA830MAX;i++)
+    for(Int_t i=0;i<SCA830MAX;i++){
       bmstruct.sca830_meas[i]=-10000;
+      bmstruct.sca830_counts[i]=0;
+    }
     for(Int_t i=0;i<ADC792MAX;i++){
       bmstruct.adc792_meas[i]=-10000;
       bmstruct.adc792_over[i]=-10000;
