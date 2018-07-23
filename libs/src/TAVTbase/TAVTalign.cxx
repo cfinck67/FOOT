@@ -128,7 +128,7 @@ TAVTalign::TAVTalign(const TString name, Int_t type)
 	  }
    }
    
-   for(Int_t i=0; i< geoMap->GetSensorsN(); i++){ 
+   for(Int_t i=0; i< geoMap->GetNSensors(); i++){ 
 	  fOffsetU[i] = geoMap->GetSensorPar(i).Position[0];
 	  fOffsetV[i] = geoMap->GetSensorPar(i).Position[1];
    }
