@@ -281,7 +281,7 @@ void TAVTbaseEventDisplay::UpdateElements()
    Float_t x1 = 0.,  y1 =0., z1 = 0.;
       
    TAVTparGeo* geoMap    = (TAVTparGeo*) fpGeoMap->Object();
-   Int_t nPlanes         = geoMap->GetSensorsN();
+   Int_t nPlanes         = geoMap->GetNSensors();
    Float_t posLastPlane  = geoMap->GetSensorPar(nPlanes-1).Position[2];
    
    if (posLastPlane > 0) 
@@ -600,7 +600,7 @@ void TAVTbaseEventDisplay::CreateCanvases()
 void TAVTbaseEventDisplay::DrawReco()
 {
    TAVTparGeo* geoMap    = (TAVTparGeo*) fpGeoMap->Object();
-   Int_t nPlanes         = geoMap->GetSensorsN();
+   Int_t nPlanes         = geoMap->GetNSensors();
    
    TList* histoClus  = fActClus->GetHistogrammList();
    TList* histoTrack = fActTrack->GetHistogrammList();
