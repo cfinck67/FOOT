@@ -3,6 +3,7 @@
  \version $Id: TAVTactNtuTrackF.cxx,v 1.9 2003/06/22 10:35:48 mueller Exp $
  \brief   Implementation of TAVTactNtuTrackF.
  */
+
 #include "TClonesArray.h"
 #include "TF1.h"
 #include "TH2F.h"
@@ -27,6 +28,8 @@
 #include "TAVTntuTrack.hxx"
 #include "TAVTntuCluster.hxx"
 #include "TAVTactNtuTrackF.hxx"
+
+#include "foot_geo.h"
 
 /*!
  \class TAVTactNtuTrackF 
@@ -68,7 +71,7 @@ Bool_t TAVTactNtuTrackF::FindTiltedTracks()
    array.Clear();
    
    TAVTtrack* track = 0x0;
-   Int_t nPlane   = pGeoMap->GetSensorsN()-1;
+   Int_t nPlane   = pGeoMap->GetNSensors()-1;
    Int_t curPlane = nPlane;
    
    while (curPlane >= fRequiredClusters-1) {
@@ -113,8 +116,8 @@ Bool_t TAVTactNtuTrackF::FindTiltedTracks()
 			   array.Clear();
 			   for( Int_t iFirstPlane = iPlane-1; iFirstPlane >= 0; --iFirstPlane) { // loop on first planes
 				  
-//				  if (track->GetClustersN() + iFirstPlane < fRequiredClusters-1)
-//					  break;
+				  if (track->GetClustersN() + iFirstPlane < fRequiredClusters-1)
+					  break;
 				   
 				  TClonesArray* firstList = pNtuClus->GetListOfClusters(iFirstPlane);
 				  Int_t nFirstClusters    = pNtuClus->GetClustersN(iFirstPlane);
@@ -177,9 +180,7 @@ Bool_t TAVTactNtuTrackF::FindTiltedTracks()
 //  
 Bool_t TAVTactNtuTrackF::IsGoodCandidate(TAVTtrack* track)
 {
-   TAVTparGeo* pGeoMap = (TAVTparGeo*)fpGeoMap->Object();
-
-   Float_t width = pGeoMap->GetTargetWidth()/2.;
+   Float_t width = TG_THICK/2.;
    TVector3 vec = track->Intersection(0.);
    if (TMath::Abs(vec.X()) > width || TMath::Abs(vec.Y()) > width)
 	  return false;
