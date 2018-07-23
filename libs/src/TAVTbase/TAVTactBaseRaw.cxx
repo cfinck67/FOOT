@@ -44,7 +44,7 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc
    AddPara(pGeoMap, "TAVTparGeo");
    AddPara(pConfig, "TAVTparConf");
    TAVTparGeo* geoMap = (TAVTparGeo*) fpGeoMap->Object();
-   fNSensors = geoMap->GetSensorsN();
+   fNSensors = geoMap->GetNSensors();
 }
 
 //------------------------------------------+-----------------------------------
@@ -59,7 +59,7 @@ void TAVTactBaseRaw::CreateHistogram()
 {
    DeleteHistogram();
    TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
-   for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
+   for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
 	  if (TAVTparConf::IsMapHistOn()) {
 		 fpHisPixelMap[i] = new TH2F(Form("vtPixelMap%d", i+1), Form("Vertex - pixel map for sensor %d", i+1), 
 									 pGeoMap->GetNPixelY(), 0, pGeoMap->GetNPixelY(), 
@@ -115,7 +115,7 @@ Int_t TAVTactBaseRaw::GetSensor(UInt_t key)
 {
    key = (key >> 16) & 0xFFFF;
    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
-   for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
+   for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
 	  if (fgKeyHeader[i] == key)
 		 return i;
    }
