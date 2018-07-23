@@ -67,11 +67,11 @@ void TAVTactNtuRaw::CreateHistogram()
 //! Action.
 Bool_t TAVTactNtuRaw::Action()
 {
-   TAVTdatRaw* pDatRaw = (TAVTdatRaw*) fpDatRaw->Object();
+//   TAVTdatRaw* pDatRaw = (TAVTdatRaw*) fpDatRaw->Object();
    TAVTntuRaw* pNtuRaw = (TAVTntuRaw*) fpNtuRaw->Object();
-   TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
-   TAVTparMap* pParMap = (TAVTparMap*) fpParMap->Object();
-   
+//   TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
+//   TAVTparMap* pParMap = (TAVTparMap*) fpParMap->Object();
+  
    pNtuRaw->SetupClones();
    
    // for (Int_t iSensor = 0; iSensor < pGeoMap->GetSensorsN(); ++iSensor) {
