@@ -22,6 +22,8 @@
 #include "TAVTntuCluster.hxx"
 #include "TAVTactNtuTrack.hxx"
 
+#include "foot_geo.h"
+
 /*!
  \class TAVTactNtuTrack 
  \brief NTuplizer for vertex tracks. **
@@ -70,7 +72,7 @@ Bool_t TAVTactNtuTrack::FindTiltedTracks()
    array.Clear();
 
    // loop over last planes
-   Int_t nPlane = pGeoMap->GetSensorsN()-1;
+   Int_t nPlane = pGeoMap->GetNSensors()-1;
    Int_t curPlane = nPlane;
    
    while (curPlane >= fRequiredClusters-1) {
@@ -92,8 +94,10 @@ Bool_t TAVTactNtuTrack::FindTiltedTracks()
 		 track->AddCluster(cluster);
 		 array.Add(cluster);
 		 
+       lineOrigin[2] = 0;
+
 		 if (fpBMntuTrack == 0x0 || fpFirstGeo == 0x0) { // no BM info available
-			lineOrigin.SetXYZ(0, 0, 0);  
+			lineOrigin.SetXYZ(0, 0, -VTX_Z);
 		 } else {
 			if (fBmTrack) {
 			   if (fBmTrackOk) 
@@ -104,10 +108,10 @@ Bool_t TAVTactNtuTrack::FindTiltedTracks()
 			   return true;  // think about it !
 			}
 		 }
-		 lineOrigin[2] = 0;
-		 lineSlope     = cluster->GetPositionG() - lineOrigin;
-		 lineSlope    *= 1/(lineSlope)(2);
-		 
+        
+		 lineSlope  = cluster->GetPositionG() - lineOrigin;
+		 lineSlope *= 1/(lineSlope)(2);
+      
 		 track->SetLineValue(lineOrigin, lineSlope);
 		 
 		 // Loop on all planes to find a matching cluster in them
@@ -150,7 +154,6 @@ Bool_t TAVTactNtuTrack::FindTiltedTracks()
 			track->SetNumber(pNtuTrack->GetTracksN());
 			track->MakeChiSquare();
 			track->SetType(1);
-			//			cout<<"RecAn:: "<<track->GetTrackLine().GetTheta()*TMath::DegToRad()<<" RecX:: "<<track->GetTrackLine().GetSlopeZ().Unit().X()<<" RecY:: "<<track->GetTrackLine().GetSlopeZ().Unit().Y()<<endl;
 			pNtuTrack->NewTrack(*track);
 			if (fBmTrack && fBmTrackOk) {
 			   pNtuTrack->SetBeamPosition(fBmTrackPos);

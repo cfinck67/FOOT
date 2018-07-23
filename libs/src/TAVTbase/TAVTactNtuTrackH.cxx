@@ -69,7 +69,7 @@ Bool_t TAVTactNtuTrackH::FindTiltedTracks()
 	TAVTparGeo*     pGeoMap   = (TAVTparGeo*)     fpGeoMap->Object();
 	
 	TAVTtrack* track = 0x0;
-	Int_t nPlane   = pGeoMap->GetSensorsN()-1;
+	Int_t nPlane   = pGeoMap->GetNSensors()-1;
 	
 	
 	vector<Int_t> vecListClus,vecListClusTrack;

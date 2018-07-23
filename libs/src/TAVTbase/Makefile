@@ -22,13 +22,12 @@ TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTntuHit.hxx TAVTparTools.hxx \
 	         TAVTparMap.hxx TAVTparGeo.hxx  TAVTparConf.hxx \
 	         TAVTactNtuRaw.hxx TAVTactNtuMC.hxx \
 	         TAVTbaseDigitizer.hxx TAVTdigitizer.hxx TAVTdigitizerE.hxx \
-			 TAVTntuCluster.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx 
-			 # TAVTactNtuCluster.hxx	
-			 
+            TAVTntuCluster.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx \
+            TAVTntuTrack.hxx TAVTactBaseNtuTrack.hxx TAVTactNtuTrack.hxx  TAVTactNtuTrackF.hxx
 
-CXX_all    = $(TOBJ_all:.hxx=.cxx) 
+CXX_all    = $(TOBJ_all:.hxx=.cxx)
 #
-OBJ_all    = $(CXX_all:.cxx=.o) $(TOBJ_all:.hxx=.cint.o) 
+OBJ_all    = $(CXX_all:.cxx=.o) $(TOBJ_all:.hxx=.cint.o)
 DEP_all    = $(CXX_all:.cxx=.d) $(TOBJ_all:.hxx=.cint.d)
 CINT_all   = $(TOBJ_all:.hxx=.cint.cxx) $(TOBJ_all:.hxx=.cint.h) 
 #
