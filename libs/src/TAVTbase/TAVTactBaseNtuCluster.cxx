@@ -127,19 +127,7 @@ Bool_t TAVTactBaseNtuCluster::Action()
 //
 void TAVTactBaseNtuCluster::ComputePosition()
 {
-   TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
-
-   Int_t positionAlgorithm = pConfig->GetAnalysisPar().PosAlgo % 100;
-   switch (positionAlgorithm) {
-	  case 0:
-		 ComputeSeedPosition();
-		 break;
-	  case 1:
-	  case 11:
-	  case 12:
-		 ComputeCoGPosition();
-		 break;
-   }
+   ComputeCoGPosition();
 }
 
 //______________________________________________________________________________
@@ -183,8 +171,9 @@ void TAVTactBaseNtuCluster::ComputeCoGPosition()
    posErr *= 1./tClusterPulseSum;
    
    // for cluster with a single pixel
-   if (posErr(0) < 25) posErr(0) = 25; //(18/Sqrt(12)^2
-   if (posErr(1) < 25) posErr(1) = 25; //(18/Sqrt(12)^2
+   Float_t lim = 25/10000;
+   if (posErr(0) < lim) posErr(0) = lim; //(18/Sqrt(12)^2
+   if (posErr(1) < lim) posErr(1) = lim; //(18/Sqrt(12)^2
    
    GetCurrentPosition()->SetXYZ((pos)(0), (pos)(1), 0);  
    GetCurrentPosError()->SetXYZ(TMath::Sqrt((posErr)(0)), TMath::Sqrt((posErr)(1)), 0);
