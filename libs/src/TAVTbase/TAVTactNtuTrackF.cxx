@@ -180,9 +180,10 @@ Bool_t TAVTactNtuTrackF::FindTiltedTracks()
 //  
 Bool_t TAVTactNtuTrackF::IsGoodCandidate(TAVTtrack* track)
 {
-   Float_t width = TG_THICK/2.;
-   TVector3 vec = track->Intersection(0.);
-   if (TMath::Abs(vec.X()) > width || TMath::Abs(vec.Y()) > width)
+   Float_t width  = VTX_WIDTH/2.;
+   Float_t height = VTX_HEIGHT/2.;
+   TVector3 vec = track->Intersection(-VTX_Z);
+   if (TMath::Abs(vec.X()) > width || TMath::Abs(vec.Y()) > height)
 	  return false;
    
    return true;
