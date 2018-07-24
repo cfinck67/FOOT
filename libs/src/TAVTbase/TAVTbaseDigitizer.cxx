@@ -24,8 +24,8 @@ ClassImp(TAVTbaseDigitizer);
 
 Double_t TAVTbaseDigitizer::fgkGeV2keV        = 1e6;
 Double_t TAVTbaseDigitizer::fgkCm2Mu          = 10000;
-Bool_t   TAVTbaseDigitizer::fgSmearFlag       = false;
-Float_t  TAVTbaseDigitizer::fgDefSmearPos     =  9;    // in micron
+Bool_t   TAVTbaseDigitizer::fgSmearFlag       = true;
+Float_t  TAVTbaseDigitizer::fgDefSmearPos     =  10.4;    // in micron
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
@@ -77,6 +77,13 @@ Bool_t TAVTbaseDigitizer::Process( Double_t edep, Double_t x0, Double_t y0, Doub
    if (fDebugLevel) {
       printf("\nnext hit:\n");
       printf("eloss %6.1f pixels %d\n", deltaE, fPixelsN);
+   }
+   
+   if (fgSmearFlag) {
+      Float_t dx = gRandom->Gaus(0, fgDefSmearPos);
+      Float_t dy = gRandom->Gaus(0, fgDefSmearPos);
+      x0 += dx;
+      y0 += dy;
    }
    
    return MakeCluster(x0, y0, zin, zout);
