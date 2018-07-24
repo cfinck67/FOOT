@@ -14,7 +14,6 @@
 
 #include "TAVTbaseDigitizer.hxx"
 #include "TAVTdigitizerE.hxx"
-#include "TAVTdigitizer.hxx"
 
 #include "TAVTntuHit.hxx"
 

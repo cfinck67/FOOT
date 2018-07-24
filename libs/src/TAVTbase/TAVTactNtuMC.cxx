@@ -311,7 +311,7 @@ void  TAVTactNtuMC::GeneratePileup()
 		  rarray.push_back(1);
 	}
 	
-	std::random_shuffle (rarray.begin(), rarray.end(), TAVTdigitizer::GetRandom);
+	std::random_shuffle (rarray.begin(), rarray.end(), TAVTbaseDigitizer::GetRandom);
 
 	std::vector<RawMcHit_t> mcInfo;
 
