@@ -525,7 +525,7 @@ void TAVTactBaseNtuTrack::FillHistogramm(TAVTtrack* track)
 	  TVector3 impact    = track->Intersection(posZ);
    
      TVector3 impactLoc = impact;
-      pGeoMap->Global2Local(&impactLoc);
+  //    pGeoMap->Global2Local(&impactLoc);
       pGeoMap->Detector2Sensor_frame(idx, &impactLoc);
          
 	  if (TAVTparConf::IsMapHistOn()) 
