@@ -523,8 +523,11 @@ void TAVTactBaseNtuTrack::FillHistogramm(TAVTtrack* track)
 	  
 	  Float_t posZ       = cluster->GetPositionG()[2];
 	  TVector3 impact    = track->Intersection(posZ);
-     TVector3 impactLoc;
-     pGeoMap->Detector2Sensor_frame(idx, &impactLoc);
+   
+     TVector3 impactLoc = impact;
+      pGeoMap->Global2Local(&impactLoc);
+      pGeoMap->Detector2Sensor_frame(idx, &impactLoc);
+         
 	  if (TAVTparConf::IsMapHistOn()) 
 		 fpHisTrackMap[idx]->Fill(impactLoc[0], impactLoc[1]);
 	  fpHisResTotX->Fill(impact[0]-cluster->GetPositionG()[0]);
