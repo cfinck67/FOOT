@@ -127,7 +127,8 @@ Bool_t TAVTactNtuClusterF::FindClusters(Int_t iSensor)
 	  ComputePosition();
 	  cluster->SetNumber(i);
 	  TVector3 posG = *GetCurrentPosition();
-     pGeoMap->Sensor2Detector_frame(iSensor, &posG);
+      pGeoMap->Sensor2Detector_frame(iSensor, &posG);
+    //  pGeoMap->Local2Global(&posG);
 	  cluster->SetPositionG(&posG);
 	  cluster->SetPosition(GetCurrentPosition());
 	  cluster->SetPosError(GetCurrentPosError());
