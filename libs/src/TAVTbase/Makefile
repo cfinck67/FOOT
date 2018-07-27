@@ -24,7 +24,7 @@ TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTntuHit.hxx TAVTparTools.hxx \
 	         TAVTbaseDigitizer.hxx TAVTdigitizerE.hxx \
             TAVTntuCluster.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx \
             TAVTntuTrack.hxx TAVTactBaseNtuTrack.hxx TAVTactNtuTrack.hxx  TAVTactNtuTrackF.hxx \
-            TAVTntuVertex.hxx TAVTactBaseNtuVertex.hxx TAVTactNtuVertex TAVTactNtuVertexPD.hxx
+            TAVTntuVertex.hxx TAVTactBaseNtuVertex.hxx TAVTactNtuVertex.hxx TAVTactNtuVertexPD.hxx
 
 CXX_all    = $(TOBJ_all:.hxx=.cxx)
 #
