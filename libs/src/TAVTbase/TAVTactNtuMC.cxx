@@ -163,7 +163,9 @@ bool TAVTactNtuMC::Action()
 		}
 
 		// Digitizing
-      if (fpEvtStr->TRcha[i] < 1) continue;
+//      don't change anything ?
+//      Int_t genPartID = fpEvtStr->VTXid[i] - 1;
+//      if (fpEvtStr->TRcha[genPartID] < 1) continue;
       
       if (ValidHistogram()) {
          fpHisDeTot->Fill(fpEvtStr->VTXde[i]*TAVTbaseDigitizer::GeV2keV());
