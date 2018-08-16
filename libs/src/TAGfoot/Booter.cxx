@@ -131,8 +131,8 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     
 	Materials* listMaterials = new Materials() ;
     if ( GlobalPar::GetPar()->Debug() > 1 ) {
-        listMaterials->PrintCompMap();
-    	listMaterials->PrintMatMap();
+       listMaterials->PrintCompMap();
+       listMaterials->PrintMatMap();
     }
 
     top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 120.);
@@ -556,8 +556,6 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
 
     myp_vtgeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());  // put fist!!!!!!!
     ((TAVTparGeo*) myp_vtgeo->Object())->InitGeo();
-    // TVector3 transf (0,0,0);    ((TAVTparGeo*) myp_vtgeo->Object())->Local2Global( &transf );
-    // top->AddNode( ((TAVTparGeo*) myp_vtgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( transf.x(),transf.y(),transf.z(),new TGeoRotation("Vertex",0,0,0)) );
     top->AddNode( ((TAVTparGeo*) myp_vtgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0,0,0,new TGeoRotation("Vertex",0,0,0)) );
     
     /*Ntupling the MC Vertex information*/
@@ -574,14 +572,10 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
 
     
     mya_vtraw   = new TAVTactNtuMC("vtActRaw", myn_vtraw, myp_vtgeo, myp_vtmap, myStr);
-    // mya_vtclus = new TAVTactNtuClusterF("vtxActCluster", myn_vtraw, myn_vtclus, myp_vtconf, myp_vtgeo, "mc_hit");
-    mya_vtclus = new TAVTactNtuClusterF("vtxActCluster", myn_vtraw, myn_vtclus, myp_vtconf, myp_vtgeo, "mc_cluster");
-   // TAGaction* m_vtxCluster_action = new TAVTactNtuClusterF("vtxActCluster", myn_vtraw, myn_vtclus, myp_vtconf, myp_vtgeo, "mc_cluster");       // nope
+    mya_vtclus = new TAVTactNtuClusterF("vtxActCluster", myn_vtraw, myn_vtclus, myp_vtconf, myp_vtgeo);
  
     gTAGroot->AddRequiredItem("vtRaw");
-    gTAGroot->AddRequiredItem("vtClus");
-
-
+   gTAGroot->AddRequiredItem("vtClus");
 }
 
 

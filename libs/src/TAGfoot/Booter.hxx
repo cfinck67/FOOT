@@ -36,7 +36,7 @@ class Booter {
 
  TH2F* pos2D;
 
-  Booter() {};
+   Booter(): m_wd(".") {};
   ~Booter() {};
 
   void Initialize( EVENT_STRUCT* evStr );
