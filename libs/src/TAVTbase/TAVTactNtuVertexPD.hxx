@@ -39,7 +39,7 @@ public:
 private:
     Bool_t   ComputeVertex();
     void     SearchMaxProduct(TAVTline linei, TAVTline linej,Int_t i, Int_t j);
-    TVector3 ComputeVertexPoint(TAVTline line0, TAVTline line1, Int_t zVal);
+    TVector3 ComputeVertexPoint(TAVTline line0, TAVTline line1, Double_t zVal);
     Double_t ComputeProbabilityForSingleTrack(TAVTline lin0, TVector3 v);
     TVector3 ComputeMinimumPointDistance(TAVTline l, TVector3 vt);
     Double_t ComputeV (TVector3 rpos);

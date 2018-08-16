@@ -17,7 +17,6 @@
 #include "TAVTactBaseNtuVertex.hxx"
 #include "TArrayI.h"
 
-
 /*!
  \class TAVTactNtuVertex
  \brief NTuplizer for vertex raw hits. **
@@ -31,15 +30,14 @@ TAVTactNtuVertexPD::TAVTactNtuVertexPD(const char* name,
                                      TAGdataDsc* pNtuTrack, TAGdataDsc* pNtuVertex,
                                      TAGparaDsc* pConfig, TAGparaDsc* pGeoMap, TAGdataDsc* pBmTrack)
 : TAVTactBaseNtuVertex(name, pNtuTrack, pNtuVertex, pConfig, pGeoMap, pBmTrack),
-  fStepZ(10),
-  fImpactParameterCut(250), //micron
+  fStepZ(0.0010),
+  fImpactParameterCut(0.025),
   fProbabilityCut(0.1)
 {
-    //Inizializziamo i parametri della distribuzione di probabilitá 
-    TAVTparGeo* geoMap = (TAVTparGeo*) pGeoMap->Object();
-    fMinZ = -geoMap->GetTargetWidth()/2; //MICRON
-    fMaxZ =  geoMap->GetTargetWidth()/2; //MICRON
-    fErr.SetXYZ(50, 50, 50); //errore in X, Y, Z
+   fMinZ = -TG_THICK*2. - VTX_Z;
+   fMaxZ =  TG_THICK*2. - VTX_Z;
+
+   fErr.SetXYZ(0.005, 0.005, 0.005); //errore in X, Y, Z
 }
 
 //------------------------------------------+-----------------------------------
@@ -85,7 +83,6 @@ Bool_t TAVTactNtuVertexPD::ComputeVertex()
                 fFlagValidity[j*fTrack + i] = 0; //symmetric
 
             } else {
-                
                 fFlagValidity[i*fTrack + j] = 1;
                 fFlagValidity[j*fTrack + i] = 1;
             } 
@@ -122,7 +119,7 @@ Bool_t TAVTactNtuVertexPD::ComputeVertex()
      for(Int_t z =0; z<3; ++z)
         fVtxPos[z] = fRValuesMax[maxVij[1]*fTrack + maxVij[2]][z];
     
-    if(fCheckPileUp !=1)
+    if(fgCheckPileUp == false)
         ImpactParameterAdjustement();
     
     OK = SetVertex();
@@ -145,12 +142,12 @@ void TAVTactNtuVertexPD::SearchMaxProduct(TAVTline linei, TAVTline linej, Int_t 
     Double_t actualProb = 0;
     Double_t maxProb = -10e+10;
     //loop su z per trovare il massimo 
-    for(Double_t iz = fMinZ; iz<fMaxZ; iz = iz + fStepZ){
+    for(Double_t iz = fMinZ; iz < fMaxZ; iz += fStepZ){
         vertexPoint = ComputeVertexPoint(linei, linej, iz); //Gli passo le tracce
         fi = ComputeProbabilityForSingleTrack(linei, vertexPoint);
         fj = ComputeProbabilityForSingleTrack(linej, vertexPoint);
         actualProb = fi*fj;
-        if(actualProb >maxProb){
+        if(actualProb > maxProb){
             maxProb = actualProb;
             maxPosition = vertexPoint;
         }
@@ -160,14 +157,13 @@ void TAVTactNtuVertexPD::SearchMaxProduct(TAVTline linei, TAVTline linej, Int_t 
    //ritornare i valori messi in una struttura
     fProbValuesMax[i*fTrack + j] = maxProb;
     fRValuesMax[i*fTrack + j] = maxPosition;
-    //cout<<"Value max track   "<<maxProb<<" "<<maxPosition[0]<<" "<<maxPosition[1]<<" "<<maxPosition[2]<<endl;
 }
 
 
 //----------------------------------------------
 //!Calcola il punto di vertice
 
-TVector3 TAVTactNtuVertexPD::ComputeVertexPoint(TAVTline line0, TAVTline line1, Int_t zVal)
+TVector3 TAVTactNtuVertexPD::ComputeVertexPoint(TAVTline line0, TAVTline line1, Double_t zVal)
 {
     //Calcolare la media delle due tracce
     TVector3 result;
