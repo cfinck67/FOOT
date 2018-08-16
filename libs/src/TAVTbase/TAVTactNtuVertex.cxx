@@ -10,7 +10,6 @@
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
 
-#include "TAVTntuTrack.hxx"
 #include "TAVTntuVertex.hxx"
 #include "TAVTactNtuVertex.hxx"
 
@@ -28,9 +27,9 @@ TAVTactNtuVertex::TAVTactNtuVertex(const char* name,
                                        TAGparaDsc* pConfig, TAGparaDsc* pGeoMap, TAGdataDsc* pBmTrack)
 : TAVTactBaseNtuVertex(name, pNtuTrack, pNtuVertex, pConfig, pGeoMap, pBmTrack)
 {
-    fMinZ = -TG_THICK/2;
-    fMaxZ =  TG_THICK/2; 
-    fEps = 0.00005; //CONF
+    fMinZ = -TG_THICK*2. - VTX_Z;
+    fMaxZ =  TG_THICK*2. - VTX_Z;
+    fEps  = 5e-8;
 }
 
 //------------------------------------------+-----------------------------------
@@ -57,7 +56,7 @@ Bool_t TAVTactNtuVertex::ComputeVertex()
    Double_t z_coordinate = 0;
    
    do {
-	  lowerZdistance =  ComputeDistance(izMin);
+	  lowerZdistance  = ComputeDistance(izMin);
 	  higherZdistance = ComputeDistance(izMax);
 	  if(fDebugLevel>0){
 		 cout<<"izMin "<<izMin<<" distance @ low Z value "<<lowerZdistance<<" izMax "<<izMax<<" distance @ high Z value "<<higherZdistance<<endl;
@@ -89,6 +88,7 @@ Bool_t TAVTactNtuVertex::ComputeVertex()
    TVector3 vtxCoord;
    vtxCoord.SetXYZ(x_coordinate, y_coordinate, z_coordinate);
    SetVertex(vtxCoord, minZdistance);
+   
    return true;
 }
 

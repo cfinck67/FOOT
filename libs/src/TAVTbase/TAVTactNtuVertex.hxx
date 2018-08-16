@@ -7,10 +7,11 @@
  \author R. Rescigno
  */
 
+#include "TAVTntuTrack.hxx"
+
 #include "TAVTactBaseNtuVertex.hxx"
 #include "TVector3.h"
 
-class TAVTtrack;
 class TAVTactNtuVertex : public TAVTactBaseNtuVertex {
     
 public:
