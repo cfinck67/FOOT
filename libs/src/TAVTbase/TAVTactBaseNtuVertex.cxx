@@ -20,6 +20,7 @@
 #include "TAVTntuVertex.hxx"
 #include "TAVTactBaseNtuVertex.hxx"
 
+#include "foot_geo.h"
 
 /*!
  \class TAVTactBaseNtuVertex 
@@ -27,8 +28,9 @@
  */
 
 ClassImp(TAVTactBaseNtuVertex);
-Float_t TAVTactBaseNtuVertex::fgAngleLimitDiffusion = 1.23;
-Bool_t  TAVTactBaseNtuVertex::fgAngleDiffusionFlag  = false;
+Bool_t  TAVTactBaseNtuVertex::fgCheckBmMatching = false;
+Bool_t  TAVTactBaseNtuVertex::fgCheckPileUp     = false;
+
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 TAVTactBaseNtuVertex::TAVTactBaseNtuVertex(const char* name, 
@@ -40,9 +42,7 @@ TAVTactBaseNtuVertex::TAVTactBaseNtuVertex(const char* name,
   fpConfig(pConfig),
   fpGeoMap(pGeoMap),
   fpBMntuTrack(pBmTrack),
-  fDebugLevel(0),
-  fCheckPileUp(false),
-  fCheckBmMatching(true)
+  fDebugLevel(0)
 {
     AddDataIn(pNtuTrack,   "TAVTntuTrack");
     AddDataOut(pNtuVertex, "TAVTntuVertex");
@@ -67,14 +67,14 @@ void TAVTactBaseNtuVertex::CreateHistogram()
    DeleteHistogram();   
    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
    
-   fpHisPosZ = new TH1F("vtVtxPosZ", "Vertex position at Z", 100, -pGeoMap->GetTargetWidth()/2., pGeoMap->GetTargetWidth()/2.);
+   fpHisPosZ = new TH1F("vtVtxPosZ", "Vertex position at Z", 100, -TG_THICK-VTX_Z, TG_THICK-VTX_Z);
    AddHistogram(fpHisPosZ);
    
-   if (fCheckBmMatching) {
-	  fpHisBmMatchX = new TH1F("vtBmMatchX", "Residual vertexing - BM in X", 500, -pGeoMap->GetTargetWidth()/2., pGeoMap->GetTargetWidth()/2.);
+   if (fgCheckBmMatching) {
+	  fpHisBmMatchX = new TH1F("vtBmMatchX", "Residual vertexing - BM in X", 500, -VTX_WIDTH/2., VTX_WIDTH/2.);
 	  AddHistogram(fpHisBmMatchX);
    
-	  fpHisBmMatchY = new TH1F("vtBmMatchY", "Residual vertexing - BM in Y", 500, -pGeoMap->GetTargetWidth()/2., pGeoMap->GetTargetWidth()/2.);
+	  fpHisBmMatchY = new TH1F("vtBmMatchY", "Residual vertexing - BM in Y", 500, -VTX_HEIGHT/2., VTX_HEIGHT/2.);
 	  AddHistogram(fpHisBmMatchY);
    }
    
@@ -97,8 +97,11 @@ Bool_t TAVTactBaseNtuVertex::Action()
    Bool_t ok = true;
   
    TAVTntuTrack* pNtuTrack = (TAVTntuTrack*) fpNtuTrack->Object();
-   Bool_t check = CheckPileUp();
-   Bool_t diffusion = false;
+   
+   Bool_t check = false;
+   
+   if (fgCheckPileUp)
+     check = CheckPileUp();
 
    Int_t nTrack = pNtuTrack->GetTracksN();
 
@@ -108,14 +111,7 @@ Bool_t TAVTactBaseNtuVertex::Action()
    }
 
    if (nTrack == 1) {
-	  diffusion = SearchDiffusion(0);
-	  if(!diffusion)
 		 SetNotValidVertex(0);
-	  else {
-		 SetValidVertex();
-		 if (fDebugLevel)
-			cout<<"diffusion "<<endl;
-	  }
    } else if (nTrack >= 2 && check) { 
 	  for(Int_t q =0; q< nTrack; ++q) 
 		 SetNotValidVertex(q);
@@ -125,7 +121,7 @@ Bool_t TAVTactBaseNtuVertex::Action()
    if(ok)
 	  fpNtuVertex->SetBit(kValid);
    
-   if (fCheckBmMatching)
+   if (fgCheckBmMatching)
 	  CheckBmMatching();
 
     return ok;
@@ -136,12 +132,9 @@ Bool_t TAVTactBaseNtuVertex::Action()
 //!Check Pile Up
 Bool_t TAVTactBaseNtuVertex::CheckPileUp()
 {
-    if (fCheckPileUp) {//CheckPile Up
 	   ComputePileUp();
 	   TAVTntuTrack* pNtuTrack = (TAVTntuTrack*) fpNtuTrack->Object();
 	   return pNtuTrack->IsPileUp();
-    } else
-        return false;
 }
 
 //-------------------------------------------------------------------------------------
@@ -188,7 +181,7 @@ Bool_t TAVTactBaseNtuVertex::CheckBmMatching()
    
    if (!isGood) return false;
 
-   if (fCheckBmMatching) {
+   if (fgCheckBmMatching) {
 	  if (bestIdx != -1) {
 		 TAVTvertex* vtx  = pNtuVertex->GetVertex(bestIdx);
 		 vtx->SetBmMatched();
@@ -203,48 +196,6 @@ Bool_t TAVTactBaseNtuVertex::CheckBmMatching()
    return true;
 }
 
-//------------------------------------------------------------
-//!Search diffusion
-Bool_t TAVTactBaseNtuVertex::SearchDiffusion(Int_t idTk)
-{
-   Bool_t result = false;
-      
-   // retrieve trafo
-   TAGgeoTrafo* pFirstGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-   
-   //Track from bm
-   if (!fpBMntuTrack)
-	  return false;
-   TABMntuTrack* pBMtrack  = (TABMntuTrack*) fpBMntuTrack->Object();
-   if (!pBMtrack) return false;
-   TABMntuTrackTr* bmTrack = pBMtrack->Track(0);
-   if (!bmTrack) return false;
-   
-   TVector3 slope = bmTrack->GetDirection();
-   TVector3 direction = slope.Unit();
-   direction = pFirstGeo->VecFromBMLocalToGlobal(direction);
-   Double_t angleBm = direction.Theta()*TMath::RadToDeg();
-   
-   //Track from vtx
-   TAVTntuTrack* pNtuTrack = (TAVTntuTrack*) fpNtuTrack->Object();
-   TAVTtrack* track0       = pNtuTrack->GetTrack(idTk);
-   TAVTline line1          = track0->GetTrackLine();
-   
-   direction = line1.GetSlopeZ().Unit();
-   direction = pFirstGeo->VecFromVTLocalToGlobal(direction);
-   Double_t angleTk = direction.Theta()*TMath::RadToDeg();
-   
-   if(TMath::Abs(angleBm-angleTk) < fgAngleLimitDiffusion && fgAngleDiffusionFlag) {
-	  result = false;//No diffusion
-   } else {
-	  if (fDebugLevel)
-		 cout<<"Relative angle "<<TMath::Abs(angleBm-angleTk)<<endl;
-	  ComputeInteractionVertex(bmTrack, line1);
-	  result = true;
-   }
-   
-   return result;
-}
 
 //--------------------------------------------------------------
 //!Compute the point interaction of diffusion
@@ -358,7 +309,7 @@ void TAVTactBaseNtuVertex::ComputePileUp()
 		 TAVTtrack* track0 = pNtuTrack->GetTrack(i);
 		 TAVTtrack* track1 = pNtuTrack->GetTrack(j);
 		 TVector2 pos = track0->DistanceMin(track1);
-		 if (TMath::Abs(pos.X()) > TAVTparGeo::GetTargetWidth()/2. || pos.Y() > fSearchClusDistance) {
+		 if (TMath::Abs(pos.X()) > VTX_WIDTH/2. || pos.Y() > fSearchClusDistance) {
 			track0->SetPileUp();
 			track1->SetPileUp();
 			pileup = true;
