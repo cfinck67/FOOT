@@ -15,18 +15,12 @@
 
 ClassImp(TAITparMap);
 
-const Int_t TAITparMap::fgkSensorsN = 32;
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
 TAITparMap::TAITparMap() 
-: TAGpara(),
-  fPixelsNu(1152),
-  fPixelsNv(576),
-  fPitchU(18.4),
-  fPitchV(18.4),
-  fPixelSize(18.4)
-{  
+: TAVTparMap
+{
 }
 
 //------------------------------------------+-----------------------------------
@@ -67,26 +61,4 @@ Int_t TAITparMap::GetRealId(Int_t mcSensorId)
 	  default:
 		 return -1;
    }
-}
-
-/*------------------------------------------+---------------------------------*/
-//! Returns position from pixel line/column in U direction
-Int_t TAITparMap::GetIndex(Int_t line, Int_t column) const
-{
-   return line*fPixelsNu + column;
-}
-
-/*------------------------------------------+---------------------------------*/
-//! Returns position from pixel line/column in U direction
-Float_t TAITparMap::GetPositionU(Int_t column) const
-{
-   return ((2*column - fPixelsNu + 1 ) * fPitchU)/2 ;
-}
-
-/*------------------------------------------+---------------------------------*/
-//! Returns position from pixel line/column in V direction
-Float_t TAITparMap::GetPositionV(Int_t line) const
-{
-   return -((2*line - fPixelsNv + 1 ) * fPitchV)/2 ;
-
 }
