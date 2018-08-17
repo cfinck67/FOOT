@@ -18,7 +18,7 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 # Files to be included
 #
-TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTntuHit.hxx TAVTparTools.hxx \
+TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTntuHit.hxx \
 	         TAVTparMap.hxx TAVTparGeo.hxx  TAVTparConf.hxx \
 	         TAVTactBaseRaw.hxx  TAVTactNtuRaw.hxx TAVTactNtuMC.hxx \
 	         TAVTbaseDigitizer.hxx TAVTdigitizerE.hxx \

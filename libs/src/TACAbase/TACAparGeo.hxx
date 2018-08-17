@@ -7,7 +7,7 @@
 
 #include "TObject.h"
 
-#include "TACAparTools.hxx"
+#include "TAGparTools.hxx"
 
 #include "GlobalPar.hxx"
 
@@ -18,7 +18,7 @@ class TGeoHMatrix;
 class TGeoVolume;
 //##############################################################################
 
-class TACAparGeo : public TACAparTools {
+class TACAparGeo : public TAGparTools {
  
 public:
 

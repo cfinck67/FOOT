@@ -24,7 +24,7 @@
 #include "TObject.h"
 #include "TString.h"
 
-#include "TAVTparTools.hxx"
+#include "TAGparTools.hxx"
 
 #include "IronPlate.hxx"
 #include "FootBox.hxx"
@@ -38,7 +38,7 @@ class TGeoHMatrix;
 class TGeoVolume;
 //##############################################################################
 
-class TAVTparGeo : public TAVTparTools {
+class TAVTparGeo : public TAGparTools {
 
 
 typedef vector< vector< vector< IronPlate* > > > SensorMatrix;

@@ -11,7 +11,7 @@
 #include "TVector3.h"
 #include "TRotation.h"
 
-#include "TATWparTools.hxx"
+#include "TAGparTools.hxx"
 
 #include "FootBox.hxx"
 #include "GlobalPar.hxx"
@@ -26,7 +26,7 @@ class TGeoHMatrix;
 class TGeoVolume;
 //##############################################################################
 
-class TATWparGeo : public TATWparTools {
+class TATWparGeo : public TAGparTools {
 
 
   typedef vector< vector< LightSabre* > > BarMatrix;
