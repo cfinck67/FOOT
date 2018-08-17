@@ -9,6 +9,7 @@
 
 #include "TClonesArray.h"
 #include "TVector3.h"
+#include "TString.h"
 
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
@@ -76,10 +77,12 @@ protected:
    
    Int_t          fDebugLevel;        // debug level
    
-   TH1F*          fpHisPixelTot;	  // Total number of pixels per cluster
-   TH1F*          fpHisPixel[8];	  // number of pixels per cluster per sensor
-   TH2F*          fpHisClusMap[8];    // cluster map per sensor
+   TH1F*          fpHisPixelTot;	     // Total number of pixels per cluster
+   TH1F*          fpHisPixel[32];	  // number of pixels per cluster per sensor
+   TH2F*          fpHisClusMap[32];   // cluster map per sensor
    
+   TString        fPrefix;
+
 protected:
    void ComputeSeedPosition();
    void ComputeCoGPosition();
