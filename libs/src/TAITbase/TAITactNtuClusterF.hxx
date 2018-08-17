@@ -9,42 +9,25 @@
 #include <map>
 #include "TArrayI.h"
 
-#include "TAITactBaseNtuCluster.hxx"
+#include "TAVTactNtuClusterF.hxx"
 
-class TAITcluster;
-class TAITntuHit;
+class TAVTcluster;
+class TAVTntuHit;
 
-class TAITactNtuClusterF : public TAITactBaseNtuCluster {
+class TAITactNtuClusterF : public TAVTactNtuClusterF {
    
 public:
    explicit  TAITactNtuClusterF(const char* name     =  0,
-                                       TAGdataDsc* p_nturaw =  0, 
-                                       TAGdataDsc* p_ntuclus = 0, 
-                                       TAGparaDsc* p_config =  0,
-                                       TAGparaDsc* p_geomap =  0, 
-                                       string command = ""
-                                    );
+								   TAGdataDsc* p_nturaw =  0, 
+								   TAGdataDsc* p_ntuclus = 0, 
+								   TAGparaDsc* p_config =  0,
+							      TAGparaDsc* p_geomap =  0);
    
-   virtual ~TAITactNtuClusterF() {};
+   virtual ~TAITactNtuClusterF();
    
    //! Find cluster charge, noise & position
-   Bool_t  FindClusters(int iSensor);   // called by action() of the parent class TAITactBaseNtuCluster
+   Bool_t  FindClusters(Int_t iSensor);
    
-   //! Compute position
-   void    ComputePosition();
-   
-private: 
-   Bool_t  ShapeCluster( int sensorID, int clusterID, int line, int col );
-   
-private:
-   
-   map<int, int> m_pixelHitMap;        // map of pixels that are present in the ntuRaw (value is always 1), indexed by line*nLine+col algorithm: x[ line*nLine+col ] = 1
-   map<int, int> m_indexMap;           // map of the pixel index in ntuRaw, indexed by line*nLine+col algorithm: x[ line*nLine+col ] = ID
-   vector<int> m_pixelIDMap;           // map of the line*nLine+col algorithm, indexed by index in ntuRaw: x[ ID ] = line*nLine+col
-   map<int, int> m_usedPixelMap;         // map used pixels, store the belongning cluster else -1, indexed by line*nLine+col algorithm: x[ line*nLine+col ] = clusterID
-
-   int                m_nLine;
-   int                m_nCol;
    
    ClassDef(TAITactNtuClusterF,0)
 };
