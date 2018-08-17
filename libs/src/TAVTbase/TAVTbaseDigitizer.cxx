@@ -29,7 +29,7 @@ Float_t  TAVTbaseDigitizer::fgDefSmearPos     =  10.4;    // in micron
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
-TAVTbaseDigitizer::TAVTbaseDigitizer(TAGparaDsc* parGeo)
+TAVTbaseDigitizer::TAVTbaseDigitizer(TAVTparGeo* parGeo)
 : TObject(),
   fpParGeo(parGeo),
   fPixelsN(-1),
@@ -40,11 +40,10 @@ TAVTbaseDigitizer::TAVTbaseDigitizer(TAGparaDsc* parGeo)
   fDebugLevel(0)
 {
    SetFunctions();
-   TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpParGeo->Object();
-   fPitchX   = pGeoMap->GetPitchX()*fgkCm2Mu;
-   fPixelsNx = pGeoMap->GetNPixelX();
-   fPitchY   = pGeoMap->GetPitchY()*fgkCm2Mu;
-   fPixelsNy = pGeoMap->GetNPixelY();
+   fPitchX   = fpParGeo->GetPitchX()*fgkCm2Mu;
+   fPixelsNx = fpParGeo->GetNPixelX();
+   fPitchY   = fpParGeo->GetPitchY()*fgkCm2Mu;
+   fPixelsNy = fpParGeo->GetNPixelY();
 }
 
 //------------------------------------------+-----------------------------------

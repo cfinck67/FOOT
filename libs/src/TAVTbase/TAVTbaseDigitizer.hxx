@@ -19,10 +19,11 @@
 
 
 class TF1;
+class TAVTparGeo;
 class TAVTbaseDigitizer : public TObject {
    
 public:
-   TAVTbaseDigitizer(TAGparaDsc* parGeo);
+   TAVTbaseDigitizer(TAVTparGeo* parGeo);
    virtual ~TAVTbaseDigitizer();
    
    Double_t     FuncClusterSize(Double_t* x, Double_t* par);
@@ -65,7 +66,7 @@ public:
    Int_t        GetLineRegion(Float_t y) const;
 
 protected:
-   TAGparaDsc* fpParGeo;
+   TAVTparGeo* fpParGeo;
    TF1*        fFuncClusterSize; // cluster size function
    
    std::map<int, int> fMap;      // map of found pixels
