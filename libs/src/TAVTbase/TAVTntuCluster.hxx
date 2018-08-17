@@ -22,7 +22,7 @@ class TAVTparGeo;
 
 class TAVTcluster : public TObject {
    
-private:
+protected:
    TVector3*          fPosition;                 // position of the cluster in plane frame
    TVector3*          fPosError;                 // position's errors of the cluster in plane frame 
    TVector3*          fPositionG;                // position of the clus in tracker frame
@@ -49,6 +49,8 @@ public:
    TAVTcluster(const TAVTcluster& cluster);
    ~TAVTcluster();
    
+   virtual void       SetupClones();
+
    //! Set position in local frame
    void               SetPosition(TVector3* pos); 
    //! Set position error in local frame
@@ -137,7 +139,7 @@ public:
 
 class TAVTntuCluster : public TAGdata {
    
-private:
+protected:
    TAVTparGeo*        fGeometry;                 //! do NOT stored this pointer !
    TObjArray*         fListOfClusters;
 

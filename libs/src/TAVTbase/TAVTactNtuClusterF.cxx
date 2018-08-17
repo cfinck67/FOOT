@@ -52,6 +52,13 @@ Bool_t TAVTactNtuClusterF::FindClusters(Int_t iSensor)
    TAVTntuCluster* pNtuClus = (TAVTntuCluster*) fpNtuClus->Object();
    TAVTparGeo*     pGeoMap  = (TAVTparGeo*)     fpGeoMap->Object();
 
+   return FindClusters(iSensor, pNtuClus, pGeoMap);
+}
+
+//______________________________________________________________________________
+//
+Bool_t TAVTactNtuClusterF::FindClusters(Int_t iSensor, TAVTntuCluster* pNtuClus, TAVTparGeo* pGeoMap)
+{
    Int_t nLine = pGeoMap->GetNPixelY()+1;
    Int_t nCol  = pGeoMap->GetNPixelX()+1;
    
@@ -94,7 +101,7 @@ Bool_t TAVTactNtuClusterF::FindClusters(Int_t iSensor)
 	  if (col  < 0)  continue;
 
 	  // loop over lines & columns
-     if ( ShapeCluster(nClusters, line, col) )
+     if ( ShapeCluster(nClusters, line, col, pGeoMap) )
         nClusters++;
    }
    
@@ -160,9 +167,8 @@ Bool_t TAVTactNtuClusterF::FindClusters(Int_t iSensor)
 
 //______________________________________________________________________________
 //  
-Bool_t TAVTactNtuClusterF::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY)
+Bool_t TAVTactNtuClusterF::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTparGeo* pGeoMap)
 {
-   TAVTparGeo* pGeoMap = (TAVTparGeo*)fpGeoMap->Object();
    
    Int_t nLine = pGeoMap->GetNPixelY()+1;
    Int_t nCol  = pGeoMap->GetNPixelX()+1;
@@ -176,11 +182,11 @@ Bool_t TAVTactNtuClusterF::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY)
       
    for(Int_t i = -1; i <= 1 ; ++i)
 	  if ( IndX+i >= 0 && IndX+i < nLine)
-		 ShapeCluster(noClus, IndX+i, IndY);
+		 ShapeCluster(noClus, IndX+i, IndY, pGeoMap);
    
    for(Int_t j = -1; j <= 1 ; ++j)
 	  if ( IndY+j >= 0 && IndY+j < nCol)
-		 ShapeCluster(noClus, IndX  , IndY+j);
+		 ShapeCluster(noClus, IndX  , IndY+j, pGeoMap);
    
    return true;
 }

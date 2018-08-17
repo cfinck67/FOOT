@@ -17,7 +17,6 @@ TAVTcluster::TAVTcluster()
    fPosition(new TVector3(0., 0., 0.)),
    fPosError(new TVector3(0., 0., 0.)),
    fPositionG(new TVector3(0., 0., 0.)),
-   fListOfPixels(new TClonesArray("TAVTntuHit")),
    fDebugLevel(0),
    fNumber(0),
    fPlaneNumber(10),
@@ -32,6 +31,14 @@ TAVTcluster::TAVTcluster()
    fIndexSeed(0)
 {
    // TAVTcluster constructor
+   SetupClones();
+}
+
+//______________________________________________________________________________
+//
+void TAVTcluster::SetupClones()
+{
+   fListOfPixels = new TClonesArray("TAVTntuHit");
    fListOfPixels->SetOwner(true);
 }
 
@@ -222,7 +229,6 @@ TAVTntuCluster::TAVTntuCluster()
   fGeometry(0x0),
   fListOfClusters(0x0)
 {
-   fGeometry = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefVtxParaName(), "TAVTparGeo")->Object();
    SetupClones();
 }
 
@@ -293,6 +299,8 @@ const TAVTcluster* TAVTntuCluster::GetCluster(Int_t iSensor, Int_t iCluster) con
 //! Setup clones.
 void TAVTntuCluster::SetupClones()
 {
+   fGeometry = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefVtxParaName(), "TAVTparGeo")->Object();
+
    if (fListOfClusters) return;
    fListOfClusters    = new TObjArray();
    for (Int_t i = 0; i < fGeometry->GetNSensors(); ++i) {
