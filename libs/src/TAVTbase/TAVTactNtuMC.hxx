@@ -101,11 +101,10 @@ protected:
 protected:
    void            SetMCinfo(TAVTntuHit* pixel, Int_t hitId);
    void            GeneratePileup();
-   void            FillPixels( Int_t sensorId, Int_t mcId );  // for pileup
-   void            FillPixels( TAVTntuHit* originatingHit, Int_t sensorId, Int_t mcId );  // for mc_cluster
    void            ComputeNoiseLevel();
    void            FillNoise(Int_t sensorId);
-   void            CreateDigitizer();
+   virtual void    CreateDigitizer();
+   virtual void    FillPixels( Int_t sensorId, Int_t mcId );
 
 protected:
    static Bool_t   fgPileup;           // flag to generated pileup events
