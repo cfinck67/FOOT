@@ -49,7 +49,6 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name, TAGdataDsc* pNtuRaw,  TAGparaDsc* p
 	fpGeoMap(pGeoMap),
 	fpParMap(pParMap),
 	fpEvtStr(evStr),
-	fDigitizer(new TAVTdigitizerE(pGeoMap)),
 	fNoisyPixelsN(0),
 	fDebugLevel(0)
 {
@@ -57,7 +56,8 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name, TAGdataDsc* pNtuRaw,  TAGparaDsc* p
 	AddPara(pGeoMap, "TAVTparGeo");
 	AddPara(pParMap, "TAVTparMap");
 
-
+   CreateDigitizer();
+   
 	fpHisPoisson = (TH1F*)gDirectory->FindObject("vtPoisson");
 	if (fpHisPoisson == 0x0) {
 	   
@@ -75,6 +75,15 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name, TAGdataDsc* pNtuRaw,  TAGparaDsc* p
 			fpHisPoisson->Fill(i, val);
 		}
 	}
+}
+
+
+//------------------------------------------+-----------------------------------
+//! Create histogram
+void TAVTactNtuMC::CreateDigitizer()
+{
+   TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
+   fDigitizer = new TAVTdigitizerE(pGeoMap);
 }
 
 //------------------------------------------+-----------------------------------

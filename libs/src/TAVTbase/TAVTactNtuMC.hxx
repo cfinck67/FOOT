@@ -49,6 +49,7 @@ public:
    // Fill noise over sensors
    void           FillNoise();
    
+public:
    //! Set refit flag
    static void   SetPileup(Bool_t flag)      { fgPileup = flag;         }
    
@@ -76,7 +77,7 @@ public:
    
 
    
-private:
+protected:
    TAGdataDsc*     fpNtuRaw;		    // output data dsc
    TAGparaDsc*     fpGeoMap;		    // geometry para dsc
    TAGparaDsc*     fpParMap;		    // map para dsc
@@ -97,20 +98,23 @@ private:
 
    std::vector<std::vector<RawMcHit_t>> fStoredEvents;
 
+protected:
    void            SetMCinfo(TAVTntuHit* pixel, Int_t hitId);
    void            GeneratePileup();
    void            FillPixels( Int_t sensorId, Int_t mcId );  // for pileup
    void            FillPixels( TAVTntuHit* originatingHit, Int_t sensorId, Int_t mcId );  // for mc_cluster
    void            ComputeNoiseLevel();
    void            FillNoise(Int_t sensorId);
+   void            CreateDigitizer();
 
-
+protected:
    static Bool_t   fgPileup;           // flag to generated pileup events
    static Int_t    fgPileupEventsN;    // number of pileup events to be stored
    static Float_t  fgPoissonPar;       // Poisson parameter for pileup simulation
    static Float_t  fgSigmaNoiseLevel;
    static Int_t    fgMcNoiseId;
     
+  
    
    ClassDef(TAVTactNtuMC,0)
 };
