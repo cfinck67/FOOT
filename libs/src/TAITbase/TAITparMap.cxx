@@ -19,7 +19,7 @@ ClassImp(TAITparMap);
 //! Default constructor.
 
 TAITparMap::TAITparMap() 
-: TAVTparMap
+: TAVTparMap()
 {
 }
 
