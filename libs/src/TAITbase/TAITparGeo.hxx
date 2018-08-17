@@ -44,20 +44,8 @@ public:
 
     TAITparGeo();
     TAITparGeo( TAITparGeo* original );
-    virtual ~TAITparGeo() {
-      // sensor matrix
-      for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
-        for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
-            for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
-                delete (*itZ);
-            }
-            (*itY).clear();
-        }
-        (*itX).clear();
-      }
-      m_sensorMatrix.clear();
-    };
-
+    virtual ~TAITparGeo() {}
+   
     void InitGeo();
     void InitMaterial();
 
