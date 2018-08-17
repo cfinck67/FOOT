@@ -1,7 +1,7 @@
 #ifndef _TAITactBaseRaw_HXX
 #define _TAITactBaseRaw_HXX
 
-#include "TAITmi26Type.hxx"
+#include "TAVTmi26Type.hxx"
 
 #include "TAGaction.hxx"
 #include "TAGparaDsc.hxx"
