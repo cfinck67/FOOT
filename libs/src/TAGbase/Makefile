@@ -24,7 +24,7 @@ TOBJ_all   = TAGobject.hxx TAGnamed.hxx TAGroot.hxx \
 		TAGtimestamp.hxx TAGeventId.hxx \
 		TAGrunInfo.hxx \
 		TAGdata.hxx TAGdataDsc.hxx TAGpara.hxx TAGparaDsc.hxx \
-		TAGaction.hxx TAGactionFile.hxx \
+		TAGparTools.hxx TAGaction.hxx TAGactionFile.hxx \
 		TAGactTreeReader.hxx TAGactTreeWriter.hxx \
 		TAGpadGroup.hxx \
 		TAGview.hxx \
