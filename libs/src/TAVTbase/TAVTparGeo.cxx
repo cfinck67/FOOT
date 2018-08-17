@@ -27,7 +27,7 @@
 #include "foot_geo.h"
 #include "GlobalPar.hxx"
 
-TString TAVTparGeo::fgkDefParaName = "vtGeo";
+TString TAVTparGeo::fgkDefVtxParaName = "vtGeo";
 
 //_____________________________________________________________________________
 TAVTparGeo::TAVTparGeo()

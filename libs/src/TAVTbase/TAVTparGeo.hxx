@@ -40,7 +40,8 @@ class TGeoVolume;
 
 class TAVTparGeo : public TAGparTools {
 
-
+protected:
+   
 typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
 typedef vector< vector< IronPlate* > > SensorPlane;
 typedef vector< IronPlate* > SensorLine;
@@ -74,7 +75,7 @@ public:
     Float_t GetPositionV(Int_t line)           const;
 
 
-    TVector3 GetSensorPosition( int sensorID )   { return m_sensorMatrix[sensorID][0][0]->GetCenter(); };
+    virtual TVector3 GetSensorPosition( int sensorID )   { return m_sensorMatrix[sensorID][0][0]->GetCenter(); };
 
     //    it should be changed accordingly with the simulation choice when more than one sensors will be used
     // TVector3 GetPixelPos_Global( int layer, int col, int row );
@@ -90,30 +91,29 @@ public:
     // float GetColumnCenter_Global (int layer, int col);
     // float GetRowCenter_Global ( int layer, int row);
 
-// new
-    float GetColumnCenter_sensorFrame ( int col);
-    float GetColumnCenter_detectorFrame ( int layer, int col);
-    float GetColumnCenter_footFrame ( int layer, int col);
     // new
-    float GetRowCenter_sensorFrame ( int row);
-    float GetRowCenter_detectorFrame ( int layer, int row);
-    float GetRowCenter_footFrame ( int layer, int row);
-
+    virtual float GetColumnCenter_sensorFrame ( int col);
+    virtual float GetColumnCenter_detectorFrame ( int layer, int col);
+    virtual float GetColumnCenter_footFrame ( int layer, int col);
+    // new
+    virtual float GetRowCenter_sensorFrame ( int row);
+    virtual float GetRowCenter_detectorFrame ( int layer, int row);
+    virtual float GetRowCenter_footFrame ( int layer, int row);
 
     //! Transform point from the foot global reference frame
     //! to the detector local reference frame.  Transformation between detector and sensor are managed by IronPlate
-    void Detector2Sensor_frame( int sensorID, TVector3* coord );
-    void Sensor2Detector_frame( int sensorID, TVector3* coord );
+    virtual void Detector2Sensor_frame( int sensorID, TVector3* coord );
+    virtual void Sensor2Detector_frame( int sensorID, TVector3* coord );
 
     // foot to detector
-    void Global2Local( TVector3* glob );
-    void Global2Local_TranslationOnly( TVector3* glob );
-    void Global2Local_RotationOnly( TVector3* glob );
+    virtual void Global2Local( TVector3* glob );
+    virtual void Global2Local_TranslationOnly( TVector3* glob );
+    virtual void Global2Local_RotationOnly( TVector3* glob );
 
     // detector to foot
-    void Local2Global( TVector3* loc );
-    void Local2Global_TranslationOnly( TVector3* loc );
-    void Local2Global_RotationOnly( TVector3* loc );
+    virtual void Local2Global( TVector3* loc );
+    virtual void Local2Global_TranslationOnly( TVector3* loc );
+    virtual void Local2Global_RotationOnly( TVector3* loc );
 
     TRotation GetRotationToGlobal() { return *m_rotation; };
     TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
@@ -137,30 +137,30 @@ public:
     TVector3        GetNumberOfSensorAlongDirections() { return m_nSensors; }; 
     
     // define the agloritm to map the sensor with a single variable. For VTX is too easy :).
-    int GetSensorID( int layer, int /*col*/, int /*row*/ )    { return layer; };
-    int GetLayerFromSensorID( int sensID )            { return sensID; };
+    virtual int GetSensorID( int layer, int /*col*/, int /*row*/ )    { return layer; };
+    virtual int GetLayerFromSensorID( int sensID )            { return sensID; };
 
     // pixel dimension
     double GetPitchX()  { return m_pitchX; };
     double GetPitchY()  { return m_pitchY; };
     
     // function for the FRUKA geometry creation
-    string PrintBodies();
-    string PrintRegions();
-    string PrintAssignMaterial();
-    string PrintSubtractBodiesFromAir();
-    string PrintParameters();
+   virtual string PrintBodies();
+   virtual string PrintRegions();
+   virtual string PrintAssignMaterial();
+   virtual string PrintSubtractBodiesFromAir();
+   virtual string PrintParameters();
 
     // Return the ROOT volume of the entire detector
-    TGeoVolume*     GetVolume();
+    virtual TGeoVolume*     GetVolume();
 
     virtual void    Clear(Option_t* opt="");
     virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
 
 public:
-   static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
+   static const Char_t* GetDefVtxParaName() { return fgkDefVtxParaName.Data(); }
    
-private:
+protected:
     SensorMatrix m_sensorMatrix;
     PassiveMatrix m_passiveMatrix;
     TRotation* m_rotation;
@@ -191,6 +191,7 @@ private:
     int m_nPassiveLayersPerBoard_z;
     double m_passiveMaterialThick;
     double m_siliconSensorThick_Lz;
+   
     double m_layerDistance_samePair;
     double m_layerDistance_interPair;
 
@@ -205,7 +206,7 @@ private:
     double m_xmin, m_ymin;
 
 private:
-   static TString fgkDefParaName;
+   static TString fgkDefVtxParaName;
 
 ////////////////////////////////////////////////////////////////////////////////
 
