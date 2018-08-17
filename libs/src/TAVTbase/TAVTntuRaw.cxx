@@ -40,7 +40,7 @@ TAVTntuRaw::TAVTntuRaw()
   fListOfPixels(0x0),
   fpGeoMap(0x0)
 {
-   fpGeoMap = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAVTparGeo")->Object();
+   fpGeoMap = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefVtxParaName(), "TAVTparGeo")->Object();
    if (!fpGeoMap) {
       Error("TAVTntuRaw()", "Para desciptor vtGeo does not exist");
       exit(0);
