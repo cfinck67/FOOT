@@ -25,7 +25,7 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 TOBJ_all   = TAITdatRaw.hxx TAITntuRaw.hxx TAITntuHit.hxx \
 	         TAITparMap.hxx TAITparGeo.hxx  TAITparConf.hxx  \
 			 TAITactNtuRaw.hxx TAITactNtuMC.hxx \
-			 TAITntuCluster.hxx TAITactBaseNtuCluster.hxx TAITactNtuClusterF.hxx 
+			 TAITntuCluster.hxx  TAITactNtuClusterF.hxx 
 
 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
