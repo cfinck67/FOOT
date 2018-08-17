@@ -30,26 +30,19 @@
 //##############################################################################
 
 
-//_____________________________________________________________________________
-TAITparGeo::TAITparGeo() {
-
-	m_nPassiveLayersPerBoard_z = 13;
-	m_volumeCount = -1;
-	m_passiveCount = -1;
-	m_setW_0number = 2;
-
-	m_debug = GlobalPar::GetPar()->Debug();
-
-	// fill m_materialOrder, m_materialThick, m_materialType
-	InitMaterial();
-
-};
-
-
+TString TAITparGeo::fgkDefItParaName = "itGeo";
 
 //_____________________________________________________________________________
-void TAITparGeo::InitMaterial() {
+TAITparGeo::TAITparGeo()
+: TAVTparGeo()
+{
 
+}
+
+//_____________________________________________________________________________
+void TAITparGeo::InitMaterial()
+{
+   
 	m_materialOrder = {  "ITR_MEDIUM",
 						"ITR_EPO_MEDIUM",
 						"ITR_COV_MEDIUM",
@@ -114,38 +107,19 @@ void TAITparGeo::InitMaterial() {
 }
 
 
-
 //_____________________________________________________________________________
 //  copy constructor
-TAITparGeo::TAITparGeo( TAITparGeo* original ) :
+TAITparGeo::TAITparGeo( TAITparGeo* original )
+ : TAVTparGeo(original),
+	m_layerDistance(original->m_layerDistance)
+{
 
-	m_rotation(original->m_rotation),
-	m_origin(original->m_origin),  // current position
-	m_center(original->m_center),  // current position
-	m_dimension(original->m_dimension),
-
-	m_nSensors (original->m_nSensors),
-
-	m_materialOrder(original->m_materialOrder),
-
-	m_materialThick(original->m_materialThick),
-	m_materialType(original->m_materialType),
-
-	m_siliconSensorThick_Lz(original->m_siliconSensorThick_Lz),
-	m_layerDistance(original->m_layerDistance),
-
-	m_nPixel_X(original->m_nPixel_X),
-	m_nPixel_Y(original->m_nPixel_Y)         
-	{
-
-		SensorMatrix m_sensorMatrix = original->m_sensorMatrix;
 }
 
 
-
-
 //_____________________________________________________________________________
-void TAITparGeo::InitGeo()  {
+void TAITparGeo::InitGeo()
+{
 
 	if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTAITparGeo::InitGeo" << endl<< endl;
 

@@ -23,7 +23,7 @@
 
 #include "TObject.h"
 
-#include "TAGparTools.hxx"
+#include "TAVTparGeo.hxx"
 
 #include "IronPlate.hxx"
 #include "FootBox.hxx"
@@ -38,16 +38,7 @@ class TGeoHMatrix;
 class TGeoVolume;
 //##############################################################################
 
-class TAITparGeo : public TAGparTools {
-
-// object to be used as 3D matrix of sensors
-typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
-typedef vector< vector< IronPlate* > > SensorPlane;
-typedef vector< IronPlate* > SensorLine;
-
-typedef vector< vector< vector< FootBox* > > > PassiveMatrix;
-typedef vector< vector< FootBox* > > PassivePlane;
-typedef vector< FootBox* > PassiveLine;
+class TAITparGeo : public TAVTparGeo {
 
 public:
 
@@ -108,28 +99,7 @@ public:
     void Local2Global( TVector3* loc );
     void Local2Global_RotationOnly( TVector3* loc );
 
-    TRotation GetRotationToGlobal() { return *m_rotation; };
-    TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
-
-
-
-    // Return Inner Trakcker center coord. in the global frame
-    TVector3 GetCenter() { return m_center; };
-
-    // Return Inner Trakcker full dimension.
-    TVector3 GetDimension() { return m_dimension; };
-
-    double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
-
-    // Return distance from center to center
-    double GetLayerDistance() { return m_layerDistance; };
-    double GetNPixelX() { return m_nPixel_X; };
-    double GetNPixelY() { return m_nPixel_Y; };
-
-    int GetNSensors()    { return m_nSensors.X()*m_nSensors.Y()*m_nSensors.Z(); };  // return tot number of sensors
-
     // Return a vector with the number of sensors along the cartesian directions 
-    TVector3        GetNumberOfSensorAlongDirections() { return m_nSensors; };
     int GetNChip() { return m_nSensors.X(); }; 
     int GetNPlume() { return m_nSensors.Y(); }; 
     int GetNLayers() { return m_nSensors.Z(); }; 
@@ -146,9 +116,6 @@ public:
         return singleLayerID % GetNChip();
     };
 
-    // pixel dimension
-    // double GetPitchX()  { return m_Pitch_X; };
-    // double GetPitchY()  { return m_Pitch_Y; };
 
     // function for the FRUKA geometry creation
     string PrintBodies();
@@ -164,25 +131,13 @@ public:
     virtual void    Clear(Option_t* opt="");
     virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
 
+public:
+   static const Char_t* GetDefItParaName() { return fgkDefItParaName.Data(); }
 
 
 private:
 
-    SensorMatrix m_sensorMatrix;
-    PassiveMatrix m_passiveMatrix;
-    PassiveMatrix m_chipMatrix;
-    TRotation* m_rotation;
-
-    TGeoVolume* m_universe;
-
-    TVector3  m_origin;  // current position in local coord.
-    TVector3  m_center;  // current position in global coord.
-    TVector3  m_dimension;
-
-    int m_volumeCount;
-    int m_passiveCount;
-
-    TVector3 m_nSensors;
+   PassiveMatrix m_chipMatrix;
 
     double m_plumeDistace_Z;
     double m_plumeDistace_Y;
@@ -191,26 +146,9 @@ private:
     double m_boardYDeadMin;
     double m_boardYDeadMax;
 
-    vector<string> m_materialOrder;
-    vector<string> m_passiveMaterial;
 
-    map<string, double> m_materialThick;
-    map<string, string> m_materialType;
-
-    map<string, vector<string> > m_bodyPrintOut;
-    map<string, vector<string> > m_regionPrintOut;
-    map<string, vector<string> > m_regionName;
-    map<string, vector<string> > m_bodyName;
-    map<string, int > m_magneticRegion;
-    
-
-    int m_nPassiveLayersPerBoard_z;
-    double m_passiveMaterialThick;
-    double m_siliconSensorThick_Lz;
     double m_layerDistance;
 
-    int m_nPixel_X;
-    int m_nPixel_Y;
 
     vector<vector<double>> m_xmin;
     vector<vector<double>> m_ymin;
@@ -218,26 +156,8 @@ private:
     int m_debug;
     int m_setW_0number;
 
-
-
-// public:
-
-   // Int_t  GetSensorsN()         const { return fSensorsN;       }
-   // Int_t  GetPixelsNu()         const { return fPixelsNu;       }
-   // Int_t  GetPixelsNv()         const { return fPixelsNv;       }
-
-   // Float_t GetPitchU()          const { return fPitchU;         }
-   // Float_t GetPitchV()          const { return fPitchV;         }
-
-   // Float_t GetWidth()           const { return fWidth;          }
-   // Float_t GetHeight()          const { return fHeight;         }
-   // Float_t GetThick()           const { return fThick;          }
-
-   // Float_t  GetPixThickness()   const { return fPixThickness;   }
-   // Float_t  GetTotalThickness() const { return fTotalThickness; }
-   // TVector3 GetTotalSize()      const { return fTotalSize;      }
-
-
+private:
+   static TString fgkDefItParaName;
 
 
    // //! Add CMOS module geometry to world
