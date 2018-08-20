@@ -22,7 +22,7 @@ TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTbaseNtuHit.hxx TAVTntuHit.hxx \
 	         TAVTparMap.hxx TAVTparGeo.hxx  TAVTparConf.hxx \
 	         TAVTactBaseRaw.hxx  TAVTactNtuRaw.hxx TAVTactBaseNtuMC.hxx TAVTactNtuMC.hxx \
 	         TAVTbaseDigitizer.hxx TAVTdigitizerE.hxx \
-            TAVTntuCluster.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx \
+            TAVTntuCluster.hxx TAVTcluster.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx \
             TAVTntuTrack.hxx TAVTactBaseNtuTrack.hxx TAVTactNtuTrack.hxx  TAVTactNtuTrackF.hxx \
             TAVTntuVertex.hxx TAVTactBaseNtuVertex.hxx TAVTactNtuVertex.hxx TAVTactNtuVertexPD.hxx
 
