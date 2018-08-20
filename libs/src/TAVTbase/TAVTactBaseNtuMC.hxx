@@ -87,12 +87,12 @@ protected:
    
    TString         fPrefix;            // prefix of histogram
 
-   TH2F*           fpHisPixelMap[8];  // pixel map per sensor
-   TH2F*           fpHisPosMap[8];    // pixel map per sensor   
-   TH1F*           fpHisPixel[8];     // number pixels per cluster MC
+   TH2F*           fpHisPixelMap[32];  // pixel map per sensor
+   TH2F*           fpHisPosMap[32];    // pixel map per sensor
+   TH1F*           fpHisPixel[32];     // number pixels per cluster MC
    TH1F*           fpHisPixelTot;     // total number pixels per cluster MC
    TH1F*           fpHisDeTot;        // Total energy loss
-   TH1F*           fpHisDeSensor[8];  // Energy loss per sensor
+   TH1F*           fpHisDeSensor[32];  // Energy loss per sensor
    TH1F*           fpHisPoisson;      // Poisson distribution for pileup
 
    std::vector<std::vector<RawMcHit_t>> fStoredEvents;
