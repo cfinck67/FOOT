@@ -23,10 +23,9 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 # Files to be included
 #
 TOBJ_all   = TAITdatRaw.hxx TAITntuRaw.hxx TAITntuHit.hxx \
-	         TAITparMap.hxx TAITparGeo.hxx  TAITparConf.hxx  \
-			 TAITactNtuRaw.hxx TAITactNtuMC.hxx \
-			 TAITntuCluster.hxx  TAITactNtuClusterF.hxx 
-
+	          TAITparMap.hxx TAITparGeo.hxx  TAITparConf.hxx  \
+			    TAITdigitizerE.hxx TAITactNtuMC.hxx \
+			    TAITntuCluster.hxx  TAITactNtuClusterF.hxx 
 
 CXX_all    = $(TOBJ_all:.hxx=.cxx) 
 #
