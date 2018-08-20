@@ -40,7 +40,7 @@ TAITntuRaw::TAITntuRaw()
   fListOfPixels(0x0),
   fpGeoMap(0x0)
 {
-   fpGeoMap = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefVtxParaName(), "TAITparGeo")->Object();
+   fpGeoMap = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefItParaName(), "TAITparGeo")->Object();
    if (!fpGeoMap) {
       Error("TAITntuRaw()", "Para desciptor vtGeo does not exist");
       exit(0);
@@ -124,7 +124,7 @@ const TAITntuHit* TAITntuRaw::GetPixel(Int_t iSensor, Int_t iPixel) const
 void TAITntuRaw::SetupClones()
 {
    if (fListOfPixels) return;
-   fListOfPixels = new TObjArray();
+   fListOfPixels = new TObjArray(fpGeoMap->GetNSensors());
    
    for (Int_t i = 0; i < fpGeoMap->GetNSensors(); ++i) {
       TClonesArray* arr = new TClonesArray("TAITntuHit", 500);
