@@ -34,47 +34,19 @@ using namespace std;
 ClassImp(TAVTactNtuMC);
 
 
-Bool_t  TAVTactNtuMC::fgPileup          = false;
-Float_t TAVTactNtuMC::fgPoissonPar      = 0.736; // ajust for FIRST
-Int_t   TAVTactNtuMC::fgPileupEventsN   = 10;
-Float_t TAVTactNtuMC::fgSigmaNoiseLevel = -1.;
-Int_t   TAVTactNtuMC::fgMcNoiseId       = -99;
 
 
 //------------------------------------------+-----------------------------------
 //
-TAVTactNtuMC::TAVTactNtuMC(const char* name, TAGdataDsc* pNtuRaw,  TAGparaDsc* pGeoMap, TAGparaDsc* pParMap, EVENT_STRUCT* evStr)
- : TAGaction(name, "TAVTactNtuMC - NTuplize Vertex MC data"),
-	fpNtuRaw(pNtuRaw),
-	fpGeoMap(pGeoMap),
-	fpParMap(pParMap),
-	fpEvtStr(evStr),
-	fNoisyPixelsN(0),
-	fDebugLevel(0)
+TAVTactNtuMC::TAVTactNtuMC(const char* name, TAGdataDsc* pNtuRaw,  TAGparaDsc* pGeoMap, EVENT_STRUCT* evStr)
+ : TAVTactBaseNtuMC(name, pGeoMap, evStr),
+   fpNtuRaw(pNtuRaw)
 {
 	AddDataOut(pNtuRaw, "TAVTntuRaw");
 	AddPara(pGeoMap, "TAVTparGeo");
-	AddPara(pParMap, "TAVTparMap");
 
    CreateDigitizer();
    
-	fpHisPoisson = (TH1F*)gDirectory->FindObject("vtPoisson");
-	if (fpHisPoisson == 0x0) {
-	   
-		Double_t tot = 0.;
-		Double_t par = fgPoissonPar;
-
-		for (Int_t i = 1; i < 10; ++i) {
-			tot += TMath::PoissonI(i, par);
-		}
-
-		fpHisPoisson = new TH1F("vtPoisson", "Poisson", 12, -0.5, 11.5);
-
-		for (Int_t i = 1; i < 10; ++i) {
-			Float_t val = TMath::PoissonI(i, par)/tot*100.;
-			fpHisPoisson->Fill(i, val);
-		}
-	}
 }
 
 
@@ -86,54 +58,6 @@ void TAVTactNtuMC::CreateDigitizer()
    fDigitizer = new TAVTdigitizerE(pGeoMap);
 }
 
-//------------------------------------------+-----------------------------------
-//! Setup all histograms.
-void TAVTactNtuMC::CreateHistogram()
-{
-
-   DeleteHistogram();
-   
-   TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
-   
-   for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
-      fpHisPixel[i] = new TH1F(Form("vtMcPixel%d", i+1), Form("Vertex - MC # pixels per clusters for sensor %d", i+1), 100, 0., 100.);
-      AddHistogram(fpHisPixel[i]);
-   }
-   
-   fpHisPixelTot = new TH1F("vtMcPixelTot", "Vertex - MC # total pixels per clusters", 100, 0., 100.);
-   AddHistogram(fpHisPixelTot);
-
-   fpHisDeTot = new TH1F("vtMcDeTot", "Vertex - MC total energy loss", 1000, 0., 10000.);
-   AddHistogram(fpHisDeTot);
-
-   
-   for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
-      fpHisDeSensor[i] = new TH1F(Form("vtMcDe%d", i+1), Form("Vertex - MC energy loss for sensor %d", i+1), 1000, 0., 10000.);
-      AddHistogram(fpHisDeSensor[i]);
-   }
-   
-   for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
-      if (TAVTparConf::IsMapHistOn()) {
-         fpHisPixelMap[i]  = new TH2F(Form("vtMcPixelMap%d", i+1) , Form("Vertex - pixel map for sensor %d", i+1),
-                                      pGeoMap->GetNPixelX(), 0, pGeoMap->GetNPixelX(),
-                                      pGeoMap->GetNPixelY(), 0, pGeoMap->GetNPixelY());
-         fpHisPixelMap[i]->SetStats(kFALSE);
-         AddHistogram(fpHisPixelMap[i]);
-      }
-   }
-   
-   for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
-      if (TAVTparConf::IsMapHistOn()) {
-         fpHisPosMap[i] =  new TH2F(Form("vtMcPosMap%d", i+1), Form("Vertex - position map for sensor %d", i+1),
-                                    100, -pGeoMap->GetPitchX()/2.*pGeoMap->GetNPixelX(), pGeoMap->GetPitchX()/2.*pGeoMap->GetNPixelX(),
-                                    100, -pGeoMap->GetPitchY()/2.*pGeoMap->GetNPixelY(), pGeoMap->GetPitchY()/2.*pGeoMap->GetNPixelY());
-         fpHisPosMap[i]->SetStats(kFALSE);
-         AddHistogram(fpHisPosMap[i]);
-      }
-   }
-   
-   SetValidHistogram(kTRUE);
-}
 
 //------------------------------------------+-----------------------------------
 //! Action.
@@ -260,36 +184,14 @@ void TAVTactNtuMC::FillPixels(Int_t sensorId, Int_t hitId )
    }
 }
 
-
-
-// --------------------------------------------------------------------------------------
-void TAVTactNtuMC::ComputeNoiseLevel()
-{
-	// computing number of noise pixels (sigma level) from gaussian
-	TF1* f = new TF1("f", "gaus", -10, 10);
-	f->SetParameters(1,0,1);
-	Float_t fraction = 0;
-	
-	if (fgSigmaNoiseLevel > 0) {
-	   fraction = f->Integral(-fgSigmaNoiseLevel, fgSigmaNoiseLevel)/TMath::Sqrt(2*TMath::Pi());
-	   fNoisyPixelsN = TMath::Nint(fDigitizer->GetNPixelX()*fDigitizer->GetNPixelY()*(1.-fraction));
-	}
-	
-	if (fDebugLevel)
-	   printf("Number of noise pixels %d\n", fNoisyPixelsN);
-	
-	delete f;
-}
-
 //___________________________________
 void TAVTactNtuMC::FillNoise()
 {
-	TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
-	for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
-	   FillNoise(i);
-	}
+   TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
+   for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
+      FillNoise(i);
+   }
 }
-
 
 //___________________________________
 void TAVTactNtuMC::FillNoise(Int_t sensorId)
@@ -302,42 +204,6 @@ void TAVTactNtuMC::FillNoise(Int_t sensorId)
 	   Int_t line = gRandom->Uniform(0,fDigitizer->GetNPixelY());
 	   TAVTntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., line, col);
 	   pixel->SetMCid(fgMcNoiseId);
-	}
-}
-
-
-//------------------------------------------+-----------------------------------
-void  TAVTactNtuMC::GeneratePileup()
-{
-	Int_t pileupEvents = TMath::Nint(fpHisPoisson->GetRandom())-1;
-
-	
-	// form pileup events number pull out randomly the stored events
-	std::vector<int> rarray;
-
-	for (Int_t i = 0; i < fgPileupEventsN; ++i) {
-	   if (i > pileupEvents-1)
-		  rarray.push_back(0);
-	   else
-		  rarray.push_back(1);
-	}
-	
-	std::random_shuffle (rarray.begin(), rarray.end(), TAVTbaseDigitizer::GetRandom);
-
-	std::vector<RawMcHit_t> mcInfo;
-
-	for (Int_t p = 0; p < fgPileupEventsN; ++p) {
-	   
-	   if (rarray[p] == 0) continue;
-	   
-	   mcInfo = fStoredEvents[p];
-	   
-	   for (Int_t j = 0; j < mcInfo.size(); ++j) {
-		  RawMcHit_t hit = mcInfo[j];
-		  
-		  if (!fDigitizer->Process(hit.de, hit.x, hit.y, hit.zi, hit.zo)) continue;
-		  FillPixels( hit.id, -1);
-	   }
 	}
 }
 
