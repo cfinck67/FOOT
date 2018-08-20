@@ -172,19 +172,7 @@ TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, Double_t value, Int_t aLine, Int
    }
 }
 
-//______________________________________________________________________________
-//
-TAVTntuHit* TAVTntuRaw::NewPixel(Int_t iSensor, TAVTrawHit* rawPixel)
-{
-   if (iSensor >= 0  || iSensor < fpGeoMap->GetNSensors()) {
-      TClonesArray &pixelArray = *GetListOfPixels(iSensor);
-      TAVTntuHit* pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TAVTntuHit(iSensor, rawPixel);
-      return pixel;
-   } else {
-      Error("NewPixel()", "Wrong sensor number %d\n", iSensor);
-      return 0x0;
-   }
-}
+
 
 /*------------------------------------------+---------------------------------*/
 //! ostream insertion.

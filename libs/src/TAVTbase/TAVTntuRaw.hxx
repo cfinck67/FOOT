@@ -14,7 +14,7 @@
 class TAVTparGeo;
 class TAVTntuRaw : public TAGdata {
    
-private:
+protected:
    //using TObjArray here
    TObjArray*        fListOfPixels;
    TAVTparGeo*       fpGeoMap;         //! do not store
@@ -37,7 +37,6 @@ public:
    Int_t             GetPixelsN(Int_t iSensor) const;
    
    TAVTntuHit*       NewPixel(Int_t sensor, Double_t value, Int_t aLine, Int_t aColumn);
-   TAVTntuHit*       NewPixel(Int_t sensor, TAVTrawHit* pixel);
    
    virtual void      SetupClones();
    
