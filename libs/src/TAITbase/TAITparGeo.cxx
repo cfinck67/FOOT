@@ -36,7 +36,6 @@ TString TAITparGeo::fgkDefItParaName = "itGeo";
 TAITparGeo::TAITparGeo()
 : TAVTparGeo()
 {
-
 }
 
 //_____________________________________________________________________________
@@ -120,8 +119,10 @@ TAITparGeo::TAITparGeo( TAITparGeo* original )
 //_____________________________________________________________________________
 void TAITparGeo::InitGeo()
 {
-
 	if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTAITparGeo::InitGeo" << endl<< endl;
+
+   // fill m_materialOrder, m_materialThick, m_materialType
+   InitMaterial();
 
 	m_origin = TVector3(0,0,0);                 // center in local coord.
 	m_center = TVector3(ITR_X, ITR_Y, ITR_Z);   // center in global coord.
@@ -221,10 +222,13 @@ void TAITparGeo::InitGeo()
 	// pixels per sensors, same as above as far as we use 1 sensor
 	m_nPixel_X = ITR_XPIX;
 	m_nPixel_Y = ITR_YPIX;
-
+   m_pitchX   = ITR_DX;
+   m_pitchY   = ITR_DY;
+   
 	double smalloffset_x;
 	//sovrapposizione in y dei sensori:
 	double displacement_y = senseDimension.y() - 0.3;
+
 
 	// fill sensor matrix
 	for (int k=0; k<m_nSensors.Z(); k++) {
@@ -249,8 +253,9 @@ void TAITparGeo::InitGeo()
 
 				stringstream ss_bodySensorName; ss_bodySensorName << "itrs" << j << k << i;
 				stringstream ss_regionSensorName; ss_regionSensorName << "ITRS" << j << k << i;
-				m_sensorMatrix[k][j][i]->SetMaterial( m_materialType[ "ITR_MEDIUM" ], "ITR_MEDIUM", ss_bodySensorName.str(), ss_regionSensorName.str(), ++m_volumeCount );
+            
 
+				m_sensorMatrix[k][j][i]->SetMaterial( m_materialType[ "ITR_MEDIUM" ], "ITR_MEDIUM", ss_bodySensorName.str(), ss_regionSensorName.str(), ++m_volumeCount );
 
 				m_sensorMatrix[k][j][i]->SetSensor(
 						TVector3( sensor_newX, sensor_newY, offset_z + sensor_newZ ),              // sensor center
@@ -261,10 +266,12 @@ void TAITparGeo::InitGeo()
 						TVector3(0,0,0)
 				 );
 
+
 				if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "sensor center ",    TVector3( sensor_newX, sensor_newY, sensor_newZ ).Print();
 			}
 		}
 	}
+
 
 	m_rotation = new TRotation();
 	// m_rotation->SetYEulerAngles( m_tilt_eulerAngle.x(), m_tilt_eulerAngle.y(), m_tilt_eulerAngle.z() );
@@ -350,6 +357,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
 
 
 
+
 //---------------------------------------------------------------------
 //     Init passive CHIP materials 
 //---------------------------------------------------------------------
@@ -386,6 +394,8 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
 
 	}
 
+   
+   
 	// create the universe volume
 	if ( GlobalPar::GetPar()->geoROOT() ) {
 		m_universe = gGeoManager->MakeBox("ITuniverse",gGeoManager->GetMedium("AIR"),m_dimension.x()/2,m_dimension.y()/2,m_dimension.z()/2); //top è scatola che conterrà tutto (dimensioni in cm)
