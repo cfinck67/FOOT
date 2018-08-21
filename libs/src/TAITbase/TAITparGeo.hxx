@@ -23,7 +23,7 @@
 
 #include "TObject.h"
 
-#include "TAVTparGeo.hxx"
+#include "TAVTbaseParGeo.hxx"
 
 #include "IronPlate.hxx"
 #include "FootBox.hxx"
@@ -38,12 +38,11 @@ class TGeoHMatrix;
 class TGeoVolume;
 //##############################################################################
 
-class TAITparGeo : public TAVTparGeo {
+class TAITparGeo : public TAVTbaseParGeo {
 
 public:
 
     TAITparGeo();
-    TAITparGeo( TAITparGeo* original );
     virtual ~TAITparGeo() {}
    
     void InitGeo();
@@ -111,20 +110,17 @@ public:
     string PrintAssignMaterial();
     string PrintSubtractBodiesFromAir();
     string PrintParameters();
-
-
+   
     TGeoVolume*     GetVolume();
-
 
     virtual void    Clear(Option_t* opt="");
     virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
 
 public:
-   static const Char_t* GetDefItParaName() { return fgkDefItParaName.Data(); }
+   static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
 
-
+   
 private:
-
    PassiveMatrix m_chipMatrix;
 
     double m_plumeDistace_Z;
@@ -143,47 +139,10 @@ private:
 
     int m_debug;
     int m_setW_0number;
-
+   
 private:
-   static TString fgkDefItParaName;
+   static TString fgkDefParaName;
 
-
-   // //! Add CMOS module geometry to world
-   // TGeoVolume* AddVertexModule(TGeoHMatrix* hm, const char* basemoduleName = "Module", const char *name = "Vertex");
-
-   // //! Add CMOS module geometry to world
-   // TEveGeoShapeExtract* AddExtractVertexModule(TGeoHMatrix* hm, const char* basemoduleName = "Module", const char *name = "Vertex");
-
-   // //! Add Target
-   // TGeoVolume* AddTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2.,
-			// 			 const Float_t dz = fgTargetWidth/2., const char *targetName = "Target");
-
-   // //! Add Extract Target
-   // TEveGeoShapeExtract* AddExtractTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2.,
-			// 							 const Float_t dz = fgTargetWidth/2., const char *targetName = "Target");
-
-   // //! Build Vertex
-   // TGeoVolume* BuildVertex(const char* basemoduleName = "Module", const char *name = "Vertex");
-
-   // //! Build Extract Vertex
-   // TEveGeoShapeExtract* BuildExtractVertex(const char* basemoduleName = "Module", const char *name = "Vertex");
-
-   // //! Get Sensor parameter
-   // SensorParameter_t& GetSensorPar(Int_t idx){return fSensorParameter[idx];}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-   // static Float_t GetTargetWidth()            { return fgTargetWidth; }
-   // static void    SetTargetWidth(Float_t w)   { fgTargetWidth = w;    }
-
-   // static Float_t GetTargetSize()             { return fgTargetSize;  }
-   // static void    SetTargetSize(Float_t s)    { fgTargetSize = s;     }
-
-   // static const Char_t* GetDefaultGeoName()   { return fgkDefaultGeoName.Data();    }
-   // static const Char_t* GetDefaultGeoNameMC() { return fgkDefaultGeoNameMC.Data();  }
 
    ClassDef(TAITparGeo,1)
 };
