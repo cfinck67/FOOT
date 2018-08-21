@@ -27,11 +27,11 @@
 
 ClassImp(TAITparConf);
 
-TString TAITparConf::fgkDefItConfName = "./config/TAITdetector.cfg";
+TString TAVTbaseParConf::fgkDefaultConfName = "./config/TAVTdetector.cfg";
 
 //______________________________________________________________________________
 TAITparConf::TAITparConf()
-: TAVTparConf()
+: TAVTbaseParConf()
 {
    // Standard constructor
 }

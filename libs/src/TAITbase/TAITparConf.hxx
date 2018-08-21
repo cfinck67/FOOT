@@ -13,15 +13,12 @@
 #include "TString.h"
 #include "TVector3.h"
 
-#include "TAVTparConf.hxx"
+#include "TAVTbaseParConf.hxx"
 
 //##############################################################################
 
-class TAITparConf : public TAVTparConf {
+class TAITparConf : public TAVTbaseParConf {
    
-private: 
-   static       TString fgkDefItConfName; // default detector configuration file
-
 public:
 
    TAITparConf();
@@ -29,8 +26,6 @@ public:
 
 public:
    
-   static const Char_t* GetDefItConfName()     { return fgkDefItConfName.Data(); }
-
    ClassDef(TAITparConf,1)
 };
 
