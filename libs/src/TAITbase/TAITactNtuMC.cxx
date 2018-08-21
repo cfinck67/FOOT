@@ -85,8 +85,6 @@ bool TAITactNtuMC::Action()
 		Int_t sensorId = pGeoMap->GetSensorID( fpEvtStr->ITRilay[i], myTcol, myTrow );
       // convert id is some reasonnale number that could be an ouput of a DAQ !!!
       sensorId = pGeoMap->GetChipFromSensorID(sensorId)+16*fpEvtStr->ITRilay[i];
-      printf("toto %d %d %d %d\n", sensorId, fpEvtStr->ITRilay[i], myTcol, myTrow);
-
 	   
 		// used for pileup ...
 		if (fgPileup && storedEvents <= fgPileupEventsN) {
