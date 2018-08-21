@@ -28,7 +28,7 @@ void MultiTrackCheck::Initialize( EVENT_STRUCT* evStr ) {
   
   // take the VT geometry object
   //myp_vtgeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());
-  m_VT_geo = shared_ptr<TAVTparGeo> ( (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object() );
+  m_VT_geo = shared_ptr<TAVTparGeo> ( (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAVTparGeo")->Object() );
 
   
   TAGdataDsc* _itraw    = gTAGroot->FindDataDsc("itRaw",  "TAITntuRaw");
@@ -100,10 +100,12 @@ void MultiTrackCheck::Process( Long64_t jentry ){
 
 
   // // save pixels in the collection
-  for (int nSensor = 0; nSensor <  myn_vtraw->GetNSensors(); nSensor++) {	// over all sensors
-    for (int nPx = 0; nPx <  myn_vtraw->GetPixelsN( nSensor, "mc_hit" ); nPx++){ 		// over all pixels for each sensor
+   TAVTparGeo* vtxGeo = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAVTparGeo")->Object();
+
+  for (int nSensor = 0; nSensor <  vtxGeo->GetNSensors(); nSensor++) {	// over all sensors
+    for (int nPx = 0; nPx <  myn_vtraw->GetPixelsN( nSensor ); nPx++){ 		// over all pixels for each sensor
       
-      TAVTntuHit* vt_hit = myn_vtraw->GetPixel( nSensor, nPx, "mc_hit" );
+      TAVTntuHit* vt_hit = myn_vtraw->GetPixel( nSensor, nPx);
       
       tmpVT_partID =  vt_hit->m_genPartID;
       //  cout << " tmpVT_partID  " << tmpVT_partID  << endl;
@@ -150,13 +152,14 @@ void MultiTrackCheck::Process( Long64_t jentry ){
   // }
   
   
+   TAITparGeo* itGeo = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefParaName(), "TAITparGeo")->Object();
 
   
-  for (int nSensor = 0; nSensor < myn_itraw->GetNSensors(); nSensor++) {	// over all sensors
+  for (int nSensor = 0; nSensor < itGeo->GetNSensors(); nSensor++) {	// over all sensors
     
-    for (int nPx = 0; nPx < myn_itraw->GetPixelsN( nSensor, "mc_hit" ); nPx++){ 		// over all pixels for each sensor
+    for (int nPx = 0; nPx < myn_itraw->GetPixelsN( nSensor ); nPx++){ 		// over all pixels for each sensor
       
-      TAITntuHit* it_hit = myn_itraw->GetPixel( nSensor, nPx, "mc_hit" );
+      TAITntuHit* it_hit = (TAITntuHit*)myn_itraw->GetPixel( nSensor, nPx );
       
       if((it_hit->GetMCPosition_footFrame().Z() > 13.3 && it_hit->GetMCPosition_footFrame().Z() < 13.5) || (it_hit->GetMCPosition_footFrame().Z() > 14.3 && it_hit->GetMCPosition_footFrame().Z() < 14.5))  ntrackonIT++;
       
@@ -261,7 +264,7 @@ void MultiTrackCheck::Process( Long64_t jentry ){
      for(int j=0; j<m_VT_hitCollection.size(); j++){
        // int tmp_vtid = m_VT_hitCollection.at(j)->GetMCid()-1;  
        // int tmp_vtid_mgen = m_VT_hitCollection.at(j)->m_genPartID;
-       int tmp_vtid_mgen = m_VT_hitCollection.at(j)->GetGenPartID(); 
+       int tmp_vtid_mgen = m_VT_hitCollection.at(j)->GetMCid();
        // cout << " tmp_vtid  " << tmp_vtid  << endl;
        //  cout << " tmp_vtid_mgen  " << tmp_vtid_mgen  << endl;
        // cout << " m_Frag_indexCollection.at(i)  " << m_Frag_indexCollection.at(i)  << endl;
@@ -277,7 +280,7 @@ void MultiTrackCheck::Process( Long64_t jentry ){
      for(int k=0; k<m_IT_hitCollection.size(); k++){
        // int tmp_itid = m_IT_hitCollection.at(k)->GetMCid()-1;
        // int tmp_itid_mgen = m_IT_hitCollection.at(k)->m_genPartID;
-       int tmp_itid_mgen = m_IT_hitCollection.at(k)->GetGenPartID();
+       int tmp_itid_mgen = m_IT_hitCollection.at(k)->GetMCid();
        //if(tmp_itid == m_Frag_indexCollection.at(i)){
 	 if(tmp_itid_mgen == m_Frag_indexCollection.at(i)){
 	 
