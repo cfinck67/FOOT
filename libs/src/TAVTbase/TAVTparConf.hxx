@@ -62,7 +62,7 @@ public:
    
 public:
       
-   SensorParameter_t fSensorParameter[10];
+   SensorParameter_t fSensorParameter[32];
    SensorParameter_t& GetSensorPar(Int_t idx){return fSensorParameter[idx];}
    
    AnalysisParameter_t fAnalysisParameter;
