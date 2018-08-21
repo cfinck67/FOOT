@@ -12,7 +12,6 @@
 
 
 #include "TAITparGeo.hxx"
-#include "TAVTparMap.hxx"
 #include "TAVTparConf.hxx"
 
 #include "TAITntuRaw.hxx"

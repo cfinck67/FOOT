@@ -16,7 +16,6 @@
 #include "TObjString.h"
 #include "TSystem.h"
 
-#include "TAVTparMap.hxx"
 #include "TAVTbaseParConf.hxx"
 
 //##############################################################################

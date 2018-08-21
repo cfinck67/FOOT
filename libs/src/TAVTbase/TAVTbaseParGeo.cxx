@@ -21,7 +21,6 @@
 
 #include "TAGgeoTrafo.hxx"
 
-#include "TAVTparMap.hxx"
 #include "TAVTbaseParGeo.hxx"
 
 #include "foot_geo.h"
