@@ -29,7 +29,7 @@ Float_t  TAVTbaseDigitizer::fgDefSmearPos     =  10.4;    // in micron
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
-TAVTbaseDigitizer::TAVTbaseDigitizer(TAVTparGeo* parGeo)
+TAVTbaseDigitizer::TAVTbaseDigitizer(TAVTbaseParGeo* parGeo)
 : TObject(),
   fpParGeo(parGeo),
   fPixelsN(-1),
