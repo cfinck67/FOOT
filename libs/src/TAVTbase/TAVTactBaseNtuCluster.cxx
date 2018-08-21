@@ -37,7 +37,7 @@ TAVTactBaseNtuCluster::TAVTactBaseNtuCluster(const char* name,
   fClustersN(0),
   fDebugLevel(0)
 {
-   AddPara(pGeoMap, "TAVTparGeo");
+   AddPara(pGeoMap, "TAVTbaseParGeo");
    AddPara(pConfig, "TAVTbaseParConf");
    
    TString tmp(name);
