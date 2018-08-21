@@ -35,7 +35,7 @@ void TAVTntuHit::Initialise()
    fMCP.SetXYZ(0, 0, 0);
    
    // take the detector geometry
-   fGeometry = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefVtxParaName(), "TAVTparGeo")->Object();
+   fGeometry = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAVTparGeo")->Object();
    
    // set center position
    if ( GlobalPar::GetPar()->Debug() > 1 )

@@ -15,7 +15,7 @@
 
 
 class TAVTtrack;
-class TAVTparGeo;
+class TAVTbaseParGeo;
 
 /** TAVTcluster class, simple container class for tracks with the associated clusters                    
  
@@ -28,7 +28,7 @@ class TAVTparGeo;
 class TAVTntuCluster : public TAGdata {
    
 protected:
-   TAVTparGeo*        fGeometry;                 //! do NOT stored this pointer !
+   TAVTbaseParGeo*    fGeometry;                 //! do NOT stored this pointer !
    TObjArray*         fListOfClusters;
 
 private:   

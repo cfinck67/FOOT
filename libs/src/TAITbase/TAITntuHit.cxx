@@ -35,7 +35,7 @@ void TAITntuHit::Initialise()
    fMCP.SetXYZ(0, 0, 0);
    
    // take the detector geometry
-   fGeometry = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefItParaName(), "TAITparGeo")->Object();
+   fGeometry = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefParaName(), "TAITparGeo")->Object();
    
    // set center position
    if ( GlobalPar::GetPar()->Debug() > 1 )

@@ -90,7 +90,7 @@ const TAVTcluster* TAVTntuCluster::GetCluster(Int_t iSensor, Int_t iCluster) con
 //! Setup clones.
 void TAVTntuCluster::SetupClones()
 {
-   fGeometry = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefVtxParaName(), "TAVTparGeo")->Object();
+   fGeometry = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAVTparGeo")->Object();
 
    if (fListOfClusters) return;
    fListOfClusters    = new TObjArray();

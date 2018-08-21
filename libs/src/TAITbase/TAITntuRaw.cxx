@@ -40,7 +40,8 @@ TAITntuRaw::TAITntuRaw()
   fListOfPixels(0x0),
   fpGeoMap(0x0)
 {
-   fpGeoMap = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefItParaName(), "TAITparGeo")->Object();
+   printf("%s\n", TAITparGeo::GetDefParaName());
+   fpGeoMap = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefParaName(), "TAITparGeo")->Object();
    if (!fpGeoMap) {
       Error("TAITntuRaw()", "Para desciptor vtGeo does not exist");
       exit(0);
