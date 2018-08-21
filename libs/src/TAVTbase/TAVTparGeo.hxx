@@ -67,8 +67,8 @@ public:
       m_sensorMatrix.clear();
     };
 
-    void InitGeo();
-    void InitMaterial();
+    virtual void InitGeo();
+    virtual void InitMaterial();
 
     // to be removed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Float_t GetPositionU(Int_t column)         const;

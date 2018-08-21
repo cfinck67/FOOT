@@ -38,10 +38,6 @@ TAVTparGeo::TAVTparGeo()
     m_setW_0number = 2;
 
     m_debug = GlobalPar::GetPar()->Debug();
-
-    // fill m_materialOrder, m_materialThick, m_materialType
-    InitMaterial();
-
 };
 
 //_____________________________________________________________________________
@@ -93,6 +89,9 @@ TAVTparGeo::TAVTparGeo( TAVTparGeo* original ) :
 void TAVTparGeo::InitGeo()  {
 
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTAVTparGeo::InitGeo" << endl<< endl;
+
+   // fill m_materialOrder, m_materialThick, m_materialType
+   InitMaterial();
 
     m_origin = TVector3(0,0,0);                         // center in local coord.
     m_center = TVector3(VTX_X, VTX_Y, VTX_Z);           // center in global coord.
