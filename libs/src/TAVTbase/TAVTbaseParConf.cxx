@@ -28,7 +28,6 @@
 
 ClassImp(TAVTbaseParConf);
 
-TString TAVTbaseParConf::fgkDefaultConfName = "./config/TAVTdetector.cfg";
  Bool_t TAVTbaseParConf::fgIsMapHist       = false;
 
 //______________________________________________________________________________
