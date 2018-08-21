@@ -27,25 +27,26 @@ ClassImp(TAVTactBaseNtuCluster);
 //! Default constructor.
 
 TAVTactBaseNtuCluster::TAVTactBaseNtuCluster(const char* name, 
-											 TAGdataDsc* pNtuRaw, TAGdataDsc* pNtuClus,
 											 TAGparaDsc* pConfig, TAGparaDsc* pGeoMap)
 : TAGaction(name, "TAVTactNtuCluster - NTuplize cluster"),
-  fpNtuRaw(pNtuRaw),
-  fpNtuClus(pNtuClus),
   fpConfig(pConfig),
   fpGeoMap(pGeoMap),
   fCurrentPosition(new TVector3(0., 0., 0.)), 
   fCurrentPosError(new TVector3(0., 0., 0.)), 
   fListOfPixels(0x0),
+  fClustersN(0),
   fDebugLevel(0)
 {
-   AddDataIn(pNtuRaw,   "TAVTntuRaw");
-   AddDataOut(pNtuClus, "TAVTntuCluster");
    AddPara(pGeoMap, "TAVTparGeo");
    AddPara(pConfig, "TAVTparConf");
    
    TString tmp(name);
    fPrefix = tmp(0,2);
+   
+   TAVTparGeo* geoMap = (TAVTparGeo*)fpGeoMap->Object();
+   Int_t nLines = geoMap->GetNPixelY()+1;
+   Int_t nCols  = geoMap->GetNPixelX()+1;
+   fFlagMap.Set(nLines*nCols);
 }
 
 //------------------------------------------+-----------------------------------
@@ -89,8 +90,89 @@ void TAVTactBaseNtuCluster::CreateHistogram()
 }
 
 //______________________________________________________________________________
-//  
-Bool_t TAVTactBaseNtuCluster::ApplyCuts(TAVTcluster* cluster)
+//
+void TAVTactBaseNtuCluster::FillMaps(TAVTparGeo* pGeoMap)
+{
+   Int_t nLine = pGeoMap->GetNPixelY()+1;
+   Int_t nCol  = pGeoMap->GetNPixelX()+1;
+   
+   fPixelMap.clear();
+   fIndexMap.clear();
+   fFlagMap.Reset(-1);
+   
+   if (fListOfPixels->GetEntries() == 0) return;
+   
+   // fill maps for cluster
+   for (Int_t i = 0; i < fListOfPixels->GetEntries(); i++) { // loop over hit pixels
+      
+      TAVTbaseNtuHit* pixel = (TAVTbaseNtuHit*)fListOfPixels->At(i);
+      Int_t line = pixel->GetPixelLine();
+      Int_t col  = pixel->GetPixelColumn();
+      if (line >= nLine) continue;
+      if (col  >= nCol)  continue;
+      if (line < 0) continue;
+      if (col  < 0)  continue;
+      fPixelMap[line*nCol+col] = 1;
+      fIndexMap[line*nCol+col] = i;
+   }
+}
+
+//______________________________________________________________________________
+//
+void TAVTactBaseNtuCluster::SearchCluster(TAVTparGeo* pGeoMap)
+{
+   Int_t nLine = pGeoMap->GetNPixelY()+1;
+   Int_t nCol  = pGeoMap->GetNPixelX()+1;
+   
+   fClustersN = 0;
+   // Search for cluster
+   
+   for (Int_t iPix = 0; iPix < fListOfPixels->GetEntries(); ++iPix) { // loop over hit pixels
+      TAVTbaseNtuHit* pixel = (TAVTbaseNtuHit*)fListOfPixels->At(iPix);
+      if (pixel->Found()) continue;
+      Int_t line = pixel->GetPixelLine();
+      Int_t col  = pixel->GetPixelColumn();
+      if (line >= nLine) continue;
+      if (col  >= nCol)  continue;
+      if (line < 0) continue;
+      if (col  < 0)  continue;
+      
+      // loop over lines & columns
+      if ( ShapeCluster(fClustersN, line, col, pGeoMap) )
+         fClustersN++;
+   }
+   
+}
+
+//______________________________________________________________________________
+//
+Bool_t TAVTactBaseNtuCluster::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTparGeo* pGeoMap)
+{
+   
+   Int_t nLine = pGeoMap->GetNPixelY()+1;
+   Int_t nCol  = pGeoMap->GetNPixelX()+1;
+   
+   if ( fPixelMap[IndX*nCol+IndY] <= 0 ) return false;
+   if ( fFlagMap[IndX*nCol+IndY] != -1 ) return false;
+   fFlagMap[IndX*nCol+IndY] = noClus;
+   
+   TAVTbaseNtuHit* pixel = (TAVTbaseNtuHit*)GetListOfPixels()->At(fIndexMap[IndX*nCol+IndY]);
+   pixel->SetFound(true);
+   
+   for(Int_t i = -1; i <= 1 ; ++i)
+      if ( IndX+i >= 0 && IndX+i < nLine)
+         ShapeCluster(noClus, IndX+i, IndY, pGeoMap);
+   
+   for(Int_t j = -1; j <= 1 ; ++j)
+      if ( IndY+j >= 0 && IndY+j < nCol)
+         ShapeCluster(noClus, IndX  , IndY+j, pGeoMap);
+   
+   return true;
+}
+
+//______________________________________________________________________________
+//
+Bool_t TAVTactBaseNtuCluster::ApplyCuts(TAVTbaseCluster* cluster)
 {
    TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
    
@@ -98,32 +180,11 @@ Bool_t TAVTactBaseNtuCluster::ApplyCuts(TAVTcluster* cluster)
    Int_t  entries = list->GetEntries();
    
    // cuts on pixels in cluster
-   if(entries < pConfig->GetSensorPar(cluster->GetPlaneNumber()).MinNofPixelsInCluster || 
-	  entries > pConfig->GetSensorPar(cluster->GetPlaneNumber()).MaxNofPixelsInCluster)
-	  return kFALSE;
-      
+   if(entries < pConfig->GetSensorPar(cluster->GetPlaneNumber()).MinNofPixelsInCluster ||
+      entries > pConfig->GetSensorPar(cluster->GetPlaneNumber()).MaxNofPixelsInCluster)
+      return kFALSE;
+   
    return kTRUE;
-}
-
-//______________________________________________________________________________
-//  
-Bool_t TAVTactBaseNtuCluster::Action()
-{
-   TAVTntuRaw* pNtuHit  = (TAVTntuRaw*) fpNtuRaw->Object();
-   TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
-   
-   Bool_t ok = true;
-   
-   for (Int_t i = 0; i < pConfig->GetSensorsN(); ++i) {
-	  fListOfPixels = pNtuHit->GetListOfPixels(i);
-	  if (fListOfPixels->GetEntries() > pConfig->GetAnalysisPar().HitsInPlaneMaximum) continue; 
-	  if (fListOfPixels->GetEntries() == 0) continue; 
-	  ok += FindClusters(i);
-   }
-   
-   if(ok)
-	  fpNtuClus->SetBit(kValid);
-   return ok;
 }
 
 //______________________________________________________________________________

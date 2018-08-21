@@ -6,7 +6,9 @@
  \brief   Declaration of TAVTactBaseNtuCluster.
  */
 /*------------------------------------------+---------------------------------*/
+#include <map>
 
+#include "TArrayI.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
 #include "TString.h"
@@ -16,32 +18,28 @@
 #include "TAGparaDsc.hxx"
 
 
-class TAVTcluster;
+class TAVTbaseCluster;
 class TAVTntuHit;
+class TAVTparGeo;
 class TH1F;
 class TH2F;
 class TAVTactBaseNtuCluster : public TAGaction {
    
 public:
    explicit  TAVTactBaseNtuCluster(const char* name     =  0,
-								   TAGdataDsc* p_nturaw =  0, 
-								   TAGdataDsc* p_ntuclus = 0, 
-								   TAGparaDsc* p_config =  0,
-								   TAGparaDsc* p_geomap =  0);
+								           TAGparaDsc* p_config =  0,
+								           TAGparaDsc* p_geomap =  0);
    
    virtual ~TAVTactBaseNtuCluster();
    
    //! Action
-   virtual  Bool_t Action();
-   
-   //! Base creation of histogram
-   virtual  void   CreateHistogram();
+   virtual  Bool_t Action() { return false; }
    
    //! Apply basic cuts
-   virtual Bool_t  ApplyCuts(TAVTcluster* cluster); 
-   
-   //! Find cluster for a given sensor
-   virtual  Bool_t FindClusters(Int_t /*iSensor*/) = 0;
+   virtual Bool_t  ApplyCuts(TAVTbaseCluster* cluster);
+
+   //! Base creation of histogram
+   virtual  void   CreateHistogram();
    
     //! Get list of pixels for a given plane
    TClonesArray*   GetListOfPixels()   const { return fListOfPixels; }
@@ -64,8 +62,6 @@ public:
    virtual void ComputePosition();
    
 protected:
-   TAGdataDsc*     fpNtuRaw;		  // input data dsc
-   TAGdataDsc*     fpNtuClus;		  // output data dsc
    TAGparaDsc*     fpConfig;		  // config para dsc
    TAGparaDsc*     fpGeoMap;		  // geometry para dsc
    
@@ -75,6 +71,12 @@ protected:
    TClonesArray*  fListOfPixels;      // list of pixels 
    TClonesArray*  fCurListOfPixels;   // list of pixels in current cluster
    
+   map<Int_t, Int_t> fPixelMap; // pixel map;
+   map<Int_t, Int_t> fIndexMap; // index map of the pixel;
+   TArrayI fFlagMap;
+   
+   Int_t          fClustersN;     // number of cluster
+
    Int_t          fDebugLevel;        // debug level
    
    TH1F*          fpHisPixelTot;	     // Total number of pixels per cluster
@@ -84,8 +86,11 @@ protected:
    TString        fPrefix;
 
 protected:
-   void ComputeSeedPosition();
-   void ComputeCoGPosition();
+   void  SearchCluster(TAVTparGeo* pGeoMap);
+   void  FillMaps(TAVTparGeo* pGeoMap);
+   Bool_t ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTparGeo* pGeoMap);
+   void   ComputeSeedPosition();
+   void   ComputeCoGPosition();
    
    ClassDef(TAVTactBaseNtuCluster,0)
 };

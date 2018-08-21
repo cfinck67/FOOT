@@ -27,12 +27,12 @@ ClassImp(TAVTactNtuClusterF);
 TAVTactNtuClusterF::TAVTactNtuClusterF(const char* name, 
 									 TAGdataDsc* pNtuRaw, TAGdataDsc* pNtuClus,
 									 TAGparaDsc* pConfig, TAGparaDsc* pGeoMap)
-: TAVTactBaseNtuCluster(name, pNtuRaw, pNtuClus, pConfig, pGeoMap)
+: TAVTactBaseNtuCluster(name, pConfig, pGeoMap),
+  fpNtuRaw(pNtuRaw),
+  fpNtuClus(pNtuClus)
 {
-   TAVTparGeo* geoMap = (TAVTparGeo*)fpGeoMap->Object();
-   Int_t nLines = geoMap->GetNPixelY()+1;
-   Int_t nCols  = geoMap->GetNPixelX()+1;
-   fFlagMap.Set(nLines*nCols);
+   AddDataIn(pNtuRaw,   "TAVTntuRaw");
+   AddDataOut(pNtuClus, "TAVTntuCluster");
 }
 
 //------------------------------------------+-----------------------------------
@@ -41,7 +41,29 @@ TAVTactNtuClusterF::~TAVTactNtuClusterF()
 {
    
 }
-										
+
+
+//______________________________________________________________________________
+//
+Bool_t TAVTactNtuClusterF::Action()
+{
+   TAVTntuRaw* pNtuHit  = (TAVTntuRaw*) fpNtuRaw->Object();
+   TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
+   
+   Bool_t ok = true;
+   
+   for (Int_t i = 0; i < pConfig->GetSensorsN(); ++i) {
+      fListOfPixels = pNtuHit->GetListOfPixels(i);
+      if (fListOfPixels->GetEntries() > pConfig->GetAnalysisPar().HitsInPlaneMaximum) continue;
+      if (fListOfPixels->GetEntries() == 0) continue;
+      ok += FindClusters(i);
+   }
+   
+   if(ok)
+      fpNtuClus->SetBit(kValid);
+   return ok;
+}
+
 //______________________________________________________________________________
 //  
 Bool_t TAVTactNtuClusterF::FindClusters(Int_t iSensor)
@@ -52,117 +74,79 @@ Bool_t TAVTactNtuClusterF::FindClusters(Int_t iSensor)
    TAVTntuCluster* pNtuClus = (TAVTntuCluster*) fpNtuClus->Object();
    TAVTparGeo*     pGeoMap  = (TAVTparGeo*)     fpGeoMap->Object();
 
-   return FindClusters(iSensor, pNtuClus, pGeoMap);
+   FillMaps(pGeoMap);
+   SearchCluster(pGeoMap);
+ 
+   return CreateClusters(iSensor, pNtuClus, pGeoMap);
 }
 
 //______________________________________________________________________________
 //
-Bool_t TAVTactNtuClusterF::FindClusters(Int_t iSensor, TAVTntuCluster* pNtuClus, TAVTparGeo* pGeoMap)
+Bool_t TAVTactNtuClusterF::CreateClusters(Int_t iSensor, TAVTntuCluster* pNtuClus, TAVTparGeo* pGeoMap)
 {
    Int_t nLine = pGeoMap->GetNPixelY()+1;
    Int_t nCol  = pGeoMap->GetNPixelX()+1;
    
-   Int_t nClusters = 0;
-   fPixelMap.clear();
-   fIndexMap.clear();
-   fFlagMap.Reset(-1);
-   
-   if (fListOfPixels->GetEntries() == 0) return true; 
-   
-   if (fDebugLevel)
-	  printf("Sensor %d\n", iSensor);
-   
-   // fill maps for cluster
-   for (Int_t i = 0; i < fListOfPixels->GetEntries(); i++) { // loop over hit pixels
-	  
-	  TAVTntuHit* pixel = (TAVTntuHit*)fListOfPixels->At(i);
-	  Int_t line = pixel->GetPixelLine();
-	  Int_t col  = pixel->GetPixelColumn();
-	   if (line >= nLine) continue;
-	   if (col  >= nCol)  continue;
-	   if (line < 0) continue;
-	   if (col  < 0)  continue;
-	  fPixelMap[line*nCol+col] = 1;
-	  fIndexMap[line*nCol+col] = i;
-   }
-   
-   
-   // Search for cluster
    TAVTcluster* cluster = 0x0;
-   
-   for (Int_t iPix = 0; iPix < fListOfPixels->GetEntries(); ++iPix) { // loop over hit pixels
-	  TAVTntuHit* pixel = (TAVTntuHit*)fListOfPixels->At(iPix);
-	  if (pixel->Found()) continue;
-	  Int_t line = pixel->GetPixelLine();
-	  Int_t col  = pixel->GetPixelColumn();
-	  if (line >= nLine) continue;
-	  if (col  >= nCol)  continue;
-	  if (line < 0) continue;
-	  if (col  < 0)  continue;
 
-	  // loop over lines & columns
-     if ( ShapeCluster(nClusters, line, col, pGeoMap) )
-        nClusters++;
-   }
-   
    // create clusters
-   for (Int_t i = 0; i< nClusters; ++i)
+   for (Int_t i = 0; i< fClustersN; ++i)
       pNtuClus->NewCluster(iSensor);
    
    for (Int_t iPix = 0; iPix < fListOfPixels->GetEntries(); ++iPix) {
-	  TAVTntuHit* pixel = (TAVTntuHit*)fListOfPixels->At(iPix);
-	  Int_t line = pixel->GetPixelLine();
-	  Int_t col  = pixel->GetPixelColumn();
-	   if(line >= nLine) continue;
-	   if(col >= nCol) continue;
-	   if( line < 0) continue;
-	   if( col < 0) continue;
-	   
-	  Int_t clusterN = fFlagMap[line*nCol+col];
-	  if ( clusterN != -1 ) {
-		 cluster = pNtuClus->GetCluster(iSensor, clusterN);
-		 cluster->AddPixel(pixel);
-	  }  
+      TAVTntuHit* pixel = (TAVTntuHit*)fListOfPixels->At(iPix);
+      Int_t line = pixel->GetPixelLine();
+      Int_t col  = pixel->GetPixelColumn();
+      if(line >= nLine) continue;
+      if(col >= nCol) continue;
+      if( line < 0) continue;
+      if( col < 0) continue;
+      
+      Int_t clusterN = fFlagMap[line*nCol+col];
+      if ( clusterN != -1 ) {
+         cluster = pNtuClus->GetCluster(iSensor, clusterN);
+         cluster->AddPixel(pixel);
+      }
    }
    
    // Compute position and fill clusters info
    for (Int_t i = 0; i< pNtuClus->GetClustersN(iSensor); ++i) {
-	  cluster = pNtuClus->GetCluster(iSensor, i);
-	  cluster->SetPlaneNumber(iSensor);
-	  fPSeed = cluster->GetPixel(0);	  
-	  fCurListOfPixels = cluster->GetListOfPixels();
-	  ComputePosition();
-	  cluster->SetNumber(i);
-	  TVector3 posG = *GetCurrentPosition();
+      cluster = pNtuClus->GetCluster(iSensor, i);
+      cluster->SetPlaneNumber(iSensor);
+      fPSeed = cluster->GetPixel(0);
+      fCurListOfPixels = cluster->GetListOfPixels();
+      ComputePosition();
+      cluster->SetNumber(i);
+      TVector3 posG = *GetCurrentPosition();
       pGeoMap->Sensor2Detector_frame(iSensor, &posG);
-    //  pGeoMap->Local2Global(&posG);
-	  cluster->SetPositionG(&posG);
-	  cluster->SetPosition(GetCurrentPosition());
-	  cluster->SetPosError(GetCurrentPosError());
-	  cluster->SetIndexSeed(fPSeed->GetPixelIndex());
-	  
-	  if (ApplyCuts(cluster)) {
-		 // histogramms
-		 if (ValidHistogram()) {
-			if (cluster->GetPixelsN() > 0) {
-			   fpHisPixelTot->Fill(cluster->GetPixelsN());
-			   fpHisPixel[iSensor]->Fill(cluster->GetPixelsN());
-           // printf("sensor %d %d\n", iSensor, cluster->GetPixelsN());
-			   if (TAVTparConf::IsMapHistOn()) {
-				  fpHisClusMap[iSensor]->Fill(cluster->GetPosition()[0], cluster->GetPosition()[1]);
-			   }
-			}
-		 }	
-	  } else {
-		 pNtuClus->GetListOfClusters(iSensor)->Remove(cluster);
-		 pNtuClus->GetListOfClusters(iSensor)->Compress();
-	  }
+      //  pGeoMap->Local2Global(&posG);
+      cluster->SetPositionG(&posG);
+      cluster->SetPosition(GetCurrentPosition());
+      cluster->SetPosError(GetCurrentPosError());
+      cluster->SetIndexSeed(fPSeed->GetPixelIndex());
+      
+      if (ApplyCuts(cluster)) {
+         // histogramms
+         if (ValidHistogram()) {
+            if (cluster->GetPixelsN() > 0) {
+               fpHisPixelTot->Fill(cluster->GetPixelsN());
+               fpHisPixel[iSensor]->Fill(cluster->GetPixelsN());
+               // printf("sensor %d %d\n", iSensor, cluster->GetPixelsN());
+               if (TAVTparConf::IsMapHistOn()) {
+                  fpHisClusMap[iSensor]->Fill(cluster->GetPosition()[0], cluster->GetPosition()[1]);
+               }
+            }
+         }
+      } else {
+         pNtuClus->GetListOfClusters(iSensor)->Remove(cluster);
+         pNtuClus->GetListOfClusters(iSensor)->Compress();
+      }
    }
    if (pNtuClus->GetClustersN(iSensor))
-	  return true;
+      return true;
    
    return false;
-	
+
 }
 
 //______________________________________________________________________________
