@@ -89,10 +89,10 @@ const TAITcluster* TAITntuCluster::GetCluster(Int_t iSensor, Int_t iCluster) con
 //! Setup clones.
 void TAITntuCluster::SetupClones()
 {
-   fGeometry = (TAVTparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefItParaName(), "TAVTparGeo")->Object();
+   fGeometry = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefItParaName(), "TAITparGeo")->Object();
 
    if (fListOfClusters) return;
-   fListOfClusters    = new TObjArray();
+   fListOfClusters    = new TObjArray(fGeometry->GetNSensors());
    for (Int_t i = 0; i < fGeometry->GetNSensors(); ++i) {
 	  TClonesArray* arr = new TClonesArray("TAITcluster");
 	  arr->SetOwner(true);
