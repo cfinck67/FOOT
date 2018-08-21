@@ -11,22 +11,23 @@
 #include "TObjString.h"
 #include "TCanvas.h"
 
-#include "TAITparMap.hxx"
+#include "TAVTparMap.hxx"
 #include "TAITparCal.hxx"
 
 //##############################################################################
 
 /*!
   \class TAITparCal TAITparCal.hxx "TAITparCal.hxx"
-  \brief Charge (raw) calibration for Inner tracker. **
+  \brief Charge (raw) calibration for vertex. **
 */
 
 ClassImp(TAITparCal);
 
+TString TAVTbaseParCal::fgkDefaultCalName = "./config/TAITdetector.cal";
 
 //------------------------------------------+-----------------------------------
 TAITparCal::TAITparCal()
-: TAVTparCal()
+: TAVTbaseParCal()
 {
   // Standard constructor
 }
@@ -34,6 +35,6 @@ TAITparCal::TAITparCal()
 //------------------------------------------+-----------------------------------
 TAITparCal::~TAITparCal()
 {
-
 }
+
 

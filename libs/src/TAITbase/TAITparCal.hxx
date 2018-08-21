@@ -13,12 +13,12 @@
 #include "TArrayF.h"
 #include "TF1.h"
 
-#include "TAVTparCal.hxx"
+#include "TAVTbaseParCal.hxx"
 
 //##############################################################################
 
-class TAITparCal : public TAVTparCal {
-   
+class TAITparCal : public TAVTbaseParCal {
+
 public:
 
    TAITparCal();

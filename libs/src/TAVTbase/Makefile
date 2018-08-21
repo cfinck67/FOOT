@@ -20,6 +20,7 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 TOBJ_all   = TAVTdatRaw.hxx  TAVTntuRaw.hxx TAVTbaseNtuHit.hxx TAVTntuHit.hxx \
 	         TAVTparMap.hxx TAVTbaseParGeo.hxx TAVTparGeo.hxx  TAVTbaseParConf.hxx TAVTparConf.hxx \
+            TAVTparCal.hxx TAVTbaseParCal.hxx\
 	         TAVTactBaseRaw.hxx  TAVTactNtuRaw.hxx TAVTactBaseNtuMC.hxx TAVTactNtuMC.hxx \
 	         TAVTbaseDigitizer.hxx TAVTdigitizerE.hxx \
             TAVTntuCluster.hxx TAVTcluster.hxx TAVTbaseCluster.hxx TAVTactBaseNtuCluster.hxx TAVTactNtuClusterF.hxx \
