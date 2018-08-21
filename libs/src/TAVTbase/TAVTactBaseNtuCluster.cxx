@@ -38,7 +38,7 @@ TAVTactBaseNtuCluster::TAVTactBaseNtuCluster(const char* name,
   fDebugLevel(0)
 {
    AddPara(pGeoMap, "TAVTparGeo");
-   AddPara(pConfig, "TAVTparConf");
+   AddPara(pConfig, "TAVTbaseParConf");
    
    TString tmp(name);
    fPrefix = tmp(0,2);
@@ -174,7 +174,7 @@ Bool_t TAVTactBaseNtuCluster::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY,
 //
 Bool_t TAVTactBaseNtuCluster::ApplyCuts(TAVTbaseCluster* cluster)
 {
-   TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
+   TAVTbaseParConf* pConfig = (TAVTbaseParConf*) fpConfig->Object();
    
    TClonesArray* list = cluster->GetListOfPixels();
    Int_t  entries = list->GetEntries();
