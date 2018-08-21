@@ -7,7 +7,7 @@ ClassImp(TAITdigitizerE);
 
 
 // --------------------------------------------------------------------------------------
-TAITdigitizerE::TAITdigitizerE(TAVTparGeo* parGeo)
+TAITdigitizerE::TAITdigitizerE(TAVTbaseParGeo* parGeo)
 : TAVTdigitizerE(parGeo)
 {
 }

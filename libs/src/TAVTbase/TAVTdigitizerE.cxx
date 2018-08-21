@@ -23,7 +23,7 @@ Int_t   TAVTdigitizerE::fgkShel50[20];// {2,   6,   8,   16,   26,   34,   44,  
 Int_t   TAVTdigitizerE::fgkShel55[20];// {1,   5,   9,   13,   21,   37,   45,   57,   69,   89,   101,  121,  137,  161,  185,  213};
 
 // --------------------------------------------------------------------------------------
-TAVTdigitizerE::TAVTdigitizerE(TAVTparGeo* parGeo)
+TAVTdigitizerE::TAVTdigitizerE(TAVTbaseParGeo* parGeo)
 : TAVTbaseDigitizer(parGeo)
 {
    DefineRadii();

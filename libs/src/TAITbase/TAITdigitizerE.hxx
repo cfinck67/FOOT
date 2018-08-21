@@ -14,12 +14,12 @@
 #include "TAVTdigitizerE.hxx"
 
 // --------------------------------------------------------------------------------------
-class TAVTparGeo;
+class TAVTbaseParGeo;
 class TAITdigitizerE : public TAVTdigitizerE {
    
    // Class to digitize the energy into pixel based on given patterns
 public:
-   TAITdigitizerE(TAVTparGeo* parGeo);
+   TAITdigitizerE(TAVTbaseParGeo* parGeo);
    virtual ~TAITdigitizerE();
 
    ClassDef(TAITdigitizerE,0)

@@ -19,7 +19,7 @@ class TAVTdigitizerE : public TAVTbaseDigitizer {
    
    // Class to digitize the energy into pixel based on given patterns
 public:
-   TAVTdigitizerE(TAVTparGeo* parGeo);
+   TAVTdigitizerE(TAVTbaseParGeo* parGeo);
    virtual ~TAVTdigitizerE();
    
    void           DefineRadii();
