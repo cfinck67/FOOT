@@ -42,7 +42,7 @@ KFitter::KFitter () {
 
 	// take the geometry object
 	if ( (m_systemsON == "all" || m_systemsON.find( "VT" ) != string::npos) && GlobalPar::GetPar()->IncludeVertex() )
-		m_VT_geo = shared_ptr<TAVTparGeo> ( (TAVTparGeo*) gTAGroot->FindParaDsc("vtGeo", "TAVTparGeo")->Object() );
+		m_VT_geo = shared_ptr<TAVTparGeo> ( (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAVTparGeo")->Object() );
 	if ( (m_systemsON == "all" || m_systemsON.find( "IT" ) != string::npos) && GlobalPar::GetPar()->IncludeInnerTracker() )
 		m_IT_geo = shared_ptr<TAITparGeo> ( (TAITparGeo*) gTAGroot->FindParaDsc("itGeo", "TAITparGeo")->Object() );
 	if ( (m_systemsON == "all" || m_systemsON.find( "MSD" ) != string::npos) && GlobalPar::GetPar()->IncludeMSD() ) 
@@ -122,7 +122,9 @@ int KFitter::UploadHitsVT() {
 	
 	// take the ntuple object already filled
 	TAVTntuRaw* ntup = (TAVTntuRaw*) gTAGroot->FindDataDsc("vtRaw", "TAVTntuRaw")->Object();
-	if ( m_debug > 0 )		cout << "N vertex sensors: " << ntup->GetNSensors() << endl;
+   TAVTparGeo* vtxGeo = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAVTparGeo")->Object();
+
+	if ( m_debug > 0 )		cout << "N vertex sensors: " << vtxGeo->GetNSensors() << endl;
 
 	// MC hits example
 	// TAGntuMCeve* ntuMC = (TAGntuMCeve*) gTAGroot->FindDataDsc("myn_mceve", "TAGntuMCeve")->Object();
@@ -130,12 +132,12 @@ int KFitter::UploadHitsVT() {
 	
 	int totPix = 0;
 	// save pixels in the collection
-	for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {	// over all sensors
-		totPix += ntup->GetPixelsN( nSensor, "mc_hit" );
-		if ( m_debug > 0 )		cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetPixelsN( nSensor, "mc_hit" ) << endl;
+	for (int nSensor = 0; nSensor < vtxGeo->GetNSensors(); nSensor++) {	// over all sensors
+		totPix += ntup->GetPixelsN( nSensor );
+		if ( m_debug > 0 )		cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetPixelsN( nSensor ) << endl;
 
-		for (int nPx = 0; nPx < ntup->GetPixelsN( nSensor, "mc_hit" ); nPx++) 		// over all pixels for each sensor
-	        m_VT_hitCollection.push_back( ntup->GetPixel( nSensor, nPx, "mc_hit" ) );
+		for (int nPx = 0; nPx < ntup->GetPixelsN( nSensor ); nPx++) 		// over all pixels for each sensor
+	        m_VT_hitCollection.push_back( ntup->GetPixel( nSensor, nPx) );
 	}
 
 	return totPix;
@@ -150,17 +152,20 @@ int KFitter::UploadHitsIT() {
 	
 	// take the ntuple object already filled
 	TAITntuRaw* ntup = (TAITntuRaw*) gTAGroot->FindDataDsc("itRaw", "TAITntuRaw")->Object();
-	if ( m_debug > 0 )		cout << "N IT sensors: " << ntup->GetNSensors() << endl;
+   TAITparGeo* vtxGeo = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefParaName(), "TAITparGeo")->Object();
+
+	if ( m_debug > 0 )		cout << "N IT sensors: " << vtxGeo->GetNSensors() << endl;
 
 
 	int totPix = 0;
 	// save pixels in the collection
-	for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {	// over all sensors
-		totPix += ntup->GetPixelsN( nSensor, "mc_hit" );
-		if ( m_debug > 0 )		cout << "N IT pixel in sensor " << nSensor << ": " << ntup->GetPixelsN( nSensor, "mc_hit" ) << endl;
+	for (int nSensor = 0; nSensor < vtxGeo->GetNSensors(); nSensor++) {	// over all sensors
+		totPix += ntup->GetPixelsN( nSensor);
+		if ( m_debug > 0 )		cout << "N IT pixel in sensor " << nSensor << ": " << ntup->GetPixelsN( nSensor) << endl;
 
-		for (int nPx = 0; nPx < ntup->GetPixelsN( nSensor, "mc_hit" ); nPx++) 		// over all pixels for each sensor
-	        m_IT_hitCollection.push_back( ntup->GetPixel( nSensor, nPx, "mc_hit" ) );
+		for (int nPx = 0; nPx < ntup->GetPixelsN( nSensor); nPx++) 		// over all pixels for each sensor
+         m_IT_hitCollection.push_back( (TAITntuHit*)ntup->GetPixel( nSensor, nPx) );
+
 	}
 
 	return totPix;
@@ -777,37 +782,37 @@ void KFitter::GetTrueParticleType( AbsMeasurement* hit, int* flukaID, int* partI
 	if ( m_debug > 3 )		cout << "\t\tDetector Type = " << detID << "    HitID = " << hitID << endl;
 
 	// Generated positions and momentums
-	if ( detID == m_detectorID_map["VT"] ) {
-		*flukaID = m_VT_hitCollection.at( hitID )->m_genPartFLUKAid;
-		*partID  = m_VT_hitCollection.at( hitID )->m_genPartID;
-		*charge  = m_VT_hitCollection.at( hitID )->m_genPartCharge;
-		*mass    = m_VT_hitCollection.at( hitID )->m_genPartMass;
-	}
-	else if ( detID == m_detectorID_map["IT"] ) {
-		*flukaID = m_IT_hitCollection.at( hitID )->m_genPartFLUKAid;
-		*partID  = m_IT_hitCollection.at( hitID )->m_genPartID;
-		*charge  = m_IT_hitCollection.at( hitID )->m_genPartCharge;
-		*mass    = m_IT_hitCollection.at( hitID )->m_genPartMass;
-	}
-	else if ( detID == m_detectorID_map["MSD"] ) {
-		if ( m_MSD_hitCollection.size() > hitID ) {
-			*flukaID = m_MSD_hitCollection.at( hitID )->m_genPartFLUKAid;
-			*partID  = m_MSD_hitCollection.at( hitID )->m_genPartID;
-			*charge  = m_MSD_hitCollection.at( hitID )->m_genPartCharge;
-			*mass    = m_MSD_hitCollection.at( hitID )->m_genPartMass;
-		}
-	}
-	else if ( detID == m_detectorID_map["TW"] ) {
-		TAGntuMCeveHit* twGeneratorParticle = m_TW_hitCollection.at( hitID )->GetGenParticle();
-		*flukaID = twGeneratorParticle->FlukaID();
-		*partID  = m_TW_hitCollection.at( hitID )->GetGenPartID();	
-		*charge  = twGeneratorParticle->Chg();
-		*mass    = twGeneratorParticle->Mass();
-		// *flukaID = m_TW_hitCollection.at( hitID )->m_genPartFLUKAid;
-		// *partID  = m_TW_hitCollection.at( hitID )->m_genPartID;
-		// *charge  = m_TW_hitCollection.at( hitID )->m_genPartCharge;
-		// *mass    = m_TW_hitCollection.at( hitID )->m_genPartMass;
-	}	
+//	if ( detID == m_detectorID_map["VT"] ) {
+//		*flukaID = m_VT_hitCollection.at( hitID )->m_genPartFLUKAid;
+//		*partID  = m_VT_hitCollection.at( hitID )->m_genPartID;
+//		*charge  = m_VT_hitCollection.at( hitID )->m_genPartCharge;
+//		*mass    = m_VT_hitCollection.at( hitID )->m_genPartMass;
+//	}
+//	else if ( detID == m_detectorID_map["IT"] ) {
+//		*flukaID = m_IT_hitCollection.at( hitID )->m_genPartFLUKAid;
+//		*partID  = m_IT_hitCollection.at( hitID )->m_genPartID;
+//		*charge  = m_IT_hitCollection.at( hitID )->m_genPartCharge;
+//		*mass    = m_IT_hitCollection.at( hitID )->m_genPartMass;
+//	}
+//	else if ( detID == m_detectorID_map["MSD"] ) {
+//		if ( m_MSD_hitCollection.size() > hitID ) {
+//			*flukaID = m_MSD_hitCollection.at( hitID )->m_genPartFLUKAid;
+//			*partID  = m_MSD_hitCollection.at( hitID )->m_genPartID;
+//			*charge  = m_MSD_hitCollection.at( hitID )->m_genPartCharge;
+//			*mass    = m_MSD_hitCollection.at( hitID )->m_genPartMass;
+//		}
+//	}
+//	else if ( detID == m_detectorID_map["TW"] ) {
+//		TAGntuMCeveHit* twGeneratorParticle = m_TW_hitCollection.at( hitID )->GetGenParticle();
+//		*flukaID = twGeneratorParticle->FlukaID();
+//		*partID  = m_TW_hitCollection.at( hitID )->GetGenPartID();	
+//		*charge  = twGeneratorParticle->Chg();
+//		*mass    = twGeneratorParticle->Mass();
+//		// *flukaID = m_TW_hitCollection.at( hitID )->m_genPartFLUKAid;
+//		// *partID  = m_TW_hitCollection.at( hitID )->m_genPartID;
+//		// *charge  = m_TW_hitCollection.at( hitID )->m_genPartCharge;
+//		// *mass    = m_TW_hitCollection.at( hitID )->m_genPartMass;
+//	}	
 }
 
 
