@@ -563,7 +563,6 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
     myn_vtclus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
     // myn_vtrk     = new TAGdataDsc("vtTrack", new TAVTntuTrack());
 
-    myp_vtmap    = new TAGparaDsc("vtMap", new TAVTparMap());
 
     myp_vtconf  = new TAGparaDsc("vtConf", new TAVTparConf());
     TAVTparConf* parconf = (TAVTparConf*) myp_vtconf->Object();
@@ -571,7 +570,7 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
     parconf->FromFile(filename.Data());
 
     
-    mya_vtraw   = new TAVTactNtuMC("vtActRaw", myn_vtraw, myp_vtgeo, myp_vtmap, myStr);
+    mya_vtraw   = new TAVTactNtuMC("vtActRaw", myn_vtraw, myp_vtgeo, myStr);
     mya_vtclus = new TAVTactNtuClusterF("vtxActCluster", myn_vtraw, myn_vtclus, myp_vtconf, myp_vtgeo);
  
     gTAGroot->AddRequiredItem("vtRaw");
@@ -601,16 +600,14 @@ void Booter::FillMCInnerTracker(EVENT_STRUCT *myStr) {
     myn_itraw    = new TAGdataDsc("itRaw", new TAITntuRaw());
     myn_itclus   = new TAGdataDsc("itClus", new TAITntuCluster());
 
-    myp_itmap    = new TAGparaDsc("itMap", new TAITparMap());
-
     // remove?
     myp_itconf  = new TAGparaDsc("itConf", new TAITparConf());
     TAITparConf* parconf = (TAITparConf*) myp_itconf->Object();
     TString filename = m_wd + "/config/TAITdetector.cfg";
     parconf->FromFile(filename.Data());
 
-    mya_itraw   = new TAITactNtuMC("itActRaw", myn_itraw, myp_itgeo, myp_itmap, myStr);
-    mya_itclus = new TAITactNtuClusterF("itActCluster", myn_itraw, myn_itclus, myp_itconf, myp_itgeo, "mc_cluster");
+    mya_itraw   = new TAITactNtuMC("itActRaw", myn_itraw, myp_itgeo, myStr);
+    mya_itclus = new TAITactNtuClusterF("itActCluster", myn_itraw, myn_itclus, myp_itconf, myp_itgeo);
 
     gTAGroot->AddRequiredItem("itRaw");
     gTAGroot->AddRequiredItem("itClus");
