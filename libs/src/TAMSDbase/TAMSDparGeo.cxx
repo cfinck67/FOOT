@@ -43,8 +43,7 @@ TAMSDparGeo::TAMSDparGeo( TAMSDparGeo* original )
   : TAVTbaseParGeo(original),
     m_nSensors_X(original->m_nSensors_X),
     m_nSensors_Y(original->m_nSensors_Y),
-    m_nSensors_Z(original->m_nSensors_Z),
-    m_NSensors (original->m_NSensors)
+    m_nSensors_Z(original->m_nSensors_Z)
 {
 
 }
@@ -76,7 +75,7 @@ void TAMSDparGeo::InitGeo()
     m_nSensors_X = 1;
     m_nSensors_Y = 1;
     m_nSensors_Z = MSD_NLAY;
-    TVector3 m_NSensors = TVector3( m_nSensors_X, m_nSensors_Y, m_nSensors_Z );
+    m_nSensors = TVector3( m_nSensors_X, m_nSensors_Y, m_nSensors_Z );
 
     // init sensor matrix   (z, x, y) = (layer, view, strip)
     m_sensorMatrix.resize( m_nSensors_Z );

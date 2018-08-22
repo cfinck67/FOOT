@@ -63,7 +63,6 @@ private:
     int m_nSensors_X;
     int m_nSensors_Y;
     int m_nSensors_Z;
-    TVector3 m_NSensors;   
 
     double m_layerDistance;
     double m_layerThick;
