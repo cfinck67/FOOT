@@ -23,8 +23,6 @@ public:
 
    TAVTparConf();
     virtual ~TAVTparConf();
-
-public:
    
    ClassDef(TAVTparConf,1)
 };

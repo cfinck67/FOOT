@@ -23,8 +23,6 @@ public:
 
    TAITparConf();
     virtual ~TAITparConf();
-
-public:
    
    ClassDef(TAITparConf,1)
 };
