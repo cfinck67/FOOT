@@ -15,7 +15,6 @@
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
 
-#include "TAGntuMCeve.hxx"
 #include "TAVTbaseNtuHit.hxx"
 
 
