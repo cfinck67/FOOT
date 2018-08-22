@@ -2,7 +2,6 @@
 #include "TString.h"
 #include "TClonesArray.h"
 
-#include "TAVTntuRaw.hxx"
 #include "TAMSDntuHit.hxx"
 
 ClassImp(TAMSDntuHit) // Description of Single Detector TAMSDntuHit 
