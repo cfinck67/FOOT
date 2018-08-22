@@ -153,14 +153,14 @@ void TAITactNtuMC::FillPixels(Int_t sensorId, Int_t hitId )
 	TAITparGeo* pGeoMap = (TAITparGeo*) fpGeoMap->Object();
 	TAITntuRaw* pNtuRaw = (TAITntuRaw*) fpNtuRaw->Object();
  
-	map<int, int> digiMap = fDigitizer->GetMap();
+	map<int, double> digiMap = fDigitizer->GetMap();
 	int nPixelX = fDigitizer->GetNPixelX();
  
 	// fill pixels from map
    int count = 0;
-	for ( map< int, int >::iterator it = digiMap.begin(); it != digiMap.end(); ++it) {
+	for ( map< int, double >::iterator it = digiMap.begin(); it != digiMap.end(); ++it) {
 
-	   if ( digiMap[it->first] == 1 ) {
+	   if ( digiMap[it->first] > 0 ) {
          count++;
 			int line = it->first / nPixelX;
 			int col  = it->first % nPixelX;

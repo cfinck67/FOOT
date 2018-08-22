@@ -27,9 +27,9 @@ public:
    virtual ~TAVTbaseDigitizer();
    
    Double_t     FuncClusterSize(Double_t* x, Double_t* par);
-   Bool_t       Process( Double_t edep, Double_t x0, Double_t y0, Double_t zin = 0, Double_t zout = 0);
+   virtual Bool_t Process( Double_t edep, Double_t x0, Double_t y0, Double_t zin = 0, Double_t zout = 0);
 
-   virtual Bool_t MakeCluster(Double_t x0, Double_t y0, Double_t zin = 0, Double_t zout = 0) = 0;
+   virtual Bool_t MakeCluster(Double_t /*x0*/, Double_t /*y0*/, Double_t /*zin*/, Double_t /*zout*/) { return false; }
 
    Int_t        GetPixelsN() const           { return fPixelsN;    }
    
@@ -46,7 +46,7 @@ public:
    Float_t      GetPitchY()  const           { return fPitchX;     }
 
    //! Get Map
-   std::map<int, int>  GetMap() const        { return fMap;        }
+   std::map<int, double>  GetMap() const        { return fMap;        }
    
    //! Get column/line from x/y position
    Int_t        GetColumn(Float_t x) const;
@@ -69,7 +69,7 @@ protected:
    TAVTbaseParGeo* fpParGeo;
    TF1*        fFuncClusterSize; // cluster size function
    
-   std::map<int, int> fMap;      // map of found pixels
+   std::map<int, double> fMap;      // map of found pixels
    
    Int_t       fPixelsN;         // number of pixels for a given eloss
    Double_t    fRsPar;           // parameter r_s for the cluster size function
