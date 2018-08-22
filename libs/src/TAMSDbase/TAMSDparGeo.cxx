@@ -50,8 +50,8 @@ TAMSDparGeo::TAMSDparGeo( TAMSDparGeo* original )
 }
 
 //_____________________________________________________________________________
-void TAMSDparGeo::InitMaterial() {
-
+void TAMSDparGeo::InitMaterial()
+{
     m_materialOrder = {  "MSD_MEDIUM" };
 
     for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
@@ -63,9 +63,12 @@ void TAMSDparGeo::InitMaterial() {
 }
 
 //_____________________________________________________________________________
-void TAMSDparGeo::InitGeo()  {
-
+void TAMSDparGeo::InitGeo()
+{
     if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTAMSDparGeo::InitGeo" << endl<< endl;
+
+   // fill m_materialOrder, m_materialThick, m_materialType
+   InitMaterial();
 
     m_origin = TVector3( 0, 0, 0 );
     m_center = TVector3( MSD_X, MSD_Y, MSD_Z );
