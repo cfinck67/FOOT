@@ -37,7 +37,6 @@ protected:
    TAMSDparGeo*        fGeometry;                 //! do NOT stored such a useless pointer !
 
 public:
-
     TAMSDntuHit() {};
     TAMSDntuHit( Int_t iSensor, const Int_t aIndex, Double_t aValue);
     TAMSDntuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn);
@@ -58,6 +57,15 @@ public:
 
     TVector3          GetMCMomentum_footFrame();
 
+    //! Get pixel line
+    Int_t             GetPixelView()            const  { return  fPixelLine;      }
+    //! Get pixel line
+    Int_t             GetPixelStrip()           const  { return  fPixelColumn;    }
+   
+    //! Set pixel line
+    void              SetPixelView(Int_t aLin)         { fPixelLine = aLin;       }
+    //! Set pixel column
+    void              SetPixelStrip(Int_t aCol)        { fPixelColumn = aCol;     }
    
 //    //! Compute distance from a given pixel
 //    Double_t           Distance( TAMSDntuHit&         aPixel);
