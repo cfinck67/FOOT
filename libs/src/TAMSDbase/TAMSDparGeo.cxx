@@ -109,6 +109,12 @@ void TAMSDparGeo::InitGeo()  {
     double pixelWidth_Lx = MSD_DX;
     double pixelHeight_Ly = MSD_DY;
 
+    // pixels per sensors
+    m_nPixel_X = MSD_XSTRIP;
+    m_nPixel_Y = MSD_YSTRIP;
+    m_pitchX = MSD_DX;
+    m_pitchY = MSD_DY;
+   
     // // total pixels
     // m_nPixel_X = width_Lx / (pixelWidth_Lx + pixelDistance);
     // m_nPixel_Y = height_Ly / (pixelHeight_Ly + pixelDistance);
