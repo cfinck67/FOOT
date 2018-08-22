@@ -21,99 +21,46 @@
 
 #include "TAGgeoTrafo.hxx" 
 
-// #include "TAMSDparMap.hxx"
 #include "TAMSDparGeo.hxx"
 
-// #include "foot_geo.h"
-// #include "GlobalPar.hxx"
 
-
-
+TString TAMSDparGeo::fgkDefParaName = "msdGeo";
 
 //_____________________________________________________________________________
-TAMSDparGeo::TAMSDparGeo() {
-
-    m_volumeCount = -1;
-    m_passiveCount = -1;
-    m_setW_0number = 2;
-
-    m_debug = GlobalPar::GetPar()->Debug();
-
-    // fill m_materialOrder, m_materialThick, m_materialType
-    InitMaterial();
-
-};
-
-
-
-//_____________________________________________________________________________
-TAMSDparGeo::~TAMSDparGeo() {
-    // sensor matrix
-    for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
-        for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
-            for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
-                delete (*itZ);
-            }
-            (*itY).clear();
-        }
-        (*itX).clear();
-    }
-    m_sensorMatrix.clear();
+TAMSDparGeo::TAMSDparGeo()
+: TAVTbaseParGeo()
+{
 }
 
-
+//_____________________________________________________________________________
+TAMSDparGeo::~TAMSDparGeo()
+{
+}
 
 //_____________________________________________________________________________
 //  copy constructor
-TAMSDparGeo::TAMSDparGeo( TAMSDparGeo* original ) :
-
-    m_rotation(original->m_rotation), 
-    m_origin(original->m_origin),  // current position
-    m_center(original->m_center),  // current position
-    m_dimension(original->m_dimension),
-
+TAMSDparGeo::TAMSDparGeo( TAMSDparGeo* original )
+  : TAVTbaseParGeo(original),
     m_nSensors_X(original->m_nSensors_X),
     m_nSensors_Y(original->m_nSensors_Y),
     m_nSensors_Z(original->m_nSensors_Z),
-    m_NSensors (original->m_NSensors),
+    m_NSensors (original->m_NSensors)
+{
 
-    m_materialOrder(original->m_materialOrder),
-
-    m_materialThick(original->m_materialThick),
-    m_materialType(original->m_materialType),
-
-    m_layerDistance(original->m_layerDistance),
-
-    m_nPixel_X(original->m_nPixel_X),
-    m_nPixel_Y(original->m_nPixel_Y)         {
-
-    SensorMatrix m_sensorMatrix = original->m_sensorMatrix;
 }
-
-
-
-
 
 //_____________________________________________________________________________
 void TAMSDparGeo::InitMaterial() {
 
-    m_materialOrder = {  "MSD_MEDIUM"
-                         };
+    m_materialOrder = {  "MSD_MEDIUM" };
 
-    
     for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
         if( m_materialOrder[i] == "MSD_MEDIUM" ){
             m_materialThick[ m_materialOrder[i] ] = MSD_THICK;
             m_materialType[ m_materialOrder[i] ] = MSD_MEDIUM;
         }
-        
     }
-
 }
-
-
-
-
 
 //_____________________________________________________________________________
 void TAMSDparGeo::InitGeo()  {
@@ -150,7 +97,7 @@ void TAMSDparGeo::InitGeo()  {
     m_nSensor_X_Layer = MSD_NVIEW;
 
     // set detector dimension
-    double width_Lx = m_dimension.x();
+  //  double width_Lx = m_dimension.x();
     double height_Ly = m_dimension.y();
     
 
@@ -289,212 +236,6 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
 
 }
 
-
-
-
-
-//_____________________________________________________________________________
-TVector3 TAMSDparGeo::GetPosition( int layer, int view, int strip )  {
-    // TVector3 sensorCoord = GetSensorCoortdinates( int layer, int col, int row );
-    // TVector3 pos = m_sensorMatrix[sensorCoord.z()][sensorCoord.x()][sensorCoord.y()]->GetPosition();
-    TVector3 pos = m_sensorMatrix[layer][0][0]->GetPosition( view, strip );
-
-    // set the z coordinate as one of the sensor surface, depending on the view
-    // if ( view == 0 )           pos.SetZ( pos.z() - 0.5*m_siliconSensorThick_Lz );
-    // else if ( view ==  1 )      pos.SetZ( pos.z() + 0.5*m_siliconSensorThick_Lz );
-    // else                        cout << "ERROR :: TAMSDparGeo::GetPosition  -->  wrong value for strip view = " << view << endl, exit(0);
-
-    Local2Global(&pos);
-    return pos;
-}
-
-
-//_____________________________________________________________________________
-TVector3 TAMSDparGeo::GetLayerCenter( int layer ) {
-
-    TVector3 pos = m_sensorMatrix[layer][0][0]->GetCenter();
-    
-    Local2Global(&pos);
-    return pos;
-
-}
-
-//_____________________________________________________________________________
-void TAMSDparGeo::Global2Local( TVector3* glob ) {
-    glob->Transform( GetRotationToLocal() );
-    *glob = *glob - m_center;
-} 
-
-//_____________________________________________________________________________
-void TAMSDparGeo::Global2Local_RotationOnly( TVector3* glob ) {
-    glob->Transform( GetRotationToLocal() );
-} 
-
-//_____________________________________________________________________________
-void TAMSDparGeo::Local2Global( TVector3* loc ) {
-    loc->Transform( GetRotationToGlobal() );
-    *loc = *loc + m_center;
-}
-
-//_____________________________________________________________________________
-void TAMSDparGeo::Local2Global_RotationOnly( TVector3* loc ) {
-    loc->Transform( GetRotationToGlobal() );
-} 
-
-
-
-
-
-//_____________________________________________________________________________
-TGeoVolume* TAMSDparGeo::GetVolume() {
-
-    if ( !GlobalPar::GetPar()->geoROOT() ) 
-        cout << "ERROR << TAMSDparGeo::GetVolume()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
-
-    return m_universe;
-
-}
-
-
-
-
-
-//_____________________________________________________________________________
-string TAMSDparGeo::PrintBodies( ){
-
-    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-        cout << "ERROR << TAMSDparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
-    
-
-    stringstream outstr;
-    outstr << "* ***Micro Strip Detector" << endl;
-
-    // loop in order of the material alfabeth
-    for ( map<string, vector<string> >::iterator itMat = m_bodyPrintOut.begin(); itMat != m_bodyPrintOut.end(); itMat++ ) {
-        // loop over all body of the same material
-        for ( vector<string>::iterator itBody = (*itMat).second.begin(); itBody != (*itMat).second.end(); itBody++ ) {
-            outstr << (*itBody);
-            if (m_debug > 3)    cout << (*itBody);
-        }        
-    }
-    return outstr.str();
-}
-
-
-
-
-
-//_____________________________________________________________________________
-string TAMSDparGeo::PrintRegions(){
-
-    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-        cout << "ERROR << TAMSDparGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
-
-    stringstream outstr; 
-    outstr << "* ***Micro Strip Detector" << endl;
-
-    // loop in order of the material alfabeth
-    for ( map<string, vector<string> >::iterator itMat = m_regionPrintOut.begin(); itMat != m_regionPrintOut.end(); itMat++ ) {
-        // loop over all body of the same material
-        for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-            outstr << (*itRegion);
-            if (m_debug > 3)    cout << (*itRegion);
-        }        
-    }
-    return outstr.str();
-}
-
-
-
-
-
-//_____________________________________________________________________________
-string TAMSDparGeo::PrintSubtractBodiesFromAir() {
-
-    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-        cout << "ERROR << TAMSDparGeo::PrintSubtractMaterialFromAir()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
-
-
-    stringstream outstr;
-    // loop in order of the material alfabeth
-    for ( map<string, vector<string> >::iterator itMat = m_bodyName.begin(); itMat != m_bodyName.end(); itMat++ ) {
-        // loop over all region of the same material
-        for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-            outstr << " -" << (*itRegion);
-        }        
-    }
-    return outstr.str();
-
-}
-
-
-
-
-//_____________________________________________________________________________
-string TAMSDparGeo::PrintAssignMaterial() {
-
-    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-        cout << "ERROR << TAMSDparGeo::PrintAssignMaterial()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
-
-
-    // loop in order of the material alfabeth
-    stringstream outstr; 
-    for ( map<string, vector<string> >::iterator itMat = m_regionName.begin(); itMat != m_regionName.end(); itMat++ ) {
-
-        // check dimension greater than 0
-        if ( (*itMat).second.size() == 0 ) {
-            cout << "ERROR << TAMSDparGeo::PrintAssignMaterial  ::  "<<endl, exit(0);
-        }
-
-        // take the first region
-        string firstReg = (*itMat).second.at(0);
-        // take the last region
-        string lastReg = "";
-        if ( (*itMat).second.size() != 1 ) 
-            lastReg = (*itMat).second.at( (*itMat).second.size()-1 );
-
-        // build output string 
-        outstr  << setw(10) << setfill( ' ' ) << std::left << "ASSIGNMA" 
-                << setw(10) << setfill( ' ' ) << std::right << (*itMat).first 
-                << setw(10) << setfill( ' ' ) << std::right << firstReg 
-                << setw(10) << setfill( ' ' ) << std::right << lastReg;
-                       
-        
-        // multiple region condition 
-        if ( (*itMat).second.size() != 1 ) {
-            outstr << setw(10) << setfill( ' ' ) << std::right  << 1 ;
-        }
-        else {
-            outstr << setw(10) << setfill( ' ' ) << std::right  << " ";
-        }
-
-
-        // region in the magnetic filed condition
-        bool isMag = true;
-        for (int i=0; i<(*itMat).second.size(); i++) {
-            if ( m_magneticRegion[ (*itMat).second.at(i) ] == 0 ) {
-                isMag = false;
-                break;
-            }
-        }
-        if ( isMag )
-            outstr << setw(10) << setfill( ' ' ) << std::right  << 1 ;
-        else 
-            outstr << setw(10) << setfill( ' ' ) << std::right  << " " ;
-        
-        outstr << endl;
-
-        // DEBUG
-        if (m_debug > 0)    cout << outstr.str();
-
-    }
-
-    return outstr.str();
-
-}
-
-
-
 //_____________________________________________________________________________
 string TAMSDparGeo::PrintParameters() {
   
@@ -532,29 +273,5 @@ string TAMSDparGeo::PrintParameters() {
   
   return outstr.str();
 
-}
-
-
-
-
-
-
-
-//------------------------------------------+-----------------------------------
-//! Clear geometry info.
-void TAMSDparGeo::Clear(Option_t*)
-{
-  return;
-}
-
-/*------------------------------------------+---------------------------------*/
-//! ostream insertion.
-void TAMSDparGeo::ToStream(ostream& os, Option_t*) const
-{
-//  os << "TAMSDparGeo " << GetName() << endl;
-//  os << "p 8p   ref_x   ref_y   ref_z   hor_x   hor_y   hor_z"
-//     << "   ver_x   ver_y   ver_z  width" << endl;
-
-  return;
 }
 
