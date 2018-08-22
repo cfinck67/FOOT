@@ -43,6 +43,8 @@ class TAITparGeo : public TAVTbaseParGeo {
 public:
 
     TAITparGeo();
+    TAITparGeo( TAITparGeo* original );
+
     virtual ~TAITparGeo() {}
    
     void InitGeo();
@@ -130,16 +132,11 @@ private:
     double m_boardYDeadMin;
     double m_boardYDeadMax;
 
-
     double m_layerDistance;
-
 
     vector<vector<double>> m_xmin;
     vector<vector<double>> m_ymin;
 
-    int m_debug;
-    int m_setW_0number;
-   
 private:
    static TString fgkDefParaName;
 

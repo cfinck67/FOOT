@@ -39,6 +39,22 @@ TAITparGeo::TAITparGeo()
 }
 
 //_____________________________________________________________________________
+//  copy constructor
+TAITparGeo::TAITparGeo( TAITparGeo* original )
+: TAVTbaseParGeo(original),
+  m_plumeDistace_Z(original->m_plumeDistace_Z),
+  m_plumeDistace_Y(original->m_plumeDistace_Y),
+  m_boardXDeadMin(original->m_boardXDeadMin),
+  m_boardXDeadMax(original->m_boardXDeadMax),
+  m_boardYDeadMin(original->m_boardYDeadMin),
+  m_boardYDeadMax(original->m_boardYDeadMax),
+  m_layerDistance(original->m_layerDistance)
+{
+   
+}
+
+
+//_____________________________________________________________________________
 void TAITparGeo::InitMaterial()
 {
    
