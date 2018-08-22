@@ -31,12 +31,6 @@ class TGeoVolume;
 
 class TAMSDparGeo : public TAVTbaseParGeo {
 
-
-typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
-typedef vector< vector< IronPlate* > > SensorPlane;
-typedef vector< IronPlate* > SensorLine;
-      
-
 public:
 
     TAMSDparGeo();
