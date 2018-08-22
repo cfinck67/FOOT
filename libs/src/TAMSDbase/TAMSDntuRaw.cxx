@@ -40,7 +40,7 @@ TAMSDntuRaw::TAMSDntuRaw()
   fListOfPixels(0x0),
   fpGeoMap(0x0)
 {
-   fpGeoMap = (TAMSDparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAMSDparGeo")->Object();
+   fpGeoMap = (TAMSDparGeo*) gTAGroot->FindParaDsc(TAMSDparGeo::GetDefParaName(), "TAMSDparGeo")->Object();
    if (!fpGeoMap) {
       Error("TAMSDntuRaw()", "Para desciptor vtGeo does not exist");
       exit(0);
