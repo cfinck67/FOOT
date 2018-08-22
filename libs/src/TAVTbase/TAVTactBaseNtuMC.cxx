@@ -82,7 +82,7 @@ void TAVTactBaseNtuMC::CreateHistogram()
 
    DeleteHistogram();
    
-   TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
+   TAVTbaseParGeo* pGeoMap = (TAVTbaseParGeo*) fpGeoMap->Object();
    
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
       fpHisPixel[i] = new TH1F(Form("%sMcPixel%d", fPrefix.Data(), i+1), Form("Vertex - MC # pixels per clusters for sensor %d", i+1), 100, 0., 100.);
