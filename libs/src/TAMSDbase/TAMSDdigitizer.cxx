@@ -42,30 +42,31 @@ Bool_t TAMSDdigitizer::Process( Double_t edep, Double_t x0, Double_t y0,  Double
 
    fMap.clear();
    
-   Double_t value = edep*fgChargeGain*fgChargeFac;
+   Double_t value = 0.;
    
    Int_t line = GetLine(y0);
    Int_t col  = GetColumn(x0);
    
    if (line-1 >= 0) {
-      Float_t value = edep*fgChargeGain*(1-fgChargeFac/2.);
+      value = edep*fgChargeGain*(1-fgChargeFac/2.);
       FillMap(line-1, col, value);
    }
    
    if (col-1 >= 0) {
-      Float_t value = edep*fgChargeGain*(1-fgChargeFac/2.);
+      value = edep*fgChargeGain*(1-fgChargeFac/2.);
       FillMap(line, col-1, value);
    }
    
+   value = edep*fgChargeGain*fgChargeFac;
    FillMap(line, col, value);
    
    if (line+1 < fPixelsNx) {
-      Float_t value = edep*fgChargeGain*(1-fgChargeFac/2.);
+      value = edep*fgChargeGain*(1-fgChargeFac/2.);
       FillMap(line+1, col, value);
    }
    
    if (col+1 < fPixelsNy) {
-      Float_t value = edep*fgChargeGain*(1-fgChargeFac/2.);
+      value = edep*fgChargeGain*(1-fgChargeFac/2.);
       FillMap(line, col+1, value);
    }
    
