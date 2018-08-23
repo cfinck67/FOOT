@@ -72,7 +72,7 @@ Bool_t TAITactNtuClusterF::FindClusters(Int_t iSensor)
    // Look in a iterative way to next neighbour
    
    TAITntuCluster* pNtuClus = (TAITntuCluster*) fpNtuClus->Object();
-   TAITparGeo*     pGeoMap  = (TAITparGeo*)     fpGeoMap->Object();
+   TAVTbaseParGeo* pGeoMap  = (TAVTbaseParGeo*)     fpGeoMap->Object();
 
    FillMaps(pGeoMap);
    SearchCluster(pGeoMap);
@@ -82,7 +82,7 @@ Bool_t TAITactNtuClusterF::FindClusters(Int_t iSensor)
 
 //______________________________________________________________________________
 //
-Bool_t TAITactNtuClusterF::CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClus, TAVTparGeo* pGeoMap)
+Bool_t TAITactNtuClusterF::CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClus, TAVTbaseParGeo* pGeoMap)
 {
    Int_t nLine = pGeoMap->GetNPixelY()+1;
    Int_t nCol  = pGeoMap->GetNPixelX()+1;
@@ -151,7 +151,7 @@ Bool_t TAITactNtuClusterF::CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClu
 
 //______________________________________________________________________________
 //  
-Bool_t TAITactNtuClusterF::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTparGeo* pGeoMap)
+Bool_t TAITactNtuClusterF::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTbaseParGeo* pGeoMap)
 {
    
    Int_t nLine = pGeoMap->GetNPixelY()+1;

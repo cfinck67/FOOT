@@ -20,7 +20,7 @@
 
 class TAVTbaseCluster;
 class TAVTntuHit;
-class TAVTparGeo;
+class TAVTbaseParGeo;
 class TH1F;
 class TH2F;
 class TAVTactBaseNtuCluster : public TAGaction {
@@ -86,9 +86,9 @@ protected:
    TString        fPrefix;
 
 protected:
-   void  SearchCluster(TAVTparGeo* pGeoMap);
-   void  FillMaps(TAVTparGeo* pGeoMap);
-   Bool_t ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTparGeo* pGeoMap);
+   void  SearchCluster(TAVTbaseParGeo* pGeoMap);
+   void  FillMaps(TAVTbaseParGeo* pGeoMap);
+   Bool_t ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTbaseParGeo* pGeoMap);
    void   ComputeSeedPosition();
    void   ComputeCoGPosition();
    

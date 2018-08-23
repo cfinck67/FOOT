@@ -11,7 +11,7 @@
 
 class TAITntuCluster;
 class TAVTntuHit;
-class TAVTparGeo;
+class TAVTbaseParGeo;
 
 class TAITactNtuClusterF : public TAVTactBaseNtuCluster {
    
@@ -38,9 +38,9 @@ private:
    TAGdataDsc*     fpNtuClus;		  // output data dsc
    
 private:
-   Bool_t  ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTparGeo* pGeoMap);
-   Bool_t  FindClusters(Int_t iSensor, TAITntuCluster* pNtuClus, TAVTparGeo* pGeoMap);
-   Bool_t  CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClus, TAVTparGeo* pGeoMap);
+   Bool_t  ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTbaseParGeo* pGeoMap);
+   Bool_t  FindClusters(Int_t iSensor, TAITntuCluster* pNtuClus, TAVTbaseParGeo* pGeoMap);
+   Bool_t  CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClus, TAVTbaseParGeo* pGeoMap);
 
 
    ClassDef(TAITactNtuClusterF,0)

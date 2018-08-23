@@ -64,7 +64,7 @@ void TAVTactBaseNtuCluster::CreateHistogram()
    fpHisPixelTot = new TH1F(Form("%sClusPixelTot", fPrefix.Data()), "Vertex - Total # pixels per clusters", 100, 0., 100.);
    AddHistogram(fpHisPixelTot);
    
-   TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
+   TAVTbaseParGeo* pGeoMap  = (TAVTbaseParGeo*) fpGeoMap->Object();
    
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
 	  fpHisPixel[i] = new TH1F(Form("%sClusPixel%d",fPrefix.Data(), i+1), Form("Vertex - # pixels per clusters for sensor %d", i+1), 100, 0., 100.);
@@ -90,7 +90,7 @@ void TAVTactBaseNtuCluster::CreateHistogram()
 
 //______________________________________________________________________________
 //
-void TAVTactBaseNtuCluster::FillMaps(TAVTparGeo* pGeoMap)
+void TAVTactBaseNtuCluster::FillMaps(TAVTbaseParGeo* pGeoMap)
 {
    Int_t nLine = pGeoMap->GetNPixelY()+1;
    Int_t nCol  = pGeoMap->GetNPixelX()+1;
@@ -118,7 +118,7 @@ void TAVTactBaseNtuCluster::FillMaps(TAVTparGeo* pGeoMap)
 
 //______________________________________________________________________________
 //
-void TAVTactBaseNtuCluster::SearchCluster(TAVTparGeo* pGeoMap)
+void TAVTactBaseNtuCluster::SearchCluster(TAVTbaseParGeo* pGeoMap)
 {
    Int_t nLine = pGeoMap->GetNPixelY()+1;
    Int_t nCol  = pGeoMap->GetNPixelX()+1;
@@ -145,7 +145,7 @@ void TAVTactBaseNtuCluster::SearchCluster(TAVTparGeo* pGeoMap)
 
 //______________________________________________________________________________
 //
-Bool_t TAVTactBaseNtuCluster::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTparGeo* pGeoMap)
+Bool_t TAVTactBaseNtuCluster::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTbaseParGeo* pGeoMap)
 {
    
    Int_t nLine = pGeoMap->GetNPixelY()+1;
