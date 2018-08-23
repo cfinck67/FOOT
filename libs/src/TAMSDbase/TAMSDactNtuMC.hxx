@@ -12,34 +12,66 @@
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 
-class TH2F;
-class TH1F;
-class TAMSDactNtuMC : public TAGaction {
-   
+#include "TAMSDdigitizer.hxx"
+
+#include "TAMSDntuHit.hxx"
+
+#include "TAVTactBaseNtuMC.hxx"
+
+class TAMSDntuRaw;
+class TAMSDparGeo;
+
+class TAMSDactNtuMC : public TAVTactBaseNtuMC {
+
+// class TAMSDbaseDigitizerg;
+// class TAMSDntuHit;
+
 public:
-   explicit TAMSDactNtuMC(const char* name=0, TAGdataDsc* p_nturaw=0, TAGparaDsc* p_geomap = 0, TAGparaDsc* pParMap =0,EVENT_STRUCT* evtStr=0);
-   virtual ~TAMSDactNtuMC();
+   explicit TAMSDactNtuMC(const char* name=0, TAGdataDsc* p_nturaw=0, TAGparaDsc* p_geomap = 0, EVENT_STRUCT* evtStr=0);
+   virtual ~TAMSDactNtuMC() {};
    
    //! Base action 
-   virtual Bool_t  Action();
+   virtual bool   Action();
+   
+   // Fill noise over sensors
+   void           FillNoise();
 
-   //! Base creation of histogram
-   virtual  void   CreateHistogram();
    
 private:
-   TAGdataDsc*     fpNtuRaw;		    // output data dsc
-   TAGparaDsc*     fpGeoMap;		    // geometry para dsc
-   TAGparaDsc*     fpParMap;		    // map para dsc
-   EVENT_STRUCT*   fpEvtStr;
-   
-   Int_t           fDebugLevel;         // debug level
-   
-   TH2F*           fpHisPixelMap[8];  // pixel map per sensor
-   TH2F*           fpHisPosMap[8];    // pixel map per sensor   
-   TH1F*           fpHisRateMap[8];   // rates per sensor
-   TH1F*           fpHisRateMapQ[8];  // rates per quadrant
+   TAGdataDsc*    fpNtuRaw;		    // output data dsc
+
+private:
+   void           FillNoise(Int_t sensorId) ;
+   void           SetMCinfo(TAMSDntuHit* pixel, Int_t hitId);
+   void           CreateDigitizer();
+   void           FillPixels( Int_t sensorId, Int_t mcId );
+  
    
    ClassDef(TAMSDactNtuMC,0)
 };
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
