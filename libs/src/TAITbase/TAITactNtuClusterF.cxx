@@ -72,7 +72,7 @@ Bool_t TAITactNtuClusterF::FindClusters(Int_t iSensor)
    // Look in a iterative way to next neighbour
    
    TAITntuCluster* pNtuClus = (TAITntuCluster*) fpNtuClus->Object();
-   TAVTparGeo*     pGeoMap  = (TAVTparGeo*)     fpGeoMap->Object();
+   TAITparGeo*     pGeoMap  = (TAITparGeo*)     fpGeoMap->Object();
 
    FillMaps(pGeoMap);
    SearchCluster(pGeoMap);
