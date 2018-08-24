@@ -141,8 +141,11 @@ void TAGaction::ClearHistogram()
 //! Call the Write() method for all histograms.
 void TAGaction::WriteHistogram()
 {
-  TDirectory* cd_pwd = gDirectory;
+  if (!ValidHistogram()) return;
+  if (!fbIsOpenFile) return;
   if (!gDirectory->IsWritable()) return;
+
+  TDirectory* cd_pwd = gDirectory;
   if (fpHistList) {
     for (TObjLink* lnk = fpHistList->FirstLink(); lnk; lnk=lnk->Next()) {
 	   TH1* h = (TH1*)lnk->GetObject();
