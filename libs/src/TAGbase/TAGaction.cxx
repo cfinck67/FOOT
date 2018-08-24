@@ -26,7 +26,8 @@ TAGaction::TAGaction(const char* name, const char* title)
     fpDataInList(0),
     fpParaList(0),
     fpHistList(0),
-    fbHistValid(kFALSE)
+    fbHistValid(kFALSE),
+    fbIsOpenFile(kFALSE)
 {
   if (!gTAGroot) Fatal("TAGaction()", "TAGroot not instantiated");
   SetBit(kMustCleanup);
@@ -105,9 +106,13 @@ void TAGaction::SetHistogramDir(TDirectory* dir)
 	  for (TObjLink* lnk = fpHistList->FirstLink(); lnk; lnk=lnk->Next()) {
 		 TH1* h = (TH1*)lnk->GetObject();
 		  h->SetDirectory(dir);
-	  }
+     }
+     fbIsOpenFile = true;
    }
+   
+   if (!dir->IsWritable()) fbIsOpenFile = false;
 }
+
 //------------------------------------------+-----------------------------------
 //! Delete all histograms.
 
@@ -143,7 +148,6 @@ void TAGaction::WriteHistogram()
 {
   if (!ValidHistogram()) return;
   if (!fbIsOpenFile) return;
-  if (!gDirectory->IsWritable()) return;
 
   TDirectory* cd_pwd = gDirectory;
   if (fpHistList) {

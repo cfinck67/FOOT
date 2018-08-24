@@ -65,6 +65,7 @@ class TAGaction : public TAGnamed {
     TList*          fpParaList;
     TList*          fpHistList;
     Bool_t          fbHistValid;
+    Bool_t          fbIsOpenFile;
 };
 
 #include "TAGaction.icc"
