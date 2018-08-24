@@ -194,6 +194,11 @@ void TAGroot::EndEventLoop()
     fbDefaultHandlerRemoved = kFALSE;
   }
 
+   for (TObjLink* lnk = fpRequiredActionList->FirstLink(); lnk; lnk=lnk->Next()) {
+      TAGaction* p = (TAGaction*) lnk->GetObject();
+      p->WriteHistogram();
+   }
+
   return;
 }
 
