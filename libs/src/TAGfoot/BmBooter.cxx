@@ -263,25 +263,46 @@ return;
 
 void BmBooter::evaluateT0() {
   //~ TABMparCon* bmcon = (TABMparCon*) myp_bmcon->Object();  
-  TFile *f_out = new TFile("bm_t0.root","RECREATE");
+  TString tmp_tstring("bmraw.root");
+  if(m_instr.EndsWith(".dat")){
+    tmp_tstring=m_instr;
+    if(tmp_tstring.Last('/'))  
+      tmp_tstring.Remove(0,tmp_tstring.Last('/')+1);
+    tmp_tstring.Replace(tmp_tstring.Last('.')+1,3,"root",4);
+    tmp_tstring="bmraw_"+tmp_tstring;
+  }
+  TFile *f_out = new TFile(tmp_tstring.Data(),"RECREATE");
   f_out->cd();
   TH1D* h=nullptr;
   Int_t tmp_int, trash;
-  Int_t adc_maxbin=4200;
   char tmp_char[200];
+  Int_t adc_maxbin=4200;
 
   //book histos
   f_out->mkdir("TDC");
   f_out->cd("TDC");
-  for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
-    if(i!=bmmap->GetTrefCh())
-      sprintf(tmp_char,"tdc_cha_%d",i);
-    else
-      sprintf(tmp_char,"tdc_synccha_%d",i);  
-    h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",3000,-1000.,2000.);
-  }
-  h=new TH1D("all_tdc_chan","Number of tdc signals; TDC channel; counts",bmmap->GetTdcMaxcha(),0.,bmmap->GetTdcMaxcha());
-  h=new TH1D("tdc_error","Number of tdc signals with errors; Event number; counts",5,0.,5);//provv, distinguish the type of error!
+  gDirectory->mkdir("TDC_meas");
+    gDirectory->cd("TDC_meas");
+    for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
+      if(i!=bmmap->GetTrefCh())
+        sprintf(tmp_char,"tdc_cha_%d",i);
+      else
+        sprintf(tmp_char,"tdc_synccha_%d",i);  
+      h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",3000,-1000.,2000.);
+    }
+    gDirectory->cd("..");
+    
+  gDirectory->mkdir("TDC_meas_less_sync");
+    gDirectory->cd("TDC_meas_less_sync");
+    for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++)
+      if(i!=bmmap->GetTrefCh()){
+        sprintf(tmp_char,"tdc_cha-sync_%d",i);
+        h=new TH1D(tmp_char,"TDC time - synctime;Time [ns]; counts",3000,-1000.,2000.);
+      }
+    gDirectory->cd("..");
+  
+  h=new TH1D("all_tdc_cha","Number of tdc signals; TDC channel; counts",bmmap->GetTdcMaxcha(),0.,bmmap->GetTdcMaxcha());
+  h=new TH1D("tdc_error","Number of tdc signals with errors; Event number; counts",10,0.,10);//distinguish the type of error!
   f_out->cd("..");
   if(bmmap->GetSca830Ch()>0){
     f_out->mkdir("SCA");
@@ -351,17 +372,25 @@ void BmBooter::evaluateT0() {
   //charge the tdc_cha_* TH1D graph of the tdc signals    
   while(read_event(kTRUE)) {
     if(bmcon->GetBMdebug()>11 && bmcon->GetBMdebug()!=99)
-      cout<<"data_num_ev="<<data_num_ev<<endl;
+      cout<<"data_num_ev="<<data_num_ev<<endl<<"Fill the tdc"<<endl;
     //TDC  
     if(bmstruct.tot_status==0 && bmstruct.tdc_status==-1000){ 
       if(bmstruct.tdcev==1 && bmstruct.tdc_sync[0]!=-10000 && bmstruct.tdc_sync[1]==-10000){
         ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(0);//no error
-        sprintf(tmp_char,"TDC/tdc_synccha_%d",bmmap->GetTrefCh());  
+        sprintf(tmp_char,"TDC/TDC_meas/tdc_synccha_%d",bmmap->GetTrefCh());  
           ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_sync[0])/10.);    
         for(Int_t i=0;i<bmstruct.tdc_hitnum[0];i++){
-          sprintf(tmp_char,"TDC/tdc_cha_%d",bmmap->cell2tdc(bmstruct.tdc_id[i]));
-          ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[i]-bmstruct.tdc_sync[0])/10.);    
-          ((TH1D*)gDirectory->Get("TDC/all_tdc_chan"))->Fill(bmmap->cell2tdc(bmstruct.tdc_id[i]));    
+          //~ cout<<"data_num_ev="<<data_num_ev<<"  i="<<i<<"  bmstruct.tdc_hitnum[0]="<<bmstruct.tdc_hitnum[0]<<"  bmstruct.tdc_id[i]="<<bmstruct.tdc_id[i]<<"  bmmap->tdc2cell(bmstruct.tdc_id[i])="<<bmmap->tdc2cell(bmstruct.tdc_id[i])<<"  (Double_t) (bmstruct.tdc_meas[i])/10.="<<(Double_t) (bmstruct.tdc_meas[i])/10.<<endl; //provv
+          if(bmmap->tdc2cell(bmstruct.tdc_id[i])!=-1){
+            sprintf(tmp_char,"TDC/TDC_meas/tdc_cha_%d",bmstruct.tdc_id[i]);
+            ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[i])/10.);    
+            sprintf(tmp_char,"TDC/TDC_meas_less_sync/tdc_cha-sync_%d",bmstruct.tdc_id[i]);
+            ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[i]-bmstruct.tdc_sync[0])/10.);    
+            ((TH1D*)gDirectory->Get("TDC/all_tdc_cha"))->Fill(bmstruct.tdc_id[i]);    
+          } else{
+            cout<<"BmBooter::evaluateT0::ERROR TDC not mapped correctly you have a tdc hit in a channel not mapped bmstruct.tdc_hitnum[i]="<<bmstruct.tdc_hitnum[i]<<endl;
+            ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(6);//tdc channel map error             
+          }   
         } 
       }else{
         if(bmstruct.tdc_sync[0]==-10000){
@@ -382,6 +411,9 @@ void BmBooter::evaluateT0() {
     }else if(bmstruct.tdc_status!=-1000){
       ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(bmstruct.tdc_status);//other tdc error  
     }
+    
+    if(bmcon->GetBMdebug()>11 && bmcon->GetBMdebug()!=99)
+      cout<<"Fill the scaler:"<<endl;    
     
     //SCALER
     if(bmmap->GetSca830Ch()>0){    
@@ -424,31 +456,45 @@ void BmBooter::evaluateT0() {
   TF1 *fb = new TF1("fb","gaus", -1000,5000);
 
   //EVALUATE T0
+  if(bmcon->GetBMdebug()>3)
+    cout<<"BMbooter::evaluatet0 step EVALUATE T0"<<endl;
   if(bmcon->GetmanageT0BM()==0){
     for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
-      sprintf(tmp_char,"TDC/tdc_cha_%d",i);
-      if(bmmap->tdc2cell(i)>=0 && i!=bmmap->GetTrefCh()){
-        if(((TH1D*)gDirectory->Get(tmp_char))->GetEntries()>0){
+      if(bmmap->tdc2cell(i)>=0){
+        sprintf(tmp_char,"TDC/TDC_meas_less_sync/tdc_cha-sync_%d",i);
+        //~ cout<<"i="<<i<<" bmmap->tdc2cell(i)="<<bmmap->tdc2cell(i)<<"  ((TH1D*)gDirectory->Get(tmp_char))->GetEntries()="<<((TH1D*)gDirectory->Get(tmp_char))->GetEntries()<<"  ((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove()="<<((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove()<<"  ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()="<<((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()<<endl;//provv
+        if(((TH1D*)gDirectory->Get(tmp_char))->GetEntries()>20){//to evaluate the T0 I need at least 10 data... number to be optimized
           //~ cout<<"fit channel number="<<i<<endl;
           //~ f1->SetParameters(1, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin(), 10);
           //~ f1->SetParLimits(1,0,100);
           //~ ((TH1D*)gDirectory->Get(tmp_char))->Fit(f1,"QR+","",((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100,((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
         
           //take the first signal, not too distant from other signals
-          tmp_int=((TH1D*)gDirectory->Get(tmp_char))->GetMinimumBin();
-          for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMinimumBin()+1;j<((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
+          tmp_int=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove();
+          for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove()+1;j<((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
             if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>0)
               if(j-tmp_int<50){
-                j=2000;
+                j=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+10;
               }else
                 tmp_int=j;
           //~ if(bmcon->GetBMdebug()>9)
-            //~ cout<<"tdc channel="<<i<<"   T0="<<(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)/10.<<endl;
+            //~ cout<<"tdc channel="<<i<<"  tmp_int="<<tmp_int<<"   T0="<<(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)<<endl;//provv
           bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)); 
+        }
+        else{
+          cout<<"WARNING IN BmBooter::EvaluateT0! too few events to evaluate T0 in tdc_cha=i="<<i<<"  cellid="<<bmmap->tdc2cell(i)<<"  Number of events="<<((TH1D*)gDirectory->Get(tmp_char))->GetEntries()<<"  T0 for this channel will wrongly set to -20000"<<endl;
+          bmcon->SetT0(bmmap->tdc2cell(i),-20000.);
         }
       }  
     }
+    for(Int_t i=0;i<36;i++)
+      if(bmcon->GetT0(i)==-10000)
+        cout<<"WARNING IN BmBooter::EvaluateT0! channel not considered in tdc map tdc_cha=i="<<i<<"  cellid="<<bmmap->tdc2cell(i)<<" T0 for this channel will set to -10000"<<endl;
   }
+
+  
+  if(bmcon->GetBMdebug()>3)
+    cout<<"BMbooter::evaluatet0:: evaluate adc pedestals"<<endl;
   
   //Evaluate ADC pedestals  
   if(bmcon->GetmanageADCped()==0 &&  bmmap->GetAdc792Ch()>0){
@@ -473,7 +519,7 @@ void BmBooter::evaluateT0() {
   
   f_out->Write();
   f_out->Close();    
-    
+
   return;
 }
 
@@ -597,7 +643,7 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
             bmstruct.tdc_sync[sync_evnum]=ev_words[++windex];
             sync_evnum++;
           }else{      
-            bmstruct.tdc_id[bmstruct.tdc_hitnum[bmstruct.tdcev-1]]=bmmap->tdc2cell(ev_words[windex++]);
+            bmstruct.tdc_id[bmstruct.tdc_hitnum[bmstruct.tdcev-1]]=ev_words[windex++];
             bmstruct.tdc_meas[bmstruct.tdc_hitnum[bmstruct.tdcev-1]]=ev_words[windex];
             bmstruct.tdc_hitnum[bmstruct.tdcev-1]++;
           }
@@ -608,7 +654,7 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
         }
         new_event=false;
         if(bmcon->GetBMdebug()>11 && ev_words[windex-1]!=bmmap->GetTrefCh() && !(evt0 && bmcon->GetBMdebug()==99))
-          cout<<"BMbooter::measure found: tdc_evnum="<<bmstruct.tdc_evnum[bmstruct.tdcev-1]<<" tdc_id="<<bmstruct.tdc_id[bmstruct.tdc_hitnum[bmstruct.tdcev-1]-1]<<" hit_meas="<<bmstruct.tdc_meas[bmstruct.tdc_hitnum[bmstruct.tdcev-1]-1]<<endl;
+          cout<<"BMbooter::measure found: tdc_evnum="<<bmstruct.tdc_evnum[bmstruct.tdcev-1]<<" tdc_id="<<bmstruct.tdc_id[bmstruct.tdc_hitnum[bmstruct.tdcev-1]-1]<<"  corresponding bm channel="<<bmmap->tdc2cell(bmstruct.tdc_id[bmstruct.tdc_hitnum[bmstruct.tdcev-1]-1])<<" hit_meas="<<bmstruct.tdc_meas[bmstruct.tdc_hitnum[bmstruct.tdcev-1]-1]<<endl;
         else if(bmcon->GetBMdebug()>11 && ev_words[windex-1]==bmmap->GetTrefCh() && !(evt0 && bmcon->GetBMdebug()==99))
           cout<<"BMbooter::trigger found: sync registered="<<sync_evnum<<"  time="<<bmstruct.tdc_sync[sync_evnum-1]<<endl;
       }
@@ -684,7 +730,7 @@ void BmBooter::monitorQDC(vector<Int_t>& adc792_words) {
         qdc_cnt = data & 0xFFF;
         chan = data>>17 & 0xF;
         if(bmcon->GetBMdebug()>11) 
-          cout<<"BMbooter::monitorQDC:: ?? qdc_cnt="<<qdc_cnt<<"   chan="<<chan<<" "<<endl;
+          cout<<"BMbooter::monitorQDC:: qdc_cnt="<<qdc_cnt<<"   chan="<<chan<<" "<<endl;
         if(data>>12 & 0x1) {
           if(bmcon->GetBMdebug()>3) 
             cout<<"BMbooter::monitorQDC:: Overflow, my dear !!  chan="<<chan<<" qdc_cnt="<<qdc_cnt<<endl;
@@ -770,7 +816,7 @@ void BmBooter::evaluate_cell_occupy(){
     }
   }
   
-  if(bmcon->GetBMdebug()>12){//provv
+  if(bmcon->GetBMdebug()>12){
     cout<<"BmBooter::evaluate_cell_occupy: print cell_occupy"<<endl;
     for(Int_t i=0;i<36;i++){
     cout<<endl;
@@ -920,7 +966,7 @@ void BmBooter::FillDataBeamMonitor() {
     cout<<"I'm in BmBooter::FillDataBeamMonitor"<<endl;  
   
   myn_bmdatraw    = new TAGdataDsc("myn_bmdatraw", new TABMdatRaw());
-  new TABMactDatRaw("an_bmdatraw",myn_bmdatraw, myp_bmgeo, &bmstruct); 
+  new TABMactDatRaw("an_bmdatraw",myn_bmdatraw, myp_bmmap, myp_bmgeo, &bmstruct); 
 
   myn_stdatraw    = new TAGdataDsc("myn_stdatraw", new TAIRdatRaw());
   new TAIRactDatRaw("an_stdatraw", myn_stdatraw, myp_bmmap, &bmstruct);

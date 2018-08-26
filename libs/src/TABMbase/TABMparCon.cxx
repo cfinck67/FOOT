@@ -31,24 +31,23 @@ ClassImp(TABMparCon);
 //! Default constructor.
 TABMparCon::TABMparCon() {
 
-  m_isMC = false;
-  vdrift = 1./400;
-  rdrift_cut = 10.;
-  enxcell_cut = 0.00000001;
-  chi2red_cut = 5.;
-  angz_cut = 5.;
-  angzres_cut=5.;
-  fitter_index = 0;
-  bm_debug=0;
-  bm_vietrack=0;
-  manageT0BM=0;
-  minnhit_cut=0;
-  maxnhit_cut=20;
-  rejmax_cut=36;
+  //~ m_isMC = false;
+  //~ vdrift = 1./400;
+  //~ rdrift_cut = 10.;
+  //~ enxcell_cut = 0.00000001;
+  //~ chi2red_cut = 5.;
+  //~ angz_cut = 5.;
+  //~ angzres_cut=5.;
+  //~ fitter_index = 0;
+  //~ bm_debug=0;
+  //~ bm_vietrack=0;
+  //~ manageT0BM=0;
+  //~ minnhit_cut=0;
+  //~ maxnhit_cut=20;
+  //~ rejmax_cut=36;
   
-  vector<Double_t> myt0s(36,-10000);
-  //~ myt0s.resize(36);
-  v_t0s = myt0s;
+  //~ vector<Double_t> myt0s(36,-10000);
+  //~ v_t0s = myt0s;
 
   f_mypol = new TF1("mymcpol","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.003);
   f_mypol2 = new TF1("mymcpol2","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.004);
@@ -250,10 +249,7 @@ void TABMparCon::PrintT0s(TString &input_file_name, Long64_t tot_num_ev){
   outfile.open(name.Data(),ios::out);
   outfile<<"calculated_from: "<<input_file_name.Data()<<"    number_of_events= "<<tot_num_ev<<endl;
   for(Int_t i=0;i<36;i++)
-    if(v_t0s[i]!=-10000)
-      outfile<<"cellid= "<<i<<"  T0_time= "<<v_t0s[i]<<endl;
-    else
-      cout<<"ERROR in TABMparCON::PrintT0s: v_t0s not set properly for cell_id="<<i<<"  v_t0s="<<v_t0s[i]<<endl;  
+    outfile<<"cellid= "<<i<<"  T0_time= "<<v_t0s[i]<<endl;
   outfile.close();
   return;
 }
@@ -265,7 +261,7 @@ void TABMparCon::loadT0s(Long64_t tot_num_ev) {
   infile.open(name.Data(),ios::in);
   Int_t file_evnum;
   char tmp_char[200], dataset[200];
-  vector<Double_t> fileT0(36,-1000.);
+  vector<Double_t> fileT0(36,-10000.);
   Int_t tmp_int=-1, status=0;  
   if(infile.is_open() && infile.good())
     infile>>tmp_char>>dataset>>tmp_char>>file_evnum;
@@ -286,6 +282,12 @@ void TABMparCon::loadT0s(Long64_t tot_num_ev) {
   else
     cout<<"TABMparCon::loadT0s::ERROR, the T0 are calculated from the input file directly"<<endl;
 
+  //check if the T0 are ok 
+  for(Int_t i=0;i<36;i++)
+    if(v_t0s[i]==-10000)
+      cout<<"WARNING IN BmBooter::EvaluateT0! channel not considered in tdc map tdc_cha=i="<<i<<" T0 for this channel is set to -10000"<<endl;
+    else if(v_t0s[i]==-20000)
+      cout<<"WARNING IN BmBooter::EvaluateT0! channel with too few elements to evaluate T0: tdc_cha=i="<<i<<" T0 for this channel is set to -20000"<<endl;
 
   //~ TString name_exp = name;
   //~ gSystem->ExpandPathName(name_exp);
@@ -445,9 +447,25 @@ void TABMparCon::CoutADCped(){
 
 void TABMparCon::Clear(Option_t*)
 {
-  v_t0s.clear();
-  v_t0s.resize(36);
+  m_isMC = false;
   vdrift = 1./400;
+  rdrift_cut = 10.;
+  enxcell_cut = 0.00000001;
+  chi2red_cut = 5.;
+  angz_cut = 5.;
+  angzres_cut=5.;
+  fitter_index = 0;
+  bm_debug=0;
+  bm_vietrack=0;
+  manageT0BM=0;
+  minnhit_cut=0;
+  maxnhit_cut=20;
+  rejmax_cut=36;
+  
+  vector<Double_t> myt0s(36,-10000);
+  //~ myt0s.resize(36);
+  v_t0s = myt0s;
+  
   return;
 }
 

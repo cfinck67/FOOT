@@ -80,14 +80,17 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
         //~ chaView.push_back(myArg4);
         //~ chaSense.push_back(myArg5);
         //~ tdc2cell_map.insert(std::make_pair(myArg1,bmgeo->GetBMNcell(myArg2,myArg3,myArg4)));
-        if(tdc2cell_vec[myArg1]<0)
+        if(tdc2cell_vec[myArg1]<0){
           tdc2cell_vec[myArg1]=bmgeo->GetBMNcell(myArg2,myArg3,myArg4);
+          cell2tdc_vec[bmgeo->GetBMNcell(myArg2,myArg3,myArg4)]=myArg1;
+        }
         else{
           Error("TABMparMap::FromFile()","channel already set; check config file!!");
           return kTRUE;
         }
       } else {
         Error(""," TABMparMap Plane Map Error:: check config file!! (#)");
+        cout<<"myArg1="<<myArg1<<"  myArg2="<<myArg2<<"  myArg3="<<myArg3<<"  myArg4="<<myArg4<<endl;
         return kTRUE;
       }
     } else if(strchr(bufConf,'T')) {
@@ -98,6 +101,7 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
       }else{
         trefCh=myArg1;
         tdc2cell_vec[trefCh]=-1000;
+        cell2tdc_vec[36]=trefCh;
       }
     } else if(strchr(bufConf,'S')) {
         sscanf(bufConf, "S %d",&sca830ch);
@@ -119,6 +123,8 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
           tdc_maxcha=myArg1;
           for(Int_t i=0;i<tdc_maxcha;i++)
             tdc2cell_vec.push_back(-1);
+          for(Int_t i=0;i<37;i++)
+            cell2tdc_vec.push_back(-1);
           }
     }
   }
@@ -139,15 +145,23 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
     return kTRUE;
   }
   
-
+  if(kFALSE){
+    cout<<"TABMparMap::print tdc2cell_vec"<<endl;
+    for(Int_t i=0;i<tdc2cell_vec.size();i++)
+      cout<<"i="<<i<<"  tdc2cell_vec[i]="<<tdc2cell_vec[i]<<endl;
+    cout<<endl<<"print cell2tdc_vec"<<endl;
+    for(Int_t i=0;i<cell2tdc_vec.size();i++)
+      cout<<"i="<<i<<"   cell2tdc_vec[i]="<<cell2tdc_vec[i]<<endl;
+    cout<<endl;
+  }
+  
   return kFALSE;
 }
 
 //------------------------------------------+-----------------------------------
 //! Clear event.
 
-void TABMparMap::Clear(Option_t*)
-{
+void TABMparMap::Clear(Option_t*){
   TAGpara::Clear();
   //~ chaID.clear();   
   //~ chaBoID.clear();   
@@ -155,6 +169,7 @@ void TABMparMap::Clear(Option_t*)
   //~ chaView.clear(); 
   //~ chaSense.clear();
   tdc2cell_vec.clear();
+  cell2tdc_vec.clear();
   return;
 }
 

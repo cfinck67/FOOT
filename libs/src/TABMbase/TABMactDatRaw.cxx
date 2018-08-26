@@ -26,21 +26,21 @@ ClassImp(TABMactDatRaw);
 TABMactDatRaw::TABMactDatRaw(const char* name,
 			     TAGdataDsc* p_datraw, 
 			     //~ TAGdataDsc* p_datmbs,
-			     //~ TAGparaDsc* p_parmap,
+			     TAGparaDsc* p_parmap,
 			     //~ TAGparaDsc* p_parcon,
 			     TAGparaDsc* p_pargeo,
            BM_struct*  p_bmstruct)
   : TAGaction(name, "TABMactDatRaw - Unpack BM raw data"),
     fpDatRaw(p_datraw),
     //~ fpDatMbs(p_datmbs),
-    //~ fpParMap(p_parmap),
+    fpParMap(p_parmap),
     //~ fpParCon(p_parcon),
     fpParGeo(p_pargeo),
     bmstruct(p_bmstruct)
 {
   AddDataOut(p_datraw, "TABMdatRaw");
   //~ AddDataIn(p_datmbs, "TAGmbsEvent");
-  //~ AddPara(p_parmap, "TABMparMap");
+  AddPara(p_parmap, "TABMparMap");
   //~ AddPara(p_parcon, "TABMparCon");
   AddPara(p_pargeo, "TABMparGeo");
 }
@@ -70,7 +70,7 @@ Bool_t TABMactDatRaw::Action() {
   TABMdatRaw*    p_datraw = (TABMdatRaw*)    fpDatRaw->Object();
   
   //From there we get the Mapping of the wires into the Chamber to the TDC channels
-  //~ TABMparMap*    p_parmap = (TABMparMap*)    fpParMap->Object();
+  TABMparMap*    p_parmap = (TABMparMap*)    fpParMap->Object();
   //~ TABMparCon*    p_parcon = (TABMparCon*)    fpParCon->Object();
   TABMparGeo*    p_pargeo = (TABMparGeo*)    fpParGeo->Object();
   
@@ -80,7 +80,7 @@ Bool_t TABMactDatRaw::Action() {
   //for the moment I consider only the first event registered by the tdc  
   for(Int_t i=0;i<bmstruct->tdc_hitnum[0];i++){
     if(bmstruct->tdc_id[i]>=0){//-1000=syncTime, -1=not set
-      p_pargeo->GetBMNlvc(bmstruct->tdc_id[i],plane,view,cell);
+      p_pargeo->GetBMNlvc(p_parmap->tdc2cell(bmstruct->tdc_id[i]),plane,view,cell);
       p_datraw->SetHitData(plane,view,cell,(Double_t) (bmstruct->tdc_meas[i])/10.);
     }
   }

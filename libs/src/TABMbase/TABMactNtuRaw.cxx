@@ -183,7 +183,7 @@ Bool_t TABMactNtuRaw::Action()
     const TABMrawHit& hit = p_datraw->Hit(i);
     
     //retrive hit parameters
-    Double_t t0_corr = p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell());
+    Double_t t0_corr = (p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) > -10000) ? p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) : 0.; //to avoid not settled T0
     Double_t t_drift = hit.Time()-t0_corr-irtime;
     Double_t i_time=(t_drift<0) ? 0:t_drift;
     Double_t stcorr = p_parcon->FirstSTrel(i_time);

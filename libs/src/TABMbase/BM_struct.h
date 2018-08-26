@@ -16,7 +16,7 @@ typedef struct BM_struct {
   Int_t tdcev;                  //total number of tdc events
   Int_t tdc_hitnum[MAXEVTDC];   //total number of hits of the tdc for each tdc events
   Int_t tdc_evnum[MAXEVTDC];    //tdc event number for each tdc events 
-  Int_t tdc_id[MAXHITTDC];      //measurement BM cell id (not the tdc channel number)
+  Int_t tdc_id[MAXHITTDC];      //measurement the tdc channel number
   Int_t tdc_meas[MAXHITTDC];    //measurement value (10^-8 sec.)
   Int_t tdc_sync[MAXHITTDC];    //time of the sync channel -10000=not set, (10^-8 sec.)
   Int_t sca830_meas[SCA830MAX]; //scaler measurement for each channel
