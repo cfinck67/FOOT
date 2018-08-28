@@ -15,6 +15,8 @@
 #include "TAVTntuVertex.hxx"
 #include "TAVTntuTrack.hxx"
 
+#include "foot_geo.h"
+
 class TH2F;
 class TH1F;
 class TABMntuTrackTr;
