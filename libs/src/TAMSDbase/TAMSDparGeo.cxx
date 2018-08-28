@@ -245,6 +245,16 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
 }
 
 //_____________________________________________________________________________
+TVector3 TAMSDparGeo::GetLayerCenter( int layer ) {
+   
+   TVector3 pos = m_sensorMatrix[layer][0][0]->GetCenter();
+   
+   Local2Global(&pos);
+   return pos;
+   
+}
+
+//_____________________________________________________________________________
 string TAMSDparGeo::PrintParameters() {
   
   stringstream outstr;
