@@ -20,8 +20,6 @@
 #include "TAVTntuVertex.hxx"
 #include "TAVTactBaseNtuVertex.hxx"
 
-#include "foot_geo.h"
-
 /*!
  \class TAVTactBaseNtuVertex 
  \brief NTuplizer for vertex raw hits. **
