@@ -58,8 +58,9 @@ public:
   void Finalize();
   
   void FillDataBeamMonitor();
-  void PrintSTrel();
-  void Allign_estimate();
+  void PrintSTrel(); //print st relations in RecoHistos
+  void PrintEFFpp(); //print the efficiency evaluation with the pivot-probe method
+  void Allign_estimate();  //estimate the bm allignment with the residual methods and print the results
   void evaluateT0();//evaluate the T0 from datafile
   Bool_t drop_event();//read event from datafile and discharge it, it return false if the file is end
   void clear_bmstruct(Bool_t forced);  
@@ -67,6 +68,7 @@ public:
   Bool_t read_event(Bool_t);//read event from datafile and charge bmstruct, if status=true it means that this event contain some error, it return true if read the event, false if the file is end
   void evaluate_cell_occupy(); //fill the cell_occupy matrix
   void monitorQDC(vector<Int_t>& adc792_words);
+  void efficiency_pivot_probe();//evaluation of the efficiency with the eff_pp matrix (pivot-probe method), made with the cell_occupy matrix
 
   //getters
   Long64_t GetTotnumev(){return tot_num_ev;};
@@ -108,7 +110,6 @@ private:
   ControlPlotsRepository* m_controlPlotter;
   string bm_outputdir;   //FOOTRES/BeamMonitor
   string plot_name;
-
   vector<vector<Int_t>> cell_occupy;// occupancy of the cell for a given event, first index is the cellid, the value stored is the position of the hit in the bmnturaw vector
   TString m_instr;   //input file name
   Bool_t isdata;     //to separate MC and data
@@ -119,6 +120,7 @@ private:
   Long64_t tot_num_ev;  //total number of events
   Long64_t data_num_ev; //current number of events
   Int_t    acq_start_ev;//acquisition start event
+  vector<vector<Int_t>> eff_pp; //efficiency calculation with the pivot-probe method, eff_pp[0]=pivot counter row, eff_pp[1]=probe counter row, each row is made by 16 elements, ordered as the cellindex, wihtout the non probe cells 
 };
 
 #endif

@@ -40,6 +40,9 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {
   else
     isroma=kFALSE;
   cell_occupy.resize(36);
+  vector<Int_t> row(16,0);
+  eff_pp.push_back(row);
+  eff_pp.push_back(row);
     
   if (bmcon->GetBMdebug()>10) 
     cout<<"initialize BmBooter"<<endl;
@@ -129,7 +132,7 @@ void BmBooter::Process() {
   
   bmnturaw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
   evaluate_cell_occupy();
-  
+  efficiency_pivot_probe();
   
   if(bmnturaw->nhit > bmcon->GetMaxnhit_cut())
     track_ok=-2;
@@ -189,6 +192,7 @@ void BmBooter::Finalize() {
     cout<<"I'm in BmBooter::Finalize"<<endl;
 
   PrintSTrel();  
+  PrintEFFpp();
   if(isallign)
     Allign_estimate();
   
@@ -246,19 +250,42 @@ void BmBooter::Allign_estimate(){
 void BmBooter::PrintSTrel(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
-  TH1D* histo=new TH1D( "strel", "strel", 4000, 0., 400.);
-  histo->GetXaxis()->SetTitle("time [ns]");
-  histo->GetYaxis()->SetTitle("distance [cm]");
+  TH1D* histo=new TH1D( "strel", "strel;time [ns];distance [cm]", 4000, 0., 400.);
   double time=0.;
   for(int i=0;i<4000;i++){
     histo->SetBinContent(i,time*bmcon->GetVDrift()+bmcon->FirstSTrel(time));
     time+=0.1;
   }
-  histo->Draw();
-  if(((TDirectory*)(m_controlPlotter->GetTFile()))->IsFolder())
-    ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Add(histo);    
 return;
 }
+
+
+void BmBooter::PrintEFFpp(){
+  if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
+    return;
+    
+  TH1D* histo=new TH1D( "eff_pp_pivot", "pivot counter for the pivot-probe efficiency method; Pivot-cell index; Counter", eff_pp[0].size()+1, 0., eff_pp[0].size());
+  TH1D* histo1=new TH1D( "eff_pp_probe", "probe counter for the pivot-probe efficiency method; Pivot-cell index; Counter", eff_pp[1].size()+1, 0., eff_pp[1].size());
+  TH1D* histo2=new TH1D( "eff_pp_eval", "efficiency for the pivot-probe method; Pivot-cell index; Counter", 16, 0., 16.);
+  Double_t hist2_errors[eff_pp[0].size()];
+  Double_t eff;
+  for(int i=0;i<eff_pp[0].size();i++){
+    histo->SetBinContent(i+1, eff_pp[0][i]);
+    histo1->SetBinContent(i+1, eff_pp[1][i]);
+    if(eff_pp[0][i]!=0){
+      eff=(Double_t) (eff_pp[1][i])/eff_pp[0][i];
+      histo2->SetBinContent(i+1, eff);
+      hist2_errors[i]=TMath::Factorial(eff_pp[0][i]+2)/TMath::Factorial(eff_pp[1][i]+1)/TMath::Factorial(eff_pp[0][i]-eff_pp[1][i]+1)*pow(eff,eff_pp[1][i])*pow(1.-eff,eff_pp[0][i]-eff_pp[1][i]);
+    }else{
+      histo2->SetBinContent(i+1, 0.);
+      hist2_errors[i]=0.;
+    }
+  }
+  histo2->SetError(hist2_errors); 
+  
+return;
+}
+
 
 
 void BmBooter::evaluateT0() {
@@ -279,6 +306,11 @@ void BmBooter::evaluateT0() {
   Int_t adc_maxbin=4200;
 
   //book histos
+  //general histos
+  h=new TH1D("rate_evtoev","Rate of the events, from bmstruct.time_evtoev;Hz; Number of events",1000,0.,1000.);
+  //~ h=new TH1D("rate_timeacq","Rate of the events, from bmstruct.time_acq;Hz; Number of events",1000,0.,10000.);
+  h=new TH1D("rate_readev","time occurred to read the data for each event, from bmsturct.time_read;[micro seconds]; Number of events",1000,1000.,100000.);
+        
   f_out->mkdir("TDC");
   f_out->cd("TDC");
   gDirectory->mkdir("TDC_meas");
@@ -372,7 +404,10 @@ void BmBooter::evaluateT0() {
   //charge the tdc_cha_* TH1D graph of the tdc signals    
   while(read_event(kTRUE)) {
     if(bmcon->GetBMdebug()>11 && bmcon->GetBMdebug()!=99)
-      cout<<"data_num_ev="<<data_num_ev<<endl<<"Fill the tdc"<<endl;
+      cout<<"data_num_ev="<<data_num_ev<<endl<<"Fill the general graph and tdc"<<endl;
+    //General Graphs
+    ((TH1D*)gDirectory->Get("rate_evtoev"))->Fill(1000000./bmstruct.time_evtoev);
+    ((TH1D*)gDirectory->Get("rate_readev"))->Fill(bmstruct.time_read);
     //TDC  
     if(bmstruct.tot_status==0 && bmstruct.tdc_status==-1000){ 
       if(bmstruct.tdcev==1 && bmstruct.tdc_sync[0]!=-10000 && bmstruct.tdc_sync[1]==-10000){
@@ -819,13 +854,46 @@ void BmBooter::evaluate_cell_occupy(){
   if(bmcon->GetBMdebug()>12){
     cout<<"BmBooter::evaluate_cell_occupy: print cell_occupy"<<endl;
     for(Int_t i=0;i<36;i++){
-    cout<<endl;
-      for(Int_t j=0;j<cell_occupy[i].size();j++)
-        cout<<cell_occupy[i][j]<<" ";
+      if(cell_occupy[i].size()>0){
+        cout<<"cell index="<<i<<"  hits=";
+        for(Int_t j=0;j<cell_occupy[i].size();j++)
+          cout<<cell_occupy[i][j]<<" ";
+        cout<<endl;
+      }
     }
   }
 
   return;
+}
+
+
+void BmBooter::efficiency_pivot_probe() {
+  
+  Int_t pivota=0;
+  for(Int_t i=0;i<23;i++){
+    if(i==2 || i==14)
+      i+=2;
+    else if(i==6 || i==11 || i==18)
+      i++;  
+    if(cell_occupy[i].size()>0 && cell_occupy[i+12].size()>0){
+      eff_pp[0][pivota]++;
+      if(cell_occupy[i+6].size()>0 || cell_occupy[7].size()>0)
+        eff_pp[1][pivota]++;
+    }
+    pivota++;
+  }
+
+  if(bmcon->GetBMdebug()>12){
+    cout<<"BmBooter::efficiency_pivot_probe: print eff_pp"<<endl<<"eff_pp[0]=";
+    for(Int_t i=0;i<eff_pp[0].size();i++)
+      cout<<" "<<eff_pp[0][i];
+    cout<<endl<<"eff_pp[1]=";
+    for(Int_t i=0;i<eff_pp[1].size();i++)
+      cout<<" "<<eff_pp[1][i];
+    cout<<endl;
+  }
+
+return;
 }
 
 
