@@ -65,8 +65,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/libs/lib)
 # Set src libraries name
 #
 Set(TAG   "TAGbase")
-Set(TAIR  "TATRbase")
 Set(TAIR  "TAIRbase")
+Set(TATR  "TATRbase")
 Set(TABM  "TABMbase")
 Set(TAVT  "TAVTbase")
 Set(TAIT  "TAITbase")
@@ -81,8 +81,8 @@ add_definitions(-std=c++11)
 # Set src includes
 #
 set(TAG_INCLUDE_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/libs/src/${TAG}")
-set(TAIR_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/libs/src/${TATR}")
 set(TAIR_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/libs/src/${TAIR}")
+set(TATR_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/libs/src/${TATR}")
 set(TABM_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/libs/src/${TABM}")
 set(TAVT_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/libs/src/${TAVT}")
 set(TAIT_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/libs/src/${TAIT}")
