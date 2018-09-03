@@ -1,0 +1,52 @@
+# CMake for Qapivi/rec/TAMSDbase
+# Ch. Finck
+#
+project (Simulation)
+#
+MESSAGE("${PROJECT_NAME}:")
+#
+#----------------------------------------------------------------------------
+# Copy foot.inp DoubleDipole.table
+#
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/foot.inp DESTINATION ${CMAKE_BINARY_DIR}/Simulation/)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/DoubleDipole.table DESTINATION ${CMAKE_BINARY_DIR}/Simulation/)
+
+#----------------------------------------------------------------------------
+# internal and external dependencies
+#
+set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TAVT} ${TAIT} ${TAMSD} ${TABM} ${TATW} ${TACA} ${TAIR} ${TAMC} ${TAFO})
+set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES} ${GENFIT_LIBRARIES})
+
+
+# add includes : root + current + dependencies
+#
+include_directories(${ROOT_INCLUDE_DIR})
+include_directories(${TAG_INCLUDE_DIR})
+include_directories(${TAIR_INCLUDE_DIR})
+include_directories(${TABM_INCLUDE_DIR})
+include_directories(${TAVT_INCLUDE_DIR})
+include_directories(${TAIT_INCLUDE_DIR})
+include_directories(${TAMC_INCLUDE_DIR})
+include_directories(${TAMSD_INCLUDE_DIR})
+include_directories(${TATW_INCLUDE_DIR})
+include_directories(${TACA_INCLUDE_DIR})
+include_directories(${TAFO_INCLUDE_DIR})
+include_directories(${GENFIT_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+#
+link_directories(${ROOT_LIBRARY_DIR})
+link_directories(${GENFIT_LIBRARY_DIR})
+link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+
+#----------------------------------------------------------------------------
+# Add the executable, and link it to the Geant4 libraries
+#
+add_executable(makeGeo MakeGeo.cxx)
+#
+target_link_libraries(makeGeo ${EXTRA_EXTERNAL_LIBRARIES}  ${EXTRA_INTERNAL_LIBRARIES} )
+
+#----------------------------------------------------------------------------
+# Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
+#
+install(TARGETS makeGeo DESTINATION bin)
