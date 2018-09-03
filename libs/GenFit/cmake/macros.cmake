@@ -17,9 +17,10 @@ MESSAGE(STATUS "Found global svn revision to be ${GLOBAL_SVN_REVISION}.")
 # create symbolic lib target for calling library targets
 MACRO( ADD_SHARED_LIBRARY _name )
     ADD_LIBRARY( ${_name} SHARED ${ARGN} )
-    
+
+    set (GENFIT_PROPERTY SUFFIX .so)
     # change lib_target properties
-    SET_TARGET_PROPERTIES( ${_name} PROPERTIES
+    SET_TARGET_PROPERTIES( ${_name} PROPERTIES ${GENFIT_PROPERTY}
         # create *nix style library versions + symbolic links
         VERSION ${${PROJECT_NAME}_VERSION}
         SOVERSION ${${PROJECT_NAME}_SOVERSION}
