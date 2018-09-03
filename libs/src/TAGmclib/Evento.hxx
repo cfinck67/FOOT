@@ -8,8 +8,8 @@
 #include "TRandom3.h"
 #include "TH1.h"
 
-#include "EventStruct.h"
-#include "../foot_geo.h"
+#include "EventStruct.hxx"
+#include "foot_geo.h"
 
 using namespace std;
 
