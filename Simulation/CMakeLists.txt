@@ -40,7 +40,7 @@ link_directories(${GENFIT_LIBRARY_DIR})
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
 #----------------------------------------------------------------------------
-# Add the executable, and link it to the Geant4 libraries
+# Add the executable, and link it to the libraries
 #
 add_executable(makeGeo MakeGeo.cxx)
 #
@@ -50,3 +50,16 @@ target_link_libraries(makeGeo ${EXTRA_EXTERNAL_LIBRARIES}  ${EXTRA_INTERNAL_LIBR
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 install(TARGETS makeGeo DESTINATION bin)
+
+
+#----------------------------------------------------------------------------
+# Add the executable, and link it to the libraries
+#
+add_executable(Txt2Root Txt2Root.cxx)
+#
+target_link_libraries(Txt2Root ${EXTRA_EXTERNAL_LIBRARIES}  ${EXTRA_INTERNAL_LIBRARIES} )
+
+#----------------------------------------------------------------------------
+# Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
+#
+install(TARGETS Txt2Root DESTINATION bin)
