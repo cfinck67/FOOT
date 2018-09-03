@@ -1,0 +1,94 @@
+
+//##############################################################################
+
+//------------------------------------------+-----------------------------------
+//! Access the geometry info for the Beam Monitor
+
+inline void TATRparGeo::SetWidth(double wid)
+{
+  BMWIDTHNEW = wid;
+  return;
+}
+
+inline void TATRparGeo::SetLength(double len)
+{
+  BMLENGHTNEW = len;
+  return;
+}
+
+inline void TATRparGeo::SetHeigth(double hei)
+{
+  BMHEIGHTNEW = hei;	
+  return;
+}
+
+inline Int_t TATRparGeo::GetLayersNumber()
+{
+  return NLAYERNEW;
+}
+
+inline Int_t TATRparGeo::GetCellsNumber()
+{
+  return NSENSENEW;
+}
+
+inline Double_t TATRparGeo::GetCellHeight()
+{
+  return bm_step;
+}
+
+inline Double_t TATRparGeo::GetCellWidth()
+{
+  return bm_cellwide;
+}
+
+inline Double_t TATRparGeo::GetWidth()
+{
+  return BMWIDTHNEW;
+}
+
+inline Double_t TATRparGeo::GetLength()
+{
+  return BMLENGHTNEW;
+}
+
+inline Double_t TATRparGeo::GetHeigth()
+{
+  return BMHEIGHTNEW;
+}
+
+inline Int_t TATRparGeo::GetID(int cell)
+{
+  return bm_idsense[cell];
+}
+
+inline Double_t TATRparGeo::GetX(int w, int p, int v)
+{
+  return x_pos[w][p][v];
+}
+
+inline Double_t TATRparGeo::GetY(int w, int p, int v)
+{
+  return y_pos[w][p][v];
+}
+
+inline Double_t TATRparGeo::GetZ(int w, int p, int v)
+{
+  return z_pos[w][p][v];
+}
+
+inline Double_t TATRparGeo::GetCX(int w, int p, int v)
+{
+  return cx_pos[w][p][v];
+}
+
+inline Double_t TATRparGeo::GetCY(int w, int p, int v)
+{
+  return cy_pos[w][p][v];
+}
+
+inline Double_t TATRparGeo::GetCZ(int w, int p, int v)
+{
+  return cz_pos[w][p][v];
+}
+
