@@ -21,10 +21,12 @@ TACAactNtuMC::TACAactNtuMC(const char* name,
 			 TAGdataDsc* p_datraw, 
 			 EVENT_STRUCT* evStr)
   : TAGaction(name, "TACAactNtuMC - NTuplize ToF raw data"),
-    fpNtuMC(p_datraw),
-    fpEvtStr(evStr)
+    m_hitContainer(p_datraw),
+    m_eventStruct(evStr)
+    // fpNtuMC(p_datraw),
+    // fpEvtStr(evStr)
 {
-  Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
+  Info("Action()"," Creating the Calorimeter MC tuplizer action\n");
   AddDataOut(p_datraw, "TACAdatRaw");
 }
 
@@ -40,15 +42,68 @@ TACAactNtuMC::~TACAactNtuMC()
 Bool_t TACAactNtuMC::Action()
 {
 
+  if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "TACAactNtuMC::Action() start" << endl;
+
+  // TATW_ContainerHit* containerHit = (TATW_ContainerHit*) m_hitContainer->Object();
+    TACA_ContainerHit* containerHit = (TACA_ContainerHit*) gTAGroot->FindDataDsc("containerHit", "TACA_ContainerHit")->Object();
+    TACAparGeo* geoMap = (TACAparGeo*) gTAGroot->FindParaDsc("caGeo", "TACAparGeo")->Object();
+
+    // int nhits(0);
+    // if (!containerHit->m_listOfHits) containerHit->SetupClones();
+
+    //The number of hits inside the Calorimeter is stn
+    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "Processing n Scint " << m_eventStruct->CALn << endl;
+
+    // fill the container of hits
+    for (int i = 0; i < m_eventStruct->CALn; i++) { 
+
+        // int BGOsensorId  = geoMap->GetSensorID( m_eventStruct->CALxin[i], m_eventStruct->CALyin[i] );
+    
+        //First two numbers make sense only for data (typ, channel)
+        // TATW_Hit *mytmp = new((*(containerHit->hir))[i]) 
+        // TATWrawHit(0,0,m_eventStruct->SCNde[i],m_eventStruct->SCNtim[i]);
+
+        // ID_BGO, EnLoss, time
+        // TACA_Hit* hit = containerHit->NewHit( BGOsensorId, m_eventStruct->CALde[i], 
+           //                                     m_eventStruct->CALtim[i] );
+
+        TACA_Hit* hit = containerHit->NewHit( m_eventStruct->CALicry[i], m_eventStruct->CALde[i], 
+                                                m_eventStruct->CALtim[i] );
+        
+        TVector3 MCpos = TVector3(  (m_eventStruct->CALxin[i]  + m_eventStruct->CALxout[i])/2,  
+                                    (m_eventStruct->CALyin[i]  + m_eventStruct->CALyout[i])/2,  
+                                    (m_eventStruct->CALzin[i]  + m_eventStruct->CALzout[i])/2 );
+        TVector3 MCmom = TVector3(  (m_eventStruct->CALpxin[i] + m_eventStruct->CALpxout[i])/2, 
+                                    (m_eventStruct->CALpyin[i] + m_eventStruct->CALpyout[i])/2, 
+                                    (m_eventStruct->CALpzin[i] + m_eventStruct->CALpzout[i])/2 );    
+        
+        geoMap->Global2Local( &MCpos );
+        geoMap->Global2Local_RotationOnly( &MCmom );
+
+        hit->SetMCPosition( MCpos );
+        hit->SetMCMomentum( MCmom );
+    }
+
+    return true;
+}
+
+
+
+// Vecchia versione
+
+/*
   TACAdatRaw* p_nturaw = (TACAdatRaw*) fpNtuMC->Object();
+
+  int BGOsensorId  = pGeoMap->GetSensorID( fpEvtStr->CALxin[i], fpEvtStr->CALyin[i] );
+
   Int_t nhits(0);
   if (!p_nturaw->hir) p_nturaw->SetupClones();
 
   //The number of hits inside the Calo is CALn
   Info("Action()","Processing n Calo :: %2d hits \n",fpEvtStr->CALn);
-  for (Int_t i = 0; i < fpEvtStr->CALn; i++) {
+  for (Int_t i = 0; i < fpEvtStr->CALn; i++) {                        // loop su tutti gli hit di ogni evento del Calo (CALn)
     //First two numbers make sense only for data (typ, channel)
-    new((*(p_nturaw->hir))[i]) TACArawHit(0,0,fpEvtStr->CALde[i],fpEvtStr->CALtim[i]);
+    new((*(p_nturaw->hir))[i]) TACArawHit(0,0,fpEvtStr->CALde[i],fpEvtStr->CALtim[i]);    //devo cambiare TACArawHit con TACA_Hit  
     nhits++;
   }
   
@@ -71,4 +126,10 @@ Bool_t TACAactNtuMC::Action()
   fpNtuMC->SetBit(kValid);
   return kTRUE;
 }
+
+*/
+
+
+
+
 

@@ -92,17 +92,18 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR BGO geometry " << 
     TVector3 BGOsensorDimension = TVector3( CAL_CRY_WIDTH, CAL_CRY_HEIGHT, m_BGOSensorThick_Lz );
     //TVector3 passiveSiDimension = TVector3( VTX_WIDTH, VTX_HEIGHT, m_siliconSensorThick_Lz );
 
-    // BGO in the calorimeter
+    // number of BGO in the calorimeter
     m_nBGO_X = CAL_WIDTH/CAL_CRY_WIDTH;
     m_nBGO_Y = CAL_HEIGHT/CAL_CRY_HEIGHT;
 
-    m_nSensors = TVector3( m_nBGO_X, m_nBGO_Y, 1 );            // set number of sensors (BGOs)
+    m_nSensors = TVector3( m_nBGO_X, m_nBGO_Y, 1 );            // set number of sensors (BGOs) in each axis 
 
 
-   // fill sensor matrix
+   	// fill sensor matrix
     double BGOsensor_newZ = m_origin.Z();
     double BGOsensor_newX = m_origin.X() - CAL_WIDTH/2 + CAL_CRY_WIDTH/2;
     double BGOsensor_newY = m_origin.Y() + CAL_HEIGHT/2 - CAL_CRY_HEIGHT/2;
+
     m_BGOsensorMatrix.resize( m_nSensors.Z() );
     for (int k=0; k<m_nSensors.Z(); k++) {
         m_BGOsensorMatrix[k].resize( m_nSensors.X() );
@@ -119,7 +120,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR BGO geometry " << 
                 BGOsensor_newY -= CAL_CRY_HEIGHT;
               }
 
-                m_BGOsensorMatrix[k][i][j] = new LightSabre();   //sostituisci con LightSabre
+                m_BGOsensorMatrix[k][i][j] = new LightSabre();
 
                 m_volumeCount++;
                 stringstream ss_bodySensorName; ss_bodySensorName << "cal" << m_volumeCount;
@@ -231,6 +232,15 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor BGO materials in R
 }
 
 
+
+
+TVector3 TACAparGeo::GetBGOcoordinate( int ID_BGO )  {
+
+    m_coordinate = TVector3( ID_BGO/m_nSensors.X() , ID_BGO%m_nSensors.X() , 0 );
+
+    return m_coordinate;
+
+}
 
 //_____________________________________________________________________________
 //TVector3 TACAparGeo::GetPosition( int col, int row )  {

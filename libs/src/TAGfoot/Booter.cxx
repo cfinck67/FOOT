@@ -131,8 +131,8 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     
 	Materials* listMaterials = new Materials() ;
     if ( GlobalPar::GetPar()->Debug() > 1 ) {
-        listMaterials->PrintCompMap();
-    	listMaterials->PrintMatMap();
+       listMaterials->PrintCompMap();
+    	 listMaterials->PrintMatMap();
     }
 
     top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 120.);

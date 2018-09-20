@@ -7,16 +7,19 @@
 */
 /*------------------------------------------+---------------------------------*/
 
+#include "TVector3.h"
+
 #include "Evento.h"
+
+#include "TACA_ContainerHit.hxx"
+#include "TACAparGeo.hxx"
 
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 
 class TACAactNtuMC : public TAGaction {
   public:
-    explicit        TACAactNtuMC(const char* name=0,
-				 TAGdataDsc* p_datraw=0, 
-				 EVENT_STRUCT* evStr=0);
+    explicit        TACAactNtuMC(const char* name=0, TAGdataDsc* p_datraw=0, EVENT_STRUCT* evStr=0);
     virtual         ~TACAactNtuMC();
 
     virtual Bool_t  Action();
@@ -24,8 +27,8 @@ class TACAactNtuMC : public TAGaction {
     ClassDef(TACAactNtuMC,0)
 
   private:
-    TAGdataDsc*     fpNtuMC;		    // output data dsc
-    EVENT_STRUCT*   fpEvtStr;
+    TAGdataDsc*     m_hitContainer;		    // output data dsc
+    EVENT_STRUCT*   m_eventStruct;
 };
 
 #endif
