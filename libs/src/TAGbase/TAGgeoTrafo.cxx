@@ -20,8 +20,10 @@ const Float_t TAGgeoTrafo::fgkCmToMm        = 10;
 const Float_t TAGgeoTrafo::fgkMmToCm        = 1e-1;
 const Float_t TAGgeoTrafo::fgkMToCm         = 100;
 const Float_t TAGgeoTrafo::fgkCmToM         = 1e-2;
-const Float_t TAGgeoTrafo::fgkNsToSec         = 1e-9;
-const Float_t TAGgeoTrafo::fgkSecToNs         = 1e+9;
+const Float_t TAGgeoTrafo::fgkNsToSec       = 1e-9;
+const Float_t TAGgeoTrafo::fgkSecToNs       = 1e+9;
+const Float_t TAGgeoTrafo::fgkGevToMev      = 1e3;
+const Float_t TAGgeoTrafo::fgkMevToGev      = 1e-3;
 
 
 //_____________________________________________________________________________

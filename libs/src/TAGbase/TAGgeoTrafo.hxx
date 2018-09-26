@@ -148,9 +148,11 @@ class TAGgeoTrafo : public TAGaction {
    static           Float_t MToCm()                 { return fgkMToCm; }
    static           Float_t CmToM()                 { return fgkCmToM; }
 	
-   static           Float_t SecToNs()                { return fgkSecToNs; }
-   static           Float_t NsToSec()                { return fgkNsToSec; }	
+   static           Float_t SecToNs()               { return fgkSecToNs; }
+   static           Float_t NsToSec()               { return fgkNsToSec; }
 
+   static           Float_t GevToMev()              { return fgkGevToMev; }
+   static           Float_t MevToGev()              { return fgkGevToMev; }
 
    static     const Char_t* GetDefaultGeomName()    { return fgkGeomName; }
    static     const Char_t* GetDefaultGeomTitle()   { return fgkGeomTitle; }
@@ -186,10 +188,12 @@ class TAGgeoTrafo : public TAGaction {
    static const Float_t fgkMuToMm;        //! conversion factor bw micron and mm
    static const Float_t fgkMmToCm;        //! conversion factor bw mm and cm
    static const Float_t fgkCmToMm;        //! conversion factor bw cm and mm
-   static const Float_t fgkSecToNs;        //! conversion factor bw second and nanosecond
-   static const Float_t fgkNsToSec;        //! conversion factor bw nanosecond and second
+   static const Float_t fgkSecToNs;       //! conversion factor bw second and nanosecond
+   static const Float_t fgkNsToSec;       //! conversion factor bw nanosecond and second
    static const Float_t fgkCmToM;         //! conversion factor bw cm and m
    static const Float_t fgkMToCm;         //! conversion factor bw m and cm
+   static const Float_t fgkGevToMev;      //! conversion factor bw GeV and MeV
+   static const Float_t fgkMevToGev;      //! conversion factor bw MeV and GeV
    
    static const Char_t* fgkGeomName;      //! name of GeoManager
    static const Char_t* fgkGeomTitle;     //! title of GeoManager
