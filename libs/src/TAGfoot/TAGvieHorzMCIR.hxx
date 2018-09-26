@@ -7,7 +7,7 @@
 */
 /*------------------------------------------+---------------------------------*/
 
-#include "Evento.h"
+#include "Evento.hxx"
 
 #include "TPad.h"
 #include "TVector3.h"
