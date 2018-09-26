@@ -3,9 +3,10 @@
   \version $Id: TACAactNtuMC.cxx,v 1.9 2003/06/22 10:35:48 mueller Exp $
   \brief   Implementation of TACAactNtuMC.
 */
-
-#include "TACAdatRaw.hxx"
+#include "TAGgeoTrafo.hxx"
+#include "TACAntuRaw.hxx"
 #include "TACAactNtuMC.hxx"
+#include "TACAdigitizer.hxx"
 
 /*!
   \class TACAactNtuMC TACAactNtuMC.hxx "TACAactNtuMC.hxx"
@@ -17,58 +18,91 @@ ClassImp(TACAactNtuMC);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TACAactNtuMC::TACAactNtuMC(const char* name,
-			 TAGdataDsc* p_datraw, 
-			 EVENT_STRUCT* evStr)
+TACAactNtuMC::TACAactNtuMC(const char* name, TAGdataDsc* p_datraw, TAGparaDsc* pGeoMap, EVENT_STRUCT* evStr)
   : TAGaction(name, "TACAactNtuMC - NTuplize ToF raw data"),
+    fpGeoMap(pGeoMap),
     fpNtuMC(p_datraw),
     fpEvtStr(evStr)
 {
-  Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
-  AddDataOut(p_datraw, "TACAdatRaw");
+  AddDataOut(p_datraw, "TACAntuRaw");
+   
+   CreateDigitizer();
+}
+
+//------------------------------------------+-----------------------------------
+//! Setup all histograms.
+void TACAactNtuMC::CreateHistogram()
+{
+   
+   DeleteHistogram();
+   
+   fpHisHitMap = new TH1F("caHitMap", "Calorimeter - hits", 22*22, 0., 22*22);
+   AddHistogram(fpHisHitMap);
+   
+   fpHisDeTot = new TH1F("caDeTot", "Calorimeter - Total energy loss", 2000, 0., 1000);
+   AddHistogram(fpHisDeTot);
+   
+   fpHisTimeTot = new TH1F("caTimeTot", "Calorimeter - Total time", 1000, 0., 20);
+   AddHistogram(fpHisTimeTot);
+   
+   fpHisDeTotMc = new TH1F("caMcDeTot", "Calorimeter - MC Total energy loss", 4000, 0., 400);
+   AddHistogram(fpHisDeTotMc);
+   
+   fpHisTimeTotMc = new TH1F("caMcTimeTot", "Calorimeter - MC Total time", 1000, 0., 20);
+   AddHistogram(fpHisTimeTotMc);
+
+
+   SetValidHistogram(kTRUE);
+}
+
+//------------------------------------------+-----------------------------------
+//! Create digitizer
+void TACAactNtuMC::CreateDigitizer()
+{
+   TACAntuRaw* pNtuRaw = (TACAntuRaw*) fpNtuMC->Object();
+
+   fDigitizer = new TACAdigitizer(pNtuRaw);
 }
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
 TACAactNtuMC::~TACAactNtuMC()
-{}
+{
+   delete fDigitizer;
+}
 
 //------------------------------------------+-----------------------------------
 //! Action.
 
 Bool_t TACAactNtuMC::Action()
 {
+   for (Int_t i = 0; i < fpEvtStr->CALn; i++) {
+      
+      Int_t id      = fpEvtStr->CALicry[i];
+      Int_t trackId = fpEvtStr->VTXid[i] - 1;
+      Float_t x0    = fpEvtStr->CALxin[i]*TAGgeoTrafo::CmToMm();
+      Float_t y0    = fpEvtStr->CALyin[i]*TAGgeoTrafo::CmToMm();
+      Float_t edep  = fpEvtStr->CALde[i]*TAGgeoTrafo::GevToMev();
+      Float_t time  = fpEvtStr->CALtim[i]*TAGgeoTrafo::SecToNs();
+      
+      //  veci = fpParGeo->Global2Local(sensorId, veci); // inverse x-y
+      TACAntuHit* hit = fDigitizer->Process(id, edep, x0, y0, time);
+      hit->AddMcTrackId(trackId);
 
-  TACAdatRaw* p_nturaw = (TACAdatRaw*) fpNtuMC->Object();
-  Int_t nhits(0);
-  if (!p_nturaw->hir) p_nturaw->SetupClones();
+      if (ValidHistogram()) {
+         fpHisHitMap->Fill(hit->GetChannelId());
+         fpHisDeTot->Fill(hit->GetCharge());
+         fpHisTimeTot->Fill(hit->GetTime());
+         
+         fpHisDeTotMc->Fill(edep);
+         fpHisTimeTotMc->Fill(time);
+      }
 
-  //The number of hits inside the Calo is CALn
-  Info("Action()","Processing n Calo :: %2d hits \n",fpEvtStr->CALn);
-  for (Int_t i = 0; i < fpEvtStr->CALn; i++) {
-    //First two numbers make sense only for data (typ, channel)
-    new((*(p_nturaw->hir))[i]) TACArawHit(0,0,fpEvtStr->CALde[i],fpEvtStr->CALtim[i]);
-    nhits++;
-  }
-  
-  double meantime(0), firsttime(-10000);
-  Int_t i_nhit = p_nturaw->nirhit;
-  for (Int_t i = 0; i < i_nhit; i++) {
-    const TACArawHit* aHi = p_nturaw->Hit(i);
-    if(aHi->Type() == 0) {
-      if(aHi->ChID() == 0) firsttime = aHi->Time();
-      meantime += aHi->Time();
-    }
-  }
-  if(i_nhit) meantime /= i_nhit;
-  
-  //Set up of the Trigger Time
-  p_nturaw->SetTrigTime(firsttime);
-
-  p_nturaw->nirhit  = nhits;
-
-  fpNtuMC->SetBit(kValid);
+   }
+ 
+   fpNtuMC->SetBit(kValid);
+   
   return kTRUE;
 }
 
