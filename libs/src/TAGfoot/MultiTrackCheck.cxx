@@ -215,15 +215,15 @@ void MultiTrackCheck::Process( Long64_t jentry ){
    for (int i = 0; i < myn_msdraw->GetPixelsN(0); i++)  {                    
      TAMSDntuHit* msd_hit = myn_msdraw->GetPixel(0,i);       
      
-     if(msd_hit->GetMCPosition_Global().Z() < 27.0) 	ntrackonMSD++;
+   //  if(msd_hit->GetMCPosition_Global().Z() < 27.0) 	ntrackonMSD++;
      
     
    
       // get true  coord
-     TVector3 msdpos = msd_hit->GetMCPosition_Global();
+    // TVector3 msdpos = msd_hit->GetMCPosition_Global();
      
      
-     m_Plotter->SetMultiTrackPlots("MSD", &msdpos, &msdpos); //only true MC info for now
+   //  m_Plotter->SetMultiTrackPlots("MSD", &msdpos, &msdpos); //only true MC info for now
 	     
      m_MSD_hitCollection.push_back(msd_hit);
 
@@ -409,13 +409,13 @@ void MultiTrackCheck::Process( Long64_t jentry ){
 	   {
 	     
 	     
-	     TAMSDntuHit* p_hit = m_MSD_hitCollection.at(z);
+//	     TAMSDntuHit* p_hit = m_MSD_hitCollection.at(z);
 
 	     // get true  coord
-	     TVector3 msdpos = p_hit->GetMCPosition_Global();
-	     m_MSD_Trackpos.push_back(msdpos);
+//	     TVector3 msdpos = p_hit->GetMCPosition_Global();
+//	     m_MSD_Trackpos.push_back(msdpos);
 	     
-	     m_Plotter->SetMultiTrackPlots("MSD_TRACK9HITS", &msdpos, &msdpos); //only true MC info for now
+//	     m_Plotter->SetMultiTrackPlots("MSD_TRACK9HITS", &msdpos, &msdpos); //only true MC info for now
 	     
 	    
 	   }
