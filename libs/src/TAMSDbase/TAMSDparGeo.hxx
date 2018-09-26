@@ -18,7 +18,6 @@
 
 #include "TAVTbaseParGeo.hxx"
 #include "IronPlate.hxx"
-#include "FootField.hxx"
 
 #include <FieldManager.h>
 
