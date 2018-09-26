@@ -1,4 +1,3 @@
-# CMake for FOOT/src/TAVTbase
 # Ch. Finck
 #
 project (TATWbase)
@@ -43,7 +42,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 #
 link_directories(${ROOT_LIBRARY_DIR})
-link_directories(${GENFIT_LIBRARY_DIR})
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 #
 # headers / linkdef etc ... 
