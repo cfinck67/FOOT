@@ -83,7 +83,7 @@
 //Calorimeter
 #include "TACAparGeo.hxx"
 #include "TACAparMap.hxx"
-#include "TACAdatRaw.hxx"
+#include "TACAntuRaw.hxx"
 #include "TACAactNtuMC.hxx"
 
 #include "foot_geo.h"
@@ -633,14 +633,14 @@ void Booter::FillMCMSD(EVENT_STRUCT *myStr) {
     myn_msdraw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
     // myn_msdclus   = new TAGdataDsc("msdClus", new TAMSDntuCluster());
 
-    myp_msdmap    = new TAGparaDsc("msdMap", new TAMSDparMap());
+//    myp_msdmap    = new TAGparaDsc("msdMap", new TAMSDparMap());
 
     myp_msdconf  = new TAGparaDsc("msdConf", new TAMSDparConf());
     TAMSDparConf* parconf = (TAMSDparConf*) myp_msdconf->Object();
     TString filename = m_wd + "/config/TAMSDdetector.cfg";
     parconf->FromFile(filename.Data());
 
-    mya_msdraw   = new TAMSDactNtuMC("msdActRaw", myn_msdraw, myp_msdgeo, myp_msdmap, myStr);
+    mya_msdraw   = new TAMSDactNtuMC("msdActRaw", myn_msdraw, myp_msdgeo, myStr);
     gTAGroot->AddRequiredItem("msdRaw");
 
 }
@@ -688,9 +688,13 @@ void Booter::FillMCCalorimeter(EVENT_STRUCT *myStr) {
     // m_cageo->InitGeo();
     // top->AddNode( m_cageo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_cageo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
 
+   myp_cageo    = new TAGparaDsc("caGeo", new TACAparGeo());
+
+   
     /*Ntupling the MC Calorimeter information*/
-    myn_caraw    = new TAGdataDsc("myn_caraw", new TACAdatRaw());
-    new TACAactNtuMC("an_caraw", myn_caraw, myStr);
+    myn_caraw    = new TAGdataDsc("myn_caraw", new TACAntuRaw());
+
+    new TACAactNtuMC("an_caraw", myn_caraw, myp_cageo, myStr);
     // my_out->SetupElementBranch(myn_caraw,     "carh.");
 
     gTAGroot->AddRequiredItem("myn_caraw");

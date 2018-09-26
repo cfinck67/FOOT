@@ -8,7 +8,7 @@
 #include <fstream>
 #include <math.h>
 
-#include "Evento.h"
+#include "Evento.hxx"
 
 // #include "TAGpadGroup.hxx"
 #include "TAGgeoTrafo.hxx"
@@ -146,9 +146,10 @@ class Booter {
   TAGdataDsc* containerPoint;
   TAGdataDsc* myn_twraw;
   TAGparaDsc* myp_twgeo;
+  TAGparaDsc* myp_cageo;
   TAGdataDsc* myn_caraw;
 
-  //Actions
+   //Actions
 
   // TAGactTreeWriter* my_out;
   TAGaction* mya_vtraw;
