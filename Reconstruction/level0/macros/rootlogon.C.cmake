@@ -76,7 +76,7 @@
    gROOT->ProcessLine(tmp.Data());
    
    gSystem->Load("libEve.so");
-   gSystem->Load("libgenfit2.dylib");
+   gSystem->Load("libgenfit2.so");
    gSystem->Load("libTAGbase.so");
 
    gSystem->Load("libTAGbase.so");
