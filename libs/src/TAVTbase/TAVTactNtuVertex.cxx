@@ -2,6 +2,7 @@
  \file
  \brief   Implementation of TAVTactNtuVertex. 
  */
+
 #include "TClonesArray.h"
 #include "TH2F.h"
 #include "TMath.h"
@@ -12,6 +13,8 @@
 
 #include "TAVTntuVertex.hxx"
 #include "TAVTactNtuVertex.hxx"
+
+#include "foot_geo.h"
 
 /*!
  \class TAVTactNtuVertex
