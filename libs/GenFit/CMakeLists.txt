@@ -7,6 +7,10 @@ endif(POLICY CMP0042)
 # declare the project name
 PROJECT(genfit2)
 
+MESSAGE("  ${PROJECT_NAME}:")
+
+set(LIBNAME ${PROJECT_NAME})
+
 # set project version
 SET( ${PROJECT_NAME}_VERSION_MAJOR 2 )
 SET( ${PROJECT_NAME}_VERSION_MINOR 1 )
@@ -15,75 +19,52 @@ SET( ${PROJECT_NAME}_VERSION_PATCH 0 )
 # install destinations can be passed via the command line:
 # cmake -DLIBRARY_OUTPUT_DIRECTORY:PATH=.... -DINCLUDE_OUTPUT_DIRECTORY:PATH=....
 # otherwise, set default install destinations
-IF(NOT DEFINED LIBRARY_OUTPUT_DIRECTORY)
-	set( LIBRARY_OUTPUT_DIRECTORY ./lib )
-ENDIF()
+#IF(NOT DEFINED LIBRARY_OUTPUT_DIRECTORY)
+#	set( LIBRARY_OUTPUT_DIRECTORY ./lib )
+#ENDIF()
 IF(NOT DEFINED INCLUDE_OUTPUT_DIRECTORY)
 	set( INCLUDE_OUTPUT_DIRECTORY ./include )
 ENDIF()
-
-# define path to macros and settings
-LIST( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
-# include the macros and settings
-INCLUDE(settings)
-INCLUDE(macros)
-INCLUDE(genfit)
-
-FIND_PACKAGE(ROOT REQUIRED COMPONENTS Geom)
 
 # either, the environment variable RAVEPATH has to be specified, and RAVE's pkgConfig will be used to determine everything we need
 # or, RAVE_LDFLAGS, RAVE_INCLUDE_DIRS and RAVE_CFLAGS have to be set via the command-line
 
 
-IF(DEFINED ENV{RAVEPATH})
-	MESSAGE("Environment variable RAVEPATH is set. Try to build GFRave.") 
-	# get compiler flags from rave
-	INCLUDE(FindPkgConfig)
-	SET(ENV{PKG_CONFIG_PATH} $ENV{RAVEPATH})
-	pkg_search_module(RAVE rave REQUIRED)
-	
-	SET(RAVE True)
-ELSEIF(DEFINED RAVE_LDFLAGS)
-	IF(DEFINED RAVE_INCLUDE_DIRS)
-		IF(DEFINED RAVE_CFLAGS)
-			MESSAGE("RAVE_LDFLAGS, RAVE_INCLUDE_DIRS and RAVE_CFLAGS are set. Try to build GFRave.") 
-			SET(RAVE True)
-		ENDIF()
-	ENDIF()
-ELSE()
-   	MESSAGE("You did not define the environment variable RAVEPATH which is needed to find rave. GFRave will not be built.") 
-ENDIF()
+#IF(DEFINED ENV{RAVEPATH})
+#	MESSAGE("Environment variable RAVEPATH is set. Try to build GFRave.") 
+#	# get compiler flags from rave
+#	INCLUDE(FindPkgConfig)
+#	SET(ENV{PKG_CONFIG_PATH} $ENV{RAVEPATH})
+#	pkg_search_module(RAVE rave REQUIRED)
+#	
+#	SET(RAVE True)
+#ELSEIF(DEFINED RAVE_LDFLAGS)
+#	IF(DEFINED RAVE_INCLUDE_DIRS)
+#		IF(DEFINED RAVE_CFLAGS)
+#			MESSAGE("RAVE_LDFLAGS, RAVE_INCLUDE_DIRS and RAVE_CFLAGS are set. Try to build GFRave.") 
+#			SET(RAVE True)
+#		ENDIF()
+#	ENDIF()
+#ELSE()
+#   	MESSAGE("You did not define the environment variable RAVEPATH which is needed to find rave. GFRave will not be built.") 
+#ENDIF()
+#
+#IF(DEFINED RAVE)
+#	# turn comma separated lists into space separated strings
+#	string (REPLACE ";" " " RAVE_LDFLAGS_STR "${RAVE_LDFLAGS}")
+#	string (REPLACE ";" " " RAVE_INCLUDE_DIRS_STR "${RAVE_INCLUDE_DIRS}")
+#	string (REPLACE ";" " " RAVE_CFLAGS_STR "${RAVE_CFLAGS}")
+#
+#	SET (CMAKE_CXX_FLAGS ${RAVE_CFLAGS_STR})
+#	
+#	SET(GENFIT_INCLUDE_DIR
+#		./GFRave/include/
+#	)
+#	
+#	AUX_SOURCE_DIRECTORY( ./GFRave/src  library_sources )
+#ENDIF()
 
-IF(DEFINED RAVE)
-	# turn comma separated lists into space separated strings
-	string (REPLACE ";" " " RAVE_LDFLAGS_STR "${RAVE_LDFLAGS}")
-	string (REPLACE ";" " " RAVE_INCLUDE_DIRS_STR "${RAVE_INCLUDE_DIRS}")
-	string (REPLACE ";" " " RAVE_CFLAGS_STR "${RAVE_CFLAGS}")
-
-	SET (CMAKE_CXX_FLAGS ${RAVE_CFLAGS_STR})
-	
-	SET(GF_INC_DIRS
-		./GFRave/include/
-	)
-	
-	AUX_SOURCE_DIRECTORY( ./GFRave/src  library_sources )
-ENDIF()
-
-# Set GENFIT include directories
-SET(GF_INC_DIRS
-		./core/include/
-		./eventDisplay/include/
-		./fields/include/
-		./finitePlanes/include/
-		./fitters/include/
-		./GBL/include/
-		./measurements/include/
-		./trackReps/include/
-		./utilities/include/
-		${GF_INC_DIRS}
-)
-
-INSTALL(DIRECTORY ${GF_INC_DIRS}
+INSTALL(DIRECTORY ${GENFIT_INCLUDE_DIR}
         DESTINATION ${INCLUDE_OUTPUT_DIRECTORY}
         PATTERN ".svn" EXCLUDE)
 
@@ -93,36 +74,28 @@ IF(NOT CMAKE_BUILD_TYPE)
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-SET(CPP_STANDARD c++11)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=${CPP_STANDARD} -Wall -pthread -pedantic -Wno-long-long -Wshadow -Werror=overloaded-virtual")
-
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -O0 -g")
-SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
-SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS} -O3 -g")
-
 
 INCLUDE_DIRECTORIES(
 	BEFORE 
-	${ROOT_INCLUDE_DIRS}
-	${GF_INC_DIRS})
+	${ROOT_INCLUDE_DIR}
+	${GENFIT_INCLUDE_DIR})
 
 
-FIND_PACKAGE(Doxygen)
-IF(DOXYGEN_FOUND)
-    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
-
-    ADD_CUSTOM_TARGET(doc
-        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc
-        COMMENT "Generating API documentation with Doxygen" VERBATIM)
-ELSE()
-    MESSAGE( STATUS "Doxygen not installed or found -- API documentation can't be generated!" )
-ENDIF(DOXYGEN_FOUND)
+#FIND_PACKAGE(Doxygen)
+#IF(DOXYGEN_FOUND)
+#    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
+#
+#    ADD_CUSTOM_TARGET(doc
+#        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile
+#        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc
+#        COMMENT "Generating API documentation with Doxygen" VERBATIM)
+#ELSE()
+#    MESSAGE( STATUS "Doxygen not installed or found -- API documentation can't be generated!" )
+#ENDIF(DOXYGEN_FOUND)
 
 
 # declare the ROOT library path
 LINK_DIRECTORIES(${ROOT_LIBRARY_DIR})
-
 
 # add the list of source code files -- careful, when a new file is added!
 AUX_SOURCE_DIRECTORY( ./core/src          library_sources )
@@ -163,9 +136,9 @@ ROOT_GENERATE_DICTIONARY(
 		"${CORE_DICTIONARY_SOURCES}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/core/include"
 		"${CMAKE_CURRENT_SOURCE_DIR}/core/src/coreLinkDef.h"
-		"${CMAKE_CURRENT_BINARY_DIR}/coreRootDict.cc"
+		"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/coreRootDict.cc"
 )
-SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/coreRootDict.cc" "${library_sources}")
+SET(library_sources "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/coreRootDict.cc" "${library_sources}")
 
 SET(EVENTDISPLAY_DICTIONARY_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/eventDisplay/include/EventDisplay.h
@@ -175,9 +148,9 @@ ROOT_GENERATE_DICTIONARY(
 		"${EVENTDISPLAY_DICTIONARY_SOURCES}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/fitters/include;${CMAKE_CURRENT_SOURCE_DIR}/eventDisplay/include"
 		"${CMAKE_CURRENT_SOURCE_DIR}/eventDisplay/src/eventDisplayLinkDef.h"
-		"${CMAKE_CURRENT_BINARY_DIR}/eventDisplayRootDict.cc"
+		"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/eventDisplayRootDict.cc"
 )
-SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/eventDisplayRootDict.cc" "${library_sources}")
+SET(library_sources "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/eventDisplayRootDict.cc" "${library_sources}")
 
 SET(FITTERS_DICTIONARY_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/fitters/include/AbsKalmanFitter.h
@@ -194,9 +167,9 @@ ROOT_GENERATE_DICTIONARY(
 		"${FITTERS_DICTIONARY_SOURCES}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/fitters/include"
 		"${CMAKE_CURRENT_SOURCE_DIR}/fitters/src/fittersLinkDef.h"
-		"${CMAKE_CURRENT_BINARY_DIR}/fittersRootDict.cc"
+		"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/fittersRootDict.cc"
 )
-SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/fittersRootDict.cc" "${library_sources}")
+SET(library_sources "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/fittersRootDict.cc" "${library_sources}")
 
 SET(GBL_DICTIONARY_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/GBL/include/GFGbl.h
@@ -211,9 +184,9 @@ ROOT_GENERATE_DICTIONARY(
         "${GBL_DICTIONARY_SOURCES}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/GBL/include"
 		"${CMAKE_CURRENT_SOURCE_DIR}/GBL/src/GBLLinkDef.h"
-		"${CMAKE_CURRENT_BINARY_DIR}/GBLRootDict.cc"
+		"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/GBLRootDict.cc"
 )
-SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/GBLRootDict.cc" "${library_sources}")
+SET(library_sources "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/GBLRootDict.cc" "${library_sources}")
 
 SET(MEASUREMENTS_DICTIONARY_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/HMatrixPhi.h
@@ -235,9 +208,9 @@ ROOT_GENERATE_DICTIONARY(
 		"${MEASUREMENTS_DICTIONARY_SOURCES}"
         "${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/measurements/include"
 		"${CMAKE_CURRENT_SOURCE_DIR}/measurements/src/measurementsLinkDef.h"
-		"${CMAKE_CURRENT_BINARY_DIR}/measurementsRootDict.cc"
+		"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/measurementsRootDict.cc"
 )
-SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/measurementsRootDict.cc" "${library_sources}")
+SET(library_sources "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/measurementsRootDict.cc" "${library_sources}")
 
 SET(TRACKREPS_DICTIONARY_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/trackReps/include/RKTrackRep.h
@@ -247,9 +220,9 @@ ROOT_GENERATE_DICTIONARY(
 		"${TRACKREPS_DICTIONARY_SOURCES}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/trackReps/include"
 		"${CMAKE_CURRENT_SOURCE_DIR}/trackReps/src/trackRepsLinkDef.h"
-		"${CMAKE_CURRENT_BINARY_DIR}/trackRepsRootDict.cc"
+		"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/trackRepsRootDict.cc"
 )
-SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/trackRepsRootDict.cc" "${library_sources}")
+SET(library_sources "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/trackRepsRootDict.cc" "${library_sources}")
 
 SET(UTILITIES_DICTIONARY_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/utilities/include/HelixTrackModel.h
@@ -262,71 +235,71 @@ ROOT_GENERATE_DICTIONARY(
 		"${UTILITIES_DICTIONARY_SOURCES}"
 		"${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/utilities/include;${CMAKE_CURRENT_SOURCE_DIR}/measurements/include"
 		"${CMAKE_CURRENT_SOURCE_DIR}/utilities/src/utilitiesLinkDef.h"
-		"${CMAKE_CURRENT_BINARY_DIR}/utilitiesRootDict.cc"
+		"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/utilitiesRootDict.cc"
 )
-SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/utilitiesRootDict.cc" "${library_sources}")
+SET(library_sources "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/utilitiesRootDict.cc" "${library_sources}")
 
-if(DEFINED RAVE)
-	SET(GFRAVE_DICTIONARY_SOURCES
-			${CMAKE_CURRENT_SOURCE_DIR}/GFRave/include/GFRaveTrackParameters.h
-			${CMAKE_CURRENT_SOURCE_DIR}/GFRave/include/GFRaveVertex.h
-	)
-	ROOT_GENERATE_DICTIONARY(
-			"${CMAKE_SHARED_LIBRARY_PREFIX}${PROJECT_NAME}"
-			"${GFRAVE_DICTIONARY_SOURCES}"
-			"${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/GFRave/include"
-			"${CMAKE_CURRENT_SOURCE_DIR}/GFRave/src/GFRaveLinkDef.h"
-			"${CMAKE_CURRENT_BINARY_DIR}/GFRaveRootDict.cc"
-	)
-	SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/GFRaveRootDict.cc" "${library_sources}")
-endif()
+#if(DEFINED RAVE)
+#	SET(GFRAVE_DICTIONARY_SOURCES
+#			${CMAKE_CURRENT_SOURCE_DIR}/GFRave/include/GFRaveTrackParameters.h
+#			${CMAKE_CURRENT_SOURCE_DIR}/GFRave/include/GFRaveVertex.h
+#	)
+#	ROOT_GENERATE_DICTIONARY(
+#			"${CMAKE_SHARED_LIBRARY_PREFIX}${PROJECT_NAME}"
+#			"${GFRAVE_DICTIONARY_SOURCES}"
+#			"${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/GFRave/include"
+#			"${CMAKE_CURRENT_SOURCE_DIR}/GFRave/src/GFRaveLinkDef.h"
+#			"${CMAKE_CURRENT_BINARY_DIR}/GFRaveRootDict.cc"
+#	)
+#	SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/GFRaveRootDict.cc" "${library_sources}")
+#endif()
 
 
 # install
 ADD_SHARED_LIBRARY( ${PROJECT_NAME} ${library_sources})
-INSTALL(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${LIBRARY_OUTPUT_DIRECTORY})
+INSTALL(TARGETS ${PROJECT_NAME} EXPORT exportGen LIBRARY DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
 # link ROOT libraries
-if(DEFINED RAVE)
-	TARGET_LINK_LIBRARIES(
-			${PROJECT_NAME}
-			${ROOT_LIBS}
-			${RAVE_LDFLAGS_STR}
-			-I${RAVE_INCLUDE_DIRS_I}
-  	)
-else()
-	TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${ROOT_LIBS})
-endif()
+#if(DEFINED RAVE)
+#	TARGET_LINK_LIBRARIES(
+#			${PROJECT_NAME}
+#			${ROOT_LIBRARIES}
+#			${RAVE_LDFLAGS_STR}
+#			-I${RAVE_INCLUDE_DIRS_I}
+#  	)
+#else()
+	TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${ROOT_LIBRARIES})
+#endif()
 
 
-ADD_CUSTOM_TARGET( tests )
-
-ADD_GENFIT_TEST( fitterTests               test/fitterTests/main.cc)
-ADD_GENFIT_TEST( minimalFittingExample     test/minimalFittingExample/main.cc)
-ADD_GENFIT_TEST( minimalFittingExample2    test/minimalFittingExample/main2.cc)
-ADD_GENFIT_TEST( measurementFactoryExample test/measurementFactoryExample/main.cc)
-ADD_GENFIT_TEST( streamerTest              test/streamerTest/main.cc)
-ADD_GENFIT_TEST( unitTests                 test/unitTests/main.cc)
-IF(DEFINED RAVE)
-  ADD_GENFIT_TEST( vertexingTest           test/vertexingTest/main.cc)
-  ADD_GENFIT_TEST( vertexingTestRead       test/vertexingTest/read.cc)
-ENDIF()
-
-
-FIND_PACKAGE(GTest)
-IF(GTEST_FOUND)
-	ADD_EXECUTABLE(gtests
-			gtest/TestConstField.cpp
-			gtest/TestMaterialEffects.cpp
-			gtest/TestRKTrackRep.cpp
-			)
-	TARGET_LINK_LIBRARIES(gtests ${GTEST_BOTH_LIBRARIES} ${ROOT_LIBS} ${PROJECT_NAME})  # gtest gtest_main
-	MESSAGE(STATUS  ${GTEST_INCLUDE_DIRS})
-	TARGET_INCLUDE_DIRECTORIES(gtests PUBLIC ${GTEST_INCLUDE_DIRS})
-	INSTALL(TARGETS gtests DESTINATION bin)
-ELSE()
-	MESSAGE(STATUS "GTest not installed or found -- skip building unittests.")
-ENDIF()
+#ADD_CUSTOM_TARGET( tests )
+#
+#ADD_GENFIT_TEST( fitterTests               test/fitterTests/main.cc)
+#ADD_GENFIT_TEST( minimalFittingExample     test/minimalFittingExample/main.cc)
+#ADD_GENFIT_TEST( minimalFittingExample2    test/minimalFittingExample/main2.cc)
+#ADD_GENFIT_TEST( measurementFactoryExample test/measurementFactoryExample/main.cc)
+#ADD_GENFIT_TEST( streamerTest              test/streamerTest/main.cc)
+#ADD_GENFIT_TEST( unitTests                 test/unitTests/main.cc)
+#IF(DEFINED RAVE)
+#  ADD_GENFIT_TEST( vertexingTest           test/vertexingTest/main.cc)
+#  ADD_GENFIT_TEST( vertexingTestRead       test/vertexingTest/read.cc)
+#ENDIF()
+#
+#
+#FIND_PACKAGE(GTest)
+#IF(GTEST_FOUND)
+#	ADD_EXECUTABLE(gtests
+#			gtest/TestConstField.cpp
+#			gtest/TestMaterialEffects.cpp
+#			gtest/TestRKTrackRep.cpp
+#			)
+#	TARGET_LINK_LIBRARIES(gtests ${GTEST_BOTH_LIBRARIES} ${ROOT_LIBRARIES} ${PROJECT_NAME})  # gtest gtest_main
+#	MESSAGE(STATUS  ${GTEST_INCLUDE_DIRS})
+#	TARGET_INCLUDE_DIRECTORIES(gtests PUBLIC ${GTEST_INCLUDE_DIRS})
+#	INSTALL(TARGETS gtests DESTINATION bin)
+#ELSE()
+#	MESSAGE(STATUS "GTest not installed or found -- skip building unittests.")
+#ENDIF()
 
 # generate and install following configuration files
 #GENERATE_PACKAGE_CONFIGURATION_FILES( genfitConfig.cmake genfitConfigVersion.cmake )
