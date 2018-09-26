@@ -9,7 +9,7 @@
 #include "TFile.h"
 #endif
 
-#include "Evento.h"
+#include "Evento.hxx"
 //#include "Segnale.h"
 //#include "Geometry.h"
 
