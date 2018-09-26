@@ -4,5 +4,7 @@
 #----------------------------------------------------------------------------
 # Globals 
 #
+MESSAGE("libs:")
+#
+add_subdirectory(GenFit)
 add_subdirectory(src)
-#add_subdirectory(GenFit)
