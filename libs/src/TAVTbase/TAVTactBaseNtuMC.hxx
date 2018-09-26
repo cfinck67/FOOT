@@ -8,7 +8,7 @@
 /*------------------------------------------+---------------------------------*/
 
 #include "TString.h"
-#include "Evento.h"
+#include "Evento.hxx"
 
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
