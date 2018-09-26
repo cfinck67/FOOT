@@ -50,7 +50,7 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name, TAGdataDsc* pNtuRaw,  TAGparaDsc* p
 
 
 //------------------------------------------+-----------------------------------
-//! Create histogram
+//! Create digitizer
 void TAVTactNtuMC::CreateDigitizer()
 {
    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
