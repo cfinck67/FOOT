@@ -19,7 +19,6 @@ using namespace std;
 #include "ConstField.h"
 #include "Track.h"
 #include "WireMeasurement.h"
-#include "EventDisplay.h"
 #include "TDatabasePDG.h"
 #include "DAF.h"
 #include <TDecompChol.h>
