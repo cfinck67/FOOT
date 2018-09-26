@@ -391,3 +391,39 @@ macro(ROOT_CHECK_OUT_OF_SOURCE_BUILD)
   endif()
 endmacro()
 
+#---------------------------------------------------------------------------------------------------
+#---ROOT_GENERATE_DICTIONARY( )
+#---------------------------------------------------------------------------------------------------
+
+MACRO (ROOT_GENERATE_DICTIONARY LIBNAME INFILES INCLUDE_DIRS_IN LINKDEF_FILE OUTFILE)
+    SET (INCLUDE_DIRS)
+    FOREACH (_current_FILE ${INCLUDE_DIRS_IN})
+        set(INCLUDE_DIRS ${INCLUDE_DIRS} -I${_current_FILE})
+    ENDFOREACH (_current_FILE ${INCLUDE_DIRS_IN})
+
+    SET(EXTRA_DICT_ARGS "")
+    IF(ROOT6_USED)
+        STRING(REGEX REPLACE "^(.*)\\.(.*)$" "\\1_rdict.pcm" OUTFILE_PCM "${OUTFILE}")
+        STRING(REGEX REPLACE "^(.*)Dict\\.(.*)$" "\\1.rootmap" OUTFILE_RMF "${OUTFILE}")
+        SET (OUTFILES ${OUTFILE} ${OUTFILE_PCM} ${OUTFILE_RMF})
+        SET(EXTRA_DICT_ARGS -inlineInputHeader -rmf ${OUTFILE_RMF} -rml ${LIBNAME}${CMAKE_SHARED_LIBRARY_SUFFIX})
+    ELSE()
+        STRING(REGEX REPLACE "^(.*)\\.(.*)$" "\\1.h" OUTFILE_H "${OUTFILE}")
+        SET (OUTFILES ${OUTFILE} ${OUTFILE_H})
+    ENDIF()
+
+    ADD_CUSTOM_COMMAND(OUTPUT ${OUTFILES}
+            COMMAND ${ROOTCINT_EXECUTABLE}
+            ARGS -f ${OUTFILE} ${EXTRA_DICT_ARGS} -c ${INCLUDE_DIRS} ${INFILES} ${LINKDEF_FILE}
+            DEPENDS ${INFILES} ${LINKDEF_FILE})
+
+    STRING(REGEX REPLACE "/" "" OUTFILE_NO_SLASH "${OUTFILE}")
+    ADD_CUSTOM_TARGET(generate_${OUTFILE_NO_SLASH} DEPENDS ${OUTFILE})
+
+    IF(ROOT6_USED)
+        # PCM files and rootmap-files should be installed
+        INSTALL(FILES ${OUTFILE_RMF} ${OUTFILE_PCM}
+                DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+    ENDIF()
+ENDMACRO (ROOT_GENERATE_DICTIONARY)
+
