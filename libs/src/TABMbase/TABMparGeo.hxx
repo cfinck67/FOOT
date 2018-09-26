@@ -15,7 +15,6 @@
 #include "foot_geo.h"
 
 #include "GlobalPar.hxx"
-#include "FootField.hxx"
 
 #include <FieldManager.h>
 
