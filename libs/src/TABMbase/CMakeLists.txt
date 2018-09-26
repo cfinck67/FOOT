@@ -1,4 +1,3 @@
-# CMake for FOOT/src/TABMbase
 # Ch. Finck
 #
 project (TABMbase)
@@ -46,7 +45,6 @@ include_directories(${TATR_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 #
 link_directories(${ROOT_LIBRARY_DIR})
-link_directories(${GENFIT_LIBRARY_DIR})
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
 #
