@@ -37,6 +37,7 @@ MESSAGE(" --> Including cmake additional path: ${CMAKE_MODULE_PATH}")
 # Include macro for root
 #
 include(RootNewMacros)
+include(GenFit)
 
 #----------------------------------------------------------------------------
 # Try and Find Root
@@ -95,11 +96,19 @@ set(TAFO_INCLUDE_DIR " ${CMAKE_CURRENT_SOURCE_DIR}/libs/src/${TAFO}")
 #----------------------------------------------------------------------------
 # GenFit
 #
-set ( GENFIT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/fitters/include ${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/trackReps/include ${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/measurements/include ${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/core/include ${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/utilities/include ${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/fields/include )
+SET(GENFIT_INCLUDE_DIR
+      ${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/core/include/
+		${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/eventDisplay/include/
+		${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/fields/include/
+		${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/finitePlanes/include/
+		${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/fitters/include/
+		${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/GBL/include/
+		${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/measurements/include/
+		${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/trackReps/include/
+		${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit/utilities/include/
+      )
 
-set ( GENFIT_LIBRARY_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/libs/GenFit_build/lib) # put it by hand cmake of GenFit not compatible
-set ( GENFIT_LIBRARIES   genfit2)
-
+set (GENFIT_LIBRARIES  genfit2)
 
 #----------------------------------------------------------------------------
 # Globals 
