@@ -1,4 +1,3 @@
-# CMake for Qapivi/rec/TAMSDbase
 # Ch. Finck
 #
 project (TAGfoot)
@@ -50,7 +49,6 @@ include_directories(${GENFIT_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 #
 link_directories(${ROOT_LIBRARY_DIR})
-link_directories(${GENFIT_LIBRARY_DIR})
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 #
 # headers / linkdef etc ... 
