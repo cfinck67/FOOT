@@ -19,8 +19,6 @@
 
 #include "Riostream.h"
 
-#include "TEveGeoShapeExtract.h"
-
 #include "TObject.h"
 #include "TString.h"
 
@@ -29,7 +27,6 @@
 #include "IronPlate.hxx"
 #include "FootBox.hxx"
 #include "GlobalPar.hxx"
-#include "FootField.hxx"
 
 #include <FieldManager.h>
 
