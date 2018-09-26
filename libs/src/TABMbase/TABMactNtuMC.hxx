@@ -7,7 +7,7 @@
 */
 /*------------------------------------------+---------------------------------*/
 
-#include "Evento.h"
+#include "Evento.hxx"
 #include "foot_geo.h"
 
 #include "TVector3.h"
