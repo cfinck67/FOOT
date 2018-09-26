@@ -6,5 +6,10 @@ export FOOTCONFIG=$FOOTLEVEL0/config
 export FOOTRES=$FOOTLEVEL0/results
 export FOOTSIMU=$FOOTMAIN/Simulation
 
-export LD_LIBRARY_PATH=$ROOTSYS/lib:./:$ASOFTREF/lib
-export DYLD_LIBRARY_PATH=$ROOTSYS/lib:./:$ASOFTREF/lib
+
+if [ "$OSTYPE" = "darwin" ]
+then
+  export DYLD_LIBRARY_PATH=$ROOTSYS/lib:./:$ASOFTREF/lib
+else
+  export LD_LIBRARY_PATH=$ROOTSYS/lib:./:$ASOFTREF/lib
+fi
