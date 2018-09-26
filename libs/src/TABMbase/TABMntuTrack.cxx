@@ -443,7 +443,7 @@ void TABMntuTrackTr::Calibrate(TF1* mypol, TF1* mypol2) { //DA FARE CON NUOVE VA
 
   TAGgeoTrafo *fGeoTrafo =  (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
   if (fGeoTrafo == 0x0)
-    Error("SetGeoTrafoName", Form("No GeoTrafo action called %s available", TAGgeoTrafo::GetDefaultActName().Data()));
+    Error("SetGeoTrafoName", "No GeoTrafo action called %s available", TAGgeoTrafo::GetDefaultActName().Data());
 
   double tmp_ux, tmp_uy, tmp_uz;
   tmp_ux = ux;
