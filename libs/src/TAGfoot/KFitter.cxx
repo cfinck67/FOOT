@@ -458,28 +458,30 @@ void KFitter::Prepare4Strip( Track* fitTrack ) {
 		double zErr = 0.01;
 		hitCov[2][2] = zErr*zErr; 
 
-		double simulatedStripHit_X = p_hit->GetMCPosition_Global().X();
-		double simulatedStripHit_Y = p_hit->GetMCPosition_Global().Y();
-		double simulatedStripHit_Z = p_hit->GetMCPosition_Global().Z();
-		TVector3 gen_hitPos = TVector3 ( simulatedStripHit_X, simulatedStripHit_Y, simulatedStripHit_Z );
+//		double simulatedStripHit_X = p_hit->GetMCPosition_Global().X();
+//		double simulatedStripHit_Y = p_hit->GetMCPosition_Global().Y();
+//		double simulatedStripHit_Z = p_hit->GetMCPosition_Global().Z();
+//		TVector3 gen_hitPos = TVector3 ( simulatedStripHit_X, simulatedStripHit_Y, simulatedStripHit_Z );
 		// if ( m_debug > 0 )		cout << "\tSimulated hits coordinate using smearing (nope!): \t\t ";
 		// if ( m_debug > 0 )		gen_hitPos.Print();
 		// if ( m_debug > 0 )		hitPos.Print();
 
-        hitCoords(0)=gen_hitPos.x();
-		hitCoords(1)=gen_hitPos.y();
-		hitCoords(2)=gen_hitPos.z();
-		// hitCoords(0)=hitPos.x();
-		// hitCoords(1)=hitPos.y();
-		// hitCoords(2)=hitPos.z();
+       TVector3 hitPos = m_MSD_geo->GetPixelPos_footFrame( p_hit->GetSensorID(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
+
+//        hitCoords(0)=gen_hitPos.x();
+//		hitCoords(1)=gen_hitPos.y();
+//		hitCoords(2)=gen_hitPos.z();
+		 hitCoords(0)=hitPos.x();
+		 hitCoords(1)=hitPos.y();
+		 hitCoords(2)=hitPos.z();
 		
 
 		
 		// MC info, provvisorio solo per il test!!!!!
-		m_MSD_posVectorSmearedHit.push_back( gen_hitPos );
-		TVector3 hitMomMC( p_hit->GetMCMomentum_Global().X(), p_hit->GetMCMomentum_Global().Y(), p_hit->GetMCMomentum_Global().Z() );
-		m_MSD_momVectorSmearedHit.push_back( hitMomMC );
-		m_MSD_mass.push_back( p_hit->m_genPartMass );
+		//m_MSD_posVectorSmearedHit.push_back( gen_hitPos );
+//		TVector3 hitMomMC( p_hit->GetMCMomentum_Global().X(), p_hit->GetMCMomentum_Global().Y(), p_hit->GetMCMomentum_Global().Z() );
+//		m_MSD_momVectorSmearedHit.push_back( hitMomMC );
+//		m_MSD_mass.push_back( p_hit->m_genPartMass );
 
         // nullptr e' un TrackPoint(fitTrack). Leave like this otherwise it gives memory leak problems!!!!
     	AbsMeasurement* hit = new SpacepointMeasurement(hitCoords, hitCov, m_detectorID_map["MSD"], i, nullptr );
