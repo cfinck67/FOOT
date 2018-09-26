@@ -52,20 +52,20 @@ TACA_Hit::TACA_Hit ( int id_BGO , double enLoss , double time )
 //  
 void TACA_Hit::Initialise() {
 
-    m_coordinate = (0,0,0);
+    m_coordinate = TVector3(0,0,0);
   
     m_posMC.SetXYZ(0, 0, 0);
     m_momMC.SetXYZ(0, 0, 0);
 
-    m_genPartIndex = -1;
-    m_genPartPointer = NULL;
+    // m_genPartIndex = -1;
+    // m_genPartPointer = NULL;
 
     // take the detector geometry
     m_geometry = (TACAparGeo*) gTAGroot->FindParaDsc("caGeo", "TACAparGeo")->Object();
 
     // set center position
     if ( GlobalPar::GetPar()->Debug() > 1 )   cout << "TACA_Hit::Initialise()  :: BGO ID : = " << m_BGO << endl;
-    // m_coordinate = m_geometry->GetCoordiante_detectorFrame( m_BGO );
+    m_coordinate = m_geometry->GetCoordiante_detectorFrame( m_BGO );
 
 }
 
@@ -100,15 +100,15 @@ void TATW_Hit::SetGenPartID( int agenPartID ) {
 */
 
 //______________________________________________________________________________
-TVector3 TATW_Hit::GetMCPosition_sensorFrame() {
+TVector3 TACA_Hit::GetMCPosition_sensorFrame() {
     TVector3 glob = m_posMC;
-    m_geometry->Detector2Sensor_frame( m_BGOx, m_BGOy, &glob ); 
+    m_geometry->Detector2Sensor_frame( m_BGOz, m_BGOx, m_BGOy, &glob ); 
     return glob; 
 }
 
 
 //______________________________________________________________________________
-TVector3 TATW_Hit::GetMCPosition_footFrame() { 
+TVector3 TACA_Hit::GetMCPosition_footFrame() { 
     TVector3 glob = m_posMC;
     m_geometry->Local2Global( &glob ); 
     return glob; 
@@ -116,7 +116,7 @@ TVector3 TATW_Hit::GetMCPosition_footFrame() {
 
 
 //______________________________________________________________________________
-TVector3 TATW_Hit::GetMCMomentum_footFrame() { 
+TVector3 TACA_Hit::GetMCMomentum_footFrame() { 
     TVector3 globP = m_momMC;
     m_geometry->Local2Global_RotationOnly( &globP ); 
     return globP; 

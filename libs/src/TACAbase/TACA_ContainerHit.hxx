@@ -35,7 +35,7 @@ public:
     virtual             ~TACA_ContainerHit();
 
     TACA_Hit*           NewHit( int id_BGO , double enLoss , double time );
-    TACA_Hit*           NewHit( TATWrawHit* hit );
+    TACA_Hit*           NewHit( TACArawHit* hit );
     
     int                 GetHitN();
     TACA_Hit*           GetHitBGO( int hitID );

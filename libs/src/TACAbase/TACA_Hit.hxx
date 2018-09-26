@@ -15,7 +15,7 @@
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
 
-#include "TAGntuMCeve.hxx"
+//#include "TAGntuMCeve.hxx"
 
 
 
@@ -39,8 +39,9 @@ private:
 	TACAparGeo* m_geometry;
 
     int m_BGOx;                         // coord x of BGO
-    int m_BGOy; 						// coord y of BGO
-    int m_BGO;                           
+    int m_BGOy;                         // coord y of BGO
+    int m_BGOz; 						// coord z of BGO
+    int m_BGO;                          // BGO ID
 	int m_indexMC;                      // MC index of the hit in the ntuple
 	
     double m_enLoss;                    // energy loss in the BGO crystals
@@ -50,8 +51,8 @@ private:
     TVector3 m_posMC;                   // MC hit position = track hitting the scint.
 	TVector3 m_momMC;                   // MC momentum of the hit
 
-    int m_genPartIndex;
-    TAGntuMCeveHit* m_genPartPointer;
+    // int m_genPartIndex;
+    // TAGntuMCeveHit* m_genPartPointer;
 
 	
 
@@ -76,8 +77,8 @@ public:
     int                 Get_idBGO()           { return  m_BGO; }       	//	return the BGO id
     
     int                 GetMCid()           { return  m_indexMC; };     //MC index of the hit in the ntuple
-    int                 GetGenPartID()      { return m_genPartIndex; };
-    TAGntuMCeveHit*     GetGenParticle()    { return m_genPartPointer; };
+    // int                 GetGenPartID()      { return m_genPartIndex; };
+    // TAGntuMCeveHit*     GetGenParticle()    { return m_genPartPointer; };
 
     
     // TVector3            GetHitCoordinate_sensorFrame()        { return m_geometry->GetCoordiante_sensorFrame( m_BGO ); };

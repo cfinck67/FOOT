@@ -236,7 +236,11 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor BGO materials in R
 
 TVector3 TACAparGeo::GetBGOcoordinate( int ID_BGO )  {
 
-    m_coordinate = TVector3( ID_BGO/m_nSensors.X() , ID_BGO%m_nSensors.X() , 0 );
+     int coord_x = ID_BGO/m_nBGO_X;
+     int coord_y = ID_BGO%m_nBGO_X;
+
+    m_coordinate = { (double)coord_x , (double)coord_y , 0 };
+    //m_coordinate = { ID_BGO/m_nBGO_X, ID_BGO%m_nBGO_X , 0 };
 
     return m_coordinate;
 
@@ -247,7 +251,28 @@ TVector3 TACAparGeo::GetBGOcoordinate( int ID_BGO )  {
 //}
 
 
-/*
+//_____________________________________________________________________________
+TVector3 TACAparGeo::GetCoordiante_detectorFrame( int ID_BGO )  { 
+
+  //coordinate = TVector3(0,0,0);
+  int coord_x = ID_BGO/m_nBGO_X;
+  int coord_y = ID_BGO%m_nBGO_X;
+  
+  return m_BGOsensorMatrix[0][coord_x][coord_y] -> GetPosition(); 
+}
+
+
+//_____________________________________________________________________________
+void TACAparGeo::Detector2Sensor_frame( int BGOz, int BGOx, int BGOy, TVector3* coord ) {
+  m_BGOsensorMatrix[BGOz][BGOx][BGOy] -> Global2Local( coord );
+}
+
+//_____________________________________________________________________________
+void TACAparGeo::Sensor2Detector_frame( int BGOz, int BGOx, int BGOy, TVector3* coord ) {
+  m_BGOsensorMatrix[BGOz][BGOx][BGOy] -> Local2Global( coord );
+}
+
+
 //_____________________________________________________________________________
 void TACAparGeo::Global2Local( TVector3* glob ) {
 glob->Transform( GetRotationToLocal() );
@@ -275,7 +300,7 @@ loc->Transform( GetRotationToGlobal() );
 void TACAparGeo::Local2Global_RotationOnly( TVector3* loc ) {
 loc->Transform( GetRotationToGlobal() );
 }
-*/
+
 
 /*
 //_____________________________________________________________________________

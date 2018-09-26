@@ -65,7 +65,7 @@ TACA_Hit* TACA_ContainerHit::NewHit( int id_BGO, double enLoss, double time ) {
         // check on aorigin
         TClonesArray &bgoArray = *GetListOfHits();     
         // FillPixelList( iSensor, aorigin, pixelArray.GetEntriesFast() ); 
-        TACA_Hit* bgo = new(bgoArray[bgoArray.GetEntriesFast()]) TATW_Hit( id_BGO, enLoss, time );
+        TACA_Hit* bgo = new(bgoArray[bgoArray.GetEntriesFast()]) TACA_Hit( id_BGO, enLoss, time );
         return bgo;
 
     } else {
@@ -152,7 +152,7 @@ void TACA_ContainerHit::SetupClones()   {
 
     TClonesArray* arr = new TClonesArray("TACA_Hit", 500);
     arr->SetOwner(true);
-    m_listOfHits->AddAt(arr, i);
+    m_listOfHits->AddAt(arr,0);
     
     m_listOfHits->SetOwner(true);
 
