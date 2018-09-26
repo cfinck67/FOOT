@@ -29,7 +29,24 @@ TATWactNtuMC::TATWactNtuMC(const char* name,
 }
 
 
+//------------------------------------------+-----------------------------------
+//! Setup all histograms.
+void TATWactNtuMC::CreateHistogram()
+{
+   
+   DeleteHistogram();
+   
+   fpHisHitCol = new TH1F("twHitCol", "ToF Wall - Column hits", 22, 0., 22);
+   AddHistogram(fpHisHitCol);
+   
+   fpHisHitLine = new TH1F("twHitLine", "ToF Wall - Line hits", 22, 0., 22);
+   AddHistogram(fpHisHitLine);
 
+   fpHisHitMap = new TH2F("twHitMap", "ToF Wall - Hit Map", 22, 0., 22, 22, 0, 22);
+   AddHistogram(fpHisHitMap);
+
+   SetValidHistogram(kTRUE);
+}
 
 
 //------------------------------------------+-----------------------------------
@@ -81,9 +98,12 @@ bool TATWactNtuMC::Action() {
             cout<<"  GenPart: "<<hit->GetGenPartID()<< " Coord: "<<hit->GetHitCoordinate_footFrame()<<" Z: "<<hit->GetHitZ_footFrame()<<endl;
         }
 
-        ControlPlotsRepository::GetControlObject( "TWcontrol" )->SetTW_HitView( "TW___Hit", hit->IsColumn(), hit->GetBar() );
-        
-
+       if (ValidHistogram()) {
+          if (hit->IsColumn())
+             fpHisHitCol->Fill(hit->GetBar());
+          else
+             fpHisHitLine->Fill(hit->GetBar());
+       }
     }
 
 
@@ -130,8 +150,9 @@ bool TATWactNtuMC::Action() {
 
             if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "Point "<<iCol<<" "<<iRow<<" -> Col: "<<point->GetColumn()<<" row: "<<point->GetRow()<<endl;
 
-            ControlPlotsRepository::GetControlObject( "TWcontrol" )->SetTW_HitPoint( "TW___Point", point->GetColumn(), point->GetRow() );
-        
+           // ControlPlotsRepository::GetControlObject( "TWcontrol" )->SetTW_HitPoint( "TW___Point", point->GetColumn(), point->GetRow() );
+           if (ValidHistogram())
+              fpHisHitMap->Fill(point->GetColumn(), point->GetRow());
 
         }
 

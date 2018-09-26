@@ -8,8 +8,10 @@
 /*------------------------------------------+---------------------------------*/
 
 #include "TVector3.h"
+#include "TH1F.h"
+#include "TH2F.h"
 
-#include "Evento.h"
+#include "Evento.hxx"
 
 #include "TATW_ContainerHit.hxx"
 #include "TATW_ContainerPoint.hxx"
@@ -18,7 +20,7 @@
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 
-#include "ControlPlotsRepository.hxx"
+//#include "ControlPlotsRepository.hxx"
 
 class TATWactNtuMC : public TAGaction {
   public:
@@ -26,12 +28,19 @@ class TATWactNtuMC : public TAGaction {
     virtual  ~TATWactNtuMC() {};
 
     virtual bool  Action();
+   
+    void CreateHistogram();
 
     ClassDef(TATWactNtuMC,0)
 
   private:
     TAGdataDsc*     m_hitContainer;		    // output data dsc
     EVENT_STRUCT*   m_eventStruct;
+   
+    TH1F* fpHisHitCol;
+    TH1F* fpHisHitLine;
+    TH2F* fpHisHitMap;
+   
 };
 
 #endif
