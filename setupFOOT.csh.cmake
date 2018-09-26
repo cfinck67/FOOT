@@ -6,5 +6,5 @@ setenv FOOTCONFIG $FOOTLEVEL0/config
 setenv FOOTRES $FOOTLEVEL0/results
 setenv FOOTSIMU $FOOTMAIN/Simulation
 
-setenv LD_LIBRARY_PATH=$ROOTSYS/lib:./:$ASOFTREF/lib:$ASOFTREF/GenFit_build/lib
-setenv DYLD_LIBRARY_PATH=$ROOTSYS/lib:./:$ASOFTREF/lib:$ASOFTREF/GenFit_build/lib
+setenv LD_LIBRARY_PATH=$ROOTSYS/lib:./:$ASOFTREF/lib:
+setenv DYLD_LIBRARY_PATH=$ROOTSYS/lib:./:$ASOFTREF/lib:
