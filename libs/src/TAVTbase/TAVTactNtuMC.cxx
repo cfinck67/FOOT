@@ -62,7 +62,7 @@ void TAVTactNtuMC::CreateDigitizer()
 //! Action.
 bool TAVTactNtuMC::Action()
 {
-	if ( GlobalPar::GetPar()->Debug() > 0 )     
+	if ( fDebugLevel> 0 )     
 	  Info("TAVTactNtuMC::Action()", "start  -->  VTn : %d  ", fpEvtStr->VTXn);
 
 	TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();     
@@ -75,7 +75,7 @@ bool TAVTactNtuMC::Action()
 
 	// Loop over all MC hits
 	for (Int_t i = 0; i < fpEvtStr->VTXn; i++) {
-		if ( GlobalPar::GetPar()->Debug() > 0 )     cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx[i] << "  "<< fpEvtStr->TRfy[i] << "  "<< fpEvtStr->TRfz[i] << endl;
+		if ( fDebugLevel> 0 )     cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx[i] << "  "<< fpEvtStr->TRfy[i] << "  "<< fpEvtStr->TRfz[i] << endl;
 
 		// !!  in ntuple, the row and col start from 0  !!!
 		Int_t myTrow, myTcol;
@@ -168,7 +168,7 @@ void TAVTactNtuMC::FillPixels(Int_t sensorId, Int_t hitId )
          SetMCinfo(pixel, hitId);
 
 
-         if ( GlobalPar::GetPar()->Debug() > 0 )
+         if ( fDebugLevel> 0 )
 				printf("line %d col %d\n", line, col);
 
 			double v = pGeoMap->GetPositionV(line);
@@ -217,7 +217,7 @@ void TAVTactNtuMC::SetMCinfo(TAVTntuHit* pixel, Int_t hitId)
       return;
    }
    
-   if ( GlobalPar::GetPar()->Debug() > 0 )     {
+   if ( fDebugLevel> 0 )     {
       cout << "Part type: " << fpEvtStr->TRfid[genPartID] << " and charge: " << fpEvtStr->TRcha[genPartID] << endl;
       cout << "Generated Position: " << fpEvtStr->TRix[genPartID] <<" "<<fpEvtStr->TRiy[genPartID]<<" "<<fpEvtStr->TRiz[genPartID] << endl;
       cout << "Generated Momentum: " << fpEvtStr->TRipx[genPartID] <<" "<<fpEvtStr->TRipy[genPartID]<<" "<<fpEvtStr->TRipz[genPartID] << endl;
@@ -228,7 +228,7 @@ void TAVTactNtuMC::SetMCinfo(TAVTntuHit* pixel, Int_t hitId)
    TVector3 MCpos = TVector3((fpEvtStr->VTXxin[hitId]  + fpEvtStr->VTXxout[hitId])/2,  (fpEvtStr->VTXyin[hitId]  + fpEvtStr->VTXyout[hitId])/2,  (fpEvtStr->VTXzin[hitId]  + fpEvtStr->VTXzout[hitId])/2);
    TVector3 MCmom = TVector3((fpEvtStr->VTXpxin[hitId] + fpEvtStr->VTXpxout[hitId])/2, (fpEvtStr->VTXpyin[hitId] + fpEvtStr->VTXpyout[hitId])/2, (fpEvtStr->VTXpzin[hitId] + fpEvtStr->VTXpzout[hitId])/2);
    
-   if ( GlobalPar::GetPar()->Debug() > 0 )     {
+   if ( fDebugLevel> 0 )     {
       cout << "Vertex pixel hit n: " << hitId << ". Col " << pixel->GetPixelColumn() << " row "<< pixel->GetPixelLine() << endl;
       cout << "\tGlobal kinematic: \n\t\tPos:\t";
       MCpos.Print();

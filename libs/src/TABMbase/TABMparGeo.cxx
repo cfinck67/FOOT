@@ -76,8 +76,6 @@ TABMparGeo::TABMparGeo() {
   sid.SetXYZ(BMWIDTHNEW,BMHEIGHTNEW,BMLENGHTNEW); SetSide(sid);
   ang.SetXYZ(EULER1MONNEW,EULER2MONNEW,EULER3MONNEW); SetAngles(ang);
 
-  m_debug = GlobalPar::GetPar()->Debug();
-
 }
 
 //------------------------------------------+-----------------------------------

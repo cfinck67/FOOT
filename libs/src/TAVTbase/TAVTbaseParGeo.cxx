@@ -35,7 +35,6 @@ TAVTbaseParGeo::TAVTbaseParGeo()
     m_passiveCount = -1;
     m_setW_0number = 2;
 
-    m_debug = GlobalPar::GetPar()->Debug();
 };
 
 //_____________________________________________________________________________

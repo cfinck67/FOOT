@@ -49,7 +49,7 @@ void TACAparGeo::InitMaterial() {
 //_____________________________________________________________________________
 void TACAparGeo::InitGeo()  {
   
-  if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTACAparGeo::InitGeo" << endl<< endl;
+  if ( fDebugLevel> 0 )     cout << "\n\nTACAparGeo::InitGeo" << endl<< endl;
  
 }
 

@@ -27,10 +27,15 @@ class TAGobject : public TObject {
 
     virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
     virtual void    Print(Option_t* option="") const;
+   
+    Int_t           GetDebugLevel() const;
+    void            SetDebugLevel(Int_t d);
 
-    ClassDef(TAGobject,2)
+  protected:
+   Int_t   fDebugLevel;
+   
+   ClassDef(TAGobject,2)
 
-  private:
 };
 
 ostream& operator<<(ostream& os, const TAGobject& obj);

@@ -34,7 +34,7 @@
 */
 /*------------------------------------------+---------------------------------*/
 
-class TAVTbaseNtuHit : public TObject {
+class TAVTbaseNtuHit : public TAGobject {
    
 protected:
 

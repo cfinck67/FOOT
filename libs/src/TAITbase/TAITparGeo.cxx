@@ -124,7 +124,7 @@ void TAITparGeo::InitMaterial()
 //_____________________________________________________________________________
 void TAITparGeo::InitGeo()
 {
-	if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTAITparGeo::InitGeo" << endl<< endl;
+	if ( fDebugLevel> 0 )     cout << "\n\nTAITparGeo::InitGeo" << endl<< endl;
 
    // fill m_materialOrder, m_materialThick, m_materialType
    InitMaterial();
@@ -216,7 +216,7 @@ void TAITparGeo::InitGeo()
 //---------------------------------------------------------------------
 //     Init SENSOR geometry
 //---------------------------------------------------------------------
-	if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR geometry " << endl;
+	if ( fDebugLevel> 0 ) cout << " Init SENSOR geometry " << endl;
 
 	// fixed
 	double pixelDistance = 0;
@@ -272,7 +272,7 @@ void TAITparGeo::InitGeo()
 				 );
 
 
-				if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "sensor center ",    TVector3( sensor_newX, sensor_newY, sensor_newZ ).Print();
+				if ( fDebugLevel> 0 )     cout << "sensor center ",    TVector3( sensor_newX, sensor_newY, sensor_newZ ).Print();
 			}
 		}
 	}
@@ -287,7 +287,7 @@ void TAITparGeo::InitGeo()
 //---------------------------------------------------------------------
 //     Init passive materials geometry
 //---------------------------------------------------------------------
-if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry" << endl;
+if ( fDebugLevel> 0 ) cout << "Init passive materials geometry" << endl;
 
 	// check same material as passive layers
 	if ( m_passiveMaterial.size() != m_nPassiveLayersPerBoard_z ) 
@@ -354,7 +354,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
 													ss_regionPassiveName.str(),          // FLUKA region name
 													++m_volumeCount                       // volume ID num
 													);
-			if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "passive center ",    TVector3( offset_x, offset_y, offset_z + position ).Print();
+			if ( fDebugLevel> 0 )     cout << "passive center ",    TVector3( offset_x, offset_y, offset_z + position ).Print();
 
 			position += (-1) * (j%2 == 0 ? -1 : 1) * m_materialThick[ matID ]/2;
 
@@ -366,7 +366,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
 //---------------------------------------------------------------------
 //     Init passive CHIP materials 
 //---------------------------------------------------------------------
-		if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init CHIP passive materials geometry" << endl;
+		if ( fDebugLevel> 0 ) cout << "Init CHIP passive materials geometry" << endl;
 
 		double chipOffset_x = m_origin.X() - 1.5*ITR_M28_DIST - 1.5*chipDimension.x();   // first chip center
 		for ( int f=0; f<m_nSensors.X(); f++ ) {
@@ -391,7 +391,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
 														ss_regionPassiveName.str(),         // FLUKA region name
 														++m_volumeCount                       // volume ID num
 														);
-				if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "chip center ",    TVector3( chip_x, chipOffset_y , board_center +  boardSide ).Print();
+				if ( fDebugLevel> 0 )     cout << "chip center ",    TVector3( chip_x, chipOffset_y , board_center +  boardSide ).Print();
 
 			}
 		}
@@ -411,7 +411,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
 // //---------------------------------------------------------------------
 // //     Build passive materials in ROOT and FLUKA
 // //---------------------------------------------------------------------
-if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT and FLUKA" << endl;
+if ( fDebugLevel> 0 ) cout << "Build passive materials in ROOT and FLUKA" << endl;
 
 	// for ( PassiveMatrix::iterator itX = m_passiveMatrix.begin(); itX != m_passiveMatrix.end(); itX++ ) {
 	//     for ( PassivePlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
@@ -432,7 +432,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
 										new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
 										new TGeoRotation("null,",0,0,0) ) );
 
-					if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "\t"<<m_passiveMatrix[i][j][k]->GetMaterialRegionName()<<"  "<<m_passiveMatrix[i][j][k]->GetRegionName()<< "  ", globalCoord.Print();
+					if ( fDebugLevel> 0 ) cout << "\t"<<m_passiveMatrix[i][j][k]->GetMaterialRegionName()<<"  "<<m_passiveMatrix[i][j][k]->GetRegionName()<< "  ", globalCoord.Print();
 				}
 				
 				// boidies
@@ -470,7 +470,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
 		}
 	} 
 
-	if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build chip materials in ROOT and FLUKA" << endl;
+	if ( fDebugLevel> 0 ) cout << "Build chip materials in ROOT and FLUKA" << endl;
 	// passive chip material
 	// int sensor_i = 0;
 	// for ( PassiveMatrix::iterator itX = m_chipMatrix.begin(); itX != m_chipMatrix.end(); itX++ ) {
@@ -494,7 +494,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
 										new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
 										new TGeoRotation("null,",0,0,0) ) );
 
-					if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "\t"<<m_chipMatrix[i][j][k]->GetMaterialRegionName()<<"  "<<m_chipMatrix[i][j][k]->GetRegionName() <<"  ", globalCoord.Print();
+					if ( fDebugLevel> 0 ) cout << "\t"<<m_chipMatrix[i][j][k]->GetMaterialRegionName()<<"  "<<m_chipMatrix[i][j][k]->GetRegionName() <<"  ", globalCoord.Print();
 				}
 				
 				// boidies
@@ -540,7 +540,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
 //---------------------------------------------------------------------
 //     Build sensor materials in ROOT and FLUKA
 //---------------------------------------------------------------------
-if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT and FLUKA" << endl;
+if ( fDebugLevel> 0 ) cout << "Build sensor materials in ROOT and FLUKA" << endl;
 
 	for ( unsigned int k=0; k<m_nSensors.Z(); k++ ) {
 		vector<double> xmin, ymin;
@@ -558,7 +558,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
 										m_sensorMatrix[k][j][i]->GetNodeID() , 
 										new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
 										new TGeoRotation("null,",0,0,0) ) );
-					if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "\t"<<m_sensorMatrix[k][j][i]->GetMaterialRegionName()<<"  "<<m_sensorMatrix[k][j][i]->GetRegionName()<<" ", globalCoord.Print();
+					if ( fDebugLevel> 0 ) cout << "\t"<<m_sensorMatrix[k][j][i]->GetMaterialRegionName()<<"  "<<m_sensorMatrix[k][j][i]->GetRegionName()<<" ", globalCoord.Print();
 				}
 
 				// boidies

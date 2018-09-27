@@ -64,7 +64,7 @@ void TAMSDparGeo::InitMaterial()
 //_____________________________________________________________________________
 void TAMSDparGeo::InitGeo()
 {
-    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTAMSDparGeo::InitGeo" << endl<< endl;
+    if ( fDebugLevel> 0 )     cout << "\n\nTAMSDparGeo::InitGeo" << endl<< endl;
 
    // fill m_materialOrder, m_materialThick, m_materialType
    InitMaterial();
@@ -150,7 +150,7 @@ void TAMSDparGeo::InitGeo()
                         TVector3(0,0,0)
                  );
 
-                if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "sensor center ",    TVector3( sensor_newX, sensor_newY, sensor_newZ ).Print();
+                if ( fDebugLevel> 0 ) cout << "sensor center ",    TVector3( sensor_newX, sensor_newY, sensor_newZ ).Print();
             }
         }
     }
@@ -181,7 +181,7 @@ void TAMSDparGeo::InitGeo()
 //---------------------------------------------------------------------
 //     Build sensor materials in ROOT and FLUKA
 //---------------------------------------------------------------------
-if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT and FLUKA" << endl;
+if ( fDebugLevel> 0 ) cout << "Build sensor materials in ROOT and FLUKA" << endl;
 
     // for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
     //     for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
@@ -202,7 +202,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
                                         m_sensorMatrix[k][i][j]->GetNodeID() , 
                                         new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
                                         new TGeoRotation("null,",0,0,0) ) );
-                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "\t"<<m_sensorMatrix[k][i][j]->GetMaterialRegionName()<<"  "<<m_sensorMatrix[k][i][j]->GetRegionName()<<" ", globalCoord.Print();
+                    if ( fDebugLevel> 0 ) cout << "\t"<<m_sensorMatrix[k][i][j]->GetMaterialRegionName()<<"  "<<m_sensorMatrix[k][i][j]->GetRegionName()<<" ", globalCoord.Print();
 
                 }
                     // m_sensorMatrix[k][i][j]->AddNodeToUniverse( m_universe );

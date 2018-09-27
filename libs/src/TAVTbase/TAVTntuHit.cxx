@@ -38,7 +38,7 @@ void TAVTntuHit::Initialise()
    fGeometry = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAVTparGeo")->Object();
    
    // set center position
-   if ( GlobalPar::GetPar()->Debug() > 1 )
+   if ( fDebugLevel> 1 )
       Info("Initialise()", "line =  %d col = %d", fPixelLine, fPixelColumn);
    
    SetPosition( fGeometry->GetPixelPos_detectorFrame(fSensorId, fPixelColumn, fPixelLine ) );

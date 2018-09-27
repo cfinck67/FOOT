@@ -12,7 +12,7 @@ ClassImp(TAVTbaseNtuHit) // Description of Single Detector TAVTbaseNtuHit
 //______________________________________________________________________________
 //  build the hit from the index
 TAVTbaseNtuHit::TAVTbaseNtuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aValue)
-: TObject(),
+: TAGobject(),
   fSensorId(aSensorNumber),
   fMCid(-1),
   fPixelIndex(aPixelIndex),
@@ -27,7 +27,7 @@ TAVTbaseNtuHit::TAVTbaseNtuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Do
 //______________________________________________________________________________
 // Build the pixel from its sensor, line and column// constructor of a Pixel with column and line 
 TAVTbaseNtuHit::TAVTbaseNtuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t aColumn )
-: TObject(),
+: TAGobject(),
   fSensorId(aSensorNumber),
   fMCid(-1),
   fPixelIndex(0),

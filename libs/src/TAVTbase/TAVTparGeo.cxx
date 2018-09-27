@@ -58,7 +58,7 @@ void TAVTparGeo::InitMaterial()
 //_____________________________________________________________________________
 void TAVTparGeo::InitGeo()  {
 
-    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTAVTparGeo::InitGeo" << endl<< endl;
+    if ( fDebugLevel> 0 )     cout << "\n\nTAVTparGeo::InitGeo" << endl<< endl;
 
    // fill m_materialOrder, m_materialThick, m_materialType
    InitMaterial();
@@ -85,7 +85,7 @@ void TAVTparGeo::InitGeo()  {
 //---------------------------------------------------------------------
 //     Init SENSOR geometry
 //---------------------------------------------------------------------
-    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR geometry " << endl;
+    if ( fDebugLevel> 0 ) cout << " Init SENSOR geometry " << endl;
 
     double pixelDistance = 0;  
 
@@ -132,7 +132,7 @@ void TAVTparGeo::InitGeo()  {
                         TVector3(0,0,0)
                  );
 
-                if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "sensor center ",    TVector3( sensor_newX, sensor_newY, sensor_newZ ).Print();
+                if ( fDebugLevel> 0 ) cout << "sensor center ",    TVector3( sensor_newX, sensor_newY, sensor_newZ ).Print();
             }
         }
     }
@@ -144,7 +144,7 @@ void TAVTparGeo::InitGeo()  {
 //---------------------------------------------------------------------
 //     Init passive materials geometry
 //---------------------------------------------------------------------
-    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry" << endl;
+    if ( fDebugLevel> 0 ) cout << "Init passive materials geometry" << endl;
 
     double passiveSi_Z = m_origin.Z() - m_dimension.z()/2 +0.5*m_siliconSensorThick_Lz;
     m_passiveMatrix.resize( m_nSensors.Z() );
@@ -175,7 +175,7 @@ void TAVTparGeo::InitGeo()  {
                                                 );
 
 
-                if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "passive center ",    TVector3( passiveSi_X, passiveSi_Y, passiveSi_Z ).Print();
+                if ( fDebugLevel> 0 ) cout << "passive center ",    TVector3( passiveSi_X, passiveSi_Y, passiveSi_Z ).Print();
 
             }
         }
@@ -193,7 +193,7 @@ void TAVTparGeo::InitGeo()  {
 //---------------------------------------------------------------------
 //     Build passive materials in ROOT and FLUKA
 //---------------------------------------------------------------------
-    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT and FLUKA" << endl;
+    if ( fDebugLevel> 0 ) cout << "Build passive materials in ROOT and FLUKA" << endl;
 
     // int sensor_k = 0;
     // cout << m_passiveMatrix.size()<<endl;
@@ -219,7 +219,7 @@ void TAVTparGeo::InitGeo()  {
                                         m_passiveMatrix[k][i][j]->GetNodeID() , 
                                         new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
                                         new TGeoRotation("null,",0,0,0) ) );
-                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout <<"\t"<<m_passiveMatrix[k][i][j]->GetMaterialRegionName()<<"  ", globalCoord.Print();
+                    if ( fDebugLevel > 0 ) cout <<"\t"<<m_passiveMatrix[k][i][j]->GetMaterialRegionName()<<"  ", globalCoord.Print();
                 }
 
                 // boidies
@@ -269,7 +269,7 @@ void TAVTparGeo::InitGeo()  {
 //---------------------------------------------------------------------
 //     Build sensor materials in ROOT and FLUKA
 //---------------------------------------------------------------------
-    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT and FLUKA" << endl;
+    if ( fDebugLevel > 0 ) cout << "Build sensor materials in ROOT and FLUKA" << endl;
 
     // for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
     //     for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
@@ -289,7 +289,7 @@ void TAVTparGeo::InitGeo()  {
                                         m_sensorMatrix[k][i][j]->GetNodeID() , 
                                         new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
                                         new TGeoRotation("null,",0,0,0) ) );
-                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout <<"\t"<<m_sensorMatrix[k][i][j]->GetMaterialRegionName()<<"  ", globalCoord.Print();
+                    if ( fDebugLevel > 0 ) cout <<"\t"<<m_sensorMatrix[k][i][j]->GetMaterialRegionName()<<"  ", globalCoord.Print();
                 }
 
                     // boidies

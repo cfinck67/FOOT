@@ -54,7 +54,7 @@ void TATWactNtuMC::CreateHistogram()
 
 bool TATWactNtuMC::Action() {
 
-    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "TATWactNtuMC::Action() start" << endl;
+    if ( fDebugLevel> 0 )     cout << "TATWactNtuMC::Action() start" << endl;
 
 
     // TATW_ContainerHit* containerHit = (TATW_ContainerHit*) m_hitContainer->Object();
@@ -64,7 +64,7 @@ bool TATWactNtuMC::Action() {
     // if (!containerHit->m_listOfHits) containerHit->SetupClones();
 
     //The number of hits inside the Start Counter is stn
-    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "Processing n Scint " << m_eventStruct->SCNn << endl;
+    if ( fDebugLevel> 0 )     cout << "Processing n Scint " << m_eventStruct->SCNn << endl;
 
     // fill the container of hits, divided by layer, i.e. the column at 0 and row at 1
     for (int i=0; i < m_eventStruct->SCNn; i++) { 
@@ -93,7 +93,7 @@ bool TATWactNtuMC::Action() {
         hit->SetMCPosition( MCpos );
         hit->SetMCMomentum( MCmom );
 
-        if ( GlobalPar::GetPar()->Debug() > 0 )    {
+        if ( fDebugLevel> 0 )    {
             cout << "Layer: "<<hit->GetLayer()<<" IsColumn: "<<hit->IsColumn()<<" Bar: "<<hit->GetBar()<< endl;
             cout<<"  GenPart: "<<hit->GetGenPartID()<< " Coord: "<<hit->GetHitCoordinate_footFrame()<<" Z: "<<hit->GetHitZ_footFrame()<<endl;
         }
@@ -111,8 +111,8 @@ bool TATWactNtuMC::Action() {
     // container of points
     TATW_ContainerPoint* containerPoint = (TATW_ContainerPoint*) gTAGroot->FindDataDsc("containerPoint", "TATW_ContainerPoint")->Object();
 
-    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "N Col: "<<containerHit->GetHitN( 0 )<<endl;
-    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "N Row: "<<containerHit->GetHitN( 1 )<<endl;
+    if ( fDebugLevel> 0 )     cout << "N Col: "<<containerHit->GetHitN( 0 )<<endl;
+    if ( fDebugLevel> 0 )     cout << "N Row: "<<containerHit->GetHitN( 1 )<<endl;
 
     // built the points from the hits
     for (int iCol=0; iCol < containerHit->GetHitN( 0 ); iCol++) {  // col loop
@@ -148,7 +148,7 @@ bool TATWactNtuMC::Action() {
             // point->SetMCPosition( MCpos );
             // point->SetMCMomentum( MCmom );
 
-            if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "Point "<<iCol<<" "<<iRow<<" -> Col: "<<point->GetColumn()<<" row: "<<point->GetRow()<<endl;
+            if ( fDebugLevel> 0 )     cout << "Point "<<iCol<<" "<<iRow<<" -> Col: "<<point->GetColumn()<<" row: "<<point->GetRow()<<endl;
 
            // ControlPlotsRepository::GetControlObject( "TWcontrol" )->SetTW_HitPoint( "TW___Point", point->GetColumn(), point->GetRow() );
            if (ValidHistogram())

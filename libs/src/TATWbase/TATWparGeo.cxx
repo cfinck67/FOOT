@@ -37,7 +37,7 @@ TATWparGeo::TATWparGeo() {
 
 void TATWparGeo::InitMaterial() {
 
-  if ( GlobalPar::GetPar()->Debug() > 1 ) {
+  if ( fDebugLevel> 1 ) {
 	cout << endl << "SCN List of Materials\n ";
 	TIter next( gGeoManager->GetListOfMaterials() );
 	while ( TGeoMaterial *obj = (TGeoMaterial*) next() ) {
@@ -79,7 +79,7 @@ TATWparGeo::TATWparGeo( TATWparGeo* original ) :
 
 void TATWparGeo::InitGeo()  {
 
-	if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTATWparGeo::InitGeo" << endl<< endl;
+	if ( fDebugLevel> 0 )     cout << "\n\nTATWparGeo::InitGeo" << endl<< endl;
 
 	m_origin = TVector3(0,0,0);                         // center in local coord.
 	m_center = TVector3(SCN_X, SCN_Y, SCN_Z);           // center in global coord.
@@ -115,7 +115,7 @@ void TATWparGeo::InitGeo()  {
 	//---------------------------------------------------------------------
 	//     Init BAR geometry
 	//---------------------------------------------------------------------
-	if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SCINT BAR geometry " << endl;
+	if ( fDebugLevel> 0 ) cout << " Init SCINT BAR geometry " << endl;
 	double barDistance = 0;
 	double bar_newX=-1000., bar_newY=-1000., bar_newZ=-1000.;
 
@@ -145,7 +145,7 @@ void TATWparGeo::InitGeo()  {
 				 TVector3( (k*TMath::Pi()*0.5),0,0 )
 				 );
   
-	  if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "bar center ",    TVector3( bar_newX, bar_newY, bar_newZ ).Print();
+	  if ( fDebugLevel> 0 ) cout << "bar center ",    TVector3( bar_newX, bar_newY, bar_newZ ).Print();
 	  
 	}
   }
@@ -175,7 +175,7 @@ void TATWparGeo::InitGeo()  {
 			if ( !gGeoManager->GetVolume( m_barMatrix[k][j]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_barMatrix[k][j]->GetMaterialRegionName() << endl;
 
 			TVector3 globalCoord = m_barMatrix[k][j]->GetPosition();
-			if ( GlobalPar::GetPar()->Debug() > 0 ) cout <<"\t"<<"prova   ", globalCoord.Print();
+			if ( fDebugLevel> 0 ) cout <<"\t"<<"prova   ", globalCoord.Print();
 			Local2Global(&globalCoord);
 			TVector3 barRotation = m_barMatrix[k][j]->GetEuler();
 			barRotation = barRotation*180.*pow(TMath::Pi(),-1);//TGeoRotation wants the angles in DEG!!! (while our transformations, as Loc2Glob ecc, need rad angles)
@@ -185,7 +185,7 @@ void TATWparGeo::InitGeo()  {
 								 new TGeoRotation("null,",
 										  barRotation.X(), barRotation.Y(), barRotation.Z()
 										  ) ) );
-			if ( GlobalPar::GetPar()->Debug() > 0 ) cout <<"\t"<<m_barMatrix[k][j]->GetMaterialRegionName()<<"  ", globalCoord.Print();
+			if ( fDebugLevel> 0 ) cout <<"\t"<<m_barMatrix[k][j]->GetMaterialRegionName()<<"  ", globalCoord.Print();
 		}
 
 	  
