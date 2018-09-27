@@ -8,6 +8,7 @@
 //! Default constructor.
 
 inline TAGnamed::TAGnamed()
+: fDebugLevel(0)
 {}
 
 //------------------------------------------+-----------------------------------

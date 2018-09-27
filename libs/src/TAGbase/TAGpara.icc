@@ -8,6 +8,7 @@
 //! Default constructor.
 
 inline TAGpara::TAGpara()
+: fDebugLevel(0)
 {}
 
 //------------------------------------------+-----------------------------------
