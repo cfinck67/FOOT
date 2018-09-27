@@ -12,7 +12,6 @@
 #include <TROOT.h>
 #include "TRandom3.h"
 #include "TVector3.h"
-#include "TObject.h"
 #include "TMath.h"
 #include "TString.h"
 //#include <TTree.h>
@@ -23,6 +22,7 @@
 #include "TAVTntuVertex.hxx"
 
 //FIRST
+#include "TAGobject.hxx"
 #include "TAGgeoTrafo.hxx"
 #include "TAGroot.hxx"
 #include "TrackableParticle.hxx" 
@@ -60,7 +60,7 @@ private:
   Bool_t used;
 };
 
-class GlobalTrack: public TObject {
+class GlobalTrack: public TAGobject {
 
 public:
   GlobalTrack(MagneticField* Field);

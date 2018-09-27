@@ -33,8 +33,7 @@ TAVTactBaseNtuCluster::TAVTactBaseNtuCluster(const char* name,
   fCurrentPosition(new TVector3(0., 0., 0.)), 
   fCurrentPosError(new TVector3(0., 0., 0.)), 
   fListOfPixels(0x0),
-  fClustersN(0),
-  fDebugLevel(0)
+  fClustersN(0)
 {
    AddPara(pGeoMap, "TAVTbaseParGeo");
    AddPara(pConfig, "TAVTbaseParConf");

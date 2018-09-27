@@ -2,10 +2,10 @@
 #define _TAVTntuVertex_HXX
 
 // ROOT classes
-#include "TObject.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
 
+#include "TAGobject.hxx"
 #include "TAGdata.hxx"
 #include "TAVTntuTrack.hxx"
 
@@ -18,7 +18,7 @@
 
 class TAVTtrack;
 class TClonesArray;
-class TAVTvertex : public TObject {
+class TAVTvertex : public TAGobject {
     
 private:
     TClonesArray*   fListOfTracks;      // list of track associated to the vertex 
@@ -26,7 +26,6 @@ private:
     Int_t           fIsValid;           // is zero if not valid 1 if it has almost two tracks
     Bool_t          fIsBmMatched;       // Matched flag with BM
     Double_t        fDistanceMin;       // distance value between the vertex point and the track. Sum of distance of all tracks
-    Int_t           fDebugLevel;       // debug level
 
 public:
     TAVTvertex();                                 

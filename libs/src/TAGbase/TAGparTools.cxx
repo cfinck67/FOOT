@@ -21,8 +21,7 @@ ClassImp(TAGparTools);
 TAGparTools::TAGparTools()
 : TAGpara(),
   fFileStream(),
-  fFileName(),
-  fDebugLevel(0)
+  fFileName()
 {
    // Standard constructor
 }

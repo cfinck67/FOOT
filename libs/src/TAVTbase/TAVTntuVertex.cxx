@@ -13,12 +13,11 @@ ClassImp(TAVTvertex) // Description of a vertex
 //______________________________________________________________________________
 //  
 TAVTvertex::TAVTvertex()
-:  TObject(),
+:  TAGobject(),
    fListOfTracks(new TClonesArray("TAVTtrack")),
    fIsValid(-1),
    fIsBmMatched(false),
-   fDistanceMin(-1),
-   fDebugLevel(0)
+   fDistanceMin(-1)
 {
     fListOfTracks->SetOwner(true);
     fVertexPosition.SetXYZ(0,0,0);
@@ -27,12 +26,11 @@ TAVTvertex::TAVTvertex()
 //______________________________________________________________________________
 //  
 TAVTvertex::TAVTvertex(const TAVTvertex& aVertex)
-:  TObject(aVertex),
+:  TAGobject(aVertex),
    fVertexPosition(aVertex.fVertexPosition),
    fIsValid(aVertex.fIsValid),
    fIsBmMatched(aVertex.fIsBmMatched),
-   fDistanceMin(aVertex.fDistanceMin),
-   fDebugLevel(aVertex.fDebugLevel)
+   fDistanceMin(aVertex.fDistanceMin)
 {
     fListOfTracks = (TClonesArray*)aVertex.fListOfTracks->Clone();
 }

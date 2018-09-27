@@ -2,12 +2,12 @@
 #define _TAVTbaseCluster_HXX
 
 // ROOT classes
-#include "TObject.h"
 #include "TList.h"
 #include "TVector3.h"
 #include "TClonesArray.h"
 #include "TObjArray.h"
 
+#include "TAGobject.hxx"
 #include "TAGdata.hxx"
 #include "TAVTntuRaw.hxx"
 
@@ -19,7 +19,7 @@ class TAVTparGeo;
  \author Ch. Finck
  */
 
-class TAVTbaseCluster : public TObject {
+class TAVTbaseCluster : public TAGobject {
    
 protected:
    TVector3*          fPosition;                 // position of the cluster in plane frame
@@ -27,7 +27,6 @@ protected:
    TVector3*          fPositionG;                // position of the clus in tracker frame
    TClonesArray*      fListOfPixels;             // list of pixel attached to this cluster
    
-   Int_t              fDebugLevel;             // debug level
    Int_t              fNumber;                   // number
    Int_t              fPlaneNumber;              // plane number
    Bool_t             fFound;                    // kTRUE is associated to a track
@@ -67,9 +66,7 @@ public:
    void               SetNumber(Int_t nb)                    { fNumber = nb;           } 
    //! Set plane number
    void               SetPlaneNumber(Int_t nb)               { fPlaneNumber = nb;      }
-   //! Set debug level
-   void               SetDebug( Int_t aDebug)                { fDebugLevel = aDebug; }   
-   
+  
    //! Get position in local frame
    TVector3&           GetPosition()                    const { return *fPosition;      }
    //! Get position error in local frame
@@ -92,8 +89,6 @@ public:
    Bool_t             GetFoundXZ()                     const { return fFoundXZ;        }
    //! Get found flag this cluster
    Bool_t             GetFoundYZ()                     const { return fFoundYZ;        }
-   //! Get debug level
-   Int_t              GetDebug()                       const { return fDebugLevel;   }
    //! Get index of seed pixel
    Int_t              GetIndexSeed()                   const { return fIndexSeed;      }
    

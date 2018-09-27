@@ -47,8 +47,7 @@ TAVTactBaseNtuMC::TAVTactBaseNtuMC(const char* name,  TAGparaDsc* pGeoMap, EVENT
  : TAGaction(name, "TAVTactBaseNtuMC - NTuplize Vertex MC data"),
    fpGeoMap(pGeoMap),
 	fpEvtStr(evStr),
-	fNoisyPixelsN(0),
-	fDebugLevel(0)
+	fNoisyPixelsN(0)
 {
 
    CreateDigitizer();

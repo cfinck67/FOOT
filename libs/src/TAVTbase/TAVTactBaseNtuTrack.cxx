@@ -597,15 +597,6 @@ void TAVTactBaseNtuTrack::FillBmHistogramm(TVector3 bmTrackPos)
    }   
 }
 
-//______________________________________________________________________________
-//  
-void TAVTactBaseNtuTrack::SetDebug(Int_t aDebug)
-{
-   // Initialize or update the debug level
-   fDebugLevel = aDebug;   
-   cout << "TAVTactBaseNtuTrack debug updated to " << fDebugLevel << endl;
-}
-
 //_____________________________________________________________________________
 //  
 TAVTcluster* TAVTactBaseNtuTrack::NearestCluster(TAVTtrack *aTrack, Int_t iSensor)

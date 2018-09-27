@@ -2,12 +2,12 @@
 #define _TAVTntuTrack_HXX
 
 // ROOT classes
-#include "TObject.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
 #include "TVector2.h"
 #include "TArrayF.h"
 
+#include "TAGobject.hxx"
 #include "TAGdata.hxx"
 #include "TAVTntuCluster.hxx"
 
@@ -31,7 +31,7 @@
 
  */
 
-class TAVTline : public TObject {
+class TAVTline : public TAGobject {
    
 private:
    // origin x0,y0,z0 
@@ -82,7 +82,7 @@ public:
 
 class TAVTcluster;
 class TClonesArray;
-class TAVTtrack : public TObject {
+class TAVTtrack : public TAGobject {
    
 private:
    Bool_t         fPileup;                       // true if track is part of pileup events
@@ -106,7 +106,6 @@ private:
    Int_t          fChargeWithMaxProbaNorm;       // charge with maximum probability for normalized charge disttribution
    Float_t        fChargeMaxProbaNorm;           // charge maximum probability for normalized charge disttribution
 
-   Int_t          fDebugLevel;                   // debug level
 
 public:
    TAVTtrack();                                 

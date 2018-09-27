@@ -11,9 +11,9 @@
 
 #include "TCanvas.h"
 #include "TH2F.h"
-#include "TObject.h"
 #include "TString.h"
 
+#include "TAGobject.hxx"
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGparaDsc.hxx"
@@ -30,7 +30,7 @@ class TAVTactNtuClusterF;
 class TAVTactNtuTrack;
 class TAVTtrack;
 
-class TAVTalign : public TObject {
+class TAVTalign : public TAGobject {
    
 public:
    virtual ~TAVTalign();

@@ -15,12 +15,13 @@
 #include "TString.h"
 #include "TList.h"
 
+#include "TAGobject.hxx"
 #include "TAGparaDsc.hxx"
 
 
 class TF1;
 class TAVTbaseParGeo;
-class TAVTbaseDigitizer : public TObject {
+class TAVTbaseDigitizer : public TAGobject {
    
 public:
    TAVTbaseDigitizer(TAVTbaseParGeo* parGeo);
@@ -84,8 +85,6 @@ protected:
    Float_t     fPitchY;          // pitch in Y
    
    Int_t*      fShel;
-
-   Int_t       fDebugLevel;      // debug
    
 protected:
    void        SetFunctions();

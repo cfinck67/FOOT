@@ -53,8 +53,6 @@ public:
    
    //! Set list of pixels
    void SetListOfPixels(TClonesArray* list)    { fListOfPixels = list;    }
-   //! Set debug level
-   void SetDebugLevel(Int_t debug)             { fDebugLevel = debug;     }
    //! Set position of current cluster
    void SetCurrentPosition(Float_t u, Float_t v, Float_t z)   { fCurrentPosition->SetXYZ(u,v,z); }
    
@@ -77,7 +75,6 @@ protected:
    
    Int_t          fClustersN;     // number of cluster
 
-   Int_t          fDebugLevel;        // debug level
    
    TH1F*          fpHisPixelTot;	     // Total number of pixels per cluster
    TH1F*          fpHisPixel[32];	  // number of pixels per cluster per sensor

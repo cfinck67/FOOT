@@ -59,7 +59,7 @@ TAVTline::TAVTline(TVector3 &aOrigin, TVector3 &aSlope, Float_t aLength)
 //  
 
 TAVTline::TAVTline(const TAVTline& aLine)
-:  TObject(aLine),
+:  TAGobject(aLine),
    fOrigin(new TVector3(*aLine.fOrigin)),
    fSlope(new TVector3(*aLine.fSlope)),
    fLength(aLine.fLength),
@@ -169,7 +169,7 @@ ClassImp(TAVTtrack) // Description of a Track
 //______________________________________________________________________________
 //  
 TAVTtrack::TAVTtrack()
-:  TObject(),
+:  TAGobject(),
    fPileup(kFALSE),
    fType(0),
    fTrackNumber(-1),
@@ -187,8 +187,7 @@ TAVTtrack::TAVTtrack()
    fChargeMaxProba(0.),
    fChargeProbaNorm(new TArrayF(6)),
    fChargeWithMaxProbaNorm(0),
-   fChargeMaxProbaNorm(0.),
-   fDebugLevel(0)
+   fChargeMaxProbaNorm(0.)
 {
    fListOfClusters->SetOwner(true);
 }
@@ -196,7 +195,7 @@ TAVTtrack::TAVTtrack()
 //______________________________________________________________________________
 //  
 TAVTtrack::TAVTtrack(const TAVTtrack& aTrack)
-:  TObject(aTrack),
+:  TAGobject(aTrack),
    fPileup(aTrack.fPileup),
    fType(aTrack.GetType()),
    fTrackNumber(aTrack.GetNumber()),
@@ -213,8 +212,7 @@ TAVTtrack::TAVTtrack(const TAVTtrack& aTrack)
    fChargeMaxProba(aTrack.fChargeMaxProba),
    fChargeProbaNorm(new TArrayF(*aTrack.fChargeProbaNorm)),
    fChargeWithMaxProbaNorm(aTrack.fChargeWithMaxProbaNorm),
-   fChargeMaxProbaNorm(aTrack.fChargeMaxProbaNorm),
-   fDebugLevel(aTrack.fDebugLevel)
+   fChargeMaxProbaNorm(aTrack.fChargeMaxProbaNorm)
 {
    fListOfClusters = (TClonesArray*)aTrack.fListOfClusters->Clone();
 }

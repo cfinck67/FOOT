@@ -187,8 +187,7 @@ TAITtrack::TAITtrack()
    fChargeMaxProba(0.),
    fChargeProbaNorm(new TArrayF(6)),
    fChargeWithMaxProbaNorm(0),
-   fChargeMaxProbaNorm(0.),
-   fDebugLevel(0)
+   fChargeMaxProbaNorm(0.)
 {
    fListOfClusters->SetOwner(true);
 }

@@ -37,9 +37,7 @@ private:
    TAGdataDsc*     fpDatRaw;		    // input data dsc
    TAGparaDsc*     fpParMap;		    // map para dsc
    TAGparaDsc*     fpGeoMap;		    // geometry para dsc
-   
-   Int_t           fDebugLevel;         // debug level
-   
+      
    TH2F*           fpHisPosMap[8];    // pixel map per sensor   
 };
 

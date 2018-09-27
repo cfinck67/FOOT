@@ -39,8 +39,7 @@ TAVTactBaseNtuVertex::TAVTactBaseNtuVertex(const char* name,
   fpNtuVertex(pNtuVertex),
   fpConfig(pConfig),
   fpGeoMap(pGeoMap),
-  fpBMntuTrack(pBmTrack),
-  fDebugLevel(0)
+  fpBMntuTrack(pBmTrack)
 {
     AddDataIn(pNtuTrack,   "TAVTntuTrack");
     AddDataOut(pNtuVertex, "TAVTntuVertex");

@@ -56,11 +56,7 @@ public:
    TAITtrack*       NearestTrack(TAITcluster *aCluster); 
    //! Get nearest cluster for a given track and plane
    TAITcluster*     NearestCluster(TAITtrack *aTrack, Int_t aPlaneNumber); 
-   
-   //! Set debug level
-   void             SetDebug(Int_t aDebug);  
-   //! Get debug level
-   Int_t            GetDebug()                         const   { return  fDebugLevel;        }
+
    
 public:
    //! Set refit flag
@@ -102,8 +98,6 @@ protected:
    TABMntuTrackTr*  fBmTrack;            // BM track pointer 
    TVector3         fBmTrackPos;         // BM track position 
    
-   Int_t            fDebugLevel;         // debug level
-
    TH1F*            fpHisPixelTot;		 // Total number of pixels per tracked cluster
    TH1F*            fpHisPixel[8];		 // Total number of pixels per tracked cluster for each sensor
    TH2F*            fpHisTrackMap[8];    // track map per sensor

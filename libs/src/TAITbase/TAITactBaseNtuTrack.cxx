@@ -57,8 +57,7 @@ TAITactBaseNtuTrack::TAITactBaseNtuTrack(const char* name,
   fGraphV(new TGraphErrors()),
   fBmTrackOk(false),
   fBmTrack(0x0),
-  fBmTrackPos(0,0,0),
-  fDebugLevel(0)
+  fBmTrackPos(0,0,0)
 {
    AddDataIn(pNtuClus,   "TAITntuCluster");
    AddDataOut(pNtuTrack, "TAITntuTrack");

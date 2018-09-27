@@ -65,9 +65,7 @@ protected:
    
    Int_t             fEventsOverflow; 
    Int_t             fNStatesInLine; 
-   
-   Int_t             fDebugLevel;
-   
+      
    TH2F*             fpHisPixelMap[8];  // pixel map per sensor
    TH1F*             fpHisRateMap[8];   // pixel map per sensor
    TH1F*             fpHisRateMapQ[8];  // pixel map per sensor quadrant

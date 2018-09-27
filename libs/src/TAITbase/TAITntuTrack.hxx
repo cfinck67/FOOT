@@ -2,12 +2,12 @@
 #define _TAITntuTrack_HXX
 
 // ROOT classes
-#include "TObject.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
 #include "TVector2.h"
 #include "TArrayF.h"
 
+#include "TAGobject.hxx"
 #include "TAGdata.hxx"
 #include "TAITntuCluster.hxx"
 
@@ -82,7 +82,7 @@ public:
 
 class TAITcluster;
 class TClonesArray;
-class TAITtrack : public TObject {
+class TAITtrack : public TAGobject {
    
 private:
    Bool_t         fPileup;                       // true if track is part of pileup events

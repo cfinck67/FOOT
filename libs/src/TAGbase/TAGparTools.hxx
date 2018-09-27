@@ -24,7 +24,6 @@ class TAGparTools : public TAGpara {
 protected:
    ifstream fFileStream; // parameter file
    TString  fFileName;   // name of the file
-   Int_t    fDebugLevel; // debug level
    
 public:
    

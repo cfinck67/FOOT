@@ -47,7 +47,6 @@ protected:
     TAGparaDsc*     fpGeoMap;		     // geometry para dsc
     TAGdataDsc*     fpBMntuTrack;		 // bm track data dsc
 
-    Int_t           fDebugLevel;        // debug flag
     Float_t         fSearchClusDistance; // distance for pileup
     TVector3        fVtxPos;             // vertex pos
 

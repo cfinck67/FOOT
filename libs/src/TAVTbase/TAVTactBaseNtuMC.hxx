@@ -82,8 +82,6 @@ protected:
 
    TAVTbaseDigitizer*  fDigitizer;       // cluster size digitizer
    Int_t           fNoisyPixelsN;
-
-   Int_t           fDebugLevel;         // debug level
    
    TString         fPrefix;            // prefix of histogram
 

@@ -37,8 +37,7 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc
   fReadingEvent(0),
   fOverflow(0),
   fEventsOverflow(0), 
-  fNStatesInLine(0),
-  fDebugLevel(0)
+  fNStatesInLine(0)
 {
    AddDataOut(pDatRaw, "TAVTdatRaw");
    AddPara(pGeoMap, "TAVTparGeo");
