@@ -1,6 +1,6 @@
 # Ch. Finck
 #
-project (TAGmclib)
+project (TAMCbase)
 #
 MESSAGE("  src/${PROJECT_NAME}:")
 #

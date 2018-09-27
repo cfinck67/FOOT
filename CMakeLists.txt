@@ -74,7 +74,7 @@ Set(TAIT  "TAITbase")
 Set(TAMSD "TAMSDbase")
 Set(TATW  "TATWbase")
 Set(TACA  "TACAbase")
-Set(TAMC  "TAGmclib")
+Set(TAMC  "TAMCbase")
 Set(TAFO  "TAGfoot")
 add_definitions(-std=c++11)
 
