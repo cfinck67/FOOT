@@ -9,8 +9,8 @@
 ClassImp(TAGgeoTrafo);
 
       TString TAGgeoTrafo::fgDefaultActName = "actGeoTrafo";
-const Char_t* TAGgeoTrafo::fgkGeomName      = "FIRST";
-const Char_t* TAGgeoTrafo::fgkGeomTitle     = "FIRST Geometry";
+const Char_t* TAGgeoTrafo::fgkGeomName      = "FOOT";
+const Char_t* TAGgeoTrafo::fgkGeomTitle     = "FOOT Geometry";
       Char_t  TAGgeoTrafo::fgDefaultTransp  = 60;
 const Float_t TAGgeoTrafo::fgkCmToMu        = 10000;
 const Float_t TAGgeoTrafo::fgkMuToCm        = 1e-4;
