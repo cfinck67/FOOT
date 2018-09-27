@@ -71,7 +71,7 @@
    gROOT->ProcessLine(tmp.Data());
 
    tmp = "@GENFIT_INCLUDE_DIR@";
-   printf("- Add %s to the include path \n",tmp.Data());
+   printf("- Add GenFit to the include path \n");
    tmp.Prepend(" .include "); 
    gROOT->ProcessLine(tmp.Data());
    
@@ -82,7 +82,7 @@
    gSystem->Load("libTAGbase.so");
    gSystem->Load("libTACAbase.so");
    
-   gSystem->Load("libTAGmclib.so");
+   gSystem->Load("libTAMCbase.so");
    gSystem->Load("libTABMbase.so");
    gSystem->Load("libTAVTbase.so");
    gSystem->Load("libTAITbase.so");
