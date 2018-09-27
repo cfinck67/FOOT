@@ -19,6 +19,21 @@ inline Bool_t TAGpara::Fail() const
 }
 
 //------------------------------------------+-----------------------------------
+//! Returns debug level
+
+inline Int_t TAGpara::GetDebugLevel() const
+{
+   return fDebugLevel;
+}
+
+//------------------------------------------+-----------------------------------
+//! Set debug level
+inline void  TAGpara::SetDebugLevel(Int_t d)
+{
+   fDebugLevel = d;
+}
+
+//------------------------------------------+-----------------------------------
 /*!
   \relates TAGpara
   \brief ostream insertion operator.

@@ -33,6 +33,21 @@ inline Bool_t TAGnamed::Fail() const
 }
 
 //------------------------------------------+-----------------------------------
+//! Returns debug level
+
+inline Int_t TAGnamed::GetDebugLevel() const
+{
+   return fDebugLevel;
+}
+
+//------------------------------------------+-----------------------------------
+//! Set debug level
+inline void  TAGnamed::SetDebugLevel(Int_t d)
+{
+   fDebugLevel = d;
+}
+
+//------------------------------------------+-----------------------------------
 /*!
   \relates TAGnamed
   \brief ostream insertion operator.

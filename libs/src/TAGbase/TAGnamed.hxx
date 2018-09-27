@@ -29,9 +29,12 @@ class TAGnamed : public TNamed {
     virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
     virtual void    Print(Option_t* option="") const;
 
-    ClassDef(TAGnamed,2)
+    Int_t           GetDebugLevel() const;
+    void            SetDebugLevel(Int_t d);
+   
+  protected:
+    Int_t   fDebugLevel;
 
-  private:
 };
 
 ostream& operator<<(ostream& os, const TAGnamed& obj);

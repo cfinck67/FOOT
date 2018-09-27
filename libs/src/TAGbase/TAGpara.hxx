@@ -29,9 +29,13 @@ class TAGpara : public TObject {
     virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
     virtual void    Print(Option_t* option="") const;
 
-    ClassDef(TAGpara,2)
+    Int_t           GetDebugLevel() const;
+    void            SetDebugLevel(Int_t d);
 
-  private:
+  protected:
+   Int_t   fDebugLevel;
+   
+   ClassDef(TAGpara,2)
 };
 
 ostream& operator<<(ostream& os, const TAGpara& obj);
