@@ -10,8 +10,12 @@
 
 #include "TSystem.h"
 #include "TString.h"
+#include "TGeoManager.h"
 
 #include "TATRparGeo.hxx"
+#include "TAGgeoTrafo.hxx"
+
+#include "foot_geo.h"
 
 //##############################################################################
 
@@ -63,6 +67,36 @@ TATRparGeo::TATRparGeo() {
   sid.SetXYZ(BMWIDTHNEW,BMHEIGHTNEW,BMLENGHTNEW); SetSide(sid);
   ang.SetXYZ(EULER1MONNEW,EULER2MONNEW,EULER3MONNEW); SetAngles(ang);
 
+   DefineMaterial();
+}
+
+//_____________________________________________________________________________
+void TATRparGeo::DefineMaterial()
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   TGeoElementTable* table = gGeoManager->GetElementTable();
+   
+   // create material
+   TGeoMaterial* mat = 0x0;;
+   TGeoMedium*   med = 0x0;
+   TGeoMixture*  mix = 0x0;;
+   
+   // EJ-212 Scintillator material from eljen technology
+   const Char_t* matName = SCN_MEDIUM.Data();
+   if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
+      
+      TGeoElement* matC = table->GetElement(6);
+      TGeoElement* matH = table->GetElement(1);
+      
+      mix =new TGeoMixture(matName,2, 1.023);
+      mix->AddElement(matC, 9);
+      mix->AddElement(matH, 10);
+   }
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
+      med = new TGeoMedium(matName,1,mat);
 }
 
 //------------------------------------------+-----------------------------------

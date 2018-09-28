@@ -38,6 +38,7 @@ public:
 
     void InitGeo();
     void InitMaterial();
+    void DefineMaterial();
 
 
     // Return the pixel position  -->  change name! in GetPixelPos()

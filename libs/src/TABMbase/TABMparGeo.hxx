@@ -58,6 +58,8 @@ public:
   Double_t GetCellWidth();
 
   void InitGeo();
+  void DefineMaterial();
+
   int RotateBmon();
   int ShiftBmon();
   

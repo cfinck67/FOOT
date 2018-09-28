@@ -42,7 +42,8 @@ class TATRparGeo : public TAGpara {
     Double_t GetCellHeight();
     Double_t GetCellWidth();
 
-    void InitGeo();
+    void        InitGeo();
+    void        DefineMaterial();
 
     void        SetWidth(double wid);
     void        SetLength(double len);

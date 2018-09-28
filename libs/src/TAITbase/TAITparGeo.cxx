@@ -12,6 +12,7 @@
 #include "TEveTrans.h"
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
+#include "TGeoMaterial.h"
 #include "TList.h"
 #include "TMath.h"
 #include "TObjArray.h"
@@ -118,6 +119,95 @@ void TAITparGeo::InitMaterial()
 		}
 
 	}
+   DefineMaterial();
+}
+
+//_____________________________________________________________________________
+void TAITparGeo::DefineMaterial()
+{
+   
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   TGeoElementTable* table = gGeoManager->GetElementTable();
+   
+   // create material
+   TGeoMaterial* mat = 0x0;;
+   TGeoMixture*  mix = 0x0;;
+   TGeoMedium*   med = 0x0;
+   
+   // silicon
+   const Char_t* matName = ITR_MEDIUM.Data();
+   if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 )
+      mat = new TGeoMaterial(matName, 28.09, 14, 2.3);
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
+      med = new TGeoMedium(matName,1,mat);
+   
+   // Kapton C22_H10_N2_O5 39 atoms
+   matName = ITR_KAP_MEDIUM.Data();
+   if ( (mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
+      
+      TGeoElement* matC = table->GetElement(6);
+      TGeoElement* matH = table->GetElement(1);
+      TGeoElement* matN = table->GetElement(7);
+      TGeoElement* matO = table->GetElement(8);
+      
+      mix =new TGeoMixture(matName,4, 1.42);
+      mix->AddElement(matC, 22);
+      mix->AddElement(matH, 10);
+      mix->AddElement(matN, 2);
+      mix->AddElement(matO, 5);
+   }
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
+      med = new TGeoMedium(matName,2,mat);
+   
+   // Aluminum
+   matName = ITR_AL_MEDIUM.Data();
+   if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 )
+      mat = new TGeoMaterial(matName, 26.98, 13, 2.7);
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
+      med = new TGeoMedium(matName,3,mat);
+
+   // Epoxy C18_H19_O3
+   matName = ITR_EPO_MEDIUM.Data();
+   if ( (mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
+      
+      TGeoElement* matC = table->GetElement(6);
+      TGeoElement* matH = table->GetElement(1);
+      TGeoElement* matO = table->GetElement(8);
+      
+      mix =new TGeoMixture(matName,3, 1.5);
+      mix->AddElement(matC, 18);
+      mix->AddElement(matH, 19);
+      mix->AddElement(matO, 3);
+   }
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
+      med = new TGeoMedium(matName,4,mat);
+   
+   // Foam SiC+Air
+   matName = ITR_FOAM_MEDIUM.Data();
+   if ( (mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
+      
+      TGeoMaterial *matO = new TGeoMaterial("Oxygen",   16., 8., 1.41e-3);
+      TGeoMaterial *matN = new TGeoMaterial("Nitrogen", 14., 7., 1.25e-3);
+      TGeoMaterial *matC = new TGeoMaterial("Carbon",   12., 6., 2.1);
+      TGeoMaterial *matSi = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(ITR_MEDIUM.Data());
+
+      TGeoMixture* mixSiC = new TGeoMixture("SiC", 2, 3.22);
+      mixSiC->AddElement(matC, 0.5);
+      mixSiC->AddElement(matSi, 0.5);
+      
+      TGeoMixture* mixAir = new TGeoMixture("Air", 2, 1.29e-3);
+      mixAir->AddElement(matN, 0.79);
+      mixAir->AddElement(matO, 0.21);
+      
+      mix = new TGeoMixture(matName, 2, 0.129);
+      mix->AddElement(mixSiC, 0.04);
+      mix->AddElement(mixAir, 0.96);
+   }
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
+      med = new TGeoMedium(matName,5,mat);
 
 }
 

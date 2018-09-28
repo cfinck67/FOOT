@@ -40,10 +40,45 @@ TACAparGeo::TACAparGeo() {
 
 
 //_____________________________________________________________________________
-void TACAparGeo::InitMaterial() {
+void TACAparGeo::InitMaterial()
+{
 
+   DefineMaterial();
 }
 
+//_____________________________________________________________________________
+void TACAparGeo::DefineMaterial()
+{
+   
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   TGeoElementTable* table = gGeoManager->GetElementTable();
+   
+   // create material
+   TGeoMaterial* mat = 0x0;;
+   TGeoMixture*  mix = 0x0;;
+   TGeoMedium*   med = 0x0;
+
+   // BGO
+   const Char_t* matName = CAL_MEDIUM.Data();
+   if ( (mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
+      
+      TGeoElement* matO  = table->GetElement(8);
+      TGeoElement* matGe = table->GetElement(32);
+      TGeoElement* matBi = table->GetElement(83);
+      
+      mix =new TGeoMixture(matName,3, 7.13);
+      mix->AddElement(matO,12);
+      mix->AddElement(matBi,4);
+      mix->AddElement(matGe,3);
+
+   }
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
+      med = new TGeoMedium(matName,2,mat);
+   
+}
 
 
 //_____________________________________________________________________________

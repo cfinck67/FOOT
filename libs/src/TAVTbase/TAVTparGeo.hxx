@@ -42,6 +42,7 @@ public:
 
    void   InitGeo();
    void   InitMaterial();
+   void   DefineMaterial();
    
    string PrintParameters();
 

@@ -165,8 +165,10 @@ TVector3 TABMparGeo::GetDelta() {
   return bm_DeltaDch;
 }
 
-void TABMparGeo::InitGeo(){
-
+void TABMparGeo::InitGeo()
+{
+  DefineMaterial();
+   
   double aa[NWIRELAYERNEW], bb[NWIRELAYERNEW];
   int iCell[2], iField[2];
    
@@ -409,34 +411,40 @@ void TABMparGeo::ToStream(ostream& os, Option_t*) const
 */
 
 //_____________________________________________________________________________
-
-void TABMparGeo::CreateLocalBMGeo() 
+void TABMparGeo::DefineMaterial()
 {
    
-  new TGeoManager("bm_geo", "geometria beam monitor");
-  
-  // create material   
-  TGeoMaterial *matAr = new TGeoMaterial("Argon", 39.948, 18., 0.001662);//densità viene da flair, 
-  TGeoMaterial *matC = new TGeoMaterial("Carbon", 12.0107, 6., 2.26);
-  TGeoMaterial *matO = new TGeoMaterial("Oxygen", 16., 8., 0.0013315);
-  TGeoMaterial *matAl = new TGeoMaterial("Aluminium", 26.981539, 13., 2.6989);
-  TGeoMaterial *matW = new TGeoMaterial("Tungsten", 183.84, 74., 19.3);// poi magari mettere la copertura in oro
-  TGeoMaterial *vacuum = new TGeoMaterial("vacuum",0,0,0);//a,z,rho
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   // create material
+   TGeoMaterial *matAr = new TGeoMaterial("Argon", 39.948, 18., 0.001662);//densità viene da flair,
+   TGeoMaterial *matC = new TGeoMaterial("Carbon", 12.0107, 6., 2.26);
+   TGeoMaterial *matO = new TGeoMaterial("Oxygen", 16., 8., 0.0013315);
+   TGeoMaterial *matAl = new TGeoMaterial("Aluminium", 26.981539, 13., 2.6989);
+   TGeoMaterial *matW = new TGeoMaterial("Tungsten", 183.84, 74., 19.3);// poi magari mettere la copertura in oro
+   TGeoMaterial *vacuum = new TGeoMaterial("vacuum",0,0,0);//a,z,rho
+   
+   TGeoMixture *ArCO2 = new TGeoMixture("ArCO2",3, 0.001677136);
+   ArCO2->AddElement(matAr ,1./4.);
+   ArCO2->AddElement(matC ,1./4.);
+   ArCO2->AddElement(matO ,2./4.);
+   
+   //create medium
+   TGeoMedium *vacuum_med = new TGeoMedium("vacuum_med",0, vacuum);
+   TGeoMedium *gas_med = new TGeoMedium("gas_med",1, ArCO2);
+   TGeoMedium *c_wire_med = new TGeoMedium("catod wire",2, matAl);
+}
 
-  TGeoMixture *ArCO2 = new TGeoMixture("ArCO2",3);
-  ArCO2->AddElement(matAr ,1./4.);
-  ArCO2->AddElement(matC ,1./4.);
-  ArCO2->AddElement(matO ,2./4.);
-  //   ArCO2->AddElement(matCO2 ,20.);
- 
-  ArCO2->SetDensity(0.001677136); //da flair
-
-
-  //create medium
-  TGeoMedium *vacuum_med = new TGeoMedium("vacuum_med",0, vacuum);
-  TGeoMedium *gas_med = new TGeoMedium("gas_med",1, ArCO2);
-  TGeoMedium *c_wire_med = new TGeoMedium("catod wire",2, matAl);
-  TGeoMedium *a_wire_med = new TGeoMedium("anod wire",3, matW);
+//_____________________________________________________________________________
+void TABMparGeo::CreateLocalBMGeo() 
+{
+  //fetch medium
+  TGeoMedium *vacuum_med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("vacuum_med");
+  TGeoMedium *gas_med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("gas_med");
+  TGeoMedium *c_wire_med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("catod wire");
+  TGeoMedium *a_wire_med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("anod wire");
    
    
   //create gas boxe
@@ -514,7 +522,7 @@ TGeoVolume* TABMparGeo::AddBM(const char *bmName )
     new TGeoManager(TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
   }
    
-  // create module
+  // create material
   TGeoMaterial* matBM;
   TGeoMedium*   medBM;
    

@@ -35,11 +35,11 @@ class TATWparGeo : public TAGparTools {
 public:
 
     TATWparGeo();
-    TATWparGeo( TATWparGeo* original );
     virtual ~TATWparGeo() {};
 
     void InitGeo();
     void InitMaterial();
+    void DefineMaterial();
 
     //! Transform point from the global reference frame
     //! to the local reference frame of the detection id
@@ -130,8 +130,6 @@ private:
   map<string, vector<string> > m_regionName;
   map<string, vector<string> > m_bodyName;
   map<string, int > m_magneticRegion;
-
-  int m_debug;
    
   ClassDef(TATWparGeo,1)
 };

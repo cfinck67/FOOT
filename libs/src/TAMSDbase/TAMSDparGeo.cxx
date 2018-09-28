@@ -59,6 +59,27 @@ void TAMSDparGeo::InitMaterial()
             m_materialType[ m_materialOrder[i] ] = MSD_MEDIUM;
         }
     }
+   DefineMaterial();
+}
+
+//_____________________________________________________________________________
+void TAMSDparGeo::DefineMaterial()
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   // create material
+   TGeoMaterial* mat = 0x0;;
+   TGeoMedium*   med = 0x0;
+   
+   // silicon
+   const Char_t* matName = MSD_MEDIUM.Data();
+   if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 )
+      mat = new TGeoMaterial(matName, 28.09, 14, 2.3);
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
+      med = new TGeoMedium(matName,1,mat);
+ 
 }
 
 //_____________________________________________________________________________

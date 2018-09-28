@@ -18,23 +18,21 @@
 // #include "TATWparMap.hxx"
 #include "TATWparGeo.hxx"
 
-// #include "foot_geo.h"
+#include "foot_geo.h"
 // #include "GlobalPar.hxx"
 
 
-
-TATWparGeo::TATWparGeo() {
+//_____________________________________________________________________________
+TATWparGeo::TATWparGeo()
+{
 
   m_volumeCount = -1;
-
-  m_debug = GlobalPar::GetPar()->Debug(); 
-
   InitMaterial();
 
 };
 
 
-
+//_____________________________________________________________________________
 void TATWparGeo::InitMaterial() {
 
   if ( fDebugLevel> 1 ) {
@@ -50,33 +48,40 @@ void TATWparGeo::InitMaterial() {
 	}
   }
 
+   DefineMaterial();
 }
 
+//_____________________________________________________________________________
+void TATWparGeo::DefineMaterial()
+{
+   
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   TGeoElementTable* table = gGeoManager->GetElementTable();
 
-//  copy constructor
-TATWparGeo::TATWparGeo( TATWparGeo* original ) :
+   // create material
+   TGeoMaterial* mat = 0x0;;
+   TGeoMedium*   med = 0x0;
+   TGeoMixture*  mix = 0x0;;
 
-  m_rotation(original->m_rotation),
-  m_origin(original->m_origin),  // current position
-  m_center(original->m_center),  // current position
-  m_dimension(original->m_dimension),
-
-  m_nBar (original->m_nBar),
-  m_nLayer (original->m_nLayer),
-  m_NBar (original->m_NBar),
-
-  m_dimensionBar(original->m_dimensionBar),
-  m_layerDistance(original->m_layerDistance){	
-
-  // m_materialThick(original->m_materialThick),
-  // m_materialType(original->m_materialType)
-
-  
-  m_barMatrix = original->m_barMatrix;
+   // EJ-212 Scintillator material from eljen technology
+   const Char_t* matName = SCN_MEDIUM.Data();
+   if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
+   
+      TGeoElement* matC = table->GetElement(6);
+      TGeoElement* matH = table->GetElement(1);
+   
+      mix =new TGeoMixture(matName,2, 1.023);
+      mix->AddElement(matC, 9);
+      mix->AddElement(matH, 10);
+   }
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
+      med = new TGeoMedium(matName,1,mat);
 }
 
-
-
+//_____________________________________________________________________________
 void TATWparGeo::InitGeo()  {
 
 	if ( fDebugLevel> 0 )     cout << "\n\nTATWparGeo::InitGeo" << endl<< endl;
@@ -326,7 +331,7 @@ string TATWparGeo::PrintBodies() {
 	// loop over all body of the same material
 	for ( vector<string>::iterator itBody = (*itMat).second.begin(); itBody != (*itMat).second.end(); itBody++ ) {
 	  outstr << (*itBody);
-	  if (m_debug > 3)    cout << (*itBody);
+	  if (fDebugLevel > 3)    cout << (*itBody);
 	}        
   }
   return outstr.str();
@@ -348,7 +353,7 @@ string TATWparGeo::PrintRegions() {
 	// loop over all region of the same material
 	for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
 	  outstr << (*itRegion);
-	  if (m_debug > 3)    cout << (*itRegion);
+	  if (fDebugLevel > 3)    cout << (*itRegion);
 	}        
   }
   return outstr.str();
@@ -435,7 +440,7 @@ string TATWparGeo::PrintAssignMaterial() {
 	outstr << endl;
 
 	// DEBUG
-	// if (m_debug > 0)    cout << outstr.str();
+	// if (fDebugLevel > 0)    cout << outstr.str();
 
   }
 

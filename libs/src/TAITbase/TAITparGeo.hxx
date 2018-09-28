@@ -48,6 +48,7 @@ public:
    
     void InitGeo();
     void InitMaterial();
+    void DefineMaterial();
 
     TVector3 GetSensorPosition( int sensorID );
 

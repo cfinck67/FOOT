@@ -25,7 +25,6 @@
 #include "TAVTparGeo.hxx"
 
 #include "foot_geo.h"
-#include "GlobalPar.hxx"
 
 
 TString TAVTparGeo::fgkDefParaName = "vtGeo";
@@ -34,7 +33,6 @@ TString TAVTparGeo::fgkDefParaName = "vtGeo";
 TAVTparGeo::TAVTparGeo()
 : TAVTbaseParGeo()
 {
-
 }
 
 //_____________________________________________________________________________
@@ -53,6 +51,27 @@ void TAVTparGeo::InitMaterial()
             m_materialType[ m_materialOrder[i] ] = VTX_MEDIUM;
         }
     }
+   
+   DefineMaterial();
+}
+
+//_____________________________________________________________________________
+void TAVTparGeo::DefineMaterial()
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   // create material
+   TGeoMaterial* mat = 0x0;;
+   TGeoMedium*   med = 0x0;
+   
+   const Char_t* matName = VTX_MEDIUM.Data();
+
+   if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 )
+      mat = new TGeoMaterial(matName, 28.09, 14, 2.3);
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
+      med = new TGeoMedium(matName,1,mat);
 }
 
 //_____________________________________________________________________________

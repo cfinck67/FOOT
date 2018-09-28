@@ -30,6 +30,8 @@ public:
 
   void InitGeo();
   void InitMaterial();
+  void DefineMaterial();
+
   /*
   //! Transform point from the global reference frame
   //! to the local reference frame of the detection id and vice versa
