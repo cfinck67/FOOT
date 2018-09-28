@@ -302,16 +302,16 @@ loc->Transform( GetRotationToGlobal() );
 }
 
 
-/*
+
 //_____________________________________________________________________________
 TGeoVolume* TACAparGeo::GetVolume() {
 
-if ( !GlobalPar::GetPar()->geoROOT() ) 
-cout << "ERROR << TACAparGeo::GetVolume()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
+// if ( !GlobalPar::GetPar()->geoROOT() ) 
+// cout << "ERROR << TACAparGeo::GetVolume()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
 
-return m_universe;
+// return m_universe;
 }
-*/
+
 
 
 //_____________________________________________________________________________

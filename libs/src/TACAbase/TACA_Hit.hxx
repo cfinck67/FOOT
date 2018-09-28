@@ -1,5 +1,5 @@
-#ifndef _TACA_Hit_HXX
-#define _TACA_Hit_HXX
+#ifndef TACA_Hit_HXX
+#define TACA_Hit_HXX
 
 // ROOT classes
 #include "TObject.h"

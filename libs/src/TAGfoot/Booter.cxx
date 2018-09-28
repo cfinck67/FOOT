@@ -170,9 +170,11 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     GeoPrint();
 
     // Initialisation of KFfitter
-    if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init!" << endl;
-    m_kFitter = new KFitter();
-    if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
+    if ( GlobalPar::GetPar()->IncludeKalman() ) {
+        if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init!" << endl;
+        m_kFitter = new KFitter();
+        if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
+    }
     // // cluster test  -  myn_vtclus
     // pos2D = new TH2F( "pos2D", "pos2D", 500, -4, 4 , 500, -4, 4 ); // IT
     pos2D = new TH2F( "pos2D", "pos2D", 500, -1, 1 , 500, -1, 1 );  // VT

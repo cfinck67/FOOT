@@ -1,5 +1,5 @@
-#ifndef _TACA_ContainerHit_HXX
-#define _TACA_ContainerHit_HXX
+#ifndef TACA_ContainerHit_HXX
+#define TACA_ContainerHit_HXX
 /*!
  \file
  \version $Id: TATW_ContainerHit.hxx,v 1.0 2011/04/01 18:11:59 asarti Exp $
@@ -43,10 +43,10 @@ public:
     virtual void        SetupClones();
     
 
-    virtual void        Clear(Option_t* opt="");
+    virtual void        Clear(Option_t* opt=""){};
 
     // delete?
-    virtual void        ToStream(ostream& os=cout, Option_t* option="") const;
+    virtual void        ToStream(ostream& os=cout, Option_t* option="") const {};
    
    // static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
    
