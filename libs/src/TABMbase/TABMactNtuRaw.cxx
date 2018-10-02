@@ -7,7 +7,7 @@
 #include "math.h"
 
 #include "TABMdatRaw.hxx"
-#include "TAIRdatRaw.hxx"
+//#include "TAIRdatRaw.hxx"
 #include "TATRdatRaw.hxx"
 #include "TABMparGeo.hxx"
 #include "TABMparCon.hxx"
@@ -34,14 +34,14 @@ TABMactNtuRaw::TABMactNtuRaw(const char* name,
   : TAGaction(name, "TABMactNtuRaw - NTuplize BM raw data"),
     fpNtuRaw(p_nturaw),
     fpDatRaw(p_datraw),
-    fpTimRaw(p_timraw),
+//    fpTimRaw(p_timraw),
     fpTriRaw(p_triraw),
     fpGeoMap(p_geomap),
     fpParCon(p_parcon)
 {
   AddDataOut(p_nturaw, "TABMntuRaw");
   AddDataIn(p_datraw, "TABMdatRaw");
-  AddDataIn(p_timraw, "TAIRdatRaw");
+ // AddDataIn(p_timraw, "TAIRdatRaw");
   AddDataIn(p_triraw, "TATRdatRaw");
   AddPara(p_geomap, "TABMparGeo");
   AddPara(p_parcon, "TABMparCon");
@@ -138,7 +138,7 @@ vector<double> TABMactNtuRaw::retrieve_U() {
 Bool_t TABMactNtuRaw::Action()
 {
   TABMdatRaw* p_datraw = (TABMdatRaw*) fpDatRaw->Object();
-  TAIRdatRaw* p_timraw = (TAIRdatRaw*) fpTimRaw->Object();
+ // TAIRdatRaw* p_timraw = (TAIRdatRaw*) fpTimRaw->Object();
   TATRdatRaw* p_triraw = (TATRdatRaw*) fpTriRaw->Object();
   TABMntuRaw* p_nturaw = (TABMntuRaw*) fpNtuRaw->Object();
   TABMparGeo* p_geomap = (TABMparGeo*) fpGeoMap->Object();
@@ -152,13 +152,13 @@ Bool_t TABMactNtuRaw::Action()
   double irtime(-10000);
   double trigtime(-10000);
   
-  Int_t timhit = p_timraw->nirhit;
-  for (Int_t i = 0; i < timhit; i++) {
-    const TAIRrawHit* aHi = p_timraw->Hit(i);
-    if(aHi->ChID()==0 && !aHi->Type()) {
-      irtime = aHi->Time();
-    }
-  }
+//  Int_t timhit = p_timraw->nirhit;
+//  for (Int_t i = 0; i < timhit; i++) {
+//    const TAIRrawHit* aHi = p_timraw->Hit(i);
+//    if(aHi->ChID()==0 && !aHi->Type()) {
+//      irtime = aHi->Time();
+//    }
+//  }
 
   Int_t trihit = p_triraw->ntrhit;
   if(trihit>1) 
