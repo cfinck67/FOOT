@@ -378,7 +378,7 @@ void TAVTtrack::AddCluster(TAVTcluster* cluster)
 
 ClassImp(TAVTntuTrack);
 
-TString TAVTntuTrack::fgkBranchName   = "vtTrack.";
+TString TAVTntuTrack::fgkBranchName   = "vttrack.";
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.

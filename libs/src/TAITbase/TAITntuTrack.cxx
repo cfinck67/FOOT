@@ -379,7 +379,7 @@ void TAITtrack::AddCluster(TAITcluster* cluster)
 
 ClassImp(TAITntuTrack);
 
-TString TAITntuTrack::fgkBranchName   = "vtTrack.";
+TString TAITntuTrack::fgkBranchName   = "ittrack.";
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
