@@ -62,7 +62,7 @@ void TAVTvertex::Reset()
 
 ClassImp(TAVTntuVertex);
 
-TString TAVTntuVertex::fgkBranchName   = "vtxrh.";
+TString TAVTntuVertex::fgkBranchName   = "vtvtx.";
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
