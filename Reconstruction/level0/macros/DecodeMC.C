@@ -8,7 +8,7 @@
 #include <TStopwatch.h>
 
 #include "GlobalPar.hxx"
-#include "LocalRecoMC.hxx"
+#include "LocalRecoMC.h"
 
 #endif
 
@@ -46,7 +46,7 @@ void DecodeMC(TString name = "12C_400_vtx.root")
    watch.Start();
    
    locRec->BeforeEventLoop();
-   locRec->LoopEvent(1);
+   locRec->LoopEvent(500);
    locRec->AfterEventLoop();
 
    watch.Print();
