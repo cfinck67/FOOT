@@ -9,7 +9,7 @@ set(LIBNAME ${PROJECT_NAME})
 #
 # internal and external dependencies
 #
-set( EXTRA_INTERNAL_LIBRARIES ${TAIR} ${TATR} ${TAG}  ${TAMC} ${GENFIT_LIBRARIES})
+set( EXTRA_INTERNAL_LIBRARIES ${TATR} ${TAG}  ${TAMC} ${GENFIT_LIBRARIES})
 set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 #
 # headers / dictionnary / sources 
@@ -40,7 +40,6 @@ include_directories(${SIM_INCLUDE_DIR})
 include_directories(${GENFIT_INCLUDE_DIR})
 include_directories(${TAG_INCLUDE_DIR})
 include_directories(${TAMC_INCLUDE_DIR})
-include_directories(${TAIR_INCLUDE_DIR})
 include_directories(${TATR_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 #
