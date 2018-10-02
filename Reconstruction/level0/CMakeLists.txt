@@ -5,7 +5,7 @@ project (level0)
 MESSAGE("  ${PROJECT_NAME}:")
 #
 #
-set(LIBNAME RecoTools)
+set(LIBNAME LocalReco)
 
 #----------------------------------------------------------------------------
 # Copy rootlogon
@@ -17,13 +17,13 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/macros/rootlogon.C.cmake" "${CMAKE_B
 #
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/geomaps/ DESTINATION ${CMAKE_BINARY_DIR}/Reconstruction/level0/geomaps/)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/config/  DESTINATION ${CMAKE_BINARY_DIR}/Reconstruction/level0/config/)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/macros/    DESTINATION ${CMAKE_BINARY_DIR}/Reconstruction/level0/)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/macros/  DESTINATION ${CMAKE_BINARY_DIR}/Reconstruction/level0/)
 
 
 #----------------------------------------------------------------------------
 # internal and external dependencies
 #
-set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TAVT} ${TAIT} ${TAMSD} ${TABM} ${TATW} ${TACA} ${TAIR} ${TAMC} ${TAFO})
+set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TATR} ${TAVT} ${TAIT} ${TAMSD} ${TABM} ${TATW} ${TACA} ${TAIR} ${TAMC} ${TAFO})
 set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES} ${GENFIT_LIBRARIES})
 
 #----------------------------------------------------------------------------
@@ -33,13 +33,15 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES} ${GENFIT_LIBRARIES})
 # manual method : base file name separated in two lists with different treatment.
 #
 set( with_dictionnaries
-   RecoTools
+   BaseLocalReco
+   LocalRecoMC
 )
 
 # add includes : root + current + dependencies
 #
 include_directories(${ROOT_INCLUDE_DIR})
 include_directories(${TAG_INCLUDE_DIR})
+include_directories(${TATR_INCLUDE_DIR})
 include_directories(${TAIR_INCLUDE_DIR})
 include_directories(${TABM_INCLUDE_DIR})
 include_directories(${TAVT_INCLUDE_DIR})
@@ -96,7 +98,7 @@ endif()
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Genfit and root libraries
 #
-add_executable(DecodeMC RecoL0.cc)
+add_executable(DecodeMC DecodeMC.cc)
 #
 target_link_libraries(DecodeMC ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} ${LIBNAME} )
 
