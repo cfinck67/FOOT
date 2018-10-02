@@ -89,4 +89,5 @@
    gSystem->Load("libTAMSDbase.so");
    gSystem->Load("libTATWbase.so");
    gSystem->Load("libTAGfoot.so");
+   gSystem->Load("libLocalReco.so");
 }
