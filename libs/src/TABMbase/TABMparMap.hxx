@@ -41,8 +41,8 @@ class TABMparMap : public TAGpara {
     Int_t GetAdc792Ch(){return adc792ch;};
     Int_t GetHmEvRead(){return hm_ev_read;};
     Int_t GetBoardNum(){return board_num;};
-    Int_t tdc2cell(Int_t tdccha){return tdc2cell_vec[tdccha];};
-    Int_t cell2tdc(Int_t cell){return cell2tdc_vec[cell];};    
+    Int_t tdc2cell(Int_t tdccha){return (tdccha>=0 && tdccha<tdc_maxcha) ? tdc2cell_vec[tdccha] : -1;};
+    Int_t cell2tdc(Int_t cell){return (cell>=0 && cell<36) ? cell2tdc_vec[cell] : -1;};    
     
     virtual void    Clear(Option_t* opt="");
 
