@@ -34,6 +34,8 @@ class TAGnamed : public TNamed {
    
   protected:
     Int_t   fDebugLevel;
+   
+   ClassDef(TAGnamed,2)
 
 };
 
