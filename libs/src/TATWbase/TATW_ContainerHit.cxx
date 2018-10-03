@@ -94,6 +94,8 @@ TATW_Hit* TATW_ContainerHit::NewHit( TATWrawHit* hit ) {
     //     exit(0);
     // }   
     // return NULL;  // never happens, but compiler doesn't complain
+   
+   return 0x0;
 }
 
 
@@ -112,7 +114,7 @@ int TATW_ContainerHit::GetHitN( int layer ) {
         cout << "ERROR >> TATW_ContainerHit::GetPixelsN   -->  required layer not allowed: " << layer << endl;
         exit(0);
     }
-    return NULL;  // never happens, but compiler doesn't complain
+    return 0;  
 }
 
 
