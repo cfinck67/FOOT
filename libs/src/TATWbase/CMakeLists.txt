@@ -27,6 +27,7 @@ set( with_dictionnaries
    TATW_ContainerPoint
    TATW_Hit
    TATW_Point
+   TATWdigitizer
 )
 
 set( without_dictionnaries

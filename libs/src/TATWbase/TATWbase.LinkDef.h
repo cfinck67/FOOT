@@ -14,5 +14,6 @@
 #pragma link C++ class TATW_ContainerPoint+;
 #pragma link C++ class TATW_Hit+;
 #pragma link C++ class TATW_Point+;
+#pragma link C++ class TATWdigitizer+;
 
 #endif

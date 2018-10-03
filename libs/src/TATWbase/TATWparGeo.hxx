@@ -131,6 +131,14 @@ private:
   map<string, vector<string> > m_bodyName;
   map<string, int > m_magneticRegion;
    
+private:
+   static TString fgkDefParaName;
+   static Int_t   fgkLayerOffset;      // offset in salt id for 2nd layer
+
+public:
+   static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
+   static Int_t   GetLayerOffset()       { return fgkLayerOffset;        }
+
   ClassDef(TATWparGeo,1)
 };
 

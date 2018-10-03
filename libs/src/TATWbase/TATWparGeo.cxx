@@ -22,6 +22,10 @@
 // #include "GlobalPar.hxx"
 
 
+TString TATWparGeo::fgkDefParaName = "twGeo";
+Int_t   TATWparGeo::fgkLayerOffset = 100;
+
+
 //_____________________________________________________________________________
 TATWparGeo::TATWparGeo()
 {
