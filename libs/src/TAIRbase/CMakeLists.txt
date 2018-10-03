@@ -9,7 +9,7 @@ set(LIBNAME ${PROJECT_NAME})
 #
 # internal and external dependencies
 #
-set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TAMC})
+set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TAMC} ${TAVT} ${TAIT} ${TAMSD})
 set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 
 #
@@ -23,6 +23,9 @@ set( with_dictionnaries
    TAIRparMap
    TAIRactNtuMC
    TAIRparGeo
+   TAIRalignC
+   TAIRntuAlignC
+   TAIRparDiff
 )
 
 set( without_dictionnaries
@@ -34,6 +37,9 @@ include_directories(${ROOT_INCLUDE_DIR})
 include_directories(${GENFIT_INCLUDE_DIR})
 include_directories(${TAMC_INCLUDE_DIR})
 include_directories(${TAG_INCLUDE_DIR})
+include_directories(${TAVT_INCLUDE_DIR})
+include_directories(${TAIT_INCLUDE_DIR})
+include_directories(${TAMSD_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 #
