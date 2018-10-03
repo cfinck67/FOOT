@@ -19,6 +19,8 @@
 
 #include "Riostream.h"
 
+#include "foot_geo.h"
+
 #include "TEveGeoShapeExtract.h"
 
 #include "TObject.h"
@@ -73,7 +75,6 @@ public:
     Float_t GetPositionU(Int_t column)         const;
     Float_t GetPositionV(Int_t line)           const;
 
-
     virtual TVector3 GetSensorPosition( int sensorID )   { return m_sensorMatrix[sensorID][0][0]->GetCenter(); };
 
     //    it should be changed accordingly with the simulation choice when more than one sensors will be used
@@ -124,6 +125,9 @@ public:
     // Return Vertex full dimension.
     TVector3 GetDimension() { return m_dimension; };
 
+   //  Return Vertex center coord. in the foot global frame
+   TVector3 GetTotalSize() { return TVector3(VTX_WIDTH, VTX_HEIGHT, VTX_THICK); }
+   
     double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
 
     int GetNPixelX() { return m_nPixel_X; };
@@ -142,7 +146,12 @@ public:
     // pixel dimension
     double GetPitchX()  { return m_pitchX; };
     double GetPitchY()  { return m_pitchY; };
-    
+   
+   // Get alignment
+   double& GetAlignmentU(int idx) { return fAlignmentU[idx]; }
+   double& GetAlignmentV(int idx) { return fAlignmentV[idx]; }
+   double& GetTiltW(int idx)      { return fTiltW[idx];      } 
+   
     // function for the FRUKA geometry creation
    virtual string PrintBodies();
    virtual string PrintRegions();
@@ -200,8 +209,11 @@ protected:
     double m_pitchY;
 
     double m_xmin, m_ymin;
-
-
+   
+   double fAlignmentU[50];
+   double fAlignmentV[50];
+   double fTiltW[50];
+   
 
 ////////////////////////////////////////////////////////////////////////////////
 
