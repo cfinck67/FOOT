@@ -35,7 +35,7 @@
 
 // --------------------------------------------------------------------------------------
 TACAdigitizer::TACAdigitizer(TACAntuRaw* pNtuRaw)
- : TObject(),
+ : TAGbaseDigitizer(),
    fpNtuRaw(pNtuRaw),
    fGain(10/3.)
 {
@@ -79,12 +79,12 @@ Float_t TACAdigitizer::GetPhotonsN(Float_t /*X*/, Float_t /*Y*/, Float_t edep)
 }
 
 //___________________________________________________________________________________________
-TACAntuHit* TACAdigitizer::Process(Int_t id, Double_t edep, Double_t x0, Double_t y0, Double_t time, Double_t /*zin*/, Double_t /*zout*/)
+Bool_t TACAdigitizer::Process(Double_t edep, Double_t x0, Double_t y0, Double_t /*zin*/, Double_t /*zout*/, Double_t time, Int_t id)
 {
    Float_t photonsN = GetPhotonsN(x0, y0, edep)*fGain;   
-   TACAntuHit* hit = (TACAntuHit*)fpNtuRaw->NewHit(id, photonsN, time);
+   fCurrentHit = (TACAntuHit*)fpNtuRaw->NewHit(id, photonsN, time);
    
-   return hit;
+   return true;
 }
 
 

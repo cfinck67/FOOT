@@ -83,11 +83,14 @@ Bool_t TACAactNtuMC::Action()
       Int_t trackId = fpEvtStr->VTXid[i] - 1;
       Float_t x0    = fpEvtStr->CALxin[i]*TAGgeoTrafo::CmToMm();
       Float_t y0    = fpEvtStr->CALyin[i]*TAGgeoTrafo::CmToMm();
+      Float_t z0    = fpEvtStr->CALzin[i]*TAGgeoTrafo::CmToMm();
+      Float_t z1    = fpEvtStr->CALzout[i]*TAGgeoTrafo::CmToMm();
       Float_t edep  = fpEvtStr->CALde[i]*TAGgeoTrafo::GevToMev();
       Float_t time  = fpEvtStr->CALtim[i]*TAGgeoTrafo::SecToNs();
       
       //  veci = fpParGeo->Global2Local(sensorId, veci); // inverse x-y
-      TACAntuHit* hit = fDigitizer->Process(id, edep, x0, y0, time);
+      fDigitizer->Process(edep, x0, y0, z0, z1, time, id);
+      TACAntuHit* hit = fDigitizer->GetCurrentHit();
       hit->AddMcTrackId(trackId);
 
       if (ValidHistogram()) {

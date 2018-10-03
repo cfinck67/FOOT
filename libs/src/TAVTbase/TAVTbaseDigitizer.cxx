@@ -30,7 +30,7 @@ Float_t  TAVTbaseDigitizer::fgDefSmearPos     =  10.4;    // in micron
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 TAVTbaseDigitizer::TAVTbaseDigitizer(TAVTbaseParGeo* parGeo)
-: TAGobject(),
+: TAGbaseDigitizer(),
   fpParGeo(parGeo),
   fPixelsN(-1),
   fRsPar(0.65),
@@ -54,7 +54,7 @@ TAVTbaseDigitizer::~TAVTbaseDigitizer()
 
 //------------------------------------------+-----------------------------------
 //! fill pixel signal
-Bool_t TAVTbaseDigitizer::Process( Double_t edep, Double_t x0, Double_t y0, Double_t zin, Double_t zout)
+Bool_t TAVTbaseDigitizer::Process( Double_t edep, Double_t x0, Double_t y0, Double_t zin, Double_t zout, Double_t /*time*/, Int_t /*sensorId*/)
 {
    x0 *= fgkCm2Mu;
    y0 *= fgkCm2Mu;

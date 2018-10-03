@@ -15,20 +15,20 @@
 #include "TString.h"
 #include "TList.h"
 
-#include "TAGobject.hxx"
+#include "TAGbaseDigitizer.hxx"
 #include "TAGparaDsc.hxx"
 
 
 class TF1;
 class TAVTbaseParGeo;
-class TAVTbaseDigitizer : public TAGobject {
+class TAVTbaseDigitizer : public TAGbaseDigitizer {
    
 public:
    TAVTbaseDigitizer(TAVTbaseParGeo* parGeo);
    virtual ~TAVTbaseDigitizer();
    
    Double_t     FuncClusterSize(Double_t* x, Double_t* par);
-   virtual Bool_t Process( Double_t edep, Double_t x0, Double_t y0, Double_t zin = 0, Double_t zout = 0);
+   virtual Bool_t Process( Double_t edep, Double_t x0, Double_t y0, Double_t zin = 0, Double_t zout = 0, Double_t time = 0, Int_t sensorId = 0);
 
    virtual Bool_t MakeCluster(Double_t /*x0*/, Double_t /*y0*/, Double_t /*zin*/, Double_t /*zout*/) { return false; }
 
