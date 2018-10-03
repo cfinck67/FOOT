@@ -27,6 +27,7 @@
 #pragma link C++ class TAGpadGroup+;
 #pragma link C++ class TAGview+;
 
+#pragma link C++ class TAGbaseDigitizer+;
 
 #pragma link C++ class TAGeventId-;
 #pragma link C++ function operator==(const TAGeventId&,const TAGeventId&);
