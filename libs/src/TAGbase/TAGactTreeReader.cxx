@@ -153,6 +153,15 @@ Bool_t TAGactTreeReader::IsOpen() const
 }
 
 //------------------------------------------+-----------------------------------
+//! Reset
+
+void TAGactTreeReader::Reset()
+{
+   fiCurrentEntry = -1;
+   return;
+}
+
+//------------------------------------------+-----------------------------------
 //! Process TreeReader.
 
 Bool_t TAGactTreeReader::Process()
