@@ -67,6 +67,34 @@ TAVTbaseCluster::~TAVTbaseCluster()
 }
 
 //______________________________________________________________________________
+//
+void TAVTbaseCluster::ComputeSize()
+{
+   Int_t minLine = 99999;
+   Int_t maxLine = 0;
+   
+   Int_t minCol = 99999;
+   Int_t maxCol = 0;
+   
+   for (Int_t iPix = 0; iPix < fListOfPixels->GetEntries(); ++iPix) {
+      TAVTntuHit* pixel = (TAVTntuHit*)fListOfPixels->At(iPix);
+      Int_t line = pixel->GetPixelLine();
+      Int_t col  = pixel->GetPixelColumn();
+      
+      maxLine = (line > maxLine) ? line : maxLine;
+      maxCol  = (col > maxCol)   ? col  : maxCol;
+      
+      minLine = (line < minLine) ? line : minLine;
+      minCol  = (col < minCol)   ? col  : minCol;
+   }
+   
+   Int_t length = (maxLine - minLine) + 1;
+   Int_t width  = (maxCol - minCol)   + 1;
+   
+   fSize.Set((float)length, (float)width);
+}
+
+//______________________________________________________________________________
 //  
 void TAVTbaseCluster::SetPosition(TVector3* pos)
 {

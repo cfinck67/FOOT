@@ -4,6 +4,7 @@
 // ROOT classes
 #include "TList.h"
 #include "TVector3.h"
+#include "TVector2.h"
 #include "TClonesArray.h"
 #include "TObjArray.h"
 
@@ -30,9 +31,11 @@ protected:
    Int_t              fNumber;                   // number
    Int_t              fPlaneNumber;              // plane number
    Bool_t             fFound;                    // kTRUE is associated to a track
-   Bool_t             fFoundXZ;					 // kTRUE is associated to a track in XZ Projection
-   Bool_t             fFoundYZ;					 // kTRUE is associated to a track in YZ Projection
-	
+   Bool_t             fFoundXZ;					    // kTRUE is associated to a track in XZ Projection
+   Bool_t             fFoundYZ;					   // kTRUE is associated to a track in YZ Projection
+   Bool_t             fIsValid;                 //! validity flag
+   TVector2           fSize;                    //! width/length of cluster
+
    Float_t            fClusterPulseSum;          // sum of pulseheight on strips in hit cluster, involves noise cuts
    Float_t            fClusterAreaPulseSum;      // sum of pulseheight on strips in hit cluster area, no noise cuts
    Float_t            fClusterNoiseAverage;      // hit cluster signal noise average
@@ -66,7 +69,11 @@ public:
    void               SetNumber(Int_t nb)                    { fNumber = nb;           } 
    //! Set plane number
    void               SetPlaneNumber(Int_t nb)               { fPlaneNumber = nb;      }
-  
+   //! Set validy
+   void               SetValid(Bool_t v = true)              { fIsValid = v;           }
+   // Compute size
+   void               ComputeSize();
+   
    //! Get position in local frame
    TVector3&           GetPosition()                    const { return *fPosition;      }
    //! Get position error in local frame
@@ -92,6 +99,10 @@ public:
    //! Get index of seed pixel
    Int_t              GetIndexSeed()                   const { return fIndexSeed;      }
    
+   // Get Size
+   TVector2           GetSize()                        const { return fSize;           }
+   //! Get validity
+   Bool_t             IsValid()                        const { return fIsValid;        }
    //! Get index for a given pixel
    Int_t              GetIndex(Int_t tSk)              const { return ((TAVTntuHit*)fListOfPixels->At(tSk))->GetPixelIndex();  } 
    //! Get pulse height for a given pixel
