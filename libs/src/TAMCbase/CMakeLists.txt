@@ -23,6 +23,7 @@ set( with_dictionnaries
    TAGntuMCeve
    TAGactNtuMCmimo
    TAGntuMCmimo
+   TAGparGeo
    Evento
 )
 
