@@ -21,12 +21,9 @@
 
 #include "TObject.h"
 #include "TString.h"
+#include "TVector3.h"
 
 #include "TAVTbaseParGeo.hxx"
-
-#include "IronPlate.hxx"
-#include "FootBox.hxx"
-#include "GlobalPar.hxx"
 
 #include <FieldManager.h>
 
@@ -45,6 +42,8 @@ public:
    void   DefineMaterial();
    
    string PrintParameters();
+   
+   TVector3 GetPosition(int idx) { return m_sensorMatrix[0][0][idx]->GetCenter()*1e4; } // tmp solution before reframing geometry
 
 private:
    static TString fgkDefParaName;
