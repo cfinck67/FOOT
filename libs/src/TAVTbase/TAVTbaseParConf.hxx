@@ -59,6 +59,8 @@ public:
    
    virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
    
+   Int_t           GetStatus(Int_t idx) const;
+   Int_t           GetStatusMinor(Int_t idx) const ;
    
 public:
       
