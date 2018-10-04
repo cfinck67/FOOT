@@ -37,21 +37,19 @@ ClassImp(TAIRalignC);
 TAIRalignC* TAIRalignC::fgInstance = 0x0;
 
 //__________________________________________________________
-TAIRalignC* TAIRalignC::Instance(const TString name, const TString geoFile, const TString confFile,  const TString geoFileG, Int_t weight)
+TAIRalignC* TAIRalignC::Instance(const TString name, const TString confFile, Int_t weight)
 {
    if (fgInstance == 0x0)
-      fgInstance = new TAIRalignC(name, geoFile, confFile, geoFileG, weight);
+      fgInstance = new TAIRalignC(name, confFile, weight);
    
    return fgInstance;
 }
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
-TAIRalignC::TAIRalignC(const TString name, const TString geoFile, const TString confFile, const TString geoFileG, Int_t weight)
+TAIRalignC::TAIRalignC(const TString name, const TString confFile, Int_t weight)
 : TObject(),
   fFileName(name),
-  fgeoFile(geoFile),
-  fgeoFileG(geoFileG),
   fconfFile(confFile),
   fEbeamInit(0),
   fpcInit(0),
@@ -82,9 +80,8 @@ TAIRalignC::TAIRalignC(const TString name, const TString geoFile, const TString 
    fAGRoot = new TAGroot();
    
    fInfile     = new TAGactTreeReader("inFile");
-   fpNtuClus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
    
-   fpGeoMap    = new TAGparaDsc("vtGeo", new TAVTparGeo());
+   fpGeoMap    = new TAGparaDsc(TAVTparGeo::GetDefParaName(), new TAVTparGeo());
    TAVTparGeo* geomap   = (TAVTparGeo*) fpGeoMap->Object();
    geomap->InitGeo();
    
@@ -95,6 +92,9 @@ TAIRalignC::TAIRalignC(const TString name, const TString geoFile, const TString 
    fpGeoMapG    = new TAGparaDsc("gGeo", new TAGparGeo());
    TAGparGeo* geomapG   = (TAGparGeo*) fpGeoMapG->Object();
    geomapG->InitGeo();
+   
+   fpNtuClus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
+
    
    fpDiff      = new TAIRparDiff(fpGeoMap);
    
@@ -555,7 +555,7 @@ Bool_t TAIRalignC::DefineWeights()
    TAGparGeo* pGeoMap = (TAGparGeo*) fpGeoMapG->Object();
    TAVTparGeo* vtGeoMap = (TAVTparGeo*) fpGeoMap->Object();
    
-   fEbeamInit   = pGeoMap->GetBeamPar().Energy;
+   fEbeamInit   = pGeoMap->GetBeamPar().Energy*TAGgeoTrafo::GevToMev();
    fZbeam       = pGeoMap->GetBeamPar().AtomicNumber;
    fAbeam       = pGeoMap->GetBeamPar().AtomicMass;
    
@@ -590,19 +590,22 @@ Bool_t TAIRalignC::DefineWeights()
    Float_t previousTermSumQ = 0;
    Float_t previousDistanceSum = 0;
    
-   wepl = fpDiff->WEPLCalc("Air", TMath::Abs(pGeoMap->GetBeamPar().Position[2]-vtGeoMap->GetPosition(iSensor).Z()));
+   TVector3 posSens = vtGeoMap->GetSensorPosition(iSensor);
+   vtGeoMap->Local2Global(&posSens);
+   
+   wepl = fpDiff->WEPLCalc("Air", TMath::Abs(pGeoMap->GetBeamPar().Position[2]-posSens[2]));
 
    fEbeam   = fpDiff->EnergyCalc(fEbeam, fAbeam, fZbeam, wepl);
    fpc      = fpDiff->PCCalc(fEbeam, fAbeam);
    fBeta    = fpDiff->BetaCalc(fEbeam);
    if(fEbeam == 0){
-      Error("DefineWeights()","Remaining energy is 0...");
+      Error("DefineWeights()","Remaining energy in air is 0...");
       return false;
    }
    
    for (Int_t i = 0; i < fSecArray.GetSize(); i++){
       iSensor = fSecArray[i];
-      fZposition[i] = vtGeoMap->GetPosition(iSensor).Z()*TAGgeoTrafo::CmToMm();
+      fZposition[i] = vtGeoMap->GetSensorPosition(iSensor).Z()*TAGgeoTrafo::CmToMm();
       
       Double_t sigmaAlfaScattSi = 0;
       Double_t sigmaAlfaScattAir = 0;
