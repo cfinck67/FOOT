@@ -48,7 +48,7 @@ void LocalRecoMC::LoopEvent(Int_t nEvents)
       if(ientry % 100 == 0)
          cout<<" Loaded Event:: " << ientry << endl;
       
-      fTAGroot->NextEvent();
+      if (!fTAGroot->NextEvent()) break;
    }
 }
 
