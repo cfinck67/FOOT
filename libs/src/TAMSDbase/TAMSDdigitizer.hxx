@@ -17,7 +17,7 @@ public:
    
 
    void  FillMap(Int_t line, Int_t col, Double_t value);
-   Bool_t Process( Double_t edep, Double_t x0, Double_t y0, Double_t zin = 0, Double_t zout = 0);
+   Bool_t Process( Double_t edep, Double_t x0, Double_t y0, Double_t zin = 0, Double_t zout = 0, Double_t time = 0, Int_t sensorId = 0);
    
    
 private:
