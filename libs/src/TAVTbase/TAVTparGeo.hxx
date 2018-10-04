@@ -42,8 +42,6 @@ public:
    void   DefineMaterial();
    
    string PrintParameters();
-   
-   TVector3 GetPosition(int idx) { return m_sensorMatrix[0][0][idx]->GetCenter()*1e4; } // tmp solution before reframing geometry
 
 private:
    static TString fgkDefParaName;
