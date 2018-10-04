@@ -30,19 +30,13 @@ private:
 public:
    //! Instance of class
    static TAIRalignC* Instance(const TString name = "provaout0020.lmd",
-                               const TString geoFile = "./geomaps/TAVTgeomap.map",
-                               const TString confFile = "./config/TAVTconfig.cfg",
-                               const TString geoFileG = "./geomaps/TAGgeomap.map",
+                               const TString confFile = "./config/TAVTdetector.cfg",
                                Int_t weight = -1); // The weight is barely influencing the results
    virtual ~TAIRalignC();
    
 private:
    //! ctr
-   TAIRalignC(const TString name,
-              const TString geoFile,
-              const TString confFile,
-              const TString geoFileG,
-              Int_t weight);
+   TAIRalignC(const TString name, const TString confFile, Int_t weight);
 public:
    void   LoopEvent(Int_t nEvts = 1);
    
@@ -71,8 +65,6 @@ private:
    TAIRntuAlignC*       fAlign;           // pointer to align para
    
    const TString       fFileName;  // input file
-   const TString       fgeoFile;   // geomap file
-   const TString       fgeoFileG;   // geomap file
    const TString       fconfFile;  // config file
    
    //MaterialParameter_t
