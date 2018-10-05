@@ -44,8 +44,7 @@ public:
 private:
    
    void    CreateHistogram();
-   Bool_t  AlignRough();
-   Bool_t  AlignPrecise();
+   Bool_t  Align(Bool_t rough);
    Bool_t  FillHistograms();
    Bool_t  DefineWeights();
    Bool_t  FillClusPosRough(Int_t i, TAVTcluster* cluster);
@@ -86,8 +85,6 @@ private:
    
    Int_t    fHitPlanes;
    Int_t    fEvents1;
-   Int_t    fEvents2;
-   Int_t    fEvents3;
    
    Float_t fEbeamInit;
    Float_t fpcInit;
@@ -97,6 +94,11 @@ private:
    Float_t fEbeam;
    Float_t fpc;
    Float_t fBeta;
+   
+   Double_t fSlopeU;
+   Double_t fSlopeV;
+   Double_t fNewSlopeU;
+   Double_t fNewSlopeV;
    
    Double_t*  fWeight;
    Double_t*  fWeightQ;

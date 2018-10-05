@@ -66,8 +66,6 @@ TAIRalignC::TAIRalignC(const TString name, const TString confFile, Int_t weight)
   fCutFactor(0),
   fHitPlanes(-1),
   fEvents1(0),
-  fEvents2(0),
-  fEvents3(0),
   fSumWeightQ(0),
   fFixPlaneRef1(false),
   fFixPlaneRef2(false),
@@ -225,13 +223,13 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
    fEvents1 = 0;
    fInfile->Reset();
    
-   
+   Bool_t roughAlign = true;
    for (Int_t i = 0; i < nEvts; ++i ) {
       if(i % 10000 == 0) {
          std::cout << "Loaded Event:: " << i << std::endl;
       }
       if (!fAGRoot->NextEvent()) break;
-      if(!AlignRough()) continue;
+      if(!Align(roughAlign)) continue;
    }
    fAlign->Constraint(fPlaneRef1, fPlaneRef2);
    fAlign->Minimize();
@@ -240,22 +238,23 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
    
    printf("Number of events for iteration 1: %d / %d \n", fEvents1, nEvts);
    
+   roughAlign = false;
    fCutFactor = fCut1;
    for (Int_t j = 0; j < fPreciseIt; j++){
       fInfile->Reset();
-      fEvents2 = 0;
+      fEvents1 = 0;
       for (Int_t i = 0; i < nEvts; ++i ) {
          if(i % 10000 == 0) {
             std::cout << "Loaded Event:: " << i << std::endl;
          }
          if (!fAGRoot->NextEvent()) break;
-         if(!AlignPrecise()) continue;
+         if(!Align(roughAlign)) continue;
       }
       fAlign->Constraint(fPlaneRef1, fPlaneRef2);
       fAlign->Minimize();
       UpdateAlignmentParams();
       fAlign->Reset();
-      printf("Number of events for iteration %d: %d / %d \n", j+2, fEvents2, nEvts);
+      printf("Number of events for iteration %d: %d / %d \n", j+2, fEvents1, nEvts);
       fCutFactor = fCut2;
    }
    
@@ -331,11 +330,16 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
 //______________________________________________________________________________
 //
 // Alignment with all the events which fired all the planes
-Bool_t TAIRalignC::AlignRough()
+Bool_t TAIRalignC::Align(Bool_t rough)
 {
    
    TAVTparGeo*     pGeoMap   = (TAVTparGeo*)     fpGeoMap->Object();
    TAVTntuCluster* pNtuClus  = (TAVTntuCluster*) fpNtuClus->Object();
+   
+   fSlopeU = 0;
+   fSlopeV = 0;
+   fNewSlopeU = 0;
+   fNewSlopeV = 0;
    
    Int_t iPlane = 0;
    Int_t nCluster = 0;
@@ -360,81 +364,17 @@ Bool_t TAIRalignC::AlignRough()
       if (nValidCluster < 1) return false;
       fHitPlanes ++;
       TAVTcluster* cluster = pNtuClus->GetCluster(iPlane, aCluster);
-      
-      fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm();
-      fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm();
+      if (rough) {
+         FillClusPosRough(i, cluster);
+      } else {
+         if (!FillClusPosPrecise(i, cluster)) return false;
+      }
+    
    }
    
    if (fHitPlanes < fSecArray.GetSize()) return false;
    if (!(fAlign->Accumulate(fPosUClusters, fPosVClusters))) return false;
    fEvents1++;
-   fAlign->Sum();
-   
-   return true;
-}
-
-//______________________________________________________________________________
-//
-// Next loop with the same events rejecting the ones which are too much scattered for
-// a precise alignment
-Bool_t TAIRalignC::AlignPrecise()
-{
-   TAVTparGeo*     pGeoMap   = (TAVTparGeo*)     fpGeoMap->Object();
-   TAVTntuCluster* pNtuClus  = (TAVTntuCluster*) fpNtuClus->Object();
-   
-   Int_t iPlane = 0;
-   Int_t nCluster = 0;
-   Double_t slopeU = 0;
-   Double_t slopeV = 0;
-   Double_t newSlopeU = 0;
-   Double_t newSlopeV = 0;
-   fHitPlanes = 0;
-   
-   
-   for (Int_t i = 0; i < fSecArray.GetSize(); i++){
-      fPosUClusters[i] = 999999;
-      fPosVClusters[i] = 999999;
-      Int_t nValidCluster = 0;
-      Int_t aCluster = 0;
-      iPlane = fSecArray[i];
-      nCluster = pNtuClus->GetClustersN(iPlane);
-      
-      if (nCluster < 1) return false;
-      for (Int_t j = 0; j < nCluster; j++){
-         TAVTcluster* cluster = pNtuClus->GetCluster(iPlane, j);
-         if (cluster->IsValid() != true) continue;
-         nValidCluster++;
-         if (nValidCluster > 1) return false;
-         aCluster = cluster->GetNumber();
-      }
-      if (nValidCluster < 1) return false;
-      fHitPlanes ++;
-      TAVTcluster* cluster = pNtuClus->GetCluster(iPlane, aCluster);
-      
-      fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() + (cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentU[i];
-      fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() - (cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentV[i];
-      
-      if (i != 0){
-         newSlopeU = (fPosUClusters[i]-fPosUClusters[i-1])/(fZposition[i]-fZposition[i-1]);
-         newSlopeV = (fPosVClusters[i]-fPosVClusters[i-1])/(fZposition[i]-fZposition[i-1]);
-      }
-      
-      if ((i != 0) && (i !=1)){
-         if (fCutFactor*fSigmaAlfaDist[i]*((fZposition[i]-fZposition[i-1])/TMath::Sqrt(12)*TAGgeoTrafo::MmToMu()) < pGeoMap->GetPitchX()/TMath::Sqrt(12)*TAGgeoTrafo::CmToMu()){
-            if ((TMath::Abs(newSlopeU - slopeU) > pGeoMap->GetPitchX()/TMath::Sqrt(12)*fCutFactor*TAGgeoTrafo::CmToMu()) ||
-                (TMath::Abs(newSlopeV - slopeV) > pGeoMap->GetPitchX()/TMath::Sqrt(12)*fCutFactor*TAGgeoTrafo::CmToMu())) return false;
-         } else {
-            if ((TMath::Abs(newSlopeU - slopeU) > fSigmaAlfaDist[i]*fCutFactor) || (TMath::Abs(newSlopeV - slopeV) > fSigmaAlfaDist[i]*fCutFactor)) return false;
-         }
-      }
-      
-      slopeU = newSlopeU;
-      slopeV = newSlopeV;
-   }
-   
-   if (fHitPlanes < fSecArray.GetSize()) return false;
-   if (!(fAlign->Accumulate(fPosUClusters, fPosVClusters))) return false;
-   fEvents2++;
    fAlign->Sum();
    
    return true;
@@ -453,36 +393,32 @@ Bool_t TAIRalignC::FillClusPosRough(Int_t i, TAVTcluster* cluster)
 
 //______________________________________________________________________________
 //
-// Fill rough position of cluster
+// Fill precise position of cluster, rejecting the ones which are too much scattered for
+// a precise alignment
 Bool_t TAIRalignC::FillClusPosPrecise(Int_t i, TAVTcluster* cluster)
 {
    TAVTparGeo*     pGeoMap   = (TAVTparGeo*)     fpGeoMap->Object();
    TAVTntuCluster* pNtuClus  = (TAVTntuCluster*) fpNtuClus->Object();
 
-   Double_t slopeU = 0;
-   Double_t slopeV = 0;
-   Double_t newSlopeU = 0;
-   Double_t newSlopeV = 0;
-   
    fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() + (cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentU[i];
    fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() - (cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentV[i];
    
    if (i != 0){
-      newSlopeU = (fPosUClusters[i]-fPosUClusters[i-1])/(fZposition[i]-fZposition[i-1]);
-      newSlopeV = (fPosVClusters[i]-fPosVClusters[i-1])/(fZposition[i]-fZposition[i-1]);
+      fNewSlopeU = (fPosUClusters[i]-fPosUClusters[i-1])/(fZposition[i]-fZposition[i-1]);
+      fNewSlopeV = (fPosVClusters[i]-fPosVClusters[i-1])/(fZposition[i]-fZposition[i-1]);
    }
    
    if ((i != 0) && (i !=1)){
       if (fCutFactor*fSigmaAlfaDist[i]*((fZposition[i]-fZposition[i-1])/TMath::Sqrt(12)*TAGgeoTrafo::MmToMu()) < pGeoMap->GetPitchX()/TMath::Sqrt(12)*TAGgeoTrafo::CmToMu()){
-         if ((TMath::Abs(newSlopeU - slopeU) > pGeoMap->GetPitchX()/TMath::Sqrt(12)*fCutFactor*TAGgeoTrafo::CmToMu()) ||
-             (TMath::Abs(newSlopeV - slopeV) > pGeoMap->GetPitchX()/TMath::Sqrt(12)*fCutFactor*TAGgeoTrafo::CmToMu())) return false;
+         if ((TMath::Abs(fNewSlopeU - fSlopeU) > pGeoMap->GetPitchX()/TMath::Sqrt(12)*fCutFactor*TAGgeoTrafo::CmToMu()) ||
+             (TMath::Abs(fNewSlopeV - fSlopeV) > pGeoMap->GetPitchX()/TMath::Sqrt(12)*fCutFactor*TAGgeoTrafo::CmToMu())) return false;
       } else {
-         if ((TMath::Abs(newSlopeU - slopeU) > fSigmaAlfaDist[i]*fCutFactor) || (TMath::Abs(newSlopeV - slopeV) > fSigmaAlfaDist[i]*fCutFactor)) return false;
+         if ((TMath::Abs(fNewSlopeU - fSlopeU) > fSigmaAlfaDist[i]*fCutFactor) || (TMath::Abs(fNewSlopeV - fSlopeV) > fSigmaAlfaDist[i]*fCutFactor)) return false;
       }
    }
    
-   slopeU = newSlopeU;
-   slopeV = newSlopeV;
+   fSlopeU = fNewSlopeU;
+   fSlopeV = fNewSlopeV;
    
    return true;
 }
