@@ -22,6 +22,7 @@
 #include "TAIRparDiff.hxx"
 #include "TAIRntuAlignC.hxx"
 
+class TAVTcluster;
 class TAIRalignC : public TObject {
    
 private:
@@ -47,6 +48,9 @@ private:
    Bool_t  AlignPrecise();
    Bool_t  FillHistograms();
    Bool_t  DefineWeights();
+   Bool_t  FillClusPosRough(Int_t i, TAVTcluster* cluster);
+   Bool_t  FillClusPosPrecise(Int_t i, TAVTcluster* cluster);
+
    void    UpdateAlignmentParams();
    void    UpdateTransfo(Int_t idx);
    void    UpdateGeoMaps();

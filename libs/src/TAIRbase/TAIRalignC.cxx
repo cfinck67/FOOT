@@ -106,16 +106,16 @@ TAIRalignC::TAIRalignC(const TString name, const TString confFile, Int_t weight)
          fSecArray.AddAt(i, fSecArray.GetSize()-1);
       }
       
-      if ((parconf->GetStatusMinor(i) == 0) && (fFixPlaneRef1 == true))
+      if ((parconf->GetStatus(i) == 0) && (fFixPlaneRef1 == true))
          fFixPlaneRef1 = false;
       else if (((parconf->GetSensorPar(i).Status % 10) == 0)  && (fFixPlaneRef1 == false)) {
          fFixPlaneRef1 = true;
          fPlaneRef1 = fSecArray.GetSize()-1;
       }
       
-      if ((parconf->GetStatusMinor(i) == 1) && (fFixPlaneRef2 == true))
+      if ((parconf->GetStatus(i) == 1) && (fFixPlaneRef2 == true))
          fFixPlaneRef2 = false;
-      else if ((parconf->GetStatusMinor(i) == 1) && (fFixPlaneRef2 == false)) {
+      else if ((parconf->GetStatus(i) == 1) && (fFixPlaneRef2 == false)) {
          fFixPlaneRef2 = true;
          fPlaneRef2 = fSecArray.GetSize()-1;
       }
@@ -263,7 +263,7 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
       UpdateTransfo(i);
    }
    
-   UpdateGeoMaps();
+  // UpdateGeoMaps();
    
    Float_t limitShift = 5;
    Float_t limitTilt  = 0.1*TMath::DegToRad();
@@ -360,8 +360,9 @@ Bool_t TAIRalignC::AlignRough()
       if (nValidCluster < 1) return false;
       fHitPlanes ++;
       TAVTcluster* cluster = pNtuClus->GetCluster(iPlane, aCluster);
-      fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::MuToMm();
-      fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::MuToMm();
+      
+      fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm();
+      fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm();
    }
    
    if (fHitPlanes < fSecArray.GetSize()) return false;
@@ -410,8 +411,8 @@ Bool_t TAIRalignC::AlignPrecise()
       fHitPlanes ++;
       TAVTcluster* cluster = pNtuClus->GetCluster(iPlane, aCluster);
       
-      fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::MuToMm() + (cluster->GetPositionG()[1]*TAGgeoTrafo::MuToMm() * (-fTiltW[i])) - fAlignmentU[i];
-      fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::MuToMm() - (cluster->GetPositionG()[0]*TAGgeoTrafo::MuToMm() * (-fTiltW[i])) - fAlignmentV[i];
+      fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() + (cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentU[i];
+      fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() - (cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentV[i];
       
       if (i != 0){
          newSlopeU = (fPosUClusters[i]-fPosUClusters[i-1])/(fZposition[i]-fZposition[i-1]);
@@ -419,10 +420,10 @@ Bool_t TAIRalignC::AlignPrecise()
       }
       
       if ((i != 0) && (i !=1)){
-         if (fCutFactor*fSigmaAlfaDist[i]*((fZposition[i]-fZposition[i-1])*TAGgeoTrafo::MmToMu()) < pGeoMap->GetPitchX()/TMath::Sqrt(12)){
-            if ((TMath::Abs(newSlopeU - slopeU) > pGeoMap->GetPitchX()/TMath::Sqrt(12)*fCutFactor) || (TMath::Abs(newSlopeV - slopeV) > pGeoMap->GetPitchX()/TMath::Sqrt(12)*fCutFactor)) return false;
-         }
-         else{
+         if (fCutFactor*fSigmaAlfaDist[i]*((fZposition[i]-fZposition[i-1])/TMath::Sqrt(12)*TAGgeoTrafo::MmToMu()) < pGeoMap->GetPitchX()/TMath::Sqrt(12)*TAGgeoTrafo::CmToMu()){
+            if ((TMath::Abs(newSlopeU - slopeU) > pGeoMap->GetPitchX()/TMath::Sqrt(12)*fCutFactor*TAGgeoTrafo::CmToMu()) ||
+                (TMath::Abs(newSlopeV - slopeV) > pGeoMap->GetPitchX()/TMath::Sqrt(12)*fCutFactor*TAGgeoTrafo::CmToMu())) return false;
+         } else {
             if ((TMath::Abs(newSlopeU - slopeU) > fSigmaAlfaDist[i]*fCutFactor) || (TMath::Abs(newSlopeV - slopeV) > fSigmaAlfaDist[i]*fCutFactor)) return false;
          }
       }
@@ -438,6 +439,55 @@ Bool_t TAIRalignC::AlignPrecise()
    
    return true;
 }
+
+//______________________________________________________________________________
+//
+// Fill rough position of cluster
+Bool_t TAIRalignC::FillClusPosRough(Int_t i, TAVTcluster* cluster)
+{
+   fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm();
+   fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm();
+   
+   return true;
+}
+
+//______________________________________________________________________________
+//
+// Fill rough position of cluster
+Bool_t TAIRalignC::FillClusPosPrecise(Int_t i, TAVTcluster* cluster)
+{
+   TAVTparGeo*     pGeoMap   = (TAVTparGeo*)     fpGeoMap->Object();
+   TAVTntuCluster* pNtuClus  = (TAVTntuCluster*) fpNtuClus->Object();
+
+   Double_t slopeU = 0;
+   Double_t slopeV = 0;
+   Double_t newSlopeU = 0;
+   Double_t newSlopeV = 0;
+   
+   fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() + (cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentU[i];
+   fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() - (cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentV[i];
+   
+   if (i != 0){
+      newSlopeU = (fPosUClusters[i]-fPosUClusters[i-1])/(fZposition[i]-fZposition[i-1]);
+      newSlopeV = (fPosVClusters[i]-fPosVClusters[i-1])/(fZposition[i]-fZposition[i-1]);
+   }
+   
+   if ((i != 0) && (i !=1)){
+      if (fCutFactor*fSigmaAlfaDist[i]*((fZposition[i]-fZposition[i-1])/TMath::Sqrt(12)*TAGgeoTrafo::MmToMu()) < pGeoMap->GetPitchX()/TMath::Sqrt(12)*TAGgeoTrafo::CmToMu()){
+         if ((TMath::Abs(newSlopeU - slopeU) > pGeoMap->GetPitchX()/TMath::Sqrt(12)*fCutFactor*TAGgeoTrafo::CmToMu()) ||
+             (TMath::Abs(newSlopeV - slopeV) > pGeoMap->GetPitchX()/TMath::Sqrt(12)*fCutFactor*TAGgeoTrafo::CmToMu())) return false;
+      } else {
+         if ((TMath::Abs(newSlopeU - slopeU) > fSigmaAlfaDist[i]*fCutFactor) || (TMath::Abs(newSlopeV - slopeV) > fSigmaAlfaDist[i]*fCutFactor)) return false;
+      }
+   }
+   
+   slopeU = newSlopeU;
+   slopeV = newSlopeV;
+   
+   return true;
+}
+
+
 //______________________________________________________________________________
 //
 // Filling the histograms with all the events when all the planes are fired
@@ -473,14 +523,14 @@ Bool_t TAIRalignC::FillHistograms()
       fHitPlanes ++;
       TAVTcluster* cluster = pNtuClus->GetCluster(iPlane, aCluster[i]);
       
-      fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::MuToMm() + (cluster->GetPositionG()[1]*TAGgeoTrafo::MuToMm() * (-fTiltW[i])) - fAlignmentU[i];
-      fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::MuToMm() - (cluster->GetPositionG()[0]*TAGgeoTrafo::MuToMm() * (-fTiltW[i])) - fAlignmentV[i];
-      TVector3 posG (fPosUClusters[i]*TAGgeoTrafo::MmToMu(), fPosVClusters[i]*TAGgeoTrafo::MmToMu(), fZposition[i]*TAGgeoTrafo::MmToMu());
-      TVector3 pos (fPosUClusters[i]*TAGgeoTrafo::MmToMu(), fPosVClusters[i]*TAGgeoTrafo::MmToMu(), 0.);
+      fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() + (cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentU[i];
+      fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() - (cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentV[i];
+      TVector3 posG (fPosUClusters[i]*TAGgeoTrafo::MmToCm(), fPosVClusters[i]*TAGgeoTrafo::MmToCm(), fZposition[i]*TAGgeoTrafo::MmToCm());
+      TVector3 pos (fPosUClusters[i]*TAGgeoTrafo::MmToCm(), fPosVClusters[i]*TAGgeoTrafo::MmToCm(), 0.);
       cluster->SetPositionG(&posG);
       cluster->SetPosition(&pos);
-      fErrUClusters[i] = cluster->GetPosError()(0)*TAGgeoTrafo::MuToMm();
-      fErrVClusters[i] = cluster->GetPosError()(1)*TAGgeoTrafo::MuToMm();
+      fErrUClusters[i] = cluster->GetPosError()(0)*TAGgeoTrafo::CmToMm();
+      fErrVClusters[i] = cluster->GetPosError()(1)*TAGgeoTrafo::CmToMm();
       cluster->ComputeSize();
    }
    
@@ -507,7 +557,8 @@ Bool_t TAIRalignC::FillHistograms()
       if (fPosUClusters[i] == 999999 || fPosVClusters[i] == 999999) return false;
       intersectionU = polyU->GetParameter(0) + polyU->GetParameter(1)*fZposition[i]*TAGgeoTrafo::MmToMu();
       intersectionV = polyV->GetParameter(0) + polyV->GetParameter(1)*fZposition[i]*TAGgeoTrafo::MmToMu();
-      if ((TMath::Abs(intersectionU - fPosUClusters[i]*TAGgeoTrafo::MmToMu()) > TMath::Sqrt(fSigmaMeasQfinal[i]*1e6)*2) || (TMath::Abs(intersectionV - fPosVClusters[i]*TAGgeoTrafo::MmToMu()) > TMath::Sqrt(fSigmaMeasQfinal[i]*1e6)*2))return false;
+      if ((TMath::Abs(intersectionU - fPosUClusters[i]*TAGgeoTrafo::MmToMu()) > TMath::Sqrt(fSigmaMeasQfinal[i]*1e6)*2) ||
+          (TMath::Abs(intersectionV - fPosVClusters[i]*TAGgeoTrafo::MmToMu()) > TMath::Sqrt(fSigmaMeasQfinal[i]*1e6)*2))return false;
    }
    
    for (Int_t i = 0; i < fSecArray.GetSize(); i++){
@@ -521,6 +572,7 @@ Bool_t TAIRalignC::FillHistograms()
    
    return true;
 }
+
 //______________________________________________________________________________
 //
 // The final vector containing the alignment parameters are calculated
@@ -538,7 +590,7 @@ void TAIRalignC::UpdateAlignmentParams()
       
       fAlignmentU[i] += fAlign->GetOffsetU()[i];
       fAlignmentV[i] += fAlign->GetOffsetV()[i];
-      fTiltW[i] += fAlign->GetTiltW()[i];
+      fTiltW[i]      += fAlign->GetTiltW()[i];
    }
    return;
 }
@@ -593,7 +645,7 @@ Bool_t TAIRalignC::DefineWeights()
    TVector3 posSens = vtGeoMap->GetSensorPosition(iSensor);
    vtGeoMap->Local2Global(&posSens);
    
-   wepl = fpDiff->WEPLCalc("Air", TMath::Abs(pGeoMap->GetBeamPar().Position[2]-posSens[2]));
+   wepl = fpDiff->WEPLCalc("Air", TMath::Abs(pGeoMap->GetBeamPar().Position[2]-posSens[2])*TAGgeoTrafo::CmToMm());
 
    fEbeam   = fpDiff->EnergyCalc(fEbeam, fAbeam, fZbeam, wepl);
    fpc      = fpDiff->PCCalc(fEbeam, fAbeam);
@@ -686,12 +738,6 @@ void TAIRalignC::UpdateTransfo(Int_t idx)
 {
    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
    Int_t       iPlane   = fSecArray[idx];
-//   TVector3    position = pGeoMap->GetSensorPar(iPlane).Position;
-//   Float_t     tiltW    = pGeoMap->GetSensorPar(iPlane).TiltW;
-//   Float_t     newTiltW = 0.;
-//   
-//   newTiltW  = fTiltW[idx];
-   
    pGeoMap->GetAlignmentU(iPlane) = fAlignmentU[idx]*TAGgeoTrafo::MmToMu();
    pGeoMap->GetAlignmentV(iPlane) = fAlignmentV[idx]*TAGgeoTrafo::MmToMu();
    pGeoMap->GetTiltW(iPlane)      = -fTiltW[idx];
