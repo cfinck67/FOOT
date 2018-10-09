@@ -18,7 +18,7 @@
 class TAIRntuAlignC : public TAGdata {
    
 public:
-   TAIRntuAlignC(TArrayI* arraySensor, TAGparaDsc* pConf = 0);
+   TAIRntuAlignC(TArrayI* arraySensor, Int_t* pConf = 0);
    ~TAIRntuAlignC();
    
 public:
@@ -34,7 +34,7 @@ public:
    Float_t*     GetTiltW()   const { return fAlignTiltW;   }
    
 private:
-   TAGparaDsc* fpConf;
+   Int_t*      fpDevStatus;
    TArrayI*    fSensorArray;           // contains the sensor number to be aligned
    
    Float_t*    fAlignTiltW;

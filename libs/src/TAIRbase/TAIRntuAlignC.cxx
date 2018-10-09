@@ -24,13 +24,13 @@ ClassImp(TAIRntuAlignC);
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
-TAIRntuAlignC::TAIRntuAlignC(TArrayI* arraySensor, TAGparaDsc* pConf)
+TAIRntuAlignC::TAIRntuAlignC(TArrayI* arraySensor, Int_t* pDevStatus)
 : TAGdata(),
   fSumZiWiQ(0),
   fSumZiQWiQ(0),
   fColumnY(-1),
   fColumnPhi(-1),
-  fpConf(pConf)
+  fpDevStatus(pDevStatus)
 {
    
    fSensorArray = arraySensor;
@@ -143,18 +143,16 @@ void TAIRntuAlignC::Minimize()
    
    Int_t counterUV = 0;
    Int_t counterW  = 0;
-   
-   TAVTparConf* parconf = (TAVTparConf*) fpConf->Object();
-   
+      
    for (Int_t i = 0; i < fSensorArray->GetSize(); i++){
       Int_t iSensor = fSensorArray->At(i);
       
-      if (parconf->GetStatus(iSensor) == 0){
+      if (fpDevStatus[i] == 0){
          fAlignOffsetU[i] = 0;
          fAlignOffsetV[i] = 0;
          fAlignTiltW[i] = 0;
       }
-      else if (parconf->GetStatus(iSensor) == 1){
+      else if (fpDevStatus[i] == 1){
          fAlignOffsetU[i] = 0;
          fAlignOffsetV[i] = 0;
          fAlignTiltW[i]   = fAv(2*(fSensorArray->GetSize()-2)+counterW, 0);
