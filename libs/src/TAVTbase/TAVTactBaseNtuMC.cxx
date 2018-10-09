@@ -72,6 +72,16 @@ TAVTactBaseNtuMC::TAVTactBaseNtuMC(const char* name,  TAGparaDsc* pGeoMap, EVENT
    
    TString tmp(name);
    fPrefix = tmp(0,2);
+   
+   fTitleDev = fPrefix;
+  if (fPrefix.Contains("vt"))
+     fTitleDev = "Vertex";
+  else if (fPrefix.Contains("it"))
+     fTitleDev = "Inner Tracker";
+  else if (fPrefix.Contains("ms"))
+     fTitleDev = "Multi Strip Detector";
+   else
+      printf("Wrong prefix for histograms !");
 }
 
 //------------------------------------------+-----------------------------------
@@ -83,26 +93,27 @@ void TAVTactBaseNtuMC::CreateHistogram()
    
    TAVTbaseParGeo* pGeoMap = (TAVTbaseParGeo*) fpGeoMap->Object();
    
+   
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
-      fpHisPixel[i] = new TH1F(Form("%sMcPixel%d", fPrefix.Data(), i+1), Form("Vertex - MC # pixels per clusters for sensor %d", i+1), 100, 0., 100.);
+      fpHisPixel[i] = new TH1F(Form("%sMcPixel%d", fPrefix.Data(), i+1), Form("%s - MC # pixels per clusters for sensor %d", fTitleDev.Data(), i+1), 100, 0., 100.);
       AddHistogram(fpHisPixel[i]);
    }
    
-   fpHisPixelTot = new TH1F(Form("%sMcPixelTot", fPrefix.Data()), "Vertex - MC # total pixels per clusters", 100, 0., 100.);
+   fpHisPixelTot = new TH1F(Form("%sMcPixelTot", fPrefix.Data()), Form("%s - MC # total pixels per clusters", fTitleDev.Data()), 100, 0., 100.);
    AddHistogram(fpHisPixelTot);
 
-   fpHisDeTot = new TH1F(Form("%sMcDeTot", fPrefix.Data()), "Vertex - MC total energy loss", 1000, 0., 10000.);
+   fpHisDeTot = new TH1F(Form("%sMcDeTot", fPrefix.Data()), Form("%s - MC total energy loss", fTitleDev.Data()), 1000, 0., 10000.);
    AddHistogram(fpHisDeTot);
 
    
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
-      fpHisDeSensor[i] = new TH1F(Form("%sMcDe%d", fPrefix.Data(), i+1), Form("Vertex - MC energy loss for sensor %d", i+1), 1000, 0., 10000.);
+      fpHisDeSensor[i] = new TH1F(Form("%sMcDe%d", fPrefix.Data(), i+1), Form("%s - MC energy loss for sensor %d", fTitleDev.Data(), i+1), 1000, 0., 10000.);
       AddHistogram(fpHisDeSensor[i]);
    }
    
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
       if (TAVTparConf::IsMapHistOn()) {
-         fpHisPixelMap[i]  = new TH2F(Form("%sMcPixelMap%d", fPrefix.Data(), i+1) , Form("Vertex - pixel map for sensor %d", i+1),
+         fpHisPixelMap[i]  = new TH2F(Form("%sMcPixelMap%d", fPrefix.Data(), i+1) , Form("%s - MC pixel map for sensor %d", fTitleDev.Data(), i+1),
                                       pGeoMap->GetNPixelX(), 0, pGeoMap->GetNPixelX(),
                                       pGeoMap->GetNPixelY(), 0, pGeoMap->GetNPixelY());
          fpHisPixelMap[i]->SetStats(kFALSE);
@@ -112,7 +123,7 @@ void TAVTactBaseNtuMC::CreateHistogram()
    
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
       if (TAVTparConf::IsMapHistOn()) {
-         fpHisPosMap[i] =  new TH2F(Form("%sMcPosMap%d", fPrefix.Data(), i+1), Form("Vertex - position map for sensor %d", i+1),
+         fpHisPosMap[i] =  new TH2F(Form("%sMcPosMap%d", fPrefix.Data(), i+1), Form("%s - MC position map for sensor %d", fTitleDev.Data(), i+1),
                                     100, -pGeoMap->GetPitchX()/2.*pGeoMap->GetNPixelX(), pGeoMap->GetPitchX()/2.*pGeoMap->GetNPixelX(),
                                     100, -pGeoMap->GetPitchY()/2.*pGeoMap->GetNPixelY(), pGeoMap->GetPitchY()/2.*pGeoMap->GetNPixelY());
          fpHisPosMap[i]->SetStats(kFALSE);

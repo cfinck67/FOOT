@@ -84,6 +84,7 @@ protected:
    Int_t           fNoisyPixelsN;
    
    TString         fPrefix;            // prefix of histogram
+   TString         fTitleDev;          // device name for histogram title
 
    TH2F*           fpHisPixelMap[32];  // pixel map per sensor
    TH2F*           fpHisPosMap[32];    // pixel map per sensor
@@ -102,6 +103,7 @@ protected:
    virtual void    FillNoise(Int_t /*sensorId*/)                    { return; }
    virtual void    CreateDigitizer()                                { return; }
    virtual void    FillPixels( Int_t /*sensorId*/, Int_t /*mcId*/ ) { return; }
+   
 
 protected:
    static Bool_t   fgPileup;           // flag to generated pileup events

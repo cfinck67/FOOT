@@ -80,7 +80,8 @@ protected:
    TH1F*          fpHisPixel[32];	  // number of pixels per cluster per sensor
    TH2F*          fpHisClusMap[32];   // cluster map per sensor
    
-   TString        fPrefix;
+   TString        fPrefix;            // prefix of histogram
+   TString        fTitleDev;          // device name for histogram title
 
 protected:
    void  SearchCluster(TAVTbaseParGeo* pGeoMap);

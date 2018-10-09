@@ -41,6 +41,16 @@ TAVTactBaseNtuCluster::TAVTactBaseNtuCluster(const char* name,
    TString tmp(name);
    fPrefix = tmp(0,2);
    
+   fTitleDev = fPrefix;
+   if (fPrefix.Contains("vt"))
+      fTitleDev = "Vertex";
+   else if (fPrefix.Contains("it"))
+      fTitleDev = "Inner Tracker";
+   else if (fPrefix.Contains("ms"))
+      fTitleDev = "Multi Strip Detector";
+   else
+      printf("Wrong prefix for histograms !");
+
    TAVTparGeo* geoMap = (TAVTparGeo*)fpGeoMap->Object();
    Int_t nLines = geoMap->GetNPixelY()+1;
    Int_t nCols  = geoMap->GetNPixelX()+1;
@@ -60,19 +70,19 @@ TAVTactBaseNtuCluster::~TAVTactBaseNtuCluster()
 void TAVTactBaseNtuCluster::CreateHistogram()
 {
    DeleteHistogram();
-   fpHisPixelTot = new TH1F(Form("%sClusPixelTot", fPrefix.Data()), "Vertex - Total # pixels per clusters", 100, 0., 100.);
+   fpHisPixelTot = new TH1F(Form("%sClusPixelTot", fPrefix.Data()), Form("%s - Total # pixels per clusters", fTitleDev.Data()), 100, 0., 100.);
    AddHistogram(fpHisPixelTot);
    
    TAVTbaseParGeo* pGeoMap  = (TAVTbaseParGeo*) fpGeoMap->Object();
    
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
-	  fpHisPixel[i] = new TH1F(Form("%sClusPixel%d",fPrefix.Data(), i+1), Form("Vertex - # pixels per clusters for sensor %d", i+1), 100, 0., 100.);
+	  fpHisPixel[i] = new TH1F(Form("%sClusPixel%d",fPrefix.Data(), i+1), Form("%s - # pixels per clusters for sensor %d", fTitleDev.Data(), i+1), 100, 0., 100.);
 	  AddHistogram(fpHisPixel[i]);
    }
    
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
 	  if (TAVTparConf::IsMapHistOn()) {
-		 fpHisClusMap[i] = new TH2F(Form("%sClusMap%d", fPrefix.Data(), i+1), Form("Vertex - clusters map for sensor %d", i+1),
+		 fpHisClusMap[i] = new TH2F(Form("%sClusMap%d", fPrefix.Data(), i+1), Form("%s - clusters map for sensor %d", fTitleDev.Data(), i+1),
 									100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchY()*pGeoMap->GetNPixelX()/2.,
 									100, -pGeoMap->GetPitchY()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchY()*pGeoMap->GetNPixelX()/2.);
 		 fpHisClusMap[i]->SetMarkerStyle(20);
