@@ -12,18 +12,25 @@
 #include "TStyle.h"
 #include "TArrayD.h"
 #include "TGraphErrors.h"
+#include "TObjArray.h"
 #include "TCanvas.h"
 
 #include "TAGparGeo.hxx"
-
+#include "TAGactTreeReader.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGgeoTrafo.hxx"
+
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
-#include "TAIRparDiff.hxx"
 #include "TAVTntuCluster.hxx"
-#include "TAGactTreeReader.hxx"
+
+#include "TAMSDparGeo.hxx"
+#include "TAMSDparConf.hxx"
+#include "TAMSDntuCluster.hxx"
+
 #include "TAIRalignC.hxx"
+
+#include "TAIRparDiff.hxx"
 #include "TAIRntuAlignC.hxx"
 
 
@@ -35,93 +42,173 @@
 ClassImp(TAIRalignC);
 
 TAIRalignC* TAIRalignC::fgInstance = 0x0;
-
+      Int_t TAIRalignC::fgkPreciseIt = 5;
 //__________________________________________________________
-TAIRalignC* TAIRalignC::Instance(const TString name, const TString confFile, Int_t weight)
+TAIRalignC* TAIRalignC::Instance(const TString name, Bool_t flagVtx, Bool_t flagIt, Bool_t flagMsd, Int_t weight)
 {
    if (fgInstance == 0x0)
-      fgInstance = new TAIRalignC(name, confFile, weight);
+      fgInstance = new TAIRalignC(name, flagVtx, flagIt, flagMsd, weight);
    
    return fgInstance;
 }
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
-TAIRalignC::TAIRalignC(const TString name, const TString confFile, Int_t weight)
-: TObject(),
-  fFileName(name),
-  fconfFile(confFile),
-  fEbeamInit(0),
-  fpcInit(0),
-  fBetaInit(0),
-  fAbeam(0),
-  fZbeam(0),
-  fEbeam(0),
-  fpc(0),
-  fBeta(0),
-  fWeighted(weight),
-  fPreciseIt(2),
-  fCut1(20),
-  fCut2(4),
-  fCutFactor(0),
-  fHitPlanes(-1),
-  fEvents1(0),
-  fSumWeightQ(0),
-  fFixPlaneRef1(false),
-  fFixPlaneRef2(false),
-  fPlaneRef1(-1),
-  fPlaneRef2(-1),
-  fResidualX(new TGraphErrors()),
-  fResidualY(new TGraphErrors())
+TAIRalignC::TAIRalignC(const TString name, Bool_t flagVtx, Bool_t flagIt, Bool_t flagMsd, Int_t weight)
+ : TObject(),
+   fFileName(name),
+   fFlagVtx(flagVtx),
+   fFlagIt(flagIt),
+   fFlagMsd(flagMsd),
+   fEbeamInit(0),
+   fpcInit(0),
+   fBetaInit(0),
+   fAbeam(0),
+   fZbeam(0),
+   fEbeam(0),
+   fpc(0),
+   fBeta(0),
+   fWeighted(weight),
+   fPreciseIt(1),
+   fCut1(20),
+   fCut2(4),
+   fCutFactor(0),
+   fHitPlanes(-1),
+   fEvents1(0),
+   fSumWeightQ(0),
+   fFixPlaneRef1(false),
+   fFixPlaneRef2(false),
+   fPlaneRef1(-1),
+   fPlaneRef2(-1),
+   fResidualX(new TGraphErrors()),
+   fResidualY(new TGraphErrors())
 {
    
-   fAGRoot = new TAGroot();
+   const TString confFileVtx = "./config/TAVTdetector.cfg";
+   const TString confFileMsd = "./config/TAMSDdetector.cfg";
    
-   fInfile     = new TAGactTreeReader("inFile");
+   Int_t devsNtot = 0;
    
-   fpGeoMap    = new TAGparaDsc(TAVTparGeo::GetDefParaName(), new TAVTparGeo());
-   TAVTparGeo* geomap   = (TAVTparGeo*) fpGeoMap->Object();
-   geomap->InitGeo();
+   fAGRoot        = new TAGroot();
+   fClusterArray  = new TObjArray();
+   fClusterArray->SetOwner(false);
    
-   fpConfig    = new TAGparaDsc("vtConf", new TAVTparConf());
-   TAVTparConf* parconf = (TAVTparConf*) fpConfig->Object();
-   parconf->FromFile(fconfFile.Data());
+   fInfile        = new TAGactTreeReader("inFile");
    
    fpGeoMapG    = new TAGparaDsc("gGeo", new TAGparGeo());
    TAGparGeo* geomapG   = (TAGparGeo*) fpGeoMapG->Object();
    geomapG->InitGeo();
-   
-   fpNtuClus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
 
-   
-   fpDiff      = new TAIRparDiff(fpGeoMap);
-   
-   fInfile->SetupBranch(fpNtuClus, TAVTntuCluster::GetBranchName());
-   
-   for (Int_t i = 0; i < parconf->GetSensorsN(); i++) {
-      if (parconf->GetStatus(i) != -1) {
-         fSecArray.Set(fSecArray.GetSize()+1);
-         fSecArray.AddAt(i, fSecArray.GetSize()-1);
-      }
+   fpDiff         = new TAIRparDiff(fpGeoMapG);
+
+   // VTX
+   if (fFlagVtx) {
+      fpGeoMapVtx    = new TAGparaDsc(TAVTparGeo::GetDefParaName(), new TAVTparGeo());
+      TAVTparGeo* geomapVtx   = (TAVTparGeo*) fpGeoMapVtx->Object();
+      geomapVtx->InitGeo();
       
-      if ((parconf->GetStatus(i) == 0) && (fFixPlaneRef1 == true))
-         fFixPlaneRef1 = false;
-      else if (((parconf->GetSensorPar(i).Status % 10) == 0)  && (fFixPlaneRef1 == false)) {
-         fFixPlaneRef1 = true;
-         fPlaneRef1 = fSecArray.GetSize()-1;
-      }
+      fpConfigVtx    = new TAGparaDsc("vtConf", new TAVTparConf());
+      TAVTparConf* parConfVtx = (TAVTparConf*) fpConfigVtx->Object();
+      parConfVtx->FromFile(confFileVtx.Data());
       
-      if ((parconf->GetStatus(i) == 1) && (fFixPlaneRef2 == true))
-         fFixPlaneRef2 = false;
-      else if ((parconf->GetStatus(i) == 1) && (fFixPlaneRef2 == false)) {
-         fFixPlaneRef2 = true;
-         fPlaneRef2 = fSecArray.GetSize()-1;
+      devsNtot += parConfVtx->GetSensorsN();
+
+      fpNtuClusVtx   = new TAGdataDsc("vtClus", new TAVTntuCluster());
+      fInfile->SetupBranch(fpNtuClusVtx, TAVTntuCluster::GetBranchName());
+   }
+   
+   // MSD
+   if (fFlagMsd) {
+      fpGeoMapMsd    = new TAGparaDsc(TAMSDparGeo::GetDefParaName(), new TAMSDparGeo());
+      TAMSDparGeo* geomapMsd   = (TAMSDparGeo*) fpGeoMapMsd->Object();
+      geomapMsd->InitGeo();
+   
+      fpConfigMsd    = new TAGparaDsc("msdConf", new TAMSDparConf());
+      TAMSDparConf* parConfMsd = (TAMSDparConf*) fpConfigMsd->Object();
+      parConfMsd->FromFile(confFileMsd.Data());
+      
+      devsNtot += parConfMsd->GetSensorsN();
+      
+      fpNtuClusMsd  = new TAGdataDsc("msdClus", new TAMSDntuCluster());
+      fInfile->SetupBranch(fpNtuClusMsd, TAMSDntuCluster::GetBranchName());
+   }
+
+   if (devsNtot <= 2) {
+      Error("TAIRalignC", "No enough sensors to align");
+      exit(0);
+   }
+
+   fDevStatus     = new Int_t[devsNtot];
+
+   FillStatus();
+   
+   InitParameters();
+   
+   FillPosition();
+   
+   fAlign = new TAIRntuAlignC(&fSecArray, fDevStatus);
+}
+
+//------------------------------------------+-----------------------------------
+//! Destructor.
+TAIRalignC::~TAIRalignC()
+{
+   for(Int_t i = 0; i < fSecArray.GetSize(); i++){
+      delete[] fWeightQ;
+      delete[] fZposition;
+      delete[] fSigmaAlfaDist;
+      delete[] fSigmaMeasQfinal;
+      delete[] fPosUClusters;
+      delete[] fPosVClusters;
+      delete[] fErrUClusters;
+      delete[] fErrVClusters;
+      delete[] fTiltW;
+      delete[] fAlignmentU;
+      delete[] fAlignmentV;
+      delete[] fStatus;
+      delete[] fDevStatus;
+   }
+   delete fResidualX;
+   delete fResidualY;
+   delete fClusterArray;
+}
+
+//______________________________________________________________________________
+//
+// Fill array of clusters
+void TAIRalignC::FillClusterArray()
+{
+   fClusterArray->Clear();
+   
+   if (fFlagVtx) {
+      TAVTntuCluster* pNtuClus  = (TAVTntuCluster*) fpNtuClusVtx->Object();
+      TAVTparConf* pConfigVtx = (TAVTparConf*) fpConfigVtx->Object();
+      
+      for (Int_t iPlane = 0; iPlane < pConfigVtx->GetSensorsN(); ++iPlane) {
+         if (pConfigVtx->GetStatus(iPlane) == -1) continue;
+         TClonesArray* list = pNtuClus->GetListOfClusters(iPlane);
+         fClusterArray->AddLast(list);
       }
    }
    
-   fAlign = new TAIRntuAlignC(&fSecArray, fpConfig);
-   
-   fWeight          = new Double_t[fSecArray.GetSize()];
+   if (fFlagMsd) {
+      TAMSDntuCluster* pNtuClus  = (TAMSDntuCluster*) fpNtuClusMsd->Object();
+      TAMSDparConf* pConfigMsd = (TAMSDparConf*) fpConfigMsd->Object();
+      
+      for (Int_t iPlane = 0; iPlane < pConfigMsd->GetSensorsN(); ++iPlane) {
+         if (pConfigMsd->GetStatus(iPlane) == -1) continue;
+         TClonesArray* list = pNtuClus->GetListOfClusters(iPlane);
+         fClusterArray->AddLast(list);
+      }
+   }
+
+}
+
+//______________________________________________________________________________
+//
+// Create all the residuals histograms
+void TAIRalignC::InitParameters()
+{
    fWeightQ         = new Double_t[fSecArray.GetSize()];
    fZposition       = new Double_t[fSecArray.GetSize()];
    fSigmaAlfaDist   = new Double_t[fSecArray.GetSize()];
@@ -136,7 +223,6 @@ TAIRalignC::TAIRalignC(const TString name, const TString confFile, Int_t weight)
    fStatus          = new Bool_t[fSecArray.GetSize()];
    
    for(Int_t i = 0; i < fSecArray.GetSize(); i++){
-      fWeight[i]          = 0;
       fWeightQ[i]         = 0;
       fZposition[i]       = 0;
       fSigmaAlfaDist[i]   = 0;
@@ -152,41 +238,93 @@ TAIRalignC::TAIRalignC(const TString name, const TString confFile, Int_t weight)
    }
 }
 
-//------------------------------------------+-----------------------------------
-//! Destructor.
-TAIRalignC::~TAIRalignC()
+//______________________________________________________________________________
+//
+// Create all the residuals histograms
+void TAIRalignC::FillStatus()
 {
-   for(Int_t i = 0; i < fSecArray.GetSize(); i++){
-      delete[] fWeight;
-      delete[] fWeightQ;
-      delete[] fZposition;
-      delete[] fSigmaAlfaDist;
-      delete[] fSigmaMeasQfinal;
-      delete[] fPosUClusters;
-      delete[] fPosVClusters;
-      delete[] fErrUClusters;
-      delete[] fErrVClusters;
-      delete[] fTiltW;
-      delete[] fAlignmentU;
-      delete[] fAlignmentV;
-      delete[] fStatus;
+   TAVTbaseParConf* parConf = 0x0;
+   fOffsetMsd = 0;
+
+   if (fFlagVtx) {
+      parConf = (TAVTparConf*) fpConfigVtx->Object();
+      FillStatus(parConf);
+      fOffsetMsd += fSecArray.GetSize();
    }
-   delete fResidualX;
-   delete fResidualY;
+   
+   if (fFlagMsd) {
+      parConf = (TAMSDparConf*) fpConfigMsd->Object();
+      FillStatus(parConf, fOffsetMsd);
+   }
 }
+
+//______________________________________________________________________________
+//
+// Fill Status
+void TAIRalignC::FillStatus(TAVTbaseParConf* parConf, Int_t offset)
+{
+   for (Int_t i = 0; i < parConf->GetSensorsN(); i++) {
+      if (parConf->GetStatus(i) != -1) {
+         fSecArray.Set(fSecArray.GetSize()+1);
+         fSecArray.AddAt(i, fSecArray.GetSize()-1);
+      }
+      if (parConf->GetStatus(i) == 0) {
+         fFixPlaneRef1 = true;
+         fPlaneRef1 = fSecArray.GetSize()-1;
+      }
+      
+      if (parConf->GetStatus(i) == 1) {
+         fFixPlaneRef2 = true;
+         fPlaneRef2 = fSecArray.GetSize()-1;
+      }
+      
+      Int_t iSensor = fSecArray.GetSize()-1;
+      fDevStatus[fSecArray.GetSize()-1] = parConf->GetStatus(iSensor);
+   }
+}
+
+//______________________________________________________________________________
+//
+// Fill Position
+void TAIRalignC::FillPosition()
+{
+   TAVTbaseParGeo*  parGeo = 0x0;
+   Int_t offset = 0;
+   if (fFlagVtx) {
+      parGeo  = (TAVTparGeo*)  fpGeoMapVtx->Object();
+      FillPosition(parGeo);
+   }
+   
+   if (fFlagMsd) {
+      parGeo  = (TAMSDparGeo*)  fpGeoMapMsd->Object();
+      FillPosition(parGeo, fOffsetMsd);
+   }
+}
+
+//______________________________________________________________________________
+//
+// Fill Position
+void TAIRalignC::FillPosition(TAVTbaseParGeo* parGeo, Int_t offset)
+{
+   for (Int_t i = 0; i < parGeo->GetNSensors(); i++){
+      TVector3 posSens = parGeo->GetSensorPosition(i);
+      parGeo->Local2Global(&posSens);
+      fZposition[i+offset] = posSens.Z()*TAGgeoTrafo::CmToMm();
+   }
+}
+
+
 //______________________________________________________________________________
 //
 // Create all the residuals histograms
 void TAIRalignC::CreateHistogram()
-{
-   TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
-   
+{   
    Int_t iPlane = 0;
    for (Int_t i = 0; i < fSecArray.GetSize(); i++) {
       iPlane = fSecArray[i];
       
-      fpResXC[i] = new TH1F(Form("ResX%dC", iPlane+1), Form("ResidualX of sensor %d", iPlane+1), 400, -200, 200);
-      fpResYC[i] = new TH1F(Form("ResY%dC", iPlane+1), Form("ResidualY of sensor %d", iPlane+1), 400, -200, 200);
+      fpResXC[i] = new TH1F(Form("ResX%dC", i+1), Form("ResidualX of sensor %d", iPlane+1), 400, -200, 200);
+      fpResYC[i] = new TH1F(Form("ResY%dC", i+1), Form("ResidualY of sensor %d", iPlane+1), 400, -200, 200);
    }
    
    fpResTotXC = new TH1F("TotResXC", "Total residualX", 400, -200, 200);
@@ -198,8 +336,6 @@ void TAIRalignC::CreateHistogram()
 //
 void TAIRalignC::LoopEvent(Int_t nEvts)
 {
-   TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
-   
    if ((fFixPlaneRef1 == false)||(fFixPlaneRef2 == false)) {
       Error("LoopEvent()", "In config:: Wrong references planes in the configuration file: 1 plane must be set to 0 (reference 0),  1 plane must be set to 1 (reference 1) and the others to 2");
       return;
@@ -223,19 +359,24 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
    fEvents1 = 0;
    fInfile->Reset();
    
+   Float_t limitShift = 5;
+   Float_t limitTilt  = 0.1*TMath::DegToRad();
    Bool_t roughAlign = true;
+   
    for (Int_t i = 0; i < nEvts; ++i ) {
       if(i % 10000 == 0) {
          std::cout << "Loaded Event:: " << i << std::endl;
       }
       if (!fAGRoot->NextEvent()) break;
+      
+      FillClusterArray();
       if(!Align(roughAlign)) continue;
    }
+   
    fAlign->Constraint(fPlaneRef1, fPlaneRef2);
    fAlign->Minimize();
    UpdateAlignmentParams();
    fAlign->Reset();
-   
    printf("Number of events for iteration 1: %d / %d \n", fEvents1, nEvts);
    
    roughAlign = false;
@@ -248,24 +389,32 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
             std::cout << "Loaded Event:: " << i << std::endl;
          }
          if (!fAGRoot->NextEvent()) break;
+         FillClusterArray();
          if(!Align(roughAlign)) continue;
       }
+      
       fAlign->Constraint(fPlaneRef1, fPlaneRef2);
       fAlign->Minimize();
       UpdateAlignmentParams();
       fAlign->Reset();
       printf("Number of events for iteration %d: %d / %d \n", j+2, fEvents1, nEvts);
       fCutFactor = fCut2;
+      Bool_t status = true;
+      for(Int_t i = 0; i < fSecArray.GetSize(); i++)
+         status &= ((fAlign->GetOffsetU()[i]*TAGgeoTrafo::MmToMu() < limitShift) && (fAlign->GetOffsetV()[i]*TAGgeoTrafo::MmToMu() < limitShift)) && (fAlign->GetTiltW()[i]<limitTilt);
+      if (!status)
+         fPreciseIt++;
+      if (fPreciseIt >= fgkPreciseIt)
+         break;
    }
    
-   for (Int_t i = 0; i < fSecArray.GetSize(); i++ ) {
-      UpdateTransfo(i);
-   }
+//   for (Int_t i = 0; i < fSecArray.GetSize(); i++ ) {
+//      UpdateTransfo(i);
+//   }
    
   // UpdateGeoMaps();
    
-   Float_t limitShift = 5;
-   Float_t limitTilt  = 0.1*TMath::DegToRad();
+  
    
    // Now display the filled histos
    printf("------------------------------------------------------------\n");
@@ -277,9 +426,9 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
       fStatus[i] = ((fAlign->GetOffsetU()[i]*TAGgeoTrafo::MmToMu() < limitShift) && (fAlign->GetOffsetV()[i]*TAGgeoTrafo::MmToMu() < limitShift)) && (fAlign->GetTiltW()[i]<limitTilt);
       printf("----------------------------------------------\n");
       printf("Sensor: %d AlignmentU: %5.1f AlignmentV: %5.1f TiltW: %6.3f status %d\n", iPlane+1,
-             pGeoMap->GetAlignmentU(iPlane),
-             pGeoMap->GetAlignmentV(iPlane),
-             pGeoMap->GetTiltW(iPlane)*TMath::RadToDeg(),
+             fAlignmentU[i]*TAGgeoTrafo::MmToMu(),
+             fAlignmentV[i]*TAGgeoTrafo::MmToMu(),
+             fTiltW[i]*TMath::RadToDeg(),
              fStatus[i]);
    }
    
@@ -291,15 +440,16 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
       if(i % 10000 == 0)
          std::cout << " Loaded Event:: " << i << std::endl;
       if (!fAGRoot->NextEvent()) break;
+      FillClusterArray();
       if(!FillHistograms()) continue;
    }
    
    TCanvas* canvas1 = new TCanvas("canvas1", "ResidualX");
-   canvas1->Divide(pGeoMap->GetNSensors()/2,2);
+   canvas1->Divide(fSecArray.GetSize()/2,3);
    gStyle->SetOptStat(1111);
    
    TCanvas* canvas2 = new TCanvas("canvas2", "ResidualY");
-   canvas2->Divide(pGeoMap->GetNSensors()/2,2);
+   canvas2->Divide(fSecArray.GetSize()/2,3);
    gStyle->SetOptStat(1111);
    
    TCanvas* canvas3 = new TCanvas("canvas3", "ResidualTotX");
@@ -310,12 +460,10 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
    
    
    for(Int_t i = 0; i < fSecArray.GetSize(); i++) {
-      Int_t iPlane = fSecArray[i];
-      
-      canvas1->cd(iPlane+1);
+      canvas1->cd(i+1);
       fpResXC[i]->Draw();
       
-      canvas2->cd(iPlane+1);
+      canvas2->cd(i+1);
       fpResYC[i]->Draw();
    }
    
@@ -332,10 +480,8 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
 // Alignment with all the events which fired all the planes
 Bool_t TAIRalignC::Align(Bool_t rough)
 {
-   
-   TAVTparGeo*     pGeoMap   = (TAVTparGeo*)     fpGeoMap->Object();
-   TAVTntuCluster* pNtuClus  = (TAVTntuCluster*) fpNtuClus->Object();
-   
+   TAVTntuCluster* pNtuClus  = (TAVTntuCluster*) fpNtuClusVtx->Object();
+
    fSlopeU = 0;
    fSlopeV = 0;
    fNewSlopeU = 0;
@@ -350,12 +496,12 @@ Bool_t TAIRalignC::Align(Bool_t rough)
       fPosVClusters[i] = 999999;
       Int_t nValidCluster = 0;
       Int_t aCluster = 0;
-      iPlane = fSecArray[i];
-      nCluster = pNtuClus->GetClustersN(iPlane);
-      
+      TClonesArray* list = (TClonesArray*)fClusterArray->At(i);
+      nCluster = list->GetEntries();
+
       if (nCluster < 1) return false;
       for (Int_t j = 0; j < nCluster; j++){
-         TAVTcluster* cluster = pNtuClus->GetCluster(iPlane, j);
+         TAVTbaseCluster* cluster = (TAVTbaseCluster*)list->At(j);
          if (cluster->IsValid() != true) continue;
          nValidCluster++;
          if (nValidCluster > 1) return false;
@@ -363,13 +509,12 @@ Bool_t TAIRalignC::Align(Bool_t rough)
       }
       if (nValidCluster < 1) return false;
       fHitPlanes ++;
-      TAVTcluster* cluster = pNtuClus->GetCluster(iPlane, aCluster);
+      TAVTbaseCluster* cluster = (TAVTbaseCluster*)list->At(aCluster);
       if (rough) {
          FillClusPosRough(i, cluster);
       } else {
          if (!FillClusPosPrecise(i, cluster)) return false;
       }
-    
    }
    
    if (fHitPlanes < fSecArray.GetSize()) return false;
@@ -383,7 +528,7 @@ Bool_t TAIRalignC::Align(Bool_t rough)
 //______________________________________________________________________________
 //
 // Fill rough position of cluster
-Bool_t TAIRalignC::FillClusPosRough(Int_t i, TAVTcluster* cluster)
+Bool_t TAIRalignC::FillClusPosRough(Int_t i, TAVTbaseCluster* cluster)
 {
    fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm();
    fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm();
@@ -395,10 +540,18 @@ Bool_t TAIRalignC::FillClusPosRough(Int_t i, TAVTcluster* cluster)
 //
 // Fill precise position of cluster, rejecting the ones which are too much scattered for
 // a precise alignment
-Bool_t TAIRalignC::FillClusPosPrecise(Int_t i, TAVTcluster* cluster)
+Bool_t TAIRalignC::FillClusPosPrecise(Int_t i, TAVTbaseCluster* cluster)
 {
-   TAVTparGeo*     pGeoMap   = (TAVTparGeo*)     fpGeoMap->Object();
-   TAVTntuCluster* pNtuClus  = (TAVTntuCluster*) fpNtuClus->Object();
+   TAVTbaseParGeo* pGeoMap   =  0x0;
+   
+   if(cluster->InheritsFrom("TAVTcluster"))
+      pGeoMap = (TAVTparGeo*) fpGeoMapVtx->Object();
+   else if (cluster->InheritsFrom("TAMSDcluster"))
+      pGeoMap = (TAMSDparGeo*) fpGeoMapMsd->Object();
+   else {
+      Error("FillClusPosPrecise()","Unknown detector");
+      exit(0);
+   }
 
    fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() + (cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentU[i];
    fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() - (cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentV[i];
@@ -429,15 +582,12 @@ Bool_t TAIRalignC::FillClusPosPrecise(Int_t i, TAVTcluster* cluster)
 // Filling the histograms with all the events when all the planes are fired
 Bool_t TAIRalignC::FillHistograms()
 {
-   TAVTparGeo*     pGeoMap   = (TAVTparGeo*)     fpGeoMap->Object();
-   TAVTntuCluster* pNtuClus  = (TAVTntuCluster*) fpNtuClus->Object();
-   
    Int_t iPlane = 0;
    Int_t nCluster = 0;
    Double_t intersectionU = 0;
    Double_t intersectionV = 0;
    fHitPlanes = 0;
-   Int_t aCluster[6] = {0};
+   Int_t aCluster[50] = {0};
    for (Int_t i = 0; i < fSecArray.GetSize(); i++){
       fPosUClusters[i] = 999999;
       fPosVClusters[i] = 999999;
@@ -446,18 +596,20 @@ Bool_t TAIRalignC::FillHistograms()
       Int_t nValidCluster = 0;
       
       iPlane = fSecArray[i];
-      nCluster = pNtuClus->GetClustersN(iPlane);
-      if (nCluster < 1) continue;
+      TClonesArray* list = (TClonesArray*)fClusterArray->At(iPlane);
+      nCluster = list->GetEntries();
+      
+      if (nCluster < 1) return false;
       for (Int_t j = 0; j < nCluster; j++){
-         TAVTcluster* cluster = pNtuClus->GetCluster(iPlane, j);
+         TAVTbaseCluster* cluster = (TAVTbaseCluster*)list->At(j);
          if (cluster->IsValid() != true) continue;
          nValidCluster++;
          if (nValidCluster > 1) return false;
          aCluster[i] = cluster->GetNumber();
       }
-      if (nValidCluster < 1) continue;
+      if (nValidCluster < 1) return false;
       fHitPlanes ++;
-      TAVTcluster* cluster = pNtuClus->GetCluster(iPlane, aCluster[i]);
+      TAVTbaseCluster* cluster = (TAVTbaseCluster*)list->At(aCluster[i]);
       
       fPosUClusters[i] = cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() + (cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentU[i];
       fPosVClusters[i] = cluster->GetPositionG()[1]*TAGgeoTrafo::CmToMm() - (cluster->GetPositionG()[0]*TAGgeoTrafo::CmToMm() * (-fTiltW[i])) - fAlignmentV[i];
@@ -514,8 +666,6 @@ Bool_t TAIRalignC::FillHistograms()
 // The final vector containing the alignment parameters are calculated
 void TAIRalignC::UpdateAlignmentParams()
 {
-   TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
-   
    for (Int_t i = 0; i < fSecArray.GetSize(); i++){
       Int_t iSensor = fSecArray[i];
       
@@ -540,8 +690,18 @@ void TAIRalignC::UpdateAlignmentParams()
 // These calculation are made thanks to the formulas implemented in Scattman
 Bool_t TAIRalignC::DefineWeights()
 {
+   // tmp solution meanwhile to find something better
+   if (fWeighted == -1) {
+      for (Int_t i = 0; i < fSecArray.GetSize(); i++){
+         fWeightQ[i]         = 1./fSecArray.GetSize();
+         fSigmaMeasQfinal[i] = 2.5e-5;
+         fSigmaAlfaDist[i]   = 5.0e-5;
+      }
+      return true;
+   }
+   
    TAGparGeo* pGeoMap = (TAGparGeo*) fpGeoMapG->Object();
-   TAVTparGeo* vtGeoMap = (TAVTparGeo*) fpGeoMap->Object();
+   TAVTparGeo* vtGeoMap = (TAVTparGeo*) fpGeoMapVtx->Object();
    
    fEbeamInit   = pGeoMap->GetBeamPar().Energy*TAGgeoTrafo::GevToMev();
    fZbeam       = pGeoMap->GetBeamPar().AtomicNumber;
@@ -593,8 +753,6 @@ Bool_t TAIRalignC::DefineWeights()
    
    for (Int_t i = 0; i < fSecArray.GetSize(); i++){
       iSensor = fSecArray[i];
-      fZposition[i] = vtGeoMap->GetSensorPosition(iSensor).Z()*TAGgeoTrafo::CmToMm();
-      
       Double_t sigmaAlfaScattSi = 0;
       Double_t sigmaAlfaScattAir = 0;
       
@@ -672,7 +830,7 @@ Bool_t TAIRalignC::DefineWeights()
 // Update transfo for every loop when it changes the alignment parameters
 void TAIRalignC::UpdateTransfo(Int_t idx)
 {
-   TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
+   TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMapVtx->Object();
    Int_t       iPlane   = fSecArray[idx];
    pGeoMap->GetAlignmentU(iPlane) = fAlignmentU[idx]*TAGgeoTrafo::MmToMu();
    pGeoMap->GetAlignmentV(iPlane) = fAlignmentV[idx]*TAGgeoTrafo::MmToMu();
@@ -686,7 +844,7 @@ void TAIRalignC::UpdateTransfo(Int_t idx)
 // Modification of the geomap file with the final results of alignment
 void TAIRalignC::UpdateGeoMaps()
 {
-   TAVTparGeo* pGeoMap  = (TAVTparGeo*)fpGeoMap->Object();
+   TAVTparGeo* pGeoMap  = (TAVTparGeo*)fpGeoMapVtx->Object();
    fstream  configFileOld;
    fstream  configFileNew;
    Char_t configFileName[1000];
@@ -728,7 +886,7 @@ void TAIRalignC::UpdateGeoMapsUVW(fstream &fileIn, fstream &fileOut, Int_t idx)
 {
    Char_t tmp[255];
    TString key;
-   TAVTparGeo* pGeoMap  = (TAVTparGeo*)fpGeoMap->Object();
+   TAVTparGeo* pGeoMap  = (TAVTparGeo*)fpGeoMapVtx->Object();
    
    Float_t alignU = pGeoMap->GetAlignmentU(idx);
    Float_t alignV = pGeoMap->GetAlignmentV(idx);

@@ -22,7 +22,10 @@
 #include "TAIRparDiff.hxx"
 #include "TAIRntuAlignC.hxx"
 
-class TAVTcluster;
+class TAVTbaseCluster;
+class TAVTbaseParGeo;
+class TAVTbaseParConf;
+class TObjArray;
 class TAIRalignC : public TObject {
    
 private:
@@ -30,25 +33,34 @@ private:
    
 public:
    //! Instance of class
-   static TAIRalignC* Instance(const TString name = "provaout0020.lmd",
-                               const TString confFile = "./config/TAVTdetector.cfg",
+   static TAIRalignC* Instance(const TString name = "16O_C2H4_200_1.root",
+                               Bool_t flagVtx = false,
+                               Bool_t flagIt  = false,
+                               Bool_t flagMsd = false,
                                Int_t weight = -1); // The weight is barely influencing the results
    virtual ~TAIRalignC();
    
 private:
    //! ctr
-   TAIRalignC(const TString name, const TString confFile, Int_t weight);
+   TAIRalignC(const TString name, Bool_t flagVtx, Bool_t flagIt, Bool_t flagMsd, Int_t weight);
 public:
    void   LoopEvent(Int_t nEvts = 1);
    
 private:
-   
    void    CreateHistogram();
    Bool_t  Align(Bool_t rough);
    Bool_t  FillHistograms();
    Bool_t  DefineWeights();
-   Bool_t  FillClusPosRough(Int_t i, TAVTcluster* cluster);
-   Bool_t  FillClusPosPrecise(Int_t i, TAVTcluster* cluster);
+   Bool_t  FillClusPosRough(Int_t i, TAVTbaseCluster* cluster);
+   Bool_t  FillClusPosPrecise(Int_t i, TAVTbaseCluster* cluster);
+
+   void    FillClusterArray();
+   void    InitParameters();
+   void    FillStatus();
+   void    FillPosition();
+   void    FillStatus(TAVTbaseParConf* parConf, Int_t offset = 0);
+   void    FillPosition(TAVTbaseParGeo* parGeo, Int_t offset = 0);
+
 
    void    UpdateAlignmentParams();
    void    UpdateTransfo(Int_t idx);
@@ -57,27 +69,31 @@ private:
    void    Reset();
       
 private:
-   
-   TAGroot*             fAGRoot;            // pointer to TAGroot
-   TAGdataDsc*          fpNtuClus;	    // output data dsc
-   TAGparaDsc*          fpConfig;	    // configuration dsc
-   TAGparaDsc*          fpGeoMap;           // geometry para dsc
-   TAGparaDsc*          fpGeoMapG;           // geometry para dsc
+   TAGroot*             fAGRoot;        // pointer to TAGroot
+   Bool_t               fFlagVtx;
+   Bool_t               fFlagIt;
+   Bool_t               fFlagMsd;
+   TAGdataDsc*          fpNtuClusVtx;	 // Cluster VTX
+   TAGparaDsc*          fpConfigVtx;	 // configuration dsc
+   TAGparaDsc*          fpGeoMapVtx;    // geometry para dsc
+   TAGdataDsc*          fpNtuClusMsd;	 // Cluster MSD
+   TAGparaDsc*          fpConfigMsd;	 // configuration dsc
+   TAGparaDsc*          fpGeoMapMsd;    // geometry para dsc
+   TAGparaDsc*          fpGeoMapG;      // geometry para dsc
    TAIRparDiff*         fpDiff;		    // diffusion parameters
-   TAGactTreeReader*    fInfile;            // action for reading cluster
-   TAIRntuAlignC*       fAlign;           // pointer to align para
+   TAGactTreeReader*    fInfile;        // action for reading cluster
+   TAIRntuAlignC*       fAlign;         // pointer to align para
    
-   const TString       fFileName;  // input file
-   const TString       fconfFile;  // config file
+   const TString        fFileName;      // input file
    
-   //MaterialParameter_t
-   //map<TString, MaterialParameter_t> matParam;
+   TObjArray*           fClusterArray;  // contains all clusters
    
    Int_t     fWeighted;   // activation of the weight
    Int_t     fPreciseIt;  // number of iteration for precise alignment
    Int_t     fCut1;
    Int_t     fCut2;
    Int_t     fCutFactor;
+   Int_t     fOffsetMsd;
    
    TGraphErrors*        fResidualX;
    TGraphErrors*        fResidualY;
@@ -100,7 +116,6 @@ private:
    Double_t fNewSlopeU;
    Double_t fNewSlopeV;
    
-   Double_t*  fWeight;
    Double_t*  fWeightQ;
    Double_t*  fZposition;
    Double_t*  fSigmaAlfaDist;
@@ -111,11 +126,12 @@ private:
    Double_t* fErrUClusters;
    Double_t* fErrVClusters;
    
-   Float_t*   fTiltW;
-   Float_t*   fAlignmentU;
-   Float_t*   fAlignmentV;
+   Float_t*  fTiltW;
+   Float_t*  fAlignmentU;
+   Float_t*  fAlignmentV;
    
-   Bool_t*    fStatus;
+   Bool_t*   fStatus;
+   Int_t*    fDevStatus;
    
    Double_t  fSumWeightQ;
    
@@ -124,10 +140,13 @@ private:
    Int_t  fPlaneRef1;
    Int_t  fPlaneRef2;
    
-   TH1F*   fpResXC[32];        // Residual in X
-   TH1F*   fpResYC[32];        // Residual in Y
+   TH1F*   fpResXC[50];        // Residual in X
+   TH1F*   fpResYC[50];        // Residual in Y
    TH1F*   fpResTotXC;        // Total residuals in x
    TH1F*   fpResTotYC;        // Total residuals in y
+ 
+private:
+   static Int_t fgkPreciseIt; // max number of iterations
    
    ClassDef(TAIRalignC,0)
 };
