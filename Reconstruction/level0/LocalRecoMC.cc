@@ -41,6 +41,9 @@ void LocalRecoMC::LoopEvent(Int_t nEvents)
    if (nEvents == 0)
       nEvents = fTree->GetEntries();
    
+   if (nEvents > fTree->GetEntries())
+      nEvents = fTree->GetEntries();
+   
    for (Long64_t ientry = 0; ientry < nEvents; ientry++) {
       
       fTree->GetEntry(ientry);
