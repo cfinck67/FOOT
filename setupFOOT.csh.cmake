@@ -2,7 +2,8 @@ setenv ASOFTREF @CMAKE_BINARY_DIR@/libs/
 setenv FOOTMAIN @CMAKE_BINARY_DIR@
 setenv FOOTREF $ASOFTREF/src
 setenv FOOTLEVEL0 $FOOTMAIN/Reconstruction/level0
-setenv FOOTCONFIG $FOOTLEVEL0/config
+setenv FOOTFULLREC $FOOTMAIN/Reconstruction/fullrec
+setenv FOOTCONFIG $FOOTFULLREC/config
 setenv FOOTRES $FOOTLEVEL0/results
 setenv FOOTSIMU $FOOTMAIN/Simulation
 
