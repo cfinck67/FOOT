@@ -8,6 +8,12 @@ MESSAGE("  ${PROJECT_NAME}:")
 set(LIBNAME RecoTools)
 
 #----------------------------------------------------------------------------
+# Copy geomaps + config (tmp solution)
+#
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../level0/geomaps/ DESTINATION ${CMAKE_BINARY_DIR}/Reconstruction/fullrec/geomaps/)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../level0/config/  DESTINATION ${CMAKE_BINARY_DIR}/Reconstruction/fullrec/config/)
+
+#----------------------------------------------------------------------------
 # internal and external dependencies
 #
 set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TAVT} ${TAIT} ${TAMSD} ${TABM} ${TATW} ${TACA} ${TAIR} ${TAMC} ${TAFO})
