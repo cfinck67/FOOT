@@ -58,7 +58,7 @@ TGeoVolume* TADIparGeo::AddDipole(const char *dipoleName)
 	  new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
    }
    
-   // create module
+   // create material
    TGeoMaterial* matDipole;
    TGeoMedium*   medDipole;
    
