@@ -11,3 +11,5 @@ if ($OSTYPE == "darwin") then
 else
   setenv LD_LIBRARY_PATH $ROOTSYS/lib:./:$ASOFTREF/lib:
 endif
+
+set path = (${FOOTMAIN}/bin $path)

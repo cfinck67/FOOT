@@ -13,3 +13,5 @@ then
 else
   export LD_LIBRARY_PATH=$ROOTSYS/lib:./:$ASOFTREF/lib
 fi
+
+export PATH=$PATH:$FOOTMAIN/bin
