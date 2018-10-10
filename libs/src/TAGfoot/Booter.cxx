@@ -111,7 +111,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 
     // debug fie
     if ( GlobalPar::GetPar()->Debug() > 1 ) {
-        eventListFile.open( ((string)getenv("FOOTLEVEL0")+"/"+"eventListFile.dat").c_str(), fstream::trunc | fstream::out );
+        eventListFile.open( ((string)getenv("FOOTFULLREC")+"/"+"eventListFile.dat").c_str(), fstream::trunc | fstream::out );
         if ( !eventListFile.is_open() )        cout<< "ERROR  -->  eventListFile.dat cannot open file."<< endl, exit(0);
     }
 
@@ -123,7 +123,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 	//Initializing the Geometry class that handles the
     //detector positioning and global to local transformations
     fGeoTrafo = new TAGgeoTrafo();   
-    TString filename = m_wd + "/FOOT_geo.map";   // obsolete, to be removed carefully
+    TString filename = m_wd + "/geomap/FOOT_geo.map";   // obsolete, to be removed carefully
     fGeoTrafo->InitGeo(filename.Data());
 
 	cout << "Make Geo" << endl;
