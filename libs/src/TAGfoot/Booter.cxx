@@ -124,7 +124,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     //detector positioning and global to local transformations
     fGeoTrafo = new TAGgeoTrafo();   
     TString filename = m_wd + "/geomap/FOOT_geo.map";   // obsolete, to be removed carefully
-    fGeoTrafo->InitGeo(filename.Data());
+    //fGeoTrafo->InitGeo(filename.Data()); // avoid to load an unexisting file !
 
 	cout << "Make Geo" << endl;
     TGeoManager *masterGeo = new TGeoManager("genfitGeom", "GENFIT geometry");
