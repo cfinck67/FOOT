@@ -23,8 +23,9 @@ class TABMactDatRaw : public TAGaction {
 				 TAGdataDsc* p_datraw=0,
 				 //~ TAGdataDsc* p_datmbs=0,
 				 TAGparaDsc* p_parmap=0,
-				 //~ TAGparaDsc* p_parcon=0,
+				 TAGparaDsc* p_parcon=0,
 				 TAGparaDsc* p_pargeo=0,
+				 TAGdataDsc* p_timraw=0,
          BM_struct*  p_bmstruct=0);
     virtual         ~TABMactDatRaw();
 
@@ -36,8 +37,9 @@ class TABMactDatRaw : public TAGaction {
     TAGdataDsc*     fpDatRaw;		    // output data dsc
     //~ TAGdataDsc*     fpDatMbs;		    // input data dsc
     TAGparaDsc*     fpParMap;		    // parameter dsc
-    //~ TAGparaDsc*     fpParCon;		    // parameter dsc
+    TAGparaDsc*     fpParCon;		    // parameter dsc
     TAGparaDsc*     fpParGeo;		    // parameter dsc
+    TAGdataDsc*     fpTimRaw;		    // input data dsc
     BM_struct*      bmstruct;
     //~ ifstream datastream;                  // file di dati in input (cosa provvisoria per test calibrazione)
   

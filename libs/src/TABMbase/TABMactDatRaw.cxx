@@ -9,6 +9,7 @@
 //~ #include "TAGmbsEvent.hxx"
 #include "TABMdatRaw.hxx"
 #include "TABMrawHit.hxx"
+#include "TAIRdatRaw.hxx"
 
 #include "TABMactDatRaw.hxx"
 #include <iomanip>
@@ -27,22 +28,25 @@ TABMactDatRaw::TABMactDatRaw(const char* name,
 			     TAGdataDsc* p_datraw, 
 			     //~ TAGdataDsc* p_datmbs,
 			     TAGparaDsc* p_parmap,
-			     //~ TAGparaDsc* p_parcon,
+			     TAGparaDsc* p_parcon,
 			     TAGparaDsc* p_pargeo,
+			     TAGdataDsc* p_timraw, 
            BM_struct*  p_bmstruct)
   : TAGaction(name, "TABMactDatRaw - Unpack BM raw data"),
     fpDatRaw(p_datraw),
     //~ fpDatMbs(p_datmbs),
     fpParMap(p_parmap),
-    //~ fpParCon(p_parcon),
+    fpParCon(p_parcon),
     fpParGeo(p_pargeo),
+    fpTimRaw(p_timraw),
     bmstruct(p_bmstruct)
 {
   AddDataOut(p_datraw, "TABMdatRaw");
   //~ AddDataIn(p_datmbs, "TAGmbsEvent");
   AddPara(p_parmap, "TABMparMap");
-  //~ AddPara(p_parcon, "TABMparCon");
+  AddPara(p_parcon, "TABMparCon");
   AddPara(p_pargeo, "TABMparGeo");
+  AddDataIn(p_timraw, "TAIRdatRaw");
 }
 
 //------------------------------------------+-----------------------------------
@@ -71,15 +75,16 @@ Bool_t TABMactDatRaw::Action() {
   
   //From there we get the Mapping of the wires into the Chamber to the TDC channels
   TABMparMap*    p_parmap = (TABMparMap*)    fpParMap->Object();
-  //~ TABMparCon*    p_parcon = (TABMparCon*)    fpParCon->Object();
+  TABMparCon*    p_parcon = (TABMparCon*)    fpParCon->Object();
   TABMparGeo*    p_pargeo = (TABMparGeo*)    fpParGeo->Object();
+  TAIRdatRaw*    p_timraw = (TAIRdatRaw*)    fpTimRaw->Object();
   
   Int_t view,plane,cell;
     
-  
-  //for the moment I consider only the first event registered by the tdc  
   for(Int_t i=0;i<bmstruct->tdc_hitnum[0];i++){
-    if(p_parmap->tdc2cell(bmstruct->tdc_id[i])>=0){//-1000=syncTime, -1=not set
+    //~ cout<<"p_parmap->tdc2cell(bmstruct->tdc_id[i])="<<p_parmap->tdc2cell(bmstruct->tdc_id[i])<<"   (Double_t) (bmstruct->tdc_meas[i])/10.)="<<(Double_t) (bmstruct->tdc_meas[i])/10.<<"   p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))="<<p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))<<"   p_timraw->TrigTime()="<<p_timraw->TrigTime()<<"   differenza="<<(((Double_t) (bmstruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))-p_timraw->TrigTime())<<endl;
+    if(p_parmap->tdc2cell(bmstruct->tdc_id[i])>=0 && (((Double_t) (bmstruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))-p_timraw->TrigTime())<300.){//-1000=syncTime, -1=not set
+    //~ if(p_parmap->tdc2cell(bmstruct->tdc_id[i])>=0){//-1000=syncTime, -1=not set
       p_pargeo->GetBMNlvc(p_parmap->tdc2cell(bmstruct->tdc_id[i]),plane,view,cell);
       p_datraw->SetHitData(plane,view,cell,(Double_t) (bmstruct->tdc_meas[i])/10.);
     }

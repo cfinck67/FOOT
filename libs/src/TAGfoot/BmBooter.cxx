@@ -43,7 +43,12 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {
   vector<Int_t> row(16,0);
   eff_pp.push_back(row);
   eff_pp.push_back(row);
-    
+  //provv
+  vector<Int_t> row2(2,0);
+  for(Int_t i=0;i<4;i++){
+    eff_plane.push_back(row2);
+    eff_fittedplane.push_back(row2);
+  }    
   if (bmcon->GetBMdebug()>10) 
     cout<<"initialize BmBooter"<<endl;
   struct stat info;
@@ -75,7 +80,7 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {
       bmcon->PrintT0s(m_instr, data_num_ev);
     else
       bmcon->loadT0s(data_num_ev);
-    if(bmcon->GetBMdebug()>1 || bmcon->GetmanageT0BM()>1)
+    //~ if(bmcon->GetBMdebug()>1 || bmcon->GetmanageT0BM()>1)
       bmcon->CoutT0();
     //ADC pedestals  
     if(bmmap->GetAdc792Ch()>0){
@@ -138,7 +143,7 @@ void BmBooter::Process() {
     track_ok=-2;
   else if(bmnturaw->nhit < bmcon->GetMinnhit_cut())
     track_ok=-1;  
-  else{  
+  else if(bmcon->GetFitterIndex()>0){  
     bmntutrack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
     track_ok=bmntutrack->trk_status;
   }
@@ -150,7 +155,7 @@ void BmBooter::Process() {
     m_controlPlotter->BM_setnturaw_info("BM_output",bmnturaw, bmgeo, bmcon, cell_occupy);  
   
   if (bmcon->GetBMdebug()>10)
-    cout<<"in BmBooter::Process, I finished to printout BM hits, it's BM tracks printout (if enable)"<<endl;
+    cout<<"in BmBooter::Process, I finished to printout BM hits"<<endl;
   
   if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok>=0)
     if(m_controlPlotter->BM_setntutrack_info("BM_output", bmntutrack, bmnturaw, bmcon)==0)
@@ -172,7 +177,12 @@ void BmBooter::Process() {
         //~ plot_name=bm_outputdir+"/BM_track_"+to_string(data_num_ev);
       pg->Print(&plot_name[0]);  
   }
-  
+
+  efficiency_plane();
+  if(bmcon->GetFitterIndex()>0)
+    if(track_ok==0)  
+      Projectmylars();
+      
   data_num_ev++;
 
   if (bmcon->GetBMdebug()>10)
@@ -193,6 +203,8 @@ void BmBooter::Finalize() {
 
   PrintSTrel();  
   PrintEFFpp();
+  PrintProjections();  
+    
   if(isallign)
     Allign_estimate();
   
@@ -253,19 +265,20 @@ void BmBooter::PrintSTrel(){
   TH1D* histo=new TH1D( "strel", "strel;time [ns];distance [cm]", 4000, 0., 400.);
   double time=0.;
   for(int i=0;i<4000;i++){
-    histo->SetBinContent(i,time*bmcon->GetVDrift()+bmcon->FirstSTrel(time));
+    histo->SetBinContent(i,bmcon->FirstSTrel(time));
     time+=0.1;
   }
 return;
 }
 
-
+//provv:: modificare i vari histo e usare solo un puntatore TH1D
 void BmBooter::PrintEFFpp(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
     
-  TH1D* histo=new TH1D( "eff_pp_pivot", "pivot counter for the pivot-probe efficiency method; Pivot-cell index; Counter", eff_pp[0].size()+1, 0., eff_pp[0].size());
-  TH1D* histo1=new TH1D( "eff_pp_probe", "probe counter for the pivot-probe efficiency method; Pivot-cell index; Counter", eff_pp[1].size()+1, 0., eff_pp[1].size());
+  //"Tommasino" method
+  TH1D* histo=new TH1D( "eff_pp_pivot", "pivot counter for the pivot-probe efficiency method; Pivot-cell index; Counter", eff_pp[0].size(), 0., eff_pp[0].size());
+  TH1D* histo1=new TH1D( "eff_pp_probe", "probe counter for the pivot-probe efficiency method; Pivot-cell index; Counter", eff_pp[1].size(), 0., eff_pp[1].size());
   TH1D* histo2=new TH1D( "eff_pp_eval", "efficiency for the pivot-probe method; Pivot-cell index; Counter", 16, 0., 16.);
   Double_t hist2_errors[eff_pp[0].size()];
   Double_t eff;
@@ -283,6 +296,62 @@ void BmBooter::PrintEFFpp(){
   }
   histo2->SetError(hist2_errors); 
   
+  Double_t mean_planeff=0.;
+  //"Paoloni" plane method
+  TH1D* histo3=new TH1D( "eff_plane_pivot", "pivot counter for the plane efficiency method; index; Counter", 4, 0., 4.);
+  TH1D* histo4=new TH1D( "eff_plane_probe", "probe counter for the plane efficiency method; index; Counter", 4, 0., 4.);
+  TH1D* histo5=new TH1D( "eff_plane_eval", "efficiency for the paoloni plane method; index; Counter", 4, 0., 4.);
+  TH1D* histo6=new TH1D( "eff_plane_mean", "efficiency for the paoloni plane method; ; mean efficiency", 1, 0., 1.);
+  for(Int_t i=0;i<4;i++){
+    histo3->SetBinContent(i+1, eff_plane[i][0]);
+    histo4->SetBinContent(i+1, eff_plane[i][1]);
+    if(eff_plane[i][0]!=0){
+      histo5->SetBinContent(i+1, (Double_t) eff_plane[i][1]/eff_plane[i][0]);
+      mean_planeff+=(Double_t) eff_plane[i][1]/eff_plane[i][0];
+    }else
+      histo5->SetBinContent(i+1, 0.);
+  }
+  histo6->SetBinContent(1,mean_planeff/4.);
+  //~ //provv
+  //~ cout<<"eff_plane_mean="<<mean_planeff/4.<<"  pivot:"<<endl;
+  //~ for(Int_t i=0;i<4;i++)
+    //~ cout<<"i="<<i<<"  pivot_number="<<eff_plane[i][0]<<"  probe_plane="<<eff_plane[i][1]<<"  plane_eval="<<(Double_t) eff_plane[i][1]/eff_plane[i][0]<<endl;
+  
+
+  //Plane method for fittedtracks
+  TH1D* histo7=new TH1D( "eff_fittedplane_pivot", "pivot counter for the fitted plane efficiency method; index; Counter", 4, 0., 4.);
+  TH1D* histo8=new TH1D( "eff_fittedplane_probe", "probe counter for the fitted plane efficiency method; index; Counter", 4, 0., 4.);
+  TH1D* histo9=new TH1D( "eff_fittedplane_eval", "efficiency for the fitted paoloni plane method; index; Counter", 4, 0., 4.);
+  TH1D* histo10=new TH1D( "eff_fittedplane_mean", "efficiency for the fitted paoloni plane method; ; mean efficiency", 1, 0., 1.);
+  mean_planeff=0.;
+  for(Int_t i=0;i<4;i++){
+    histo7->SetBinContent(i+1, eff_fittedplane[i][0]);
+    histo8->SetBinContent(i+1, eff_fittedplane[i][1]);
+    if(eff_fittedplane[i][0]!=0){
+      histo9->SetBinContent(i+1, (Double_t) eff_fittedplane[i][1]/eff_fittedplane[i][0]);
+      mean_planeff+=(Double_t) eff_fittedplane[i][1]/eff_fittedplane[i][0];
+    }else
+      histo9->SetBinContent(i+1, 0.);
+  }
+  histo10->SetBinContent(1,mean_planeff/4.);  
+  
+  
+return;
+}
+
+
+void BmBooter::PrintProjections(){
+  if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
+    return;
+
+  TH2D* histoa=new TH2D( "mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 1000, -5., 5.,1000, -5.,5.);
+  TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 1000, -5., 5.,1000, -5.,5.);
+  
+  for(Int_t i=0;i<mylarprojects.size();i++){
+    histoa->Fill(mylarprojects[i][0], mylarprojects[i][1]);
+    histob->Fill(mylarprojects[i][2], mylarprojects[i][3]);
+  }
+
 return;
 }
 
@@ -530,16 +599,26 @@ void BmBooter::evaluateT0() {
           //~ f1->SetParLimits(1,0,100);
           //~ ((TH1D*)gDirectory->Get(tmp_char))->Fit(f1,"QR+","",((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100,((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
         
+          //vecchio metodo no buono
           //take the first signal, not too distant from other signals
-          tmp_int=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove();
-          for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove()+1;j<((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
-            if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>0)
-              if(j-tmp_int<50){
-                j=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+10;
-              }else
-                tmp_int=j;
+          //~ tmp_int=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove();
+          //~ for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove()+1;j<((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
+            //~ if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>0)
+              //~ if(j-tmp_int<50){
+                //~ j=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+10;
+              //~ }else
+                //~ tmp_int=j;
+                
+                
           //~ if(bmcon->GetBMdebug()>9)
             //~ cout<<"tdc channel="<<i<<"  tmp_int="<<tmp_int<<"   T0="<<(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)<<endl;//provv
+
+          //metodo che funziona se ho abbastanza dati!!!
+          tmp_int=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();
+          for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j>0;j--)
+            if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/10.)
+              tmp_int=j;
+                      
           bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)); 
         }
         else{
@@ -596,13 +675,13 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
   
   clear_bmstruct(kFALSE);
   
-  if(bmcon->GetBMdebug()>11 && !(evt0 && bmcon->GetBMdebug()==99))
+  if(bmcon->GetBMdebug()>11 && (!(evt0 && bmcon->GetBMdebug()==99)))
     cout<<"I'm in BmBooter:read_event"<<endl;
   if(datafile.read((char *) &tmp_int,sizeof(int))){//read number of words of this event
     bmstruct.words=tmp_int;
     }
   else{
-    if(bmcon->GetBMdebug()>11 && !(evt0 && bmcon->GetBMdebug()==99))
+    if(bmcon->GetBMdebug()>11 && (!(evt0 && bmcon->GetBMdebug()==99)))
       cout<<"file ended"<<endl;
     return kFALSE;
   }
@@ -673,7 +752,7 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
         bmstruct.tdcev++;
         bmstruct.tdc_evnum[bmstruct.tdcev-1]=ev_words[windex++];
         read_meas=true;
-        if(bmcon->GetBMdebug()>11 && !(evt0 && bmcon->GetBMdebug()==99))
+        if(bmcon->GetBMdebug()>11 && (!(evt0 && bmcon->GetBMdebug()==99)))
           cout<<"global header found, windex="<<windex<<"  tdcev="<<bmstruct.tdcev<<endl;
         }
       //~ if(read_meas && ev_words[windex]<0 && isroma==kFALSE && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//global trailer found //se uso acquisizione mio (yun)
@@ -684,7 +763,7 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
           //~ cout<<"Warning in BmBooter: global trailer found with error in tdc_evnum="<<bmstruct.tdc_evnum[bmstruct.tdcev-1]<<"  trailer="<<ev_words[windex]<<endl;
           //~ new_event=false;
         //~ }
-        //~ if(bmcon->GetBMdebug()>11 && !(evt0 && bmcon->GetBMdebug()==99))
+        //~ if(bmcon->GetBMdebug()>11 && (!(evt0 && bmcon->GetBMdebug()==99)))
           //~ cout<<"global trailer found, windex="<<windex<<"  ev_words="<<ev_words[windex]<<endl;
       //~ }
       //~ //old trento software...i wanna get rid of this!!!
@@ -696,7 +775,7 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
           cout<<"Warning in BmBooter: global trailer found with error in tdc_evnum="<<bmstruct.tdc_evnum[bmstruct.tdcev-1]<<"  trailer="<<ev_words[windex]<<endl;
           new_event=false;
         }
-        if(bmcon->GetBMdebug()>11 && !(evt0 && bmcon->GetBMdebug()==99))
+        if(bmcon->GetBMdebug()>11 && (!(evt0 && bmcon->GetBMdebug()==99)))
           cout<<"global trailer found, windex="<<windex<<"  ev_words="<<ev_words[windex]<<endl;
       }      
               
@@ -704,7 +783,7 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
         read_meas=false;
         new_event=true;
         bmstruct.tdc_status=-1000;
-        if(bmcon->GetBMdebug()>11 && !(evt0 && bmcon->GetBMdebug()==99))
+        if(bmcon->GetBMdebug()>11 && (!(evt0 && bmcon->GetBMdebug()==99)))
           cout<<"global trailer found, i="<<windex<<"  ev_words="<<ev_words[windex]<<endl;
       }        
       if(read_meas && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//read measure  
@@ -726,9 +805,9 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
           bmstruct.tdc_status=2;
         }
         new_event=false;
-        if(bmcon->GetBMdebug()>11 && ev_words[windex-1]!=bmmap->GetTrefCh() && !(evt0 && bmcon->GetBMdebug()==99))
+        if(bmcon->GetBMdebug()>11 && ev_words[windex-1]!=bmmap->GetTrefCh() && (!(evt0 && bmcon->GetBMdebug()==99)))
           cout<<"BMbooter::measure found: tdc_evnum="<<bmstruct.tdc_evnum[bmstruct.tdcev-1]<<" tdc_id="<<bmstruct.tdc_id[bmstruct.tdc_hitnum[bmstruct.tdcev-1]-1]<<"  corresponding bm channel="<<bmmap->tdc2cell(bmstruct.tdc_id[bmstruct.tdc_hitnum[bmstruct.tdcev-1]-1])<<" hit_meas="<<bmstruct.tdc_meas[bmstruct.tdc_hitnum[bmstruct.tdcev-1]-1]<<endl;
-        else if(bmcon->GetBMdebug()>11 && ev_words[windex-1]==bmmap->GetTrefCh() && !(evt0 && bmcon->GetBMdebug()==99))
+        else if(bmcon->GetBMdebug()>11 && ev_words[windex-1]==bmmap->GetTrefCh() && (!(evt0 && bmcon->GetBMdebug()==99)))
           cout<<"BMbooter::trigger found: sync registered="<<sync_evnum<<"  time="<<bmstruct.tdc_sync[sync_evnum-1]<<endl;
       }
     }//end of reading tdc words for loop
@@ -761,7 +840,7 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
     bmstruct.tot_status=4;
   }
   
-  if((((bmstruct.tdc_status!=-1000 || bmstruct.tot_status!=0 || bmstruct.adc_status!=0 || bmstruct.sca_status!=0) && bmcon->GetBMdebug()>0) || bmcon->GetBMdebug()>11) && !(evt0 && bmcon->GetBMdebug()==99)){
+  if((((bmstruct.tdc_status!=-1000 || bmstruct.tot_status!=0 || bmstruct.adc_status!=0 || bmstruct.sca_status!=0) && bmcon->GetBMdebug()>0) || bmcon->GetBMdebug()>11) && (!(evt0 && bmcon->GetBMdebug()==99))){
     cout<<"BMbooter::read_event::bmstruct.tdc_status="<<bmstruct.tdc_status<<" bmstruct.tot_status="<<bmstruct.tot_status<<" bmstruct.adc_status="<<bmstruct.adc_status<<" bmstruct.sca_status="<<bmstruct.sca_status<<endl;
     if(bmstruct.tdc_status!=-1000 || bmstruct.tot_status!=0 || bmstruct.adc_status!=0 || bmstruct.sca_status!=0)
       cout<<"Error detected previously; ";
@@ -770,7 +849,7 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
       cout<<"ev_words["<<i<<"]="<<ev_words[i]<<endl;
   }
   
-  if(bmcon->GetBMdebug()>12 && !(evt0 && bmcon->GetBMdebug()==99))
+  if(bmcon->GetBMdebug()>12 && (!(evt0 && bmcon->GetBMdebug()==99)))
     PrintBMstruct();
   
   //provv:
@@ -914,8 +993,7 @@ void BmBooter::evaluate_cell_occupy(){
 }
 
 
-void BmBooter::efficiency_pivot_probe() {
-  
+void BmBooter::efficiency_pivot_probe() {  
   Int_t pivota=0;
   for(Int_t i=0;i<23;i++){
     if(i==2 || i==14)
@@ -924,7 +1002,7 @@ void BmBooter::efficiency_pivot_probe() {
       i++;  
     if(cell_occupy[i].size()>0 && cell_occupy[i+12].size()>0){
       eff_pp[0][pivota]++;
-      if(cell_occupy[i+6].size()>0 || cell_occupy[7].size()>0)
+      if(cell_occupy[i+6].size()>0 || cell_occupy[i+7].size()>0)
         eff_pp[1][pivota]++;
     }
     pivota++;
@@ -939,10 +1017,97 @@ void BmBooter::efficiency_pivot_probe() {
       cout<<" "<<eff_pp[1][i];
     cout<<endl;
   }
+return;
+}
+
+void BmBooter::efficiency_plane(){
+
+  vector<Int_t> hit_plane(12,0);
+  vector<Int_t> hit_fittedplane(12,0);
+  
+  for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
+    bmntuhit = bmnturaw->Hit(i); 
+    if(bmntuhit->View()==1)
+      hit_plane[bmntuhit->Plane()]++;
+    else
+      hit_plane[bmntuhit->Plane()+6]++;
+    
+    if(bmntuhit->GetIsSelected() && bmntutrack->trk_status==0){
+      if(bmntuhit->View()==1)
+        hit_fittedplane[bmntuhit->Plane()]++;
+      else
+        hit_fittedplane[bmntuhit->Plane()+6]++;
+    }  
+  }
+  
+  //eff_plane calculation
+  //view==1
+  if(hit_plane[0]>0 && hit_plane[2]>0 && hit_plane[4]>0){
+    eff_plane[0][0]++;
+    if(hit_plane[1]>0 && hit_plane[3]>0)
+      eff_plane[0][1]++;
+  }
+  if(hit_plane[1]>0 && hit_plane[3]>0 && hit_plane[5]>0){
+    eff_plane[1][0]++;
+    if(hit_plane[2]>0 && hit_plane[4]>0)
+      eff_plane[1][1]++;
+  }
+  //view==-1
+  if(hit_plane[6]>0 && hit_plane[8]>0 && hit_plane[10]>0){
+    eff_plane[2][0]++;
+    if(hit_plane[7]>0 && hit_plane[9]>0)
+      eff_plane[2][1]++;
+  }
+  if(hit_plane[7]>0 && hit_plane[9]>0 && hit_plane[11]>0){
+    eff_plane[3][0]++;
+    if(hit_plane[8]>0 && hit_plane[10]>0)
+      eff_plane[3][1]++;
+  }
+  
+  //eff_fittedplane calculation
+  //view==1
+  if(hit_fittedplane[0]>0 && hit_fittedplane[2]>0 && hit_fittedplane[4]>0){
+    eff_fittedplane[0][0]++;
+    if(hit_fittedplane[1]>0 && hit_fittedplane[3]>0)
+      eff_fittedplane[0][1]++;
+  }
+  if(hit_fittedplane[1]>0 && hit_fittedplane[3]>0 && hit_fittedplane[5]>0){
+    eff_fittedplane[1][0]++;
+    if(hit_fittedplane[2]>0 && hit_fittedplane[4]>0)
+      eff_fittedplane[1][1]++;
+  }
+  //view==-1
+  if(hit_fittedplane[6]>0 && hit_fittedplane[8]>0 && hit_fittedplane[10]>0){
+    eff_fittedplane[2][0]++;
+    if(hit_fittedplane[7]>0 && hit_fittedplane[9]>0)
+      eff_fittedplane[2][1]++;
+  }
+  if(hit_fittedplane[7]>0 && hit_fittedplane[9]>0 && hit_fittedplane[11]>0){
+    eff_fittedplane[3][0]++;
+    if(hit_fittedplane[8]>0 && hit_fittedplane[10]>0)
+      eff_fittedplane[3][1]++;
+  }  
 
 return;
 }
 
+
+//to be used in process to charge mylarproject
+void BmBooter::Projectmylars(){
+  
+  vector<Double_t> mylar1pro(4);
+  for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
+    bmntutracktr = bmntutrack->Track(i);  
+    mylar1pro[0]=bmntutracktr->GetMylar1Pos().X();
+    mylar1pro[1]=bmntutracktr->GetMylar1Pos().Y();
+    mylar1pro[2]=bmntutracktr->GetMylar2Pos().X();
+    mylar1pro[3]=bmntutracktr->GetMylar2Pos().Y();
+  }
+  mylarprojects.push_back(mylar1pro);
+  
+return;
+}
+  
 
 void BmBooter::PrintBMstruct(){
   cout<<"PrintBMstruct:"<<endl;
@@ -976,7 +1141,6 @@ void BmBooter::PrintBMstruct(){
   tmp_int=0;
   while(bmstruct.tdc_hitnum[tmp_int]!=0){
     cout<<"i="<<tmp_int<<"  bmstruct.tdc_hitnum[i]="<<bmstruct.tdc_hitnum[tmp_int]<<endl;;
-    bmstruct.tdc_hitnum[tmp_int]=0;
     tmp_int++;
   }
   tmp_int=0;
@@ -1080,11 +1244,11 @@ void BmBooter::FillDataBeamMonitor() {
   if (GlobalPar::GetPar()->Debug()>10)
     cout<<"I'm in BmBooter::FillDataBeamMonitor"<<endl;  
   
-  myn_bmdatraw    = new TAGdataDsc("myn_bmdatraw", new TABMdatRaw());
-  new TABMactDatRaw("an_bmdatraw",myn_bmdatraw, myp_bmmap, myp_bmgeo, &bmstruct); 
-
   myn_stdatraw    = new TAGdataDsc("myn_stdatraw", new TAIRdatRaw());
   new TAIRactDatRaw("an_stdatraw", myn_stdatraw, myp_bmmap, &bmstruct);
+
+  myn_bmdatraw    = new TAGdataDsc("myn_bmdatraw", new TABMdatRaw());
+  new TABMactDatRaw("an_bmdatraw",myn_bmdatraw, myp_bmmap, myp_bmcon, myp_bmgeo, myn_stdatraw, &bmstruct); 
    
   myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
   new TABMactNtuRaw("an_bmraw", myn_bmraw, myn_bmdatraw, myn_stdatraw, myp_bmgeo, myp_bmcon); 

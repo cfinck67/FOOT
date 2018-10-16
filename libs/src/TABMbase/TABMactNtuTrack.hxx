@@ -51,8 +51,8 @@ public:
   explicit        TABMactNtuTrack(const char* name=0,
 				  TAGdataDsc* p_ntutrk=0,
 				  TAGdataDsc* p_ntuhit=0,
-				  TAGparaDsc* p_bmgeo=0,
-				  TAGparaDsc* p_bmcon=0);
+				  TAGparaDsc* bmgeo=0,
+				  TAGparaDsc* bmcon=0);
   virtual         ~TABMactNtuTrack();
   virtual Bool_t  Action();
   
@@ -80,6 +80,11 @@ public:
   AbsKalmanFitter*  refFitter;    	 //KalmanFitterRefTrack()
   AbsKalmanFitter*  dafRefFitter;    	 //DAF with kalman ref
   AbsKalmanFitter*  dafSimpleFitter;     //DAF with simple kalman
+  //~ Track* 	    fitTrack;
+  //~ AbsTrackRep* 	    rep;
+  SharedPlanePtr  mylar1_plane; //mylar1 plane, adopted by Genfit to extrapolate track      
+  SharedPlanePtr  mylar2_plane; //mylar2 plane, adopted by Genfit to extrapolate track     
+  SharedPlanePtr  target_plane; //target plane, adopted by Genfit to extrapolate track
   
   Int_t             nIter;    		 // max number of iterations (for Genfit)
   Double_t 	    dPVal;      	 // convergence criterion (for Genfit)
@@ -89,6 +94,10 @@ public:
   TAGdataDsc*       fpNtuHit;		    // input data dsc
   TAGparaDsc*       fpBMGeo;		    // input data dsc
   TAGparaDsc*       fpBMCon;		    // input data dsc
+  
+  //par objects
+  TABMparCon* p_bmcon;
+  TABMparGeo* p_bmgeo;
 };
 
 #endif

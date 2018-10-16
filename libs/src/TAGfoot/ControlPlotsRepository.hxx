@@ -198,6 +198,7 @@ public:
       FillMap( hitSampleName + "__raw_cell", bmntuhit->Cell());
       FillMap( hitSampleName + "__raw_view", bmntuhit->View());
       FillMap( hitSampleName + "__raw_plane", bmntuhit->Plane());
+      FillMap( hitSampleName + "__raw_time", bmntuhit->Tdrift());
       FillMap( hitSampleName + "__raw_occupancy", bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(), bmntuhit->Cell()));
       FillMap( hitSampleName + "__raw_selected_rejected", (bmntuhit->GetIsSelected()) ? 1:-1);
       if(bmntuhit->GetIsSelected()){
@@ -207,7 +208,6 @@ public:
         FillMap( hitSampleName + "__rawsel_view", bmntuhit->View());
         FillMap( hitSampleName + "__rawsel_plane", bmntuhit->Plane());
         FillMap( hitSampleName + "__rawsel_occupancy", bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(), bmntuhit->Cell()));
-        FillMap( hitSampleName + "__rawsel_selected_rejected", (bmntuhit->GetIsSelected()) ? 1:-1);
       }
     }
     
@@ -230,13 +230,23 @@ public:
     for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
       bmntutracktr = bmntutrack->Track(i);
       FillMap( hitSampleName + "__track_chi2red", bmntutracktr->GetMyChi2Red());
-      FillMap( hitSampleName + "__track_mylar1_x", bmntutracktr->GetMylar1Pos().X());
-      FillMap( hitSampleName + "__track_mylar1_y", bmntutracktr->GetMylar1Pos().Y());
-      FillMap( hitSampleName + "__track_mylar2_x", bmntutracktr->GetMylar2Pos().X());
-      FillMap( hitSampleName + "__track_mylar2_y", bmntutracktr->GetMylar2Pos().Y());
-      FillMap( hitSampleName + "__track_target_x", bmntutracktr->GetTargetPos().X());
-      FillMap( hitSampleName + "__track_target_y", bmntutracktr->GetTargetPos().Y());
       if(bmntutrack->trk_status==0){//selected tracks
+	FillMap( hitSampleName + "__track_mylar1_x", bmntutracktr->GetMylar1Pos().X());
+	FillMap( hitSampleName + "__track_mylar1_y", bmntutracktr->GetMylar1Pos().Y());
+	FillMap( hitSampleName + "__track_mylar2_x", bmntutracktr->GetMylar2Pos().X());
+	FillMap( hitSampleName + "__track_mylar2_y", bmntutracktr->GetMylar2Pos().Y());
+	if(fabs(bmntutracktr->GetMylar1Pos().X())<5.5)
+	  FillMap( hitSampleName + "__track_mylar1_x_tight", bmntutracktr->GetMylar1Pos().X());
+	if(fabs(bmntutracktr->GetMylar1Pos().Y())<5.5)
+	  FillMap( hitSampleName + "__track_mylar1_y_tight", bmntutracktr->GetMylar1Pos().Y());
+	if(fabs(bmntutracktr->GetMylar2Pos().X())<5.5)
+	  FillMap( hitSampleName + "__track_mylar2_x_tight", bmntutracktr->GetMylar2Pos().X());
+	if(fabs(bmntutracktr->GetMylar2Pos().Y())<5.5)
+	  FillMap( hitSampleName + "__track_mylar2_y_tight", bmntutracktr->GetMylar2Pos().Y());
+	
+	
+        FillMap( hitSampleName + "__track_target_x", bmntutracktr->GetTargetPos().X());
+        FillMap( hitSampleName + "__track_target_y", bmntutracktr->GetTargetPos().Y());
         FillMap( hitSampleName + "__tracksel_chi2red", bmntutracktr->GetMyChi2Red());
         FillMap( hitSampleName + "__tracksel_hitselected", bmntutracktr->GetNhit());
         FillMap( hitSampleName + "__tracksel_hitrejected", bmnturaw->nhit-bmntutracktr->GetNhit());

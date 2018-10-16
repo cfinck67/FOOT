@@ -53,7 +53,6 @@ TABMntuTrackTr::TABMntuTrackTr():
   mylar1_pos.SetXYZ(0.,0.,0.);
   mylar2_pos.SetXYZ(0.,0.,0.);
   
-  
   //~ MaxRdriftErr=100;
   //~ AngZ=100;
   //~ AngZRes=100;
@@ -179,14 +178,15 @@ TABMntuTrackTr::TABMntuTrackTr(const TABMntuTrackTr &tr_in){
     //~ return *this;
   //~ }
 
-void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mychi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit){
+
+void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mychi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane){
   Int_t hit_num=fitTrack->getNumPointsWithMeasurement();
   if(hit_num!=hit_mychi2.size())
     cout<<"TABMntuTrack::CalculateFitPar::WARNING:: hit_num!=mychi2red.size()... some hits has been lost!!!!!"<<endl;
   Int_t hit_num_withcov=0;
   Double_t tmp_double, old_rdrift, new_rdrift, rdrift_err_max=0;
   mychi2=0.;
-  TVector3 wire_pos, wire_dir, Xvers(1.,0,0), Yvers(0.,1.,0.);
+  TVector3 wire_pos, wire_dir;
   TVector3 first_fit_pos(0,0,100), last_fit_pos(0,0,-100);//per calcolo angZ... ma no buono!!!
   vector<Double_t> angZ_vec, angPhi_vec;
   vector<TVector3> state_pos_vec;
@@ -269,7 +269,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
   
   //out of cicle state should be the state of last measurement and first_state should be the state of the first measurement
   //other fitpos parameter
-  if(hit_num_withcov>0){
+  if(hit_num_withcov>0 && mychi2Red<p_bmcon->GetChi2Redcut()){
     
     //calculate AngZ and AngPhi with momentum:
     if(angZ_vec.size()!=angPhi_vec.size())
@@ -306,21 +306,21 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
     //extrapolate track on mylar1 with first_state
     if(p_bmcon->GetBMdebug()>10)
       cout<<"TABMntuTrack::CalculateFitPar::extrapolate to mylar1_plane"<<endl;
-    SharedPlanePtr mylar1_plane(new DetPlane(p_bmgeo->GetMylar1(), Xvers, Yvers));     
+    //~ SharedPlanePtr mylar1_plane(new DetPlane(p_bmgeo->GetMylar1(), Xvers, Yvers));     
     fitTrack->getTrackRep(0)->extrapolateToPlane(first_state, mylar1_plane);
     mylar1_pos=first_state.getPos();
     
     //extrapolate track on mylar2 with state
     if(p_bmcon->GetBMdebug()>10)
       cout<<"TABMntuTrack::CalculateFitPar::extrapolate to mylar2_plane"<<endl;
-    SharedPlanePtr mylar2_plane(new DetPlane(p_bmgeo->GetMylar2(), Xvers, Yvers));     
+    //~ SharedPlanePtr mylar2_plane(new DetPlane(p_bmgeo->GetMylar2(), Xvers, Yvers));     
     fitTrack->getTrackRep(0)->extrapolateToPlane(state, mylar2_plane);
     mylar2_pos=state.getPos();
   
     //extrapolate track on target with state
     if(p_bmcon->GetBMdebug()>10)
       cout<<"TABMntuTrack::CalculateFitPar::extrapolate to target"<<endl;
-    SharedPlanePtr target_plane(new DetPlane(p_bmgeo->GetTarget(), Xvers, Yvers));     
+    //~ SharedPlanePtr target_plane(new DetPlane(p_bmgeo->GetTarget(), Xvers, Yvers));     
     fitTrack->getTrackRep(0)->extrapolateToPlane(state, target_plane);
     target_pos=state.getPos();
     

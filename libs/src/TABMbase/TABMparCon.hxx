@@ -68,9 +68,9 @@ class TABMparCon : public TAGpara {
     void        PrintT0s(TString &input_file_name, Long64_t);
     void        loadT0s(Long64_t); 
     void        SetT0s(vector<Double_t> t0s);
-    void        SetT0(Int_t cha, Double_t t0in);
-    Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+((view==-1) ? 1:0)*3+plane*6);};
-    Double_t    GetT0(Int_t index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
+    void        SetT0(Int_t cha, Double_t t0in);   
+    const Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+((view==-1) ? 1:0)*3+plane*6);};
+    const Double_t    GetT0(Int_t index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
     void        CoutT0();
     
     //ADC stuff
