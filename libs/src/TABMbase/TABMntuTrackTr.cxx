@@ -181,6 +181,7 @@ TABMntuTrackTr::TABMntuTrackTr(const TABMntuTrackTr &tr_in){
 
 void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mychi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane){
   Int_t hit_num=fitTrack->getNumPointsWithMeasurement();
+  Double_t worst_hit=-1000.;
   if(hit_num!=hit_mychi2.size())
     cout<<"TABMntuTrack::CalculateFitPar::WARNING:: hit_num!=mychi2red.size()... some hits has been lost!!!!!"<<endl;
   Int_t hit_num_withcov=0;
@@ -224,6 +225,8 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
         wire_dir.SetMag(1.);
         new_rdrift=FindRdrift(state.getPos(), state.getMom(), wire_pos, wire_dir);//da check
         hit_mychi2[i]=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i];
+        if(hit_mychi2[i]>worst_hit)
+          worst_hit=hit_mychi2[i];
         mychi2+=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i];        
         if(fabs(old_rdrift-new_rdrift)>rdrift_err_max)
           rdrift_err_max=fabs(old_rdrift-new_rdrift);
@@ -253,18 +256,20 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
   if(p_bmcon->GetBMdebug()>3)
     cout<<"TABMntuTrack::CalculateFitPar:: hit_num="<<hit_num<<"  mychi2="<<mychi2<<"  mychi2Red="<<mychi2Red<<"  ndf="<<fitTrack->getFitStatus()->getNdf()<<endl;
   
-  //calculate prunedhit, for the moment I refit when a hit has a chi2red contribution 2 times larger than the average contribution (the number 2 has to be optimized) 
+  //calculate prunedhit, I refit pruning the worst_hit that have the highest chi2 contribution
   if((rejhit+1)<=p_bmcon->GetRejmaxcut() && mychi2Red>p_bmcon->GetChi2Redcut()){
     prunedhit.resize(1);
     for(Int_t i=0;i<hit_mychi2.size();i++){
-      if(hit_mychi2[i]/(mychi2/hit_num)>2.){
+      if(hit_mychi2[i]==worst_hit){
         prunedhit[0].push_back(i);
         if(p_bmcon->GetBMdebug()>10)
           cout<<"add prunedhit:  prunedhit[0].size()="<<prunedhit[0].size()<<"  val="<<prunedhit[0].back()<<endl;
       }
     }
-    if(prunedhit[0].size()==0 || (rejhit+prunedhit[0].size())>p_bmcon->GetRejmaxcut())
-      prunedhit.clear();
+    //~ if(prunedhit[0].size()==0 || (rejhit+prunedhit[0].size())>p_bmcon->GetRejmaxcut()){
+      //~ cout<<"TABMntuTrackTr.cxx:: something odd happened... prunedhit[0].size()==0"<<endl;
+      //~ prunedhit.clear();
+    //~ }
   }
   
   //out of cicle state should be the state of last measurement and first_state should be the state of the first measurement

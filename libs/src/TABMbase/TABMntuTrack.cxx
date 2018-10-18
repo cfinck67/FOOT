@@ -34,8 +34,8 @@ TABMntuTrack::TABMntuTrack() :
 TABMntuTrack::~TABMntuTrack()
 {
   if(t)
-    //~ t->Delete();
-  delete t;
+    t->Delete();
+    //~ delete t;
 }
 
 //------------------------------------------+-----------------------------------

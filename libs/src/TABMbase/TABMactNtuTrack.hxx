@@ -64,7 +64,7 @@ public:
   //new tracking
   void Print_matrix(vector<vector<int>>& vec);
   bool ToBeConsider(const Int_t cell, const Int_t view, const Int_t lay);
-  void SetInitPos(TVector3 &init_pos, Int_t fit_index, Double_t xwire, Double_t xrdrift, Double_t ywire, Double_t yrdrift, Double_t init_z);
+  void SetInitPos(TVector3 &init_pos, Int_t &fit_index, Double_t &xwire, Double_t &xrdrift, Double_t &ywire, Double_t &yrdrift, Double_t init_z);
   //~ Bool_t PlaneCounter(vector<Int_t> &hitxtrack_vec, TABMparCon *p_bmcon);
   Bool_t Refit(vector<Double_t> &hit_mychi2, vector< vector<Int_t> > &hitxtrack, TABMparCon* p_bmcon);//return true if it add another possible track to hitxtrack
   void RejectSlopedTrack(vector< vector<Int_t> > &hitxtrack, vector<Bool_t>&possiblePrimary, TABMntuHit* p_hit, TABMntuRaw* p_ntuhit, Int_t &trk_index);
@@ -76,7 +76,7 @@ public:
   private:
   
   //~ TABMntuTrackTr tmp_trackTr;          //traccia provvisoria, così almeno non me lo cancella...
-  AbsKalmanFitter*  simpleFitter;    	 //KalmanFitterRefTrack()
+  //~ AbsKalmanFitter*  simpleFitter;    	 //KalmanFitterRefTrack()
   AbsKalmanFitter*  refFitter;    	 //KalmanFitterRefTrack()
   AbsKalmanFitter*  dafRefFitter;    	 //DAF with kalman ref
   AbsKalmanFitter*  dafSimpleFitter;     //DAF with simple kalman
@@ -86,8 +86,8 @@ public:
   SharedPlanePtr  mylar2_plane; //mylar2 plane, adopted by Genfit to extrapolate track     
   SharedPlanePtr  target_plane; //target plane, adopted by Genfit to extrapolate track
   
-  Int_t             nIter;    		 // max number of iterations (for Genfit)
-  Double_t 	    dPVal;      	 // convergence criterion (for Genfit)
+  //~ Int_t             nIter;    		 // max number of iterations (for Genfit)
+  //~ Double_t 	    dPVal;      	 // convergence criterion (for Genfit)
   
   TGeoManager*      f_BMgeoMan;
   TAGdataDsc*       fpNtuTrk;		    // output data dsc

@@ -37,7 +37,7 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
   const Int_t nIter = 20; // max number of iterations
   const Double_t dPVal = 1.E-3; // convergence criterion used by GenFit
 
-  simpleFitter = new KalmanFitter(nIter, dPVal);
+  //~ simpleFitter = new KalmanFitter(nIter, dPVal);
   refFitter = new KalmanFitterRefTrack(nIter, dPVal);   
   dafRefFitter = new DAF(true, nIter, dPVal);
   dafSimpleFitter = new DAF(false, nIter, dPVal);
@@ -58,7 +58,7 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
   //Bfield is along Y in our case.
   
   FieldManager::getInstance()->init(new ConstField(0.,0.,0.)); //one day the magnetic field map will be load here, but now there isn't any accurate magnetic field... 
-  MaterialEffects::getInstance()->init(new TGeoMaterialInterface());//it is really necessary?
+  //~ MaterialEffects::getInstance()->init(new TGeoMaterialInterface());//it is really necessary?
   
   p_bmcon = (TABMparCon*) (gTAGroot->FindParaDsc("myp_bmcon", "TABMparCon")->Object()); 
   p_bmgeo = (TABMparGeo*) (gTAGroot->FindParaDsc("myp_bmgeo", "TABMparGeo")->Object());
@@ -85,7 +85,7 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
 
 TABMactNtuTrack::~TABMactNtuTrack()
 { 
-  delete simpleFitter;
+  //~ delete simpleFitter;
   delete refFitter;
   delete dafSimpleFitter;
   delete dafRefFitter;
@@ -104,11 +104,11 @@ Bool_t TABMactNtuTrack::Action()
   //~ TABMparGeo*   p_bmgeo = (TABMparGeo*)    fpBMGeo->Object();
   //~ TABMparCon*   p_bmcon = (TABMparCon*)    fpBMCon->Object();
   
-  TF1 *m_mypol, *m_mypol2;
-  m_mypol = p_bmcon->GetCalibX();
-  m_mypol2 = p_bmcon->GetCalibY();
+  //~ TF1 *m_mypol, *m_mypol2;
+  //~ m_mypol = p_bmcon->GetCalibX();
+  //~ m_mypol2 = p_bmcon->GetCalibY();
   
-  //~ p_ntutrk->Clear();//penso non serva visto che viene inizializzato con 0 
+  p_ntutrk->Clear();//penso non serva visto che viene inizializzato con 0 
 
   Double_t chisquare_cut = 5.;
 
@@ -399,8 +399,13 @@ Bool_t TABMactNtuTrack::Action()
         if(p_bmcon->GetBMdebug()>10)
           cout<<"TABMactNtuTrack::readytofit="<<readyToFit<<endl;
         fitTrack->checkConsistency();
+	Int_t nIter = 20; // max number of iterations
+	Double_t dPVal = 1.E-3; // convergence criterion used by GenFit
+	//~ cout<<"creosimplefitter nIter="<<nIter<<"  dPVal="<<dPVal<<endl;//provv
+	AbsKalmanFitter* simpleFitter = new KalmanFitter(nIter, dPVal);//provv
+	//~ cout<<"creatosimplefitterdimmerda ora fitto"<<endl;//provv
         
-
+	fit_index=0;
         do{
           fitTrack->deleteFitterInfo();
           SetInitPos(init_pos, fit_index, wire_a_x, rdrift_a_x, wire_a_y, rdrift_a_y, p_bmgeo->GetCenter().z()-BMN_LENGTH/2. -3.);
@@ -412,22 +417,24 @@ Bool_t TABMactNtuTrack::Action()
           fit_index++;
         }while(!fitTrack->getFitStatus(rep)->isFitConverged() && fit_index<5);
         
+	//~ cout<<"fittato"<<endl;//provv
+	
         //old simple tracking method
         //~ if(readyToFit==1) {simpleFitter->processTrack(fitTrack); 
         //~ }else if(readyToFit==2) {refFitter->processTrack(fitTrack); 
         //~ }else if(readyToFit==3) {dafSimpleFitter->processTrack(fitTrack);
         //~ }else if(readyToFit==4) {dafRefFitter->processTrack(fitTrack);}
         
-        fitTrack->checkConsistency();
+        //~ fitTrack->checkConsistency();
         if(p_bmcon->GetBMdebug()>10)
           cout<<"TABMactNtuTrack::end of fitting"<<endl;
         
         converged=fitTrack->getFitStatus(rep)->isFitConverged();
         
-        if(converged && fitTrack->getNumPoints()!=fitTrack->getNumPointsWithMeasurement()){
-          cout<<"TABMactNtuTrack::WARNING: number of trackPoints is different from number of trackPointWithMeasurement.. something odd happened"<<endl;
-          converged=false;
-        } 
+        //~ if(converged && fitTrack->getNumPoints()!=fitTrack->getNumPointsWithMeasurement()){
+          //~ cout<<"TABMactNtuTrack::WARNING: number of trackPoints is different from number of trackPointWithMeasurement.. something odd happened"<<endl;
+          //~ converged=false;
+        //~ } 
           
         if(p_bmcon->GetBMdebug()>10 && converged)
           cout<<"TABMactNtuTrack::fit converged"<<endl;
@@ -458,6 +465,7 @@ Bool_t TABMactNtuTrack::Action()
             }
           }else if((rejhit+1)<=p_bmcon->GetRejmaxcut()) //end of converged
             PruneNotConvTrack(prunedhit,hitxtrack, i);
+        delete simpleFitter;//provv
       }//end of fitting (readytofit)    
       //~ cout<<"faccio delete measurem che ha size="<<measurements_vec.size()<<endl;//provv
       //~ for(Int_t i=0;i<measurements_vec.size();i++)
@@ -872,7 +880,7 @@ bool TABMactNtuTrack::ToBeConsider(const Int_t cell, const Int_t view, const Int
 
 
 //set initial position (init_pos)
-void TABMactNtuTrack::SetInitPos(TVector3 &init_pos, Int_t fit_index, Double_t xwire, Double_t xrdrift, Double_t ywire, Double_t yrdrift, Double_t init_z){
+void TABMactNtuTrack::SetInitPos(TVector3 &init_pos, Int_t &fit_index, Double_t &xwire, Double_t &xrdrift, Double_t &ywire, Double_t &yrdrift, Double_t init_z){
   if(fit_index==0){
     init_pos.SetXYZ(0., 0., init_z);
   }else if(fit_index==1){

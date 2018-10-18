@@ -80,7 +80,7 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {
       bmcon->PrintT0s(m_instr, data_num_ev);
     else
       bmcon->loadT0s(data_num_ev);
-    //~ if(bmcon->GetBMdebug()>1 || bmcon->GetmanageT0BM()>1)
+    if(bmcon->GetBMdebug()>1 || bmcon->GetmanageT0BM()>1)
       bmcon->CoutT0();
     //ADC pedestals  
     if(bmmap->GetAdc792Ch()>0){

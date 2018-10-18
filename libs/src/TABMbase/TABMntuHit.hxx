@@ -86,7 +86,7 @@ class TABMntuHit : public TAGdata {
     Double_t rdrift;
     Double_t tdrift;//hit.time - T0 - irtime (irtime is the trigger time/start counter time) 
     //~ Double_t timmon;//hit.time - irtime
-    Double_t sigma;
+    Double_t sigma;//rdrift resolution
  
     //Track related params
     TVector3  A0;    //posizione filo di anodo che dovrebbe essere interessato

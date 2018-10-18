@@ -90,9 +90,10 @@ class TABMparCon : public TAGpara {
     //~ double STrel_Delta2(double time);//old, included in FirstSTrel
     //~ double STrel_Delta3(double time);//old, included in FirstSTrel
 
-    TF1* GetCalibY();
-    TF1* GetCalibX();
-    void ConfigureTrkCalib();
+    //old calibration methods
+    //~ TF1* GetCalibY();
+    //~ TF1* GetCalibX();
+    //~ void ConfigureTrkCalib();
   
     void LoadReso(TString sF);
     double ResoEval(Double_t dist);
@@ -125,6 +126,7 @@ class TABMparCon : public TAGpara {
     Int_t    part_in_charge;//for BM Genfit tracking
     Double_t part_in_mom;//for BM Genfit tracking
     Int_t    calibro;//flag for the calibration
+    Int_t    strel_switch;//flag to choose the st relations (1=garfield, 0=FIRST embedded)
     //~ TVector3 meas_shift;//shift for the calibration
     //~ TVector3 meas_tilt;//tilt for the calibration
     Int_t    manageT0BM; //0=calculate T0 and save v_t0s in bmt0file, 1=loadT0 from bmt0file
@@ -136,8 +138,8 @@ class TABMparCon : public TAGpara {
     vector<Double_t> adc_ped_mean;//pedestals mean 
     vector<Double_t> adc_ped_rms;//pedestals rms
 
-    TF1* f_mypol;
-    TF1* f_mypol2;
+    //~ TF1* f_mypol;
+    //~ TF1* f_mypol2;
     TSpline3 *m_mySpl;
     vector <TSpline3*> m_myVSpl;
     TF1 *m_myFunSpl;

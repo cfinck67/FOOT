@@ -49,8 +49,8 @@ TABMparCon::TABMparCon() {
   //~ vector<Double_t> myt0s(36,-10000);
   //~ v_t0s = myt0s;
 
-  f_mypol = new TF1("mymcpol","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.003);
-  f_mypol2 = new TF1("mymcpol2","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.004);
+  //~ f_mypol = new TF1("mymcpol","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.003);
+  //~ f_mypol2 = new TF1("mymcpol2","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.004);
 
 }
 
@@ -203,6 +203,9 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      Error(""," Plane Map Error:: check config file!! (T)");
 	      return kTRUE;
         }
+    }else if(strchr(bufConf,'W')) {
+      sscanf(bufConf, "W %d",&myArgInt);
+      strel_switch = myArgInt;        
     }else if(strchr(bufConf,'J')) {
       sscanf(bufConf, "J %d",&myArgInt);
       if(myArgInt>=0){
@@ -515,6 +518,9 @@ void TABMparCon::LoadSTrel(TString sF) {
  /*-------------------------------------------------*/
 
 Double_t TABMparCon::FirstSTrel(Double_t tdrift){
+  if(strel_switch==1)
+    return 0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
+  
   return 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift; 
   //~ return 0.00972903*tdrift -8.21676e-05*tdrift*tdrift+3.66446e-07*tdrift*tdrift*tdrift-5.85882e-10*tdrift*tdrift*tdrift*tdrift; //HIT 2014
 }
@@ -545,80 +551,80 @@ double TABMparCon::ResoEval(Double_t dist) {
   
 }
 
-TF1* TABMparCon::GetCalibX() {
+//~ TF1* TABMparCon::GetCalibX() {
 
-  return f_mypol;
-}
+  //~ return f_mypol;
+//~ }
 
 
-TF1* TABMparCon::GetCalibY() {
+//~ TF1* TABMparCon::GetCalibY() {
 
-  return f_mypol2;
+  //~ return f_mypol2;
 
-}
+//~ }
 
-void TABMparCon::ConfigureTrkCalib() {
+//~ void TABMparCon::ConfigureTrkCalib() {
 
-  /* OLD setup
-   1  p0           1.69143e-02   1.78395e-05   1.25294e-08  -1.12766e-02
-   2  p1           2.21824e+01   4.37184e-03   1.05774e-05  -5.07310e-06
-   3  p2           8.09415e+03   6.11105e-01   3.85959e-03   5.18272e-08
-   4  p3           1.39385e+06   8.36591e+01   6.64637e-01  -3.42786e-10
-   5  p4           1.13567e+08   1.04695e+04   5.41532e+01   3.66862e-13
-   6  p5           3.53414e+09   9.05361e+05   1.68521e+03   3.57968e-14
+  //~ /* OLD setup
+   //~ 1  p0           1.69143e-02   1.78395e-05   1.25294e-08  -1.12766e-02
+   //~ 2  p1           2.21824e+01   4.37184e-03   1.05774e-05  -5.07310e-06
+   //~ 3  p2           8.09415e+03   6.11105e-01   3.85959e-03   5.18272e-08
+   //~ 4  p3           1.39385e+06   8.36591e+01   6.64637e-01  -3.42786e-10
+   //~ 5  p4           1.13567e+08   1.04695e+04   5.41532e+01   3.66862e-13
+   //~ 6  p5           3.53414e+09   9.05361e+05   1.68521e+03   3.57968e-14
 
-   1  p0          -1.15688e-02   2.02851e-05   1.00354e-08  -2.74132e+00
-   2  p1          -1.96039e+00   4.12901e-03   1.36445e-06  -5.52166e-02
-   3  p2          -1.16613e+02   5.45908e-01   1.77382e-04  -1.21665e-03
-   4  p3           2.46797e+04   6.95556e+01   2.22149e-02  -9.68817e-06
-   5  p4           2.01676e+06   8.23400e+03   2.67413e+00  -5.28596e-08
-   6  p5          -2.05344e+06   7.32900e+05   2.08980e+01  -3.10577e-11
-  */
+   //~ 1  p0          -1.15688e-02   2.02851e-05   1.00354e-08  -2.74132e+00
+   //~ 2  p1          -1.96039e+00   4.12901e-03   1.36445e-06  -5.52166e-02
+   //~ 3  p2          -1.16613e+02   5.45908e-01   1.77382e-04  -1.21665e-03
+   //~ 4  p3           2.46797e+04   6.95556e+01   2.22149e-02  -9.68817e-06
+   //~ 5  p4           2.01676e+06   8.23400e+03   2.67413e+00  -5.28596e-08
+   //~ 6  p5          -2.05344e+06   7.32900e+05   2.08980e+01  -3.10577e-11
+  //~ */
 
-  //X correction
-  if(m_isMC) {
-    f_mypol->SetParameters(0.,1.,0.,0.,0.,0.);
-  } else {
-    f_mypol->SetName("mypol");
-    f_mypol->SetParameters( 70.61e-05,
-			    2.685e-01,
-			    1.203e+01,
-			   -2.421e+04,
-			    1.112e+04,
-			    4.325e+08);
-  }
+  //~ //X correction
+  //~ if(m_isMC) {
+    //~ f_mypol->SetParameters(0.,1.,0.,0.,0.,0.);
+  //~ } else {
+    //~ f_mypol->SetName("mypol");
+    //~ f_mypol->SetParameters( 70.61e-05,
+			    //~ 2.685e-01,
+			    //~ 1.203e+01,
+			   //~ -2.421e+04,
+			    //~ 1.112e+04,
+			    //~ 4.325e+08);
+  //~ }
 
-  /*
-   1  p0          -1.92457e-05   9.96755e-06   2.67768e-08   2.75109e-03
-   2  p1           3.65559e-01   1.37338e-02   1.88348e-05  -4.51475e-06
-   3  p2          -2.01191e+01   6.94988e+00   7.23064e-03   1.17480e-08
-   4  p3          -4.47220e+04   4.31045e+03   2.29598e+00   4.64828e-11
-   5  p4           2.79566e+05   5.85631e+05   2.16321e+01  -1.73594e-12
-   6  p5           1.90396e+09   2.74307e+08   9.07879e+02   1.93312e-15
+  //~ /*
+   //~ 1  p0          -1.92457e-05   9.96755e-06   2.67768e-08   2.75109e-03
+   //~ 2  p1           3.65559e-01   1.37338e-02   1.88348e-05  -4.51475e-06
+   //~ 3  p2          -2.01191e+01   6.94988e+00   7.23064e-03   1.17480e-08
+   //~ 4  p3          -4.47220e+04   4.31045e+03   2.29598e+00   4.64828e-11
+   //~ 5  p4           2.79566e+05   5.85631e+05   2.16321e+01  -1.73594e-12
+   //~ 6  p5           1.90396e+09   2.74307e+08   9.07879e+02   1.93312e-15
 
-   1  p0          -1.01338e-04   9.87766e-06   2.56656e-08   5.76352e-02
-   2  p1           5.49605e-01   1.32980e-02   1.94777e-05  -4.83048e-04
-   3  p2          -2.40775e+01   7.04670e+00   8.12795e-03   3.90372e-07
-   4  p3          -4.67887e+04   4.61691e+03   2.69340e+00  -3.47984e-09
-   5  p4           1.98095e+06   6.33007e+05   2.08960e+01   3.79568e-12
-   6  p5           1.44651e+09   3.07455e+08   6.89752e+02  -2.36315e-14
-  */
+   //~ 1  p0          -1.01338e-04   9.87766e-06   2.56656e-08   5.76352e-02
+   //~ 2  p1           5.49605e-01   1.32980e-02   1.94777e-05  -4.83048e-04
+   //~ 3  p2          -2.40775e+01   7.04670e+00   8.12795e-03   3.90372e-07
+   //~ 4  p3          -4.67887e+04   4.61691e+03   2.69340e+00  -3.47984e-09
+   //~ 5  p4           1.98095e+06   6.33007e+05   2.08960e+01   3.79568e-12
+   //~ 6  p5           1.44651e+09   3.07455e+08   6.89752e+02  -2.36315e-14
+  //~ */
 
-  //Y correction
-  if(m_isMC) {
-    f_mypol2->SetParameters(0.,1.,0.,0.,0.,0.);
-  } else {
-    f_mypol2->SetName("mypol2");
-    f_mypol2->SetParameters(-21.95e-05,
-			     2.953e-01,
-			     17.41e+01,
-			    -2.699e+04,
-			    -1.061e+07,
-			     1.667e+09);
-  }
-  return;
+  //~ //Y correction
+  //~ if(m_isMC) {
+    //~ f_mypol2->SetParameters(0.,1.,0.,0.,0.,0.);
+  //~ } else {
+    //~ f_mypol2->SetName("mypol2");
+    //~ f_mypol2->SetParameters(-21.95e-05,
+			     //~ 2.953e-01,
+			     //~ 17.41e+01,
+			    //~ -2.699e+04,
+			    //~ -1.061e+07,
+			     //~ 1.667e+09);
+  //~ }
+  //~ return;
 
-}
+//~ }
 
 //~ double TABMparCon::STrel_Delta1(double time) {
   //~ double p0=0.007471, p1=-0.005854, p2= 6.38379e-05, p3=-2.61452e-07, p4= 3.78368e-10;

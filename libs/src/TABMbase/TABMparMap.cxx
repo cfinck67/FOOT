@@ -60,7 +60,7 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
   gSystem->ExpandPathName(name_exp);
 
   char bufConf[1024];
-  Int_t myArg1(0), myArg2(0), myArg3(0), myArg4(0); 
+  Int_t myArg1(-100), myArg2(-100), myArg3(-100), myArg4(-100), myArg5(-100); 
 
   ifstream incF;
   incF.open(name_exp.Data());
@@ -73,16 +73,22 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
     if(strchr(bufConf,'!')) {
       //      Info("FromFile()","Skip comment line:: %s",bufConf);
     }else if(strchr(bufConf,'#')) {
-      sscanf(bufConf, "#%d %d %d %d %d",&myArg1,&myArg2,&myArg3,&myArg4);
-      if((myArg1>-1 && myArg1<tdc_maxcha) && (myArg2>=0 || myArg2<=5) && (myArg3==-1 || myArg3==1) && (myArg4>-1 && myArg4<3)) {
+      sscanf(bufConf, "#%d %d %d %d %d",&myArg1,&myArg2,&myArg3,&myArg4, &myArg5);
+      if(myArg1>-1 && myArg1<tdc_maxcha && myArg2<36 && myArg2>-1 && (myArg3>=0 || myArg3<=5) && (myArg4==-1 || myArg4==1) && myArg5>-1 && myArg5<3) {
         //~ chaBoID.push_back(myArg2);
         //~ chaPlane.push_back(myArg3);
         //~ chaView.push_back(myArg4);
         //~ chaSense.push_back(myArg5);
         //~ tdc2cell_map.insert(std::make_pair(myArg1,bmgeo->GetBMNcell(myArg2,myArg3,myArg4)));
         if(tdc2cell_vec[myArg1]<0){
-          tdc2cell_vec[myArg1]=bmgeo->GetBMNcell(myArg2,myArg3,myArg4);
-          cell2tdc_vec[bmgeo->GetBMNcell(myArg2,myArg3,myArg4)]=myArg1;
+          if(bmgeo->GetBMNcell(myArg3,myArg4,myArg5)!=myArg2)
+            Error("TABMparMap::FromFile()","channel wrong channel id and identifiers!!!!");
+          else{
+            //~ tdc2cell_vec[myArg1]=bmgeo->GetBMNcell(myArg2,myArg3,myArg4);
+            //~ cell2tdc_vec[bmgeo->GetBMNcell(myArg2,myArg3,myArg4)]=myArg1;
+            tdc2cell_vec[myArg1]=myArg2;
+            cell2tdc_vec[myArg2]=myArg1;
+          }
         }
         else{
           Error("TABMparMap::FromFile()","channel already set; check config file!!");
@@ -90,7 +96,7 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
         }
       } else {
         Error(""," TABMparMap Plane Map Error:: check config file!! (#)");
-        cout<<"myArg1="<<myArg1<<"  myArg2="<<myArg2<<"  myArg3="<<myArg3<<"  myArg4="<<myArg4<<endl;
+        cout<<"myArg1="<<myArg1<<"  myArg2="<<myArg2<<"  myArg3="<<myArg3<<"  myArg4="<<myArg4<<"  myArg5="<<myArg5<<"  tdc_maxcha="<<tdc_maxcha<<endl;
         return kTRUE;
       }
     } else if(strchr(bufConf,'T')) {
