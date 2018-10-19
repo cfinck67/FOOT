@@ -70,8 +70,8 @@ TAIRalignC::TAIRalignC(const TString name, Bool_t flagVtx, Bool_t flagIt, Bool_t
    fBeta(0),
    fWeighted(weight),
    fPreciseIt(1),
-   fCut1(20),
-   fCut2(4),
+   fCut1(200),
+   fCut2(200),
    fCutFactor(0),
    fHitPlanes(-1),
    fEvents1(0),
@@ -138,7 +138,7 @@ TAIRalignC::TAIRalignC(const TString name, Bool_t flagVtx, Bool_t flagIt, Bool_t
       exit(0);
    }
 
-   fDevStatus     = new Int_t[devsNtot];
+   fDevStatus = new Int_t[devsNtot];
 
    FillStatus();
    
@@ -312,7 +312,7 @@ void TAIRalignC::FillPosition(TAVTbaseParGeo* parGeo, Int_t offset)
       TVector3 posSens = parGeo->GetSensorPosition(i);
       parGeo->Local2Global(&posSens);
       fZposition[i+offset] = posSens.Z()*TAGgeoTrafo::CmToMm();
-      fThickDect[i+offset] = parGeo->GetTotalSize()[2]*TAGgeoTrafo::MuToMm();
+      fThickDect[i+offset] = parGeo->GetTotalSize()[2]*TAGgeoTrafo::CmToMm();
    }
 }
 
@@ -728,7 +728,7 @@ Bool_t TAIRalignC::DefineWeights()
    Float_t previousTermSumQ    = 0;
    Float_t previousDistanceSum = 0;
    
-   wepl = fpDiff->WEPLCalc("Air", TMath::Abs(pGeoMapG->GetBeamPar().Position[2]-fZposition[iSensor])*TAGgeoTrafo::CmToMm());
+   wepl = fpDiff->WEPLCalc("Air", TMath::Abs(pGeoMapG->GetBeamPar().Position[2]*TAGgeoTrafo::CmToMm()-fZposition[iSensor]));
 
    fEbeam   = fpDiff->EnergyCalc(fEbeam, fAbeam, fZbeam, wepl);
    fpc      = fpDiff->PCCalc(fEbeam, fAbeam);
