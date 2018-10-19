@@ -153,21 +153,21 @@ TAIRalignC::TAIRalignC(const TString name, Bool_t flagVtx, Bool_t flagIt, Bool_t
 //! Destructor.
 TAIRalignC::~TAIRalignC()
 {
-   for(Int_t i = 0; i < fSecArray.GetSize(); i++){
-      delete[] fWeightQ;
-      delete[] fZposition;
-      delete[] fSigmaAlfaDist;
-      delete[] fSigmaMeasQfinal;
-      delete[] fPosUClusters;
-      delete[] fPosVClusters;
-      delete[] fErrUClusters;
-      delete[] fErrVClusters;
-      delete[] fTiltW;
-      delete[] fAlignmentU;
-      delete[] fAlignmentV;
-      delete[] fStatus;
-      delete[] fDevStatus;
-   }
+   delete[] fWeightQ;
+   delete[] fZposition;
+   delete[] fThickDect;
+   delete[] fSigmaAlfaDist;
+   delete[] fSigmaMeasQfinal;
+   delete[] fPosUClusters;
+   delete[] fPosVClusters;
+   delete[] fErrUClusters;
+   delete[] fErrVClusters;
+   delete[] fTiltW;
+   delete[] fAlignmentU;
+   delete[] fAlignmentV;
+   delete[] fStatus;
+   delete[] fDevStatus;
+   
    delete fResidualX;
    delete fResidualY;
    delete fClusterArray;
@@ -211,6 +211,7 @@ void TAIRalignC::InitParameters()
 {
    fWeightQ         = new Double_t[fSecArray.GetSize()];
    fZposition       = new Double_t[fSecArray.GetSize()];
+   fThickDect       = new Double_t[fSecArray.GetSize()];
    fSigmaAlfaDist   = new Double_t[fSecArray.GetSize()];
    fSigmaMeasQfinal = new Double_t[fSecArray.GetSize()];
    fPosUClusters    = new Double_t[fSecArray.GetSize()];
@@ -225,6 +226,7 @@ void TAIRalignC::InitParameters()
    for(Int_t i = 0; i < fSecArray.GetSize(); i++){
       fWeightQ[i]         = 0;
       fZposition[i]       = 0;
+      fThickDect[i]       = 0;
       fSigmaAlfaDist[i]   = 0;
       fSigmaMeasQfinal[i] = 0;
       fPosUClusters[i]    = 0;
@@ -306,13 +308,13 @@ void TAIRalignC::FillPosition()
 // Fill Position
 void TAIRalignC::FillPosition(TAVTbaseParGeo* parGeo, Int_t offset)
 {
-   for (Int_t i = 0; i < parGeo->GetNSensors(); i++){
+   for (Int_t i = 0; i < parGeo->GetNSensors(); i++) {
       TVector3 posSens = parGeo->GetSensorPosition(i);
       parGeo->Local2Global(&posSens);
       fZposition[i+offset] = posSens.Z()*TAGgeoTrafo::CmToMm();
+      fThickDect[i+offset] = parGeo->GetTotalSize()[2]*TAGgeoTrafo::MuToMm();
    }
 }
-
 
 //______________________________________________________________________________
 //
@@ -332,6 +334,7 @@ void TAIRalignC::CreateHistogram()
    
    return;
 }
+
 //_____________________________________________________________________________
 //
 void TAIRalignC::LoopEvent(Int_t nEvts)
@@ -425,7 +428,7 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
       Int_t iPlane = fSecArray[i];
       fStatus[i] = ((fAlign->GetOffsetU()[i]*TAGgeoTrafo::MmToMu() < limitShift) && (fAlign->GetOffsetV()[i]*TAGgeoTrafo::MmToMu() < limitShift)) && (fAlign->GetTiltW()[i]<limitTilt);
       printf("----------------------------------------------\n");
-      printf("Sensor: %d AlignmentU: %5.1f AlignmentV: %5.1f TiltW: %6.3f status %d\n", iPlane+1,
+      printf("Sensor: %d AlignmentU: %5.1f AlignmentV: %5.1f TiltW: %5.2f status %d\n", iPlane+1,
              fAlignmentU[i]*TAGgeoTrafo::MmToMu(),
              fAlignmentV[i]*TAGgeoTrafo::MmToMu(),
              fTiltW[i]*TMath::RadToDeg(),
@@ -480,8 +483,6 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
 // Alignment with all the events which fired all the planes
 Bool_t TAIRalignC::Align(Bool_t rough)
 {
-   TAVTntuCluster* pNtuClus  = (TAVTntuCluster*) fpNtuClusVtx->Object();
-
    fSlopeU = 0;
    fSlopeV = 0;
    fNewSlopeU = 0;
@@ -690,62 +691,49 @@ void TAIRalignC::UpdateAlignmentParams()
 // These calculation are made thanks to the formulas implemented in Scattman
 Bool_t TAIRalignC::DefineWeights()
 {
-   // tmp solution meanwhile to find something better
-   if (fWeighted == -1) {
-      for (Int_t i = 0; i < fSecArray.GetSize(); i++){
-         fWeightQ[i]         = 1./fSecArray.GetSize();
-         fSigmaMeasQfinal[i] = 2.5e-5;
-         fSigmaAlfaDist[i]   = 5.0e-5;
-      }
-      return true;
-   }
+   TAGparGeo* pGeoMapG = (TAGparGeo*) fpGeoMapG->Object();
    
-   TAGparGeo* pGeoMap = (TAGparGeo*) fpGeoMapG->Object();
-   TAVTparGeo* vtGeoMap = (TAVTparGeo*) fpGeoMapVtx->Object();
+   fEbeamInit = pGeoMapG->GetBeamPar().Energy*TAGgeoTrafo::GevToMev();
+   fZbeam     = pGeoMapG->GetBeamPar().AtomicNumber;
+   fAbeam     = pGeoMapG->GetBeamPar().AtomicMass;
    
-   fEbeamInit   = pGeoMap->GetBeamPar().Energy*TAGgeoTrafo::GevToMev();
-   fZbeam       = pGeoMap->GetBeamPar().AtomicNumber;
-   fAbeam       = pGeoMap->GetBeamPar().AtomicMass;
+   fpcInit    = fpDiff->PCCalc(fEbeamInit, fAbeam);
+   fBetaInit  = fpDiff->BetaCalc(fEbeamInit);
    
-   fpcInit      = fpDiff->PCCalc(fEbeamInit, fAbeam);
-   fBetaInit    = fpDiff->BetaCalc(fEbeamInit);
+   fEbeam     = fEbeamInit;
+   fpc        = fpcInit;
+   fBeta      = fBetaInit;
    
-   fEbeam  = fEbeamInit;
-   fpc     = fpcInit;
-   fBeta   = fBetaInit;
-   
-   Double_t sigmaMeas   =  5.0;
-   Float_t  thickSi     =  vtGeoMap->GetTotalSize()[2] * TAGgeoTrafo::MuToMm();
    
    Double_t LrSi   = fpDiff->GetRadLength("Si");   // [g/cm^2] Radiation length for silicon
    Double_t rhoSi  = fpDiff->GetDensity("Si");     // [g/cm^3] density silicon
    Double_t LrAir  = fpDiff->GetRadLength("Air");  // [g/cm^2] Radiation length for air
    Double_t rhoAir = fpDiff->GetDensity("Air");    // [g/cm^3] density air
    
-   Float_t wepl = 0;
-   Float_t weplSi = fpDiff->WEPLCalc("Si", thickSi);
+   Int_t    iSensor   = 0;
+   Double_t sigmaMeas = 5.0;
+   Float_t  wepl      = 0;
+   Double_t km        = 0;
+   Double_t factor1   = 0;
+   Double_t factor2   = 0;
    
-   Double_t km = 0; Double_t factor1 = 0; Double_t factor2 = 0;
    Double_t sigmaAlfaMeasQ = 0;
    Double_t sigmaMeasQ = sigmaMeas * sigmaMeas * 1e-6;
    
-   Int_t iSensor = 0;
    
-   Float_t LrSum = 0;
-   Float_t rhodSum = 0;
-   Float_t logtermSum = 0;
-   Float_t nonLogtermSumQ = 0;
-   Float_t previousTermSumQ = 0;
+   Float_t LrSum               = 0;
+   Float_t rhodSum             = 0;
+   Float_t logtermSum          = 0;
+   Float_t nonLogtermSumQ      = 0;
+   Float_t previousTermSumQ    = 0;
    Float_t previousDistanceSum = 0;
    
-   TVector3 posSens = vtGeoMap->GetSensorPosition(iSensor);
-   vtGeoMap->Local2Global(&posSens);
-   
-   wepl = fpDiff->WEPLCalc("Air", TMath::Abs(pGeoMap->GetBeamPar().Position[2]-posSens[2])*TAGgeoTrafo::CmToMm());
+   wepl = fpDiff->WEPLCalc("Air", TMath::Abs(pGeoMapG->GetBeamPar().Position[2]-fZposition[iSensor])*TAGgeoTrafo::CmToMm());
 
    fEbeam   = fpDiff->EnergyCalc(fEbeam, fAbeam, fZbeam, wepl);
    fpc      = fpDiff->PCCalc(fEbeam, fAbeam);
    fBeta    = fpDiff->BetaCalc(fEbeam);
+   
    if(fEbeam == 0){
       Error("DefineWeights()","Remaining energy in air is 0...");
       return false;
@@ -755,20 +743,21 @@ Bool_t TAIRalignC::DefineWeights()
       iSensor = fSecArray[i];
       Double_t sigmaAlfaScattSi = 0;
       Double_t sigmaAlfaScattAir = 0;
-      
+      Float_t weplSi = fpDiff->WEPLCalc("Si", fThickDect[i]);
+
       if (i > 0){
-         Float_t distance = TMath::Abs(fZposition[i] - fZposition[i-1] - thickSi);
-         sigmaAlfaScattSi = 14100.0/( fBeta * fpc ) * fZbeam * TMath::Sqrt(0.1*thickSi*rhoSi/LrSi) * (1+log10(0.1*thickSi*rhoSi/LrSi)/9.0);
-         LrSum           += LrSi*0.1*thickSi*rhoSi;
-         rhodSum         +=  0.1*thickSi*rhoSi;
+         Float_t distance = TMath::Abs(fZposition[i] - fZposition[i-1] - fThickDect[i]);
+         sigmaAlfaScattSi = 14100.0/( fBeta * fpc ) * fZbeam * TMath::Sqrt(0.1*fThickDect[i]*rhoSi/LrSi) * (1+log10(0.1*fThickDect[i]*rhoSi/LrSi)/9.0);
+         LrSum           += LrSi*0.1*fThickDect[i]*rhoSi;
+         rhodSum         +=  0.1*fThickDect[i]*rhoSi;
          logtermSum       = 1+log10 ( rhodSum / (LrSum/rhodSum) )/9.0;
-         nonLogtermSumQ  += (sigmaAlfaScattSi / (1+log10 ( 0.1*thickSi*rhoSi / LrSi )/9.0))*(sigmaAlfaScattSi / (1+log10 ( 0.1*thickSi*rhoSi / LrSi )/9.0));
+         nonLogtermSumQ  += (sigmaAlfaScattSi / (1+log10 ( 0.1*fThickDect[i]*rhoSi / LrSi )/9.0))*(sigmaAlfaScattSi / (1+log10 ( 0.1*fThickDect[i]*rhoSi / LrSi )/9.0));
          sigmaAlfaScattSi = TMath::Sqrt(logtermSum * logtermSum * nonLogtermSumQ - previousTermSumQ);
          factor1          = sigmaAlfaMeasQ + sigmaAlfaScattSi * sigmaAlfaScattSi;
          factor2          = sigmaAlfaMeasQ / factor1;
          sigmaMeasQ       = sigmaMeasQ + 1e-6 * km * km * factor2 * sigmaAlfaScattSi * sigmaAlfaScattSi;
          sigmaAlfaMeasQ   = factor1;
-         km               = km * factor2 + thickSi; // see scattman formalismus paper
+         km               = km * factor2 + fThickDect[i]; // see scattman formalismus paper
          previousTermSumQ = previousTermSumQ + sigmaAlfaScattSi*sigmaAlfaScattSi;
          fEbeam           = fpDiff->EnergyCalc(fEbeam, fAbeam, fZbeam, weplSi*0.1);
          fpc              = fpDiff->PCCalc(fEbeam, fAbeam);
@@ -819,8 +808,9 @@ Bool_t TAIRalignC::DefineWeights()
       fSumWeightQ += fWeightQ[i];
    }
    
-   for (Int_t i = 0; i < fSecArray.GetSize(); i++){
+   for (Int_t i = 0; i < fSecArray.GetSize(); i++) {
       fWeightQ[i] = fWeightQ[i] / fSumWeightQ;
+//      printf("%.1e %.1e\n",  fSigmaMeasQfinal[i], fSigmaAlfaDist[i]);
    }
    
    return true;

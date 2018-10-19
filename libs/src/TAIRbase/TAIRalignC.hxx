@@ -118,6 +118,7 @@ private:
    
    Double_t*  fWeightQ;
    Double_t*  fZposition;
+   Double_t*  fThickDect;
    Double_t*  fSigmaAlfaDist;
    Double_t*  fSigmaMeasQfinal;
    
