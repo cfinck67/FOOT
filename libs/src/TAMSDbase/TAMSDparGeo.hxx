@@ -50,7 +50,8 @@ public:
     // Return distance from center to center
     double GetLayerDistance() { return m_layerDistance; };
 
-   
+   TVector3 GetTotalSize() { return TVector3(MSD_WIDTH, MSD_HEIGHT, MSD_THICK); }
+
     string PrintParameters();
 
 private:

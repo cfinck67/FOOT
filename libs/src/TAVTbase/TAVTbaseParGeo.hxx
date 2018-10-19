@@ -126,7 +126,7 @@ public:
     TVector3 GetDimension() { return m_dimension; };
 
    //  Return Vertex center coord. in the foot global frame
-   TVector3 GetTotalSize() { return TVector3(VTX_WIDTH, VTX_HEIGHT, VTX_THICK); }
+   virtual TVector3 GetTotalSize() { return TVector3(VTX_WIDTH, VTX_HEIGHT, VTX_THICK); }
    
     double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
 
