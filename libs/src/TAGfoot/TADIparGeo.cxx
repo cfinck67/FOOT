@@ -54,9 +54,9 @@ TADIparGeo::~TADIparGeo()
 //_____________________________________________________________________________
 void TADIparGeo::InitGeo()
 {
-   fWidth = AL_MF_WIDTH_OU;
-   fHeight = AL_MF_HEIGHT;
-   fLength= AL_THICK;
+   fWidth  = MAG_PM_THICK;
+   fHeight = MAG_PM_THICK;
+   fLength = MAG_CV_LENGTH;
 }
 
 //_____________________________________________________________________________
@@ -78,8 +78,8 @@ TGeoVolume* TADIparGeo::AddDipole(const char *dipoleName)
    
    const Char_t* outerName = Form("%s_outer", dipoleName);
    const Char_t* innerName = Form("%s_inner", dipoleName);
-   new TGeoBBox(outerName, TAGgeoTrafo::CmToMu()*fWidth/2., TAGgeoTrafo::CmToMu()*fHeight/2., TAGgeoTrafo::CmToMu()*fLength/2.);
-   new TGeoBBox(innerName, TAGgeoTrafo::CmToMu()*(fWidth-ring)/2., TAGgeoTrafo::CmToMu()*(fHeight-ring)/2., TAGgeoTrafo::CmToMu()*(fLength+ring)/2.);
+   new TGeoBBox(outerName, TAGgeoTrafo::CmToMu()*fWidth/2., fHeight/2., fLength/2.);
+   new TGeoBBox(innerName, (fWidth-ring)/2., (fHeight-ring)/2., (fLength+ring)/2.);
       
    TGeoCompositeShape* shape = new TGeoCompositeShape("Composite", Form("%s-%s", outerName, innerName));
    TGeoVolume * dipole       = new TGeoVolume(dipoleName, shape, medDipole);
