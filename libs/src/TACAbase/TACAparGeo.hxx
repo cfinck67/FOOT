@@ -24,9 +24,7 @@ public:
 
   TACAparGeo();
   // TACAparGeo( TACAparGeo* original );
-  virtual ~TACAparGeo() {
-
-  };
+  virtual ~TACAparGeo() {}
 
   void InitGeo();
   void InitMaterial();
@@ -78,8 +76,12 @@ public:
 
   virtual void    Clear(Option_t* opt="");
   virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
+   
+public:
+   static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
 
-
+private:
+   static const TString fgkDefParaName;
 
 private:
 
