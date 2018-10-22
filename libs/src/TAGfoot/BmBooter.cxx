@@ -180,8 +180,10 @@ void BmBooter::Process() {
 
   efficiency_plane();
   if(bmcon->GetFitterIndex()>0)
-    if(track_ok==0)  
+    if(track_ok==0){  
       Projectmylars();
+      ResidualDistance();
+    }
       
   data_num_ev++;
 
@@ -204,6 +206,7 @@ void BmBooter::Finalize() {
   PrintSTrel();  
   PrintEFFpp();
   PrintProjections();  
+  PrintResDist();  
     
   if(isallign)
     Allign_estimate();
@@ -262,12 +265,28 @@ void BmBooter::Allign_estimate(){
 void BmBooter::PrintSTrel(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
-  TH1D* histo=new TH1D( "strel", "strel;time [ns];distance [cm]", 4000, 0., 400.);
-  double time=0.;
-  for(int i=0;i<4000;i++){
+  
+  Int_t numpoints=4000, tmp_int=1;
+  Double_t pass=0.1;
+  TH1D* histo=new TH1D( "strel", "Space time relation;time [ns];distance [cm]", numpoints, 0., numpoints*pass);
+  TH1D* histo2=new TH1D( "time_vs_velodrift", "Drift Velocity;Time [s]; velocity[cm/s]", numpoints, 0., numpoints*pass);
+  TH1D* histo3=new TH1D( "dist_vs_velodrift", "Drift Velocity;Distance [cm]; velocity[cm/s]", 800, 0.04, 0.8);
+  Double_t time=0.;
+  for(int i=1;i<numpoints;i++){
+    time+=pass;
     histo->SetBinContent(i,bmcon->FirstSTrel(time));
-    time+=0.1;
+    histo2->SetBinContent(i,bmcon->FirstSTrel(time)/time);
+    //~ cout<<"time="<<time<<"  bmcon->FirstSTrel(time)="<<bmcon->FirstSTrel(time)<<"  tmp_int"<<tmp_int<<"  histo3->GetBinCenter(tmp_int)="<<histo3->GetBinCenter(tmp_int)<<endl;
+    if(bmcon->FirstSTrel(time)>histo3->GetBinCenter(tmp_int) && bmcon->FirstSTrel(time-pass)<histo3->GetBinCenter(tmp_int)){
+      histo3->SetBinContent(tmp_int, bmcon->FirstSTrel(time)/time);
+      tmp_int++;
+    }
   }
+  
+
+
+  
+  
 return;
 }
 
@@ -354,6 +373,20 @@ void BmBooter::PrintProjections(){
 
 return;
 }
+
+
+void BmBooter::PrintResDist(){
+  if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
+    return;
+
+  TH2D* histo=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
+  
+  for(Int_t i=0;i<residual_distance.size();i++)
+    histo->Fill(residual_distance[i][0], residual_distance[i][1]);
+
+return;
+}
+
 
 
 
@@ -577,15 +610,16 @@ void BmBooter::evaluateT0() {
     data_num_ev++;
   }
   data_num_ev--;
+  //I created the TDC signal histograms
   
   //fit the tdc signals with a function to evaluate the T0, for the moment I take the shortest signal close to the peak
   //~ TF1 *f1 = new TF1("f1","[0]*pow(([1]/[2]),(x/[2]))(TMath::Exp(-([1]/[2])))/TMath::Gamma((x/[2])+1)", 0, 2000);
   //~ TF1 *f1 = new TF1("f1","[0]*pow([1]/[2],x/[2]-[3])/(TMath::Gamma(x/[2]-[3]+1))*(TMath::Exp(-[1]/[2]))", 0, 2000);
   //~ TF1 *f1 = new TF1("f1","gaus(0)", ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
 
-  TF1 *fb = new TF1("fb","gaus", -1000,5000);
 
   //EVALUATE T0
+  Int_t tdc_peak;
   if(bmcon->GetBMdebug()>3)
     cout<<"BMbooter::evaluatet0 step EVALUATE T0"<<endl;
   if(bmcon->GetmanageT0BM()==0){
@@ -599,8 +633,7 @@ void BmBooter::evaluateT0() {
           //~ f1->SetParLimits(1,0,100);
           //~ ((TH1D*)gDirectory->Get(tmp_char))->Fit(f1,"QR+","",((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100,((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
         
-          //vecchio metodo no buono
-          //take the first signal, not too distant from other signals
+          //old WRONG method:take the first signal, not too distant from other signals
           //~ tmp_int=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove();
           //~ for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove()+1;j<((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
             //~ if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>0)
@@ -609,17 +642,23 @@ void BmBooter::evaluateT0() {
               //~ }else
                 //~ tmp_int=j;
                 
-                
-          //~ if(bmcon->GetBMdebug()>9)
-            //~ cout<<"tdc channel="<<i<<"  tmp_int="<<tmp_int<<"   T0="<<(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)<<endl;//provv
 
-          //metodo che funziona se ho abbastanza dati!!!
-          tmp_int=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();
-          for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j>0;j--)
-            if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/10.)
-              tmp_int=j;
+          //old WRONG method: here I'm considering the begining of the tdc rise (plus: it works only if I have enough data)
+          //~ tmp_int=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();
+          //~ for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j>0;j--)
+            //~ if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/10.)
+              //~ tmp_int=j;
+              
+          //I take the first peak as the T0
+          tdc_peak=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();
+          for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove();j<=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
+            if((((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j) < ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1)) && (((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1) > ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/2.)){
+              tdc_peak=j-1;      
+              break;      
+            }              
+              
                       
-          bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tmp_int)); 
+          bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tdc_peak)); 
         }
         else{
           cout<<"WARNING IN BmBooter::EvaluateT0! too few events to evaluate T0 in tdc_cha=i="<<i<<"  cellid="<<bmmap->tdc2cell(i)<<"  Number of events="<<((TH1D*)gDirectory->Get(tmp_char))->GetEntries()<<"  T0 for this channel will wrongly set to -20000"<<endl;
@@ -637,6 +676,7 @@ void BmBooter::evaluateT0() {
     cout<<"BMbooter::evaluatet0:: evaluate adc pedestals"<<endl;
   
   //Evaluate ADC pedestals  
+  TF1 *fb = new TF1("fb","gaus", -1000,5000);
   if(bmcon->GetmanageADCped()==0 &&  bmmap->GetAdc792Ch()>0){
     bmcon->SetADCchanum(bmmap->GetAdc792Ch());
     //~ fb->SetParLimits(1,10,150);//parametri trovati in Analizer
@@ -656,6 +696,7 @@ void BmBooter::evaluateT0() {
       ((TH1D*)gDirectory->Get("ADC/adc_pedrms"))->SetBinContent(i+1,bmcon->GetADCrms(i));  
     }
    
+  delete fb;
   
   f_out->Write();
   f_out->Close();    
@@ -1108,6 +1149,20 @@ void BmBooter::Projectmylars(){
 return;
 }
   
+//used in process to charge residual_distance
+void BmBooter::ResidualDistance(){
+  vector<Double_t> resdis(2);
+  for(Int_t i=0;i<bmnturaw->nhit;i++){
+    bmntuhit = bmnturaw->Hit(i);
+    if(bmntuhit->GetIsSelected()){
+      resdis[0]=bmntuhit->GetResidual();
+      resdis[1]=bmntuhit->Dist();
+      residual_distance.push_back(resdis);
+    }          
+  }
+  
+return;  
+}
 
 void BmBooter::PrintBMstruct(){
   cout<<"PrintBMstruct:"<<endl;

@@ -209,8 +209,8 @@ Bool_t TABMactNtuTrack::Action()
   vector<Bool_t> possiblePrimary(tracknum, true);
   vector<vector<Int_t>> hitxtrack(tracknum); 
   vector<Double_t> hit_res; //needed in CalculateMyChi2, it stores the hits resolutions
-  vector<Double_t> hit_mychi2; //needed in CalculateMyChi2, it stores the mychi2 contribution for the hits of tmp_trackTr 
-  vector<Double_t> best_mychi2; //stores the mychi2 contribution of best_trackTr's hits 
+  vector<Double_t> hit_mysqrtchi2; //needed in CalculateMyChi2, it stores the mychi2 contribution for the hits of tmp_trackTr 
+  vector<Double_t> best_mysqrtchi2; //stores the mysqrtchi2 contribution of best_trackTr's hits 
   Int_t best_index; //the position in hitxtrack matrix of the best tracktr
   vector<vector<Int_t>> prunedhit;//it is calculated for each hitxtrack row; each prunedhit row represent a possible new track, columns represent the hit position of hitxtrack that have to be pruned 
   for(Int_t j=0; j<tracknum; j++)
@@ -320,6 +320,7 @@ Bool_t TABMactNtuTrack::Action()
        
               
       //charge hits
+      hit_res.clear();
       hit_res.resize(hitxtrack[i].size(),999.);
       firedUview=0;
       firedVview=0;
@@ -357,7 +358,7 @@ Bool_t TABMactNtuTrack::Action()
         
         hitCoords_vec.push_back(hitCoords);
         
-        res=p_hit->GetSigma()*2.;//PROVVISORIO!!!!! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        res=p_hit->GetSigma();
         if(res==0)
           cout<<"TABMactNtuTrack::WARNING:   something is wrong in hit sigma!!!!!!!, p_hit->GetSigma==0..."<<endl;
         hitCov.UnitMatrix();         // matrice di covarianza da settare meglio: per ora metto solo matrice diagonale con errore su posizione fili 
@@ -448,9 +449,9 @@ Bool_t TABMactNtuTrack::Action()
             tmp_trackTr->SetFailedPoint(fitTrack->getFitStatus(rep)->getNFailedPoints());  
             if(fitTrack->getFitStatus(rep)->getNdf()!=0)        
               tmp_trackTr->SetChi2NewRed(fitTrack->getFitStatus(rep)->getChi2()/fitTrack->getFitStatus(rep)->getNdf());
-            hit_mychi2.clear();
-            hit_mychi2.resize(hitxtrack[i].size(),999.);
-            tmp_trackTr->CalculateFitPar(fitTrack, hit_res, hit_mychi2, prunedhit,p_bmcon, p_bmgeo, rejhit, mylar1_plane, mylar2_plane, target_plane);
+            hit_mysqrtchi2.clear();
+            hit_mysqrtchi2.resize(hitxtrack[i].size(),999.);
+            tmp_trackTr->CalculateFitPar(fitTrack, hit_res, hit_mysqrtchi2, prunedhit,p_bmcon, p_bmgeo, rejhit, mylar1_plane, mylar2_plane, target_plane);
             if(p_bmcon->GetBMdebug()>3 && converged){
               cout<<"TABMactNtuTrack::print fit status:"<<endl;
               fitTrack->getFitStatus(rep)->Print();
@@ -460,7 +461,7 @@ Bool_t TABMactNtuTrack::Action()
               if(p_bmcon->GetBMdebug()>5)
                 cout<<"New best_trackTr found!  previous mychi2red="<<best_trackTr.GetMyChi2Red()<<"  New mychi2red="<<tmp_trackTr->GetMyChi2Red()<<endl;
               best_trackTr=*tmp_trackTr;
-              best_mychi2=hit_mychi2;
+              best_mysqrtchi2=hit_mysqrtchi2;
               best_index=i;
             }
           }else if((rejhit+1)<=p_bmcon->GetRejmaxcut()) //end of converged
@@ -479,10 +480,11 @@ Bool_t TABMactNtuTrack::Action()
       //~ cout<<"pulito fitrrack  measurements_vec="<<measurements_vec.size()<<"   capacity="<<measurements_vec.capacity()<<endl;  
       
     }//end of possiblePrimary if condition
-    if(prunedhit.size()>0)
+    if(prunedhit.size()>0){
       for(Int_t k=0;k<prunedhit.size();k++)
         ChargePrunedTrack(prunedhit[k], firedUview, firedVview, hitxtrack, possiblePrimary, p_bmcon, p_ntuhit, p_hit, i);
-    prunedhit.clear();
+      prunedhit.clear();
+    }
   }//end of loop on all possible track
     
 //MY OLD TRACK STORE METHOD
@@ -512,7 +514,7 @@ Bool_t TABMactNtuTrack::Action()
     //~ for(Int_t i=0;i<hitxtrack[tmp_int].size();i++){
       //~ p_hit = p_ntuhit->Hit(hitxtrack[tmp_int][i]);    
       //~ p_hit->SetIsSelected(true);
-      //~ p_hit->SetChi2(hit_mychi2[i]);
+      //~ p_hit->SetChi2(hit_mysqrtchi2[i]);
     //~ }    
   //~ }else
     //~ p_ntutrk->trk_status=3;//if there's no track in alltrack vector at this point, it means that Genfit does not converged in the reconstruction
@@ -525,7 +527,8 @@ Bool_t TABMactNtuTrack::Action()
     for(Int_t i=0;i<hitxtrack[best_index].size();i++){
       p_hit = p_ntuhit->Hit(hitxtrack[best_index][i]);    
       p_hit->SetIsSelected(true);
-      p_hit->SetChi2(best_mychi2[i]);
+      p_hit->SetChi2(best_mysqrtchi2[i]*best_mysqrtchi2[i]);
+      p_hit->SetResidual(best_mysqrtchi2[i]);
     }          
   }else if(converged==false)
     p_ntutrk->trk_status=4;

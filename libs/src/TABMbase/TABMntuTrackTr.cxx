@@ -179,10 +179,10 @@ TABMntuTrackTr::TABMntuTrackTr(const TABMntuTrackTr &tr_in){
   //~ }
 
 
-void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mychi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane){
+void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mysqrtchi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane){
   Int_t hit_num=fitTrack->getNumPointsWithMeasurement();
   Double_t worst_hit=-1000.;
-  if(hit_num!=hit_mychi2.size())
+  if(hit_num!=hit_mysqrtchi2.size())
     cout<<"TABMntuTrack::CalculateFitPar::WARNING:: hit_num!=mychi2red.size()... some hits has been lost!!!!!"<<endl;
   Int_t hit_num_withcov=0;
   Double_t tmp_double, old_rdrift, new_rdrift, rdrift_err_max=0;
@@ -224,9 +224,9 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
         wire_dir=wire_dir-wire_pos;
         wire_dir.SetMag(1.);
         new_rdrift=FindRdrift(state.getPos(), state.getMom(), wire_pos, wire_dir);//da check
-        hit_mychi2[i]=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i];
-        if(hit_mychi2[i]>worst_hit)
-          worst_hit=hit_mychi2[i];
+        hit_mysqrtchi2[i]=(old_rdrift-new_rdrift)/hit_res[i];
+        if(fabs(hit_mysqrtchi2[i])>worst_hit)
+          worst_hit=fabs(hit_mysqrtchi2[i]);
         mychi2+=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i];        
         if(fabs(old_rdrift-new_rdrift)>rdrift_err_max)
           rdrift_err_max=fabs(old_rdrift-new_rdrift);
@@ -259,8 +259,8 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
   //calculate prunedhit, I refit pruning the worst_hit that have the highest chi2 contribution
   if((rejhit+1)<=p_bmcon->GetRejmaxcut() && mychi2Red>p_bmcon->GetChi2Redcut()){
     prunedhit.resize(1);
-    for(Int_t i=0;i<hit_mychi2.size();i++){
-      if(hit_mychi2[i]==worst_hit){
+    for(Int_t i=0;i<hit_mysqrtchi2.size();i++){
+      if(fabs(hit_mysqrtchi2[i])==worst_hit){
         prunedhit[0].push_back(i);
         if(p_bmcon->GetBMdebug()>10)
           cout<<"add prunedhit:  prunedhit[0].size()="<<prunedhit[0].size()<<"  val="<<prunedhit[0].back()<<endl;

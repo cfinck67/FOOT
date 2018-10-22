@@ -45,7 +45,7 @@ Magnetic field map name:  DoubleDipole.table
 
 
 Print OutputFile: true
-Output Filename: RecoHistos_148MeV_HV2150_100kEv_9ott_WithTa_garfield.root
+Output Filename: RecoHistos.root
 
 Print OutputNtuple: false
 Output Ntuplename: RecoTree.root

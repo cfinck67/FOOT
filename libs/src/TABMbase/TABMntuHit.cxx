@@ -26,6 +26,7 @@ TABMntuHit::TABMntuHit()
   rho = 0;
   pca.SetXYZ(0,0,0);
   realRdrift=100.;
+  residual=100.;
   isSelected=false;
   isCrossTalk=false;  
 }
@@ -43,6 +44,7 @@ TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x, Doubl
   rho = 0;
   pca.SetXYZ(0,0,0);
   realRdrift=100.;
+  residual=100.;
   isSelected=false;
   isCrossTalk=false;
   sigma=s;

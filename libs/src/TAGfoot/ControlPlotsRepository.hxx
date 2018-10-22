@@ -208,6 +208,7 @@ public:
         FillMap( hitSampleName + "__rawsel_view", bmntuhit->View());
         FillMap( hitSampleName + "__rawsel_plane", bmntuhit->Plane());
         FillMap( hitSampleName + "__rawsel_occupancy", bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(), bmntuhit->Cell()));
+	FillMap( hitSampleName + "__rawsel_residual", bmntuhit->GetResidual());
       }
     }
     

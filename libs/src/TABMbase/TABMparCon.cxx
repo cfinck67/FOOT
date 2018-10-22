@@ -518,11 +518,16 @@ void TABMparCon::LoadSTrel(TString sF) {
  /*-------------------------------------------------*/
 
 Double_t TABMparCon::FirstSTrel(Double_t tdrift){
-  if(strel_switch==1)
+  if(strel_switch==1){ //garfield strel
     return 0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
+  }else if(strel_switch==2){//HIT 2014?
+    return 0.00972903*tdrift-8.21676e-05*tdrift*tdrift+3.66446e-07*tdrift*tdrift*tdrift-5.85882e-10*tdrift*tdrift*tdrift*tdrift;  
+  }else if(strel_switch==3){//HIT 2014?
+    return 0.0087776*tdrift-6.41845e-05*tdrift*tdrift+2.4946e-07*tdrift*tdrift*tdrift-3.48422e-10*tdrift*tdrift*tdrift*tdrift;  
+  }
   
+  //FIRST strel embedded in old Framework
   return 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift; 
-  //~ return 0.00972903*tdrift -8.21676e-05*tdrift*tdrift+3.66446e-07*tdrift*tdrift*tdrift-5.85882e-10*tdrift*tdrift*tdrift*tdrift; //HIT 2014
 }
 
 

@@ -47,6 +47,7 @@ class TABMntuHit : public TAGdata {
     TVector3 GetA0() {return A0;};
     TVector3 GetWvers() {return Wvers;};
     TVector3 GetPca() {return pca;};
+    Double_t GetResidual(){return residual;};
     bool GetIsSelected() {return isSelected;};
     bool GetIsCrossTalk() {return isCrossTalk;};
     Double_t GetRealRdrift(){return realRdrift;};
@@ -62,6 +63,7 @@ class TABMntuHit : public TAGdata {
     void SetRdrift(Double_t in_rdrift){rdrift=in_rdrift;};
     void SetRealRdrift(Double_t in_rdrift){realRdrift=in_rdrift;};
     void SetIsSelected(bool in_is){isSelected=in_is;};
+    void SetResidual(Double_t res_in){residual=res_in*sigma;};
     
     //old software
     //~ void SetTrkAss(Int_t in_ass) { itrkass = in_ass;};
@@ -87,6 +89,7 @@ class TABMntuHit : public TAGdata {
     Double_t tdrift;//hit.time - T0 - irtime (irtime is the trigger time/start counter time) 
     //~ Double_t timmon;//hit.time - irtime
     Double_t sigma;//rdrift resolution
+    Double_t residual;//difference between rdrift and the fitted rdrift
  
     //Track related params
     TVector3  A0;    //posizione filo di anodo che dovrebbe essere interessato
