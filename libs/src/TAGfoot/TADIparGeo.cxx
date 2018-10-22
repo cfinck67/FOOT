@@ -37,9 +37,9 @@ ClassImp(TADIparGeo);
 TADIparGeo::TADIparGeo()
 : TAGpara(),
   // from gsi_geo.h (VM)
-  fWidth(AL_MF_WIDTH_OU),
-  fHeight(AL_MF_HEIGHT),
-  fLength(AL_THICK),
+  fWidth(0.),
+  fHeight(0.),
+  fLength(0.),
   fDebugLevel(0)
 {
    // Standard constructor
@@ -49,6 +49,14 @@ TADIparGeo::TADIparGeo()
 TADIparGeo::~TADIparGeo()
 {
    // Destructor
+}
+
+//_____________________________________________________________________________
+void TADIparGeo::InitGeo()
+{
+   fWidth = AL_MF_WIDTH_OU;
+   fHeight = AL_MF_HEIGHT;
+   fLength= AL_THICK;
 }
 
 //_____________________________________________________________________________

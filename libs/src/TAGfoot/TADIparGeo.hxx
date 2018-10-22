@@ -36,6 +36,8 @@ public:
    Float_t GetHeight()  const { return fHeight;         }
    Float_t GetLength()  const { return fLength;         }
 
+   //! Init geo (compliant with all par geo
+   void InitGeo();
     
    //! Add Dipole
    TGeoVolume* AddDipole(const char *dipoleName = "Dipole");
