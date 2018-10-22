@@ -104,6 +104,9 @@ public:
 
   ClassDef(TABMparGeo,1)
 
+public:
+   static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
+   
   private:
 
     int m_debug;
@@ -154,6 +157,9 @@ public:
   Double_t cx_pos[50][6][2];
   Double_t cy_pos[50][6][2];
   Double_t cz_pos[50][6][2];
+
+private:
+   static const TString fgkDefParaName;
 
 };
 

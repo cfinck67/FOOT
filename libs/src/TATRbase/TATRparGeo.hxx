@@ -73,6 +73,9 @@ class TATRparGeo : public TAGpara {
 
     virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
 
+public:
+   static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
+   
     ClassDef(TATRparGeo,1)
 
   private:
@@ -129,6 +132,8 @@ class TATRparGeo : public TAGpara {
     Double_t cy_pos[50][6][2];
     Double_t cz_pos[50][6][2];
 
+private:
+   static const TString fgkDefParaName;
 };
 
 #include "TATRparGeo.icc"

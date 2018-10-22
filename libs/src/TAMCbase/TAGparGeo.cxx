@@ -25,7 +25,7 @@
 
 ClassImp(TAGparGeo);
 
-const TString TAGparGeo::fgkDevBaseName   = "G";
+const TString TAGparGeo::fgkDefParaName = "tgGeo";
 
 
 //______________________________________________________________________________

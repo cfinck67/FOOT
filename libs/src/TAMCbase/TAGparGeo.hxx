@@ -58,8 +58,8 @@ private:
    };
    BeamParameter_t  fBeamParameter;
 
-private: 
-   static const TString fgkDevBaseName;   // device base name
+private:
+   static const TString fgkDefParaName;
    
 private:
    TGeoVolume*  AddCubicTarget(const char *targetName);
@@ -94,7 +94,7 @@ public:
    TGeoVolume*        BuildTarget(const char *targetName = "Target");
    
 public:
-   static const Char_t* GetDevBaseName()      { return fgkDevBaseName.Data(); }
+   static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
 
    ClassDef(TAGparGeo,1)
 };

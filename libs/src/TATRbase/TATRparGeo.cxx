@@ -26,6 +26,8 @@
 
 ClassImp(TATRparGeo);
 
+const TString TATRparGeo::fgkDefParaName = "trGeo";
+
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 TATRparGeo::TATRparGeo() {

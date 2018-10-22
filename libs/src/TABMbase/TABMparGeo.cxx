@@ -36,6 +36,8 @@ using namespace std;
   \brief Map and Geometry parameters for the beam monitor. **
 */
 
+const TString TABMparGeo::fgkDefParaName = "bmGeo";
+
 ClassImp(TABMparGeo);
 
 //------------------------------------------+-----------------------------------
