@@ -117,7 +117,7 @@ TGeoVolume* TATRparGeo::BuildStartCounter(const char *stName )
 
    start->SetVisibility(true);
    start->SetLineColor(kRed-5);
-   start->SetTransparency(10);
+   start->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
    
    return start;
 }
