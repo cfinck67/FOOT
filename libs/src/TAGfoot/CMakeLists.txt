@@ -22,12 +22,15 @@ set( with_dictionnaries
    TinCan
    KFitter
    FootField
+   TADIeveField
+   TADIparGeo
    GlobalTrackRepostory
    GlobalTrackKalman
    Materials
    Booter
    UpdatePDG
    MultiTrackCheck
+   TAFOeventDisplay
 )
 
 set( without_dictionnaries

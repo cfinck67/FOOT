@@ -23,13 +23,10 @@ set( with_dictionnaries
    TAGactTreeWriter
    TAGaction
    TAGactionFile
-#   TAGbaseEventDisplay
    TAGbaseDigitizer
-   TAGclusterDisplay
    TAGconfigFile
    TAGdata
    TAGdataDsc
-   TAGeventDisplay
    TAGeventId
    TAGgeoTrafo
    TAGnamed
@@ -41,7 +38,11 @@ set( with_dictionnaries
    TAGroot
    TAGrunInfo
    TAGtimestamp
+   TAGwireDisplay
    TAGtrackDisplay
+   TAGclusterDisplay
+   TAGglbTrackDisplay
+   TAGbaseEventDisplay
    TAGview
    FootBox
    ControlPlotsRepository
