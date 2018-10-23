@@ -43,6 +43,12 @@ public:
    
    string PrintParameters();
 
+   //! Add CMOS module geometry to world
+   TGeoVolume* AddVertexModule(const char* basemoduleName = "Module", const char *name = "Vertex");
+   
+   //! Build Vertex
+   TGeoVolume* BuildVertex( const char *name = "Vertex", const char* basemoduleName = "Module");
+   
 private:
    static TString fgkDefParaName;
    
