@@ -83,6 +83,61 @@ void TAMSDparGeo::DefineMaterial()
 }
 
 //_____________________________________________________________________________
+TGeoVolume* TAMSDparGeo::BuildMultiStripDetector(const char* basemoduleName, const char *msdName)
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   // define box
+   Float_t sizeZ = (MSD_LAYDIST+MSD_THICK/2.)*MSD_NLAY;
+   
+   TGeoVolume* msd = gGeoManager->FindVolumeFast(msdName);
+   if ( msd == 0x0 ) {
+      const Char_t* matName = MSD_MEDIUM.Data();
+
+      TGeoMaterial *mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName);
+      TGeoMedium   *med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+
+      msd = gGeoManager->MakeBox(msdName, med, MSD_WIDTH/2., MSD_HEIGHT/2., sizeZ); // volume corresponding to msd
+   }
+   
+   TGeoVolume* msdMod = 0x0;
+   
+   for(Int_t iSensor = 0; iSensor < MSD_NLAY; iSensor++) {
+      msdMod = AddModule(Form("%s%d",basemoduleName, iSensor), msdName);
+      
+      TGeoHMatrix* transf = new TGeoHMatrix();
+      double vec[3] = {0, 0, -MSD_LAYDIST+iSensor*MSD_LAYDIST}; // completly hard coded, should be avoid
+      transf->SetTranslation(vec);
+      msd->AddNode(msdMod, iSensor, transf);
+   }
+   
+   return msd;
+}
+
+//_____________________________________________________________________________
+TGeoVolume* TAMSDparGeo::AddModule(const char* basemoduleName, const char *msdName)
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   // create module
+   const Char_t* matName = MSD_MEDIUM.Data();
+   TGeoMaterial *mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName);
+   TGeoMedium   *med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+   
+   TGeoBBox *box = new TGeoBBox(Form("%s_Box",basemoduleName), MSD_WIDTH/2., MSD_HEIGHT/2., MSD_THICK/2.);
+   
+   TGeoVolume *msdMod = new TGeoVolume(Form("%s_MSD",basemoduleName),box, med);
+   msdMod->SetLineColor(kAzure+1);
+   msdMod->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
+   
+   return msdMod;
+}
+
+//_____________________________________________________________________________
 void TAMSDparGeo::InitGeo()
 {
     if ( fDebugLevel> 0 )     cout << "\n\nTAMSDparGeo::InitGeo" << endl<< endl;

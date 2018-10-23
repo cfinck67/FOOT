@@ -54,6 +54,12 @@ public:
 
     string PrintParameters();
 
+   //! Add CMOS module geometry to world
+   TGeoVolume* AddModule(const char* basemoduleName = "Module", const char *name = "MSD");
+   
+   //! Build Vertex
+   TGeoVolume* BuildMultiStripDetector(const char* basemoduleName = "Module", const char *name = "MSD");
+
 private:
    static TString fgkDefParaName;
    
