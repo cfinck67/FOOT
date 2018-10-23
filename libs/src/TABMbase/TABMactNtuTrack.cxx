@@ -65,9 +65,6 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
   
   //f_BMgeoMan = p_bmgeo->GetGeoManager();
 
-  TABMparGeo*   geo = (TABMparGeo*)    fpBMGeo->Object();
-  geo->AddBM("BeamMonitor");
-
   new TGeoManager("Geometry", "Geane geometry");//load geometry
   TGeoManager::Import("LocalBM.root");
   

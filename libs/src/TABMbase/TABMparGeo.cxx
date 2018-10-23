@@ -428,14 +428,15 @@ void TABMparGeo::DefineMaterial()
    TGeoMaterial *matW = new TGeoMaterial("Tungsten", 183.84, 74., 19.3);// poi magari mettere la copertura in oro
    TGeoMaterial *vacuum = new TGeoMaterial("vacuum",0,0,0);//a,z,rho
    
-   TGeoMixture *ArCO2 = new TGeoMixture("ArCO2",3, 0.001677136);
+   const Char_t* gas_mat = BMN_GAS_MEDIUM.Data();
+   TGeoMixture *ArCO2 = new TGeoMixture(gas_mat,3, 0.001677136);
    ArCO2->AddElement(matAr ,1./4.);
    ArCO2->AddElement(matC ,1./4.);
    ArCO2->AddElement(matO ,2./4.);
    
    //create medium
    TGeoMedium *vacuum_med = new TGeoMedium("vacuum_med",0, vacuum);
-   TGeoMedium *gas_med = new TGeoMedium("gas_med",1, ArCO2);
+   TGeoMedium *gas_med = new TGeoMedium(gas_mat,1, ArCO2);
    TGeoMedium *c_wire_med = new TGeoMedium("catod wire",2, matAl);
 }
 
@@ -516,51 +517,25 @@ void TABMparGeo::CreateLocalBMGeo()
   return ;
 }
 
-
 //_____________________________________________________________________________
-TGeoVolume* TABMparGeo::AddBM(const char *bmName )
+TGeoVolume* TABMparGeo::BuildBeamMonitor(const char *bmName )
 {
-  if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
-    new TGeoManager(TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
-  }
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager(TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
    
-  // create material
-  TGeoMaterial* matBM;
-  TGeoMedium*   medBM;
+   // create module
+   const Char_t* gasMat = BMN_GAS_MEDIUM.Data();
+   TGeoMixture* matBM = (TGeoMixture *)gGeoManager->GetListOfMaterials()->FindObject(gasMat);
+   TGeoMedium*  medBM = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(gasMat);
    
-  if ( (matBM = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject("Vacuum")) == 0x0 )
-    matBM = new TGeoMaterial("Vacuum", 0., 0., 0.);;
-  if ( (medBM = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Vacuum")) == 0x0 )
-    medBM = new TGeoMedium("Vacuum", 1, matBM);
+   TGeoVolume* box = gGeoManager->MakeBox(bmName, medBM, GetWidth()/2., GetHeigth()/2., GetLength()/2.);
+   box->SetVisibility(true);
+   box->SetLineColor(17);
+   box->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
    
-  TGeoVolume* tube = gGeoManager->MakeBox(bmName, medBM, TAGgeoTrafo::CmToMu()*GetWidth()/2., TAGgeoTrafo::CmToMu()*GetHeigth()/2., 
-					  TAGgeoTrafo::CmToMu()*GetLength()/2.);
-  tube->SetVisibility(true);
-  tube->SetLineColor(17);
-  tube->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
-   
-  return tube;
+   return box;
 }
-
-//_____________________________________________________________________________
-TEveGeoShapeExtract* TABMparGeo::AddExtractBM(const char *bmName )
-{
-  TGeoBBox* tube = new TGeoBBox(bmName, TAGgeoTrafo::CmToMu()*GetWidth()/2., TAGgeoTrafo::CmToMu()*GetHeigth()/2., 
-				TAGgeoTrafo::CmToMu()*GetLength()/2.);
-  TColor* color = gROOT->GetColor(17);
-  Float_t rgba[4];
-  color->GetRGB(rgba[0], rgba[1], rgba[2]);
-  rgba[3] = TAGgeoTrafo::GetDefaultTransp()/100.;
-   
-  TEveGeoShapeExtract* tubeExtract = new TEveGeoShapeExtract(bmName);
-  tubeExtract->SetShape(tube);
-  tubeExtract->SetRGBA(rgba);
-   
-  return tubeExtract;
-}
-
-
-
 
 //_____________________________________________________________________________
 string TABMparGeo::PrintBodies(){

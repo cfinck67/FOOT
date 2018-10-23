@@ -7,7 +7,6 @@
 */
 /*------------------------------------------+---------------------------------*/
 
-#include "TEveGeoShapeExtract.h"
 #include "TString.h"
 #include "TVector3.h"
 
@@ -97,10 +96,8 @@ public:
   virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
    
   void CreateLocalBMGeo();
-       
-  TGeoVolume*     AddBM(const char *bmName = "BM");
    
-  TEveGeoShapeExtract* AddExtractBM(const char *bmName = "BM");
+  TGeoVolume*    BuildBeamMonitor(const char *bmName = "BM");
 
   ClassDef(TABMparGeo,1)
 
