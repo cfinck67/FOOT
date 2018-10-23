@@ -115,6 +115,13 @@ public:
    
     TGeoVolume*     GetVolume();
 
+   //! Add CMOS module geometry to world
+   TGeoVolume* AddModule(const char* basemoduleName = "Module", const char *name = "IT");
+   
+   //! Build Vertex
+   TGeoVolume* BuildInnerTracker(const char* basemoduleName = "Module", const char *name = "IT");
+
+   
     virtual void    Clear(Option_t* opt="");
     virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
 

@@ -160,7 +160,7 @@ void TAITparGeo::DefineMaterial()
       mix->AddElement(matO, 5);
    }
    if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
-      med = new TGeoMedium(matName,2,mat);
+      med = new TGeoMedium(matName,2,mix);
    
    // Aluminum
    matName = ITR_AL_MEDIUM.Data();
@@ -183,7 +183,7 @@ void TAITparGeo::DefineMaterial()
       mix->AddElement(matO, 3);
    }
    if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
-      med = new TGeoMedium(matName,4,mat);
+      med = new TGeoMedium(matName,4,mix);
    
    // Foam SiC+Air
    matName = ITR_FOAM_MEDIUM.Data();
@@ -207,8 +207,91 @@ void TAITparGeo::DefineMaterial()
       mix->AddElement(mixAir, 0.96);
    }
    if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
-      med = new TGeoMedium(matName,5,mat);
+      med = new TGeoMedium(matName,5,mix);
+}
 
+//_____________________________________________________________________________
+TGeoVolume* TAITparGeo::BuildInnerTracker(const char *itName, const char* basemoduleName)
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   // hard coded should be avoided
+   Float_t mapX[] = { 2,  1, -1, -2,  2,  1, -1, -2, 2, 1, -1, -2, 2, 1, -1, -2};
+   Float_t mapY[] = {-2, -2, -2, -2, -1, -1, -1, -1, 1, 1,  1,  1, 2, 2,  2,  2};
+   Float_t mapZ[] = { 0,  0,  0,  0,  1,  1,  1,  1, 0, 0,  0,  0, 1, 1,  1,  1};
+   
+   Float_t deltaZ = ITR_BOARD_YDEAD1 + 0.0290;
+   Float_t gapZ   = ITR_BOARD_YDEAD2;
+   
+   Float_t gapTot = (gapZ/2.+deltaZ) + ITR_M28_THICK/2.;
+   TVector3 epiSize(ITR_M28_HEIGHT, ITR_M28_WIDTH, ITR_M28_THICK);
+   
+   // define box
+   Float_t sizeZ = (ITR_PLMZDIST+ITR_M28_THICK/2.)*ITR_NLAY;
+   
+   TGeoVolume* vertex = gGeoManager->FindVolumeFast(itName);
+   if ( vertex == 0x0 ) {
+      const Char_t* matName = ITR_MEDIUM.Data();
+      
+      TGeoMedium*   med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+      TGeoMaterial* mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName);
+      
+      vertex = gGeoManager->MakeBox(itName,med,ITR_M28_WIDTH/2., ITR_M28_HEIGHT/2., sizeZ); // volume corresponding to vertex
+   }
+   
+   TGeoVolume* vertexMod = 0x0;
+   Int_t k = 0;
+   
+   for(Int_t iSensor = 0; iSensor < ITR_NLAY*ITR_NPLM*ITR_NM28; iSensor++) {
+      
+      k = iSensor;
+      if (iSensor > 15) k = iSensor -16;
+      
+      Int_t signX = (mapX[k] > 0) ? -1 : +1;
+      Float_t posX = epiSize[0]*(mapX[k]+signX) - signX*epiSize[0]/2.;
+      
+      Int_t signY = (mapY[k] > 0) ? -1 : +1;
+      Float_t posY = epiSize[1]*(mapY[k]+signY) - signY*epiSize[1]/2.;
+      
+      Float_t posZ = -gapTot;
+      if (iSensor > 15)
+         posZ += deltaZ;
+      posZ += mapZ[k]*(deltaZ + gapZ) + ITR_M28_THICK/2.;
+      
+      k++;
+      
+      vertexMod = AddModule(Form("%s%d",basemoduleName, iSensor), itName);
+      
+      TGeoHMatrix* transf = new TGeoHMatrix();
+      double vec[3] = {posX, posY, posZ}; // completly hard coded, should be avoid
+      transf->SetTranslation(vec);
+      vertex->AddNode(vertexMod, iSensor, transf);
+   }
+   
+   return vertex;
+}
+
+//_____________________________________________________________________________
+TGeoVolume* TAITparGeo::AddModule(const char* basemoduleName, const char *itName)
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   // create module
+   const Char_t* matName = ITR_MEDIUM.Data();
+   TGeoMedium*   med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+   TGeoMaterial* mat =  (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName);
+   
+   TGeoBBox *box = new TGeoBBox(Form("%s_Box",basemoduleName), VTX_WIDTH/2., VTX_HEIGHT/2., VTX_THICK/2.);
+   
+   TGeoVolume *vertexMod = new TGeoVolume(Form("%s_Vertex",basemoduleName),box, med);
+   vertexMod->SetLineColor(kAzure-5);
+   vertexMod->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
+   
+   return vertexMod;
 }
 
 //_____________________________________________________________________________
