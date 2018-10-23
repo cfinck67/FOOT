@@ -22,8 +22,10 @@
 // #include "GlobalPar.hxx"
 
 
-TString TATWparGeo::fgkDefParaName = "twGeo";
-Int_t   TATWparGeo::fgkLayerOffset = 100;
+      TString TATWparGeo::fgkDefParaName = "twGeo";
+      Int_t   TATWparGeo::fgkLayerOffset = 100;
+const Color_t TATWparGeo::fgkDefaultModCol   = kGray+1;
+const Color_t TATWparGeo::fgkDefaultModColOn = kRed-8;
 
 
 //_____________________________________________________________________________
@@ -66,23 +68,110 @@ void TATWparGeo::DefineMaterial()
    TGeoElementTable* table = gGeoManager->GetElementTable();
 
    // create material
-   TGeoMaterial* mat = 0x0;;
-   TGeoMedium*   med = 0x0;
-   TGeoMixture*  mix = 0x0;;
+   TGeoMixture* mat = 0x0;;
+   TGeoMedium*  med = 0x0;
 
    // EJ-212 Scintillator material from eljen technology
    const Char_t* matName = SCN_MEDIUM.Data();
-   if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
+   if ( (mat = (TGeoMixture *)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
    
       TGeoElement* matC = table->GetElement(6);
       TGeoElement* matH = table->GetElement(1);
    
-      mix =new TGeoMixture(matName,2, 1.023);
-      mix->AddElement(matC, 9);
-      mix->AddElement(matH, 10);
+      mat =new TGeoMixture(matName,2, 1.023);
+      mat->AddElement(matC, 9);
+      mat->AddElement(matH, 10);
    }
    if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
       med = new TGeoMedium(matName,1,mat);
+}
+
+//_____________________________________________________________________________
+TGeoVolume* TATWparGeo::BuildTofWall(const char *wallName)
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager(TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   TGeoVolume* wall = gGeoManager->FindVolumeFast(wallName);
+   if ( wall == 0x0 ) {
+      const Char_t* matName = SCN_MEDIUM.Data();
+      TGeoMixture* mat = (TGeoMixture *)gGeoManager->GetListOfMaterials()->FindObject(matName);
+      TGeoMedium*  med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+      
+      wall = gGeoManager->MakeBox(wallName, med,  m_dimension[1]/2.,  m_dimension[1]/2., GetSingleBarThickness()*2);
+   }
+   
+   for (Int_t i = 0; i < SCN_NLAY; ++i) {
+      
+      TGeoVolume* wallXY = BuildTofWallXY(Form("%s%d", wallName, i+1), i);
+      
+      Float_t zPos = -GetSingleBarThickness()/2. + i*GetSingleBarThickness();
+      TGeoTranslation trans(0, 0, zPos);
+      TGeoRotation rot;
+      rot.SetAngles(0, 0, 90*i);
+      TGeoHMatrix  transfo = rot*trans;
+      TGeoHMatrix* hm = new TGeoHMatrix(transfo);
+      
+      wall->AddNode(wallXY, i, hm);
+   }
+   
+   return wall;
+}
+
+
+//_____________________________________________________________________________
+TGeoVolume* TATWparGeo::BuildTofWallXY(const char *wallName, Int_t iLayer)
+{
+   
+   TGeoVolume* wall = gGeoManager->FindVolumeFast(wallName);
+   
+   if ( wall == 0x0 ) {
+      const Char_t* matName = SCN_MEDIUM.Data();
+      TGeoMixture* mat = (TGeoMixture *)gGeoManager->GetListOfMaterials()->FindObject(matName);
+      TGeoMedium*  med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+      wall = gGeoManager->MakeBox(wallName, med,  m_dimension[1]/2.,  m_dimension[1]/2., GetSingleBarThickness()/2.);
+   }
+   
+   for (Int_t i = 0; i < SCN_NBAR; ++i) {
+      Float_t xPos = m_dimensionBar[0]/2. + i*m_dimensionBar[0] - m_dimension[1]/2.;
+      
+      TGeoTranslation trans(xPos, 0, 0);
+      TGeoHMatrix  transfo = trans;
+      TGeoHMatrix* hm = new TGeoHMatrix(transfo);
+      
+      TGeoVolume* module = BuildModule(i, iLayer);
+      
+      module->SetLineColor(fgkDefaultModCol);
+      module->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
+      wall->AddNode(module, i, hm);
+   }
+   
+   return wall;
+}
+
+/*------------------------------------------+---------------------------------*/
+//! build module
+
+TGeoVolume* TATWparGeo::BuildModule(Int_t iMod, Int_t iLayer)
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   const char* moduleName = Form("Module_%d_%d", iMod, iLayer);
+   TGeoVolume* module     = gGeoManager->FindVolumeFast(moduleName);
+   if ( module == 0x0 ) {
+      const Char_t* matName = SCN_MEDIUM.Data();
+      TGeoMixture* mat = (TGeoMixture *)gGeoManager->GetListOfMaterials()->FindObject(matName);
+      TGeoMedium*  med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+      module = gGeoManager->MakeBox(moduleName, med,  m_dimensionBar[0]/2., m_dimensionBar[1]/2., GetSingleBarThickness()/2.);
+   }
+   
+   module->SetLineColor(fgkDefaultModCol);
+   module->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
+   
+   return module;
 }
 
 //_____________________________________________________________________________
