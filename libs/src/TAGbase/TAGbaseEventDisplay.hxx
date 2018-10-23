@@ -100,6 +100,8 @@ public:
 
    virtual void LoopEvent(Int_t nEvts = 0);
    
+   virtual Bool_t GetEntry() { return true; }
+   
    virtual void SetTransparency(Char_t transparency = 50); //*MENU*
    
    virtual void ShowDisplay(const TString fileName);

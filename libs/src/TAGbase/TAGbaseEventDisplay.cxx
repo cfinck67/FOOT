@@ -392,6 +392,7 @@ void TAGbaseEventDisplay::LoopEvent(Int_t nEvts)
    Int_t freq = fRefreshEvent->GetIntNumber();
    
    for (Int_t i = 0; i < nEvts; ++i) {
+      if (! GetEntry()) return;
       if (!fAGRoot->NextEvent()) return;
       fCurrentEventId++;
       UpdateEventBar();
