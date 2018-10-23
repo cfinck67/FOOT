@@ -72,7 +72,8 @@ public:
   // TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
 
   // TGeoVolume*     GetVolume();
-
+  TGeoVolume*     BuildCalorimeter(const char *caName = "CA");
+  TGeoVolume*     BuildModule(Int_t iMod, Int_t iLayer);
 
   virtual void    Clear(Option_t* opt="");
   virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
@@ -82,6 +83,8 @@ public:
 
 private:
    static const TString fgkDefParaName;
+   static const Color_t fgkDefaultModCol;       // default color of slat/module;
+   static const Color_t fgkDefaultModColOn;     // default color of fired slat/module;
 
 private:
 

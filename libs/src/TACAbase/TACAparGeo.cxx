@@ -25,7 +25,9 @@
 
 //##############################################################################
 
-const TString TACAparGeo::fgkDefParaName = "caGeo";
+const TString TACAparGeo::fgkDefParaName     = "caGeo";
+const Color_t TACAparGeo::fgkDefaultModCol   = kAzure+5;
+const Color_t TACAparGeo::fgkDefaultModColOn = kRed-5;
 
 
 //_____________________________________________________________________________
@@ -59,8 +61,7 @@ void TACAparGeo::DefineMaterial()
    TGeoElementTable* table = gGeoManager->GetElementTable();
    
    // create material
-   TGeoMaterial* mat = 0x0;;
-   TGeoMixture*  mix = 0x0;;
+   TGeoMixture*  mat = 0x0;;
    TGeoMedium*   med = 0x0;
 
    // BGO
@@ -71,10 +72,10 @@ void TACAparGeo::DefineMaterial()
       TGeoElement* matGe = table->GetElement(32);
       TGeoElement* matBi = table->GetElement(83);
       
-      mix =new TGeoMixture(matName,3, 7.13);
-      mix->AddElement(matO,12);
-      mix->AddElement(matBi,4);
-      mix->AddElement(matGe,3);
+      mat =new TGeoMixture(matName,3, 7.13);
+      mat->AddElement(matO,12);
+      mat->AddElement(matBi,4);
+      mat->AddElement(matGe,3);
 
    }
    if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
@@ -90,6 +91,66 @@ void TACAparGeo::InitGeo()  {
  
 }
 
+//_____________________________________________________________________________
+TGeoVolume* TACAparGeo::BuildCalorimeter(const char *caName)
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager(TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   TGeoVolume* wall = gGeoManager->FindVolumeFast(caName);
+   if ( wall == 0x0 ) {
+      const Char_t* matName = CAL_MEDIUM.Data();
+      TGeoMaterial* mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName);
+      TGeoMedium*   med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+      wall = gGeoManager->MakeBox(caName, med,  CAL_CRY_WIDTH/2.,  CAL_CRY_WIDTH/2., CAL_CRY_THICK*2);
+   }
+   
+   for (Int_t i = 0; i < CAL_NROW; ++i) {
+      Float_t xPos = CAL_CRY_WIDTH/2. + i*CAL_CRY_WIDTH - CAL_WIDTH/2.;
+      
+      for (Int_t j = 0; j < CAL_NCOL; ++j) {
+         Float_t yPos = CAL_CRY_WIDTH/2. + j*CAL_CRY_WIDTH - CAL_WIDTH/2.;
+         
+         TGeoTranslation trans(xPos, yPos, 0);
+         TGeoHMatrix  transfo = trans;
+         TGeoHMatrix* hm = new TGeoHMatrix(transfo);
+         
+         TGeoVolume* module = BuildModule(i, j);
+         
+         module->SetLineColor(fgkDefaultModCol);
+         module->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
+         wall->AddNode(module, i, hm);
+      }
+   }
+   
+   return wall;
+}
+
+
+/*------------------------------------------+---------------------------------*/
+//! build module
+
+TGeoVolume* TACAparGeo::BuildModule(Int_t line, Int_t col)
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   const char* moduleName = Form("CalCrystal_%d_%d", line, col);
+   TGeoVolume* module     = gGeoManager->FindVolumeFast(moduleName);
+   if ( module == 0x0 ) {
+      const Char_t* matName = CAL_MEDIUM.Data();
+      TGeoMaterial* mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName);
+      TGeoMedium*   med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+      module = gGeoManager->MakeBox(moduleName, med,  CAL_CRY_WIDTH/2., CAL_CRY_WIDTH/2., CAL_CRY_THICK/2.);
+   }
+   
+   module->SetLineColor(fgkDefaultModCol);
+   module->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
+   
+   return module;
+}
 
 /*
 //_____________________________________________________________________________
