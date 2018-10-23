@@ -30,16 +30,18 @@ Kalman Particle Types:	C
 
 ############	END - Kalman Filter Control Parameters	################
 
-
-IncludeBM:				n
-IncludeIR:				n
+IncludeDI:			   y
+IncludeST:				y
+IncludeBM:				y
+IncludeIR:				y
+IncludeTG:			   y
 IncludeVertex:			y
 IncludeInnerTracker:	y
 IncludeMSD:				y
 IncludeTW:				y
-IncludeCA:				n
+IncludeCA:				y
 
-IncludeEvent:			y
+IncludeEvent:			n
 
 
 

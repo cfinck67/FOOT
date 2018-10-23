@@ -215,6 +215,20 @@ void GlobalPar::ReadParamFile () {
             RemoveSpace( &m_outputntuplename );
         }
 
+        else if ( line.find("IncludeDI:") != string::npos ) {
+           string rev =StrReplace( line, "IncludeDI:", "" );
+           RemoveSpace( &rev );
+           if ( rev == "y" )        m_includeDI = true;
+           else                     m_includeDI = false;
+        }
+
+        else if ( line.find("IncludeST:") != string::npos ) {
+           string rev =StrReplace( line, "IncludeST:", "" );
+           RemoveSpace( &rev );
+           if ( rev == "y" )        m_includeST = true;
+           else                     m_includeST = false;
+        }
+
         else if ( line.find("IncludeBM:") != string::npos ) {
             string rev =StrReplace( line, "IncludeBM:", "" );   
             RemoveSpace( &rev );
@@ -245,6 +259,13 @@ void GlobalPar::ReadParamFile () {
             if ( rev == "y" )        m_includeCA = true;
             else                     m_includeCA = false;
         }
+        else if ( line.find("IncludeTG:") != string::npos ) {
+           string rev =StrReplace( line, "IncludeTG:", "" );
+           RemoveSpace( &rev );
+           if ( rev == "y" )        m_includeTG = true;
+           else                     m_includeTG = false;
+        }
+
         else if ( line.find("IncludeVertex:") != string::npos ) {
             string rev =StrReplace( line, "IncludeVertex:", "" );   
             RemoveSpace( &rev );

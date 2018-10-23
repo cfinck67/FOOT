@@ -53,11 +53,14 @@ public:
     bool IsPrintOutputNtuple() { return m_printoutntuple; };
     string OutputNtuple() { return m_outputntuplename; };
 	
+    bool IncludeDI() { return m_includeDI; };
+    bool IncludeST() { return m_includeST; };
     bool IncludeBM() { return m_includeBM; };
     bool IncludeIR() { return m_includeIR; };
     bool IncludeTW() { return m_includeTW; };
     bool IncludeMSD() { return m_includeMSD; };
     bool IncludeCA() { return m_includeCA; };
+    bool IncludeTG() { return m_includeTG; };
     bool IncludeVertex() { return m_includeVertex; };
     bool IncludeInnerTracker() { return m_includeInnerTracker; };
     
@@ -234,7 +237,11 @@ private:
 
     string m_magFieldMap;
 
-    bool m_includeBM;
+   bool m_includeST;
+   bool m_includeBM;
+   bool m_includeTG;
+   bool m_includeDI;
+
     bool m_includeIR;
     bool m_includeTW;
     bool m_includeMSD;
