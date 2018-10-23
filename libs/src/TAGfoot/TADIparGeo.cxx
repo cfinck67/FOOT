@@ -7,6 +7,7 @@
 #include <Riostream.h>
 
 #include "TGeoBBox.h"
+#include "TGeoTube.h"
 #include "TColor.h"
 #include "TEveTrans.h"
 #include "TGeoManager.h"
@@ -43,6 +44,7 @@ TADIparGeo::TADIparGeo()
   fDebugLevel(0)
 {
    // Standard constructor
+   DefineMaterial();
 }
 
 //______________________________________________________________________________
@@ -60,35 +62,84 @@ void TADIparGeo::InitGeo()
 }
 
 //_____________________________________________________________________________
-TGeoVolume* TADIparGeo::AddDipole(const char *dipoleName)
+void TADIparGeo::DefineMaterial()
 {
    if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
-	  new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
    }
    
+   TGeoElementTable* table = gGeoManager->GetElementTable();
+   
    // create material
-   TGeoMaterial* matDipole;
-   TGeoMedium*   medDipole;
+   TGeoMixture* mat = 0x0;;
+   TGeoMedium*  med = 0x0;
    
-   Float_t ring = 10;
-   if ( (matDipole = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject("Vacuum")) == 0x0 )
-	  matDipole = new TGeoMaterial("Vacuum", 0., 0., 0.);
-   if ( (medDipole = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Vacuum")) == 0x0 )
-	  medDipole = new TGeoMedium("Vacuum", 1, matDipole);
+   const Char_t* matNameAir = MAG_AIR_MEDIUM.Data();
+   if ( (mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matNameAir)) == 0x0 ) {
+      TGeoMaterial *matO = new TGeoMaterial("Oxygen",   16., 8., 1.41e-3);
+      TGeoMaterial *matN = new TGeoMaterial("Nitrogen", 14., 7., 1.25e-3);
    
-   const Char_t* outerName = Form("%s_outer", dipoleName);
-   const Char_t* innerName = Form("%s_inner", dipoleName);
-   new TGeoBBox(outerName, TAGgeoTrafo::CmToMu()*fWidth/2., fHeight/2., fLength/2.);
-   new TGeoBBox(innerName, (fWidth-ring)/2., (fHeight-ring)/2., (fLength+ring)/2.);
+      mat = new TGeoMixture(matNameAir, 2, 1.29e-3);
+      mat->AddElement(matN, 0.79);
+      mat->AddElement(matO, 0.21);
+   }
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matNameAir)) == 0x0 )
+      med = new TGeoMedium(matNameAir,1,mat);
+   
+   // SmCo
+   const Char_t* matName = MAG_PM_MEDIUM.Data();
+   if ( (mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
       
-   TGeoCompositeShape* shape = new TGeoCompositeShape("Composite", Form("%s-%s", outerName, innerName));
-   TGeoVolume * dipole       = new TGeoVolume(dipoleName, shape, medDipole);
+      TGeoElement* matSm = table->GetElement(62);
+      TGeoElement* matCo = table->GetElement(27);
+      
+      mat =new TGeoMixture(matName,2, 8.3);
+      mat->AddElement(matSm, 2);
+      mat->AddElement(matCo, 17);
+   }
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
+      med = new TGeoMedium(matName,1,mat);
+}
+
+//_____________________________________________________________________________
+TGeoVolume* TADIparGeo::BuildMagnet(const char* basemoduleName, const char *magnetName)
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
    
-   dipole->SetVisibility(true);
-   dipole->SetLineColor(17);
-   dipole->SetTransparency( TAGgeoTrafo::GetDefaultTransp());
+   TGeoVolume* magnet = gGeoManager->FindVolumeFast(magnetName);
+   if ( magnet == 0x0 ) {
+      
+      const Char_t* matNameAir = MAG_AIR_MEDIUM.Data();
+      TGeoMedium  *med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matNameAir);
+      TGeoMixture *mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matNameAir);
+     
+      magnet = gGeoManager->MakeBox(magnetName,med,MAG_PM_THICK/2.,MAG_PM_THICK/2.,(MAG_PM_THICK+MAG_DIST)/2.); // volume corresponding to vertex
+   }
    
-   return dipole;
+   // create module
+   const Char_t* matName = MAG_PM_MEDIUM.Data();
+   TGeoMedium  *med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+   TGeoMixture *mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName);
+   
+   TGeoVolume* magnetMod = 0x0;
+   Int_t nMagnets = MAG_N;
+   for(Int_t iMag = 0; iMag < nMagnets; iMag++) {
+      
+      TGeoHMatrix* transf = new TGeoHMatrix();
+      Double_t vec[3] = {0, 0, -MAG_DIST/2. +iMag*MAG_DIST};
+      transf->SetTranslation(vec);
+      TGeoTube* tube = new TGeoTube(Form("TubeMagnet%d", iMag+1), MAG_PM1_INRAD, MAG_PM1_OUTRAD, MAG_PM_THICK/2.);
+      
+      TGeoVolume *magnetMod = new TGeoVolume(Form("%s_Magnet",basemoduleName), tube, med);
+      magnetMod->SetLineColor(kBlue-3);
+      magnetMod->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
+      
+      magnet->AddNode(magnetMod, iMag, transf);
+   }
+   
+   return magnet;
 }
 
 
