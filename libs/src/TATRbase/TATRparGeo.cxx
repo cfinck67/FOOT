@@ -49,20 +49,19 @@ void TATRparGeo::DefineMaterial()
    TGeoElementTable* table = gGeoManager->GetElementTable();
    
    // create material
-   TGeoMaterial* mat = 0x0;;
+   TGeoMixture* mat = 0x0;;
    TGeoMedium*   med = 0x0;
-   TGeoMixture*  mix = 0x0;;
    
    // EJ-212 Scintillator material from eljen technology
    const Char_t* matName = SCN_MEDIUM.Data();
-   if ( (mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
+   if ( (mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
       
       TGeoElement* matC = table->GetElement(6);
       TGeoElement* matH = table->GetElement(1);
       
-      mix =new TGeoMixture(matName,2, 1.023);
-      mix->AddElement(matC, 9);
-      mix->AddElement(matH, 10);
+      mat =new TGeoMixture(matName,2, 1.023);
+      mat->AddElement(matC, 9);
+      mat->AddElement(matH, 10);
    }
    if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
       med = new TGeoMedium(matName,1,mat);
@@ -108,23 +107,17 @@ TGeoVolume* TATRparGeo::BuildStartCounter(const char *stName )
    }
    
    // create module
-   TGeoMaterial* matST;
-   TGeoMedium*   medST;
-   
    const Char_t* matName = SCN_MEDIUM.Data();
 
-   if ( (matST = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 )
-      matST = new TGeoMaterial("Vacuum", 0., 0., 0.);;
-   if ( (medST = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
-      medST = new TGeoMedium("Vacuum", 1, matST);
+   TGeoMixture* matST = (TGeoMixture *)gGeoManager->GetListOfMaterials()->FindObject(matName);
+   TGeoMedium*  medST = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
    
    TGeoTube* tube = new TGeoTube(stName, 0, fRadius, fThick/2.);
-   
    TGeoVolume *start = new TGeoVolume(Form("%s_Mod",stName), tube, medST);
-   
+
    start->SetVisibility(true);
    start->SetLineColor(kRed-5);
-   start->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
+   start->SetTransparency(10);
    
    return start;
 }
