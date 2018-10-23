@@ -126,7 +126,7 @@ void TAGparGeo::InitGeo()
       if(fDebugLevel)
          cout  << "  Insert material:  "<< fInsertParameter[p].Material.Data() << endl;
       
-      fInsertParameter[p].Shape = "";
+      fInsertParameter[p].Shape = "cubic";
       if(fDebugLevel)
          cout  << "  Insert shape:  "<< fInsertParameter[p].Shape.Data() << endl;
       
