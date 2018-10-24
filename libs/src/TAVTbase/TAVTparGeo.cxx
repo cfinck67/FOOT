@@ -93,13 +93,17 @@ TGeoVolume* TAVTparGeo::BuildVertex(const char *vertexName, const char* basemodu
    }
    
    TGeoVolume* vertexMod = 0x0;
-   
+   double matrix[VTX_NLAY][3] = {0, 0, -VTX_LAYDIST1-VTX_LAYDIST2/2.,
+                                 0, 0, -VTX_LAYDIST2/2.,
+                                 0, 0, VTX_LAYDIST2/2.,
+                                 0, 0, VTX_LAYDIST1+VTX_LAYDIST2/2.}; // completly hard coded, should be avoid
+
    for(Int_t iSensor = 0; iSensor < VTX_NLAY; iSensor++) {
       
       vertexMod = AddVertexModule(Form("%s%d",basemoduleName, iSensor), vertexName);
       
       TGeoHMatrix* transf = new TGeoHMatrix();
-      double vec[3] = {0, 0, -VTX_LAYDIST2+iSensor*VTX_LAYDIST2}; // completly hard coded, should be avoid
+      double* vec = matrix[iSensor];
       transf->SetTranslation(vec);
       vertex->AddNode(vertexMod, iSensor, transf);
    }
