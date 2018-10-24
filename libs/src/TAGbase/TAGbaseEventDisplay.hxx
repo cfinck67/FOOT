@@ -100,7 +100,7 @@ public:
 
    virtual void LoopEvent(Int_t nEvts = 0);
    
-   virtual Bool_t GetEntry() { return true; }
+   virtual Bool_t GetEntry(Int_t /*entry*/) { return true; }
    
    virtual void SetTransparency(Char_t transparency = 50); //*MENU*
    

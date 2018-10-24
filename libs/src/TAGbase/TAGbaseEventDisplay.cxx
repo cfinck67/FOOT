@@ -78,10 +78,10 @@ TAGbaseEventDisplay::TAGbaseEventDisplay(const TString expName)
   fFirstEventDone(false),
   fMaxEnergy(1024),
   fMaxMomentum(30),
-  fBoxDefWidth(200.),
-  fBoxDefHeight(200.),
-  fQuadDefWidth(200.),
-  fQuadDefHeight(200.),
+  fBoxDefWidth(0.02),
+  fBoxDefHeight(0.02),
+  fQuadDefWidth(0.1),
+  fQuadDefHeight(0.1),
   fInfoView(0x0),
   fEventEntry(0x0),
   fDebugLevel(0),
@@ -392,7 +392,7 @@ void TAGbaseEventDisplay::LoopEvent(Int_t nEvts)
    Int_t freq = fRefreshEvent->GetIntNumber();
    
    for (Int_t i = 0; i < nEvts; ++i) {
-      if (! GetEntry()) return;
+      if (! GetEntry(fCurrentEventId)) return;
       if (!fAGRoot->NextEvent()) return;
       fCurrentEventId++;
       UpdateEventBar();
