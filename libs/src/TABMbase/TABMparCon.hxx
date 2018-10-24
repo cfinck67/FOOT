@@ -53,6 +53,7 @@ class TABMparCon : public TAGpara {
     Int_t GetBMcharge(){return part_in_charge;};
     Double_t GetBMmom(){return part_in_mom;};
     Int_t GetmanageT0BM(){return manageT0BM;};
+    Int_t GetT0switch(){return t0_switch;};
     Int_t GetmanageADCped(){return manageADCped;};
     string GetParmapfile(){return parmapfile;};
     Int_t GetCalibro(){return calibro;};
@@ -130,6 +131,7 @@ class TABMparCon : public TAGpara {
     //~ TVector3 meas_shift;//shift for the calibration
     //~ TVector3 meas_tilt;//tilt for the calibration
     Int_t    manageT0BM; //0=calculate T0 and save v_t0s in bmt0file, 1=loadT0 from bmt0file
+    Int_t    t0_switch;//0=t0 from the beginning of the tdc signal, 1=from the peak
     Int_t    manageADCped; //0=calculate and save ADCped in bmpedfile, 1=loadadcped from bmpedfile
     string   bmt0file; //name of the T0 value file to be charged or to be written 
     string   bmpedfile; //name of the ped value file to be charged or to be written 

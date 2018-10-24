@@ -634,30 +634,30 @@ void BmBooter::evaluateT0() {
           //~ ((TH1D*)gDirectory->Get(tmp_char))->Fit(f1,"QR+","",((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100,((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
         
           //old WRONG method:take the first signal, not too distant from other signals
-          //~ tmp_int=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove();
+          //~ tdc_peak=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove();
           //~ for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove()+1;j<((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
             //~ if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>0)
-              //~ if(j-tmp_int<50){
+              //~ if(j-tdc_peak<50){
                 //~ j=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+10;
               //~ }else
-                //~ tmp_int=j;
+                //~ tdc_peak=j;
                 
 
           //old WRONG method: here I'm considering the begining of the tdc rise (plus: it works only if I have enough data)
-          //~ tmp_int=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();
-          //~ for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j>0;j--)
-            //~ if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/10.)
-              //~ tmp_int=j;
-              
-          //I take the first peak as the T0
           tdc_peak=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();
-          for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove();j<=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
-            if((((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j) < ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1)) && (((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1) > ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/2.)){
-              tdc_peak=j-1;      
-              break;      
-            }              
-              
-                      
+          if(bmcon->GetT0switch()==0){
+            for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j>0;j--)
+              if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/10.)
+                tdc_peak=j;
+          }else if(bmcon->GetT0switch()==1){ //I take the first peak as the T0
+            for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove();j<=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
+              if((((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j) < ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1)) && (((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1) > ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/2.)){
+                tdc_peak=j-1;      
+                break;      
+              }              
+          }   
+           
+          //~ cout<<"tdc_peak="<<tdc_peak<<"  i="<<i<<"  bmcon->GetT0switch="<<bmcon->GetT0switch()<<endl;            
           bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tdc_peak)); 
         }
         else{
