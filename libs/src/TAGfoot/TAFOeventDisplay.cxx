@@ -95,8 +95,8 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    
   // default constructon
    fVtxClusDisplay->SetMaxEnergy(fMaxEnergy);
-   fVtxClusDisplay->SetDefWidth(fQuadDefWidth);
-   fVtxClusDisplay->SetDefHeight(fQuadDefHeight);
+   fVtxClusDisplay->SetDefWidth(fQuadDefWidth/2.);
+   fVtxClusDisplay->SetDefHeight(fQuadDefHeight/2.);
    fVtxClusDisplay->SetPickable(true);
    
    fVtxTrackDisplay->SetMaxEnergy(fMaxEnergy);
@@ -299,7 +299,6 @@ void TAFOeventDisplay::BuildDefaultGeometry()
       TGeoHMatrix* transf = new TGeoHMatrix();
       Double_t vec[3] = {ITR_X, ITR_Y, ITR_Z};
       transf->SetTranslation(vec);
-
       AddGeometry(itVol, transf);
    }
    
@@ -353,8 +352,6 @@ void TAFOeventDisplay::CreateRecAction()
 //__________________________________________________________
 void TAFOeventDisplay::CreateRecActionVtx()
 {
-   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-
    if(fgTrackFlag) {
       fpNtuTrackVtx = new TAGdataDsc("vtTrack", new TAVTntuTrack());
       if (GlobalPar::GetPar()->IncludeTG())
@@ -405,32 +402,26 @@ void TAFOeventDisplay::CreateRawAction()
 {
    ReadParFiles();
 
-   fpNtuRawVtx = new TAGdataDsc("vtRaw", new TAVTntuRaw());
-   fpNtuRawIt  = new TAGdataDsc("itRaw", new TAITntuRaw());
-   fpNtuRawMsd = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
-   
-   if (fType == 0) {
+   if (GlobalPar::GetPar()->IncludeVertex()) {
+      fpNtuRawVtx = new TAGdataDsc("vtRaw", new TAVTntuRaw());
       fpDatRawVtx   = new TAGdataDsc("vtDat", new TAVTdatRaw());
-      fpDatRawIt    = new TAGdataDsc("itDat", new TAVTdatRaw());
-      fpDatRawMsd   = new TAGdataDsc("msdDat", new TAVTdatRaw());
       fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDatRawVtx, fpParGeoVtx);
       fActNtuRawVtx->CreateHistogram();
+   }
+   
+   if (GlobalPar::GetPar()->IncludeInnerTracker()) {
+      fpDatRawIt    = new TAGdataDsc("itDat", new TAVTdatRaw());
+      fpNtuRawIt  = new TAGdataDsc("itRaw", new TAITntuRaw());
       fActNtuRawIt = new TAVTactNtuRaw("itActNtu", fpNtuRawIt, fpDatRawIt, fpParGeoIt);
       fActNtuRawIt->CreateHistogram();
+   }
+   
+   if (GlobalPar::GetPar()->IncludeMSD()) {
+      fpDatRawMsd   = new TAGdataDsc("msdDat", new TAVTdatRaw());
+      fpNtuRawMsd = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
       fActNtuRawMsd = new TAVTactNtuRaw("msdActNtu", fpNtuRawMsd, fpDatRawMsd, fpParGeoMsd);
       fActNtuRawMsd->CreateHistogram();
    }
-   
-   if (fType == 1) { // MC reader
-      fActEvtReader = new TAGactTreeReader("vtActMcReader");
-      fActEvtReader->SetupBranch(fpNtuRawVtx, TAVTntuRaw::GetBranchName());
-      fActEvtReader->SetupBranch(fpNtuRawIt,  TAITntuRaw::GetBranchName());
-      fActEvtReader->SetupBranch(fpNtuRawMsd, TAMSDntuRaw::GetBranchName());
-      
-   } else {
-      Error("CreateRawAction()", "Unkown type %d\n", fType);
-   }
-
 }
 
 //__________________________________________________________
@@ -498,9 +489,7 @@ void TAFOeventDisplay::AddRequiredItem()
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItemVtx()
 {
-   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-   if (fType == 0)
-      fAGRoot->AddRequiredItem("vtActNtu");
+   fAGRoot->AddRequiredItem("vtActNtu");
    
    if (fgDisplayFlag) {
       fAGRoot->AddRequiredItem("vtActClus");
@@ -515,8 +504,7 @@ void TAFOeventDisplay::AddRequiredItemVtx()
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItemIt()
 {
-   if (fType == 0)
-      fAGRoot->AddRequiredItem("itActNtu");
+   fAGRoot->AddRequiredItem("itActNtu");
    
    if (fgDisplayFlag) {
       fAGRoot->AddRequiredItem("itActClus");
@@ -526,8 +514,7 @@ void TAFOeventDisplay::AddRequiredItemIt()
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItemMsd()
 {
-   if (fType == 0)
-      fAGRoot->AddRequiredItem("msdActNtu");
+   fAGRoot->AddRequiredItem("msdActNtu");
    
    if (fgDisplayFlag) {
       fAGRoot->AddRequiredItem("msdActClus");
@@ -577,7 +564,7 @@ void TAFOeventDisplay::UpdateHitInfo(TEveDigitSet* qs, Int_t idx)
    
    if(obj == 0x0) return;
    
-   if (obj->InheritsFrom("TAVTcluster")) {
+   if (obj->InheritsFrom("TAVTbaseCluster")) {
       TAVTcluster* clus = (TAVTcluster*)obj;
       if (clus == 0x0) return;
       TVector3 pos = clus->GetPositionG();
@@ -639,7 +626,8 @@ void TAFOeventDisplay::UpdateElements(const TString prefix)
    UpdateQuadElements(prefix);
    if (fgTrackFlag) {
       UpdateTrackElements(prefix);
-      UpdateGlbTrackElements();
+      if (GlobalPar::GetPar()->IncludeKalman())
+         UpdateGlbTrackElements();
    }
 }
 
@@ -655,13 +643,6 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
          fMsdClusDisplay->ResetHits();
       }
    }
-   
-   if (prefix == "vt")
-      fVtxClusDisplay->AddHit(10, 0, 0, 0);
-   else if (prefix == "it")
-      fItClusDisplay->AddHit(10, 0, 0, 0);
-   else if (prefix == "ms")
-      fMsdClusDisplay->AddHit(10, 0, 0, 0);
 
    if (!fgDisplayFlag) // do not update event display
       return;
@@ -679,16 +660,11 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
       parGeo = (TAMSDparGeo*) fpParGeoMsd->Object();
 
    
-   Int_t nPlanes         = parGeo->GetNSensors();
-   Float_t posfirstPlane = parGeo->GetSensorPosition(0)[2];
-   Float_t posLastPlane  = parGeo->GetSensorPosition(nPlanes-1)[2];
-   
-   posLastPlane  *= 1.1;
-   posfirstPlane *= 0.9;
+   Int_t nPlanes = parGeo->GetNSensors();
    
    TAVTntuTrack*  pNtuTrack = 0x0;
    
-   if (fgTrackFlag) {
+   if (fgTrackFlag && GlobalPar::GetPar()->IncludeTG()) {
       // vertex
       if (fgDrawVertex && prefix == "vt") {
          pNtuTrack = (TAVTntuTrack*)  fpNtuTrackVtx->Object();
@@ -703,11 +679,7 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
                   if (vtxPD == 0x0) continue;
                   vtxPositionPD = vtxPD->GetVertexPosition();
                   parGeo->Local2Global(&vtxPositionPD);
-
-                  z = vtxPositionPD[2];
-//                  vtxPositionPD  = geoTrafo->Local2Global(TAVTparGeo::GetVtxBaseName(), vtxPositionPD);
-                  
-                  fVtxClusDisplay->AddHit(50, vtxPositionPD.X(), vtxPositionPD.Y(), z);
+                  fVtxClusDisplay->AddHit(50, vtxPositionPD.X(), vtxPositionPD.Y(), vtxPositionPD.Z());
                   fVtxClusDisplay->QuadId(vtxPD);
                }
             }
@@ -732,8 +704,9 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
       for (Int_t iClus = 0; iClus < nclus; ++iClus) {
          TAVTcluster *clus = pNtuClus->GetCluster(iPlane, iClus);
          if (!clus->IsValid()) continue;
-         TVector3 pos = clus->GetPosition();
+         TVector3 pos = clus->GetPositionG();
          TVector3 posG = pos;
+         
          Int_t nPix = clus->GetListOfPixels()->GetEntries();
          if (prefix == "vt")
             parGeo->Local2Global(&posG);
@@ -781,8 +754,6 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
          fVtxTrackDisplay->ResetTracks();
    }
    
-   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-   
    if (!fgDisplayFlag) // do not update event display
       return;
    
@@ -799,9 +770,6 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
    Float_t posfirstPlane = parGeo->GetSensorPosition(0)[2];
    Float_t posLastPlane  = parGeo->GetSensorPosition(nPlanes-1)[2];
    
-   posLastPlane  *= 1.1;
-   posfirstPlane *= 0.9;
-   
    TAVTntuTrack*  pNtuTrack = 0x0;
    
    if (prefix == "vt")
@@ -814,30 +782,29 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
          
          TAVTtrack* track = pNtuTrack->GetTrack(iTrack);
          TVector3 pos;
-         TVector3 posG = pos;
+         TVector3 posG;
          
-         if (fgDrawVertex && prefix == "vt")
-            pos = track->Intersection(track->GetVertexZ());
-         else
-            pos = track->Intersection(posfirstPlane);
-         
-         if (prefix == "vt")
+         if ( prefix == "vt") {
+            if (fgDrawVertex && GlobalPar::GetPar()->IncludeTG())
+               pos = track->Intersection(track->GetVertexZ());
+            else
+               pos = track->Intersection(posfirstPlane);
+            
+            posG = pos;
             parGeo->Local2Global(&posG);
-         
-         x = posG(0); y = posG(1); z = posG(2);
-         
-         pos = track->Intersection(posLastPlane);
-         if (prefix == "vt")
+            
+            x = posG(0); y = posG(1); z = posG(2)*0.9;
+            
+            pos = track->Intersection(posLastPlane);
+            posG = pos;
             parGeo->Local2Global(&posG);
-         
-         x1 = posG(0); y1 = posG(1); z1 = posG(2);
-         
-         Int_t nClus = track->GetClustersN();
-         if (prefix == "vt") {
+            
+            x1 = posG(0); y1 = posG(1); z1 = posG(2)*1.1;
+            
+            Int_t nClus = track->GetClustersN();
             fVtxTrackDisplay->AddTracklet(nClus*100, x, y, z, x1, y1, z1);
             fVtxTrackDisplay->TrackId(track);
          }
-         
       } // end loop on tracks
       
    } // nTracks > 0

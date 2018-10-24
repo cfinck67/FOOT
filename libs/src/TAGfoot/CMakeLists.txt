@@ -31,6 +31,7 @@ set( with_dictionnaries
    UpdatePDG
    MultiTrackCheck
    TAFOeventDisplay
+   TAFOeventDisplayMC
 )
 
 set( without_dictionnaries

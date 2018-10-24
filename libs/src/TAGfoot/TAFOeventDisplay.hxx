@@ -94,7 +94,7 @@ public:
    void UpdateHitInfo(TEveDigitSet* qs, Int_t idx);
    void UpdateTrackInfo(TEveDigitSet* qs, Int_t idx);
    
-private:
+protected:
    void CreateRecActionVtx();
    void CreateRecActionIt();
    void CreateRecActionMsd();
@@ -148,7 +148,7 @@ public:
    static void DisableDrawVertex() { fgDrawVertex = false; }
    static void EnableDrawVertex()  { fgDrawVertex = true;  }
 
-private:
+protected:
    TAGparaDsc*           fpParGeoTr;
    TAGparaDsc*           fpParGeoG;
    TAGparaDsc*           fpParGeoDi;

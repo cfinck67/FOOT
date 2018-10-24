@@ -15,6 +15,7 @@
 #pragma link C++ class UpdatePDG;
 #pragma link C++ class MultiTrackCheck;
 
+#pragma link C++ class TAFOeventDisplayMC;
 #pragma link C++ class TAFOeventDisplay;
 #pragma link C++ class TADIeveField;
 #pragma link C++ class TADIparGeo;
