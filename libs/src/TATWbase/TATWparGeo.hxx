@@ -100,6 +100,9 @@ public:
     TGeoVolume*     BuildTofWallXY(const char *twName = "TW", Int_t iLayer = 0);
     TGeoVolume*     BuildModule(Int_t iMod, Int_t iLayer);
    
+    void            SetSlatColorOn(Int_t slat,  Int_t view);
+    void            SetSlatColorOff(Int_t slat,  Int_t view);
+   
     virtual void    Clear(Option_t* opt="");
     virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
 
@@ -136,15 +139,21 @@ private:
   map<string, int > m_magneticRegion;
    
 private:
-   static TString fgkDefParaName;
-   static Int_t   fgkLayerOffset;      // offset in salt id for 2nd layer
+   static TString       fgkDefParaName;
+   static Int_t         fgkLayerOffset;      // offset in salt id for 2nd layer
    static const Color_t fgkDefaultModCol;    // default color of slat/module;
    static const Color_t fgkDefaultModColOn;  // default color of fired slat/module;
+   static const TString fgkDefaultSlatName;  // default slat name;
 
 public:
    static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
    static Int_t   GetLayerOffset()       { return fgkLayerOffset;        }
+   static Color_t GetDefaultModCol()     { return fgkDefaultModCol;      }
+   static Color_t GetDefaultModColOn()   { return fgkDefaultModColOn;    }
+   
+   static const Char_t* GetDefaultSlatName(Int_t slat, Int_t view) { return Form("%s_%d_%d", fgkDefaultSlatName.Data(), slat, view); }
 
+   
   ClassDef(TATWparGeo,1)
 };
 

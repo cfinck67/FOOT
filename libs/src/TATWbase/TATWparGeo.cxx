@@ -22,10 +22,11 @@
 // #include "GlobalPar.hxx"
 
 
-      TString TATWparGeo::fgkDefParaName = "twGeo";
-      Int_t   TATWparGeo::fgkLayerOffset = 100;
+      TString TATWparGeo::fgkDefParaName     = "twGeo";
+      Int_t   TATWparGeo::fgkLayerOffset     = 100;
 const Color_t TATWparGeo::fgkDefaultModCol   = kGray+1;
 const Color_t TATWparGeo::fgkDefaultModColOn = kRed-8;
+const TString TATWparGeo::fgkDefaultSlatName = "twSlat";
 
 
 //_____________________________________________________________________________
@@ -159,7 +160,7 @@ TGeoVolume* TATWparGeo::BuildModule(Int_t iMod, Int_t iLayer)
       new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
    }
    
-   const char* moduleName = Form("Module_%d_%d", iMod, iLayer);
+   const char* moduleName = GetDefaultSlatName(iMod, iLayer);
    TGeoVolume* module     = gGeoManager->FindVolumeFast(moduleName);
    if ( module == 0x0 ) {
       const Char_t* matName = SCN_MEDIUM.Data();
@@ -172,6 +173,38 @@ TGeoVolume* TATWparGeo::BuildModule(Int_t iMod, Int_t iLayer)
    module->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
    
    return module;
+}
+
+//_____________________________________________________________________________
+//! set color on for fired slats
+void TATWparGeo::SetSlatColorOn(Int_t slat, Int_t view)
+{
+   if (!gGeoManager) {
+      Error("SetSlatcolorOn()", "No Geo manager defined");
+      return;
+   }
+   
+   TString name = Form("Module_%d_%d", slat, view);
+   
+   TGeoVolume* vol = gGeoManager->FindVolumeFast(name.Data());
+   if (vol)
+      vol->SetLineColor(GetDefaultModColOn());
+}
+
+//_____________________________________________________________________________
+//! reset color for unfired slats
+void TATWparGeo::SetSlatColorOff(Int_t slat, Int_t view)
+{
+   if (!gGeoManager) {
+      Error("SetSlatcolorOn()", "No Geo manager defined");
+      return;
+   }
+   
+   TString name = Form("Module_%d_%d", slat, view);
+   
+   TGeoVolume* vol = gGeoManager->FindVolumeFast(name.Data());
+   if (vol)
+      vol->SetLineColor(GetDefaultModCol());
 }
 
 //_____________________________________________________________________________
