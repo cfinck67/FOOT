@@ -16,6 +16,7 @@
 #include "TAVTactNtuMC.hxx"
 #include "TAITactNtuMC.hxx"
 #include "TAMSDactNtuMC.hxx"
+#include "TATWactNtuMC.hxx"
 
 #include "Evento.hxx"
 
@@ -49,6 +50,7 @@ private:
    TAVTactNtuMC*         fActNtuRawVtx;  // action for ntu data
    TAITactNtuMC*         fActNtuRawIt;  // action for ntu data
    TAMSDactNtuMC*        fActNtuRawMsd;  // action for ntu data
+   TATWactNtuMC*         fActNtuRawTw;  // action for ntu data
    
    TTree*                fTree;         // tree for MC
    TFile*                fActEvtFile; // file for MC

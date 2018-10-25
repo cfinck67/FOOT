@@ -7,6 +7,8 @@
 /** TAFOeventDisplay HIT class to work on event display
  
  */
+#include <map>
+
 #include "TVirtualMagField.h"
 
 #include "TATRparGeo.hxx"
@@ -32,8 +34,13 @@
 #include "TAVTactNtuClusterF.hxx"
 #include "TAITactNtuClusterF.hxx"
 #include "TAMSDactNtuCluster.hxx"
-#include "TAVTactBaseNtuTrack.hxx"
+
 #include "TAVTactNtuRaw.hxx"
+#include "TAITactNtuRaw.hxx"
+//#include "TATWactNtuRaw.hxx"
+
+
+#include "TAVTactBaseNtuTrack.hxx"
 #include "TAVTactNtuVertex.hxx"
 
 #include "TADIeveField.hxx"
@@ -102,9 +109,11 @@ protected:
    void AddRequiredItemVtx();
    void AddRequiredItemIt();
    void AddRequiredItemMsd();
+   void AddRequiredItemTw();
    
    void ReadParFiles();
 
+   void UpdateBarElements(const TString prefix);
    void UpdateQuadElements(const TString prefix);
    void UpdateTrackElements(const TString prefix);
    void UpdateGlbTrackElements();
@@ -178,20 +187,24 @@ protected:
    TAGdataDsc*           fpNtuRawMsd;	  // input ntu data dsc
    TAGdataDsc*           fpNtuClusMsd;	  // input cluster data dsc
 
+   TAGdataDsc*           fpNtuRawTw;    // input data dsc
+
    TAGaction*            fActDatRawVtx;     // action for raw data
    TAGactionFile*        fActEvtReader;
    
    TAVTactNtuRaw*        fActNtuRawVtx;  // action for ntu data
-   TAVTactNtuClusterF*    fActClusVtx;    // action for clusters
+   TAVTactNtuClusterF*   fActClusVtx;    // action for clusters
    TAVTactBaseNtuTrack*  fActTrackVtx;   // action for tracks
    TAVTactBaseNtuVertex* fActVtx;        // action for vertex
    
-   TAVTactNtuRaw*        fActNtuRawIt;  // action for ntu data
-   TAITactNtuClusterF*    fActClusIt;    // action for clusters
+   TAITactNtuRaw*        fActNtuRawIt;  // action for ntu data
+   TAITactNtuClusterF*   fActClusIt;    // action for clusters
    
    TAVTactNtuRaw*        fActNtuRawMsd;  // action for ntu data
    TAMSDactNtuCluster*   fActClusMsd;    // action for clusters
    
+  // TATWactNtuRaw*        fActNtuRawTw;  // action for ntu data
+
    Int_t                 fType;         // type of sensor
    //Display
    TAGclusterDisplay*    fVtxClusDisplay;  // list of quad to display hits
@@ -203,13 +216,19 @@ protected:
    //Display
    TAGclusterDisplay*    fMsdClusDisplay;  // list of quad to display hits
    
+   //Display
+   TAGclusterDisplay*    fTwClusDisplay;  // list of quad to display hits
+   
    // Display
    TAGglbTrackDisplay*   fGlbTrackDisplay;  // list of global tracks to display
 
    // Magnet
    FootField*            fFieldImpl;       // magnetic field implementation
    TADIeveField*         fField;           // Eve magnetic field
-   
+
+   // TW
+   map< pair<Int_t, Int_t>, Int_t > fFiredTofBar;       // list of fired bar per event
+
    // GUI
    TGCheckButton*       fClusterButton;    // toggle clusters plots
    TGCheckButton*       fRawDataButton;    // toggle rawdata plots

@@ -6,7 +6,7 @@
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
-
+#include "TATW_ContainerHit.hxx"
 
 ClassImp(TAFOeventDisplay)
 
@@ -26,6 +26,7 @@ TAFOeventDisplayMC::TAFOeventDisplayMC(Int_t type, const TString expName)
    fActNtuRawVtx(0x0),
    fActNtuRawIt(0x0),
    fActNtuRawMsd(0x0),
+//   fActNtuRawTW(0x0),
    fTree(0x0),
    fActEvtFile(0x0)
 {
@@ -68,6 +69,12 @@ void TAFOeventDisplayMC::CreateRawAction()
       fpNtuRawMsd = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
       fActNtuRawMsd = new TAMSDactNtuMC("msdActNtu", fpNtuRawMsd, fpParGeoMsd, fEvtStruct);
       fActNtuRawMsd->CreateHistogram();
+   }
+   
+   if(GlobalPar::GetPar()->IncludeTW()) {
+      fpNtuRawTw   = new TAGdataDsc("twHit", new TATW_ContainerHit());
+      fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fEvtStruct);
+      fActNtuRawTw->CreateHistogram();
    }
 }
 

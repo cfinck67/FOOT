@@ -18,6 +18,7 @@
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
+#include "TATW_ContainerHit.hxx"
 
 #include "TAVTntuCluster.hxx"
 #include "TAITntuCluster.hxx"
@@ -75,6 +76,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fpDatRawMsd(0x0),
    fpNtuRawMsd(0x0),
    fpNtuClusMsd(0x0),
+   fpNtuRawTw(0x0),
    fActDatRawVtx(0x0),
    fActEvtReader(0x0),
    fActNtuRawVtx(0x0),
@@ -90,6 +92,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fVtxTrackDisplay(new TAGtrackDisplay("Vertex Tracks")),
    fItClusDisplay(new TAGclusterDisplay("Inner tracker Cluster")),
    fMsdClusDisplay(new TAGclusterDisplay("Inner tracker Cluster")),
+   fTwClusDisplay(new TAGclusterDisplay("Tof Wall hit")),
    fGlbTrackDisplay(new TAGglbTrackDisplay("Global Tracks"))
 {
    
@@ -114,6 +117,11 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fMsdClusDisplay->SetDefHeight(fQuadDefHeight);
    fMsdClusDisplay->SetPickable(true);
    
+   fTwClusDisplay->SetMaxEnergy(fMaxEnergy);
+   fTwClusDisplay->SetDefWidth(fQuadDefWidth*4);
+   fTwClusDisplay->SetDefHeight(fQuadDefHeight*4);
+   fTwClusDisplay->SetPickable(true);
+   
    fGlbTrackDisplay->SetMaxMomentum(fMaxMomentum);
    
    GlobalPar::Instance();
@@ -125,6 +133,8 @@ TAFOeventDisplay::~TAFOeventDisplay()
    // default destructor
    if (fpParGeoVtx) delete fpParGeoVtx;
    if (fpParGeoIt)  delete fpParGeoIt;
+   if (fpParGeoMsd) delete fpParGeoMsd;
+   if (fpParGeoTw)  delete fpParGeoTw;
    if (fpParGeoG)   delete fpParGeoG;
    if (fpParGeoDi)  delete fpParGeoDi;
    
@@ -132,11 +142,13 @@ TAFOeventDisplay::~TAFOeventDisplay()
    delete fVtxTrackDisplay;
    
    delete fItClusDisplay;
-   delete fItClusDisplay;
+   delete fMsdClusDisplay;
+   delete fTwClusDisplay;
    
    delete fGlbTrackDisplay;
-   delete fField;
-   delete fFieldImpl;
+   
+   if (fField) delete fField;
+   if (fFieldImpl) delete fFieldImpl;
 }
 
 //__________________________________________________________
@@ -324,7 +336,7 @@ void TAFOeventDisplay::BuildDefaultGeometry()
       AddGeometry(twVol, transf);
    }
 
-   // TW
+   // CA
    if (GlobalPar::GetPar()->IncludeCA()) {
       TACAparGeo* parGeo = (TACAparGeo*)fpParGeoCa->Object();
       TGeoVolume* twVol = parGeo->BuildCalorimeter();
@@ -403,25 +415,32 @@ void TAFOeventDisplay::CreateRawAction()
    ReadParFiles();
 
    if (GlobalPar::GetPar()->IncludeVertex()) {
-      fpNtuRawVtx = new TAGdataDsc("vtRaw", new TAVTntuRaw());
+      fpNtuRawVtx   = new TAGdataDsc("vtRaw", new TAVTntuRaw());
       fpDatRawVtx   = new TAGdataDsc("vtDat", new TAVTdatRaw());
       fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDatRawVtx, fpParGeoVtx);
       fActNtuRawVtx->CreateHistogram();
    }
    
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
-      fpDatRawIt    = new TAGdataDsc("itDat", new TAVTdatRaw());
-      fpNtuRawIt  = new TAGdataDsc("itRaw", new TAITntuRaw());
-      fActNtuRawIt = new TAVTactNtuRaw("itActNtu", fpNtuRawIt, fpDatRawIt, fpParGeoIt);
+      fpDatRawIt   = new TAGdataDsc("itDat", new TAVTdatRaw());
+      fpNtuRawIt   = new TAGdataDsc("itRaw", new TAITntuRaw());
+      fActNtuRawIt = new TAITactNtuRaw("itActNtu", fpNtuRawIt, fpDatRawIt, fpParGeoIt);
       fActNtuRawIt->CreateHistogram();
    }
    
    if (GlobalPar::GetPar()->IncludeMSD()) {
       fpDatRawMsd   = new TAGdataDsc("msdDat", new TAVTdatRaw());
-      fpNtuRawMsd = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
+      fpNtuRawMsd   = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
       fActNtuRawMsd = new TAVTactNtuRaw("msdActNtu", fpNtuRawMsd, fpDatRawMsd, fpParGeoMsd);
       fActNtuRawMsd->CreateHistogram();
    }
+   
+//   if(GlobalPar::GetPar()->IncludeTW()) {
+//      fpNtuRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
+//      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
+//      fActNtuRawTw = new TAVTactNtuRaw("twActNtu", fpNtuRawTw, fpNtuRawTw, fpParGeoTw);
+//      fActNtuRawTw->CreateHistogram();
+//   }
 }
 
 //__________________________________________________________
@@ -481,6 +500,9 @@ void TAFOeventDisplay::AddRequiredItem()
    
    if (GlobalPar::GetPar()->IncludeMSD())
       AddRequiredItemMsd();
+   
+   if (GlobalPar::GetPar()->IncludeTW())
+      AddRequiredItemTw();
 
    fAGRoot->BeginEventLoop();
    fAGRoot->Print();
@@ -522,6 +544,12 @@ void TAFOeventDisplay::AddRequiredItemMsd()
 }
 
 //__________________________________________________________
+void TAFOeventDisplay::AddRequiredItemTw()
+{
+   fAGRoot->AddRequiredItem("twActNtu");
+}
+
+//__________________________________________________________
 void TAFOeventDisplay::AddElements()
 {
    fVtxClusDisplay->ResetHits();
@@ -535,6 +563,9 @@ void TAFOeventDisplay::AddElements()
    
    fMsdClusDisplay->ResetHits();
    gEve->AddElement(fMsdClusDisplay);
+   
+   fTwClusDisplay->ResetHits();
+   gEve->AddElement(fTwClusDisplay);
    
    fGlbTrackDisplay->ResetTracks();
    gEve->AddElement(fGlbTrackDisplay);
@@ -616,6 +647,9 @@ void TAFOeventDisplay::UpdateElements()
    
    if (GlobalPar::GetPar()->IncludeMSD())
       UpdateElements("ms");
+   
+   if (GlobalPar::GetPar()->IncludeTW())
+      UpdateElements("tw");
 
    gEve->FullRedraw3D(kFALSE);
 }
@@ -623,11 +657,15 @@ void TAFOeventDisplay::UpdateElements()
 //__________________________________________________________
 void TAFOeventDisplay::UpdateElements(const TString prefix)
 {
-   UpdateQuadElements(prefix);
-   if (fgTrackFlag) {
-      UpdateTrackElements(prefix);
-      if (GlobalPar::GetPar()->IncludeKalman())
-         UpdateGlbTrackElements();
+   if (prefix == "tw" || prefix == "ca")
+      UpdateBarElements(prefix);
+   else {
+      UpdateQuadElements(prefix);
+      if (fgTrackFlag) {
+         UpdateTrackElements(prefix);
+         if (GlobalPar::GetPar()->IncludeKalman())
+            UpdateGlbTrackElements();
+      }
    }
 }
 
@@ -641,7 +679,8 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
          fItClusDisplay->ResetHits();
       }  else if (prefix == "it") {
          fMsdClusDisplay->ResetHits();
-      }
+      } else
+         return;
    }
 
    if (!fgDisplayFlag) // do not update event display
@@ -811,6 +850,84 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
    
    if (prefix == "vt")
       fVtxTrackDisplay->RefitPlex();
+}
+
+//__________________________________________________________
+void TAFOeventDisplay::UpdateBarElements(const TString prefix)
+{
+   if (!fgGUIFlag || (fgGUIFlag && fRefreshButton->IsOn())) {
+      if (prefix == "tw") {
+         fTwClusDisplay->ResetHits();
+      }
+   }
+   
+   if (!fgDisplayFlag) // do not update event display
+      return;
+   
+   Float_t  x = 0.,  y = 0.,  z = 0.;
+   
+   TATWparGeo* parGeo = 0x0;
+   
+   if (prefix == "tw")
+      parGeo = (TATWparGeo*) fpParGeoTw->Object();
+   else
+      return;
+
+   // reset previous fired bar
+   if ( fRefreshButton->IsOn()) {
+      map< pair<int, int>, int >::iterator it;
+      for (it = fFiredTofBar.begin(); it != fFiredTofBar.end(); it++) {
+         pair<int, int> idx = it->first;
+         Int_t iBar = idx.first;
+         Int_t iLayer = idx.second;
+         parGeo->SetSlatColorOff(iBar, iLayer);
+      }
+   }
+
+   fFiredTofBar.clear();
+
+   TATW_ContainerHit* pNtuHit  =  0x0;
+   
+   if (prefix == "tw")
+      pNtuHit = (TATW_ContainerHit*) fpNtuRawTw->Object();
+   
+   for( Int_t iLayer = 0; iLayer < 1; iLayer++) {
+      
+
+      Int_t nHits = pNtuHit->GetHitN(iLayer);
+      if (nHits == 0) continue;
+
+      for (Int_t iHit = 0; iHit < nHits; ++iHit) {
+         
+         TATW_Hit *hit = pNtuHit->GetHit(iLayer, iHit);
+
+         Int_t iBar = 22-hit->GetBar()-2;
+         pair<int, int> idx(iBar, iLayer);
+         
+         fFiredTofBar[idx] = 1;
+         parGeo->SetSlatColorOn(iBar, iLayer);
+
+         TVector3 pos = hit->GetMCPosition_detectorFrame();
+         TVector3 posG = pos;
+         if (prefix == "tw")
+            parGeo->Local2Global(&posG);
+         
+         x = posG(0);
+         y = posG(1);
+         z = posG(2);
+         
+         Double_t eloss = hit->GetEnergyLoss();
+         
+         if (prefix == "tw") {
+            fTwClusDisplay->AddHit(eloss*10, x, y, z);
+            fTwClusDisplay->QuadId(hit);
+         }
+      } //end loop on hits
+      
+   } //end loop on planes
+   
+   if (prefix == "tw")
+      fTwClusDisplay->RefitPlex();
 }
 
 //__________________________________________________________
