@@ -14,6 +14,7 @@
 #pragma link C++ class TAITparGeo+;
 #pragma link C++ class TAITparConf+;
 #pragma link C++ class TAITdigitizerE+;
+#pragma link C++ class TAITactNtuRaw+;
 #pragma link C++ class TAITactNtuMC+;
 #pragma link C++ class TAITntuCluster+;
 #pragma link C++ class TAITcluster+;
