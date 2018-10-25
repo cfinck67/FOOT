@@ -184,7 +184,7 @@ void TATWparGeo::SetSlatColorOn(Int_t slat, Int_t view)
       return;
    }
    
-   TString name = Form("Module_%d_%d", slat, view);
+   TString name = GetDefaultSlatName(slat, view);
    
    TGeoVolume* vol = gGeoManager->FindVolumeFast(name.Data());
    if (vol)
@@ -200,7 +200,7 @@ void TATWparGeo::SetSlatColorOff(Int_t slat, Int_t view)
       return;
    }
    
-   TString name = Form("Module_%d_%d", slat, view);
+   TString name = GetDefaultSlatName(slat, view);
    
    TGeoVolume* vol = gGeoManager->FindVolumeFast(name.Data());
    if (vol)
