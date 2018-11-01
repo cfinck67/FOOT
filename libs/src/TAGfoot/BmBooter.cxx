@@ -45,7 +45,7 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {
   eff_pp.push_back(row);
   //provv
   vector<Int_t> row2(2,0);
-  for(Int_t i=0;i<4;i++){
+  for(Int_t i=0;i<8;i++){
     eff_plane.push_back(row2);
     eff_fittedplane.push_back(row2);
   }    
@@ -137,7 +137,6 @@ void BmBooter::Process() {
   
   bmnturaw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
   evaluate_cell_occupy();
-  efficiency_pivot_probe();
   
   if(bmnturaw->nhit > bmcon->GetMaxnhit_cut())
     track_ok=-2;
@@ -178,7 +177,9 @@ void BmBooter::Process() {
       pg->Print(&plot_name[0]);  
   }
 
-  efficiency_plane();
+  efficiency_pivot_probe();
+  efficiency_fittedplane();
+  efficiency_paoloni();
   if(bmcon->GetFitterIndex()>0)
     if(track_ok==0){  
       Projectmylars();
@@ -317,11 +318,11 @@ void BmBooter::PrintEFFpp(){
   
   Double_t mean_planeff=0.;
   //"Paoloni" plane method
-  TH1D* histo3=new TH1D( "eff_plane_pivot", "pivot counter for the plane efficiency method; index; Counter", 4, 0., 4.);
-  TH1D* histo4=new TH1D( "eff_plane_probe", "probe counter for the plane efficiency method; index; Counter", 4, 0., 4.);
-  TH1D* histo5=new TH1D( "eff_plane_eval", "efficiency for the paoloni plane method; index; Counter", 4, 0., 4.);
+  TH1D* histo3=new TH1D( "eff_plane_pivot", "pivot counter for the plane efficiency method; index; Counter", 8, 0., 8.);
+  TH1D* histo4=new TH1D( "eff_plane_probe", "probe counter for the plane efficiency method; index; Counter", 8, 0., 8.);
+  TH1D* histo5=new TH1D( "eff_plane_eval", "efficiency for the paoloni plane method; index; Counter", 8, 0., 8.);
   TH1D* histo6=new TH1D( "eff_plane_mean", "efficiency for the paoloni plane method; ; mean efficiency", 1, 0., 1.);
-  for(Int_t i=0;i<4;i++){
+  for(Int_t i=0;i<8;i++){
     histo3->SetBinContent(i+1, eff_plane[i][0]);
     histo4->SetBinContent(i+1, eff_plane[i][1]);
     if(eff_plane[i][0]!=0){
@@ -330,7 +331,7 @@ void BmBooter::PrintEFFpp(){
     }else
       histo5->SetBinContent(i+1, 0.);
   }
-  histo6->SetBinContent(1,mean_planeff/4.);
+  histo6->SetBinContent(1,mean_planeff/8.);
   //~ //provv
   //~ cout<<"eff_plane_mean="<<mean_planeff/4.<<"  pivot:"<<endl;
   //~ for(Int_t i=0;i<4;i++)
@@ -380,10 +381,13 @@ void BmBooter::PrintResDist(){
     return;
 
   TH2D* histo=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
+  TH2D* histob=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]", 350, 0., 350.,600,-0.3,0.3);
   
-  for(Int_t i=0;i<residual_distance.size();i++)
+  for(Int_t i=0;i<residual_distance.size();i++){
     histo->Fill(residual_distance[i][0], residual_distance[i][1]);
-
+    histob->Fill(residual_distance[i][2], residual_distance[i][0]);
+  }
+  
 return;
 }
 
@@ -881,7 +885,7 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
     bmstruct.tot_status=4;
   }
   
-  if((((bmstruct.tdc_status!=-1000 || bmstruct.tot_status!=0 || bmstruct.adc_status!=0 || bmstruct.sca_status!=0) && bmcon->GetBMdebug()>0) || bmcon->GetBMdebug()>11) && (!(evt0 && bmcon->GetBMdebug()==99))){
+  if((((bmstruct.tdc_status!=-1000 || bmstruct.tot_status!=0 || bmstruct.adc_status!=0 || bmstruct.sca_status!=0) && bmcon->GetBMdebug()>2) || bmcon->GetBMdebug()>11) && (!(evt0 && bmcon->GetBMdebug()==99))){
     cout<<"BMbooter::read_event::bmstruct.tdc_status="<<bmstruct.tdc_status<<" bmstruct.tot_status="<<bmstruct.tot_status<<" bmstruct.adc_status="<<bmstruct.adc_status<<" bmstruct.sca_status="<<bmstruct.sca_status<<endl;
     if(bmstruct.tdc_status!=-1000 || bmstruct.tot_status!=0 || bmstruct.adc_status!=0 || bmstruct.sca_status!=0)
       cout<<"Error detected previously; ";
@@ -1061,51 +1065,21 @@ void BmBooter::efficiency_pivot_probe() {
 return;
 }
 
-void BmBooter::efficiency_plane(){
+void BmBooter::efficiency_fittedplane(){
 
-  vector<Int_t> hit_plane(12,0);
+  //~ vector<Int_t> hit_plane(12,0);
   vector<Int_t> hit_fittedplane(12,0);
   
   for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
     bmntuhit = bmnturaw->Hit(i); 
-    if(bmntuhit->View()==1)
-      hit_plane[bmntuhit->Plane()]++;
-    else
-      hit_plane[bmntuhit->Plane()+6]++;
-    
     if(bmntuhit->GetIsSelected() && bmntutrack->trk_status==0){
       if(bmntuhit->View()==1)
         hit_fittedplane[bmntuhit->Plane()]++;
       else
         hit_fittedplane[bmntuhit->Plane()+6]++;
     }  
-  }
+  }  
   
-  //eff_plane calculation
-  //view==1
-  if(hit_plane[0]>0 && hit_plane[2]>0 && hit_plane[4]>0){
-    eff_plane[0][0]++;
-    if(hit_plane[1]>0 && hit_plane[3]>0)
-      eff_plane[0][1]++;
-  }
-  if(hit_plane[1]>0 && hit_plane[3]>0 && hit_plane[5]>0){
-    eff_plane[1][0]++;
-    if(hit_plane[2]>0 && hit_plane[4]>0)
-      eff_plane[1][1]++;
-  }
-  //view==-1
-  if(hit_plane[6]>0 && hit_plane[8]>0 && hit_plane[10]>0){
-    eff_plane[2][0]++;
-    if(hit_plane[7]>0 && hit_plane[9]>0)
-      eff_plane[2][1]++;
-  }
-  if(hit_plane[7]>0 && hit_plane[9]>0 && hit_plane[11]>0){
-    eff_plane[3][0]++;
-    if(hit_plane[8]>0 && hit_plane[10]>0)
-      eff_plane[3][1]++;
-  }
-  
-  //eff_fittedplane calculation
   //view==1
   if(hit_fittedplane[0]>0 && hit_fittedplane[2]>0 && hit_fittedplane[4]>0){
     eff_fittedplane[0][0]++;
@@ -1132,6 +1106,86 @@ void BmBooter::efficiency_plane(){
 return;
 }
 
+void BmBooter::efficiency_paoloni(){
+  //~ for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
+    //~ bmntuhit = bmnturaw->Hit(i); 
+    //~ if(bmntuhit->View()==1)
+      //~ hit_plane[bmntuhit->Plane()]++;
+    //~ else
+      //~ hit_plane[bmntuhit->Plane()+6]++;
+  //~ }
+  
+  //~ //eff_plane calculation
+  //~ //view==1
+  //~ if(hit_plane[0]>0 && hit_plane[2]>0 && hit_plane[4]>0){
+    //~ eff_plane[0][0]++;
+    //~ if(hit_plane[1]>0 && hit_plane[3]>0)
+      //~ eff_plane[0][1]++;
+  //~ }
+  //~ if(hit_plane[1]>0 && hit_plane[3]>0 && hit_plane[5]>0){
+    //~ eff_plane[1][0]++;
+    //~ if(hit_plane[2]>0 && hit_plane[4]>0)
+      //~ eff_plane[1][1]++;
+  //~ }
+  //~ //view==-1
+  //~ if(hit_plane[6]>0 && hit_plane[8]>0 && hit_plane[10]>0){
+    //~ eff_plane[2][0]++;
+    //~ if(hit_plane[7]>0 && hit_plane[9]>0)
+      //~ eff_plane[2][1]++;
+  //~ }
+  //~ if(hit_plane[7]>0 && hit_plane[9]>0 && hit_plane[11]>0){
+    //~ eff_plane[3][0]++;
+    //~ if(hit_plane[8]>0 && hit_plane[10]>0)
+      //~ eff_plane[3][1]++;
+  //~ }
+
+  //xview
+  if(cell_occupy[0].size()>0 && cell_occupy[12].size()>0 && cell_occupy[24].size()>0){
+    eff_plane[0][0]++;
+    if((cell_occupy[7].size()>0 || cell_occupy[6].size()>0) && (cell_occupy[19].size()>0 || cell_occupy[18].size()>0))
+      eff_plane[0][1]++;
+  }
+  if(cell_occupy[1].size()>0 && cell_occupy[13].size()>0 && cell_occupy[25].size()>0){
+    eff_plane[1][0]++;
+    if((cell_occupy[8].size()>0 || cell_occupy[7].size()>0) && (cell_occupy[19].size()>0 || cell_occupy[20].size()>0))
+      eff_plane[1][1]++;
+  }
+  if(cell_occupy[7].size()>0 && cell_occupy[19].size()>0 && cell_occupy[31].size()>0){
+    eff_plane[2][0]++;
+    if((cell_occupy[12].size()>0 || cell_occupy[13].size()>0) && (cell_occupy[24].size()>0 || cell_occupy[25].size()>0))
+      eff_plane[2][1]++;
+  }
+  if(cell_occupy[8].size()>0 && cell_occupy[20].size()>0 && cell_occupy[32].size()>0){
+    eff_plane[3][0]++;
+    if((cell_occupy[13].size()>0 || cell_occupy[14].size()>0) && (cell_occupy[25].size()>0 || cell_occupy[26].size()>0))
+      eff_plane[3][1]++;
+  }
+  
+  //yview
+  if(cell_occupy[4].size()>0 && cell_occupy[16].size()>0 && cell_occupy[28].size()>0){
+    eff_plane[4][0]++;
+    if((cell_occupy[10].size()>0 || cell_occupy[19].size()>0) && (cell_occupy[22].size()>0 || cell_occupy[21].size()>0))
+      eff_plane[4][1]++;
+  }
+  if(cell_occupy[5].size()>0 && cell_occupy[17].size()>0 && cell_occupy[29].size()>0){
+    eff_plane[5][0]++;
+    if((cell_occupy[10].size()>0 || cell_occupy[11].size()>0) && (cell_occupy[22].size()>0 || cell_occupy[23].size()>0))
+      eff_plane[5][1]++;
+  }
+  if(cell_occupy[9].size()>0 && cell_occupy[21].size()>0 && cell_occupy[33].size()>0){
+    eff_plane[6][0]++;
+    if((cell_occupy[15].size()>0 || cell_occupy[16].size()>0) && (cell_occupy[27].size()>0 || cell_occupy[28].size()>0))
+      eff_plane[6][1]++;
+  }
+  if(cell_occupy[10].size()>0 && cell_occupy[22].size()>0 && cell_occupy[34].size()>0){
+    eff_plane[7][0]++;
+    if((cell_occupy[16].size()>0 || cell_occupy[17].size()>0) && (cell_occupy[28].size()>0 || cell_occupy[29].size()>0))
+      eff_plane[7][1]++;
+  }
+  
+return;
+}
+
 
 //to be used in process to charge mylarproject
 void BmBooter::Projectmylars(){
@@ -1151,12 +1205,13 @@ return;
   
 //used in process to charge residual_distance
 void BmBooter::ResidualDistance(){
-  vector<Double_t> resdis(2);
+  vector<Double_t> resdis(3);
   for(Int_t i=0;i<bmnturaw->nhit;i++){
     bmntuhit = bmnturaw->Hit(i);
     if(bmntuhit->GetIsSelected()){
       resdis[0]=bmntuhit->GetResidual();
       resdis[1]=bmntuhit->Dist();
+      resdis[2]=bmntuhit->Tdrift();
       residual_distance.push_back(resdis);
     }          
   }

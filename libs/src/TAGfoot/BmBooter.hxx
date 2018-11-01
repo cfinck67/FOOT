@@ -71,7 +71,8 @@ public:
   void evaluate_cell_occupy(); //fill the cell_occupy matrix
   void monitorQDC(vector<Int_t>& adc792_words);
   void efficiency_pivot_probe();//evaluation of the efficiency with the eff_pp matrix (pivot-probe method), made with the cell_occupy matrix
-  void efficiency_plane();//evaluation of the efficiency with the "Paoloni" plane method
+  void efficiency_paoloni();//evaluation of the efficiency with the "Paoloni" method 
+  void efficiency_fittedplane();//evaluation of the efficiency with the "Paoloni" method on fitted tracks
   void Projectmylars(); //to save the mylar1 and mylar2 xy positions in mylarprojects
   void ResidualDistance();//to save the residual_distance matrix
 
@@ -126,12 +127,12 @@ private:
   Long64_t data_num_ev; //current number of events
   Int_t    acq_start_ev;//acquisition start event
   vector<vector<Int_t>> eff_pp; //efficiency calculation with the pivot-probe method, eff_pp[0]=pivot counter row, eff_pp[1]=probe counter row, each row is made by 16 elements, ordered as the cellindex, wihtout the non probe cells 
-  vector<vector<Int_t>> eff_plane;//efficieny with the "Paoloni" method without fitted tracks
-  vector<vector<Int_t>> eff_fittedplane;//efficieny with the "Paoloni" method with fitted tracks
+  vector<vector<Int_t>> eff_plane;//efficieny with the "Paoloni" method 
+  vector<vector<Int_t>> eff_fittedplane;//efficieny with the "Paoloni" method only on fitted tracks
 
   //provv!!!!!! this is a very dummy method, to be used provv!!!!
   vector<vector<Double_t>> mylarprojects;//projections of tracks: mylar1.X=mylarprojects[i][0]; mylar1.Y=mylarprojects[i][1]; mylar2.X=mylarprojects[i][3]; mylar2.X=mylarprojects[i][4]; i=tracks
-  vector<vector<Double_t>> residual_distance;//0=residual, 1=distance
+  vector<vector<Double_t>> residual_distance;//0=residual, 1=distance, 2=drift_time
 
 };
 

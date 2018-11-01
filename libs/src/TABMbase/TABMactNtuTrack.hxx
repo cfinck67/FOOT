@@ -76,7 +76,7 @@ public:
   private:
   
   //~ TABMntuTrackTr tmp_trackTr;          //traccia provvisoria, così almeno non me lo cancella...
-  //~ AbsKalmanFitter*  simpleFitter;    	 //KalmanFitterRefTrack()
+  AbsKalmanFitter*  simpleFitter;    	 //KalmanFitterRefTrack()
   AbsKalmanFitter*  refFitter;    	 //KalmanFitterRefTrack()
   AbsKalmanFitter*  dafRefFitter;    	 //DAF with kalman ref
   AbsKalmanFitter*  dafSimpleFitter;     //DAF with simple kalman

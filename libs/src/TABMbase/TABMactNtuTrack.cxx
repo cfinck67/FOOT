@@ -37,7 +37,7 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
   const Int_t nIter = 20; // max number of iterations
   const Double_t dPVal = 1.E-3; // convergence criterion used by GenFit
 
-  //~ simpleFitter = new KalmanFitter(nIter, dPVal);
+  simpleFitter = new KalmanFitter(nIter, dPVal);
   refFitter = new KalmanFitterRefTrack(nIter, dPVal);   
   dafRefFitter = new DAF(true, nIter, dPVal);
   dafSimpleFitter = new DAF(false, nIter, dPVal);
@@ -85,7 +85,7 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
 
 TABMactNtuTrack::~TABMactNtuTrack()
 { 
-  //~ delete simpleFitter;
+  delete simpleFitter;
   delete refFitter;
   delete dafSimpleFitter;
   delete dafRefFitter;
@@ -377,9 +377,7 @@ Bool_t TABMactNtuTrack::Action()
           cout<<"view"<<p_hit->View()<<"  rdrift="<<p_hit->Dist()<<endl;
         }
         
-	//~ cout<<"faccio push_back"<<endl;  //provv
         //~ measurements_vec.push_back(new WireMeasurement(hitCoords_vec.back(), hitCov_vec.back(), det_Id, i_h, new TrackPoint(fitTrack)));
-        //~ cout<<"carico in fittrack"<<endl;//provv
         //~ fitTrack->insertMeasurement(measurements_vec.back()); 	
         fitTrack->insertMeasurement(new WireMeasurement(hitCoords_vec.back(), hitCov_vec.back(), det_Id, i_h, new TrackPoint(fitTrack))); 	
         //~ cout<<"caricato tutto"<<endl;//provv
@@ -400,11 +398,9 @@ Bool_t TABMactNtuTrack::Action()
         if(p_bmcon->GetBMdebug()>10)
           cout<<"TABMactNtuTrack::readytofit="<<readyToFit<<endl;
         fitTrack->checkConsistency();
-	Int_t nIter = 20; // max number of iterations
-	Double_t dPVal = 1.E-3; // convergence criterion used by GenFit
-	//~ cout<<"creosimplefitter nIter="<<nIter<<"  dPVal="<<dPVal<<endl;//provv
-	AbsKalmanFitter* simpleFitter = new KalmanFitter(nIter, dPVal);//provv
-	//~ cout<<"creatosimplefitterdimmerda ora fitto"<<endl;//provv
+	//~ Int_t nIter = 20; // max number of iterations
+	//~ Double_t dPVal = 1.E-3; // convergence criterion used by GenFit
+	//~ AbsKalmanFitter* simpleFitter = new KalmanFitter(nIter, dPVal);//provv
         
 	fit_index=0;
         do{
@@ -419,12 +415,6 @@ Bool_t TABMactNtuTrack::Action()
         }while(!fitTrack->getFitStatus(rep)->isFitConverged() && fit_index<5);
         
 	//~ cout<<"fittato"<<endl;//provv
-	
-        //old simple tracking method
-        //~ if(readyToFit==1) {simpleFitter->processTrack(fitTrack); 
-        //~ }else if(readyToFit==2) {refFitter->processTrack(fitTrack); 
-        //~ }else if(readyToFit==3) {dafSimpleFitter->processTrack(fitTrack);
-        //~ }else if(readyToFit==4) {dafRefFitter->processTrack(fitTrack);}
         
         //~ fitTrack->checkConsistency();
         if(p_bmcon->GetBMdebug()>10)
@@ -466,18 +456,9 @@ Bool_t TABMactNtuTrack::Action()
             }
           }else if((rejhit+1)<=p_bmcon->GetRejmaxcut()) //end of converged
             PruneNotConvTrack(prunedhit,hitxtrack, i);
-        delete simpleFitter;//provv
+        //~ delete simpleFitter;//provv
       }//end of fitting (readytofit)    
-      //~ cout<<"faccio delete measurem che ha size="<<measurements_vec.size()<<endl;//provv
-      //~ for(Int_t i=0;i<measurements_vec.size();i++)
-        //~ delete (measurements_vec[i]);
-       //~ for (std::vector< int >::iterator it = measurements_vec.begin() ; it != measurements_vec.end(); ++it)
-         //~ delete (*it);
-      //~ measurements_vec.clear();
-      //~ cout<<"pulisco fittrack"<<endl;//provv
       delete fitTrack; //it should delete rep also 
-    //~ fitTrack->deleteTrackPointsAndFitStatus();  
-      //~ cout<<"pulito fitrrack  measurements_vec="<<measurements_vec.size()<<"   capacity="<<measurements_vec.capacity()<<endl;  
       
     }//end of possiblePrimary if condition
     if(prunedhit.size()>0){

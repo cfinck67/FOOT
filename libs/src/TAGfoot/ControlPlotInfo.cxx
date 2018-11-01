@@ -5,16 +5,15 @@
 
 void  ControlPlotInfo::PrintHisto( TCanvas* mirror ) {
 	// check if parameter from file is enabled		-> 		otherwise guess them
-
 	// nBin
-	if ( GlobalPar::GetPar()->GetLowBinHisto( m_name ) != -666 )
-		m_nBin = GlobalPar::GetPar()->GetLowBinHisto( m_name ); 
+	if ( GlobalPar::GetPar()->GetNBinHisto( m_name ) != -666 )
+		m_nBin = GlobalPar::GetPar()->GetNBinHisto( m_name ); 
 	else 
 		m_nBin = 100;
 
 	// range
-	if ( GlobalPar::GetPar()->GetNBinHisto( m_name ) != -666 ) {
-		m_minBin = GlobalPar::GetPar()->GetNBinHisto( m_name ); 
+	if ( GlobalPar::GetPar()->GetLowBinHisto( m_name ) != -666 ) {
+		m_minBin = GlobalPar::GetPar()->GetLowBinHisto( m_name ); 
 		m_maxBin = GlobalPar::GetPar()->GetUpBinHisto( m_name ); 
 	}
 	else {
