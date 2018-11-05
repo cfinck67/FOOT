@@ -1,6 +1,7 @@
 #ifndef FOOT_GEOMETRY
 #define FOOT_GEOMETRY
 
+// ####### versione v14.2 ########
 
 const Int_t kVerbosity		=0;
 
@@ -195,12 +196,8 @@ const bool VTX_MAG		=true;
 
 const Double_t ITR_X 		=0.5; //center x coordinate
 const Double_t ITR_Y 		=0.0; //center y coordinate
-<<<<<<< HEAD
-const Double_t ITR_Z 		=14;//center z coordinate
-=======
 /* const Double_t ITR_Z 		=14.;//center z coordinate */
 const Double_t ITR_Z 		=18.;//center z coordinate
->>>>>>> a3b68a9361ee06e08fba7eb761ddaa0711c6335d
 
 const Int_t    ITR_NLAY         =2;//no. of silicon layers per plume
 const Int_t    ITR_NM28		=4;//no. of M28 chips per layer
