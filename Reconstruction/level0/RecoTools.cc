@@ -50,7 +50,7 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
 
 
 //----------------------------------------------------------------------------------------------------
-void RecoTools::RecoLoop(int fr) {
+void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     // input ntuple tree
     TChain *tree = new TChain("EventTree");
@@ -70,14 +70,20 @@ void RecoTools::RecoLoop(int fr) {
     if(m_debug) cout<<" Found branches "<<endl;
 
     //Configure the output flagging
-    gTAGroot->SetCampaignNumber(100);
-    gTAGroot->SetRunNumber(1);
+    // gTAGroot->SetCampaignNumber(100);
+    // gTAGroot->SetRunNumber(1);
+    tagr->SetCampaignNumber(100);
+    tagr->SetRunNumber(1);
 
     //Define the output file content.
-    // my_out = new TAGactTreeWriter("my_out");
+    my_out = new TAGactTreeWriter("my_out");
+
     // gTAGroot->AddRequiredItem("my_out");
     // gTAGroot->Print();
     // if (my_out->Open(m_oustr, "RECREATE")) return;
+    tagr->AddRequiredItem("my_out");
+    tagr->Print();
+    if (my_out->Open(m_oustr, "RECREATE")) return;
 
 
 
@@ -98,7 +104,8 @@ void RecoTools::RecoLoop(int fr) {
 
     
     /***********  The event Loop   ****************************************   */
-    gTAGroot->BeginEventLoop();
+    // gTAGroot->BeginEventLoop();
+    tagr->BeginEventLoop();
     Long64_t nentries = tree->GetEntries();
     Long64_t nbytes = 0, nb = 0;
     char flag[200]; bool tobedrawn = kFALSE;
@@ -107,13 +114,17 @@ void RecoTools::RecoLoop(int fr) {
     if(m_debug)         cout<<" Starting Event Loop "<<endl;
 
     for (Long64_t jentry=0; jentry<nentries;jentry++) {
+        cout << "Entro nel loop" << endl;
         if(m_debug) cout<<" New Eve "<<endl;
         nb = tree->GetEntry(jentry);   nbytes += nb;
+        
         // if (Cut(ientry) < 0) continue;
         // if (jentry>1)  break;
         // if (jentry<33061)  continue;
 
-        gTAGroot->NextEvent();
+        // gTAGroot->NextEvent();        // *** Break *** segmentation violation
+        tagr->NextEvent(); 
+        cout << "So far, So good" << endl;
         if(!(jentry%fr))        cout<<"Processed:: "<<jentry<<" evts!"<<endl;
 
 
@@ -145,10 +156,11 @@ void RecoTools::RecoLoop(int fr) {
     booter->Finalize();
     // multiTrackCheck->Finalize();
 
-    gTAGroot->EndEventLoop();
+    // gTAGroot->EndEventLoop();
+    tagr->EndEventLoop();
     
-    // my_out->Print();
-    // my_out->Close();
+    my_out->Print();
+    my_out->Close();
 
     // materialEffects->drawdEdx( 11 );  // to look at it in genfit
 

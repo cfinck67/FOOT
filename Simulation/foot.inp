@@ -13,14 +13,14 @@ RADDECAY          2.                  1.
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * @@@START GENERATED, DO NOT MODIFY:GENERAL@@@ *********************************
-PHYSICS           1.                                                  COALESCE
-BEAM       -0.200000       0.0       0.0 -0.480000 -0.480000        1.HEAVYION
-HI-PROPE          8.       16.
-BEAMPOS          0.0       0.0      -30.       0.0       0.0
-EMFCUT           -1.        1.               BLACK  @LASTREG        1.
-EMFCUT           -1.        1.        1.  BLCKHOLE  @LASTMAT        1.PROD-CUT
-DELTARAY          1.                      BLCKHOLE  @LASTMAT        1.
-PAIRBREM         -3.                      BLCKHOLE  @LASTMAT
+PHYSICS           1.                                                  COALESCE  
+BEAM       -0.200000  0.000000  0.000000 -0.480000 -0.480000       1.0HEAVYION  
+HI-PROPE    8.000000 16.000000                                                  
+BEAMPOS        0.000     0.000   -30.000     0.000     0.000                    
+EMFCUT     -1.000000  1.000000               BLACK  @LASTREG       1.0          
+EMFCUT     -1.000000  1.000000        1.  BLCKHOLE  @LASTMAT       1.0PROD-CUT  
+DELTARAY    1.000000                      BLCKHOLE  @LASTMAT       1.0          
+PAIRBREM         -3.                      BLCKHOLE  @LASTMAT                    
 * @@@END GENERATED:GENERAL@@@ **************************************************
 * ******************************************************************************
 *                          GEOMETRY                                            *
@@ -168,28 +168,28 @@ ASSIGNMA      EJ-232       STC
 ASSIGNMA    ALUMINUM   BMN_SHI
 ASSIGNMA       Mylar  BMN_MYL0
 ASSIGNMA       Mylar  BMN_MYL1
-ASSIGNMA      Ar-CO2  BMN_C000  BMN_C017        1.
-ASSIGNMA      Ar-CO2  BMN_C100  BMN_C117        1.
+ASSIGNMA      Ar-CO2  BMN_C000  BMN_C017         1
+ASSIGNMA      Ar-CO2  BMN_C100  BMN_C117         1
 ASSIGNMA      Ar-CO2   BMN_GAS
 ASSIGNMA    ALUMINUM   BMN_FWI
 ASSIGNMA    TUNGSTEN   BMN_SWI
-ASSIGNMA    Polyethy    TARGET                            1.
-ASSIGNMA     SILICON     VTXP0     VTXS3        1.        1.
-ASSIGNMA    ALUMINUM     ITRP2    ITRP73        1.
-ASSIGNMA       Epoxy     ITRP0    ITRP75        1.
-ASSIGNMA      KAPTON     ITRP1    ITRP74        1.
-ASSIGNMA     SILICON    ITRP13   ITRS313        1.        1.
-ASSIGNMA     SiCFoam     ITRP6    ITRP69        1.
+ASSIGNMA    Polyethy    TARGET                             1
+ASSIGNMA     SILICON     VTXP0     VTXS3         1         1
+ASSIGNMA    ALUMINUM     ITRP2    ITRP73         1         1
+ASSIGNMA       Epoxy     ITRP0    ITRP75         1         1
+ASSIGNMA      KAPTON     ITRP1    ITRP74         1         1
+ASSIGNMA     SILICON    ITRP13   ITRS313         1         1
+ASSIGNMA     SiCFoam     ITRP6    ITRP69         1         1
 ASSIGNMA        SmCo   MAG_PM0
 ASSIGNMA    ALUMINUM   MAG_CV0
 ASSIGNMA        SmCo   MAG_PM1
 ASSIGNMA    ALUMINUM   MAG_CV1
-ASSIGNMA         AIR   MAG_AIR                            1.
-ASSIGNMA     SILICON     MSDS0     MSDS2        1.        1.
+ASSIGNMA         AIR   MAG_AIR                             1
+ASSIGNMA     SILICON     MSDS0     MSDS2         1          
 ASSIGNMA         AIR       BOX
-ASSIGNMA      EJ-232    SCN000    SCN121        1.
-ASSIGNMA         BGO    CAL000    CAL359        1.
-MGNFIELD    0.100000  0.000010                 0.0       0.0       0.0
+ASSIGNMA      EJ-232    SCN000    SCN121         1          
+ASSIGNMA         BGO    CAL000    CAL359         1
+MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000          
 * @@@END GENERATED:MATERIAL&MAGFIELD@@@ ****************************************
 *
 * ******************************************************************************
@@ -203,5 +203,5 @@ RANDOMIZ          1.   593585.
 * ******************************************************************************
 *                          RUN                                                 *
 * ******************************************************************************
-START            10.
+START          1000.
 STOP

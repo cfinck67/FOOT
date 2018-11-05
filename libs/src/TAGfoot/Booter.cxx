@@ -127,6 +127,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     fGeoTrafo->InitGeo(filename.Data());
 
 	cout << "Make Geo" << endl;
+
     TGeoManager *masterGeo = new TGeoManager("genfitGeom", "GENFIT geometry");
     
 	Materials* listMaterials = new Materials() ;
@@ -137,7 +138,6 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 
     top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 120.);
     gGeoManager->SetTopVolume(top); // mandatory !
-
 
     string magFieldMapName = GlobalPar::GetPar()->MagFieldInputMapName();
     // genfit::FieldManager::getInstance()->init(new genfit::ConstField(0. ,10., 0.)); // 1 T
@@ -178,7 +178,6 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     // // cluster test  -  myn_vtclus
     // pos2D = new TH2F( "pos2D", "pos2D", 500, -4, 4 , 500, -4, 4 ); // IT
     pos2D = new TH2F( "pos2D", "pos2D", 500, -1, 1 , 500, -1, 1 );  // VT
-
 }
 
 
@@ -190,12 +189,9 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 //------------------------------------------------------------------------------
 void Booter::Process( Long64_t jentry ) {
 
-
     if ( GlobalPar::GetPar()->IncludeBM() ) {
             MonitorBMNew(jentry); // Yun
     }
-
-    
 
     // start time
     start_kal = clock();
@@ -211,7 +207,6 @@ void Booter::Process( Long64_t jentry ) {
         if ( isKalmanConverged == 1 && GlobalPar::GetPar()->Debug() > 1 )    eventListFile << jentry<< endl;
 
     }
-
 
     // cluster test  -  myn_vtclus
     // TAVTntuCluster* ntup = (TAVTntuCluster*)myn_vtclus->Object();

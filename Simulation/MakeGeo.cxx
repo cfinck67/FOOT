@@ -55,7 +55,8 @@ int main (int argc, char *argv[]) {
     // Materials* listOfMaterials = new Materials();
     // listOfMaterials->PrintMap();
 
-    genfit::FieldManager::getInstance()->init(new FootField( "DoubleDipole.table" ) ); // variable field
+    genfit::FieldManager::getInstance()->init(new FootField( "SummedSingleMap_NoRot.table" ) ); // variable field
+    // genfit::FieldManager::getInstance()->init(new FootField( "DoubleDipole.table" ) ); // variable field
     // genfit::FieldManager::getInstance()->init(new FootField("DoubleGaussMag.table")); // variable field
 
     Materials* listMaterials = new Materials() ;
@@ -216,7 +217,25 @@ int main (int argc, char *argv[]) {
     geofile << vtxGeo->PrintBodies(  );
     geofile << itrGeo->PrintBodies(  );
     
-    geofile << "* ***Magnets\n";    
+    geofile << "* ***Magnets\n";  /*  
+    geofile << "RCC MagCvOu0   " << MAG_X << " " << MAG_Y << " "
+	    << MAG_Z - MAG_CV_LENGTH - MAG_DIST/2. << " 0.000000 0.000000 "
+	    << MAG_CV_LENGTH << " " << MAG_CV0_OUTRAD << endl;
+    geofile << "RCC MagCvOu1   " << MAG_X << " " << MAG_Y << " "
+	    << MAG_Z + MAG_DIST/2. << " 0.000000 0.000000 "
+	    << MAG_CV_LENGTH << " " << MAG_CV1_OUTRAD << endl;
+    geofile << "RCC MagPMOu0   " << MAG_X << " " << MAG_Y << " "
+	    << MAG_Z - MAG_PM_LENGTH - MAG_CV_THICK - MAG_DIST/2. << " 0.000000 0.000000 "
+	    << MAG_PM_LENGTH << " " << MAG_PM0_OUTRAD << endl;
+    geofile << "RCC MagPMOu1   " << MAG_X << " " << MAG_Y << " "
+	    << MAG_Z + MAG_CV_THICK + MAG_DIST/2. << " 0.000000 0.000000 "
+	    << MAG_PM_LENGTH << " " << MAG_PM1_OUTRAD << endl;
+    geofile << "RCC MagPMIn0   " << MAG_X << " " << MAG_Y << " "
+	    << MAG_Z - MAG_CV_THICK - MAG_PM_LENGTH - MAG_DIST/2. << " 0.000000 0.000000 "
+	    << MAG_PM_LENGTH << " " << MAG_PM0_INRAD << endl;
+    geofile << "RCC MagPMIn1   " << MAG_X << " " << MAG_Y << " "
+	    << MAG_Z + MAG_CV_THICK + MAG_DIST/2. << " 0.000000 0.000000 "
+	    << MAG_PM_LENGTH << " " << MAG_PM1_INRAD << endl;*/  
     geofile << "RCC MagCvOu0   " << MAG_X << " " << MAG_Y << " "
 	    << MAG_Z - MAG_CV_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
 	    // << MAG_Z - MAG_DIST/2. << " 0.000000 0.000000 "
@@ -245,12 +264,14 @@ int main (int argc, char *argv[]) {
     geofile << "ZCC Gap0       0.000000 0.000000 " << MAG_CV0_INRAD << endl;
     geofile << "ZCC Gap1       0.000000 0.000000 " << MAG_CV1_INRAD << endl;
     geofile << "* ***Magnetic field air region\n";
-    //mappa sanelli si estende per: -5<x<5 , -5<y<5 , -30<z<30
-    geofile << "RPP MagAir     " << MAG_X - 5. << " " << MAG_X + 5. << " "
-	    << MAG_Y - 5. << " " << MAG_Y + 5. << " "
-	    << MAG_Z - 30. << " " << MAG_Z + 30. << endl;
+    geofile << "RPP MagAir     " << MAG_X - MAG_AIR_WIDTH/2. << " " << MAG_X + MAG_AIR_WIDTH/2. << " "
+	    << MAG_Y - MAG_AIR_HEIGHT/2. << " " << MAG_Y + MAG_AIR_HEIGHT/2. << " "
+	    << MAG_Z - MAG_AIR_LENGTH/2. << " " << MAG_Z + MAG_AIR_LENGTH/2. << endl;
     
     geofile << msdGeo->PrintBodies(  );
+
+    // cout << prova1 << endl;
+    // cout << prova2 << endl;
     
     geofile << "* ***Air Box for Scintillator and Calorimeter\n";
     geofile << "RPP box     " << SCN_X - SCN_BAR_HEIGHT/2. - 1. << " "

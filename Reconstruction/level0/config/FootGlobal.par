@@ -41,9 +41,15 @@ IncludeCA:			y
 
 IncludeEvent:		n
 
+<<<<<<< HEAD
 
 
 Magnetic field map name:  SummedSingleMap.table
+=======
+Magnetic field map name:  SummedSingleMap_NoRot.table
+#Magnetic field map name:  NewMap.table
+#Magnetic field map name:  SummedSingleMap.table
+>>>>>>> a3b68a9361ee06e08fba7eb761ddaa0711c6335d
 #Magnetic field map name:  DoubleDipole.table
 #Magnetic field map name:  DoubleGaussMag.table
 

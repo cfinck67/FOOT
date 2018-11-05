@@ -424,6 +424,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Init passive materials geometry
 // //---------------------------------------------------------------------
 if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT and FLUKA" << endl;
 
+<<<<<<< HEAD
 	// for ( PassiveMatrix::iterator itX = m_passiveMatrix.begin(); itX != m_passiveMatrix.end(); itX++ ) {
 	//     for ( PassivePlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
 	//         for ( PassiveLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
@@ -551,6 +552,134 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build passive materials in ROOT
 		}
 		// sensor_i++;
 	} 
+=======
+    // for ( PassiveMatrix::iterator itX = m_passiveMatrix.begin(); itX != m_passiveMatrix.end(); itX++ ) {
+    //     for ( PassivePlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+    //         for ( PassiveLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+
+    for ( unsigned int k=0; k<m_passiveMaterial.size(); k++ ) {
+        for ( unsigned int j=0; j<m_nSensors_Y; j++ ) {
+            for ( unsigned int i=0; i<1; i++ ) {    
+
+                //ROOT addNode
+                if ( GlobalPar::GetPar()->geoROOT() ) {
+                    if ( !gGeoManager->GetVolume( m_passiveMatrix[i][j][k]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_passiveMatrix[i][j][k]->GetMaterialRegionName() << endl;
+
+                    TVector3 globalCoord = m_passiveMatrix[i][j][k]->GetPosition();
+                    Local2Global(&globalCoord);
+                    m_universe->AddNode( gGeoManager->GetVolume( m_passiveMatrix[i][j][k]->GetMaterialRegionName().c_str() ), 
+                                        m_passiveMatrix[i][j][k]->GetNodeID() , 
+                                        new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
+                                        new TGeoRotation("null,",0,0,0) ) );
+
+                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "\t"<<m_passiveMatrix[i][j][k]->GetMaterialRegionName()<<"  "<<m_passiveMatrix[i][j][k]->GetRegionName()<< "  ", globalCoord.Print();
+                }
+                
+                // boidies
+                if ( GlobalPar::GetPar()->geoFLUKA() ) {
+
+                    TVector3 minCoord = TVector3( m_passiveMatrix[i][j][k]->GetMinCoord().x(), m_passiveMatrix[i][j][k]->GetMinCoord().y(), m_passiveMatrix[i][j][k]->GetMinCoord().z() );
+                    TVector3 maxCoord = TVector3( m_passiveMatrix[i][j][k]->GetMaxCoord().x(), m_passiveMatrix[i][j][k]->GetMaxCoord().y(), m_passiveMatrix[i][j][k]->GetMaxCoord().z() );
+                    Local2Global( &minCoord );
+                    Local2Global( &maxCoord );
+
+                    stringstream ss;    
+                    ss << setiosflags(ios::fixed) << setprecision(6);
+                    ss <<  "RPP " << m_passiveMatrix[i][j][k]->GetBodyName() <<  "     " 
+                                << minCoord.x() << " " << maxCoord.x() << " "
+                                << minCoord.y() << " " << maxCoord.y() << " "
+                                << minCoord.z() << " " << maxCoord.z() << endl;
+                    
+                    m_bodyPrintOut  [ m_passiveMatrix[i][j][k]->GetMaterialName() ].push_back( ss.str() );
+                    m_bodyName      [ m_passiveMatrix[i][j][k]->GetMaterialName() ].push_back( m_passiveMatrix[i][j][k]->GetBodyName() );
+
+                    // regions
+                    stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << m_passiveMatrix[i][j][k]->GetRegionName()
+                                            << "5 " << m_passiveMatrix[i][j][k]->GetBodyName() << endl;
+                    
+                    m_regionPrintOut[ m_passiveMatrix[i][j][k]->GetMaterialName() ].push_back( ssr.str() );
+                    m_regionName    [ m_passiveMatrix[i][j][k]->GetMaterialName() ].push_back( m_passiveMatrix[i][j][k]->GetRegionName() );
+                    if (    genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( m_passiveMatrix[i][j][k]->GetPosition() ).Mag() == 0 )
+                        m_magneticRegion[ m_passiveMatrix[i][j][k]->GetRegionName() ] = 0;
+                    else 
+                        m_magneticRegion[ m_passiveMatrix[i][j][k]->GetRegionName() ] = 1;
+                    
+                }
+
+            }
+        }
+    } 
+
+    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build chip materials in ROOT and FLUKA" << endl;
+    // passive chip material
+    // int sensor_i = 0;
+    // for ( PassiveMatrix::iterator itX = m_chipMatrix.begin(); itX != m_chipMatrix.end(); itX++ ) {
+    //     int sensor_j = 0;
+    //     for ( PassivePlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+    //         int sensor_k = 0;
+    //         for ( PassiveLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+
+    for ( unsigned int k=0; k<m_nSensors_Z; k++ ) {
+        for ( unsigned int j=0; j<m_nSensors_Y; j++ ) {
+            for ( unsigned int i=0; i<m_nSensors_X; i++ ) {   
+
+                //ROOT addNode
+                if ( GlobalPar::GetPar()->geoROOT() )    {
+                    if ( !gGeoManager->GetVolume( m_chipMatrix[i][j][k]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_chipMatrix[i][j][k]->GetMaterialRegionName() << endl;
+
+                    TVector3 globalCoord = m_chipMatrix[i][j][k]->GetPosition();
+                    Local2Global(&globalCoord);
+                    m_universe->AddNode( gGeoManager->GetVolume( m_chipMatrix[i][j][k]->GetMaterialRegionName().c_str() ), 
+                                        m_chipMatrix[i][j][k]->GetNodeID() , 
+                                        new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
+                                        new TGeoRotation("null,",0,0,0) ) );
+
+                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "\t"<<m_chipMatrix[i][j][k]->GetMaterialRegionName()<<"  "<<m_chipMatrix[i][j][k]->GetRegionName() <<"  ", globalCoord.Print();
+                }
+                
+                // boidies
+                if ( GlobalPar::GetPar()->geoFLUKA() ) {
+
+                    TVector3 minCoord = TVector3( m_chipMatrix[i][j][k]->GetMinCoord().x(), m_chipMatrix[i][j][k]->GetMinCoord().y(), m_chipMatrix[i][j][k]->GetMinCoord().z() );
+                    TVector3 maxCoord = TVector3( m_chipMatrix[i][j][k]->GetMaxCoord().x(), m_chipMatrix[i][j][k]->GetMaxCoord().y(), m_chipMatrix[i][j][k]->GetMaxCoord().z() );
+                    Local2Global( &minCoord );
+                    Local2Global( &maxCoord );
+
+                    stringstream ss;    
+                    ss << setiosflags(ios::fixed) << setprecision(6);
+                    ss <<  "RPP " << m_chipMatrix[i][j][k]->GetBodyName() <<  "     " 
+                                << minCoord.x() << " " << maxCoord.x() << " "
+                                << minCoord.y() << " " << maxCoord.y() << " "
+                                << minCoord.z() << " " << maxCoord.z() << endl;
+                    
+                    m_bodyPrintOut[ m_chipMatrix[i][j][k]->GetMaterialName() ].push_back( ss.str() );
+                    m_bodyName    [ m_chipMatrix[i][j][k]->GetMaterialName() ].push_back( m_chipMatrix[i][j][k]->GetBodyName() );
+
+                    // regions
+                    stringstream ssr;    ssr << setw(13) << setfill( ' ' ) << std::left << m_chipMatrix[i][j][k]->GetRegionName()
+                                            << "5 " << m_chipMatrix[i][j][k]->GetBodyName() << " - " << 
+                                            m_sensorMatrix[k][j][i]->GetBodyName() << endl;   
+                    
+                    m_regionPrintOut[ m_chipMatrix[i][j][k]->GetMaterialName() ].push_back( ssr.str() );
+                    m_regionName    [ m_chipMatrix[i][j][k]->GetMaterialName() ].push_back( m_chipMatrix[i][j][k]->GetRegionName() );
+                    
+                    if (    genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( m_chipMatrix[i][j][k]->GetPosition() ).Mag() == 0 )
+                        m_magneticRegion[ m_chipMatrix[i][j][k]->GetRegionName() ] = 0;
+                    else 
+                        m_magneticRegion[ m_chipMatrix[i][j][k]->GetRegionName() ] = 1;
+
+                }
+                // sensor_k++;
+            }
+            // sensor_j++;
+        }
+        // sensor_i++;
+    } 
+>>>>>>> a3b68a9361ee06e08fba7eb761ddaa0711c6335d
 
 
 //---------------------------------------------------------------------
@@ -589,6 +718,7 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
 					  xmin.push_back(minCoord.X());
 			  if (fabs(minCoord.Y())<1.e-15)  {
 			ymin.push_back(0.);// invece he ymin=0 mi viene =1.11022e-16D+00 -> nel parameters.in mi allunga la riga e va oltre il limite di caratteri in fortran
+<<<<<<< HEAD
 			  }
 				  else ymin.push_back(minCoord.Y());
 				}
@@ -622,6 +752,41 @@ if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor materials in ROOT 
 
 			}
 	   }
+=======
+		      }
+   	              else ymin.push_back(minCoord.Y());
+         	    }
+
+                    stringstream ss;
+                    ss << setiosflags(ios::fixed) << setprecision(6);
+                    ss <<  "RPP " << m_sensorMatrix[k][j][i]->GetBodyName() <<  "     " 
+                                << minCoord.x() << " " << maxCoord.x() << " "
+                                << minCoord.y() << " " << maxCoord.y() << " "
+                                << minCoord.z() << " " << maxCoord.z() << endl;
+
+                    m_bodyPrintOut  [ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( ss.str() );
+                    // m_bodyName      [ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( m_sensorMatrix[k][j][i]->GetBodyName() );
+
+                    // regions
+                    stringstream ssr;
+                    ssr << setw(13) << setfill( ' ' ) << std::left << m_sensorMatrix[k][j][i]->GetRegionName()
+                        << "5 " << m_sensorMatrix[k][j][i]->GetBodyName() << endl;
+
+                    m_regionPrintOut[ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( ssr.str() );
+                    m_regionName    [ m_sensorMatrix[k][j][i]->GetMaterialName() ].push_back( m_sensorMatrix[k][j][i]->GetRegionName() );
+                    
+                    if (    genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( m_sensorMatrix[k][j][i]->GetCenter() ).Mag() == 0 )
+                        m_magneticRegion[ m_sensorMatrix[k][j][i]->GetRegionName() ] = 0;
+                    else 
+                        m_magneticRegion[ m_sensorMatrix[k][j][i]->GetRegionName() ] = 1;
+                    
+                }
+
+            }
+       }
+>>>>>>> a3b68a9361ee06e08fba7eb761ddaa0711c6335d
 	
 	m_xmin.push_back(xmin);
 	m_ymin.push_back(ymin);

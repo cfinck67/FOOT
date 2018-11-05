@@ -33,6 +33,7 @@ FootField::FootField ( string fileName ) {
 
     // read position and field  -->	 fill a multidimensional map called lattice3D = map< double, map< double, map< double, TVector3 > > >
     string line = "";
+
     while( getline( ifile, line ) ) {  
 
         if (line == "")  continue;
@@ -70,7 +71,6 @@ FootField::FootField ( string fileName ) {
 
     }  
     ifile.close();
-
 }
 
 
@@ -78,7 +78,7 @@ FootField::FootField ( string fileName ) {
 FootField::FootField ( float constValue ) {
 	
 	m_fieldSetting = "constField";
-	
+
 	if ( GlobalPar::GetPar()->Debug() > 0 )    {
 		cout << "Creating Constant B field" << endl;
 		// cout << "\tB min vertex =  " << MAG_AIR_X-MAG_AIR_WIDTH <<"  "<< MAG_AIR_Y-MAG_AIR_HEIGHT << "  "<< MAG_AIR_Z-MAG_AIR_LENGTH << endl;
