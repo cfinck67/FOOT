@@ -32,8 +32,8 @@ ClassImp(TABMvieTrackFOOT);
 
 //~ TABMvieTrackFOOT::TABMvieTrackFOOT(TABMparGeo* p_bmgeo_in)
   //~ : p_bmgeo(p_bmgeo_in)
-TABMvieTrackFOOT::TABMvieTrackFOOT(TABMntuTrack* p_ntutrk_in, TABMntuRaw* p_nturaw_in, TABMparGeo* p_bmgeo_in, Int_t track_ok_in)
-  : p_ntutrk(p_ntutrk_in), p_nturaw(p_nturaw_in), p_bmgeo(p_bmgeo_in), track_ok(track_ok_in)
+TABMvieTrackFOOT::TABMvieTrackFOOT(TABMntuTrack* p_ntutrk_in, TABMntuRaw* p_nturaw_in, TABMparGeo* p_bmgeo_in, Int_t track_ok_in, Int_t event_number_in)
+  : p_ntutrk(p_ntutrk_in), p_nturaw(p_nturaw_in), p_bmgeo(p_bmgeo_in), track_ok(track_ok_in), event_number(event_number_in)
 {
   cell_occupy=nullptr;
   SetName("TABMvieTrackFOOT");
@@ -122,6 +122,8 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   double x_target(0), y_target(0);
   double xch_i, xch_f, ych_i, ych_f;
   double zmin, zmax, t_i, t_f;
+  char text[200];
+  Int_t tmp_int;
 
   /*
     Starting with Top View (XZ)       View  == -1 (Top view, V view)
@@ -131,8 +133,8 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   attfill_box.Modify();
   //~ atttext_small_hcvb.Modify();
   gPad->PaintBox(-BMN_WIDTH, -0.5*BMN_LENGTH, 0., +0.5*BMN_LENGTH);
-  gPad->PaintText(-BMN_WIDTH+0.2, BMN_LENGTH/2.-0.8, "Top V view (XZ)              Top U view (YZ)");
-
+  sprintf(text,"V (XZ)     Evnum=%d     U (YZ)",event_number);
+  gPad->PaintText(-BMN_WIDTH+0.2, BMN_LENGTH/2.-0.8,text); 
 
   /* Drawing the cells */
   for(int il= 0; il<BMN_NLAY; il++) {
@@ -147,8 +149,6 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
     }
   }
   
-  char text[200];
-  Int_t tmp_int;
   //Beam Monitor tracks 
   if (track_ok==0 || track_ok==5) {
     //Displays the fitted tracks
@@ -156,7 +156,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
 
     for (Int_t i_t = 0; i_t < p_ntutrk->ntrk; i_t++) {
       p_trk = p_ntutrk->Track(i_t);
-      sprintf(text,"MyChi2Red :: %lf",p_trk->GetMyChi2Red());
+      sprintf(text,"MyChi2Red: %lf",p_trk->GetMyChi2Red());
       gPad->PaintText(-0.6*BMN_WIDTH, +0.40*BMN_LENGTH,text);
 
       //~ x_target = p_trk->GetX0();//yun: sono arrivato qua

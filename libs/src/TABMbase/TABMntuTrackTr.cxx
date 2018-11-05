@@ -18,7 +18,7 @@ TABMntuTrackTr::TABMntuTrackTr():
     nhit(0), chi2(999.), chi2Red(999),
     mychi2(160), mychi2Red(15), ndf(0), failedPoint(0), 
     isConverged(0), MaxRdriftErr(100), AngZ(100), AngZRes(100),
-    AngZResAv(100), AngPhi(100), AngPhiRes(100)
+    AngZResAv(100), AngPhi(100), AngPhiRes(100),prefit_status(-10)
     
 {
 
@@ -123,6 +123,7 @@ void TABMntuTrackTr::Clean()
   target_pos.SetXYZ(0.,0.,0.);
   mylar1_pos.SetXYZ(0.,0.,0.);
   mylar2_pos.SetXYZ(0.,0.,0.);
+  prefit_status=-10;
 }
 
 TABMntuTrackTr::TABMntuTrackTr(const TABMntuTrackTr &tr_in){
@@ -143,6 +144,7 @@ TABMntuTrackTr::TABMntuTrackTr(const TABMntuTrackTr &tr_in){
   target_pos=tr_in.target_pos;
   mylar1_pos=tr_in.mylar1_pos;
   mylar2_pos=tr_in.mylar2_pos;
+  prefit_status=tr_in.prefit_status;
   
 }
 
@@ -190,11 +192,11 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
   TVector3 wire_pos, wire_dir;
   TVector3 first_fit_pos(0,0,100), last_fit_pos(0,0,-100);//per calcolo angZ... ma no buono!!!
   vector<Double_t> angZ_vec, angPhi_vec;
-  vector<TVector3> state_pos_vec;
+  //~ vector<TVector3> state_pos_vec;
   AbsMeasurement* measurement;
   TDecompChol fitTrack_cov;  
   MeasuredStateOnPlane state, first_state;
-  KalmanFitterInfo* kalmanInfo;
+  //~ KalmanFitterInfo* kalmanInfo;
     
   if(p_bmcon->GetBMdebug()>10)
     cout<<"TABMntuTrack::CalculateFitPar, hit_num="<<hit_num<<"  I'm starting loop on hit_num"<<endl;
@@ -208,7 +210,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
     if(p_bmcon->GetBMdebug()>10)
       cout<<"TABMntuTrack::CalculateFitPar:: hit_num="<<hit_num<<endl;
     if(fitTrack->getPointWithMeasurement(i)->hasFitterInfo(fitTrack->getTrackRep(0))){
-      kalmanInfo=fitTrack->getPointWithMeasurement(i)->getKalmanFitterInfo(fitTrack->getTrackRep(0));
+      //~ kalmanInfo=fitTrack->getPointWithMeasurement(i)->getKalmanFitterInfo(fitTrack->getTrackRep(0));
       fitTrack_cov=fitTrack->getPointWithMeasurement(i)->getRawMeasurement(0)->getRawHitCov();
       if(fitTrack_cov.Decompose()) {// questo check in più forse è inutile!!!!!!
         state=fitTrack->getFittedState(i);
@@ -217,7 +219,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
         measurement=fitTrack->getPointWithMeasurement(i)->getRawMeasurement(0);
         angZ_vec.push_back(state.getMom().Theta()*RAD2DEG);
         angPhi_vec.push_back(state.getMom().Phi()*RAD2DEG);
-        state_pos_vec.push_back(state.getPos());  
+        //~ state_pos_vec.push_back(state.getPos());  
         old_rdrift=measurement->getRawHitCoords()[6];
         wire_pos.SetXYZ(measurement->getRawHitCoords()[0],measurement->getRawHitCoords()[1],measurement->getRawHitCoords()[2]);
         wire_dir.SetXYZ(measurement->getRawHitCoords()[3],measurement->getRawHitCoords()[4],measurement->getRawHitCoords()[5]);
@@ -305,8 +307,8 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
     if(p_bmcon->GetBMdebug()>10)
       cout<<"TABMntuTrack::CalculateFitPar::  angZRes="<<AngZRes<<"  number of measurement="<<angZ_vec.size()<<"  converge?"<<fitTrack->getFitStatus(fitTrack->getTrackRep(0))->isFitConverged()<<"   angZ="<<AngZ<<endl;
       
-    if(state_pos_vec.size()!=angZ_vec.size())
-      cout<<"TABMntuTrack::CalculateFitPar::ERROR: state_pos_vec.size is different from angZ_vec.size!!!!!!!!!!!!!!!!!!!!!  something is wrong in TABMntuTrack::CalculatefitPar"<<endl;
+    //~ if(state_pos_vec.size()!=angZ_vec.size())
+      //~ cout<<"TABMntuTrack::CalculateFitPar::ERROR: state_pos_vec.size is different from angZ_vec.size!!!!!!!!!!!!!!!!!!!!!  something is wrong in TABMntuTrack::CalculatefitPar"<<endl;
         
     //extrapolate track on mylar1 with first_state
     if(p_bmcon->GetBMdebug()>10)

@@ -43,6 +43,8 @@ using namespace std;
 #include <math.h>
 #include <iostream>
 
+#define wire_err  0.03 //is the error on the wire position... maybe this value is not correct
+#define det_Id    1 //beam monitor Id (useless parameter necessary to genfit)
 
 using namespace genfit;
 
@@ -67,9 +69,13 @@ public:
   void SetInitPos(TVector3 &init_pos, Int_t &fit_index, Double_t &xwire, Double_t &xrdrift, Double_t &ywire, Double_t &yrdrift, Double_t init_z);
   //~ Bool_t PlaneCounter(vector<Int_t> &hitxtrack_vec, TABMparCon *p_bmcon);
   Bool_t Refit(vector<Double_t> &hit_mychi2, vector< vector<Int_t> > &hitxtrack, TABMparCon* p_bmcon);//return true if it add another possible track to hitxtrack
-  void RejectSlopedTrack(vector< vector<Int_t> > &hitxtrack, vector<Bool_t>&possiblePrimary, TABMntuHit* p_hit, TABMntuRaw* p_ntuhit, Int_t &trk_index);
+  //~ void RejectSlopedTrack(vector< vector<Int_t> > &hitxtrack, vector<Bool_t>&possiblePrimary, TABMntuHit* p_hit, TABMntuRaw* p_ntuhit, Int_t &trk_index);
   void PruneNotConvTrack(vector<vector<Int_t>> &prunedhit,vector< vector<Int_t> > &hitxtrack, Int_t index);
-  void ChargePrunedTrack(vector<Int_t> &prunedhit, Int_t prunedUview, Int_t prunedVview, vector< vector<Int_t> > &hitxtrack, vector<Bool_t> &possiblePrimary, TABMparCon* p_bmcon, TABMntuRaw* p_ntuhit, TABMntuHit* p_hit, Int_t index);  
+  void ChargePrunedTrack(vector<Int_t> &prunedhit, Int_t prunedUview, Int_t prunedVview, vector< vector<Int_t> > &hitxtrack, TABMparCon* p_bmcon, TABMntuRaw* p_ntuhit, TABMntuHit* p_hit, Int_t index);  
+  void ChargeHits4Track(vector<Int_t> &singlehittrack,Int_t &firedUview,Int_t &firedVview, vector<Double_t> &hit_res, TMatrixDSym &hitCov, TVectorD &hitCoords, Track *&fitTrack, Double_t &wire_a_x, Double_t &wire_a_y, Double_t &rdrift_a_x, Double_t &rdrift_a_y);
+  void PrefitTracking(Int_t &prefit_status,Int_t &firedUview,Int_t &firedVview, vector<Int_t> singlehittrack, vector< vector<Int_t> > &hitxtrack, vector< vector<Int_t> > &hitxplane, vector<Double_t> &hit_res, TMatrixDSym &hitCov, TVectorD &hitCoords, Double_t &wire_a_x, Double_t &wire_a_y, Double_t &rdrift_a_x, Double_t &rdrift_a_y, TABMntuTrackTr &best_trackTr, Track *&fitTrack, AbsTrackRep *&rep);
+  void MyGenfitFitting(vector<Int_t> &singlehittrack,Int_t &firedUview,Int_t &firedVview, vector<Double_t> &hit_res, TMatrixDSym &hitCov, TVectorD &hitCoords, Track *&fitTrack, AbsTrackRep *&rep, Double_t &wire_a_x, Double_t &rdrift_a_x, Double_t &wire_a_y, Double_t &rdrift_a_y);
+
   
   ClassDef(TABMactNtuTrack,0)
     
@@ -95,6 +101,9 @@ public:
   TAGparaDsc*       fpBMGeo;		    // input data dsc
   TAGparaDsc*       fpBMCon;		    // input data dsc
   
+  //ntu objects
+  TABMntuRaw*   p_ntuhit;
+  TABMntuHit*   p_hit;
   //par objects
   TABMparCon* p_bmcon;
   TABMparGeo* p_bmgeo;

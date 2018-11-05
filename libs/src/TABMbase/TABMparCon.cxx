@@ -229,10 +229,11 @@ Bool_t TABMparCon::FromFile(const TString& name) {
       sscanf(bufConf, "K %s",tmp_char);
         parmapfile=tmp_char;
     }else if(strchr(bufConf,'F')) {
-      sscanf(bufConf, "F %d",&myArgInt);
-      if(myArgInt>=0)
+      sscanf(bufConf, "F %d %d",&myArgInt, &myArgIntmax);
+      if(myArgInt>=0 && myArgIntmax>=0){
         fitter_index = myArgInt;
-      else {
+        prefit_enable=myArgIntmax;
+      }else {
 	      Error(""," Plane Map Error:: check config file!! (F)");
 	      return kTRUE;
         }

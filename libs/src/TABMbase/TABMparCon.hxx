@@ -47,6 +47,7 @@ class TABMparCon : public TAGpara {
     Double_t GetAngZRescut(){return angzres_cut;};
     Int_t GetRejmaxcut(){return rejmax_cut;};
     Int_t GetFitterIndex(){return fitter_index;};
+    Int_t GetPrefitEnable(){return prefit_enable;};
     Int_t GetBMdebug(){return bm_debug;};
     Int_t GetBMvietrack(){return bm_vietrack;};
     //~ string GetBMdataFileName(){return datafile_name;};
@@ -128,6 +129,7 @@ class TABMparCon : public TAGpara {
     Double_t part_in_mom;//for BM Genfit tracking
     Int_t    calibro;//flag for the calibration
     Int_t    strel_switch;//flag to choose the st relations (1=garfield, 0=FIRST embedded)
+    Int_t    prefit_enable;//flag to enable or disable the prefit
     //~ TVector3 meas_shift;//shift for the calibration
     //~ TVector3 meas_tilt;//tilt for the calibration
     Int_t    manageT0BM; //0=calculate T0 and save v_t0s in bmt0file, 1=loadT0 from bmt0file

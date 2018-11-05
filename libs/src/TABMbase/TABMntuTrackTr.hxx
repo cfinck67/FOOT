@@ -118,6 +118,7 @@ class TABMntuTrackTr : public TObject {
         this->target_pos=in.target_pos;
         this->mylar1_pos=in.mylar1_pos;
         this->mylar2_pos=in.mylar2_pos;
+        this->prefit_status=in.prefit_status;
       }
       return *this;
     }
@@ -130,6 +131,7 @@ class TABMntuTrackTr : public TObject {
     void SetNdf(Double_t nd) {ndf = nd;};
     void SetFailedPoint(Int_t fail) {failedPoint = fail;};
     void SetIsConverged(Int_t conv) {isConverged = conv;};
+    void SetPrefitStatus(Int_t status){prefit_status=status;};
     
     //Getters
     Int_t  GetNhit() {return nhit;};
@@ -148,6 +150,7 @@ class TABMntuTrackTr : public TObject {
     TVector3 GetMylar1Pos(){return mylar1_pos;};
     TVector3 GetMylar2Pos(){return mylar2_pos;};
     TVector3 GetTargetPos(){return target_pos;};
+    Int_t GetPrefitStatus(){return prefit_status;};
     
     //~ void SetSharedPlanes(TABMparGeo* p_bmgeo);
     void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mysqrtchi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane);
@@ -171,6 +174,7 @@ class TABMntuTrackTr : public TObject {
     TVector3      target_pos;     //position of the track extrapolate to the target plane
     TVector3      mylar1_pos;     //position of the track extrapolate to the first mylar plane
     TVector3      mylar2_pos;     //position of the track extrapolate to the second mylar plane
+    Int_t         prefit_status;  //status of the prefit: -5=no prefit; -1=prefit not converged; 0=prefit performed no need to refit; 1=prefit performed, there are hits added, need to refit; -10= prefit without fitterinfo
     //~ Int_t         trktr_status;   //0=ok, 1=to be refitted pruning hits with mychi2Red over cut level 
 
     

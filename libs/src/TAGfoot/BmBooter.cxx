@@ -165,7 +165,7 @@ void BmBooter::Process() {
       TCanvas *c_bmhview = new TCanvas("bmhview", "BM_tracks",20,20,800,900);
       pg->AddPad(c_bmhview);
       //~ TAGview* pbmh_view = new TABMvieTrackFOOT(bmntutrack, bmnturaw, bmgeo, track_ok);
-      TABMvieTrackFOOT* pbmh_view = new TABMvieTrackFOOT(bmntutrack, bmnturaw, bmgeo, track_ok);
+      TABMvieTrackFOOT* pbmh_view = new TABMvieTrackFOOT(bmntutrack, bmnturaw, bmgeo, track_ok,data_num_ev);
       pbmh_view->SetCelloccupy(cell_occupy);
       pbmh_view->Draw();
       pg->Modified();//marca i pad come modificati
