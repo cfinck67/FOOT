@@ -42,6 +42,20 @@ TACAparGeo::TACAparGeo() {
 //_____________________________________________________________________________
 void TACAparGeo::InitMaterial() {
 
+    m_materialOrder = {   "CAL_MEDIUM",
+                          "CAL_MEDIUM"
+                             };
+
+    m_passiveMaterial = {};
+
+
+    for ( unsigned int i=0; i<m_materialOrder.size(); i++ ) {
+        if( m_materialOrder[i] == "CAL_MEDIUM" ){
+            m_materialThick[ m_materialOrder[i] ] = CAL_CRY_THICK;
+            m_materialType[ m_materialOrder[i] ] = CAL_MEDIUM;
+        }
+    }
+
 }
 
 
@@ -50,15 +64,213 @@ void TACAparGeo::InitMaterial() {
 void TACAparGeo::InitGeo()  {
   
   if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "\n\nTACAparGeo::InitGeo" << endl<< endl;
+
+  m_origin = TVector3(0,0,0);                         // center in local coord.
+  m_center = TVector3(CAL_X, CAL_Y, CAL_Z);           // center in global coord.
+    
+
+//---------------------------------------------------------------------
+//     Find DETECTOR dimension
+//---------------------------------------------------------------------
+
+  m_BGOSensorThick_Lz = CAL_CRY_THICK; 
+
+  m_dimension = TVector3( CAL_WIDTH , CAL_HEIGHT, m_BGOSensorThick_Lz );   //Manca la parte passiva
+
+
+//---------------------------------------------------------------------
+//     Init SENSOR geometry
+//---------------------------------------------------------------------
+
+if ( GlobalPar::GetPar()->Debug() > 0 ) cout << " Init SENSOR BGO geometry " << endl;
+
+    double BGO_Distance = 0;
+
+    m_BGO_Pitch_X = CAL_CRY_WIDTH;
+    m_BGO_Pitch_Y = CAL_CRY_HEIGHT;
+      
+    TVector3 BGOsensorDimension = TVector3( CAL_CRY_WIDTH, CAL_CRY_HEIGHT, m_BGOSensorThick_Lz );
+    //TVector3 passiveSiDimension = TVector3( VTX_WIDTH, VTX_HEIGHT, m_siliconSensorThick_Lz );
+
+    // number of BGO in the calorimeter
+    m_nBGO_X = CAL_WIDTH/CAL_CRY_WIDTH;
+    m_nBGO_Y = CAL_HEIGHT/CAL_CRY_HEIGHT;
+
+    m_nSensors = TVector3( m_nBGO_X, m_nBGO_Y, 1 );            // set number of sensors (BGOs) in each axis 
+
+
+   	// fill sensor matrix
+    double BGOsensor_newZ = m_origin.Z();
+    double BGOsensor_newX = m_origin.X() - CAL_WIDTH/2 + CAL_CRY_WIDTH/2;
+    double BGOsensor_newY = m_origin.Y() + CAL_HEIGHT/2 - CAL_CRY_HEIGHT/2;
+
+    m_BGOsensorMatrix.resize( m_nSensors.Z() );
+    for (int k=0; k<m_nSensors.Z(); k++) {
+        m_BGOsensorMatrix[k].resize( m_nSensors.X() );
+
+        for (int i=0; i<m_nSensors.X(); i++) {
+            if (i!=0) {
+              BGOsensor_newX += CAL_CRY_WIDTH; 
+              BGOsensor_newY = m_origin.Y() + CAL_HEIGHT/2 - CAL_CRY_HEIGHT/2; 
+            }
+            m_BGOsensorMatrix[k][i].resize( m_nSensors.Y() );
+
+            for (int j=0; j<m_nSensors.Y(); j++) {
+              if (j!=0){
+                BGOsensor_newY -= CAL_CRY_HEIGHT;
+              }
+
+                m_BGOsensorMatrix[k][i][j] = new LightSabre();
+
+                m_volumeCount++;
+                stringstream ss_bodySensorName; ss_bodySensorName << "cal" << m_volumeCount;
+                stringstream ss_regionSensorName; ss_regionSensorName << "CAL" << m_volumeCount;
+                m_BGOsensorMatrix[k][i][j]->SetMaterial( m_materialType[ "CAL_MEDIUM" ], "CAL_MEDIUM", ss_bodySensorName.str(), ss_regionSensorName.str(), m_volumeCount );
+
+                m_BGOsensorMatrix[k][i][j]->SetBar(
+                        TVector3( BGOsensor_newX, BGOsensor_newY, BGOsensor_newZ ),  // sensor center
+                        TVector3( BGOsensorDimension.x(), BGOsensorDimension.y(), BGOsensorDimension.z() ),    // sensor dimension
+                        m_BGO_Pitch_X, m_BGO_Pitch_Y, m_BGOSensorThick_Lz,
+                        TVector3(0,0,0)    // rotation
+                 );
+
+                if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "sensor center ",    TVector3( BGOsensor_newX, BGOsensor_newY, BGOsensor_newZ ).Print();
+            }
+        }
+    }
+
+    m_rotation = new TRotation();
+    // m_rotation->SetYEulerAngles( m_tilt_eulerAngle.x(), m_tilt_eulerAngle.y(), m_tilt_eulerAngle.z() );
+    m_rotation->SetYEulerAngles( 0,0,0 );
+
+
+
+//---------------------------------------------------------------------
+//     Build sensor materials in ROOT and FLUKA
+//---------------------------------------------------------------------
+/*
+if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Build sensor BGO materials in ROOT and FLUKA" << endl;
+
+    // for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
+    //     for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
+    //         for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
+
+    for ( unsigned int k=0; k<m_nSensors.Z(); k++ ) {
+        for ( unsigned int j=0; j<m_nSensors.Y(); j++ ) {
+            for ( unsigned int i=0; i<m_nSensors.X(); i++ ) {    
+
+                //ROOT addNode
+                if ( GlobalPar::GetPar()->geoROOT() )   {
+                    if ( !gGeoManager->GetVolume( m_sensorMatrix[k][i][j]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_sensorMatrix[k][i][j]->GetMaterialRegionName() << endl;
+
+                    TVector3 globalCoord = m_sensorMatrix[k][i][j]->GetCenter();
+                    Local2Global(&globalCoord);
+                    m_universe->AddNode( gGeoManager->GetVolume( m_sensorMatrix[k][i][j]->GetMaterialRegionName().c_str() ), 
+                                        m_sensorMatrix[k][i][j]->GetNodeID() , 
+                                        new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
+                                        new TGeoRotation("null,",0,0,0) ) );
+                    if ( GlobalPar::GetPar()->Debug() > 0 ) cout <<"\t"<<m_sensorMatrix[k][i][j]->GetMaterialRegionName()<<"  ", globalCoord.Print();
+                }
+
+                    // boidies
+                if ( GlobalPar::GetPar()->geoFLUKA() ) {
+                    
+                    TVector3 minCoord = TVector3( m_sensorMatrix[k][i][j]->GetMinCoord().x(), m_sensorMatrix[k][i][j]->GetMinCoord().y(), m_sensorMatrix[k][i][j]->GetMinCoord().z() );
+                    TVector3 maxCoord = TVector3( m_sensorMatrix[k][i][j]->GetMaxCoord().x(), m_sensorMatrix[k][i][j]->GetMaxCoord().y(), m_sensorMatrix[k][i][j]->GetMaxCoord().z() );
+                    Local2Global( &minCoord );
+                    Local2Global( &maxCoord );
+
+		    if ( k==0 && j==0 && i==0 ) m_xmin = minCoord.x();
+		    else{
+		      if ( m_xmin != minCoord.x()){
+    			cout << "Error in BGO xmin coord " << m_xmin
+    			     << "  " << minCoord.x() << endl;
+		      }
+		    }
+							    
+		    if ( k==0 && j==0 && i==0 ) m_ymin = minCoord.y();
+		    else{
+                if ( m_ymin != minCoord.y()){
+                    cout << "Error in BGO ymin coord" << m_ymin
+                         << "  " << minCoord.y() << endl;
+                }
+		    }
+
+                    stringstream ss;
+                    ss << setiosflags(ios::fixed) << setprecision(6);
+                    ss <<  "RPP " << m_sensorMatrix[k][i][j]->GetBodyName() <<  "     " 
+                                << minCoord.x() << " " << maxCoord.x() << " "
+                                << minCoord.y() << " " << maxCoord.y() << " "
+                                << minCoord.z() << " " << maxCoord.z() << endl;
+                    
+                    m_bodyPrintOut  [ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( ss.str() );
+                    // m_bodyName      [ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( m_sensorMatrix[k][i][j]->GetBodyName() );
+
+                    // regions
+                    stringstream ssr;
+                    ssr << setw(13) << setfill( ' ' ) << std::left << m_sensorMatrix[k][i][j]->GetRegionName()
+                        << "5 " << m_sensorMatrix[k][i][j]->GetBodyName() << endl;
+                        
+                    m_regionPrintOut[ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( ssr.str() );
+                    m_regionName    [ m_sensorMatrix[k][i][j]->GetMaterialName() ].push_back( m_sensorMatrix[k][i][j]->GetRegionName() );
+                    if (    genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 && 
+                            genfit::FieldManager::getInstance()->getFieldVal( m_sensorMatrix[k][i][j]->GetCenter() ).Mag() == 0 )
+                        m_magneticRegion[ m_sensorMatrix[k][i][j]->GetRegionName() ] = 0;
+                    else 
+                        m_magneticRegion[ m_sensorMatrix[k][i][j]->GetRegionName() ] = 1;
+                }
+
+
+            }
+        }
+    }
+
+*/
+
  
 }
 
 
-/*
-//_____________________________________________________________________________
-TVector3 TACAparGeo::GetPosition( int col, int row )  {
+
+
+TVector3 TACAparGeo::GetBGOcoordinate( int ID_BGO )  {
+
+     int coord_x = ID_BGO/m_nBGO_X;
+     int coord_y = ID_BGO%m_nBGO_X;
+
+    m_coordinate = { (double)coord_x , (double)coord_y , 0 };
+    //m_coordinate = { ID_BGO/m_nBGO_X, ID_BGO%m_nBGO_X , 0 };
+
+    return m_coordinate;
+
 }
 
+//_____________________________________________________________________________
+//TVector3 TACAparGeo::GetPosition( int col, int row )  {
+//}
+
+
+//_____________________________________________________________________________
+TVector3 TACAparGeo::GetCoordiante_detectorFrame( int ID_BGO )  { 
+
+  //coordinate = TVector3(0,0,0);
+  int coord_x = ID_BGO/m_nBGO_X;
+  int coord_y = ID_BGO%m_nBGO_X;
+  
+  return m_BGOsensorMatrix[0][coord_x][coord_y] -> GetPosition(); 
+}
+
+
+//_____________________________________________________________________________
+void TACAparGeo::Detector2Sensor_frame( int BGOz, int BGOx, int BGOy, TVector3* coord ) {
+  m_BGOsensorMatrix[BGOz][BGOx][BGOy] -> Global2Local( coord );
+}
+
+//_____________________________________________________________________________
+void TACAparGeo::Sensor2Detector_frame( int BGOz, int BGOx, int BGOy, TVector3* coord ) {
+  m_BGOsensorMatrix[BGOz][BGOx][BGOy] -> Local2Global( coord );
+}
 
 
 //_____________________________________________________________________________
@@ -94,13 +306,13 @@ loc->Transform( GetRotationToGlobal() );
 //_____________________________________________________________________________
 TGeoVolume* TACAparGeo::GetVolume() {
 
-if ( !GlobalPar::GetPar()->geoROOT() ) 
-cout << "ERROR << TACAparGeo::GetVolume()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
+// if ( !GlobalPar::GetPar()->geoROOT() ) 
+// cout << "ERROR << TACAparGeo::GetVolume()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
 
-return m_universe;
+// return m_universe;
 }
 
-*/
+
 
 //_____________________________________________________________________________
 string TACAparGeo::PrintBodies(){
