@@ -677,7 +677,7 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
          fVtxClusDisplay->ResetHits();
       }  else if (prefix == "it") {
          fItClusDisplay->ResetHits();
-      }  else if (prefix == "it") {
+      }  else if (prefix == "ms") {
          fMsdClusDisplay->ResetHits();
       } else
          return;
