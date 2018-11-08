@@ -77,7 +77,7 @@ Set(TATW  "TATWbase")
 Set(TACA  "TACAbase")
 Set(TAMC  "TAMCbase")
 Set(TAFO  "TAGfoot")
-add_definitions(-std=c++11)
+add_definitions(-std=c++14)
 
 #----------------------------------------------------------------------------
 # Set src includes
