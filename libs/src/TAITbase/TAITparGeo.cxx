@@ -449,7 +449,7 @@ void TAITparGeo::InitGeo()
 	double smalloffset_x;
 	//sovrapposizione in y dei sensori:
 	double displacement_y = senseDimension.y() - 0.3;
-
+   TVector3 euler(TMath::Pi(), 0, 0);
 
 	// fill sensor matrix
 	for (int k=0; k<m_nSensors.Z(); k++) {
@@ -478,14 +478,15 @@ void TAITparGeo::InitGeo()
 
 				m_sensorMatrix[k][j][i]->SetMaterial( m_materialType[ "ITR_MEDIUM" ], "ITR_MEDIUM", ss_bodySensorName.str(), ss_regionSensorName.str(), ++m_volumeCount );
 
+            
 				m_sensorMatrix[k][j][i]->SetSensor(
 						TVector3( sensor_newX, sensor_newY, offset_z + sensor_newZ ),              // sensor center
 						TVector3( senseDimension.x(), senseDimension.y(), senseDimension.z() ),    // sensor dimension
 						m_nPixel_X, m_nPixel_Y,
 						pixelWidth_Lx, pixelHeight_Ly, senseDimension.z(),
 						pixelDistance, pixelDistance, 0, //m_layerDistance,
-						TVector3(0,0,0)
-				 );
+                  euler
+                  );
 
 
 				if ( fDebugLevel> 0 )     cout << "sensor center ",    TVector3( sensor_newX, sensor_newY, sensor_newZ ).Print();
