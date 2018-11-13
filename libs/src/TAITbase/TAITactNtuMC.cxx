@@ -81,10 +81,8 @@ bool TAITactNtuMC::Action()
 		myTrow = fpEvtStr->ITRirow[i];
 		myTcol = fpEvtStr->ITRicol[i];
       
-		Int_t sensorId = pGeoMap->GetSensorID( fpEvtStr->ITRilay[i], myTcol, myTrow );
-      // convert id is some reasonnale number that could be an ouput of a DAQ !!!
-      sensorId = pGeoMap->GetChipFromSensorID(sensorId)+16*fpEvtStr->ITRilay[i];
-	   
+		Int_t sensorId = pGeoMap->GetSensorID( fpEvtStr->ITRilay[i], fpEvtStr->ITRiplume[i], fpEvtStr->ITRimimo[i] );
+
 		// used for pileup ...
 		if (fgPileup && storedEvents <= fgPileupEventsN) {
 			mcHit.id  = sensorId;
