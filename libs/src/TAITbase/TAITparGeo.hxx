@@ -120,6 +120,7 @@ public:
    
    //! Build Vertex
    TGeoVolume* BuildInnerTracker(const char* basemoduleName = "Module", const char *name = "IT");
+   TGeoVolume* BuildInnerTrackerOld(const char* basemoduleName = "Module", const char *name = "IT");
 
    
     virtual void    Clear(Option_t* opt="");

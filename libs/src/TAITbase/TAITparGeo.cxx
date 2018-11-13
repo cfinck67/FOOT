@@ -217,6 +217,49 @@ TGeoVolume* TAITparGeo::BuildInnerTracker(const char *itName, const char* basemo
       new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
    }
    
+   // define box
+   Float_t sizeZ = (ITR_PLMZDIST+ITR_M28_THICK/2.)*ITR_NLAY;
+   
+   TGeoVolume* vertex = gGeoManager->FindVolumeFast(itName);
+   if ( vertex == 0x0 ) {
+      const Char_t* matName = ITR_MEDIUM.Data();
+      
+      TGeoMedium*   med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+      TGeoMaterial* mat = (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName);
+      
+      vertex = gGeoManager->MakeBox(itName,med,ITR_M28_WIDTH/2., ITR_M28_HEIGHT/2., sizeZ); // volume corresponding to vertex
+   }
+   
+   TGeoVolume* vertexMod = 0x0;
+   
+   for (int k=0; k<m_nSensors.Z(); k++) {
+      m_sensorMatrix[k].resize( m_nSensors.Y() );
+      for (int j=0; j<m_nSensors.Y(); j++) {
+         m_sensorMatrix[k][j].resize( m_nSensors.X() );
+         for (int i=0; i<m_nSensors.X(); i++) {
+            TVector3 center =  m_sensorMatrix[k][j][i]->GetCenter();
+            
+            Int_t iSensor = GetSensorID(k, j, i);
+            vertexMod = AddModule(Form("%s%d",basemoduleName, iSensor), itName);
+            
+            TGeoHMatrix* transf = new TGeoHMatrix();
+            double vec[3] = {center[0], center[1], center[2]};
+            transf->SetTranslation(vec);
+            vertex->AddNode(vertexMod, iSensor, transf);
+         }
+      }
+   }
+   
+   return vertex;
+}
+
+//_____________________________________________________________________________
+TGeoVolume* TAITparGeo::BuildInnerTrackerOld(const char *itName, const char* basemoduleName)
+{
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
    // hard coded should be avoided
    Float_t mapX[] = { 2,  1, -1, -2,  2,  1, -1, -2, 2, 1, -1, -2, 2, 1, -1, -2};
    Float_t mapY[] = {-2, -2, -2, -2, -1, -1, -1, -1, 1, 1,  1,  1, 2, 2,  2,  2};
@@ -285,7 +328,7 @@ TGeoVolume* TAITparGeo::AddModule(const char* basemoduleName, const char *itName
    TGeoMedium*   med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
    TGeoMaterial* mat =  (TGeoMaterial *)gGeoManager->GetListOfMaterials()->FindObject(matName);
    
-   TGeoBBox *box = new TGeoBBox(Form("%s_Box",basemoduleName), VTX_WIDTH/2., VTX_HEIGHT/2., VTX_THICK/2.);
+   TGeoBBox *box = new TGeoBBox(Form("%s_Box",basemoduleName), VTX_HEIGHT/2., VTX_WIDTH/2., VTX_THICK/2.);
    
    TGeoVolume *vertexMod = new TGeoVolume(Form("%s_Vertex",basemoduleName),box, med);
    vertexMod->SetLineColor(kAzure-5);
