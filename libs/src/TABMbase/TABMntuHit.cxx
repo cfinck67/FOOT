@@ -70,12 +70,8 @@ void TABMntuHit::SetAW(TABMparGeo* f_bmgeo) {
 
  // if(idfilo <0 || idfilo>2) idfilo = 2; //yun: nosense questa cosa...
 
-  A0.SetXYZ(f_bmgeo->GetX(idfilo,Plane(),tmp_fview),
-	    f_bmgeo->GetY(idfilo,Plane(),tmp_fview),
-	    f_bmgeo->GetZ(idfilo,Plane(),tmp_fview));
-  Wvers.SetXYZ(f_bmgeo->GetCX(idfilo,Plane(),tmp_fview),
-	       f_bmgeo->GetCY(idfilo,Plane(),tmp_fview),
-	       f_bmgeo->GetCZ(idfilo,Plane(),tmp_fview));
+  A0.SetXYZ(f_bmgeo->GetX(idfilo,Plane(),tmp_fview), f_bmgeo->GetY(idfilo,Plane(),tmp_fview), f_bmgeo->GetZ(idfilo,Plane(),tmp_fview));
+  Wvers.SetXYZ(f_bmgeo->GetCX(idfilo,Plane(),tmp_fview), f_bmgeo->GetCY(idfilo,Plane(),tmp_fview), f_bmgeo->GetCZ(idfilo,Plane(),tmp_fview));
   
   Double_t modulo = Wvers.Mag();
   if(modulo!=0.) {

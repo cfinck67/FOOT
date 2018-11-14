@@ -28,13 +28,10 @@
 
 //~ #define MAXNWIRE 36
 //~ #define MAXNWIRE_VIEW 18
-//~ #define NUMPAR 4
+#define BM_trackpar 4
 
 using namespace std;
 using namespace genfit;
-
-
-
 
 /* lines defined in the plane by  y=mx+q*/  //used for old tracking
 //~ typedef struct{
@@ -119,6 +116,8 @@ class TABMntuTrackTr : public TObject {
         this->mylar1_pos=in.mylar1_pos;
         this->mylar2_pos=in.mylar2_pos;
         this->prefit_status=in.prefit_status;
+        this->R0=in.R0;
+        this->Pvers=in.Pvers;
       }
       return *this;
     }
@@ -132,6 +131,11 @@ class TABMntuTrackTr : public TObject {
     void SetFailedPoint(Int_t fail) {failedPoint = fail;};
     void SetIsConverged(Int_t conv) {isConverged = conv;};
     void SetPrefitStatus(Int_t status){prefit_status=status;};
+    void SetR0(Double_t x,Double_t y, Double_t z){R0.SetXYZ(x,y,z);};
+    void SetPvers(Double_t x,Double_t y, Double_t z){Pvers.SetXYZ(x,y,z);};
+    void SetPvers(TVector3 pin){Pvers=pin;};
+    void SetMyChi2Red(Double_t chi2red_in){mychi2Red=chi2red_in;};
+    void NewSet(TVectorD ftrackpar);//set Pvers and R0, used for the FIRST tracking
     
     //Getters
     Int_t  GetNhit() {return nhit;};
@@ -151,10 +155,16 @@ class TABMntuTrackTr : public TObject {
     TVector3 GetMylar2Pos(){return mylar2_pos;};
     TVector3 GetTargetPos(){return target_pos;};
     Int_t GetPrefitStatus(){return prefit_status;};
+    TVector3 GetPvers(){return Pvers;};
+    TVector3 GetR0(){return R0;};
+    //~ Double_t GetTrackPar(Int_t index){return trackpar[index];};
+    //~ TVectorD GetTrackPar(){return trackpar;};
     
     //~ void SetSharedPlanes(TABMparGeo* p_bmgeo);
-    void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mysqrtchi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane);
+    void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mysqrtchi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane,SharedPlanePtr &central_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane);
+    void CalculateFromFirstPar(TABMparCon* p_bmcon, TABMparGeo* p_bmgeo);
     Double_t FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers);    
+    void PrintR0Pvers();
     
     //parameters
     Int_t         nhit;	          //number of associated hits (different from nwire because of hits in the same cell)
@@ -175,8 +185,9 @@ class TABMntuTrackTr : public TObject {
     TVector3      mylar1_pos;     //position of the track extrapolate to the first mylar plane
     TVector3      mylar2_pos;     //position of the track extrapolate to the second mylar plane
     Int_t         prefit_status;  //status of the prefit: -5=no prefit; -1=prefit not converged; 0=prefit performed no need to refit; 1=prefit performed, there are hits added, need to refit; -10= prefit without fitterinfo
-    //~ Int_t         trktr_status;   //0=ok, 1=to be refitted pruning hits with mychi2Red over cut level 
-
+    //~ TVectorD      trackpar;    //track parameter: 0=m, 1=q for U view (yz plane); 2=m, 3=q for V view (xz plane) IN THE DETECTOR SYSTEM OF REFERENCE
+    TVector3      Pvers;           //direction of the track from mylar1_pos to mylar2_pos
+    TVector3      R0;              //position of the track on the xy plane at z=0
     
   private:
 

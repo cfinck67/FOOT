@@ -167,11 +167,9 @@ Bool_t TABMactNtuMC::Action()
       }//end of tobecharded if
     }
   
-  if(nhits>12 && p_bmcon->GetBMdebug()>=1)
+  if(nhits!=12 && p_bmcon->GetBMdebug()>1)
     cout<<"more than 12 hit charged in tabmactntuMC:"<<nhits<<endl;
-  
-  if(p_bmcon->GetBMdebug()>=2)
-    cout<<"number of hits charged="<<nhits<<endl;
+
   
   p_nturaw->nhit  = nhits;
 

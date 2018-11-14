@@ -73,7 +73,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 
   char bufConf[1024], tmp_char[200];
   Double_t myArg1(-1),myArg2(-1),myArg3(-1),myArg4(-1),myArg5(-1),myArg6(-1); 
-  Int_t myArgInt(-1), myArgIntmax(-1);
+  Int_t myArgInt(-1), myArgIntmax(-1), myArgIntmin(-1);
   
   ifstream incF;
   incF.open(name_exp.Data());
@@ -229,10 +229,12 @@ Bool_t TABMparCon::FromFile(const TString& name) {
       sscanf(bufConf, "K %s",tmp_char);
         parmapfile=tmp_char;
     }else if(strchr(bufConf,'F')) {
-      sscanf(bufConf, "F %d %d",&myArgInt, &myArgIntmax);
-      if(myArgInt>=0 && myArgIntmax>=0){
+      sscanf(bufConf, "F %d %d %d %lf",&myArgInt, &myArgIntmax, &myArgIntmin, &myArg1);
+      if(myArgInt>=0 && myArgIntmax>=0 && myArgIntmin>=0 && myArg1>=0.){
         fitter_index = myArgInt;
         prefit_enable=myArgIntmax;
+        num_ite=myArgIntmin;
+        par_move=myArg1;
       }else {
 	      Error(""," Plane Map Error:: check config file!! (F)");
 	      return kTRUE;
@@ -466,6 +468,8 @@ void TABMparCon::Clear(Option_t*)
   minnhit_cut=0;
   maxnhit_cut=20;
   rejmax_cut=36;
+  num_ite=0;
+  par_move=0.0001;
   
   vector<Double_t> myt0s(36,-10000);
   //~ myt0s.resize(36);
@@ -520,6 +524,7 @@ void TABMparCon::LoadSTrel(TString sF) {
  /*-------------------------------------------------*/
 
 Double_t TABMparCon::FirstSTrel(Double_t tdrift){
+  
   if(strel_switch==1){ //garfield strel
     return 0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
   }else if(strel_switch==2){//
@@ -531,7 +536,10 @@ Double_t TABMparCon::FirstSTrel(Double_t tdrift){
   }
   
   //FIRST strel embedded in old Framework
-  return 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift; 
+  if(tdrift>0)
+    return 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift; 
+  
+  return 0.03289 + 0.008*tdrift;
 }
 
 

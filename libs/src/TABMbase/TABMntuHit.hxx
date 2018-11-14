@@ -63,7 +63,10 @@ class TABMntuHit : public TAGdata {
     void SetRdrift(Double_t in_rdrift){rdrift=in_rdrift;};
     void SetRealRdrift(Double_t in_rdrift){realRdrift=in_rdrift;};
     void SetIsSelected(bool in_is){isSelected=in_is;};
-    void SetResidual(Double_t res_in){residual=res_in*sigma;};
+    void SetResidual(Double_t res_in){residual=res_in;};
+    void SetResidualSigma(Double_t res_in){residual=res_in*sigma;};
+    void SetA0(TVector3 a_in){A0=a_in;};
+    void SetWvers(TVector3 w_in){Wvers=w_in;};
     
     //old software
     //~ void SetTrkAss(Int_t in_ass) { itrkass = in_ass;};
@@ -95,7 +98,7 @@ class TABMntuHit : public TAGdata {
     TVector3  A0;    //posizione filo di anodo che dovrebbe essere interessato
     TVector3  Wvers;
 
-    Double_t  rho; //old stuff
+    Double_t  rho; //old stuff-->era distanza fittata
     TVector3  pca; //old stuff
     
     bool      isSelected;   //isSelected==true means that this hit is in the best track 

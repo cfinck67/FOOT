@@ -51,7 +51,7 @@ void TABMntuTrack::SetupClones()
 //------------------------------------------+-----------------------------------
 //! Clear.
 
-void TABMntuTrack::Clear(Option_t*)//capire cos'è l'opzione t...
+void TABMntuTrack::Clear(Option_t*)
 { 
   TAGdata::Clear();
   ntrk   = 0;

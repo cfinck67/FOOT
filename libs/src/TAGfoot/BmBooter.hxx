@@ -60,8 +60,8 @@ public:
   void FillDataBeamMonitor();
   void PrintSTrel(); //print st relations in RecoHistos
   void PrintEFFpp(); //print the efficiency evaluation with the pivot-probe method
-  void PrintProjections();// print the projected fitted tracks on mylar1 and mylar2 th2d (mylarprojects)
-  void PrintResDist();//print the residual vs distance (residual_distance)
+  void PrintProjections();// print the projected fitted tracks saved in tracktr2dprojects
+  void PrintResDist();//print the residual_distance matrix
   void Allign_estimate();  //estimate the bm allignment with the residual methods and print the results  
   void evaluateT0();//evaluate the T0 from datafile
   Bool_t drop_event();//read event from datafile and discharge it, it return false if the file is end
@@ -73,7 +73,7 @@ public:
   void efficiency_pivot_probe();//evaluation of the efficiency with the eff_pp matrix (pivot-probe method), made with the cell_occupy matrix
   void efficiency_paoloni();//evaluation of the efficiency with the "Paoloni" method 
   void efficiency_fittedplane();//evaluation of the efficiency with the "Paoloni" method on fitted tracks
-  void Projectmylars(); //to save the mylar1 and mylar2 xy positions in mylarprojects
+  void Projecttracktr(); //to save the tracktr2dprojects matrix
   void ResidualDistance();//to save the residual_distance matrix
 
   //getters
@@ -131,9 +131,8 @@ private:
   vector<vector<Int_t>> eff_fittedplane;//efficieny with the "Paoloni" method only on fitted tracks
 
   //provv!!!!!! this is a very dummy method, to be used provv!!!!
-  vector<vector<Double_t>> mylarprojects;//projections of tracks: mylar1.X=mylarprojects[i][0]; mylar1.Y=mylarprojects[i][1]; mylar2.X=mylarprojects[i][3]; mylar2.X=mylarprojects[i][4]; i=tracks
-  vector<vector<Double_t>> residual_distance;//0=residual, 1=distance, 2=drift_time
-
+  vector<vector<Double_t>> tracktr2dprojects;//projections of tracks: 0=mylar1.X; 1=mylar1.Y; 2=mylar2.X; 3=mylar2.X; 4=R0.X; 5=R0.Y
+  vector<vector<Double_t>> residual_distance;//if(isSelected): 0=cell_index, 1=distance, 2=drift_time, 3=residual;  otherwise  0=cellindex, 1=drift_time,
 };
 
 #endif

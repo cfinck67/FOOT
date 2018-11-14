@@ -151,7 +151,7 @@ void BmBooter::Process() {
     cout<<"in BmBooter::Process, I finished to create the BM hits and tracks"<<endl<<"Now I'll printout BM hits if enable"<<endl;
 
   if (GlobalPar::GetPar()->IsPrintOutputFile())
-    m_controlPlotter->BM_setnturaw_info("BM_output",bmnturaw, bmgeo, bmcon, cell_occupy);  
+    m_controlPlotter->BM_setnturaw_info("BM_output",bmnturaw, bmgeo, bmcon, bmmap, cell_occupy);  
   
   if (bmcon->GetBMdebug()>10)
     cout<<"in BmBooter::Process, I finished to printout BM hits"<<endl;
@@ -182,7 +182,7 @@ void BmBooter::Process() {
   efficiency_paoloni();
   if(bmcon->GetFitterIndex()>0)
     if(track_ok==0){  
-      Projectmylars();
+      Projecttracktr();
       ResidualDistance();
     }
       
@@ -243,7 +243,9 @@ void BmBooter::Allign_estimate(){
   }
   
   if(((TDirectory*)(m_controlPlotter->GetTFile()))->IsFolder()){
-    TString tmp_str("BM allign par: xrot=");
+    TString tmp_str("BM input file=");
+    tmp_str+=m_instr;
+    tmp_str+="BM allign par: xrot=";
     tmp_str+= xrot; 
     tmp_str+="  yrot=";
     tmp_str+=yrot;
@@ -364,12 +366,14 @@ void BmBooter::PrintProjections(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
 
-  TH2D* histoa=new TH2D( "mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 1000, -5., 5.,1000, -5.,5.);
-  TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 1000, -5., 5.,1000, -5.,5.);
+  TH2D* histoa=new TH2D( "mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 500, -5., 5.,500, -5.,5.);
+  TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 500, -5., 5.,500, -5.,5.);
+  TH2D* histoc=new TH2D( "R0_xy", "R0 projected tracks; x[cm]; y[cm]", 500, -5., 5.,500, -5.,5.);
   
-  for(Int_t i=0;i<mylarprojects.size();i++){
-    histoa->Fill(mylarprojects[i][0], mylarprojects[i][1]);
-    histob->Fill(mylarprojects[i][2], mylarprojects[i][3]);
+  for(Int_t i=0;i<tracktr2dprojects.size();i++){
+    histoa->Fill(tracktr2dprojects[i][0], tracktr2dprojects[i][1]);
+    histob->Fill(tracktr2dprojects[i][2], tracktr2dprojects[i][3]);
+    histoc->Fill(tracktr2dprojects[i][4], tracktr2dprojects[i][5]);
   }
 
 return;
@@ -379,13 +383,46 @@ return;
 void BmBooter::PrintResDist(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
-
-  TH2D* histo=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
-  TH2D* histob=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]", 350, 0., 350.,600,-0.3,0.3);
+  TH2D* histo2d;
+  TH1D* histo1d;
   
+  histo2d=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
+  if(isdata)
+    histo2d=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]", 350, 0., 350.,600,-0.3,0.3);
+
+  //create ResVsDist_perCell graphs
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("ResVsDist_perCell");
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("ResVsDist_perCell");
+  char tmp_char[200];
+  for(Int_t i=0;i<36;i++){
+    sprintf(tmp_char,"hitres_dis_perCell_%d",i);  
+    histo2d=new TH2D( tmp_char, "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 300, -0.3, 0.3,250,0.,1.);
+  }
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/ResVsDist_perCell")))->cd("..");
+  
+  //create TDC_dist
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("TDC_time");
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("TDC_time");
+  for(Int_t i=0;i<36;i++){
+    sprintf(tmp_char,"tdc_cha_%d",i);  
+    histo1d=new TH1D( tmp_char, "Drift time charged; Time[ns]; counts", 3000, -1000, 2000);
+  }
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/TDC_time")))->cd("..");  
+  
+  cout<<"fatto i grafici inizio a fillare"<<endl;
+  
+  //fill the histos
   for(Int_t i=0;i<residual_distance.size();i++){
-    histo->Fill(residual_distance[i][0], residual_distance[i][1]);
-    histob->Fill(residual_distance[i][2], residual_distance[i][0]);
+    if(residual_distance[i].size()!=2){
+      ((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/hitres_dis")))->Fill(residual_distance[i][3], residual_distance[i][1]);
+      if(isdata)
+        ((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/hitres_time")))->Fill(residual_distance[i][2], residual_distance[i][3]);
+      sprintf(tmp_char,"BM_output/ResVsDist_perCell/hitres_dis_perCell_%d",(Int_t) (residual_distance[i][0]+0.5));  
+      ((TH2D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance[i][3], residual_distance[i][1]);    
+    }else if(isdata){
+      sprintf(tmp_char,"BM_output/TDC_time/tdc_cha_%d",(Int_t) (residual_distance[i][0]+0.5));      
+      ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance[i][1]);
+    }
   }
   
 return;
@@ -1188,31 +1225,41 @@ return;
 
 
 //to be used in process to charge mylarproject
-void BmBooter::Projectmylars(){
+void BmBooter::Projecttracktr(){
   
-  vector<Double_t> mylar1pro(4);
+  vector<Double_t> tracktr_pro(6);
   for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
     bmntutracktr = bmntutrack->Track(i);  
-    mylar1pro[0]=bmntutracktr->GetMylar1Pos().X();
-    mylar1pro[1]=bmntutracktr->GetMylar1Pos().Y();
-    mylar1pro[2]=bmntutracktr->GetMylar2Pos().X();
-    mylar1pro[3]=bmntutracktr->GetMylar2Pos().Y();
+    tracktr_pro[0]=bmntutracktr->GetMylar1Pos().X();
+    tracktr_pro[1]=bmntutracktr->GetMylar1Pos().Y();
+    tracktr_pro[2]=bmntutracktr->GetMylar2Pos().X();
+    tracktr_pro[3]=bmntutracktr->GetMylar2Pos().Y();
+    tracktr_pro[4]=bmntutracktr->GetR0().X();
+    tracktr_pro[5]=bmntutracktr->GetR0().Y();
   }
-  mylarprojects.push_back(mylar1pro);
+  tracktr2dprojects.push_back(tracktr_pro);
   
 return;
 }
   
 //used in process to charge residual_distance
 void BmBooter::ResidualDistance(){
-  vector<Double_t> resdis(3);
+  vector<Double_t> selecthit(4);
+  vector<Double_t> rejhit(2);
+  
   for(Int_t i=0;i<bmnturaw->nhit;i++){
     bmntuhit = bmnturaw->Hit(i);
     if(bmntuhit->GetIsSelected()){
-      resdis[0]=bmntuhit->GetResidual();
-      resdis[1]=bmntuhit->Dist();
-      resdis[2]=bmntuhit->Tdrift();
-      residual_distance.push_back(resdis);
+      selecthit[0]=bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(),bmntuhit->Cell());
+      selecthit[1]=bmntuhit->Dist();
+      if(isdata)
+        selecthit[2]=bmntuhit->Tdrift();
+      selecthit[3]=bmntuhit->GetResidual();
+      residual_distance.push_back(selecthit);
+    }else if(isdata){
+      rejhit[0]=bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(),bmntuhit->Cell());
+      rejhit[1]=bmntuhit->Tdrift();
+      residual_distance.push_back(rejhit);
     }          
   }
   

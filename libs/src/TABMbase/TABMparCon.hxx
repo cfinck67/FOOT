@@ -30,6 +30,7 @@ class TABMparCon : public TAGpara {
 
     //setters
     void SetVDrift(Double_t v){vdrift=v; return;};
+    void SetBMdebug(Int_t deb_in){bm_debug=deb_in; return;};
     void SetIsMC(Bool_t ism){m_isMC=ism; return;};
     void SetRdriftCut(Double_t Rdcut){rdrift_cut=Rdcut; return;};
     void SetEnxcellcut(Double_t Encut){enxcell_cut=Encut; return;};
@@ -58,6 +59,8 @@ class TABMparCon : public TAGpara {
     Int_t GetmanageADCped(){return manageADCped;};
     string GetParmapfile(){return parmapfile;};
     Int_t GetCalibro(){return calibro;};
+    Int_t GetNumIte(){return num_ite;};
+    Double_t GetParMove(){return par_move;};
     //~ Double_t GetXShift(){return meas_shift.X();};
     //~ Double_t GetYShift(){return meas_shift.Y();};
     //~ Double_t GetZShift(){return meas_shift.Z();};
@@ -141,6 +144,8 @@ class TABMparCon : public TAGpara {
     vector<Double_t> v_t0s;//T0 in ns
     vector<Double_t> adc_ped_mean;//pedestals mean 
     vector<Double_t> adc_ped_rms;//pedestals rms
+    Int_t    num_ite;//number of iteration for the fit (only for FIRST fit)
+    Double_t par_move;//change of the parameters for the FIRST fit
 
     //~ TF1* f_mypol;
     //~ TF1* f_mypol2;

@@ -4,6 +4,7 @@
 
 #include <Track.h>
 #include <TMath.h>
+#include <TVectorD.h>
 
 #include "ControlPlotInfo.hxx"
 #include "TABMntuTrack.hxx"
@@ -180,7 +181,10 @@ public:
 	}
 
   //Beam Monitor OutputFile
-  void BM_setnturaw_info(string hitSampleName, TABMntuRaw* bmnturaw, TABMparGeo* bmgeo, TABMparCon* bmcon, vector< vector<Int_t> > &cell_occupy){
+  void BM_setnturaw_info(string hitSampleName, TABMntuRaw* bmnturaw, TABMparGeo* bmgeo, TABMparCon* bmcon, TABMparMap* bmmap, vector< vector<Int_t> > &cell_occupy){
+
+    //~ char tmp_char[200];
+
     FillMap( hitSampleName + "__raw_nhitsxevent", bmnturaw->nhit);
     if(bmnturaw->nhit < bmcon->GetMinnhit_cut())
       FillMap( hitSampleName + "__track_error", -1);
@@ -201,6 +205,8 @@ public:
       FillMap( hitSampleName + "__raw_time", bmntuhit->Tdrift());
       FillMap( hitSampleName + "__raw_occupancy", bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(), bmntuhit->Cell()));
       FillMap( hitSampleName + "__raw_selected_rejected", (bmntuhit->GetIsSelected()) ? 1:-1);
+      //~ sprintf(tmp_char,"__tdc_ch_%d",bmmap->cell2tdc(bmgeo->GetBMNcell(bmntuhit->Plane(),bmntuhit->View(), bmntuhit->Cell())));
+      //~ FillMap( hitSampleName + tmp_char, bmntuhit->Tdrift());
       if(bmntuhit->GetIsSelected()){
         FillMap( hitSampleName + "__rawsel_chi2", bmntuhit->GetChi2());
         FillMap( hitSampleName + "__rawsel_rdrift", bmntuhit->Dist());
@@ -208,7 +214,7 @@ public:
         FillMap( hitSampleName + "__rawsel_view", bmntuhit->View());
         FillMap( hitSampleName + "__rawsel_plane", bmntuhit->Plane());
         FillMap( hitSampleName + "__rawsel_occupancy", bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(), bmntuhit->Cell()));
-	FillMap( hitSampleName + "__rawsel_residual", bmntuhit->GetResidual());
+        FillMap( hitSampleName + "__rawsel_residual", bmntuhit->GetResidual());
       }
     }
     
@@ -262,6 +268,8 @@ public:
         FillMap( hitSampleName + "__tracksel_mylar2_y", bmntutracktr->GetMylar2Pos().Y());
         FillMap( hitSampleName + "__tracksel_target_x", bmntutracktr->GetTargetPos().X());
         FillMap( hitSampleName + "__tracksel_target_y", bmntutracktr->GetTargetPos().Y());
+        FillMap( hitSampleName + "__tracksel_pversYZangle", bmntutracktr->GetPvers().Y()/bmntutracktr->GetPvers().Z());
+        FillMap( hitSampleName + "__tracksel_pversXZangle", bmntutracktr->GetPvers().X()/bmntutracktr->GetPvers().Z());
       }
     }
   

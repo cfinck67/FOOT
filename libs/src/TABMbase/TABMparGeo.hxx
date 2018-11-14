@@ -57,13 +57,13 @@ public:
   void Local2Global_RotationOnly(TVector3* loc)     {loc->Transform(*m_rotation);return;};
     
   //inline getters
-  Int_t    GetID(int cell);//Id sense as function of cell
-  Double_t GetX(int w, int p, int v); //X,Y,Z as a function of wire, plane, view
-  Double_t GetY(int w, int p, int v);
-  Double_t GetZ(int w, int p, int v);
-  Double_t GetCX(int w, int p, int v);
-  Double_t GetCY(int w, int p, int v);
-  Double_t GetCZ(int w, int p, int v);
+  Int_t    GetID(Int_t cell);//Id sense as function of cell
+  Double_t GetX(Int_t w, Int_t p, Int_t v); //X,Y,Z as a function of wire, plane, view
+  Double_t GetY(Int_t w, Int_t p, Int_t v);
+  Double_t GetZ(Int_t w, Int_t p, Int_t v);
+  Double_t GetCX(Int_t w, Int_t p, Int_t v);
+  Double_t GetCY(Int_t w, Int_t p, Int_t v);
+  Double_t GetCZ(Int_t w, Int_t p, Int_t v);
   
   //other getters:
   TGeoVolume*     GetVolume();

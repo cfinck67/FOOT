@@ -134,7 +134,7 @@ Bool_t TABMactNtuRaw::Action()
   TAIRdatRaw* p_timraw = (TAIRdatRaw*) fpTimRaw->Object();
   //~ TATRdatRaw* p_triraw = (TATRdatRaw*) fpTriRaw->Object();//è l'equivalente del BM...
   TABMntuRaw* p_nturaw = (TABMntuRaw*) fpNtuRaw->Object();
-  TABMparGeo* p_geomap = (TABMparGeo*) fpGeoMap->Object();
+  TABMparGeo* p_pargeo = (TABMparGeo*) fpGeoMap->Object();
   TABMparCon* p_parcon = (TABMparCon*) fpParCon->Object();
 
 
@@ -172,7 +172,9 @@ Bool_t TABMactNtuRaw::Action()
   
   Int_t irtime=p_timraw->TrigTime();//prendo trigger direttamente dal datraw...
   Int_t i_nhit = p_datraw->NHit();
+  Int_t hit_view;
   Double_t h_x,h_y,h_z,h_cx,h_cy,h_cz;
+  TVector3 a0_in, wvers_in;
   if(irtime == -10000) {
     Info("Action()","Trigger IR Time is Missing!!!");
     fpNtuRaw->SetBit(kValid);
@@ -185,14 +187,15 @@ Bool_t TABMactNtuRaw::Action()
     //retrive hit parameters
     Double_t t0_corr = (p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) > -10000) ? p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) : 0.; //to avoid not settled T0
     Double_t t_drift = hit.Time()-t0_corr-irtime;
-    Double_t i_time=(t_drift<0) ? 0.:t_drift;
-    //~ Double_t stcorr = p_parcon->FirstSTrel(i_time);
-    //~ Double_t i_drift = i_time*p_parcon->GetVDrift() + stcorr;
+    //~ Double_t i_time=(t_drift<0) ? 0.:t_drift; //per eliminare i tdrift negativi
+    Double_t i_time=t_drift;                      //per includere i tdrift negativi
     Double_t i_drift = p_parcon->FirstSTrel(i_time);
-    p_geomap->GetCellInfo(hit.View(), hit.Plane(), hit.Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
+    p_pargeo->GetCellInfo(hit.View(), hit.Plane(), hit.Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
 
     //create the hit (no selection of hit)
     TABMntuHit *mytmp = new((*(p_nturaw->h))[i]) TABMntuHit(0, hit.View(), hit.Plane(), hit.Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz, i_drift, i_time, p_parcon->ResoEval(i_drift));
+    hit_view=(hit.View()==1) ? 0:1;      
+    mytmp->SetAW(p_pargeo);
     p_nturaw->nhit++;
   }
 

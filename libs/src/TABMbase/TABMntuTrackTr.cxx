@@ -16,7 +16,7 @@ TABMntuTrackTr::TABMntuTrackTr():
   //~ nwire(0), nass(0),
     //~ x0(0.), y0(0.), ux(0.), uy(0.),
     nhit(0), chi2(999.), chi2Red(999),
-    mychi2(160), mychi2Red(15), ndf(0), failedPoint(0), 
+    mychi2(999), mychi2Red(999), ndf(0), failedPoint(0), 
     isConverged(0), MaxRdriftErr(100), AngZ(100), AngZRes(100),
     AngZResAv(100), AngPhi(100), AngPhiRes(100),prefit_status(-10)
     
@@ -37,8 +37,8 @@ TABMntuTrackTr::TABMntuTrackTr():
     //~ nhit=0;
   //~ chi2=999.;
   //~ chi2Red=999;
-  //~ mychi2=160;
-  //~ mychi2Red=15;
+  //~ mychi2=999;
+  //~ mychi2Red=999;
   //~ ndf=0;
   //~ failedPoint=0;
   //~ isConverged=0;
@@ -49,10 +49,20 @@ TABMntuTrackTr::TABMntuTrackTr():
   //~ AngPhi=100;
   //~ AngPhiRes=100;
   //~ RTarget=100;
-  target_pos.SetXYZ(0.,0.,0.);
-  mylar1_pos.SetXYZ(0.,0.,0.);
-  mylar2_pos.SetXYZ(0.,0.,0.);
-  
+  target_pos.SetXYZ(-100.,-100.,-100.);
+  mylar1_pos.SetXYZ(-100.,-100.,-100.);
+  mylar2_pos.SetXYZ(-100.,-100.,-100.);
+  Pvers.SetXYZ(-100.,-100.,-100.);
+  R0.SetXYZ(-100.,-100.,-100.);
+  //~ Double_t trackparval[4]={-1000.,-1000.,-1000.,-1000.,};
+  //~ trackpar.ResizeTo(BM_trackpar);
+  //~ trackpar.Zero();
+  //~ Double_t val=-1000.;
+  //~ trackpar.SetElements(val);
+  //~ trackpar(0)=-1000.;
+  //~ trackpar(1)=-1000.;
+  //~ trackpar(2)=-1000.;
+  //~ trackpar(3)=-1000.;
   //~ MaxRdriftErr=100;
   //~ AngZ=100;
   //~ AngZRes=100;
@@ -120,10 +130,19 @@ void TABMntuTrackTr::Clean()
   AngZResAv=100;
   AngPhi=100;
   AngPhiRes=100;
-  target_pos.SetXYZ(0.,0.,0.);
-  mylar1_pos.SetXYZ(0.,0.,0.);
-  mylar2_pos.SetXYZ(0.,0.,0.);
+  target_pos.SetXYZ(-100.,-100.,-100.);
+  mylar1_pos.SetXYZ(-100.,-100.,-100.);
+  mylar2_pos.SetXYZ(-100.,-100.,-100.);
+  Pvers.SetXYZ(-100.,-100.,-100.);
+  R0.SetXYZ(-100.,-100.,-100.);
   prefit_status=-10;
+  //~ Double_t val=-1000.;
+  //~ trackpar.SetElements(val);
+  //~ trackpar.Print();
+  //~ trackpar(0)=-1000.;
+  //~ trackpar(1)=-1000.;
+  //~ trackpar(2)=-1000.;
+  //~ trackpar(3)=-1000.;
 }
 
 TABMntuTrackTr::TABMntuTrackTr(const TABMntuTrackTr &tr_in){
@@ -145,6 +164,8 @@ TABMntuTrackTr::TABMntuTrackTr(const TABMntuTrackTr &tr_in){
   mylar1_pos=tr_in.mylar1_pos;
   mylar2_pos=tr_in.mylar2_pos;
   prefit_status=tr_in.prefit_status;
+  R0=tr_in.R0;
+  Pvers=tr_in.Pvers;
   
 }
 
@@ -181,7 +202,7 @@ TABMntuTrackTr::TABMntuTrackTr(const TABMntuTrackTr &tr_in){
   //~ }
 
 
-void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mysqrtchi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane){
+void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mysqrtchi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane, SharedPlanePtr &central_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane){
   Int_t hit_num=fitTrack->getNumPointsWithMeasurement();
   Double_t worst_hit=-1000.;
   if(hit_num!=hit_mysqrtchi2.size())
@@ -195,7 +216,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
   //~ vector<TVector3> state_pos_vec;
   AbsMeasurement* measurement;
   TDecompChol fitTrack_cov;  
-  MeasuredStateOnPlane state, first_state;
+  MeasuredStateOnPlane state;
   //~ KalmanFitterInfo* kalmanInfo;
     
   if(p_bmcon->GetBMdebug()>10)
@@ -214,8 +235,6 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
       fitTrack_cov=fitTrack->getPointWithMeasurement(i)->getRawMeasurement(0)->getRawHitCov();
       if(fitTrack_cov.Decompose()) {// questo check in più forse è inutile!!!!!!
         state=fitTrack->getFittedState(i);
-        if(hit_num_withcov==0)
-          first_state=fitTrack->getFittedState(i);
         measurement=fitTrack->getPointWithMeasurement(i)->getRawMeasurement(0);
         angZ_vec.push_back(state.getMom().Theta()*RAD2DEG);
         angPhi_vec.push_back(state.getMom().Phi()*RAD2DEG);
@@ -250,16 +269,17 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
   }
     
   MaxRdriftErr=rdrift_err_max;
-  if(fitTrack->getFitStatus()->getNdf()!=0)
-    mychi2Red=mychi2/fitTrack->getFitStatus()->getNdf();
+  if(hit_num-5>0)//DA SISTEMARE!!!
+    mychi2Red=mychi2/(Double_t)(hit_num-4.);
   else
-    cout<<"TABMntuTrack::CalculateFitPar::WARNING: you have 0 Ndf!!!!!!! cannot set mychi2Red!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+    cout<<"TABMntuTrack::CalculateFitPar::WARNING: you have 0 hit!!!!!!! cannot set mychi2Red!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
     
   if(p_bmcon->GetBMdebug()>3)
     cout<<"TABMntuTrack::CalculateFitPar:: hit_num="<<hit_num<<"  mychi2="<<mychi2<<"  mychi2Red="<<mychi2Red<<"  ndf="<<fitTrack->getFitStatus()->getNdf()<<endl;
   
   //calculate prunedhit, I refit pruning the worst_hit that have the highest chi2 contribution
   if((rejhit+1)<=p_bmcon->GetRejmaxcut() && mychi2Red>p_bmcon->GetChi2Redcut()){
+    prunedhit.clear();
     prunedhit.resize(1);
     for(Int_t i=0;i<hit_mysqrtchi2.size();i++){
       if(fabs(hit_mysqrtchi2[i])==worst_hit){
@@ -274,7 +294,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
     //~ }
   }
   
-  //out of cicle state should be the state of last measurement and first_state should be the state of the first measurement
+  //out of cicle state should be the state of last measurement
   //other fitpos parameter
   if(hit_num_withcov>0 && mychi2Red<p_bmcon->GetChi2Redcut()){
     
@@ -310,28 +330,41 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
     //~ if(state_pos_vec.size()!=angZ_vec.size())
       //~ cout<<"TABMntuTrack::CalculateFitPar::ERROR: state_pos_vec.size is different from angZ_vec.size!!!!!!!!!!!!!!!!!!!!!  something is wrong in TABMntuTrack::CalculatefitPar"<<endl;
         
-    //extrapolate track on mylar1 with first_state
-    if(p_bmcon->GetBMdebug()>10)
-      cout<<"TABMntuTrack::CalculateFitPar::extrapolate to mylar1_plane"<<endl;
+    //extrapolate track on mylar1 
+    //~ if(p_bmcon->GetBMdebug()>10)
+      //~ cout<<"TABMntuTrack::CalculateFitPar::extrapolate to mylar1_plane"<<endl;
     //~ SharedPlanePtr mylar1_plane(new DetPlane(p_bmgeo->GetMylar1(), Xvers, Yvers));     
-    fitTrack->getTrackRep(0)->extrapolateToPlane(first_state, mylar1_plane);
-    mylar1_pos=first_state.getPos();
+    fitTrack->getTrackRep(0)->extrapolateToPlane(state, mylar1_plane);
+    mylar1_pos=state.getPos();
+
+    //extrapolate track on central_plane
+    fitTrack->getTrackRep(0)->extrapolateToPlane(state, central_plane);
+    R0=state.getPos();
+    Pvers=state.getMom();
+    Pvers.SetMag(1.);
     
     //extrapolate track on mylar2 with state
-    if(p_bmcon->GetBMdebug()>10)
-      cout<<"TABMntuTrack::CalculateFitPar::extrapolate to mylar2_plane"<<endl;
+    //~ if(p_bmcon->GetBMdebug()>10)
+      //~ cout<<"TABMntuTrack::CalculateFitPar::extrapolate to mylar2_plane"<<endl;
     //~ SharedPlanePtr mylar2_plane(new DetPlane(p_bmgeo->GetMylar2(), Xvers, Yvers));     
     fitTrack->getTrackRep(0)->extrapolateToPlane(state, mylar2_plane);
     mylar2_pos=state.getPos();
   
     //extrapolate track on target with state
-    if(p_bmcon->GetBMdebug()>10)
-      cout<<"TABMntuTrack::CalculateFitPar::extrapolate to target"<<endl;
+    //~ if(p_bmcon->GetBMdebug()>10)
+      //~ cout<<"TABMntuTrack::CalculateFitPar::extrapolate to target"<<endl;
     //~ SharedPlanePtr target_plane(new DetPlane(p_bmgeo->GetTarget(), Xvers, Yvers));     
     fitTrack->getTrackRep(0)->extrapolateToPlane(state, target_plane);
     target_pos=state.getPos();
-    
  
+    //evaluate trackpar
+    //~ trackpar(0)=(mylar2_pos.Y()-mylar1_pos.Y())/(mylar2_pos.Z()-mylar1_pos.Z());
+    //~ trackpar(1)=mylar1_pos.Y()-trackpar[0]*mylar1_pos.Z();
+    //~ trackpar(2)=(mylar2_pos.X()-mylar1_pos.X())/(mylar2_pos.Z()-mylar1_pos.Z());
+    //~ trackpar(3)=mylar1_pos.X()-trackpar[2]*mylar1_pos.Z();
+    //~ cout<<"trackpar[0]="<<trackpar[0]<<"  trackpar[1]="<<trackpar[1]<<"  trackpar[1]="<<trackpar[2]<<"  trackpar[1]="<<trackpar[3]<<endl;
+    //~ cout<<"printiamo ora"<<endl;
+    //~ trackpar.Print();
     //~ //Calculate RTarget (distance on the surface of target), calculated from the state of the last measurement
     //~ SharedPlanePtr target_plane(new DetPlane(target_o, Xvers, Yvers));
     //~ tmp_double=fitTrack->getTrackRep(0)->extrapolateToPlane(state, target_plane); //now state is the state of track on the surface of target
@@ -364,7 +397,25 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
     }//fine if hit_num_withcov>0 
     
       if(p_bmcon->GetBMdebug()>10)
-      cout<<"TABMntuTrack::CalculateFitPar::end of CalculateFitPar"<<endl;  
+        cout<<"TABMntuTrack::CalculateFitPar::end of CalculateFitPar"<<endl;  
+  return;
+}
+
+
+
+void TABMntuTrackTr::CalculateFromFirstPar(TABMparCon* p_bmcon, TABMparGeo* p_bmgeo){
+  if(p_bmcon->GetBMdebug()>10)
+    cout<<"CalculateFromFirstPar::begin"<<endl;
+
+  AngZ=Pvers.Theta()*RAD2DEG;  
+  AngPhi=Pvers.Phi()*RAD2DEG;  
+  //extrapolate to mylars and target plane:
+  mylar1_pos.SetXYZ(Pvers.X()/Pvers.Z()*p_bmgeo->GetMylar1().Z()+R0.X() ,Pvers.Y()/Pvers.Z()*p_bmgeo->GetMylar1().Z()+R0.Y(), p_bmgeo->GetMylar1().Z());
+  mylar2_pos.SetXYZ(Pvers.X()/Pvers.Z()*p_bmgeo->GetMylar2().Z()+R0.X() ,Pvers.Y()/Pvers.Z()*p_bmgeo->GetMylar2().Z()+R0.Y(), p_bmgeo->GetMylar2().Z());
+  target_pos.SetXYZ(Pvers.X()/Pvers.Z()*p_bmgeo->GetTarget().Z()+R0.X() ,Pvers.Y()/Pvers.Z()*p_bmgeo->GetTarget().Z()+R0.Y(), p_bmgeo->GetTarget().Z());  
+
+  if(p_bmcon->GetBMdebug()>10)
+    cout<<"CalculateFromFirstPar::end"<<endl;
   return;
 }
 
@@ -409,6 +460,25 @@ Double_t TABMntuTrackTr::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVe
   return rdrift;
 }
 
+void TABMntuTrackTr::NewSet(TVectorD ftrackpar){
+  Double_t transv=ftrackpar[2]*ftrackpar[2]+ftrackpar[3]*ftrackpar[3];
+  if(transv<1.1){
+    Pvers.SetXYZ(ftrackpar[2], ftrackpar[3], sqrt(1.-transv));
+    R0.SetXYZ(ftrackpar[0], ftrackpar[1], 0.);
+  }
+  else{
+    Error("Action()","TABMntuTrackTr::Set(vec)-> ERROR: pvers>1  px=%f py=%f px*px+py*py=%lf ",ftrackpar[2],ftrackpar[3],transv);
+    return ;
+  }  
+  return;
+}
+
+
+void TABMntuTrackTr::PrintR0Pvers(){
+  cout<<"R0=("<<R0.X()<<", "<<R0.Y()<<" ,"<<R0.Z()<<")"<<endl;
+  cout<<"Pvers=("<<Pvers.X()<<", "<<Pvers.Y()<<" ,"<<Pvers.Z()<<")"<<endl;
+  return;
+}
 
 //**********************************OLD TRACKING****************************************
 //~ Int_t TABMntuTrackTr::Set(Double_t fx0, Double_t fy0, Double_t fux, 
@@ -485,6 +555,7 @@ Double_t TABMntuTrackTr::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVe
   //~ trackpar = ftrackpar;
   //~ return 1 ;
 //~ }
+
 
 //~ /*-----------------------------------------------------------------*/
 
@@ -676,6 +747,7 @@ Double_t TABMntuTrackTr::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVe
 
 //~ /*-----------------------------------------------------------------*/
 
+//similar to findRdrift
 //~ Int_t TABMntuTrackTr::ComputeDataWire(TABMntuHit *wr, Int_t fwire){
 
   //~ if(fwire>=nwire){return -1;}
@@ -749,6 +821,7 @@ Double_t TABMntuTrackTr::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVe
   //~ if( (nwire_U<=2) || (nwire_V<=2) ){
     //~ return -1; /* not enough wires fired to estimate track parameters */
   //~ }
+  //finito di caricare Ycentro_U, Zcentro_u etc.
   
   //~ /*  estimate track line in the U view ( namely y-z plane) */
 
@@ -773,6 +846,8 @@ Double_t TABMntuTrackTr::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVe
       //~ }
     //~ }
   //~ }
+  
+  
   //~ if(dbgflg) { 
     //~ cout<<"celle piu' distanti= "<<ii_max<<" "<<jj_max<<endl;
     //~ for(int hh=0;hh<4;hh++){
@@ -780,6 +855,8 @@ Double_t TABMntuTrackTr::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVe
     //~ }
     //~ cout<<"scelta tangente"<<endl;
   //~ }
+  
+  
   //~ min_sum_scarto = 10000000.;
   //~ for(int hh=0;hh<4;hh++){
     //~ sum_scarto = 0.;
@@ -948,6 +1025,7 @@ Double_t TABMntuTrackTr::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVe
 
 //~ /*-----------------------------------------------------------------*/
 
+//per settare i rdrift ed i residui di tutti gli hit
 //~ Int_t TABMntuTrackTr::ComputeDataAll(TABMntuRaw *hitp){
 
   //~ Double_t tp = 0., tf= 0.; 
