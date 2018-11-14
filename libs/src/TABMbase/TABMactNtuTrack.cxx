@@ -266,7 +266,7 @@ Bool_t TABMactNtuTrack::Action()
     
     //save and update the best_track
     best_trackTr.CalculateFromFirstPar(p_bmcon, p_bmgeo);
-    UpdateHitsFromTrack(best_mysqrtchi2, best_trackTr, singlehittrack);
+    //~ UpdateHitsFromTrack(best_mysqrtchi2, best_trackTr, hitxtrack[best_index]);//useless
 
   }else if(p_bmcon->GetFitterIndex()<5){   //***********GENFIT TRACKING*******
     //provv check
@@ -409,7 +409,7 @@ Bool_t TABMactNtuTrack::Action()
     
   if(p_bmcon->GetBMdebug()>10)  
     cout<<"TABMactNtuTrack:end of tracking"<<endl;
-
+  
   if(best_trackTr.GetNhit()!=0){
     new((*(p_ntutrk->t))[p_ntutrk->ntrk]) TABMntuTrackTr(best_trackTr);
     p_ntutrk->ntrk++; 
@@ -418,9 +418,11 @@ Bool_t TABMactNtuTrack::Action()
     for(Int_t i=0;i<hitxtrack[best_index].size();i++){
       p_hit = p_ntuhit->Hit(hitxtrack[best_index][i]);    
       p_hit->SetIsSelected(true);
-      p_hit->SetChi2(best_mysqrtchi2[i]*best_mysqrtchi2[i]);
-      p_hit->SetResidualSigma(best_mysqrtchi2[i]);
-    }          
+      if(p_bmcon->GetFitterIndex()<5){
+	p_hit->SetChi2(best_mysqrtchi2[i]*best_mysqrtchi2[i]);
+	p_hit->SetResidualSigma(best_mysqrtchi2[i]);
+      }
+    }
   }else if(converged==false)
     p_ntutrk->trk_status=4;
   else
@@ -475,7 +477,6 @@ Bool_t TABMactNtuTrack::Action()
     //~ OccuPlane[my_view][plane]++;
   //~ }
   
-  //~ //charge hits
   //~ for (Int_t i_h = 0; i_h < i_nhit; i_h++) {
     //~ TABMntuHit* p_hit = p_ntuhit->Hit(i_h);
     //~ // time ns and distances in cm
@@ -492,7 +493,6 @@ Bool_t TABMactNtuTrack::Action()
     //~ Info("Action()"," \t %d \t %lf \t %d \t %d \t %d \t %lf \t %d\n",i_h,dist,cell,plane,view,p_hit->Tdrift(),HitMult[my_idx]);
     
     //~ //Avoid to use the planes where more than 1 hit is reconstructed
-        //charge the hits
     //~ if(HitMult[my_idx]<=1 && OccuPlane[my_view][plane]<2 && dist<0.8) {
       
       //~ SingleHit[trackHits]=i_h;
@@ -515,16 +515,16 @@ Bool_t TABMactNtuTrack::Action()
       //~ trackHits2++;
     //~ }
     
-  //~ }//end charge hits loop
+  //~ }
   
   //~ if(trackHitsTop>2 && trackHitsSide>2) {
     //~ //  if(trackHits>6) {
     //~ stat = aTr.EstimateTrackPar(p_ntuhit,p_bmgeo);
-    //~ stat = aTr.ComputeDataAll(p_ntuhit); //set hits rdrift and residuals   
+    //~ stat = aTr.ComputeDataAll(p_ntuhit);    
     
     //~ //Chi2 fit
     //~ p_ntutrk->Chi2Fit(p_ntuhit,&aTr,3);
-    //~ //Sort double hits 
+    //~ //Sort double hits
     //~ sortDoubleHits(p_ntuhit,p_ntutrk,p_bmgeo,aSrTr,aTr,DoubleHit,trackHits2);
     
     //~ //Before that we have to choose which track is the best one
@@ -697,6 +697,7 @@ Bool_t TABMactNtuTrack::Action()
     //~ }
   //~ }
  
+  //~ cout<<"end of action in tabmactntutrack"<<endl;
   //~ fpNtuTrk->SetBit(kValid);
   //~ return kTRUE;
 }
@@ -1033,7 +1034,7 @@ return;
 }
 
 
-//new FIRST tracking:
+//not used:
 void TABMactNtuTrack::UpdateHitsFromTrack(vector<Double_t> &best_mysqrtchi2, TABMntuTrackTr &best_trackTr, vector<Int_t> &singlehittrack){
   
   if(p_bmcon->GetBMdebug()>10)
