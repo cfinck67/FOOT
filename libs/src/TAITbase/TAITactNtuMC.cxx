@@ -105,8 +105,15 @@ bool TAITactNtuMC::Action()
          fpHisDeSensor[sensorId]->Fill(fpEvtStr->ITRde[i]*TAVTbaseDigitizer::GeV2keV());
       }
 
+      // try to get into sensor frame, does not work yet
+      TVector3 posIn(fpEvtStr->ITRxin[i], fpEvtStr->ITRyin[i], fpEvtStr->ITRzin[i]);
+      TVector3 posOut(fpEvtStr->ITRxout[i], fpEvtStr->ITRyout[i], fpEvtStr->ITRzout[i]);
+      pGeoMap->Detector2Sensor_frame(sensorId, &posIn);
+      pGeoMap->Detector2Sensor_frame(sensorId, &posOut);
       
-		if (!fDigitizer->Process(fpEvtStr->ITRde[i], fpEvtStr->ITRxin[i], fpEvtStr->ITRyin[i], fpEvtStr->ITRzin[i], fpEvtStr->ITRzout[i])) continue;
+    //  printf("%f %f %f - %f %f %f\n", fpEvtStr->ITRxin[i], fpEvtStr->ITRyin[i], fpEvtStr->ITRzin[i],posIn[0], posIn[1], posIn[2]);
+
+		if (!fDigitizer->Process(fpEvtStr->ITRde[i], posIn[0], posIn[1], posIn[2], posOut[2])) continue;
 		FillPixels(sensorId, i);
 		
 		if (ValidHistogram()) {
