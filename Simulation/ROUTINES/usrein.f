@@ -40,6 +40,7 @@ c
 c
       numev = ncase
       tarfrag = 0
+      elasfrag = 0
 c
       do ii = 1,min(nump,maxnump)
          idpa(ii)   = 0
@@ -283,6 +284,7 @@ c
       trig_stc = .false.
       trig_air = .false.
       trig_els = .false.
+      trig_elas = .false.
 c
 c
       RETURN

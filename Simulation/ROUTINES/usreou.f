@@ -36,12 +36,13 @@ c
 C      idbflg = 1
       trigger = .false.
       tarfrag = stcfrag + 10*bmnfrag + 100*tgtfrag + 1000*airfrag
-     & + 10000*elsfrag
+     &     + 10000*elsfrag
       if (stcfrag.eq.1) trig_stc = .true.
       if (bmnfrag.eq.1) trig_bmn = .true.
       if (tgtfrag.eq.1) trig_tgt = .true.
       if (airfrag.eq.1) trig_air = .true.
       if (elsfrag.eq.1) trig_els = .true.
+      if (elasfrag.eq.1) trig_elas = .true.
       if(idbflg.gt.0) then
          write(*,*) '---------------------------'
          write(*,*)'Usreou. Ev= ',numev,
@@ -50,6 +51,7 @@ C      idbflg = 1
      &        ' trig_tgt: ', trig_tgt,
      &        ' trig_air: ', trig_air,
      &        ' trig_els: ', trig_els,
+     &        ' trig_elas: ', trig_elas,
      &        ' trigger= ', Trigger,
      &        ' fragtrig= ',fragtrig,
      &     ' tarfrag= ',tarfrag
@@ -83,7 +85,8 @@ C     fragtrig = 9 ----- inelastic interaction in BMN + X
 C     fragtrig = 10 ---- inelastic interaction in STC - BMN +X
 C     fragtrig = 11 ---- inelastic interaction in BMN - STC +X 
 C     fragtrig = 34 ---- inelastic interaction in TGT + AIR - STC -BMN -ELS      
-C     fragtrig = 35 ---- inelastic interaction in TGT + ELS - STC -BMN -AIR     
+C     fragtrig = 35 ---- inelastic interaction in TGT + ELS - STC -BMN -AIR
+C     fragtrig = 100 ---- elastic interaction in TGT
 C     fragtrig = -1 ---- no inelastic interaction in STC
 C     fragtrig = -2 ---- no inelastic interaction in BMN
 C     fragtrig = -3 ---- no inelastic interaction in TGT
@@ -104,9 +107,11 @@ C
      &              ' trig_tgt: ', trig_tgt,
      &              ' trig_air: ', trig_air,
      &              ' trig_els: ', trig_els,
+     &              ' trig_elas: ', trig_elas,
      &              ' trigger= ', Trigger,
      &              ' fragtrig= ',fragtrig,
-     &              ' tarfrag= ',tarfrag
+     &              ' tarfrag= ',tarfrag,
+     &              ' elasfrag= ',elasfrag
             endif
          endif
       else if (fragtrig.eq.2) then
@@ -120,9 +125,11 @@ C
      &              ' trig_tgt: ', trig_tgt,
      &              ' trig_air: ', trig_air,
      &              ' trig_els: ', trig_els,
+     &              ' trig_elas: ', trig_elas,
      &              ' trigger= ', Trigger,
      &              ' fragtrig= ',fragtrig,
-     &              ' tarfrag= ',tarfrag
+     &              ' tarfrag= ',tarfrag,
+     &              ' elasfrag= ',elasfrag
             endif
          endif
       else if (fragtrig.eq.3) then
@@ -136,9 +143,11 @@ C
      &              ' trig_tgt: ', trig_tgt,
      &              ' trig_air: ', trig_air,
      &              ' trig_els: ', trig_els,
+     &              ' trig_elas: ', trig_elas,
      &              ' trigger= ', Trigger,
      &              ' fragtrig= ',fragtrig,
-     &              ' tarfrag= ',tarfrag
+     &              ' tarfrag= ',tarfrag,
+     &              ' elasfrag= ',elasfrag
             endif
          endif
       else if (fragtrig.eq.4) then
@@ -152,9 +161,11 @@ C
      &              ' trig_tgt: ', trig_tgt,
      &              ' trig_air: ', trig_air,
      &              ' trig_els: ', trig_els,
+     &              ' trig_elas: ', trig_elas,
      &              ' trigger= ', Trigger,
      &              ' fragtrig= ',fragtrig,
-     &              ' tarfrag= ',tarfrag
+     &              ' tarfrag= ',tarfrag,
+     &              ' elasfrag= ',elasfrag
             endif
          endif
       else if (fragtrig.eq.5) then
@@ -167,9 +178,11 @@ C
      &              ' trig_tgt: ', trig_tgt,
      &              ' trig_air: ', trig_air,
      &              ' trig_els: ', trig_els,
+     &              ' trig_elas: ', trig_elas,
      &              ' trigger= ', Trigger,
      &              ' fragtrig= ',fragtrig,
-     &              ' tarfrag= ',tarfrag
+     &              ' tarfrag= ',tarfrag,
+     &              ' elasfrag= ',elasfrag
             endif
          endif
       else if (fragtrig.eq.6) then
@@ -182,10 +195,29 @@ C
      &              ' trig_tgt: ', trig_tgt,
      &              ' trig_air: ', trig_air,
      &              ' trig_els: ', trig_els,
+     &              ' trig_elas: ', trig_elas,
      &              ' trigger= ', Trigger,
      &              ' fragtrig= ',fragtrig,
-     &              ' tarfrag= ',tarfrag
+     &              ' tarfrag= ',tarfrag,
+     &              ' elasfrag= ',elasfrag
             endif
+         endif
+      else if (fragtrig.eq.100) then
+         if (trig_elas) then
+            trigger = .true.
+C            if(idbflg.gt.0) then
+               write(*,*)'TGT Elas Ev= ',numev,
+     &              ' trig_stc: ', trig_stc,
+     &              ' trig_bmn: ', trig_bmn,
+     &              ' trig_tgt: ', trig_tgt,
+     &              ' trig_air: ', trig_air,
+     &              ' trig_els: ', trig_els,
+     &              ' trig_elas: ', trig_elas,
+     &              ' trigger= ', Trigger,
+     &              ' fragtrig= ',fragtrig,
+     &              ' tarfrag= ',tarfrag,
+     &              ' elasfrag= ',elasfrag
+C            endif
          endif
       else if (fragtrig.eq.7) then
          if (trig_air) then
@@ -197,9 +229,11 @@ C
      &              ' trig_tgt: ', trig_tgt,
      &              ' trig_air: ', trig_air,
      &              ' trig_els: ', trig_els,
+     &              ' trig_elas: ', trig_elas,
      &              ' trigger= ', Trigger,
      &              ' fragtrig= ',fragtrig,
-     &              ' tarfrag= ',tarfrag
+     &              ' tarfrag= ',tarfrag,
+     &              ' elasfrag= ',elasfrag
             endif
          endif
       else if (fragtrig.eq.8) then
@@ -212,9 +246,11 @@ C
      &              ' trig_tgt: ', trig_tgt,
      &              ' trig_air: ', trig_air,
      &              ' trig_els: ', trig_els,
+     &              ' trig_elas: ', trig_elas,
      &              ' trigger= ', Trigger,
      &              ' fragtrig= ',fragtrig,
-     &              ' tarfrag= ',tarfrag
+     &              ' tarfrag= ',tarfrag,
+     &              ' elasfrag= ',elasfrag
             endif
          endif
       else if (fragtrig.eq.9) then
@@ -227,9 +263,11 @@ C
      &              ' trig_tgt: ', trig_tgt,
      &              ' trig_air: ', trig_air,
      &              ' trig_els: ', trig_els,
+     &              ' trig_elas: ', trig_elas,
      &              ' trigger= ', Trigger,
      &              ' fragtrig= ',fragtrig,
-     &              ' tarfrag= ',tarfrag
+     &              ' tarfrag= ',tarfrag,
+     &              ' elasfrag= ',elasfrag
             endif
          endif         
       else if (fragtrig.eq.10) then
@@ -242,9 +280,11 @@ C
      &              ' trig_tgt: ', trig_tgt,
      &              ' trig_air: ', trig_air,
      &              ' trig_els: ', trig_els,
+     &              ' trig_elas: ', trig_elas,
      &              ' trigger= ', Trigger,
      &              ' fragtrig= ',fragtrig,
-     &              ' tarfrag= ',tarfrag
+     &              ' tarfrag= ',tarfrag,
+     &              ' elasfrag= ',elasfrag
             endif
          endif
       else if (fragtrig.eq.11) then
@@ -257,9 +297,11 @@ C
      &              ' trig_tgt: ', trig_tgt,
      &              ' trig_air: ', trig_air,
      &              ' trig_els: ', trig_els,
+     &              ' trig_elas: ', trig_elas,
      &              ' trigger= ', Trigger,
      &              ' fragtrig= ',fragtrig,
-     &              ' tarfrag= ',tarfrag
+     &              ' tarfrag= ',tarfrag,
+     &              ' elasfrag= ',elasfrag
             endif
          endif         
       else if (fragtrig.eq.-1) then

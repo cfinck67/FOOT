@@ -951,6 +951,7 @@ int Evento::FindBranches(TTree *RootTree, EVENT_STRUCT *eve){
   RootTree->SetBranchAddress("CROSSn",&(eve->CROSSn));
   RootTree->SetBranchAddress("CROSSid",&(eve->CROSSid));
   RootTree->SetBranchAddress("CROSSnreg",&(eve->CROSSnreg));
+  RootTree->SetBranchAddress("CROSSnregold",&(eve->CROSSnreg));
   RootTree->SetBranchAddress("CROSSx",&(eve->CROSSx));
   RootTree->SetBranchAddress("CROSSy",&(eve->CROSSy));
   RootTree->SetBranchAddress("CROSSz",&(eve->CROSSz));

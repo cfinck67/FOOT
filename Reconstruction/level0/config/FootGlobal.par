@@ -36,10 +36,10 @@ IncludeInnerTracker:	y
 IncludeMSD:			y
 IncludeTW:			y
 IncludeCA:			n
-
 IncludeEvent:		n
 
-Magnetic field map name:  SummedSingleMap_NoRot.table
+Magnetic field map name:  AsymmetricDipoles.table
+#Magnetic field map name:  SummedSingleMap_NoRot.table
 #Magnetic field map name:  NewMap.table
 #Magnetic field map name:  SummedSingleMap.table
 #Magnetic field map name:  DoubleDipole.table

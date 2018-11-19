@@ -11,7 +11,7 @@ $FLUPRO/flutil/fff  UpdateCurrentParticle.f
 
 $FLUPRO/flutil/ldpm3qmd -m fluka usrini.o usrout.o usreou.o usrein.o  mgdraw.o magfld.o mgdraw_lib.o UpdateCurrentParticle.o -o fluka_FOOT_mag.exe
 
-rm -rf  *.o 
+rm -rf  *.o  *.map
 
 mv fluka_FOOT_mag.exe ../
 

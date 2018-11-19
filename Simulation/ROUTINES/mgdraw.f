@@ -135,13 +135,13 @@ c
 c Find which particle of the part common we are following:
 c let's assume it's the last one...
 c
-*      if ((etrack-ampart).le.ZERZER) then
+      if ((etrack-ampart).le.ZERZER) then
 *         idead(idcurr) = 17
-*         if (idbflg.gt.1) then
-*            write(*,*) ' particle at end of range!  =>',
-*     &           idcurr,nump,jpa(idcurr)
-*         endif
-*      endif
+         if (idbflg.gt.1) then
+            write(*,*) ' particle at end of range!  =>',
+     &           idcurr,nump,jpa(idcurr)
+         endif
+      endif
 
       call UpdateCurrPart(mreg,icpart,ibpart,ampart,icode,
      &     xtrack(0),ytrack(0),ztrack(0),JRUN)
@@ -517,7 +517,7 @@ c
          write(*,*)'------------- endraw: Ev =',ncase,' -------------'
          write(*,*)'jtrack = ',jtrack,' mreg = ',mreg
          write(*,*)'rull = ',rull,' icode = ',icode,' idcurr = ',idcurr
-         write(*,*)'idead(idcurr) = ',idead(idcurr)
+*         write(*,*)'idead(idcurr) = ',idead(idcurr)
          write(*,*)'x,y,x = ',sngl(XSCO), sngl(YSCO), sngl(ZSCO) 
          WRITE (*,*)'cx,cy,cz = ',SNGL(CXTRCK),SNGL(CYTRCK),SNGL(CZTRCK)
       endif
@@ -525,11 +525,11 @@ c
 Cgb
 Cgb   to preserve idead flag correctly
 Cgb
-      idead (idcurr) = icode
+*      idead (idcurr) = icode
 Cgb
-      if(idbflg.gt.1) then
-         write(*,*)'ENDRAW: Now idead(idcurr) = ',idead(idcurr)
-      endif
+*      if(idbflg.gt.1) then
+*         write(*,*)'ENDRAW: Now idead(idcurr) = ',idead(idcurr)
+*      endif
 Cgb
       if(jtrack.lt.62) then
 c************* PARTICLES AND HEAVY IONS WITH JTRACK=-2
@@ -960,42 +960,42 @@ c      if ( icode .eq.  100) return
 *  +-------------------------------------------------------------------*
 *  |  Compton scattering:
       ELSE IF ( ICODE .EQ. 219 ) THEN
-         idead (idcurr) = icode
+*         idead (idcurr) = icode
          ldead = .true.
 *  +-------------------------------------------------------------------*
 *  |  PhotoElectric:
       ELSE IF ( ICODE .EQ. 221 ) THEN
-         idead (idcurr) = icode
+*         idead (idcurr) = icode
          ldead = .true.
 *  |
 *  +-------------------------------------------------------------------*
 *  |  In flight or at rest annihilation:
       ELSE IF ( ICODE .EQ. 214 .OR. ICODE .EQ. 215 ) THEN
-         idead (idcurr) = icode
+*         idead (idcurr) = icode
          ldead = .true.
 *  |
 *  +-------------------------------------------------------------------*
 *  |  Pair production:
       ELSE IF ( ICODE.EQ.217 .OR. ICODE.EQ.104 ) THEN
-         idead (idcurr) = icode
+*         idead (idcurr) = icode
          ldead = .true.
 *  |
 *  +-------------------------------------------------------------------*
 *  |  Low energy neutron secondaries:
       ELSE IF ( ICODE.EQ.300 ) THEN
-         idead (idcurr) = icode
+*         idead (idcurr) = icode
          ldead =.true.
 *  |
 *  +-------------------------------------------------------------------*
 *  |  Decays
       ELSE IF ( ICODE.EQ.102 .OR. icode.eq.110) THEN
-         idead (idcurr) = icode
+*         idead (idcurr) = icode
          ldead = .true.
 *  |
 *  +-------------------------------------------------------------------*
 *  |  Inelastic interactions:
       ELSE IF ( ICODE.EQ.101 ) THEN
-         idead (idcurr) = icode
+*         idead (idcurr) = icode
          ldead = .true.
 *  |
 *  +-------------------------------------------------------------------*
@@ -1029,11 +1029,11 @@ Cgb
       endif
 c
       if ( ldead ) then
-         idead (idcurr) = icode
+         idead (idcurr) = mreg
 c         idead (idcurr) = intcode(idcurr)
          if(idbflg.gt.1) then
             write(*,*)'USDRAW: ldead Now idcurr, idead(idcurr) = ',
-     &           idcurr,idead(idcurr),icode
+     &           idcurr,idead(idcurr)
          endif
          vxf (idcurr) = sngl(xsco)
          vyf (idcurr) = sngl(ysco)

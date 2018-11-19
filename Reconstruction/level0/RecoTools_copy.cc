@@ -268,7 +268,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     // genfit::FieldManager::getInstance()->init(new genfit::ConstField(0. ,10., 0.)); // 1 T
     // genfit::FieldManager::getInstance()->init(new genfit::ConstField(0. ,0., 0.)); // no mag
-    genfit::FieldManager::getInstance()->init(new FootField("DoubleDipole.table")); // variable field
+    // genfit::FieldManager::getInstance()->init(new FootField("DoubleDipole.table")); // variable field
+    genfit::FieldManager::getInstance()->init(new FootField("AsymmetricDipoles.table")); // variable field
     // genfit::FieldManager::getInstance()->init(new FootField("DoubleGaussMag.table")); // variable field
     // genfit::FieldManager::getInstance()->init( new FootField( 7 ) ); // const field
     // FieldManager::getInstance()->useCache(true, 8);

@@ -678,12 +678,12 @@ c
 c
       stripSCN = ireg2stripSCN(mreg)
       viewSCN = ireg2viewSCN(mreg)
-      if (stripSCNSCN.ge.nstripSCN .or. colSCN.lt.0) THEN
+      if (stripSCN.ge.nstripSCN ) THEN
          write(*,*) ' WARNING!!!! stripSCN = ', stripSCN,
      &        ' xcordin= ',xcordin, ' ycordin= ',ycordin,
      &        ' zcordin= ',zcordin         
       ENDIF
-      if (viewSCN.gt.1 .or. viewSCN.lt.-1) THEN
+      if (viewSCN.gt.1 .or. viewSCN.lt.-1 .or. viewSCN.eq.0) THEN
          write(*,*) ' WARNING!!!! viewSCN = ', viewSCN,
      &        ' xcordin= ',xcordin, ' ycordin= ',ycordin,
      &        ' zcordin= ',zcordin

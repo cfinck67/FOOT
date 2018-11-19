@@ -34,28 +34,25 @@
       INCLUDE '(CSMCRY)'
 *     
       INTEGER NX, NY, NZ, NROW
-      INTEGER XDIM, YDIM, ZDIM
       DOUBLE PRECISION G2T, ZSHIFT
 
-*      PARAMETER (NROW=67473) 
-*      PARAMETER (NX=21) 
-*      PARAMETER (NY=21) 
-*      PARAMETER (NZ=153)
-      PARAMETER (ZSHIFT=0.D+00)
+*      PARAMETER (NROW=53361) 
+      PARAMETER (NROW=88641) 
+      PARAMETER (NX=21) 
+      PARAMETER (NY=21) 
+*      PARAMETER (NZ=121)
+      PARAMETER (NZ=201)
+      PARAMETER (ZSHIFT=16.6D+00)
 *      PARAMETER (ZSHIFT=14.D+00)
 *      PARAMETER (ZSHIFT=14.7D+00)
       PARAMETER (G2T=1.D-04)
-      PARAMETER (XDIM=50) 
-      PARAMETER (YDIM=50) 
-      PARAMETER (ZDIM=200)
 
       DOUBLE PRECISION XLAT, YLAT, ZLAT
       DOUBLE PRECISION XDIFF, YDIFF, ZDIFF
       DOUBLE PRECISION BXLAT, BYLAT, BZLAT
       
-      DIMENSION XLAT(XDIM), YLAT(YDIM), ZLAT(ZDIM)
-      DIMENSION BXLAT(XDIM,YDIM,ZDIM), BYLAT(XDIM,YDIM,ZDIM),
-     &     BZLAT(XDIM,YDIM,ZDIM)
+      DIMENSION XLAT(NX), YLAT(NY), ZLAT(NZ)
+      DIMENSION BXLAT(NX,NY,NZ), BYLAT(NX,NY,NZ), BZLAT(NX,NY,NZ)
       
       INTEGER I0, J0, K0
       INTEGER I1, J1, K1
@@ -73,16 +70,9 @@
          
       IF (LFIRST) THEN 
          
-         CALL OAUXFI('SummedSingleMap_NoRot.table',22,'OLD',IERR)
-*         CALL OAUXFI('SummedSingleMap.table',22,'OLD',IERR)
+         CALL OAUXFI('AsymmetricDipoles.table',22,'OLD',IERR)
+*         CALL OAUXFI('NewMapInverted.table',22,'OLD',IERR)
 *         CALL OAUXFI('DoubleDipole.table',22,'OLD',IERR)
-         
-         READ (22,*) NROW, NX, NY, NZ
-
-         IF (XDIM.LT.NX .OR. YDIM.LT.NY .OR. ZDIM.LT.NZ) THEN
-            WRITE(*,*)'magfld.f error: problem in arrays dimension'
-            CALL FLABRT('MAGFLD','Error in arrays dimension')
-         ENDIF
          
          DO I=1,NX
             DO J=1,NY
@@ -94,6 +84,10 @@
 *     corrispondenti a quel punto
                   READ (22,*) XLAT(I), YLAT(J), ZLAT(K),
      &                 BXLAT(I,J,K), BYLAT(I,J,K), BZLAT(I,J,K)
+                  IF (XLAT(I).EQ.ZERZER .AND. YLAT(J).EQ.ZERZER) THEN
+                     WRITE(*,*) XLAT(I), YLAT(J), ZLAT(K),
+     &                    BXLAT(I,J,K), BYLAT(I,J,K), BZLAT(I,J,K)
+                  ENDIF
                   ZLAT(K) = ZLAT(K)+ZSHIFT
                   BXLAT(I,J,K) = BXLAT(I,J,K)*G2T
                   BYLAT(I,J,K) = BYLAT(I,J,K)*G2T

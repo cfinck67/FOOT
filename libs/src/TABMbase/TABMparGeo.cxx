@@ -810,14 +810,14 @@ string TABMparGeo::PrintAssignMaterial() {
 
 
 
-    outstr << "ASSIGNMA    ALUMINUM   BMN_SHI" << endl;
-    outstr << "ASSIGNMA       Mylar  BMN_MYL0" << endl;
-    outstr << "ASSIGNMA       Mylar  BMN_MYL1" << endl;
-    outstr << "ASSIGNMA      Ar-CO2  BMN_C000  BMN_C017         1" << endl;
-    outstr << "ASSIGNMA      Ar-CO2  BMN_C100  BMN_C117         1" << endl;
-    outstr << "ASSIGNMA      Ar-CO2   BMN_GAS" << endl;
-    outstr << "ASSIGNMA    ALUMINUM   BMN_FWI" << endl;
-    outstr << "ASSIGNMA    TUNGSTEN   BMN_SWI" << endl;
+    outstr << "ASSIGNMA    ALUMINUM   BMN_SHI                              " << endl;
+    outstr << "ASSIGNMA       Mylar  BMN_MYL0                            1." << endl;
+    outstr << "ASSIGNMA       Mylar  BMN_MYL1                            1." << endl;
+    outstr << "ASSIGNMA      Ar-CO2  BMN_C000  BMN_C017        1.        1." << endl;
+    outstr << "ASSIGNMA      Ar-CO2  BMN_C100  BMN_C117        1.        1." << endl;
+    outstr << "ASSIGNMA      Ar-CO2   BMN_GAS                            1." << endl;
+    outstr << "ASSIGNMA    ALUMINUM   BMN_FWI                            1." << endl;
+    outstr << "ASSIGNMA    TUNGSTEN   BMN_SWI                            1." << endl;
 
 
     return outstr.str();

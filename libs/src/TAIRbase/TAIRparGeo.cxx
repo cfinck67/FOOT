@@ -222,7 +222,7 @@ string TAIRparGeo::PrintAssignMaterial() {
 
     // return outstr.str();
 
-      return "ASSIGNMA      EJ-232       STC\n";
+      return "ASSIGNMA      EJ-232       STC                            1.\n";
 
 }
 

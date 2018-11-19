@@ -53,7 +53,7 @@ c
          trlen(idcurr) = 0.
          numreg(idcurr) = nrgflk(npflka)
          igen(idcurr) = 1
-         idead(idcurr) = 0
+*         idead(idcurr) = 0
          idflukamax = 1
 
 C         write(*,*) 'ionid 0 = ',ionid
@@ -93,6 +93,7 @@ c
          vxf (idcurr) = vxi(idcurr)
          vyf (idcurr) = vyi(idcurr)
          vzf (idcurr) = vzi(idcurr)
+         idead(idcurr) = nrgflk(npflka)
 c
 c when decay the momentum is defined <0 ?
 c
@@ -217,7 +218,8 @@ C               idead(idcurr) = icode
             else                ! Non dovremmo essere qua
             write(*,*)'UpdateCurrentParticle: ERROR -> wrong JFLAG= ',
      &              JFLAG
-            endif
+         endif
+            idead(idcurr) = mreg
             pxf(idcurr) = sngl(ptrack*cxtrck)
             pyf(idcurr) = sngl(ptrack*cytrck)
             pzf(idcurr) = sngl(ptrack*cztrck)
@@ -287,6 +289,7 @@ C               idead(idcurr) = icode
             pyf(idcurr) = py(idcurr)
             pzf(idcurr) = pz(idcurr)
             trlen(idcurr) = sngl(cmtrck)
+            idead(idcurr) = mreg
 c
 c particle latching: father, igen
 c

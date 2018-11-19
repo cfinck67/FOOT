@@ -5,7 +5,8 @@ c
       integer idbflg, outunit
       integer tarfrag, fragtrig, stcfrag, bmnfrag, tgtfrag, airfrag
       integer elsfrag
-      logical trig_stc, trig_bmn, trig_tgt, trig_air, trig_els
+      logical trig_stc, trig_bmn, trig_tgt, trig_air, trig_els,
+     &     trig_elas
       integer numev
       integer idcurr
       integer JSTART, JRUN, JEND
@@ -14,7 +15,7 @@ c
       common /comunico/Ethrdep, idbflg, numev,
      &     idcurr, outunit, stcfrag, bmnfrag, tgtfrag, airfrag,
      &     tarfrag, elsfrag, fragtrig, trig_stc, trig_bmn, trig_tgt,
-     &     trig_air, trig_els
+     &     trig_air, trig_els, trig_elas
 c     
 c     particle common block
 c     
@@ -25,7 +26,7 @@ c
 c     idpa          = index in the part common of the track parent
 c     icha          = charge
 c     iba           = barionic number
-c     idead         = with which interaction the particle dies
+c     idead         = with which interaction the particle dies (OLD)
 c     jpa           = kind of particle
 c     igen          = kind of interaction
 c     vxi, vyi, vzi = production position of the track
@@ -35,6 +36,8 @@ c     amass         = track mass
 c     tempo         = production time of the track
 c     tof           = tof of the particle
 c     trlen         = track lenght of the particle
+c     numreg        = number of the region of generation
+c     idead         = number of the region of death       (NEW)
 c     
       integer nump, maxnump
       parameter(maxnump=2000)
