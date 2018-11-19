@@ -759,9 +759,8 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
          z = posG(2);
          
          if (prefix == "vt") {
-               fVtxClusDisplay->AddHit(nPix*10, x, y, z);
+            fVtxClusDisplay->AddHit(nPix*10, x, y, z);
             fVtxClusDisplay->QuadId(clus);
-            
          } else if (prefix == "it") {
             fItClusDisplay->AddHit(nPix*10, x, y, z);
             fItClusDisplay->QuadId(clus);
