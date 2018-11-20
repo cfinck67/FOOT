@@ -102,8 +102,8 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
         // if (Cut(ientry) < 0) continue;
         // if (jentry>1)  break;
         // if (jentry<33061)  continue;
-
         tagr->NextEvent();
+        // cout << "So far, so good" << endl;
         if(!(jentry%fr))        cout<<"Processed:: "<<jentry<<" evts!"<<endl;
 
 

@@ -16,7 +16,7 @@ MC Particle Types:	C10	C11	C12	Li6	Li7	B7	B8	B9	Be9	Be10	N12	N14	O15
 ############	Kalman Filter Control Parameters	################
 
 IncludeKalman: 		y
-Kalman Mode: 		ON
+Kalman Mode: 		OFF
 Tracking Systems Considered:		all
 Reverse Tracking:	false
 
@@ -31,13 +31,13 @@ Kalman Particle Types:	C
 
 IncludeBM:			n
 IncludeIR:			n
-IncludeVertex:		y
-IncludeInnerTracker:	y
-IncludeMSD:			y
-IncludeTW:			y
-IncludeCA:			n
+IncludeVertex:		n
+IncludeInnerTracker:	n
+IncludeMSD:			n
+IncludeTW:			n
+IncludeCA:			y
 
-IncludeEvent:		n
+IncludeEvent:		y
 
 Magnetic field map name:  SummedSingleMap_NoRot.table
 #Magnetic field map name:  NewMap.table
