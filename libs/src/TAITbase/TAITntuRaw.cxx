@@ -355,8 +355,8 @@ TClonesArray* TAITntuRaw::GetListOfPixels(int iSensor) const  {
 
 //------------------------------------------+-----------------------------------
 //! Setup clones.
-void TAITntuRaw::SetupClones()
-{
+void TAITntuRaw::SetupClones()  {
+  
    if (m_listOfPixels) return;
    m_listOfPixels = new TObjArray( m_itxGeo->GetNSensors() );
    

@@ -70,7 +70,9 @@
 #include "TAMSDparGeo.hxx"
 #include "TAMSDparConf.hxx"
 #include "TAMSDparMap.hxx"
-#include "TAMSDntuRaw.hxx"
+#include "TAMSD_ContainerPoint.hxx"
+#include "TAMSD_ContainerHit.hxx"
+// #include "TAMSDntuRaw.hxx"
 #include "TAMSDactNtuMC.hxx"
 
 
@@ -639,7 +641,9 @@ void Booter::FillMCMSD(EVENT_STRUCT *myStr) {
     top->AddNode( ((TAMSDparGeo*) myp_msdgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("Strip",0,0,0)) );
 
     /*Ntupling the MC Vertex information*/
-    myn_msdraw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
+    // myn_msdraw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
+    m_MSD_containerHit    = new TAGdataDsc("MSDcontainerHit", new TATW_ContainerHit());
+    m_MSD_containerPoint  = new TAGdataDsc("MSDcontainerPoint", new TATW_ContainerPoint());
     // myn_msdclus   = new TAGdataDsc("msdClus", new TAMSDntuCluster());
 
     myp_msdmap    = new TAGparaDsc("msdMap", new TAMSDparMap());
@@ -649,7 +653,8 @@ void Booter::FillMCMSD(EVENT_STRUCT *myStr) {
     TString filename = m_wd + "/config/TAMSDdetector.cfg";
     parconf->FromFile(filename.Data());
 
-    mya_msdraw   = new TAMSDactNtuMC("msdActRaw", myn_msdraw, myp_msdgeo, myp_msdmap, myStr);
+    mya_msdraw   = new TAMSDactNtuMC("msdActRaw", m_MSD_containerHit, myp_msdgeo, myp_msdmap, myStr);
+    // mya_msdraw   = new TAMSDactNtuMC("msdActRaw", myn_msdraw, myp_msdgeo, myp_msdmap, myStr);
     gTAGroot->AddRequiredItem("msdRaw");
 
 }
@@ -671,8 +676,8 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
 
     /*Ntupling the MC Tof Wall information*/
     myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
-    containerHit    = new TAGdataDsc("containerHit", new TATW_ContainerHit());
-    containerPoint  = new TAGdataDsc("containerPoint", new TATW_ContainerPoint());
+    m_TW_containerHit    = new TAGdataDsc("containerHit", new TATW_ContainerHit());
+    m_TW_containerPoint  = new TAGdataDsc("containerPoint", new TATW_ContainerPoint());
     
 
     new TATWactNtuMC("an_twraw", myn_twraw, myStr);
@@ -680,7 +685,7 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
     // gTAGroot->AddRequiredItem("myn_twraw");
     gTAGroot->AddRequiredItem("containerHit");
     gTAGroot->AddRequiredItem("containerPoint");
-    gTAGroot->AddRequiredItem("an_twraw");   // prova --> funge!!!
+    gTAGroot->AddRequiredItem("an_twraw");   
 
     // my_out->SetupElementBranch(myn_twraw,     "twrh.");
 }
@@ -693,9 +698,10 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCCalorimeter(EVENT_STRUCT *myStr) {
 
-    // Geo to be defined ...  
-    // m_cageo->InitGeo();
-    // top->AddNode( m_cageo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_cageo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
+    // Geo to be defined ...
+    // m_cageo = new TAGparaDsc("caGeo", new TACAparGeo());
+    // ((TACAparGeo*) m_cageo->Object())->InitGeo();
+    // top->AddNode( ((TACAparGeo*) m_cageo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  ((TACAparGeo*) m_cageo->Object())->GetCenter().z(), new TGeoRotation("Calo",0,0,0)) );
 
     /*Ntupling the MC Calorimeter information*/
     myn_caraw    = new TAGdataDsc("myn_caraw", new TACAdatRaw());

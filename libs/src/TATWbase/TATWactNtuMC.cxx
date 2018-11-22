@@ -98,14 +98,14 @@ bool TATWactNtuMC::Action() {
     for (int iCol=0; iCol < containerHit->GetHitN( 0 ); iCol++) {  // col loop
         
         // FOR TEST, REMOVE
-        if ( !containerHit->GetHit( 0, iCol )->IsColumn() )       cout <<"TATWactNtuMC::Action() cazzoCol"<<endl, exit(0);
+        // if ( !containerHit->GetHit( 0, iCol )->IsColumn() )       cout <<"TATWactNtuMC::Action() Col"<<endl, exit(0);
         TATW_Hit* colHit = containerHit->GetHit( 0, iCol );
        
 
         for (int iRow=0; iRow < containerHit->GetHitN( 1 ); iRow++) {  // row loop 
             
             // FOR TEST, REMOVE
-            if ( !containerHit->GetHit( 1, iRow )->IsRow() )        cout <<"TATWactNtuMC::Action() cazzoRow"<<endl, exit(0);
+            // if ( !containerHit->GetHit( 1, iRow )->IsRow() )        cout <<"TATWactNtuMC::Action() Row"<<endl, exit(0);
             TATW_Hit* rowHit = containerHit->GetHit( 1, iRow );
 
             // TVector3 rowPos = rowHit->GetHitPosition_detector();

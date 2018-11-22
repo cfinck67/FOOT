@@ -37,8 +37,8 @@ void MultiTrackCheck::Initialize( EVENT_STRUCT* evStr ) {
   //myp_itgeo    = new TAGparaDsc("itGeo", new TAITparGeo());
   m_IT_geo = shared_ptr<TAITparGeo> ( (TAITparGeo*) gTAGroot->FindParaDsc("itGeo", "TAITparGeo")->Object() );
   
-  TAGdataDsc* _msdraw   = gTAGroot->FindDataDsc("msdRaw", "TAMSDntuRaw");
-  myn_msdraw = (TAMSDntuRaw*) _msdraw->Object();
+  // TAGdataDsc* _msdraw   = gTAGroot->FindDataDsc("msdRaw", "TAMSDntuRaw");
+  // myn_msdraw = (TAMSDntuRaw*) _msdraw->Object();
 
    //////// MCtrack //////////////////
   // TAGdataDsc* _mceve    = new TAGdataDsc("myn_mceve", new TAGntuMCeve());
@@ -209,23 +209,23 @@ void MultiTrackCheck::Process( Long64_t jentry ){
 
   
    
-   for (int i = 0; i < myn_msdraw->GetPixelsN(0); i++)  {                    
-     TAMSDntuHit* msd_hit = myn_msdraw->GetPixel(0,i);       
+   // for (int i = 0; i < myn_msdraw->GetPixelsN(0); i++)  {                    
+   //   TAMSDntuHit* msd_hit = myn_msdraw->GetPixel(0,i);       
      
-     if(msd_hit->GetMCPosition_Global().Z() < 27.0) 	ntrackonMSD++;
+   //   if(msd_hit->GetMCPosition_Global().Z() < 27.0) 	ntrackonMSD++;
      
     
    
-      // get true  coord
-     TVector3 msdpos = msd_hit->GetMCPosition_Global();
+   //    // get true  coord
+   //   TVector3 msdpos = msd_hit->GetMCPosition_Global();
      
      
-     m_Plotter->SetMultiTrackPlots("MSD", &msdpos, &msdpos); //only true MC info for now
+   //   m_Plotter->SetMultiTrackPlots("MSD", &msdpos, &msdpos); //only true MC info for now
 	     
-     m_MSD_hitCollection.push_back(msd_hit);
+   //   m_MSD_hitCollection.push_back(msd_hit);
 
 
-   }
+   // }
    
   
    
@@ -288,18 +288,18 @@ void MultiTrackCheck::Process( Long64_t jentry ){
        }
      }
          
-     for(int z=0; z<m_MSD_hitCollection.size(); z++){
-       // int tmp_msdid = m_MSD_hitCollection.at(z)->GetMCid()-1;
-        int tmp_msdid_mgen = m_MSD_hitCollection.at(z)->m_genPartID;
-       //       int tmp_msdid_mgen = m_MSD_hitCollection.at(z)->GetGenPartID();
-   	if (tmp_msdid_mgen == m_Frag_indexCollection.at(i))
-   	  {
+    //  for(int z=0; z<m_MSD_hitCollection.size(); z++){
+    //    // int tmp_msdid = m_MSD_hitCollection.at(z)->GetMCid()-1;
+    //     int tmp_msdid_mgen = m_MSD_hitCollection.at(z)->m_genPartID;
+    //    //       int tmp_msdid_mgen = m_MSD_hitCollection.at(z)->GetGenPartID();
+   	// if (tmp_msdid_mgen == m_Frag_indexCollection.at(i))
+   	//   {
 	    
-	    if (debug_multi > 0) cout<<" MSD hit associated to part "<< i << " That is a:: "<< m_Frag_hitCollection.at(i)->FlukaID() <<"  and has charge, mass:: "<< m_Frag_hitCollection.at(i)->Chg()<<" "<<m_Frag_hitCollection.at(i)->Mass()<<" "<<endl; 
+	   //  if (debug_multi > 0) cout<<" MSD hit associated to part "<< i << " That is a:: "<< m_Frag_hitCollection.at(i)->FlukaID() <<"  and has charge, mass:: "<< m_Frag_hitCollection.at(i)->Chg()<<" "<<m_Frag_hitCollection.at(i)->Mass()<<" "<<endl; 
 	    
-	    nMSD++;
-   	  }
-     }
+	   //  nMSD++;
+   	//   }
+    //  }
 
      
      m_Plotter->SetMultiTrackHitInfo( "HitInfo", nVT, nIT, nMSD);
@@ -402,20 +402,20 @@ void MultiTrackCheck::Process( Long64_t jentry ){
        }
        
        for(int z=0; z<m_MSD_hitCollection.size(); z++){
-	 if (m_Trcks9index.at(i) == m_MSD_hitCollection.at(z)->m_genPartID)
-	   {
+	 // if (m_Trcks9index.at(i) == m_MSD_hitCollection.at(z)->m_genPartID)
+	 //   {
 	     
 	     
-	     TAMSDntuHit* p_hit = m_MSD_hitCollection.at(z);
+	 //     TAMSDntuHit* p_hit = m_MSD_hitCollection.at(z);
 
-	     // get true  coord
-	     TVector3 msdpos = p_hit->GetMCPosition_Global();
-	     m_MSD_Trackpos.push_back(msdpos);
+	 //     // get true  coord
+	 //     TVector3 msdpos = p_hit->GetMCPosition_Global();
+	 //     m_MSD_Trackpos.push_back(msdpos);
 	     
-	     m_Plotter->SetMultiTrackPlots("MSD_TRACK9HITS", &msdpos, &msdpos); //only true MC info for now
+	 //     m_Plotter->SetMultiTrackPlots("MSD_TRACK9HITS", &msdpos, &msdpos); //only true MC info for now
 	     
 	    
-	   }
+	 //   }
 	 
        }
 

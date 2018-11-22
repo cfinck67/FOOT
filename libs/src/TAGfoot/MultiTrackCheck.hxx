@@ -36,6 +36,8 @@
 
 #include "TAITntuCluster.hxx"
 
+#include "TAMSD_ContainerHit.hxx"
+
 class MultiTrackCheck{
 
 public :
@@ -77,13 +79,15 @@ private:
   shared_ptr<TAITparGeo> m_IT_geo;
   
   // //MSD block
-  TAMSDntuRaw* myn_msdraw;
+  TAMSD_ContainerHit* myn_msdraw;
+  // TAMSDntuRaw* myn_msdraw;
 
 
   
   vector<TAVTntuHit*> m_VT_hitCollection;
   vector<TAITntuHit*> m_IT_hitCollection;
-  vector<TAMSDntuHit*> m_MSD_hitCollection;
+  vector<TAMSD_Hit*> m_MSD_hitCollection;
+  // vector<TAMSDntuHit*> m_MSD_hitCollection;
   vector<TAGntuMCeveHit*> m_Frag_hitCollection;
   vector<TAGntuMCeveHit*> m_Trcks9hits;
   

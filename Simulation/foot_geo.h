@@ -299,7 +299,8 @@ const double MSD_Z		=29.0;//center z coordinate of the detector system
 
 const Double_t MSD_WIDTH   	=9.0;//x dimension
 const Double_t MSD_HEIGHT  	=9.0;//y dimension
-const Double_t MSD_THICK   	=0.015;//z dimension
+const Double_t MSD_THICK   	=0.5*0.015;//z dimension
+// const Double_t MSD_THICK   	=0.015;//z dimension
 
 const Int_t    MSD_NVIEW        =2;//no.planes(x and y)
 const Int_t    MSD_NLAY         =3;//no.layers

@@ -12,6 +12,10 @@
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 
+#include "TAMSD_ContainerHit.hxx"
+#include "TAMSD_ContainerPoint.hxx"
+
+
 class TH2F;
 class TH1F;
 class TAMSDactNtuMC : public TAGaction {
@@ -22,6 +26,7 @@ public:
    
    //! Base action 
    virtual Bool_t  Action();
+   void FillAdditonalInfo( TAMSD_Hit* hit, int i );
 
    //! Base creation of histogram
    virtual  void   CreateHistogram();

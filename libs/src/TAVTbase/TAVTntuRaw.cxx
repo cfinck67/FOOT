@@ -342,17 +342,17 @@ TClonesArray* TAVTntuRaw::GetListOfPixels(int iSensor) const {
 
 //------------------------------------------+-----------------------------------
 //! Setup clones. Crate and initialise the list of pixels
-void TAVTntuRaw::SetupClones()
-{
-   if (m_listOfPixels) return;
-   m_listOfPixels = new TObjArray();
-   
-   for (Int_t i = 0; i < m_vtxGeo->GetNSensors(); ++i) {
-	  TClonesArray* arr = new TClonesArray("TAVTntuHit", 500);
-	  arr->SetOwner(true);
-	  m_listOfPixels->AddAt(arr, i);
-   }
-   m_listOfPixels->SetOwner(true);
+void TAVTntuRaw::SetupClones() {
+
+    if (m_listOfPixels) return;
+    m_listOfPixels = new TObjArray();
+
+    for (int i = 0; i < m_vtxGeo->GetNSensors(); ++i) {
+        TClonesArray* arr = new TClonesArray("TAVTntuHit", 500);
+        arr->SetOwner(true);
+        m_listOfPixels->AddAt(arr, i);
+    }
+    m_listOfPixels->SetOwner(true);
 }
 
 
