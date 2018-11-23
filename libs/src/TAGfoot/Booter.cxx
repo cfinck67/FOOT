@@ -103,14 +103,6 @@ using namespace std;
 
 
 
-//----------------------------------------------------------------------------------------------------
-Booter::Booter() {
-
-
-
-}
-
-
 
 
 void Booter::Initialize( EVENT_STRUCT* evStr ) {
@@ -125,7 +117,8 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
 
 	//Initializing the Geometry class that handles the
     //detector positioning and global to local transformations
-    fGeoTrafo = new TAGgeoTrafo();   
+    fGeoTrafo = new TAGgeoTrafo();  
+    m_wd = "."; 
     TString filename = m_wd + "/FOOT_geo.map";   // obsolete, to be removed carefully
     fGeoTrafo->InitGeo(filename.Data());
 
@@ -552,6 +545,7 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
 void Booter::FillMCCalorimeter(EVENT_STRUCT *myStr) {
 
   /*Ntupling the MC Calorimeter information*/
+  myp_cageo    = new TAGparaDsc("caGeo", new TACAparGeo());
   myn_caraw    = new TAGdataDsc("myn_caraw", new TACAdatRaw());
   new TACAactNtuMC("an_caraw", myn_caraw, myStr);
   // my_out->SetupElementBranch(myn_caraw,     "carh.");
@@ -657,8 +651,8 @@ void Booter::FillMCInnerTracker(EVENT_STRUCT *myStr) {
 void Booter::MonitorBM() {}
 //Yun new graphs:
 void Booter::MonitorBMNew(Long64_t jentry) {}
-// void Booter::MonitorBMVTMat() {}
-// void Booter::CalibBMVT() {}
+void Booter::MonitorBMVTMat() {}
+void Booter::CalibBMVT() {}
 
 
 //----------------------------------------------------------------------------------------------------

@@ -43,10 +43,10 @@ public:
     virtual void        SetupClones();
     
 
-    virtual void        Clear(Option_t* opt=""){};
+    virtual void        Clear(Option_t* opt="");
 
     // delete?
-    virtual void        ToStream(ostream& os=cout, Option_t* option="") const {};
+    virtual void        ToStream(ostream& os=cout, Option_t* option="") const ;
    
    // static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
    

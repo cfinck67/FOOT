@@ -133,7 +133,7 @@ TACA_Hit* TACA_ContainerHit::GetHitBGO( int hitID ) {
 //------------------------------------------+-----------------------------------
 TClonesArray* TACA_ContainerHit::GetListOfHits() {
 
-    TClonesArray* list = (TClonesArray*) m_listOfHits;    // ->At(layer);
+    TClonesArray* list = (TClonesArray*) m_listOfHits->At(0);    // ->At(layer);
     return list;
   
 }
@@ -158,6 +158,46 @@ void TACA_ContainerHit::SetupClones()   {
 
 }
 
+
+
+
+
+
+//------------------------------------------+-----------------------------------
+//! Clear event.
+void TACA_ContainerHit::Clear(Option_t*) {
+
+    TClonesArray* list = GetListOfHits();
+    list->Delete();   
+    list->Clear();
+    // list->Clear("C");
+
+}
+
+
+
+
+
+/*------------------------------------------+---------------------------------*/
+//! ostream insertion.
+void TACA_ContainerHit::ToStream(ostream& os, Option_t* option) const
+{
+   // for (Int_t i = 0; i < m_vtxGeo->GetNSensors(); ++i) {
+      
+      // os << "TATW_ContainerHit " << GetName()
+      // << Form("  nPixels=%3d", GetPixelsN(i))
+      // << endl;
+      
+      // //TODO properly
+      // //os << "slat stat    adct    adcb    tdct    tdcb" << endl;
+      // for (Int_t j = 0; j < GetPixelsN(i); j++) {  // all by default
+         // const TATW_Hit*  pixel = GetPixel(i,j, "all");
+         // if (pixel)
+            // os << Form("%4d", pixel->GetPixelIndex());
+         // os << endl;
+      // }
+   // }
+}
 
 
 

@@ -34,7 +34,7 @@ class Booter {
   
  public :
 
-  Booter();
+  Booter() {};
   ~Booter() {};
 
   void Initialize( EVENT_STRUCT* evStr );
@@ -146,6 +146,7 @@ class Booter {
 
   TAGdataDsc* myn_twraw;
   TAGparaDsc* myp_twgeo;
+  TAGparaDsc* myp_cageo;
   TAGdataDsc* myn_caraw;
 
   //Actions
