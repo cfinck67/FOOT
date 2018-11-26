@@ -66,7 +66,7 @@ void GlobalPar::ReadParamFile () {
 
     if ( !getenv("FOOTCONFIG") )     cout<< "ERROR::GlobalPar::ReadParamFile  -->  FOOTCONFIG env variable not set "<< endl, exit(0);
 
-    ifile.open( ((string)getenv("FOOTCONFIG")+"/"+m_parFileName).c_str() );
+    ifile.open( ((string)"./config/"+m_parFileName).c_str() );
     if ( !ifile.is_open() )        cout<< "ERROR  -->  wrong input in GlobalPar::ReadParamFile file "<< endl, exit(0);
 
     string line = "";
