@@ -14,7 +14,7 @@ FootField::FootField ( string fileName ) {
 	m_fieldSetting = "realFieldMap";
 
 	ifstream ifile;
-	string fullFileName = (string)getenv("FOOTSIMU")+"/"+fileName;
+	string fullFileName = "./data/" + fileName;
     ifile.open( fullFileName.c_str() );
 
     cout << "\tB center =  " << MAG_AIR_X <<"  "<< MAG_AIR_Y << "  "<< MAG_AIR_Z << endl;
