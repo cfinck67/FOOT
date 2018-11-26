@@ -31,23 +31,23 @@ Kalman Particle Types:	C
 ############	END - Kalman Filter Control Parameters	################
 
 IncludeDI:			   y
-IncludeST:				y
-IncludeBM:				y
+IncludeST:				n
+IncludeBM:				n
 IncludeIR:				y
 IncludeTG:			   y
 IncludeVertex:			y
 IncludeInnerTracker:	y
 IncludeMSD:				y
 IncludeTW:				y
-IncludeCA:				y
+IncludeCA:				n
 
 IncludeEvent:			n
 
 
 
 #Magnetic field map name:  SummedSingleMap_v14.2.table
-Magnetic field map name:  SummedSingleMap.table
-#Magnetic field map name:  DoubleDipole.table
+#Magnetic field map name:  SummedSingleMap.table
+Magnetic field map name:  DoubleDipole.table
 #Magnetic field map name:  DoubleGaussMag.table
 
 
