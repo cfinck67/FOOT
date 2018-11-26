@@ -24,7 +24,6 @@ TATWactNtuMC::TATWactNtuMC(const char* name,
     m_hitContainer(p_datraw),
     m_eventStruct(evStr)
 {
-  Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
   AddDataOut(p_datraw, "TATWdatRaw");
 }
 
@@ -57,8 +56,7 @@ bool TATWactNtuMC::Action() {
     if ( fDebugLevel> 0 )     cout << "TATWactNtuMC::Action() start" << endl;
 
 
-    // TATW_ContainerHit* containerHit = (TATW_ContainerHit*) m_hitContainer->Object();
-    TATW_ContainerHit* containerHit = (TATW_ContainerHit*) gTAGroot->FindDataDsc("containerHit", "TATW_ContainerHit")->Object();
+    TATW_ContainerHit* containerHit = (TATW_ContainerHit*) gTAGroot->FindDataDsc("containerHit", "TATW_ContainerHit")->Object(); // extremly dangerous !
     TATWparGeo* geoMap = (TATWparGeo*) gTAGroot->FindParaDsc("twGeo", "TATWparGeo")->Object();
     // int nhits(0);
     // if (!containerHit->m_listOfHits) containerHit->SetupClones();
@@ -108,8 +106,8 @@ bool TATWactNtuMC::Action() {
 
 
 
-    // container of points
-    TATW_ContainerPoint* containerPoint = (TATW_ContainerPoint*) gTAGroot->FindDataDsc("containerPoint", "TATW_ContainerPoint")->Object();
+    // container of points, name of descriptor is hard coded
+    TATW_ContainerPoint* containerPoint = (TATW_ContainerPoint*) gTAGroot->FindDataDsc("containerPoint", "TATW_ContainerPoint")->Object(); // extremly dangerous no check !!
 
     if ( fDebugLevel> 0 )     cout << "N Col: "<<containerHit->GetHitN( 0 )<<endl;
     if ( fDebugLevel> 0 )     cout << "N Row: "<<containerHit->GetHitN( 1 )<<endl;
