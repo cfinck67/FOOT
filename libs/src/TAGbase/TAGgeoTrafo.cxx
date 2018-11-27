@@ -1,16 +1,16 @@
 #include "TAGgeoTrafo.hxx"
 #include <fstream>
 
-// #include "TObjArray.h"
-#include "TSystem.h"
+#include "TObjArray.h"
 
-//Class that handles the Geometrical transformations in FIRST RS
+//Class that handles the Geometrical transformations in QAPIVI RS
 
 ClassImp(TAGgeoTrafo);
 
       TString TAGgeoTrafo::fgDefaultActName = "actGeoTrafo";
-const Char_t* TAGgeoTrafo::fgkGeomName      = "FOOT";
-const Char_t* TAGgeoTrafo::fgkGeomTitle     = "FOOT Geometry";
+const Char_t* TAGgeoTrafo::fgkGeomName      = "QAPIVI";
+const Char_t* TAGgeoTrafo::fgkGeomTitle     = "QAPIVI Geometry";
+const Char_t* TAGgeoTrafo::fgkTrafoBaseName = "trafo";
       Char_t  TAGgeoTrafo::fgDefaultTransp  = 60;
 const Float_t TAGgeoTrafo::fgkCmToMu        = 10000;
 const Float_t TAGgeoTrafo::fgkMuToCm        = 1e-4;
@@ -27,34 +27,68 @@ const Float_t TAGgeoTrafo::fgkMevToGev      = 1e-3;
 
 
 //_____________________________________________________________________________
-TAGgeoTrafo::TAGgeoTrafo() 
+TAGgeoTrafo::TAGgeoTrafo(const TString expName)
 : TAGaction(fgDefaultActName.Data(), "TAGgeoTrafo - Geometry Transformations"),
-  fMatrixList(new TObjArray())
+  fFileStream(new TAGparTools()),
+  fMatrixList(new TObjArray()),
+  fDeviceList(new TObjArray()),
+  fExpName(expName),
+  fDebugLevel(0)
 {
    fMatrixList->SetOwner(true);
-   TGeoIdentity* id =  new TGeoIdentity();
-   fIdentity = new TGeoHMatrix(*id);
+   fDeviceList->SetOwner(true);
+   TGeoIdentity* id = new TGeoIdentity();
+   fIdentity        = new TGeoHMatrix(*id);
 }
 
 //_____________________________________________________________________________
 TAGgeoTrafo::~TAGgeoTrafo() 
 {
    delete fMatrixList;
+   delete fDeviceList;
    delete fIdentity;
+   delete fFileStream;
 }
 
 /*
   Transformations of points in space
 */
 //_____________________________________________________________________________
-const TGeoHMatrix* TAGgeoTrafo::GetTrafo(const char* name) const
+const TGeoHMatrix* TAGgeoTrafo::GetTrafo(const char* nameSuf) const
 {
+   TString name = Form("%s%s", fgkTrafoBaseName, nameSuf);
    const TGeoHMatrix* matrix = (const TGeoHMatrix*)fMatrixList->FindObject(name);
    if (matrix)
 	  return matrix;
    else {
-	  Error("GetTrafo", "No matrix with name %s found, reset to ID", name);
+	  Error("GetTrafo","No matrix with name %s found, reset to ID", name.Data());
 	  return fIdentity;
+   }
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetDeviceCenter(const char* nameSuf) const
+{
+   TString name = Form("%s%s", fgkTrafoBaseName, nameSuf);
+   const DeviceParameter_t* device = (const DeviceParameter_t*)fDeviceList->FindObject(name);
+   if (device)
+      return device->Center;
+   else {
+      Error("GetTrafo","No Device Parameter with name %s found, reset to ID", name.Data());
+      return TVector3(0,0,0);
+   }
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetDeviceAngle(const char* nameSuf) const
+{
+   TString name = Form("%s%s", fgkTrafoBaseName, nameSuf);
+   const DeviceParameter_t* device = (const DeviceParameter_t*)fDeviceList->FindObject(name);
+   if (device)
+      return device->Angle;
+   else {
+      Error("GetTrafo","No Device Parameter with name %s found, reset to ID", name.Data());
+      return TVector3(0,0,0);
    }
 }
 
@@ -62,6 +96,12 @@ const TGeoHMatrix* TAGgeoTrafo::GetTrafo(const char* name) const
 void TAGgeoTrafo::AddTrafo(TGeoHMatrix* mat)
 {
 	  fMatrixList->Add(mat);  
+}
+
+//_____________________________________________________________________________
+void TAGgeoTrafo::AddDevice(DeviceParameter_t* device)
+{
+	  fDeviceList->Add(device);
 }
 
 //_____________________________________________________________________________
@@ -120,39 +160,106 @@ TVector3 TAGgeoTrafo::Local2GlobalVect(const char* name, TVector3& loc) const
    return pos;
 }   
 
+
+//_____________________________________________________________________________
+bool TAGgeoTrafo::InitGeo(TString ifile) 
+{
+  //Initialization of Geom Parameters
+  if (fDebugLevel)
+	 Info("InitGeo()"," Init Geo ");
+
+   if (!fFileStream->Open(ifile)) {
+      Error("FromFile()", "failed to open file '%s'", ifile.Data());
+      return kTRUE;
+   }
+  
+   while(!fFileStream->Eof()) {
+      TString name;
+      TString baseName = "";
+      TVector3 center;
+      TVector3 angle;
+      
+      fFileStream->ReadStrings(baseName);
+      fFileStream->ReadVector3(center);
+      fFileStream->ReadVector3(angle);
+            
+      name = Form("%s%s", fgkTrafoBaseName, baseName.Data());
+      if (fDebugLevel)
+         printf("%s\n", name.Data());
+      DeviceParameter_t* device = new DeviceParameter_t;
+      device->Center = center;
+      device->Angle  = angle;
+      device->SetName(name.Data());
+      AddDevice(device);
+      
+      TGeoRotation rot;
+      rot.RotateX(angle[0]); rot.RotateY(angle[1]); rot.RotateZ(angle[2]);
+      
+      Double_t loc[] = {center[0], center[1], center[2]};
+      Double_t glo[] = {0.,0.,0};
+      rot.LocalToMaster(loc, glo);
+      TGeoTranslation trans(glo[0], glo[1], glo[2]);
+      TGeoHMatrix  transfo;
+      transfo  = trans;
+      transfo *= rot;
+      TGeoHMatrix* trafo = new TGeoHMatrix(transfo);
+      trafo->SetName(name.Data());
+      AddTrafo(trafo);
+      
+   }
+   
+   fFileStream->Close();
+   
+   return kTRUE;
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::FromSTLocalToGlobal(TVector3 apoi)
+{
+   TVector3 glb_poi = Local2Global("trafoST", apoi);
+   return glb_poi;
+}
+
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromBMLocalToGlobal(TVector3 apoi)
 {
-  TVector3 glb_poi = Local2Global("trafoBM", apoi);
-  return glb_poi;
+   TVector3 glb_poi = Local2Global("trafoBM", apoi);
+   return glb_poi;
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::FromTGLocalToGlobal(TVector3 apoi)
+{
+   TVector3 glb_poi = Local2Global("trafoTG", apoi);
+   return glb_poi;
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::FromDILocalToGlobal(TVector3 apoi)
+{
+   TVector3 glb_poi = Local2Global("trafoDI", apoi);
+   return glb_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromVTLocalToGlobal(TVector3 apoi)
 {
-  TVector3 glb_poi = Local2Global("trafoVT", apoi);
-  return glb_poi;
-}
-
-//_____________________________________________________________________________
-TVector3 TAGgeoTrafo::FromCALocalToGlobal(TVector3 apoi)
-{
-  TVector3 glb_poi = Local2Global("trafoCA", apoi);
-  return glb_poi;
+   TVector3 glb_poi = Local2Global("trafoVT", apoi);
+   return glb_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromITLocalToGlobal(TVector3 apoi)
 {
-  TVector3 glb_poi = Local2Global("trafoIT", apoi);
-  return glb_poi;
+   TVector3 glb_poi = Local2Global("trafoIT", apoi);
+   return glb_poi;
 }
 
 //_____________________________________________________________________________
-TVector3 TAGgeoTrafo::FromDCLocalToGlobal(TVector3 apoi)
+TVector3 TAGgeoTrafo::FromMSDLocalToGlobal(TVector3 apoi)
 {
-  TVector3 glb_poi = Local2Global("trafoDC", apoi);
-  return glb_poi;
+   TVector3 glb_poi = Local2Global("trafoMSD", apoi);
+   return glb_poi;
 }
 
 //_____________________________________________________________________________
@@ -162,425 +269,313 @@ TVector3 TAGgeoTrafo::FromTWLocalToGlobal(TVector3 apoi)
    return glb_poi;
 }
 
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::FromCALocalToGlobal(TVector3 apoi)
+{
+   TVector3 glb_poi = Local2Global("trafoCA", apoi);
+   return glb_poi;
+}
 /*
-  Transformations of vectors in space:: local --> global
-*/
+ Transformations of vectors in space:: local --> global
+ */
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::VecFromSTLocalToGlobal(TVector3 avec)
+{
+   TVector3 glb_vec = Local2GlobalVect("trafoST", avec);
+   return glb_vec;
+}
+
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromBMLocalToGlobal(TVector3 avec)
 {
-  TVector3 glb_vec = Local2GlobalVect("trafoBM", avec);
-  return glb_vec;
+   TVector3 glb_vec = Local2GlobalVect("trafoBM", avec);
+   return glb_vec;
 }
 
 //_____________________________________________________________________________
-TVector3 TAGgeoTrafo::VecFromITLocalToGlobal(TVector3 avec)
+TVector3 TAGgeoTrafo::VecFromTGLocalToGlobal(TVector3 avec)
 {
-  TVector3 glb_vec = Local2GlobalVect("trafoIT", avec);
-  return glb_vec;
+   TVector3 glb_vec = Local2GlobalVect("trafoTG", avec);
+   return glb_vec;
 }
 
 //_____________________________________________________________________________
-TVector3 TAGgeoTrafo::VecFromCALocalToGlobal(TVector3 avec)
+TVector3 TAGgeoTrafo::VecFromDILocalToGlobal(TVector3 avec)
 {
-  TVector3 glb_vec = Local2GlobalVect("trafoCA", avec);
-  return glb_vec;
-}
-
-//_____________________________________________________________________________
-TVector3 TAGgeoTrafo::VecFromDCLocalToGlobal(TVector3 avec)
-{
-  TVector3 glb_vec = Local2GlobalVect("trafoDC", avec);
-  return glb_vec;
+   TVector3 glb_vec = Local2GlobalVect("trafoDI", avec);
+   return glb_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromVTLocalToGlobal(TVector3 avec)
 {
-  TVector3 glb_vec = Local2GlobalVect("trafoVT", avec);
-  return glb_vec;
+   TVector3 glb_vec = Local2GlobalVect("trafoVT", avec);
+   return glb_vec;
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::VecFromITLocalToGlobal(TVector3 avec)
+{
+   TVector3 glb_vec = Local2GlobalVect("trafoIT", avec);
+   return glb_vec;
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::VecFromMSDLocalToGlobal(TVector3 avec)
+{
+   TVector3 glb_vec = Local2GlobalVect("trafoMSD", avec);
+   return glb_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromTWLocalToGlobal(TVector3 avec)
 {
-  TVector3 glb_vec = Local2GlobalVect("trafoTW", avec);
-  return glb_vec;
+   TVector3 glb_vec = Local2GlobalVect("trafoTW", avec);
+   return glb_vec;
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::VecFromCALocalToGlobal(TVector3 avec)
+{
+   TVector3 glb_vec = Local2GlobalVect("trafoCA", avec);
+   return glb_vec;
 }
 
 /*
-  Transformations of point in space:: global --> Local
-*/
+ Transformations of point in space:: global --> Local
+ */
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::FromGlobalToSTLocal(TVector3 apoi)
+{
+   TVector3 lcl_poi = Global2Local("trafoST", apoi);
+   return lcl_poi;
+}
+
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromGlobalToBMLocal(TVector3 apoi)
 {
-  TVector3 lcl_poi = Global2Local("trafoBM", apoi);
-  return lcl_poi;
+   TVector3 lcl_poi = Global2Local("trafoBM", apoi);
+   return lcl_poi;
 }
 
 //_____________________________________________________________________________
-TVector3 TAGgeoTrafo::FromGlobalToDCLocal(TVector3 apoi)
+TVector3 TAGgeoTrafo::FromGlobalToTGLocal(TVector3 apoi)
 {
-  TVector3 lcl_poi = Global2Local("trafoDC", apoi);
-  return lcl_poi;
+   TVector3 lcl_poi = Global2Local("trafoTG", apoi);
+   return lcl_poi;
 }
 
 //_____________________________________________________________________________
-TVector3 TAGgeoTrafo::FromGlobalToITLocal(TVector3 apoi)
+TVector3 TAGgeoTrafo::FromGlobalToDILocal(TVector3 apoi)
 {
-  TVector3 lcl_poi = Global2Local("trafoIT", apoi);
-  return lcl_poi;
-}
-
-//_____________________________________________________________________________
-TVector3 TAGgeoTrafo::FromGlobalToCALocal(TVector3 apoi)
-{
-  TVector3 lcl_poi = Global2Local("trafoCA", apoi);
-  return lcl_poi;
+   TVector3 lcl_poi = Global2Local("trafoDI", apoi);
+   return lcl_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromGlobalToVTLocal(TVector3 apoi)
 {
-  TVector3 lcl_poi = Global2Local("trafoVT", apoi);
-  return lcl_poi;
+   TVector3 lcl_poi = Global2Local("trafoVT", apoi);
+   return lcl_poi;
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::FromGlobalToITLocal(TVector3 apoi)
+{
+   TVector3 lcl_poi = Global2Local("trafoIT", apoi);
+   return lcl_poi;
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::FromGlobalToMSDLocal(TVector3 apoi)
+{
+   TVector3 lcl_poi = Global2Local("trafoMSD", apoi);
+   return lcl_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromGlobalToTWLocal(TVector3 apoi)
 {
-  TVector3 lcl_poi = Global2Local("trafoTW", apoi);
-  return lcl_poi;
+   TVector3 lcl_poi = Global2Local("trafoTW", apoi);
+   return lcl_poi;
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::FromGlobalToCALocal(TVector3 apoi)
+{
+   TVector3 lcl_poi = Global2Local("trafoCA", apoi);
+   return lcl_poi;
 }
 
 /*
-  Transformations of vectors in space:: global --> Local
-*/
+ Transformations of vectors in space:: global --> Local
+ */
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::VecFromGlobalToSTLocal(TVector3 avec)
+{
+   TVector3 lcl_vec = Global2LocalVect("trafoST", avec);
+   return lcl_vec;
+}
+
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromGlobalToBMLocal(TVector3 avec)
 {
-  TVector3 lcl_vec = Global2LocalVect("trafoBM", avec);
-  return lcl_vec;
+   TVector3 lcl_vec = Global2LocalVect("trafoBM", avec);
+   return lcl_vec;
 }
 
 //_____________________________________________________________________________
-TVector3 TAGgeoTrafo::VecFromGlobalToDCLocal(TVector3 avec)
+TVector3 TAGgeoTrafo::VecFromGlobalToTGLocal(TVector3 avec)
 {
-  TVector3 lcl_vec = Global2LocalVect("trafoDC", avec);
-  return lcl_vec;
+   TVector3 lcl_vec = Global2LocalVect("trafoTG", avec);
+   return lcl_vec;
 }
 
 //_____________________________________________________________________________
-TVector3 TAGgeoTrafo::VecFromGlobalToCALocal(TVector3 avec)
+TVector3 TAGgeoTrafo::VecFromGlobalToDILocal(TVector3 avec)
 {
-  TVector3 lcl_vec = Global2LocalVect("trafoCA", avec);
-  return lcl_vec;
-}
-
-//_____________________________________________________________________________
-TVector3 TAGgeoTrafo::VecFromGlobalToITLocal(TVector3 avec)
-{
-  TVector3 lcl_vec = Global2LocalVect("trafoIT", avec);
-  return lcl_vec;
+   TVector3 lcl_vec = Global2LocalVect("trafoDI", avec);
+   return lcl_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromGlobalToVTLocal(TVector3 avec)
 {
-  TVector3 lcl_vec = Global2LocalVect("trafoVT", avec);
-  return lcl_vec;
+   TVector3 lcl_vec = Global2LocalVect("trafoVT", avec);
+   return lcl_vec;
 }
 
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::VecFromGlobalToITLocal(TVector3 avec)
+{
+   TVector3 lcl_vec = Global2LocalVect("trafoIT", avec);
+   return lcl_vec;
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::VecFromGlobalToMSDLocal(TVector3 avec)
+{
+   TVector3 lcl_vec = Global2LocalVect("trafoMSD", avec);
+   return lcl_vec;
+}
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromGlobalToTWLocal(TVector3 avec)
 {
-  TVector3 lcl_vec = Global2LocalVect("trafoTW", avec);
-  return lcl_vec;
-}
-
-
-//_____________________________________________________________________________
-bool TAGgeoTrafo::InitGeo(TString ifile) 
-{
-  //Initialization of Geom Parameters
-  Info("InitGeo()"," Init Geo ");
-
-  gSystem->ExpandPathName(ifile);
-
-  LoadIRGeo(ifile);
-  LoadBMGeo(ifile);
-  LoadDCGeo(ifile);
-  LoadInTrGeo(ifile);
-  LoadCalGeo(ifile);
-  LoadVtxGeo(ifile);
-  LoadTofGeo(ifile);
-
-  return kTRUE;
+   TVector3 lcl_vec = Global2LocalVect("trafoTW", avec);
+   return lcl_vec;
 }
 
 //_____________________________________________________________________________
-bool TAGgeoTrafo::LoadIRGeo(TString ifile) 
+TVector3 TAGgeoTrafo::VecFromGlobalToCALocal(TVector3 avec)
 {
-  char bufConf[1024];
-  double my1(0), my2(0), my3(0), my4(0), my5(0), my6(0); 
-
-  ifstream incF;
-  incF.open(ifile.Data());
-  if (!incF) {
-    Error("FromFile()", "failed to open file '%s'", ifile.Data());
-    return kTRUE;
-  }
-
-  while (incF.getline(bufConf, 200, '\n')) {
-    if(strchr(bufConf,'!')) {
-      //      Info("FromFile()","Skip comment line:: %s",bufConf);
-    } else if(strchr(bufConf,'S')) {
-      //Start counter
-      sscanf(bufConf, "S%lf %lf %lf %lf %lf %lf",&my1,&my2,&my3,&my4,&my5,&my6);
-      Info("LoadIRGeo()","Load Start Counter geo:: %lf %lf %lf %lf %lf %lf",my1,my2,my3,my4,my5,my6);
-      SetSCCenter(my1,my2,my3);
-      SetSCAngles(my4,my5,my6);
-	  TGeoRotation rot;
-	  rot.RotateX(my5); rot.RotateY(my4); rot.RotateZ(my6);
-	  TGeoTranslation trans(my1, my2, my3);
-	  TGeoHMatrix  transfo;
-	  transfo  = trans;
-	  transfo *= rot;
-	  TGeoHMatrix* trafo = new TGeoHMatrix(transfo);
-	  trafo->SetName("trafoSC");
-	  AddTrafo(trafo);    
-	} else if(strchr(bufConf,'D')) {
-      //Veto
-      sscanf(bufConf, "D%lf %lf %lf %lf %lf %lf",&my1,&my2,&my3,&my4,&my5,&my6);
-      Info("LoadIRGeo()","Load Veto geo:: %lf %lf %lf %lf %lf %lf",my1,my2,my3,my4,my5,my6);
-      SetVECenter(my1,my2,my3);
-      SetVEAngles(my4,my5,my6);
-	  TGeoRotation rot;
-	  rot.RotateX(my5); rot.RotateY(my4); rot.RotateZ(my6);
-	  TGeoTranslation trans(my1, my2, my3);
-	  TGeoHMatrix  transfo;
-	  transfo  = trans;
-	  transfo *= rot;
-	  TGeoHMatrix* trafo = new TGeoHMatrix(transfo);
-	  trafo->SetName("trafoVE");
-	  AddTrafo(trafo);    
-    }
-  }
-
-  return kTRUE;
+   TVector3 lcl_vec = Global2LocalVect("trafoCA", avec);
+   return lcl_vec;
 }
 
 //_____________________________________________________________________________
-bool TAGgeoTrafo::LoadBMGeo(TString ifile) 
+TVector3 TAGgeoTrafo::GetSTCenter()
 {
-  char bufConf[1024];
-  double my1(0), my2(0), my3(0), my4(0), my5(0), my6(0); 
-  
-  ifstream incF;
-  incF.open(ifile.Data());
-  if (!incF) {
-    Error("FromFile()", "failed to open file '%s'", ifile.Data());
-    return kTRUE;
-  }
-  
-  while (incF.getline(bufConf, 200, '\n')) {
-    if(strchr(bufConf,'!')) {
-      //      Info("FromFile()","Skip comment line:: %s",bufConf);
-    } else if(strchr(bufConf,'B')) {
-      //Start counter
-      sscanf(bufConf, "B%lf %lf %lf %lf %lf %lf",&my1,&my2,&my3,&my4,&my5,&my6);
-      Info("LoadBMGeo()","Load Beam Monitor geo:: %lf %lf %lf %lf %lf %lf",my1,my2,my3,my4,my5,my6);
-      SetBMCenter(my1,my2,my3);
-      SetBMAngles(my4,my5,my6);
-	  TGeoRotation rot;
-	  rot.RotateX(my5); rot.RotateY(my4); rot.RotateZ(my6);
-	  TGeoTranslation trans(my1, my2, my3);
-	  TGeoHMatrix  transfo;
-	  transfo  = trans;
-	  transfo *= rot;
-	  TGeoHMatrix* trafo = new TGeoHMatrix(transfo);
-	  trafo->SetName("trafoBM");
-	  AddTrafo(trafo);    
-    }
-  }
-  return kTRUE;
+   return GetDeviceCenter("trafoST");
 }
 
 //_____________________________________________________________________________
-bool TAGgeoTrafo::LoadInTrGeo(TString ifile) 
+TVector3 TAGgeoTrafo::GetSTAngles()
 {
-  char bufConf[1024];
-  double my1(0), my2(0), my3(0), my4(0), my5(0), my6(0); 
-  
-  ifstream incF;
-  incF.open(ifile.Data());
-  if (!incF) {
-    Error("FromFile()", "failed to open file '%s'", ifile.Data());
-    return kTRUE;
-  }
-  
-  while (incF.getline(bufConf, 200, '\n')) {
-    if(strchr(bufConf,'!')) {
-      //      Info("FromFile()","Skip comment line:: %s",bufConf);
-    } else if(strchr(bufConf,'B')) {
-      //Start counter
-      sscanf(bufConf, "B%lf %lf %lf %lf %lf %lf",&my1,&my2,&my3,&my4,&my5,&my6);
-      Info("LoadITGeo()","Load Beam Monitor geo:: %lf %lf %lf %lf %lf %lf",my1,my2,my3,my4,my5,my6);
-      SetITCenter(my1,my2,my3);
-      SetITAngles(my4,my5,my6);
-	  TGeoRotation rot;
-	  rot.RotateX(my5); rot.RotateY(my4); rot.RotateZ(my6);
-	  TGeoTranslation trans(my1, my2, my3);
-	  TGeoHMatrix  transfo;
-	  transfo  = trans;
-	  transfo *= rot;
-	  TGeoHMatrix* trafo = new TGeoHMatrix(transfo);
-	  trafo->SetName("trafoIT");
-	  AddTrafo(trafo);    
-    }
-  }
-  return kTRUE;
-}
-//_____________________________________________________________________________
-bool TAGgeoTrafo::LoadCalGeo(TString ifile) 
-{
-  char bufConf[1024];
-  double my1(0), my2(0), my3(0), my4(0), my5(0), my6(0); 
-  
-  ifstream incF;
-  incF.open(ifile.Data());
-  if (!incF) {
-    Error("FromFile()", "failed to open file '%s'", ifile.Data());
-    return kTRUE;
-  }
-  
-  while (incF.getline(bufConf, 200, '\n')) {
-    if(strchr(bufConf,'!')) {
-      //      Info("FromFile()","Skip comment line:: %s",bufConf);
-    } else if(strchr(bufConf,'B')) {
-      //Start counter
-      sscanf(bufConf, "B%lf %lf %lf %lf %lf %lf",&my1,&my2,&my3,&my4,&my5,&my6);
-      Info("LoadCAGeo()","Load Beam Monitor geo:: %lf %lf %lf %lf %lf %lf",my1,my2,my3,my4,my5,my6);
-      SetCACenter(my1,my2,my3);
-      SetCAAngles(my4,my5,my6);
-	  TGeoRotation rot;
-	  rot.RotateX(my5); rot.RotateY(my4); rot.RotateZ(my6);
-	  TGeoTranslation trans(my1, my2, my3);
-	  TGeoHMatrix  transfo;
-	  transfo  = trans;
-	  transfo *= rot;
-	  TGeoHMatrix* trafo = new TGeoHMatrix(transfo);
-	  trafo->SetName("trafoCA");
-	  AddTrafo(trafo);    
-    }
-  }
-  return kTRUE;
-}
-//_____________________________________________________________________________
-bool TAGgeoTrafo::LoadDCGeo(TString ifile) 
-{
-  char bufConf[1024];
-  double my1(0), my2(0), my3(0), my4(0), my5(0), my6(0); 
-  
-  ifstream incF;
-  incF.open(ifile.Data());
-  if (!incF) {
-    Error("FromFile()", "failed to open file '%s'", ifile.Data());
-    return kTRUE;
-  }
-  
-  while (incF.getline(bufConf, 200, '\n')) {
-    if(strchr(bufConf,'!')) {
-      //      Info("FromFile()","Skip comment line:: %s",bufConf);
-    } else if(strchr(bufConf,'B')) {
-      //Start counter
-      sscanf(bufConf, "B%lf %lf %lf %lf %lf %lf",&my1,&my2,&my3,&my4,&my5,&my6);
-      Info("LoadDCGeo()","Load Beam Monitor geo:: %lf %lf %lf %lf %lf %lf",my1,my2,my3,my4,my5,my6);
-      SetDCCenter(my1,my2,my3);
-      SetDCAngles(my4,my5,my6);
-	  TGeoRotation rot;
-	  rot.RotateX(my5); rot.RotateY(my4); rot.RotateZ(my6);
-	  TGeoTranslation trans(my1, my2, my3);
-	  TGeoHMatrix  transfo;
-	  transfo  = trans;
-	  transfo *= rot;
-	  TGeoHMatrix* trafo = new TGeoHMatrix(transfo);
-	  trafo->SetName("trafoDC");
-	  AddTrafo(trafo);    
-    }
-  }
-  return kTRUE;
+   return GetDeviceAngle("trafoST");
 }
 
 //_____________________________________________________________________________
-bool TAGgeoTrafo::LoadVtxGeo(TString ifile) 
+TVector3 TAGgeoTrafo::GetBMCenter()
 {
-  char bufConf[1024];
-  double my1(0), my2(0), my3(0), my4(0), my5(0), my6(0); 
-  
-  ifstream incF;
-  incF.open(ifile.Data());
-  if (!incF) {
-    Error("FromFile()", "failed to open file '%s'", ifile.Data());
-    return kTRUE;
-  }
-  
-  while (incF.getline(bufConf, 200, '\n')) {
-    if(strchr(bufConf,'!')) {
-      //      Info("FromFile()","Skip comment line:: %s",bufConf);
-    } else if(strchr(bufConf,'V')) {
-      //Start counter
-      sscanf(bufConf, "V%lf %lf %lf %lf %lf %lf",&my1,&my2,&my3,&my4,&my5,&my6);
-      Info("LoadVtxGeo()","Load Vertex geo:: %lf %lf %lf %lf %lf %lf",my1,my2,my3,my4,my5,my6);
-      SetVTCenter(my1,my2,my3);
-      SetVTAngles(my4,my5,my6);
-	  TGeoRotation rot;
-	  rot.RotateX(my5); rot.RotateY(my4); rot.RotateZ(my6);
-	  TGeoTranslation trans(my1, my2, my3);
-	  TGeoHMatrix  transfo;
-	  transfo  = trans;
-	  transfo *= rot;
-	  TGeoHMatrix* trafo = new TGeoHMatrix(transfo);
-	  trafo->SetName("trafoVT");
-	  AddTrafo(trafo);
-    }
-  }
-
-  return kTRUE;
+   return GetDeviceCenter("trafoBM");
 }
 
 //_____________________________________________________________________________
-bool TAGgeoTrafo::LoadTofGeo(TString ifile) 
+TVector3 TAGgeoTrafo::GetBMAngles()
 {
-  char bufConf[1024];
-  double my1(0), my2(0), my3(0), my4(0), my5(0), my6(0); 
-  
-  ifstream incF;
-  incF.open(ifile.Data());
-  if (!incF) {
-    Error("FromFile()", "failed to open file '%s'", ifile.Data());
-    return kTRUE;
-  }
-  
-  while (incF.getline(bufConf, 200, '\n')) {
-    if(strchr(bufConf,'!')) {
-      //      Info("FromFile()","Skip comment line:: %s",bufConf);
-    } else if(strchr(bufConf,'W')) {
-      //Start counter
-      sscanf(bufConf, "W%lf %lf %lf %lf %lf %lf",&my1,&my2,&my3,&my4,&my5,&my6);
-      Info("LoadTofGeo()","Load TofWall Front geo:: %lf %lf %lf %lf %lf %lf",my1,my2,my3,my4,my5,my6);
-      SetTWCenter(my1,my2,my3);
-      SetTWAngles(my4,my5,my6);
-	  TGeoRotation rot;
-	  rot.RotateX(my5); rot.RotateY(my4); rot.RotateZ(my6);   
-	  TGeoTranslation trans(my1, my2, my3);
-	  TGeoHMatrix  transfo;
-	  transfo  = trans;
-	  transfo *= rot;
-	  TGeoHMatrix* trafo = new TGeoHMatrix(transfo);
-	  trafo->SetName("trafoTW");
-	  AddTrafo(trafo);    
-    }
-  }
-  return kTRUE;
+   return GetDeviceAngle("trafoBM");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetTGCenter()
+{
+   return GetDeviceCenter("trafoTG");
+}
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetTGAngles()
+{
+   return GetDeviceAngle("trafoTG");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetDICenter()
+{
+   return GetDeviceCenter("trafoDI");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetDIAngles()
+{
+   return GetDeviceAngle("trafoDI");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetVTCenter()
+{
+   return GetDeviceCenter("trafoVT");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetVTAngles()
+{
+   return GetDeviceAngle("trafoVT");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetITCenter()
+{
+   return GetDeviceCenter("trafoIT");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetITAngles()
+{
+   return GetDeviceAngle("trafoIT");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetMSDCenter()
+{
+   return GetDeviceCenter("trafoMSD");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetMSDAngles()
+{
+   return GetDeviceAngle("trafoMSD");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetTWCenter()
+{
+   return GetDeviceCenter("trafoTW");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetTWAngles()
+{
+   return GetDeviceAngle("trafoTW");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetCACenter()
+{
+   return GetDeviceCenter("trafoCA");
+}
+
+//_____________________________________________________________________________
+TVector3 TAGgeoTrafo::GetCAAngles()
+{
+   return GetDeviceAngle("trafoCA");
 }
