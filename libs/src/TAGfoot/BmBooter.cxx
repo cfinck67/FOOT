@@ -441,25 +441,24 @@ void BmBooter::PrintResDist(){
   }
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/ResVsDist_perCell")))->cd("..");
   
-  //~ //create ResxDist graphs
-  //~ ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("ResxDist");
-  //~ ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("ResxDist");
-  //~ for(Int_t i=0;i<20;i++){
-    //~ sprintf(tmp_char,"hitres_x_dist%d",i);  
-    //~ TH1D* histo1d=new TH1D( tmp_char, "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 500, 0., 500.);
-  //~ }
-  //~ ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/ResxDist")))->cd("..");
+  //create ResxDist graphs
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("ResxDist");
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("ResxDist");
+  for(Int_t i=0;i<20;i++){
+    sprintf(tmp_char,"hitres_x_dist_%d",i);  
+    TH1D* histo1d=new TH1D( tmp_char, "Residual; ; Residual [cm]", 600, -0.3, 0.3);
+  }
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/ResxDist")))->cd("..");
+  
   
   //create TDC_dist
-  if(isdata){
-    ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("TDC_time");
-    ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("TDC_time");
-    for(Int_t i=0;i<36;i++){
-      sprintf(tmp_char,"tdc_cha_%d",i);  
-      TH1D *histo1d=new TH1D( tmp_char, "Drift time charged; Time[ns]; counts", 3000, -1000, 2000);
-    }
-    ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/TDC_time")))->cd("..");  
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("TDC_time");
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("TDC_time");
+  for(Int_t i=0;i<36;i++){
+    sprintf(tmp_char,"tdc_cha_%d",i);  
+    TH1D *histo1d=new TH1D( tmp_char, "Drift time charged; Time[ns]; counts", 3000, -1000, 2000);
   }
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/TDC_time")))->cd("..");  
 
   TH2D* histo2da=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
   TH2D* histo2db=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]", 350, 0., 350.,600,-0.3,0.3);
@@ -467,17 +466,28 @@ void BmBooter::PrintResDist(){
   //fill the histos
   for(Int_t i=0;i<residual_distance.size();i++){
     if(residual_distance[i].size()!=2){
-      histo2da->Fill(residual_distance[i][3], residual_distance[i][1]);
-      if(isdata)
-        histo2db->Fill(residual_distance[i][2], residual_distance[i][3]);
+      histo2da->Fill(residual_distance[i][3], residual_distance[i][2]);
+      histo2db->Fill(residual_distance[i][3], residual_distance[i][1]);
       sprintf(tmp_char,"BM_output/ResVsDist_perCell/hitres_dis_perCell_%d",(Int_t) (residual_distance[i][0]+0.5));  
-      ((TH2D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance[i][3], residual_distance[i][1]);    
-    }else if(isdata){
-      sprintf(tmp_char,"BM_output/TDC_time/tdc_cha_%d",(Int_t) (residual_distance[i][0]+0.5));      
-      ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance[i][1]);
+      ((TH2D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance[i][3], residual_distance[i][2]);    
+      if(residual_distance[i][2]<0.8){
+        sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",(Int_t) (residual_distance[i][2]/0.04));      
+        ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance[i][3]);
+      }
     }
+    sprintf(tmp_char,"BM_output/TDC_time/tdc_cha_%d",(Int_t) (residual_distance[i][0]+0.5));      
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance[i][1]);
   }
   
+  
+  //fit hitres_x_dist
+  TH1D *histo1d=new TH1D( "resolution", "Resolution evaluation; Distance from cell center [cm];Spatial Resolution[#mum]", 20, 0., 0.8);
+  for(Int_t i=0;i<20;i++){
+    sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",i);      
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution")))->SetBinContent(i+1,((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetStdDev()*10000);    
+  }
+  
+    
 return;
 }
 
@@ -1371,9 +1381,8 @@ void BmBooter::ResidualDistance(){
     bmntuhit = bmnturaw->Hit(i);
     if(bmntuhit->GetIsSelected()){
       selecthit[0]=bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(),bmntuhit->Cell());
-      selecthit[1]=bmntuhit->Dist();
-      if(isdata)
-        selecthit[2]=bmntuhit->Tdrift();
+      selecthit[1]=bmntuhit->Tdrift();
+      selecthit[2]=bmntuhit->Dist();
       selecthit[3]=bmntuhit->GetResidual();
       residual_distance.push_back(selecthit);
     }else if(isdata){

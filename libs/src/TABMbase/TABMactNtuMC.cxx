@@ -194,9 +194,9 @@ Bool_t TABMactNtuMC::Action()
 
       //shift the t0 and change the strelations:
       realrdrift=rdriftxcell[i];
-      rdriftxcell[i]=p_bmcon->FirstSTrelMC(p_bmcon->InverseStrel(rdriftxcell[i]), 5);
-      if(rdriftxcell[i]==0)
-        rdriftxcell[i]=0.001;
+      //~ rdriftxcell[i]=p_bmcon->FirstSTrelMC(p_bmcon->InverseStrel(rdriftxcell[i]), 5);
+      //~ if(rdriftxcell[i]==0)
+        //~ rdriftxcell[i]=0.001;
       
       //create hit
       TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) TABMntuHit(    

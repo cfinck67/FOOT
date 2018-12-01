@@ -147,7 +147,7 @@ private:
 
   //provv!!!!!! this is a very dummy method, to be used provv!!!!
   vector<vector<Double_t>> tracktr2dprojects;//projections of tracks: 0=mylar1.X; 1=mylar1.Y; 2=mylar2.X; 3=mylar2.X; 4=R0.X; 5=R0.Y
-  vector<vector<Double_t>> residual_distance;//if(isSelected): 0=cell_index, 1=distance, 2=drift_time, 3=residual;  otherwise  0=cellindex, 1=drift_time,
+  vector<vector<Double_t>> residual_distance;//if(isSelected): 0=cell_index, 1=drift_time, 2=distance, 3=residual;  otherwise  0=cellindex, 1=drift_time,
   vector<vector<Double_t>> mcxevent;//data from mc: 0=mylar1.X, 1=mylar1.Y, 2=mylar2.X, 3=mylar2.Y
 };
 
