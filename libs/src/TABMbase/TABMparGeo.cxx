@@ -79,9 +79,27 @@ Bool_t TABMparGeo::GetBMNlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_
     return kFALSE;
   }
   icell=cellid%3;
-  iview=(((int)(cellid/3))%2==0) ? 1:-1; 
-  ilay=(int)(cellid/6);
+  iview=(((Int_t)(cellid/3))%2==0) ? 1:-1; 
+  ilay=(Int_t)(cellid/6);
   return kTRUE;
+}
+
+void  TABMparGeo::SetA0Wvers(Int_t cellid, TVector3 &A0, TVector3 &Wvers){
+  if(cellid>35 || cellid<0){
+    cout<<"ERROR!!!!!!!!! in TABMparGeo::GetBMNcell, cellid is wrong: cellid="<<cellid<<endl;
+    return;
+  }
+  Int_t icell, iview, ilay;
+  GetBMNlvc(cellid, ilay, iview, icell);
+  iview=(iview==-1)?1:0;
+  A0.SetXYZ(x_pos[bm_idsense[icell]][ilay][iview],  
+            y_pos[bm_idsense[icell]][ilay][iview],
+            z_pos[bm_idsense[icell]][ilay][iview]);
+  Wvers.SetXYZ(cx_pos[bm_idsense[icell]][ilay][iview],  
+               cy_pos[bm_idsense[icell]][ilay][iview],
+               cz_pos[bm_idsense[icell]][ilay][iview]);
+  Wvers.SetMag(1.);
+  return;
 }
 
 void TABMparGeo::InitGeo() {

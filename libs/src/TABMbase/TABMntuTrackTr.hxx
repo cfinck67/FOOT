@@ -118,6 +118,7 @@ class TABMntuTrackTr : public TObject {
         this->prefit_status=in.prefit_status;
         this->R0=in.R0;
         this->Pvers=in.Pvers;
+        this->nite=in.nite;
       }
       return *this;
     }
@@ -136,6 +137,7 @@ class TABMntuTrackTr : public TObject {
     void SetPvers(TVector3 pin){Pvers=pin;};
     void SetMyChi2Red(Double_t chi2red_in){mychi2Red=chi2red_in;};
     void NewSet(TVectorD ftrackpar);//set Pvers and R0, used for the FIRST tracking
+    void SetNite(Int_t intein){nite=intein;};
     
     //Getters
     Int_t  GetNhit() {return nhit;};
@@ -157,6 +159,7 @@ class TABMntuTrackTr : public TObject {
     Int_t GetPrefitStatus(){return prefit_status;};
     TVector3 GetPvers(){return Pvers;};
     TVector3 GetR0(){return R0;};
+    Int_t GetNite(){return nite;};
     //~ Double_t GetTrackPar(Int_t index){return trackpar[index];};
     //~ TVectorD GetTrackPar(){return trackpar;};
     
@@ -188,6 +191,7 @@ class TABMntuTrackTr : public TObject {
     //~ TVectorD      trackpar;    //track parameter: 0=m, 1=q for U view (yz plane); 2=m, 3=q for V view (xz plane) IN THE DETECTOR SYSTEM OF REFERENCE
     TVector3      Pvers;           //direction of the track from mylar1_pos to mylar2_pos
     TVector3      R0;              //position of the track on the xy plane at z=0
+    Int_t         nite;            //number of iteration with the leastchi2 method, +=normal, -=reversed
     
   private:
 

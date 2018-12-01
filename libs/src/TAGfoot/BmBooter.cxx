@@ -22,9 +22,10 @@ BmBooter::BmBooter() {
 
 
 //----------------------------------------------------------------------------------------------------
-void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {  
+void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evStr_in ) {  
   isdata=isdata_in;
   m_instr=instr_in;
+  evStr=evStr_in;
   data_num_ev= (isdata==true) ? -1000:0;
   acq_start_ev=1;
   isallign=kFALSE;
@@ -78,8 +79,9 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in ) {
     //T0
     if(bmcon->GetmanageT0BM()==0)
       bmcon->PrintT0s(m_instr, data_num_ev);
-    else
-      bmcon->loadT0s(data_num_ev);
+    else if(bmcon->loadT0s(data_num_ev))
+      return;
+    
     if(bmcon->GetBMdebug()>1 || bmcon->GetmanageT0BM()>1)
       bmcon->CoutT0();
     //ADC pedestals  
@@ -138,9 +140,9 @@ void BmBooter::Process() {
   bmnturaw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
   evaluate_cell_occupy();
   
-  if(bmnturaw->nhit > bmcon->GetMaxnhit_cut())
+  if(bmnturaw->nhit >= bmcon->GetMaxnhit_cut())
     track_ok=-2;
-  else if(bmnturaw->nhit < bmcon->GetMinnhit_cut())
+  else if(bmnturaw->nhit <= bmcon->GetMinnhit_cut())
     track_ok=-1;  
   else if(bmcon->GetFitterIndex()>0){  
     bmntutrack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
@@ -151,14 +153,21 @@ void BmBooter::Process() {
     cout<<"in BmBooter::Process, I finished to create the BM hits and tracks"<<endl<<"Now I'll printout BM hits if enable"<<endl;
 
   if (GlobalPar::GetPar()->IsPrintOutputFile())
-    m_controlPlotter->BM_setnturaw_info("BM_output",bmnturaw, bmgeo, bmcon, bmmap, cell_occupy);  
+    m_controlPlotter->BM_setnturaw_info("BM_output",bmnturaw, bmgeo, bmcon, bmmap, cell_occupy); 
   
-  if (bmcon->GetBMdebug()>10)
-    cout<<"in BmBooter::Process, I finished to printout BM hits"<<endl;
+  //~ if (bmcon->GetBMdebug()>10)
+    //~ cout<<"in BmBooter::Process, I finished to printout BM hits"<<endl;
   
   if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok>=0)
-    if(m_controlPlotter->BM_setntutrack_info("BM_output", bmntutrack, bmnturaw, bmcon)==0)
+    if(m_controlPlotter->BM_setntutrack_info("BM_output", bmgeo, bmntutrack, bmnturaw, bmcon)==0)
       isallign=kTRUE;      
+      
+  if(!isdata && GlobalPar::GetPar()->IsPrintOutputFile()){    
+    m_controlPlotter->BM_setMCnturaw_info("BM_output",evStr, bmnturaw, bmgeo, bmcon);
+    if(track_ok==0)
+      m_controlPlotter->BM_setMCntutrack_info("BM_output",evStr, bmntutrack, bmgeo, bmcon);
+      
+  } 
 
   //draw and save tracks
   if(bmcon->GetBMvietrack()>0 && data_num_ev%bmcon->GetBMvietrack()==0){
@@ -184,7 +193,11 @@ void BmBooter::Process() {
     if(track_ok==0){  
       Projecttracktr();
       ResidualDistance();
+      //~ efficiency_fittedtracks();
     }
+    
+  if(!isdata)
+    MCxEvent();  
       
   data_num_ev++;
 
@@ -204,10 +217,15 @@ void BmBooter::Finalize() {
   if (bmcon->GetBMdebug()>10)
     cout<<"I'm in BmBooter::Finalize"<<endl;
 
-  PrintSTrel();  
-  PrintEFFpp();
-  PrintProjections();  
-  PrintResDist();  
+  PrintSTrel();      //strel
+  PrintEFFpp();      //efficiency
+  PrintProjections();//tracktr2dprojects  matrix
+  PrintResDist();    //residual_distance matrix
+  PrintFromControlPlots(); //other plots from contrloplots 
+  //~ fit_histos();    
+    
+  if(!isdata)
+    PrintMCxEvent();  
     
   if(isallign)
     Allign_estimate();
@@ -219,6 +237,9 @@ return;
 }
 
 void BmBooter::Allign_estimate(){
+  if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
+    return;
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();  
   
   Double_t xrot=-atan((((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetMean()-((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetMean())/(bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z()))*RAD2DEG;  
   
@@ -268,7 +289,8 @@ void BmBooter::Allign_estimate(){
 void BmBooter::PrintSTrel(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
-  
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();
+    
   Int_t numpoints=4000, tmp_int=1;
   Double_t pass=0.1;
   TH1D* histo=new TH1D( "strel", "Space time relation;time [ns];distance [cm]", numpoints, 0., numpoints*pass);
@@ -286,17 +308,40 @@ void BmBooter::PrintSTrel(){
     }
   }
   
+return;
+}
 
 
+void BmBooter::PrintFromControlPlots(){
+  if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
+    return;
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();
+
+  TH2D* histo2da=new TH2D( "cell_raw_occupancy_2d_x", "Cell occupancy for raw hits; z; x", 11, -5.5, 5.5,7, -3.5,3.5);
+  TH2D* histo2db=new TH2D( "cell_raw_occupancy_2d_y", "Cell occupancy for raw hits; z; y", 11, -5.5, 5.5,7, -3.5,3.5);
   
+  Int_t cell, view, plane, up;
+  for(Int_t i=0;i<35;i++){
+    bmgeo->GetBMNlvc(i, plane, view, cell);
+    if(view==1){
+      up=(plane%2==0) ? 1:0;
+      histo2db->SetBinContent(plane*2+1,cell*2+up+1,((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))->GetBinContent(((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))->FindBin((Double_t)i)));
+      histo2db->SetBinContent(plane*2+1,cell*2+up+2,((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))->GetBinContent(((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))->FindBin((Double_t)i)));
+    }else{
+      up=(plane%2==0) ? 0:1;
+      histo2da->SetBinContent(plane*2+1,cell*2+up+1,((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))->GetBinContent(((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))->FindBin((Double_t)i)));
+      histo2da->SetBinContent(plane*2+1,cell*2+up+2,((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))->GetBinContent(((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))->FindBin((Double_t)i)));
+    }  
+  }
   
 return;
 }
 
-//provv:: modificare i vari histo e usare solo un puntatore TH1D
+
 void BmBooter::PrintEFFpp(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();  
     
   //"Tommasino" method
   TH1D* histo=new TH1D( "eff_pp_pivot", "pivot counter for the pivot-probe efficiency method; Pivot-cell index; Counter", eff_pp[0].size(), 0., eff_pp[0].size());
@@ -365,10 +410,11 @@ return;
 void BmBooter::PrintProjections(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();
 
-  TH2D* histoa=new TH2D( "mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 500, -5., 5.,500, -5.,5.);
-  TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 500, -5., 5.,500, -5.,5.);
-  TH2D* histoc=new TH2D( "R0_xy", "R0 projected tracks; x[cm]; y[cm]", 500, -5., 5.,500, -5.,5.);
+  TH2D* histoa=new TH2D( "mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
+  TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
+  TH2D* histoc=new TH2D( "R0_xy", "R0 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   
   for(Int_t i=0;i<tracktr2dprojects.size();i++){
     histoa->Fill(tracktr2dprojects[i][0], tracktr2dprojects[i][1]);
@@ -383,40 +429,47 @@ return;
 void BmBooter::PrintResDist(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
-  TH2D* histo2d;
-  TH1D* histo1d;
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();
   
-  histo2d=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
-  if(isdata)
-    histo2d=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]", 350, 0., 350.,600,-0.3,0.3);
-
   //create ResVsDist_perCell graphs
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("ResVsDist_perCell");
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("ResVsDist_perCell");
   char tmp_char[200];
   for(Int_t i=0;i<36;i++){
     sprintf(tmp_char,"hitres_dis_perCell_%d",i);  
-    histo2d=new TH2D( tmp_char, "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 300, -0.3, 0.3,250,0.,1.);
+    TH2D* histo2d=new TH2D( tmp_char, "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 6000, -0.3, 0.3,250,0.,1.);
   }
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/ResVsDist_perCell")))->cd("..");
   
+  //~ //create ResxDist graphs
+  //~ ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("ResxDist");
+  //~ ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("ResxDist");
+  //~ for(Int_t i=0;i<20;i++){
+    //~ sprintf(tmp_char,"hitres_x_dist%d",i);  
+    //~ TH1D* histo1d=new TH1D( tmp_char, "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 500, 0., 500.);
+  //~ }
+  //~ ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/ResxDist")))->cd("..");
+  
   //create TDC_dist
-  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("TDC_time");
-  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("TDC_time");
-  for(Int_t i=0;i<36;i++){
-    sprintf(tmp_char,"tdc_cha_%d",i);  
-    histo1d=new TH1D( tmp_char, "Drift time charged; Time[ns]; counts", 3000, -1000, 2000);
+  if(isdata){
+    ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("TDC_time");
+    ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("TDC_time");
+    for(Int_t i=0;i<36;i++){
+      sprintf(tmp_char,"tdc_cha_%d",i);  
+      TH1D *histo1d=new TH1D( tmp_char, "Drift time charged; Time[ns]; counts", 3000, -1000, 2000);
+    }
+    ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/TDC_time")))->cd("..");  
   }
-  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/TDC_time")))->cd("..");  
-  
-  cout<<"fatto i grafici inizio a fillare"<<endl;
-  
+
+  TH2D* histo2da=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
+  TH2D* histo2db=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]", 350, 0., 350.,600,-0.3,0.3);
+    
   //fill the histos
   for(Int_t i=0;i<residual_distance.size();i++){
     if(residual_distance[i].size()!=2){
-      ((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/hitres_dis")))->Fill(residual_distance[i][3], residual_distance[i][1]);
+      histo2da->Fill(residual_distance[i][3], residual_distance[i][1]);
       if(isdata)
-        ((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/hitres_time")))->Fill(residual_distance[i][2], residual_distance[i][3]);
+        histo2db->Fill(residual_distance[i][2], residual_distance[i][3]);
       sprintf(tmp_char,"BM_output/ResVsDist_perCell/hitres_dis_perCell_%d",(Int_t) (residual_distance[i][0]+0.5));  
       ((TH2D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance[i][3], residual_distance[i][1]);    
     }else if(isdata){
@@ -429,6 +482,22 @@ return;
 }
 
 
+void BmBooter::PrintMCxEvent(){
+  if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
+    return;
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();
+  
+  TH2D* histoa=new TH2D( "MC_mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 500, -5., 5.,500, -5.,5.);
+  TH2D* histob=new TH2D( "MC_mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 500, -5., 5.,500, -5.,5.);
+
+  for(Int_t i=0;i<mcxevent.size();i++){
+    histoa->Fill(mcxevent[i][0], mcxevent[i][1]);
+    histob->Fill(mcxevent[i][2], mcxevent[i][3]);
+  }  
+    
+  
+  return;
+}
 
 
 void BmBooter::evaluateT0() {
@@ -653,7 +722,7 @@ void BmBooter::evaluateT0() {
   data_num_ev--;
   //I created the TDC signal histograms
   
-  //fit the tdc signals with a function to evaluate the T0, for the moment I take the shortest signal close to the peak
+  //fit the tdc signals with a function to evaluate the T0, for the moment I take the shoresidual_distancertest signal close to the peak
   //~ TF1 *f1 = new TF1("f1","[0]*pow(([1]/[2]),(x/[2]))(TMath::Exp(-([1]/[2])))/TMath::Gamma((x/[2])+1)", 0, 2000);
   //~ TF1 *f1 = new TF1("f1","[0]*pow([1]/[2],x/[2]-[3])/(TMath::Gamma(x/[2]-[3]+1))*(TMath::Exp(-[1]/[2]))", 0, 2000);
   //~ TF1 *f1 = new TF1("f1","gaus(0)", ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()-100, ((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+100);
@@ -690,7 +759,7 @@ void BmBooter::evaluateT0() {
             for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j>0;j--)
               if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/10.)
                 tdc_peak=j;
-          }else if(bmcon->GetT0switch()==1){ //I take the first peak as the T0
+          }else if(bmcon->GetT0switch()>0){ //I take the first peak as the T0
             for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove();j<=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
               if((((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j) < ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1)) && (((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1) > ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/2.)){
                 tdc_peak=j-1;      
@@ -1143,6 +1212,24 @@ void BmBooter::efficiency_fittedplane(){
 return;
 }
 
+//it's the wrong method!!!! need to be fixed
+void BmBooter::efficiency_fittedtracks(){
+  
+  TVector3 A0, Wvers;
+  Double_t fitrdrift;
+  for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
+    bmntutracktr = bmntutrack->Track(i);  
+    for(Int_t k=0;k<cell_occupy.size();k++){
+      bmgeo->SetA0Wvers(k, A0,Wvers);      
+      fitrdrift=bmntutracktr->FindRdrift(bmntutracktr->GetR0(), bmntutracktr->GetPvers(), A0, Wvers);
+      if(fitrdrift<0.8 && cell_occupy[k].size()==0)
+        m_controlPlotter->FillMap("BM_output__misshitrdrift",fitrdrift);        
+    }
+  }  
+  
+  return;
+}
+
 void BmBooter::efficiency_paoloni(){
   //~ for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
     //~ bmntuhit = bmnturaw->Hit(i); 
@@ -1242,6 +1329,39 @@ void BmBooter::Projecttracktr(){
 return;
 }
   
+void BmBooter::MCxEvent(){
+  
+  vector<Double_t> vec_pro(4);
+  Int_t status=0;
+  Int_t nuhit=0, nvhit=0;
+  for(Int_t i=0;i<bmnturaw->nhit;i++){
+    bmntuhit=bmnturaw->Hit(i);
+    if(bmntuhit->View()==1 && !bmntuhit->GetIsFake())
+      nuhit++;
+    else if(!bmntuhit->GetIsFake())
+      nvhit++;
+  }
+  
+  
+  for(Int_t i=0;i<evStr->CROSSn;i++){
+    //~ cout<<evStr->CROSSnreg[i]<<"  "<<evStr->CROSSnregold[i]<<"  "<<evStr->CROSSn<<"    "<<evStr->TRpaid[evStr->CROSSid[i]-1]<<endl;
+    if(evStr->CROSSnregold[i]==nregMyl1BMN && evStr->TRpaid[evStr->CROSSid[i]-1]==0 && nuhit>3 && nvhit>3){
+      vec_pro[0]=evStr->CROSSx[i];
+      vec_pro[1]=evStr->CROSSy[i];
+      status+=2;
+    }
+    if(evStr->CROSSnreg[i]==nregMyl2BMN && evStr->TRpaid[evStr->CROSSid[i]-1]==0  && nuhit>3 && nvhit>3){
+      vec_pro[2]=evStr->CROSSx[i];
+      vec_pro[3]=evStr->CROSSy[i];
+      status+=2;
+    }
+  }
+  if(status==4)
+    mcxevent.push_back(vec_pro);
+  
+  return;
+}  
+  
 //used in process to charge residual_distance
 void BmBooter::ResidualDistance(){
   vector<Double_t> selecthit(4);
@@ -1264,6 +1384,22 @@ void BmBooter::ResidualDistance(){
   }
   
 return;  
+}
+
+void BmBooter::fit_histos(){
+  
+  if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
+    return;
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();    
+
+//~ ((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))
+  
+  TF1 f1("f1","TMath::Prob(x,[0])/[0]",0.,10.);
+  f1.SetParameter(0,4);
+  ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__tracksel_chi2red")))->Fit("f1", "Q");
+  
+  
+  return;
 }
 
 void BmBooter::PrintBMstruct(){

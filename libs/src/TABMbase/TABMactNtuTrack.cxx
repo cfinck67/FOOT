@@ -18,20 +18,20 @@ ClassImp(TABMactNtuTrack);
 //! Default constructor.
 
 TABMactNtuTrack::TABMactNtuTrack(const char* name,
-				 TAGdataDsc* p_ntutrk,
-				 TAGdataDsc* p_ntuhit,
-				 TAGparaDsc* bmgeo,
-				 TAGparaDsc* bmcon)
+				 TAGdataDsc* dscntutrk,
+				 TAGdataDsc* dscnturaw,
+				 TAGparaDsc* dscbmgeo,
+				 TAGparaDsc* dscbmcon)
   : TAGaction(name, "TABMactNtuTrack - Track finder for BM"),
-    fpNtuTrk(p_ntutrk),
-    fpNtuHit(p_ntuhit),
-    fpBMGeo(bmgeo),
-    fpBMCon(bmcon)
+    fpNtuTrk(dscntutrk),
+    fpNtuHit(dscnturaw),
+    fpBMGeo(dscbmgeo),
+    fpBMCon(dscbmcon)
 {
-  AddDataOut(p_ntutrk, "TABMntuTrack");
-  AddDataIn(p_ntuhit,  "TABMntuRaw");
-  AddPara(bmgeo,  "TABMparGeo");
-  AddPara(bmcon,  "TABMparCon");
+  AddDataOut(fpNtuTrk, "TABMntuTrack");
+  AddDataIn(fpNtuHit,  "TABMntuRaw");
+  AddPara(fpBMGeo,  "TABMparGeo");
+  AddPara(fpBMCon,  "TABMparCon");
 
 
   const Int_t nIter = 20; // max number of iterations
@@ -102,7 +102,7 @@ TABMactNtuTrack::~TABMactNtuTrack()
 Bool_t TABMactNtuTrack::Action()
 {  
   TABMntuTrack* p_ntutrk = (TABMntuTrack*) fpNtuTrk->Object();
-  p_ntuhit = (TABMntuRaw*)   fpNtuHit->Object();
+  p_nturaw = (TABMntuRaw*)   fpNtuHit->Object();
   //~ TABMparGeo*   p_bmgeo = (TABMparGeo*)    fpBMGeo->Object();
   //~ TABMparCon*   p_bmcon = (TABMparCon*)    fpBMCon->Object();
   
@@ -116,7 +116,7 @@ Bool_t TABMactNtuTrack::Action()
 
   if (!p_ntutrk->t) p_ntutrk->SetupClones();
 
-  Int_t i_nhit = p_ntuhit->nhit;
+  Int_t i_nhit = p_nturaw->nhit;
 
   
 //******************************************************NEW tracking********************************************
@@ -153,7 +153,7 @@ Bool_t TABMactNtuTrack::Action()
 
   //COUNTER FOR NUMBER OF POSSIBLE TRACKS:
   for(Int_t i_h = 0; i_h < i_nhit; i_h++) {
-    p_hit = p_ntuhit->Hit(i_h);
+    p_hit = p_nturaw->Hit(i_h);
     //~ if(ToBeConsider(p_hit->Cell(), p_hit->View(), p_hit->Plane())) 
     if(p_bmcon->GetBMdebug()>10)
       cout<<"hit="<<i_h<<" plane="<<p_hit->Plane()<<"  view="<<p_hit->View()<<"  cell="<<p_hit->Cell()<<"  piano="<<p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())<<endl; 
@@ -216,19 +216,90 @@ Bool_t TABMactNtuTrack::Action()
   Int_t best_index; //the position in hitxtrack matrix of the best tracktr
   vector<vector<Int_t>> prunedhit;//it is calculated for each hitxtrack row; each prunedhit row represent a possible new track, columns represent the hit position of hitxtrack that have to be pruned 
   Int_t prefit_status=-5;
-//*************************************************NEW FIRST TRACKING*************************************
-  if(p_bmcon->GetFitterIndex()==5){
+//*************************************************NEW LEAST CHI2 TRACKING*************************************
+  if(p_bmcon->GetFitterIndex()==6){
+    
+    
+    
+    //NOT FINISHED 
+    
+    
     
     prunedhit.resize(1);
     //prefit only on the single hits
     if(firedSingleUview>2 && firedSingleVview>2){
+      tmp_trackTr->Clean();
       EstimateFIRSTTrackPar(singlehittrack, firedSingleUview, firedSingleVview, tmp_trackTr);
-      Chi2Fit(singlehittrack, prunedhit, tmp_trackTr, converged);//3=number of iterations;
+      NewChi2MyFit(singlehittrack, prunedhit, tmp_trackTr, converged);
       if((firedSingleUview+firedSingleVview)<(firedUview+firedVview)){  //tracks with more hit on the same view and plane
         SortFirstDoubleHits(tmp_trackTr, hitxplane, hitxtrack);
         prefit_status=1;
       }else{
-        hitxtrack.push_back(singlehittrack);
+        hitxtrack.push_back(singlehittrack);//no double hits
+        prefit_status=0;
+      }
+    }else{
+      prefit_status=-1;
+      ChargeAllTracks(hitxtrack,hitxplane, tracknum, firedPlane);
+    }
+   
+    if(p_bmcon->GetBMdebug()>10)
+      cout<<"TABMactNtuTrack:: End of prefit_status="<<prefit_status<<endl;
+        
+    best_index=0;
+    for(Int_t i=0;i<hitxtrack.size();i++){
+      
+     if(p_bmcon->GetBMdebug()>10)
+      cout<<"TABMactNtuTrack:: loop on hitxtrack: i="<<i<<endl; 
+      
+      if(prefit_status!=0 || (prefit_status==0 && i>0)){
+        tmp_trackTr->Clean();
+        EstimateFIRSTTrackPar(hitxtrack[i], firedUview, firedVview, tmp_trackTr);
+        NewChi2MyFit(hitxtrack[i],prunedhit,tmp_trackTr, converged);
+      }else{
+        best_trackTr=*tmp_trackTr;
+        best_index=i;        
+      }
+      
+      if((tmp_trackTr->GetMyChi2Red() < best_trackTr.GetMyChi2Red()) || i==0){
+        best_trackTr=*tmp_trackTr;
+        best_index=i;
+      }
+      
+      if(prunedhit[0].size()>0){//prune hits
+        ChargePrunedTrack(prunedhit[0], firedUview, firedVview, hitxtrack, i);
+        prunedhit[0].clear();
+      }
+      
+    }//end of the loop on hitxtrack
+    
+    //save and update the best_track
+    best_trackTr.CalculateFromFirstPar(p_bmcon, p_bmgeo);
+    best_trackTr.SetPrefitStatus(prefit_status);
+    //~ delete tmp_atrackTr;
+    //~ delete tmp_btrackTr;
+    //~ UpdateHitsFromTrack(best_mysqrtchi2, best_trackTr, hitxtrack[best_index]);//useless    
+    
+    
+    
+    
+    
+    // *********************************** FIRST LEAST CHI2 TRACKING *************************************************
+  }else if(p_bmcon->GetFitterIndex()==5) {
+    //~ TABMntuTrackTr *tmp_atrackTr=new TABMntuTrackTr();    
+    //~ TABMntuTrackTr *tmp_btrackTr=new TABMntuTrackTr();
+        
+    prunedhit.resize(1);
+    //prefit only on the single hits
+    if(firedSingleUview>2 && firedSingleVview>2){
+      tmp_trackTr->Clean();
+      EstimateFIRSTTrackPar(singlehittrack, firedSingleUview, firedSingleVview, tmp_trackTr);
+      Chi2Fit(singlehittrack, prunedhit, tmp_trackTr, converged);
+      if((firedSingleUview+firedSingleVview)<(firedUview+firedVview)){  //tracks with more hit on the same view and plane
+        SortFirstDoubleHits(tmp_trackTr, hitxplane, hitxtrack);
+        prefit_status=1;
+      }else{
+        hitxtrack.push_back(singlehittrack);//no double hits
         prefit_status=0;
       }
     }else{
@@ -254,10 +325,12 @@ Bool_t TABMactNtuTrack::Action()
         best_index=i;        
       }
       
-      if(tmp_trackTr->GetMyChi2Red() < best_trackTr.GetMyChi2Red()){
+      if((tmp_trackTr->GetMyChi2Red() < best_trackTr.GetMyChi2Red()) || i==0){
         best_trackTr=*tmp_trackTr;
         best_index=i;
-      }else if(prunedhit[0].size()>0){//prune hits
+      }
+      
+      if(prunedhit[0].size()>0){//prune hits
         ChargePrunedTrack(prunedhit[0], firedUview, firedVview, hitxtrack, i);
         prunedhit[0].clear();
       }
@@ -266,6 +339,9 @@ Bool_t TABMactNtuTrack::Action()
     
     //save and update the best_track
     best_trackTr.CalculateFromFirstPar(p_bmcon, p_bmgeo);
+    best_trackTr.SetPrefitStatus(prefit_status);
+    //~ delete tmp_atrackTr;
+    //~ delete tmp_btrackTr;
     //~ UpdateHitsFromTrack(best_mysqrtchi2, best_trackTr, hitxtrack[best_index]);//useless
 
   }else if(p_bmcon->GetFitterIndex()<5){   //***********GENFIT TRACKING*******
@@ -285,7 +361,7 @@ Bool_t TABMactNtuTrack::Action()
     //check for possible tracks: reject tracks in which there are hits on the same view that are too different-->bad idea if the bm is not alligned with the track!!!
     //~ tmp_int=0;
     //~ for(Int_t i=0; i<hitxtrack.size(); i++) {
-      //~ RejectSlopedTrack(hitxtrack, possiblePrimary,p_hit, p_ntuhit, i);
+      //~ RejectSlopedTrack(hitxtrack, possiblePrimary,p_hit, p_nturaw, i);
       //~ if(possiblePrimary[i]==true)
         //~ tmp_int++;  
       //~ }
@@ -301,8 +377,6 @@ Bool_t TABMactNtuTrack::Action()
       
     if((tracknum>1 && p_bmcon->GetBMdebug()>1) || p_bmcon->GetBMdebug()>10)
       cout<<"TABMactNtuTrack::number of total hits="<<i_nhit<<"   number of possible tracks="<<hitxtrack.size()<<"  number of fired plane="<<firedPlane<<endl;  
-  
-    //if no possible track
       
     //print hitxtrack
     if(p_bmcon->GetBMdebug()>4){
@@ -323,12 +397,11 @@ Bool_t TABMactNtuTrack::Action()
     
     //**********************loop on all possible tracks:**********************
     for(Int_t i=0; i<hitxtrack.size(); i++) {
-      
       rejhit=i_nhit-hitxtrack[i].size();
       //~ if(rejhit<0)
         //~ cout<<"ERROR!!!! in TABMactNtuTrack::rejhit<0   i_nhit="<<i_nhit<<"  hitxtrack[i].size()="<<hitxtrack[i].size()<<"   i="<<i<<endl;//check
         
-      if(p_bmcon->GetBMdebug()>4){
+      if(p_bmcon->GetBMdebug()>4){//provv
         cout<<"TABMactNtuTrack:: new hitxtrack: i="<<i<<" hitxtrack.size()="<<hitxtrack.size()<<endl;
         for(Int_t kk=0;kk<hitxtrack[i].size();kk++)
           cout<<hitxtrack[i][kk]<<" ";
@@ -416,7 +489,7 @@ Bool_t TABMactNtuTrack::Action()
     p_ntutrk->trk_status= (best_trackTr.GetMyChi2Red()>=p_bmcon->GetChi2Redcut())? 5:0;
     //flag the hit of the best track
     for(Int_t i=0;i<hitxtrack[best_index].size();i++){
-      p_hit = p_ntuhit->Hit(hitxtrack[best_index][i]);    
+      p_hit = p_nturaw->Hit(hitxtrack[best_index][i]);    
       p_hit->SetIsSelected(true);
       if(p_bmcon->GetFitterIndex()<5){
 	p_hit->SetChi2(best_mysqrtchi2[i]*best_mysqrtchi2[i]);
@@ -439,271 +512,8 @@ Bool_t TABMactNtuTrack::Action()
 
   return kTRUE;
   
-// ************************************************** OLD TRACKING*********************************************
-  
-
-  //~ Int_t cell, plane, view, stat;
-  //~ Double_t dist;
-  //~ //Loop on all the wires
-  //~ int nass(0);
-  
-  //~ TABMntuTrackTr aTr, aSrTr, aTr2;
-  //~ aTr.Clean();   aSrTr.Clean();   aTr2.Clean();
-  //~ int HitMult[36], my_idx, my_view, k;
-  //~ int SingleHit[36];
-  //~ int DoubleHit[36];
-  
-  //~ for(int id = 0; id<36; id++) 
-    //~ {HitMult[id] = 0; SingleHit[id] = 0;DoubleHit[id] = 0;}
-  //~ int trackHits(0);
-  //~ int trackHits2(0);
-  
-  //~ int trackHitsTop(0);
-  //~ int trackHitsSide(0);
-  
-  //~ int OccuPlane[2][6];
-  //~ for(int iv = 0; iv<2; iv++) {
-    //~ for(int ip = 0; ip<6; ip++) {
-      //~ OccuPlane[iv][ip] = 0;
-    //~ }
-  //~ }
-  //~ for (Int_t i_h = 0; i_h < i_nhit; i_h++) {
-    //~ TABMntuHit* p_hit = p_ntuhit->Hit(i_h);
-    //~ // time ns and distances in cm
-    //~ cell = p_hit->Cell();
-    //~ plane = p_hit->Plane();
-    //~ view = p_hit->View();
-    //~ view > 0 ? my_view = 0 : my_view = 1;
-    //~ OccuPlane[my_view][plane]++;
-  //~ }
-  
-  //~ for (Int_t i_h = 0; i_h < i_nhit; i_h++) {
-    //~ TABMntuHit* p_hit = p_ntuhit->Hit(i_h);
-    //~ // time ns and distances in cm
-    //~ cell = p_hit->Cell();
-    //~ plane = p_hit->Plane();
-    //~ view = p_hit->View();
-    
-    //~ dist = p_hit->Dist();
-    //~ view > 0 ? my_view = 0 : my_view = 1;
-    //~ my_idx = my_view*18+plane*3+cell;
-    //~ HitMult[my_idx]++;
-    
-    //~ //Keep only the smallest time :: should become closest to trig
-    //~ Info("Action()"," \t %d \t %lf \t %d \t %d \t %d \t %lf \t %d\n",i_h,dist,cell,plane,view,p_hit->Tdrift(),HitMult[my_idx]);
-    
-    //~ //Avoid to use the planes where more than 1 hit is reconstructed
-    //~ if(HitMult[my_idx]<=1 && OccuPlane[my_view][plane]<2 && dist<0.8) {
-      
-      //~ SingleHit[trackHits]=i_h;
-      
-      //~ stat = aTr.AddHit(p_hit, p_bmgeo);
-      //~ p_hit->SetTrkAss(1);
-      //~ nass++; //Hits associated to the track candidate
-      //~ aTr.SetAssHits(nass);
-      //~ stat = aTr.ComputeDataWire(p_hit,trackHits);
-      //~ trackHits++;
-      
-      //~ if(my_view==0){trackHitsTop++;}
-      //~ if(my_view==1){trackHitsSide++;}
-      
-    //~ }
-    
-    //~ //Storing the index of the doulbe-hits
-    //~ if(HitMult[my_idx]<=1 && OccuPlane[my_view][plane]>=2  && dist<0.8) { 
-      //~ DoubleHit[trackHits2]=i_h;
-      //~ trackHits2++;
-    //~ }
-    
-  //~ }
-  
-  //~ if(trackHitsTop>2 && trackHitsSide>2) {
-    //~ //  if(trackHits>6) {
-    //~ stat = aTr.EstimateTrackPar(p_ntuhit,p_bmgeo);
-    //~ stat = aTr.ComputeDataAll(p_ntuhit);    
-    
-    //~ //Chi2 fit
-    //~ p_ntutrk->Chi2Fit(p_ntuhit,&aTr,3);
-    //~ //Sort double hits
-    //~ sortDoubleHits(p_ntuhit,p_ntutrk,p_bmgeo,aSrTr,aTr,DoubleHit,trackHits2);
-    
-    //~ //Before that we have to choose which track is the best one
-    //~ Info("Action()","After Fit:: %lf %lf %lf %lf",
-	 //~ aSrTr.GetX0(),aSrTr.GetY0(),aSrTr.GetUx(),aSrTr.GetUy());
-    
-
-    //~ if(aSrTr.GetChi2()<chisquare_cut) {    
-      //~ aSrTr.Calibrate(m_mypol,m_mypol2);
-      //~ new((*(p_ntutrk->t))[p_ntutrk->ntrk]) 
-	//~ TABMntuTrackTr(aSrTr);
-      //~ p_ntutrk->ntrk = 1;
-      
-    //~ } else {
-      
-      //~ //ELIMINATE HITS TOP VIEW
-      //~ /*cout <<"chi trk "<< aSrTr.GetChi2()<<endl;*/
-      
-      //~ double min_aTr2 = aSrTr.GetChi2();
-      //~ k = -1;
-      //~ for(int j = 0; j<i_nhit; j++) {
-	//~ TABMntuHit* p_hitT = p_ntuhit->Hit(j);
-	//~ plane = p_hitT->Plane();
-	//~ view = p_hitT->View();
-	//~ view > 0 ? my_view = 0 : my_view = 1; 
-	//~ // cout<< " j " << j<<" plane " << plane<<endl;
-	
-	//~ if(!my_view && trackHitsTop>3 && p_hitT->TrkAss()) {
-	  //~ /*cout<< " j " << j<<" plane " << plane<<endl;*/
-	  
-	  //~ refitImprovedTrackTop (p_ntuhit,p_ntutrk,p_bmgeo,trackHitsTop,trackHitsSide,aSrTr.GetChi2()*nass,aTr2,j);
-	  
-	  //~ // cout<< " chi2_top " <<aTr2.GetChi2()<<" min_chi2 "<<min_aTr2<<endl;
-	  
-	  //~ if (aTr2.GetChi2()<min_aTr2) {
-	    //~ min_aTr2 = aTr2.GetChi2();
-	    //~ /*cout<< j<< " j "<<" ********SCRIVO LA TRACCIA****** chi2 piu' piccolo " << min_aTr2<<endl;*/
-	    //~ k = j;
-	  //~ }
-	  //~ p_hitT->SetTrkAss(1); 
-	//~ }
-	
-      //~ }
-      //~ if(k>-1)
-	//~ refitImprovedTrackTop (p_ntuhit,p_ntutrk,p_bmgeo,trackHitsTop,trackHitsSide,aSrTr.GetChi2()*nass,aTr2,k);
-
-      //~ if(aTr2.GetChi2()<chisquare_cut) {
-	//~ aTr2.Calibrate(m_mypol,m_mypol2);
-	//~ new((*(p_ntutrk->t))[p_ntutrk->ntrk]) 
-	  //~ TABMntuTrackTr(aTr2);      
-	//~ p_ntutrk->ntrk = 1;	
-      //~ }
-      
-      //~ else {
-	
-	//~ //ELIMINATE HITS SIDE VIEW
-	//~ k = -1;
-	//~ for(int j = 0; j<i_nhit; j++) {
-	  //~ TABMntuHit* p_hitT = p_ntuhit->Hit(j);
-	  //~ plane = p_hitT->Plane();
-	  //~ view = p_hitT->View();
-	  //~ view > 0 ? my_view = 0 : my_view = 1; 
-	  //~ // cout<< " j " << j<<" plane " << plane<<endl;
-	  
-	  //~ if(my_view && trackHitsSide>3 && p_hitT->TrkAss()) {
-	    
-	    //~ /*cout<< " j " << j<<" plane side" << plane<<endl;*/
-	    
-	    //~ refitImprovedTrackSide(p_ntuhit,p_ntutrk,p_bmgeo,trackHitsTop,trackHitsSide,aSrTr.GetChi2()*nass,aTr2,j);
-	    
-	    //~ // cout<< " chi2_side" <<aTr2.GetChi2()<<" min_chi2 "<<min_aTr2<<endl;
-	    
-	    //~ if (aTr2.GetChi2()<min_aTr2) {
-	      //~ min_aTr2 = aTr2.GetChi2();
-	      //~ /*cout<< j<< " j "<<" ********SCRIVO LA TRACCIA della SIDE****** chi2 piu' piccolo " << min_aTr2<<endl;*/
-	      //~ k = j;
-	    //~ }
-	    //~ p_hitT->SetTrkAss(1); 
-	  //~ }
-	//~ }
-	//~ if(k>-1)
-	  //~ refitImprovedTrackSide (p_ntuhit,p_ntutrk,p_bmgeo,trackHitsTop,trackHitsSide,aSrTr.GetChi2()*nass,aTr2,k);
-	
-      //~ }
-      
-      //~ if(aTr2.GetChi2()<chisquare_cut) {
-	//~ aTr2.Calibrate(m_mypol,m_mypol2);
-	//~ new((*(p_ntutrk->t))[p_ntutrk->ntrk]) 
-	  //~ TABMntuTrackTr(aTr2);      
-	//~ p_ntutrk->ntrk = 1;
-      //~ }
-      
-      //~ else {
-	//~ /*cout <<aTr2.GetChi2()<<" chi2 "<<" ****** STO CERCANDO DI RIFITTARE*****"<<endl;*/
-	//~ //ELIMINATE HITS TOP VIEW
-	//~ /*cout <<"chi trk "<< aSrTr.GetChi2()<<endl;*/
-	
-	//~ double min_aTr2 = aTr2.GetChi2();
-	//~ k = -1;
-	//~ for(int j = 0; j<i_nhit; j++) {  
-	  //~ TABMntuHit* p_hitT = p_ntuhit->Hit(j);
-	  //~ plane = p_hitT->Plane();
-	  //~ view = p_hitT->View();
-	  //~ view > 0 ? my_view = 0 : my_view = 1; 
-	  //~ // cout<< " j " << j<<" plane " << plane<<endl;
-	  
-	  //~ if(!my_view && trackHitsTop>3 && p_hitT->TrkAss()) {
-	    
-	    //~ /*cout<< " j " << j<<" plane " << plane<<endl;*/
-	    
-	    //~ refitImprovedTrackTop (p_ntuhit,p_ntutrk,p_bmgeo,trackHitsTop,trackHitsSide,aSrTr.GetChi2()*nass,aTr2,j);
-	    
-	    //~ // cout<< " chi2_top " <<aTr2.GetChi2()<<" min_chi2 "<<min_aTr2<<endl;
-	    
-	    //~ if (aTr2.GetChi2()<min_aTr2) {
-	      //~ min_aTr2 = aTr2.GetChi2();
-	      //~ /*cout<< j<< " j "<<" ********SCRIVO LA TRACCIA****** chi2 piu' piccolo " << min_aTr2<<endl;*/
-	      //~ k = j;
-	    //~ }
-	    //~ p_hitT->SetTrkAss(1); 
-	  //~ }
-	//~ }
-	//~ if(k>-1)
-	  //~ refitImprovedTrackTop (p_ntuhit,p_ntutrk,p_bmgeo,trackHitsTop,trackHitsSide,aSrTr.GetChi2()*nass,aTr2,k);
-
-	//~ if(aTr2.GetChi2()<chisquare_cut) {
-	  //~ aTr2.Calibrate(m_mypol,m_mypol2);
-	  //~ new((*(p_ntutrk->t))[p_ntutrk->ntrk]) 
-	    //~ TABMntuTrackTr(aTr2);      
-	  //~ p_ntutrk->ntrk = 1; 
-	//~ }
-	
-	//~ else {
-	  
-	  //~ //ELIMINATE HITS SIDE VIEW
-	  //~ k = -1;
-	  //~ for(int j = 0; j<i_nhit; j++) {
-	    //~ TABMntuHit* p_hitT = p_ntuhit->Hit(j);
-	    //~ plane = p_hitT->Plane();
-	    //~ view = p_hitT->View();
-	    //~ view > 0 ? my_view = 0 : my_view = 1; 
-	    //~ // cout<< " j " << j<<" plane " << plane<<endl;
-	    
-	    //~ if(my_view && trackHitsSide>3 && p_hitT->TrkAss()) {
-	      
-	      //~ /*cout<< " j " << j<<" plane side" << plane<<endl;*/
-	      
-	      //~ refitImprovedTrackSide(p_ntuhit,p_ntutrk,p_bmgeo,trackHitsTop,trackHitsSide,aSrTr.GetChi2()*nass,aTr2,j);
-	      
-	      //~ // cout<< " chi2_side" <<aTr2.GetChi2()<<" min_chi2 "<<min_aTr2<<endl;
-	      
-	      //~ if (aTr2.GetChi2()<min_aTr2) {
-		//~ min_aTr2 = aTr2.GetChi2();
-		//~ /*cout<< j<< " j "<<" ********SCRIVO LA TRACCIA della SIDE****** chi2 piu' piccolo " << min_aTr2<<endl;*/
-		//~ k = j;
-	      //~ }
-	      //~ p_hitT->SetTrkAss(1); 
-	    //~ }
-	  //~ }
-	  //~ if(k>-1)
-	    //~ refitImprovedTrackSide (p_ntuhit,p_ntutrk,p_bmgeo,trackHitsTop,trackHitsSide,aSrTr.GetChi2()*nass,aTr2,k);
-	  
-	//~ }
-	//~ // cout <<aTr2.GetChi2()<<" chi2 "<<" ****** DOPO IL FIT NUOVO *****"<<endl;
-	//~ aTr2.Calibrate(m_mypol,m_mypol2);
-	//~ new((*(p_ntutrk->t))[p_ntutrk->ntrk]) 
-	  //~ TABMntuTrackTr(aTr2);      
-	//~ p_ntutrk->ntrk = 1;	
-      //~ }
-    //~ }
-  //~ }
- 
-  //~ cout<<"end of action in tabmactntutrack"<<endl;
-  //~ fpNtuTrk->SetBit(kValid);
-  //~ return kTRUE;
 }
 
-
-//*******************************NEW TRACKING*********************************
 
 void TABMactNtuTrack::PruneNotConvTrack(vector<vector<Int_t>> &prunedhit, vector< vector<Int_t> > &hitxtrack, Int_t index){
   prunedhit.clear();
@@ -713,42 +523,38 @@ void TABMactNtuTrack::PruneNotConvTrack(vector<vector<Int_t>> &prunedhit, vector
 return;
 }
 
-void TABMactNtuTrack::ChargePrunedTrack(vector<Int_t> &tobepruned, Int_t &prunedUview, Int_t &prunedVview, vector< vector<Int_t> > &hitxtrack, Int_t index){
+void TABMactNtuTrack::ChargePrunedTrack(vector<Int_t> &tobepruned, Int_t &firedUview, Int_t &firedVview, vector< vector<Int_t> > &hitxtrack, Int_t index){
   vector<Int_t> tmp_vec_int;
   //check if the pruned track can pass the plane cuts
   std::sort(tobepruned.rbegin(), tobepruned.rend());
   for(Int_t kk=0;kk<tobepruned.size();kk++){
     if(p_bmcon->GetBMdebug()>4)
       cout<<"TABMactNtuTrack::a track has to be pruned:"<<"kk="<<kk<<"  tobepruned(pos)="<<tobepruned[kk]<<"  hitxtrack[index][tobepruned[kk]]="<<hitxtrack[index][tobepruned[kk]]<<endl;
-    p_hit=p_ntuhit->Hit(hitxtrack[index][tobepruned[kk]]);
-    if(p_hit->View()==-1)
-      prunedVview--;
-    else
-      prunedUview--;
-  }
-  if(p_bmcon->GetBMdebug()>4)
-    cout<<"prunedUview="<<prunedUview<<"  prunedVview="<<prunedVview<<"  planehitcut="<<p_bmcon->GetPlanehitcut()<<"  new number_of_hit="<<hitxtrack[index].size()-tobepruned.size()<<"  minhitcut="<<p_bmcon->GetMinnhit_cut()<<endl;          
-  //if it can pass, add the pruned track to hitxtrack         
-  if(prunedUview>=p_bmcon->GetPlanehitcut() && prunedVview>=p_bmcon->GetPlanehitcut() && (hitxtrack[index].size()-tobepruned.size())>=p_bmcon->GetMinnhit_cut()){
-    tmp_vec_int=hitxtrack[index];
-    if(p_bmcon->GetBMdebug()>4){
-      cout<<"Before the pruning:"<<endl;
-      for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
-        cout<<tmp_vec_int[kk]<<" ";
-      cout<<endl;  
-    }
-    for(Int_t kk=0;kk<tobepruned.size();kk++)
-      tmp_vec_int.erase(tmp_vec_int.begin()+tobepruned[kk]);
-    if(p_bmcon->GetBMdebug()>4){
-      cout<<"After the pruning:"<<endl;
-      for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
-	      cout<<tmp_vec_int[kk]<<" ";
-      cout<<endl;
+    p_hit=p_nturaw->Hit(hitxtrack[index][tobepruned[kk]]);
+    if(p_bmcon->GetBMdebug()>4)
+      cout<<"hit_view of the pruned hit="<<p_hit->View()<<"firedUview="<<firedUview<<"  firedVview="<<firedVview<<"  planehitcut="<<p_bmcon->GetPlanehitcut()<<"  new number_of_hit="<<hitxtrack[index].size()-tobepruned.size()<<"  minhitcut="<<p_bmcon->GetMinnhit_cut()<<endl;          
+    //if it can pass, add the pruned track to hitxtrack         
+    if(((p_hit->View()==1 && (firedUview-1)>=p_bmcon->GetPlanehitcut()) || (p_hit->View()==-1 && (firedVview-1)>=p_bmcon->GetPlanehitcut())) && (hitxtrack[index].size()-tobepruned.size())>=p_bmcon->GetMinnhit_cut()){
+      tmp_vec_int=hitxtrack[index];
+      if(p_bmcon->GetBMdebug()>4){
+	cout<<"Before the pruning:"<<endl;
+	for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
+	  cout<<tmp_vec_int[kk]<<" ";
+	cout<<endl;  
       }
-    hitxtrack.push_back(tmp_vec_int);
-  }else if(p_bmcon->GetBMdebug()>4)
-    cout<<"this pruning cannot be made for the planehitcut or the minnhitcut"<<endl;
-    
+      for(Int_t kk=0;kk<tobepruned.size();kk++)
+	tmp_vec_int.erase(tmp_vec_int.begin()+tobepruned[kk]);
+      if(p_bmcon->GetBMdebug()>4){
+	cout<<"After the pruning:"<<endl;
+	for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
+		cout<<tmp_vec_int[kk]<<" ";
+	cout<<endl;
+	}
+      hitxtrack.push_back(tmp_vec_int);
+    }else if(p_bmcon->GetBMdebug()>4)
+      cout<<"this pruning cannot be made for the planehitcut or the minnhitcut"<<endl;
+  }
+  
   return;
 }  
   
@@ -791,13 +597,13 @@ void TABMactNtuTrack::SetInitPos(TVector3 &init_pos, Int_t fit_index, Double_t x
 }
 
 //add a track in hitxtrack if it pass all the selection criteria eliminating the hit with mychi2>bmcon->GetChi2Redcut()
-//~ Bool_t TABMactNtuTrack::Refit(vector<Double_t> &prunedtrack, vector< vector<Int_t> > &hitxtrack,TABMntuRaw* p_ntuhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo){
+//~ Bool_t TABMactNtuTrack::Refit(vector<Double_t> &prunedtrack, vector< vector<Int_t> > &hitxtrack,TABMntuRaw* p_nturaw, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo){
   
   //~ TABMntuHit *p_hit;
   
   //~ //check if the prunedtrack pass the selection criteria:
   //~ for(Int_t i=0;i<prunedtrack.size();i++){
-    //~ p_hit=p_ntuhit->Hit(prunedtrack[i]);
+    //~ p_hit=p_nturaw->Hit(prunedtrack[i]);
     
     
   //~ }
@@ -808,12 +614,12 @@ void TABMactNtuTrack::SetInitPos(TVector3 &init_pos, Int_t fit_index, Double_t x
 
 
 //set the possiblePrimary to flase if the track contains hits from cells that can not be consistent with a straight trajectory 
-//~ void TABMactNtuTrack::RejectSlopedTrack(vector< vector<Int_t> > &hitxtrack, vector<Bool_t>&possiblePrimary, TABMntuHit* p_hit, TABMntuRaw* p_ntuhit, Int_t &trk_index){
+//~ void TABMactNtuTrack::RejectSlopedTrack(vector< vector<Int_t> > &hitxtrack, vector<Bool_t>&possiblePrimary, TABMntuHit* p_hit, TABMntuRaw* p_nturaw, Int_t &trk_index){
     //~ Int_t tmp_cellx=1;
     //~ Int_t tmp_celly=1;
     //~ for(Int_t j=0; j<hitxtrack[trk_index].size(); j++) {
       //~ if(possiblePrimary[trk_index]==true){
-        //~ p_hit = p_ntuhit->Hit(hitxtrack[trk_index][j]);
+        //~ p_hit = p_nturaw->Hit(hitxtrack[trk_index][j]);
         //~ if(p_hit->View()==1 && tmp_cellx==1 && p_hit->Cell()!=1)
           //~ tmp_cellx=p_hit->Cell();
         //~ if(p_hit->View()==-1 && tmp_celly==1 && p_hit->Cell()!=1)
@@ -868,7 +674,7 @@ void TABMactNtuTrack::ChargeHits4GenfitTrack(vector<Int_t> &singlehittrack,Int_t
   for(Int_t i_h = 0; i_h <singlehittrack.size() ; i_h++) {
     
     Info("Action()","create WireHit");
-    p_hit = p_ntuhit->Hit(singlehittrack[i_h]);
+    p_hit = p_nturaw->Hit(singlehittrack[i_h]);
     
     if(p_hit->View()==1) 
       firedUview++;
@@ -879,15 +685,19 @@ void TABMactNtuTrack::ChargeHits4GenfitTrack(vector<Int_t> &singlehittrack,Int_t
     //~ hitCoords(0)=p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
     //~ hitCoords(1)=p_bmgeo->GetY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
     //~ hitCoords(2)=p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
+
     //~ hitCoords(3)=hitCoords[0]+p_bmgeo->GetCX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
     //~ hitCoords(4)=hitCoords[1]+p_bmgeo->GetCY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
     //~ hitCoords(5)=hitCoords[2]+p_bmgeo->GetCZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
+
     hitCoords(0)= p_hit->GetA0().X();
     hitCoords(1)= p_hit->GetA0().Y();
     hitCoords(2)= p_hit->GetA0().Z();
-    hitCoords(3)= hitCoords[0]+p_hit->GetWvers().X();
-    hitCoords(4)= hitCoords[1]+p_hit->GetWvers().Y();
-    hitCoords(5)= hitCoords[2]+p_hit->GetWvers().Z();
+
+    hitCoords(3)= p_hit->GetA0().X()+p_hit->GetWvers().X();
+    hitCoords(4)= p_hit->GetA0().Y()+p_hit->GetWvers().Y();
+    hitCoords(5)= p_hit->GetA0().Z()+p_hit->GetWvers().Z();
+
     hitCoords(6)= p_hit->Dist();
     
     if(p_hit->GetSigma()==0)
@@ -947,7 +757,7 @@ void TABMactNtuTrack::PrefitTracking(Int_t &prefit_status,Int_t &firedUview,Int_
           best_diff=1000.;
           //~ cout<<"try to calculate best_hit"<<endl;//provv
           for(Int_t k=0;k<hitxplane[i].size();k++){
-            p_hit=p_ntuhit->Hit(hitxplane[i][k]);
+            p_hit=p_nturaw->Hit(hitxplane[i][k]);
             hit_view=(p_hit->View()==1) ? 0:1;  
             //~ cout<<"più hit su un unico piano i="<<i<<" size="<<hitxplane[i].size()<<"  k="<<k<<"  hitxplane[i][k]="<<hitxplane[i][k]<<" plane="<<p_hit->Plane()<<"  view="<<hit_view<<"  cell="<<p_hit->Cell()<<endl;
             
@@ -965,7 +775,7 @@ void TABMactNtuTrack::PrefitTracking(Int_t &prefit_status,Int_t &firedUview,Int_
             }
           }
           //~ cout<<"best_hit="<<best_hit<<"  best_diff="<<best_diff<<endl;//provv
-          if(best_diff<0.9)
+          if(best_diff<0.943)
             singlehittrack.push_back(hitxplane[i][best_hit]);
             //~ rejhit+=hitxplane[i].size()-1;
         }else{
@@ -1020,10 +830,6 @@ void TABMactNtuTrack::MyGenfitFitting(vector<Int_t> &singlehittrack,Int_t &fired
         dafRefFitter->processTrack(fitTrack);
         break;
     }
-    //~ if(p_bmcon->GetFitterIndex()==1) {simpleFitter->processTrack(fitTrack); 
-    //~ }else if(p_bmcon->GetFitterIndex()==2) {refFitter->processTrack(fitTrack); 
-    //~ }else if(p_bmcon->GetFitterIndex()==3) {dafSimpleFitter->processTrack(fitTrack);
-    //~ }else if(p_bmcon->GetFitterIndex()==4) {dafRefFitter->processTrack(fitTrack);}
     fit_index++;
   }while(!fitTrack->getFitStatus(rep)->isFitConverged() && fit_index<5);
   fitTrack->checkConsistency();
@@ -1043,7 +849,7 @@ void TABMactNtuTrack::UpdateHitsFromTrack(vector<Double_t> &best_mysqrtchi2, TAB
   Double_t chi2sum=0.;
   best_mysqrtchi2.resize(singlehittrack.size());
   for(Int_t i=0;i<singlehittrack.size();i++){
-    p_hit=p_ntuhit->Hit(singlehittrack[i]);
+    p_hit=p_nturaw->Hit(singlehittrack[i]);
     best_mysqrtchi2[i]=p_hit->GetResidual()/p_hit->GetSigma();
     chi2sum+=best_mysqrtchi2[i]*best_mysqrtchi2[i];
   }
@@ -1066,7 +872,7 @@ Int_t TABMactNtuTrack::EstimateFIRSTTrackPar(vector<Int_t> &singlehittrack, Int_
   firedUview=0;
   firedVview=0;
   for(Int_t i_h = 0; i_h <singlehittrack.size() ; i_h++) {
-    p_hit = p_ntuhit->Hit(singlehittrack[i_h]);
+    p_hit = p_nturaw->Hit(singlehittrack[i_h]);
     hit_view=(p_hit->View()==1) ? 0:1;
     if(hit_view==0){//here the inversion in p_bmgeo->Z and Ycentro is right      
       Ycentro_U.push_back(p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view));
@@ -1178,37 +984,6 @@ Int_t TABMactNtuTrack::EstimateFIRSTTrackPar(vector<Int_t> &singlehittrack, Int_
   
   if(p_bmcon->GetBMdebug()>10)
     cout<<"TABMactNtuTrack::EstimateFIRSTTrackPar:: estimated track line in the V view, p_V="<<p_V<<"  q_V="<<q_V<<"  tangente migliore="<<tmp_int<<endl;  
-  
-  //calculation of the track parameters x0,y0,px0,py0
-  //~ Double_t pz0(0), px0, py0, x0, y0;
-  //~ if(p_U && p_V) {  pz0=1./sqrt(1.0 + 1.0/(p_U*p_U)+ 1.0/(p_V*p_V)); }
-  //~ else if(!p_U && p_V) {  pz0=1./sqrt(1.0 + 1.0/(p_V*p_V)); }
-  //~ else if(p_U && !p_V) {  pz0=1./sqrt(1.0 + 1.0/(p_U*p_U)); }
-  
-  //~ if(p_V) {
-    //~ px0 = pz0/p_V;
-    //~ x0 = ((p_bmgeo->GetCenter().Z())-q_V)/p_V;
-  //~ } else {
-    //~ px0 = 0;
-    //~ x0 = -0.4;
-  //~ }
-  //~ if(p_U) {
-    //~ py0 = pz0/p_U;
-    //~ y0 = ((p_bmgeo->GetCenter().Z())-q_U)/p_U;
-  //~ } else {
-    //~ py0 = 0;
-    //~ y0 = -0.4;
-  //~ }
-  //~ if(fabs(py0)>1 || fabs(px0)>1) { py0 = px0 = 0;}
-  
-  //save the track parameters
-  //~ tmp_trackTr->SetNhit(singlehittrack.size());
-  //~ tmp_trackTr->SetPvers(px0,py0,sqrt(1.-px0*px0-py0*py0));
-  //~ tmp_trackTr->SetR0(x0,y0,0.);
-  //~ if(tmp_trackTr->GetPvers().Z()<0) 
-    //~ Error("Action()","EstimateTrackPat:: %lf %lf %lf %lf",px0,py0,p_V,p_U);
-  //~ if(p_bmcon->GetBMdebug()>10)
-    //~ cout<<"EstimateFIRSTTrackPar::vista U: p_U= "<<p_U<<" q_U= "<<q_U<<"  vista V: p_V= "<<p_V<<" q_V= "<<q_V<<endl<<"px, py, pz= "<<px0<<" "<<py0<<" "<<pz0<<" x0, y0= "<<x0<<" "<<y0<<endl;
 
   tmp_trackTr->SetNhit(singlehittrack.size());
   TVector3 tmp_tvector3(p_V,p_U,1.);
@@ -1219,7 +994,7 @@ Int_t TABMactNtuTrack::EstimateFIRSTTrackPar(vector<Int_t> &singlehittrack, Int_
     cout<<"R0=("<<tmp_trackTr->GetR0().X()<<", "<<tmp_trackTr->GetR0().Y()<<", "<<tmp_trackTr->GetR0().Z()<<")   Pvers=("<<tmp_trackTr->GetPvers().X()<<", "<<tmp_trackTr->GetPvers().Y()<<", "<<tmp_trackTr->GetPvers().Z()<<")"<<endl;
 
   //calculate the residual of all the points (aka ComputeDataAll)
-  ComputeDataAll(tmp_trackTr);
+  ComputeDataAll(tmp_trackTr, singlehittrack);
   
   if(p_bmcon->GetBMdebug()>10)
     cout<<"TABMactNtuTrack::EstimateFIRSTTrackPar::ended"<<endl;
@@ -1302,22 +1077,80 @@ TG_STRUCT TABMactNtuTrack::Circles2Tangents(Double_t xc1, Double_t yc1, Double_t
 }
 
 
+//dopo estimatetrackpar, in tmp_trackTr sono salvati r0 e pvers iniziali
+void TABMactNtuTrack::NewChi2MyFit(vector<Int_t> &singlehittrack, vector<vector<Int_t>> &prunedhit, TABMntuTrackTr *&tmp_trackTr, Bool_t converged){
+
+
+
+  
+}
+
+
+//https://root.cern.ch/root/html600/tutorials/fit/NumericalMinimization.C.html
+void TABMactNtuTrack::NumericalMinimization(vector<Int_t> &singlehittrack, TABMntuTrackTr *&tmp_trackTr, vector<Double_t> &newpar){
+  
+  ROOT::Math::Minimizer* min = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
+   min->SetMaxFunctionCalls(1000000);
+   min->SetMaxIterations(100000);
+   min->SetTolerance(0.001);
+   min->SetPrintLevel(0);
+   
+   Int_t parnum=singlehittrack.size()+4;
+   
+   //~ ROOT::Math::Functor f(&EvaluateChi2,parnum); 
+   Double_t step[4] = {p_bmcon->GetParMove(),p_bmcon->GetParMove(),p_bmcon->GetParMove(),p_bmcon->GetParMove()};
+   Double_t variable[4]; 
+   variable[0]=tmp_trackTr->GetPvers().X()/tmp_trackTr->GetPvers().Z();
+   variable[1]=tmp_trackTr->GetR0().X();
+   variable[2]=tmp_trackTr->GetPvers().Y()/tmp_trackTr->GetPvers().Z();
+   variable[3]=tmp_trackTr->GetR0().Y();
+ 
+   //~ min->SetFunction(f);
+ 
+   // Set the free variables to be minimized!
+   min->SetVariable(0,"mx",variable[0], step[0]);
+   min->SetVariable(1,"qx",variable[1], step[1]);
+   min->SetVariable(2,"my",variable[2], step[2]);
+   min->SetVariable(3,"qy",variable[3], step[3]);
+   for(Int_t i=0;i<singlehittrack.size();i++)
+     min->SetFixedVariable(i+4,"fixpar",singlehittrack[i]);
+ 
+   min->Minimize(); 
+   
+   newpar.clear();
+   for(Int_t i=0;i<4;i++)
+     newpar.push_back(min->X()[i]);
+ 
+   return ;
+}
+
+
+
+
+
 void TABMactNtuTrack::Chi2Fit(vector<Int_t> &singlehittrack, vector<vector<Int_t>> &prunedhit, TABMntuTrackTr *&tmp_trackTr, Bool_t converged){
   
-  TMatrixD AA, VV;
-  TVectorD alpha, Dy, Eta;
+  TABMntuTrackTr *tmp_atrackTr=new TABMntuTrackTr();    
+  TABMntuTrackTr *tmp_btrackTr=new TABMntuTrackTr();  
+  TMatrixD AA, VV, VbV, AbA;
+  TVectorD alpha, Dy, Eta, alphb, Dby;
 
   alpha.ResizeTo(4);
+  alphb.ResizeTo(4);
   Eta.ResizeTo(4);
   Eta.Zero();
     
   Dy.ResizeTo(tmp_trackTr->GetNhit());
+  Dby.ResizeTo(tmp_trackTr->GetNhit());
   alpha(0) = tmp_trackTr->GetR0().X();
   alpha(1) = tmp_trackTr->GetR0().Y();
   alpha(2) = tmp_trackTr->GetPvers().X();
   alpha(3) = tmp_trackTr->GetPvers().Y();
+  alphb=alpha;
   AA.ResizeTo(tmp_trackTr->GetNhit(),4);
+  AbA.ResizeTo(tmp_trackTr->GetNhit(),4);
   VV.ResizeTo(tmp_trackTr->GetNhit(),tmp_trackTr->GetNhit());
+  VbV.ResizeTo(tmp_trackTr->GetNhit(),tmp_trackTr->GetNhit());
   
   if(p_bmcon->GetBMdebug()>10)
     cout<<"TABMactNtuTrack::Chi2Fit::start with computeDy and VV"<<endl;
@@ -1325,46 +1158,78 @@ void TABMactNtuTrack::Chi2Fit(vector<Int_t> &singlehittrack, vector<vector<Int_t
   //compute Dy and VV:
   ComputeDy(singlehittrack, tmp_trackTr, Dy);
   ComputeVV(singlehittrack, tmp_trackTr, VV);
-  //~ Dy.ResizeTo(tmp_trackTr->GetNhit());
-  //~ VV.ResizeTo(tmp_trackTr->GetNhit(),tmp_trackTr->GetNhit());
-  //~ VV = 0.;
-  //~ for(Int_t ii = 0; ii<singlehittrack.size();ii++){
-    //~ p_hit = p_ntuhit->Hit(singlehittrack[ii]);
-    //~ Dy(ii) =p_hit->GetResidual(); 
-    //~ VV(ii,ii) =  1./p_hit->GetSigma()/p_hit->GetSigma();
-  //~ }
-
+  VbV=VV;
+  Dby=Dy;
   if(p_bmcon->GetBMdebug()>10)
     cout<<"TABMactNtuTrack::Chi2Fit::computechiqua"<<endl;
-    
   //~ cout<<"Before iteration matrices: Dy, AA, alpha, VV, Eta: "<<endl;
   //~ Dy.Print(); AA.Print(); alpha.Print(); VV.Print(); Eta.Print();
-
-  Int_t worst_hit=-1;
   Double_t old_chi2;
+  *tmp_atrackTr=*tmp_trackTr;
+  //~ *tmp_btrackTr=*tmp_trackTr;
+  Int_t worst_hit=-1;
   for (Int_t hh=0; hh<p_bmcon->GetNumIte();hh++){
     Info("Action()"," Iteration number %d\n",hh);
-    old_chi2=tmp_trackTr->GetMyChi2Red();
-    ComputeDy(singlehittrack, tmp_trackTr, Dy);
-    ComputeAA(singlehittrack, tmp_trackTr, alpha, AA);
-    if(Mini(tmp_trackTr->GetNhit(), AA, VV, Dy, Eta)){
-      Update(tmp_trackTr, singlehittrack, Dy, alpha, Eta, VV, worst_hit); 
+    old_chi2=tmp_atrackTr->GetMyChi2Red();
+    ComputeDy(singlehittrack, tmp_atrackTr, Dy);
+    ComputeAA(singlehittrack, tmp_atrackTr, alpha, AA, true);
+    if(Mini(tmp_atrackTr->GetNhit(), AA, VV, Dy, Eta)){
+      Update(tmp_atrackTr, singlehittrack, Dy, alpha, Eta, VV, worst_hit); 
       if(converged==false)
         converged=true;
       if(p_bmcon->GetBMdebug()>2)
-        cout<<"TABMactNtuTrack::Chi2Fit::iterazione numero="<<hh<<"  chi2red="<<tmp_trackTr->GetMyChi2Red()<<"  old_chi2="<<old_chi2<<endl;
-      if(tmp_trackTr->GetMyChi2Red()>old_chi2)
-        break;
-    }else if(p_bmcon->GetBMdebug()>1)
+        cout<<"TABMactNtuTrack::Chi2Fit::iterazione numero="<<hh<<"  chi2red="<<tmp_atrackTr->GetMyChi2Red()<<"  old_chi2="<<old_chi2<<endl;
+      if(tmp_atrackTr->GetMyChi2Red()>old_chi2){
+        tmp_atrackTr->SetNite(hh);
+	break;
+      }
+    }else if(p_bmcon->GetBMdebug()>0)
       cout<<"TABMactNtuTrack::Chi2Fit:: Mini not possible"<<hh<<endl;
-      
     //~ Info("Action()","A:: %lf, %lf, %lf %lf\n",alpha(0),alpha(1),alpha(2),alpha(3));
   }
+  if(tmp_atrackTr->GetNite()==0)
+    tmp_atrackTr->SetNite(p_bmcon->GetNumIte());
   
+  //~ Int_t worst_bhit=-1;
+  //~ for (Int_t hh=0; hh<p_bmcon->GetNumIte();hh++){
+    //~ Info("Action()"," Iteration number %d\n",hh);
+    //~ old_chi2=tmp_btrackTr->GetMyChi2Red();
+    //~ ComputeDy(singlehittrack, tmp_btrackTr, Dby);
+    //~ ComputeAA(singlehittrack, tmp_btrackTr, alphb, AbA, false);
+    //~ Eta.Zero();
+    //~ if(Mini(tmp_btrackTr->GetNhit(), AbA, VbV, Dby, Eta)){
+      //~ Update(tmp_btrackTr, singlehittrack, Dby, alphb, Eta, VbV, worst_bhit); 
+      //~ if(converged==false)
+        //~ converged=true;
+      //~ if(p_bmcon->GetBMdebug()>2)
+        //~ cout<<"TABMactNtuTrack::Chi2Fit::iterazione numero="<<hh<<"  chi2red="<<tmp_btrackTr->GetMyChi2Red()<<"  old_chi2="<<old_chi2<<endl;
+      //~ if(tmp_btrackTr->GetMyChi2Red()>old_chi2){
+        //~ tmp_btrackTr->SetNite(-hh);
+	//~ break;
+      //~ }
+    //~ }else if(p_bmcon->GetBMdebug()>0)
+      //~ cout<<"TABMactNtuTrack::Chi2Fit:: Mini not possible"<<hh<<endl;
+    Info("Action()","A:: %lf, %lf, %lf %lf\n",alpha(0),alpha(1),alpha(2),alpha(3));
+  //~ }
+  //~ if(tmp_btrackTr->GetNite()==0)
+    //~ tmp_btrackTr->SetNite(-p_bmcon->GetNumIte());
+  
+  //~ if(tmp_atrackTr->GetMyChi2Red()<tmp_btrackTr->GetMyChi2Red()){
+    *tmp_trackTr=*tmp_atrackTr;
+    ComputeDataAll(tmp_trackTr, singlehittrack);
+  //~ }else{
+    //~ *tmp_trackTr=*tmp_btrackTr;
+    //~ worst_hit=worst_bhit;
+    //~ }
+    
+    
   //charge prunedhit
   prunedhit[0].clear();
   if(tmp_trackTr->GetMyChi2Red() > p_bmcon->GetChi2Redcut() && worst_hit>-1)
     prunedhit[0].push_back(worst_hit);  
+
+  delete tmp_atrackTr;
+  //~ delete tmp_btrackTr;
 
   if(p_bmcon->GetBMdebug()>10)
     cout<<"Chi2Fit::end"<<endl;  
@@ -1377,7 +1242,7 @@ void TABMactNtuTrack::ComputeDy(vector<Int_t> &singlehittrack, TABMntuTrackTr *&
 {
   Dy.ResizeTo(tmp_trackTr->GetNhit());
   for (Int_t ifilo=0;ifilo<singlehittrack.size();ifilo++){
-    p_hit = p_ntuhit->Hit(singlehittrack[ifilo]);
+    p_hit = p_nturaw->Hit(singlehittrack[ifilo]);
     Dy(ifilo) =p_hit->GetResidual(); 
   }
   
@@ -1392,7 +1257,7 @@ void TABMactNtuTrack::ComputeVV(vector<Int_t> &singlehittrack, TABMntuTrackTr *&
   VV.ResizeTo(tmp_trackTr->GetNhit(),tmp_trackTr->GetNhit());
   VV = 0.;
   for(Int_t ii = 0; ii<singlehittrack.size();ii++){
-    p_hit = p_ntuhit->Hit(ii);
+    p_hit = p_nturaw->Hit(ii);
     VV(ii,ii) =  1./p_hit->GetSigma()/p_hit->GetSigma();
   }
   return;
@@ -1408,7 +1273,7 @@ Double_t TABMactNtuTrack::ComputeChiQua(TVectorD &Dy, TMatrixD &VV) {
 
 
 //  numerical computation of the Df/Dalpha derivatives
-void TABMactNtuTrack::ComputeAA(vector<Int_t> &singlehittrack, TABMntuTrackTr *&tmp_trackTr, TVectorD &alpha, TMatrixD &AA){
+void TABMactNtuTrack::ComputeAA(vector<Int_t> &singlehittrack, TABMntuTrackTr *&tmp_trackTr, TVectorD &alpha, TMatrixD &AA, Bool_t sign){
     
   AA.ResizeTo(tmp_trackTr->GetNhit(),4);
   TVectorD parametri_moved(4);
@@ -1416,9 +1281,12 @@ void TABMactNtuTrack::ComputeAA(vector<Int_t> &singlehittrack, TABMntuTrackTr *&
 
   for(Int_t ii = 0; ii<4;ii++){
     parametri_moved = alpha;
-    if(parametri_moved(ii)!=0.)
-      parametri_moved(ii) *= (1.+p_bmcon->GetParMove());
-    else
+    if(parametri_moved(ii)!=0.){
+      if(sign)
+	parametri_moved(ii) *= (1.+p_bmcon->GetParMove());
+      else
+	parametri_moved(ii) *= (1.-p_bmcon->GetParMove());
+    }else
       parametri_moved(ii) = p_bmcon->GetParMove();
     
     if(p_bmcon->GetBMdebug()>10){
@@ -1437,24 +1305,33 @@ void TABMactNtuTrack::ComputeAA(vector<Int_t> &singlehittrack, TABMntuTrackTr *&
     
     //ComputeDataAll and charge AA
     for(Int_t j=0;j<singlehittrack.size();j++){
-      p_hit=p_ntuhit->Hit(singlehittrack[j]);
+      p_hit=p_nturaw->Hit(singlehittrack[j]);
       AA(j,ii)=(tmp_trackTr->FindRdrift(tmp_trackTr->GetR0(), tmp_trackTr->GetPvers(), p_hit->GetA0(), p_hit->GetWvers()) - p_hit->Dist())/(parametri_moved(ii)-alpha(ii));
       //~ cout<<"j="<<j<<" ii="<<ii<<"  AA="<<AA(j,ii)<<"  dist0="<<p_hit->Dist()<<"  newDist="<<tmp_trackTr->FindRdrift(tmp_trackTr->GetR0(), tmp_trackTr->GetPvers(), p_hit->GetA0(), p_hit->GetWvers())<<endl;
     }
   }
 
   tmp_trackTr->NewSet(alpha);
-  ComputeDataAll(tmp_trackTr);
+  ComputeDataAll(tmp_trackTr, singlehittrack);
 
   return;
 }
 
-void TABMactNtuTrack::ComputeDataAll(TABMntuTrackTr *&tmp_trackTr){
-  for(Int_t i=0;i<p_ntuhit->nhit;i++){
-    p_hit=p_ntuhit->Hit(i);
-    p_hit->SetResidual(p_hit->Dist()-tmp_trackTr->FindRdrift(tmp_trackTr->GetR0(), tmp_trackTr->GetPvers(), p_hit->GetA0(), p_hit->GetWvers()));
+void TABMactNtuTrack::ComputeDataAll(TABMntuTrackTr *&tmp_trackTr, vector<Int_t> &singlehittrack){
+  Double_t res, chi2red=0.;
+  for(Int_t i=0;i<singlehittrack.size();i++){
+    p_hit=p_nturaw->Hit(singlehittrack[i]);
+    res=p_hit->Dist()-tmp_trackTr->FindRdrift(tmp_trackTr->GetR0(), tmp_trackTr->GetPvers(), p_hit->GetA0(), p_hit->GetWvers());
+    p_hit->SetResidual(res);
+    //~ cout<<"res="<<res<<"  hit->View="<<p_hit->View()<<"  plane="<<p_hit->Plane()<<"  cell="<<p_hit->Cell()<<endl;
+    p_hit->SetChi2(res*res/p_hit->GetSigma()/p_hit->GetSigma());
+    chi2red+=p_hit->GetChi2();
     //~ cout<<"residui che calcolo ="<<p_hit->GetResidual()<<"  dist="<<p_hit->Dist()<<"  newdist="<<tmp_trackTr->FindRdrift(tmp_trackTr->GetR0(), tmp_trackTr->GetPvers(), p_hit->GetA0(), p_hit->GetWvers())<<endl;//provv
   }
+  if(singlehittrack.size()>4)
+    tmp_trackTr->SetMyChi2Red(chi2red/((Double_t)(singlehittrack.size()-4)));
+  else
+    tmp_trackTr->SetMyChi2Red(1000.);
   return;  
 }
 
@@ -1480,27 +1357,32 @@ Int_t TABMactNtuTrack::Mini(Int_t nmeas,TMatrixD &AA, TMatrixD &VV, TVectorD &Dy
 
 void TABMactNtuTrack::Update(TABMntuTrackTr *&tmp_trackTr, vector<Int_t> &singlehittrack, TVectorD Dy, TVectorD& alpha, TVectorD &Eta, TMatrixD &VV, Int_t &worst_hit) {
 
-  TVectorD Aus;
-  Int_t rows = Dy.GetNrows();
-  Aus.ResizeTo(rows);
+  //~ TVectorD Aus;
+  //~ Aus.ResizeTo(Dy.GetNrows());
 
   alpha = Eta + alpha;
   if(fabs(alpha(2))>1 || TMath::IsNaN(alpha(2))) alpha(2) = 0;
   if(fabs(alpha(3))>1 || TMath::IsNaN(alpha(3))) alpha(3) = 0;
   tmp_trackTr->NewSet(alpha);
-  ComputeDataAll(tmp_trackTr);
+  ComputeDataAll(tmp_trackTr, singlehittrack);
   ComputeDy(singlehittrack, tmp_trackTr, Dy);
-  Aus = VV*Dy;
-  tmp_trackTr->SetMyChi2Red((Dy*Aus)/(Double_t)(tmp_trackTr->GetNhit()-4.));
+  //~ Aus = VV*Dy;
+  //~ tmp_trackTr->SetMyChi2Red((Dy*Aus)/(Double_t)(tmp_trackTr->GetNhit()-4.));
 
   //set the hits chi2 contribution and the worst_hit
   Double_t worst_cont=-1.;
+  //provv
+  //~ Double_t tmp_double;
   for(int ii=0;ii<singlehittrack.size();ii++){
-    p_hit = p_ntuhit->Hit(singlehittrack[ii]);
-    p_hit->SetChi2(Dy(ii)*Aus(ii));
-    //~ cout<<"hit="<<ii<<"   chi2="<<Dy(ii)*Aus(ii)<<"  Dy="<<Dy(ii)<<"  Aus="<<Aus(ii)<<endl;
-    if(p_hit->GetChi2()>worst_cont)
+    p_hit = p_nturaw->Hit(singlehittrack[ii]);
+    //~ p_hit->SetChi2(Dy(ii)*Aus(ii)/((Double_t)(singlehittrack.size()-4.)));
+    //~ tmp_double=p_hit->Dist()-tmp_trackTr->FindRdrift(tmp_trackTr->GetR0(), tmp_trackTr->GetPvers(), p_hit->GetA0(), p_hit->GetWvers());
+    //provv
+    //~ cout<<"hit="<<ii<<"   chi2="<<Dy(ii)*Aus(ii)<<"   realchi2="<<tmp_double*tmp_double/p_hit->GetSigma()/p_hit->GetSigma()<<"  Dy="<<Dy(ii)<<"  Aus="<<Aus(ii)<<endl;
+    if(p_hit->GetChi2()>worst_cont){
+      worst_cont=p_hit->GetChi2();
       worst_hit=ii;
+    }
   }
 
   return;
@@ -1510,7 +1392,7 @@ void TABMactNtuTrack::Update(TABMntuTrackTr *&tmp_trackTr, vector<Int_t> &single
 //set the hits chi2 contribution
 void TABMactNtuTrack::SetChi2H(TVectorD &dy, TVectorD &au, vector<Int_t> &singlehittrack) {
   for(int ii=0;ii<singlehittrack.size();ii++){
-    p_hit = p_ntuhit->Hit(singlehittrack[ii]);
+    p_hit = p_nturaw->Hit(singlehittrack[ii]);
     p_hit->SetChi2(dy(ii)*au(ii));
   }
   return;
@@ -1534,7 +1416,7 @@ Int_t TABMactNtuTrack::SortFirstDoubleHits(TABMntuTrackTr *&tmp_trackTr, vector<
     else if(hitxplane[i].size()>1){
       mindist=10000000.;
       for(Int_t k=0;k<hitxplane[i].size();k++){
-        p_hit=p_ntuhit->Hit(hitxplane[i][k]);
+        p_hit=p_nturaw->Hit(hitxplane[i][k]);
         provv_dist=fabs(p_hit->Dist() - tmp_trackTr->FindRdrift(tmp_trackTr->GetR0(), tmp_trackTr->GetPvers(), p_hit->GetA0(), p_hit->GetWvers()));
         if(provv_dist<mindist){
           mindist=provv_dist;
@@ -1580,226 +1462,6 @@ Int_t TABMactNtuTrack::SortFirstDoubleHits(TABMntuTrackTr *&tmp_trackTr, vector<
 
 
 
-
-//***************************************************OLD TRACKING*********************************************
-
-
-//~ void TABMactNtuTrack::sortDoubleHits(TABMntuRaw *hp, TABMntuTrack* pntr, TABMparGeo* ppg, TABMntuTrackTr &aSrTr, TABMntuTrackTr &RefTr, int add[36], int ndou)
-//~ {
-  
-  //~ int nass(0), trackHits(0);
-  //~ Int_t cell, plane, view, stat, my_view;
-  //~ double diffX;
-  //~ double diffY;
-  
-  //~ Int_t i_nhit = hp->nhit;
-  
-  //~ //Create an improved track
-  //~ for(int j=0; j<i_nhit; j++) {
-    
-    //~ TABMntuHit* dp_hit = hp->Hit(j);
-    //~ cell = dp_hit->Cell();
-    //~ plane = dp_hit->Plane();
-    //~ view = dp_hit->View();
-    //~ view > 0 ? my_view = 0 : my_view = 1;
-    
-    //~ int w2 = ppg->GetID(cell);
-    //~ double z2=ppg->GetZ(w2,plane,my_view);
-    
-    //~ TVector3 bs=RefTr.PointAtLocalZ(z2);
-    
-    //~ for(int i=0; i<ndou; i++) { 
-      //~ if(j == add[i]) {
-	//~ double p2=ppg->GetY(w2,plane,my_view);
-	//~ if(my_view==0) {
-	  //~ diffY = p2 - bs.Y();	
-	  //~ if(TMath::Abs(diffY) < 0.8) {
-	    //~ dp_hit->SetTrkAss(1);
-	  //~ }
-	//~ }
-	
-	//~ if(my_view==1) {
-	  //~ double p2=ppg->GetX(w2,plane,my_view);
-	  //~ diffX = p2 - bs.X();	
-	  //~ if(TMath::Abs(diffX) < 0.8) {
-	    //~ dp_hit->SetTrkAss(1);
-	  //~ }
-	//~ }
-	
-      //~ } 
-    //~ }
-    
-    
-    //~ if(dp_hit->TrkAss()) {
-      //~ stat = aSrTr.AddHit(dp_hit, ppg);
-      //~ nass++; //Hits associated to the track candidate
-      //~ aSrTr.SetAssHits(nass);
-      //~ stat = aSrTr.ComputeDataWire(dp_hit,trackHits);
-      //~ trackHits++;
-    //~ }
-    
-  //~ }    
-  
-  
-  //~ stat = aSrTr.EstimateTrackPar(hp,ppg);
-  //~ stat = aSrTr.ComputeDataAll(hp);    
-  //~ //Chi2 fit
-  //~ pntr->Chi2Fit(hp,&aSrTr,3);
-  
-  //~ /*  Before that we have to choose which track is the best one*/
-  //~ Info("Action()","After Re-Fit:: %lf %lf %lf %lf",
-       //~ aSrTr.GetX0(),aSrTr.GetY0(),aSrTr.GetUx(),aSrTr.GetUy());
-  
-  //~ return;
-  
-//~ }
-
-//~ void TABMactNtuTrack::refitImprovedTrackTop (TABMntuRaw *hp, TABMntuTrack* pntr, TABMparGeo* ppg, int mulT, int mulS, double trchi2, TABMntuTrackTr &aRTr, int j)
-//~ {
-  
-  //~ aRTr.Clean(); 
-  
-  //~ Int_t view, stat, my_view, plane, k;
-  //~ Double_t hchi2;
-  //~ //Loop on all the wires
-  //~ int nass(0), trackHits(0);  
-  //~ Int_t i_nhit = hp->nhit;
-  
-  //~ // 	double min_trchi2 = aSrTr.GetChi2();
-  
-  //~ //Create an improved track
-  //~ for (Int_t i_h = 0; i_h < i_nhit; i_h++) {
-    //~ TABMntuHit* p_hit = hp->Hit(i_h);
-    
-    //~ // time ns and distances in cm
-    //~ view = p_hit->View();
-    //~ view > 0 ? my_view = 0 : my_view = 1;
-    
-    //~ //Remove hit that has to be removed.
-    
-    //~ if(!my_view && mulT>3) {
-      //~ plane = p_hit->Plane();
-      //~ hchi2 = p_hit->GetChi2();
-      
-      //~ /*    hchi2_sum_U += hchi2;*/
-      //~ // cout <<" nhit "<<i_h<<" chi2hit_U "<<hchi2<<" hchi2_sum_U " <<hchi2_sum_U<< " plane " << plane<<endl;
-      
-      //~ if(i_h==j && p_hit->TrkAss()) {
-	//~ k = i_h;
-	//~ p_hit->SetTrkAss(0); 
-	//~ mulT--;
-	//~ /*      cout <<i_h<<" i_h track "<< view <<" view "<<plane <<" plane "<< " MultT "<<mulT<<endl;*/
-	//~ plane = p_hit->Plane();
-	//~ // cout<<" nhit "<<i_h <<" plane out " << plane<<endl;
-      //~ } 
-      
-      //~ if (i_h<j && !my_view && k == i_h)
-	//~ {
-	  //~ // p_hit->SetTrkAss(1); 
-	  //~ // mulT++;
-	  //~ // 	cout <<" Set to 1 !"<<endl;
-	  //~ // 	cout<<" nhit "<<i_h <<" plane " << plane<<" MultT "<<mulT<<endl;
-	//~ }
-    //~ }    
-    
-    //~ //Avoid to use the planes where more than 1 hit is reconstructed
-    //~ if(p_hit->TrkAss()) {
-      //~ stat = aRTr.AddHit(p_hit, ppg);
-      //~ nass++; //Hits associated to the track candidate
-      //~ aRTr.SetAssHits(nass);
-      //~ stat = aRTr.ComputeDataWire(p_hit,trackHits);
-      //~ trackHits++;
-    //~ }
-  //~ }
-  
-  //~ stat = aRTr.EstimateTrackPar(hp,ppg);
-  //~ stat = aRTr.ComputeDataAll(hp);    
-  
-  //~ //Chi2 fit
-  //~ pntr->Chi2Fit(hp,&aRTr,3); 
-  
-  //~ //Before that we have to choose which track is the best one
-  //~ Info("Action()","After Re-Fit:: %lf %lf %lf %lf",
-       //~ aRTr.GetX0(),aRTr.GetY0(),aRTr.GetUx(),aRTr.GetUy());
-  
-  //~ return;
-  
-//~ }
-
-//~ void TABMactNtuTrack::refitImprovedTrackSide(TABMntuRaw *hp, TABMntuTrack* pntr, TABMparGeo* ppg, int mulT, int mulS, double trchi2, TABMntuTrackTr &aRTr, int j)
-//~ {
-  
-  //~ aRTr.Clean(); 
-  
-  //~ Int_t view, stat,  my_view, plane, k;
-  //~ Double_t hchi2;
-  //~ //Loop on all the wires
-  //~ int nass(0), trackHits(0);
-  
-  //~ /*double hchi2_sum_U (0), hchi2_sum_V(0), chi2_trk(0);*/
-  //~ Int_t i_nhit = hp->nhit;
-  
-  //~ // 	double min_trchi2 = aSrTr.GetChi2();
-  
-  //~ //Create an improved track
-  //~ for (Int_t i_h = 0; i_h < i_nhit; i_h++) {
-    //~ TABMntuHit* p_hit = hp->Hit(i_h);
-    
-    //~ // time ns and distances in cm
-    //~ view = p_hit->View();
-    //~ view > 0 ? my_view = 0 : my_view = 1;
-    
-    //~ //Remove hit that has to be removed.
-    
-    //~ if(my_view && mulS>3) {
-      
-      //~ plane = p_hit->Plane();
-      //~ hchi2 = p_hit->GetChi2();
-      
-      //~ /*hchi2_sum_U += hchi2; */
-      //~ // cout <<" nhit "<<i_h<<" chi2hit_U "<<hchi2<<" hchi2_sum_U " <<hchi2_sum_U<< " plane " << plane<<endl;
-      
-      //~ if(i_h==j && p_hit->TrkAss()) {
-	//~ k = i_h;
-	//~ p_hit->SetTrkAss(0); 
-	//~ mulS--;
-	//~ /*cout <<i_h<<" i_h track "<< view <<" view "<<my_view << " my_view "<<plane <<" plane "<<" MultS "<<mulS<<endl;*/
-	//~ plane = p_hit->Plane();
-	//~ // cout<<" nhit "<<i_h <<" plane out " << plane<<endl;
-      //~ } 
-      
-      //~ if (i_h<j && my_view && k == i_h)
-	//~ {
-	  //~ // p_hit->SetTrkAss(1); 
-	  //~ // mulT++;
-	  //~ // cout <<" Set to 1 !"<<endl;
-	  //~ // cout<<" nhit "<<i_h <<" plane " << plane<<" MultS "<<mulS<<endl;
-	//~ }
-    //~ }    
-    
-    //~ //Avoid to use the planes where more than 1 hit is reconstructed
-    //~ if(p_hit->TrkAss()) {
-      //~ stat = aRTr.AddHit(p_hit, ppg);
-      //~ nass++; //Hits associated to the track candidate
-      //~ aRTr.SetAssHits(nass);
-      //~ stat = aRTr.ComputeDataWire(p_hit,trackHits);
-      //~ trackHits++;
-    //~ }
-  //~ }
-  
-  //~ stat = aRTr.EstimateTrackPar(hp,ppg);
-  //~ stat = aRTr.ComputeDataAll(hp);    
-  
-  //~ //Chi2 fit
-  //~ pntr->Chi2Fit(hp,&aRTr,3); 
-  
-  //~ //Before that we have to choose which track is the best one
-  //~ Info("Action()","After Re-Fit:: %lf %lf %lf %lf",
-       //~ aRTr.GetX0(),aRTr.GetY0(),aRTr.GetUx(),aRTr.GetUy());
-  
-  //~ return;
-  
-//~ }
 
 
 

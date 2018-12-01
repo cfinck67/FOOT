@@ -14,17 +14,16 @@ RADDECAY          2.                  1.
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * @@@START GENERATED, DO NOT MODIFY:GENERAL@@@ *********************************
 PHYSICS           1.                                                  COALESCE
-BEAM       -0.200000       0.0       0.0 -0.480000 -0.480000        1.PROTON
-*HI-PROPE          8.       16.
-BEAMPOS          0.0       0.0      -90.       0.0       0.0
+BEAM       -0.080000       0.0       0.0      -5.0      -5.0        1.PROTON
+BEAMPOS          0.0       0.0     -139.       0.0       0.0
 EMFCUT           -1.        1.               BLACK  @LASTREG        1.
 EMFCUT           -1.        1.        1.  BLCKHOLE  @LASTMAT        1.PROD-CUT
 DELTARAY          1.                      BLCKHOLE  @LASTMAT        1.
 PAIRBREM         -3.                      BLCKHOLE  @LASTMAT
-ROT-DEFI        100.                 0.0 -0.200000 -0.500000       70.BM_rot
+ROT-DEFI        100.                 0.0       0.0       0.0       14.BM_rot
 ROT-DEFI        200.                 0.0                              BM_rot
 ROT-DEFI        300.                 0.0                              BM_rot
-ROT-DEFI         0.0                      0.200000  0.500000      -70.BM_rot
+ROT-DEFI         0.0                           0.0       0.0      -14.BM_rot
 * @@@END GENERATED:GENERAL@@@ **************************************************
 * ******************************************************************************
 *                          GEOMETRY                                            *
@@ -168,7 +167,7 @@ COMPOUND         -4.       SiC      -96.       AIR                    SiCFoam
 * @@@START GENERATED, DO NOT MODIFY:MATERIAL&MAGFIELD@@@ ***********************
 ASSIGNMA    BLCKHOLE     BLACK
 ASSIGNMA         AIR       AIR
-ASSIGNMA    BLCKHOLE       STC
+ASSIGNMA      EJ-232       STC
 ASSIGNMA    ALUMINUM   BMN_SHI
 ASSIGNMA       Mylar  BMN_MYL0
 ASSIGNMA       Mylar  BMN_MYL1
@@ -177,20 +176,16 @@ ASSIGNMA      Ar-CO2  BMN_C100  BMN_C117        1.
 ASSIGNMA      Ar-CO2   BMN_GAS
 ASSIGNMA    ALUMINUM   BMN_FWI
 ASSIGNMA    TUNGSTEN   BMN_SWI
-ASSIGNMA    BLCKHOLE    TARGET
-ASSIGNMA    BLCKHOLE     VTXP0     VTXS3        1.
-ASSIGNMA    BLCKHOLE     ITRP2    ITRP73        1.
-ASSIGNMA    BLCKHOLE     ITRP0    ITRP75        1.
-ASSIGNMA    BLCKHOLE     ITRP1    ITRP74        1.
-ASSIGNMA    BLCKHOLE    ITRP13   ITRS313        1.
-ASSIGNMA    BLCKHOLE     ITRP6    ITRP69        1.
+ASSIGNMA    BLCKHOLE    TARGET                            1.
+ASSIGNMA    BLCKHOLE     VTXP0     VTXS3        1.        1.
+ASSIGNMA    BLCKHOLE     ITRP0   ITRS313        1.
 ASSIGNMA    BLCKHOLE   MAG_PM0
 ASSIGNMA    BLCKHOLE   MAG_CV0
 ASSIGNMA    BLCKHOLE   MAG_PM1
 ASSIGNMA    BLCKHOLE   MAG_CV1
-ASSIGNMA    BLCKHOLE   MAG_AIR
-ASSIGNMA     SILICON     MSDS0     MSDS1        1.
-ASSIGNMA    BLCKHOLE       BOX
+ASSIGNMA         AIR   MAG_AIR                            1.
+ASSIGNMA    BLCKHOLE     MSDS0     MSDS1        1.
+ASSIGNMA         AIR       BOX
 ASSIGNMA    BLCKHOLE    SCN000    SCN121        1.
 ASSIGNMA    BLCKHOLE    CAL000    CAL359        1.
 MGNFIELD    0.100000  0.000010                 0.0       0.0       0.0

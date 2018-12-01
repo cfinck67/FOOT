@@ -242,9 +242,9 @@ End
 
 # Geometry Information
 Geometry:
-	Frame.bsplit: 0.5
+	Frame.bsplit: 0.99
 	Frame.tsplit: 0.5
-	Frame.vsplit: 0.5
+	Frame.vsplit: 0.01
 End
 
 # Geometry plot "GeoViewer Red plot"
@@ -255,7 +255,7 @@ Plot: Red
 	basisv: 0 1 0
 	boundaries: 1
 	coord: X-Y
-	extends: 100 51.5152
+	extends: 100 75
 	labels: 1
 	layer: Media
 	origin: 0 0 0
@@ -271,10 +271,10 @@ Plot: Green
 	basisv: 1 0 0
 	boundaries: 1
 	coord: Z-X
-	extends: 7.78866 4.01995
+	extends: 100 75
 	labels: 1
 	layer: Media
-	origin: -9.84628 0 -88.0188
+	origin: 0 0 0
 	subtype: Material
 	title: GeoViewer Green plot
 End
@@ -287,10 +287,10 @@ Plot: Blue
 	basisv: 0 1 0
 	boundaries: 1
 	coord: Z-Y
-	extends: 100 51.5152
+	extends: 83.3333 62.5
 	labels: 1
 	layer: Media
-	origin: 0 -5.99597 -85.924
+	origin: 0 2.77966 -27.1223
 	subtype: Material
 	title: GeoViewer Blue plot
 End
@@ -303,7 +303,7 @@ Plot: Magenta
 	basisv: 0 1 0
 	boundaries: 1
 	coord: X-Y
-	extends: 100 51.6129
+	extends: 100 6288.89
 	labels: 1
 	layer: Media
 	origin: 0 0 0

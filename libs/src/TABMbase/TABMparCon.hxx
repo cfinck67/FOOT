@@ -29,15 +29,13 @@ class TABMparCon : public TAGpara {
     virtual         ~TABMparCon();
 
     //setters
-    void SetVDrift(Double_t v){vdrift=v; return;};
     void SetBMdebug(Int_t deb_in){bm_debug=deb_in; return;};
     void SetIsMC(Bool_t ism){m_isMC=ism; return;};
     void SetRdriftCut(Double_t Rdcut){rdrift_cut=Rdcut; return;};
     void SetEnxcellcut(Double_t Encut){enxcell_cut=Encut; return;};
     
     //getters
-    Bool_t     IsMC(){return m_isMC;};
-    Double_t GetVDrift(){return vdrift;};
+    Bool_t   IsMC(){return m_isMC;};
     Double_t GetRdriftCut(){return rdrift_cut;};
     Double_t GetEnxcellcut(){return enxcell_cut;};
     Double_t GetChi2Redcut(){return chi2red_cut;};
@@ -61,6 +59,12 @@ class TABMparCon : public TAGpara {
     Int_t GetCalibro(){return calibro;};
     Int_t GetNumIte(){return num_ite;};
     Double_t GetParMove(){return par_move;};
+    Int_t GetSmearhits(){return smearhits;};
+    Double_t GetFakehitsMean(){return fakehits_mean;};
+    Double_t GetFakehitsSigma(){return fakehits_sigma;};
+    Double_t GetMCEffMean(){return mceff_mean;};
+    Double_t GetMCEffSigma(){return mceff_sigma;};
+    Int_t GetSmearrdrift(){return smearrdrift;};
     //~ Double_t GetXShift(){return meas_shift.X();};
     //~ Double_t GetYShift(){return meas_shift.Y();};
     //~ Double_t GetZShift(){return meas_shift.Z();};
@@ -71,7 +75,7 @@ class TABMparCon : public TAGpara {
 
     //T0 stuff
     void        PrintT0s(TString &input_file_name, Long64_t);
-    void        loadT0s(Long64_t); 
+    Bool_t      loadT0s(Long64_t); 
     void        SetT0s(vector<Double_t> t0s);
     void        SetT0(Int_t cha, Double_t t0in);   
     const Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+((view==-1) ? 1:0)*3+plane*6);};
@@ -90,6 +94,8 @@ class TABMparCon : public TAGpara {
     //strel stuff
     void LoadSTrel(TString sF);
     Double_t FirstSTrel(Double_t tdrift);
+    Double_t InverseStrel(Double_t rdrift);
+    Double_t FirstSTrelMC(Double_t tdrift, Int_t mc_switch);    
     //~ Double_t STrelCorr(double time, int ic, int ip, int iv);//old, included in FirstSTrel
     //~ double STrel_Delta1(double time);//old, included in FirstSTrel
     //~ double STrel_Delta2(double time);//old, included in FirstSTrel
@@ -101,7 +107,7 @@ class TABMparCon : public TAGpara {
     //~ void ConfigureTrkCalib();
   
     void LoadReso(TString sF);
-    double ResoEval(Double_t dist);
+    Double_t ResoEval(Double_t dist);
 
     Bool_t FromFile(const TString& name);
 
@@ -114,7 +120,6 @@ class TABMparCon : public TAGpara {
   private:
 
     Bool_t m_isMC;
-    Double_t vdrift;
     Double_t rdrift_cut;
     Double_t enxcell_cut;
     Double_t chi2red_cut;
@@ -146,6 +151,12 @@ class TABMparCon : public TAGpara {
     vector<Double_t> adc_ped_rms;//pedestals rms
     Int_t    num_ite;//number of iteration for the fit (only for FIRST fit)
     Double_t par_move;//change of the parameters for the FIRST fit
+    Int_t    smearhits;//0=no smearhits on MC, 1=smear the number of hits
+    Int_t    smearrdrift;//0=no smear rdrift, 1=gauss truncated 1sigma, 2=gaus 2sigma, 3=gaus 3sigma, 4=gaus no truncated, 5=uniform  
+    Double_t fakehits_mean;//mean for the total number of hits (only MC)
+    Double_t fakehits_sigma;//sigma for the total number of hits (only MC)
+    Double_t mceff_mean;//mean for the number of primary hits (only MC)
+    Double_t mceff_sigma;//sigma for the number of primary hits (only MC)
 
     //~ TF1* f_mypol;
     //~ TF1* f_mypol2;

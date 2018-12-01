@@ -54,6 +54,7 @@ TABMntuTrackTr::TABMntuTrackTr():
   mylar2_pos.SetXYZ(-100.,-100.,-100.);
   Pvers.SetXYZ(-100.,-100.,-100.);
   R0.SetXYZ(-100.,-100.,-100.);
+  nite=0;
   //~ Double_t trackparval[4]={-1000.,-1000.,-1000.,-1000.,};
   //~ trackpar.ResizeTo(BM_trackpar);
   //~ trackpar.Zero();
@@ -136,6 +137,7 @@ void TABMntuTrackTr::Clean()
   Pvers.SetXYZ(-100.,-100.,-100.);
   R0.SetXYZ(-100.,-100.,-100.);
   prefit_status=-10;
+  nite=0;
   //~ Double_t val=-1000.;
   //~ trackpar.SetElements(val);
   //~ trackpar.Print();
@@ -166,8 +168,10 @@ TABMntuTrackTr::TABMntuTrackTr(const TABMntuTrackTr &tr_in){
   prefit_status=tr_in.prefit_status;
   R0=tr_in.R0;
   Pvers=tr_in.Pvers;
-  
+  nite=tr_in.nite;
 }
+
+
 
 //~ TABMntuTrackTr* TABMntuTrack::NewTrack(TABMntuTrackTr& trk)
 //~ {
@@ -269,10 +273,12 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
   }
     
   MaxRdriftErr=rdrift_err_max;
-  if(hit_num-5>0)//DA SISTEMARE!!!
+  if(hit_num>4)
     mychi2Red=mychi2/(Double_t)(hit_num-4.);
-  else
-    cout<<"TABMntuTrack::CalculateFitPar::WARNING: you have 0 hit!!!!!!! cannot set mychi2Red!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+  else{
+    cout<<"TABMntuTrack::CalculateFitPar::WARNING: you have less than 4 hit!! cannot set mychi2Red!!!"<<endl;
+    mychi2Red=1000.;
+    }
     
   if(p_bmcon->GetBMdebug()>3)
     cout<<"TABMntuTrack::CalculateFitPar:: hit_num="<<hit_num<<"  mychi2="<<mychi2<<"  mychi2Red="<<mychi2Red<<"  ndf="<<fitTrack->getFitStatus()->getNdf()<<endl;
@@ -448,11 +454,10 @@ Double_t TABMntuTrackTr::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVe
   else  //if they go parallel
     rdrift = sqrt(abs( D0.Mag2() - D0W*D0W)); 
 
-  if(rdrift<0)
-    cout<<"WARNING!!!!! SOMETHING IS WRONG, YOU HAVE A NEGATIVE RDRIFT!!!!!!!!! look at TABMntuTrack::FindRdrift    rdrift="<<rdrift<<endl;
   //~ if(rdrift>0.945) //for the fitted tracks it is possible to have a rdrift bigger than the cell size
     //~ cout<<"WARNING!!!!! SOMETHING IS WRONG, YOU HAVE A TOO BIG RDRIFT!!!!!!!!! look at TABMntuTrack::FindRdrift   rdrift="<<rdrift<<endl;
   if(rdrift<0){
+    cout<<"WARNING!!!!! SOMETHING IS WRONG, YOU HAVE A NEGATIVE RDRIFT!!!!!!!!! look at TABMntuTrack::FindRdrift    rdrift="<<rdrift<<endl;    
     cout<<"pos=("<<pos.X()<<","<<pos.Y()<<","<<pos.Z()<<")  dir=("<<dir.X()<<","<<dir.Y()<<","<<dir.Z()<<")"<<endl;
     cout<<"A0=("<<A0.X()<<","<<A0.Y()<<","<<A0.Z()<<")  Wvers=("<<Wvers.X()<<","<<Wvers.Y()<<","<<Wvers.Z()<<")"<<endl;
     }

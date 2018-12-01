@@ -24,6 +24,7 @@
 #include "TObjString.h"
 #include "TNamed.h"
 
+//~ #include "foot.reg"
 #include "TAGroot.hxx"
 #include "TAGview.hxx"
 #include "GlobalPar.hxx"
@@ -53,28 +54,41 @@ BmBooter();
 ~BmBooter() {};
 
 public:
-  void Initialize( TString instr_in, Bool_t isdata_in);
-  void Process();
-  void Finalize();
   
+  //initialize
+  void Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evStr_in);
+  void evaluateT0();//evaluate the T0 from datafile
+  
+  //process
+  void Process();
   void FillDataBeamMonitor();
-  void PrintSTrel(); //print st relations in RecoHistos
+  void Projecttracktr(); //to save the tracktr2dprojects matrix
+  void ResidualDistance();//to save the residual_distance matrix
+  void MCxEvent();// to save the mcxevent matrix
+  
+  //read data event
+  Bool_t read_event(Bool_t);//read an event from the datafile and charge bmstruct, it returns true if it read the event, false if the file is end
+  Bool_t drop_event();//read an event from datafile and discharge it, it return false if the file is end
+  void monitorQDC(vector<Int_t>& adc792_words);
+  void clear_bmstruct(Bool_t forced);  
+  void PrintBMstruct();// to print the content of bmstruct  
+  
+  //finalize
+  void Finalize();
+  void PrintSTrel(); //print the st relations in RecoHistos
+  void PrintFromControlPlots();//print graphs derived from the controlplots
   void PrintEFFpp(); //print the efficiency evaluation with the pivot-probe method
   void PrintProjections();// print the projected fitted tracks saved in tracktr2dprojects
   void PrintResDist();//print the residual_distance matrix
+  void PrintMCxEvent();//print the mcxevent matrix
   void Allign_estimate();  //estimate the bm allignment with the residual methods and print the results  
-  void evaluateT0();//evaluate the T0 from datafile
-  Bool_t drop_event();//read event from datafile and discharge it, it return false if the file is end
-  void clear_bmstruct(Bool_t forced);  
-  void PrintBMstruct();// to print the content of bmstruct  
-  Bool_t read_event(Bool_t);//read event from datafile and charge bmstruct, if status=true it means that this event contain some error, it return true if read the event, false if the file is end
   void evaluate_cell_occupy(); //fill the cell_occupy matrix
-  void monitorQDC(vector<Int_t>& adc792_words);
   void efficiency_pivot_probe();//evaluation of the efficiency with the eff_pp matrix (pivot-probe method), made with the cell_occupy matrix
   void efficiency_paoloni();//evaluation of the efficiency with the "Paoloni" method 
   void efficiency_fittedplane();//evaluation of the efficiency with the "Paoloni" method on fitted tracks
-  void Projecttracktr(); //to save the tracktr2dprojects matrix
-  void ResidualDistance();//to save the residual_distance matrix
+  void efficiency_fittedtracks();//evaluate the efficiency on the fitted tracks
+  void fit_histos(); //to fit the Recohistos output
+  
 
   //getters
   Long64_t GetTotnumev(){return tot_num_ev;};
@@ -114,6 +128,7 @@ private:
   //~ TABMvieTrackFOOT* pbmh_view;
   TAGpadGroup* pg;
   ControlPlotsRepository* m_controlPlotter;
+  EVENT_STRUCT* evStr;  //MC event struct
   string bm_outputdir;   //FOOTRES/BeamMonitor
   string plot_name;
   vector<vector<Int_t>> cell_occupy;// occupancy of the cell for a given event, first index is the cellid, the value stored is the position of the hit in the bmnturaw vector
@@ -133,6 +148,7 @@ private:
   //provv!!!!!! this is a very dummy method, to be used provv!!!!
   vector<vector<Double_t>> tracktr2dprojects;//projections of tracks: 0=mylar1.X; 1=mylar1.Y; 2=mylar2.X; 3=mylar2.X; 4=R0.X; 5=R0.Y
   vector<vector<Double_t>> residual_distance;//if(isSelected): 0=cell_index, 1=distance, 2=drift_time, 3=residual;  otherwise  0=cellindex, 1=drift_time,
+  vector<vector<Double_t>> mcxevent;//data from mc: 0=mylar1.X, 1=mylar1.Y, 2=mylar2.X, 3=mylar2.Y
 };
 
 #endif

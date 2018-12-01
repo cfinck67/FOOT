@@ -30,11 +30,7 @@ class TABMactNtuRaw : public TAGaction {
 				 TAGparaDsc* p_geomap=0, 
 				 TAGparaDsc* p_parcon=0);
     virtual         ~TABMactNtuRaw();
-    void     cleanup();
     
-    //~ vector<double> retrieve_V();
-    //~ vector<double> retrieve_U();
-    //~ void CalcEffi(double nume, double deno, double &eff, double &erro);
     virtual Bool_t  Action();
 
     ClassDef(TABMactNtuRaw,0)
@@ -47,11 +43,6 @@ class TABMactNtuRaw : public TAGaction {
     TAGparaDsc*     fpGeoMap;		    // geometry para dsc
     TAGparaDsc*     fpParCon;		    // BM config params.
 
-    //~ double m_fittedVO;
-    //~ double m_fittedVE;
-    //~ double m_fittedUO, m_fittedUE;
-    //~ double m_missedX[6], m_missedY[6];
-    //~ vector<double> eff_V, eff_U;
 };
 
 #endif

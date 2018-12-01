@@ -32,7 +32,6 @@ ClassImp(TABMparCon);
 TABMparCon::TABMparCon() {
 
   //~ m_isMC = false;
-  //~ vdrift = 1./400;
   //~ rdrift_cut = 10.;
   //~ enxcell_cut = 0.00000001;
   //~ chi2red_cut = 5.;
@@ -85,14 +84,6 @@ Bool_t TABMparCon::FromFile(const TString& name) {
   while (incF.getline(bufConf, 200, '\n')) {    
     if(strchr(bufConf,'!')) {
       //      Info("FromFile()","Skip comment line:: %s",bufConf);
-    }else if(strchr(bufConf,'V')) {
-      sscanf(bufConf, "V %lf",&myArg1);
-      if(myArg1>0 && myArg1<1) 
-        vdrift = myArg1;
-      else {
-	      Error(""," Plane Map Error:: check config file!! (V)");
-	      return kTRUE;
-        }
     }else if(strchr(bufConf,'R')) {
       sscanf(bufConf, "R %lf",&myArg1);
       if(myArg1>0) 
@@ -128,7 +119,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         }
     }else if(strchr(bufConf,'H')) {
       sscanf(bufConf, "H %d %d",&myArgInt, &myArgIntmax);
-      if(myArgInt>=0 && myArgIntmax>0 && myArgIntmax<37 && myArgIntmax>=myArgInt){ 
+      if(myArgInt>=0 && myArgIntmax>0 && myArgIntmax>=myArgInt){ 
         minnhit_cut = myArgInt;
         maxnhit_cut = myArgIntmax;
       }else {
@@ -161,7 +152,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         }
     }else if(strchr(bufConf,'Z')) {
       sscanf(bufConf, "Z %d %d %s",&myArgInt, &myArgIntmax, tmp_char);
-      if((myArgInt==0 || myArgInt==1) && (myArgIntmax==1 || myArgIntmax==0)){
+      if((myArgInt==0 || myArgInt==1) && (myArgIntmax==1 || myArgIntmax==0 || myArgIntmax==2)){
         manageT0BM = myArgInt;
         t0_switch=myArgIntmax;
         bmt0file=tmp_char;
@@ -186,15 +177,19 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      Error(""," Plane Map Error:: check config file!! (A)");
 	      return kTRUE;
         }
-    //~ }else if(strchr(bufConf,'M')) {
-      //~ sscanf(bufConf, "M %d %s",&myArgInt, tmp_char);
-      //~ if(myArgInt==0 || myArgInt==1){
-        //~ m_isMC = myArgInt;
-        //~ datafile_name=tmp_char;
-      //~ }else {
-	      //~ Error(""," Plane Map Error:: check config file!! (M)");
-	      //~ return kTRUE;
-        //~ }
+    }else if(strchr(bufConf,'M')) {
+      sscanf(bufConf, "M %d %lf %lf %lf %lf %d",&myArgInt, &myArg1, &myArg2, &myArg3, &myArg4, &myArgIntmax);
+      if((myArgInt==0 || myArgInt==1) && myArg1>=0 && myArg2>=0 && myArg3>=0 && myArg4>=0 && myArgIntmax>=0 && myArgIntmax<6){
+        smearhits = myArgInt;
+        fakehits_mean=myArg1;
+        fakehits_sigma=myArg2;
+        mceff_mean=myArg3;
+        mceff_sigma=myArg4;
+        smearrdrift=myArgIntmax;
+      }else {
+	      Error(""," Plane Map Error:: check config file!! (M)");
+	      return kTRUE;
+        }
     }else if(strchr(bufConf,'T')) {
       sscanf(bufConf, "T %d %lf",&myArgInt, &myArg1);
       if(myArgInt>0 || myArg1>0.){
@@ -254,7 +249,7 @@ void TABMparCon::PrintT0s(TString &input_file_name, Long64_t tot_num_ev){
   ofstream outfile;
   TString name="./config/"+bmt0file;
   outfile.open(name.Data(),ios::out);
-  outfile<<"calculated_from: "<<input_file_name.Data()<<"    number_of_events= "<<tot_num_ev<<endl;
+  outfile<<"calculated_from: "<<input_file_name.Data()<<"    number_of_events= "<<tot_num_ev<<"  t0_switch= "<<t0_switch<<endl;
   for(Int_t i=0;i<36;i++)
     outfile<<"cellid= "<<i<<"  T0_time= "<<v_t0s[i]<<endl;
   outfile.close();
@@ -262,20 +257,25 @@ void TABMparCon::PrintT0s(TString &input_file_name, Long64_t tot_num_ev){
 }
 
 
-void TABMparCon::loadT0s(Long64_t tot_num_ev) {
+Bool_t TABMparCon::loadT0s(Long64_t tot_num_ev) {
   ifstream infile;
   TString name="./config/"+bmt0file;
   infile.open(name.Data(),ios::in);
-  Int_t file_evnum;
+  Int_t file_evnum, old_t0switch;
   char tmp_char[200], dataset[200];
   vector<Double_t> fileT0(36,-10000.);
   Int_t tmp_int=-1, status=0;  
   if(infile.is_open() && infile.good())
-    infile>>tmp_char>>dataset>>tmp_char>>file_evnum;
+    infile>>tmp_char>>dataset>>tmp_char>>file_evnum>>tmp_char>>old_t0switch;
   else
     status=1;
+
   if(file_evnum<tot_num_ev)
-    cout<<"TABMparCon::loadT0s::WARNING!!!!!!!!!!!!!!!!!!!!! you load a T0 file calculated from "<<dataset<<" which have only "<<file_evnum<<" events, while the input file have a larger number of events="<<tot_num_ev<<endl;  
+    cout<<"TABMparCon::loadT0s::WARNING!!!!!! you load a T0 file calculated from "<<dataset<<" which have only "<<file_evnum<<" events, while the input file have a larger number of events="<<tot_num_ev<<endl;  
+  if(old_t0switch!=t0_switch){
+    cout<<"TABMparCon::loadT0s::ERROR!!!!!! you load a T0 file calculated from "<<dataset<<" in which the t0 were calculated with a t0_switch="<<old_t0switch<<", now your t0_switch is "<<t0_switch<<endl;
+    status=1;  
+  }
   for(Int_t i=0;i<36;i++)
     if(!infile.eof() && tmp_int==i-1)
       infile>>tmp_char>>tmp_int>>tmp_char>>fileT0[i];
@@ -286,8 +286,10 @@ void TABMparCon::loadT0s(Long64_t tot_num_ev) {
   infile.close();
   if(status==0)
     v_t0s=fileT0;
-  else
-    cout<<"TABMparCon::loadT0s::ERROR, the T0 are calculated from the input file directly"<<endl;
+  else{
+    cout<<"TABMparCon::loadT0s::ERROR, the T0 can not be charged"<<endl;
+    return kTRUE;
+  }
 
   //check if the T0 are ok 
   for(Int_t i=0;i<36;i++)
@@ -296,40 +298,7 @@ void TABMparCon::loadT0s(Long64_t tot_num_ev) {
     else if(v_t0s[i]==-20000)
       cout<<"WARNING IN BmBooter::EvaluateT0! channel with too few elements to evaluate T0: tdc_cha=i="<<i<<" T0 for this channel is set to -20000"<<endl;
 
-  //~ TString name_exp = name;
-  //~ gSystem->ExpandPathName(name_exp);
-
-  //~ char bufConf[1024];
-  //~ int myArg4(0); 
-  //~ int myArg2(0); 
-  //~ int myArg3(0); 
-  //~ double myArg1(0);
-
-  //~ ifstream incF;
-  //~ incF.open(name_exp.Data());
-  //~ if (!incF) {
-    //~ Error("FromFile()", "failed to open file '%s'", name_exp.Data());
-    //~ return;
-  //~ }
-
-  //~ while (incF.getline(bufConf, 200, '\n')) {
-    //~ if(strchr(bufConf,'!')) {
-      //~ //      Info("FromFile()","Skip comment line:: %s",bufConf);
-    //~ } else if(strchr(bufConf,'#')) {
-      //~ sscanf(bufConf, "#%lf %d %d %d",&myArg1,&myArg2,&myArg3,&myArg4);
-      //~ if((myArg2== -1 || myArg2==1) && (myArg3>=0 && myArg3<=5) && (myArg4>=0 || myArg4<=2)) {
-        //~ int tmpv = myArg2;
-        //~ if(myArg2<0)tmpv = 0;//per shift delle view che in file sono -1 e 1, mentre qua serve 0 e 1
-        //~ int chidx = myArg4+myArg3*3+tmpv*18;
-        //~ v_t0s.at(chidx) = myArg1;
-      //~ } else {
-        //~ Error(""," Plane Map Error:: check config file!!");
-        //~ return;
-      //~ }
-    //~ }
-  //~ }
-
-  return;
+  return kFALSE;
 }
 
 
@@ -455,7 +424,6 @@ void TABMparCon::CoutADCped(){
 void TABMparCon::Clear(Option_t*)
 {
   m_isMC = false;
-  vdrift = 1./400;
   rdrift_cut = 10.;
   enxcell_cut = 0.00000001;
   chi2red_cut = 5.;
@@ -484,7 +452,6 @@ void TABMparCon::Clear(Option_t*)
 void TABMparCon::ToStream(ostream& os, Option_t*) const
 {
   os << "TABMparCon " << GetName() << endl;
-  os << "vdrift:: " <<vdrift<< endl;
 
   return;
 }
@@ -533,14 +500,53 @@ Double_t TABMparCon::FirstSTrel(Double_t tdrift){
     return 0.0087776*tdrift-6.41845e-05*tdrift*tdrift+2.4946e-07*tdrift*tdrift*tdrift-3.48422e-10*tdrift*tdrift*tdrift*tdrift;  
   }else if(strel_switch==4){//HIT 2014
     return 0.0092254*tdrift-7.1192e-5*tdrift*tdrift+3.01951e-7*tdrift*tdrift*tdrift-4.66646e-10*tdrift*tdrift*tdrift*tdrift;  
-  }
-  
+  }else if (strel_switch==5)
+    return (0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift)*0.8/0.78;     
+      
   //FIRST strel embedded in old Framework
-  if(tdrift>0)
+  if(tdrift>=0)
     return 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift; 
   
   return 0.03289 + 0.008*tdrift;
 }
+
+
+Double_t TABMparCon::InverseStrel(Double_t rdrift){
+  //~ if(strel_switch==5){
+    TF1 f1("f1","0.8/0.78*(0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 320.);
+    return f1.GetX(rdrift);
+  //~ }else if(strel_switch==0){
+    //~ TF1 f1("f1","0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x", 0., 320.);
+    //~ return f1.GetX(rdrift);
+  //~ }else if(strel_switch==4){
+    //~ TF1 f1("f1","0.0092254*x-7.1192e-5*x*x+3.01951e-7*x*x*x-4.66646e-10*x*x*x*x", 0., 320.);
+    //~ return f1.GetX(rdrift);
+  //~ }
+  
+  
+  return 0.;
+}
+
+
+Double_t TABMparCon::FirstSTrelMC(Double_t tdrift, Int_t mc_switch){
+  if(mc_switch==1){ //garfield strel
+    return 0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
+  }else if(mc_switch==2){//
+    return 0.00972903*tdrift-8.21676e-05*tdrift*tdrift+3.66446e-07*tdrift*tdrift*tdrift-5.85882e-10*tdrift*tdrift*tdrift*tdrift;  
+  }else if(mc_switch==3){//
+    return 0.0087776*tdrift-6.41845e-05*tdrift*tdrift+2.4946e-07*tdrift*tdrift*tdrift-3.48422e-10*tdrift*tdrift*tdrift*tdrift;  
+  }else if(mc_switch==4){//HIT 2014
+    return 0.0092254*tdrift-7.1192e-5*tdrift*tdrift+3.01951e-7*tdrift*tdrift*tdrift-4.66646e-10*tdrift*tdrift*tdrift*tdrift;  
+  }else if (mc_switch==5)
+    return (0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift)*0.8/0.78; 
+
+  //FIRST strel embedded in old Framework
+  if(tdrift>=0)
+    return 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift; 
+  
+  return 0.03289 + 0.008*tdrift;
+}
+
 
 
 void TABMparCon::LoadReso(TString sF) {
@@ -556,10 +562,10 @@ void TABMparCon::LoadReso(TString sF) {
   
 }
 
-double TABMparCon::ResoEval(Double_t dist) {
-
-  double sigma(0.12);
-  int mybin(-1);
+Double_t TABMparCon::ResoEval(Double_t dist) {
+  //~ return 0.015;
+  Double_t sigma;
+  Int_t mybin(-1);
   if(my_hreso) {
     mybin = my_hreso->FindBin(dist);
     sigma = my_hreso->GetBinContent(mybin)/10000;

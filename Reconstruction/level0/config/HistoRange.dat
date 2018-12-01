@@ -1,2 +1,3 @@
 //questo dovrebbe essere un commento
 BM_output__raw_cell*  -1. 10.
+BM_output__rawsel_residual*  -0.1 0.1

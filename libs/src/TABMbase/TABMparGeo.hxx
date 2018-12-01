@@ -34,6 +34,7 @@ public:
   void InitGeo();
   void CreateLocalBMGeo();//create an output file LocalBM.root with the geometry of the BM
   void CoutWirePosDir();
+  void SetA0Wvers(Int_t cellid, TVector3 &A0, TVector3 &Wvers);//for a given cellid, set A0 and Wvers
   
   //fluka's stuff
   string PrintBodies();
@@ -50,6 +51,7 @@ public:
   TRotation GetRotationToGlobal()                   {return *m_rotation;};
   TRotation GetRotationToLocal()                    {return m_rotation->Inverse();};
   void Global2Local(TVector3* glob)                 {*glob=*glob-m_center;glob->Transform(m_rotation->Inverse()); return;};  
+  void Global2Local(TVector3& glob)                 {glob=glob-m_center;glob.Transform(m_rotation->Inverse()); return;};  
   void Global2Local_TranslationOnly(TVector3* glob) {*glob = *glob - m_center;return;};
   void Global2Local_RotationOnly(TVector3* glob)    {glob->Transform(m_rotation->Inverse());return;}
   void Local2Global(TVector3* loc)                  {*loc = *loc + m_center;loc->Transform(*m_rotation);return;};    
