@@ -58,6 +58,8 @@
 #pragma link C++ class TAGtimestamp-;
 #pragma link C++ function operator-(const TAGtimestamp&,const TAGtimestamp&);
 
+#pragma link C++ class TAGmaterials+;
+
 #pragma link C++ class TAGlineFit.hxx+;
 #pragma link C++ class TAGstlUtil.hxx+;
 #pragma link C++ class TAGconfigFile+;

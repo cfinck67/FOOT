@@ -45,6 +45,7 @@ set( with_dictionnaries
    TAGbaseEventDisplay
    TAGview
    FootBox
+   TAGmaterials
    ControlPlotsRepository
    ControlPlotInfo
    MagicSkills
