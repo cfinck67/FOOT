@@ -122,14 +122,14 @@ const Int_t    BMN_NWIRELAY     =6*BMN_NSENSELAY+3;//tot no. of wires (field or 
 const Double_t BMN_UVIEW  	=1;//wire along x (side view) 
 const Double_t BMN_VVIEW  	=-1;//wire along y (top view) 
 
-//ATTENZIONE:controllare i prossimi parametri
+//WARNING:check these parameters!!!
 const Double_t BMN_RSENSE 	=0.0015;//radius of sensitive wires (in first erano 0.003)
 const Double_t BMN_RFIELD 	=0.0045;//radius of field wires (in first erano 0.008)
 const Double_t BMN_STEP		=0.5;//distance between wires (z distance)
 const Double_t BMN_PASSO	=0.8;//distance between wires (x or y distance)
 const Double_t BMN_LAYDIST   	=0.3;//distance between layers U and V
 
-//ATTENZIONE: da controllare
+//WARNING:check these parameters!!!!
 const Double_t BMN_DELTAY	=2.8;//wires x shift from the beam monitor internal sides
 const Double_t BMN_DELTAX	=2.8;//wires y shift from the beam monitor internal sides 
 const Double_t BMN_DELTAZ	=2.85;//wires z shift from the beam monitor internal sides (Alessio's version in FIRST: const Double_t BMN_DELTA_Z	=2.8;)

@@ -97,10 +97,20 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evS
       cout<<"ERROR in BmBooter::CalculateT0: cannot open the datafile="<<m_instr.Data()<<endl;
     FillDataBeamMonitor();
   }
+  
+  //provo
+  //~ outTree = new TAGactTreeWriter("outTree");
+  //~ tagr->AddRequiredItem("myn_bmraw");
+  //~ tagr->AddRequiredItem("myn_bmtrk");
+  //~ tagr->AddRequiredItem("outTree");
+  //~ tagr->Print();   
+    
+//~ if (outTree->Open("BMrecotree.root", "RECREATE")) return;
     
   tot_num_ev=data_num_ev;  
   data_num_ev= (isdata==true) ? -1000:0;
-  
+
+   
 return;
 }
 
@@ -136,8 +146,9 @@ void BmBooter::Process() {
       return;
     }
   }
-  
+ 
   bmnturaw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
+  //~ bmnturaw=(TABMntuRaw*) myn_bmraw->GenerateObject();
   evaluate_cell_occupy();
   
   if(bmnturaw->nhit >= bmcon->GetMaxnhit_cut())
@@ -148,6 +159,10 @@ void BmBooter::Process() {
     bmntutrack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
     track_ok=bmntutrack->trk_status;
   }
+ 
+ //provo
+  //~ bmnturaw->SetHistogramDir(outTree->File());
+  //~ bmntutrack->SetHistogramDir(outTree->File());
  
   if (bmcon->GetBMdebug()>10)
     cout<<"in BmBooter::Process, I finished to create the BM hits and tracks"<<endl<<"Now I'll printout BM hits if enable"<<endl;
@@ -166,8 +181,11 @@ void BmBooter::Process() {
     m_controlPlotter->BM_setMCnturaw_info("BM_output",evStr, bmnturaw, bmgeo, bmcon);
     if(track_ok==0)
       m_controlPlotter->BM_setMCntutrack_info("BM_output",evStr, bmntutrack, bmgeo, bmcon);
-      
-  } 
+  }
+  
+  //provo
+  if( GlobalPar::GetPar()->IsPrintOutputNtuple() && track_ok==0 )        
+      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->BM_setTTree_output(bmnturaw, bmntutrack, data_num_ev,bmstruct.time_acq);
 
   //draw and save tracks
   if(bmcon->GetBMvietrack()>0 && data_num_ev%bmcon->GetBMvietrack()==0){
@@ -233,6 +251,10 @@ void BmBooter::Finalize() {
   if (bmcon->GetBMdebug()>10)
     cout<<"I finished BmBooter::Finalize"<<endl;
     
+  //provo  
+  //~ outTree->Print();
+  //~ outTree->Close();  
+    
 return;
 }
 
@@ -241,9 +263,9 @@ void BmBooter::Allign_estimate(){
     return;
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();  
   
-  Double_t xrot=-atan((((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetMean()-((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetMean())/(bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z()))*RAD2DEG;  
+  Double_t xrot=atan((((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetMean()-((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetMean())/(bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z()))*RAD2DEG;  
   
-  Double_t yrot=atan((((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_x")))->GetMean()-((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_x")))->GetMean())/(bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z()))*RAD2DEG;
+  Double_t yrot=-atan((((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_x")))->GetMean()-((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_x")))->GetMean())/(bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z()))*RAD2DEG;
    
   Double_t xtra=-(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_x")))->GetMean()+((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_x")))->GetMean())/2.;  
       
@@ -253,7 +275,7 @@ void BmBooter::Allign_estimate(){
     
   Double_t ytr_err=sqrt(pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetEntries()),2.)  +  pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetEntries()),2.));  
     
-  if(bmcon->GetBMdebug()>3){  
+  if(bmcon->GetBMdebug()>0){  
     cout<<"Beam Monitor allignment parameters"<<endl;
     cout<<"estimated rotation around X axis= "<<xrot<<endl;
     cout<<"estimated rotation around Y axis= "<<yrot<<endl;
@@ -415,11 +437,13 @@ void BmBooter::PrintProjections(){
   TH2D* histoa=new TH2D( "mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histoc=new TH2D( "R0_xy", "R0 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
+  TH2D* histod=new TH2D( "target_xy", "target projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   
   for(Int_t i=0;i<tracktr2dprojects.size();i++){
     histoa->Fill(tracktr2dprojects[i][0], tracktr2dprojects[i][1]);
     histob->Fill(tracktr2dprojects[i][2], tracktr2dprojects[i][3]);
     histoc->Fill(tracktr2dprojects[i][4], tracktr2dprojects[i][5]);
+    histod->Fill(tracktr2dprojects[i][6], tracktr2dprojects[i][7]);
   }
 
 return;
@@ -481,10 +505,13 @@ void BmBooter::PrintResDist(){
   
   
   //fit hitres_x_dist
+  TF1 *fb = new TF1("fb","gaus", -0.3,0.3);
   TH1D *histo1d=new TH1D( "resolution", "Resolution evaluation; Distance from cell center [cm];Spatial Resolution[#mum]", 20, 0., 0.8);
   for(Int_t i=0;i<20;i++){
     sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",i);      
-    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution")))->SetBinContent(i+1,((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetStdDev()*10000);    
+    //~ ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution")))->SetBinContent(i+1,((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetStdDev()*10000);    
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "Q");
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution")))->SetBinContent(i+1,fb->GetParameter(2)*10000);    
   }
   
     
@@ -1324,7 +1351,7 @@ return;
 //to be used in process to charge mylarproject
 void BmBooter::Projecttracktr(){
   
-  vector<Double_t> tracktr_pro(6);
+  vector<Double_t> tracktr_pro(8);
   for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
     bmntutracktr = bmntutrack->Track(i);  
     tracktr_pro[0]=bmntutracktr->GetMylar1Pos().X();
@@ -1333,6 +1360,8 @@ void BmBooter::Projecttracktr(){
     tracktr_pro[3]=bmntutracktr->GetMylar2Pos().Y();
     tracktr_pro[4]=bmntutracktr->GetR0().X();
     tracktr_pro[5]=bmntutracktr->GetR0().Y();
+    tracktr_pro[6]=bmntutracktr->GetTargetPos().X();
+    tracktr_pro[7]=bmntutracktr->GetTargetPos().Y();
   }
   tracktr2dprojects.push_back(tracktr_pro);
   

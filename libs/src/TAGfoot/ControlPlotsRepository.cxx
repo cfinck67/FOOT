@@ -117,44 +117,68 @@ return;
 
  
 void ControlPlotsRepository::PrintOutputNtuple() {
-  
 	m_outputntuplename = GlobalPar::GetPar()->OutputNtuple();
 	TFile* n_out = new TFile(m_outputntuplename.c_str(),"RECREATE");  
 
 	//  cout <<" outputntuplename  " << m_outputntuplename.c_str() << endl;
 
 	TTree* tree_out = new TTree("EventTree","Reco Event Tree");
+	//~ for (int i = 0; i< ntuple_out.Reco_track_px.size(); i++){
+		//~ //cout <<" Reco_px "  << ntuple_out.Reco_px.at(i) << endl;
+		//~ tree_out->Branch("Reco_track_px",            &ntuple_out.Reco_track_px.at(i)   );
+		//~ tree_out->Branch("Reco_track_py",            &ntuple_out.Reco_track_py.at(i)   );
+		//~ tree_out->Branch("Reco_track_pz",            &ntuple_out.Reco_track_pz.at(i)   );
+		//~ tree_out->Branch("Reco_track_x",             &ntuple_out.Reco_track_x.at(i)    );
+		//~ tree_out->Branch("Reco_track_y",             &ntuple_out.Reco_track_y.at(i)    );
+		//~ tree_out->Branch("Reco_track_z",             &ntuple_out.Reco_track_z.at(i)    );
+		//~ tree_out->Branch("Truth_track_px",           &ntuple_out.Truth_track_px.at(i)  );
+		//~ tree_out->Branch("Truth_track_py",           &ntuple_out.Truth_track_py.at(i)  );
+		//~ tree_out->Branch("Truth_track_pz",           &ntuple_out.Truth_track_pz.at(i)  );
 
-	for (int i = 0; i< ntuple_out.Reco_track_px.size(); i++){
-		//cout <<" Reco_px "  << ntuple_out.Reco_px.at(i) << endl;
-		tree_out->Branch("Reco_track_px",            &ntuple_out.Reco_track_px.at(i)   );
-		tree_out->Branch("Reco_track_py",            &ntuple_out.Reco_track_py.at(i)   );
-		tree_out->Branch("Reco_track_pz",            &ntuple_out.Reco_track_pz.at(i)   );
-		tree_out->Branch("Reco_track_x",             &ntuple_out.Reco_track_x.at(i)    );
-		tree_out->Branch("Reco_track_y",             &ntuple_out.Reco_track_y.at(i)    );
-		tree_out->Branch("Reco_track_z",             &ntuple_out.Reco_track_z.at(i)    );
-		tree_out->Branch("Truth_track_px",           &ntuple_out.Truth_track_px.at(i)  );
-		tree_out->Branch("Truth_track_py",           &ntuple_out.Truth_track_py.at(i)  );
-		tree_out->Branch("Truth_track_pz",           &ntuple_out.Truth_track_pz.at(i)  );
+		//~ tree_out->Fill();
 
-		tree_out->Fill();
-
-	}
+	//~ }
 
   //Beam Monitor stuff
+  //provv, it will be replaced by the real ntupleoutput with the bm objects  
   if(GlobalPar::GetPar()->IncludeBM()){
-    for (int i = 0; i< ntuple_out.BM_hit_rdrift.size(); i++){//loop on BM hits
-      //~ //printf("i=%d    rdrift=%f\n",i,ntuple_out.BM_hit_rdrift.at(i));
-      tree_out->Branch("BM_rdrift",           &ntuple_out.BM_hit_rdrift.at(i) );
-      tree_out->Fill();
+    Double_t hitrdrift,hittime, hitresidual, trackchi2, trackpversx, trackpversy,trackpversz,trackr0x,trackr0y;
+    Int_t evnum,hitplane,hitview,hitcell, time_acq;
+    tree_out->Branch("evnum", &evnum);
+    tree_out->Branch("timeacq", &time_acq);
+    tree_out->Branch("BM_hitrdrift", &hitrdrift);
+    tree_out->Branch("BM_hitresidual", &hitresidual);
+    tree_out->Branch("BM_hittime",&hittime);
+    tree_out->Branch("BM_hitplane", &hitplane);
+    tree_out->Branch("BM_hitview",&hitview );
+    tree_out->Branch("BM_hitcell",&hitcell);
+    tree_out->Branch("BM_track_chi2", &trackchi2);
+    tree_out->Branch("BM_track_PversX", &trackpversx);
+    tree_out->Branch("BM_track_PversY", &trackpversy);
+    tree_out->Branch("BM_track_PversZ", &trackpversz);
+    tree_out->Branch("BM_track_R0X", &trackr0x );
+    tree_out->Branch("BM_track_R0Y", &trackr0y );
+    for(Int_t k=0;k<ntuple_out.evnum.size();k++){
+      for (Int_t i = 0; i< ntuple_out.BM_hit_rdrift.at(k).size(); i++){//loop on BM hits
+        evnum=ntuple_out.evnum.at(k);
+        hitrdrift=ntuple_out.BM_hit_rdrift.at(k).at(i);
+        hitresidual=ntuple_out.BM_hit_residual.at(k).at(i);
+        hittime=ntuple_out.BM_hit_time.at(k).at(i);
+        hitplane=ntuple_out.BM_hit_plane.at(k).at(i);
+        hitview=ntuple_out.BM_hit_view.at(k).at(i);
+        hitcell=ntuple_out.BM_hit_cell.at(k).at(i);
+        trackchi2=ntuple_out.BM_track_chi2.at(k);
+        trackpversx=ntuple_out.BM_track_PversX.at(k);
+        trackpversy=ntuple_out.BM_track_PversY.at(k);
+        trackpversz=ntuple_out.BM_track_PversZ.at(k);
+        trackr0x=ntuple_out.BM_track_R0X.at(k);
+        trackr0y=ntuple_out.BM_track_R0Y.at(k);
+        tree_out->Fill();
+      }
     }
-    for (int i = 0; i< ntuple_out.BM_track_chi2.size(); i++){//loop on BM tracks
-      tree_out->Branch("BM_track_chi2",           &ntuple_out.BM_track_chi2.at(i) );
-      tree_out->Fill();
-    }
-  }
-  
 
+  }
+    
 	n_out->Write();
 	n_out->Close();
 }

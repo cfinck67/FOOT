@@ -12,6 +12,7 @@
 #include "TABMntuTrack.hxx"
 #include "TABMntuTrackTr.hxx"
 #include "TABMntuRaw.hxx"
+#include "TABMntuHit.hxx"
 
 #define build_string(expr) \
     (static_cast<ostringstream*>(&(ostringstream().flush() << expr))->str())
@@ -209,6 +210,7 @@ public:
       if(bmntuhit->GetIsSelected()){
         FillMap( hitSampleName + "__rawsel_chi2", bmntuhit->GetChi2());
         FillMap( hitSampleName + "__rawsel_rdrift", bmntuhit->Dist());
+        //~ BM_setntuple_hit(bmntuhit->Dist(), *bmntuhit, *bmnturaw);//provv
         FillMap( hitSampleName + "__rawsel_cell", bmntuhit->Cell());
         FillMap( hitSampleName + "__rawsel_view", bmntuhit->View());
         FillMap( hitSampleName + "__rawsel_plane", bmntuhit->Plane());
@@ -326,15 +328,47 @@ public:
   }  
   
   //Beam Monitor OutputNtuple
-  void BM_setntuple_hit(Double_t rdrift){
-    ntuple_out.BM_hit_rdrift.push_back(rdrift);
-  return;
+  //provv, it will be replaced by the real ntupleoutput with the bm objects
+  void BM_setTTree_output(TABMntuRaw* bmnturaw, TABMntuTrack* bmntutrack, Int_t data_num_ev, Int_t time_acq){
+    vector<Double_t> hitcell;
+    vector<Double_t> hitview;
+    vector<Double_t> hitplane;
+    vector<Double_t> hittime;
+    vector<Double_t> hitrdrift;
+    vector<Double_t> hitresidual;
+    for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
+      bmntutracktr = bmntutrack->Track(i);    
+      ntuple_out.BM_track_chi2.push_back(bmntutracktr->GetMyChi2Red());
+      ntuple_out.BM_track_PversX.push_back(bmntutracktr->GetPvers().X());
+      ntuple_out.BM_track_PversY.push_back(bmntutracktr->GetPvers().Y());
+      ntuple_out.BM_track_PversZ.push_back(bmntutracktr->GetPvers().Z());
+      ntuple_out.BM_track_R0X.push_back(bmntutracktr->GetR0().X());
+      ntuple_out.BM_track_R0Y.push_back(bmntutracktr->GetR0().Y());
+      ntuple_out.BM_nhit.push_back(bmnturaw->nhit);
+      ntuple_out.BM_time_acq.push_back(time_acq);
+      for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
+        bmntuhit = bmnturaw->Hit(i);      
+        if(bmntuhit->GetIsSelected()){
+          hitcell.push_back(bmntuhit->Cell());
+          hitview.push_back(bmntuhit->View());
+          hitplane.push_back(bmntuhit->Plane());
+          hittime.push_back(bmntuhit->Tdrift());
+          hitrdrift.push_back(bmntuhit->Dist());
+          hitresidual.push_back(bmntuhit->GetResidual());
+        }
+      }
+      ntuple_out.evnum.push_back(data_num_ev);
+      ntuple_out.BM_nhit.push_back(bmnturaw->nhit);
+      ntuple_out.BM_hit_cell.push_back(hitcell);
+      ntuple_out.BM_hit_view.push_back(hitview);
+      ntuple_out.BM_hit_plane.push_back(hitplane);
+      ntuple_out.BM_hit_time.push_back(hittime);
+      ntuple_out.BM_hit_rdrift.push_back(hitrdrift);
+      ntuple_out.BM_hit_residual.push_back(hitresidual);
+    }
+    
+    return;
   }
-  void BM_setntuple_track(Double_t chi2){
-    ntuple_out.BM_track_chi2.push_back(chi2);
-  return;
-  }
-
 
 	struct Ntuple_out {
 		vector< Double_t >  Reco_track_px;
@@ -348,8 +382,23 @@ public:
 		vector< Double_t >  Truth_track_pz;
 		
     //Beam Monitor stuff
-    vector< Double_t >  BM_hit_rdrift;
-		vector< Double_t >  BM_track_chi2;
+    vector<vector< Double_t >>  BM_hit_residual;
+    vector<vector< Double_t >>  BM_hit_rdrift;
+    vector<vector< Double_t >>  BM_hit_time;
+    vector<vector< Double_t >>  BM_hit_plane;
+    vector<vector< Double_t >>  BM_hit_view;
+    vector<vector< Double_t >>  BM_hit_cell;
+		
+		vector< Double_t >  BM_track_PversX;
+    vector< Double_t >  BM_track_chi2;
+		vector< Double_t >  BM_track_PversY;
+		vector< Double_t >  BM_track_PversZ;
+		vector< Double_t >  BM_track_R0X;
+		vector< Double_t >  BM_track_R0Y;
+		vector< Double_t >  BM_time_acq;
+    vector< Int_t>  BM_nhit;
+		vector< Int_t >  evnum;
+
 	};
   
   Ntuple_out  ntuple_out;

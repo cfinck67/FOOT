@@ -365,9 +365,6 @@ void TABMparGeo::RotateNewBmon(Double_t xang, Double_t yang, Double_t zang, Bool
       }
     }
   }
-
-  
-  
   return;
 }
 
