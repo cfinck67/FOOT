@@ -42,6 +42,7 @@ void TAGparTools::ReadItem(TString& item)
    while (pos == -1) {
       if (fFileStream.eof()) break;
 	  fFileStream.getline(buf, 255);
+     if (buf[0] == '/') continue;
 	  key = buf;
 	  pos = key.First(":");
    }
