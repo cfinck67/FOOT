@@ -183,7 +183,7 @@ void BmBooter::Process() {
       m_controlPlotter->BM_setMCntutrack_info("BM_output",evStr, bmntutrack, bmgeo, bmcon);
   }
   
-  //provo
+  //temporary ttree output
   if( GlobalPar::GetPar()->IsPrintOutputNtuple() && track_ok==0 )        
       ControlPlotsRepository::GetControlObject( "BooterFinalize" )->BM_setTTree_output(bmnturaw, bmntutrack, data_num_ev,bmstruct.time_acq);
 
@@ -335,7 +335,7 @@ return;
 
 
 void BmBooter::PrintFromControlPlots(){
-  if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
+  if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->GetList()->Contains("BM_output__raw_occupancy")==kFALSE  )
     return;
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();
 
@@ -556,9 +556,9 @@ void BmBooter::evaluateT0() {
 
   //book histos
   //general histos
-  h=new TH1D("rate_evtoev","Rate of the events, from bmstruct.time_evtoev;Hz; Number of events",1000,0.,1000.);
+  h=new TH1D("rate_evtoev","Rate of the events, from bmstruct.time_evtoev;Hz; Number of events",1000,0.,20000.);
   //~ h=new TH1D("rate_timeacq","Rate of the events, from bmstruct.time_acq;Hz; Number of events",1000,0.,10000.);
-  h=new TH1D("rate_readev","time occurred to read the data for each event, from bmsturct.time_read;[micro seconds]; Number of events",1000,1000.,100000.);
+  h=new TH1D("rate_readev","time occurred to read the data for each event, from bmsturct.time_read;[micro seconds]; Number of events",500,0.,1000.);
         
   f_out->mkdir("TDC");
   f_out->cd("TDC");
