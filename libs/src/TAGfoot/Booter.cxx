@@ -218,7 +218,7 @@ void Booter::Process( Long64_t jentry ) {
 
     for (int nSensor = 0; nSensor < 4; nSensor++) {   // over all sensors
         if ( m_debug > 0 )      
-        cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetClustersN( nSensor ) << endl;
+          cout << "N vertex pixel in sensor " << nSensor << ": " << ntup->GetClustersN( nSensor ) << endl;
 
         for (int nPx = 0; nPx < ntup->GetClustersN( nSensor ); nPx++)  {     // over all pixels for each sensor
             cout << "Cluster Test :: cluster number = " << ntup->GetClustersN(nSensor) << " and sensorID = " << ntup->GetCluster( nSensor, nPx )->GetSensorID() << endl;

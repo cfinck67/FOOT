@@ -75,8 +75,8 @@ Bool_t TAVTbaseDigitizer::Process( Double_t edep, Double_t x0, Double_t y0, Doub
    if (fPixelsN <= 0) fPixelsN = 1;
    
    // if (fDebugLevel) {
-      printf("\nnext hit:\n");
-      printf("eloss %6.1f pixels %d\n", deltaE, fPixelsN);
+      // printf("\nnext hit:\n");
+      // printf("eloss %6.1f pixels %d\n", deltaE, fPixelsN);
    // }
    
    return MakeCluster(x0, y0, zin, zout);

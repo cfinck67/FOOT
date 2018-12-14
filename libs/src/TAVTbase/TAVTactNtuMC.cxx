@@ -61,14 +61,14 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name,
 	AddPara(pGeoMap, "TAVTparGeo");
 	AddPara(pParMap, "TAVTparMap");
 
-	cout << "Pre digit" << endl;
+	// cout << "Pre digit" << endl;
 
 	fDigitizer = new TAVTdigitizerE(pGeoMap);
 
-	cout << "Post digit" << endl;
+	// cout << "Post digit" << endl;
 
 	fpHisPoisson = (TH1F*)gDirectory->FindObject("vtPoisson");
-	cout << "poisson digit" << endl;
+	// cout << "poisson digit" << endl;
 
 	if (fpHisPoisson == 0x0) {
 	   
@@ -78,7 +78,7 @@ TAVTactNtuMC::TAVTactNtuMC(const char* name,
 		for (Int_t i = 1; i < 10; ++i) {
 			tot += TMath::PoissonI(i, par);
 		}
-cout << "loop digit" << endl;
+// cout << "loop digit" << endl;
 		fpHisPoisson = new TH1F("vtPoisson", "Poisson", 12, -0.5, 11.5);
 
 		for (Int_t i = 1; i < 10; ++i) {
@@ -86,7 +86,7 @@ cout << "loop digit" << endl;
 			fpHisPoisson->Fill(i, val);
 		}
 	}
-cout << "end digit" << endl;
+// cout << "end digit" << endl;
 }
 
 
@@ -248,7 +248,7 @@ bool TAVTactNtuMC::Action() {
 		// gives all empty
 		if (!fDigitizer->Process(fpEvtStr->VTXde[i], fpEvtStr->VTXpxin[i], fpEvtStr->VTXpyin[i], fpEvtStr->VTXzin[i], fpEvtStr->VTXpxout[i])) 
 			continue;     // when false?
-		cout << "\tDigitization passed " <<endl;
+		// cout << "\tDigitization passed " <<endl;
 		FillPixels( pixel, sensorId, i );
 		
 // ****************************************************************************************************
@@ -307,7 +307,7 @@ void TAVTactNtuMC::FillPixels ( TAVTntuHit* originatingHit, int sensorId, int hi
 	int nPixelX = fDigitizer->GetNPixelX();
  
 	// fill pixels from map
-	cout << "digiMap.size()  " << digiMap.size() << endl;
+	// cout << "digiMap.size()  " << digiMap.size() << endl;
 	for ( map< int, int >::iterator it = digiMap.begin(); it != digiMap.end(); ++it) {
 
 	   if ( digiMap[it->first] == 1 ) {

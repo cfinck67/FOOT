@@ -26,9 +26,9 @@ Int_t   TAVTdigitizerE::fgkShel55[20];// {1,   5,   9,   13,   21,   37,   45,  
 TAVTdigitizerE::TAVTdigitizerE(TAGparaDsc* parGeo)
 : TAVTbaseDigitizer(parGeo)
 {
-   cout << "const digit" << endl;
+   // cout << "const digit" << endl;
    DefineRadii();
-   cout << "const post digit" << endl;
+   // cout << "const post digit" << endl;
 }
 
 // --------------------------------------------------------------------------------------
@@ -46,11 +46,11 @@ Bool_t TAVTdigitizerE::MakeCluster(Double_t x0, Double_t y0, Double_t /*zin*/, D
    fMap.clear();
 
    if (TMath::Abs(y0) > fPitchX*fPixelsNx/2.) {
-      cout << "TMath::Abs(y0) > fPitchX*fPixelsNx/2." << endl;
+      // cout << "TMath::Abs(y0) > fPitchX*fPixelsNx/2." << endl;
       return false;
    } 
    if (TMath::Abs(x0) > fPitchY*fPixelsNy/2.) {
-      cout << "TMath::Abs(x0) > fPitchY*fPixelsNy/2." << endl;
+   //    cout << "TMath::Abs(x0) > fPitchY*fPixelsNy/2." << endl;
       return false;
    }
    
@@ -256,8 +256,8 @@ void TAVTdigitizerE::DefineRadius55()
    Float_t pitchX = GetPitchX();
    Float_t pitchY = GetPitchY();
 
-   cout << "const x digit  " << pitchX<< endl;
-   cout << "const x digit  " << pitchY<< endl;
+   // cout << "const x digit  " << pitchX<< endl;
+   // cout << "const x digit  " << pitchY<< endl;
    
    Int_t limx = fgkMeshWidth;
    Int_t limy = fgkMeshWidth;
@@ -285,8 +285,8 @@ void TAVTdigitizerE::DefineRadius50()
    Float_t pitchX = GetPitchX();
    Float_t pitchY = GetPitchY();
    
-   cout << "const x digit  " << pitchX<< endl;
-   cout << "const x digit  " << pitchY<< endl;
+   // cout << "const x digit  " << pitchX<< endl;
+   // cout << "const x digit  " << pitchY<< endl;
 
    Int_t limx = fgkMeshWidth;
    Int_t limy = fgkMeshWidth;
@@ -314,8 +314,8 @@ void TAVTdigitizerE::DefineRadius00()
    Float_t pitchX = GetPitchX();
    Float_t pitchY = GetPitchY();
 
-   cout << "const x digit  " << pitchX<< endl;
-   cout << "const x digit  " << pitchY<< endl;
+   // cout << "const x digit  " << pitchX<< endl;
+   // cout << "const x digit  " << pitchY<< endl;
    
    Int_t limx = fgkMeshWidth;
    Int_t limy = fgkMeshWidth;
