@@ -41,7 +41,7 @@ class TACAactNtuMC : public TAGaction {
    TH1F* fpHisTimeTot;
    TH1F* fpHisDeTotMc;
    TH1F* fpHisTimeTotMc;
-   TH1F* fpHisHitMap;
+   TH2F* fpHisHitMap;
    
 private:
    void           CreateDigitizer();
