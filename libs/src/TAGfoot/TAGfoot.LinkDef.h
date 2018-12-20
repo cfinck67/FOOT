@@ -5,7 +5,6 @@
 #pragma link off all functions;
 
 
-#pragma link C++ class TinCan+;
 #pragma link C++ class KFitter;
 #pragma link C++ class FootField;
 #pragma link C++ class GlobalTrackRepostory;
