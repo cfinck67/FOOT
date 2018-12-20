@@ -10,6 +10,9 @@
 //TAGroot
 #include "TAGroot.hxx"
 
+// Foot trafo
+#include "TAGgeoTrafo.hxx"
+
 //BM
 #include "TABMntuTrack.hxx"
 
@@ -20,8 +23,6 @@
 #include "TAVTntuTrack.hxx"
 #include "TAVTntuCluster.hxx"
 #include "TAVTactNtuTrack.hxx"
-
-#include "foot_geo.h"
 
 /*!
  \class TAVTactNtuTrack 
@@ -95,19 +96,22 @@ Bool_t TAVTactNtuTrack::FindTiltedTracks()
 		 
        lineOrigin[2] = 0;
 
-		 if (fpBMntuTrack == 0x0 || fpFirstGeo == 0x0) { // no BM info available
-			lineOrigin.SetXYZ(0, 0, -VTX_Z);
+		 if (fpBMntuTrack == 0x0 || fpFootGeo == 0x0) { // no BM info available
+          lineOrigin.SetXYZ(0, 0, 0);
 		 } else {
 			if (fBmTrack) {
-			   if (fBmTrackOk) 
-				  lineOrigin.SetXYZ(fBmTrackPos.X(), fBmTrackPos.Y(), 0); //in microns for us 
-			   else 
+            if (fBmTrackOk) {
+               lineOrigin.SetXYZ(fBmTrackPos.X(), fBmTrackPos.Y(), 0);
+               lineOrigin = fpFootGeo->FromBMLocalToGlobal(lineOrigin);// go to FOOT global
+            } else
 				  lineOrigin.SetXYZ(0, 0, 0); 
 			} else {
 			   return true;  // think about it !
 			}
 		 }
         
+       lineOrigin = fpFootGeo->FromGlobalToVTLocal(lineOrigin); // back to vertex frame
+
 		 lineSlope  = cluster->GetPositionG() - lineOrigin;
 		 lineSlope *= 1/(lineSlope)(2);
       

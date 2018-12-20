@@ -15,12 +15,13 @@
 class TAVTactNtuVertex : public TAVTactBaseNtuVertex {
     
 public:
-  explicit  TAVTactNtuVertex(const char* name          = 0,
-			     TAGdataDsc* p_ntutrack  = 0, 
-			     TAGdataDsc* p_ntuvertex = 0, 
-			     TAGparaDsc* p_config    = 0,
-			     TAGparaDsc* p_geomap    = 0,
-			     TAGdataDsc* p_bmtrack   = 0);
+  explicit  TAVTactNtuVertex(const char* name        = 0,
+                             TAGdataDsc* p_ntutrack  = 0,
+                             TAGdataDsc* p_ntuvertex = 0,
+                             TAGparaDsc* p_config    = 0,
+                             TAGparaDsc* p_geomap    = 0,
+                             TAGparaDsc* p_geomapG   = 0,
+                             TAGdataDsc* p_bmtrack   = 0);
   
     virtual ~TAVTactNtuVertex();
     
@@ -36,12 +37,7 @@ private:
     Double_t ComputeDistance(Double_t zVal);
     Double_t ComputeFinalCoordinate(Int_t a, Double_t zVal);
     void     SetVertex(TVector3& xyz, Double_t mind);
-    
-private:
-    Double_t fEps; //tolleranza
-    Double_t fMinZ; //minimum value of Z
-    Double_t fMaxZ; //Maximum value of Z
-    
+   
     ClassDef(TAVTactNtuVertex,0)
 };
 

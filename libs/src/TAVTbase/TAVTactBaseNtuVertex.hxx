@@ -28,6 +28,7 @@ public:
                                   TAGdataDsc* p_ntuvertex = 0, 
                                   TAGparaDsc* p_config    = 0,
                                   TAGparaDsc* p_geomap    = 0,
+                                  TAGparaDsc* p_geomapG   = 0,
 								          TAGdataDsc* p_bmtrack   = 0);
     
     virtual ~TAVTactBaseNtuVertex();
@@ -41,14 +42,19 @@ public:
     void     SetBMntuTrack(TAGdataDsc* bmTrack) { fpBMntuTrack = bmTrack; }
       
 protected:
-    TAGdataDsc*     fpNtuTrack;		     // input data dsc
+    TAGdataDsc*     fpNtuTrack;		 // input data dsc
     TAGdataDsc*     fpNtuVertex;		 // output data dsc
-    TAGparaDsc*     fpConfig;		     // configuration dsc
-    TAGparaDsc*     fpGeoMap;		     // geometry para dsc
-    TAGdataDsc*     fpBMntuTrack;		 // bm track data dsc
+    TAGparaDsc*     fpConfig;		    // configuration dsc
+    TAGparaDsc*     fpGeoMap;		    // geometry para dsc
+    TAGparaDsc*     fpGeoMapG;       // Global geometry para dsc
+    TAGdataDsc*     fpBMntuTrack;	 // bm track data dsc
 
     Float_t         fSearchClusDistance; // distance for pileup
     TVector3        fVtxPos;             // vertex pos
+
+   Double_t fEps; //tolleranza
+   Double_t fMinZ; //minimum value of Z
+   Double_t fMaxZ; //Maximum value of Z
 
     TH1F*           fpHisPosZ;
     TH2F*           fpHisPosXY;

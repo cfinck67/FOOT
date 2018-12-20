@@ -88,7 +88,7 @@ protected:
    TAGparaDsc*     fpGeoMap;		     // geometry para dsc
    TAGparaDsc*     fpCalib;		         // calib para dsc
    TAGdataDsc*     fpBMntuTrack;	     // BM track pointer
-   TAGgeoTrafo*    fpFirstGeo;	         // First geometry transformer
+   TAGgeoTrafo*    fpFootGeo;	         // First geometry transformer
 	
    Int_t           fTracksMaximum;       // maximum number of tracks allowed
    Int_t           fRequiredClusters;    //! number of clusters required to make a track

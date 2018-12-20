@@ -7,6 +7,8 @@
 #include "TH2F.h"
 #include "TMath.h"
 
+#include "TAGparGeo.hxx"
+
 #include "TAVTdatRaw.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
@@ -27,11 +29,9 @@ ClassImp(TAVTactNtuVertex);
 //! Default constructor.
 TAVTactNtuVertex::TAVTactNtuVertex(const char* name, 
                                        TAGdataDsc* pNtuTrack, TAGdataDsc* pNtuVertex,
-                                       TAGparaDsc* pConfig, TAGparaDsc* pGeoMap, TAGdataDsc* pBmTrack)
-: TAVTactBaseNtuVertex(name, pNtuTrack, pNtuVertex, pConfig, pGeoMap, pBmTrack)
+                                       TAGparaDsc* pConfig, TAGparaDsc* pGeoMap, TAGparaDsc* pGeoMapG, TAGdataDsc* pBmTrack)
+: TAVTactBaseNtuVertex(name, pNtuTrack, pNtuVertex, pConfig, pGeoMap, pGeoMapG, pBmTrack)
 {
-    fMinZ = -TG_THICK*2. - VTX_Z;
-    fMaxZ =  TG_THICK*2. - VTX_Z;
     fEps  = 5e-8;
 }
 

@@ -29,16 +29,13 @@ ClassImp(TAVTactNtuVertexPD);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 TAVTactNtuVertexPD::TAVTactNtuVertexPD(const char* name, 
-                                     TAGdataDsc* pNtuTrack, TAGdataDsc* pNtuVertex,
-                                     TAGparaDsc* pConfig, TAGparaDsc* pGeoMap, TAGdataDsc* pBmTrack)
-: TAVTactBaseNtuVertex(name, pNtuTrack, pNtuVertex, pConfig, pGeoMap, pBmTrack),
+                                       TAGdataDsc* pNtuTrack, TAGdataDsc* pNtuVertex,
+                                       TAGparaDsc* pConfig, TAGparaDsc* pGeoMap, TAGparaDsc* pGeoMapG, TAGdataDsc* pBmTrack)
+: TAVTactBaseNtuVertex(name, pNtuTrack, pNtuVertex, pConfig, pGeoMap, pGeoMapG, pBmTrack),
   fStepZ(0.0010),
   fImpactParameterCut(0.025),
   fProbabilityCut(0.1)
 {
-   fMinZ = -TG_THICK*2. - VTX_Z;
-   fMaxZ =  TG_THICK*2. - VTX_Z;
-
    fErr.SetXYZ(0.005, 0.005, 0.005); //errore in X, Y, Z
 }
 

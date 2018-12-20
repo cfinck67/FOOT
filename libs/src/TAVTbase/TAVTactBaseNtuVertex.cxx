@@ -8,9 +8,12 @@
 
 //TAG
 #include "TAGroot.hxx"
+#include "TAGparGeo.hxx"
 #include "TAGgeoTrafo.hxx"
+
 //BM
 #include "TABMntuTrack.hxx"
+
 
 // VTX
 #include "TAVTparGeo.hxx"
@@ -32,23 +35,40 @@ Bool_t  TAVTactBaseNtuVertex::fgCheckPileUp     = false;
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 TAVTactBaseNtuVertex::TAVTactBaseNtuVertex(const char* name, 
-										 TAGdataDsc* pNtuTrack,TAGdataDsc* pNtuVertex,
-										 TAGparaDsc* pConfig,  TAGparaDsc* pGeoMap, TAGdataDsc* pBmTrack)
+                                           TAGdataDsc* pNtuTrack,TAGdataDsc* pNtuVertex,
+                                           TAGparaDsc* pConfig,  TAGparaDsc* pGeoMap, TAGparaDsc* pGeoMapG, TAGdataDsc* pBmTrack)
 : TAGaction(name, "TAVTactBaseNtuVertex"),
   fpNtuTrack(pNtuTrack),
   fpNtuVertex(pNtuVertex),
   fpConfig(pConfig),
   fpGeoMap(pGeoMap),
+  fpGeoMapG(pGeoMapG),
   fpBMntuTrack(pBmTrack)
 {
     AddDataIn(pNtuTrack,   "TAVTntuTrack");
     AddDataOut(pNtuVertex, "TAVTntuVertex");
     AddPara(pGeoMap, "TAVTparGeo");
     AddPara(pConfig, "TAVTparConf");
-   
+   AddPara(pGeoMapG, "TAGparGeo");
+
    TAVTparConf* config = (TAVTparConf*) fpConfig->Object();
    fSearchClusDistance = config->GetAnalysisPar().SearchHitDistance;
    fVtxPos.SetXYZ(0,0,0);
+   
+   TAGparGeo* geoMapG = (TAGparGeo*) fpGeoMapG->Object();
+   
+   fMinZ = -geoMapG->GetTargetPar().Size[2]*2;
+   fMaxZ =  geoMapG->GetTargetPar().Size[2]*2;
+
+   TVector3 posMin(0,0, fMinZ);
+   TVector3 posMax(0,0, fMaxZ);
+   
+   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+   posMin = geoTrafo->FromGlobalToVTLocal(posMin);
+   posMax = geoTrafo->FromGlobalToVTLocal(posMax);
+   
+   fMinZ = posMin[2];
+   fMaxZ = posMax[2];
 }
 
 //------------------------------------------+-----------------------------------
@@ -67,18 +87,20 @@ void TAVTactBaseNtuVertex::CreateHistogram()
    fpHisPosZ = new TH1F("vtVtxPosZ", "Vertex position at Z", 100, -TG_THICK-VTX_Z, TG_THICK-VTX_Z);
    AddHistogram(fpHisPosZ);
    
+   TVector3 size(pGeoMap->GetPitchX()*pGeoMap->GetNPixelX(), pGeoMap->GetPitchY()*pGeoMap->GetNPixelY(), 0);
+   
    if (fgCheckBmMatching) {
-	  fpHisBmMatchX = new TH1F("vtBmMatchX", "Residual vertexing - BM in X", 500, -VTX_WIDTH/2., VTX_WIDTH/2.);
+	  fpHisBmMatchX = new TH1F("vtBmMatchX", "Residual vertexing - BM in X", 500, -size[0]/2., size[0]/2.);
 	  AddHistogram(fpHisBmMatchX);
    
-	  fpHisBmMatchY = new TH1F("vtBmMatchY", "Residual vertexing - BM in Y", 500, -VTX_HEIGHT/2., VTX_HEIGHT/2.);
+	  fpHisBmMatchY = new TH1F("vtBmMatchY", "Residual vertexing - BM in Y", 500, -size[1]/2., size[2]/2.);
 	  AddHistogram(fpHisBmMatchY);
    }
    
    if (TAVTparConf::IsMapHistOn()) {
-	  fpHisPosXY = new TH2F( "vtVtxPosXY", "Vertex position at XY", 
-							100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelY()/2., pGeoMap->GetPitchX()*pGeoMap->GetNPixelY()/2., 
-							100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2.);
+	  fpHisPosXY = new TH2F( "vtVtxPosXY", "Vertex position at XY",
+                           100, -size[0]/2., size[0]/2.,
+                           100, -size[1]/2., size[1]/2.);
 	  fpHisPosXY->SetMarkerColor(3);
 	  fpHisPosXY->SetStats(kFALSE);
 	  AddHistogram(fpHisPosXY);
@@ -158,7 +180,7 @@ Bool_t TAVTactBaseNtuVertex::CheckBmMatching()
    for (Int_t i = 0; i < pNtuVertex->GetVertexN(); ++i) {
 	  TAVTvertex* vtx      = pNtuVertex->GetVertex(i);
 	  TVector3 vtxPosition = vtx->GetVertexPosition();
-	  vtxPosition  = pFirstGeo->FromVTLocalToGlobal(vtxPosition*TAGgeoTrafo::MuToCm());
+	  vtxPosition  = pFirstGeo->FromVTLocalToGlobal(vtxPosition);
 	  
 	  TVector3 bmPosition = pFirstGeo->FromGlobalToBMLocal(vtxPosition);
 	  vtxPosition *= TAGgeoTrafo::CmToMu();

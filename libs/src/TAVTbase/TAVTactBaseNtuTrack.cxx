@@ -234,9 +234,9 @@ void TAVTactBaseNtuTrack::CheckBM()
    
    Float_t zDiff = 0;
    
-   if (fpFirstGeo) {
-	  TVector3 bmPos = fpFirstGeo->GetBMCenter();
-	  TVector3 vtPos = fpFirstGeo->GetVTCenter();
+   if (fpFootGeo) {
+	  TVector3 bmPos = fpFootGeo->GetBMCenter();
+	  TVector3 vtPos = fpFootGeo->GetVTCenter();
 	  zDiff  = vtPos.Z() - bmPos.Z();	  
    }
    
@@ -248,7 +248,6 @@ void TAVTactBaseNtuTrack::CheckBM()
    
    if (fBmTrack) {
 	  fBmTrackPos  = fBmTrack->PointAtLocalZ(zDiff);
-	  fBmTrackPos *= TAGgeoTrafo::CmToMu();
 	  Float_t chi2 = fBmTrack->GetChi2();
 	  if (ValidHistogram())
 		 fpHisBmChi2->Fill(chi2);
@@ -341,7 +340,7 @@ Bool_t TAVTactBaseNtuTrack::FindStraightTracks()
 		 array.Add(cluster);
 		 
 		 lineOrigin.SetXYZ(cluster->GetPositionU(), cluster->GetPositionV(), 0); // parallel lines
-		 pGeoMap->Sensor2Detector_frame(curPlane, &lineOrigin);
+		 lineOrigin = pGeoMap->Sensor2Detector(curPlane, lineOrigin);
 		 lineSlope.SetXYZ(0, 0, 1);
 		 
 		 track->SetLineValue(lineOrigin, lineSlope);
@@ -523,10 +522,8 @@ void TAVTactBaseNtuTrack::FillHistogramm(TAVTtrack* track)
 	  Float_t posZ       = cluster->GetPositionG()[2];
 	  TVector3 impact    = track->Intersection(posZ);
    
-     TVector3 impactLoc = impact;
-  //    pGeoMap->Global2Local(&impactLoc);
-      pGeoMap->Detector2Sensor_frame(idx, &impactLoc);
-         
+     TVector3 impactLoc =  pGeoMap->Detector2Sensor(idx, impact);
+      
 	  if (TAVTparConf::IsMapHistOn()) 
 		 fpHisTrackMap[idx]->Fill(impactLoc[0], impactLoc[1]);
 	  fpHisResTotX->Fill(impact[0]-cluster->GetPositionG()[0]);
@@ -581,7 +578,7 @@ void TAVTactBaseNtuTrack::FillHistogramm()
 void TAVTactBaseNtuTrack::FillBmHistogramm(TVector3 bmTrackPos)
 {   
    TAVTntuTrack* pNtuTrack = (TAVTntuTrack*) fpNtuTrack->Object();
-   bmTrackPos  = fpFirstGeo->FromBMLocalToGlobal(bmTrackPos*TAGgeoTrafo::MuToCm());
+   bmTrackPos  = fpFootGeo->FromBMLocalToGlobal(bmTrackPos*TAGgeoTrafo::MuToCm());
    bmTrackPos *=  TAGgeoTrafo::CmToMu();
    fpHisBmBeamProf->Fill(bmTrackPos.X(), bmTrackPos.Y());
    
@@ -589,7 +586,7 @@ void TAVTactBaseNtuTrack::FillBmHistogramm(TVector3 bmTrackPos)
 	  TAVTtrack* track  = pNtuTrack->GetTrack(i);
 	  TVector3   origin = track->GetTrackLine().GetOrigin();
 	  
-	  origin  = fpFirstGeo->FromVTLocalToGlobal(origin*TAGgeoTrafo::MuToCm());
+	  origin  = fpFootGeo->FromVTLocalToGlobal(origin*TAGgeoTrafo::MuToCm());
 	  origin *=  TAGgeoTrafo::CmToMu();
 	  TVector3 res = origin - bmTrackPos;
 	  fpHisVtxResX->Fill(res.X());
@@ -649,8 +646,8 @@ TAVTtrack* TAVTactBaseNtuTrack::NearestTrack(TAVTcluster *aCluster) {
 //  
 void TAVTactBaseNtuTrack::SetGeoTrafo(TString name)
 {
-   fpFirstGeo = (TAGgeoTrafo*)gTAGroot->FindAction(name.Data());
-   if (!fpFirstGeo)
+   fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(name.Data());
+   if (!fpFootGeo)
 	  printf("No GeoTrafo action %s available yet\n", name.Data());
    else 
 	  printf("GeoTrafo action %s found\n", name.Data());

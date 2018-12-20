@@ -20,12 +20,13 @@ class TAVTtrack;
 class TAVTactNtuVertexPD : public TAVTactBaseNtuVertex {
     
 public:
-    explicit  TAVTactNtuVertexPD(const char* name       =  0,
-                                TAGdataDsc* p_ntutrack  =  0, 
-                                TAGdataDsc* p_ntuvertex =  0, 
-                                TAGparaDsc* p_config    =  0,
-								TAGparaDsc* p_geomap    =  0,
-								TAGdataDsc* p_bmtrack   =  0);
+    explicit  TAVTactNtuVertexPD(const char* name        =  0,
+                                 TAGdataDsc* p_ntutrack  =  0,
+                                 TAGdataDsc* p_ntuvertex =  0,
+                                 TAGparaDsc* p_config    =  0,
+                                 TAGparaDsc* p_geomap    =  0,
+                                 TAGparaDsc* p_geomapG   =  0,
+                                 TAGdataDsc* p_bmtrack   =  0);
     
     virtual ~TAVTactNtuVertexPD();
     
@@ -48,8 +49,6 @@ private:
     TVector3 ComputeMaxVMaxIMaxJ(); 
 
 private:
-    Double_t fMinZ; //minimum value of Z
-    Double_t fMaxZ; //Maximum value of Z
     Double_t fStepZ; //Tolerance Z 
     Double_t fStepXY; //Tolerance XY
     Double_t fTrack;
