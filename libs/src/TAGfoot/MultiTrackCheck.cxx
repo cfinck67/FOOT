@@ -62,447 +62,447 @@ void MultiTrackCheck::Initialize( EVENT_STRUCT* evStr ) {
 
 void MultiTrackCheck::Process( Long64_t jentry ){
   
-  //cout << " EVENT EVENT  EVENT "  << endl; 
-  // Hit collection per det
-  m_VT_hitCollection.clear();
-  m_IT_hitCollection.clear();
-  m_MSD_hitCollection.clear();
-  m_VT_partIDColl.clear();
-  // Frag info container
-  m_FragIdxs.clear();
-  m_Frag_hitCollection.clear();
-  m_Frag_indexCollection.clear();
-  // Track list with 9 hits
-  m_Trcks9hits.clear();
-  m_Trcks9index.clear();
-  //VT for fit
-  firstVThitlist.clear();
-  secondVThitlist.clear();
-  thirdVThitlist.clear();
-  lastVThitlist.clear();
-  //IT for fit
-  firstIThitlist.clear();
-  secondIThitlist.clear();
-  //MSD for fit
-  firstMSDhitlist.clear();
-  secondMSDhitlist.clear();
-  thirdMSDhitlist.clear();
-  //P0 and P1 for Vertexing
-  m_p0_zx.clear();
-  m_p0_zy.clear();
-  m_p1_zx.clear();
-  m_p1_zy.clear();
-  
-  int ntrackonVT = 0;     
-  int ntrackonIT = 0;  
-  int ntrackonMSD = 0;
-  TwoTrackEvent = false;
-
-
-  // // save pixels in the collection
-   TAVTparGeo* vtxGeo = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAVTparGeo")->Object();
-
-  for (int nSensor = 0; nSensor <  vtxGeo->GetNSensors(); nSensor++) {	// over all sensors
-    for (int nPx = 0; nPx <  myn_vtraw->GetPixelsN( nSensor ); nPx++){ 		// over all pixels for each sensor
-      
-      TAVTntuHit* vt_hit = myn_vtraw->GetPixel( nSensor, nPx);
-      
-      tmpVT_partID =  vt_hit->m_genPartID;
-      //  cout << " tmpVT_partID  " << tmpVT_partID  << endl;
-      
-      if(vt_hit->GetMCPosition_footFrame().Z() < 0.7) ntrackonVT++;
-      
-
-      // get true  coord
-      TVector3 vtpos = vt_hit->GetMCPosition_footFrame();
-      
-            
-      // get pixel coord
-      TVector3 vtpixelPos = m_VT_geo->GetPixelPos_footFrame( vt_hit->GetLayer(), vt_hit->GetPixelColumn(), vt_hit->GetPixelLine() );
-      
-      
-      // control plot histograms for VT
-      m_Plotter->SetMultiTrackPlots("VT", &vtpos, &vtpixelPos);
-      
-
-      m_VT_hitCollection.push_back(vt_hit);
-      m_VT_partIDColl.push_back(tmpVT_partID);
-
-      
-    }
-  }
-  
-
-
-  // // VT cluster
-    
-  // TAVTntuCluster* vtclus = (TAVTntuCluster*) gTAGroot->FindDataDsc("vtClus", "TAVTntuCluster")->Object();
-  // // for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {   // over all sensors
-  // for (int nSensor = 0; nSensor < 4; nSensor++) {   // over all sensors
-    
-  //   cout << "N vertex pixel in sensor " << nSensor << ": " << vtclus->GetClustersN( nSensor ) << endl;
-    
-  //   for (int nPx = 0; nPx < vtclus->GetClustersN( nSensor ); nPx++)  {     // over all pixels for each sensor
-  //     TClonesArray* arra = vtclus->GetCluster( nSensor, nPx )->GetListOfPixels();
-  //     for ( int n=0; n<arra->GetEntries(); n++ ) {
-  // 	//TVector3  vt_clus = ( (TAVTntuHit*) arra->At(n) )->GetPixelPosition_footFrame();
-  // 	m_VT_hitCollection.push_back((TAVTntuHit*) arra->At(n));
-  //     }
-  //   }
-  // }
-  
-  
-   TAITparGeo* itGeo = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefParaName(), "TAITparGeo")->Object();
-
-  
-  for (int nSensor = 0; nSensor < itGeo->GetNSensors(); nSensor++) {	// over all sensors
-    
-    for (int nPx = 0; nPx < myn_itraw->GetPixelsN( nSensor ); nPx++){ 		// over all pixels for each sensor
-      
-      TAITntuHit* it_hit = (TAITntuHit*)myn_itraw->GetPixel( nSensor, nPx );
-      
-      if((it_hit->GetMCPosition_footFrame().Z() > 13.3 && it_hit->GetMCPosition_footFrame().Z() < 13.5) || (it_hit->GetMCPosition_footFrame().Z() > 14.3 && it_hit->GetMCPosition_footFrame().Z() < 14.5))  ntrackonIT++;
-      
-      
-
-
-       // get true  coord
-      TVector3 itpos = it_hit->GetMCPosition_footFrame();
-
-      // get pixel coord
-      TVector3  itpixelPos = m_IT_geo->GetPixelPos_footFrame( it_hit->GetSensorID(), it_hit->GetPixelColumn(), it_hit->GetPixelLine() );
-
-
-
-      m_Plotter->SetMultiTrackPlots("IT", &itpos, &itpixelPos);
- 
-
-      m_IT_hitCollection.push_back(it_hit);
-
-    }
-    
-}
-
-
-
-
-  // IT cluster 
-  // TAITntuCluster* itclus = (TAITntuCluster*) gTAGroot->FindDataDsc("itClus", "TAITntuCluster")->Object();
-  // //for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {   // over all sensors
-    
-  //   for (int nSensor = 0; nSensor < 32; nSensor++) {   // over all sensors
-
-  //     cout << "N vertex pixel in sensor " << nSensor << ": " << itclus->GetClustersN( nSensor ) << endl;
-      
-  //   for (int nPx = 0; nPx < itclus->GetClustersN( nSensor ); nPx++)  {     // over all pixels for each sensor
-      
-  //     TClonesArray* arra = itclus->GetCluster( nSensor, nPx )->GetListOfPixels();
-  //     for ( int n=0; n<arra->GetEntries(); n++ ) {
-  // 	//TVector3 vPos = ( (TAITntuHit*) arra->At(n) )->GetPixelPosition_footFrame();
-  // 	m_IT_hitCollection.push_back((TAITntuHit*) arra->At(n));
-	
-  //     }
-  //   }
-  // }  
-  
-  
-  
-
-
-
-  
-   
-   for (int i = 0; i < myn_msdraw->GetPixelsN(0); i++)  {                    
-     TAMSDntuHit* msd_hit = myn_msdraw->GetPixel(0,i);       
-     
-   //  if(msd_hit->GetMCPosition_Global().Z() < 27.0) 	ntrackonMSD++;
-     
-    
-   
-      // get true  coord
-    // TVector3 msdpos = msd_hit->GetMCPosition_Global();
-     
-     
-   //  m_Plotter->SetMultiTrackPlots("MSD", &msdpos, &msdpos); //only true MC info for now
-	     
-     m_MSD_hitCollection.push_back(msd_hit);
-
-
-   }
-   
-  
-   
-   //// Read track ntuple variable//// 
-   //TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->GenerateObject();
-   TAGntuMCeve*  p_ntumceve  = (TAGntuMCeve*) gTAGroot->FindDataDsc("myn_mceve", "TAGntuMCeve")->Object();
-   int ntrackMC =  p_ntumceve->GetHitN();
-   // cout << " ntrackMC  " << ntrackMC << endl; 
-   tottrack += ntrackMC;
-   
-   m_Plotter->SetMultiTrackInfo("TrackInfo",ntrackonVT, ntrackonIT, ntrackonMSD, ntrackMC);
-   
-   for(int i=0; i<ntrackMC; i++){
-     TAGntuMCeveHit *myTrack = p_ntumceve->Hit(i);
-     int index = i;
-     m_Frag_indexCollection.push_back(index);
-     m_Frag_hitCollection.push_back(myTrack);  
-   }
-
-   // cout << " m_Frag_indexCollection.size()  " <<  m_Frag_indexCollection.size() << endl; 
-   // cout << " m_Frag_hitCollection.size()    " <<  m_Frag_hitCollection.size() << endl; 
-    // cout << " m_VT_hitCollection.size()     " <<   m_VT_hitCollection.size() << endl;
-    // cout << " m_IT_hitCollection.size()     " <<   m_IT_hitCollection.size() << endl;
-    // cout << " m_MSD_hitCollection.size()   " <<  m_MSD_hitCollection.size() << endl;
-     
-   for (int i=0; i<m_Frag_hitCollection.size(); i++){
-       
-     int nVT = 0;     
-     int nIT = 0;  
-     int nMSD = 0;  
-     
-
-     for(int j=0; j<m_VT_hitCollection.size(); j++){
-       // int tmp_vtid = m_VT_hitCollection.at(j)->GetMCid()-1;  
-       // int tmp_vtid_mgen = m_VT_hitCollection.at(j)->m_genPartID;
-       int tmp_vtid_mgen = m_VT_hitCollection.at(j)->GetMCid();
-       // cout << " tmp_vtid  " << tmp_vtid  << endl;
-       //  cout << " tmp_vtid_mgen  " << tmp_vtid_mgen  << endl;
-       // cout << " m_Frag_indexCollection.at(i)  " << m_Frag_indexCollection.at(i)  << endl;
-       if(tmp_vtid_mgen == m_Frag_indexCollection.at(i)){
-	 
-	 if (debug_multi > 0) cout<<" Vt hit associated to part "<< i << " That is a:: "<< m_Frag_hitCollection.at(i)->FlukaID() <<"  and has charge, mass:: "<< m_Frag_hitCollection.at(i)->Chg()<<" "<<m_Frag_hitCollection.at(i)->Mass()<<" "<<endl; 
-
-	 nVT++;
-       }
-       
-     }
-     
-     for(int k=0; k<m_IT_hitCollection.size(); k++){
-       // int tmp_itid = m_IT_hitCollection.at(k)->GetMCid()-1;
-       // int tmp_itid_mgen = m_IT_hitCollection.at(k)->m_genPartID;
-       int tmp_itid_mgen = m_IT_hitCollection.at(k)->GetMCid();
-       //if(tmp_itid == m_Frag_indexCollection.at(i)){
-	 if(tmp_itid_mgen == m_Frag_indexCollection.at(i)){
-	 
-	 if (debug_multi > 0) cout<<" It hit associated to part "<< i << " That is a:: "<< m_Frag_hitCollection.at(i)->FlukaID() <<"  and has charge, mass:: "<< m_Frag_hitCollection.at(i)->Chg()<<" "<<m_Frag_hitCollection.at(i)->Mass()<<" "<<endl; 
-	 
-	 nIT++;
-	 
-       }
-     }
-         
-     for(int z=0; z<m_MSD_hitCollection.size(); z++){
-       // int tmp_msdid = m_MSD_hitCollection.at(z)->GetMCid()-1;
-        int tmp_msdid_mgen = m_MSD_hitCollection.at(z)->m_genPartID;
-       //       int tmp_msdid_mgen = m_MSD_hitCollection.at(z)->GetGenPartID();
-   	if (tmp_msdid_mgen == m_Frag_indexCollection.at(i))
-   	  {
-	    
-	    if (debug_multi > 0) cout<<" MSD hit associated to part "<< i << " That is a:: "<< m_Frag_hitCollection.at(i)->FlukaID() <<"  and has charge, mass:: "<< m_Frag_hitCollection.at(i)->Chg()<<" "<<m_Frag_hitCollection.at(i)->Mass()<<" "<<endl; 
-	    
-	    nMSD++;
-   	  }
-     }
-
-     
-     m_Plotter->SetMultiTrackHitInfo( "HitInfo", nVT, nIT, nMSD);
-     
-     int nTrackingHit = nVT + nIT + nMSD;
-     //     if (debug_multi > 0)   cout << " Nhit per track  " <<  nVT + nIT + nMSD << endl;
-
-     //  cout << " Nhit per track  " <<  nVT << " + " << nIT << " + " << nMSD << endl;
-     
-     
-     if(nVT>0 && nIT>0 && nMSD>0) tottrackwithatleastonehitperdet++;
-     
-     if (nTrackingHit == 9){
-       
-       tottrackwith9hits++;
-       m_Trcks9hits.push_back(m_Frag_hitCollection.at(i));
-       m_Trcks9index.push_back(i);
-     } 
-   }
-
-   if (debug_multi > 0){
-     cout << " m_Trcks9hits  size " <<  m_Trcks9hits.size() << endl;
-     cout << " m_Trcks9index size " <<  m_Trcks9index.size() << endl;
-   }
-  
-  
-      // cout << " m_VT_hitCollection.size()  " << m_VT_hitCollection.size()  << endl;
-   for (int i =0; i< m_Trcks9index.size(); i++) 
-     {
-       // cout << "index  "  << i << "  charge   " << m_Frag_hitCollection.at(m_Trcks9index.at(i))->Chg() <<endl;
-       //
-
-       // cout << "  charge  m_Trcks9hits   " << m_Trcks9hits.at(i)->Chg() <<endl;
-       // cout << "  mass  m_Trcks9hits     " << m_Trcks9hits.at(i)->Mass() <<endl;
-       
-       m_VT_Trackpos.clear();
-       m_IT_Trackpos.clear();
-       m_MSD_Trackpos.clear();
-       // cout << " TRACK TRACK TRACK "  << endl; 
-       
-
-       
-       for(int j=0; j<m_VT_hitCollection.size(); j++){
-	 if ( m_Trcks9index.at(i) == m_VT_hitCollection.at(j)->m_genPartID)
-	   { 
-	     
-	     TAVTntuHit* p_hit = m_VT_hitCollection.at(j);
-	     
-	     // get true  coord
-	     TVector3 vtpos = p_hit->GetMCPosition_footFrame();
-
-	     // m_VT_Trackpos.push_back(vtpos);
-	     
-	     // get pixel coord
-	     TVector3 vtpixelPos = m_VT_geo->GetPixelPos_footFrame( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
-	     
-	     //m_VT_Trackpos.push_back(vtpixelPos);
-	     
-
-	     //	     TVector3 vtpixelPos_clus = p_hit->GetPixelPosition_footFrame();
-
-	     
-	     m_VT_Trackpos.push_back(vtpixelPos);
-	     
-	     // control plot histograms for VT
-	        m_Plotter->SetMultiTrackPlots("VT_TRACK9HITS", &vtpos, &vtpixelPos);
-	     
-	     
-	   }
-       }
-       
-       for(int k=0; k<m_IT_hitCollection.size(); k++){
-	 if ( m_Trcks9index.at(i) == m_IT_hitCollection.at(k)->m_genPartID)
-	   { 
-	    
-	     TAITntuHit* p_hit = m_IT_hitCollection.at(k);
-	     
-	     // get true  coord
-	     TVector3 itpos = p_hit->GetMCPosition_footFrame();
-
-	     // get pixel coord
-	     TVector3  itpixelPos = m_IT_geo->GetPixelPos_footFrame( p_hit->GetSensorID(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
-
-	     //m_IT_Trackpos.push_back(itpos);
-	     // m_IT_Trackpos.push_back(itpixelPos);
-	     
-	     
-	     //TVector3 itpixelPos_clus = p_hit->GetPixelPosition_footFrame();
-	     
-	     
-	      m_IT_Trackpos.push_back(itpixelPos);
-
-
-
-	      
-	      m_Plotter->SetMultiTrackPlots("IT_TRACK9HITS", &itpos, &itpixelPos);
- 
-	   }
-	 
-       }
-       
-       for(int z=0; z<m_MSD_hitCollection.size(); z++){
-	 if (m_Trcks9index.at(i) == m_MSD_hitCollection.at(z)->m_genPartID)
-	   {
-	     
-	     
-//	     TAMSDntuHit* p_hit = m_MSD_hitCollection.at(z);
-
-	     // get true  coord
-//	     TVector3 msdpos = p_hit->GetMCPosition_Global();
-//	     m_MSD_Trackpos.push_back(msdpos);
-	     
-//	     m_Plotter->SetMultiTrackPlots("MSD_TRACK9HITS", &msdpos, &msdpos); //only true MC info for now
-	     
-	    
-	   }
-	 
-       }
-
-       if (debug_multi == -1){
-	 cout <<  " HITS per track" << endl;
-	 cout <<  " m_VT_Trackpos.size() " << m_VT_Trackpos.size() << endl;
-	 cout <<  " m_IT_Trackpos.size() " << m_IT_Trackpos.size() << endl;
-	 cout <<  " m_MSD_Trackpos.size() " << m_MSD_Trackpos.size() << endl;
-       }
-       
-     
-       m_DetTrackpos["VT"] = m_VT_Trackpos;
-       m_DetTrackpos["IT"] = m_IT_Trackpos;
-       m_DetTrackpos["MSD"] = m_MSD_Trackpos;
-       
-	   
-       
-       for ( map< string, vector <TVector3>>::iterator it = m_DetTrackpos.begin(); it != m_DetTrackpos.end(); it++ ) {       
-	 
-       	 if (debug_multi > 1) cout << " (*it).first  " << (*it).first << "   (*it).second.size()   " << (*it).second.size() <<endl;
-       	 if ((*it).first == "VT" && (*it).second.size()==4){
-	   
-       	   for (int i =0; i<(*it).second.size(); i++){
-	     
-	     if(i==0) firstVThitlist.push_back((*it).second.at(i));
-	     else if(i==1)secondVThitlist.push_back((*it).second.at(i));
-	     else if(i==2)thirdVThitlist.push_back((*it).second.at(i));
-	     else if(i==3)lastVThitlist.push_back((*it).second.at(i));
-	   }
-	 }  
-	 else if ((*it).first == "IT" && (*it).second.size()==2){
-
-	   for (int j =0; j<(*it).second.size(); j++){
-	     
-	     if(j==0) firstIThitlist.push_back((*it).second.at(j));
-	     else if(j==1)secondIThitlist.push_back((*it).second.at(j));
-	     
-	     
-	   }
-	 }
-	 else if ((*it).first == "MSD" && (*it).second.size()==3){
-
-	   for (int z =0; z<(*it).second.size(); z++){
-	     if(z==0) firstMSDhitlist.push_back((*it).second.at(z));
-	     else if(z==1)secondMSDhitlist.push_back((*it).second.at(z));
-	     else if(z==2)thirdMSDhitlist.push_back((*it).second.at(z));
-	     
-	   }
-	   
-	 }
-	 
-       }
-       
-     }
-   
-   
-   if (firstVThitlist.size() == 2)
-     {
-       //     cout << " EVENT with 2 tracks  " << endl;
-       
-       TwoTrackEvent = true;
-     }
-   EfficiencyChi2Fit();
-   
-   if (doMinDist)  EfficiencyMinimumDistance();
-
-   if ( doVertex && TwoTrackEvent){
-     //  cout << "Z x   " << endl;
-     Double_t zx_Vertex = VertexZ(m_p0_zx, m_p1_zx);
-     //cout << "Z y " << endl;   
-     Double_t zy_Vertex = VertexZ(m_p0_zy, m_p1_zy);
-
-     // vector<double> v(m_p0_zx.size());
-     // v = {zx_Vertex, zy_Vertex};
-     // double Zmean = TMath::Mean(m_p0_zx.size(), &v[0]);
-   
-     // cout << "Zmean   " << Zmean << endl;
-
-     m_Plotter->SetVertexCoord("Vertex", zx_Vertex, zy_Vertex);
-
-
-   }
-      
-   
+//  //cout << " EVENT EVENT  EVENT "  << endl; 
+//  // Hit collection per det
+//  m_VT_hitCollection.clear();
+//  m_IT_hitCollection.clear();
+//  m_MSD_hitCollection.clear();
+//  m_VT_partIDColl.clear();
+//  // Frag info container
+//  m_FragIdxs.clear();
+//  m_Frag_hitCollection.clear();
+//  m_Frag_indexCollection.clear();
+//  // Track list with 9 hits
+//  m_Trcks9hits.clear();
+//  m_Trcks9index.clear();
+//  //VT for fit
+//  firstVThitlist.clear();
+//  secondVThitlist.clear();
+//  thirdVThitlist.clear();
+//  lastVThitlist.clear();
+//  //IT for fit
+//  firstIThitlist.clear();
+//  secondIThitlist.clear();
+//  //MSD for fit
+//  firstMSDhitlist.clear();
+//  secondMSDhitlist.clear();
+//  thirdMSDhitlist.clear();
+//  //P0 and P1 for Vertexing
+//  m_p0_zx.clear();
+//  m_p0_zy.clear();
+//  m_p1_zx.clear();
+//  m_p1_zy.clear();
+//  
+//  int ntrackonVT = 0;     
+//  int ntrackonIT = 0;  
+//  int ntrackonMSD = 0;
+//  TwoTrackEvent = false;
+//
+//
+//  // // save pixels in the collection
+//   TAVTparGeo* vtxGeo = (TAVTparGeo*) gTAGroot->FindParaDsc(TAVTparGeo::GetDefParaName(), "TAVTparGeo")->Object();
+//
+//  for (int nSensor = 0; nSensor <  vtxGeo->GetNSensors(); nSensor++) {	// over all sensors
+//    for (int nPx = 0; nPx <  myn_vtraw->GetPixelsN( nSensor ); nPx++){ 		// over all pixels for each sensor
+//      
+//      TAVTntuHit* vt_hit = myn_vtraw->GetPixel( nSensor, nPx);
+//      
+//      tmpVT_partID =  vt_hit->m_genPartID;
+//      //  cout << " tmpVT_partID  " << tmpVT_partID  << endl;
+//      
+//      if(vt_hit->GetMCPosition_footFrame().Z() < 0.7) ntrackonVT++;
+//      
+//
+//      // get true  coord
+//      TVector3 vtpos = vt_hit->GetMCPosition_footFrame();
+//      
+//            
+//      // get pixel coord
+//      TVector3 vtpixelPos = m_VT_geo->GetPixelPos_footFrame( vt_hit->GetLayer(), vt_hit->GetPixelColumn(), vt_hit->GetPixelLine() );
+//      
+//      
+//      // control plot histograms for VT
+//      m_Plotter->SetMultiTrackPlots("VT", &vtpos, &vtpixelPos);
+//      
+//
+//      m_VT_hitCollection.push_back(vt_hit);
+//      m_VT_partIDColl.push_back(tmpVT_partID);
+//
+//      
+//    }
+//  }
+//  
+//
+//
+//  // // VT cluster
+//    
+//  // TAVTntuCluster* vtclus = (TAVTntuCluster*) gTAGroot->FindDataDsc("vtClus", "TAVTntuCluster")->Object();
+//  // // for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {   // over all sensors
+//  // for (int nSensor = 0; nSensor < 4; nSensor++) {   // over all sensors
+//    
+//  //   cout << "N vertex pixel in sensor " << nSensor << ": " << vtclus->GetClustersN( nSensor ) << endl;
+//    
+//  //   for (int nPx = 0; nPx < vtclus->GetClustersN( nSensor ); nPx++)  {     // over all pixels for each sensor
+//  //     TClonesArray* arra = vtclus->GetCluster( nSensor, nPx )->GetListOfPixels();
+//  //     for ( int n=0; n<arra->GetEntries(); n++ ) {
+//  // 	//TVector3  vt_clus = ( (TAVTntuHit*) arra->At(n) )->GetPixelPosition_footFrame();
+//  // 	m_VT_hitCollection.push_back((TAVTntuHit*) arra->At(n));
+//  //     }
+//  //   }
+//  // }
+//  
+//  
+//   TAITparGeo* itGeo = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefParaName(), "TAITparGeo")->Object();
+//
+//  
+//  for (int nSensor = 0; nSensor < itGeo->GetNSensors(); nSensor++) {	// over all sensors
+//    
+//    for (int nPx = 0; nPx < myn_itraw->GetPixelsN( nSensor ); nPx++){ 		// over all pixels for each sensor
+//      
+//      TAITntuHit* it_hit = (TAITntuHit*)myn_itraw->GetPixel( nSensor, nPx );
+//      
+//      if((it_hit->GetMCPosition_footFrame().Z() > 13.3 && it_hit->GetMCPosition_footFrame().Z() < 13.5) || (it_hit->GetMCPosition_footFrame().Z() > 14.3 && it_hit->GetMCPosition_footFrame().Z() < 14.5))  ntrackonIT++;
+//      
+//      
+//
+//
+//       // get true  coord
+//      TVector3 itpos = it_hit->GetMCPosition_footFrame();
+//
+//      // get pixel coord
+//      TVector3  itpixelPos = m_IT_geo->GetPixelPos_footFrame( it_hit->GetSensorID(), it_hit->GetPixelColumn(), it_hit->GetPixelLine() );
+//
+//
+//
+//      m_Plotter->SetMultiTrackPlots("IT", &itpos, &itpixelPos);
+// 
+//
+//      m_IT_hitCollection.push_back(it_hit);
+//
+//    }
+//    
+//}
+//
+//
+//
+//
+//  // IT cluster 
+//  // TAITntuCluster* itclus = (TAITntuCluster*) gTAGroot->FindDataDsc("itClus", "TAITntuCluster")->Object();
+//  // //for (int nSensor = 0; nSensor < ntup->GetNSensors(); nSensor++) {   // over all sensors
+//    
+//  //   for (int nSensor = 0; nSensor < 32; nSensor++) {   // over all sensors
+//
+//  //     cout << "N vertex pixel in sensor " << nSensor << ": " << itclus->GetClustersN( nSensor ) << endl;
+//      
+//  //   for (int nPx = 0; nPx < itclus->GetClustersN( nSensor ); nPx++)  {     // over all pixels for each sensor
+//      
+//  //     TClonesArray* arra = itclus->GetCluster( nSensor, nPx )->GetListOfPixels();
+//  //     for ( int n=0; n<arra->GetEntries(); n++ ) {
+//  // 	//TVector3 vPos = ( (TAITntuHit*) arra->At(n) )->GetPixelPosition_footFrame();
+//  // 	m_IT_hitCollection.push_back((TAITntuHit*) arra->At(n));
+//	
+//  //     }
+//  //   }
+//  // }  
+//  
+//  
+//  
+//
+//
+//
+//  
+//   
+//   for (int i = 0; i < myn_msdraw->GetPixelsN(0); i++)  {                    
+//     TAMSDntuHit* msd_hit = myn_msdraw->GetPixel(0,i);       
+//     
+//   //  if(msd_hit->GetMCPosition_Global().Z() < 27.0) 	ntrackonMSD++;
+//     
+//    
+//   
+//      // get true  coord
+//    // TVector3 msdpos = msd_hit->GetMCPosition_Global();
+//     
+//     
+//   //  m_Plotter->SetMultiTrackPlots("MSD", &msdpos, &msdpos); //only true MC info for now
+//	     
+//     m_MSD_hitCollection.push_back(msd_hit);
+//
+//
+//   }
+//   
+//  
+//   
+//   //// Read track ntuple variable//// 
+//   //TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->GenerateObject();
+//   TAGntuMCeve*  p_ntumceve  = (TAGntuMCeve*) gTAGroot->FindDataDsc("myn_mceve", "TAGntuMCeve")->Object();
+//   int ntrackMC =  p_ntumceve->GetHitN();
+//   // cout << " ntrackMC  " << ntrackMC << endl; 
+//   tottrack += ntrackMC;
+//   
+//   m_Plotter->SetMultiTrackInfo("TrackInfo",ntrackonVT, ntrackonIT, ntrackonMSD, ntrackMC);
+//   
+//   for(int i=0; i<ntrackMC; i++){
+//     TAGntuMCeveHit *myTrack = p_ntumceve->Hit(i);
+//     int index = i;
+//     m_Frag_indexCollection.push_back(index);
+//     m_Frag_hitCollection.push_back(myTrack);  
+//   }
+//
+//   // cout << " m_Frag_indexCollection.size()  " <<  m_Frag_indexCollection.size() << endl; 
+//   // cout << " m_Frag_hitCollection.size()    " <<  m_Frag_hitCollection.size() << endl; 
+//    // cout << " m_VT_hitCollection.size()     " <<   m_VT_hitCollection.size() << endl;
+//    // cout << " m_IT_hitCollection.size()     " <<   m_IT_hitCollection.size() << endl;
+//    // cout << " m_MSD_hitCollection.size()   " <<  m_MSD_hitCollection.size() << endl;
+//     
+//   for (int i=0; i<m_Frag_hitCollection.size(); i++){
+//       
+//     int nVT = 0;     
+//     int nIT = 0;  
+//     int nMSD = 0;  
+//     
+//
+//     for(int j=0; j<m_VT_hitCollection.size(); j++){
+//       // int tmp_vtid = m_VT_hitCollection.at(j)->GetMCid()-1;  
+//       // int tmp_vtid_mgen = m_VT_hitCollection.at(j)->m_genPartID;
+//       int tmp_vtid_mgen = m_VT_hitCollection.at(j)->GetMCid();
+//       // cout << " tmp_vtid  " << tmp_vtid  << endl;
+//       //  cout << " tmp_vtid_mgen  " << tmp_vtid_mgen  << endl;
+//       // cout << " m_Frag_indexCollection.at(i)  " << m_Frag_indexCollection.at(i)  << endl;
+//       if(tmp_vtid_mgen == m_Frag_indexCollection.at(i)){
+//	 
+//	 if (debug_multi > 0) cout<<" Vt hit associated to part "<< i << " That is a:: "<< m_Frag_hitCollection.at(i)->FlukaID() <<"  and has charge, mass:: "<< m_Frag_hitCollection.at(i)->Chg()<<" "<<m_Frag_hitCollection.at(i)->Mass()<<" "<<endl; 
+//
+//	 nVT++;
+//       }
+//       
+//     }
+//     
+//     for(int k=0; k<m_IT_hitCollection.size(); k++){
+//       // int tmp_itid = m_IT_hitCollection.at(k)->GetMCid()-1;
+//       // int tmp_itid_mgen = m_IT_hitCollection.at(k)->m_genPartID;
+//       int tmp_itid_mgen = m_IT_hitCollection.at(k)->GetMCid();
+//       //if(tmp_itid == m_Frag_indexCollection.at(i)){
+//	 if(tmp_itid_mgen == m_Frag_indexCollection.at(i)){
+//	 
+//	 if (debug_multi > 0) cout<<" It hit associated to part "<< i << " That is a:: "<< m_Frag_hitCollection.at(i)->FlukaID() <<"  and has charge, mass:: "<< m_Frag_hitCollection.at(i)->Chg()<<" "<<m_Frag_hitCollection.at(i)->Mass()<<" "<<endl; 
+//	 
+//	 nIT++;
+//	 
+//       }
+//     }
+//         
+//     for(int z=0; z<m_MSD_hitCollection.size(); z++){
+//       // int tmp_msdid = m_MSD_hitCollection.at(z)->GetMCid()-1;
+//        int tmp_msdid_mgen = m_MSD_hitCollection.at(z)->m_genPartID;
+//       //       int tmp_msdid_mgen = m_MSD_hitCollection.at(z)->GetGenPartID();
+//   	if (tmp_msdid_mgen == m_Frag_indexCollection.at(i))
+//   	  {
+//	    
+//	    if (debug_multi > 0) cout<<" MSD hit associated to part "<< i << " That is a:: "<< m_Frag_hitCollection.at(i)->FlukaID() <<"  and has charge, mass:: "<< m_Frag_hitCollection.at(i)->Chg()<<" "<<m_Frag_hitCollection.at(i)->Mass()<<" "<<endl; 
+//	    
+//	    nMSD++;
+//   	  }
+//     }
+//
+//     
+//     m_Plotter->SetMultiTrackHitInfo( "HitInfo", nVT, nIT, nMSD);
+//     
+//     int nTrackingHit = nVT + nIT + nMSD;
+//     //     if (debug_multi > 0)   cout << " Nhit per track  " <<  nVT + nIT + nMSD << endl;
+//
+//     //  cout << " Nhit per track  " <<  nVT << " + " << nIT << " + " << nMSD << endl;
+//     
+//     
+//     if(nVT>0 && nIT>0 && nMSD>0) tottrackwithatleastonehitperdet++;
+//     
+//     if (nTrackingHit == 9){
+//       
+//       tottrackwith9hits++;
+//       m_Trcks9hits.push_back(m_Frag_hitCollection.at(i));
+//       m_Trcks9index.push_back(i);
+//     } 
+//   }
+//
+//   if (debug_multi > 0){
+//     cout << " m_Trcks9hits  size " <<  m_Trcks9hits.size() << endl;
+//     cout << " m_Trcks9index size " <<  m_Trcks9index.size() << endl;
+//   }
+//  
+//  
+//      // cout << " m_VT_hitCollection.size()  " << m_VT_hitCollection.size()  << endl;
+//   for (int i =0; i< m_Trcks9index.size(); i++) 
+//     {
+//       // cout << "index  "  << i << "  charge   " << m_Frag_hitCollection.at(m_Trcks9index.at(i))->Chg() <<endl;
+//       //
+//
+//       // cout << "  charge  m_Trcks9hits   " << m_Trcks9hits.at(i)->Chg() <<endl;
+//       // cout << "  mass  m_Trcks9hits     " << m_Trcks9hits.at(i)->Mass() <<endl;
+//       
+//       m_VT_Trackpos.clear();
+//       m_IT_Trackpos.clear();
+//       m_MSD_Trackpos.clear();
+//       // cout << " TRACK TRACK TRACK "  << endl; 
+//       
+//
+//       
+//       for(int j=0; j<m_VT_hitCollection.size(); j++){
+//	 if ( m_Trcks9index.at(i) == m_VT_hitCollection.at(j)->m_genPartID)
+//	   { 
+//	     
+//	     TAVTntuHit* p_hit = m_VT_hitCollection.at(j);
+//	     
+//	     // get true  coord
+//	     TVector3 vtpos = p_hit->GetMCPosition_footFrame();
+//
+//	     // m_VT_Trackpos.push_back(vtpos);
+//	     
+//	     // get pixel coord
+//	     TVector3 vtpixelPos = m_VT_geo->GetPixelPos_footFrame( p_hit->GetLayer(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
+//	     
+//	     //m_VT_Trackpos.push_back(vtpixelPos);
+//	     
+//
+//	     //	     TVector3 vtpixelPos_clus = p_hit->GetPixelPosition_footFrame();
+//
+//	     
+//	     m_VT_Trackpos.push_back(vtpixelPos);
+//	     
+//	     // control plot histograms for VT
+//	        m_Plotter->SetMultiTrackPlots("VT_TRACK9HITS", &vtpos, &vtpixelPos);
+//	     
+//	     
+//	   }
+//       }
+//       
+//       for(int k=0; k<m_IT_hitCollection.size(); k++){
+//	 if ( m_Trcks9index.at(i) == m_IT_hitCollection.at(k)->m_genPartID)
+//	   { 
+//	    
+//	     TAITntuHit* p_hit = m_IT_hitCollection.at(k);
+//	     
+//	     // get true  coord
+//	     TVector3 itpos = p_hit->GetMCPosition_footFrame();
+//
+//	     // get pixel coord
+//	     TVector3  itpixelPos = m_IT_geo->GetPixelPos_footFrame( p_hit->GetSensorID(), p_hit->GetPixelColumn(), p_hit->GetPixelLine() );
+//
+//	     //m_IT_Trackpos.push_back(itpos);
+//	     // m_IT_Trackpos.push_back(itpixelPos);
+//	     
+//	     
+//	     //TVector3 itpixelPos_clus = p_hit->GetPixelPosition_footFrame();
+//	     
+//	     
+//	      m_IT_Trackpos.push_back(itpixelPos);
+//
+//
+//
+//	      
+//	      m_Plotter->SetMultiTrackPlots("IT_TRACK9HITS", &itpos, &itpixelPos);
+// 
+//	   }
+//	 
+//       }
+//       
+//       for(int z=0; z<m_MSD_hitCollection.size(); z++){
+//	 if (m_Trcks9index.at(i) == m_MSD_hitCollection.at(z)->m_genPartID)
+//	   {
+//	     
+//	     
+////	     TAMSDntuHit* p_hit = m_MSD_hitCollection.at(z);
+//
+//	     // get true  coord
+////	     TVector3 msdpos = p_hit->GetMCPosition_Global();
+////	     m_MSD_Trackpos.push_back(msdpos);
+//	     
+////	     m_Plotter->SetMultiTrackPlots("MSD_TRACK9HITS", &msdpos, &msdpos); //only true MC info for now
+//	     
+//	    
+//	   }
+//	 
+//       }
+//
+//       if (debug_multi == -1){
+//	 cout <<  " HITS per track" << endl;
+//	 cout <<  " m_VT_Trackpos.size() " << m_VT_Trackpos.size() << endl;
+//	 cout <<  " m_IT_Trackpos.size() " << m_IT_Trackpos.size() << endl;
+//	 cout <<  " m_MSD_Trackpos.size() " << m_MSD_Trackpos.size() << endl;
+//       }
+//       
+//     
+//       m_DetTrackpos["VT"] = m_VT_Trackpos;
+//       m_DetTrackpos["IT"] = m_IT_Trackpos;
+//       m_DetTrackpos["MSD"] = m_MSD_Trackpos;
+//       
+//	   
+//       
+//       for ( map< string, vector <TVector3>>::iterator it = m_DetTrackpos.begin(); it != m_DetTrackpos.end(); it++ ) {       
+//	 
+//       	 if (debug_multi > 1) cout << " (*it).first  " << (*it).first << "   (*it).second.size()   " << (*it).second.size() <<endl;
+//       	 if ((*it).first == "VT" && (*it).second.size()==4){
+//	   
+//       	   for (int i =0; i<(*it).second.size(); i++){
+//	     
+//	     if(i==0) firstVThitlist.push_back((*it).second.at(i));
+//	     else if(i==1)secondVThitlist.push_back((*it).second.at(i));
+//	     else if(i==2)thirdVThitlist.push_back((*it).second.at(i));
+//	     else if(i==3)lastVThitlist.push_back((*it).second.at(i));
+//	   }
+//	 }  
+//	 else if ((*it).first == "IT" && (*it).second.size()==2){
+//
+//	   for (int j =0; j<(*it).second.size(); j++){
+//	     
+//	     if(j==0) firstIThitlist.push_back((*it).second.at(j));
+//	     else if(j==1)secondIThitlist.push_back((*it).second.at(j));
+//	     
+//	     
+//	   }
+//	 }
+//	 else if ((*it).first == "MSD" && (*it).second.size()==3){
+//
+//	   for (int z =0; z<(*it).second.size(); z++){
+//	     if(z==0) firstMSDhitlist.push_back((*it).second.at(z));
+//	     else if(z==1)secondMSDhitlist.push_back((*it).second.at(z));
+//	     else if(z==2)thirdMSDhitlist.push_back((*it).second.at(z));
+//	     
+//	   }
+//	   
+//	 }
+//	 
+//       }
+//       
+//     }
+//   
+//   
+//   if (firstVThitlist.size() == 2)
+//     {
+//       //     cout << " EVENT with 2 tracks  " << endl;
+//       
+//       TwoTrackEvent = true;
+//     }
+//   EfficiencyChi2Fit();
+//   
+//   if (doMinDist)  EfficiencyMinimumDistance();
+//
+//   if ( doVertex && TwoTrackEvent){
+//     //  cout << "Z x   " << endl;
+//     Double_t zx_Vertex = VertexZ(m_p0_zx, m_p1_zx);
+//     //cout << "Z y " << endl;   
+//     Double_t zy_Vertex = VertexZ(m_p0_zy, m_p1_zy);
+//
+//     // vector<double> v(m_p0_zx.size());
+//     // v = {zx_Vertex, zy_Vertex};
+//     // double Zmean = TMath::Mean(m_p0_zx.size(), &v[0]);
+//   
+//     // cout << "Zmean   " << Zmean << endl;
+//
+//     m_Plotter->SetVertexCoord("Vertex", zx_Vertex, zy_Vertex);
+//
+//
+//   }
+//      
+//   
    
    
    

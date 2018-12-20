@@ -307,7 +307,7 @@ void Booter::MagFieldTest() {
     cout << endl << "Magnetic Field in kGauss test in 0,0,14 : ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,14 ) ).Print();
     cout << endl << "Magnetic no Field in kGauss test in 0,0,0 : ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,0 ) ).Print();
     // cout << "Total mag field on the FOOT axis (from 0 to 40 cm) = " << ff->IntegralField( 4000, 0, 40 ) << " kG*cm" << endl;
-    cout << "Total mag field on the FOOT axis (from VT to MDS cm) = " << ff->IntegralField( 400, ((TAVTparGeo*) myp_vtgeo->Object())->GetSensorPosition(0).z(), ((TAMSDparGeo*) myp_msdgeo->Object())->GetLayerCenter(2).z() ) << " kG*cm" << endl;
+  //  cout << "Total mag field on the FOOT axis (from VT to MDS cm) = " << ff->IntegralField( 400, ((TAVTparGeo*) myp_vtgeo->Object())->GetSensorPosition(0).z(), ((TAMSDparGeo*) myp_msdgeo->Object())->GetLayerCenter(2).z() ) << " kG*cm" << endl;
 
 
     // print out of the magnetic field
@@ -528,8 +528,6 @@ void Booter::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
   initBMGeo(myp_bmgeo);
 
   // ?? @ Yun, serve ??
-  ((TABMparGeo*) myp_bmgeo->Object())->ShiftBmon();
-
   new TABMactNtuMC("an_bmraw", myn_bmraw, myp_bmcon, myp_bmgeo, myStr);
 
   // my_out->SetupElementBranch(myn_bmraw,     "bmrh.");
@@ -555,8 +553,8 @@ void Booter::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
 void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
 
     myp_vtgeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());  // put fist!!!!!!!
-    ((TAVTparGeo*) myp_vtgeo->Object())->InitGeo();
-    top->AddNode( ((TAVTparGeo*) myp_vtgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0,0,0,new TGeoRotation("Vertex",0,0,0)) );
+    ((TAVTparGeo*) myp_vtgeo->Object())->FromFile();
+  //  top->AddNode( ((TAVTparGeo*) myp_vtgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0,0,0,new TGeoRotation("Vertex",0,0,0)) );
     
     /*Ntupling the MC Vertex information*/
     myn_vtraw    = new TAGdataDsc("vtRaw", new TAVTntuRaw());
@@ -586,10 +584,10 @@ void Booter::FillMCVertex(EVENT_STRUCT *myStr) {
 void Booter::FillMCInnerTracker(EVENT_STRUCT *myStr) {
 
     myp_itgeo    = new TAGparaDsc("itGeo", new TAITparGeo());
-    ((TAITparGeo*) myp_itgeo->Object())->InitGeo();
+    ((TAITparGeo*) myp_itgeo->Object())->FromFile();
     // TVector3 transf (0,0,0);    ((TAITparGeo*) myp_itgeo->Object())->Local2Global( &transf );
     // top->AddNode( ((TAITparGeo*) myp_itgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( transf.x(),transf.y(),transf.z(), new TGeoRotation("InnerTracker",0,0,0)) );
-    top->AddNode( ((TAITparGeo*) myp_itgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("InnerTracker",0,0,0)) );
+   // top->AddNode( ((TAITparGeo*) myp_itgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("InnerTracker",0,0,0)) );
 
     // ((TAITparGeo*) myp_itgeo->Object())->PrintBodies("geppo");
     // ((TAITparGeo*) myp_itgeo->Object())->PrintRegions("geppo");
@@ -624,10 +622,10 @@ void Booter::FillMCInnerTracker(EVENT_STRUCT *myStr) {
 void Booter::FillMCMSD(EVENT_STRUCT *myStr) {
 
     myp_msdgeo    = new TAGparaDsc("msdGeo", new TAMSDparGeo());
-    ((TAMSDparGeo*) myp_msdgeo->Object())->InitGeo();
+    ((TAMSDparGeo*) myp_msdgeo->Object())->FromFile();
     // TVector3 transf (0,0,0);    ((TAMSDparGeo*) myp_msdgeo->Object())->Local2Global( &transf );
     // top->AddNode( ((TAMSDparGeo*) myp_msdgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( transf.x(),transf.y(),transf.z(), new TGeoRotation("Strip",0,0,0)) );
-    top->AddNode( ((TAMSDparGeo*) myp_msdgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("Strip",0,0,0)) );
+  //  top->AddNode( ((TAMSDparGeo*) myp_msdgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  0, new TGeoRotation("Strip",0,0,0)) );
 
     /*Ntupling the MC Vertex information*/
     myn_msdraw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
@@ -655,10 +653,10 @@ void Booter::FillMCMSD(EVENT_STRUCT *myStr) {
 void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
 
     myp_twgeo    = new TAGparaDsc("twGeo", new TATWparGeo());
-    ((TATWparGeo*) myp_twgeo->Object())->InitGeo();
+    ((TATWparGeo*) myp_twgeo->Object())->FromFile();
     // TVector3 transf (0,0,0);    ((TATWparGeo*) myp_twgeo->Object())->Local2Global( &transf );
     // top->AddNode( ((TATWparGeo*) myp_twgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( transf.x(),transf.y(),transf.z(), new TGeoRotation("Scint",0,0,0)) );
-    top->AddNode( ((TATWparGeo*) myp_twgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
+  //  top->AddNode( ((TATWparGeo*) myp_twgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
 
     /*Ntupling the MC Tof Wall information*/
     myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
