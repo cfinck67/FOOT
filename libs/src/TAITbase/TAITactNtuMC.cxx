@@ -82,7 +82,7 @@ bool TAITactNtuMC::Action()
 		myTcol = fpEvtStr->ITRicol[i];
       
 		Int_t sensorId = pGeoMap->GetSensorID( fpEvtStr->ITRilay[i], fpEvtStr->ITRiplume[i], fpEvtStr->ITRimimo[i] );
-
+      
 		// used for pileup ...
 		if (fgPileup && storedEvents <= fgPileupEventsN) {
 			mcHit.id  = sensorId;
@@ -108,8 +108,8 @@ bool TAITactNtuMC::Action()
       // try to get into sensor frame, does not work yet
       TVector3 posIn(fpEvtStr->ITRxin[i], fpEvtStr->ITRyin[i], fpEvtStr->ITRzin[i]);
       TVector3 posOut(fpEvtStr->ITRxout[i], fpEvtStr->ITRyout[i], fpEvtStr->ITRzout[i]);
-      pGeoMap->Detector2Sensor_frame(sensorId, &posIn);
-      pGeoMap->Detector2Sensor_frame(sensorId, &posOut);
+      posIn = pGeoMap->Detector2Sensor(sensorId, posIn);
+      posOut = pGeoMap->Detector2Sensor(sensorId, posOut);
       
     //  printf("%f %f %f - %f %f %f\n", fpEvtStr->ITRxin[i], fpEvtStr->ITRyin[i], fpEvtStr->ITRzin[i],posIn[0], posIn[1], posIn[2]);
 
@@ -182,7 +182,8 @@ void TAITactNtuMC::FillPixels(Int_t sensorId, Int_t hitId )
 
 			double v = pGeoMap->GetPositionV(line);
 			double u = pGeoMap->GetPositionU(col);
-
+         TVector3 pos(u,v,0);
+         pixel->SetPosition(pos);
 
 			if (ValidHistogram()) {
 				fpHisPixelMap[sensorId]->Fill(line, col);
