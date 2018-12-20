@@ -30,7 +30,6 @@ LocalRecoMC::LocalRecoMC(TString fileNameIn, TString fileNameout)
 LocalRecoMC::~LocalRecoMC()
 {
    // default destructor
-   if (fTree) delete fTree;
    if (fActEvtReader) delete fActEvtReader;
 }
 
