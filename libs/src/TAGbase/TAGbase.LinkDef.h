@@ -67,7 +67,6 @@
 #pragma link C++ class ControlPlotsRepository+;
 #pragma link C++ class ControlPlotInfo+;
 #pragma link C++ class MagicSkills+;
-#pragma link C++ class FootBox+;
 #pragma link C++ class GlobalPar+;
 
 #endif
