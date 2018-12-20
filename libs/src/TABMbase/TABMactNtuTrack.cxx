@@ -291,7 +291,7 @@ Bool_t TABMactNtuTrack::Action()
         p_hit = p_ntuhit->Hit(hitxtrack[i][i_h]);
         
         if(p_bmcon->IsMC())
-          if(p_hit->GetSenseIdmon()!=1) //there is a hit from a non primary particle
+          if(p_hit->GetIdmon()!=1) //there is a hit from a non primary particle
             onlyPrimary=false;
           
         
