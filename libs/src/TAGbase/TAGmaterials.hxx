@@ -21,8 +21,8 @@ public:
    TAGmaterials();
    virtual ~TAGmaterials();
    
-   TGeoMaterial* CreateMaterial(const TString formula, Float_t density, Float_t temperature = STP_temperature, Float_t pressure = STP_pressure);
-   TGeoMixture*  CreateMixture(const TString formula, const TString densities, const TString prop, Float_t density);
+   TGeoMaterial* CreateMaterial(TString formula, Float_t density, Float_t temperature = STP_temperature, Float_t pressure = STP_pressure);
+   TGeoMixture*  CreateMixture(TString formula, const TString densities, const TString prop, Float_t density);
 
    void          SaveFileFluka(const TString filename = "foot.inp");
 
@@ -48,6 +48,9 @@ private:
    void    CreateDefaultMaterials();
    vector<TString>  GetStrings(TString key, const Char_t delimiter = '/');
    void             GetCoeff(TString key, Float_t* coeff, Int_t size,  const Char_t delimiter = '/');
+   TString FindByValue(TString value);
+
+   ClassDef(TAGmaterials,0)
 
 };
 
