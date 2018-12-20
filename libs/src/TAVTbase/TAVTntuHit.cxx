@@ -5,6 +5,8 @@
 #include "TAVTntuRaw.hxx"
 #include "TAVTntuHit.hxx"
 
+#include "TAGgeoTrafo.hxx"
+
 ClassImp(TAVTntuHit) // Description of Single Detector TAVTntuHit 
 
 
@@ -14,7 +16,6 @@ TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t a
 : TAVTbaseNtuHit(aSensorNumber, aPixelIndex, aValue)
 {
    Initialise();
-   fLayer = fGeometry->GetLayerFromSensorID( aSensorNumber );
 }
 
 //______________________________________________________________________________
@@ -23,7 +24,6 @@ TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t
 : TAVTbaseNtuHit(aSensorNumber, aValue, aLine, aColumn)
 {
    Initialise();
-   fLayer = fGeometry->GetLayerFromSensorID( aSensorNumber );
 }
                  
 //______________________________________________________________________________
@@ -40,8 +40,6 @@ void TAVTntuHit::Initialise()
    // set center position
    if ( fDebugLevel> 1 )
       Info("Initialise()", "line =  %d col = %d", fPixelLine, fPixelColumn);
-   
-   SetPosition( fGeometry->GetPixelPos_detectorFrame(fSensorId, fPixelColumn, fPixelLine ) );
 }
 
 //______________________________________________________________________________
@@ -55,50 +53,54 @@ Bool_t TAVTntuHit::IsEqual(const TObject* hit) const
 }
 
 //______________________________________________________________________________
-TVector3 TAVTntuHit::GetMCPosition_sensorFrame()
-{
-    TVector3 glob = fMCPos;
-    fGeometry->Detector2Sensor_frame( fSensorId, &glob );
-    return glob; 
-}
-
-//______________________________________________________________________________
 TVector3 TAVTntuHit::GetMCPosition_footFrame()
 {
-    TVector3 glob = fMCPos;
-    fGeometry->Local2Global( &glob ); 
-    return glob; 
-}
+   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
 
+   TVector3 glob = fMCPos;
+   glob = geoTrafo->FromVTLocalToGlobal(glob);
+   
+   return glob;
+}
 //______________________________________________________________________________
 TVector3 TAVTntuHit::GetMCMomentum_footFrame()
 {
-    TVector3 globP = fMCP;
-    fGeometry->Local2Global_RotationOnly( &globP ); 
-    return globP; 
+   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+   
+   TVector3 globP = fMCP;
+   globP = geoTrafo->VecFromVTLocalToGlobal(globP) ;
+   
+   return globP;
 }
 
-////______________________________________________________________________________
-////  
-//Double_t TAVTntuHit::Distance(TAVTntuHit &aPixel)
-//{
-//   return Distance(aPixel.GetPixelPosition_detectorFrame());
-//}
-//
-////______________________________________________________________________________
-////  
-//Double_t TAVTntuHit::DistanceU(TAVTntuHit &aPixel)
-//{
-//   return DistanceU(aPixel.GetPixelPosition_detectorFrame());
-//}
-//
-////______________________________________________________________________________
-////  
-//Double_t TAVTntuHit::DistanceV(TAVTntuHit &aPixel)
-//{
-//   return DistanceV(aPixel.GetPixelPosition_detectorFrame());
-//}
 
+//______________________________________________________________________________
+//! Set MC truth position
+void TAVTntuHit::SetMCPosition(TVector3 a_pos)
+{
+   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+
+   a_pos = geoTrafo->FromGlobalToVTLocal(a_pos );
+   fMCPos = a_pos;
+}
+
+
+//______________________________________________________________________________
+//! Set MC truth mo
+void TAVTntuHit::SetMCMomentum(TVector3 a_mom)
+{
+   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+   a_mom = geoTrafo->VecFromGlobalToVTLocal(a_mom );
+   fMCP = a_mom;
+}
+
+//______________________________________________________________________________
+TVector3 TAVTntuHit::GetMCPosition_sensorFrame()
+{
+   TVector3 glob = fMCPos;
+   glob = fGeometry->Detector2Sensor( fSensorId, glob );
+   return glob;
+}
 
 
 
