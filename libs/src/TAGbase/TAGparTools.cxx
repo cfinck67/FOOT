@@ -22,6 +22,7 @@ TAGparTools::TAGparTools()
 : TAGpara(),
   fFileStream(),
   fFileName(),
+  fgDefaultGeoName(""),
   fDebugLevel(0)
 {
    // Standard constructor

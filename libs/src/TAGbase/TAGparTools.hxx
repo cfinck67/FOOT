@@ -25,6 +25,8 @@ class TAGparTools : public TAGpara {
 protected:
    ifstream fFileStream; // parameter file
    TString  fFileName;   // name of the file
+   TString  fgDefaultGeoName;  // default detector geomap file
+
    Int_t    fDebugLevel; // debug level
    
 public:
