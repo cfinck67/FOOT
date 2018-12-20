@@ -117,7 +117,7 @@ Bool_t TAMSDactNtuCluster::CreateClusters(Int_t iSensor, TAMSDntuCluster* pNtuCl
       ComputePosition();
       cluster->SetNumber(i);
       TVector3 posG = *GetCurrentPosition();
-      pGeoMap->Sensor2Detector_frame(iSensor, &posG);
+      posG = pGeoMap->Sensor2Detector(iSensor, posG);
       //  pGeoMap->Local2Global(&posG);
       cluster->SetPositionG(&posG);
       cluster->SetPosition(GetCurrentPosition());
