@@ -73,7 +73,7 @@ TAGbaseEventDisplay::TAGbaseEventDisplay(const TString expName)
   fWorldMedium(0x0),
   fAGRoot(0x0),
   fTopVolume(0x0),
-  fGeoTrafo(0x0),
+  fpFootGeo(0x0),
   fCurrentEventId(0),
   fFirstEventDone(false),
   fMaxEnergy(1024),
@@ -108,7 +108,8 @@ TAGbaseEventDisplay::TAGbaseEventDisplay(const TString expName)
 	if (med) fWorldMedium = med;
    
    // Read Trafo file
-   TAGgeoTrafo* geoTrafo = new TAGgeoTrafo();
+   fpFootGeo = new TAGgeoTrafo();
+   fpFootGeo->FromFile();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -132,6 +133,7 @@ TAGbaseEventDisplay::~TAGbaseEventDisplay()
    fAGRoot->EndEventLoop();
    delete fAGRoot;
    delete fTopVolume;
+   delete fpFootGeo;
 
 }
 
@@ -140,8 +142,9 @@ TAGbaseEventDisplay::~TAGbaseEventDisplay()
 void TAGbaseEventDisplay::BuildDefaultGeometry()
 {
    // World
-   TGeoMedium* med = gGeoManager->GetMedium("Vacuum");
+   TGeoMedium* med = gGeoManager->GetMedium("AIR");
    fTopVolume = gGeoManager->MakeBox("World",med,fWorldSizeZ, fWorldSizeXY, fWorldSizeXY);
+   fTopVolume->SetInvisible();
    gGeoManager->SetTopVolume(fTopVolume);
 }
 

@@ -175,7 +175,7 @@ protected:
    
    TAGroot*           fAGRoot;             // pointer to TAGroot
    TGeoVolume*        fTopVolume;          // top volume of geometry
-   TAGgeoTrafo*       fGeoTrafo;           // trafo prointer
+   TAGgeoTrafo*       fpFootGeo;           // trafo prointer
    Int_t              fCurrentEventId;     // Current event id
    Bool_t             fFirstEventDone;     // flag for first event processed
    Float_t            fMaxEnergy;          // maximum energy fo palette
