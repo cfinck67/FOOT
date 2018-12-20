@@ -54,7 +54,7 @@ Bool_t TAVTbaseParConf::FromFile(const TString& name)
    else 
      nameExp = name;
    
-   if (Open(nameExp)) return kTRUE;
+   if (!Open(nameExp)) return false;
    
    // read position algorithme
    ReadItem(fAnalysisParameter.TracksMaximum);  
