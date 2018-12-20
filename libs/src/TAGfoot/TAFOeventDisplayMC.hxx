@@ -13,10 +13,12 @@
 #include "TTree.h"
 
 #include "TAGdataDsc.hxx"
+#include "TABMactNtuMC.hxx"
 #include "TAVTactNtuMC.hxx"
 #include "TAITactNtuMC.hxx"
 #include "TAMSDactNtuMC.hxx"
 #include "TATWactNtuMC.hxx"
+#include "TACAactNtuMC.hxx"
 
 #include "Evento.hxx"
 
@@ -47,10 +49,12 @@ public:
 private:
    EVENT_STRUCT*         fEvtStruct;
    
+   TABMactNtuMC*         fActNtuRawBm;  // action for ntu data
    TAVTactNtuMC*         fActNtuRawVtx;  // action for ntu data
    TAITactNtuMC*         fActNtuRawIt;  // action for ntu data
    TAMSDactNtuMC*        fActNtuRawMsd;  // action for ntu data
    TATWactNtuMC*         fActNtuRawTw;  // action for ntu data
+   TACAactNtuMC*         fActNtuRawCa;  // action for ntu data
    
    TTree*                fTree;         // tree for MC
    TFile*                fActEvtFile; // file for MC

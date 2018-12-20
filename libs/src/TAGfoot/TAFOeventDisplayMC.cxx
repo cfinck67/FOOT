@@ -3,10 +3,12 @@
 #include "TAFOeventDisplayMC.hxx"
 
 #include "GlobalPar.hxx"
+#include "TABMntuRaw.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
 #include "TATW_ContainerHit.hxx"
+#include "TACAntuRaw.hxx"
 
 ClassImp(TAFOeventDisplay)
 
@@ -26,7 +28,8 @@ TAFOeventDisplayMC::TAFOeventDisplayMC(Int_t type, const TString expName)
    fActNtuRawVtx(0x0),
    fActNtuRawIt(0x0),
    fActNtuRawMsd(0x0),
-//   fActNtuRawTW(0x0),
+   fActNtuRawTw(0x0),
+   fActNtuRawCa(0x0),
    fTree(0x0),
    fActEvtFile(0x0)
 {
@@ -53,6 +56,13 @@ void TAFOeventDisplayMC::CreateRawAction()
 {
    ReadParFiles();
 
+   if (GlobalPar::GetPar()->IncludeBM()) {
+      fpNtuRawBm = new TAGdataDsc("bmRaw", new TABMntuRaw());
+      fActNtuRawBm = new TABMactNtuMC("bmActNtu", fpNtuRawBm, fpParConfBm, fpParGeoBm, fEvtStruct);
+      fActNtuRawBm->CreateHistogram();
+   }
+
+   
    if (GlobalPar::GetPar()->IncludeVertex()) {
       fpNtuRawVtx = new TAGdataDsc("vtRaw", new TAVTntuRaw());
       fActNtuRawVtx = new TAVTactNtuMC("vtActNtu", fpNtuRawVtx, fpParGeoVtx, fEvtStruct);
@@ -72,10 +82,18 @@ void TAFOeventDisplayMC::CreateRawAction()
    }
    
    if(GlobalPar::GetPar()->IncludeTW()) {
-      fpNtuRawTw   = new TAGdataDsc("twHit", new TATW_ContainerHit());
+      new TAGdataDsc("containerPoint", new TATW_ContainerPoint());
+      fpNtuRawTw   = new TAGdataDsc("containerHit", new TATW_ContainerHit());
       fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fEvtStruct);
       fActNtuRawTw->CreateHistogram();
    }
+   
+   if(GlobalPar::GetPar()->IncludeCA()) {
+      fpNtuRawCa   = new TAGdataDsc("caRaw", new TACAntuRaw());
+      fActNtuRawCa = new TACAactNtuMC("caActNtu", fpNtuRawCa, fpParGeoCa, fEvtStruct);
+      fActNtuRawCa->CreateHistogram();
+   }
+
 }
 
 //__________________________________________________________

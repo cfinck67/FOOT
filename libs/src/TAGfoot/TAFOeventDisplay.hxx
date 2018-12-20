@@ -15,18 +15,21 @@
 #include "TABMparGeo.hxx"
 #include "TAGparGeo.hxx"
 #include "TAVTparGeo.hxx"
+#include "TAVTparGeo.hxx"
 #include "TAITparGeo.hxx"
 #include "TADIparGeo.hxx"
 #include "TAMSDparGeo.hxx"
 #include "TATWparGeo.hxx"
 #include "TACAparGeo.hxx"
 
+#include "TABMparCon.hxx"
 #include "TAVTparConf.hxx"
 #include "TAITparConf.hxx"
 #include "TAMSDparConf.hxx"
 
 #include "TAGclusterDisplay.hxx"
 #include "TAGtrackDisplay.hxx"
+#include "TAGwireDisplay.hxx"
 #include "TAGglbTrackDisplay.hxx"
 #include "TAGbaseEventDisplay.hxx"
 #include "TAGactionFile.hxx"
@@ -106,14 +109,18 @@ protected:
    void CreateRecActionIt();
    void CreateRecActionMsd();
 
+   void AddRequiredItemBm();
    void AddRequiredItemVtx();
    void AddRequiredItemIt();
    void AddRequiredItemMsd();
    void AddRequiredItemTw();
+   void AddRequiredItemCa();
    
    void ReadParFiles();
 
+   void UpdateWireElements(const TString prefix);
    void UpdateBarElements(const TString prefix);
+   void UpdateCrystalElements(const TString prefix);
    void UpdateQuadElements(const TString prefix);
    void UpdateTrackElements(const TString prefix);
    void UpdateGlbTrackElements();
@@ -169,10 +176,13 @@ protected:
    TAGparaDsc*           fpParGeoTw;
    TAGparaDsc*           fpParGeoCa;
    
+   TAGparaDsc*           fpParConfBm;
    TAGparaDsc*           fpParConfIt;
    TAGparaDsc*           fpParConfVtx;
    TAGparaDsc*           fpParConfMsd;
    
+   TAGdataDsc*           fpNtuRawBm;    // input data dsc
+
    TAGdataDsc*           fpDatRawVtx;    // input data dsc
    TAGdataDsc*           fpNtuRawVtx;	  // input ntu data dsc
    TAGdataDsc*           fpNtuClusVtx;	  // input cluster data dsc
@@ -188,6 +198,7 @@ protected:
    TAGdataDsc*           fpNtuClusMsd;	  // input cluster data dsc
 
    TAGdataDsc*           fpNtuRawTw;    // input data dsc
+   TAGdataDsc*           fpNtuRawCa;    // input data dsc
 
    TAGaction*            fActDatRawVtx;     // action for raw data
    TAGactionFile*        fActEvtReader;
@@ -219,6 +230,12 @@ protected:
    //Display
    TAGclusterDisplay*    fTwClusDisplay;  // list of quad to display hits
    
+   //Display
+   TAGclusterDisplay*    fCaClusDisplay;  // list of quad to display hits
+   
+   // Display
+   TAGwireDisplay*       fBmClusDisplay;  // list of line to display wires
+
    // Display
    TAGglbTrackDisplay*   fGlbTrackDisplay;  // list of global tracks to display
 
@@ -228,6 +245,9 @@ protected:
 
    // TW
    map< pair<Int_t, Int_t>, Int_t > fFiredTofBar;       // list of fired bar per event
+   
+   // CA
+   map< Int_t, Int_t >  fFiredCaCrystal;       // list of fired bar per event
 
    // GUI
    TGCheckButton*       fClusterButton;    // toggle clusters plots
