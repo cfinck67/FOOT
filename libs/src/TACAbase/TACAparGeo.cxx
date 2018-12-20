@@ -56,11 +56,8 @@ Bool_t TACAparGeo::FromFile(const TString& name)
    if (!Open(nameExp)) return false;
    
    ReadItem(fCrystalsN);
-   
-//   FootDebug(1, "FromFile()", Form("Number of crystals: %d", fCrystalsN));
-//
-//   if(FootDebugLevel(1))
-//      cout  << "Number of crystals: " <<  fCrystalsN << endl;
+   if (fDebugLevel)
+      cout  << "Number of crystals: " <<  fCrystalsN << endl;
    
    ReadStrings(fCrystalMat);
    if(fDebugLevel)
