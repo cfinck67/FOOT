@@ -25,7 +25,7 @@ ClassImp(TAVTbaseDigitizer);
 Double_t TAVTbaseDigitizer::fgkGeV2keV        = 1e6;
 Double_t TAVTbaseDigitizer::fgkCm2Mu          = 10000;
 Bool_t   TAVTbaseDigitizer::fgSmearFlag       = true;
-Float_t  TAVTbaseDigitizer::fgDefSmearPos     =  10.4;    // in micron
+Float_t  TAVTbaseDigitizer::fgDefSmearPos     =  10.35;    // in micron
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
