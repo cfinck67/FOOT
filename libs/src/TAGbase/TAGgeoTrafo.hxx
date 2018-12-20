@@ -53,7 +53,7 @@ public:
    TAGgeoTrafo(const TString expName = "FOOT");
    virtual ~TAGgeoTrafo();
    
-   bool InitGeo(TString ifile);
+   bool FromFile(TString ifile = "./geomaps/FOOT_geo.map");
    
    // Start Counter
    TVector3 GetSTCenter();

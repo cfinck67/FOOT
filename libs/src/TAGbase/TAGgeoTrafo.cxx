@@ -162,7 +162,7 @@ TVector3 TAGgeoTrafo::Local2GlobalVect(const char* name, TVector3& loc) const
 
 
 //_____________________________________________________________________________
-bool TAGgeoTrafo::InitGeo(TString ifile) 
+bool TAGgeoTrafo::FromFile(TString ifile)
 {
   //Initialization of Geom Parameters
   if (fDebugLevel)
@@ -216,63 +216,63 @@ bool TAGgeoTrafo::InitGeo(TString ifile)
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromSTLocalToGlobal(TVector3 apoi)
 {
-   TVector3 glb_poi = Local2Global("trafoST", apoi);
+   TVector3 glb_poi = Local2Global("ST", apoi);
    return glb_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromBMLocalToGlobal(TVector3 apoi)
 {
-   TVector3 glb_poi = Local2Global("trafoBM", apoi);
+   TVector3 glb_poi = Local2Global("BM", apoi);
    return glb_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromTGLocalToGlobal(TVector3 apoi)
 {
-   TVector3 glb_poi = Local2Global("trafoTG", apoi);
+   TVector3 glb_poi = Local2Global("TG", apoi);
    return glb_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromDILocalToGlobal(TVector3 apoi)
 {
-   TVector3 glb_poi = Local2Global("trafoDI", apoi);
+   TVector3 glb_poi = Local2Global("DI", apoi);
    return glb_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromVTLocalToGlobal(TVector3 apoi)
 {
-   TVector3 glb_poi = Local2Global("trafoVT", apoi);
+   TVector3 glb_poi = Local2Global("VT", apoi);
    return glb_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromITLocalToGlobal(TVector3 apoi)
 {
-   TVector3 glb_poi = Local2Global("trafoIT", apoi);
+   TVector3 glb_poi = Local2Global("IT", apoi);
    return glb_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromMSDLocalToGlobal(TVector3 apoi)
 {
-   TVector3 glb_poi = Local2Global("trafoMSD", apoi);
+   TVector3 glb_poi = Local2Global("MSD", apoi);
    return glb_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromTWLocalToGlobal(TVector3 apoi)
 {
-   TVector3 glb_poi = Local2Global("trafoTW", apoi);
+   TVector3 glb_poi = Local2Global("TW", apoi);
    return glb_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromCALocalToGlobal(TVector3 apoi)
 {
-   TVector3 glb_poi = Local2Global("trafoCA", apoi);
+   TVector3 glb_poi = Local2Global("CA", apoi);
    return glb_poi;
 }
 /*
@@ -281,63 +281,63 @@ TVector3 TAGgeoTrafo::FromCALocalToGlobal(TVector3 apoi)
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromSTLocalToGlobal(TVector3 avec)
 {
-   TVector3 glb_vec = Local2GlobalVect("trafoST", avec);
+   TVector3 glb_vec = Local2GlobalVect("ST", avec);
    return glb_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromBMLocalToGlobal(TVector3 avec)
 {
-   TVector3 glb_vec = Local2GlobalVect("trafoBM", avec);
+   TVector3 glb_vec = Local2GlobalVect("BM", avec);
    return glb_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromTGLocalToGlobal(TVector3 avec)
 {
-   TVector3 glb_vec = Local2GlobalVect("trafoTG", avec);
+   TVector3 glb_vec = Local2GlobalVect("TG", avec);
    return glb_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromDILocalToGlobal(TVector3 avec)
 {
-   TVector3 glb_vec = Local2GlobalVect("trafoDI", avec);
+   TVector3 glb_vec = Local2GlobalVect("DI", avec);
    return glb_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromVTLocalToGlobal(TVector3 avec)
 {
-   TVector3 glb_vec = Local2GlobalVect("trafoVT", avec);
+   TVector3 glb_vec = Local2GlobalVect("VT", avec);
    return glb_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromITLocalToGlobal(TVector3 avec)
 {
-   TVector3 glb_vec = Local2GlobalVect("trafoIT", avec);
+   TVector3 glb_vec = Local2GlobalVect("IT", avec);
    return glb_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromMSDLocalToGlobal(TVector3 avec)
 {
-   TVector3 glb_vec = Local2GlobalVect("trafoMSD", avec);
+   TVector3 glb_vec = Local2GlobalVect("MSD", avec);
    return glb_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromTWLocalToGlobal(TVector3 avec)
 {
-   TVector3 glb_vec = Local2GlobalVect("trafoTW", avec);
+   TVector3 glb_vec = Local2GlobalVect("TW", avec);
    return glb_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromCALocalToGlobal(TVector3 avec)
 {
-   TVector3 glb_vec = Local2GlobalVect("trafoCA", avec);
+   TVector3 glb_vec = Local2GlobalVect("CA", avec);
    return glb_vec;
 }
 
@@ -347,63 +347,63 @@ TVector3 TAGgeoTrafo::VecFromCALocalToGlobal(TVector3 avec)
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromGlobalToSTLocal(TVector3 apoi)
 {
-   TVector3 lcl_poi = Global2Local("trafoST", apoi);
+   TVector3 lcl_poi = Global2Local("ST", apoi);
    return lcl_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromGlobalToBMLocal(TVector3 apoi)
 {
-   TVector3 lcl_poi = Global2Local("trafoBM", apoi);
+   TVector3 lcl_poi = Global2Local("BM", apoi);
    return lcl_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromGlobalToTGLocal(TVector3 apoi)
 {
-   TVector3 lcl_poi = Global2Local("trafoTG", apoi);
+   TVector3 lcl_poi = Global2Local("TG", apoi);
    return lcl_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromGlobalToDILocal(TVector3 apoi)
 {
-   TVector3 lcl_poi = Global2Local("trafoDI", apoi);
+   TVector3 lcl_poi = Global2Local("DI", apoi);
    return lcl_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromGlobalToVTLocal(TVector3 apoi)
 {
-   TVector3 lcl_poi = Global2Local("trafoVT", apoi);
+   TVector3 lcl_poi = Global2Local("VT", apoi);
    return lcl_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromGlobalToITLocal(TVector3 apoi)
 {
-   TVector3 lcl_poi = Global2Local("trafoIT", apoi);
+   TVector3 lcl_poi = Global2Local("IT", apoi);
    return lcl_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromGlobalToMSDLocal(TVector3 apoi)
 {
-   TVector3 lcl_poi = Global2Local("trafoMSD", apoi);
+   TVector3 lcl_poi = Global2Local("MSD", apoi);
    return lcl_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromGlobalToTWLocal(TVector3 apoi)
 {
-   TVector3 lcl_poi = Global2Local("trafoTW", apoi);
+   TVector3 lcl_poi = Global2Local("TW", apoi);
    return lcl_poi;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::FromGlobalToCALocal(TVector3 apoi)
 {
-   TVector3 lcl_poi = Global2Local("trafoCA", apoi);
+   TVector3 lcl_poi = Global2Local("CA", apoi);
    return lcl_poi;
 }
 
@@ -413,169 +413,169 @@ TVector3 TAGgeoTrafo::FromGlobalToCALocal(TVector3 apoi)
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromGlobalToSTLocal(TVector3 avec)
 {
-   TVector3 lcl_vec = Global2LocalVect("trafoST", avec);
+   TVector3 lcl_vec = Global2LocalVect("ST", avec);
    return lcl_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromGlobalToBMLocal(TVector3 avec)
 {
-   TVector3 lcl_vec = Global2LocalVect("trafoBM", avec);
+   TVector3 lcl_vec = Global2LocalVect("BM", avec);
    return lcl_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromGlobalToTGLocal(TVector3 avec)
 {
-   TVector3 lcl_vec = Global2LocalVect("trafoTG", avec);
+   TVector3 lcl_vec = Global2LocalVect("TG", avec);
    return lcl_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromGlobalToDILocal(TVector3 avec)
 {
-   TVector3 lcl_vec = Global2LocalVect("trafoDI", avec);
+   TVector3 lcl_vec = Global2LocalVect("DI", avec);
    return lcl_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromGlobalToVTLocal(TVector3 avec)
 {
-   TVector3 lcl_vec = Global2LocalVect("trafoVT", avec);
+   TVector3 lcl_vec = Global2LocalVect("VT", avec);
    return lcl_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromGlobalToITLocal(TVector3 avec)
 {
-   TVector3 lcl_vec = Global2LocalVect("trafoIT", avec);
+   TVector3 lcl_vec = Global2LocalVect("IT", avec);
    return lcl_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromGlobalToMSDLocal(TVector3 avec)
 {
-   TVector3 lcl_vec = Global2LocalVect("trafoMSD", avec);
+   TVector3 lcl_vec = Global2LocalVect("MSD", avec);
    return lcl_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromGlobalToTWLocal(TVector3 avec)
 {
-   TVector3 lcl_vec = Global2LocalVect("trafoTW", avec);
+   TVector3 lcl_vec = Global2LocalVect("TW", avec);
    return lcl_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::VecFromGlobalToCALocal(TVector3 avec)
 {
-   TVector3 lcl_vec = Global2LocalVect("trafoCA", avec);
+   TVector3 lcl_vec = Global2LocalVect("CA", avec);
    return lcl_vec;
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetSTCenter()
 {
-   return GetDeviceCenter("trafoST");
+   return GetDeviceCenter("ST");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetSTAngles()
 {
-   return GetDeviceAngle("trafoST");
+   return GetDeviceAngle("ST");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetBMCenter()
 {
-   return GetDeviceCenter("trafoBM");
+   return GetDeviceCenter("BM");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetBMAngles()
 {
-   return GetDeviceAngle("trafoBM");
+   return GetDeviceAngle("BM");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetTGCenter()
 {
-   return GetDeviceCenter("trafoTG");
+   return GetDeviceCenter("TG");
 }
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetTGAngles()
 {
-   return GetDeviceAngle("trafoTG");
+   return GetDeviceAngle("TG");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetDICenter()
 {
-   return GetDeviceCenter("trafoDI");
+   return GetDeviceCenter("DI");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetDIAngles()
 {
-   return GetDeviceAngle("trafoDI");
+   return GetDeviceAngle("DI");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetVTCenter()
 {
-   return GetDeviceCenter("trafoVT");
+   return GetDeviceCenter("VT");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetVTAngles()
 {
-   return GetDeviceAngle("trafoVT");
+   return GetDeviceAngle("VT");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetITCenter()
 {
-   return GetDeviceCenter("trafoIT");
+   return GetDeviceCenter("IT");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetITAngles()
 {
-   return GetDeviceAngle("trafoIT");
+   return GetDeviceAngle("IT");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetMSDCenter()
 {
-   return GetDeviceCenter("trafoMSD");
+   return GetDeviceCenter("MSD");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetMSDAngles()
 {
-   return GetDeviceAngle("trafoMSD");
+   return GetDeviceAngle("MSD");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetTWCenter()
 {
-   return GetDeviceCenter("trafoTW");
+   return GetDeviceCenter("TW");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetTWAngles()
 {
-   return GetDeviceAngle("trafoTW");
+   return GetDeviceAngle("TW");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetCACenter()
 {
-   return GetDeviceCenter("trafoCA");
+   return GetDeviceCenter("CA");
 }
 
 //_____________________________________________________________________________
 TVector3 TAGgeoTrafo::GetCAAngles()
 {
-   return GetDeviceAngle("trafoCA");
+   return GetDeviceAngle("CA");
 }
