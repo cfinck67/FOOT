@@ -72,13 +72,12 @@ int main (int argc, char *argv[]) {
 
     //  si costruisce le coordinate di ogni oggetto geometrico e sensibile
     stcGeo->InitGeo();
-    bmGeo->InitGeo();
-    bmGeo->ShiftBmon();
-    vtxGeo->InitGeo();
-    itrGeo->InitGeo();
-    msdGeo->InitGeo();
-    twGeo->InitGeo();
-    caGeo->InitGeo();
+    bmGeo->FromFile();
+    vtxGeo->FromFile();
+    itrGeo->FromFile();
+    msdGeo->FromFile();
+    twGeo->FromFile();
+    caGeo->FromFile();
 
 
     // assegna ad ogni oggetto se sta nel campo magnetico
