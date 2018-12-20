@@ -69,8 +69,5 @@
 #pragma link C++ class MagicSkills+;
 #pragma link C++ class FootBox+;
 #pragma link C++ class GlobalPar+;
-#pragma link C++ class IronPlate+;
-#pragma link C++ class LightSabre+;
-
 
 #endif

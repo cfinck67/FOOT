@@ -44,14 +44,11 @@ set( with_dictionnaries
    TAGglbTrackDisplay
    TAGbaseEventDisplay
    TAGview
-   FootBox
    TAGmaterials
    ControlPlotsRepository
    ControlPlotInfo
    MagicSkills
    GlobalPar
-   IronPlate
-   LightSabre
 )
 	
 set( without_dictionnaries
