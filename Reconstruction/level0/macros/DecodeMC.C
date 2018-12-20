@@ -33,15 +33,9 @@ void DecodeMC(TString name = "12C_400_vtx.root")
    
    // set detecteors
    // VTX
-   locRec->EnableVtx();
-   locRec->EnableVtxTrack();
+   if (GlobalPar::GetPar()->IncludeVertex())
+      locRec->EnableVtxTrack();
    
-   // IT
-   locRec->EnableIt();
-   
-   // MSD
-   locRec->EnableMsd();
-
    TStopwatch watch;
    watch.Start();
    

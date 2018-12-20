@@ -49,7 +49,7 @@ void FillMCInner(EVENT_STRUCT *myStr) {
    /*Ntupling the MC Vertex information*/
    TAGparaDsc* itGeo    = new TAGparaDsc(TAITparGeo::GetDefParaName(), new TAITparGeo());
    TAITparGeo* geomap   = (TAITparGeo*) itGeo->Object();
-   geomap->InitGeo();
+   geomap->FromFile();
    
    TAGdataDsc* itRaw    = new TAGdataDsc("itRaw", new TAITntuRaw());
    TAGdataDsc* itClus   = new TAGdataDsc("itClus", new TAITntuCluster());
@@ -81,18 +81,13 @@ void FillMCInner(EVENT_STRUCT *myStr) {
 //void ReadItRawMC(TString name = "12C_80_vtx.root")
 void ReadItRawMC(TString name = "12C_400_vtx.root")
 {
-   new TGeoManager("genfitGeom", "GENFIT geometry");
-   TGeoVolume* top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 120.);
-   gGeoManager->SetTopVolume(top);
-   
    GlobalPar::Instance();
    GlobalPar::GetPar()->Print();
    
-   Materials* listMaterials = new Materials() ;
-   listMaterials->PrintCompMap();
-   
    TAGroot tagr;
    TAGgeoTrafo geoTrafo;
+   geoTrafo.FromFile();
+
    tagr.SetCampaignNumber(-1);
    tagr.SetRunNumber(1);
    
@@ -147,7 +142,7 @@ void ReadItRawMC(TString name = "12C_400_vtx.root")
 //      if (ientry == 200000)
          break;
       
-      tagr.NextEvent();
+      if (!tagr.NextEvent()) break;
    }
    
    tagr.EndEventLoop();

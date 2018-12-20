@@ -46,7 +46,7 @@ void FillMCMsd(EVENT_STRUCT *myStr) {
    /*Ntupling the MC Vertex information*/
    TAGparaDsc* msdGeo    = new TAGparaDsc(TAMSDparGeo::GetDefParaName(), new TAMSDparGeo());
    TAMSDparGeo* geomap   = (TAMSDparGeo*) msdGeo->Object();
-   geomap->InitGeo();
+   geomap->FromFile();
    
    TAGdataDsc* msdRaw    = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
    TAGdataDsc* msdClus   = new TAGdataDsc("msdClus", new TAMSDntuCluster());
@@ -74,18 +74,13 @@ void ReadMsdRawMC(TString name = "16O_C2H4_200_1.root")
 //void ReadMsdRawMC(TString name = "12C_80_vtx.root")
 //void ReadMsdRawMC(TString name = "12C_400_vtx.root")
 {
-   new TGeoManager("genfitGeom", "GENFIT geometry");
-   TGeoVolume* top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 120.);
-   gGeoManager->SetTopVolume(top);
-   
    GlobalPar::Instance();
    GlobalPar::GetPar()->Print();
-   
-   Materials* listMaterials = new Materials() ;
-   listMaterials->PrintCompMap();
-   
+
    TAGroot tagr;
    TAGgeoTrafo geoTrafo;
+   geoTrafo.FromFile();
+
    tagr.SetCampaignNumber(-1);
    tagr.SetRunNumber(1);
    
@@ -139,7 +134,7 @@ void ReadMsdRawMC(TString name = "16O_C2H4_200_1.root")
       if (ientry == 20000)
          break;
       
-      tagr.NextEvent();
+      if (!tagr.NextEvent()) break;
    }
    
    tagr.EndEventLoop();
