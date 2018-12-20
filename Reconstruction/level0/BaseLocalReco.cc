@@ -31,6 +31,7 @@
 #include "TAVTntuTrack.hxx"
 #include "TAVTntuVertex.hxx"
 
+#include "GlobalPar.hxx"
 
 ClassImp(BaseLocalReco)
 
@@ -74,6 +75,15 @@ BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
    // define TAGroot
    fTAGroot = new TAGroot();
    fActEvtWriter = new TAGactTreeWriter("locRecFile");
+   
+   if( GlobalPar::GetPar()->IncludeST() )           fFlagTr  = true;
+   if( GlobalPar::GetPar()->IncludeBM() )           fFlagBm  = true;
+   if( GlobalPar::GetPar()->IncludeInnerTracker() ) fFlagIt  = true;
+   if( GlobalPar::GetPar()->IncludeVertex() )       fFlagVtx = true;
+   if( GlobalPar::GetPar()->IncludeMSD() )          fFlagMsd = true;
+   if( GlobalPar::GetPar()->IncludeTW() )           fFlagTw  = true;
+   if( GlobalPar::GetPar()->IncludeCA() )           fFlagCa  = true;
+
 }
 
 //__________________________________________________________
@@ -165,9 +175,10 @@ void BaseLocalReco::InitParameters()
 {
    // initialise parameters for start counter
    if (fFlagTr) {
-      fpParGeoTr = new TAGparaDsc("irGeo", new TATRparGeo());
+      fpParGeoTr = new TAGparaDsc(TATRparGeo::GetDefParaName(), new TATRparGeo());
       TATRparGeo* parGeo = (TATRparGeo*)fpParGeoTr->Object();
-      parGeo->InitGeo();
+      TAVTparGeo* geomap  = (TAVTparGeo*) fpParGeoVtx->Object();
+      geomap->FromFile("./geomaps/TATRdetector.map");
    }
 
    // initialise parameters for Beam Monitor
@@ -181,7 +192,7 @@ void BaseLocalReco::InitParameters()
    if (fFlagVtx) {
       fpParGeoVtx =  new TAGparaDsc(TAVTparGeo::GetDefParaName(), new TAVTparGeo());
       TAVTparGeo* geomap  = (TAVTparGeo*) fpParGeoVtx->Object();
-      geomap->InitGeo();
+      geomap->FromFile("./geomaps/TAVTdetector.map");
       
       fpParConfVtx =  new TAGparaDsc("vtConf", new TAVTparConf());
       TAVTparConf* parconf = (TAVTparConf*) fpParConfVtx->Object();
@@ -192,7 +203,7 @@ void BaseLocalReco::InitParameters()
    if (fFlagIt) {
       fpParGeoIt =new TAGparaDsc(TAITparGeo::GetDefParaName(), new TAITparGeo());
       TAITparGeo* geomap   = (TAITparGeo*) fpParGeoIt->Object();
-      geomap->InitGeo();
+      geomap->FromFile("./geomaps/TAITdetector.map");
 
       
       fpParConfIt = new TAGparaDsc("itConf", new TAITparConf());
@@ -204,7 +215,7 @@ void BaseLocalReco::InitParameters()
    if (fFlagMsd) {
       fpParGeoMsd = new TAGparaDsc(TAMSDparGeo::GetDefParaName(), new TAMSDparGeo());
       TAMSDparGeo* geomap   = (TAMSDparGeo*) fpParGeoMsd->Object();
-      geomap->InitGeo();
+      geomap->FromFile("./geomaps/TAMSDdetector.map");
       
       fpParConfMsd = new TAGparaDsc("msdConf", new TAMSDparConf());
 //      TAMSDparConf* parconf = (TAMSDparConf*) fpParConfMsd->Object();
@@ -214,15 +225,15 @@ void BaseLocalReco::InitParameters()
    // initialise parameters for Tof Wall
    if (fFlagTw) {
       fpParGeoTw = new TAGparaDsc("twGeo", new TATWparGeo());
-      TATWparGeo* parGeo = (TATWparGeo*)fpParGeoTw->Object();
-      parGeo->InitGeo();
+      TATWparGeo* geomap = (TATWparGeo*)fpParGeoTw->Object();
+      geomap->FromFile("./geomaps/TATWdetector.map");
    }
    
    // initialise parameters for caloriomter
    if (fFlagCa) {
       fpParGeoCa = new TAGparaDsc("caGeo", new TACAparGeo());
-      TACAparGeo* parGeo = (TACAparGeo*)fpParGeoCa->Object();
-      parGeo->InitGeo();
+      TACAparGeo* geomap = (TACAparGeo*)fpParGeoCa->Object();
+      geomap->FromFile("./geomaps/TACAdetector.map");
    }
 
    TAVTparConf::SetHistoMap();

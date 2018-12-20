@@ -66,15 +66,6 @@ public:
    //! Create branch in tree
    virtual void SetTreeBranches();
    
-   //! Enable detectors
-   void EnableTr()  { fFlagTr = true;  }
-   void EnableBm()  { fFlagBm = true;  }
-   void EnableVtx() { fFlagVtx = true; }
-   void EnableIt()  { fFlagIt = true;  }
-   void EnableMsd() { fFlagMsd = true; }
-   void EnableTw()  { fFlagTw = true;  }
-   void EnableCa()  { fFlagCa = true;  }
-   
    // Enable global
    void EnableTree()      { fFlagTree = true;      }
    void DisableTree()     { fFlagTree = false;     }

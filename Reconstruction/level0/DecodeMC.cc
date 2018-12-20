@@ -13,14 +13,6 @@ int main (int argc, char *argv[])
    TString out = in(0, pos);
    out.Append("_Out.root");
    
-   Bool_t st = false;
-   Bool_t bm = false;
-   Bool_t vt = false;
-   Bool_t it = false;
-   Bool_t msd = false;
-   Bool_t tof = false;
-   Bool_t cal = false;
-   
    Bool_t ntu = false;
    Bool_t his = false;
    
@@ -31,13 +23,6 @@ int main (int argc, char *argv[])
       if(strcmp(argv[i],"-in") == 0)    { in = TString(argv[++i]);  }                        // Root file in input
       if(strcmp(argv[i],"-nev") == 0)   { nTotEv = atoi(argv[++i]); }                   // Number of events to be analized
   
-      if(strcmp(argv[i],"-st") == 0)    { st = true;    } // enable start counter
-      if(strcmp(argv[i],"-bm") == 0)    { bm = true;    } // enable beam monitor
-      if(strcmp(argv[i],"-vt") == 0)    { vt = true;    } // enable vertex
-      if(strcmp(argv[i],"-it") == 0)    { it = true;    } // enable inner tracker
-      if(strcmp(argv[i],"-msd") == 0)   { msd = true;   } // enable multi strip detector
-      if(strcmp(argv[i],"-tof") == 0)   { tof = true;   } // enable time of flight
-      if(strcmp(argv[i],"-cal") == 0)   { cal = true;   } // enable calorimeter
       
       if(strcmp(argv[i],"-ntu") == 0)   { ntu = true;   } // enable tree filling
       if(strcmp(argv[i],"-his") == 0)   { his = true;   } // enable histograming
@@ -51,13 +36,6 @@ int main (int argc, char *argv[])
          cout<<"      -nev value     : [def=10^7] Numbers of events to process"<<endl;
          cout<<"      -ntu           : enable tree filling"<<endl;
          cout<<"      -his           : enable crtl histograming"<<endl;
-         cout<<"      -st            : enable start counter"<<endl;
-         cout<<"      -bm            : enable beam monitor"<<endl;
-         cout<<"      -vt            : enable vertex"<<endl;
-         cout<<"      -it            : enable inner tracker"<<endl;
-         cout<<"      -msd           : enable multi strip detector"<<endl;
-         cout<<"      -tof           : enable time of flight"<<endl;
-         cout<<"      -cal           : enable calorimeter"<<endl;
          return 1;
       }
    }
@@ -75,20 +53,10 @@ int main (int argc, char *argv[])
    if(his)
       locRec->EnableHisto();
    
-   // set detecteors
-   // VTX
-   if (vt) {
-      locRec->EnableVtx();
+   // VTX tracks
+   if (GlobalPar::GetPar()->IncludeVertex()) {
       locRec->EnableVtxTrack();
    }
-   
-   // IT
-   if (it)
-      locRec->EnableIt();
-   
-   // MSD
-   if (msd)
-      locRec->EnableMsd();
    
    TStopwatch watch;
    watch.Start();
