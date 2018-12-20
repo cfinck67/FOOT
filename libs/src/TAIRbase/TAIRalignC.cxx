@@ -28,6 +28,8 @@
 #include "TAMSDparConf.hxx"
 #include "TAMSDntuCluster.hxx"
 
+#include "TAGgeoTrafo.hxx"
+
 #include "TAIRalignC.hxx"
 
 #include "TAIRparDiff.hxx"
@@ -97,19 +99,21 @@ TAIRalignC::TAIRalignC(const TString name, Bool_t flagVtx, Bool_t flagIt, Bool_t
    
    fpGeoMapG    = new TAGparaDsc("gGeo", new TAGparGeo());
    TAGparGeo* geomapG   = (TAGparGeo*) fpGeoMapG->Object();
-   geomapG->InitGeo();
-
+   TString parFile = "./geomaps/TAGdetector.map";
+   geomapG->FromFile(parFile.Data());
    fpDiff         = new TAIRparDiff(fpGeoMapG);
 
    // VTX
    if (fFlagVtx) {
       fpGeoMapVtx    = new TAGparaDsc(TAVTparGeo::GetDefParaName(), new TAVTparGeo());
       TAVTparGeo* geomapVtx   = (TAVTparGeo*) fpGeoMapVtx->Object();
-      geomapVtx->InitGeo();
+      TString parFile = "./geomaps/TAVTdetector.map";
+      geomapVtx->FromFile(parFile.Data());
       
       fpConfigVtx    = new TAGparaDsc("vtConf", new TAVTparConf());
+      parFile = "./config/TAVTdetector.cfg";
       TAVTparConf* parConfVtx = (TAVTparConf*) fpConfigVtx->Object();
-      parConfVtx->FromFile(confFileVtx.Data());
+      parConfVtx->FromFile(parFile.Data());
       
       devsNtot += parConfVtx->GetSensorsN();
 
@@ -121,11 +125,13 @@ TAIRalignC::TAIRalignC(const TString name, Bool_t flagVtx, Bool_t flagIt, Bool_t
    if (fFlagMsd) {
       fpGeoMapMsd    = new TAGparaDsc(TAMSDparGeo::GetDefParaName(), new TAMSDparGeo());
       TAMSDparGeo* geomapMsd   = (TAMSDparGeo*) fpGeoMapMsd->Object();
-      geomapMsd->InitGeo();
+      TString parFile = "./geomaps/TAMSDdetector.map";
+      geomapMsd->FromFile(parFile.Data());
    
       fpConfigMsd    = new TAGparaDsc("msdConf", new TAMSDparConf());
       TAMSDparConf* parConfMsd = (TAMSDparConf*) fpConfigMsd->Object();
-      parConfMsd->FromFile(confFileMsd.Data());
+      parFile = "./config/TAMSDdetector.cfg";
+      parConfMsd->FromFile(parFile.Data());
       
       devsNtot += parConfMsd->GetSensorsN();
       
@@ -308,9 +314,12 @@ void TAIRalignC::FillPosition()
 // Fill Position
 void TAIRalignC::FillPosition(TAVTbaseParGeo* parGeo, Int_t offset)
 {
+   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+
    for (Int_t i = 0; i < parGeo->GetNSensors(); i++) {
       TVector3 posSens = parGeo->GetSensorPosition(i);
-      parGeo->Local2Global(&posSens);
+      posSens = geoTrafo->FromVTLocalToGlobal(posSens);
+
       fZposition[i+offset] = posSens.Z()*TAGgeoTrafo::CmToMm();
       fThickDect[i+offset] = parGeo->GetTotalSize()[2]*TAGgeoTrafo::CmToMm();
    }
@@ -718,7 +727,7 @@ Bool_t TAIRalignC::DefineWeights()
    Double_t factor2   = 0;
    
    Double_t sigmaAlfaMeasQ = 0;
-   Double_t sigmaMeasQ = sigmaMeas * sigmaMeas * 1e-6;
+   Double_t sigmaMeasQ = sigmaMeas * sigmaMeas * 1e-6; // mu2->mm2
    
    
    Float_t LrSum               = 0;
@@ -755,7 +764,7 @@ Bool_t TAIRalignC::DefineWeights()
          sigmaAlfaScattSi = TMath::Sqrt(logtermSum * logtermSum * nonLogtermSumQ - previousTermSumQ);
          factor1          = sigmaAlfaMeasQ + sigmaAlfaScattSi * sigmaAlfaScattSi;
          factor2          = sigmaAlfaMeasQ / factor1;
-         sigmaMeasQ       = sigmaMeasQ + 1e-6 * km * km * factor2 * sigmaAlfaScattSi * sigmaAlfaScattSi;
+         sigmaMeasQ       = sigmaMeasQ + 1e-6 * km * km * factor2 * sigmaAlfaScattSi * sigmaAlfaScattSi; // mrad2 -> rad2
          sigmaAlfaMeasQ   = factor1;
          km               = km * factor2 + fThickDect[i]; // see scattman formalismus paper
          previousTermSumQ = previousTermSumQ + sigmaAlfaScattSi*sigmaAlfaScattSi;
@@ -822,9 +831,9 @@ void TAIRalignC::UpdateTransfo(Int_t idx)
 {
    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMapVtx->Object();
    Int_t       iPlane   = fSecArray[idx];
-   pGeoMap->GetAlignmentU(iPlane) = fAlignmentU[idx]*TAGgeoTrafo::MmToMu();
-   pGeoMap->GetAlignmentV(iPlane) = fAlignmentV[idx]*TAGgeoTrafo::MmToMu();
-   pGeoMap->GetTiltW(iPlane)      = -fTiltW[idx];
+   pGeoMap->GetSensorPar(iPlane).AlignmentU = fAlignmentU[idx];
+   pGeoMap->GetSensorPar(iPlane).AlignmentV = fAlignmentV[idx];
+   pGeoMap->GetSensorPar(iPlane).TiltW      = -fTiltW[idx];
    
    return;
 }
@@ -878,9 +887,9 @@ void TAIRalignC::UpdateGeoMapsUVW(fstream &fileIn, fstream &fileOut, Int_t idx)
    TString key;
    TAVTparGeo* pGeoMap  = (TAVTparGeo*)fpGeoMapVtx->Object();
    
-   Float_t alignU = pGeoMap->GetAlignmentU(idx);
-   Float_t alignV = pGeoMap->GetAlignmentV(idx);
-   Float_t tiltW  = pGeoMap->GetTiltW(idx);
+   Float_t alignU = pGeoMap->GetSensorPar(idx).AlignmentU;
+   Float_t alignV = pGeoMap->GetSensorPar(idx).AlignmentV;
+   Float_t tiltW  = pGeoMap->GetSensorPar(idx).TiltW;
    
    while (!fileIn.eof()) {
       fileIn.getline(tmp, 255);
