@@ -1,0 +1,92 @@
+// -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
+// -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
+//
+// Mapping file for FOOT Multi-Strip Detector
+//
+
+// -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
+// Parameters of the Sensors
+// -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
+Sensors:              6
+
+// MSD
+TypeName:          "MSD"
+TypeNumber:           1
+PixelsNx:           640
+PixelsNy:           640
+PitchX:           0.0150
+PitchY:           0.0150
+TotalSizeX:       10.560   TotalSizeY:   10.850   TotalSizeZ:    0.0200
+EpiSizeX:          9.390   EpiSizeY:      9.600   EpiSizeZ:      0.0150
+EpiOffsetX:        0.000   EpiOffsetY:    0.000   EpiOffsetZ:    0.0000
+EpiMat:            "Si"
+EpiMatDensity:    2.329
+PixThickness:       6.4
+PixMat:          "SiO2/Al"
+PixMatDensities: "2.65/2.70"
+PixMatProp:      "0.89/0.11"
+PixMatDensity:      2.3
+SupportInfo:         0
+
+
+// -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
+// Parameter of the Detector Planes used in the run
+// type 0: X
+// type 1: Y
+// -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
+// -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- Plane 1-X  -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+Inputs:            1
+Type:              0
+PositionsX:        0.0000  PositionsY:   0.0000  PositionsZ:  -0.510
+Tilt1:             0.0000  Tilt2:        0.000   Tilt3:        0.000
+AlignementU:       0.000
+AlignementV:       0.000
+AlignementTilt:    0.000
+
+// -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- Plane 1-Y  -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+Inputs:            2
+Type:              1
+PositionsX:        0.0000  PositionsY:   0.000   PositionsZ:  -0.490
+Tilt1:             0.0000  Tilt2:        0.000   Tilt3:       90.000
+AlignementU:       0.000
+AlignementV:       0.000
+AlignementTilt:    0.000
+
+// -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- Plane 2-X  -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+Inputs:            3
+Type:              0
+PositionsX:        0.0000  PositionsY:   0.000  PositionsZ:   -0.010
+Tilt1:             0.0000  Tilt2:        0.000   Tilt3:        0.000
+AlignementU:       0.000
+AlignementV:       0.000
+AlignementTilt:    0.000
+// -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- Plane 2-Y  -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+Inputs:            4
+Type:              1
+PositionsX:        0.0000  PositionsY:   0.0000  PositionsZ:   0.010
+Tilt1:             0.0000  Tilt2:        0.000   Tilt3:       90.000
+AlignementU:       0.000
+AlignementV:       0.000
+AlignementTilt:    0.000
+
+// -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- Plane 3-X  -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+Inputs:            5
+Type:              0
+PositionsX:        0.0000  PositionsY:   0.000   PositionsZ:   0.490
+Tilt1:             0.0000  Tilt2:        0.000   Tilt3:        0.000
+AlignementU:       0.000
+AlignementV:       0.000
+AlignementTilt:    0.000
+
+// -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- Plane 3-Y  -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+Inputs:            6
+Type:              1
+PositionsX:        0.0000  PositionsY:   0.000  PositionsZ:    0.510
+Tilt1:             0.0000  Tilt2:        0.000   Tilt3:       90.000
+AlignementU:       0.000
+AlignementV:       0.000
+AlignementTilt:    0.000
+
+// -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
+// End of Mapping File
+// -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
