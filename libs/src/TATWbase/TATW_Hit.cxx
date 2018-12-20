@@ -71,12 +71,14 @@ void TATW_Hit::Initialise() {
     m_genPartPointer = NULL;
 
     // take the detector geometry
-    m_geometry = (TATWparGeo*) gTAGroot->FindParaDsc("twGeo", "TATWparGeo")->Object();
+   m_geometry = (TATWparGeo*) gTAGroot->FindParaDsc(TATWparGeo::GetDefParaName(), "TATWparGeo")->Object();
 
-    // set center position
+   // set center position
     if ( GlobalPar::GetPar()->Debug() > 1 )   cout << "TATW_Hit::Initialise()  ::  layer = " << m_layer << " bar = " << m_bar << endl;
-    m_coordinate = m_geometry->GetCoordiante_detectorFrame( m_layer, m_bar );
-    m_z = m_geometry->GetZ_detectorFrame(  m_layer, m_bar  );
+
+   // transformation handle TATWparGeo not Hit itself
+//    m_coordinate = m_geometry->GetCoordiante_detectorFrame( m_layer, m_bar );
+//    m_z = m_geometry->GetZ_detectorFrame(  m_layer, m_bar  );
 
 }
 
@@ -109,29 +111,30 @@ void TATW_Hit::SetGenPartID( int agenPartID ) {
 
 
 
+// transformation handle TATWparGeo not Hit itself
 
-//______________________________________________________________________________
-TVector3 TATW_Hit::GetMCPosition_sensorFrame() {
-    TVector3 glob = m_posMC;
-    m_geometry->Detector2Sensor_frame( m_layer, m_bar, &glob ); 
-    return glob; 
-}
-
-
-//______________________________________________________________________________
-TVector3 TATW_Hit::GetMCPosition_footFrame() { 
-    TVector3 glob = m_posMC;
-    m_geometry->Local2Global( &glob ); 
-    return glob; 
-};
-
-
-//______________________________________________________________________________
-TVector3 TATW_Hit::GetMCMomentum_footFrame() { 
-    TVector3 globP = m_momMC;
-    m_geometry->Local2Global_RotationOnly( &globP ); 
-    return globP; 
-};
+////______________________________________________________________________________
+//TVector3 TATW_Hit::GetMCPosition_sensorFrame() {
+//    TVector3 glob = m_posMC;
+//    m_geometry->Detector2Sensor_frame( m_layer, m_bar, &glob ); 
+//    return glob; 
+//}
+//
+//
+////______________________________________________________________________________
+//TVector3 TATW_Hit::GetMCPosition_footFrame() { 
+//    TVector3 glob = m_posMC;
+//    m_geometry->Local2Global( &glob ); 
+//    return glob; 
+//};
+//
+//
+////______________________________________________________________________________
+//TVector3 TATW_Hit::GetMCMomentum_footFrame() { 
+//    TVector3 globP = m_momMC;
+//    m_geometry->Local2Global_RotationOnly( &globP ); 
+//    return globP; 
+//};
 
 
 

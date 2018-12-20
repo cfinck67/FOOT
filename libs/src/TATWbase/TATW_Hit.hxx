@@ -89,22 +89,21 @@ public:
     int                 GetGenPartID()      { return m_genPartIndex; };
     TAGntuMCeveHit*     GetGenParticle()    { return m_genPartPointer; };
 
-    
-    float          GetHitCoordinate_sensorFrame()        { return m_geometry->GetCoordiante_sensorFrame( m_layer, m_bar ); };
-    float          GetHitCoordinate_detectorFrame()      { return m_coordinate; };
-    float          GetHitCoordinate_footFrame()          { return m_geometry->GetCoordiante_footFrame( m_layer, m_bar ); };
-    
-    float          GetHitZ_sensorFrame()        { return m_geometry->GetZ_sensorFrame( m_layer, m_bar ); };
-    float          GetHitZ_detectorFrame()      { return m_z; };
-    float          GetHitZ_footFrame()          { return m_geometry->GetZ_footFrame( m_layer, m_bar ); };
-    
-    TVector3          GetMCPosition_sensorFrame();
+
+   float          GetHitCoordinate_sensorFrame()        { return m_geometry->GetCoordiante_sensorFrame( m_layer, m_bar ); };
+   float          GetHitCoordinate_detectorFrame()      { return m_coordinate; };
+   
+   float          GetHitZ_sensorFrame()        { return m_geometry->GetZ_sensorFrame( m_layer, m_bar ); };
+   float          GetHitZ_detectorFrame()      { return m_z; };
+
+   
+//    TVector3          GetMCPosition_sensorFrame();
     TVector3          GetMCPosition_detectorFrame()      { return  m_posMC;            }
-    TVector3          GetMCPosition_footFrame();
+//    TVector3          GetMCPosition_footFrame();
 
     // TVector3          GetMCMomentum_sensorFrame()        { return  m_momMC;            }
     TVector3           GetMCMomentum_detectorFrame()      { return  m_momMC;            }
-    TVector3           GetMCMomentum_footFrame();
+  //  TVector3           GetMCMomentum_footFrame();
 
     
     double           GetEnergyLoss()                { return m_de; };
