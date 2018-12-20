@@ -173,7 +173,8 @@ void TAVTactNtuMC::FillPixels(Int_t sensorId, Int_t hitId )
 
 			double v = pGeoMap->GetPositionV(line);
 			double u = pGeoMap->GetPositionU(col);
-
+         TVector3 pos(u,v,0);
+         pixel->SetPosition(pos);
 
 			if (ValidHistogram()) {
 				fpHisPixelMap[sensorId]->Fill(line, col);
