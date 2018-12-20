@@ -24,7 +24,7 @@ TATWactNtuMC::TATWactNtuMC(const char* name,
     m_hitContainer(p_datraw),
     m_eventStruct(evStr)
 {
-  AddDataOut(p_datraw, "TATWdatRaw");
+  AddDataOut(p_datraw, "TATW_ContainerHit");
 }
 
 
@@ -73,8 +73,11 @@ bool TATWactNtuMC::Action() {
 
         // layer, bar, de, time, ntupID, parentID
         int view = ( m_eventStruct->SCNiview[i] == -1 ? 0 : 1 );    // in ntuple layers are -1 and 1
-        // int view = ( m_eventStruct->SCNiview[i] == -1 ? 1 : 0 );    // in ntuple layers are -1 and 1
-        
+        //int view = ( m_eventStruct->SCNiview[i] == -1 ? 1 : 0 );    // in ntuple layers are -1 and 1
+       
+       if ( fDebugLevel> 0 )
+          printf("%d %d\n", view,  m_eventStruct->SCNibar[i]);
+       
         TATW_Hit* hit = containerHit->NewHit( view, m_eventStruct->SCNibar[i], m_eventStruct->SCNde[i], 
                                                 m_eventStruct->SCNtim[i], i, m_eventStruct->SCNid[i]-1 );
         
@@ -84,17 +87,14 @@ bool TATWactNtuMC::Action() {
         TVector3 MCmom = TVector3(  (m_eventStruct->SCNpxin[i] + m_eventStruct->SCNpxout[i])/2, 
                                     (m_eventStruct->SCNpyin[i] + m_eventStruct->SCNpyout[i])/2, 
                                     (m_eventStruct->SCNpzin[i] + m_eventStruct->SCNpzout[i])/2 );    
-        
-        geoMap->Global2Local( &MCpos );
-        geoMap->Global2Local_RotationOnly( &MCmom );
+
+       // needed Fluka not in FOOT frame ??
+//        geoMap->Global2Local( &MCpos );
+//        geoMap->Global2Local_RotationOnly( &MCmom );
 
         hit->SetMCPosition( MCpos );
         hit->SetMCMomentum( MCmom );
 
-        if ( fDebugLevel> 0 )    {
-            cout << "Layer: "<<hit->GetLayer()<<" IsColumn: "<<hit->IsColumn()<<" Bar: "<<hit->GetBar()<< endl;
-            cout<<"  GenPart: "<<hit->GetGenPartID()<< " Coord: "<<hit->GetHitCoordinate_footFrame()<<" Z: "<<hit->GetHitZ_footFrame()<<endl;
-        }
 
        if (ValidHistogram()) {
           if (hit->IsColumn())
