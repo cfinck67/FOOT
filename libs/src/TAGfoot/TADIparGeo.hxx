@@ -2,49 +2,121 @@
 #define _TADIparGeo_HXX
 /*!
   \file
-  \version $Id: TADIparGeo.hxx,v 1.2 2003/06/22 19:33:36 mueller Exp $
   \brief   Declaration of TADIparGeo.
+ 
+  \author Ch. Finck
 */
 /*------------------------------------------+---------------------------------*/
 
+#include <map>
 #include "Riostream.h"
 
-
 #include "TObject.h"
+#include "TString.h"
 
-#include "TAGpara.hxx"
+#include "TAGparTools.hxx"
 
 
+class TGeoHMatrix;
 class TGeoVolume;
 //##############################################################################
 
-class TADIparGeo : public TAGpara {
+class TADIparGeo : public TAGparTools {
       
 private:
-   Float_t    fWidth;            // Width of the dipole 
-   Float_t    fHeight;           // Height of the dipole
-   Float_t    fLength;           // Length of the dipole
-   Int_t      fDebugLevel;       // debug level
+   TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each crystal)
+   TVector3*  fCurrentPosition;  // current position
 
+   Int_t     fMagnetsN;
+   Int_t     fType;       // Magnet type
+   TString   fMapName;    // Map filename
+   
+   Float_t   fCovRadius;  // cover radius
+   TString   fCovMat;     // cover material
+   Float_t   fCovDensity; // cover material density
+   
+   TString   fMagMat;     // Magnet material
+   Float_t   fMagDensity; // Magnet material density
+   
+   struct MagnetParameter_t : public  TObject {
+	  Int_t     MagnetIdx;   // Magnet index
+     TVector3  Size;        // current size
+	  TVector3  Position;    // current position
+	  TVector3  Tilt;        // current tilt angles
+   };
+   MagnetParameter_t  fMagnetParameter[10];
+   
+   TVector3   fMinPosition;
+   TVector3   fMaxPosition;
+   TVector3   fSizeBox;
+   
+private:
+   static       TString fgDefaultGeoName; // default detector geomap file
+   static const TString fgkDevBaseName;   // device base name
+   static const Int_t fgkDefMagnetsN;     // default number of Magnets
+   
 public:
-
+   static Int_t         GetDefMagnetsN()      { return fgkDefMagnetsN;        }
+   static const Char_t* GetBaseName()         { return fgkDevBaseName.Data(); }
+   
+public:
    TADIparGeo();
     virtual ~TADIparGeo();
 
-     
-   Float_t GetWidth()   const { return fWidth;          }
-   Float_t GetHeight()  const { return fHeight;         }
-   Float_t GetLength()  const { return fLength;         }
-
-   //! Init geo (compliant with all par geo)
-   void    InitGeo();
+   //! Transform point from the global reference frame
+   //! to the local reference frame of the detection id
+   void            Global2Local(Int_t detID,  Double_t xg, Double_t yg, Double_t zg, 
+								Double_t& xl, Double_t& yl, Double_t& zl) const;
    
-   //! Define materials
-   void    DefineMaterial();
+   TVector3        Global2Local(Int_t detID, TVector3& glob) const;
+   TVector3        Global2LocalVect(Int_t detID, TVector3& glob) const;
+   
+   //! Transform point from the local reference frame
+   //! of the detection id to the global reference frame 
+   void            Local2Global(Int_t detID,  Double_t xl, Double_t yl, Double_t zl, 
+								Double_t& xg, Double_t& yg, Double_t& zg) const;
+   
+   TVector3        Local2Global(Int_t detID, TVector3& loc) const;
+   TVector3        Local2GlobalVect(Int_t detID, TVector3& loc) const;
+   
+   //! Add matrxi transformation
+   void            AddTransMatrix(TGeoHMatrix* mat, Int_t idx = -1);
+   //! Remove matrix transformation
+   void            RemoveTransMatrix(TGeoHMatrix* mat);
+   //! Get matrix transformation
+   TGeoHMatrix*    GetTransfo(Int_t iMagnet);
+   
+   //! Read parameters from file
+   Bool_t          FromFile(const TString& name = "");
 
+   //! Define materials
+   void            DefineMaterial();
+
+   //! Get position Magnet
+   TVector3*       GetPosition(Int_t iMagnet);
+ 
+   //! Get number of Magnets
+   Int_t GetMagnetsN()                  const { return fMagnetsN; }
+   
+   //! Get type of Magnets
+   Int_t GetMagnetType()                const { return fType;     }
+   
+   //! Get map file name
+   TString GetMapName()                 const { return fMapName;  }
+  
    //! Build Magnet
    TGeoVolume* BuildMagnet(const char* basemoduleName = "Module", const char *name = "Magnet");
    
+   //! Get Magnet parameter
+   MagnetParameter_t& GetMagnetPar(Int_t idx) { return fMagnetParameter[idx]; }
+   
+   // Getter
+   TVector3    GetBoxSize()     const { return fSizeBox;  }
+   TVector3    GetMinPoistion() const { return fMinPosition; }
+   TVector3    GetMaxPoistion() const { return fMaxPosition; }
+   
+private:
+   void DefineMaxMinDimension();
    
    ClassDef(TADIparGeo,1)
 };

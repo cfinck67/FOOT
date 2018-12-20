@@ -1,145 +1,418 @@
-/*!
-  \file
-  \version $Id: TADIparGeo.cxx,v 1.2 2003/06/22 19:34:21 mueller Exp $
-  \brief   Implementation of TADIparGeo.
-*/
 
 #include <Riostream.h>
 
 #include "TGeoBBox.h"
 #include "TGeoTube.h"
 #include "TColor.h"
-#include "TEveTrans.h"
 #include "TGeoManager.h"
-#include "TGeoCompositeShape.h"
+#include "TGeoMatrix.h"
 #include "TList.h"
 #include "TMath.h"
 #include "TObjArray.h"
 #include "TObjString.h"
-#include "TROOT.h"
 #include "TSystem.h"
 
-#include "TAGgeoTrafo.hxx" 
-
+#include "TAGgeoTrafo.hxx"
+#include "TAGmaterials.hxx"
 #include "TADIparGeo.hxx"
-
-#include "foot_geo.h"
 
 //##############################################################################
 
 /*!
   \class TADIparGeo TADIparGeo.hxx "TADIparGeo.hxx"
-  \brief Map and Geometry parameters for Dipole. **
+  \brief Map and Geometry parameters for magnets. **
 */
 
 ClassImp(TADIparGeo);
 
+      TString TADIparGeo::fgDefaultGeoName = "./geomaps/TADIdetector.map";
+const TString TADIparGeo::fgkDevBaseName   = "DI";
+const Int_t   TADIparGeo::fgkDefMagnetsN   = 2;
+
 //______________________________________________________________________________
 TADIparGeo::TADIparGeo()
-: TAGpara(),
-  // from gsi_geo.h (VM)
-  fWidth(0.),
-  fHeight(0.),
-  fLength(0.),
-  fDebugLevel(0)
+: TAGparTools(),
+  fMatrixList(new TObjArray(TADIparGeo::GetDefMagnetsN())),
+  fCurrentPosition(new TVector3()),
+  fMagnetsN(0),
+  fType(-1),
+  fMapName("")
 {
    // Standard constructor
-   DefineMaterial();
+   fMatrixList->SetOwner(true);
 }
 
 //______________________________________________________________________________
 TADIparGeo::~TADIparGeo()
 {
    // Destructor
+   delete fMatrixList;
+   delete fCurrentPosition;
 }
 
-//_____________________________________________________________________________
-void TADIparGeo::InitGeo()
+//______________________________________________________________________________
+Bool_t TADIparGeo::FromFile(const TString& name) 
 {
-   fWidth  = MAG_PM_THICK;
-   fHeight = MAG_PM_THICK;
-   fLength = MAG_CV_LENGTH;
+   // simple file reading, waiting for real config file
+   TString nameExp;
+   
+   if (name.IsNull())
+	  nameExp = fgDefaultGeoName;
+   else 
+	  nameExp = name;
+
+   if (!Open(nameExp)) return false;
+   
+   ReadItem(fMagnetsN);  
+   if(fDebugLevel)
+	  cout << endl << "Magnets number "<< fMagnetsN << endl;
+   
+   // read Magnet index
+	  ReadItem(fType);
+	  if(fDebugLevel)
+        cout  << "   Type of Magnet: " <<  fType << endl;
+   
+   if (fType == 2) {
+      ReadStrings(fMapName);
+      if(fDebugLevel)
+         cout  << "   Map File Name:  "<< fMapName.Data() << endl;
+   }
+   
+   // Read cover radius
+   ReadItem(fCovRadius);
+   if(fDebugLevel)
+      cout << endl << "   Cover radius: "<< fCovRadius << endl;
+   
+   // Read cover material
+   ReadStrings(fCovMat);
+   if(fDebugLevel)
+      cout  << "   Cover material:  "<< fCovMat.Data() << endl;
+
+   // read cover material density
+	  ReadItem(fCovDensity);
+	  if(fDebugLevel)
+        cout  << "   Cover material density: " <<  fCovDensity << endl;
+   
+   // Read magnet material
+   ReadStrings(fMagMat);
+   if(fDebugLevel)
+      cout  << "   Magnet material:  "<< fMagMat.Data() << endl;
+   
+   // read magnet material density
+	  ReadItem(fMagDensity);
+	  if(fDebugLevel)
+        cout  << "   Magnet material density: " <<  fMagDensity << endl;
+
+
+   if(fDebugLevel)
+      cout << endl << "Reading Magnet Parameters " << endl;
+   
+   for (Int_t p = 0; p < fMagnetsN; p++) { // Loop on each plane
+	  
+	  // read Magnet index
+	  ReadItem(fMagnetParameter[p].MagnetIdx);
+	  if(fDebugLevel)
+		 cout << endl << " - Parameters of Magnet " <<  fMagnetParameter[p].MagnetIdx << endl;
+      
+      // read Magnet size
+      ReadVector3(fMagnetParameter[p].Size);
+      if(fDebugLevel)
+         cout << "   Size: "
+         << Form("%f %f %f", fMagnetParameter[p].Size[0], fMagnetParameter[p].Size[1], fMagnetParameter[p].Size[2]) << endl;
+
+	  // read Magnet position
+	  ReadVector3(fMagnetParameter[p].Position);
+	  if(fDebugLevel)
+		 cout << "   Position: "
+	         << Form("%f %f %f", fMagnetParameter[p].Position[0], fMagnetParameter[p].Position[1], fMagnetParameter[p].Position[2]) << endl;
+	  
+	  // read Magnet angles
+	  ReadVector3(fMagnetParameter[p].Tilt);
+	  if(fDebugLevel)
+		 cout  << "   Tilt: "
+		       << Form("%f %f %f", fMagnetParameter[p].Tilt[0], fMagnetParameter[p].Tilt[1], fMagnetParameter[p].Tilt[2]) << endl;
+	  
+      Float_t thetaX = fMagnetParameter[p].Tilt[0];
+      Float_t thetaY = fMagnetParameter[p].Tilt[1];
+      Float_t thetaZ = fMagnetParameter[p].Tilt[2];
+
+      TGeoRotation rot;
+	  rot.RotateX(thetaX);   
+	  rot.RotateY(thetaY);   
+	  rot.RotateZ(thetaZ);
+      
+     Float_t transX = fMagnetParameter[p].Position[0];
+     Float_t transY = fMagnetParameter[p].Position[1];
+     Float_t transZ = fMagnetParameter[p].Position[2];
+      
+     TGeoTranslation trans(transX, transY, transZ);
+	  
+	  TGeoHMatrix  transfo;
+	  transfo  = trans;
+	  transfo *= rot;
+	  AddTransMatrix(new TGeoHMatrix(transfo), fMagnetParameter[p].MagnetIdx-1);
+	 
+	 // change to rad
+	 fMagnetParameter[p].Tilt[0] = fMagnetParameter[p].Tilt[0]*TMath::DegToRad();
+	 fMagnetParameter[p].Tilt[1] = fMagnetParameter[p].Tilt[1]*TMath::DegToRad();
+	 fMagnetParameter[p].Tilt[2] = fMagnetParameter[p].Tilt[2]*TMath::DegToRad();
+   }	  
+
+   // define material
+   DefineMaterial();
+
+   // Close file
+   Close();
+   
+   return true;
 }
 
 //_____________________________________________________________________________
 void TADIparGeo::DefineMaterial()
 {
+   
    if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
       new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
    }
    
-   TGeoElementTable* table = gGeoManager->GetElementTable();
-   
-   // create material
-   TGeoMixture* mat = 0x0;;
-   TGeoMedium*  med = 0x0;
-   
-   const Char_t* matNameAir = MAG_AIR_MEDIUM.Data();
-   if ( (mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matNameAir)) == 0x0 ) {
-      TGeoMaterial *matO = new TGeoMaterial("Oxygen",   16., 8., 1.41e-3);
-      TGeoMaterial *matN = new TGeoMaterial("Nitrogen", 14., 7., 1.25e-3);
-   
-      mat = new TGeoMixture(matNameAir, 2, 1.29e-3);
-      mat->AddElement(matN, 0.79);
-      mat->AddElement(matO, 0.21);
+   // Cover material
+   TGeoMaterial* mat = TAGmaterials::Instance()->CreateMaterial(fCovMat, fCovDensity);
+   if (fDebugLevel) {
+      printf("Cover material:\n");
+      mat->Print();
    }
-   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matNameAir)) == 0x0 )
-      med = new TGeoMedium(matNameAir,1,mat);
+
    
-   // SmCo
-   const Char_t* matName = MAG_PM_MEDIUM.Data();
-   if ( (mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
-      
-      TGeoElement* matSm = table->GetElement(62);
-      TGeoElement* matCo = table->GetElement(27);
-      
-      mat =new TGeoMixture(matName,2, 8.3);
-      mat->AddElement(matSm, 2);
-      mat->AddElement(matCo, 17);
+   // Magnet material
+   mat = TAGmaterials::Instance()->CreateMaterial(fMagMat, fMagDensity);
+   if (fDebugLevel) {
+      printf("Magnet material:\n");
+      mat->Print();
    }
-   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
-      med = new TGeoMedium(matName,1,mat);
 }
+
+//_____________________________________________________________________________
+void TADIparGeo::AddTransMatrix(TGeoHMatrix* mat, Int_t idx)
+{
+  if (idx == -1)
+	 fMatrixList->Add(mat);  
+  else {
+	 TGeoHMatrix* oldMat = GetTransfo(idx);
+	 if (oldMat)
+		RemoveTransMatrix(oldMat);
+	 fMatrixList->AddAt(mat, idx);
+  }
+}
+
+//_____________________________________________________________________________
+void TADIparGeo::RemoveTransMatrix(TGeoHMatrix* mat)
+{
+	 if (!fMatrixList->Remove(mat))
+		printf("Cannot remove matrix");
+}
+
+//_____________________________________________________________________________
+TGeoHMatrix* TADIparGeo::GetTransfo(Int_t iMagnet)
+{
+   if (iMagnet < 0 || iMagnet >= GetMagnetsN()) {
+	  Warning("GetTransfo()","Wrong detector id number: %d ", iMagnet); 
+	  return 0x0;
+   }
+   
+   return (TGeoHMatrix*)fMatrixList->At(iMagnet);
+}
+
+//_____________________________________________________________________________
+TVector3* TADIparGeo::GetPosition(Int_t iMagnet)
+{
+   TGeoHMatrix* hm = GetTransfo(iMagnet);
+   if (hm) {
+	  TVector3 local(0,0,0);
+	  *fCurrentPosition =  Local2Global(iMagnet,local);
+   }
+   return fCurrentPosition;
+}
+
+//_____________________________________________________________________________
+void TADIparGeo::Global2Local(Int_t detID,
+									Double_t xg, Double_t yg, Double_t zg, 
+									Double_t& xl, Double_t& yl, Double_t& zl) const
+{  
+   if (detID < 0 || detID > GetMagnetsN()) {
+	  Warning("Global2Local()","Wrong detector id number: %d ", detID); 
+	  return ;
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {xg, yg, zg};
+   
+   mat->MasterToLocal(global, local);
+   xl = local[0];
+   yl = local[1];
+   zl = local[2];
+}   
+
+//_____________________________________________________________________________
+TVector3 TADIparGeo::Global2Local(Int_t detID, TVector3& glob) const
+{
+   if (detID < 0 || detID > GetMagnetsN()) {
+	  Warning("Global2Local()","Wrong detector id number: %d ", detID); 
+	  return TVector3(0,0,0);
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
+   
+   mat->MasterToLocal(global, local);
+   TVector3 pos(local[0], local[1], local[2]);
+   
+   return pos;
+}   
+
+//_____________________________________________________________________________
+TVector3 TADIparGeo::Global2LocalVect(Int_t detID, TVector3& glob) const
+{
+   if (detID < 0 || detID > GetMagnetsN()) {
+	  Warning("Global2LocalVect()","Wrong detector id number: %d ", detID); 
+	  return TVector3(0,0,0);
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
+   
+   mat->MasterToLocalVect(global, local);
+   TVector3 pos(local[0], local[1], local[2]);
+   
+   return pos;
+}   
+
+//_____________________________________________________________________________
+void TADIparGeo::Local2Global(Int_t detID,
+									Double_t xl, Double_t yl, Double_t zl, 
+									Double_t& xg, Double_t& yg, Double_t& zg) const
+{
+   if (detID < 0 || detID > GetMagnetsN()) {
+	  Warning("Local2Global()","Wrong detector id number: %d ", detID); 
+	  return;
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {xl, yl, zl};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMaster(local, global);
+   xg = global[0];
+   yg = global[1];
+   zg = global[2];
+}   
+
+//_____________________________________________________________________________
+TVector3 TADIparGeo::Local2Global(Int_t detID, TVector3& loc) const
+{
+   if (detID < 0 || detID > GetMagnetsN()) {
+	  Warning("Local2Global()","Wrong detector id number: %d ", detID); 
+	  TVector3(0,0,0);
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMaster(local, global);
+   TVector3 pos(global[0], global[1], global[2]);
+   
+   return pos;
+}   
+
+
+//_____________________________________________________________________________
+TVector3 TADIparGeo::Local2GlobalVect(Int_t detID, TVector3& loc) const
+{
+   if (detID < 0 || detID > GetMagnetsN()) {
+	  Warning("Local2GlobalVect()","Wrong detector id number: %d ", detID); 
+	  TVector3(0,0,0);
+   }
+
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   
+   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMasterVect(local, global);
+   TVector3 pos(global[0], global[1], global[2]);
+   
+   return pos;
+}   
 
 //_____________________________________________________________________________
 TGeoVolume* TADIparGeo::BuildMagnet(const char* basemoduleName, const char *magnetName)
 {
    if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
-      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+	  new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
    }
    
    TGeoVolume* magnet = gGeoManager->FindVolumeFast(magnetName);
    if ( magnet == 0x0 ) {
-      
-      const Char_t* matNameAir = MAG_AIR_MEDIUM.Data();
-      TGeoMedium  *med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matNameAir);
-      TGeoMixture *mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matNameAir);
-     
-      magnet = gGeoManager->MakeBox(magnetName,med,MAG_PM_THICK/2.,MAG_PM_THICK/2.,(MAG_PM_THICK+MAG_DIST)/2.); // volume corresponding to vertex
+      TGeoMedium*  med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("AIR");
+      magnet = gGeoManager->MakeBox(magnetName,med,fSizeBox.X()/2.,fSizeBox.Y()/2.,fSizeBox.Z()/2.); // volume corresponding to vertex
    }
    
    // create module
-   const Char_t* matName = MAG_PM_MEDIUM.Data();
-   TGeoMedium  *med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
-   TGeoMixture *mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName);
-   
+   const Char_t* matName = fMagMat.Data();
+   TGeoMedium*  medMod = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+
    TGeoVolume* magnetMod = 0x0;
-   Int_t nMagnets = MAG_N;
-   for(Int_t iMag = 0; iMag < nMagnets; iMag++) {
+   for(Int_t iMag = 0; iMag < GetMagnetsN(); ++iMag) {
+      TVector3 size = GetMagnetPar(iMag).Size;
+
+      TGeoHMatrix* transfo = GetTransfo(iMag);
+      TGeoHMatrix* transf = (TGeoHMatrix*)transfo->Clone();
       
-      TGeoHMatrix* transf = new TGeoHMatrix();
-      Double_t vec[3] = {0, 0, -MAG_DIST/2. +iMag*MAG_DIST};
-      transf->SetTranslation(vec);
-      TGeoTube* tube = new TGeoTube(Form("TubeMagnet%d", iMag+1), MAG_PM1_INRAD, MAG_PM1_OUTRAD, MAG_PM_THICK/2.);
+      TGeoTube* tube = new TGeoTube(Form("TubeMagnet%d", iMag+1), size[0], size[1], size[2]/2.);
       
-      TGeoVolume *magnetMod = new TGeoVolume(Form("%s_Magnet",basemoduleName), tube, med);
+      TGeoVolume *magnetMod = new TGeoVolume(Form("%s_Magnet",basemoduleName), tube, medMod);
       magnetMod->SetLineColor(kBlue-3);
-      magnetMod->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
+      magnetMod->SetTransparency( TAGgeoTrafo::GetDefaultTransp());
       
       magnet->AddNode(magnetMod, iMag, transf);
    }
-   
+
    return magnet;
 }
 
+//_____________________________________________________________________________
+void TADIparGeo::DefineMaxMinDimension()
+{
+   TVector3 size(0, 0, 0);
+   TVector3 posAct(0, 0, 0);
+   
+   Int_t nSens = GetMagnetsN();
+   
+   TVector3 minPosition(10e10, 10e10, 10e10);
+   TVector3 maxPosition(-10e10, -10e10, -10e10);
+   
+   for (Int_t iS = 0; iS < nSens; iS++) {
+      posAct = GetMagnetPar(iS).Position;
+      size  = GetMagnetPar(iS).Size;
+      
+      for(Int_t i = 0; i < 3; i++) {
+         minPosition[i] = (minPosition[i] <= posAct[i] ) ? minPosition[i] : posAct[i];
+         maxPosition[i] = (maxPosition[i] >= posAct[i] ) ? maxPosition[i] : posAct[i];
+      }
+   }
+   
+   minPosition[0] -= size[1];    maxPosition[0] += size[1];
+   minPosition[1] -= size[1];    maxPosition[1] += size[1];
+   minPosition[2] -= size[2]/2.; maxPosition[2] += size[2]/2.;
+   
+   fMinPosition = minPosition;
+   fMaxPosition = maxPosition;
+   
+   for(Int_t i = 0; i< 3; ++i)
+      fSizeBox[i] = (fMaxPosition[i] - fMinPosition[i]);
+}
 
