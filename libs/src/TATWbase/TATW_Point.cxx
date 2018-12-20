@@ -5,6 +5,8 @@
 #include "TString.h"
 #include "TClonesArray.h"
 
+#include "TAGgeoTrafo.hxx"
+
 #include "TATW_Point.hxx"
 
 
@@ -101,8 +103,9 @@ TVector3 TATW_Point::GetPosition_detectorFrame() {
 //______________________________________________________________________________
 TVector3 TATW_Point::GetPosition_footFrame() { 
 	// TrueGhostWarning();
-	TVector3 glob = m_position;
-	m_geometry->Local2Global( &glob ); 
+   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+
+	TVector3 glob = geoTrafo->FromTWLocalToGlobal( m_position );
 	return glob; 
 };
 
@@ -117,9 +120,10 @@ TVector3 TATW_Point::GetMCPosition_detectorFrame() {
 //______________________________________________________________________________
 TVector3 TATW_Point::GetMCPosition_footFrame() { 
 	TrueGhostWarning();
-	TVector3 glob = m_posMC;
-	m_geometry->Local2Global( &glob ); 
-	return glob; 
+   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+
+   TVector3 glob = geoTrafo->FromTWLocalToGlobal( m_posMC );
+	return glob;
 };
 
 
@@ -133,9 +137,11 @@ TVector3 TATW_Point::GetMCMomentum_detectorFrame() {
 //______________________________________________________________________________
 TVector3 TATW_Point::GetMCMomentum_footFrame() { 
 	TrueGhostWarning();
-	TVector3 globP = m_momMC;
-	m_geometry->Local2Global_RotationOnly( &globP ); 
-	return globP; 
+
+   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+   TVector3 globP = geoTrafo->VecFromTWLocalToGlobal(m_momMC) ;
+   
+	return globP;
 };
 
 
