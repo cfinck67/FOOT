@@ -118,8 +118,7 @@ Bool_t TAITactNtuClusterF::CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClu
       ComputePosition();
       cluster->SetNumber(i);
       TVector3 posG = *GetCurrentPosition();
-      pGeoMap->Sensor2Detector_frame(iSensor, &posG);
-      //  pGeoMap->Local2Global(&posG);
+      posG = pGeoMap->Sensor2Detector(iSensor, posG);
       cluster->SetPositionG(&posG);
       cluster->SetPosition(GetCurrentPosition());
       cluster->SetPosError(GetCurrentPosError());
