@@ -5,8 +5,11 @@
 */
 
 #include <math.h>
-
 #include "TF1.h"
+
+#include "TAGroot.hxx"
+#include "TAGgeoTrafo.hxx"
+
 #include "TABMparCon.hxx"
 #include "TABMntuRaw.hxx"
 #include "TABMntuTrack.hxx"
@@ -96,6 +99,8 @@ TABMactNtuTrack::~TABMactNtuTrack()
 //! Action.
 Bool_t TABMactNtuTrack::Action()
 {
+  TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+
   TABMntuTrack* p_ntutrk = (TABMntuTrack*) fpNtuTrk->Object();
   TABMntuRaw*   p_ntuhit = (TABMntuRaw*)   fpNtuHit->Object();
   TABMparGeo*   p_bmgeo = (TABMparGeo*)    fpBMGeo->Object();
@@ -138,9 +143,9 @@ Bool_t TABMactNtuTrack::Action()
   const Int_t det_Id = 1; //beam monitor Id (useless parameter necessary to genfit)
   TMatrixDSym hitCov(7);
   TVectorD hitCoords(7);
-  vector<vector<Int_t>> hitxplane(p_bmgeo->GetLayersNumber()*2); //number of hit for every bm plane (plane should be 12 in BM)
+  vector<vector<Int_t>> hitxplane(p_bmgeo->GetLayersN()*2); //number of hit for every bm plane (plane should be 12 in BM)
   TABMntuHit* p_hit;
-  Int_t firedPlane=p_bmgeo->GetLayersNumber()*2; //number of plane fired
+  Int_t firedPlane=p_bmgeo->GetLayersN()*2; //number of plane fired
   TDecompChol fitTrack_cov;  
   //~ TVector3 wire_a_x, wire_b_x, wire_a_y, wire_b_y;
   Double_t wire_a_x=-1000., wire_a_y=-1000.;
@@ -148,7 +153,7 @@ Bool_t TABMactNtuTrack::Action()
   bool tmp_bool;  
   Int_t fit_index=0;  
     
-  TVector3 init_pos(0.,0.,p_bmgeo->GetCenter().z()-p_bmgeo->GetLength()/2. -3.);
+  TVector3 init_pos(0.,0.,geoTrafo->GetCACenter().z()-p_bmgeo->GetLength()/2. -3.);
   Track* fitTrack(nullptr);
   AbsTrackRep* rep(nullptr);  
   
@@ -286,19 +291,19 @@ Bool_t TABMactNtuTrack::Action()
         p_hit = p_ntuhit->Hit(hitxtrack[i][i_h]);
         
         if(p_bmcon->IsMC())
-          if(p_hit->GetIdmon()!=1) //there is a hit from a non primary particle
+          if(p_hit->GetSenseIdmon()!=1) //there is a hit from a non primary particle
             onlyPrimary=false;
           
         
         hit_view=(p_hit->View()==1) ? 0:1;
             
-        x = p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-        y = p_bmgeo->GetY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-        z = p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
+        x = p_bmgeo->GetWireX(p_bmgeo->GetSenseId(p_hit->Cell()),p_hit->Plane(),hit_view);
+        y = p_bmgeo->GetWireY(p_bmgeo->GetSenseId(p_hit->Cell()),p_hit->Plane(),hit_view);
+        z = p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(p_hit->Cell()),p_hit->Plane(),hit_view);
     
-        cx = p_bmgeo->GetCX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-        cy = p_bmgeo->GetCY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-        cz = p_bmgeo->GetCZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);	    
+        cx = p_bmgeo->GetWireCX(p_bmgeo->GetSenseId(p_hit->Cell()),p_hit->Plane(),hit_view);
+        cy = p_bmgeo->GetWireCY(p_bmgeo->GetSenseId(p_hit->Cell()),p_hit->Plane(),hit_view);
+        cz = p_bmgeo->GetWireCZ(p_bmgeo->GetSenseId(p_hit->Cell()),p_hit->Plane(),hit_view);
           
         hitCoords(0)=x;
         hitCoords(1)=y;
@@ -353,7 +358,7 @@ Bool_t TABMactNtuTrack::Action()
 
         do{
           fitTrack->deleteFitterInfo();
-          SetInitPos(init_pos, fit_index, wire_a_x, rdrift_a_x, wire_a_y, rdrift_a_y, p_bmgeo->GetCenter().z()-p_bmgeo->GetLength()/2. -3.);
+          SetInitPos(init_pos, fit_index, wire_a_x, rdrift_a_x, wire_a_y, rdrift_a_y, geoTrafo->GetCACenter().z()-p_bmgeo->GetLength()/2. -3.);
           fitTrack->setStateSeed(init_pos, init_mom);
           if(readyToFit==1) {simpleFitter->processTrack(fitTrack); 
           }else if(readyToFit==2) {refFitter->processTrack(fitTrack); 
@@ -775,14 +780,14 @@ void TABMactNtuTrack::sortDoubleHits(TABMntuRaw *hp, TABMntuTrack* pntr, TABMpar
     view = dp_hit->View();
     view > 0 ? my_view = 0 : my_view = 1;
     
-    int w2 = ppg->GetID(cell);
-    double z2=ppg->GetZ(w2,plane,my_view);
+    int w2 = ppg->GetSenseId(cell);
+    double z2=ppg->GetWireZ(w2,plane,my_view);
     
     TVector3 bs=RefTr.PointAtLocalZ(z2);
     
     for(int i=0; i<ndou; i++) { 
       if(j == add[i]) {
-	double p2=ppg->GetY(w2,plane,my_view);
+	double p2=ppg->GetWireY(w2,plane,my_view);
 	if(my_view==0) {
 	  diffY = p2 - bs.Y();	
 	  if(TMath::Abs(diffY) < 0.8) {
@@ -791,7 +796,7 @@ void TABMactNtuTrack::sortDoubleHits(TABMntuRaw *hp, TABMntuTrack* pntr, TABMpar
 	}
 	
 	if(my_view==1) {
-	  double p2=ppg->GetX(w2,plane,my_view);
+	  double p2=ppg->GetWireX(w2,plane,my_view);
 	  diffX = p2 - bs.X();	
 	  if(TMath::Abs(diffX) < 0.8) {
 	    dp_hit->SetTrkAss(1);

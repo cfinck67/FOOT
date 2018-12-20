@@ -75,7 +75,8 @@ class TABMparCon : public TAGpara {
     Double_t angz_cut;
     Double_t angzres_cut;
     Int_t    fitter_index;
-    
+    Int_t    fDebugLevel;
+   
     vector<double> v_t0s;
 
     TF1* f_mypol;

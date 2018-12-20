@@ -18,6 +18,7 @@ using namespace genfit;
 #include "KalmanFitterInfo.h"
 #include <TDecompChol.h>
 
+#include "TAGgeoTrafo.hxx"
 
 /*!
   \class TABMntuTrackTr TABMntuTrack.hxx "TABMntuTrack.hxx"
@@ -607,6 +608,9 @@ Int_t TABMntuTrackTr::ComputeDataWire(TABMntuHit *wr, Int_t fwire){
 
 Int_t TABMntuTrackTr::EstimateTrackPar(TABMntuRaw *hitp, TABMparGeo *f_bmgeo)
 {
+   
+  TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+
   Int_t nwire_U=0, nwire_V=0;
   Int_t piano, cella, idwire;
   Double_t raggio=0.;
@@ -627,18 +631,18 @@ Int_t TABMntuTrackTr::EstimateTrackPar(TABMntuRaw *hitp, TABMparGeo *f_bmgeo)
     cella = wr->Cell();
     raggio = wr->Dist();
 
-    idwire = f_bmgeo->GetID(cella);
+    idwire = f_bmgeo->GetSenseId(cella);
     
     if(wr->View()>0){    /*   U view */
       nwire_U++;
-      Ycentro_U[nwire_U-1]= f_bmgeo->GetY(idwire,piano,0); //trackgeo.U_y[idwire][piano];
-      Zcentro_U[nwire_U-1]= f_bmgeo->GetZ(idwire,piano,0); //trackgeo.U_z[idwire][piano];
+      Ycentro_U[nwire_U-1]= f_bmgeo->GetWireY(idwire,piano,0); //trackgeo.U_y[idwire][piano];
+      Zcentro_U[nwire_U-1]= f_bmgeo->GetWireZ(idwire,piano,0); //trackgeo.U_z[idwire][piano];
       R_U[nwire_U-1]= raggio;
     }
     else{    /*   V view */
       nwire_V++;
-      Xcentro_V[nwire_V-1]= f_bmgeo->GetX(idwire,piano,1); //trackgeo.V_x[idwire][piano];
-      Zcentro_V[nwire_V-1]= f_bmgeo->GetZ(idwire,piano,1); //trackgeo.V_z[idwire][piano];
+      Xcentro_V[nwire_V-1]= f_bmgeo->GetWireX(idwire,piano,1); //trackgeo.V_x[idwire][piano];
+      Zcentro_V[nwire_V-1]= f_bmgeo->GetWireZ(idwire,piano,1); //trackgeo.V_z[idwire][piano];
       R_V[nwire_V-1]= raggio;
     }
   }
@@ -756,7 +760,7 @@ Int_t TABMntuTrackTr::EstimateTrackPar(TABMntuRaw *hitp, TABMparGeo *f_bmgeo)
   /*  calcolo dei parametri iniziali della traccia x0,y0,px0,py0*/
   double pz0(0), px0, py0, x0, y0;
   TVector3 CenterDch;
-  CenterDch = f_bmgeo->GetCenter();
+  CenterDch = geoTrafo->GetBMCenter();
 
   if(p_U && p_V) {  pz0=1./sqrt(1.0 + 1.0/(p_U*p_U)+ 1.0/(p_V*p_V)); }
   else if(!p_U && p_V) {  pz0=1./sqrt(1.0 + 1.0/(p_V*p_V)); }

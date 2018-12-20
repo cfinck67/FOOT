@@ -31,9 +31,11 @@ TABMactNtuMC::TABMactNtuMC(const char* name,
     fpNtuMC(p_nturaw),
     fpParCon(p_parcon),
     fpParGeo(p_bmgeo),
-    fpEvtStr(evStr)
+    fpEvtStr(evStr),
+    fDebugLevel(0)
 {
-  Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
+  if (fDebugLevel)
+      Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
   AddPara(p_parcon, "TABMparCon");
   AddPara(p_bmgeo, "TABMparGeo");
   AddDataOut(p_nturaw, "TABMntuRaw"); 
@@ -70,7 +72,9 @@ Bool_t TABMactNtuMC::Action()
   TVector3 gloc, loc, gmom, mom, A0, Wvers;
   if (!p_nturaw->h) p_nturaw->SetupClones();
   //The number of hits inside the BM is nmon
-  Info("Action()","Processing n :: %2d hits \n",fpEvtStr->BMNn);
+   
+   if (fDebugLevel)
+      Info("Action()","Processing n :: %2d hits \n",fpEvtStr->BMNn);
 
   //loop for double hits and hits with energy less than enxcell_cut:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
@@ -82,15 +86,17 @@ Bool_t TABMactNtuMC::Action()
       view = fpEvtStr->BMNiview[i];
       hitxcell[i]=p_bmgeo->GetBMNcell(fpEvtStr->BMNilay[i], view, cell);
       gloc.SetXYZ(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
-      loc=gloc-p_bmgeo->GetCenter();//metto shift a mano per ora
+       
+       // to be done pby geoTrafo
+      //loc=gloc-p_bmgeo->GetCenter();//metto shift a mano per ora
       gmom.SetXYZ(fpEvtStr->BMNpxin[i],fpEvtStr->BMNpyin[i],fpEvtStr->BMNpzin[i]);
       view=(view==-1)?1:0;
-      A0.SetXYZ(p_bmgeo->GetX(p_bmgeo->GetID(cell),lay,view),    //sarebbe più elegante mettere questa roba in FindRdrift,  
-                p_bmgeo->GetY(p_bmgeo->GetID(cell),lay,view),    //ma in FindRdrift dovrei caricare p_bmgeo, e forse non conviene
-                p_bmgeo->GetZ(p_bmgeo->GetID(cell),lay,view));  
-      Wvers.SetXYZ(p_bmgeo->GetCX(p_bmgeo->GetID(cell),lay,view), 
-                   p_bmgeo->GetCY(p_bmgeo->GetID(cell),lay,view), 
-                   p_bmgeo->GetCZ(p_bmgeo->GetID(cell),lay,view)); 
+      A0.SetXYZ(p_bmgeo->GetWireX(p_bmgeo->GetSenseId(cell),lay,view),    //sarebbe più elegante mettere questa roba in FindRdrift,
+                p_bmgeo->GetWireY(p_bmgeo->GetSenseId(cell),lay,view),    //ma in FindRdrift dovrei caricare p_bmgeo, e forse non conviene
+                p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(cell),lay,view));
+      Wvers.SetXYZ(p_bmgeo->GetWireX(p_bmgeo->GetSenseId(cell),lay,view),
+                   p_bmgeo->GetWireY(p_bmgeo->GetSenseId(cell),lay,view),
+                   p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(cell),lay,view));
       Wvers.SetMag(1.);                      
       rdriftxcell[i]=FindRdrift(loc, gmom, A0, Wvers);
       
@@ -119,7 +125,8 @@ Bool_t TABMactNtuMC::Action()
       lay = fpEvtStr->BMNilay[i];
       view = fpEvtStr->BMNiview[i];
       gloc.SetXYZ(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
-      loc=gloc-p_bmgeo->GetCenter();//metto shift a mano per ora poi 
+       // to be done by geoTrafo
+      //loc=gloc-p_bmgeo->GetCenter();//metto shift a mano per ora poi
       //create hit
       TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) TABMntuHit(    
                           fpEvtStr->BMNid[i],	view, lay, cell,        

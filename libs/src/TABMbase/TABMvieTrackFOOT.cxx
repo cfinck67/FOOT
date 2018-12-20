@@ -139,8 +139,8 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   cm_w = p_bmgeo->GetCellWidth();
 
   /* Drawing the cells */
-  for(int il= 0; il<p_bmgeo->GetLayersNumber(); il++) {
-    for(int ic= 0; ic<p_bmgeo->GetCellsNumber(); ic++) {
+  for(int il= 0; il<p_bmgeo->GetLayersN(); il++) {
+    for(int ic= 0; ic<p_bmgeo->GetCellsN(); ic++) {
       //V view, (X,Z)
       p_bmgeo->GetCellInfo(-1, il, ic, h_x, h_y, h_z, h_cx, h_cy, h_cz);
 
@@ -247,8 +247,10 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   cm_w = p_bmgeo->GetCellWidth();
 
   /* Drawing the cells */
-  for(int il= 0; il<p_bmgeo->GetLayersNumber(); il++) {
-    for(int ic= 0; ic<p_bmgeo->GetCellsNumber(); ic++) {
+   
+   for(int il= 0; il<p_bmgeo->GetLayersN(); il++) {
+      for(int ic= 0; ic<p_bmgeo->GetCellsN(); ic++) {
+
       //U view, (Y,Z)
       p_bmgeo->GetCellInfo(1, il, ic, h_x, h_y, h_z, h_cx, h_cy, h_cz);
 

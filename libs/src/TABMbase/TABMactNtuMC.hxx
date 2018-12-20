@@ -35,6 +35,7 @@ class TABMactNtuMC : public TAGaction {
     TAGparaDsc*     fpParCon;		    // BM config params.
     TAGparaDsc*     fpParGeo;		    // BM geo params.
     EVENT_STRUCT*   fpEvtStr;
+   Int_t           fDebugLevel;
 };
 
 #endif

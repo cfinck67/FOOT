@@ -75,30 +75,30 @@ void TABMntuHit::SetData(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    
 }
 
 void TABMntuHit::SetAW(TABMparGeo* f_bmgeo) {
-
-  int idfilo = f_bmgeo->GetID(Cell());
-  /*  vista U */
-  Int_t tmp_fview = (View()<0)? 1 : 0;            
-
- // if(idfilo <0 || idfilo>2) idfilo = 2; //yun: nosense questa cosa...
-
-  A0.SetXYZ(f_bmgeo->GetX(idfilo,Plane(),tmp_fview),
-	    f_bmgeo->GetY(idfilo,Plane(),tmp_fview),
-	    f_bmgeo->GetZ(idfilo,Plane(),tmp_fview));
-  Wvers.SetXYZ(f_bmgeo->GetCX(idfilo,Plane(),tmp_fview),
-	       f_bmgeo->GetCY(idfilo,Plane(),tmp_fview),
-	       f_bmgeo->GetCZ(idfilo,Plane(),tmp_fview));
-  
-  Double_t modulo = Wvers.Mag();
-  if(modulo!=0.) {
-    Wvers = (1./modulo)*Wvers;
-  }
-  else{
-    cout<<"Track::AddWire-> ERROR Wvers modulo: "<<modulo<<endl;
-    return;
-  }
-  
-  return;
+   
+   int idfilo = f_bmgeo->GetSenseId(Cell());
+   /*  vista U */
+   Int_t tmp_fview = (View()<0)? 1 : 0;
+   
+   // if(idfilo <0 || idfilo>2) idfilo = 2; //yun: nosense questa cosa...
+   
+   A0.SetXYZ(f_bmgeo->GetWireX(idfilo,Plane(),tmp_fview),
+             f_bmgeo->GetWireY(idfilo,Plane(),tmp_fview),
+             f_bmgeo->GetWireZ(idfilo,Plane(),tmp_fview));
+   Wvers.SetXYZ(f_bmgeo->GetWireCX(idfilo,Plane(),tmp_fview),
+                f_bmgeo->GetWireCY(idfilo,Plane(),tmp_fview),
+                f_bmgeo->GetWireCZ(idfilo,Plane(),tmp_fview));
+   
+   Double_t modulo = Wvers.Mag();
+   if(modulo!=0.) {
+      Wvers = (1./modulo)*Wvers;
+   }
+   else{
+      cout<<"Track::AddWire-> ERROR Wvers modulo: "<<modulo<<endl;
+      return;
+   }
+   
+   return;
 }
 
 void TABMntuHit::SmearRdrift(Int_t smear_type){

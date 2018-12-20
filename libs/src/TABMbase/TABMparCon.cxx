@@ -38,6 +38,7 @@ TABMparCon::TABMparCon() {
   angzres_cut=5.;
   fitter_index = 0;
   
+  fDebugLevel = 0;
   
   vector<double> myt0s;
   myt0s.resize(36);
@@ -185,7 +186,7 @@ void TABMparCon::SetT0s(vector<double> t0s) {
   if(t0s.size() == 36) {
     v_t0s = t0s;
   } else {
-    Error("Parameter()","Vectors size mismatch:: fix the t0 vector inmput size!!! %d ",t0s.size());
+    Error("Parameter()","Vectors size mismatch:: fix the t0 vector inmput size!!! %lu ",t0s.size());
   }
 
   return;
@@ -235,10 +236,12 @@ void TABMparCon::LoadSTrel(TString sF) {
   ifstream inS; TFile *f; char fname[200], bufConf[200];
   char name[200]; int idx;
   inS.open(sF.Data());
-  Info("Action()","Processing STrel from %s  LIST file!",sF.Data());
+  if (fDebugLevel)
+      Info("Action()","Processing STrel from %s  LIST file!",sF.Data());
   while (inS.getline(bufConf, 200, '\n')) {
     sscanf(bufConf,"%s",fname);
-    Info("Action()","Adding %s STrel to be processed!",fname);
+    if (fDebugLevel)
+        Info("Action()","Adding %s STrel to be processed!",fname);
     f = new TFile(fname,"READ");
     f->cd();
 
@@ -253,7 +256,8 @@ void TABMparCon::LoadSTrel(TString sF) {
     m_myVFunSpl.push_back(m_myFunSpl);
     
   }
-  Info("Action()","Processed data from %s LIST file!",sF.Data());
+   if (fDebugLevel)
+      Info("Action()","Processed data from %s LIST file!",sF.Data());
   inS.close();
   
   return;
@@ -301,10 +305,12 @@ double TABMparCon::STrelCorr(double time, int ic, int ip, int iv) {
   if(!ana) {
     howManyfiles = m_myVFunSpl.size();
     for(int ih =0; ih<howManyfiles; ih++) {
-      Info("Action()","STrel:: %lf %d %lf %d ",time,ih,res,m_myVFunSpl.size());
+       if (fDebugLevel)
+          Info("Action()","STrel:: %lf %d %lf %lu ",time,ih,res,m_myVFunSpl.size());
       if(m_myVFunSpl.at(ih)) {
 	res += (m_myVFunSpl.at(ih))->Eval(time);
-	Info("Action()","STrel:: %d %lf ",ih,(m_myVFunSpl.at(ih))->Eval(time));
+         if (fDebugLevel)
+            Info("Action()","STrel:: %d %lf ",ih,(m_myVFunSpl.at(ih))->Eval(time));
       }
     }
     
@@ -321,8 +327,9 @@ double TABMparCon::STrelCorr(double time, int ic, int ip, int iv) {
 
 void TABMparCon::LoadReso(TString sF) {
 
-  TFile *f; 
-  Info("Action()","Processing Reso vs R from %s  LIST file!",sF.Data());
+  TFile *f;
+   if (fDebugLevel)
+      Info("Action()","Processing Reso vs R from %s  LIST file!",sF.Data());
   
   f = new TFile(sF.Data(),"READ");
   f->cd();
