@@ -5,6 +5,7 @@
 #include "TObject.h"
 #include "TClonesArray.h"
 #include "TString.h"
+#include "TVector3.h"
 
 #include "TAGdata.hxx"
 
@@ -16,16 +17,18 @@ public:
    
    Double_t        GetTime()          const { return fTime;      }
    Double_t        GetCharge()        const { return fCharge;    }
-   Int_t           GetChannelId()     const { return fChannelId; }
+   Int_t           GetCrystalId()     const { return fCrystalId; }
    Int_t           GetType()          const { return fType;      }
+   TVector3        GetPosition()      const { return fPosition;  }
    
    void            SetTime(double time)     { fTime = time;      }
    void            SetCharge(double charge) { fCharge = charge;  }
-   void            SetChannelId(int id)     { fChannelId = id;   }
+   void            SetCrystalId(int id)     { fCrystalId = id;   }
    void            SetType(int type)        { fType = type;      }
-   
+   void            SetPosition(TVector3 pos){ fPosition = pos;   }
+
    Int_t           GetTrackIdMc(Int_t index) const   { return fMcTrackId[index];  }
-   Int_t           GetMcTrackCount()          const   { return fMcTrackCount;      }
+   Int_t           GetMcTrackCount()         const   { return fMcTrackCount;      }
 
    void            AddMcTrackId(Int_t trackId);
 
@@ -34,8 +37,9 @@ private:
 
    Double_t        fTime;
    Double_t        fCharge;
-   Int_t           fChannelId;
+   Int_t           fCrystalId;
    Int_t           fType;
+   TVector3        fPosition;
    
    Int_t           fMcTrackCount;                 // Variable that count the number of times a crystal is touched
    Int_t           fMcTrackId[fgkMAXTRACK];         // Id of the track created in the simulation

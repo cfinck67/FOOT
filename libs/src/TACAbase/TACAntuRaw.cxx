@@ -26,8 +26,9 @@ TACAntuHit::TACAntuHit()
  : TObject(),
    fTime(999999.),
    fCharge(0.),
-   fChannelId(0),
+   fCrystalId(0),
    fType(0),
+   fPosition(),
    fMcTrackCount(0)
 
 {
@@ -38,8 +39,9 @@ TACAntuHit::TACAntuHit(int cha, double charge, double time, int typ)
  : TObject(),
    fTime(time),
    fCharge(charge),
-   fChannelId(cha),
+   fCrystalId(cha),
    fType(typ),
+   fPosition(),
    fMcTrackCount(0)
 {
 }
