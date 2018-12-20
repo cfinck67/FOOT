@@ -9,71 +9,32 @@
 
 #include "Riostream.h"
 
-#include "TEveGeoShapeExtract.h"
-
-#include "TObject.h"
-#include "TString.h"
-#include "TVector3.h"
-#include "TRotation.h"
-
-#include "TAVTbaseParGeo.hxx"
-#include "IronPlate.hxx"
-
-#include <FieldManager.h>
-
-#include "foot_geo.h"
-#include "GlobalPar.hxx"
+#include "TAVTparGeo.hxx"
 
 class TGeoHMatrix;
 class TGeoVolume;
 //##############################################################################
 
-class TAMSDparGeo : public TAVTbaseParGeo {
+class TAMSDparGeo : public TAVTparGeo {
 
+  
 public:
+   TAMSDparGeo();
+   virtual ~TAMSDparGeo();
 
-    TAMSDparGeo();
-    TAMSDparGeo( TAMSDparGeo* original );
-    virtual ~TAMSDparGeo();
-
-    void InitGeo();
-    void InitMaterial();
-    void DefineMaterial();
-
-
-    // Return the pixel position  -->  change name! in GetPixelPos()
-    //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
-    TVector3 GetPosition( int layer, int col, int row );
-
-    TVector3 GetLayerCenter( int layer );
-
-    // Return distance from center to center
-    double GetLayerDistance() { return m_layerDistance; };
-
-   TVector3 GetTotalSize() { return TVector3(MSD_WIDTH, MSD_HEIGHT, MSD_THICK); }
-
-    string PrintParameters();
-
-   //! Add CMOS module geometry to world
-   TGeoVolume* AddModule(const char* basemoduleName = "Module", const char *name = "MSD");
+   // Define materials
+   void        DefineMaterial();
    
-   //! Build Vertex
+   //! Build MSD
    TGeoVolume* BuildMultiStripDetector(const char* basemoduleName = "Module", const char *name = "MSD");
 
 private:
-   static TString fgkDefParaName;
+   static const TString fgkBaseName;   // MSD base name
+   static const TString fgkDefParaName;
    
 public:
+   static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }
    static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
-
-private:
-    int m_nSensors_X;
-    int m_nSensors_Y;
-    int m_nSensors_Z;
-
-    double m_layerDistance;
-    double m_layerThick;
-    double m_nSensor_X_Layer;
 
    
    ClassDef(TAMSDparGeo,1)

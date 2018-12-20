@@ -26,10 +26,11 @@ class TAGparGeo : public TAGparTools {
 private:
    // Target parameters
    struct TargetParameter_t : public  TObject {
-	  TString   Shape;   // Target shape
+	  TString   Shape;    // Target shape
 	  TVector3  Size;     // Target size 
 	  TString   Material; // Target material
-     TVector3  Position;
+     Float_t   Density;  // Target density
+     TVector3  Position; // Target position
    };
    TargetParameter_t  fTargetParameter;
    
@@ -59,6 +60,7 @@ private:
    BeamParameter_t  fBeamParameter;
 
 private:
+   static const TString fgkBaseName;
    static const TString fgkDefParaName;
    
 private:
@@ -69,8 +71,11 @@ public:
    TAGparGeo();
     virtual ~TAGparGeo();
    
+   // Define material
+   void    DefineMaterial();
+
    //! Read parameters from file
-   void               InitGeo();
+   Bool_t             FromFile(const TString& name = "");
 
    // Print out
    void               Print(Option_t* opt = "") const;
@@ -94,6 +99,7 @@ public:
    TGeoVolume*        BuildTarget(const char *targetName = "Target");
    
 public:
+   static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }
    static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
 
    ClassDef(TAGparGeo,1)

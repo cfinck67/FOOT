@@ -1,153 +1,100 @@
 #ifndef _TAITparGeo_HXX
 #define _TAITparGeo_HXX
 /*!
-  \version $Id: TAITparGeo.hxx,v 1.2 2003/06/22 19:33:36 mueller Exp $
-  
-    Fully revised in 2017 by Matteo Franchini franchinim@bo.infn.it
-
-    Three reference frames are possible and all the transformation from one to another 
-    are defined in this class:
-        - sensor frame
-        - detector frame
-        - FOOT frame
-
-    All the coordinates are in cm and in the detector reference frame, i.e. the center
-    is the center of the detector.
-
+  \file
+  \brief   Declaration of TAITparGeo.
+ 
+  \author Ch. Finck
 */
 /*------------------------------------------+---------------------------------*/
 
-#include "Riostream.h"
-
-#include "TEveGeoShapeExtract.h"
-
-#include "TObject.h"
-
-#include "TAVTbaseParGeo.hxx"
-
-#include "IronPlate.hxx"
-#include "FootBox.hxx"
-#include "GlobalPar.hxx"
-
-#include <FieldManager.h>
-
-
+#include "TAVTparGeo.hxx"
 
 class TGeoHMatrix;
 class TGeoVolume;
 //##############################################################################
 
-class TAITparGeo : public TAVTbaseParGeo {
+class TAITparGeo : public TAVTparGeo {
+   
+private:
+   
+   TVector3   fFoamSize;          // Foam sizse
+   TString    fFoamMat;           // Material of foam
+   TString    fFoamMatDensities;  // Density of foam material for each component
+   TString    fFoamMatProp;       // Material of foam component proportion
+   Float_t    fFoamMatDensity;    // Density of foam material
+
+   Float_t    fKaptonThickness;   // Kapton thickness
+   TString    fKaptonMat;         // Material of kapton
+   Float_t    fKaptonMatDensity;  // Density of kapton material
+   
+   Float_t    fEpoxyThickness;    // Epoxy thickness
+   TString    fEpoxyMat;          // Material of expoxy
+   Float_t    fEpoxyMatDensity;   // Density of epoxy material
+   
+   Float_t    fAlThickness;       // Aluminum thickness
+   TString    fAlMat;             // Material of aluminum
+   Float_t    fAlMatDensity;      // Density of aluminum material
+
+protected:
+   static const TString fgkBaseName;   // IT base name
+   static const TString fgkDefParaName;
 
 public:
-
-    TAITparGeo();
-    TAITparGeo( TAITparGeo* original );
-
-    virtual ~TAITparGeo() {}
+   TAITparGeo();
+    virtual ~TAITparGeo();
    
-    void InitGeo();
-    void InitMaterial();
-    void DefineMaterial();
-
-    TVector3 GetSensorPosition( int sensorID );
-
-    // new
-    TVector3 GetPixelPos_sensorFrame( int layer, int plume, int chip, int col, int row );
-    TVector3 GetPixelPos_detectorFrame( int layer, int plume, int chip, int col, int row );
-    TVector3 GetPixelPos_footFrame( int layer, int plume, int chip, int col, int row );
-
-    TVector3 GetPixelPos_sensorFrame( int sensorID, int col, int row );
-    TVector3 GetPixelPos_detectorFrame( int sensorID, int col, int row );
-    TVector3 GetPixelPos_footFrame( int sensorID, int col, int row );
-
-// new
-    float GetColumnCenter_sensorFrame ( int col);
-    float GetColumnCenter_detectorFrame ( int layer, int plume, int chip, int col);
-    float GetColumnCenter_detectorFrame( int sensorID, int col );
-    float GetColumnCenter_footFrame ( int layer, int plume, int chip, int col);
-    float GetColumnCenter_footFrame ( int sensorID, int col);
-    // new
-    float GetRowCenter_sensorFrame ( int row);
-    float GetRowCenter_detectorFrame ( int layer, int plume, int chip, int row);
-    float GetRowCenter_detectorFrame ( int sensorID, int row);
-    float GetRowCenter_footFrame ( int layer, int plume, int chip, int row);
-    float GetRowCenter_footFrame ( int sensorID, int row);
-
-
-    //! Transform point from the global reference frame
-    //! to the local reference frame of the detection id and vice versa
-    void Detector2Sensor_frame( int sensorID, TVector3* coord );
-    void Sensor2Detector_frame( int sensorID, TVector3* coord );
-
-    // foot to detector
-    void Global2Local( TVector3* glob );
-    void Global2Local_RotationOnly( TVector3* glob );
-    
-    // detector to foot
-    void Local2Global( TVector3* loc );
-    void Local2Global_RotationOnly( TVector3* loc );
-
-    // Return a vector with the number of sensors along the cartesian directions 
-    int GetNChip() { return m_nSensors.X(); }; 
-    int GetNPlume() { return m_nSensors.Y(); }; 
-    int GetNLayers() { return m_nSensors.Z(); }; 
-    
-    // define the agloritm to map the sensor with a single variable. 
-    int GetSensorID( int layer, int col, int row )    { return layer*GetNPlume()*GetNChip() + col*GetNChip() + row; };
-    int GetLayerFromSensorID( int sensID )            { return sensID/( GetNPlume()*GetNChip() ); };
-    int GetPlumeFromSensorID( int sensID )            { 
-        int singleLayerID = sensID - ( GetLayerFromSensorID( sensID ) * GetNPlume()*GetNChip() ); 
-        return singleLayerID / GetNChip();
-    };
-    int GetChipFromSensorID( int sensID )            { 
-        int singleLayerID = sensID - ( GetLayerFromSensorID( sensID ) * GetNPlume()*GetNChip() ); 
-        return singleLayerID % GetNChip();
-    };
-
-
-    // function for the FRUKA geometry creation
-    string PrintBodies();
-    string PrintRegions();
-    string PrintAssignMaterial();
-    string PrintSubtractBodiesFromAir();
-    string PrintParameters();
+   //! Get Foam size
+   TVector3 GetFoamiSize()              const { return fFoamSize;         }
+   //! Get Foam material
+   TString GetFoamMaterial()            const { return fFoamMat;          }
+   //! Get Foam coponent densities
+   TString GetFoamMatDensities()        const { return fFoamMatDensities; }
+   //! Get Foam material proportion
+   TString GetFoamMatProp()             const { return fFoamMatProp;      }
+   //! Get Foam density
+   Float_t GetFoamMatDensity()          const { return fFoamMatDensity;   }
    
-    TGeoVolume*     GetVolume();
-
-   //! Add CMOS module geometry to world
-   TGeoVolume* AddModule(const char* basemoduleName = "Module", const char *name = "IT");
    
-   //! Build Vertex
+   //! Get Kapton thickness
+   Float_t GetKaptonSize()              const { return fKaptonThickness;  }
+   //! Get Kapton material
+   TString GetKaptonMaterial()          const { return fKaptonMat;        }
+   //! Get Kapton density
+   Float_t GetKaptonMatDensity()        const { return fKaptonMatDensity; }
+
+   
+   //! Get Epoxy thickness
+   Float_t GetEpoxySize()               const { return fEpoxyThickness;   }
+   //! Get Epoxy material
+   TString GetEpoxyMaterial()           const { return fEpoxyMat;         }
+   //! Get Epoxy density
+   Float_t GetEpoxyMatDensity()         const { return fEpoxyMatDensity;  }
+
+   //! Get Al thickness
+   Float_t GetAlSize()                  const { return fAlThickness;      }
+   //! Get Kapton material
+   TString GetAlMaterial()              const { return fAlMat;            }
+   //! Get Kapton density
+   Float_t GetAlMatDensity()            const { return fAlMatDensity;     }
+   
+   
+   // for MC Fluka
+   Int_t GetSensorID(Int_t layer, Int_t col, Int_t row)  { return layer*4*4 + col*4 + row; };
+
+   // Define materials
+   void    DefineMaterial();
+
+   // Read support
+   void    ReadSupportInfo();
+
+   //! Build Innert Tracker
    TGeoVolume* BuildInnerTracker(const char* basemoduleName = "Module", const char *name = "IT");
-   TGeoVolume* BuildInnerTrackerOld(const char* basemoduleName = "Module", const char *name = "IT");
-
    
-    virtual void    Clear(Option_t* opt="");
-    virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
-
+   
 public:
+   static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }
    static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
-
-   
-private:
-   PassiveMatrix m_chipMatrix;
-
-    double m_plumeDistace_Z;
-    double m_plumeDistace_Y;
-    double m_boardXDeadMin;
-    double m_boardXDeadMax;
-    double m_boardYDeadMin;
-    double m_boardYDeadMax;
-
-    double m_layerDistance;
-
-    vector<vector<double>> m_xmin;
-    vector<vector<double>> m_ymin;
-
-private:
-   static TString fgkDefParaName;
-
 
    ClassDef(TAITparGeo,1)
 };

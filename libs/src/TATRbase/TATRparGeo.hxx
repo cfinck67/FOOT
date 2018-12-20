@@ -8,24 +8,25 @@
 /*------------------------------------------+---------------------------------*/
 #include "TGeoVolume.h"
 #include "TString.h"
+#include "TVector3.h"
 
-#include "TAGpara.hxx"
+#include "TAGparTools.hxx"
 
 //##############################################################################
 
-class TATRparGeo : public TAGpara {
+class TATRparGeo : public TAGparTools {
 public:
    
    TATRparGeo();
    virtual         ~TATRparGeo();
    
-   Double_t        GetThickness() const { return fThick;  }
-   Double_t        GetRadius()    const { return fRadius; }
-   
-   void            InitGeo();
+   TVector3        GetSize()      const { return fSize;     }
+   TString         GetMaterial()  const { return fMaterial; }
+   Float_t         GetDensity()   const { return fDensity;  }
+
+   Bool_t          FromFile(const TString& name = "");
    void            DefineMaterial();
 
-   
    virtual void    Clear(Option_t* opt="");
    
    virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
@@ -33,15 +34,18 @@ public:
    TGeoVolume*     BuildStartCounter(const char *bmName = "ST");
    
 public:
+   static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }
    static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
    
    ClassDef(TATRparGeo,1)
    
 private:
-   Double_t fThick;
-   Double_t fRadius;
+   TVector3  fSize;
+   TString   fMaterial;
+   Float_t   fDensity;
    
 private:
+   static const TString fgkBaseName;
    static const TString fgkDefParaName;
 };
 

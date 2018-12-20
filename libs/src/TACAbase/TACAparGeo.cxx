@@ -4,51 +4,238 @@
 
 #include "TGeoBBox.h"
 #include "TColor.h"
-#include "TEveGeoShapeExtract.h"
-#include "TEveTrans.h"
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 #include "TList.h"
 #include "TMath.h"
-#include "TObjArray.h"
 #include "TObjString.h"
 #include "TROOT.h"
 #include "TSystem.h"
 
 #include "TAGgeoTrafo.hxx"
+#include "TAGmaterials.hxx"
 
-#include "TACAparMap.hxx"
 #include "TACAparGeo.hxx"
 
-#include "foot_geo.h"
 #include "GlobalPar.hxx"
 
 //##############################################################################
 
 const TString TACAparGeo::fgkDefParaName     = "caGeo";
+const TString TACAparGeo::fgkBaseName        = "CA";
 const Color_t TACAparGeo::fgkDefaultModCol   = kAzure+5;
 const Color_t TACAparGeo::fgkDefaultModColOn = kRed-5;
+const TString TACAparGeo::fgkDefaultCrysName = "caCrys";
 
 
 //_____________________________________________________________________________
-TACAparGeo::TACAparGeo() {
+TACAparGeo::TACAparGeo()
+: TAGparTools(),
+  fMatrixList(new TObjArray(22*22))
+{
+   fgDefaultGeoName = "./geomaps/TACAdetector.map";
+   fMatrixList->SetOwner(true);
+}
 
-    m_nCry=0;
-    m_debug = GlobalPar::GetPar()->Debug();
+//______________________________________________________________________________
+TACAparGeo::~TACAparGeo()
+{
+   fMatrixList->Delete();
+}
 
-    // fill m_materialOrder, m_materialThick, m_materialType
-    InitMaterial();
+//______________________________________________________________________________
+Bool_t TACAparGeo::FromFile(const TString& name)
+{
+   TString nameExp;
+   
+   if (name.IsNull())
+      nameExp = fgDefaultGeoName;
+   else
+      nameExp = name;
+   
+   if (!Open(nameExp)) return false;
+   
+   ReadItem(fCrystalsN);
+   
+//   FootDebug(1, "FromFile()", Form("Number of crystals: %d", fCrystalsN));
+//
+//   if(FootDebugLevel(1))
+//      cout  << "Number of crystals: " <<  fCrystalsN << endl;
+   
+   ReadStrings(fCrystalMat);
+   if(fDebugLevel)
+      cout  << "   Crystals material : " <<  fCrystalMat << endl;
+   
+   ReadItem(fCrystalDensity);
+   if(fDebugLevel)
+      cout  << "   Crystals density : " <<  fCrystalDensity << endl;
+   
+   ReadVector3(fCrystalSize);
+   if(fDebugLevel)
+      cout << "   Crystal size: "
+      << Form("%f %f %f", fCrystalSize[0], fCrystalSize[1], fCrystalSize[2]) << endl;
+   
+   // define material
+   DefineMaterial();
+   
+   
+   TVector3 position;
+   TVector3 tilt;
+   
+   Int_t nCrystal = 0;
+   
+   // Read transformtion info
+      for (Int_t iCrystal = 0; iCrystal < fCrystalsN; ++iCrystal) {
+         
+         ReadItem(nCrystal);
+         if(fDebugLevel)
+            cout  << "Crystal id "<< nCrystal << endl;
+         
+         // read  position
+         ReadVector3(position);
+         if(fDebugLevel)
+            cout << "   Position: "
+            << Form("%f %f %f", position[0], position[1], position[2]) << endl;
+         
+         ReadVector3(tilt);
+         if(fDebugLevel)
+            cout  << "   Tilt: "
+            << Form("%f %f %f", tilt[0], tilt[1], tilt[2]) << endl;
+         
+         TGeoRotation rot;
+         rot.RotateX(tilt[0]);
+         rot.RotateY(tilt[1]);
+         rot.RotateZ(tilt[2]);
+         
+         TGeoTranslation trans(position[0], position[1], position[2]);
+         
+         TGeoHMatrix  transfo;
+         transfo  = trans;
+         transfo *= rot;
+         AddTransMatrix(new TGeoHMatrix(transfo), nCrystal);
+      }
 
-};
-
-
+   return true;
+}
 
 //_____________________________________________________________________________
-void TACAparGeo::InitMaterial()
+void TACAparGeo::AddTransMatrix(TGeoHMatrix* mat, Int_t idx)
+{
+   if (idx == -1)
+      fMatrixList->Add(mat);
+   else {
+      TGeoHMatrix* oldMat = GetTransfo(idx);
+      if (oldMat)
+         RemoveTransMatrix(oldMat);
+      fMatrixList->AddAt(mat, idx);
+   }
+}
+
+//_____________________________________________________________________________
+void TACAparGeo::RemoveTransMatrix(TGeoHMatrix* mat)
+{
+   if (!fMatrixList->Remove(mat))
+      printf("Cannot remove matrix");
+}
+
+//_____________________________________________________________________________
+TGeoHMatrix* TACAparGeo::GetTransfo(Int_t idx)
 {
 
-   DefineMaterial();
+   if (idx < 0 || idx >= fCrystalsN) {
+      Warning("GetTransfo()","Wrong detector id number: %d ", idx);
+      return 0x0;
+   }
+   
+   return (TGeoHMatrix*)fMatrixList->At(idx);
 }
+
+//_____________________________________________________________________________
+TVector3 TACAparGeo::GetCrystalPosition(Int_t idx)
+{
+   TGeoHMatrix* hm = GetTransfo(idx);
+   if (hm) {
+      TVector3 local(0,0,0);
+      fCurrentPosition =  Sensor2Detector(idx, local);
+   }
+   return fCurrentPosition;   
+}
+
+//_____________________________________________________________________________
+TVector3 TACAparGeo::Sensor2Detector(Int_t idx, TVector3& loc) const
+{
+   if (idx < 0 || idx > fCrystalsN) {
+      Warning("Sensor2Detector()","Wrong detector id number: %d ", idx);
+      return TVector3(0,0,0);
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
+   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMaster(local, global);
+   TVector3 pos(global[0], global[1], global[2]);
+   
+   return pos;
+}
+
+
+//_____________________________________________________________________________
+TVector3 TACAparGeo::Sensor2DetectorVect(Int_t idx, TVector3& loc) const
+{
+   if (idx < 0 || idx > fCrystalsN) {
+      Warning("Sensor2DetectorVect()","Wrong detector id number: %d ", idx);
+      TVector3(0,0,0);
+   }
+   
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
+   
+   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMasterVect(local, global);
+   TVector3 pos(global[0], global[1], global[2]);
+   
+   return pos;
+}
+
+//_____________________________________________________________________________
+TVector3 TACAparGeo::Detector2Sensor(Int_t idx, TVector3& glob) const
+{
+   if (idx < 0 || idx > fCrystalsN) {
+      Warning("Detector2Sensor()","Wrong detector id number: %d ", idx);
+      return TVector3(0,0,0);
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
+   
+   mat->MasterToLocal(global, local);
+   TVector3 pos(local[0], local[1], local[2]);
+   
+   return pos;
+}
+
+//_____________________________________________________________________________
+TVector3 TACAparGeo::Detector2SensorVect(Int_t idx, TVector3& glob) const
+{
+   if (idx < 0 || idx > fCrystalsN) {
+      Warning("Detector2SensorVect()","Wrong detector id number: %d ", idx);
+      return TVector3(0,0,0);
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
+   
+   mat->MasterToLocalVect(global, local);
+   TVector3 pos(local[0], local[1], local[2]);
+   
+   return pos;
+}
+
 
 //_____________________________________________________________________________
 void TACAparGeo::DefineMaterial()
@@ -58,37 +245,12 @@ void TACAparGeo::DefineMaterial()
       new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
    }
    
-   TGeoElementTable* table = gGeoManager->GetElementTable();
-   
-   // create material
-   TGeoMixture*  mat = 0x0;;
-   TGeoMedium*   med = 0x0;
-
-   // BGO
-   const Char_t* matName = CAL_MEDIUM.Data();
-   if ( (mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
-      
-      TGeoElement* matO  = table->GetElement(8);
-      TGeoElement* matGe = table->GetElement(32);
-      TGeoElement* matBi = table->GetElement(83);
-      
-      mat =new TGeoMixture(matName,3, 7.13);
-      mat->AddElement(matO,12);
-      mat->AddElement(matBi,4);
-      mat->AddElement(matGe,3);
-
+   // TW material
+   TGeoMaterial* mat = TAGmaterials::Instance()->CreateMaterial(fCrystalMat, fCrystalDensity);
+   if (fDebugLevel) {
+      printf("Calorimeter material:\n");
+      mat->Print();
    }
-   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
-      med = new TGeoMedium(matName,2,mat);
-   
-}
-
-
-//_____________________________________________________________________________
-void TACAparGeo::InitGeo()  {
-  
-  if ( fDebugLevel> 0 )     cout << "\n\nTACAparGeo::InitGeo" << endl<< endl;
- 
 }
 
 //_____________________________________________________________________________
@@ -100,28 +262,15 @@ TGeoVolume* TACAparGeo::BuildCalorimeter(const char *caName)
    
    TGeoVolume* wall = gGeoManager->FindVolumeFast(caName);
    if ( wall == 0x0 ) {
-      const Char_t* matName = CAL_MEDIUM.Data();
-      TGeoMaterial* mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName);
-      TGeoMedium*   med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
-      wall = gGeoManager->MakeBox(caName, med,  CAL_CRY_WIDTH/2.,  CAL_CRY_WIDTH/2., CAL_CRY_THICK*2);
+      TGeoMedium*  med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("AIR");
+      wall = gGeoManager->MakeBox(caName, med,  GetCrystalHeight()/2.,  GetCrystalHeight()/2., GetCrystalThick()/2.);
    }
    
-   for (Int_t i = 0; i < CAL_NROW; ++i) {
-      Float_t xPos = CAL_CRY_WIDTH/2. + i*CAL_CRY_WIDTH - CAL_WIDTH/2.;
+   for (Int_t i = 0; i < fCrystalsN; ++i) {
       
-      for (Int_t j = 0; j < CAL_NCOL; ++j) {
-         Float_t yPos = CAL_CRY_WIDTH/2. + j*CAL_CRY_WIDTH - CAL_WIDTH/2.;
-         
-         TGeoTranslation trans(xPos, yPos, 0);
-         TGeoHMatrix  transfo = trans;
-         TGeoHMatrix* hm = new TGeoHMatrix(transfo);
-         
-         TGeoVolume* module = BuildModule(i, j);
-         
-         module->SetLineColor(fgkDefaultModCol);
-         module->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
+         TGeoHMatrix* hm = GetTransfo(i);
+         TGeoVolume* module = BuildModule(i);
          wall->AddNode(module, i, hm);
-      }
    }
    
    return wall;
@@ -131,19 +280,18 @@ TGeoVolume* TACAparGeo::BuildCalorimeter(const char *caName)
 /*------------------------------------------+---------------------------------*/
 //! build module
 
-TGeoVolume* TACAparGeo::BuildModule(Int_t line, Int_t col)
+TGeoVolume* TACAparGeo::BuildModule(Int_t idx)
 {
    if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
       new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
    }
    
-   const char* moduleName = Form("CalCrystal_%d_%d", line, col);
+   const char* moduleName = GetDefaultCrysName(idx);
    TGeoVolume* module     = gGeoManager->FindVolumeFast(moduleName);
    if ( module == 0x0 ) {
-      const Char_t* matName = CAL_MEDIUM.Data();
-      TGeoMaterial* mat = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(matName);
+      const Char_t* matName = fCrystalMat.Data();
       TGeoMedium*   med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
-      module = gGeoManager->MakeBox(moduleName, med,  CAL_CRY_WIDTH/2., CAL_CRY_WIDTH/2., CAL_CRY_THICK/2.);
+      module = gGeoManager->MakeBox(moduleName, med,  GetCrystalWidth()/2., GetCrystalWidth()/2., GetCrystalThick()/2.);
    }
    
    module->SetLineColor(fgkDefaultModCol);
@@ -152,90 +300,75 @@ TGeoVolume* TACAparGeo::BuildModule(Int_t line, Int_t col)
    return module;
 }
 
-/*
 //_____________________________________________________________________________
-TVector3 TACAparGeo::GetPosition( int col, int row )  {
+//! set color on for fired bars
+void TACAparGeo::SetCrystalColorOn(Int_t idx)
+{
+   if (!gGeoManager) {
+      Error("SetBarcolorOn()", "No Geo manager defined");
+      return;
+   }
+   
+   TString name = GetDefaultCrysName(idx);
+   
+   TGeoVolume* vol = gGeoManager->FindVolumeFast(name.Data());
+   if (vol)
+      vol->SetLineColor(GetDefaultModColOn());
 }
 
-
-
 //_____________________________________________________________________________
-void TACAparGeo::Global2Local( TVector3* glob ) {
-glob->Transform( GetRotationToLocal() );
-*glob = *glob - m_center;
+//! reset color for unfired bars
+void TACAparGeo::SetCrystalColorOff(Int_t idx)
+{
+   if (!gGeoManager) {
+      Error("SetBarcolorOn()", "No Geo manager defined");
+      return;
+   }
+   
+   TString name = GetDefaultCrysName(idx);
+   
+   TGeoVolume* vol = gGeoManager->FindVolumeFast(name.Data());
+   if (vol)
+      vol->SetLineColor(GetDefaultModCol());
 }
-
-
-
-//_____________________________________________________________________________
-void TACAparGeo::Global2Local_RotationOnly( TVector3* glob ) {
-glob->Transform( GetRotationToLocal() );
-}
-
-
-
-//_____________________________________________________________________________
-void TACAparGeo::Local2Global( TVector3* loc ) {
-loc->Transform( GetRotationToGlobal() );
-*loc = *loc + m_center;
-}
-
-
-
-//_____________________________________________________________________________
-void TACAparGeo::Local2Global_RotationOnly( TVector3* loc ) {
-loc->Transform( GetRotationToGlobal() );
-}
-
-
-
-//_____________________________________________________________________________
-TGeoVolume* TACAparGeo::GetVolume() {
-
-if ( !GlobalPar::GetPar()->geoROOT() ) 
-cout << "ERROR << TACAparGeo::GetVolume()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
-
-return m_universe;
-}
-
-*/
 
 //_____________________________________________________________________________
 string TACAparGeo::PrintBodies(){
-
-  if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-    cout << "ERROR << TACAparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
-    
-
-  stringstream outstr;
-  outstr << "* ***Calorimeter" << endl;
-
-  char bodyname[20];
-
-  double z = CAL_Z;
-  for(int i=0;i<CAL_NROW;i++){
-    double y = CAL_Y - CAL_HEIGHT/2 + i * CAL_CRY_HEIGHT+ CAL_CRY_HEIGHT/2;
-    for (int j=0;j<CAL_NCOL;j++){
-      double x = CAL_X - CAL_WIDTH/2 + j * CAL_CRY_WIDTH + CAL_CRY_WIDTH/2;
-      if( sqrt(x*x+y*y) <= CAL_WIDTH/2 - 0.7){
-	sprintf(bodyname,"cal%d     ",m_nCry);
-	double xmin = x - CAL_CRY_WIDTH/2.;
-	double xmax = x + CAL_CRY_WIDTH/2.;
-	double ymin = y - CAL_CRY_HEIGHT/2.;
-	double ymax = y + CAL_CRY_HEIGHT/2.;
-	double zmin = z - CAL_CRY_THICK/2.;
-	double zmax = z + CAL_CRY_THICK/2.;
-
-	outstr << setiosflags(ios::fixed) << setprecision(6);
-	outstr << "RPP " << bodyname << xmin << " " << xmax << " "
-	       << ymin << " " << ymax << " " 
-	       << zmin << " " << zmax << endl;
-	m_nCry++;
+   
+   if ( !GlobalPar::GetPar()->geoFLUKA() )
+      cout << "ERROR << TACAparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
+   
+   
+   stringstream outstr;
+   outstr << "* ***Calorimeter" << endl;
+   
+   char bodyname[20];
+   int nCry = 0;
+   
+   double z = 9;;
+   for(int i=0;i<22;i++){
+      double y =  -GetCrystalHeight()/2 + i * GetCrystalHeight()+ GetCrystalHeight()/2;
+      for (int j=0;j<22;j++){
+         double x =  -GetCrystalWidth()/2 + j * GetCrystalWidth() + GetCrystalWidth()/2;
+         if( sqrt(x*x+y*y) <= GetCrystalWidth()/2 - 0.7){
+            sprintf(bodyname,"cal%d     ",nCry);
+            double xmin = x - GetCrystalWidth()/2.;
+            double xmax = x + GetCrystalWidth()/2.;
+            double ymin = y - GetCrystalHeight()/2.;
+            double ymax = y + GetCrystalHeight()/2.;
+            double zmin = z - GetCrystalThick()/2.;
+            double zmax = z + GetCrystalThick()/2.;
+            
+            outstr << setiosflags(ios::fixed) << setprecision(6);
+            outstr << "RPP " << bodyname << xmin << " " << xmax << " "
+            << ymin << " " << ymax << " " 
+            << zmin << " " << zmax << endl;
+            nCry++;
+         }
       }
-    }
-  }
-
-  return outstr.str();
+   }
+   
+   return outstr.str();
 }
 
 
@@ -250,7 +383,7 @@ string TACAparGeo::PrintRegions(){
   outstr << "* ***Calorimeter" << endl;
 
   char stringa[100];
-  for (int i=0; i<m_nCry; i++){
+   for (int i=0; i< fCrystalsN; i++){
     sprintf(stringa,"CAL%03d       5 cal%d",i,i);
     outstr << stringa << endl;
   }  
@@ -270,17 +403,12 @@ string TACAparGeo::PrintParameters() {
   
   string ncrystal = "ncryCAL";
   outstr << "      integer " << ncrystal << endl;
-  outstr << "      parameter(" << ncrystal << " = " << m_nCry << ")" << endl;
+  outstr << "      parameter(" << ncrystal << " = " << fCrystalsN << ")" << endl;
   outstr << endl;    
   
   return outstr.str();
 
 }
-
-
-
-
-
 //_____________________________________________________________________________
 string TACAparGeo::PrintAssignMaterial() {
 

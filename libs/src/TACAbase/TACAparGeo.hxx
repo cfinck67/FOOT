@@ -23,104 +23,80 @@ class TACAparGeo : public TAGparTools {
 public:
 
   TACAparGeo();
-  // TACAparGeo( TACAparGeo* original );
-  virtual ~TACAparGeo() {}
+   virtual ~TACAparGeo();
 
-  void InitGeo();
-  void InitMaterial();
-  void DefineMaterial();
+   Bool_t FromFile(const TString& name = "");
+   
+   void DefineMaterial();
+   
+   Float_t        GetCrystalWidth()    const  { return fCrystalSize[0]; }
+   Float_t        GetCrystalHeight()   const  { return fCrystalSize[1]; }
+   Float_t        GetCrystalThick()    const  { return fCrystalSize[2]; }
 
-  /*
-  //! Transform point from the global reference frame
-  //! to the local reference frame of the detection id and vice versa
-  void Global2Local( TVector3* glob );
-  void Global2Local_RotationOnly( TVector3* glob );
-  void Local2Global( TVector3* loc );
-  void Local2Global_RotationOnly( TVector3* loc );
-  
-  TRotation GetRotationToGlobal() { return *m_rotation; };
-  TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
-  
-  // Return the pixel position  -->  change name! in GetPixelPos()
-  //    it should be changed arrirdingly with the simulation choice when more than one sensors will be used
-  TVector3 GetPosition( int layer, int plume, int chip, int col, int row );
+   Int_t          GetCrystalsN()       const  { return fCrystalsN;      }
+   
+   TVector3       GetCrystalPosition(Int_t iCrystal);
 
-  // Return Inner Trakcker center coord. in the global frame
-  TVector3 GetCenter() { return m_center; };
+   
+   //! Add matrix transformation
+   void            AddTransMatrix(TGeoHMatrix* mat, Int_t idx = -1);
+   //! Remove matrix transformation
+   void            RemoveTransMatrix(TGeoHMatrix* mat);
+   //! Get matrix transformation
+   TGeoHMatrix*    GetTransfo(Int_t idx);
+   
+   
+   //! Transform point from the global detector reference frame
+   //! to the local sensor reference frame of the detection id
+   TVector3        Detector2Sensor(Int_t idx, TVector3& glob) const;
+   TVector3        Detector2SensorVect(Int_t idx, TVector3& glob) const;
+   
+   //! Transform point from the local reference frame
+   //! of the detection id to the global reference frame
+   TVector3        Sensor2Detector(Int_t idx, TVector3& loc) const;
+   TVector3        Sensor2DetectorVect(Int_t idx, TVector3& loc) const;
 
-  // Return Inner Trakcker full dimension.
-  TVector3 GetDimension() { return m_dimension; };
 
-  double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
-
-  // Return distance from center to center
-  double GetLayerDistance() { return m_layerDistance; };
-  double GetNPixelX() { return m_nPixel_X; };
-  double GetNPixelY() { return m_nPixel_Y; };
-  int GetNLayers() { return m_nSensors_Z; };
-  
-  void AssignMaterial() {};
-  void AssignMagnetField() {};
-  */
   string PrintBodies();
   string PrintRegions();
   string PrintAssignMaterial();
   string PrintSubtractBodiesFromAir();
   string PrintParameters();
 
-  // Return a vector with the number of sensors along the cartesian directions
-  // TVector3        GetNumberOfSensorAlongDirections() { return m_NSensors; };
 
   // TGeoVolume*     GetVolume();
   TGeoVolume*     BuildCalorimeter(const char *caName = "CA");
-  TGeoVolume*     BuildModule(Int_t iMod, Int_t iLayer);
+  TGeoVolume*     BuildModule(Int_t idx);
+
+  void            SetCrystalColorOn(Int_t idx);
+  void            SetCrystalColorOff(Int_t idx);
 
   virtual void    Clear(Option_t* opt="");
   virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
    
 public:
+   static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }
    static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
+   static Color_t GetDefaultModCol()     { return fgkDefaultModCol;      }
+   static Color_t GetDefaultModColOn()   { return fgkDefaultModColOn;    }
 
 private:
+   static const TString fgkBaseName;
    static const TString fgkDefParaName;
-   static const Color_t fgkDefaultModCol;       // default color of slat/module;
-   static const Color_t fgkDefaultModColOn;     // default color of fired slat/module;
+   static const Color_t fgkDefaultModCol;     // default color of slat/module;
+   static const Color_t fgkDefaultModColOn;  // default color of fired slat/module;
+   static const TString fgkDefaultCrysName;  // default crystal name;
+
+   static const Char_t* GetDefaultCrysName(Int_t idx) { return Form("%s_%d", fgkDefaultCrysName.Data(), idx); }
 
 private:
+   TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each crystal)
+   TVector3   fCurrentPosition;  // current position
 
-  // SensorMatrix m_sensorMatrix;
-  // PassiveMatrix m_passiveMatrix;
-  // PassiveMatrix m_chipMatrix;
-  // TRotation* m_rotation;
-
-  // TGeoVolume* m_universe;
-
-  TVector3  m_origin;  // current position in local coord.
-  TVector3  m_center;  // current position in global coord.
-  TVector3  m_dimension;
-
-  int m_nCry;
-  int m_debug;
-
-  // int m_volumeCount;
-  // int m_passiveCount;
-
-  // int m_nSensors_X;
-  // int m_nSensors_Y;
-  // int m_nSensors_Z;
-  // TVector3 m_NSensors;
-
-  // double m_plumeDistace_Z;
-  // double m_plumeDistace_Y;
-  // double m_boardDeadMin;
-  // double m_boardDeadMax;
-
-  // map<string, double> m_materialThick;
-  // map<string, string> m_materialType;
-
-  // int m_debug;
-  // int m_setW_0number;
-
+   TVector3  fCrystalSize;
+   TString   fCrystalMat;
+   Float_t   fCrystalDensity;
+   Int_t     fCrystalsN;
 
   ClassDef(TACAparGeo,1)
 };

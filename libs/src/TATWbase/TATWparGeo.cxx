@@ -12,51 +12,289 @@
 #include "TObjString.h"
 #include "TROOT.h"
 #include "TSystem.h"
+#include "TGeoMatrix.h"
 
+#include "TAGmaterials.hxx"
 #include "TAGgeoTrafo.hxx"
 
 // #include "TATWparMap.hxx"
 #include "TATWparGeo.hxx"
 
-#include "foot_geo.h"
-// #include "GlobalPar.hxx"
-
 
       TString TATWparGeo::fgkDefParaName     = "twGeo";
+const TString TATWparGeo::fgkBaseName        = "TW";
       Int_t   TATWparGeo::fgkLayerOffset     = 100;
 const Color_t TATWparGeo::fgkDefaultModCol   = kGray+1;
 const Color_t TATWparGeo::fgkDefaultModColOn = kRed-8;
-const TString TATWparGeo::fgkDefaultSlatName = "twSlat";
+const TString TATWparGeo::fgkDefaultBarName = "twBar";
 
 
 //_____________________________________________________________________________
 TATWparGeo::TATWparGeo()
+: TAGparTools(),
+   fMatrixList(new TObjArray(22*22))
 {
+   fgDefaultGeoName = "./geomaps/TATWdetector.map";
+   fMatrixList->SetOwner(true);
+}
 
-  m_volumeCount = -1;
-  InitMaterial();
+//______________________________________________________________________________
+TATWparGeo::~TATWparGeo()
+{
+   fMatrixList->Delete();
+}
 
-};
+//______________________________________________________________________________
+Bool_t TATWparGeo::FromFile(const TString& name)
+{
+   TString nameExp;
+   
+   if (name.IsNull())
+      nameExp = fgDefaultGeoName;
+   else
+      nameExp = name;
+   
+   if (!Open(nameExp)) return false;
+   
+   ReadItem(fLayersN);
+   if(fDebugLevel)
+      cout << endl << "Number of layers "<< fLayersN << endl;
+   
+   ReadItem(fBarsN);
+   if(fDebugLevel)
+      cout  << "   Number of bars: " <<  fBarsN << endl;
+   
+   ReadStrings(fBarMat);
+   if(fDebugLevel)
+      cout  << "   Bars material : " <<  fBarMat << endl;
+   
+   ReadItem(fBarDensity);
+   if(fDebugLevel)
+      cout  << "   Bars density : " <<  fBarDensity << endl;
+   
+   ReadVector3(fBarSize);
+   if(fDebugLevel)
+      cout << "   Bar size: "
+      << Form("%f %f %f", fBarSize[0], fBarSize[1], fBarSize[2]) << endl;
+   
+   // define material
+   DefineMaterial();
+   
+   fSize.SetXYZ(fBarSize[1], fBarSize[1], fBarSize[2]*2);
+   
+   TVector3 position;
+   TVector3 tilt;
+   Int_t barId;
+   Int_t layerId;
+   
+   // Read transformtion info
+   for (Int_t iLayer = 0; iLayer < fLayersN; ++iLayer) {
+      for (Int_t iBar = 0; iBar < fBarsN; ++iBar) {
+
+         ReadItem(layerId);
+         if(fDebugLevel)
+            cout  << "Layer id "<< layerId << endl;
+         
+         ReadItem(barId);
+         if(fDebugLevel)
+            cout  << "Bar id "<< barId << endl;
+         
+         // read  position
+         ReadVector3(position);
+         if(fDebugLevel)
+            cout << "   Position: "
+            << Form("%f %f %f", position[0], position[1], position[2]) << endl;
+         
+         ReadVector3(tilt);
+         if(fDebugLevel)
+            cout  << "   Tilt: "
+            << Form("%f %f %f", tilt[0], tilt[1], tilt[2]) << endl;
+         
+         TGeoRotation rot;
+         rot.RotateX(tilt[0]);
+         rot.RotateY(tilt[1]);
+         rot.RotateZ(tilt[2]);
+         
+         TGeoTranslation trans(position[0], position[1], position[2]);
+         
+         TGeoHMatrix  transfo;
+         transfo  = trans;
+         transfo *= rot;
+         Int_t idx = iLayer*fBarsN + iBar;
+         AddTransMatrix(new TGeoHMatrix(transfo), idx);
+      }
+   }
+   
+   Close();
+   return true;
+}
+
+//_____________________________________________________________________________
+void TATWparGeo::AddTransMatrix(TGeoHMatrix* mat, Int_t idx)
+{
+   if (idx == -1)
+      fMatrixList->Add(mat);
+   else {
+      TGeoHMatrix* oldMat = GetTransfo(idx);
+      if (oldMat)
+         RemoveTransMatrix(oldMat);
+      fMatrixList->AddAt(mat, idx);
+   }
+}
+
+//_____________________________________________________________________________
+void TATWparGeo::RemoveTransMatrix(TGeoHMatrix* mat)
+{
+   if (!fMatrixList->Remove(mat))
+      printf("Cannot remove matrix");
+}
+
+//_____________________________________________________________________________
+TGeoHMatrix* TATWparGeo::GetTransfo(Int_t idx)
+{
+   if (idx < 0 || idx >= fBarsN*fLayersN) {
+      Warning("GetTransfo()","Wrong detector id number: %d ", idx);
+      return 0x0;
+   }
+   
+   return (TGeoHMatrix*)fMatrixList->At(idx);
+}
+
+//_____________________________________________________________________________
+TGeoHMatrix* TATWparGeo::GetTransfo(Int_t iLayer, Int_t iBar)
+{
+   Int_t idx = iLayer*fBarsN + iBar;
+
+   return GetTransfo(idx);
+}
+
+//_____________________________________________________________________________
+TVector3 TATWparGeo::GetBarPosition(Int_t iLayer, Int_t iBar)
+{
+   Int_t idx = iLayer*fBarsN + iBar;
+
+   TGeoHMatrix* hm = GetTransfo(idx);
+   if (hm) {
+      TVector3 local(0,0,0);
+      fCurrentPosition =  Sensor2Detector(iLayer, iBar,local);
+   }
+   return fCurrentPosition;
+}
+
+//_____________________________________________________________________________
+Float_t TATWparGeo::GetCoordiante_sensorFrame(Int_t iLayer, Int_t iBar)
+{
+   Int_t idx = iLayer*fBarsN + iBar;
+   
+   TGeoHMatrix* hm = GetTransfo(idx);
+   if (hm) {
+      TVector3 local(0,0,0);
+      fCurrentPosition =  Sensor2Detector(iLayer, iBar,local);
+   }
+   if (iLayer == 0)
+      return fCurrentPosition.X();
+   else
+      return fCurrentPosition.Y();
+}
+
+//_____________________________________________________________________________
+Float_t TATWparGeo::GetZ_sensorFrame(Int_t iLayer, Int_t iBar)
+{
+   Int_t idx = iLayer*fBarsN + iBar;
+   
+   TGeoHMatrix* hm = GetTransfo(idx);
+   if (hm) {
+      TVector3 local(0,0,0);
+      fCurrentPosition =  Sensor2Detector(iLayer, iBar,local);
+   }
+      return fCurrentPosition.Z();
+}
+
 
 
 //_____________________________________________________________________________
-void TATWparGeo::InitMaterial() {
+TVector3 TATWparGeo::Sensor2Detector(Int_t iLayer, Int_t iBar, TVector3& loc) const
+{
+   Int_t idx = iLayer*fBarsN + iBar;
 
-  if ( fDebugLevel> 1 ) {
-	cout << endl << "SCN List of Materials\n ";
-	TIter next( gGeoManager->GetListOfMaterials() );
-	while ( TGeoMaterial *obj = (TGeoMaterial*) next() ) {
-	  cout << obj->GetName () << endl;
-	}
-	cout << endl << "List of Media\n ";
-	TIter nnext( gGeoManager->GetListOfMedia() );
-	while ( TGeoMedium *obj = (TGeoMedium *) nnext()  ) {
-	  cout << obj->GetName () << endl;
-	}
-  }
-
-   DefineMaterial();
+   if (idx < 0 || idx > fBarsN*fLayersN) {
+      Warning("Sensor2Detector()","Wrong detector id number: %d ", idx);
+      TVector3(0,0,0);
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
+   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMaster(local, global);
+   TVector3 pos(global[0], global[1], global[2]);
+   
+   return pos;
 }
+
+
+//_____________________________________________________________________________
+TVector3 TATWparGeo::Sensor2DetectorVect(Int_t iLayer, Int_t iBar, TVector3& loc) const
+{
+   Int_t idx = iLayer*fBarsN + iBar;
+   
+   if (idx < 0 || idx > fBarsN*fLayersN) {
+      Warning("Sensor2DetectorVect()","Wrong detector id number: %d ", idx);
+      TVector3(0,0,0);
+   }
+   
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
+   
+   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMasterVect(local, global);
+   TVector3 pos(global[0], global[1], global[2]);
+   
+   return pos;
+}
+
+//_____________________________________________________________________________
+TVector3 TATWparGeo::Detector2Sensor(Int_t iLayer, Int_t iBar, TVector3& glob) const
+{
+   Int_t idx = iLayer*fBarsN + iBar;
+   
+   if (idx < 0 || idx > fBarsN*fLayersN) {
+      Warning("Detector2Sensor()","Wrong detector id number: %d ", idx);
+      return TVector3(0,0,0);
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
+   
+   mat->MasterToLocal(global, local);
+   TVector3 pos(local[0], local[1], local[2]);
+   
+   return pos;
+}
+
+//_____________________________________________________________________________
+TVector3 TATWparGeo::Detector2SensorVect(Int_t iLayer, Int_t iBar, TVector3& glob) const
+{
+   Int_t idx = iLayer*fBarsN + iBar;
+   
+   if (idx < 0 || idx > fBarsN*fLayersN) {
+      Warning("Detector2SensorVect()","Wrong detector id number: %d ", idx);
+      return TVector3(0,0,0);
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
+   
+   mat->MasterToLocalVect(global, local);
+   TVector3 pos(local[0], local[1], local[2]);
+   
+   return pos;
+}   
+
 
 //_____________________________________________________________________________
 void TATWparGeo::DefineMaterial()
@@ -66,25 +304,12 @@ void TATWparGeo::DefineMaterial()
       new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
    }
    
-   TGeoElementTable* table = gGeoManager->GetElementTable();
-
-   // create material
-   TGeoMixture* mat = 0x0;;
-   TGeoMedium*  med = 0x0;
-
-   // EJ-212 Scintillator material from eljen technology
-   const Char_t* matName = SCN_MEDIUM.Data();
-   if ( (mat = (TGeoMixture *)gGeoManager->GetListOfMaterials()->FindObject(matName)) == 0x0 ) {
-   
-      TGeoElement* matC = table->GetElement(6);
-      TGeoElement* matH = table->GetElement(1);
-   
-      mat =new TGeoMixture(matName,2, 1.023);
-      mat->AddElement(matC, 9);
-      mat->AddElement(matH, 10);
+   // TW material
+   TGeoMaterial* mat = TAGmaterials::Instance()->CreateMaterial(fBarMat, fBarDensity);
+   if (fDebugLevel) {
+      printf("ToF Wall material:\n");
+      mat->Print();
    }
-   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName)) == 0x0 )
-      med = new TGeoMedium(matName,1,mat);
 }
 
 //_____________________________________________________________________________
@@ -96,25 +321,14 @@ TGeoVolume* TATWparGeo::BuildTofWall(const char *wallName)
    
    TGeoVolume* wall = gGeoManager->FindVolumeFast(wallName);
    if ( wall == 0x0 ) {
-      const Char_t* matName = SCN_MEDIUM.Data();
-      TGeoMixture* mat = (TGeoMixture *)gGeoManager->GetListOfMaterials()->FindObject(matName);
-      TGeoMedium*  med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
-      
-      wall = gGeoManager->MakeBox(wallName, med,  m_dimension[1]/2.,  m_dimension[1]/2., GetSingleBarThickness()*2);
+      TGeoMedium*  med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("AIR");
+      wall = gGeoManager->MakeBox(wallName, med,  fBarSize[1]/2.,  fBarSize[1]/2., GetBarThick()*2);
    }
    
-   for (Int_t i = 0; i < SCN_NLAY; ++i) {
+   for (Int_t i = 0; i < 2; ++i) {
       
       TGeoVolume* wallXY = BuildTofWallXY(Form("%s%d", wallName, i+1), i);
-      
-      Float_t zPos = -GetSingleBarThickness()/2. + i*GetSingleBarThickness();
-      TGeoTranslation trans(0, 0, zPos);
-      TGeoRotation rot;
-      rot.SetAngles(0, 0, 90*i);
-      TGeoHMatrix  transfo = rot*trans;
-      TGeoHMatrix* hm = new TGeoHMatrix(transfo);
-      
-      wall->AddNode(wallXY, i, hm);
+      wall->AddNode(wallXY, i);
    }
    
    return wall;
@@ -128,18 +342,13 @@ TGeoVolume* TATWparGeo::BuildTofWallXY(const char *wallName, Int_t iLayer)
    TGeoVolume* wall = gGeoManager->FindVolumeFast(wallName);
    
    if ( wall == 0x0 ) {
-      const Char_t* matName = SCN_MEDIUM.Data();
-      TGeoMixture* mat = (TGeoMixture *)gGeoManager->GetListOfMaterials()->FindObject(matName);
-      TGeoMedium*  med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
-      wall = gGeoManager->MakeBox(wallName, med,  m_dimension[1]/2.,  m_dimension[1]/2., GetSingleBarThickness()/2.);
+      TGeoMedium*  med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("AIR");
+      wall = gGeoManager->MakeBox(wallName, med,  fBarSize[1]/2.,  fBarSize[1]/2., GetBarThick()/2.);
    }
    
-   for (Int_t i = 0; i < SCN_NBAR; ++i) {
-      Float_t xPos = m_dimensionBar[0]/2. + i*m_dimensionBar[0] - m_dimension[1]/2.;
-      
-      TGeoTranslation trans(xPos, 0, 0);
-      TGeoHMatrix  transfo = trans;
-      TGeoHMatrix* hm = new TGeoHMatrix(transfo);
+   for (Int_t i = 0; i < fBarsN; ++i) {
+
+      TGeoHMatrix* hm = GetTransfo(iLayer, i);
       
       TGeoVolume* module = BuildModule(i, iLayer);
       
@@ -160,13 +369,12 @@ TGeoVolume* TATWparGeo::BuildModule(Int_t iMod, Int_t iLayer)
       new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
    }
    
-   const char* moduleName = GetDefaultSlatName(iMod, iLayer);
+   const char* moduleName = GetDefaultBarName(iMod, iLayer);
    TGeoVolume* module     = gGeoManager->FindVolumeFast(moduleName);
    if ( module == 0x0 ) {
-      const Char_t* matName = SCN_MEDIUM.Data();
-      TGeoMixture* mat = (TGeoMixture *)gGeoManager->GetListOfMaterials()->FindObject(matName);
+      const Char_t* matName = fBarMat.Data();
       TGeoMedium*  med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
-      module = gGeoManager->MakeBox(moduleName, med,  m_dimensionBar[0]/2., m_dimensionBar[1]/2., GetSingleBarThickness()/2.);
+      module = gGeoManager->MakeBox(moduleName, med,  fBarSize[0]/2., fBarSize[1]/2., GetBarThick()/2.);
    }
    
    module->SetLineColor(fgkDefaultModCol);
@@ -176,15 +384,15 @@ TGeoVolume* TATWparGeo::BuildModule(Int_t iMod, Int_t iLayer)
 }
 
 //_____________________________________________________________________________
-//! set color on for fired slats
-void TATWparGeo::SetSlatColorOn(Int_t slat, Int_t view)
+//! set color on for fired bars
+void TATWparGeo::SetBarColorOn(Int_t bar, Int_t view)
 {
    if (!gGeoManager) {
-      Error("SetSlatcolorOn()", "No Geo manager defined");
+      Error("SetBarcolorOn()", "No Geo manager defined");
       return;
    }
    
-   TString name = GetDefaultSlatName(slat, view);
+   TString name = GetDefaultBarName(bar, view);
    
    TGeoVolume* vol = gGeoManager->FindVolumeFast(name.Data());
    if (vol)
@@ -192,258 +400,44 @@ void TATWparGeo::SetSlatColorOn(Int_t slat, Int_t view)
 }
 
 //_____________________________________________________________________________
-//! reset color for unfired slats
-void TATWparGeo::SetSlatColorOff(Int_t slat, Int_t view)
+//! reset color for unfired bars
+void TATWparGeo::SetBarColorOff(Int_t bar, Int_t view)
 {
    if (!gGeoManager) {
-      Error("SetSlatcolorOn()", "No Geo manager defined");
+      Error("SetBarcolorOn()", "No Geo manager defined");
       return;
    }
    
-   TString name = GetDefaultSlatName(slat, view);
+   TString name = GetDefaultBarName(bar, view);
    
    TGeoVolume* vol = gGeoManager->FindVolumeFast(name.Data());
    if (vol)
       vol->SetLineColor(GetDefaultModCol());
 }
 
-//_____________________________________________________________________________
-void TATWparGeo::InitGeo()  {
-
-	if ( fDebugLevel> 0 )     cout << "\n\nTATWparGeo::InitGeo" << endl<< endl;
-
-	m_origin = TVector3(0,0,0);                         // center in local coord.
-	m_center = TVector3(SCN_X, SCN_Y, SCN_Z);           // center in global coord.
-
-	//prima lungo y poi lungo x
-	m_nBar = SCN_BAR_HEIGHT/SCN_BAR_WIDTH;
-	m_nLayer = SCN_NLAY;
-	m_NBar = TVector2(m_nBar, m_nLayer);
-
-	// init sensor matrix (layers, bars)
-	m_barMatrix.resize( m_nLayer );
-	for (int i=0; i<m_nLayer; i++) {
-		m_barMatrix[i].resize( m_nBar );
-		for (int j=0; j<m_nBar; j++) {
-			m_barMatrix[i][j] = new LightSabre();
-		}
-	}
-
-	//---------------------------------------------------------------------
-	//     Find DETECTOR dimension
-	//---------------------------------------------------------------------
-
-	m_layerDistance = 0.;      // from center to center
-	
-	//V13 m_dimension = TVector3( SCN_WIDTH, SCN_HEIGHT, length_Lz );
-	m_dimensionBar = TVector3( SCN_BAR_WIDTH, SCN_BAR_HEIGHT, SCN_BAR_THICK );;   // ( shorter dim (2 cm), longer dim (44 cm), z dim )
-	
-	// set detector dimension
-	double length_Lz = m_dimensionBar.z()*2. + m_layerDistance; // from edge to edge
-	m_dimension = TVector3( m_dimensionBar.y(), m_dimensionBar.y(), length_Lz );
-
-
-	//---------------------------------------------------------------------
-	//     Init BAR geometry
-	//---------------------------------------------------------------------
-	if ( fDebugLevel> 0 ) cout << " Init SCINT BAR geometry " << endl;
-	double barDistance = 0;
-	double bar_newX=-1000., bar_newY=-1000., bar_newZ=-1000.;
-
-	// fill sensor matrix
-	double coord_x = m_origin.X() - m_dimension.x()/2.; 	// x coordinate of the bar center in layer 0
-	double coord_y = m_origin.y() - m_dimension.y()/2.;		// y coordinate of the bar center in layer 1
-	for (int k=0; k<m_nLayer; k++) {
-		bar_newZ = m_origin.Z() - m_dimension.z()/2. + (k+0.5)*m_dimensionBar.z() + k*m_layerDistance;
-		
-		//prima lungo y poi lungo x
-		// for (int i=0; i<m_nBar; i++) {
-		for (int j=0; j<m_nBar; j++) {
-		  bar_newX = ( k == 0 ? ( coord_x + (0.5+j)*m_dimensionBar.x() ) : m_origin.x() );
-		  
-		  bar_newY = ( k == 1 ? ( coord_y + (0.5+j)*m_dimensionBar.x() ) : m_origin.y() );
-
-		  stringstream ss_bodyBarName; ss_bodyBarName << "scn" << k << setw(2) << setfill('0') << j;
-		  stringstream ss_regionBarName; ss_regionBarName << "SCN" << k << setw(2) << setfill('0') << j;
-
-		  m_volumeCount++;
-
-		  m_barMatrix[k][j]->SetMaterial( (string)SCN_MEDIUM, "SCN_MEDIUM", ss_bodyBarName.str(), ss_regionBarName.str(), m_volumeCount );
-
-		  m_barMatrix[k][j]->SetBar( TVector3( bar_newX, bar_newY, bar_newZ),  // bar center
-				 m_dimensionBar,    // bar dimension
-				 barDistance, barDistance, m_layerDistance,
-				 TVector3( (k*TMath::Pi()*0.5),0,0 )
-				 );
-  
-	  if ( fDebugLevel> 0 ) cout << "bar center ",    TVector3( bar_newX, bar_newY, bar_newZ ).Print();
-	  
-	}
-  }
-  // }
-
-  m_rotation = new TRotation();
-  // m_rotation->SetYEulerAngles( m_tilt_eulerAngle.x(), m_tilt_eulerAngle.y(), m_tilt_eulerAngle.z() );
-  m_rotation->SetYEulerAngles( 0,0,0 );
-
-  // create the detector universe volume
-  if ( GlobalPar::GetPar()->geoROOT() ) {
-	m_universe = gGeoManager->MakeBox("TWuniverse",gGeoManager->GetMedium("AIR"),m_dimension.x()/2.,m_dimension.y()/2.,m_dimension.z()/2.); 
-	m_universe->SetLineColor(kRed);
-	gGeoManager->SetTopVisible(1);
-  }
-
-  //---------------------------------------------------------------------
-  //     Build bar materials in ROOT and FLUKA
-  //---------------------------------------------------------------------
-
-  for ( int k=0; k<m_nLayer; k++ ) {
-	for ( int j=0; j<m_nBar; j++ ) {
-	  
-	  //ROOT addNode
-	  if ( GlobalPar::GetPar()->geoROOT() )    {
-		
-			if ( !gGeoManager->GetVolume( m_barMatrix[k][j]->GetMaterialRegionName().c_str() ) )       cout << "ERROR >> FootBox::AddNodeToUniverse  -->  volume not defined: "<< m_barMatrix[k][j]->GetMaterialRegionName() << endl;
-
-			TVector3 globalCoord = m_barMatrix[k][j]->GetPosition();
-			if ( fDebugLevel> 0 ) cout <<"\t"<<"prova   ", globalCoord.Print();
-			Local2Global(&globalCoord);
-			TVector3 barRotation = m_barMatrix[k][j]->GetEuler();
-			barRotation = barRotation*180.*pow(TMath::Pi(),-1);//TGeoRotation wants the angles in DEG!!! (while our transformations, as Loc2Glob ecc, need rad angles)
-			m_universe->AddNode( gGeoManager->GetVolume( m_barMatrix[k][j]->GetMaterialRegionName().c_str() ), 
-						 m_barMatrix[k][j]->GetNodeID() , 
-						 new TGeoCombiTrans( globalCoord.x(), globalCoord.y(), globalCoord.z(), 
-								 new TGeoRotation("null,",
-										  barRotation.X(), barRotation.Y(), barRotation.Z()
-										  ) ) );
-			if ( fDebugLevel> 0 ) cout <<"\t"<<m_barMatrix[k][j]->GetMaterialRegionName()<<"  ", globalCoord.Print();
-		}
-
-	  
-		// bodies
-		if ( GlobalPar::GetPar()->geoFLUKA() ) {
-								
-			TVector3 minCoord = TVector3( m_barMatrix[k][j]->GetMinCoord().x(), m_barMatrix[k][j]->GetMinCoord().y(), m_barMatrix[k][j]->GetMinCoord().z() );
-			TVector3 maxCoord = TVector3( m_barMatrix[k][j]->GetMaxCoord().x(), m_barMatrix[k][j]->GetMaxCoord().y(), m_barMatrix[k][j]->GetMaxCoord().z() );
-			Local2Global( &minCoord );
-			Local2Global( &maxCoord );
-
-
-			stringstream ss;
-			ss << setiosflags(ios::fixed) << setprecision(6);
-			ss << "RPP " << m_barMatrix[k][j]->GetBodyName() << "     " 
-			   << minCoord.x() << " " << maxCoord.x() << " "
-			   << minCoord.y() << " " << maxCoord.y() << " "
-			   << minCoord.z() << " " << maxCoord.z() << endl;
-									
-			m_bodyPrintOut[ m_barMatrix[k][j]->GetMaterialName() ].push_back( ss.str() );
-			m_bodyName    [ m_barMatrix[k][j]->GetMaterialName() ].push_back( m_barMatrix[k][j]->GetBodyName() );
-
-			// regions
-			stringstream ssr;
-			ssr << setw(13) << setfill( ' ' ) << std::left << m_barMatrix[k][j]->GetRegionName()
-				<< "5 " << m_barMatrix[k][j]->GetBodyName() << endl;
-										
-			m_regionPrintOut[ m_barMatrix[k][j]->GetMaterialName() ].push_back( ssr.str() );
-			m_regionName    [ m_barMatrix[k][j]->GetMaterialName() ].push_back( m_barMatrix[k][j]->GetRegionName() );
-			if ( genfit::FieldManager::getInstance()->getFieldVal( TVector3( minCoord ) ).Mag() == 0 && genfit::FieldManager::getInstance()->getFieldVal( TVector3( maxCoord ) ).Mag() == 0 )
-			  m_magneticRegion[ m_barMatrix[k][j]->GetRegionName() ] = 0;
-			else 
-			  m_magneticRegion[ m_barMatrix[k][j]->GetRegionName() ] = 1;
-
-		}
-	}
-  } 
-}
 
 //_____________________________________________________________________________
-void TATWparGeo::Detector2Sensor_frame( int view, int bar, TVector3* coord ) {
-	m_barMatrix[view][bar]->Global2Local( coord );
-}
-
-//_____________________________________________________________________________
-void TATWparGeo::Sensor2Detector_frame( int bar, int view, TVector3* coord ) {
-	m_barMatrix[view][bar]->Local2Global( coord );
-}
-
-
-
-//_____________________________________________________________________________
-void TATWparGeo::Global2Local( TVector3* glob ) {
-  glob->Transform( GetRotationToLocal() );
-  *glob = *glob - m_center;
-}
-
-
-
-//_____________________________________________________________________________
-void TATWparGeo::Global2Local_TranslationOnly( TVector3* glob ) {
-  *glob = *glob - m_center;
-}
-
-
-
-//_____________________________________________________________________________
-void TATWparGeo::Global2Local_RotationOnly( TVector3* glob ) {
-  glob->Transform( GetRotationToLocal() );
-}
-
-
-
-//_____________________________________________________________________________
-void TATWparGeo::Local2Global( TVector3* loc ) {
-  loc->Transform( GetRotationToGlobal() );
-  *loc = *loc + m_center;
-}
-
-//_____________________________________________________________________________
-void TATWparGeo::Local2Global_TranslationOnly( TVector3* loc ) {
-  *loc = *loc + m_center;
-}
-
-
-
-//_____________________________________________________________________________
-void TATWparGeo::Local2Global_RotationOnly( TVector3* loc ) {
-  loc->Transform( GetRotationToGlobal() );
-}
-
-
-
-
-
-//_____________________________________________________________________________
-float TATWparGeo::GetCoordiante_footFrame( int view, int bar )  {
-	TVector3 pos = m_barMatrix[view][bar]->GetPosition();     // bar center
-	Local2Global(&pos);
-	return ( view == 0 ? pos.X() : pos.Y() );
+Int_t TATWparGeo::GetBarId(Int_t layer, Float_t xGlob, Float_t yGlob)
+{
+   Int_t barId = -99;
+   
+   if (layer == 0)
+      barId =  xGlob/GetBarWidth() + fBarsN/2;
+   else if (layer == 1)
+      barId =  yGlob/GetBarWidth() + fBarsN/2;
+   
+   if (barId < 0 || barId >= fBarsN)
+      Error("GetBarId()", " Wrong bar Id (%d) for global position (%.1f,%.1f)", barId, xGlob, yGlob);
+   
+   barId += fgkLayerOffset*layer;
+   
+   return barId;
 }
 
 
 
 
 //_____________________________________________________________________________
-float TATWparGeo::GetZ_footFrame( int view, int bar )  {
-	TVector3 pos = m_barMatrix[view][bar]->GetPosition();     // bar center
-	Local2Global(&pos);
-	return pos.Z();
-}
-
-
-
-
-//_____________________________________________________________________________
-TGeoVolume* TATWparGeo::GetVolume() {
-
-  if ( !GlobalPar::GetPar()->geoROOT() ) 
-	cout << "ERROR << TATWparGeo::GetVolume()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
-
-  return m_universe;
-
-}
-
-
-
 string TATWparGeo::PrintBodies() {
 
   if ( !GlobalPar::GetPar()->geoFLUKA() ) 
@@ -589,7 +583,7 @@ string TATWparGeo::PrintParameters() {
   
   string nstrip = "nstripSCN";
   outstr << "      integer " << nstrip << endl;
-  outstr << "      parameter(" << nstrip << " = " << m_nBar << ")" << endl;
+  outstr << "      parameter(" << nstrip << " = " << fBarsN << ")" << endl;
   // outstr << typeid(m_nBar).name()<< endl;
   outstr << endl;  
 

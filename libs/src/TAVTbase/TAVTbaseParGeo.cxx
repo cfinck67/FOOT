@@ -1,309 +1,471 @@
-/*!
-  \file
-  \version $Id: TAVTbaseParGeo.cxx,v 1.2 2003/06/22 19:34:21 mueller Exp $
-  \brief   Implementation of TAVTbaseParGeo.
-*/
 
 #include <Riostream.h>
 
 #include "TGeoBBox.h"
 #include "TColor.h"
-#include "TEveGeoShapeExtract.h"
-#include "TEveTrans.h"
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 #include "TList.h"
 #include "TMath.h"
 #include "TObjArray.h"
 #include "TObjString.h"
-#include "TROOT.h"
 #include "TSystem.h"
 
-#include "TAGgeoTrafo.hxx"
+#include "TAGgeoTrafo.hxx" 
+#include "TAGmaterials.hxx"
 
 #include "TAVTbaseParGeo.hxx"
 
-#include "foot_geo.h"
-#include "GlobalPar.hxx"
+//##############################################################################
 
+/*!
+  \class TAVTbaseParGeo TAVTbaseParGeo.hxx "TAVTbaseParGeo.hxx"
+  \brief Map and Geometry parameters for vertex. **
+*/
 
-//_____________________________________________________________________________
+ClassImp(TAVTbaseParGeo);
+
+const Int_t TAVTbaseParGeo::fgkDefSensorsN   = 32;
+
+//______________________________________________________________________________
 TAVTbaseParGeo::TAVTbaseParGeo()
+ : TAGparTools(),
+   fMatrixList(new TObjArray(fgkDefSensorsN)),
+   fSensorsN(0),
+   fLayersN(fSensorsN)
 {
-    m_nPassiveLayersPerBoard_z = 13;
-    m_volumeCount = -1;
-    m_passiveCount = -1;
-    m_setW_0number = 2;
-
-};
-
-//_____________________________________________________________________________
-//  copy constructor
-TAVTbaseParGeo::TAVTbaseParGeo( TAVTbaseParGeo* original ) :
-
-    m_rotation(original->m_rotation),
-    m_origin(original->m_origin),  // current position
-    m_center(original->m_center),  // current position
-    m_dimension(original->m_dimension),
-
-    m_nSensors (original->m_nSensors),
-
-    m_materialOrder(original->m_materialOrder),
-
-    m_materialThick(original->m_materialThick),
-    m_materialType(original->m_materialType),
-
-    m_siliconSensorThick_Lz(original->m_siliconSensorThick_Lz),
-    m_layerDistance_samePair(original->m_layerDistance_samePair),
-    m_layerDistance_interPair(original->m_layerDistance_interPair),
-
-    m_nPixel_X(original->m_nPixel_X),
-    m_nPixel_Y(original->m_nPixel_Y)         
-{
-
-   SensorMatrix m_sensorMatrix = original->m_sensorMatrix;
+   // Standard constructor
+   fMatrixList->SetOwner(true);
 }
 
-
-//_____________________________________________________________________________
-TVector3 TAVTbaseParGeo::GetPixelPos_sensorFrame( int layer, int col, int row )
+//______________________________________________________________________________
+TAVTbaseParGeo::~TAVTbaseParGeo()
 {
-   return m_sensorMatrix[layer][0][0]->GetPosition_local( col, row );
+   // Destructor
+   delete fMatrixList;
 }
 
 //_____________________________________________________________________________
-TVector3 TAVTbaseParGeo::GetPixelPos_detectorFrame( int layer, int col, int row )
+void TAVTbaseParGeo::DefineMaterial()
 {
-   return m_sensorMatrix[layer][0][0]->GetPosition( col, row );
+   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+      new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+   }
+   
+   // Epitaxial material
+   TGeoMaterial* mat = TAGmaterials::Instance()->CreateMaterial(fEpiMat, fEpiMatDensity);
+   if (fDebugLevel) {
+      printf("Expitaxial material:\n");
+      mat->Print();
+   }
+}
+
+//______________________________________________________________________________
+Bool_t TAVTbaseParGeo::FromFile(const TString& name)
+{
+   // simple file reading, waiting for real config file
+   TString nameExp;
+   
+   if (name.IsNull())
+      nameExp = fgDefaultGeoName;
+   else
+      nameExp = name;
+   
+   if (!Open(nameExp)) return false;
+   
+   ReadItem(fSensorsN);
+   if(fDebugLevel)
+      cout << endl << "Sensors number "<< fSensorsN << endl;
+   
+   ReadStrings(fTypeName);
+   if(fDebugLevel)
+      cout  << endl << "  Type Name : "<< fTypeName.Data() << endl;
+   
+   ReadItem(fTypeNumber);
+   if(fDebugLevel)
+      cout  << endl << "  Type Number : "<< fTypeNumber << endl;
+   
+   ReadItem(fPixelsNx);
+   if(fDebugLevel)
+      cout  << "  Number of pixels in X: "<< fPixelsNx << endl;
+   
+   ReadItem(fPixelsNy);
+   if(fDebugLevel)
+      cout  << "  Number of pixels in Y: "<< fPixelsNy << endl;
+   
+   ReadItem(fPitchX);
+   if(fDebugLevel)
+      cout  << "  Pitch for pixels in X: "<< fPitchX << endl;
+   
+   ReadItem(fPitchY);
+   if(fDebugLevel)
+      cout  << "  Pitch for pixels in Y: "<< fPitchY << endl;
+   
+   ReadVector3(fTotalSize);
+   if(fDebugLevel)
+      cout  << "  Total size of sensor:     "<< fTotalSize.X() << " " <<  fTotalSize.Y() << " "
+      <<  fTotalSize.Z()  << endl;
+   
+   ReadVector3(fEpiSize);
+   if(fDebugLevel)
+      cout  << endl << "  Sensitive size of sensor: "<< fEpiSize.X() << " " <<  fEpiSize.Y() << " "
+      <<  fEpiSize.Z()  << endl;
+   
+   ReadVector3(fEpiOffset);
+   if(fDebugLevel)
+      cout  << endl << "  Offset of sensitive area of sensor: "<< fEpiOffset.X() << " " <<  fEpiOffset.Y() << " "
+      <<  fEpiOffset.Z()  << endl;
+   
+   ReadStrings(fEpiMat);
+   if(fDebugLevel)
+      cout   << "  Sensitive material: "<< fEpiMat.Data() << endl;
+   
+   ReadItem(fEpiMatDensity);
+   if(fDebugLevel)
+      cout  << "  Sensitive material density:  "<< fEpiMatDensity << endl;
+   
+   ReadItem(fPixThickness);
+   if(fDebugLevel)
+      cout  << endl << "  Pixel thickness: "<< fPixThickness << endl;
+   
+   ReadStrings(fPixMat);
+   if(fDebugLevel)
+      cout   << "  Pixel material: "<< fPixMat.Data() << endl;
+   
+   ReadStrings(fPixMatDensities);
+   if(fDebugLevel)
+      cout  << "  Pixel material component densities: "<< fPixMatDensities.Data() << endl;
+   
+   ReadStrings(fPixMatProp);
+   if(fDebugLevel)
+      cout  << "  Pixel material proportion: "<< fPixMatProp.Data() << endl;
+   
+   ReadItem(fPixMatDensity);
+   if(fDebugLevel)
+      cout  << "  Pixel material density:  "<< fPixMatDensity << endl;
+   
+   ReadItem(fSupportInfo);
+   if(fDebugLevel)
+      cout  << "  Info flag for support:  "<< fSupportInfo << endl;
+   
+   // read info for support only for IT
+   if (fSupportInfo)
+      ReadSupportInfo();   
+   
+   if(fDebugLevel)
+      cout << endl << "Reading Sensor Parameters " << endl;
+   
+   for (Int_t p = 0; p < fSensorsN; p++) { // Loop on each plane
+      
+      // read sensor index
+      ReadItem(fSensorParameter[p].SensorIdx);
+      if(fDebugLevel)
+         cout << endl << " - Parameters of Sensor " <<  fSensorParameter[p].SensorIdx << endl;
+      
+      // read sensor index
+      ReadItem(fSensorParameter[p].TypeIdx);
+      if(fDebugLevel)
+         cout  << "   Type of Sensor: " <<  fSensorParameter[p].TypeIdx << endl;
+      
+      // read sensor position
+      ReadVector3(fSensorParameter[p].Position);
+      if(fDebugLevel)
+         cout << "   Position: "
+         << Form("%f %f %f", fSensorParameter[p].Position[0], fSensorParameter[p].Position[1], fSensorParameter[p].Position[2]) << endl;
+      
+      // read sensor angles
+      ReadVector3(fSensorParameter[p].Tilt);
+      if(fDebugLevel)
+         cout  << "   Tilt: "
+		       << Form("%f %f %f", fSensorParameter[p].Tilt[0], fSensorParameter[p].Tilt[1], fSensorParameter[p].Tilt[2]) << endl;
+      
+      // read alignment
+      ReadItem(fSensorParameter[p].AlignmentU);
+      ReadItem(fSensorParameter[p].AlignmentV);
+      if(fDebugLevel)
+         cout  << "   Alignment: " <<  fSensorParameter[p].AlignmentU << " " << fSensorParameter[p].AlignmentV << endl;
+      
+      // read tiltW
+      ReadItem(fSensorParameter[p].TiltW);
+      if(fDebugLevel)
+         cout  << "   Rotation tiltW: " << fSensorParameter[p].TiltW << endl;
+      
+      Float_t thetaX = fSensorParameter[p].Tilt[0];
+      Float_t thetaY = fSensorParameter[p].Tilt[1];
+      if (TMath::Nint(thetaY) == 180)
+         fSensorParameter[p].IsReverseY = true;
+      else
+         fSensorParameter[p].IsReverseY = false;
+      
+      Float_t thetaZ = fSensorParameter[p].Tilt[2] - fSensorParameter[p].TiltW;
+      TGeoRotation rot;
+      rot.RotateX(thetaX);
+      rot.RotateY(thetaY);
+      rot.RotateZ(thetaZ);
+      
+      Float_t transX = fSensorParameter[p].Position[0] - fSensorParameter[p].AlignmentU + fSensorParameter[p].TiltW*TMath::DegToRad()*fSensorParameter[p].Position[1];
+      Float_t transY = fSensorParameter[p].Position[1] - fSensorParameter[p].AlignmentV - fSensorParameter[p].TiltW*TMath::DegToRad()*fSensorParameter[p].Position[0];
+      Float_t transZ = fSensorParameter[p].Position[2];
+      
+      TGeoTranslation trans(transX, transY, transZ);
+      
+      TGeoHMatrix  transfo;
+      transfo  = trans;
+      transfo *= rot;
+      AddTransMatrix(new TGeoHMatrix(transfo), fSensorParameter[p].SensorIdx-1);
+      
+      // change to rad
+      fSensorParameter[p].Tilt[0] = fSensorParameter[p].Tilt[0]*TMath::DegToRad();
+      fSensorParameter[p].Tilt[1] = fSensorParameter[p].Tilt[1]*TMath::DegToRad();
+      fSensorParameter[p].Tilt[2] = fSensorParameter[p].Tilt[2]*TMath::DegToRad();
+      fSensorParameter[p].TiltW   = fSensorParameter[p].TiltW*TMath::DegToRad();
+   }	  
+   
+   // Close file
+   Close();
+   
+   // Define materials
+   DefineMaterial();
+   
+   return true;
 }
 
 //_____________________________________________________________________________
-TVector3 TAVTbaseParGeo::GetPixelPos_footFrame( int layer, int col, int row )  {
-    TVector3 pos = GetPixelPos_detectorFrame( layer, col, row );
-    Local2Global(&pos);
-    return pos;
+void TAVTbaseParGeo::AddTransMatrix(TGeoHMatrix* mat, Int_t idx)
+{
+  if (idx == -1)
+	 fMatrixList->Add(mat);  
+  else {
+	 TGeoHMatrix* oldMat = GetTransfo(idx);
+	 if (oldMat)
+		RemoveTransMatrix(oldMat);
+	 fMatrixList->AddAt(mat, idx);
+  }
 }
 
 //_____________________________________________________________________________
-float TAVTbaseParGeo::GetColumnCenter_sensorFrame( int col )  { return GetPixelPos_sensorFrame( 0, col, 0 ).x(); }
-float TAVTbaseParGeo::GetColumnCenter_detectorFrame( int layer, int col )  { return GetPixelPos_detectorFrame( layer, col, 0 ).x(); }
-float TAVTbaseParGeo::GetColumnCenter_footFrame( int layer, int col ) { return GetPixelPos_footFrame( layer, col, 0 ).x(); }
-//_____________________________________________________________________________
-float TAVTbaseParGeo::GetRowCenter_sensorFrame( int row )     { return GetPixelPos_sensorFrame( 0, 0, row ).y();   }
-float TAVTbaseParGeo::GetRowCenter_detectorFrame( int layer, int row )     { return GetPixelPos_detectorFrame( layer, 0, row ).y();   }
-float TAVTbaseParGeo::GetRowCenter_footFrame( int layer, int row )    { return GetPixelPos_footFrame( layer, 0, row ).y();     }
+void TAVTbaseParGeo::RemoveTransMatrix(TGeoHMatrix* mat)
+{
+	 if (!fMatrixList->Remove(mat))
+		printf("Cannot remove matrix");
+}
 
+//_____________________________________________________________________________
+TGeoHMatrix* TAVTbaseParGeo::GetTransfo(Int_t iSensor)
+{
+   if (iSensor < 0 || iSensor >= GetNSensors()) {
+	  Warning("GetTransfo()","Wrong detector id number: %d ", iSensor); 
+	  return 0x0;
+   }
+   
+   return (TGeoHMatrix*)fMatrixList->At(iSensor);
+}
+
+//_____________________________________________________________________________
+TVector3 TAVTbaseParGeo::GetSensorPosition(Int_t iSensor)
+{
+   TGeoHMatrix* hm = GetTransfo(iSensor);
+   if (hm) {
+	  TVector3 local(0,0,0);
+	  fCurrentPosition =  Sensor2Detector(iSensor,local);
+   }
+   return fCurrentPosition;
+}
+
+// Mapping
+//_____________________________________________________________________________
+Int_t TAVTbaseParGeo::GetIndex(Int_t line, Int_t column) const
+{
+   return line*fPixelsNx + column;
+}
 
 //_____________________________________________________________________________
 Float_t TAVTbaseParGeo::GetPositionU(Int_t column) const
-{      // GetColumnCenter_sensorFrame
-   return ((2*column - m_nPixel_X + 1 ) * m_pitchX)/2 ;
- }
+{
+   Float_t x = (Float_t(2*column - fPixelsNx + 1) * fPitchX)/2.;// + fEpiOffset[0];
+   return  x;
+}
 
 //_____________________________________________________________________________
 Float_t TAVTbaseParGeo::GetPositionV(Int_t line) const
-{         //TAVTbaseParGeo::GetRowCenter_sensorFrame(
-   return -((2*line - m_nPixel_X + 1 ) * m_pitchY)/2 ;
-}
-
-
-//_____________________________________________________________________________
-void TAVTbaseParGeo::Detector2Sensor_frame( int sensorID, TVector3* coord )
 {
-    m_sensorMatrix[sensorID][0][0]->Global2Local( coord );
+   Float_t y = -(Float_t(2*line - fPixelsNy + 1) * fPitchY)/2.;// + fEpiOffset[1];
+   return  y;
 }
 
 //_____________________________________________________________________________
-void TAVTbaseParGeo::Sensor2Detector_frame( int sensorID, TVector3* coord )
+Int_t TAVTbaseParGeo::GetColumn(Float_t x) const
 {
-    m_sensorMatrix[sensorID][0][0]->Local2Global( coord );
+   Float_t xmin = -fPixelsNx*fPitchX/2.;// - fEpiOffset[0];
+
+   if (x < xmin || x > -xmin) {
+	  if (fDebugLevel)
+		 Warning("GetColumn()", "Value of X: %f out of range +/- %f\n", x, xmin);
+	  return -1;
+   }
+   
+   Int_t col = floor((x-xmin)/fPitchX);
+   return col;
 }
 
 //_____________________________________________________________________________
-void TAVTbaseParGeo::Global2Local( TVector3* glob )
+Int_t TAVTbaseParGeo::GetLine(Float_t y) const
 {
-    glob->Transform( GetRotationToLocal() );
-    *glob = *glob - m_center;
+   // equivalent to  floor((-y-ymin)/ffPitchY)-1
+   Float_t ymin = -fPixelsNy*fPitchY/2.;// - fEpiOffset[1];
+
+   if (y < ymin || y > -ymin) {
+	  if (fDebugLevel)
+		 Warning("GetLine()", "Value of Y: %f out of range +/- %f\n", y, ymin);
+	  return -1;
+   }
+   
+   Int_t line = floor((y-ymin)/fPitchY);
+   return fPixelsNy - line - 1;
+}
+
+// transformation
+//_____________________________________________________________________________
+void TAVTbaseParGeo::Detector2Sensor(Int_t detID,
+									Double_t xg, Double_t yg, Double_t zg, 
+									Double_t& xl, Double_t& yl, Double_t& zl) const
+{  
+   if (detID < 0 || detID > GetNSensors()) {
+	  Warning("Detector2Sensor()","Wrong detector id number: %d ", detID); 
+	  return ;
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {xg, yg, zg};
+   
+   mat->MasterToLocal(global, local);
+   xl = local[0];
+   yl = local[1];
+   zl = local[2];
+}   
+
+//_____________________________________________________________________________
+TVector3 TAVTbaseParGeo::Detector2Sensor(Int_t detID, TVector3& glob) const
+{
+   if (detID < 0 || detID > GetNSensors()) {
+	  Warning("Detector2Sensor()","Wrong detector id number: %d ", detID); 
+	  return TVector3(0,0,0);
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
+   
+   mat->MasterToLocal(global, local);
+   TVector3 pos(local[0], local[1], local[2]);
+   
+   return pos;
+}   
+
+//_____________________________________________________________________________
+TVector3 TAVTbaseParGeo::Detector2SensorVect(Int_t detID, TVector3& glob) const
+{
+   if (detID < 0 || detID > GetNSensors()) {
+	  Warning("Detector2SensorVect()","Wrong detector id number: %d ", detID); 
+	  return TVector3(0,0,0);
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
+   
+   mat->MasterToLocalVect(global, local);
+   TVector3 pos(local[0], local[1], local[2]);
+   
+   return pos;
+}   
+
+//_____________________________________________________________________________
+void TAVTbaseParGeo::Sensor2Detector(Int_t detID,
+									Double_t xl, Double_t yl, Double_t zl, 
+									Double_t& xg, Double_t& yg, Double_t& zg) const
+{
+   if (detID < 0 || detID > GetNSensors()) {
+	  Warning("Sensor2Detector()","Wrong detector id number: %d ", detID); 
+	  return;
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {xl, yl, zl};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMaster(local, global);
+   xg = global[0];
+   yg = global[1];
+   zg = global[2];
+}   
+
+//_____________________________________________________________________________
+TVector3 TAVTbaseParGeo::Sensor2Detector(Int_t detID, TVector3& loc) const
+{
+   if (detID < 0 || detID > GetNSensors()) {
+	  Warning("Sensor2Detector()","Wrong detector id number: %d ", detID); 
+	  TVector3(0,0,0);
+   }
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMaster(local, global);
+   TVector3 pos(global[0], global[1], global[2]);
+   
+   return pos;
+}   
+
+
+//_____________________________________________________________________________
+TVector3 TAVTbaseParGeo::Sensor2DetectorVect(Int_t detID, TVector3& loc) const
+{
+   if (detID < 0 || detID > GetNSensors()) {
+	  Warning("Sensor2DetectorVect()","Wrong detector id number: %d ", detID); 
+	  TVector3(0,0,0);
+   }
+
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   
+   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMasterVect(local, global);
+   TVector3 pos(global[0], global[1], global[2]);
+   
+   return pos;
 }
 
 //_____________________________________________________________________________
-void TAVTbaseParGeo::Global2Local_TranslationOnly( TVector3* glob )
+void TAVTbaseParGeo::DefineMaxMinDimension()
 {
-    *glob = *glob - m_center;
+   TVector3 posAct(0, 0, 0);
+   TVector3 EnvDim(0,0,0);
+   TVector3 shift(0,0,0);
+   
+   TVector3 minPosition(10e10, 10e10, 10e10);
+   TVector3 maxPosition(-10e10, -10e10, -10e10);
+   
+   Int_t nSens = GetNSensors();
+   for (Int_t iS = 0; iS < nSens; iS++) {
+      posAct = GetSensorPar(iS).Position;
+      
+      for(Int_t i = 0; i < 3; i++) {
+         shift[i] = TMath::Abs(shift[i]);
+         minPosition[i] = (minPosition[i] <= posAct[i]) ? minPosition[i] : posAct[i];
+         maxPosition[i] = (maxPosition[i] >= posAct[i]) ? maxPosition[i] : posAct[i];
+      }
+   }
+   
+   fMinPosition = minPosition;
+   fMaxPosition = maxPosition;
+      
+   for(Int_t i = 0; i< 3; ++i)
+      fSizeBox[i] = (fMaxPosition[i] - fMinPosition[i]);
+   fSizeBox += GetTotalSize();
 }
 
-//_____________________________________________________________________________
-void TAVTbaseParGeo::Global2Local_RotationOnly( TVector3* glob )
-{
-    glob->Transform( GetRotationToLocal() );
-}
-
-//_____________________________________________________________________________
-void TAVTbaseParGeo::Local2Global( TVector3* loc )
-{
-    loc->Transform( GetRotationToGlobal() );
-    *loc = *loc + m_center;
-}
-
-//_____________________________________________________________________________
-void TAVTbaseParGeo::Local2Global_TranslationOnly( TVector3* loc )
-{
-    *loc = *loc + m_center;
-}
-
-//_____________________________________________________________________________
-void TAVTbaseParGeo::Local2Global_RotationOnly( TVector3* loc )
-{
-    loc->Transform( GetRotationToGlobal() );
-}
-
-//_____________________________________________________________________________
-TGeoVolume* TAVTbaseParGeo::GetVolume()
-{
-
-    if ( !GlobalPar::GetPar()->geoROOT() ) 
-        cout << "ERROR << TAVTbaseParGeo::GetVolume()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
-
-    return m_universe;
-}
-
-
-//_____________________________________________________________________________
-string TAVTbaseParGeo::PrintBodies()
-{
-    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-        cout << "ERROR << TAVTbaseParGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
-
-    stringstream outstr;
-    outstr << "* ***Vertex" << endl;
-
-    // loop in order of the material alfabeth
-    for ( map<string, vector<string> >::iterator itMat = m_bodyPrintOut.begin(); itMat != m_bodyPrintOut.end(); itMat++ ) {
-        // loop over all body of the same material
-        for ( vector<string>::iterator itBody = (*itMat).second.begin(); itBody != (*itMat).second.end(); itBody++ ) {
-            outstr << (*itBody);
-            if (m_debug > 3)    cout << (*itBody);
-        }        
-    }
-    return outstr.str();
-}
-
-//_____________________________________________________________________________
-string TAVTbaseParGeo::PrintRegions()
-{
-    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-        cout << "ERROR << TAVTbaseParGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
-
-    stringstream outstr;
-    outstr << "* ***Vertex" << endl;
-
-  // loop in order of the material alfabeth
-    for ( map<string, vector<string> >::iterator itMat = m_regionPrintOut.begin(); itMat != m_regionPrintOut.end(); itMat++ ) {
-        // loop over all body of the same material
-        for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-            outstr << (*itRegion);
-            if (m_debug > 3)    cout << (*itRegion);
-        }        
-    }
-    return outstr.str();
-}
-
-//_____________________________________________________________________________
-string TAVTbaseParGeo::PrintSubtractBodiesFromAir()
-{
-
-    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-        cout << "ERROR << TAVTbaseParGeo::PrintSubtractMaterialFromAir()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
-
-
-    stringstream outstr;
-    // loop in order of the material alfabeth
-    for ( map<string, vector<string> >::iterator itMat = m_bodyName.begin(); itMat != m_bodyName.end(); itMat++ ) {
-        // loop over all region of the same material
-        for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-            outstr << " -" << (*itRegion);
-        }        
-    }
-    return outstr.str();
-
-}
-
-//_____________________________________________________________________________
-string TAVTbaseParGeo::PrintAssignMaterial()
-{
-    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-        cout << "ERROR << TAVTbaseParGeo::PrintAssignMaterial()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
-
-
-    // loop in order of the material alfabeth
-    stringstream outstr; 
-    for ( map<string, vector<string> >::iterator itMat = m_regionName.begin(); itMat != m_regionName.end(); itMat++ ) {
-
-        // check dimension greater than 0
-        if ( (*itMat).second.size() == 0 ) {
-            cout << "ERROR << TAVTbaseParGeo::PrintAssignMaterial  ::  "<<endl, exit(0);
-        }
-
-        // take the first region
-        string firstReg = (*itMat).second.at(0);
-        // take the last region
-        string lastReg = "";
-        if ( (*itMat).second.size() != 1 ) 
-            lastReg = (*itMat).second.at( (*itMat).second.size()-1 );
-
-        // build output string 
-        outstr  << setw(10) << setfill( ' ' ) << std::left << "ASSIGNMA" 
-                << setw(10) << setfill( ' ' ) << std::right << (*itMat).first 
-                << setw(10) << setfill( ' ' ) << std::right << firstReg 
-                << setw(10) << setfill( ' ' ) << std::right << lastReg;
-                       
-        
-        // multiple region condition 
-        if ( (*itMat).second.size() != 1 ) {
-            outstr << setw(10) << setfill( ' ' ) << std::right  << 1 ;
-        }
-        else {
-            outstr << setw(10) << setfill( ' ' ) << std::right  << " ";
-        }
-
-
-        // region in the magnetic filed condition
-        bool isMag = true;
-        for (int i=0; i<(*itMat).second.size(); i++) {
-            if ( m_magneticRegion[ (*itMat).second.at(i) ] == 0 ) {
-                isMag = false;
-                break;
-            }
-        }
-        if ( isMag )
-            outstr << setw(10) << setfill( ' ' ) << std::right  << 1 ;
-        else 
-            outstr << setw(10) << setfill( ' ' ) << std::right  << " " ;
-        
-        outstr << endl;
-
-        // DEBUG
-        if (m_debug > 0)    cout << outstr.str();
-
-    }
-
-    return outstr.str();
-}
-
-//------------------------------------------+-----------------------------------
-//! Clear geometry info.
-void TAVTbaseParGeo::Clear(Option_t*)
-{
-  return;
-}
-
-/*------------------------------------------+---------------------------------*/
-//! ostream insertion.
-void TAVTbaseParGeo::ToStream(ostream& os, Option_t*) const
-{
-//  os << "TAVTbaseParGeo " << GetName() << endl;
-//  os << "p 8p   ref_x   ref_y   ref_z   hor_x   hor_y   hor_z"
-//     << "   ver_x   ver_y   ver_z  width" << endl;
-
-  return;
-}

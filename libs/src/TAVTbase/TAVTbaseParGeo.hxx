@@ -1,36 +1,20 @@
 #ifndef _TAVTbaseParGeo_HXX
 #define _TAVTbaseParGeo_HXX
 /*!
-  \version $Id: TAVTbaseParGeo.hxx,v 1.2 2003/06/22 19:33:36 mueller Exp $
-  
-    Fully revised in 2017 by Matteo Franchini franchinim@bo.infn.it
-
-    Three reference frames are possible and all the transformation from one to another 
-    are defined in this class:
-        - sensor frame
-        - detector frame
-        - FOOT frame
-
-    All the coordinates are in cm and in the detector reference frame, i.e. the center
-    is the center of the detector.
-
+  \file
+  \brief   Declaration of TAVTbaseParGeo.
+ 
+  \author Ch. Finck
 */
 /*------------------------------------------+---------------------------------*/
 
+#include <map>
 #include "Riostream.h"
-
-#include "foot_geo.h"
-
-#include "TEveGeoShapeExtract.h"
 
 #include "TObject.h"
 #include "TString.h"
 
 #include "TAGparTools.hxx"
-
-#include "IronPlate.hxx"
-#include "FootBox.hxx"
-#include "GlobalPar.hxx"
 
 
 class TGeoHMatrix;
@@ -38,211 +22,165 @@ class TGeoVolume;
 //##############################################################################
 
 class TAVTbaseParGeo : public TAGparTools {
+      
+protected:
+   TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each crystal)
+   TVector3   fCurrentPosition;  // current position
+   
+   Int_t      fSensorsN;         // Number of sensors
+   Int_t      fLayersN;          // Number of layer (planes)
+
+   TString    fTypeName;         // Type name
+   Int_t      fTypeNumber;       // Type number
+   Int_t      fPixelsNx;         // Number of pixels in U direction
+   Int_t      fPixelsNy;         // Number of pixels in V direction
+   Float_t    fPitchX;           // Pitch value in U direction
+   Float_t    fPitchY;           // Pitch value in U direction
+   TVector3   fTotalSize;        // Total size of sensor
+   
+   TVector3   fEpiSize;          // Sensitive size of sensor
+   TVector3   fEpiOffset;        // Position offset of sensitive size
+   TString    fEpiMat;           // Material of epitaxial
+   Float_t    fEpiMatDensity;    // density of epitaxial material
+   
+   Float_t    fPixThickness;     // Pixel Thickness
+   TString    fPixMat;           // Material of pixel
+   TString    fPixMatDensities;  // density of pixel material for each component
+   TString    fPixMatProp;       // Material of pixels component proportion
+   Float_t    fPixMatDensity;    // density of pixel material
+
+   Int_t      fSupportInfo;      // Boolean for support info (only for IT)
+   
+   struct SensorParameter_t : public  TObject {
+	  Int_t     SensorIdx;   // sensor index
+	  Int_t     TypeIdx;     // type index
+	  TVector3  Position;    // current position
+	  TVector3  Tilt;        // current tilt angles 
+	  Float_t   AlignmentU;  // U alignment
+	  Float_t   AlignmentV;  // V alignment
+	  Float_t   TiltW;       // Tilted angle around beam axis
+	  Bool_t    IsReverseY;  // Rotation of 180 around Y axis
+   };
+   SensorParameter_t  fSensorParameter[128];
+
+   TVector3   fMinPosition;
+   TVector3   fMaxPosition;
+   TVector3   fSizeBox;
 
 protected:
+   static const Int_t   fgkDefSensorsN;   // default number of sensors
    
-typedef vector< vector< vector< IronPlate* > > > SensorMatrix;
-typedef vector< vector< IronPlate* > > SensorPlane;
-typedef vector< IronPlate* > SensorLine;
-
-typedef vector< vector< vector< FootBox* > > > PassiveMatrix;
-typedef vector< vector< FootBox* > > PassivePlane;
-typedef vector< FootBox* > PassiveLine;
-
 public:
-    TAVTbaseParGeo();
-    TAVTbaseParGeo( TAVTbaseParGeo* original );
-    virtual ~TAVTbaseParGeo() {
-      // sensor matrix cleaning
-      for ( SensorMatrix::iterator itX = m_sensorMatrix.begin(); itX != m_sensorMatrix.end(); itX++ ) {
-        for ( SensorPlane::iterator itY = (*itX).begin(); itY != (*itX).end(); itY++ ) {
-            for ( SensorLine::iterator itZ = (*itY).begin(); itZ != (*itY).end(); itZ++ ) {
-                delete (*itZ);
-            }
-            (*itY).clear();
-        }
-        (*itX).clear();
-      }
-      m_sensorMatrix.clear();
-    };
+   TAVTbaseParGeo();
+    virtual ~TAVTbaseParGeo();
 
-    virtual void InitGeo()      { return; }
-    virtual void InitMaterial() { return; }
+   //! Transform point from the global detector reference frame
+   //! to the local sensor reference frame of the detection id
+   void            Detector2Sensor(Int_t detID,  Double_t xg, Double_t yg, Double_t zg, 
+                                   Double_t& xl, Double_t& yl, Double_t& zl) const;
    
-
-
-    // to be removed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    Float_t GetPositionU(Int_t column)         const;
-    Float_t GetPositionV(Int_t line)           const;
-
-    virtual TVector3 GetSensorPosition( int sensorID )   { return m_sensorMatrix[sensorID][0][0]->GetCenter(); };
-
-    //    it should be changed accordingly with the simulation choice when more than one sensors will be used
-    // TVector3 GetPixelPos_Global( int layer, int col, int row );
-    // TVector3 GetPixelPos_Local( int layer, int col, int row );
-
-    // new
-    TVector3 GetPixelPos_sensorFrame( int layer, int col, int row );
-    TVector3 GetPixelPos_detectorFrame( int layer, int col, int row );
-    TVector3 GetPixelPos_footFrame( int layer, int col, int row );
-
-    // float GetColumnCenter_Local ( int layer, int col);
-    // float GetRowCenter_Local ( int layer, int row);
-    // float GetColumnCenter_Global (int layer, int col);
-    // float GetRowCenter_Global ( int layer, int row);
-
-    // new
-    virtual float GetColumnCenter_sensorFrame ( int col);
-    virtual float GetColumnCenter_detectorFrame ( int layer, int col);
-    virtual float GetColumnCenter_footFrame ( int layer, int col);
-    // new
-    virtual float GetRowCenter_sensorFrame ( int row);
-    virtual float GetRowCenter_detectorFrame ( int layer, int row);
-    virtual float GetRowCenter_footFrame ( int layer, int row);
-
-    //! Transform point from the foot global reference frame
-    //! to the detector local reference frame.  Transformation between detector and sensor are managed by IronPlate
-    virtual void Detector2Sensor_frame( int sensorID, TVector3* coord );
-    virtual void Sensor2Detector_frame( int sensorID, TVector3* coord );
-
-    // foot to detector
-    virtual void Global2Local( TVector3* glob );
-    virtual void Global2Local_TranslationOnly( TVector3* glob );
-    virtual void Global2Local_RotationOnly( TVector3* glob );
-
-    // detector to foot
-    virtual void Local2Global( TVector3* loc );
-    virtual void Local2Global_TranslationOnly( TVector3* loc );
-    virtual void Local2Global_RotationOnly( TVector3* loc );
-
-    TRotation GetRotationToGlobal() { return *m_rotation; };
-    TRotation GetRotationToLocal() { return m_rotation->Inverse(); };
-
-
-    //  Return Vertex center coord. in the foot global frame
-    TVector3 GetCenter() { return m_center; };
-
-    // Return Vertex full dimension.
-    TVector3 GetDimension() { return m_dimension; };
-
-   //  Return Vertex center coord. in the foot global frame
-   virtual TVector3 GetTotalSize() { return TVector3(VTX_WIDTH, VTX_HEIGHT, VTX_THICK); }
+   TVector3        Detector2Sensor(Int_t detID, TVector3& glob) const;
+   TVector3        Detector2SensorVect(Int_t detID, TVector3& glob) const;
    
-    double GetSingleSensorThickness() { return m_siliconSensorThick_Lz; };
-
-    int GetNPixelX() { return m_nPixel_X; };
-    int GetNPixelY() { return m_nPixel_Y; };
-    int GetNLayers() { return m_nSensors.Z(); };
-    
-    int GetNSensors()    { return m_nSensors.X()*m_nSensors.Y()*m_nSensors.Z(); };  // return tot number of sensors
-    
-    // Return a vector with the number of sensors along the cartesian directions 
-    TVector3        GetNumberOfSensorAlongDirections() { return m_nSensors; }; 
-    
-    // define the agloritm to map the sensor with a single variable. For VTX is too easy :).
-    virtual int GetSensorID( int layer, int /*col*/, int /*row*/ )    { return layer; };
-    virtual int GetLayerFromSensorID( int sensID )            { return sensID; };
-
-    // pixel dimension
-    double GetPitchX()  { return m_pitchX; };
-    double GetPitchY()  { return m_pitchY; };
+   //! Transform point from the local reference frame
+   //! of the detection id to the global reference frame 
+   void            Sensor2Detector(Int_t detID,  Double_t xl, Double_t yl, Double_t zl, 
+                                Double_t& xg, Double_t& yg, Double_t& zg) const;
    
-   // Get alignment
-   double& GetAlignmentU(int idx) { return fAlignmentU[idx]; }
-   double& GetAlignmentV(int idx) { return fAlignmentV[idx]; }
-   double& GetTiltW(int idx)      { return fTiltW[idx];      } 
+   TVector3        Sensor2Detector(Int_t detID, TVector3& loc) const;
+   TVector3        Sensor2DetectorVect(Int_t detID, TVector3& loc) const;
    
-    // function for the FRUKA geometry creation
-   virtual string PrintBodies();
-   virtual string PrintRegions();
-   virtual string PrintAssignMaterial();
-   virtual string PrintSubtractBodiesFromAir();
-   virtual string PrintParameters() { return string(); }
-
-    // Return the ROOT volume of the entire detector
-    virtual TGeoVolume*     GetVolume();
-
-    virtual void    Clear(Option_t* opt="");
-    virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
+   //! Add matrxi transformation
+   void            AddTransMatrix(TGeoHMatrix* mat, Int_t idx = -1);
+   //! Remove matrix transformation
+   void            RemoveTransMatrix(TGeoHMatrix* mat);
+   //! Get matrix transformation
+   TGeoHMatrix*    GetTransfo(Int_t iSensor);
    
-protected:
-    SensorMatrix m_sensorMatrix;
-    PassiveMatrix m_passiveMatrix;
-    TRotation* m_rotation;
+   //! Get position sensor
+   TVector3        GetSensorPosition(Int_t iSensor);
+ 
+   virtual int GetSensorID( int layer, int /*col*/, int /*row*/ )    { return layer; };
 
-    TGeoVolume* m_universe;
+   //! Get Sensor idx for a given type and sensor in type
+   Int_t GetSensorIdx(Int_t iSensor, Int_t type);
 
-    TVector3  m_origin;  // current position in local coord.
-    TVector3  m_center;  // current position in global coord.
-    TVector3  m_dimension;
+   //! Get number of Sensors
+   Int_t GetNSensors()                 const { return fSensorsN;       }
+   //! Get number of layers
+   Int_t GetNLayers()                  const { return fLayersN;        }
 
-    int m_volumeCount;
-    int m_passiveCount;
-
-    TVector3 m_nSensors;
-
-    vector<string> m_materialOrder;
-    vector<string> m_passiveMaterial;
-
-    map<string, double> m_materialThick;
-    map<string, string> m_materialType;
-
-    map<string, vector<string> > m_regionPrintOut;
-    map<string, vector<string> > m_bodyPrintOut;
-    map<string, vector<string> > m_regionName;
-    map<string, vector<string> > m_bodyName;
-    map<string, int > m_magneticRegion;
-
-    int m_nPassiveLayersPerBoard_z;
-    double m_passiveMaterialThick;
-    double m_siliconSensorThick_Lz;
+   //! Get number of pixel in X
+   Int_t GetNPixelX()                  const { return fPixelsNx;       }
+   //! Get number of pixel in Y
+   Int_t GetNPixelY()                  const { return fPixelsNy;       }
+   //! Get pitch size in X
+   Float_t GetPitchX()                 const { return fPitchX;         }
+   //! Get pitch size in Y
+   Float_t GetPitchY()                 const { return fPitchY;         }
    
-    double m_layerDistance_samePair;
-    double m_layerDistance_interPair;
+   //! Get total size of sensor
+   TVector3 GetTotalSize()             const { return fTotalSize;      }
 
-    int m_debug;
-    int m_setW_0number;
+   //! Get epixtaxyal size of sensor
+   TVector3 GetEpiSize()               const { return fEpiSize;        }
+   //! Get epitaxial material
+   TString GetEpiMaterial()            const { return fEpiMat;         }
+   //! Get epitaxial density
+   Float_t GetEpiMatDensity()          const { return fEpiMatDensity;  }
 
-    int m_nPixel_X;
-    int m_nPixel_Y;
-    double m_pitchX;
-    double m_pitchY;
-
-    double m_xmin, m_ymin;
+   //! Get pixel thickness
+   Float_t GetPixThickness()           const { return fPixThickness;   }
+   //! Get pixel material
+   TString GetPixMaterial()            const { return fPixMat;         }
+   //! Get pixel coponent densities
+   TString GetPixMatDensities()        const { return fPixMatDensities;}
+   //! Get pixel material proportion
+   TString GetPixMatProp()             const { return fPixMatProp;     }
+   //! Get pixel density
+   Float_t GetPixMatDensity()          const { return fPixMatDensity;  }
    
-   double fAlignmentU[50];
-   double fAlignmentV[50];
-   double fTiltW[50];
    
+   //! Get position from pixel line/column
+   virtual Float_t GetPositionU(Int_t column)         const;
+   virtual Float_t GetPositionV(Int_t line)           const;
+   virtual Int_t   GetIndex(Int_t line, Int_t column) const;
+   
+   //! Get column/line from x/y position
+   virtual Int_t   GetColumn(Float_t x) const;
+   virtual Int_t   GetLine(Float_t y)   const;
 
-////////////////////////////////////////////////////////////////////////////////
+   
+   //! Read parameters from file
+   virtual Bool_t   FromFile(const TString& name = "");
 
+   // Read support info if any
+   virtual void     ReadSupportInfo() { return; }
+   
+   // Define material
+   virtual void    DefineMaterial();
 
+   // Define box of detector
+   void            DefineMaxMinDimension();
 
-   // //! Add CMOS module geometry to world
-   // TGeoVolume* AddVertexModule(TGeoHMatrix* hm, const char* basemoduleName = "Module", const char *name = "Vertex");
-
-   // //! Add CMOS module geometry to world
-   // TEveGeoShapeExtract* AddExtractVertexModule(TGeoHMatrix* hm, const char* basemoduleName = "Module", const char *name = "Vertex");
-
-   // //! Add Target
-   // TGeoVolume* AddTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2.,
-			// 			 const Float_t dz = fgTargetWidth/2., const char *targetName = "Target");
-
-   // //! Add Extract Target
-   // TEveGeoShapeExtract* AddExtractTarget(const Float_t dx = fgTargetSize/2., const Float_t dy = fgTargetSize/2.,
-			// 							 const Float_t dz = fgTargetWidth/2., const char *targetName = "Target");
-
-   // //! Build Vertex
-   // TGeoVolume* BuildVertex(const char* basemoduleName = "Module", const char *name = "Vertex");
-
-   // //! Build Extract Vertex
-   // TEveGeoShapeExtract* BuildExtractVertex(const char* basemoduleName = "Module", const char *name = "Vertex");
-
-   // //! Get Sensor parameter
-   // SensorParameter_t& GetSensorPar(Int_t idx){return fSensorParameter[idx];}
-
-
+   // Getter
+   TVector3        GetBoxSize()     const { return fSizeBox;  }
+   TVector3        GetMinPoistion() const { return fMinPosition; }
+   TVector3        GetMaxPoistion() const { return fMaxPosition; }
+   
+   //! Get Sensor parameter
+   SensorParameter_t& GetSensorPar(Int_t idx) { return fSensorParameter[idx]; }
+   
+   // to keep interace for compilation
+   virtual string PrintBodies()                { return string(); }
+   virtual string PrintRegions()               { return string(); }
+   virtual string PrintAssignMaterial()        { return string(); }
+   virtual string PrintSubtractBodiesFromAir() { return string(); }
+   virtual string PrintParameters()            { return string(); }
+   
+public:
+   static Int_t         GetDefSensorsN()      { return fgkDefSensorsN;        }
+   
    ClassDef(TAVTbaseParGeo,1)
 };
 
