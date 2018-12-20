@@ -29,7 +29,7 @@
 //##############################################################################
 
 ClassImp(TATW_ContainerHit);
-// TString TATW_ContainerHit::fgkBranchName   = "vtrh.";
+TString TATW_ContainerHit::fgkBranchName   = "twrh.";
 
 
 
@@ -39,21 +39,16 @@ TATW_ContainerHit::TATW_ContainerHit()
 : TAGdata(),
     m_listOfHits(0x0)
 {
-    m_twGeo = (TATWparGeo*) gTAGroot->FindParaDsc("twGeo", "TATWparGeo")->Object();
-    SetupClones();
+   m_twGeo = (TATWparGeo*) gTAGroot->FindParaDsc(TATWparGeo::GetDefParaName(), "TATWparGeo")->Object();
+   SetupClones();
 }
-
-
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
-TATW_ContainerHit::~TATW_ContainerHit() {
+TATW_ContainerHit::~TATW_ContainerHit()
+{
     delete m_listOfHits;
 }
-
-
-
-
 
 //______________________________________________________________________________
 //  standard 
@@ -61,21 +56,17 @@ TATW_Hit* TATW_ContainerHit::NewHit( int layer, int bar, double energyLoss, doub
 
     if ( layer >= 0  && layer < m_twGeo->GetNLayers() ) {
 
-        // check on aorigin
         TClonesArray &pixelArray = *GetListOfHits(layer);
-        // FillPixelList( iSensor, aorigin, pixelArray.GetEntriesFast() ); 
-        TATW_Hit* pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TATW_Hit( layer, bar, energyLoss, atime, ntupID, parentID );
-        return pixel;
-
+        TATW_Hit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATW_Hit( layer, bar, energyLoss, atime, ntupID, parentID );
+       
+        return hit;
     } else {
-        cout << "ERROR >> TATW_ContainerHit::NewHit   -->  required layer not allowed: " << layer << endl;
-        exit(0);
+       Error("NewHit()", "Required layer not allowed: %d\n", layer);
+       return 0x0;
     }
-    return NULL;  // never happens, but compiler doesn't complain
+   
+    return 0x0;  // never happens, but compiler doesn't complain
 }
-
-
-
 
 //______________________________________________________________________________
 //  
@@ -98,10 +89,6 @@ TATW_Hit* TATW_ContainerHit::NewHit( TATWrawHit* hit ) {
 }
 
 
-
-
-
-
 //------------------------------------------+-----------------------------------
 //! return number of hits for a given sensor.  
 int TATW_ContainerHit::GetHitN( int layer ) {
@@ -110,38 +97,29 @@ int TATW_ContainerHit::GetHitN( int layer ) {
         TClonesArray*list = GetListOfHits(layer);
         return list->GetEntries();
     } else  {
-        cout << "ERROR >> TATW_ContainerHit::GetPixelsN   -->  required layer not allowed: " << layer << endl;
-        exit(0);
+       Error("GetHitN()", "Required layer not allowed: %d\n", layer);
+       return 0x0;
     }
-    return 0;  
+   
+    return 0x0;
 }
-
-
-
-
-
-
 
 //------------------------------------------+-----------------------------------
 //! return a pixel for a given sensor
 TATW_Hit* TATW_ContainerHit::GetHit(  int layer, int hitID ) {
 
     if ( layer < 0  || layer > m_twGeo->GetNLayers()) {
-        cout << "ERROR >> TATW_ContainerHit::GetHit  -->  number of layer "<<layer<<" required is wrong. Max num  " << m_twGeo->GetNLayers() << endl;
-        exit(0);
+       Error("GetHitN()", "Required layer not allowed: %d\n", layer);
+       return 0x0;
     }
-    if ( hitID < 0 || hitID >= GetHitN(layer) ) {  
-        cout << "ERROR >> TATW_ContainerHit::GetHit  -->  number of hit "<<hitID<<" required is wrong. Max num " << GetHitN(layer) << endl;
-        exit(0);
+    if ( hitID < 0 || hitID >= GetHitN(layer) ) {
+       Error("GetHitN()", "number of hit %d required is wrong. Max num %d", hitID, GetHitN(layer));
+       return 0x0;
     }
 
     TClonesArray* list = GetListOfHits( layer );
     return (TATW_Hit*)list->At( hitID );
 }
-
-
-
-
 
 //------------------------------------------+-----------------------------------
 TClonesArray* TATW_ContainerHit::GetListOfHits( int layer ) {
@@ -150,14 +128,10 @@ TClonesArray* TATW_ContainerHit::GetListOfHits( int layer ) {
 	  TClonesArray* list = (TClonesArray*)m_listOfHits->At(layer);
 	  return list;
    } else {
-        cout << "ERROR >> TATW_ContainerHit::GetListOfHits  -->  number of layer "<<layer<<" required is wrong. Max num " << m_twGeo->GetNLayers() << endl;
-        exit(0);
-   }   
+      Error("GetHitN()", "Required layer not allowed: %d required is wrong. Max num %d\n", layer,  m_twGeo->GetNLayers());
+      return 0x0;
+   }
 }
-
-
-
-
 
 //------------------------------------------+-----------------------------------
 //! Setup clones. Crate and initialise the list of pixels
@@ -176,9 +150,6 @@ void TATW_ContainerHit::SetupClones()   {
 }
 
 
-
-
-
 //------------------------------------------+-----------------------------------
 //! Clear event.
 void TATW_ContainerHit::Clear(Option_t*) {
@@ -186,17 +157,10 @@ void TATW_ContainerHit::Clear(Option_t*) {
     for ( int i = 0; i < m_twGeo->GetNLayers(); ++i ) {
         TClonesArray* list = GetListOfHits(i);
         list->Delete();   
-        list->Clear();
-        // list->Clear("C");
     }
-
 }
 
-
-
-
-
-/*------------------------------------------+---------------------------------*/
+//------------------------------------------+-----------------------------------
 //! ostream insertion.
 void TATW_ContainerHit::ToStream(ostream& os, Option_t* option) const
 {

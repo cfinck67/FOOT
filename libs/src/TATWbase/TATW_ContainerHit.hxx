@@ -11,28 +11,14 @@
 #include "TATW_Hit.hxx"
 
 #include "TAGdata.hxx"
-#include <map>
-
-
-
-
-
-
 
 class TATW_ContainerHit : public TAGdata {
    
 private:
-    //using TObjArray here
-    TObjArray*        m_listOfHits; 
-    // static TString    fgkBranchName;    // Branch name in TTree
-
-    TATWparGeo* m_twGeo;
-
-    // virtual void      SetupClones();
-    // TClonesArray*     GetListOfHits( int layer );
+    TObjArray*        m_listOfHits;
+    TATWparGeo*       m_twGeo;
 
 public:
-
     TATW_ContainerHit();
     virtual          ~TATW_ContainerHit();
 
@@ -51,7 +37,11 @@ public:
     // delete?
     virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
    
-   // static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
+private:
+   static TString     fgkBranchName;    // Branch name in TTree
+   
+public:
+   static const Char_t* GetBranchName()   { return fgkBranchName.Data(); }
    
    ClassDef(TATW_ContainerHit,1)
 };
