@@ -45,18 +45,15 @@ public:
     void               Initialise();
     Bool_t	           IsEqual(const TObject* obj) const;
 
-      // all the Set methods
-    void               SetMCPosition(TVector3 a_pos)   { fGeometry->Global2Local( &a_pos ), fMCPos = a_pos; }    //! Set MC truth position
-    void               SetMCMomentum(TVector3 a_mom)   { fGeometry->Global2Local_RotationOnly( &a_mom ), fMCP = a_mom; }    //! Set MC truth momentum
+   // all the Set methods
+    void               SetMCPosition(TVector3 a_pos);
+    void               SetMCMomentum(TVector3 a_mom);
    
-    TVector3          GetPixelPosition_sensorFrame()   { return fGeometry->GetPixelPos_sensorFrame(fSensorId, fPixelColumn, fPixelLine); };
-    TVector3          GetPixelPosition_footFrame()     { return fGeometry->GetPixelPos_footFrame( fSensorId, fPixelColumn, fPixelLine ); };
-    
+    TVector3           GetMCPosition_footFrame();
+    TVector3           GetMCMomentum_footFrame();
+   
     TVector3          GetMCPosition_sensorFrame();
-    TVector3          GetMCPosition_footFrame();
-
-    TVector3          GetMCMomentum_footFrame();
-
+   
     //! Get pixel line
     Int_t             GetPixelView()            const  { return  fPixelLine;      }
     //! Get pixel line
@@ -67,14 +64,7 @@ public:
     //! Set pixel column
     void              SetPixelStrip(Int_t aCol)        { fPixelColumn = aCol;     }
    
-//    //! Compute distance from a given pixel
-//    Double_t           Distance( TAMSDntuHit&         aPixel);
-//    //! Compute distance in U direction from a given pixel
-//    Double_t           DistanceU( TAMSDntuHit&        aPixel);
-//    //! Compute distance in V direction from a given pixel
-//    Double_t           DistanceV( TAMSDntuHit&         aPixel);
-//   
-
+   
    // this is a tmp solution
    // MUST BE REMOVED
    // no respect of C++ encapsulation basic rule
