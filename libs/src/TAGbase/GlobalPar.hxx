@@ -16,6 +16,7 @@
 #include <memory>
 #include <map>
 
+#include "TObjArray.h"
 
 using namespace std;
 
@@ -69,13 +70,14 @@ public:
 
 
     string MagFieldInputMapName() { return m_magFieldMap; };
-
+    void RemoveSpace( string* s );
+    bool IEquals(const string& a, const string& b);
+    bool frankFind( string what, string where );
+    string StrReplace(string original, string erase, string add);
 
     bool CheckAllowedHitOrigin( string origin );
     void PrintAllowedHitOrigin();
 
-
-    
 	bool Find_MCParticle( string villain ) 
 		{ return ( find( m_mcParticles.begin(), m_mcParticles.end(), villain ) == m_mcParticles.end() ? false : true ); };
 	
@@ -122,79 +124,7 @@ public:
 		return "default";
 	};
 
-
-
-
-
-
-
-
-	//____________________________________________________________________________
-	void RemoveSpace( string* s ) {
-	  s->erase( ::remove_if(s->begin(), s->end(), ::isspace), s->end() );
-	}
-
-
-
-	//Replace part of "original" if it founds "erase" with "add". Otherwise return input string.
-	string StrReplace(string original, string erase, string add) {
-
-		int found = original.find(erase);
-		if ( (size_t)found != string::npos ) {
-			int cutLength = erase.size();
-			original.replace( found, cutLength, add );
-			return original;
-		}
-		else {
-			cout<<"not found "<<erase<<" in "<<original<<endl;
-			return original;
-		}
-	}
-
-
-	bool IEquals(const string& a, const string& b)	{
-
-	    if (b.size() != a.size())
-	        return false;
-	    
-	    for (unsigned int i = 0; i < a.size(); ++i) {
-	        if (tolower(a[i]) != tolower(b[i])) {
-	            return false;
-	        }
-	    }
-	    return true;
-	}
-
-
-
-
-	bool frankFind( string what, string where )	{
-	    
-	    int wildcard_pos = what.find("*");
-	    
-	    if ( wildcard_pos == 0 )    {
-	    	if( where.find( what.substr( wildcard_pos+1 ) ) != string::npos )
-		        return true;
-	    }
-	    else if( wildcard_pos == (int)what.size()-1 )    {
-	    	if( where.find( what.substr( 0, wildcard_pos ) ) != string::npos )
-		        return true;
-	    }
-	    else if ( wildcard_pos != (int)string::npos )    {
-	        int pre = where.find( what.substr( 0, wildcard_pos ) );
-	        int post = where.find( what.substr( wildcard_pos+1 ) );
-	        if( pre!=(int)string::npos && post!=(int)string::npos )
-		        return true;
-	    }
-
-	    return false;
-	}
-
-
-
-
-private: 
-
+private:
 	GlobalPar();
 	GlobalPar( string aparFileName );
 	static GlobalPar* m_pInstance;
@@ -251,10 +181,23 @@ private:
     
     bool m_includeEvent;
     bool m_includeKalman;
+   
+   TObjArray  m_ClassDebugLevels;          // debug levels for classes
+
+   
+public:
+   static void   Debug(Int_t level, const char* className = "", const char* funcName = "", const char* format = "", const char* file = "", Int_t line = -1);
+   static Int_t  GetDebugLevel(const char* className);
+   static Bool_t GetDebugLevel(Int_t level, const char* className);
+
+   static void   SetClassDebugLevel(const char* className, Int_t level);
+   static void   ClearClassDebugLevel(const char* className);
+
 
 };
 
-
+#define FootDebug(level, func, message ) GlobalPar::Debug(level, ClassName(), func, message, __FILE__, __LINE__)
+#define FootDebugLevel(level) GlobalPar::GetDebugLevel(level, ClassName())
 
 // extern GlobalPar* gPar; 
 // R__EXTERN GlobalPar  *gPar; 

@@ -1,10 +1,12 @@
-
+#include "Varargs.h"
+#include "TNamed.h"
+#include "TArrayC.h"
+#include "Riostream.h"
 
 #include "GlobalPar.hxx"
 
 
-
-
+//_____________________________________________________________________________
 // Global static pointer used to ensure a single instance of the class.
 GlobalPar* GlobalPar::m_pInstance = NULL;
 
@@ -23,9 +25,7 @@ GlobalPar* GlobalPar::Instance( string aparFileName )  {
     return m_pInstance;
 }
 
-
-
-
+//_____________________________________________________________________________
 GlobalPar* GlobalPar::GetPar()  {
 
     if (!m_pInstance) 
@@ -34,9 +34,7 @@ GlobalPar* GlobalPar::GetPar()  {
     return m_pInstance;
 }
 
-
-
-
+//_____________________________________________________________________________
 // private constructor
 GlobalPar::GlobalPar( string aparFileName ) {
 
@@ -56,10 +54,7 @@ GlobalPar::GlobalPar( string aparFileName ) {
     ReadParamFile();
 }
 
-
-
-
-
+//_____________________________________________________________________________
 void GlobalPar::ReadParamFile () {
 
     ifstream ifile;
@@ -79,20 +74,10 @@ void GlobalPar::ReadParamFile () {
         m_copyInputFile.push_back(line);
 
         // remove spaces, not mandatory
-        // if ( true )
-        //     RemoveSpace( &line );
-
-        
-
         if ( line.find("Debug:") != string::npos ) {
             m_debug = atoi ( StrReplace( line, "Debug:", "" ).c_str() );
-        } 
-        // inputFileListName
-        // if ( line.find("InputFileListName:") != string::npos ) {
-        //     inputFileListName = StrReplace( line, "InputFileListName:", "" );
-        // } 
-        // 
-        else if ( line.find("MC Particle Types:") != string::npos ) {
+           
+        } else if ( line.find("MC Particle Types:") != string::npos ) {
             m_mcParticles.clear();
             string formulasString = StrReplace( line, "MC Particle Types:", "" );
             istringstream formulasStream( formulasString );
@@ -297,26 +282,6 @@ void GlobalPar::ReadParamFile () {
         }
 
 
-        // // btagging WP - default = 77%
-        // else if ( line.find("BtaggingWP:") != string::npos ) {
-        //     btaggingWP = atoi ( StrReplace( line, "BtaggingWP:", "" ).c_str() );
-        // } 
-        // // if we're using the B-filtered samples
-        // else if ( line.find("UsingBFilter") != string::npos ) {
-        //     m_useBFilter = true;
-        // } 
-        // // castingFormulas
-        // else if ( line.find("Formulas:") != string::npos ) {
-        //     castingFormulas.clear();
-        //     string formulasString = StrReplace( line, "Formulas:", "" );
-        //     istringstream formulasStream( formulasString );
-
-        //     string tmpString = "";
-        //     while ( formulasStream >> tmpString ){
-        //         castingFormulas.push_back(tmpString);
-        //     }
-
-        // } 
     }
 
 
@@ -330,40 +295,190 @@ void GlobalPar::ReadParamFile () {
 }
 
 
-//________________________________________________________________________________________
-bool GlobalPar::CheckAllowedHitOrigin( string origin ) {
-    if ( find( m_originAllowed.begin(), m_originAllowed.end(), origin ) == m_originAllowed.end() )
-        return false;
-    
-    return true;
+//_____________________________________________________________________________
+void GlobalPar::SetClassDebugLevel(const char* className, Int_t level)
+{
+   // set the debug level for the given class
+   
+   if (!className) return;
+   if (!m_pInstance)
+      cout << "ERROR::GlobalPar::GetPar()  -->  called a get before GlobalPar object istance." << endl, exit(0);
+
+   TObject* obj = m_pInstance->m_ClassDebugLevels.FindObject(className);
+   if (!obj) {
+      obj = new TNamed(className, className);
+      m_pInstance->m_ClassDebugLevels.Add(obj);
+   }
+
+   obj->SetUniqueID(level);
+}
+
+//_____________________________________________________________________________
+void GlobalPar::ClearClassDebugLevel(const char* className)
+{
+   // remove the setting of the debug level for the given class
+   
+   if (!className) return;
+   if (!m_pInstance)
+      cout << "ERROR::GlobalPar::GetPar()  -->  called a get before GlobalPar object istance." << endl, exit(0);
+   TObject* obj = m_pInstance->m_ClassDebugLevels.FindObject(className);
+   if (obj) delete m_pInstance->m_ClassDebugLevels.Remove(obj);
+}
+
+//_____________________________________________________________________________
+Bool_t GlobalPar::GetDebugLevel(Int_t level, const char* className)
+{
+   // get the logging level for the given module and class
+   
+   if (!m_pInstance)
+      cout << "ERROR::GlobalPar::GetPar()  -->  called a get before GlobalPar object istance." << endl, exit(0);
+   
+   if (className) {
+      Int_t classLevel = -1;
+      TObject* obj = m_pInstance->m_ClassDebugLevels.FindObject(className);
+      if (obj) classLevel = obj->GetUniqueID();
+
+      if ( level <= classLevel)
+         return true;
+   }
+   
+   // check global debug level
+   if (level <= m_pInstance->Debug())
+      return true;
+   
+   return false;
 }
 
 
+//_____________________________________________________________________________
+Int_t GlobalPar::GetDebugLevel(const char* className)
+{
+   // get the logging level for the given module and class
+   
+   if (!m_pInstance)
+      cout << "ERROR::GlobalPar::GetPar()  -->  called a get before GlobalPar object istance." << endl, exit(0);
+   
+   if (className) {
+      TObject* obj = m_pInstance->m_ClassDebugLevels.FindObject(className);
+      if (obj) return obj->GetUniqueID();
+   }
+   
+   // return global debug level
+   return m_pInstance->Debug();
+}
 
+//_____________________________________________________________________________
+void GlobalPar::Debug(Int_t level, const char* className, const char* funcName, const char* format, const char* file, Int_t line)
+{
+   // print the message
+   if (level <= m_pInstance->GetDebugLevel(className)) {
+      if (funcName)
+         fprintf(stdout, "Debug in <%s:%s>: ", className, funcName);
+   
+      fprintf(stdout, "%s\n", format);
+
+      fprintf(stdout, " in file %s at line %d\n", file, line);
+
+//      if (format==NULL) return;
+//      va_list ap;
+//      va_start(ap, format);
+//      vfprintf(stdout, format, ap);
+//      fprintf(stdout, "\n");
+//      
+//      va_end(ap);
+   }
+}
+
+//________________________________________________________________________________________
+bool GlobalPar::CheckAllowedHitOrigin( string origin ) {
+   if ( find( m_originAllowed.begin(), m_originAllowed.end(), origin ) == m_originAllowed.end() )
+      return false;
+   
+   return true;
+}
 
 
 //________________________________________________________________________________________
 void GlobalPar::PrintAllowedHitOrigin() {
-    cout << "m_originAllowed = "; 
-    for ( unsigned int i=0; i < m_originAllowed.size(); i++ ) {
-        cout << m_originAllowed.at(i);
-        if ( i == m_originAllowed.size()-1 )        cout << ".";
-        else                                        cout << ", ";
-    }
-    cout << endl;
+   cout << "m_originAllowed = ";
+   for ( unsigned int i=0; i < m_originAllowed.size(); i++ ) {
+      cout << m_originAllowed.at(i);
+      if ( i == m_originAllowed.size()-1 )        cout << ".";
+      else                                        cout << ", ";
+   }
+   cout << endl;
 }
 
-
-
-
+//________________________________________________________________________________________
 void GlobalPar::Print() {
+   
+   cout << endl << "========================   Input Parameters  =============================" << endl<<endl;
+   for ( unsigned int cl=0; cl<m_copyInputFile.size(); cl++ ) {
+      cout << m_copyInputFile[cl] << endl;
+   }
+   cout << endl <<  "===========================================================================" << endl<<endl;
+   
+}
 
-    cout << endl << "========================   Input Parameters  =============================" << endl<<endl;
-    for ( unsigned int cl=0; cl<m_copyInputFile.size(); cl++ ) {
-        cout << m_copyInputFile[cl] << endl;
-    }
-    cout << endl <<  "===========================================================================" << endl<<endl;
+//____________________________________________________________________________
+void GlobalPar::RemoveSpace( string* s )
+{
+	  s->erase( ::remove_if(s->begin(), s->end(), ::isspace), s->end() );
+}
 
+
+
+//____________________________________________________________________________
+//Replace part of "original" if it founds "erase" with "add". Otherwise return input string.
+string GlobalPar::StrReplace(string original, string erase, string add) {
+   
+   int found = original.find(erase);
+   if ( (size_t)found != string::npos ) {
+      int cutLength = erase.size();
+      original.replace( found, cutLength, add );
+      return original;
+   }
+   else {
+      cout<<"not found "<<erase<<" in "<<original<<endl;
+      return original;
+   }
+}
+
+//____________________________________________________________________________
+bool GlobalPar::IEquals(const string& a, const string& b)	{
+   
+   if (b.size() != a.size())
+      return false;
+   
+   for (unsigned int i = 0; i < a.size(); ++i) {
+      if (tolower(a[i]) != tolower(b[i])) {
+         return false;
+      }
+   }
+   return true;
+}
+
+//____________________________________________________________________________
+bool GlobalPar::frankFind( string what, string where )	{
+   
+   int wildcard_pos = what.find("*");
+   
+   if ( wildcard_pos == 0 )    {
+	    	if( where.find( what.substr( wildcard_pos+1 ) ) != string::npos )
+            return true;
+   }
+   else if( wildcard_pos == (int)what.size()-1 )    {
+	    	if( where.find( what.substr( 0, wildcard_pos ) ) != string::npos )
+            return true;
+   }
+   else if ( wildcard_pos != (int)string::npos )    {
+      int pre = where.find( what.substr( 0, wildcard_pos ) );
+      int post = where.find( what.substr( wildcard_pos+1 ) );
+      if( pre!=(int)string::npos && post!=(int)string::npos )
+         return true;
+   }
+   
+   return false;
 }
 
 
@@ -373,10 +488,6 @@ void GlobalPar::Print() {
 
 
 
-
-
-
- 
 
 
 
