@@ -27,7 +27,7 @@ public:
 
 	static GlobalPar* Instance( string aparFileName = "FootGlobal.par" );
 	static GlobalPar* GetPar();
-	~GlobalPar() {};
+	~GlobalPar();
 
 	void ReadParamFile();
 	void Print();

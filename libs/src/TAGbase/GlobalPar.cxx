@@ -11,7 +11,7 @@
 GlobalPar* GlobalPar::m_pInstance = NULL;
 
 
-
+//_____________________________________________________________________________
 GlobalPar* GlobalPar::Instance( string aparFileName )  {
 
     if (!m_pInstance) {  // Only allow one instance of class to be generated.
@@ -32,6 +32,16 @@ GlobalPar* GlobalPar::GetPar()  {
        cout << "ERROR::GlobalPar::GetPar()  -->  called a get before GlobalPar object istance." << endl, exit(0);
 
     return m_pInstance;
+}
+
+//_____________________________________________________________________________
+GlobalPar::~GlobalPar()
+{
+   m_ClassDebugLevels.Delete();
+   for (Int_t i = 0; i < m_ClassDebugLevels.GetEntriesFast(); i++) {
+      if (m_ClassDebugLevels[i])
+         m_ClassDebugLevels[i]->Delete();
+   }
 }
 
 //_____________________________________________________________________________
