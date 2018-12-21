@@ -21,8 +21,6 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 set( with_dictionnaries
    TAGactNtuMCeve
    TAGntuMCeve
-   TAGactNtuMCmimo
-   TAGntuMCmimo
    TAGparGeo
    Evento
 )
