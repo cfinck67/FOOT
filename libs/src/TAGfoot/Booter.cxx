@@ -9,9 +9,6 @@
 #include "TAGaction.hxx"
 #include "TAGview.hxx"
 
-//Viewers
-#include "TAGvieHorzFIRST.hxx"
-#include "TAGvieHorzMCIR.hxx"
 
 //MC block
 #include "TAGntuMCeve.hxx"
