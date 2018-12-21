@@ -34,7 +34,8 @@
 
         TAGmaterials* TAGmaterials::fgInstance    = 0;
 map<TString, TString> TAGmaterials::fgkCommonName = {{"Sm2Co17", "SmCo"}, {"CH24C2H4", "Polyethy"}, {"C22H10N2O5", "Kapton"}, {"C18H19O3", "Epoxy"},
-                                                     {"Bi4Ge3O12", "BGO"}, {"SiC/AIR", "SiCFoam"}, {"W", "TUNGSTEN"}, {"C3", "Graphite"}, {"C9H10", "EJ232"} };
+                                                     {"Bi4Ge3O12", "BGO"}, {"SiC/AIR", "SiCFoam"}, {"W", "TUNGSTEN"}, {"C3", "Graphite"}, {"C9H10", "EJ232"},
+                                                     {"C10H8O4", "Mylar"}  };
 map<TString, Int_t>   TAGmaterials::fgkLowMat     = {{"Graphite", 1}};
 
 ClassImp(TAGmaterials);
