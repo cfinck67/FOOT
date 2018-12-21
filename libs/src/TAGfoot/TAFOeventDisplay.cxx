@@ -419,7 +419,7 @@ void TAFOeventDisplay::CreateRecActionVtx()
       fActTrackVtx->CreateHistogram();
       
       if (GlobalPar::GetPar()->IncludeTG()) {
-         fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx);
+         fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG);
          fActVtx->CreateHistogram();
       }
    }
