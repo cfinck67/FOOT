@@ -91,6 +91,9 @@ public:
    //! Build Innert Tracker
    TGeoVolume* BuildInnerTracker(const char* basemoduleName = "Module", const char *name = "IT");
    
+   // to keep interace for compilation
+   virtual string PrintParameters();
+   virtual void   PrintFluka();
    
 public:
    static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }

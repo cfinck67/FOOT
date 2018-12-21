@@ -171,3 +171,80 @@ TGeoVolume* TAITparGeo::BuildInnerTracker(const char *itName, const char* basemo
    
    return it;
 }
+//_____________________________________________________________________________
+void TAITparGeo::PrintFluka()
+{
+   static Int_t count = 0;
+   const Char_t* matName = fEpiMat.Data();
+   
+   TVector3 pos = GetSensorPosition(count);
+   stringstream ss;
+   ss << setiosflags(ios::fixed) << setprecision(6);
+   ss <<  "RPP " << Form("ITRP%d", count) <<  "     "
+   << pos.x() - fTotalSize.X()/2.  << " " << pos.x() +  fTotalSize.X()/2. << " "
+   << pos.y() - fTotalSize.Y()/2.  << " " << pos.y() +  fTotalSize.Y()/2. << " "
+   << pos.z() - fTotalSize.Z()/2.  << " " << pos.z() +  fTotalSize.Z()/2. << endl;
+   
+   m_bodyPrintOut[matName].push_back( ss.str() );
+   
+   m_regionName[matName].push_back(Form("itrp%d", count));
+   m_bodyName[matName].push_back(Form("ITRP%d", count));
+   m_bodyPrintOut[matName].push_back(Form("ITRP%d", count));
+   m_bodyName[matName].push_back(Form("ITRP%d", count));
+}
+
+//_____________________________________________________________________________
+string TAITparGeo::PrintParameters()
+{
+   stringstream outstr;
+   outstr << setiosflags(ios::fixed) << setprecision(5);
+   
+   string precision = "D+00";
+   
+   outstr << "c     INTERMEDIATE TRACKER PARAMETERS " << endl;
+   outstr << endl;
+   
+   map<string, int> intp;
+   intp["xpixITR"] = fPixelsNx;
+   intp["ypixITR"] = fPixelsNx;
+   intp["nlayITR"] = fSensorsN;
+   for (auto i : intp){
+      outstr << "      integer " << i.first << endl;
+      outstr << "      parameter (" << i.first << " = " << i.second << ")" << endl;
+      // outstr << endl;
+   }
+   
+   map<string, double> doublep;
+   doublep["widthITR"]  =  fTotalSize[0];
+   doublep["heightITR"] =  fTotalSize[1];
+   doublep["deadITR"] = 0;//ITR_M28_WIDTH - ITR_SENSE_WIDTH + ITR_M28_DIST;
+   for (auto i : doublep){
+      outstr << "      double precision " << i.first << endl;
+      outstr << "      parameter (" << i.first << " = " << i.second << precision << ")" << endl;
+   }
+   
+   // to implemement
+//   map<string, vector<double>> dvectorp;
+//   string name;
+//   for ( int j = 0; j<m_xmin.size(); j++ ){
+//      name = "xminITR" + to_string(j);
+//      dvectorp[name] = m_xmin[j];
+//      name = "yminITR" + to_string(j);
+//      dvectorp[name] = m_ymin[j];
+//   }
+//   for (auto i : dvectorp){
+//      outstr << "      double precision " << i.first << "(" << dvectorp.size() << ")" << endl;
+//      outstr << "      data " << i.first << "/";
+//      for ( double d : i.second ){
+//         outstr << d << precision << ",";
+//      }
+//      outstr.seekp(-1, std::ios_base::end);
+//      outstr << "/" << endl;
+//      
+//   }
+   
+   outstr << endl;
+   
+   return outstr.str();
+}
+

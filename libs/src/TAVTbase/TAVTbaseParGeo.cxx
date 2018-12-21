@@ -11,7 +11,7 @@
 #include "TObjString.h"
 #include "TSystem.h"
 
-#include "TAGgeoTrafo.hxx" 
+#include "TAGgeoTrafo.hxx"
 #include "TAGmaterials.hxx"
 
 #include "TAVTbaseParGeo.hxx"
@@ -468,4 +468,3 @@ void TAVTbaseParGeo::DefineMaxMinDimension()
       fSizeBox[i] = (fMaxPosition[i] - fMinPosition[i]);
    fSizeBox += GetTotalSize();
 }
-

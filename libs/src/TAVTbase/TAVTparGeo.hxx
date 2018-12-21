@@ -9,6 +9,8 @@
 /*------------------------------------------+---------------------------------*/
 
 #include <map>
+#include <sstream>
+
 #include "Riostream.h"
 
 #include "TObject.h"
@@ -38,6 +40,20 @@ public:
    //! Build Vertex
    TGeoVolume* BuildVertex( const char *name = "Vertex", const char* basemoduleName = "M28");
    
+   // to keep interace for compilation
+   virtual string PrintParameters();
+   virtual string PrintBodies();
+   virtual string PrintRegions();
+   virtual string PrintAssignMaterial();
+   virtual string PrintSubtractBodiesFromAir();
+   virtual void   PrintFluka();
+   
+protected:
+   map<string, vector<string> > m_regionName;
+   map<string, vector<string> > m_bodyName;
+   map<string, vector<string> > m_regionPrintOut;
+   map<string, vector<string> > m_bodyPrintOut;
+
 public:
    static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }
    static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }

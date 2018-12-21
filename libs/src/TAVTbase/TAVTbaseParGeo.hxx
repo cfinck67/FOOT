@@ -171,13 +171,6 @@ public:
    //! Get Sensor parameter
    SensorParameter_t& GetSensorPar(Int_t idx) { return fSensorParameter[idx]; }
    
-   // to keep interace for compilation
-   virtual string PrintBodies()                { return string(); }
-   virtual string PrintRegions()               { return string(); }
-   virtual string PrintAssignMaterial()        { return string(); }
-   virtual string PrintSubtractBodiesFromAir() { return string(); }
-   virtual string PrintParameters()            { return string(); }
-   
 public:
    static Int_t         GetDefSensorsN()      { return fgkDefSensorsN;        }
    
