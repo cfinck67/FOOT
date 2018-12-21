@@ -13,8 +13,6 @@
 //MC block
 #include "TAGntuMCeve.hxx"
 #include "TAGactNtuMCeve.hxx"
-#include "TAGntuMCmimo.hxx"
-#include "TAGactNtuMCmimo.hxx"
 
 
 //Interaction region
