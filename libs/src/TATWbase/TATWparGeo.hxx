@@ -13,12 +13,9 @@
 
 #include "TAGparTools.hxx"
 
-#include "FootBox.hxx"
 #include "GlobalPar.hxx"
 
 #include <FieldManager.h>
-
-#include "LightSabre.hxx"
 
 class TGeoHMatrix;
 class TGeoVolume;
