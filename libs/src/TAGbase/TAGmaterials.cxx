@@ -33,9 +33,10 @@
 #include "TAGgeoTrafo.hxx"
 
         TAGmaterials* TAGmaterials::fgInstance    = 0;
-map<TString, TString> TAGmaterials::fgkCommonName = {{"Sm2Co17", "SmCo"}, {"CH24C2H4", "Polyethy"}, {"C22H10N2O5", "Kapton"}, {"C18H19O3", "Epoxy"},
-                                                     {"Bi4Ge3O12", "BGO"}, {"SiC/AIR", "SiCFoam"}, {"W", "TUNGSTEN"}, {"C3", "Graphite"}, {"C9H10", "EJ232"},
-                                                     {"C10H8O4", "Mylar"}  };
+map<TString, TString> TAGmaterials::fgkCommonName = {{"SmCo", "Sm2Co17"}, {"Polyethy", "CH24C2H4"}, {"Kapton", "C22H10N2O5"}, {"Epoxy", "C18H19O3"},
+                                                     {"BGO", "Bi4Ge3O12"}, {"SiCFoam", "SiC/AIR"}, {"TUNGSTEN", "W"}, {"Graphite", "C3"}, {"EJ232", "C9H10"},
+                                                     {"EJ228", "C9H10"}, {"Mylar", "C10H8O4"}  };
+
 map<TString, Int_t>   TAGmaterials::fgkLowMat     = {{"Graphite", 1}};
 
 ClassImp(TAGmaterials);
@@ -78,23 +79,25 @@ TString TAGmaterials::FindByValue(TString value)
 }
 
 //______________________________________________________________________________
-TGeoMaterial* TAGmaterials::CreateMaterial(TString formula, Float_t density,
+TGeoMaterial* TAGmaterials::CreateMaterial(TString name, Float_t density,
                                             Float_t temperature, Float_t pressure)
 {
    fIsotope.clear();
    fIsotopeWeight.clear();
    TGeoMaterial* mat = 0x0;
    TGeoMedium* med   = 0x0;
-   
-   TString name;
-   if ((name = FindByValue(formula)) != "") {
-      Info("CreateMaterial()", "Using formula %s for material %s", name.Data(), formula.Data());
-      formula = name;
-   }
+
+   TString formula = name;
 
    // check if already define
-   if ( (mat = (TGeoMaterial*)gGeoManager->GetListOfMaterials()->FindObject(formula.Data())) != 0x0 )
+   if ( (mat = (TGeoMaterial*)gGeoManager->GetListOfMaterials()->FindObject(name.Data())) != 0x0 )
       return mat;
+
+   
+   if (fgkCommonName[name] != "") {
+      formula = fgkCommonName[name];
+      Info("CreateMaterial()", "Using formula %s for material %s", formula.Data(), name.Data());
+   }
 
    GetIsotopes(formula);
 
@@ -105,7 +108,7 @@ TGeoMaterial* TAGmaterials::CreateMaterial(TString formula, Float_t density,
 
       return mat;
    } else {
-      mat =  new TGeoMixture(formula.Data(), fIsotope.size(), density);
+      mat =  new TGeoMixture(name.Data(), fIsotope.size(), density);
    }
    
    // mixture
@@ -120,14 +123,7 @@ TGeoMaterial* TAGmaterials::CreateMaterial(TString formula, Float_t density,
       ((TGeoMixture*)mat)->AddElement(element, fIsotopeWeight[i]);
    }
    
-   name = mat->GetName();
-
-   if (fgkCommonName[name] != "") {
-      mat->SetName(fgkCommonName[name].Data());
-      name = fgkCommonName[name].Data();
-   }
-
-   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(name)) == 0x0 )
+   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(name.Data())) == 0x0 )
       med = new TGeoMedium(name, mat->GetIndex(), mat);
 
    mat->SetTemperature(temperature);
