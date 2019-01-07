@@ -24,9 +24,6 @@ class TGeoVolume;
 class TADIparGeo : public TAGparTools {
       
 private:
-   TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each crystal)
-   TVector3*  fCurrentPosition;  // current position
-
    Int_t     fMagnetsN;
    Int_t     fType;       // Magnet type
    TString   fMapName;    // Map filename
@@ -62,7 +59,7 @@ public:
 public:
    TADIparGeo();
     virtual ~TADIparGeo();
-
+   
    //! Transform point from the global reference frame
    //! to the local reference frame of the detection id
    void            Global2Local(Int_t detID,  Double_t xg, Double_t yg, Double_t zg, 
@@ -79,13 +76,6 @@ public:
    TVector3        Local2Global(Int_t detID, TVector3& loc) const;
    TVector3        Local2GlobalVect(Int_t detID, TVector3& loc) const;
    
-   //! Add matrxi transformation
-   void            AddTransMatrix(TGeoHMatrix* mat, Int_t idx = -1);
-   //! Remove matrix transformation
-   void            RemoveTransMatrix(TGeoHMatrix* mat);
-   //! Get matrix transformation
-   TGeoHMatrix*    GetTransfo(Int_t iMagnet);
-   
    //! Read parameters from file
    Bool_t          FromFile(const TString& name = "");
 
@@ -93,7 +83,7 @@ public:
    void            DefineMaterial();
 
    //! Get position Magnet
-   TVector3*       GetPosition(Int_t iMagnet);
+   TVector3        GetPosition(Int_t iMagnet);
  
    //! Get number of Magnets
    Int_t GetMagnetsN()                  const { return fMagnetsN; }

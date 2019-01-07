@@ -31,17 +31,14 @@ const TString TATWparGeo::fgkDefaultBarName = "twBar";
 
 //_____________________________________________________________________________
 TATWparGeo::TATWparGeo()
-: TAGparTools(),
-   fMatrixList(new TObjArray(22*22))
+: TAGparTools()
 {
    fgDefaultGeoName = "./geomaps/TATWdetector.map";
-   fMatrixList->SetOwner(true);
 }
 
 //______________________________________________________________________________
 TATWparGeo::~TATWparGeo()
 {
-   fMatrixList->Delete();
 }
 
 //______________________________________________________________________________
@@ -87,6 +84,8 @@ Bool_t TATWparGeo::FromFile(const TString& name)
    Int_t barId;
    Int_t layerId;
    
+   SetupMatrices(fLayersN*fBarsN);
+   
    // Read transformtion info
    for (Int_t iLayer = 0; iLayer < fLayersN; ++iLayer) {
       for (Int_t iBar = 0; iBar < fBarsN; ++iBar) {
@@ -130,42 +129,11 @@ Bool_t TATWparGeo::FromFile(const TString& name)
 }
 
 //_____________________________________________________________________________
-void TATWparGeo::AddTransMatrix(TGeoHMatrix* mat, Int_t idx)
-{
-   if (idx == -1)
-      fMatrixList->Add(mat);
-   else {
-      TGeoHMatrix* oldMat = GetTransfo(idx);
-      if (oldMat)
-         RemoveTransMatrix(oldMat);
-      fMatrixList->AddAt(mat, idx);
-   }
-}
-
-//_____________________________________________________________________________
-void TATWparGeo::RemoveTransMatrix(TGeoHMatrix* mat)
-{
-   if (!fMatrixList->Remove(mat))
-      printf("Cannot remove matrix");
-}
-
-//_____________________________________________________________________________
-TGeoHMatrix* TATWparGeo::GetTransfo(Int_t idx)
-{
-   if (idx < 0 || idx >= fBarsN*fLayersN) {
-      Warning("GetTransfo()","Wrong detector id number: %d ", idx);
-      return 0x0;
-   }
-   
-   return (TGeoHMatrix*)fMatrixList->At(idx);
-}
-
-//_____________________________________________________________________________
 TGeoHMatrix* TATWparGeo::GetTransfo(Int_t iLayer, Int_t iBar)
 {
    Int_t idx = iLayer*fBarsN + iBar;
 
-   return GetTransfo(idx);
+   return TAGparTools::GetTransfo(idx);
 }
 
 //_____________________________________________________________________________
@@ -173,7 +141,7 @@ TVector3 TATWparGeo::GetBarPosition(Int_t iLayer, Int_t iBar)
 {
    Int_t idx = iLayer*fBarsN + iBar;
 
-   TGeoHMatrix* hm = GetTransfo(idx);
+   TGeoHMatrix* hm = TAGparTools::GetTransfo(idx);
    if (hm) {
       TVector3 local(0,0,0);
       fCurrentPosition =  Sensor2Detector(iLayer, iBar,local);
@@ -186,7 +154,7 @@ Float_t TATWparGeo::GetCoordiante_sensorFrame(Int_t iLayer, Int_t iBar)
 {
    Int_t idx = iLayer*fBarsN + iBar;
    
-   TGeoHMatrix* hm = GetTransfo(idx);
+   TGeoHMatrix* hm = TAGparTools::GetTransfo(idx);
    if (hm) {
       TVector3 local(0,0,0);
       fCurrentPosition =  Sensor2Detector(iLayer, iBar,local);
@@ -202,7 +170,7 @@ Float_t TATWparGeo::GetZ_sensorFrame(Int_t iLayer, Int_t iBar)
 {
    Int_t idx = iLayer*fBarsN + iBar;
    
-   TGeoHMatrix* hm = GetTransfo(idx);
+   TGeoHMatrix* hm = TAGparTools::GetTransfo(idx);
    if (hm) {
       TVector3 local(0,0,0);
       fCurrentPosition =  Sensor2Detector(iLayer, iBar,local);
@@ -222,14 +190,7 @@ TVector3 TATWparGeo::Sensor2Detector(Int_t iLayer, Int_t iBar, TVector3& loc) co
       TVector3(0,0,0);
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
-   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
-   Double_t global[3] = {0., 0., 0.};
-   
-   mat->LocalToMaster(local, global);
-   TVector3 pos(global[0], global[1], global[2]);
-   
-   return pos;
+   return LocalToMaster(idx, loc);
 }
 
 
@@ -243,16 +204,7 @@ TVector3 TATWparGeo::Sensor2DetectorVect(Int_t iLayer, Int_t iBar, TVector3& loc
       TVector3(0,0,0);
    }
    
-   
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
-   
-   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
-   Double_t global[3] = {0., 0., 0.};
-   
-   mat->LocalToMasterVect(local, global);
-   TVector3 pos(global[0], global[1], global[2]);
-   
-   return pos;
+   return LocalToMasterVect(idx, loc);
 }
 
 //_____________________________________________________________________________
@@ -265,14 +217,7 @@ TVector3 TATWparGeo::Detector2Sensor(Int_t iLayer, Int_t iBar, TVector3& glob) c
       return TVector3(0,0,0);
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
-   Double_t local[3]  = {0., 0., 0.};
-   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
-   
-   mat->MasterToLocal(global, local);
-   TVector3 pos(local[0], local[1], local[2]);
-   
-   return pos;
+   return MasterToLocal(idx, glob);
 }
 
 //_____________________________________________________________________________
@@ -285,15 +230,8 @@ TVector3 TATWparGeo::Detector2SensorVect(Int_t iLayer, Int_t iBar, TVector3& glo
       return TVector3(0,0,0);
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
-   Double_t local[3]  = {0., 0., 0.};
-   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
-   
-   mat->MasterToLocalVect(global, local);
-   TVector3 pos(local[0], local[1], local[2]);
-   
-   return pos;
-}   
+   return MasterToLocalVect(idx, glob);
+}
 
 
 //_____________________________________________________________________________

@@ -32,22 +32,17 @@ const Int_t   TADIparGeo::fgkDefMagnetsN   = 2;
 //______________________________________________________________________________
 TADIparGeo::TADIparGeo()
 : TAGparTools(),
-  fMatrixList(new TObjArray(TADIparGeo::GetDefMagnetsN())),
-  fCurrentPosition(new TVector3()),
   fMagnetsN(0),
   fType(-1),
   fMapName("")
 {
    // Standard constructor
-   fMatrixList->SetOwner(true);
 }
 
 //______________________________________________________________________________
 TADIparGeo::~TADIparGeo()
 {
    // Destructor
-   delete fMatrixList;
-   delete fCurrentPosition;
 }
 
 //______________________________________________________________________________
@@ -107,6 +102,8 @@ Bool_t TADIparGeo::FromFile(const TString& name)
    if(fDebugLevel)
       cout << endl << "Reading Magnet Parameters " << endl;
    
+   SetupMatrices(fMagnetsN);
+
    for (Int_t p = 0; p < fMagnetsN; p++) { // Loop on each plane
 	  
 	  // read Magnet index
@@ -192,43 +189,12 @@ void TADIparGeo::DefineMaterial()
 }
 
 //_____________________________________________________________________________
-void TADIparGeo::AddTransMatrix(TGeoHMatrix* mat, Int_t idx)
-{
-  if (idx == -1)
-	 fMatrixList->Add(mat);  
-  else {
-	 TGeoHMatrix* oldMat = GetTransfo(idx);
-	 if (oldMat)
-		RemoveTransMatrix(oldMat);
-	 fMatrixList->AddAt(mat, idx);
-  }
-}
-
-//_____________________________________________________________________________
-void TADIparGeo::RemoveTransMatrix(TGeoHMatrix* mat)
-{
-	 if (!fMatrixList->Remove(mat))
-		printf("Cannot remove matrix");
-}
-
-//_____________________________________________________________________________
-TGeoHMatrix* TADIparGeo::GetTransfo(Int_t iMagnet)
-{
-   if (iMagnet < 0 || iMagnet >= GetMagnetsN()) {
-	  Warning("GetTransfo()","Wrong detector id number: %d ", iMagnet); 
-	  return 0x0;
-   }
-   
-   return (TGeoHMatrix*)fMatrixList->At(iMagnet);
-}
-
-//_____________________________________________________________________________
-TVector3* TADIparGeo::GetPosition(Int_t iMagnet)
+TVector3 TADIparGeo::GetPosition(Int_t iMagnet)
 {
    TGeoHMatrix* hm = GetTransfo(iMagnet);
    if (hm) {
 	  TVector3 local(0,0,0);
-	  *fCurrentPosition =  Local2Global(iMagnet,local);
+	  fCurrentPosition =  Local2Global(iMagnet,local);
    }
    return fCurrentPosition;
 }
@@ -243,14 +209,7 @@ void TADIparGeo::Global2Local(Int_t detID,
 	  return ;
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
-   Double_t local[3]  = {0., 0., 0.};
-   Double_t global[3] = {xg, yg, zg};
-   
-   mat->MasterToLocal(global, local);
-   xl = local[0];
-   yl = local[1];
-   zl = local[2];
+   MasterToLocal(detID, xg, yg, zg, xl, yl, zl);
 }   
 
 //_____________________________________________________________________________
@@ -261,15 +220,8 @@ TVector3 TADIparGeo::Global2Local(Int_t detID, TVector3& glob) const
 	  return TVector3(0,0,0);
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
-   Double_t local[3]  = {0., 0., 0.};
-   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
-   
-   mat->MasterToLocal(global, local);
-   TVector3 pos(local[0], local[1], local[2]);
-   
-   return pos;
-}   
+   return MasterToLocal(detID, glob);
+}
 
 //_____________________________________________________________________________
 TVector3 TADIparGeo::Global2LocalVect(Int_t detID, TVector3& glob) const
@@ -279,14 +231,7 @@ TVector3 TADIparGeo::Global2LocalVect(Int_t detID, TVector3& glob) const
 	  return TVector3(0,0,0);
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
-   Double_t local[3]  = {0., 0., 0.};
-   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
-   
-   mat->MasterToLocalVect(global, local);
-   TVector3 pos(local[0], local[1], local[2]);
-   
-   return pos;
+   return MasterToLocalVect(detID, glob);
 }   
 
 //_____________________________________________________________________________
@@ -299,15 +244,8 @@ void TADIparGeo::Local2Global(Int_t detID,
 	  return;
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
-   Double_t local[3]  = {xl, yl, zl};
-   Double_t global[3] = {0., 0., 0.};
-   
-   mat->LocalToMaster(local, global);
-   xg = global[0];
-   yg = global[1];
-   zg = global[2];
-}   
+   LocalToMaster(detID, xl, yl, zl, xg, yg, zg);
+}
 
 //_____________________________________________________________________________
 TVector3 TADIparGeo::Local2Global(Int_t detID, TVector3& loc) const
@@ -317,15 +255,8 @@ TVector3 TADIparGeo::Local2Global(Int_t detID, TVector3& loc) const
 	  TVector3(0,0,0);
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
-   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
-   Double_t global[3] = {0., 0., 0.};
-   
-   mat->LocalToMaster(local, global);
-   TVector3 pos(global[0], global[1], global[2]);
-   
-   return pos;
-}   
+   return LocalToMaster(detID, loc);
+}
 
 
 //_____________________________________________________________________________
@@ -336,17 +267,8 @@ TVector3 TADIparGeo::Local2GlobalVect(Int_t detID, TVector3& loc) const
 	  TVector3(0,0,0);
    }
 
-   
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
-   
-   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
-   Double_t global[3] = {0., 0., 0.};
-   
-   mat->LocalToMasterVect(local, global);
-   TVector3 pos(global[0], global[1], global[2]);
-   
-   return pos;
-}   
+   return LocalToMasterVect(detID, loc);
+}
 
 //_____________________________________________________________________________
 TGeoVolume* TADIparGeo::BuildMagnet(const char* basemoduleName, const char *magnetName)

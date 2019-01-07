@@ -30,19 +30,16 @@ const Int_t TAVTbaseParGeo::fgkDefSensorsN   = 32;
 //______________________________________________________________________________
 TAVTbaseParGeo::TAVTbaseParGeo()
  : TAGparTools(),
-   fMatrixList(new TObjArray(fgkDefSensorsN)),
    fSensorsN(0),
    fLayersN(fSensorsN)
 {
    // Standard constructor
-   fMatrixList->SetOwner(true);
 }
 
 //______________________________________________________________________________
 TAVTbaseParGeo::~TAVTbaseParGeo()
 {
    // Destructor
-   delete fMatrixList;
 }
 
 //_____________________________________________________________________________
@@ -155,6 +152,8 @@ Bool_t TAVTbaseParGeo::FromFile(const TString& name)
    if(fDebugLevel)
       cout << endl << "Reading Sensor Parameters " << endl;
    
+   SetupMatrices(fSensorsN);
+   
    for (Int_t p = 0; p < fSensorsN; p++) { // Loop on each plane
       
       // read sensor index
@@ -231,37 +230,6 @@ Bool_t TAVTbaseParGeo::FromFile(const TString& name)
 }
 
 //_____________________________________________________________________________
-void TAVTbaseParGeo::AddTransMatrix(TGeoHMatrix* mat, Int_t idx)
-{
-  if (idx == -1)
-	 fMatrixList->Add(mat);  
-  else {
-	 TGeoHMatrix* oldMat = GetTransfo(idx);
-	 if (oldMat)
-		RemoveTransMatrix(oldMat);
-	 fMatrixList->AddAt(mat, idx);
-  }
-}
-
-//_____________________________________________________________________________
-void TAVTbaseParGeo::RemoveTransMatrix(TGeoHMatrix* mat)
-{
-	 if (!fMatrixList->Remove(mat))
-		printf("Cannot remove matrix");
-}
-
-//_____________________________________________________________________________
-TGeoHMatrix* TAVTbaseParGeo::GetTransfo(Int_t iSensor)
-{
-   if (iSensor < 0 || iSensor >= GetNSensors()) {
-	  Warning("GetTransfo()","Wrong detector id number: %d ", iSensor); 
-	  return 0x0;
-   }
-   
-   return (TGeoHMatrix*)fMatrixList->At(iSensor);
-}
-
-//_____________________________________________________________________________
 TVector3 TAVTbaseParGeo::GetSensorPosition(Int_t iSensor)
 {
    TGeoHMatrix* hm = GetTransfo(iSensor);
@@ -335,14 +303,7 @@ void TAVTbaseParGeo::Detector2Sensor(Int_t detID,
 	  return ;
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
-   Double_t local[3]  = {0., 0., 0.};
-   Double_t global[3] = {xg, yg, zg};
-   
-   mat->MasterToLocal(global, local);
-   xl = local[0];
-   yl = local[1];
-   zl = local[2];
+   MasterToLocal(detID, xg, yg, zg, xl, yl, zl);
 }   
 
 //_____________________________________________________________________________
@@ -353,15 +314,8 @@ TVector3 TAVTbaseParGeo::Detector2Sensor(Int_t detID, TVector3& glob) const
 	  return TVector3(0,0,0);
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
-   Double_t local[3]  = {0., 0., 0.};
-   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
-   
-   mat->MasterToLocal(global, local);
-   TVector3 pos(local[0], local[1], local[2]);
-   
-   return pos;
-}   
+   return MasterToLocal(detID, glob);
+}
 
 //_____________________________________________________________________________
 TVector3 TAVTbaseParGeo::Detector2SensorVect(Int_t detID, TVector3& glob) const
@@ -371,14 +325,7 @@ TVector3 TAVTbaseParGeo::Detector2SensorVect(Int_t detID, TVector3& glob) const
 	  return TVector3(0,0,0);
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
-   Double_t local[3]  = {0., 0., 0.};
-   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
-   
-   mat->MasterToLocalVect(global, local);
-   TVector3 pos(local[0], local[1], local[2]);
-   
-   return pos;
+   return MasterToLocalVect(detID, glob);
 }   
 
 //_____________________________________________________________________________
@@ -391,14 +338,7 @@ void TAVTbaseParGeo::Sensor2Detector(Int_t detID,
 	  return;
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
-   Double_t local[3]  = {xl, yl, zl};
-   Double_t global[3] = {0., 0., 0.};
-   
-   mat->LocalToMaster(local, global);
-   xg = global[0];
-   yg = global[1];
-   zg = global[2];
+   LocalToMaster(detID, xl, yl, zl, xg, yg, zg);
 }   
 
 //_____________________________________________________________________________
@@ -409,15 +349,8 @@ TVector3 TAVTbaseParGeo::Sensor2Detector(Int_t detID, TVector3& loc) const
 	  TVector3(0,0,0);
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
-   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
-   Double_t global[3] = {0., 0., 0.};
-   
-   mat->LocalToMaster(local, global);
-   TVector3 pos(global[0], global[1], global[2]);
-   
-   return pos;
-}   
+   return LocalToMaster(detID, loc);
+}
 
 
 //_____________________________________________________________________________
@@ -428,16 +361,7 @@ TVector3 TAVTbaseParGeo::Sensor2DetectorVect(Int_t detID, TVector3& loc) const
 	  TVector3(0,0,0);
    }
 
-   
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
-   
-   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
-   Double_t global[3] = {0., 0., 0.};
-   
-   mat->LocalToMasterVect(local, global);
-   TVector3 pos(global[0], global[1], global[2]);
-   
-   return pos;
+   return LocalToMasterVect(detID, loc);
 }
 
 //_____________________________________________________________________________

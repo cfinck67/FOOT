@@ -14,10 +14,11 @@
 #include "TString.h"
 #include "TArrayC.h"
 #include "TVector3.h"
+#include "TObjArray.h"
 
 #include "TAGpara.hxx"
 
-
+class TGeoHMatrix;
 //##############################################################################
 
 class TAGparTools : public TAGpara {
@@ -26,6 +27,9 @@ protected:
    ifstream fFileStream; // parameter file
    TString  fFileName;   // name of the file
    TString  fgDefaultGeoName;  // default detector geomap file
+
+   TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each crystal)
+   TVector3   fCurrentPosition;  // current position
 
    Int_t    fDebugLevel; // debug level
    
@@ -46,12 +50,37 @@ public:
    void    ReadStrings(TString& aString);
    void    GetRange(const char* str, Int_t& begin, Int_t& end, Int_t& incr, Int_t& n);
    void    FillArray(TString& s, TArrayC& array);
-
+   
    TString Normalize(const char* line);
    
+   void    SetupMatrices(Int_t size);
+
    //! Get file name
    TString GetFileName() const { return fFileName; }
    
+   //! Transform point from the global detector reference frame
+   //! to the local sensor reference frame of the detection id
+   void            MasterToLocal(Int_t detID,  Double_t xg, Double_t yg, Double_t zg,
+                                   Double_t& xl, Double_t& yl, Double_t& zl) const;
+   
+   TVector3        MasterToLocal(Int_t detID, TVector3& glob) const;
+   TVector3        MasterToLocalVect(Int_t detID, TVector3& glob) const;
+   
+   //! Transform point from the local reference frame
+   //! of the detection id to the global reference frame
+   void            LocalToMaster(Int_t detID,  Double_t xl, Double_t yl, Double_t zl,
+                                   Double_t& xg, Double_t& yg, Double_t& zg) const;
+   
+   TVector3        LocalToMaster(Int_t detID, TVector3& loc) const;
+   TVector3        LocalToMasterVect(Int_t detID, TVector3& loc) const;
+
+   //! Add matrxi transformation
+   void            AddTransMatrix(TGeoHMatrix* mat, Int_t idx = -1);
+   //! Remove matrix transformation
+   void            RemoveTransMatrix(TGeoHMatrix* mat);
+   //! Get matrix transformation
+   TGeoHMatrix*    GetTransfo(Int_t idx);
+
    ClassDef(TAGparTools,1)
 };
 

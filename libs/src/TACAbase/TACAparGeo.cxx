@@ -30,17 +30,14 @@ const TString TACAparGeo::fgkDefaultCrysName = "caCrys";
 
 //_____________________________________________________________________________
 TACAparGeo::TACAparGeo()
-: TAGparTools(),
-  fMatrixList(new TObjArray(22*22))
+: TAGparTools()
 {
    fgDefaultGeoName = "./geomaps/TACAdetector.map";
-   fMatrixList->SetOwner(true);
 }
 
 //______________________________________________________________________________
 TACAparGeo::~TACAparGeo()
 {
-   fMatrixList->Delete();
 }
 
 //______________________________________________________________________________
@@ -54,6 +51,11 @@ Bool_t TACAparGeo::FromFile(const TString& name)
       nameExp = name;
    
    if (!Open(nameExp)) return false;
+   
+   //   FootDebug(1, "FromFile()", Form("Number of crystals: %d", fCrystalsN));
+   //
+   //   if(FootDebugLevel(1))
+   //      cout  << "Number of crystals: " <<  fCrystalsN << endl;
    
    ReadItem(fCrystalsN);
    if (fDebugLevel)
@@ -80,6 +82,8 @@ Bool_t TACAparGeo::FromFile(const TString& name)
    TVector3 tilt;
    
    Int_t nCrystal = 0;
+   
+   SetupMatrices(fCrystalsN);
    
    // Read transformtion info
       for (Int_t iCrystal = 0; iCrystal < fCrystalsN; ++iCrystal) {
@@ -116,38 +120,6 @@ Bool_t TACAparGeo::FromFile(const TString& name)
 }
 
 //_____________________________________________________________________________
-void TACAparGeo::AddTransMatrix(TGeoHMatrix* mat, Int_t idx)
-{
-   if (idx == -1)
-      fMatrixList->Add(mat);
-   else {
-      TGeoHMatrix* oldMat = GetTransfo(idx);
-      if (oldMat)
-         RemoveTransMatrix(oldMat);
-      fMatrixList->AddAt(mat, idx);
-   }
-}
-
-//_____________________________________________________________________________
-void TACAparGeo::RemoveTransMatrix(TGeoHMatrix* mat)
-{
-   if (!fMatrixList->Remove(mat))
-      printf("Cannot remove matrix");
-}
-
-//_____________________________________________________________________________
-TGeoHMatrix* TACAparGeo::GetTransfo(Int_t idx)
-{
-
-   if (idx < 0 || idx >= fCrystalsN) {
-      Warning("GetTransfo()","Wrong detector id number: %d ", idx);
-      return 0x0;
-   }
-   
-   return (TGeoHMatrix*)fMatrixList->At(idx);
-}
-
-//_____________________________________________________________________________
 TVector3 TACAparGeo::GetCrystalPosition(Int_t idx)
 {
    TGeoHMatrix* hm = GetTransfo(idx);
@@ -166,14 +138,7 @@ TVector3 TACAparGeo::Sensor2Detector(Int_t idx, TVector3& loc) const
       return TVector3(0,0,0);
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
-   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
-   Double_t global[3] = {0., 0., 0.};
-   
-   mat->LocalToMaster(local, global);
-   TVector3 pos(global[0], global[1], global[2]);
-   
-   return pos;
+   return LocalToMaster(idx, loc);
 }
 
 
@@ -185,16 +150,7 @@ TVector3 TACAparGeo::Sensor2DetectorVect(Int_t idx, TVector3& loc) const
       TVector3(0,0,0);
    }
    
-   
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
-   
-   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
-   Double_t global[3] = {0., 0., 0.};
-   
-   mat->LocalToMasterVect(local, global);
-   TVector3 pos(global[0], global[1], global[2]);
-   
-   return pos;
+   return LocalToMasterVect(idx, loc);
 }
 
 //_____________________________________________________________________________
@@ -205,14 +161,7 @@ TVector3 TACAparGeo::Detector2Sensor(Int_t idx, TVector3& glob) const
       return TVector3(0,0,0);
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
-   Double_t local[3]  = {0., 0., 0.};
-   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
-   
-   mat->MasterToLocal(global, local);
-   TVector3 pos(local[0], local[1], local[2]);
-   
-   return pos;
+   return MasterToLocal(idx, glob);
 }
 
 //_____________________________________________________________________________
@@ -223,14 +172,7 @@ TVector3 TACAparGeo::Detector2SensorVect(Int_t idx, TVector3& glob) const
       return TVector3(0,0,0);
    }
    
-   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(idx) );
-   Double_t local[3]  = {0., 0., 0.};
-   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
-   
-   mat->MasterToLocalVect(global, local);
-   TVector3 pos(local[0], local[1], local[2]);
-   
-   return pos;
+   return MasterToLocalVect(idx, glob);
 }
 
 

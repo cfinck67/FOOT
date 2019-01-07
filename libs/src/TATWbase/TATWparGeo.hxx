@@ -40,13 +40,7 @@ public:
    TVector3       GetBarPosition(Int_t layer, Int_t barId);
    TVector3       Detector2Sensor(Int_t layer, TVector3 vec);
 
-   
-   //! Add matrix transformation
-   void            AddTransMatrix(TGeoHMatrix* mat, Int_t idx = -1);
-   //! Remove matrix transformation
-   void            RemoveTransMatrix(TGeoHMatrix* mat);
    //! Get matrix transformation
-   TGeoHMatrix*    GetTransfo(Int_t idx);
    TGeoHMatrix*    GetTransfo(Int_t layer, Int_t barId);
 
    
@@ -90,8 +84,6 @@ public:
     virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
    
 private:
-   TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each crystal)
-   TVector3   fCurrentPosition;  // current position
 
    TVector3  fSize;
    TVector3  fBarSize;

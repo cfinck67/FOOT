@@ -23,10 +23,7 @@ class TGeoVolume;
 
 class TAVTbaseParGeo : public TAGparTools {
       
-protected:
-   TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each crystal)
-   TVector3   fCurrentPosition;  // current position
-   
+protected:   
    Int_t      fSensorsN;         // Number of sensors
    Int_t      fLayersN;          // Number of layer (planes)
 
@@ -89,13 +86,6 @@ public:
    
    TVector3        Sensor2Detector(Int_t detID, TVector3& loc) const;
    TVector3        Sensor2DetectorVect(Int_t detID, TVector3& loc) const;
-   
-   //! Add matrxi transformation
-   void            AddTransMatrix(TGeoHMatrix* mat, Int_t idx = -1);
-   //! Remove matrix transformation
-   void            RemoveTransMatrix(TGeoHMatrix* mat);
-   //! Get matrix transformation
-   TGeoHMatrix*    GetTransfo(Int_t iSensor);
    
    //! Get position sensor
    TVector3        GetSensorPosition(Int_t iSensor);

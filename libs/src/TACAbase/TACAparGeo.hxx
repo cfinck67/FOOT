@@ -37,15 +37,6 @@ public:
    
    TVector3       GetCrystalPosition(Int_t iCrystal);
 
-   
-   //! Add matrix transformation
-   void            AddTransMatrix(TGeoHMatrix* mat, Int_t idx = -1);
-   //! Remove matrix transformation
-   void            RemoveTransMatrix(TGeoHMatrix* mat);
-   //! Get matrix transformation
-   TGeoHMatrix*    GetTransfo(Int_t idx);
-   
-   
    //! Transform point from the global detector reference frame
    //! to the local sensor reference frame of the detection id
    TVector3        Detector2Sensor(Int_t idx, TVector3& glob) const;
@@ -90,9 +81,6 @@ private:
    static const Char_t* GetDefaultCrysName(Int_t idx) { return Form("%s_%d", fgkDefaultCrysName.Data(), idx); }
 
 private:
-   TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each crystal)
-   TVector3   fCurrentPosition;  // current position
-
    TVector3  fCrystalSize;
    TString   fCrystalMat;
    Float_t   fCrystalDensity;

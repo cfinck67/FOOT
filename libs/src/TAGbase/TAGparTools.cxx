@@ -4,6 +4,8 @@
 #include "TObjArray.h"
 #include "TObjString.h"
 #include "TSystem.h"
+#include "TSystem.h"
+#include "TGeoMatrix.h"
 
 
 #include "TAGparTools.hxx"
@@ -23,6 +25,7 @@ TAGparTools::TAGparTools()
   fFileStream(),
   fFileName(),
   fgDefaultGeoName(""),
+  fCurrentPosition(0,0,0),
   fDebugLevel(0)
 {
    // Standard constructor
@@ -32,6 +35,8 @@ TAGparTools::TAGparTools()
 TAGparTools::~TAGparTools()
 {
    // Destructor
+   if (fMatrixList)
+      delete fMatrixList;
 }
 
 //_____________________________________________________________________________
@@ -191,7 +196,7 @@ void TAGparTools::ReadVector3(TVector3 &arg)
    Float_t* co = new Float_t[3];
    ReadItem(co, 3, ':');
    arg.SetXYZ(co[0], co[1], co[2]); 
-   delete co;
+   delete[] co;
 }
 
 //_____________________________________________________________________________
@@ -310,3 +315,126 @@ Bool_t TAGparTools::Close()
    return true;
 }
 
+// transformation
+//_____________________________________________________________________________
+void TAGparTools::MasterToLocal(Int_t detID,
+                                     Double_t xg, Double_t yg, Double_t zg,
+                                     Double_t& xl, Double_t& yl, Double_t& zl) const
+{
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {xg, yg, zg};
+   
+   mat->MasterToLocal(global, local);
+   xl = local[0];
+   yl = local[1];
+   zl = local[2];
+}
+
+//_____________________________________________________________________________
+TVector3 TAGparTools::MasterToLocal(Int_t detID, TVector3& glob) const
+{
+
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
+   
+   mat->MasterToLocal(global, local);
+   TVector3 pos(local[0], local[1], local[2]);
+   
+   return pos;
+}
+
+//_____________________________________________________________________________
+TVector3 TAGparTools::MasterToLocalVect(Int_t detID, TVector3& glob) const
+{
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {0., 0., 0.};
+   Double_t global[3] = {glob.X(), glob.Y(), glob.Z()};
+   
+   mat->MasterToLocalVect(global, local);
+   TVector3 pos(local[0], local[1], local[2]);
+   
+   return pos;
+}
+
+//_____________________________________________________________________________
+void TAGparTools::LocalToMaster(Int_t detID,
+                                     Double_t xl, Double_t yl, Double_t zl,
+                                     Double_t& xg, Double_t& yg, Double_t& zg) const
+{
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {xl, yl, zl};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMaster(local, global);
+   xg = global[0];
+   yg = global[1];
+   zg = global[2];
+}
+
+//_____________________________________________________________________________
+TVector3 TAGparTools::LocalToMaster(Int_t detID, TVector3& loc) const
+{
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMaster(local, global);
+   TVector3 pos(global[0], global[1], global[2]);
+   
+   return pos;
+}
+
+
+//_____________________________________________________________________________
+TVector3 TAGparTools::LocalToMasterVect(Int_t detID, TVector3& loc) const
+{
+   
+   TGeoHMatrix* mat = static_cast<TGeoHMatrix*> ( fMatrixList->At(detID) );
+   Double_t local[3]  = {loc.X(), loc.Y(), loc.Z()};
+   Double_t global[3] = {0., 0., 0.};
+   
+   mat->LocalToMasterVect(local, global);
+   TVector3 pos(global[0], global[1], global[2]);
+   
+   return pos;
+}
+
+//_____________________________________________________________________________
+void TAGparTools::AddTransMatrix(TGeoHMatrix* mat, Int_t idx)
+{
+   if (idx == -1)
+      fMatrixList->Add(mat);
+   else {
+      TGeoHMatrix* oldMat = GetTransfo(idx);
+      if (oldMat)
+         RemoveTransMatrix(oldMat);
+      fMatrixList->AddAt(mat, idx);
+   }
+}
+
+//_____________________________________________________________________________
+void TAGparTools::RemoveTransMatrix(TGeoHMatrix* mat)
+{
+   if (!fMatrixList->Remove(mat))
+      printf("Cannot remove matrix");
+}
+
+//_____________________________________________________________________________
+TGeoHMatrix* TAGparTools::GetTransfo(Int_t idx)
+{
+   if (idx < 0 || idx >= fMatrixList->Capacity()) {
+      Warning("GetTransfo()","Wrong detector id number: %d ", idx);
+      return 0x0;
+   }
+   
+   return (TGeoHMatrix*)fMatrixList->At(idx);
+}
+
+//_____________________________________________________________________________
+void TAGparTools::SetupMatrices(Int_t size)
+{
+   fMatrixList = new TObjArray(size);
+   fMatrixList->SetOwner(true);
+}
