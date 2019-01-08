@@ -33,6 +33,9 @@
 #include "TAGgeoTrafo.hxx"
 
         TAGmaterials* TAGmaterials::fgInstance    = 0;
+              TString TAGmaterials::fgkWhat       = "                                                                                            ";
+                 Int_t TAGmaterials::fgkWhatWidth = 10;
+
 map<TString, TString> TAGmaterials::fgkCommonName = {{"SmCo", "Sm2Co17"}, {"Polyethy", "CH24C2H4"}, {"Kapton", "C22H10N2O5"}, {"Epoxy", "C18H19O3"},
                                                      {"BGO", "Bi4Ge3O12"}, {"SiCFoam", "SiC/AIR"}, {"TUNGSTEN", "W"}, {"Graphite", "C3"}, {"EJ232", "C9H10"},
                                                      {"EJ228", "C9H10"}, {"Mylar", "C10H8O4"}  };
@@ -331,6 +334,9 @@ void TAGmaterials::CreateDefaultMaterials()
   }
 
 //______________________________________________________________________________
+// Emulate automatically FLUKA file
+// Taking into account the MATERIAL, COMPOUND and LOW-MAT
+// Aligned variables on the dedicated column
 void TAGmaterials::SaveFileFluka(const TString filename)
 {
    
@@ -375,7 +381,7 @@ void TAGmaterials::SaveFileFluka(const TString filename)
    fprintf(fp, "* command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |\n");
    fprintf(fp, "* -------1---------2---------3---------4---------5---------6---------7---------8\n");
    fprintf(fp, "* *** Added manually\n");
-   fprintf(fp, "MATERIAL          0.             0                               BLCKHOLE\n");
+   fprintf(fp, "MATERIAL          0.        0.                                        BLCKHOLE\n");
 
    
    for (Int_t i = 0; i < list->GetEntries(); ++i) {
@@ -384,55 +390,101 @@ void TAGmaterials::SaveFileFluka(const TString filename)
       
       Int_t nElements = mix->GetNelements();
       
-      for (Int_t e = 0; e < nElements; ++e) {
+      // Single material
+      if (nElements == 1) {
          
-         TGeoElement *element = mix->GetElement(e);
-         
-         if (fPrintedElt[element->GetName()] == 1)
-            continue;
-         
-         fprintf(fp, "MATERIAL       %4d.  \t\t %-g  \t\t\t\t %-s\n", element->Z(), element->A(), element->GetName());
-         fPrintedElt[element->GetName()] = 1;
+         if (fgkLowMat[mix->GetName()] == 0) {
+            
+            TGeoElement *element = mix->GetElement(0);
+            if (fPrintedElt[element->GetName()] == 1)
+               break;
+
+            fPrintedElt[element->GetName()] = 1;
+            TString cmd;
+            if ( mix->GetDensity() > 0)
+               cmd = AppendFluka("MATERIAL") + PrependFluka(Form("%4d.", element->Z())) + PrependFluka(Form("%-g", element->A())) +  PrependFluka(Form("%g",mix->GetDensity())) +
+                     PrependFlukaName(element->GetName(), 3);
+            else
+               cmd = AppendFluka("MATERIAL") + PrependFluka(Form("%4d.", element->Z())) + PrependFluka(Form("%-g", element->A())) + PrependFlukaName(element->GetName(), 4);
+            fprintf(fp, "%s\n", cmd.Data());
+            
+         } else { // LOW-MAT
+            TGeoElement *element = mix->GetElement(0);
+            if (fPrintedElt[element->GetName()] == 1)
+               break;
+
+            fPrintedElt[element->GetName()] = 1;
+            
+            TString cmd = AppendFluka("MATERIAL") + PrependFluka(Form("%4d.", element->Z())) + PrependFluka(Form("%-g", element->A())) + PrependFlukaName(element->GetName(), 4);
+            fprintf(fp, "%s\n", cmd.Data());
+
+            cmd = AppendFluka("MATERIAL") + PrependFluka(Form("%4d.", element->Z())) + PrependFluka(Form("%-g",mix->GetDensity()), 2) +  PrependFlukaName(mix->GetName(), 3);
+            fprintf(fp, "%s\n", cmd.Data());
+         }
       }
       
-      
-      if (fPrintedElt[mix->GetName()] != 1)
-         fprintf(fp, "MATERIAL                          %-g  \t\t\t\t %-s\n", mix->GetDensity(), mix->GetName());
-      
+      // COMPOUND
       if (nElements != 1) {
-         fprintf(fp, "COMPOUND       ");
+
+         for (Int_t e = 0; e < nElements; ++e) {
+            
+            TGeoElement *element = mix->GetElement(e);
+            
+            if (fPrintedElt[element->GetName()] == 1)
+               continue;
+            
+            TString cmd = AppendFluka("MATERIAL") + PrependFluka(Form("%4d.", element->Z())) + PrependFluka(Form("%-g", element->A())) + PrependFlukaName(element->GetName(), 4);
+            fprintf(fp, "%s\n", cmd.Data());
+            fPrintedElt[element->GetName()] = 1;
+         }
+
+         TString cmd = AppendFluka("MATERIAL") + PrependFluka(Form("%g",mix->GetDensity()), 3) +  PrependFlukaName(mix->GetName(), 3);
+         fprintf(fp, "%s\n", cmd.Data());
+
+          cmd = AppendFluka("COMPOUND");
          
          for (Int_t e = 0; e < nElements; ++e) {
             
             TGeoElement *element = mix->GetElement(e);
             if (mix->GetNmixt() != 0x0) {
+               
                if (fgkLowMat[mix->GetName()] != 0)
-                  fprintf(fp, "%4d. %4.0f.\t %s",  -mix->GetNmixt()[e], mix->GetTemperature(), element->GetName());
+                  cmd += PrependFluka(Form("%d.", mix->GetNmixt()[e])) + PrependFluka(Form("%-g", mix->GetTemperature())) +  PrependFlukaName(element->GetName(), 2);
                else
-                  fprintf(fp, "%4d. \t %s", mix->GetNmixt()[e], element->GetName());
+                  cmd += PrependFluka(Form("%d.", mix->GetNmixt()[e])) + PrependFlukaName(element->GetName(), 1, -1);
                
             } else
-               fprintf(fp, "%5.2f \t\t %s", -mix->GetWmixt()[e], element->GetName());
-            fprintf(fp, "     ");
+               cmd += PrependFluka(Form("%-g", -mix->GetWmixt()[e])) + PrependFlukaName(element->GetName(), 1, -1);
+
          }
-         fprintf(fp, " \t %s\n", mix->GetName());
+         if (nElements == 2)
+            cmd += PrependFlukaName(mix->GetName(), 2);
+         else if (nElements == 3)
+            cmd += PrependFlukaName(mix->GetName(), 0);
+         else
+            Warning("SaveFileFluka()", "Number of element in the compund material is %d (max: 3)", nElements);
+
+         fprintf(fp, "%s\n", cmd.Data());
       }
       
       
-      if (fgkLowMat[mix->GetName()] != 0 && nElements == 1) { // Low Mat
-         
-         fprintf(fp, "LOW-MAT       ");
+      // LOW-MAT
+      if (fgkLowMat[mix->GetName()] != 0 && nElements == 1) {
          
          TGeoElement *element = mix->GetElement(0);
+         
          if (mix->GetNmixt() != 0x0) {
-            if (fgkLowMat[mix->GetName()] != 0)
-               fprintf(fp, "%s \t %4d. \t %4d. \t\t\t %4.0f.\t\t %s\n", mix->GetName(), element->Z(), -mix->GetNmixt()[0], mix->GetTemperature(),
-                       element->GetName());
+            
+            if (fgkLowMat[mix->GetName()] != 0) {
+               
+               TString cmd = AppendFluka("LOW-MAT") +  PrependFlukaName(mix->GetName(), 1, -1) + PrependFluka(Form("%4d.", element->Z())) + PrependFluka(Form("%4d.", -mix->GetNmixt()[0]));
+               cmd += PrependFluka(Form("%-g", mix->GetTemperature())) +  PrependFlukaName(element->GetName(), 2);
+               fprintf(fp, "%s\n", cmd.Data());
+            }
          }
       }
       
    }
-   
    
    fprintf(fp, "*\n");
    fprintf(fp, "* ******************************************************************************\n");
@@ -442,33 +494,33 @@ void TAGmaterials::SaveFileFluka(const TString filename)
    fprintf(fp, "* command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |\n");
    fprintf(fp, "* -------1---------2---------3---------4---------5---------6---------7---------8\n");
    fprintf(fp, "* @@@START GENERATED, DO NOT MODIFY:MATERIAL&MAGFIELD@@@ ***********************\n");
-   fprintf(fp, "ASSIGNMA    BLCKHOLE     BLACK\n");
-   fprintf(fp, "ASSIGNMA         AIR       AIR\n");
-   fprintf(fp, "ASSIGNMA      EJ-232       STC\n");
-   fprintf(fp, "ASSIGNMA         AL   BMN_SHI\n");
-   fprintf(fp, "ASSIGNMA       Mylar  BMN_MYL0\n");
-   fprintf(fp, "ASSIGNMA       Mylar  BMN_MYL1\n");
-   fprintf(fp, "ASSIGNMA      ArCO2   BMN_C000  BMN_C017        1.\n");
-   fprintf(fp, "ASSIGNMA      ArCO2   BMN_C100  BMN_C117        1.\n");
-   fprintf(fp, "ASSIGNMA      ArCO2   BMN_GAS\n");
-   fprintf(fp, "ASSIGNMA        AL    BMN_FWI\n");
-   fprintf(fp, "ASSIGNMA    TUNGSTEN  BMN_SWI\n");
-   fprintf(fp, "ASSIGNMA    Polyethy  TARGET                           1.\n");
-   fprintf(fp, "ASSIGNMA       SI     VTXP0     VTXS3        1.        1.\n");
-   fprintf(fp, "ASSIGNMA       AL     ITRP2    ITRP73        1.\n");
-   fprintf(fp, "ASSIGNMA       Epoxy  ITRP0    ITRP75        1.\n");
-   fprintf(fp, "ASSIGNMA      Kapton  ITRP1    ITRP74        1.\n");
-   fprintf(fp, "ASSIGNMA       SI     ITRP13   ITRS313       1.        1.\n");
-   fprintf(fp, "ASSIGNMA     SiCFoam  ITRP6    ITRP69        1.\n");
-   fprintf(fp, "ASSIGNMA      SmCo    MAG_PM0\n");
-   fprintf(fp, "ASSIGNMA       AL     MAG_CV0\n");
-   fprintf(fp, "ASSIGNMA      SmCo    MAG_PM1\n");
-   fprintf(fp, "ASSIGNMA       AL     MAG_CV1\n");
-   fprintf(fp, "ASSIGNMA       AIR    MAG_AIR                          1.\n");
-   fprintf(fp, "ASSIGNMA       SI     MSDS0     MSDS2        1.        1.\n");
-   fprintf(fp, "ASSIGNMA      AIR     BOX\n");
-   fprintf(fp, "ASSIGNMA      EJ-232  SCN000    SCN121       1.\n");
-   fprintf(fp, "ASSIGNMA      BGO     CAL000    CAL359       1.\n");
+   fprintf(fp, "ASSIGNMA    BLCKHOLE     BLACK                                                  \n");
+   fprintf(fp, "ASSIGNMA         AIR       AIR                                                  \n");
+   fprintf(fp, "ASSIGNMA       EJ232       STC                                                  \n");
+   fprintf(fp, "ASSIGNMA          AL   BMN_SHI                                                  \n");
+   fprintf(fp, "ASSIGNMA       Mylar  BMN_MYL0                                                  \n");
+   fprintf(fp, "ASSIGNMA       Mylar  BMN_MYL1                                                  \n");
+   fprintf(fp, "ASSIGNMA      Ar/CO2  BMN_C000  BMN_C017        1.                              \n");
+   fprintf(fp, "ASSIGNMA      Ar/CO2  BMN_C100  BMN_C117        1.                              \n");
+   fprintf(fp, "ASSIGNMA      Ar/CO2   BMN_GAS                                                  \n");
+   fprintf(fp, "ASSIGNMA          AL   BMN_FWI                                                  \n");
+   fprintf(fp, "ASSIGNMA          W    BMN_SWI                                                  \n");
+   fprintf(fp, "ASSIGNMA    Polyethy    TARGET                            1.                    \n");
+   fprintf(fp, "ASSIGNMA          SI     VTXP0     VTXS3        1.        1.                    \n");
+   fprintf(fp, "ASSIGNMA          AL     ITRP2    ITRP73        1.                              \n");
+   fprintf(fp, "ASSIGNMA       Epoxy     ITRP0    ITRP75        1.                              \n");
+   fprintf(fp, "ASSIGNMA      Kapton     ITRP1    ITRP74        1.                              \n");
+   fprintf(fp, "ASSIGNMA          SI    ITRP13   ITRS313        1.        1.                    \n");
+   fprintf(fp, "ASSIGNMA     SiC/AIR     ITRP6    ITRP69        1.                              \n");
+   fprintf(fp, "ASSIGNMA        SmCo   MAG_PM0                                                  \n");
+   fprintf(fp, "ASSIGNMA          AL   MAG_CV0                                                  \n");
+   fprintf(fp, "ASSIGNMA        SmCo   MAG_PM1                                                  \n");
+   fprintf(fp, "ASSIGNMA          AL   MAG_CV1                                                  \n");
+   fprintf(fp, "ASSIGNMA         AIR   MAG_AIR                            1.                    \n");
+   fprintf(fp, "ASSIGNMA          SI     MSDS0     MSDS2        1.        1.                    \n");
+   fprintf(fp, "ASSIGNMA         AIR       BOX                                                  \n");
+   fprintf(fp, "ASSIGNMA       EJ232    SCN000    SCN121        1.                              \n");
+   fprintf(fp, "ASSIGNMA         BGO    CAL000    CAL359        1.                              \n");
    fprintf(fp, "MGNFIELD    0.100000  0.000010                 0.0       0.0       0.0\n");
    fprintf(fp, "* @@@END GENERATED:MATERIAL&MAGFIELD@@@ ****************************************\n");
    fprintf(fp, "*\n");
@@ -487,5 +539,65 @@ void TAGmaterials::SaveFileFluka(const TString filename)
    fprintf(fp, "STOP\n");
 
    fclose(fp);
-   
 }
+
+//______________________________________________________________________________
+TString TAGmaterials::AppendFluka(const Char_t* string, Int_t what)
+{
+   TString name = string;
+   Int_t len = name.Length();
+   
+   Int_t blank = fgkWhatWidth*what - len;
+   
+   if (len > 10)
+      Warning("AppendFluka()", "Digit number is %d (max: 10)", len);
+      
+   TString wBlank = fgkWhat(0, blank);
+   
+   name += wBlank;
+   
+   return name;
+}
+
+//______________________________________________________________________________
+TString TAGmaterials::PrependFluka(const Char_t* string, Int_t what)
+{
+   TString name = string;
+   
+   if (name.IsDigit())
+      name  += ".";
+   
+   Int_t len = name.Length();
+   
+   if (len > 10)
+      Warning("PrependFluka()", "Digit number is %d (max: 10)", len);
+
+   Int_t blank = fgkWhatWidth*what - len;
+   TString wBlank = fgkWhat(0, blank);
+
+   name.Prepend(wBlank);
+   
+   return name;
+}
+
+//______________________________________________________________________________
+TString TAGmaterials::PrependFlukaName(const Char_t* string, Int_t what, Int_t align)
+{
+   TString name = string;
+   
+   Int_t len = 0;
+   if (align != 1)
+      len = name.Length();
+   
+   Int_t blank = fgkWhatWidth*what - len;
+   TString wBlank = fgkWhat(0, blank);
+   
+   name.Prepend(wBlank);
+   
+   return name;
+}
+
+
+
+
+
