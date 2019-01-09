@@ -46,8 +46,6 @@ TAVTactBaseNtuCluster::TAVTactBaseNtuCluster(const char* name,
       fTitleDev = "Vertex";
    else if (fPrefix.Contains("it"))
       fTitleDev = "Inner Tracker";
-   else if (fPrefix.Contains("ms"))
-      fTitleDev = "Multi Strip Detector";
    else
       printf("Wrong prefix for histograms !");
 
