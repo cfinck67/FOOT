@@ -89,7 +89,7 @@ void TAMSDactNtuMC::CreateHistogram()
    
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
          fpHisPosMap[i] =  new TH1F(Form("%sMcPosMap%d", prefix.Data(), i+1), Form("%s - MC position map for sensor %d", titleDev.Data(), i+1),
-                                    100, -pGeoMap->GetPitchX()/2.*pGeoMap->GetNPixelX(), pGeoMap->GetPitchX()/2.*pGeoMap->GetNPixelX());
+                                    pGeoMap->GetNPixelX(), -pGeoMap->GetPitchX()/2.*pGeoMap->GetNPixelX(), pGeoMap->GetPitchX()/2.*pGeoMap->GetNPixelX());
          fpHisPosMap[i]->SetStats(kFALSE);
          AddHistogram(fpHisPosMap[i]);
       
