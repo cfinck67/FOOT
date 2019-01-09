@@ -63,15 +63,13 @@ Bool_t TAMSDdigitizer::Process( Double_t edep, Double_t x0, Double_t y0,  Double
       FillMap(strip-1, value);
    }
    
-   
    value = edep*fgChargeGain*fgChargeFac;
    FillMap(strip, value);
    
    if (strip+1 < fStripsN) {
       value = edep*fgChargeGain*(1-fgChargeFac/2.);
-      FillMap(strip, value);
+      FillMap(strip+1, value);
    }
-   
    
    return true;
 }
@@ -80,10 +78,9 @@ Bool_t TAMSDdigitizer::Process( Double_t edep, Double_t x0, Double_t y0,  Double
 // --------------------------------------------------------------------------------------
 void TAMSDdigitizer::FillMap(Int_t strip, Double_t value)
 {
-   Int_t idx  = strip;
-   if (idx < 0) return;
+   if (strip < 0) return;
    
-   fMap[idx] = value;
+   fMap[strip] = value;
 }
 
 
