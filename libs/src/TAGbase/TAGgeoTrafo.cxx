@@ -23,6 +23,7 @@ const Float_t TAGgeoTrafo::fgkCmToM         = 1e-2;
 const Float_t TAGgeoTrafo::fgkNsToSec       = 1e-9;
 const Float_t TAGgeoTrafo::fgkSecToNs       = 1e+9;
 const Float_t TAGgeoTrafo::fgkGevToMev      = 1e3;
+const Float_t TAGgeoTrafo::fgkGevToKev      = 1e6;
 const Float_t TAGgeoTrafo::fgkMevToGev      = 1e-3;
 
 

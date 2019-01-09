@@ -42,6 +42,7 @@ private:
    static const Float_t fgkCmToM;         //! conversion factor bw cm and m
    static const Float_t fgkMToCm;         //! conversion factor bw m and cm
    static const Float_t fgkGevToMev;      //! conversion factor bw GeV and MeV
+   static const Float_t fgkGevToKev;      //! conversion factor bw GeV and keV
    static const Float_t fgkMevToGev;      //! conversion factor bw MeV and GeV
    
    static const Char_t* fgkGeomName;      //! name of GeoManager
@@ -165,6 +166,8 @@ public:
    static           Float_t GevToMev()               { return fgkGevToMev;      }
    static           Float_t MevToGev()               { return fgkGevToMev;      }
    
+   static           Float_t GevToKev()               { return fgkGevToKev;      }
+
    static     const Char_t* GetDefaultGeomName()     { return fgkGeomName;      }
    static     const Char_t* GetDefaultGeomTitle()    { return fgkGeomTitle;     }
    
