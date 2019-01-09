@@ -102,8 +102,8 @@ bool TAVTactNtuMC::Action()
 //      if (fpEvtStr->TRcha[genPartID] < 1) continue;
       
       if (ValidHistogram()) {
-         fpHisDeTot->Fill(fpEvtStr->VTXde[i]*TAVTbaseDigitizer::GeV2keV());
-         fpHisDeSensor[sensorId]->Fill(fpEvtStr->VTXde[i]*TAVTbaseDigitizer::GeV2keV());
+         fpHisDeTot->Fill(fpEvtStr->VTXde[i]*TAGgeoTrafo::GevToKev());
+         fpHisDeSensor[sensorId]->Fill(fpEvtStr->VTXde[i]*TAGgeoTrafo::GevToKev());
       }
       
 		if (!fDigitizer->Process(fpEvtStr->VTXde[i], fpEvtStr->VTXxin[i], fpEvtStr->VTXyin[i], fpEvtStr->VTXzin[i], fpEvtStr->VTXzout[i])) continue;
