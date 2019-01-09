@@ -8,6 +8,13 @@ ClassImp(TAVTntuHit) // Description of Single Detector TAVTntuHit
 
 //______________________________________________________________________________
 //  build the hit from the index
+TAVTntuHit::TAVTntuHit()
+: TAVTbaseNtuHit()
+{
+}
+
+//______________________________________________________________________________
+//  build the hit from the index
 TAVTntuHit::TAVTntuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aValue)
 : TAVTbaseNtuHit(aSensorNumber, aPixelIndex, aValue)
 {

@@ -1,13 +1,14 @@
 
-#include "TString.h"
-#include "TClonesArray.h"
-
-#include "TAGgeoTrafo.hxx"
-#include "TAVTntuRaw.hxx"
 #include "TAITntuHit.hxx"
 
 ClassImp(TAITntuHit) // Description of Single Detector TAITntuHit 
 
+//______________________________________________________________________________
+//  build the hit from the index
+TAITntuHit::TAITntuHit()
+: TAVTbaseNtuHit()
+{
+}
 
 //______________________________________________________________________________
 //  build the hit from the index
