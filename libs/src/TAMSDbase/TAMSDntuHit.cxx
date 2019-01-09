@@ -12,34 +12,20 @@ ClassImp(TAMSDntuHit) // Description of Single Detector TAMSDntuHit
 
 //______________________________________________________________________________
 //  build the hit from the index
-TAMSDntuHit::TAMSDntuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aValue)
-: TAVTbaseNtuHit(aSensorNumber, aPixelIndex, aValue)
+TAMSDntuHit::TAMSDntuHit()
+: TAGobject()
 {
-   Initialise();
 }
 
 //______________________________________________________________________________
-// Build the pixel from its sensor, line and column// constructor of a Pixel with column and line 
-TAMSDntuHit::TAMSDntuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t aColumn )
-: TAVTbaseNtuHit(aSensorNumber, aValue, aLine, aColumn)
+TAMSDntuHit::TAMSDntuHit( Int_t input, Int_t value, Int_t view, Int_t strip)
+:  fSensorId(input),
+   fPosition(0),
+   fValue(value),
+   fIndex(0),
+   fView(view),
+   fStrip(strip)
 {
-   Initialise();
-}
-                 
-//______________________________________________________________________________
-//
-void TAMSDntuHit::Initialise()
-{
-   fPosition.SetXYZ(0, 0, 0);
-   fMCPos.SetXYZ(0, 0, 0);
-   fMCP.SetXYZ(0, 0, 0);
-   
-   // take the detector geometry
-   fGeometry = (TAMSDparGeo*) gTAGroot->FindParaDsc(TAMSDparGeo::GetDefParaName(), "TAMSDparGeo")->Object();
-   
-   // set center position
-   if ( GlobalPar::GetPar()->Debug() > 1 )
-      Info("Initialise()", "line =  %d col = %d", fPixelLine, fPixelColumn);
 }
 
 //______________________________________________________________________________
@@ -47,77 +33,33 @@ void TAMSDntuHit::Initialise()
 Bool_t TAMSDntuHit::IsEqual(const TObject* hit) const
 {
    return ((fSensorId    == ((TAMSDntuHit*)hit)->fSensorId)    &&
-           (fPixelLine   == ((TAMSDntuHit*)hit)->fPixelLine)   &&
-           (fPixelColumn == ((TAMSDntuHit*)hit)->fPixelColumn)
+           (fView   == ((TAMSDntuHit*)hit)->fView)   &&
+           (fStrip == ((TAMSDntuHit*)hit)->fStrip)
            );
 }
 
 //______________________________________________________________________________
-TVector3 TAMSDntuHit::GetMCPosition_sensorFrame()
+//
+void TAMSDntuHit:: AddMcTrackId(Int_t trackId)
 {
-   TVector3 glob = fMCPos;
-   glob = fGeometry->Detector2Sensor( fSensorId, glob );
-   return glob;
+   fMcTrackId[fMcTrackCount++] = trackId;
 }
 
 //______________________________________________________________________________
-TVector3 TAMSDntuHit::GetMCPosition_footFrame()
+Int_t TAMSDntuHit::Compare(const TObject* obj) const
 {
-   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+   Int_t view = fView;
+   Int_t aView = ((TAMSDntuHit *)obj)->GetView();
+   Int_t strip = fStrip;
+   Int_t aStrip = ((TAMSDntuHit *)obj)->GetStrip();
    
-   TVector3 glob = fMCPos;
-   glob = geoTrafo->FromMSDLocalToGlobal(glob);
-   
-   return glob;
+   if (view == aView) { //Order ok then order for column
+      if(strip<aStrip)
+         return -1;
+      else
+         return 1;
+   } else if(view > aView)
+      return 1;
+   else
+      return -1;
 }
-//______________________________________________________________________________
-TVector3 TAMSDntuHit::GetMCMomentum_footFrame()
-{
-   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-   
-   TVector3 globP = fMCP;
-   globP = geoTrafo->VecFromMSDLocalToGlobal(globP);
-   
-   return globP;
-}
-
-
-//______________________________________________________________________________
-//! Set MC truth position
-void TAMSDntuHit::SetMCPosition(TVector3 a_pos)
-{
-   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-   
-   a_pos = geoTrafo->FromGlobalToMSDLocal(a_pos );
-   fMCPos = a_pos;
-}
-
-
-//______________________________________________________________________________
-//! Set MC truth mo
-void TAMSDntuHit::SetMCMomentum(TVector3 a_mom)
-{
-   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-   a_mom = geoTrafo->VecFromGlobalToMSDLocal(a_mom );
-   fMCP = a_mom;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
