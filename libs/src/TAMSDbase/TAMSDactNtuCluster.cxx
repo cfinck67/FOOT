@@ -69,11 +69,8 @@ void TAMSDactNtuCluster::CreateHistogram()
    
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
          fpHisClusMap[i] = new TH1F(Form("%sClusMap%d", prefix.Data(), i+1), Form("%s - clusters map for sensor %d", titleDev.Data(), i+1),
-                                    100, -pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchY()*pGeoMap->GetNPixelX()/2.);
-      fpHisClusMap[i]->SetMarkerStyle(20);
-      fpHisClusMap[i]->SetMarkerSize(.6);
-      fpHisClusMap[i]->SetMarkerColor(1);
-      fpHisClusMap[i]->SetStats(kFALSE);
+                                    pGeoMap->GetNPixelX(), -pGeoMap->GetPitchX()*pGeoMap->GetNPixelX()/2., pGeoMap->GetPitchY()*pGeoMap->GetNPixelX()/2.);
+    
       AddHistogram(fpHisClusMap[i]);
    }
    
