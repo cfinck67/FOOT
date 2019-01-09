@@ -14,12 +14,12 @@ ClassImp(TAVTbaseNtuHit) // Description of Single Detector TAVTbaseNtuHit
 TAVTbaseNtuHit::TAVTbaseNtuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Double_t aValue)
 : TAGobject(),
   fSensorId(aSensorNumber),
-  fMCid(-1),
   fPixelIndex(aPixelIndex),
   fPixelLine(0),
   fPixelColumn(0),
   fRawValue(aValue),
-  fFound(false)
+  fFound(false),
+  fMcTrackCount(0)
 {
     fPulseHeight = fRawValue;
 }
@@ -29,12 +29,12 @@ TAVTbaseNtuHit::TAVTbaseNtuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Do
 TAVTbaseNtuHit::TAVTbaseNtuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLine, Int_t aColumn )
 : TAGobject(),
   fSensorId(aSensorNumber),
-  fMCid(-1),
   fPixelIndex(0),
   fPixelLine(aLine),
   fPixelColumn(aColumn),
   fRawValue(aValue),
-  fFound(false)
+  fFound(false),
+  fMcTrackCount(0)
 {
     fPulseHeight = fRawValue;
 }
@@ -73,27 +73,19 @@ Double_t TAVTbaseNtuHit::DistanceV(const TVector3& aPosition)
    return result.y();
 }
 
+//______________________________________________________________________________
+//
+void TAVTbaseNtuHit::AddMcTrackId(Int_t trackId)
+{
+   fMcTrackId[fMcTrackCount++] = trackId;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//______________________________________________________________________________
+//
+Bool_t TAVTbaseNtuHit::IsEqual(const TObject* hit) const
+{
+   return ((fSensorId    == ((TAVTbaseNtuHit*)hit)->fSensorId)    &&
+           (fPixelLine   == ((TAVTbaseNtuHit*)hit)->fPixelLine)   &&
+           (fPixelColumn == ((TAVTbaseNtuHit*)hit)->fPixelColumn)
+           );
+}

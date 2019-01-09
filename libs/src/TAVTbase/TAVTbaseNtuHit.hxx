@@ -37,15 +37,11 @@
 class TAVTbaseNtuHit : public TAGobject {
    
 protected:
+   static const Int_t fgkMAXTRACK = 10;
 
 	Int_t              fSensorId;                 // number of the sensor
 	TVector3           fPosition;                 // pixel position in the detector frame
 	// TVector3           fSize;                  // size in uvw directions
-
-	Int_t              fMCid;                     // MC index of the hit in the ntuple
-	TVector3           fMCPos;                    // MC hit position = track hitting the pixel
-	TVector3           fMCP;                      // MC momentum of the hit
-   Double_t           fMCEnLoss;                 // MC energy loss by MC particle VM 3/11/13
 
    Int_t              fPixelIndex;               // index of the pixel
 	Int_t              fPixelLine;                // line in the matrix
@@ -57,6 +53,9 @@ protected:
 
    Bool_t             fFound;                    // flag, that pixel is found in hit
 
+   Int_t              fMcTrackCount;                 // Variable that count the number of times a crystal is touched
+   Int_t              fMcTrackId[fgkMAXTRACK];         // Id of the track created in the simulation
+
 public:
 
     TAVTbaseNtuHit() {};
@@ -67,16 +66,10 @@ public:
    
     void               Clear(Option_t* option = "C");
 
-//    Bool_t	           IsEqual(const TObject* obj) const;
-
-    // all the Set methods
-    void               SetMCid(Int_t id)               { fMCid = id;            }    //MC index of the hit in the ntuple
-
-
+    Bool_t	           IsEqual(const TObject* obj) const;
+   
     void               SetRawValue(Double_t aRV)       { fRawValue = aRV;         }
     void               SetPulseHeight(Double_t aPH)    { fPulseHeight = aPH;      }
-    void               SetEneLoss(Double_t de)         { fMCEnLoss = de;          }
-
     void               SetFound(Bool_t b)              { fFound = b;              }
    
     //    All the Get methods
@@ -89,18 +82,13 @@ public:
    
     Double_t           GetRawValue()     const         { return  fRawValue;       }
     Double_t           GetPulseHeight()  const         { return  fPulseHeight;    }
-    Double_t           GetEneLoss()      const         { return  fMCEnLoss;       }
 
     // TVector3&          GetSize()                       { return  fSize;           }
    
     Bool_t             Found()          const         { return  fFound;          }
-
-    Int_t             GetMCid()          const         { return  fMCid;           }  //MC index of the hit in the ntuple
    
     TVector3          GetPixelPosition_detectorFrame()      { return fPosition; };
     TVector3&         GetPosition()                         { return fPosition; };
-    TVector3          GetMCPosition_detectorFrame()         { return  fMCPos;          }
-    TVector3          GetMCMomentum_detectorFrame()         { return  fMCP;            }
 
     void              SetPosition(TVector3 aPosition)       { fPosition = aPosition;   }
    
@@ -116,36 +104,15 @@ public:
     Double_t           DistanceV( TAVTbaseNtuHit&         aPixel);
     //! Compute distance in V direction from a given position
     Double_t           DistanceV( const TVector3&     aPosition);
-   
 
 
-   // this is a tmp solution
-   // MUST BE REMOVED
-   // no respect of C++ encapsulation basic rule
+   // MC track id
+   Int_t      GetTrackIdMc(Int_t index) const   { return fMcTrackId[index];  }
+   Int_t      GetMcTrackCount()         const   { return fMcTrackCount;      }
    
-     // Frank  ->  bad hack
-    void SetGeneratedParticleInfo ( int genPartID, int genPartFLUKAid, int genPartCharge,
-                        int genPartBarionNum, float genPartMass,
-                        TVector3 genPartPosition,
-                        TVector3 genPartMomentum ) {
-        m_genPartID = genPartID;
-        m_genPartFLUKAid = genPartFLUKAid;
-        m_genPartCharge = genPartCharge;
-        m_genPartBarionNum = genPartBarionNum;
-        m_genPartMass = genPartMass;
-        m_genPartPosition = genPartPosition;
-        m_genPartMomentum = genPartMomentum;
-    };
-    // Get generated particle quantities
-    //  provvisorio
-    int m_genPartID;
-    int m_genPartFLUKAid;
-    int m_genPartCharge;
-    int m_genPartBarionNum;
-    float m_genPartMass;
-    TVector3 m_genPartPosition;
-    TVector3 m_genPartMomentum;
-   
+   // Add MC track Id
+   void     AddMcTrackId(Int_t trackId);
+
     ClassDef(TAVTbaseNtuHit,3)                            // Pixel or Pixel of a Detector Plane
 };
 

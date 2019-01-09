@@ -44,44 +44,6 @@ public:
     TAITntuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn);
     virtual ~TAITntuHit() {};
 
-    void               Initialise();
-    Bool_t	           IsEqual(const TObject* obj) const;
-
-      // all the Set methods
-    void               SetMCPosition(TVector3 a_pos);
-    void               SetMCMomentum(TVector3 a_mom);
-   
-    TVector3           GetMCPosition_footFrame();
-    TVector3           GetMCMomentum_footFrame();
-
-    TVector3           GetMCPosition_sensorFrame();
-
-   // this is a tmp solution
-   // MUST BE REMOVED
-   // no respect of C++ encapsulation basic rule
-   
-     // Frank  ->  bad hack
-    void SetGeneratedParticleInfo ( int genPartID, int genPartFLUKAid, int genPartCharge,
-                        int genPartBarionNum, float genPartMass,
-                        TVector3 genPartPosition,
-                        TVector3 genPartMomentum ) {
-        m_genPartID = genPartID;
-        m_genPartFLUKAid = genPartFLUKAid;
-        m_genPartCharge = genPartCharge;
-        m_genPartBarionNum = genPartBarionNum;
-        m_genPartMass = genPartMass;
-        m_genPartPosition = genPartPosition;
-        m_genPartMomentum = genPartMomentum;
-    };
-    // Get generated particle quantities
-    //  provvisorio
-    int m_genPartID;
-    int m_genPartFLUKAid;
-    int m_genPartCharge;
-    int m_genPartBarionNum;
-    float m_genPartMass;
-    TVector3 m_genPartPosition;
-    TVector3 m_genPartMomentum;
    
     ClassDef(TAITntuHit,3)                            // Pixel or Pixel of a Detector Plane
 };

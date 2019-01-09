@@ -153,7 +153,6 @@ bool TAITactNtuMC::Action()
    return kTRUE;
 }
 
-
 //------------------------------------------+-----------------------------------
 void TAITactNtuMC::FillPixels(Int_t sensorId, Int_t hitId )
 {
@@ -175,8 +174,7 @@ void TAITactNtuMC::FillPixels(Int_t sensorId, Int_t hitId )
 			TAITntuHit* pixel = (TAITntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col);
 
          Int_t genPartID = fpEvtStr->ITRid[hitId] - 1;
-         pixel->SetMCid(genPartID);
-         SetMCinfo(pixel, hitId);
+         pixel->AddMcTrackId(genPartID);
 
 
          if ( fDebugLevel> 0 )
@@ -194,8 +192,6 @@ void TAITactNtuMC::FillPixels(Int_t sensorId, Int_t hitId )
 		}
    }
 }
-
-
 
 //___________________________________
 void TAITactNtuMC::FillNoise()
@@ -216,48 +212,6 @@ void TAITactNtuMC::FillNoise(Int_t sensorId)
 	   Int_t col  = gRandom->Uniform(0,fDigitizer->GetNPixelX());
 	   Int_t line = gRandom->Uniform(0,fDigitizer->GetNPixelY());
 	   TAITntuHit* pixel = pNtuRaw->NewPixel(sensorId, 1., line, col);
-	   pixel->SetMCid(fgMcNoiseId);
+	   pixel->AddMcTrackId(fgMcNoiseId);
 	}
-}
-
-//------------------------------------------+-----------------------------------
-void TAITactNtuMC::SetMCinfo(TAITntuHit* pixel, Int_t hitId)
-{
-   int genPartID = fpEvtStr->ITRid[hitId] - 1;
-   
-   // check true particle ID linked to the hit is in the correct range
-   if ( genPartID < 0 || genPartID > fpEvtStr->TRn-1 ) {
-      Warning("TAITactNtuMC::SetMCinfo()", "wrong generate particle ID: %d nPart = %d", genPartID, fpEvtStr->TRn);
-      return;
-   }
-   
-   if ( fDebugLevel> 0 )     {
-      cout << "Part type: " << fpEvtStr->TRfid[genPartID] << " and charge: " << fpEvtStr->TRcha[genPartID] << endl;
-      cout << "Generated Position: " << fpEvtStr->TRix[genPartID] <<" "<<fpEvtStr->TRiy[genPartID]<<" "<<fpEvtStr->TRiz[genPartID] << endl;
-      cout << "Generated Momentum: " << fpEvtStr->TRipx[genPartID] <<" "<<fpEvtStr->TRipy[genPartID]<<" "<<fpEvtStr->TRipz[genPartID] << endl;
-   }
-   
-   
-   // global coordinates
-   TVector3 MCpos = TVector3((fpEvtStr->ITRxin[hitId]  + fpEvtStr->ITRxout[hitId])/2,  (fpEvtStr->ITRyin[hitId]  + fpEvtStr->ITRyout[hitId])/2,  (fpEvtStr->ITRzin[hitId]  + fpEvtStr->ITRzout[hitId])/2);
-   TVector3 MCmom = TVector3((fpEvtStr->ITRpxin[hitId] + fpEvtStr->ITRpxout[hitId])/2, (fpEvtStr->ITRpyin[hitId] + fpEvtStr->ITRpyout[hitId])/2, (fpEvtStr->ITRpzin[hitId] + fpEvtStr->ITRpzout[hitId])/2);
-   
-   if ( fDebugLevel> 0 )     {
-      cout << "Vertex pixel hit n: " << hitId << ". Col " << pixel->GetPixelColumn() << " row "<< pixel->GetPixelLine() << endl;
-      cout << "\tGlobal kinematic: \n\t\tPos:\t";
-      MCpos.Print();
-      cout << "\t\tMom:\t";
-      MCmom.Print();
-   }
-   
-   
-   pixel->SetMCPosition(MCpos);   // set in local coord (transformation in Hit)
-   pixel->SetMCMomentum(MCmom);   // set in local coord
-   pixel->SetEneLoss(fpEvtStr->ITRde[hitId]);
-   
-   // store generated particle info
-   pixel->SetGeneratedParticleInfo( genPartID, fpEvtStr->TRfid[genPartID], fpEvtStr->TRcha[genPartID],
-                                   fpEvtStr->TRbar[genPartID], fpEvtStr->TRmass[genPartID],
-                                   TVector3(fpEvtStr->TRix[genPartID], fpEvtStr->TRiy[genPartID], fpEvtStr->TRiz[genPartID]),
-                                   TVector3(fpEvtStr->TRipx[genPartID], fpEvtStr->TRipy[genPartID], fpEvtStr->TRipz[genPartID]) );
 }
