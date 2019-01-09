@@ -41,73 +41,52 @@
 class TATW_Hit : public TObject {
    
 private:
+   static const Int_t fgkMAXTRACK = 10;
 
-	TATWparGeo* m_geometry;
-
-    int m_layer;
-    int m_bar;
-	int m_indexMC;                        // MC index of the hit in the ntuple
+    Int_t m_layer;
+    Int_t m_bar;
 	
-    double m_de;                          // energy loss in the scintillator bar
-    double m_time;                        
+    Double_t m_de;                          // energy loss in the scintillator bar
+    Double_t m_time;                        
 
-    float m_coordinate;                   // x or y coordinate in the local detector frame, depending on the layer
-    float m_z;                            // z coordinate in the local detector frame
+    Float_t m_coordinate;                   // x or y coordinate in the local detector frame, depending on the layer
+    Float_t m_z;                            // z coordinate in the local detector frame
 
-    TVector3 m_posMC;                     // MC hit position = track hitting the scint.
-	TVector3 m_momMC;                     // MC momentum of the hit
+    Int_t   m_McTrackCount;                 // Variable that count the number of times a crystal is touched
+    Int_t   m_McTrackId[fgkMAXTRACK];         // Id of the track created in the simulation
 
-    int m_genPartIndex;
-    TAGntuMCeveHit* m_genPartPointer;
-
-	
+   TVector3 m_posMC;                     // MC hit position = track hitting the scint.
 
 public:
-
 	TATW_Hit() {};
 	TATW_Hit( TATWrawHit* hit );
-	TATW_Hit ( int aView, int aBar, double aDe, double aTime, int aID, int parentID );
+	TATW_Hit ( Int_t aView, Int_t aBar, Double_t aDe, Double_t aTime);
 	~TATW_Hit() {};
 
 	void Initialise();
 
-    bool IsColumn() { return ( m_layer == 0 ? true : false ); };
-    bool IsRow() { return ( m_layer == 1 ? true : false ); };
+   bool IsColumn() { return ( m_layer == 0 ? true : false ); };
+   bool IsRow()    { return ( m_layer == 1 ? true : false ); };
 
-    // all the Set methods 
-    void               SetMCPosition(TVector3 a_pos)   { m_posMC = a_pos;          }    //! Set MC truth position
-    void               SetMCMomentum(TVector3 a_mom)   { m_momMC = a_mom;            }    //! Set MC truth momentum
-
-    void               SetGenPartID( int agenPartID );  // also the m_genPartPointer
-
-
-    //    All the Get methods
-    int              GetBar()                  { return  m_bar; }
-    int              GetLayer()                { return  m_layer; }
-    
-    int                 GetMCid()           { return  m_indexMC; };  //MC index of the hit in the ntuple
-    int                 GetGenPartID()      { return m_genPartIndex; };
-    TAGntuMCeveHit*     GetGenParticle()    { return m_genPartPointer; };
-
-
-   float          GetHitCoordinate_sensorFrame()        { return m_geometry->GetCoordiante_sensorFrame( m_layer, m_bar ); };
-   float          GetHitCoordinate_detectorFrame()      { return m_coordinate; };
+   //    All the Get methods
+   Int_t     GetBar()                  const   { return  m_bar;              }
+   Int_t     GetLayer()                const   { return  m_layer;            }
    
-   float          GetHitZ_sensorFrame()        { return m_geometry->GetZ_sensorFrame( m_layer, m_bar ); };
-   float          GetHitZ_detectorFrame()      { return m_z; };
-
+   Double_t  GetEnergyLoss()           const   { return m_de;                }
+   Double_t  GetTime()                 const   { return m_time;              }
    
-//    TVector3          GetMCPosition_sensorFrame();
-    TVector3          GetMCPosition_detectorFrame()      { return  m_posMC;            }
-//    TVector3          GetMCPosition_footFrame();
+   Float_t    GetHitCoordinate_detectorFrame() const   { return m_coordinate; }
+   Float_t    GetHitZ_detectorFrame()          const   { return m_z;          }
 
-    // TVector3          GetMCMomentum_sensorFrame()        { return  m_momMC;            }
-    TVector3           GetMCMomentum_detectorFrame()      { return  m_momMC;            }
-  //  TVector3           GetMCMomentum_footFrame();
+   // MC track id
+   Int_t      GetTrackIdMc(Int_t index) const   { return m_McTrackId[index];  }
+   Int_t      GetMcTrackCount()         const   { return m_McTrackCount;      }
+   
+   // Add MC track Id
+   void       AddMcTrackId(Int_t trackId);
 
-    
-    double           GetEnergyLoss()                { return m_de; };
-    double           GetTime()                      { return m_time; };
+   void       SetMCPosition(TVector3 a_pos)       { m_posMC = a_pos;          }    //! Set MC truth position
+   TVector3   GetMCPosition_detectorFrame() const { return  m_posMC;          }
 
     ClassDef(TATW_Hit,3)                            // Pixel or Pixel of a Detector Plane
 };

@@ -34,42 +34,33 @@
 */
 /*------------------------------------------+---------------------------------*/
 
-
-
 class TATW_Point : public TObject {
    
 private:
+	TVector3  m_position;
+	int       m_column;
+	int       m_row;
 
-	TATWparGeo* m_geometry;
-
-	TVector3 m_position;
-	int m_column;
-	int m_row;
-
-	int m_columnHitID;
-	int m_rowHitID;
+	int       m_columnHitID;
+	int       m_rowHitID;
 
 	TATW_Hit* m_columnHit;
 	TATW_Hit* m_rowHit;
 
-	bool m_isMC;
-	bool m_isTrueGhost;
-	// float m_isGhost;
+	bool      m_isMC;
+	bool      m_isTrueGhost;
 
-	double m_de;                          // energy loss in the scintillator bar
-	double m_time;                        // for the moment I take the column time
+	double    m_de;                          // energy loss in the scintillator bar
+	double    m_time;                        // for the moment I take the column time
 
 	// currently the exists for the non-TrueGhost
 	// for the non-TrueGhost, average of the col and row values
 	// maybe I should do instead? :
 	// for the trueGhost, pos = col_MCx, row_MCy, average of z
 	// for the trueGhost, mom = MC momentum average
-	TVector3 m_posMC;                     // MC hit position = track hitting the scint.
-	TVector3 m_momMC;                     // MC momentum of the hit
 
+private:
 	void TrueGhostWarning();
-
-
 
 public:
 
@@ -77,46 +68,33 @@ public:
 	TATW_Point( int iCol, TATW_Hit* colHit, int iRow, TATW_Hit* rowHit );
 	~TATW_Point() {};
 
-	void Initialise();
-
-
-	// all the Set methods 
-	// void SetIsGhost();
-
-
+	void      Initialise();
+   
 	//    All the Get methods
-	TVector3 GetPosition_detectorFrame();
-	TVector3 GetPosition_footFrame();
+	TVector3  GetPosition_detectorFrame();
+	TVector3  GetPosition_footFrame();
 
-	int GetColumnID()         { return m_column; };
-	int GetRowID()            { return m_row; };
+	int       GetColumnID()    const  { return m_column;              }
+	int       GetRowID()       const  { return m_row;                 }
 
-	int GetColumn()         { return m_columnHit->GetBar(); };
-	int GetRow()            { return m_rowHit->GetBar(); };
+	int       GetColumn()      const  { return m_columnHit->GetBar(); }
+	int       GetRow()         const  { return m_rowHit->GetBar();    }
 
-	bool IsMC()             { return m_isMC; };
-	bool IsTrueGhost()      { return m_isTrueGhost; };
+	bool      IsMC()           const  { return m_isMC;                }
+	bool      IsTrueGhost()    const  { return m_isTrueGhost;         }
 
-	int GetColumnHitID()     { return m_columnHitID; };
-	int GetRowHitID()        { return m_rowHitID; };
+	int       GetColumnHitID() const  { return m_columnHitID;         }
+	int       GetRowHitID()    const  { return m_rowHitID;            }
 
-	TATW_Hit* GetColumnHit()		{ return m_columnHit; };
-	TATW_Hit* GetRowHit()			{ return m_rowHit; };
+	TATW_Hit* GetColumnHit()	const	 { return m_columnHit;           }
+   TATW_Hit* GetRowHit()	   const	 { return m_rowHit;              }
 
-	double GetEnergyLoss()          { return m_de; };
-	double GetTime()                { return m_time; };
+	double GetEnergyLoss()     const  { return m_de;                  }
+	double GetTime()           const  { return m_time;                }
 
 	// float IsGhost()         { return m_isGhost; };
 
 	int                 GetGenPartID();
-    TAGntuMCeveHit*     GetGenParticle();
-
-	TVector3          GetMCPosition_detectorFrame();
-	TVector3          GetMCPosition_footFrame();
-
-	TVector3           GetMCMomentum_detectorFrame();
-	TVector3           GetMCMomentum_footFrame();
-
 	
 	ClassDef(TATW_Point,3)                            
 };
