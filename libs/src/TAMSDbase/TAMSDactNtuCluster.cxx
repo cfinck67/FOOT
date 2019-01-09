@@ -57,13 +57,13 @@ void TAMSDactNtuCluster::CreateHistogram()
    TString prefix = "ms";
    TString titleDev = "Multi Strip Detector";
    
-   fpHisStripTot = new TH1F(Form("%sClusStripTot", prefix.Data()), Form("%s - Total # strips per clusters", titleDev.Data()), 100, 0., 100.);
+   fpHisStripTot = new TH1F(Form("%sClusPixelTot", prefix.Data()), Form("%s - Total # strips per clusters", titleDev.Data()), 100, 0., 100.);
    AddHistogram(fpHisStripTot);
    
    TAVTbaseParGeo* pGeoMap  = (TAVTbaseParGeo*) fpGeoMap->Object();
    
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
-      fpHisStrip[i] = new TH1F(Form("%sClusStrip%d",prefix.Data(), i+1), Form("%s - # strips per clusters for sensor %d", titleDev.Data(), i+1), 100, 0., 100.);
+      fpHisStrip[i] = new TH1F(Form("%sClusPixel%d",prefix.Data(), i+1), Form("%s - # strips per clusters for sensor %d", titleDev.Data(), i+1), 100, 0., 100.);
       AddHistogram(fpHisStrip[i]);
    }
    
