@@ -117,6 +117,7 @@ bool TAMSDactNtuMC::Action()
 	if ( fDebugLevel> 0 )     
 	  Info("TAMSDactNtuMC::Action()", "start  -->  VTn : %d  ", fpEvtStr->MSDn);
 
+   TAMSDparGeo* pGeoMap = (TAMSDparGeo*) fpGeoMap->Object();
 	TAMSDntuRaw* pNtuRaw = (TAMSDntuRaw*) fpNtuRaw->Object();
 	pNtuRaw->Clear();
    
@@ -131,9 +132,14 @@ bool TAMSDactNtuMC::Action()
          fpHisDeTot->Fill(fpEvtStr->MSDde[i]*TAGgeoTrafo::GevToKev());
          fpHisDeSensor[sensorId]->Fill(fpEvtStr->MSDde[i]*TAGgeoTrafo::GevToKev());
       }
+            
+      // Go to sensor frame
+      TVector3 posIn(fpEvtStr->MSDxin[i], fpEvtStr->MSDyin[i], fpEvtStr->MSDzin[i]);
+      TVector3 posOut(fpEvtStr->MSDxout[i], fpEvtStr->MSDyout[i], fpEvtStr->MSDzout[i]);
+      posIn  = pGeoMap->Detector2Sensor(sensorId, posIn);
+      posOut = pGeoMap->Detector2Sensor(sensorId, posOut);
       
-		if (!fDigitizer->Process(fpEvtStr->MSDde[i], fpEvtStr->MSDxin[i], fpEvtStr->MSDyin[i], fpEvtStr->MSDzin[i], fpEvtStr->MSDzout[i])) continue;
-
+      if (!fDigitizer->Process(fpEvtStr->MSDde[i], posIn[0], posIn[1], posIn[2], posOut[2])) continue;
 		FillStrips(sensorId, i);
 		
 		if (ValidHistogram()) {
@@ -142,7 +148,6 @@ bool TAMSDactNtuMC::Action()
          fpHisStripTot->Fill(stripsN);
 		}
    }
-
 
    fpNtuRaw->SetBit(kValid);
    return kTRUE;
