@@ -42,7 +42,7 @@ TAMSDntuRaw::TAMSDntuRaw()
 {
    fpGeoMap = (TAMSDparGeo*) gTAGroot->FindParaDsc(TAMSDparGeo::GetDefParaName(), "TAMSDparGeo")->Object();
    if (!fpGeoMap) {
-      Error("TAMSDntuRaw()", "Para desciptor vtGeo does not exist");
+      Error("TAMSDntuRaw()", "Para desciptor %s does not exist", TAMSDparGeo::GetDefParaName());
       exit(0);
    }
 
