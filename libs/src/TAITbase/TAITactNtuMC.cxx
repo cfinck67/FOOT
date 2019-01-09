@@ -54,6 +54,8 @@ void TAITactNtuMC::CreateDigitizer()
 {
    TAITparGeo* pGeoMap  = (TAITparGeo*) fpGeoMap->Object();
    fDigitizer = new TAITdigitizerE(pGeoMap);
+   if (fgSigmaNoiseLevel > 0)
+      ComputeNoiseLevel();
 }
 
 

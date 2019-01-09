@@ -55,6 +55,8 @@ void TAVTactNtuMC::CreateDigitizer()
 {
    TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
    fDigitizer = new TAVTdigitizerE(pGeoMap);
+   if (fgSigmaNoiseLevel > 0)
+      ComputeNoiseLevel();
 }
 
 
