@@ -22,10 +22,7 @@ class TAMSDntuRaw;
 class TAMSDparGeo;
 
 class TAMSDactNtuMC : public TAGaction {
-
-// class TAMSDbaseDigitizerg;
-// class TAMSDntuHit;
-
+   
 public:
    explicit TAMSDactNtuMC(const char* name=0, TAGdataDsc* p_nturaw=0, TAGparaDsc* p_geomap = 0, EVENT_STRUCT* evtStr=0);
    virtual ~TAMSDactNtuMC() {};
@@ -45,8 +42,6 @@ public:
    
    static Int_t   GetMcNoiseId()                    { return fgMcNoiseId;        }
    static void    SetMcNoiseId(Int_t id)            { fgMcNoiseId = id;          }
-   
-
    
 private:
    TAGdataDsc*     fpNtuRaw;		    // output data dsc
@@ -68,11 +63,11 @@ private:
    static Int_t    fgMcNoiseId;
 
 private:
-   void           FillNoise(Int_t sensorId) ;
-   void           SetMCinfo(TAMSDntuHit* pixel, Int_t hitId);
-   void           CreateDigitizer();
-   void           FillStrips( Int_t sensorId, Int_t mcId );
-   void           ComputeNoiseLevel();
+   void            FillNoise(Int_t sensorId) ;
+   void            SetMCinfo(TAMSDntuHit* pixel, Int_t hitId);
+   void            CreateDigitizer();
+   void            FillStrips( Int_t sensorId, Int_t mcId );
+   void            ComputeNoiseLevel();
 
    ClassDef(TAMSDactNtuMC,0)
 };
