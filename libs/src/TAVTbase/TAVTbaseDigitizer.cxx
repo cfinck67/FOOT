@@ -11,6 +11,8 @@
 #include "TStyle.h"
 #include "TRandom2.h"
 
+#include "TAGgeoTrafo.hxx"
+
 #include "TAVTparGeo.hxx"
 #include "TAVTbaseDigitizer.hxx"
 
@@ -22,8 +24,6 @@
 ClassImp(TAVTbaseDigitizer);
 
 
-Double_t TAVTbaseDigitizer::fgkGeV2keV        = 1e6;
-Double_t TAVTbaseDigitizer::fgkCm2Mu          = 10000;
 Bool_t   TAVTbaseDigitizer::fgSmearFlag       = true;
 Float_t  TAVTbaseDigitizer::fgDefSmearPos     =  10.35;    // in micron
 
@@ -39,9 +39,9 @@ TAVTbaseDigitizer::TAVTbaseDigitizer(TAVTbaseParGeo* parGeo)
   fThresParErr(250)
 {
    SetFunctions();
-   fPitchX   = fpParGeo->GetPitchX()*fgkCm2Mu;
+   fPitchX   = fpParGeo->GetPitchX()*TAGgeoTrafo::CmToMu();
    fPixelsNx = fpParGeo->GetNPixelX();
-   fPitchY   = fpParGeo->GetPitchY()*fgkCm2Mu;
+   fPitchY   = fpParGeo->GetPitchY()*TAGgeoTrafo::CmToMu();
    fPixelsNy = fpParGeo->GetNPixelY();
 }
 
@@ -56,10 +56,10 @@ TAVTbaseDigitizer::~TAVTbaseDigitizer()
 //! fill pixel signal
 Bool_t TAVTbaseDigitizer::Process( Double_t edep, Double_t x0, Double_t y0, Double_t zin, Double_t zout, Double_t /*time*/, Int_t /*sensorId*/)
 {
-   x0 *= fgkCm2Mu;
-   y0 *= fgkCm2Mu;
+   x0 *= TAGgeoTrafo::CmToMu();
+   y0 *= TAGgeoTrafo::CmToMu();
    
-   Double_t deltaE = edep*fgkGeV2keV;
+   Double_t deltaE = edep*TAGgeoTrafo::GevToKev();
    Double_t  smear = 0;
    
    smear = gRandom->Gaus(0, fRsParErr);

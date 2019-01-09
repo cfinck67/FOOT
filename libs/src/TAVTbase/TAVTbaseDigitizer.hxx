@@ -91,9 +91,6 @@ protected:
    Int_t       GetLastShell(Int_t* shell, Int_t maxTurn) const;
    
 public:
-   static Double_t GeV2keV()                        { return fgkGeV2keV;         }
-   static Double_t Cm2Mu()                          { return fgkCm2Mu;           }
-   
    static Bool_t  GetSmearFlag()                    { return fgSmearFlag;        }
    static void    SetSmearFlag(Bool_t flag)         { fgSmearFlag = flag;        }
    
@@ -103,8 +100,6 @@ public:
    static Int_t   GetRandom (Int_t i)               { return std::rand() % i;    }
    
 protected:
-   static Double_t fgkGeV2keV;
-   static Double_t fgkCm2Mu;
    static Float_t  fgDefSmearPos;
    static Bool_t   fgSmearFlag;
 
