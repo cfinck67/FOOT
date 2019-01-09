@@ -16,12 +16,15 @@ Float_t TAMSDdigitizer::fgChargeFac       = 0.8;
 
 // --------------------------------------------------------------------------------------
 TAMSDdigitizer::TAMSDdigitizer(TAVTbaseParGeo* parGeo)
-: TAVTbaseDigitizer(parGeo)
+: TAGbaseDigitizer(),
+   fpParGeo(parGeo),
+   fPitch(0),
+   fStripsN(-1),
+   fView(-1)
 {
-   fPitchX   = fpParGeo->GetPitchX();
-   fPixelsNx = fpParGeo->GetNPixelX();
-   fPitchY   = fpParGeo->GetPitchY();
-   fPixelsNy = fpParGeo->GetNPixelY();
+   
+   fStripsN = fpParGeo->GetNPixelX();
+   fPitch = fpParGeo->GetPitchX();
 }
 
 // --------------------------------------------------------------------------------------
@@ -31,7 +34,7 @@ TAMSDdigitizer::~TAMSDdigitizer()
 
 //------------------------------------------+-----------------------------------
 //! fill pixel signal
-Bool_t TAMSDdigitizer::Process( Double_t edep, Double_t x0, Double_t y0,  Double_t zin, Double_t zout,  Double_t /*time*/, Int_t /*sensorId*/)
+Bool_t TAMSDdigitizer::Process( Double_t edep, Double_t x0, Double_t y0,  Double_t zin, Double_t zout,  Double_t /*time*/, Int_t sensorId)
 {
 //   if (fgSmearFlag) {
 //      Float_t dx = gRandom->Gaus(0, fPitchX/2.);
@@ -40,46 +43,64 @@ Bool_t TAMSDdigitizer::Process( Double_t edep, Double_t x0, Double_t y0,  Double
 //      y0 += dy;
 //   }
 
+   Int_t view = fpParGeo->GetSensorPar(sensorId).TypeIdx;
+   
+   Float_t pos = 0.;
+   
+   if (view == 0)
+      pos = x0;
+   else
+      pos = y0;
+   
    fMap.clear();
    
    Double_t value = 0.;
    
-   Int_t line = GetLine(y0);
-   Int_t col  = GetColumn(x0);
+   Int_t strip = GetStrip(pos);
    
-   if (line-1 >= 0) {
+   if (strip-1 >= 0) {
       value = edep*fgChargeGain*(1-fgChargeFac/2.);
-      FillMap(line-1, col, value);
+      FillMap(strip-1, value);
    }
    
-   if (col-1 >= 0) {
-      value = edep*fgChargeGain*(1-fgChargeFac/2.);
-      FillMap(line, col-1, value);
-   }
    
    value = edep*fgChargeGain*fgChargeFac;
-   FillMap(line, col, value);
+   FillMap(strip, value);
    
-   if (line+1 < fPixelsNx) {
+   if (strip+1 < fStripsN) {
       value = edep*fgChargeGain*(1-fgChargeFac/2.);
-      FillMap(line+1, col, value);
+      FillMap(strip, value);
    }
    
-   if (col+1 < fPixelsNy) {
-      value = edep*fgChargeGain*(1-fgChargeFac/2.);
-      FillMap(line, col+1, value);
-   }
    
    return true;
 }
 
 
 // --------------------------------------------------------------------------------------
-void TAMSDdigitizer::FillMap(Int_t line, Int_t col, Double_t value)
+void TAMSDdigitizer::FillMap(Int_t strip, Double_t value)
 {
-   Int_t idx  = GetIndex(line, col);
+   Int_t idx  = strip;
    if (idx < 0) return;
+   
    fMap[idx] = value;
 }
 
+
+//_____________________________________________________________________________
+Int_t TAMSDdigitizer::GetStrip(Float_t pos) const
+{
+   // equivalent to  floor((-y-ymin)/fPitchV)-1
+   Float_t min = -fStripsN*fPitch/2.;
+   
+   if (pos < min || pos > -min) {
+      if (fDebugLevel)
+         Warning("GetLine()", "Value of Y: %f out of range +/- %f\n", pos, min);
+      return -1;
+   }
+   
+   Int_t strip = floor((pos-min)/fPitch);
+   
+   return strip;
+}
 
