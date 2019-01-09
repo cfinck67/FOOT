@@ -41,9 +41,9 @@ TAMSDntuHit::TAMSDntuHit( Int_t input, Int_t value, Int_t view, Int_t strip)
 //
 Bool_t TAMSDntuHit::IsEqual(const TObject* hit) const
 {
-   return ((fSensorId    == ((TAMSDntuHit*)hit)->fSensorId)    &&
-           (fView   == ((TAMSDntuHit*)hit)->fView)   &&
-           (fStrip == ((TAMSDntuHit*)hit)->fStrip)
+   return ((fSensorId == ((TAMSDntuHit*)hit)->fSensorId) &&
+           (fView     == ((TAMSDntuHit*)hit)->fView)     &&
+           (fStrip    == ((TAMSDntuHit*)hit)->fStrip)
            );
 }
 
