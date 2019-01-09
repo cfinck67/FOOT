@@ -36,7 +36,7 @@ protected:
 
    Int_t     fSensorId;
    Float_t   fPosition;                 // strip position in the detector frame
-   Int_t     fValue;
+   Float_t   fValue;
    Int_t     fIndex;
    Int_t     fView;
    Int_t     fStrip;
@@ -47,7 +47,7 @@ protected:
 
 public:
    TAMSDntuHit();
-    TAMSDntuHit( Int_t input, Int_t value, Int_t view, Int_t strip);
+    TAMSDntuHit( Int_t input, Float_t value, Int_t view, Int_t strip);
 
    virtual ~TAMSDntuHit() {};
 
@@ -59,7 +59,7 @@ public:
    //! Get input type
    Int_t      GetSensorId()     const    { return fSensorId; }
    //! Get value (pulse height)
-   Int_t      GetValue()        const    { return fValue;    }
+   Float_t    GetValue()        const    { return fValue;    }
    //! Get line number
    Int_t      GetView()         const    { return fView;     }
    //! Get column number
@@ -83,7 +83,7 @@ public:
    //! Set input type
    void     SetSensorId(Int_t input)     { fSensorId = input; }
    //! Set value
-   void     SetValue(Int_t value)        { fValue = value;    }
+   void     SetValue(Float_t value)      { fValue = value;    }
    //! Set line number
    void     SetView(Int_t view)          { fView = view;      }
    //! Set column number
