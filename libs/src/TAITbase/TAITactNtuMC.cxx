@@ -103,8 +103,8 @@ bool TAITactNtuMC::Action()
 //      if (fpEvtStr->TRcha[genPartID] < 1) continue;
       
       if (ValidHistogram()) {
-         fpHisDeTot->Fill(fpEvtStr->ITRde[i]*TAVTbaseDigitizer::GeV2keV());
-         fpHisDeSensor[sensorId]->Fill(fpEvtStr->ITRde[i]*TAVTbaseDigitizer::GeV2keV());
+         fpHisDeTot->Fill(fpEvtStr->ITRde[i]*TAGgeoTrafo::GevToKev());
+         fpHisDeSensor[sensorId]->Fill(fpEvtStr->ITRde[i]*TAGgeoTrafo::GevToKev());
       }
 
       // try to get into sensor frame, does not work yet
