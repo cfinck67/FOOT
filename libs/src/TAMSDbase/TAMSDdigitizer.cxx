@@ -10,7 +10,7 @@ ClassImp(TAMSDdigitizer);
 
 using namespace std;
 
-Float_t TAMSDdigitizer::fgChargeGain      = 200;
+Float_t TAMSDdigitizer::fgChargeGain      = 2000;
 Float_t TAMSDdigitizer::fgChargeFac       = 0.8;
 
 
