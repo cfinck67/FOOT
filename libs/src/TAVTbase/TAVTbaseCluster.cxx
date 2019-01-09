@@ -22,11 +22,7 @@ TAVTbaseCluster::TAVTbaseCluster()
    fFound(kFALSE),
 	fFoundXZ(kFALSE),
 	fFoundYZ(kFALSE),
-   fClusterPulseSum(-99.),
-   fClusterAreaPulseSum(-99.),
-   fSNneighbour(-99.),
-   fStripsInClusterArea(-99.),
-   fPhSeed(0),  
+   fPhSeed(0),
    fIndexSeed(0)
 {
 }
@@ -43,10 +39,6 @@ TAVTbaseCluster::TAVTbaseCluster(const TAVTbaseCluster& cluster)
    fFound(cluster.fFound),
    fFoundXZ(cluster.fFoundXZ),
    fFoundYZ(cluster.fFoundYZ),
-   fClusterPulseSum(cluster.fClusterPulseSum),
-   fClusterAreaPulseSum(cluster.fClusterAreaPulseSum),
-   fSNneighbour(cluster.fSNneighbour),
-   fStripsInClusterArea(cluster.fStripsInClusterArea),
    fPhSeed(cluster.fPhSeed),  
    fIndexSeed(cluster.fIndexSeed)
 {
@@ -123,21 +115,6 @@ TAVTntuHit* TAVTbaseCluster::GetPixel(Int_t idx)
 	  return (TAVTntuHit*)fListOfPixels->At(idx); 
    else
 	  return 0x0;
-}
-
-//______________________________________________________________________________
-//  
-Float_t TAVTbaseCluster::GetClusterPulseSum()
-{
-   if (fClusterPulseSum == -99.) {
-	  fClusterPulseSum = 0.;
-	  for (Int_t i = 0;  i < fListOfPixels->GetEntries(); ++i) {
-		 TAVTbaseNtuHit* pixel = (TAVTbaseNtuHit*)fListOfPixels->At(i);
-		 fClusterPulseSum += pixel->GetPulseHeight();
-	  }
-	  return fClusterPulseSum;
-   } else
-	  return  fClusterPulseSum; 
 }
 
 

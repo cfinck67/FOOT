@@ -35,12 +35,6 @@ protected:
    Bool_t             fFoundYZ;					   // kTRUE is associated to a track in YZ Projection
    Bool_t             fIsValid;                 //! validity flag
    TVector2           fSize;                    //! width/length of cluster
-
-   Float_t            fClusterPulseSum;          // sum of pulseheight on strips in hit cluster, involves noise cuts
-   Float_t            fClusterAreaPulseSum;      // sum of pulseheight on strips in hit cluster area, no noise cuts
-   Float_t            fClusterNoiseAverage;      // hit cluster signal noise average
-   Float_t            fSNneighbour;              // signal / Noise of neighbours.;
-   Int_t              fStripsInClusterArea;      // # strips in cluster area
    
    Float_t            fPhSeed;                   // pulseheight on seed strip
    Int_t              fIndexSeed;                // index of seed strip
@@ -109,12 +103,6 @@ public:
    Float_t            GetPulseHeight(Int_t tSk)        const { return ((TAVTntuHit*)fListOfPixels->At(tSk))->GetPulseHeight(); } 
    //! Get number of pixels in this clusters
    Int_t              GetPixelsN()                     const { return  fListOfPixels->GetEntries(); }
-   //! Get Sum of neighbour (not used)
-   Float_t            GetSNneighbour()                 const { return  fSNneighbour;          } 
-   //! Get sum of pulse of cluster for a given area
-   Float_t            GetClusterAreaPulseSum()         const { return fClusterAreaPulseSum;  }
-   //! Get sum of pulse of cluster 
-   Float_t            GetClusterPulseSum();
    //! Get pixel
    TAVTntuHit*        GetPixel(Int_t idx);
    //! Get position of seed pixel
