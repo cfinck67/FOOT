@@ -20,6 +20,7 @@ TAMSDntuHit::TAMSDntuHit()
    fIndex(0),
    fView(0),
    fStrip(0),
+   fFound(false),
    fMcTrackCount(0)
 {
 }
@@ -33,6 +34,7 @@ TAMSDntuHit::TAMSDntuHit( Int_t input, Int_t value, Int_t view, Int_t strip)
    fIndex(0),
    fView(view),
    fStrip(strip),
+   fFound(false),
    fMcTrackCount(0)
 {
 }
