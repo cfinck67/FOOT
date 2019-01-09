@@ -82,7 +82,6 @@ void TAMSDactNtuMC::CreateHistogram()
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
          fpHisStripMap[i]  = new TH1F(Form("%sMcStripMap%d", prefix.Data(), i+1) , Form("%s - MC strip map for sensor %d", titleDev.Data(), i+1),
                                       pGeoMap->GetNPixelX(), 0, pGeoMap->GetNPixelX());
-         fpHisStripMap[i]->SetStats(kFALSE);
          AddHistogram(fpHisStripMap[i]);
       
    }
