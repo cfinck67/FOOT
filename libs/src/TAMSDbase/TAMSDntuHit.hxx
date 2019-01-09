@@ -32,7 +32,7 @@
 class TAMSDntuHit : public TAGobject {
    
 protected:
-   static const Int_t fgkMAXTRACK = 10;
+   static const Int_t fgkMAXTRACK = 100;
 
    Int_t     fSensorId;
    Float_t   fPosition;                 // strip position in the detector frame
@@ -51,7 +51,7 @@ public:
 
    virtual ~TAMSDntuHit() {};
 
-   Bool_t	       IsEqual(const TObject* obj) const;
+   Bool_t	  IsEqual(const TObject* obj) const;
    
    //! Comapre method
    Int_t      Compare(const TObject* obj) const;
