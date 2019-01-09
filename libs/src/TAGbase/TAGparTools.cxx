@@ -25,6 +25,7 @@ TAGparTools::TAGparTools()
   fFileStream(),
   fFileName(),
   fgDefaultGeoName(""),
+  fMatrixList(0x0),
   fCurrentPosition(0,0,0),
   fDebugLevel(0)
 {
