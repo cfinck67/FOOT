@@ -19,20 +19,20 @@ public:
    TAMChit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof = 0);
    virtual      ~TAMChit();
    
-   Int_t         GetSensorId()      const  { return fSensorId; }
+   Int_t         GetID()      const  { return fID; }
    TVector3      GetPosition()      const  { return fPosition; }
    TVector3      GetMomentum()      const  { return fMomentum; }
    Double_t      GetDeltaE()        const  { return fDelatE;   }
    Double_t      GetTof()           const  { return fTof;      }
    
    
-   void          SetSensorId(int aid)      { fSensorId = aid;  }
+   void          SetID(int aid)            { fID = aid;        }
    void          SetPosition(TVector3 pos) { fPosition = pos;  }
    void          SetMomentum(TVector3 mom) { fMomentum = mom;  }
    void          SetDeltaE(Double_t e)     { fDelatE   = e;    }
    void          SetTof(Double_t tof)      { fTof      = tof;  }
 
-   Int_t         fSensorId;   // identity
+   Int_t         fID;         // identity
    TVector3      fPosition;   // initial position
    TVector3      fMomentum;   // initial momentum
    Double_t      fDelatE;     // deposited energy

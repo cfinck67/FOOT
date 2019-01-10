@@ -25,19 +25,18 @@ TString  TAMCntuHit::fgkCalBranchName = "camc.";
 //! Default constructor.
 
 TAMChit::TAMChit()
-: fSensorId(-99),
+ : fID(-99),
    fPosition(0,0,0),
    fMomentum(0,0,0),
    fDelatE(0.),
    fTof(0.)
 {
-   
 }
 
 //------------------------------------------+-----------------------------------
 //! Construct with data
 TAMChit::TAMChit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof)
- : fSensorId(id),
+ : fID(id),
    fPosition(ipos),
    fMomentum(imom),
    fDelatE(de),
@@ -154,7 +153,7 @@ void TAMCntuHit::ToStream(ostream& os, Option_t* option) const
   
   for (Int_t i = 0; i < GetHitsN(); i++) {
     const TAMChit* p_hit = GetHit(i);
-    os << Form("%3d %3d", i, p_hit->GetSensorId())
+    os << Form("%3d %3d", i, p_hit->GetID())
        << endl;
   }
 
