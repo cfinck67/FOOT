@@ -8,7 +8,6 @@
 /*------------------------------------------+---------------------------------*/
 
 #include "Evento.hxx"
-#include "foot_geo.h"
 
 #include "TVector3.h"
 #include "TAGaction.hxx"

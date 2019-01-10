@@ -227,7 +227,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, Int_t BMdebug, vector<Doub
       cout<<"WARNING: state_pos_vec.size is different from angZ_vec.size!!!!!!!!!!!!!!!!!!!!!  something is wrong in TABMntuTrack::CalculatefitPar"<<endl;
         
     TVector3 target_o(0.,0.,13.9);//messo a mano!!!, punto di origine superficie target NEL SISTEMA DI RIFERIMENTO DEL BM
-    RTarget=tan(AngZ*DEG2RAD)*(target_o.Z()-state_pos_vec[0].Z());   //Calculate RTarget using AngZ from first state position, without state xy bias 
+     RTarget=tan(AngZ*TMath::DegToRad())*(target_o.Z()-state_pos_vec[0].Z());   //Calculate RTarget using AngZ from first state position, without state xy bias
   
   
     //~ //Calculate RTarget (distance on the surface of target), calculated from the state of the last measurement

@@ -28,7 +28,6 @@
 #include "TAVTntuCluster.hxx"
 #include "TAVTactNtuTrackF.hxx"
 
-#include "foot_geo.h"
 
 /*!
  \class TAVTactNtuTrackF 
@@ -179,9 +178,12 @@ Bool_t TAVTactNtuTrackF::FindTiltedTracks()
 //  
 Bool_t TAVTactNtuTrackF::IsGoodCandidate(TAVTtrack* track)
 {
-   Float_t width  = VTX_WIDTH/2.;
-   Float_t height = VTX_HEIGHT/2.;
-   TVector3 vec = track->Intersection(-VTX_Z);
+   TAVTparGeo*  pGeoMap  = (TAVTparGeo*)     fpGeoMap->Object();
+   TAGgeoTrafo* pFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+
+   Float_t width  = pGeoMap->GetEpiSize()[0];//VTX_WIDTH/2.;
+   Float_t height = pGeoMap->GetEpiSize()[1];//VTX_HEIGHT/2.;
+   TVector3 vec = track->Intersection(-pFootGeo->GetVTCenter()[2]);
    if (TMath::Abs(vec.X()) > width || TMath::Abs(vec.Y()) > height)
 	  return false;
    

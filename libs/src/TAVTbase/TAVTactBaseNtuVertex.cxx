@@ -82,9 +82,15 @@ TAVTactBaseNtuVertex::~TAVTactBaseNtuVertex()
 void TAVTactBaseNtuVertex::CreateHistogram()
 {
    DeleteHistogram();   
-   TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
+   TAVTparGeo* pGeoMap   = (TAVTparGeo*) fpGeoMap->Object();
+   TAGparGeo* pGeoMapG   = (TAGparGeo*) fpGeoMapG->Object();
+   TAGgeoTrafo* pFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+
    
-   fpHisPosZ = new TH1F("vtVtxPosZ", "Vertex position at Z", 100, -TG_THICK-VTX_Z, TG_THICK-VTX_Z);
+   Float_t liml = -pGeoMapG->GetTargetPar().Size[2] - pFootGeo->GetVTCenter()[2];
+   Float_t limu =  pGeoMapG->GetTargetPar().Size[2] - pFootGeo->GetVTCenter()[2];
+   
+   fpHisPosZ = new TH1F("vtVtxPosZ", "Vertex position at Z", 100, liml, limu);
    AddHistogram(fpHisPosZ);
    
    TVector3 size(pGeoMap->GetPitchX()*pGeoMap->GetNPixelX(), pGeoMap->GetPitchY()*pGeoMap->GetNPixelY(), 0);
@@ -318,6 +324,8 @@ void TAVTactBaseNtuVertex::SetValidVertex()
 //!compute pileup
 void TAVTactBaseNtuVertex::ComputePileUp()
 {
+   TAVTparGeo*  pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
+   Float_t width         = pGeoMap->GetEpiSize()[0];
    
    TAVTntuTrack* pNtuTrack = (TAVTntuTrack*) fpNtuTrack->Object();
    Int_t nTracks = pNtuTrack->GetTracksN();
@@ -328,7 +336,7 @@ void TAVTactBaseNtuVertex::ComputePileUp()
 		 TAVTtrack* track0 = pNtuTrack->GetTrack(i);
 		 TAVTtrack* track1 = pNtuTrack->GetTrack(j);
 		 TVector2 pos = track0->DistanceMin(track1);
-		 if (TMath::Abs(pos.X()) > VTX_WIDTH/2. || pos.Y() > fSearchClusDistance) {
+		 if (TMath::Abs(pos.X()) > width/2. || pos.Y() > fSearchClusDistance) {
 			track0->SetPileUp();
 			track1->SetPileUp();
 			pileup = true;

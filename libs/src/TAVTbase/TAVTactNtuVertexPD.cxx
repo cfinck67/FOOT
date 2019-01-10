@@ -17,7 +17,6 @@
 #include "TAVTactBaseNtuVertex.hxx"
 #include "TArrayI.h"
 
-#include "foot_geo.h"
 
 /*!
  \class TAVTactNtuVertex

@@ -16,7 +16,6 @@
 #include "TAVTntuVertex.hxx"
 #include "TAVTactNtuVertex.hxx"
 
-#include "foot_geo.h"
 
 /*!
  \class TAVTactNtuVertex

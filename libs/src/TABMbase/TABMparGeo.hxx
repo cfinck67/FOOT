@@ -11,7 +11,6 @@
 #include "TVector3.h"
 
 #include "TAGparTools.hxx"
-#include "foot_geo.h"
 
 #include "GlobalPar.hxx"
 
