@@ -13,8 +13,8 @@
 #include "TF1.h"
 
 //MC block
-#include "TAGntuMCeve.hxx"
-#include "TAGactNtuMCeve.hxx"
+#include "TAMCntuEve.hxx"
+#include "TAMCactNtuEve.hxx"
 
 #include "TAVTparMap.hxx"
 #include "TAVTparGeo.hxx"
@@ -84,8 +84,8 @@ private:
   vector<TAVTntuHit*> m_VT_hitCollection;
   vector<TAITntuHit*> m_IT_hitCollection;
   vector<TAMSDntuHit*> m_MSD_hitCollection;
-  vector<TAGntuMCeveHit*> m_Frag_hitCollection;
-  vector<TAGntuMCeveHit*> m_Trcks9hits;
+  vector<TAMCntuEveHit*> m_Frag_hitCollection;
+  vector<TAMCntuEveHit*> m_Trcks9hits;
   
   vector<int> m_Frag_indexCollection;
   vector< int > m_VT_partIDColl;

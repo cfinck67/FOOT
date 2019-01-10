@@ -160,7 +160,7 @@ Bool_t GlobalTrack::IsGoingToAladin(TVector3& pos, TVector3& dir)
 
 /*******************************************************************************/
 
-void GlobalTrack::MakeGlobalTracksForward(TAVTntuVertex* on_vtvtx, TATntuRaw* on_traw, TATparGeo* p_tofgeo, TAGntuMCeve* p_mceve) 
+void GlobalTrack::MakeGlobalTracksForward(TAVTntuVertex* on_vtvtx, TATntuRaw* on_traw, TATparGeo* p_tofgeo, TAMCntuEve* p_mceve) 
 {
   Info("GlobalTrack::Action()","*******************************************************************************");
   Info("GlobalTrack::Action()","*** New Event ************************************************************");
@@ -225,7 +225,7 @@ void GlobalTrack::MakeGlobalTracksForward(TAVTntuVertex* on_vtvtx, TATntuRaw* on
     Int_t Tofw_id = p_traw->GetMCid();
     if(p_mceve != NULL) {     
       if(Tofw_id<p_mceve->nhit) {
-	TAGntuMCeveHit* hit = p_mceve->Hit(Tofw_id-1);
+	TAMCntuEveHit* hit = p_mceve->Hit(Tofw_id-1);
 	if(hit->Chg() == TofwCharge) {
 	  TofwCharge = hit->Chg();
 	} else {

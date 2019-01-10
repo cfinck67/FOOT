@@ -41,8 +41,8 @@ void MultiTrackCheck::Initialize( EVENT_STRUCT* evStr ) {
   myn_msdraw = (TAMSDntuRaw*) _msdraw->Object();
 
    //////// MCtrack //////////////////
-  // TAGdataDsc* _mceve    = new TAGdataDsc("myn_mceve", new TAGntuMCeve());
-  // mya_mceve    = new TAGactNtuMCeve("mya_mceve", myn_mceve, evStr);
+  // TAGdataDsc* _mceve    = new TAGdataDsc("myn_mceve", new TAMCntuEve());
+  // mya_mceve    = new TAMCactNtuEve("mya_mceve", myn_mceve, evStr);
 
   distanceok = 0;
   distancetot = 0;
@@ -233,8 +233,8 @@ void MultiTrackCheck::Process( Long64_t jentry ){
 //  
 //   
 //   //// Read track ntuple variable//// 
-//   //TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->GenerateObject();
-//   TAGntuMCeve*  p_ntumceve  = (TAGntuMCeve*) gTAGroot->FindDataDsc("myn_mceve", "TAGntuMCeve")->Object();
+//   //TAMCntuEve*  p_ntumceve = (TAMCntuEve*)   myn_mceve->GenerateObject();
+//   TAMCntuEve*  p_ntumceve  = (TAMCntuEve*) gTAGroot->FindDataDsc("myn_mceve", "TAMCntuEve")->Object();
 //   int ntrackMC =  p_ntumceve->GetHitN();
 //   // cout << " ntrackMC  " << ntrackMC << endl; 
 //   tottrack += ntrackMC;
@@ -242,7 +242,7 @@ void MultiTrackCheck::Process( Long64_t jentry ){
 //   m_Plotter->SetMultiTrackInfo("TrackInfo",ntrackonVT, ntrackonIT, ntrackonMSD, ntrackMC);
 //   
 //   for(int i=0; i<ntrackMC; i++){
-//     TAGntuMCeveHit *myTrack = p_ntumceve->Hit(i);
+//     TAMCntuEveHit *myTrack = p_ntumceve->Hit(i);
 //     int index = i;
 //     m_Frag_indexCollection.push_back(index);
 //     m_Frag_hitCollection.push_back(myTrack);  

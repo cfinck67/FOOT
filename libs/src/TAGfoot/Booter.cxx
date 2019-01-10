@@ -11,8 +11,8 @@
 
 
 //MC block
-#include "TAGntuMCeve.hxx"
-#include "TAGactNtuMCeve.hxx"
+#include "TAMCntuEve.hxx"
+#include "TAMCactNtuEve.hxx"
 
 
 //Interaction region
@@ -379,12 +379,12 @@ void Booter::GeoPrint() {
 void Booter::AssociateHitsToParticle() {
 
   //   // to be done for all particles ---  full revision
-  //   // TAGntuMCeve*  p_ntumceve = (TAGntuMCeve*)   myn_mceve->GenerateObject();
-  //   TAGntuMCeve*  mcNtup = (TAGntuMCeve*)   myn_mceve->Object();
+  //   // TAMCntuEve*  p_ntumceve = (TAMCntuEve*)   myn_mceve->GenerateObject();
+  //   TAMCntuEve*  mcNtup = (TAMCntuEve*)   myn_mceve->Object();
 
   //   // // vector<int> FragIdxs;
   //   // for(int i=0; i<mcNtup->GetHitN(); i++){
-  //   //     TAGntuMCeveHit *myPart = mcNtup->Hit(i);
+  //   //     TAMCntuEveHit *myPart = mcNtup->Hit(i);
 
   //   //     int part_reg = myPart->Reg();
 
@@ -469,8 +469,8 @@ void Booter::AssociateHitsToParticle() {
 void Booter::FillMCEvent(EVENT_STRUCT *myStr) {
 
   /*Ntupling the general MC event information*/
-  myn_mceve    = new TAGdataDsc("myn_mceve", new TAGntuMCeve());
-  mya_mceve    = new TAGactNtuMCeve("mya_mceve", myn_mceve, myStr);
+  myn_mceve    = new TAGdataDsc("myn_mceve", new TAMCntuEve());
+  mya_mceve    = new TAMCactNtuEve("mya_mceve", myn_mceve, myStr);
   
   gTAGroot->AddRequiredItem("mya_mceve");
   // gTAGroot->AddRequiredItem("myn_mceve");

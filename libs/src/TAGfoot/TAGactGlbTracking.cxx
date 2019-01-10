@@ -10,7 +10,7 @@
 #include "TAVTntuTrack.hxx"
 #include "TAVTntuVertex.hxx"
 #include "TATntuRaw.hxx"
-#include "TAGntuMCeve.hxx"
+#include "TAMCntuEve.hxx"
 
 #include "TAGactGlbTracking.hxx"
 
@@ -44,7 +44,7 @@ TAGactGlbTracking::TAGactGlbTracking(const char* name, TAGdataDsc* p_glb,
   AddDataIn(p_traw, "TATntuRaw");
   fpMCeve = p_mceve;
   if(p_mceve)
-    AddDataIn(p_mceve, "TAGntuMCeve");
+    AddDataIn(p_mceve, "TAMCntuEve");
   
   // changed from 700. to 730 (to be fined tuned - VM)
   Double_t AladinCurrent = 0.;  //Default is without magfield
@@ -99,9 +99,9 @@ Bool_t TAGactGlbTracking::Action()
   TATntuRaw*       on_traw  = (TATntuRaw*)       fpTraw->Object();
   TATparGeo*       p_tofgeo = (TATparGeo*)       fpParTofGeo->Object();
   
-  TAGntuMCeve*     p_mcblk = 0;
+  TAMCntuEve*     p_mcblk = 0;
   if(fpMCeve) 
-    p_mcblk = (TAGntuMCeve*) fpMCeve->Object();
+    p_mcblk = (TAMCntuEve*) fpMCeve->Object();
 
   //  if(!p_glb->glbtrk) 
   p_glb->Clear();

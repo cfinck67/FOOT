@@ -127,7 +127,7 @@ int KFitter::UploadHitsVT() {
 	if ( m_debug > 0 )		cout << "N vertex sensors: " << vtxGeo->GetNSensors() << endl;
 
 	// MC hits example
-	// TAGntuMCeve* ntuMC = (TAGntuMCeve*) gTAGroot->FindDataDsc("myn_mceve", "TAGntuMCeve")->Object();
+	// TAMCntuEve* ntuMC = (TAMCntuEve*) gTAGroot->FindDataDsc("myn_mceve", "TAMCntuEve")->Object();
 	// cout << "Number of MC tracks from repo  " << ntuMC->nhit  << endl;
 	
 	int totPix = 0;
@@ -801,7 +801,7 @@ void KFitter::GetTrueParticleType( AbsMeasurement* hit, int* flukaID, int* partI
 //		}
 //	}
 //	else if ( detID == m_detectorID_map["TW"] ) {
-//		TAGntuMCeveHit* twGeneratorParticle = m_TW_hitCollection.at( hitID )->GetGenParticle();
+//		TAMCntuEveHit* twGeneratorParticle = m_TW_hitCollection.at( hitID )->GetGenParticle();
 //		*flukaID = twGeneratorParticle->FlukaID();
 //		*partID  = m_TW_hitCollection.at( hitID )->GetGenPartID();	
 //		*charge  = twGeneratorParticle->Chg();
@@ -1168,7 +1168,7 @@ void KFitter::GetTrueMCInfo( string hitSampleName, int x,
 //		// *tmp_genMom = m_TW_hitCollection.at( hitID )->m_genPartMomentum;		// genaration momentum
 //        *hitPos = m_TW_hitCollection.at(hitID)->GetPosition_footFrame(); // pixel coord
 //		
-//		TAGntuMCeveHit* twGeneratorParticle = m_TW_hitCollection.at( hitID )->GetGenParticle();
+//		TAMCntuEveHit* twGeneratorParticle = m_TW_hitCollection.at( hitID )->GetGenParticle();
 //		*tmp_genPos  = twGeneratorParticle->InitPos();
 //		*tmp_genMom  = twGeneratorParticle->InitP();
 //		*tmp_mass    = twGeneratorParticle->Mass();

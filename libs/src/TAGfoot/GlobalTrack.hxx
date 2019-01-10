@@ -17,7 +17,7 @@
 //#include <TTree.h>
 
 //WM framework classes
-#include "TAGntuMCeve.hxx"
+#include "TAMCntuEve.hxx"
 #include "TAVTntuTrack.hxx"
 #include "TAVTntuVertex.hxx"
 
@@ -70,7 +70,7 @@ public:
 
   Bool_t IsGoingToAladin(TVector3& position,TVector3& direction);
    
-  void MakeGlobalTracksForward(TAVTntuVertex* on_vtvtx=0, TATntuRaw* on_traw=0, TATparGeo* p_tofgeo=0, TAGntuMCeve* p_mceve=0);
+  void MakeGlobalTracksForward(TAVTntuVertex* on_vtvtx=0, TATntuRaw* on_traw=0, TATparGeo* p_tofgeo=0, TAMCntuEve* p_mceve=0);
 
   vector<GlobalTrackCandidate*> GetIRTracks();
   vector<GlobalTrackCandidate*> GetTofTracks();
