@@ -16,10 +16,6 @@
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
 
-//#include "TAGntuMCeve.hxx"
-// #include "TAGntuMCeveHit.hxx"
-
-
 // class TAVTrawHit;
 
 /** TAVTbaseNtuHit class contains information respect to a pixel in cmos detectors

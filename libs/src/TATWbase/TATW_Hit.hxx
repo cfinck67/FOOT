@@ -16,10 +16,6 @@
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
 
-#include "TAGntuMCeve.hxx"
-
-
-
 
 /** TATW_Hit class contains information respect to a scintillator in cmos detectors
  index, position, noise, pulse height, size, etc...

@@ -17,10 +17,6 @@
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
 
-#include "TAGntuMCeve.hxx"
-// #include "TAGntuMCeveHit.hxx"
-
-
 // class TAVTrawHit;
 
 /** TATW_Point class is the scintillator hit reconstructed by the intersection of 2 hits on a 
