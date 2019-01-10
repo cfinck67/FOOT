@@ -173,7 +173,7 @@ void TAMSDactNtuMC::FillStrips(Int_t sensorId, Int_t hitId )
 			TAMSDntuHit* strip = (TAMSDntuHit*)pNtuRaw->NewStrip(sensorId, digiMap[it->first], view, stripId);
 
          Int_t genPartID = fpEvtStr->MSDid[hitId] - 1;
-         strip->AddMcTrackId(genPartID);
+         strip->AddMcTrackId(genPartID, hitId);
 
          if ( fDebugLevel> 0 )
 				printf("strip %d\n", stripId);

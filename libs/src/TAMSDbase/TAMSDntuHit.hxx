@@ -43,6 +43,7 @@ protected:
    Bool_t    fFound;
 
    Int_t     fMcTrackCount;                 // Variable that count the number of times a crystal is touched
+   Int_t     fMCindex[fgkMAXTRACK];         // Id of the track created in the simulation
    Int_t     fMcTrackId[fgkMAXTRACK];         // Id of the track created in the simulation
 
 public:
@@ -76,8 +77,9 @@ public:
    Bool_t     IsSortable()      const    { return kTRUE;   }
    
    // MC track id
-   Int_t      GetTrackIdMc(Int_t index) const   { return fMcTrackId[index];  }
-   Int_t      GetMcTrackCount()         const   { return fMcTrackCount;      }
+   Int_t      GetMcIndex(Int_t index)   const   { return fMCindex[index];   }
+   Int_t      GetMcTrackI(Int_t index)  const   { return fMcTrackId[index]; }
+   Int_t      GetMcTrackCount()         const   { return fMcTrackCount;     }
 
    
    //! Set input type
@@ -96,7 +98,7 @@ public:
    void     SetPosition(Float_t pos)     { fPosition = pos;   }
 
    // Add MC track Id
-   void     AddMcTrackId(Int_t trackId);
+   void     AddMcTrackId(Int_t trackId, Int_t mcId = -1);
 
    
     ClassDef(TAMSDntuHit,3)                            // Pixel or Pixel of a Detector Plane

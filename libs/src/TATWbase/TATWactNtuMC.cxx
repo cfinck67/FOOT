@@ -81,7 +81,7 @@ bool TATWactNtuMC::Action() {
         TATW_Hit* hit = containerHit->NewHit( view, m_eventStruct->SCNibar[i], m_eventStruct->SCNde[i], 
                                                 m_eventStruct->SCNtim[i] );
        
-        hit->AddMcTrackId(m_eventStruct->SCNid[i]-1);
+        hit->AddMcTrackId(m_eventStruct->SCNid[i]-1, i);
        
         TVector3 MCpos = TVector3(  (m_eventStruct->SCNxin[i]  + m_eventStruct->SCNxout[i])/2,  
                                     (m_eventStruct->SCNyin[i]  + m_eventStruct->SCNyout[i])/2,  

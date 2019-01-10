@@ -51,9 +51,11 @@ Bool_t TAMSDntuHit::IsEqual(const TObject* hit) const
 
 //______________________________________________________________________________
 //
-void TAMSDntuHit:: AddMcTrackId(Int_t trackId)
+void TAMSDntuHit:: AddMcTrackId(Int_t trackId, Int_t mcId)
 {
+   fMcTrackId[fMcTrackCount]   = mcId;
    fMcTrackId[fMcTrackCount++] = trackId;
+
 }
 
 //______________________________________________________________________________

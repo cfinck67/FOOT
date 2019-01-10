@@ -37,7 +37,7 @@ void TATW_Point::Initialise()
 	m_column = m_columnHit->GetBar();
 	m_row = m_rowHit->GetBar();
 
-	m_isMC = ( m_columnHit->GetTrackIdMc(0) == -1 ? false : true );
+	m_isMC = ( m_columnHit->GetMcTrackId(0) == -1 ? false : true );
    // Not possible in real life !!!!
 	//m_isTrueGhost = ( m_columnHit->GetGenPartID() == m_rowHit->GetGenPartID() ? false : true );
 
@@ -55,7 +55,7 @@ void TATW_Point::TrueGhostWarning() {
 //______________________________________________________________________________
 int TATW_Point::GetGenPartID() {
 	TrueGhostWarning();
-	return m_columnHit->GetTrackIdMc(0);
+	return m_columnHit->GetMcTrackId(0);
 }
 
 //______________________________________________________________________________

@@ -75,8 +75,9 @@ Double_t TAVTbaseNtuHit::DistanceV(const TVector3& aPosition)
 
 //______________________________________________________________________________
 //
-void TAVTbaseNtuHit::AddMcTrackId(Int_t trackId)
+void TAVTbaseNtuHit::AddMcTrackId(Int_t trackId,Int_t mcId)
 {
+   fMcTrackId[fMcTrackCount]   = mcId;
    fMcTrackId[fMcTrackCount++] = trackId;
 }
 

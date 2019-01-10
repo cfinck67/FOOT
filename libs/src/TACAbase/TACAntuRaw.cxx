@@ -48,8 +48,9 @@ TACAntuHit::TACAntuHit(int cha, double charge, double time, int typ)
 
 //______________________________________________________________________________
 //
-void TACAntuHit:: AddMcTrackId(Int_t trackId)
+void TACAntuHit:: AddMcTrackId(Int_t trackId, Int_t mcId)
 {
+   fMcTrackId[fMcTrackCount]   = mcId;
    fMcTrackId[fMcTrackCount++] = trackId;
 }
 

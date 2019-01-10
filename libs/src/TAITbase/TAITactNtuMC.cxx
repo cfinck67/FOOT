@@ -174,7 +174,7 @@ void TAITactNtuMC::FillPixels(Int_t sensorId, Int_t hitId )
 			TAITntuHit* pixel = (TAITntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col);
 
          Int_t genPartID = fpEvtStr->ITRid[hitId] - 1;
-         pixel->AddMcTrackId(genPartID);
+         pixel->AddMcTrackId(genPartID, hitId);
 
 
          if ( fDebugLevel> 0 )

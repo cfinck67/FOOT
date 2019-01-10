@@ -46,14 +46,15 @@ private:
     Int_t m_layer;
     Int_t m_bar;
 	
-    Double_t m_de;                          // energy loss in the scintillator bar
+    Double_t m_de;                        // energy loss in the scintillator bar
     Double_t m_time;                        
 
-    Float_t m_coordinate;                   // x or y coordinate in the local detector frame, depending on the layer
-    Float_t m_z;                            // z coordinate in the local detector frame
+    Float_t m_coordinate;                // x or y coordinate in the local detector frame, depending on the layer
+    Float_t m_z;                         // z coordinate in the local detector frame
 
-    Int_t   m_McTrackCount;                 // Variable that count the number of times a crystal is touched
-    Int_t   m_McTrackId[fgkMAXTRACK];         // Id of the track created in the simulation
+    Int_t   m_McTrackCount;              // Variable that count the number of times a crystal is touched
+    Int_t   m_McTrackId[fgkMAXTRACK];    // Id of the track created in the simulation
+    Int_t   m_MCindex[fgkMAXTRACK];      // MC index of the hit in the ntuple
 
    TVector3 m_posMC;                     // MC hit position = track hitting the scint.
 
@@ -79,11 +80,12 @@ public:
    Float_t    GetHitZ_detectorFrame()          const   { return m_z;          }
 
    // MC track id
-   Int_t      GetTrackIdMc(Int_t index) const   { return m_McTrackId[index];  }
-   Int_t      GetMcTrackCount()         const   { return m_McTrackCount;      }
+   Int_t      GetMcIndex(Int_t index)   const   { return m_MCindex[index];   }
+   Int_t      GetMcTrackId(Int_t index) const   { return m_McTrackId[index]; }
+   Int_t      GetMcTrackCount()         const   { return m_McTrackCount;     }
    
    // Add MC track Id
-   void       AddMcTrackId(Int_t trackId);
+   void       AddMcTrackId(Int_t trackId, Int_t mcId = -1);
 
    void       SetMCPosition(TVector3 a_pos)       { m_posMC = a_pos;          }    //! Set MC truth position
    TVector3   GetMCPosition_detectorFrame() const { return  m_posMC;          }

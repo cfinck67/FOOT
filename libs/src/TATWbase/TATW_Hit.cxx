@@ -41,7 +41,8 @@ TATW_Hit::TATW_Hit ( int aView, int aBar, Double_t aDe, Double_t aTime)
 
 //______________________________________________________________________________
 //
-void TATW_Hit::AddMcTrackId(Int_t trackId)
+void TATW_Hit::AddMcTrackId(Int_t trackId, Int_t mcId)
 {
+   m_McTrackId[m_McTrackCount]   = mcId;
    m_McTrackId[m_McTrackCount++] = trackId;
 }

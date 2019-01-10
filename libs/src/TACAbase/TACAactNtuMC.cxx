@@ -108,7 +108,7 @@ Bool_t TACAactNtuMC::Action()
       // don't use z for the moment
       fDigitizer->Process(edep, posInLoc[0], posInLoc[1], z0, z1, time, id);
       TACAntuHit* hit = fDigitizer->GetCurrentHit();
-      hit->AddMcTrackId(trackId);
+      hit->AddMcTrackId(trackId, i);
       hit->SetPosition(posInLoc);
       
       if (ValidHistogram()) {

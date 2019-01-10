@@ -166,7 +166,7 @@ void TAVTactNtuMC::FillPixels(Int_t sensorId, Int_t hitId )
 			TAVTntuHit* pixel = (TAVTntuHit*)pNtuRaw->NewPixel(sensorId, 1., line, col);
 
          Int_t genPartID = fpEvtStr->VTXid[hitId] - 1;
-         pixel->AddMcTrackId(genPartID);
+         pixel->AddMcTrackId(genPartID, hitId);
 
          if ( fDebugLevel> 0 )
 				printf("line %d col %d\n", line, col);
