@@ -10,7 +10,6 @@
 //First
 #include "TAGroot.hxx"
 
-#include "foot_geo.h"
 #include "math.h"
 
 /*!
