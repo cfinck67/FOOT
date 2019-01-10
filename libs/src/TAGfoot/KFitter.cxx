@@ -179,13 +179,13 @@ int KFitter::UploadHitsMSD() {
 	
 	// take the ntuple object already filled
 	TAMSDntuRaw* ntup = (TAMSDntuRaw*) gTAGroot->FindDataDsc("msdRaw", "TAMSDntuRaw")->Object();
-	if ( m_debug > 0 )		cout << "Strip detector hits read: " << ntup->GetPixelsN(0) << endl;
+	if ( m_debug > 0 )		cout << "Strip detector hits read: " << ntup->GetStripsN(0) << endl;
 
 	// save strips hits in the collection
-	for (int i = 0; i < ntup->GetPixelsN(0); i++) 
-        m_MSD_hitCollection.push_back( ntup->GetPixel(0,i) );
+	for (int i = 0; i < ntup->GetStripsN(0); i++)
+        m_MSD_hitCollection.push_back( ntup->GetStrip(0,i) );
 
-	return ntup->GetPixelsN(0);
+	return ntup->GetStripsN(0);
 }
 
 
@@ -395,10 +395,6 @@ void KFitter::Prepare4TofWall( Track* fitTrack ) {
         // get pixel coord
         TVector3 hitPos = p_hit->GetPosition_footFrame();
 
-        if ( m_debug > 0 )		cout << "TW hit = col:"<< p_hit->GetColumn() <<" row:"<< p_hit->GetRow() << 
-        								" \n\t\tGEN genID: " << p_hit->GetColumnHit()->GetGenPartID() << 
-        								"   flukaID " << p_hit->GetColumnHit()->GetGenParticle()->FlukaID() <<
-        								"  charge= " << p_hit->GetColumnHit()->GetGenParticle()->Chg() << endl;
         // if ( m_debug > 0 )		cout << "Hit " << i;
         if ( m_debug > 0 )		hitPos.Print();
 
