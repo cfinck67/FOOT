@@ -13,6 +13,14 @@
 
 ClassImp(TAMChit);
 
+TString  TAMCntuHit::fgkStcBranchName = "stmc.";
+TString  TAMCntuHit::fgkBmBranchName  = "bmmc.";
+TString  TAMCntuHit::fgkVtxBranchName = "vtmc.";
+TString  TAMCntuHit::fgkItrBranchName = "itmc.";
+TString  TAMCntuHit::fgkMsdBranchName = "msdmc.";
+TString  TAMCntuHit::fgkTofBranchName = "twmc.";
+TString  TAMCntuHit::fgkCalBranchName = "camc.";
+
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
@@ -28,8 +36,6 @@ TAMChit::TAMChit()
 
 //------------------------------------------+-----------------------------------
 //! Construct with data
-
-// VM changed 3/11/13 (energy loss de passed)
 TAMChit::TAMChit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof)
  : fSensorId(id),
    fPosition(ipos),

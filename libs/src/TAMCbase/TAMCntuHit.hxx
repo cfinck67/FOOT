@@ -59,10 +59,28 @@ public:
    virtual void      Clear(Option_t* opt="");
    
    virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
+   
+public:
+   static const Char_t* GetStcBranchName()   { return fgkStcBranchName.Data();  }
+   static const Char_t* GetBmBranchName()    { return fgkBmBranchName.Data();   }
+   static const Char_t* GetVtxBranchName()   { return fgkVtxBranchName.Data();  }
+   static const Char_t* GetItrBranchName()   { return fgkItrBranchName.Data();  }
+   static const Char_t* GetMsdBranchName()   { return fgkMsdBranchName.Data();  }
+   static const Char_t* GetTofBranchName()   { return fgkTofBranchName.Data();  }
+   static const Char_t* GetCalBranchName()   { return fgkCalBranchName.Data();  }
 
 private:
    TClonesArray*   fListOfHits; // hits
-   
+  
+private:
+   static TString    fgkStcBranchName;
+   static TString    fgkBmBranchName;
+   static TString    fgkVtxBranchName;
+   static TString    fgkItrBranchName;
+   static TString    fgkMsdBranchName;
+   static TString    fgkTofBranchName;
+   static TString    fgkCalBranchName;
+
    ClassDef(TAMCntuHit,1)
    
 };
