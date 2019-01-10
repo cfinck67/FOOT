@@ -19,7 +19,7 @@ public:
    TAMChit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof = 0);
    virtual      ~TAMChit();
    
-   Int_t         GetID()      const  { return fID; }
+   Int_t         GetID()            const  { return fID;       }
    TVector3      GetPosition()      const  { return fPosition; }
    TVector3      GetMomentum()      const  { return fMomentum; }
    Double_t      GetDeltaE()        const  { return fDelatE;   }
