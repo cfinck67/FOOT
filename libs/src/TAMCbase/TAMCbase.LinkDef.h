@@ -8,9 +8,11 @@
 #pragma link C++ class TAMCactNtuEve+;
 #pragma link C++ class TAMCntuEveHit+;
 #pragma link C++ class TAMCntuEve+;
+#pragma link C++ class TAMCactNtuVtx+;
+#pragma link C++ class TAMCactNtuItr+;
+#pragma link C++ class TAMCactNtuMsd+;
 #pragma link C++ class TAMCntuHit+;
 #pragma link C++ class TAMChit+;
-
 #pragma link C++ class Evento+;
 
 #endif
