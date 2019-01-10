@@ -24,6 +24,8 @@ set( with_dictionnaries
    TAMCactNtuVtx
    TAMCactNtuItr
    TAMCactNtuMsd
+   TAMCactNtuTof
+   TAMCactNtuCal
    TAMCntuHit
    TAGparGeo
    Evento
