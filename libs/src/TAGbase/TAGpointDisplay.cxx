@@ -1,4 +1,6 @@
 
+#include "TClass.h"
+
 #include "TAGpointDisplay.hxx"
 
 //
@@ -27,4 +29,20 @@ void TAGpointDisplay::AddPoint(Float_t x, Float_t y, Float_t z)
 void TAGpointDisplay::ResetPoints()
 {
    Reset();
+}
+
+//__________________________________________________________
+void TAGpointDisplay::PointSelected(Int_t idx)
+{
+   SecSelected(idx);
+   fSelectedIdx = idx;
+}
+
+//__________________________________________________________
+void TAGpointDisplay::SecSelected(Int_t idx)
+{
+   Long_t args[1];
+   args[0] = (Long_t) idx;
+   
+   Emit("PointSelected(Int_t)", args);
 }

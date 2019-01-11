@@ -23,7 +23,19 @@ public:
   //! Reset point
   void ResetPoints();
   
-  ClassDef(TAGpointDisplay, 1);   
+   //! overwrite base function
+   void PointSelected(Int_t idx);
+
+   //! second selection emit
+   void SecSelected(Int_t idx);
+
+   //! Get selected point index
+   Int_t GetSelectedIdx() { return fSelectedIdx; }
+
+private:
+   Int_t fSelectedIdx;        // selected digit index
+
+  ClassDef(TAGpointDisplay, 1);
 };
 
 
