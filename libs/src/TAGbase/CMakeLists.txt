@@ -41,6 +41,7 @@ set( with_dictionnaries
    TAGwireDisplay
    TAGtrackDisplay
    TAGclusterDisplay
+   TAGpointDisplay
    TAGglbTrackDisplay
    TAGbaseEventDisplay
    TAGview
