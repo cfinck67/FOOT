@@ -16,7 +16,7 @@
 class TAMChit : public TObject {
 public:
    TAMChit();
-   TAMChit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof = 0);
+   TAMChit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof, Int_t trackId);
    virtual      ~TAMChit();
    
    Int_t         GetID()            const  { return fID;       }
@@ -24,6 +24,7 @@ public:
    TVector3      GetMomentum()      const  { return fMomentum; }
    Double_t      GetDeltaE()        const  { return fDelatE;   }
    Double_t      GetTof()           const  { return fTof;      }
+   Double_t      GetTrackId()       const  { return fTrackId;  }
    
    
    void          SetID(int aid)            { fID = aid;        }
@@ -31,12 +32,14 @@ public:
    void          SetMomentum(TVector3 mom) { fMomentum = mom;  }
    void          SetDeltaE(Double_t e)     { fDelatE   = e;    }
    void          SetTof(Double_t tof)      { fTof      = tof;  }
+   void          SetTrackId(int aid)       { fTrackId = aid;   }
 
    Int_t         fID;         // identity
    TVector3      fPosition;   // initial position
    TVector3      fMomentum;   // initial momentum
    Double_t      fDelatE;     // deposited energy
    Double_t      fTof;        // time fo flight
+   Double_t      fTrackId;    // MC track Id
    
    ClassDef(TAMChit,1)
 };
@@ -53,7 +56,7 @@ public:
    TAMChit*          GetHit(Int_t i);
    const TAMChit*    GetHit(Int_t i) const;
    
-   TAMChit*          NewHit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof = 0);
+   TAMChit*          NewHit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof, Int_t trackId);
 
    virtual void      SetupClones();
    virtual void      Clear(Option_t* opt="");

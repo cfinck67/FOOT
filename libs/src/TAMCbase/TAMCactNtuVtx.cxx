@@ -48,11 +48,12 @@ Bool_t TAMCactNtuVtx::Action() {
    for (Int_t i = 0; i < fpEvtStr->VTXn; i++) {
       
       Int_t sensorId = fpEvtStr->VTXilay[i];
-      
+      Int_t trackId  = fpEvtStr->VTXid[i] - 1;
+
       TVector3 pos( fpEvtStr->VTXxin[i], fpEvtStr->VTXyin[i], fpEvtStr->VTXzin[i]);
       TVector3 mom( fpEvtStr->VTXpxin[i], fpEvtStr->VTXpyin[i], fpEvtStr->VTXpzin[i]);
       
-      p_nturaw->NewHit(sensorId, pos, mom, fpEvtStr->VTXde[i], fpEvtStr->VTXtim[i]);
+      p_nturaw->NewHit(sensorId, pos, mom, fpEvtStr->VTXde[i], fpEvtStr->VTXtim[i], trackId);
    }
    
    fpNtuMC->SetBit(kValid);

@@ -29,18 +29,20 @@ TAMChit::TAMChit()
    fPosition(0,0,0),
    fMomentum(0,0,0),
    fDelatE(0.),
-   fTof(0.)
+   fTof(0.),
+   fTrackId(-1)
 {
 }
 
 //------------------------------------------+-----------------------------------
 //! Construct with data
-TAMChit::TAMChit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof)
+TAMChit::TAMChit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof, Int_t trackId)
  : fID(id),
    fPosition(ipos),
    fMomentum(imom),
    fDelatE(de),
-   fTof(tof)
+   fTof(tof),
+   fTrackId(trackId)
 {
 }
 
@@ -120,11 +122,11 @@ const TAMChit* TAMCntuHit::GetHit(Int_t id) const
 
 //______________________________________________________________________________
 //
-TAMChit* TAMCntuHit::NewHit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof)
+TAMChit* TAMCntuHit::NewHit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof, Int_t trackId)
 {
    TClonesArray &pixelArray = *fListOfHits;
+   TAMChit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TAMChit(id, ipos, imom, de, tof, trackId);
    
-   TAMChit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TAMChit(id, ipos, imom, de, tof);
    return hit;
 }
 
