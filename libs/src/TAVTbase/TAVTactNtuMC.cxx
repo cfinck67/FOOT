@@ -106,7 +106,12 @@ bool TAVTactNtuMC::Action()
          fpHisDeSensor[sensorId]->Fill(fpEvtStr->VTXde[i]*TAGgeoTrafo::GevToKev());
       }
       
-		if (!fDigitizer->Process(fpEvtStr->VTXde[i], fpEvtStr->VTXxin[i], fpEvtStr->VTXyin[i], fpEvtStr->VTXzin[i], fpEvtStr->VTXzout[i])) continue;
+      TVector3 posIn(fpEvtStr->VTXxin[i], fpEvtStr->VTXyin[i], fpEvtStr->VTXzin[i]);
+      TVector3 posOut(fpEvtStr->VTXxout[i], fpEvtStr->VTXyout[i], fpEvtStr->VTXzout[i]);
+      posIn = pGeoMap->Detector2Sensor(sensorId, posIn);
+      posOut = pGeoMap->Detector2Sensor(sensorId, posOut);
+      
+      if (!fDigitizer->Process(fpEvtStr->VTXde[i], posIn[0], posIn[1], posIn[2], posOut[2])) continue;
 		FillPixels(sensorId, i);
 		
 		if (ValidHistogram()) {
