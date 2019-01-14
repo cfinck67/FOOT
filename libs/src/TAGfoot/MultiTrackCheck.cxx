@@ -571,7 +571,7 @@ void MultiTrackCheck::EfficiencyChi2Fit(){
 	  
 	  if ((i==j)&& (j==z)&& (z==k)){
 	    
-	    string fragtype = build_string(m_Trcks9hits.at(i)->Chg()) + "__" + build_string(round(m_Trcks9hits.at(i)->Mass()/UMA));
+	    string fragtype = build_string(m_Trcks9hits.at(i)->GetCharge()) + "__" + build_string(round(m_Trcks9hits.at(i)->GetMass()/UMA));
 
 	    m_Plotter->SetMultiTrackChi2PerFrag("VT",  chi2all_1, chi2all_2, fragtype);
 	    Truetrack = true;
