@@ -29,7 +29,9 @@ TAMCactNtuEve::TAMCactNtuEve(const char* name,
     fpNtuMC(p_nturaw),
     fpEvtStr(evStr)
 {
-  cout<<" Entering TAMCactNtuEve::TAMCactNtuEve()"<<endl;
+   if (fDebugLevel)
+      cout<<" Entering TAMCactNtuEve::TAMCactNtuEve()"<<endl;
+   
   AddDataOut(p_nturaw, "TAMCntuEve");
 }
 
