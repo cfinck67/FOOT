@@ -37,7 +37,8 @@ TAMCactNtuEve::TAMCactNtuEve(const char* name,
 //! Destructor.
 
 TAMCactNtuEve::~TAMCactNtuEve()
-{}
+{
+}
 
 //------------------------------------------+-----------------------------------
 //! Action.
@@ -47,11 +48,7 @@ Bool_t TAMCactNtuEve::Action() {
   if ( fDebugLevel> 1 )  cout << " Entering TAMCactNtuEve" << endl;
   TAMCntuEve* p_nturaw = (TAMCntuEve*) fpNtuMC->Object();
 
-  // Int_t nh(0);
   p_nturaw->Clear();
-
-  //Number of hits/tracks
-  // nh = fpEvtStr->TRn;
 
   for (Int_t i = 0; i < fpEvtStr->TRn; i++) {
     Double_t i_mass = fpEvtStr->TRmass[i];
@@ -87,9 +84,8 @@ Bool_t TAMCactNtuEve::Action() {
      p_nturaw->NewHit(i_id,i_chg,i_type,i_reg,i_bar,i_dead,i_mass,i_moth,i_time,i_tof,i_trlen,ipos,fpos,ip,fp,mothip,mothfp,i_pileup);
     
   }
-  if ( fDebugLevel> 1 )  cout << "TRn = " << fpEvtStr->TRn << "  MChit = "<< p_nturaw->GetHitsN() << endl;
 
-  // p_nturaw->nhit  = nh;    // to be changed!!!!!!!!!!!!!!!
+   if ( fDebugLevel> 1 )  cout << "TRn = " << fpEvtStr->TRn << "  MChit = "<< p_nturaw->GetHitsN() << endl;
 
   fpNtuMC->SetBit(kValid);
   return kTRUE;
