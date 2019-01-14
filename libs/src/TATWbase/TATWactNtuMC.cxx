@@ -83,19 +83,6 @@ bool TATWactNtuMC::Action() {
        
         hit->AddMcTrackId(m_eventStruct->SCNid[i]-1, i);
        
-        TVector3 MCpos = TVector3(  (m_eventStruct->SCNxin[i]  + m_eventStruct->SCNxout[i])/2,  
-                                    (m_eventStruct->SCNyin[i]  + m_eventStruct->SCNyout[i])/2,  
-                                    (m_eventStruct->SCNzin[i]  + m_eventStruct->SCNzout[i])/2 );
-        TVector3 MCmom = TVector3(  (m_eventStruct->SCNpxin[i] + m_eventStruct->SCNpxout[i])/2, 
-                                    (m_eventStruct->SCNpyin[i] + m_eventStruct->SCNpyout[i])/2, 
-                                    (m_eventStruct->SCNpzin[i] + m_eventStruct->SCNpzout[i])/2 );    
-
-       hit->SetMCPosition( MCpos ); // tmp solution
-
-       // needed Fluka not in FOOT frame ??
-//        geoMap->Global2Local( &MCpos );
-//        geoMap->Global2Local_RotationOnly( &MCmom );
-
        if (ValidHistogram()) {
           if (hit->IsColumn())
              fpHisHitCol->Fill(hit->GetBar());

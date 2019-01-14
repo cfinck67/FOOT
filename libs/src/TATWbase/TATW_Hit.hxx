@@ -51,9 +51,7 @@ private:
     Int_t   m_McTrackCount;              // Variable that count the number of times a crystal is touched
     Int_t   m_McTrackId[fgkMAXTRACK];    // Id of the track created in the simulation
     Int_t   m_MCindex[fgkMAXTRACK];      // MC index of the hit in the ntuple
-
-   TVector3 m_posMC;                     // MC hit position = track hitting the scint.
-
+   
 public:
 	TATW_Hit() {};
 	TATW_Hit( TATWrawHit* hit );
@@ -82,9 +80,6 @@ public:
    
    // Add MC track Id
    void       AddMcTrackId(Int_t trackId, Int_t mcId = -1);
-
-   void       SetMCPosition(TVector3 a_pos)       { m_posMC = a_pos;          }    //! Set MC truth position
-   TVector3   GetMCPosition_detectorFrame() const { return  m_posMC;          }
 
     ClassDef(TATW_Hit,3)                            // Pixel or Pixel of a Detector Plane
 };
