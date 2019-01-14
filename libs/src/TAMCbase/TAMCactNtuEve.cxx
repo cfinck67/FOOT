@@ -81,14 +81,13 @@ Bool_t TAMCactNtuEve::Action() {
     //    Int_t i_pileup = fpEvtStr->TRpileup[i]; // VM added 17/11/13 for pileup
     Int_t i_pileup = 0; // VM added 17/11/13 for pileup
 
-    Info("Action()","MCeve : %d %d %lf ",i_id,i_chg,i_mass);
-
-    // VM changed 17/11/13   -->  male!
-    new((*(p_nturaw->h))[i])    // to be changed!!!!!!!!!!!!!!!
-      TAMCntuEveHit(i_id,i_chg,i_type,i_reg,i_bar,i_dead,i_mass,i_moth,i_time,i_tof,i_trlen,ipos,fpos,ip,fp,mothip,mothfp,i_pileup);
+     if (fDebugLevel)
+        Info("Action()","MCeve : %d %d %lf ",i_id,i_chg,i_mass);
+     
+     p_nturaw->NewHit(i_id,i_chg,i_type,i_reg,i_bar,i_dead,i_mass,i_moth,i_time,i_tof,i_trlen,ipos,fpos,ip,fp,mothip,mothfp,i_pileup);
     
   }
-  if ( fDebugLevel> 1 )  cout << "TRn = " << fpEvtStr->TRn << "  MChit = "<< p_nturaw->GetHitN() << endl;
+  if ( fDebugLevel> 1 )  cout << "TRn = " << fpEvtStr->TRn << "  MChit = "<< p_nturaw->GetHitsN() << endl;
 
   // p_nturaw->nhit  = nh;    // to be changed!!!!!!!!!!!!!!!
 

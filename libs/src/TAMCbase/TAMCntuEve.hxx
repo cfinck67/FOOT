@@ -14,12 +14,12 @@
 #include "TAGdata.hxx"
 
 
-class TAMCntuEveHit : public TObject {
+class TAMCeveHit : public TObject {
   public:
-					TAMCntuEveHit();
+					TAMCeveHit();
 
   // VM changed 17/11/13 to add information for simulate pile-up events
-  TAMCntuEveHit(Int_t i_id, Int_t i_chg, Int_t i_type, 
+  TAMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type, 
 		 Int_t i_reg, Int_t i_bar, Int_t i_dead,
 		 Double_t i_mass, Int_t i_moth, 
 		 Double_t i_time,
@@ -29,7 +29,7 @@ class TAMCntuEveHit : public TObject {
 		 TVector3 i_mothip,
 		 TVector3 i_mothfp,Int_t i_pileup);
 
-	virtual         ~TAMCntuEveHit();
+	virtual         ~TAMCeveHit();
 
 	TVector3         InitPos();
 	TVector3         InitP();
@@ -92,7 +92,7 @@ class TAMCntuEveHit : public TObject {
 										 // >0 index of overlapped event
 										 // VM added 17/11/13
 
-	ClassDef(TAMCntuEveHit,1)
+	ClassDef(TAMCeveHit,1)
 };
 
 //##############################################################################
@@ -102,34 +102,33 @@ class TAMCntuEve : public TAGdata {
 					TAMCntuEve();
 	virtual         ~TAMCntuEve();
 
-	TAMCntuEveHit*       Hit(Int_t i);
-	const TAMCntuEveHit* Hit(Int_t i) const;
+	TAMCeveHit*       Hit(Int_t i);
+	const TAMCeveHit* Hit(Int_t i) const;
+   
+   Int_t             GetHitsN() const;
+   
+   TAMCeveHit*       GetHit(Int_t i);
+   const TAMCeveHit* GetHit(Int_t i) const;
+   
+   TAMCeveHit*       NewHit(Int_t i_id, Int_t i_chg, Int_t i_type,
+                            Int_t i_reg, Int_t i_bar, Int_t i_dead,
+                            Double_t i_mass, Int_t i_moth,
+                            Double_t i_time,
+                            Double_t i_tof, Double_t i_trlen,
+                            TVector3 i_ipos, TVector3 i_fpos,
+                            TVector3 i_ip,TVector3 i_fp,
+                            TVector3 i_mothip,
+                            TVector3 i_mothfp,Int_t i_pileup);
+   
+	virtual void      SetupClones();
+	virtual void      Clear(Option_t* opt="");
 
-	// manca AddHit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	TAMCntuEveHit*       AddHit(Int_t i_id, Int_t i_chg, Int_t i_type, 
-		 Int_t i_reg, Int_t i_bar, Int_t i_dead,
-		 Double_t i_mass, Int_t i_moth, 
-		 Double_t i_time,
-		 Double_t i_tof, Double_t i_trlen,
-		 TVector3 i_ipos, TVector3 i_fpos, 
-		 TVector3 i_ip,TVector3 i_fp,
-		 TVector3 i_mothip,
-		 TVector3 i_mothfp,Int_t i_pileup);
-	// short GetHitN()         { return nhit; };
-	int GetHitN()           { return h->GetEntries(); };
-
-	virtual void    SetupClones();
-	virtual void    Clear(Option_t* opt="");
-
-	virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
+	virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
 
 	ClassDef(TAMCntuEve,1)
-
-	
-
-  // private:           // to be private!!!!!!!!!!!!!!!
-	// Short_t         nhit;		    // nhit
-	TClonesArray*   h;			    // hits
+   
+private:
+   TClonesArray*   fListOfHits; // hits
 };
 
 

@@ -12,16 +12,16 @@ using namespace std;
 #include "TAMCntuEve.hxx"
 
 /*!
-  \class TAMCntuEveHit TAMCntuEve.hxx "TAMCntuEve.hxx"
+  \class TAMCeveHit TAMCntuEve.hxx "TAMCntuEve.hxx"
   \brief Ntuplize ToF raw data - hit object. **
 */
 
-ClassImp(TAMCntuEveHit);
+ClassImp(TAMCeveHit);
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TAMCntuEveHit::TAMCntuEveHit()
+TAMCeveHit::TAMCeveHit()
   : id(-100000), chg(-100000), mothid(-100000)
 {
   mass = -100000.;
@@ -44,7 +44,7 @@ TAMCntuEveHit::TAMCntuEveHit()
 //! Construct with data
 
 // VM 17/11/13 added info for pile-up
-TAMCntuEveHit::TAMCntuEveHit(Int_t i_id, Int_t i_chg, Int_t i_type, 
+TAMCeveHit::TAMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type, 
 			       Int_t i_reg, Int_t i_bar, Int_t i_dead,
 			       Double_t i_mass,  Int_t i_moth, 
 			       Double_t i_time,
@@ -70,185 +70,185 @@ TAMCntuEveHit::TAMCntuEveHit(Int_t i_id, Int_t i_chg, Int_t i_type,
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
-TAMCntuEveHit::~TAMCntuEveHit()
+TAMCeveHit::~TAMCeveHit()
 {}
 
 //------------------------------------------+-----------------------------------
-TVector3 TAMCntuEveHit::InitPos()
+TVector3 TAMCeveHit::InitPos()
 {
   return inpos;
 }
 
-TVector3 TAMCntuEveHit::FinalPos()
+TVector3 TAMCeveHit::FinalPos()
 {
   return fipos;
 }
 
-TVector3 TAMCntuEveHit::InitP()
+TVector3 TAMCeveHit::InitP()
 {
   return ip;
 }
 
-TVector3 TAMCntuEveHit::FinalP()
+TVector3 TAMCeveHit::FinalP()
 {
   return fp;
 }
 
-TVector3 TAMCntuEveHit::MotherInitP()
+TVector3 TAMCeveHit::MotherInitP()
 {
   return mothip;
 }
 
-TVector3 TAMCntuEveHit::MotherFinalP()
+TVector3 TAMCeveHit::MotherFinalP()
 {
   return mothfp;
 }
 
-Double_t  TAMCntuEveHit::Time()
+Double_t  TAMCeveHit::Time()
 {
   return time;
 }
 
-Double_t  TAMCntuEveHit::Tof()
+Double_t  TAMCeveHit::Tof()
 {
   return tof;
 }
 
-Double_t  TAMCntuEveHit::Trlen()
+Double_t  TAMCeveHit::Trlen()
 {
   return trlen;
 }
 
-Double_t  TAMCntuEveHit::Mass()
+Double_t  TAMCeveHit::Mass()
 {
   return mass;
 }
 
-Int_t  TAMCntuEveHit::FlukaID()
+Int_t  TAMCeveHit::FlukaID()
 {
   return id;
 }
 
-Int_t  TAMCntuEveHit::Type()
+Int_t  TAMCeveHit::Type()
 {
   return type;
 }
 
-Int_t  TAMCntuEveHit::Dead()
+Int_t  TAMCeveHit::Dead()
 {
   return dead;
 }
 
-Int_t  TAMCntuEveHit::Reg()
+Int_t  TAMCeveHit::Reg()
 {
   return reg;
 }
 
-Int_t  TAMCntuEveHit::Bar()
+Int_t  TAMCeveHit::Bar()
 {
   return bar;
 }
 
-Int_t  TAMCntuEveHit::MotherID()
+Int_t  TAMCeveHit::MotherID()
 {
   return mothid;
 }
 
-Int_t  TAMCntuEveHit::Chg()
+Int_t  TAMCeveHit::Chg()
 {
   return chg;
 }
 
 // VM 17/11/13
-Int_t  TAMCntuEveHit::PileUp()
+Int_t  TAMCeveHit::PileUp()
 {
   return pileup;
 }
 
 
 //------------------------------------------+-----------------------------------
-void TAMCntuEveHit::SetInitPos(TVector3 pos)
+void TAMCeveHit::SetInitPos(TVector3 pos)
 {
   inpos = pos;
   return;
 }
 
-void TAMCntuEveHit::SetFinalPos(TVector3 pos)
+void TAMCeveHit::SetFinalPos(TVector3 pos)
 {
   fipos = pos;
   return;
 }
 
-void TAMCntuEveHit::SetInitP(TVector3 mom)
+void TAMCeveHit::SetInitP(TVector3 mom)
 {
   ip = mom;
   return;
 }
 
-void TAMCntuEveHit::SetMotherInitP(TVector3 mom)
+void TAMCeveHit::SetMotherInitP(TVector3 mom)
 {
   mothip = mom;
   return;
 }
 
 
-void TAMCntuEveHit::SetMotherFinalP(TVector3 mom)
+void TAMCeveHit::SetMotherFinalP(TVector3 mom)
 {
   mothfp = mom;
   return;
 }
 
 
-void TAMCntuEveHit::SetMass(double amass)
+void TAMCeveHit::SetMass(double amass)
 {
   mass =amass;
   return;
 }
 
-void TAMCntuEveHit::SetFlukaID(int aid)
+void TAMCeveHit::SetFlukaID(int aid)
 {
   id =aid;
   return;
 }
 
-void TAMCntuEveHit::SetType(int atyp)
+void TAMCeveHit::SetType(int atyp)
 {
   type = atyp;
   return;
 }
 
-void TAMCntuEveHit::SetDead(int adead)
+void TAMCeveHit::SetDead(int adead)
 {
   dead =adead;
   return;
 }
 
-void TAMCntuEveHit::SetReg(int areg)
+void TAMCeveHit::SetReg(int areg)
 {
   reg =areg;
   return;
 }
 
-void TAMCntuEveHit::SetBar(int abar)
+void TAMCeveHit::SetBar(int abar)
 {
   bar =abar;
   return;
 }
 
-void TAMCntuEveHit::SetMotherID(int aid)
+void TAMCeveHit::SetMotherID(int aid)
 {
   mothid =aid;
   return;
 }
 
-void TAMCntuEveHit::SetChg(int achg)
+void TAMCeveHit::SetChg(int achg)
 {
   chg = achg;
   return;
 }
 
 // VM 17/11/13
-void TAMCntuEveHit::SetPileUp(int ipup)
+void TAMCeveHit::SetPileUp(int ipup)
 {
   pileup = ipup;
   return;
@@ -267,9 +267,8 @@ ClassImp(TAMCntuEve);
 //! Default constructor.
 
 TAMCntuEve::TAMCntuEve()
-  : 
-  // nhit(0),
-    h(0)
+ : TAGdata(),
+   fListOfHits(0x0)
 {
     SetupClones();
 }
@@ -279,10 +278,12 @@ TAMCntuEve::TAMCntuEve()
 
 TAMCntuEve::~TAMCntuEve()
 {
-  delete h;
+  delete fListOfHits;
 }
 
-TAMCntuEveHit* TAMCntuEve::AddHit(  Int_t i_id, Int_t i_chg, Int_t i_type, 
+//------------------------------------------+-----------------------------------
+//! new hit
+TAMCeveHit* TAMCntuEve::NewHit(  Int_t i_id, Int_t i_chg, Int_t i_type,
                                       Int_t i_reg, Int_t i_bar, Int_t i_dead,
                                       Double_t i_mass, Int_t i_moth, 
                                       Double_t i_time,
@@ -292,8 +293,8 @@ TAMCntuEveHit* TAMCntuEve::AddHit(  Int_t i_id, Int_t i_chg, Int_t i_type,
                                       TVector3 i_mothip,
                                       TVector3 i_mothfp,Int_t i_pileup ) {
 
-    TClonesArray &hitCollection = *h;
-    TAMCntuEveHit* hit = new( hitCollection[hitCollection.GetEntriesFast()] ) TAMCntuEveHit( 
+    TClonesArray &hitCollection = *fListOfHits;
+    TAMCeveHit* hit = new( hitCollection[hitCollection.GetEntriesFast()] ) TAMCeveHit( 
                                             i_id,i_chg,i_type,i_reg,i_bar,i_dead,i_mass,i_moth,
                                             i_time,i_tof,i_trlen,i_ipos,i_fpos,i_ip,i_fp,i_mothip,i_mothfp,i_pileup );
     return hit;
@@ -304,40 +305,40 @@ TAMCntuEveHit* TAMCntuEve::AddHit(  Int_t i_id, Int_t i_chg, Int_t i_type,
 //! Setup clones.
 
 void TAMCntuEve::SetupClones()   {
-  if (!h) h = new TClonesArray("TAMCntuEveHit", 500);
+  if (!fListOfHits) fListOfHits = new TClonesArray("TAMCeveHit", 500);
 }
 
 //------------------------------------------+-----------------------------------
 //! Clear.
 void TAMCntuEve::Clear(Option_t*)
 {
+   fListOfHits->Clear("C");
+}
 
-  TAGdata::Clear();
-
-  // nhit  = 0;
-  h->Delete();
-
-  return;
+//------------------------------------------+-----------------------------------
+//! return n hits
+Int_t TAMCntuEve::GetHitsN() const
+{
+   return fListOfHits->GetEntries();
 }
 
 //------------------------------------------+-----------------------------------
 //! Access \a i 'th hit
 
-TAMCntuEveHit* TAMCntuEve::Hit(Int_t i)
+TAMCeveHit* TAMCntuEve::Hit(Int_t i)
 {
-   return (TAMCntuEveHit*) ((*h)[i]);;
+   return (TAMCeveHit*) ((*fListOfHits)[i]);;
 }
 
 //------------------------------------------+-----------------------------------
 //! Read-only access \a i 'th hit
- const TAMCntuEveHit* TAMCntuEve::Hit(Int_t i) const
+const TAMCeveHit* TAMCntuEve::Hit(Int_t i) const
 {
-   return (const TAMCntuEveHit*) ((*h)[i]);;
+   return (const TAMCeveHit*) ((*fListOfHits)[i]);;
 }
 
 /*------------------------------------------+---------------------------------*/
 //! ostream insertion.
-
 void TAMCntuEve::ToStream(ostream& os, Option_t* option) const
 {
   // os << "TAMCntuEve" 
@@ -349,7 +350,7 @@ void TAMCntuEve::ToStream(ostream& os, Option_t* option) const
   // os << "ind slat stat  adct  adcb  tdct  tdcb" << endl;
   
   // // for (Int_t i = 0; i < nhit; i++) {
-  // //   const TAMCntuEveHit* p_hit = Hit(i);
+  // //   const TAMCeveHit* p_hit = Hit(i);
   // //   os << Form("%3d %4lf", i, p_hit->mass)
   // //      << endl;
   // // }
