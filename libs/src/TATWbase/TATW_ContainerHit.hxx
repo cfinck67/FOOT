@@ -16,7 +16,7 @@ class TATW_ContainerHit : public TAGdata {
    
 private:
     TObjArray*        m_listOfHits;
-    TATWparGeo*       m_twGeo;
+    TATWparGeo*       m_twGeo;       //! do not save
 
 public:
     TATW_ContainerHit();
