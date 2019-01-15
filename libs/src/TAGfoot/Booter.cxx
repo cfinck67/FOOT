@@ -205,13 +205,12 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     }    
 
     if( GlobalPar::GetPar()->IncludeCA() ) {
-        // shared_ptr<TACAparGeo> m_cageo = shared_ptr<TACAparGeo> ( (TACAparGeo*) myp_cageo->Object() );
-        // m_cageo->InitGeo();
+        shared_ptr<TACAparGeo> m_cageo = shared_ptr<TACAparGeo> ( (TACAparGeo*) myp_cageo->Object() );
+        m_cageo->InitGeo();
         // top->AddNode( m_cageo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_cageo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
     
     }
  
-
     if( GlobalPar::GetPar()->IncludeIR() ) {
         // shared_ptr<TAIRparGeo>  m_irgeo = shared_ptr<TAIRparGeo> ( (TAIRparGeo*) myp_irgeo->Object() );
         // m_irgeo->InitGeo();
@@ -238,13 +237,6 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
     
 }
-
-
-
-
-
-
-
 
 void Booter::Process( Long64_t jentry ) {
 

@@ -74,7 +74,8 @@ int main (int argc, char *argv[]) {
 
   TApplication::CreateApplication();
 
-  TAGroot tagroot;
+  // TAGroot tagroot;
+  TAGroot* tagroot = new TAGroot();
 
   GlobalPar::Instance();
   GlobalPar::GetPar()->Print();
@@ -101,7 +102,8 @@ int main (int argc, char *argv[]) {
 
   RecoTools d(debug,in,alist,out,wdir,nTotEv, hF);
 
-  d.RecoLoop(&tagroot,pl_freq);
+  // d.RecoLoop(&tagroot,pl_freq);
+  d.RecoLoop(tagroot,pl_freq);
 
   hF->Close();
 
