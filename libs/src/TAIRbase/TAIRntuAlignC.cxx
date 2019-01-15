@@ -229,9 +229,9 @@ void TAIRntuAlignC::DefineConstant(Double_t* weightQ, Double_t* position)
       B(1,iSensor) = weightQ[iSensor] * position[iSensor];
       K(iSensor,0) = 1;
       K(iSensor,1) = position[iSensor];
+      A(0,0) += weightQ[iSensor];
    }
    
-   A(0,0) = 1;
    A(0,1) = fSumZiWiQ;
    A(1,0) = fSumZiWiQ;
    A(1,1) = fSumZiQWiQ;
