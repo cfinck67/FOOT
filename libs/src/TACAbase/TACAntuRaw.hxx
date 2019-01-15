@@ -35,8 +35,8 @@ public:
    void            AddMcTrackId(Int_t trackId, Int_t mcId = -1);
 
 private:
-   Double_t        fTime;
-   Double_t        fCharge;
+   Double32_t      fTime;
+   Double32_t      fCharge;
    Int_t           fCrystalId;
    Int_t           fType;
    TVector3        fPosition;

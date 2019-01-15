@@ -41,10 +41,10 @@ protected:
    Int_t              fPixelIndex;               // index of the pixel
 	Int_t              fPixelLine;                // line in the matrix
 	Int_t              fPixelColumn;              // column in the matrix
-	int                fLayer;
+	Int_t              fLayer;
 
-	Double_t           fRawValue;                 // the rawvalue
-	Double_t           fPulseHeight;              // pulseheight on pixel
+	Double32_t         fRawValue;                 // the rawvalue
+	Double32_t         fPulseHeight;              // pulseheight on pixel
 
    Bool_t             fFound;                    // flag, that pixel is found in hit
 

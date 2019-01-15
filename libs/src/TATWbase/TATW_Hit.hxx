@@ -41,8 +41,8 @@ private:
     Int_t m_layer;
     Int_t m_bar;
 	
-    Double_t m_de;                        // energy loss in the scintillator bar
-    Double_t m_time;                        
+    Double32_t m_de;                        // energy loss in the scintillator bar
+    Double32_t m_time;
 
     Float_t m_coordinate;                // x or y coordinate in the local detector frame, depending on the layer
     Float_t m_z;                         // z coordinate in the local detector frame
