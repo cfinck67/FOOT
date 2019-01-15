@@ -41,10 +41,6 @@
 using namespace std;
 
 
-#define build_string(expr) \
-    (static_cast<ostringstream*>(&(ostringstream().flush() << expr))->str());
-
-
 class Materials {
 
 public:
@@ -52,8 +48,6 @@ public:
 
 	Materials();
 	~Materials() {};
-
-
 
 	TGeoMaterial* GetMaterial( string nome ) {
 		// if (not find nome)	....
