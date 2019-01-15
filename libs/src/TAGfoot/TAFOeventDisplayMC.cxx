@@ -259,28 +259,39 @@ void TAFOeventDisplayMC::UpdateCaInfo(Int_t idx)
 void TAFOeventDisplayMC::UpdateMcInfo(TString prefix, Int_t idx)
 {
    TAMChit* point = 0x0;
-
-   if (prefix == "vt")
+   TString name   = "";
+   
+   if (prefix == "vt") {
       point = (TAMChit*)fVtMcDisplay->GetPointId(idx);
+      name = "VTX";
+   }
 
-   if (prefix == "it")
+   if (prefix == "it") {
       point = (TAMChit*)fItMcDisplay->GetPointId(idx);
+      name = "ITR";
+   }
    
-   if (prefix == "ms")
+   if (prefix == "ms") {
       point = (TAMChit*)fMsdMcDisplay->GetPointId(idx);
+      name = "MSD";
+   }
    
-   if (prefix == "tw")
+   if (prefix == "tw") {
       point = (TAMChit*)fTwMcDisplay->GetPointId(idx);
+      name = "TOF";
+   }
 
-   if (prefix == "ca")
+   if (prefix == "ca") {
       point = (TAMChit*)fCaMcDisplay->GetPointId(idx);
+      name = "CAL";
+   }
    
    if(point == 0x0) return;
 
    TVector3 pos = point->GetPosition();
    TVector3 mom = point->GetMomentum();
    
-   fInfoView->AddLine( Form("MC sensor id # %d\n", point->GetID()) );
+   fInfoView->AddLine( Form("%s sensor id: %d, Hit:\n", name.Data(), point->GetID()) );
    fInfoView->AddLine( Form("at position:   (%.3g %.3g %.3g) cm\n", pos[0], pos[1], pos[2]) );
    fInfoView->AddLine( Form("with momentum: (%.3g %.3g %.3g) GeV/c\n", mom[0], mom[1], mom[2]) );
    fInfoView->AddLine( Form("eLoss: %.3g MeV time: %.3g ns\n", point->GetDeltaE()*TAGgeoTrafo::GevToMev(), point->GetTof()*TAGgeoTrafo::SecToNs()) );
