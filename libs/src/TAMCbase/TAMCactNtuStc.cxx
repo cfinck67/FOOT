@@ -47,13 +47,13 @@ Bool_t TAMCactNtuStc::Action() {
    
    for (Int_t i = 0; i < fpEvtStr->STCn; i++) {
       
-      Int_t crystalId = fpEvtStr->STCid[i];
-      Int_t trackId   = fpEvtStr->STCid[i] - 1;
+      Int_t id      = 0;
+      Int_t trackId = fpEvtStr->STCid[i] - 1;
 
       TVector3 pos( fpEvtStr->STCxin[i], fpEvtStr->STCyin[i], fpEvtStr->STCzin[i]);
       TVector3 mom( fpEvtStr->STCpxin[i], fpEvtStr->STCpyin[i], fpEvtStr->STCpzin[i]);
       
-      p_nturaw->NewHit(crystalId, pos, mom, fpEvtStr->STCde[i], fpEvtStr->STCtim[i], trackId);
+      p_nturaw->NewHit(id, pos, mom, fpEvtStr->STCde[i], fpEvtStr->STCtim[i], trackId);
    }
    
    fpNtuMC->SetBit(kValid);
