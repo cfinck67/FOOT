@@ -4,6 +4,7 @@
 
 // ROOT classes
 #include "TObject.h"
+#include "TArrayC.h"
 #include "TObjArray.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
@@ -33,8 +34,6 @@
 class TAVTbaseNtuHit : public TAGobject {
    
 protected:
-   static const Int_t fgkMAXTRACK = 10;
-
 	Int_t              fSensorId;                 // number of the sensor
 	TVector3           fPosition;                 // pixel position in the detector frame
 	// TVector3           fSize;                  // size in uvw directions
@@ -49,18 +48,16 @@ protected:
 
    Bool_t             fFound;                    // flag, that pixel is found in hit
 
-   Int_t              fMcTrackCount;                 // Variable that count the number of times a crystal is touched
-   Int_t              fMCindex[fgkMAXTRACK];         // Id of the track created in the simulation
-   Int_t              fMcTrackId[fgkMAXTRACK];         // Id of the track created in the simulation
+   TArrayC            fMCindex;                  // Id of the track created in the simulation
+   TArrayC            fMcTrackId;                // Id of the track created in the simulation
 
 public:
 
     TAVTbaseNtuHit() {};
     TAVTbaseNtuHit( Int_t iSensor, const Int_t aIndex, Double_t aValue);
     TAVTbaseNtuHit( Int_t iSensor, Double_t aValue, Int_t aLine, Int_t aColumn);
-    virtual ~TAVTbaseNtuHit() {};
+    virtual ~TAVTbaseNtuHit();
 
-   
     void               Clear(Option_t* option = "C");
 
     Bool_t	           IsEqual(const TObject* obj) const;
@@ -104,9 +101,9 @@ public:
 
 
    // MC track id
-   Int_t      GetMcIndex(Int_t index)   const   { return fMCindex[index];   }
-   Int_t      GetMcTrackI(Int_t index)  const   { return fMcTrackId[index]; }
-   Int_t      GetMcTrackCount()         const   { return fMcTrackCount;     }
+   Int_t      GetMcIndex(Int_t index)   const   { return fMCindex[index];      }
+   Int_t      GetMcTrackI(Int_t index)  const   { return fMcTrackId[index];    }
+   Int_t      GetMcTrackCount()         const   { return fMcTrackId.GetSize(); }
    
    // Add MC track Id
    void       AddMcTrackId(Int_t trackId, Int_t mcId = -1);

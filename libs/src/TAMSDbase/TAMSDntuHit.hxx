@@ -3,6 +3,7 @@
 #define _TAMSDntuHit_HXX
 
 // ROOT classes
+#include "TArrayC.h"
 #include "TObjArray.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
@@ -32,8 +33,6 @@
 class TAMSDntuHit : public TAGobject {
    
 protected:
-   static const Int_t fgkMAXTRACK = 100;
-
    Int_t     fSensorId;
    Float_t   fPosition;                 // strip position in the detector frame
    Float_t   fValue;
@@ -42,10 +41,9 @@ protected:
    Int_t     fStrip;
    Bool_t    fFound;
 
-   Int_t     fMcTrackCount;                 // Variable that count the number of times a crystal is touched
-   Int_t     fMCindex[fgkMAXTRACK];         // Id of the track created in the simulation
-   Int_t     fMcTrackId[fgkMAXTRACK];         // Id of the track created in the simulation
-
+   TArrayC   fMCindex;                  // Id of the track created in the simulation
+   TArrayC   fMcTrackId;                // Id of the track created in the simulation
+   
 public:
    TAMSDntuHit();
     TAMSDntuHit( Int_t input, Float_t value, Int_t view, Int_t strip);
@@ -77,9 +75,9 @@ public:
    Bool_t     IsSortable()      const    { return kTRUE;   }
    
    // MC track id
-   Int_t      GetMcIndex(Int_t index)   const   { return fMCindex[index];   }
-   Int_t      GetMcTrackI(Int_t index)  const   { return fMcTrackId[index]; }
-   Int_t      GetMcTrackCount()         const   { return fMcTrackCount;     }
+   Int_t      GetMcIndex(Int_t index)   const   { return fMCindex[index];      }
+   Int_t      GetMcTrackI(Int_t index)  const   { return fMcTrackId[index];    }
+   Int_t      GetMcTrackCount()         const   { return fMcTrackId.GetSize(); }
 
    
    //! Set input type

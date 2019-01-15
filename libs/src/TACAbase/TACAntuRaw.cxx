@@ -28,9 +28,7 @@ TACAntuHit::TACAntuHit()
    fCharge(0.),
    fCrystalId(0),
    fType(0),
-   fPosition(),
-   fMcTrackCount(0)
-
+   fPosition()
 {
 }
 
@@ -41,8 +39,7 @@ TACAntuHit::TACAntuHit(int cha, double charge, double time, int typ)
    fCharge(charge),
    fCrystalId(cha),
    fType(typ),
-   fPosition(),
-   fMcTrackCount(0)
+   fPosition()
 {
 }
 
@@ -50,8 +47,11 @@ TACAntuHit::TACAntuHit(int cha, double charge, double time, int typ)
 //
 void TACAntuHit:: AddMcTrackId(Int_t trackId, Int_t mcId)
 {
-   fMcTrackId[fMcTrackCount]   = mcId;
-   fMcTrackId[fMcTrackCount++] = trackId;
+   fMCindex.Set(fMCindex.GetSize()+1);
+   fMCindex[fMCindex.GetSize()-1]   = mcId;
+   
+   fMcTrackId.Set(fMcTrackId.GetSize()+1);
+   fMcTrackId[fMcTrackId.GetSize()-1] = trackId;
 }
 
 //##############################################################################

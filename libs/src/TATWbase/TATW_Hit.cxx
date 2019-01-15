@@ -20,8 +20,7 @@ TATW_Hit::TATW_Hit( TATWrawHit* hit )
     m_de(0),
     m_time(0),
     m_coordinate(0),
-    m_z(0),
-    m_McTrackCount(0)
+    m_z(0)
 {
    m_McTrackId[0] = -1;
 }
@@ -33,8 +32,7 @@ TATW_Hit::TATW_Hit ( int aView, int aBar, Double_t aDe, Double_t aTime)
   m_layer(aView),
   m_bar(aBar),
   m_de(aDe),
-  m_time(aTime),
-  m_McTrackCount(0)
+  m_time(aTime)
 {
    m_McTrackId[0] = -1;
 }
@@ -43,6 +41,9 @@ TATW_Hit::TATW_Hit ( int aView, int aBar, Double_t aDe, Double_t aTime)
 //
 void TATW_Hit::AddMcTrackId(Int_t trackId, Int_t mcId)
 {
-   m_McTrackId[m_McTrackCount]   = mcId;
-   m_McTrackId[m_McTrackCount++] = trackId;
+   m_MCindex.Set(m_MCindex.GetSize()+1);
+   m_MCindex[m_MCindex.GetSize()-1]   = mcId;
+   
+   m_McTrackId.Set(m_McTrackId.GetSize()+1);
+   m_McTrackId[m_McTrackId.GetSize()-1] = trackId;
 }

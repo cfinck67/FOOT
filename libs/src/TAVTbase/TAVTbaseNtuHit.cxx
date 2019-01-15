@@ -18,8 +18,7 @@ TAVTbaseNtuHit::TAVTbaseNtuHit( Int_t aSensorNumber, const Int_t aPixelIndex, Do
   fPixelLine(0),
   fPixelColumn(0),
   fRawValue(aValue),
-  fFound(false),
-  fMcTrackCount(0)
+  fFound(false)
 {
     fPulseHeight = fRawValue;
 }
@@ -33,10 +32,15 @@ TAVTbaseNtuHit::TAVTbaseNtuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLin
   fPixelLine(aLine),
   fPixelColumn(aColumn),
   fRawValue(aValue),
-  fFound(false),
-  fMcTrackCount(0)
+  fFound(false)
 {
     fPulseHeight = fRawValue;
+}
+
+//______________________________________________________________________________
+//
+TAVTbaseNtuHit::~TAVTbaseNtuHit()
+{
 }
 
 //______________________________________________________________________________
@@ -77,8 +81,11 @@ Double_t TAVTbaseNtuHit::DistanceV(const TVector3& aPosition)
 //
 void TAVTbaseNtuHit::AddMcTrackId(Int_t trackId,Int_t mcId)
 {
-   fMcTrackId[fMcTrackCount]   = mcId;
-   fMcTrackId[fMcTrackCount++] = trackId;
+   fMCindex.Set(fMCindex.GetSize()+1);
+   fMCindex[fMCindex.GetSize()-1]   = mcId;
+   
+   fMcTrackId.Set(fMcTrackId.GetSize()+1);
+   fMcTrackId[fMcTrackId.GetSize()-1] = trackId;
 }
 
 //______________________________________________________________________________

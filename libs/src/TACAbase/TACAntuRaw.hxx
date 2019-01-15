@@ -3,6 +3,7 @@
 
 
 #include "TObject.h"
+#include "TArrayC.h"
 #include "TClonesArray.h"
 #include "TString.h"
 #include "TVector3.h"
@@ -27,9 +28,9 @@ public:
    void            SetType(int type)        { fType = type;      }
    void            SetPosition(TVector3 pos){ fPosition = pos;   }
 
-   Int_t           GetMcIndex(Int_t index)   const   { return fMCindex[index];   }
-   Int_t           GetMcTrackI(Int_t index)  const   { return fMcTrackId[index]; }
-   Int_t           GetMcTrackCount()         const   { return fMcTrackCount;     }
+   Int_t           GetMcIndex(Int_t index)   const   { return fMCindex[index];      }
+   Int_t           GetMcTrackI(Int_t index)  const   { return fMcTrackId[index];    }
+   Int_t           GetMcTrackCount()         const   { return fMcTrackId.GetSize(); }
 
    void            AddMcTrackId(Int_t trackId, Int_t mcId = -1);
 
@@ -42,9 +43,8 @@ private:
    Int_t           fType;
    TVector3        fPosition;
    
-   Int_t           fMcTrackCount;                 // Variable that count the number of times a crystal is touched
-   Int_t           fMCindex[fgkMAXTRACK];         // Id of the track created in the simulation
-   Int_t           fMcTrackId[fgkMAXTRACK];         // Id of the track created in the simulation
+   TArrayC         fMCindex;                  // Id of the track created in the simulation
+   TArrayC         fMcTrackId;                // Id of the track created in the simulation
    
    ClassDef(TACAntuHit,1)
 };
@@ -56,24 +56,24 @@ public:
    TACAntuRaw();
    virtual         ~TACAntuRaw();
    
-   Int_t           GetHitsN() const;
+   Int_t              GetHitsN() const;
    TACAntuHit*        GetHit(Int_t i_ind);
    const TACAntuHit*  GetHit(Int_t i_ind) const;
    
    TACAntuHit*        NewHit(int channel, double charge, double time, int type = 0);
    
-   void            SetTrigTime(Double_t time) { fTrigTime = time; }
-   Double_t        GetTrigTime()        const { return fTrigTime; }
+   void               SetTrigTime(Double_t time) { fTrigTime = time; }
+   Double_t           GetTrigTime()        const { return fTrigTime; }
    
-   Int_t           GetNTdc() const  { return fiNTdc;  }
-   Int_t           GetNAdc() const  { return fiNTdc;  }
-   Int_t           GetNDrop() const { return fiNDrop; }
+   Int_t              GetNTdc() const  { return fiNTdc;  }
+   Int_t              GetNAdc() const  { return fiNTdc;  }
+   Int_t              GetNDrop() const { return fiNDrop; }
    
-   virtual void    Clear(Option_t* opt="");
+   virtual void       Clear(Option_t* opt="");
    
-   void            SetupClones();
+   void               SetupClones();
    
-   virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
+   virtual void       ToStream(ostream& os=cout, Option_t* option="") const;
    
 public:
    static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
