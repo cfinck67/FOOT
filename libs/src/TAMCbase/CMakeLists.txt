@@ -22,6 +22,7 @@ set( with_dictionnaries
    TAMCactNtuEve
    TAMCntuEve
    TAMCactNtuStc
+   TAMCactNtuBm
    TAMCactNtuVtx
    TAMCactNtuItr
    TAMCactNtuMsd
