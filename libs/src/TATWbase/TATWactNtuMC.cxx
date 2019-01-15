@@ -3,6 +3,7 @@
   \version $Id: TATWactNtuMC.cxx,v 1.9 2003/06/22 10:35:48 mueller Exp $
   \brief   Implementation of TATWactNtuMC.
 */
+#include "TAGgeoTrafo.hxx"
 
 #include "TATWdatRaw.hxx"
 #include "TATWactNtuMC.hxx"
@@ -44,6 +45,18 @@ void TATWactNtuMC::CreateHistogram()
    fpHisHitMap = new TH2F("twHitMap", "ToF Wall - Hit Map", 22, 0., 22, 22, 0, 22);
    AddHistogram(fpHisHitMap);
 
+   fpHisDeTot = new TH1F("twDeTot", "ToF Wall - Total energy loss", 1000, 0., 200);
+   AddHistogram(fpHisDeTot);
+
+   fpHisDeTotMc = new TH1F("twMcDeTot", "ToF wall - MC Total energy loss", 1000, 0., 200);
+   AddHistogram(fpHisDeTotMc);
+   
+   fpHisTimeTot = new TH1F("twTimeTot", "ToF Wall - Total time", 1000, 0., 200);
+   AddHistogram(fpHisTimeTot);
+   
+   fpHisTimeTotMc = new TH1F("twMcTimeTot", "ToF wall - MC Total time", 1000, 0., 200);
+   AddHistogram(fpHisTimeTotMc);
+   
    SetValidHistogram(kTRUE);
 }
 
@@ -67,6 +80,8 @@ bool TATWactNtuMC::Action() {
     // fill the container of hits, divided by layer, i.e. the column at 0 and row at 1
     for (int i=0; i < m_eventStruct->SCNn; i++) { 
     
+       Float_t edep  = m_eventStruct->SCNde[i]*TAGgeoTrafo::GevToMev();
+
         //First two numbers make sense only for data (typ, channel)
         // TATW_Hit *mytmp = new((*(containerHit->hir))[i]) 
         // TATWrawHit(0,0,m_eventStruct->SCNde[i],m_eventStruct->SCNtim[i]);
@@ -84,6 +99,13 @@ bool TATWactNtuMC::Action() {
         hit->AddMcTrackId(m_eventStruct->SCNid[i]-1, i);
        
        if (ValidHistogram()) {
+          fpHisDeTotMc->Fill(edep);
+          fpHisDeTot->Fill(hit->GetEnergyLoss()*TAGgeoTrafo::GevToMev());
+          
+          fpHisTimeTotMc->Fill(m_eventStruct->SCNtim[i]*TAGgeoTrafo::SecToNs() );
+          fpHisTimeTot->Fill(hit->GetTime()*TAGgeoTrafo::SecToNs());
+
+          
           if (hit->IsColumn())
              fpHisHitCol->Fill(hit->GetBar());
           else

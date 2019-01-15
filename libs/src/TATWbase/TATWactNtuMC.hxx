@@ -40,7 +40,10 @@ class TATWactNtuMC : public TAGaction {
     TH1F* fpHisHitCol;
     TH1F* fpHisHitLine;
     TH2F* fpHisHitMap;
-   
+    TH1F* fpHisDeTot;
+    TH1F* fpHisDeTotMc;
+    TH1F* fpHisTimeTot;
+    TH1F* fpHisTimeTotMc;
 };
 
 #endif
