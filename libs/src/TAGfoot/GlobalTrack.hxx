@@ -27,9 +27,6 @@
 #include "TAGroot.hxx"
 #include "TrackableParticle.hxx" 
 
-//MC info, is this needed here? Yes (MV)
-#include "foot_geo.h"
-
 //Global tracking classes
 #include "GlobalTrackCandidate.hxx"
 #include "MagneticField.hxx"

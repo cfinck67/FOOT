@@ -10,8 +10,6 @@
 #include "TObject.h"
 
 
-#include "../foot_geo.h"
-
 using namespace std; 
 
 

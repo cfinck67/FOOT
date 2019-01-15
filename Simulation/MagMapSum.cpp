@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <vector>
 #include "Getline.h"
-#include "foot_geo.h"
 
 
 void MagMapSum() {

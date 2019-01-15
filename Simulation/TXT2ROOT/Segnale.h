@@ -11,7 +11,6 @@
 #include <vector>
 #include <algorithm>
 
-#include "../foot_geo.h"
 #include "Helper.h"
 #include "../Geometry.h"
 //#include "Evento.h"
@@ -247,9 +246,9 @@ public:
 	}
 	;
 
-	Int_t MI_GetID(Int_t Number) const {
+	Int_t MI_GetSenseId(Int_t Number) const {
 		if ((Number < 0) || (Number >= fMI_Nb)) {
-			cerr << "ERROR: Segnale::MI_GetID(): given number:" << Number
+			cerr << "ERROR: Segnale::MI_GetSenseId(): given number:" << Number
 					<< " is < 0 or >= " << fMI_Nb << " !" << endl;
 			exit(1);
 		}
