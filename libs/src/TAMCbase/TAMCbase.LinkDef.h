@@ -8,6 +8,7 @@
 #pragma link C++ class TAMCactNtuEve+;
 #pragma link C++ class TAMCeveTrack+;
 #pragma link C++ class TAMCntuEve+;
+#pragma link C++ class TAMCactNtuStc+;
 #pragma link C++ class TAMCactNtuVtx+;
 #pragma link C++ class TAMCactNtuItr+;
 #pragma link C++ class TAMCactNtuMsd+;
