@@ -20,6 +20,7 @@
 #include "TAGactTreeWriter.hxx"
 #include "TAGgeoTrafo.hxx"
 
+#include "TAGparGeo.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAVTparMap.hxx"
 #include "TAVTparConf.hxx"
@@ -51,6 +52,10 @@ TAVTactNtuVertex*    vtActVtx  = 0x0;
 void FillMCVertex(EVENT_STRUCT *myStr) {
    
    /*Ntupling the MC Vertex information*/
+   TAGparaDsc* tgGeo = new TAGparaDsc(TAGparGeo::GetDefParaName(), new TAGparGeo());
+   TAGparGeo* parGeoG = (TAGparGeo*)tgGeo->Object();
+   parGeoG->FromFile();
+   
    TAGparaDsc* vtGeo    = new TAGparaDsc(TAVTparGeo::GetDefParaName(), new TAVTparGeo());
    TAVTparGeo* geomap   = (TAVTparGeo*) vtGeo->Object();
    geomap->FromFile();
@@ -75,7 +80,7 @@ void FillMCVertex(EVENT_STRUCT *myStr) {
    vtActTrck = new TAVTactNtuTrackF("vtActTrck", vtClus, vtTrck, vtConf, vtGeo);
    vtActTrck->CreateHistogram();
    
-   vtActVtx = new TAVTactNtuVertex("vtActVtx", vtTrck, vtVtx, vtConf, vtGeo);
+   vtActVtx = new TAVTactNtuVertex("vtActVtx", vtTrck, vtVtx, vtConf, vtGeo, tgGeo);
    vtActVtx->CreateHistogram();
    
    // outFile->SetupElementBranch(vtRaw, TAVTntuRaw::GetBranchName());
