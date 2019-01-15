@@ -22,7 +22,6 @@ TATW_Hit::TATW_Hit( TATWrawHit* hit )
     m_coordinate(0),
     m_z(0)
 {
-   m_McTrackId[0] = -1;
 }
 
 //______________________________________________________________________________
@@ -34,7 +33,6 @@ TATW_Hit::TATW_Hit ( int aView, int aBar, Double_t aDe, Double_t aTime)
   m_de(aDe),
   m_time(aTime)
 {
-   m_McTrackId[0] = -1;
 }
 
 //______________________________________________________________________________
