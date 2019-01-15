@@ -94,7 +94,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fVtxClusDisplay(new TAGclusterDisplay("Vertex Cluster")),
    fVtxTrackDisplay(new TAGtrackDisplay("Vertex Tracks")),
    fItClusDisplay(new TAGclusterDisplay("Inner tracker Cluster")),
-   fMsdClusDisplay(new TAGclusterDisplay("Inner tracker Cluster")),
+   fMsdClusDisplay(new TAGclusterDisplay("Multi Strip Cluster")),
    fTwClusDisplay(new TAGclusterDisplay("Tof Wall hit")),
    fCaClusDisplay(new TAGclusterDisplay("Calorimeter hit")),
    fGlbTrackDisplay(new TAGglbTrackDisplay("Global Tracks"))
@@ -663,13 +663,13 @@ void TAFOeventDisplay::UpdateHitInfo(TEveDigitSet* qs, Int_t idx)
       TVector3 pos = clus->GetPositionG();
       fInfoView->AddLine( Form("Cluster # %3d\n", idx) );
       fInfoView->AddLine( Form("with %3d pixels in sensor %d\n", clus->GetPixelsN(), clus->GetPlaneNumber()) );
-      fInfoView->AddLine( Form("at position: (%7.1f %7.1f)\n", pos.X(), pos.Y()) );
+      fInfoView->AddLine( Form("at position: (%.3g %.3g)\n", pos.X(), pos.Y()) );
    } else if (obj->InheritsFrom("TAVTvertex")) {
       TAVTvertex* vtx = (TAVTvertex*)obj;
       if (vtx == 0x0) return;
       TVector3 pos = vtx->GetVertexPosition();
       fInfoView->AddLine( Form("Vertex# %d at position:\n", idx) );
-      fInfoView->AddLine( Form(" (%7.1f %7.1f %7.1f)\n", pos.X(), pos.Y(), pos.Z()) );
+      fInfoView->AddLine( Form(" (%.3g %.3gf %.3gf)\n", pos.X(), pos.Y(), pos.Z()) );
       fInfoView->AddLine( Form(" BM Matched %d\n", vtx->IsBmMatched()) );
       
    } else {
@@ -690,7 +690,7 @@ void TAFOeventDisplay::UpdateTrackInfo(TEveDigitSet* qs, Int_t idx)
       TAVTcluster* clus = track->GetCluster(i);
       TVector3 posG = clus->GetPositionG();
       fInfoView->AddLine( Form(" for plane %d\n", clus->GetPlaneNumber()));
-      fInfoView->AddLine( Form(" at position: (%7.1f %7.1f) \n", posG.X(), posG.Y()) );
+      fInfoView->AddLine( Form(" at position: (%.3g %.3g) \n", posG.X(), posG.Y()) );
       fInfoView->AddLine( Form(" with %d pixels\n", clus->GetPixelsN()));
    }
 }
@@ -968,21 +968,6 @@ void TAFOeventDisplay::UpdateBarElements(const TString prefix)
          fFiredTofBar[idx] = 1;
          parGeo->SetBarColorOn(iBar, layer);
 
-         TVector3 pos = hit->GetMCPosition_detectorFrame();
-         TVector3 posG = pos;
-         // already in global frame cos MC !
-//         if (prefix == "tw")
-//            posG = fpFootGeo->FromTWLocalToGlobal(posG);
-         
-         x = posG(0);
-         y = posG(1);
-         z = posG(2);
-         
-         Double_t eloss = hit->GetEnergyLoss();
-         
-         fTwClusDisplay->AddHit(eloss*10, x, y, z);
-         fTwClusDisplay->QuadId(hit);
-   
       } //end loop on hits
       
    } //end loop on planes
@@ -1028,18 +1013,6 @@ void TAFOeventDisplay::UpdateCrystalElements(const TString prefix)
       
       fFiredCaCrystal[idx] = 1;
       parGeo->SetCrystalColorOn(idx);
-      
-      TVector3 pos = hit->GetPosition();
-      TVector3 posG = fpFootGeo->FromCALocalToGlobal(pos);
-            
-      x = posG(0);
-      y = posG(1);
-      z = posG(2);
-      
-      Double_t eloss = hit->GetCharge();
-      
-      fCaClusDisplay->AddHit(eloss*10, x, y, z);
-      fCaClusDisplay->QuadId(hit);
       
    } //end loop on hits
    

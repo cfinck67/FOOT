@@ -98,7 +98,7 @@ public:
    //! Add elements
    virtual void AddElements();
    
-   //! Add elements
+   //! Connect elements
    virtual void ConnectElements();
    
    void UpdateHitInfo(TEveDigitSet* qs, Int_t idx);
