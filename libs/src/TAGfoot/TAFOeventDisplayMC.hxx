@@ -20,6 +20,17 @@
 #include "TATWactNtuMC.hxx"
 #include "TACAactNtuMC.hxx"
 
+#include "TAMCntuHit.hxx"
+#include "TAMCntuEve.hxx"
+#include "TAMCactNtuVtx.hxx"
+#include "TAMCactNtuItr.hxx"
+#include "TAMCactNtuMsd.hxx"
+#include "TAMCactNtuTof.hxx"
+#include "TAMCactNtuCal.hxx"
+#include "TAMCactNtuEve.hxx"
+
+#include "TAGpointDisplay.hxx"
+
 #include "Evento.hxx"
 
 class TTree;
@@ -43,9 +54,28 @@ public:
    //! Create raw data action
    void CreateRawAction();
 
+   //! Add required items
+   void AddRequiredItem();
+
    //! Tree entry
    Bool_t GetEntry(Int_t entry);
+   
+   // Update elements
+   void UpdateElements();
 
+   //! Add elements
+   void AddElements();
+
+   //! Connect elements
+   void ConnectElements();
+
+   //! Update MC info
+   void UpdateVtInfo(Int_t idx);
+   void UpdateItInfo(Int_t idx);
+   void UpdateMsInfo(Int_t idx);
+   void UpdateTwInfo(Int_t idx);
+   void UpdateCaInfo(Int_t idx);
+   
 private:
    EVENT_STRUCT*         fEvtStruct;
    
@@ -56,10 +86,40 @@ private:
    TATWactNtuMC*         fActNtuRawTw;  // action for ntu data
    TACAactNtuMC*         fActNtuRawCa;  // action for ntu data
    
+   TAGdataDsc*           fpNtuMcEve;    // input data dsc
+   TAGdataDsc*           fpNtuMcVt;    // input data dsc
+   TAGdataDsc*           fpNtuMcIt;    // input data dsc
+   TAGdataDsc*           fpNtuMcMsd;    // input data dsc
+   TAGdataDsc*           fpNtuMcTw;    // input data dsc
+   TAGdataDsc*           fpNtuMcCa;    // input data dsc
+
+   TAMCactNtuEve*        fActNtuMcEve;
+   TAMCactNtuVtx*        fActNtuMcVt;
+   TAMCactNtuItr*        fActNtuMcIt;
+   TAMCactNtuMsd*        fActNtuMcMsd;
+   TAMCactNtuTof*        fActNtuMcTw;
+   TAMCactNtuCal*        fActNtuMcCa;
+   
    TTree*                fTree;         // tree for MC
    TFile*                fActEvtFile; // file for MC
 
- 
+   //Display
+   TAGpointDisplay*      fVtMcDisplay;
+   TAGpointDisplay*      fItMcDisplay;
+   TAGpointDisplay*      fMsdMcDisplay;
+   TAGpointDisplay*      fTwMcDisplay;
+   TAGpointDisplay*      fCaMcDisplay;
+
+private:
+   void  UpdateMcElements(const TString prefix);
+   void  UpdateMcInfo(TString prefix, Int_t idx);
+   
+   void AddRequiredMcItemVt();
+   void AddRequiredMcItemIt();
+   void AddRequiredMcItemMs();
+   void AddRequiredMcItemTw();
+   void AddRequiredMcItemCa();
+
    ClassDef(TAFOeventDisplayMC, 1); // Base class for event display
 };
 

@@ -280,18 +280,17 @@ void TAFOeventDisplayMC::UpdateMcInfo(TString prefix, Int_t idx)
    TVector3 pos = point->GetPosition();
    TVector3 mom = point->GetMomentum();
    
-   fInfoView->AddLine( Form("MC Hit id # %3d\n", point->GetID()) );
+   fInfoView->AddLine( Form("MC sensor id # %d\n", point->GetID()) );
    fInfoView->AddLine( Form("at position:   (%.3g %.3g %.3g) cm\n", pos[0], pos[1], pos[2]) );
    fInfoView->AddLine( Form("with momentum: (%.3g %.3g %.3g) GeV/c\n", mom[0], mom[1], mom[2]) );
    fInfoView->AddLine( Form("eLoss: %.3g MeV time: %.3g ns\n", point->GetDeltaE()*TAGgeoTrafo::GevToMev(), point->GetTof()*TAGgeoTrafo::SecToNs()) );
    
-   Int_t trackId  = point->GetTrackId();
-   
+   Int_t trackId       = point->GetTrackId();
    TAMCntuEve* pNtuHit = (TAMCntuEve*) fpNtuMcEve->Object();
-   TAMCeveHit* track  = pNtuHit->GetHit(trackId);
+   TAMCeveTrack* track   = pNtuHit->GetHit(trackId);
    
-   printf("%d %g\n", track->GetCharge(), track->GetMass());
-
+   fInfoView->AddLine( Form("Generated from track # %d\n", trackId) );
+   fInfoView->AddLine( Form("Charge: %d Mass: %.3g GeV/c2\n", track->GetCharge(), track->GetMass()) );
 }
 
 //__________________________________________________________
