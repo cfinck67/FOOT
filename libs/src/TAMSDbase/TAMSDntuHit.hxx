@@ -41,7 +41,7 @@ protected:
    Int_t     fStrip;
    Bool_t    fFound;
 
-   TArrayC   fMCindex;                  // Id of the track created in the simulation
+   TArrayC   fMCindex;                  // Id of the hit created in the simulation
    TArrayC   fMcTrackId;                // Id of the track created in the simulation
    
 public:

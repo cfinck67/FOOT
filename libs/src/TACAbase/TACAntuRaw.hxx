@@ -41,7 +41,7 @@ private:
    Int_t           fType;
    TVector3        fPosition;
    
-   TArrayC         fMCindex;                  // Id of the track created in the simulation
+   TArrayC         fMCindex;                  // Id of the hit created in the simulation
    TArrayC         fMcTrackId;                // Id of the track created in the simulation
    
    ClassDef(TACAntuHit,1)

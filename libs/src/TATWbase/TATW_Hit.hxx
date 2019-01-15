@@ -47,7 +47,7 @@ private:
     Float_t m_coordinate;                // x or y coordinate in the local detector frame, depending on the layer
     Float_t m_z;                         // z coordinate in the local detector frame
 
-   TArrayC   m_MCindex;                  // Id of the track created in the simulation
+   TArrayC   m_MCindex;                  // Id of the hit created in the simulation
    TArrayC   m_McTrackId;                // Id of the track created in the simulation
    
 public:

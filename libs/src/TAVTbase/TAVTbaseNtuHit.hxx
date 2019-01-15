@@ -48,7 +48,7 @@ protected:
 
    Bool_t             fFound;                    // flag, that pixel is found in hit
 
-   TArrayC            fMCindex;                  // Id of the track created in the simulation
+   TArrayC            fMCindex;                  // Id of the hit created in the simulation
    TArrayC            fMcTrackId;                // Id of the track created in the simulation
 
 public:
