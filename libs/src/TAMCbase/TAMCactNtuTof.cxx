@@ -48,7 +48,7 @@ Bool_t TAMCactNtuTof::Action() {
    for (Int_t i = 0; i < fpEvtStr->SCNn; i++) {
       
       Int_t viewId  = ( fpEvtStr->SCNiview[i] == -1 ? 0 : 1 );
-      Int_t trackId = fpEvtStr->VTXid[i] - 1;
+      Int_t trackId = fpEvtStr->SCNid[i] - 1;
 
       TVector3 pos( fpEvtStr->SCNxin[i], fpEvtStr->SCNyin[i], fpEvtStr->SCNzin[i]);
       TVector3 mom( fpEvtStr->SCNpxin[i], fpEvtStr->SCNpyin[i], fpEvtStr->SCNpzin[i]);

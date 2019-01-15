@@ -48,7 +48,7 @@ Bool_t TAMCactNtuMsd::Action() {
    for (Int_t i = 0; i < fpEvtStr->MSDn; i++) {
       
       Int_t sensorId = fpEvtStr->MSDilay[i];
-      Int_t trackId  = fpEvtStr->VTXid[i] - 1;
+      Int_t trackId  = fpEvtStr->MSDid[i] - 1;
 
       TVector3 pos( fpEvtStr->MSDxin[i], fpEvtStr->MSDyin[i], fpEvtStr->MSDzin[i]);
       TVector3 mom( fpEvtStr->MSDpxin[i], fpEvtStr->MSDpyin[i], fpEvtStr->MSDpzin[i]);

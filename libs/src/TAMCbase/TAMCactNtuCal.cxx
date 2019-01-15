@@ -48,7 +48,7 @@ Bool_t TAMCactNtuCal::Action() {
    for (Int_t i = 0; i < fpEvtStr->CALn; i++) {
       
       Int_t crystalId = fpEvtStr->CALicry[i];
-      Int_t trackId   = fpEvtStr->VTXid[i] - 1;
+      Int_t trackId   = fpEvtStr->CALid[i] - 1;
 
       TVector3 pos( fpEvtStr->CALxin[i], fpEvtStr->CALyin[i], fpEvtStr->CALzin[i]);
       TVector3 mom( fpEvtStr->CALpxin[i], fpEvtStr->CALpyin[i], fpEvtStr->CALpzin[i]);
