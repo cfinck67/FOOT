@@ -44,14 +44,13 @@ public:
 	Int_t            GetMotherID()     const { return fMotherId;       }
    Int_t            GetCharge()       const { return fCharge;         }
    Int_t            GetDead()         const { return fDead;           }
-   Double_t         GetTime()         const { return fTime;           }
-   Double_t         GetTrkLength()    const { return fTrkLength;      }
-   Double_t         GetTof()          const { return fTof;            }
+   Double32_t       GetTime()         const { return fTime;           }
+   Double32_t       GetTrkLength()    const { return fTrkLength;      }
+   Double32_t       GetTof()          const { return fTof;            }
    TVector3         GetMotherInitP()  const { return fMotherInitMom;  }
    TVector3         GetMotherFinalP() const { return fMotherFinalMom; }
    Int_t            GetPileUp()       const { return fPileUp;         }
 
-	// da commentare
    void  SetInitPos(TVector3 pos)           { fInitPos = pos;         }
    void  SetInitP(TVector3 mom)             { fInitMom = mom;         }
    void  SetMotherInitP(TVector3 mom)       { fMotherInitMom = mom;   }
@@ -74,15 +73,15 @@ public:
  private:
 	Int_t         fFlukaId;                 // fluka identity
 	Int_t         fCharge;                  // charge
-	Int_t         fType;                    // Type
+	Int_t         fType;                    // yype
 	Int_t         fRegion;                  // region
-	Int_t         fBaryon;                  // barionic number
-	Int_t         fDead;                    // region in whic die
-	Double_t      fMass;                    // mass
+	Int_t         fBaryon;                  // baryonic number
+	Int_t         fDead;                    // region in which it dies
+	Double32_t    fMass;                    // mass
    Int_t         fMotherId;                // mother identity
-	Double_t      fTime;                    // time of produ
+	Double32_t    fTime;                    // time of production
 	Double_t      fTof;                     // time of flight
-	Double_t      fTrkLength;               // track lenght
+	Double_t      fTrkLength;               // track length
 	TVector3      fInitPos;		             // initial position
 	TVector3      fFinalPos;		          // final position
 	TVector3      fInitMom;	          	    // initial momentum
@@ -90,8 +89,6 @@ public:
 	TVector3      fMotherInitMom;		       // mother init momentum
 	TVector3      fMotherFinalMom;		    // mother final momentum
    Int_t         fPileUp;                  // pile-up index =0 current event
-										 // >0 index of overlapped event
-										 // VM added 17/11/13
 
 	ClassDef(TAMCeveTrack,1)
 };
@@ -100,36 +97,35 @@ public:
 
 class TAMCntuEve : public TAGdata {
   public:
-					TAMCntuEve();
-	virtual         ~TAMCntuEve();
+					       TAMCntuEve();
+	virtual           ~TAMCntuEve();
 
 	TAMCeveTrack*       Hit(Int_t i);
 	const TAMCeveTrack* Hit(Int_t i) const;
    
-   Int_t             GetHitsN() const;
+   Int_t               GetHitsN() const;
    
    TAMCeveTrack*       GetHit(Int_t i);
    const TAMCeveTrack* GetHit(Int_t i) const;
    
    TAMCeveTrack*       NewHit(Int_t i_id, Int_t i_fCharge, Int_t i_type,
-                            Int_t i_reg, Int_t i_bar, Int_t i_dead,
-                            Double_t i_mass, Int_t i_moth,
-                            Double_t i_time,
-                            Double_t i_tof, Double_t i_trlen,
-                            TVector3 i_ipos, TVector3 i_fpos,
-                            TVector3 i_ip,TVector3 i_fp,
-                            TVector3 i_mothip,
-                            TVector3 i_mothfp,Int_t i_pileup);
+                              Int_t i_reg, Int_t i_bar, Int_t i_dead,
+                              Double_t i_mass, Int_t i_moth,
+                              Double_t i_time,
+                              Double_t i_tof, Double_t i_trlen,
+                              TVector3 i_ipos, TVector3 i_fpos,
+                              TVector3 i_ip,TVector3 i_fp,
+                              TVector3 i_mothip,
+                              TVector3 i_mothfp,Int_t i_pileup);
    
-	virtual void      SetupClones();
-	virtual void      Clear(Option_t* opt="");
-
-	virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
-
-	ClassDef(TAMCntuEve,1)
+	virtual void        SetupClones();
+	virtual void        Clear(Option_t* opt="");
+	virtual void        ToStream(ostream& os=cout, Option_t* option="") const;
    
 private:
-   TClonesArray*   fListOfHits; // hits
+   TClonesArray*   fListOfTracks; // ttracks
+   
+   ClassDef(TAMCntuEve,1)
 };
 
 

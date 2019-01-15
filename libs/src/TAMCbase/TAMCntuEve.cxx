@@ -13,7 +13,7 @@ using namespace std;
 
 /*!
   \class TAMCeveTrack TAMCntuEve.hxx "TAMCntuEve.hxx"
-  \brief Ntuplize ToF raw data - hit object. **
+  \brief Ntuplize ToF raw data - track object. **
 */
 
 ClassImp(TAMCeveTrack);
@@ -101,7 +101,7 @@ ClassImp(TAMCntuEve);
 
 TAMCntuEve::TAMCntuEve()
  : TAGdata(),
-   fListOfHits(0x0)
+   fListOfTracks(0x0)
 {
     SetupClones();
 }
@@ -111,26 +111,26 @@ TAMCntuEve::TAMCntuEve()
 
 TAMCntuEve::~TAMCntuEve()
 {
-  delete fListOfHits;
+  delete fListOfTracks;
 }
 
 //------------------------------------------+-----------------------------------
-//! new hit
-TAMCeveTrack* TAMCntuEve::NewHit(  Int_t i_id, Int_t i_chg, Int_t i_type,
-                                      Int_t i_reg, Int_t i_bar, Int_t i_dead,
-                                      Double_t i_mass, Int_t i_moth, 
-                                      Double_t i_time,
-                                      Double_t i_tof, Double_t i_trlen,
-                                      TVector3 i_ipos, TVector3 i_fpos, 
-                                      TVector3 i_ip,TVector3 i_fp,
-                                      TVector3 i_mothip,
-                                      TVector3 i_mothfp,Int_t i_pileup ) {
+//! new track
+TAMCeveTrack* TAMCntuEve::NewHit(Int_t i_id, Int_t i_chg, Int_t i_type,
+                                 Int_t i_reg, Int_t i_bar, Int_t i_dead,
+                                 Double_t i_mass, Int_t i_moth,
+                                 Double_t i_time,
+                                 Double_t i_tof, Double_t i_trlen,
+                                 TVector3 i_ipos, TVector3 i_fpos,
+                                 TVector3 i_ip,TVector3 i_fp,
+                                 TVector3 i_mothip,
+                                 TVector3 i_mothfp,Int_t i_pileup ) {
 
-    TClonesArray &hitCollection = *fListOfHits;
-    TAMCeveTrack* hit = new( hitCollection[hitCollection.GetEntriesFast()] ) TAMCeveTrack( 
+    TClonesArray &trackCollection = *fListOfTracks;
+    TAMCeveTrack* track = new( trackCollection[trackCollection.GetEntriesFast()] ) TAMCeveTrack(
                                             i_id,i_chg,i_type,i_reg,i_bar,i_dead,i_mass,i_moth,
                                             i_time,i_tof,i_trlen,i_ipos,i_fpos,i_ip,i_fp,i_mothip,i_mothfp,i_pileup );
-    return hit;
+    return track;
 
 };
 
@@ -138,36 +138,36 @@ TAMCeveTrack* TAMCntuEve::NewHit(  Int_t i_id, Int_t i_chg, Int_t i_type,
 //! Setup clones.
 
 void TAMCntuEve::SetupClones()   {
-  if (!fListOfHits) fListOfHits = new TClonesArray("TAMCeveTrack", 500);
+  if (!fListOfTracks) fListOfTracks = new TClonesArray("TAMCeveTrack", 500);
 }
 
 //------------------------------------------+-----------------------------------
 //! Clear.
 void TAMCntuEve::Clear(Option_t*)
 {
-   fListOfHits->Clear("C");
+   fListOfTracks->Clear("C");
 }
 
 //------------------------------------------+-----------------------------------
-//! return n hits
+//! return n tracks
 Int_t TAMCntuEve::GetHitsN() const
 {
-   return fListOfHits->GetEntries();
+   return fListOfTracks->GetEntries();
 }
 
 //------------------------------------------+-----------------------------------
-//! Access \a i 'th hit
+//! Access \a i 'th track
 
 TAMCeveTrack* TAMCntuEve::GetHit(Int_t i)
 {
-   return (TAMCeveTrack*) ((*fListOfHits)[i]);;
+   return (TAMCeveTrack*) ((*fListOfTracks)[i]);;
 }
 
 //------------------------------------------+-----------------------------------
-//! Read-only access \a i 'th hit
+//! Read-only access \a i 'th track
 const TAMCeveTrack* TAMCntuEve::GetHit(Int_t i) const
 {
-   return (const TAMCeveTrack*) ((*fListOfHits)[i]);;
+   return (const TAMCeveTrack*) ((*fListOfTracks)[i]);;
 }
 
 /*------------------------------------------+---------------------------------*/
@@ -175,16 +175,16 @@ const TAMCeveTrack* TAMCntuEve::GetHit(Int_t i) const
 void TAMCntuEve::ToStream(ostream& os, Option_t* option) const
 {
   // os << "TAMCntuEve" 
-  //    // << Form("  nhit=%3d", nhit) 
+  //    // << Form("  ntrack=%3d", ntrack) 
   //    << endl;
 
-  // // if (nhit == 0) return;
+  // // if (ntrack == 0) return;
   
   // os << "ind slat stat  adct  adcb  tdct  tdcb" << endl;
   
-  // // for (Int_t i = 0; i < nhit; i++) {
-  // //   const TAMCeveTrack* p_hit = Hit(i);
-  // //   os << Form("%3d %4lf", i, p_hit->mass)
+  // // for (Int_t i = 0; i < ntrack; i++) {
+  // //   const TAMCeveTrack* p_track = Hit(i);
+  // //   os << Form("%3d %4lf", i, p_track->mass)
   // //      << endl;
   // // }
 
