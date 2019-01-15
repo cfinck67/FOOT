@@ -6,7 +6,7 @@
 
 #pragma link C++ class TAGparGeo+;
 #pragma link C++ class TAMCactNtuEve+;
-#pragma link C++ class TAMCeveHit+;
+#pragma link C++ class TAMCeveTrack+;
 #pragma link C++ class TAMCntuEve+;
 #pragma link C++ class TAMCactNtuVtx+;
 #pragma link C++ class TAMCactNtuItr+;

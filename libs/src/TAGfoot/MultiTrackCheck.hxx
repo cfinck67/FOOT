@@ -84,8 +84,8 @@ private:
   vector<TAVTntuHit*> m_VT_hitCollection;
   vector<TAITntuHit*> m_IT_hitCollection;
   vector<TAMSDntuHit*> m_MSD_hitCollection;
-  vector<TAMCeveHit*> m_Frag_hitCollection;
-  vector<TAMCeveHit*> m_Trcks9hits;
+  vector<TAMCeveTrack*> m_Frag_hitCollection;
+  vector<TAMCeveTrack*> m_Trcks9hits;
   
   vector<int> m_Frag_indexCollection;
   vector< int > m_VT_partIDColl;

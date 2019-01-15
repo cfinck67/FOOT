@@ -14,23 +14,23 @@
 #include "TAGdata.hxx"
 
 
-class TAMCeveHit : public TAGobject
+class TAMCeveTrack : public TAGobject
 {
 public:
-   TAMCeveHit();
+   TAMCeveTrack();
 
   // VM changed 17/11/13 to add information for simulate pile-up events
-  TAMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type,
-             Int_t i_reg, Int_t i_bar, Int_t i_dead,
-             Double_t i_mass, Int_t i_moth,
-             Double_t i_time,
-             Double_t i_tof, Double_t i_trlen,
-             TVector3 i_ipos, TVector3 i_fpos,
-             TVector3 i_ip,TVector3 i_fp,
-             TVector3 i_mothip,
-             TVector3 i_mothfp,Int_t i_pileup);
+  TAMCeveTrack(Int_t i_id, Int_t i_chg, Int_t i_type,
+               Int_t i_reg, Int_t i_bar, Int_t i_dead,
+               Double_t i_mass, Int_t i_moth,
+               Double_t i_time,
+               Double_t i_tof, Double_t i_trlen,
+               TVector3 i_ipos, TVector3 i_fpos,
+               TVector3 i_ip,TVector3 i_fp,
+               TVector3 i_mothip,
+               TVector3 i_mothfp,Int_t i_pileup);
 
-	virtual         ~TAMCeveHit();
+	virtual         ~TAMCeveTrack();
 
    TVector3         GetInitPos()      const { return fInitPos;        }
    TVector3         GetInitP()        const { return fInitMom;        }
@@ -93,7 +93,7 @@ public:
 										 // >0 index of overlapped event
 										 // VM added 17/11/13
 
-	ClassDef(TAMCeveHit,1)
+	ClassDef(TAMCeveTrack,1)
 };
 
 //##############################################################################
@@ -103,15 +103,15 @@ class TAMCntuEve : public TAGdata {
 					TAMCntuEve();
 	virtual         ~TAMCntuEve();
 
-	TAMCeveHit*       Hit(Int_t i);
-	const TAMCeveHit* Hit(Int_t i) const;
+	TAMCeveTrack*       Hit(Int_t i);
+	const TAMCeveTrack* Hit(Int_t i) const;
    
    Int_t             GetHitsN() const;
    
-   TAMCeveHit*       GetHit(Int_t i);
-   const TAMCeveHit* GetHit(Int_t i) const;
+   TAMCeveTrack*       GetHit(Int_t i);
+   const TAMCeveTrack* GetHit(Int_t i) const;
    
-   TAMCeveHit*       NewHit(Int_t i_id, Int_t i_fCharge, Int_t i_type,
+   TAMCeveTrack*       NewHit(Int_t i_id, Int_t i_fCharge, Int_t i_type,
                             Int_t i_reg, Int_t i_bar, Int_t i_dead,
                             Double_t i_mass, Int_t i_moth,
                             Double_t i_time,

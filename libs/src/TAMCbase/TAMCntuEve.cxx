@@ -12,16 +12,16 @@ using namespace std;
 #include "TAMCntuEve.hxx"
 
 /*!
-  \class TAMCeveHit TAMCntuEve.hxx "TAMCntuEve.hxx"
+  \class TAMCeveTrack TAMCntuEve.hxx "TAMCntuEve.hxx"
   \brief Ntuplize ToF raw data - hit object. **
 */
 
-ClassImp(TAMCeveHit);
+ClassImp(TAMCeveTrack);
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TAMCeveHit::TAMCeveHit()
+TAMCeveTrack::TAMCeveTrack()
  : TAGobject(),
    fFlukaId(-1),
    fCharge(0.),
@@ -48,7 +48,7 @@ TAMCeveHit::TAMCeveHit()
 //! Construct with data
 
 // VM 17/11/13 added info for pile-up
-TAMCeveHit::TAMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type, 
+TAMCeveTrack::TAMCeveTrack(Int_t i_id, Int_t i_chg, Int_t i_type, 
 			       Int_t i_reg, Int_t i_bar, Int_t i_dead,
 			       Double_t i_mass,  Int_t i_moth, 
 			       Double_t i_time,
@@ -82,7 +82,7 @@ TAMCeveHit::TAMCeveHit(Int_t i_id, Int_t i_chg, Int_t i_type,
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
-TAMCeveHit::~TAMCeveHit()
+TAMCeveTrack::~TAMCeveTrack()
 {
 }
 
@@ -116,7 +116,7 @@ TAMCntuEve::~TAMCntuEve()
 
 //------------------------------------------+-----------------------------------
 //! new hit
-TAMCeveHit* TAMCntuEve::NewHit(  Int_t i_id, Int_t i_chg, Int_t i_type,
+TAMCeveTrack* TAMCntuEve::NewHit(  Int_t i_id, Int_t i_chg, Int_t i_type,
                                       Int_t i_reg, Int_t i_bar, Int_t i_dead,
                                       Double_t i_mass, Int_t i_moth, 
                                       Double_t i_time,
@@ -127,7 +127,7 @@ TAMCeveHit* TAMCntuEve::NewHit(  Int_t i_id, Int_t i_chg, Int_t i_type,
                                       TVector3 i_mothfp,Int_t i_pileup ) {
 
     TClonesArray &hitCollection = *fListOfHits;
-    TAMCeveHit* hit = new( hitCollection[hitCollection.GetEntriesFast()] ) TAMCeveHit( 
+    TAMCeveTrack* hit = new( hitCollection[hitCollection.GetEntriesFast()] ) TAMCeveTrack( 
                                             i_id,i_chg,i_type,i_reg,i_bar,i_dead,i_mass,i_moth,
                                             i_time,i_tof,i_trlen,i_ipos,i_fpos,i_ip,i_fp,i_mothip,i_mothfp,i_pileup );
     return hit;
@@ -138,7 +138,7 @@ TAMCeveHit* TAMCntuEve::NewHit(  Int_t i_id, Int_t i_chg, Int_t i_type,
 //! Setup clones.
 
 void TAMCntuEve::SetupClones()   {
-  if (!fListOfHits) fListOfHits = new TClonesArray("TAMCeveHit", 500);
+  if (!fListOfHits) fListOfHits = new TClonesArray("TAMCeveTrack", 500);
 }
 
 //------------------------------------------+-----------------------------------
@@ -158,16 +158,16 @@ Int_t TAMCntuEve::GetHitsN() const
 //------------------------------------------+-----------------------------------
 //! Access \a i 'th hit
 
-TAMCeveHit* TAMCntuEve::GetHit(Int_t i)
+TAMCeveTrack* TAMCntuEve::GetHit(Int_t i)
 {
-   return (TAMCeveHit*) ((*fListOfHits)[i]);;
+   return (TAMCeveTrack*) ((*fListOfHits)[i]);;
 }
 
 //------------------------------------------+-----------------------------------
 //! Read-only access \a i 'th hit
-const TAMCeveHit* TAMCntuEve::GetHit(Int_t i) const
+const TAMCeveTrack* TAMCntuEve::GetHit(Int_t i) const
 {
-   return (const TAMCeveHit*) ((*fListOfHits)[i]);;
+   return (const TAMCeveTrack*) ((*fListOfHits)[i]);;
 }
 
 /*------------------------------------------+---------------------------------*/
@@ -183,7 +183,7 @@ void TAMCntuEve::ToStream(ostream& os, Option_t* option) const
   // os << "ind slat stat  adct  adcb  tdct  tdcb" << endl;
   
   // // for (Int_t i = 0; i < nhit; i++) {
-  // //   const TAMCeveHit* p_hit = Hit(i);
+  // //   const TAMCeveTrack* p_hit = Hit(i);
   // //   os << Form("%3d %4lf", i, p_hit->mass)
   // //      << endl;
   // // }
