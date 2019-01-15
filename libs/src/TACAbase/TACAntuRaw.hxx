@@ -35,8 +35,6 @@ public:
    void            AddMcTrackId(Int_t trackId, Int_t mcId = -1);
 
 private:
-   static const    Int_t fgkMAXTRACK = 10;
-
    Double_t        fTime;
    Double_t        fCharge;
    Int_t           fCrystalId;
