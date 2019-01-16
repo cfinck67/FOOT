@@ -35,9 +35,8 @@
 ClassImp(TATWdigitizer)
 
 
-const Float_t TATWdigitizer::cm        = 0.1;  // converting mm in cm
-const Float_t TATWdigitizer::ps        = 1000; // converting ns in ps
-      Float_t TATWdigitizer::fgHfactor = 1.45;
+Float_t TATWdigitizer::fgHfactor = 1.45;
+
 // --------------------------------------------------------------------------------------
 TATWdigitizer::TATWdigitizer(TATW_ContainerHit* pNtuRaw)
  : TAGbaseDigitizer(),
@@ -89,7 +88,7 @@ void  TATWdigitizer::SetFunctions()
 // --------------------------------------------------------------------------------------
 void  TATWdigitizer::SetInitParFunction()
 {
-   //all in cm
+   //all in cm, ps and MeV
    fDeResE->SetParameters(fDeResECst, fDeResEC); // fig9
    fTofResE->SetParameters(fTofCstE, fTofLambdaE, fTofk0E); // fig7
    
@@ -256,14 +255,15 @@ Bool_t TATWdigitizer::Process(Double_t edep, Double_t x0, Double_t y0, Double_t 
    Float_t timeR = GetTofRight(pos, time, edep);
    
    if (fDebugLevel) {
-      printf("time %.1f\n", time/ps);
-      printf("time %.1f %.1f\n", timeL/ps, timeR/ps);
+      printf("time %.1f\n", time);
+      printf("time %.1f %.1f\n", timeL, timeR);
    }
    
    Double_t tof = (timeL+timeR)/2.;
    Double_t energy = (energyL+energyR)/2.;
+   
    // no threshold ??
-   fCurrentHit = (TATW_Hit*)fpNtuRaw->NewHit(view, id, energy, tof/ps); // save time in ns, Class TATW_Hit not compatible with real data)
+   fCurrentHit = (TATW_Hit*)fpNtuRaw->NewHit(view, id, energy, tof); // save time in ns, Class TATW_Hit not compatible with real data)
    
    return true;
 }

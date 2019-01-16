@@ -6,9 +6,17 @@
 #include "TATW_Hit.hxx"
 #include "TATW_ContainerHit.hxx"
 
+/*!
+ \file
+ \version $Id: TATWdigitizer,v 1.0 2011/04/01 18:11:59 asarti Exp $
+ \brief   Declaration of TATWdigitizer.
+ 
+ Parameters taken from M. Morrocchi, E. Ciarrocchi et al., NIM A 911 (2018) 0–8
+ */
+/*------------------------------------------+---------------------------------*/
+
+
 class TF1;
-
-
 // --------------------------------------------------------------------------------------
 class TATWdigitizer : public TAGbaseDigitizer {
    
@@ -86,8 +94,6 @@ private:
    Float_t       fGain;
    
 private:
-   static const Float_t cm;
-   static const Float_t ps;
    static       Float_t fgHfactor; // happy factor for edep
    
    ClassDef(TATWdigitizer,0)

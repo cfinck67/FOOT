@@ -20,22 +20,22 @@
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 
-//#include "ControlPlotsRepository.hxx"
+class TATWdigitizer;
 
 class TATWactNtuMC : public TAGaction {
-  public:
+public:
     explicit TATWactNtuMC(const char* name=0, TAGdataDsc* p_datraw=0, EVENT_STRUCT* evStr=0);
-    virtual  ~TATWactNtuMC() {};
+    virtual  ~TATWactNtuMC();
 
     virtual bool  Action();
    
-    void CreateHistogram();
+    void          CreateHistogram();
 
-    ClassDef(TATWactNtuMC,0)
-
-  private:
-    TAGdataDsc*     m_hitContainer;		    // output data dsc
+private:
+    TAGdataDsc*     m_hitContainer;		// output data dsc
     EVENT_STRUCT*   m_eventStruct;
+    TATWdigitizer*  m_Digitizer;       // digitizer
+
    
     TH1F* fpHisHitCol;
     TH1F* fpHisHitLine;
@@ -44,6 +44,11 @@ class TATWactNtuMC : public TAGaction {
     TH1F* fpHisDeTotMc;
     TH1F* fpHisTimeTot;
     TH1F* fpHisTimeTotMc;
+   
+private:
+    void          CreateDigitizer();
+
+   ClassDef(TATWactNtuMC,0)
 };
 
 #endif
