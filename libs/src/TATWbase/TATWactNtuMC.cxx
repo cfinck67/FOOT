@@ -66,13 +66,10 @@ void TATWactNtuMC::CreateHistogram()
 
 bool TATWactNtuMC::Action() {
 
-    if ( fDebugLevel> 0 )     cout << "TATWactNtuMC::Action() start" << endl;
+   if ( fDebugLevel> 0 )     cout << "TATWactNtuMC::Action() start" << endl;
 
-
-    TATW_ContainerHit* containerHit = (TATW_ContainerHit*) gTAGroot->FindDataDsc("containerHit", "TATW_ContainerHit")->Object(); // extremly dangerous !
+   TATW_ContainerHit* containerHit = (TATW_ContainerHit*) m_hitContainer->Object();
     TATWparGeo* geoMap = (TATWparGeo*) gTAGroot->FindParaDsc("twGeo", "TATWparGeo")->Object();
-    // int nhits(0);
-    // if (!containerHit->m_listOfHits) containerHit->SetupClones();
 
     //The number of hits inside the Start Counter is stn
     if ( fDebugLevel> 0 )     cout << "Processing n Scint " << m_eventStruct->SCNn << endl;
@@ -81,10 +78,6 @@ bool TATWactNtuMC::Action() {
     for (int i=0; i < m_eventStruct->SCNn; i++) { 
     
        Float_t edep  = m_eventStruct->SCNde[i]*TAGgeoTrafo::GevToMev();
-
-        //First two numbers make sense only for data (typ, channel)
-        // TATW_Hit *mytmp = new((*(containerHit->hir))[i]) 
-        // TATWrawHit(0,0,m_eventStruct->SCNde[i],m_eventStruct->SCNtim[i]);
 
         // layer, bar, de, time, ntupID, parentID
         int view = ( m_eventStruct->SCNiview[i] == -1 ? 0 : 1 );    // in ntuple layers are -1 and 1
@@ -104,7 +97,6 @@ bool TATWactNtuMC::Action() {
           
           fpHisTimeTotMc->Fill(m_eventStruct->SCNtim[i]*TAGgeoTrafo::SecToNs() );
           fpHisTimeTot->Fill(hit->GetTime()*TAGgeoTrafo::SecToNs());
-
           
           if (hit->IsColumn())
              fpHisHitCol->Fill(hit->GetBar());
@@ -112,8 +104,6 @@ bool TATWactNtuMC::Action() {
              fpHisHitLine->Fill(hit->GetBar());
        }
     }
-
-
 
     // container of points, name of descriptor is hard coded
     TATW_ContainerPoint* containerPoint = (TATW_ContainerPoint*) gTAGroot->FindDataDsc("containerPoint", "TATW_ContainerPoint")->Object(); // extremly dangerous no check !!
@@ -134,41 +124,20 @@ bool TATWactNtuMC::Action() {
             // FOR TEST, REMOVE
             if ( !containerHit->GetHit( 1, iRow )->IsRow() )        cout <<"TATWactNtuMC::Action() cazzoRow"<<endl, exit(0);
             TATW_Hit* rowHit = containerHit->GetHit( 1, iRow );
-
-            // TVector3 rowPos = rowHit->GetHitPosition_detector();
-            // TVector3 colPos = colHit->GetHitPosition_detector();
-            // TVector3 position ( colHit->GetHitCoordinate_detectorFrame().x(), rowHit->GetHitCoordinate_detectorFrame().y(), 
-            //                     ( colHit->GetHitCoordinate_detectorFrame().z() + rowHit->GetHitCoordinate_detectorFrame().z() )/2 );
-
-            // float pointX = 
-            // float pointX = 
-            // float pointZ = rowHit->GetHitPosition_detector().z() ;
-
-            // containerPoint->NewPoint( iCol, colHit, iRow, rowHit );
-
-            // TATW_Point* point = containerPoint->NewPoint( iCol, colHit, iRow, rowHit );
+           
             TATW_Point* point = containerPoint->NewPoint( iRow, rowHit, iCol, colHit );
-            
-            // point->SetColumnBar( iRow, rowHit );    // set pos and mom inside
-            // point->SetRowBar( iCol, colHit );       // set pos and mom inside
-            // point->FindTrueGhost(...);
-            // point->SetMCPosition( MCpos );
-            // point->SetMCMomentum( MCmom );
-
+           
             if ( fDebugLevel> 0 )     cout << "Point "<<iCol<<" "<<iRow<<" -> Col: "<<point->GetColumn()<<" row: "<<point->GetRow()<<endl;
 
            // ControlPlotsRepository::GetControlObject( "TWcontrol" )->SetTW_HitPoint( "TW___Point", point->GetColumn(), point->GetRow() );
            if (ValidHistogram())
               fpHisHitMap->Fill(point->GetColumn(), point->GetRow());
-
         }
-
     }
 
-    // containerHit->nirhit  = nhits;
+     m_hitContainer->SetBit(kValid);
 
-    // m_hitContainer->SetBit(kValid);
-    return true;
+   return true;
 }
 
 
