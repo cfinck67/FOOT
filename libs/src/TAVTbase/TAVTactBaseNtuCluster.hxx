@@ -88,13 +88,6 @@ protected:
    void   ComputeSeedPosition();
    void   ComputeCoGPosition();
    
-//   Bool_t ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY);
-//   Bool_t CheckLine(Int_t idx);
-//   Bool_t CheckCol(Int_t idx);
-//   void   ClearMaps();
-//   void   SetupMaps(Int_t size);
-
-   
    ClassDef(TAVTactBaseNtuCluster,0)
 };
 
