@@ -55,10 +55,6 @@ public:
 	TATW_Hit( TATWrawHit* hit );
 	TATW_Hit ( Int_t aView, Int_t aBar, Double_t aDe, Double_t aTime);
 	~TATW_Hit() {};
-
-   
-	void Initialise();
-
    
    void   Clear(Option_t* option = "C");
 
