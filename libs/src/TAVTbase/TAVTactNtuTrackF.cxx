@@ -84,7 +84,7 @@ Bool_t TAVTactNtuTrackF::FindTiltedTracks()
 
 	  for( Int_t iLastClus = 0; iLastClus < nLastClusters; ++iLastClus) { // loop on cluster of last plane
 		 TAVTcluster* lastCluster = (TAVTcluster*)lastList->At(iLastClus);
-		 if (lastCluster->GetFound()) continue;
+		 if (lastCluster->Found()) continue;
 		 if (lastCluster->GetPixelsN() <= 1) continue;
 		 lastCluster->SetFound();
 
@@ -95,7 +95,7 @@ Bool_t TAVTactNtuTrackF::FindTiltedTracks()
 			
 			for( Int_t iNextClus = 0; iNextClus < nNextClusters; ++iNextClus) { // loop on cluster of next plane
 			   TAVTcluster* nextCluster = (TAVTcluster*)nextList->At(iNextClus);
-			   if (nextCluster->GetFound()) continue;
+			   if (nextCluster->Found()) continue;
 			   if (nextCluster->GetPixelsN() <= 1) continue;
 			   
 			   track = new TAVTtrack();
@@ -125,7 +125,7 @@ Bool_t TAVTactNtuTrackF::FindTiltedTracks()
 				  for( Int_t iFirstClus = 0; iFirstClus < nFirstClusters; ++iFirstClus) { // loop on cluster of first planes
 					 TAVTcluster* firstCluster = (TAVTcluster*)firstList->At(iFirstClus);
 					 if (firstCluster->GetPixelsN() <= 1) continue;
-					 if( firstCluster->GetFound()) continue; // skip cluster already found
+					 if( firstCluster->Found()) continue; // skip cluster already found
 					 
 					 aDistance = firstCluster->Distance(track);
 					 if( aDistance < minDistance ) {

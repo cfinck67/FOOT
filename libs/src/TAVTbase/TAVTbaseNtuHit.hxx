@@ -46,8 +46,6 @@ protected:
 	Double32_t         fRawValue;                 // the rawvalue
 	Double32_t         fPulseHeight;              // pulseheight on pixel
 
-   Bool_t             fFound;                    // flag, that pixel is found in hit
-
    TArrayC            fMCindex;                  // Id of the hit created in the simulation
    TArrayC            fMcTrackId;                // Id of the track created in the simulation
 
@@ -64,7 +62,6 @@ public:
    
     void               SetRawValue(Double_t aRV)       { fRawValue = aRV;         }
     void               SetPulseHeight(Double_t aPH)    { fPulseHeight = aPH;      }
-    void               SetFound(Bool_t b)              { fFound = b;              }
    
     //    All the Get methods
     Int_t              GetPixelIndex()   const         { return  fPixelIndex;     }
@@ -79,7 +76,6 @@ public:
 
     // TVector3&          GetSize()                       { return  fSize;           }
    
-    Bool_t             Found()          const         { return  fFound;          }
    
     TVector3          GetPixelPosition_detectorFrame()      { return fPosition; };
     TVector3&         GetPosition()                         { return fPosition; };

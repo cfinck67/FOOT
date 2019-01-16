@@ -31,10 +31,14 @@ class TAGobject : public TObject {
     Int_t           GetDebugLevel() const;
     void            SetDebugLevel(Int_t d);
 
+    Bool_t          Found()         const;
+    void            SetFound(Bool_t b = true);
+
   protected:
    Int_t   fDebugLevel;
+   Bool_t  fFound;                    // flag, that pixel/strip/bar is found in hit
    
-   ClassDef(TAGobject,2)
+   ClassDef(TAGobject,3)
 
 };
 

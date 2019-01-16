@@ -333,7 +333,7 @@ Bool_t TAVTactBaseNtuTrack::FindStraightTracks()
 		 if( pNtuTrack->GetTracksN() >= pConfig->GetAnalysisPar().TracksMaximum ) break; // if max track number reach, stop
 		 
 		 TAVTcluster* cluster = (TAVTcluster*)list->At( iLastClus );
-		 if (cluster->GetFound()) continue;
+		 if (cluster->Found()) continue;
 		 TAVTtrack*   track   = new TAVTtrack();
 		 array.Clear();
 		 track->AddCluster(cluster);
@@ -358,7 +358,7 @@ Bool_t TAVTactBaseNtuTrack::FindStraightTracks()
 			for( Int_t iClus = 0; iClus < nClusters1; ++iClus ) { // loop on plane clusters
 			   TAVTcluster* aCluster = (TAVTcluster*)list1->At( iClus );
 			   
-			   if( aCluster->GetFound()) continue; // skip cluster already found
+			   if( aCluster->Found()) continue; // skip cluster already found
 			   
 			   aDistance = aCluster->Distance(track);
 			   
@@ -561,7 +561,7 @@ void TAVTactBaseNtuTrack::FillHistogramm()
 	  for( Int_t iClus = 0; iClus < nClusters; ++iClus) { 
 		 
 		 TAVTcluster* cluster = (TAVTcluster*)list->At(iClus);
-		 if (!cluster->GetFound()) {
+		 if (!cluster->Found()) {
 			fpHisClusLeftPix->Fill(iPlane+1, cluster->GetPixelsN());
 			left++;
 		 }

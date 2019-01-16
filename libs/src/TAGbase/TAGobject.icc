@@ -8,7 +8,8 @@
 //! Default constructor.
 
 inline TAGobject::TAGobject()
-: fDebugLevel(0)
+: fDebugLevel(0),
+  fFound(false)
 {}
 
 //------------------------------------------+-----------------------------------
@@ -32,6 +33,21 @@ inline Int_t TAGobject::GetDebugLevel() const
 inline void  TAGobject::SetDebugLevel(Int_t d)
 {
    fDebugLevel = d;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns found
+
+inline Bool_t TAGobject::Found() const
+{
+   return  fFound;
+}
+
+//------------------------------------------+-----------------------------------
+//! Set debug level
+inline void  TAGobject::SetFound(Bool_t b)
+{
+   fFound = b;
 }
 
 //------------------------------------------+-----------------------------------

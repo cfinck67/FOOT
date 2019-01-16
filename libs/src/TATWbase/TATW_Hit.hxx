@@ -3,12 +3,12 @@
 #define _TATW_Hit_HXX
 
 // ROOT classes
-#include "TObject.h"
 #include "TArrayC.h"
 #include "TObjArray.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
 
+#include "TAGobject.hxx"
 #include "TATWdatRaw.hxx"
 
 // all 3 needed to take from gTagROOT
@@ -35,7 +35,7 @@
 
 
 
-class TATW_Hit : public TObject {
+class TATW_Hit : public TAGobject {
    
 private:
     Int_t m_layer;

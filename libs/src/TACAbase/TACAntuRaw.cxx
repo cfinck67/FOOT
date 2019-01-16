@@ -23,7 +23,7 @@ TACAntuHit::~TACAntuHit()
 //! Default constructor.
 
 TACAntuHit::TACAntuHit()
- : TObject(),
+ : TAGobject(),
    fTime(999999.),
    fCharge(0.),
    fCrystalId(0),
@@ -34,7 +34,7 @@ TACAntuHit::TACAntuHit()
 
 //------------------------------------------+-----------------------------------
 TACAntuHit::TACAntuHit(int cha, double charge, double time, int typ)
- : TObject(),
+ : TAGobject(),
    fTime(time),
    fCharge(charge),
    fCrystalId(cha),

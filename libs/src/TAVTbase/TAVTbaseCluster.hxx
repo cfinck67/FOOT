@@ -30,7 +30,6 @@ protected:
    
    Int_t              fNumber;                   // number
    Int_t              fPlaneNumber;              // plane number
-   Bool_t             fFound;                    // kTRUE is associated to a track
    Bool_t             fFoundXZ;					    // kTRUE is associated to a track in XZ Projection
    Bool_t             fFoundYZ;					   // kTRUE is associated to a track in YZ Projection
    Bool_t             fIsValid;                 //! validity flag
@@ -53,8 +52,6 @@ public:
    void               SetPositionG(TVector3* pos); 
    //! Set pixel index for a given pixel
    void               SetIndexSeed(Int_t index)              { fIndexSeed = index;     } 
-   //! Found flag for this cluster
-   void               SetFound(Bool_t flag = true)           { fFound = flag;          }
    //! Found flag for this cluster (Hough Transform XZ)
    void               SetFoundXZ(Bool_t flag = true)         { fFoundXZ = flag;        }
    //! Found flag for this cluster ((Hough Transform YZ)
@@ -84,8 +81,6 @@ public:
    Int_t              GetNumber()                      const { return fNumber;         }
    //! Get cluster number
    Int_t              GetPlaneNumber()                 const { return fPlaneNumber;    }
-   //! Get found flag this cluster
-   Bool_t             GetFound()                       const { return fFound;          }
    //! Get found flag this cluster
    Bool_t             GetFoundXZ()                     const { return fFoundXZ;        }
    //! Get found flag this cluster

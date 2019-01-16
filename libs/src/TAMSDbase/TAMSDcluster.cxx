@@ -17,8 +17,7 @@ TAMSDcluster::TAMSDcluster()
    fPosError(0),
    fPositionG(new TVector3(0., 0., 0.)),
    fNumber(0),
-   fPlaneNumber(10),
-   fFound(kFALSE)
+   fPlaneNumber(10)
 {
    // TAMSDcluster constructor
    SetupClones();
@@ -40,8 +39,7 @@ TAMSDcluster::TAMSDcluster(const TAMSDcluster& cluster)
    fPosError(cluster.fPosError),
    fPositionG(new TVector3(*cluster.fPositionG)),
    fNumber(cluster.fNumber),
-   fPlaneNumber(cluster.fPlaneNumber),
-   fFound(cluster.fFound)
+   fPlaneNumber(cluster.fPlaneNumber)
 {
    fListOfStrips = (TClonesArray*)cluster.fListOfStrips->Clone();
 }

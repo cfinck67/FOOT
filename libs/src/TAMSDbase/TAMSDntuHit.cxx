@@ -19,8 +19,7 @@ TAMSDntuHit::TAMSDntuHit()
    fValue(0.),
    fIndex(0),
    fView(0),
-   fStrip(0),
-   fFound(false)
+   fStrip(0)
 {
 }
 
@@ -32,8 +31,7 @@ TAMSDntuHit::TAMSDntuHit( Int_t input, Float_t value, Int_t view, Int_t strip)
    fValue(value),
    fIndex(0),
    fView(view),
-   fStrip(strip),
-   fFound(false)
+   fStrip(strip)
 {
 }
 

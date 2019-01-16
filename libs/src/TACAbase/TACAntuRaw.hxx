@@ -2,15 +2,15 @@
 #define _TACAntuRaw_HXX
 
 
-#include "TObject.h"
 #include "TArrayC.h"
 #include "TClonesArray.h"
 #include "TString.h"
 #include "TVector3.h"
 
+#include "TAGobject.hxx"
 #include "TAGdata.hxx"
 
-class TACAntuHit : public TObject {
+class TACAntuHit : public TAGobject {
 public:
    TACAntuHit();
    TACAntuHit(int cha, double charge, double time, Int_t type = 0);

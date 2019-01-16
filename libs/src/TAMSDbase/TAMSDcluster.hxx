@@ -25,7 +25,6 @@ private:
    
    Int_t              fNumber;                   // number
    Int_t              fPlaneNumber;              // plane number
-   Bool_t             fFound;                    // kTRUE is associated to a track
    Bool_t             fIsValid;                 //! validity flag
 
 public:
@@ -39,8 +38,6 @@ public:
    void               SetPosError(Float_t pos)               { fPosError = pos; }
    //! Set position in global tracker frame
    void               SetPositionG(TVector3* pos);
-   //! Found flag for this cluster
-   void               SetFound(Bool_t flag = true)           { fFound = flag;          }
    //! Set cluster number
    void               SetNumber(Int_t nb)                    { fNumber = nb;           }
    //! Set plane number
@@ -62,8 +59,6 @@ public:
    Int_t              GetNumber()                      const { return fNumber;         }
    //! Get cluster number
    Int_t              GetPlaneNumber()                 const { return fPlaneNumber;    }
-   //! Get found flag this cluster
-   Bool_t             GetFound()                       const { return fFound;          }
    
    //! Get validity
    Bool_t             IsValid()                        const { return fIsValid;        }

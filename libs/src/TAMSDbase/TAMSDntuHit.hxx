@@ -39,7 +39,6 @@ protected:
    Int_t     fIndex;
    Int_t     fView;
    Int_t     fStrip;
-   Bool_t    fFound;
 
    TArrayC   fMCindex;                  // Id of the hit created in the simulation
    TArrayC   fMcTrackId;                // Id of the track created in the simulation
@@ -68,8 +67,6 @@ public:
    Int_t      GetStrip()        const    { return fStrip;    }
    //! Get index
    Int_t      GetIndex()        const    { return fIndex;    }
-   //! Found
-   Bool_t     Found()           const    { return fFound;    }
    // Get position
    Float_t    GetPosition()     const    { return fPosition;  }
 
@@ -93,8 +90,6 @@ public:
    void     SetStrip(Int_t strip)        { fStrip = strip;    }
    //! Set index
    void     SetIndex(Int_t index)        { fIndex = index;    }
-   //! Set Found
-   void     SetFound(Bool_t found)       { fFound = found;    }
    // Set position
    void     SetPosition(Float_t pos)     { fPosition = pos;   }
 

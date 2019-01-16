@@ -14,7 +14,7 @@ ClassImp(TATW_Hit) // Description of Single Detector TATW_Hit
 //______________________________________________________________________________
 //  build a hit from a rawHit
 TATW_Hit::TATW_Hit( TATWrawHit* hit )
-   : TObject(),
+   : TAGobject(),
     m_layer(0),
     m_bar(0),
     m_de(0),
@@ -27,7 +27,7 @@ TATW_Hit::TATW_Hit( TATWrawHit* hit )
 //______________________________________________________________________________
 // Build the hit from its sensor, line and column// constructor of a Pixel with column and line 
 TATW_Hit::TATW_Hit ( int aView, int aBar, Double_t aDe, Double_t aTime)
-: TObject(),
+: TAGobject(),
   m_layer(aView),
   m_bar(aBar),
   m_de(aDe),
