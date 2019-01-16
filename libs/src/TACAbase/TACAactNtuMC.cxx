@@ -88,6 +88,7 @@ TACAactNtuMC::~TACAactNtuMC()
 Bool_t TACAactNtuMC::Action()
 {
    TACAparGeo* parGeo = (TACAparGeo*) fpGeoMap->Object();
+   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
 
    for (Int_t i = 0; i < fpEvtStr->CALn; i++) {
       
@@ -100,7 +101,6 @@ Bool_t TACAactNtuMC::Action()
       Float_t edep  = fpEvtStr->CALde[i]*TAGgeoTrafo::GevToMev();
       Float_t time  = fpEvtStr->CALtim[i]*TAGgeoTrafo::SecToNs();
       
-      TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
 
       TVector3 posIn(x0, y0, z0);
       TVector3 posInLoc = geoTrafo->FromGlobalToCALocal(posIn);
