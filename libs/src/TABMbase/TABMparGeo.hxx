@@ -58,6 +58,10 @@ public:
   void Local2Global_TranslationOnly(TVector3* loc)  {*loc = *loc + m_center;return;};
   void Local2Global_RotationOnly(TVector3* loc)     {loc->Transform(*m_rotation);return;};
     
+  //other methods
+  TVector3 ProjectFromPversR0(TVector3 Pvers, TVector3 R0, Double_t z);  
+  TVector3 ProjectFromPversR0(Double_t PversXZ, Double_t PversYZ, Double_t R0X, Double_t R0Y, Double_t z);
+    
   //inline getters
   Int_t    GetID(Int_t cell);//Id sense as function of cell
   Double_t GetX(Int_t w, Int_t p, Int_t v); //X,Y,Z as a function of wire, plane, view
@@ -74,6 +78,9 @@ public:
   Int_t GetBMNcell(Int_t ilay, Int_t iview, Int_t icell){return icell+((iview==-1) ? 1:0)*3+ilay*6;};
   //for a given cellid, it sets the ilay (0-5), view (1 or-1) and icell (0-2) 
   Bool_t GetBMNlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_t& icell);
+  Int_t CellId2cell(Int_t cellid){return cellid%3;}; 
+  Int_t CellId2lay(Int_t cellid){return (Int_t)(cellid/6);}; 
+  Int_t CellId2view(Int_t cellid){return (((Int_t)(cellid/3))%2==0) ? 1:-1;}; 
   //get a number from 0 to 11 to identify real wire plane (iview=1 or -1)
   Int_t GetWirePlane(Int_t ilay, Int_t iview){return ((iview==1) ? 0:1) + ilay*2;};
   TVector3    GetCenter(){return m_center;};
@@ -82,7 +89,6 @@ public:
   TVector3    GetMylar1(){return bm_mylar1;};
   TVector3    GetMylar2(){return bm_mylar2;};
   TVector3    GetTarget(){return bm_target;};
-
 
   virtual void    Clear(Option_t* opt="");
 

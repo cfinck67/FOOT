@@ -249,10 +249,10 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
         wire_dir=wire_dir-wire_pos;
         wire_dir.SetMag(1.);
         new_rdrift=FindRdrift(state.getPos(), state.getMom(), wire_pos, wire_dir);//da check
-        hit_mysqrtchi2[i]=(old_rdrift-new_rdrift)/hit_res[i];
-        if(fabs(hit_mysqrtchi2[i])>worst_hit)
-          worst_hit=fabs(hit_mysqrtchi2[i]);
-        mychi2+=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i];        
+        hit_mysqrtchi2.at(i)=(old_rdrift-new_rdrift)/hit_res.at(i);
+        if(fabs(hit_mysqrtchi2.at(i))>worst_hit)
+          worst_hit=fabs(hit_mysqrtchi2.at(i));
+        mychi2+=(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res.at(i)/hit_res.at(i);        
         if(fabs(old_rdrift-new_rdrift)>rdrift_err_max)
           rdrift_err_max=fabs(old_rdrift-new_rdrift);
         if(state.getPos().Z()<first_fit_pos.Z())
@@ -264,7 +264,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
           cout<<"TABMntuTrack::CalculateFitPar::WARNING:    wire_dir have a problem:   wire_dir=("<<wire_dir.X()<<", "<<wire_dir.Y()<<", "<<wire_dir.Z()<<")"<<endl;
         if(p_bmcon->GetBMdebug()>10){
           cout<<"TABMntuTrack::CalculateFitPar:  wire_pos=("<<wire_pos.X()<<", "<<wire_pos.Y()<<", "<<wire_pos.Z()<<")"<<"   wire_dir=("<<wire_dir.X()<<", "<<wire_dir.Y()<<", "<<wire_dir.Z()<<")"<<endl;
-          cout<<"old rdrift ="<<old_rdrift<<"  new rdrift="<<new_rdrift<<"  diff="<<fabs(old_rdrift-new_rdrift)<<"  res="<<hit_res[i]<<" chi2 contribution="<<(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res[i]/hit_res[i]<<endl;
+          cout<<"old rdrift ="<<old_rdrift<<"  new rdrift="<<new_rdrift<<"  diff="<<fabs(old_rdrift-new_rdrift)<<"  res="<<hit_res.at(i)<<" chi2 contribution="<<(old_rdrift-new_rdrift)*(old_rdrift-new_rdrift)/hit_res.at(i)/hit_res.at(i)<<endl;
           }
                 
         hit_num_withcov++;
@@ -288,14 +288,14 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
     prunedhit.clear();
     prunedhit.resize(1);
     for(Int_t i=0;i<hit_mysqrtchi2.size();i++){
-      if(fabs(hit_mysqrtchi2[i])==worst_hit){
-        prunedhit[0].push_back(i);
+      if(fabs(hit_mysqrtchi2.at(i))==worst_hit){
+        prunedhit.at(0).push_back(i);
         if(p_bmcon->GetBMdebug()>10)
-          cout<<"add prunedhit:  prunedhit[0].size()="<<prunedhit[0].size()<<"  val="<<prunedhit[0].back()<<endl;
+          cout<<"add prunedhit:  prunedhit.at(0).size()="<<prunedhit.at(0).size()<<"  val="<<prunedhit.at(0).back()<<endl;
       }
     }
-    //~ if(prunedhit[0].size()==0 || (rejhit+prunedhit[0].size())>p_bmcon->GetRejmaxcut()){
-      //~ cout<<"TABMntuTrackTr.cxx:: something odd happened... prunedhit[0].size()==0"<<endl;
+    //~ if(prunedhit.at(0).size()==0 || (rejhit+prunedhit.at(0).size())>p_bmcon->GetRejmaxcut()){
+      //~ cout<<"TABMntuTrackTr.cxx:: something odd happened... prunedhit.at(0).size()==0"<<endl;
       //~ prunedhit.clear();
     //~ }
   }
@@ -309,16 +309,16 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
       cout<<"TABMntuTrack::CalculateFitPar::ERROR: something is wrong in angZ and angPhi!!!!"<<endl;
     Double_t maxAngZ=-1000., minAngZ=1000., maxAngPhi=-1000., minAngPhi=1000., avAngZ=0., avAngPhi=0., avAngZres=0.;
     for(Int_t i=0;i<angZ_vec.size();i++){
-      if(angPhi_vec[i]>maxAngPhi)
-        maxAngPhi=angPhi_vec[i];
-      if(angPhi_vec[i]<minAngPhi)
-        minAngPhi=angPhi_vec[i];
-      if(angZ_vec[i]>maxAngZ)
-        maxAngZ=angZ_vec[i];
-      if(angZ_vec[i]<minAngZ)
-        minAngZ=angZ_vec[i];
-      avAngZ+=angZ_vec[i];
-      avAngPhi+=angPhi_vec[i];
+      if(angPhi_vec.at(i)>maxAngPhi)
+        maxAngPhi=angPhi_vec.at(i);
+      if(angPhi_vec.at(i)<minAngPhi)
+        minAngPhi=angPhi_vec.at(i);
+      if(angZ_vec.at(i)>maxAngZ)
+        maxAngZ=angZ_vec.at(i);
+      if(angZ_vec.at(i)<minAngZ)
+        minAngZ=angZ_vec.at(i);
+      avAngZ+=angZ_vec.at(i);
+      avAngPhi+=angPhi_vec.at(i);
       }
     if(angZ_vec.size()!=0){   
       AngZ=avAngZ/angZ_vec.size();
@@ -326,7 +326,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
       AngZRes=maxAngZ-minAngZ;
       AngPhiRes=maxAngPhi-minAngPhi;
       for(Int_t j=0;j<angZ_vec.size();j++)
-        avAngZres+=fabs(angZ_vec[j]-AngZ);
+        avAngZres+=fabs(angZ_vec.at(j)-AngZ);
       AngZResAv=avAngZres/angZ_vec.size();
       }
       
@@ -416,9 +416,13 @@ void TABMntuTrackTr::CalculateFromFirstPar(TABMparCon* p_bmcon, TABMparGeo* p_bm
   AngZ=Pvers.Theta()*RAD2DEG;  
   AngPhi=Pvers.Phi()*RAD2DEG;  
   //extrapolate to mylars and target plane:
-  mylar1_pos.SetXYZ(Pvers.X()/Pvers.Z()*p_bmgeo->GetMylar1().Z()+R0.X() ,Pvers.Y()/Pvers.Z()*p_bmgeo->GetMylar1().Z()+R0.Y(), p_bmgeo->GetMylar1().Z());
-  mylar2_pos.SetXYZ(Pvers.X()/Pvers.Z()*p_bmgeo->GetMylar2().Z()+R0.X() ,Pvers.Y()/Pvers.Z()*p_bmgeo->GetMylar2().Z()+R0.Y(), p_bmgeo->GetMylar2().Z());
-  target_pos.SetXYZ(Pvers.X()/Pvers.Z()*p_bmgeo->GetTarget().Z()+R0.X() ,Pvers.Y()/Pvers.Z()*p_bmgeo->GetTarget().Z()+R0.Y(), p_bmgeo->GetTarget().Z());  
+  
+  mylar1_pos=p_bmgeo->ProjectFromPversR0(Pvers, R0, p_bmgeo->GetMylar1().Z());
+  mylar2_pos=p_bmgeo->ProjectFromPversR0(Pvers, R0, p_bmgeo->GetMylar2().Z());
+  target_pos=p_bmgeo->ProjectFromPversR0(Pvers, R0, p_bmgeo->GetTarget().Z());
+  //~ mylar1_pos.SetXYZ(Pvers.X()/Pvers.Z()*p_bmgeo->GetMylar1().Z()+R0.X() ,Pvers.Y()/Pvers.Z()*p_bmgeo->GetMylar1().Z()+R0.Y(), p_bmgeo->GetMylar1().Z());
+  //~ mylar2_pos.SetXYZ(Pvers.X()/Pvers.Z()*p_bmgeo->GetMylar2().Z()+R0.X() ,Pvers.Y()/Pvers.Z()*p_bmgeo->GetMylar2().Z()+R0.Y(), p_bmgeo->GetMylar2().Z());
+  //~ target_pos.SetXYZ(Pvers.X()/Pvers.Z()*p_bmgeo->GetTarget().Z()+R0.X() ,Pvers.Y()/Pvers.Z()*p_bmgeo->GetTarget().Z()+R0.Y(), p_bmgeo->GetTarget().Z());  
 
   if(p_bmcon->GetBMdebug()>10)
     cout<<"CalculateFromFirstPar::end"<<endl;

@@ -278,7 +278,7 @@ Bool_t TABMparCon::loadT0s(Long64_t tot_num_ev) {
   }
   for(Int_t i=0;i<36;i++)
     if(!infile.eof() && tmp_int==i-1)
-      infile>>tmp_char>>tmp_int>>tmp_char>>fileT0[i];
+      infile>>tmp_char>>tmp_int>>tmp_char>>fileT0.at(i);
     else{
       cout<<"TABMparCon::loadT0s::Error in the T0 file "<<bmt0file<<"!!!!!! check if it is write properly"<<endl;  
       status=1;
@@ -359,8 +359,8 @@ void TABMparCon::loadADCped(Int_t mapcha) {
   for(Int_t i=0;i<chanum;i++){
     if(!infile.eof() && tmp_int==i-1){
       infile>>tmp_char>>tmp_int>>tmp_char>>tmp_double>>tmp_char>>tmp_2double;
-      pedmean[i]=tmp_double;
-      pedrms[i]=tmp_2double;
+      pedmean.at(i)=tmp_double;
+      pedrms.at(i)=tmp_2double;
     }else{
       cout<<"ERROR!  TABMparCon::loadADCped::Error in the ADCped file="<<bmpedfile<<"!!!!!! check if it is write properly"<<endl;  
       return;

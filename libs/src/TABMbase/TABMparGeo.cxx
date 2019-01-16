@@ -102,6 +102,16 @@ void  TABMparGeo::SetA0Wvers(Int_t cellid, TVector3 &A0, TVector3 &Wvers){
   return;
 }
 
+TVector3 TABMparGeo::ProjectFromPversR0(TVector3 Pvers, TVector3 R0, Double_t z){
+  TVector3 projected(Pvers.X()/Pvers.Z()*z+R0.X() ,Pvers.Y()/Pvers.Z()*z+R0.Y(), z);
+  return projected;  
+}
+
+TVector3 TABMparGeo::ProjectFromPversR0(Double_t PversXZ, Double_t PversYZ, Double_t R0X, Double_t R0Y, Double_t z){
+  TVector3 projected(PversXZ*z+R0X ,PversYZ*z+R0Y, z);
+  return projected;  
+}
+
 void TABMparGeo::InitGeo() {
   if ( GlobalPar::GetPar()->Debug() > 0 )     
     cout << "\n\nTABMparGeo::InitGeo" << endl<< endl;

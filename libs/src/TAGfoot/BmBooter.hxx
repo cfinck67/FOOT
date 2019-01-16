@@ -82,6 +82,7 @@ public:
   void PrintProjections();// print the projected fitted tracks saved in tracktr2dprojects
   void PrintResDist();//print the residual_distance matrix
   void PrintMCxEvent();//print the mcxevent matrix
+  void LegendrePoly();//to plot the legendre poly (r,theta) th2d
   void Allign_estimate();  //estimate the bm allignment with the residual methods and print the results  
   void evaluate_cell_occupy(); //fill the cell_occupy matrix
   void efficiency_pivot_probe();//evaluation of the efficiency with the eff_pp matrix (pivot-probe method), made with the cell_occupy matrix
@@ -142,15 +143,16 @@ private:
   BM_struct bmstruct;
   Long64_t tot_num_ev;  //total number of events
   Long64_t data_num_ev; //current number of events
+  Long64_t data_sync_num_ev; //current number of events + number of sync
   Int_t    acq_start_ev;//acquisition start event
   vector<vector<Int_t>> eff_pp; //efficiency calculation with the pivot-probe method, eff_pp[0]=pivot counter row, eff_pp[1]=probe counter row, each row is made by 16 elements, ordered as the cellindex, wihtout the non probe cells 
   vector<vector<Int_t>> eff_plane;//efficieny with the "Paoloni" method 
   vector<vector<Int_t>> eff_fittedplane;//efficieny with the "Paoloni" method only on fitted tracks
 
   //provv!!!!!! this is a very dummy method, to be used provv!!!!
-  vector<vector<Double_t>> tracktr2dprojects;//projections of tracks: 0=mylar1.X; 1=mylar1.Y; 2=mylar2.X; 3=mylar2.Y; 4=R0.X; 5=R0.Y, 6=target.X, 7=target.Y
-  vector<vector<Double_t>> residual_distance;//if(isSelected): 0=cell_index, 1=drift_time, 2=distance, 3=residual;  otherwise  0=cellindex, 1=drift_time,
-  vector<vector<Double_t>> mcxevent;//data from mc: 0=mylar1.X, 1=mylar1.Y, 2=mylar2.X, 3=mylar2.Y
+  vector<vector<Double_t>> tracktr2dprojects;//projections of tracks:0=data_num_ev, 1=pvers.X, 2=R0.X, 3=pvers.Y, 4=R0.Y
+  vector<vector<Double_t>> residual_distance;//if(isSelected): 0=data_num_ev, 1=cell_index, 2=drift_time, 3=distance, 4=residual;  otherwise 0=data_num_ev 1=cellindex, 2=drift_time, 3=dist,
+  vector<vector<Double_t>> mcxevent;//data from mc:0=data_num_ev, 1=mylar1.X, 2=mylar1.Y, 3=mylar2.X, 4=mylar2.Y
 };
 
 #endif

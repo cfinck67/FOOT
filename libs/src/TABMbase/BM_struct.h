@@ -30,6 +30,7 @@ typedef struct BM_struct {
   Int_t time_evtoev;            //time between the previous and this event (microsec)
   Int_t time_read;              //time occurred to read the data (microsec, this time do not consider the vme acess time ~+10msec)
   Int_t time_acq;               //time of the event acquisition
+  Int_t tdc_numsync;            //numbero of tdc sync(for multisync events)
 
 } BM_struct;
 

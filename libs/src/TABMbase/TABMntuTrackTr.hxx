@@ -164,8 +164,8 @@ class TABMntuTrackTr : public TObject {
     //~ TVectorD GetTrackPar(){return trackpar;};
     
     //~ void SetSharedPlanes(TABMparGeo* p_bmgeo);
-    void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mysqrtchi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane,SharedPlanePtr &central_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane);
-    void CalculateFromFirstPar(TABMparCon* p_bmcon, TABMparGeo* p_bmgeo);
+    void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mysqrtchi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane,SharedPlanePtr &central_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane);////evaluate the projections etc. from genfit tracking parameters
+    void CalculateFromFirstPar(TABMparCon* p_bmcon, TABMparGeo* p_bmgeo);//evaluate the projections etc. from FIRST tracking parameters
     Double_t FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers);    
     void PrintR0Pvers();
     

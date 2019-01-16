@@ -221,7 +221,7 @@ public:
     
     //loop on cell_occupy
     for(Int_t i=0;i<36;i++)
-      FillMap( hitSampleName + "__raw_nhitsxcell", cell_occupy[i].size());
+      FillMap( hitSampleName + "__raw_nhitsxcell", cell_occupy.at(i).size());
             
     return;  
   }
@@ -238,21 +238,23 @@ public:
     for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
       bmntutracktr = bmntutrack->Track(i);
       FillMap( hitSampleName + "__track_chi2red", bmntutracktr->GetMyChi2Red());
+      FillMap( hitSampleName + "__track_nhit", bmntutracktr->GetNhit());
       FillMap( hitSampleName + "__track_prefit_status", bmntutracktr->GetPrefitStatus());
       if(bmntutrack->trk_status==0){//selected tracks
-        if(fabs(bmntutracktr->GetMylar1Pos().X())<5.5)
-          FillMap( hitSampleName + "__tracksel_mylar1_x_tight", bmntutracktr->GetMylar1Pos().X());
-        if(fabs(bmntutracktr->GetMylar1Pos().Y())<5.5)
-          FillMap( hitSampleName + "__tracksel_mylar1_y_tight", bmntutracktr->GetMylar1Pos().Y());
-        if(fabs(bmntutracktr->GetMylar2Pos().X())<5.5)
-          FillMap( hitSampleName + "__tracksel_mylar2_x_tight", bmntutracktr->GetMylar2Pos().X());
-        if(fabs(bmntutracktr->GetMylar2Pos().Y())<5.5)
-          FillMap( hitSampleName + "__tracksel_mylar2_y_tight", bmntutracktr->GetMylar2Pos().Y());
+        //~ if(fabs(bmntutracktr->GetMylar1Pos().X())<5.5)
+          //~ FillMap( hitSampleName + "__tracksel_mylar1_x_tight", bmntutracktr->GetMylar1Pos().X());
+        //~ if(fabs(bmntutracktr->GetMylar1Pos().Y())<5.5)
+          //~ FillMap( hitSampleName + "__tracksel_mylar1_y_tight", bmntutracktr->GetMylar1Pos().Y());
+        //~ if(fabs(bmntutracktr->GetMylar2Pos().X())<5.5)
+          //~ FillMap( hitSampleName + "__tracksel_mylar2_x_tight", bmntutracktr->GetMylar2Pos().X());
+        //~ if(fabs(bmntutracktr->GetMylar2Pos().Y())<5.5)
+          //~ FillMap( hitSampleName + "__tracksel_mylar2_y_tight", bmntutracktr->GetMylar2Pos().Y());
         if(bmcon->GetFitterIndex()==5)
-  	  FillMap( hitSampleName + "__tracksel_nite", bmntutracktr->GetNite());
+          FillMap( hitSampleName + "__tracksel_nite", bmntutracktr->GetNite());
         FillMap( hitSampleName + "__tracksel_target_x", bmntutracktr->GetTargetPos().X());
         FillMap( hitSampleName + "__tracksel_target_y", bmntutracktr->GetTargetPos().Y());
         FillMap( hitSampleName + "__tracksel_chi2red", bmntutracktr->GetMyChi2Red());
+        FillMap( hitSampleName + "__tracksel_nhit", bmntutracktr->GetNhit());
         FillMap( hitSampleName + "__tracksel_hitselected", bmntutracktr->GetNhit());
         FillMap( hitSampleName + "__tracksel_hitrejected", bmnturaw->nhit-bmntutracktr->GetNhit());
         FillMap( hitSampleName + "__tracksel_AngZ", bmntutracktr->GetAngZ());

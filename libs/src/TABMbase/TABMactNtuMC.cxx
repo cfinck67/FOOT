@@ -83,12 +83,12 @@ Bool_t TABMactNtuMC::Action()
   //loop for double hits and hits with energy less than enxcell_cut:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
     if(fpEvtStr->BMNde[i] < p_bmcon->GetEnxcellcut() && fpEvtStr->TRpaid[fpEvtStr->BMNid[i]-1]!=0)
-      tobecharged[i]=false;
-    if(tobecharged[i]){
+      tobecharged.at(i)=false;
+    if(tobecharged.at(i)){
       cell = fpEvtStr->BMNicell[i];
       lay = fpEvtStr->BMNilay[i]; 
       view = fpEvtStr->BMNiview[i];
-      hitxcell[i]=p_bmgeo->GetBMNcell(lay, view, cell);
+      hitxcell.at(i)=p_bmgeo->GetBMNcell(lay, view, cell);
       loc.SetXYZ(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
       p_bmgeo->Global2Local(&loc);
       
@@ -101,18 +101,18 @@ Bool_t TABMactNtuMC::Action()
                    p_bmgeo->GetCY(p_bmgeo->GetID(cell),lay,view), 
                    p_bmgeo->GetCZ(p_bmgeo->GetID(cell),lay,view)); 
       Wvers.SetMag(1.);                      
-      rdriftxcell[i]=FindRdrift(loc, gmom, A0, Wvers);
-      //~ rdriftxcell[i]-=0.05;//provv
-      //~ if(rdriftxcell[i]<0) rdriftxcell[i]=0.;
+      rdriftxcell.at(i)=FindRdrift(loc, gmom, A0, Wvers);
+      //~ rdriftxcell.at(i)-=0.05;//provv
+      //~ if(rdriftxcell.at(i)<0) rdriftxcell.at(i)=0.;
       
-      if(rdriftxcell[i]==99) //FindRdrift return 99 if a particle is born without energy, so it shouldn't release energy for a hit.
-        tobecharged[i]=false;
+      if(rdriftxcell.at(i)==99) //FindRdrift return 99 if a particle is born without energy, so it shouldn't release energy for a hit.
+        tobecharged.at(i)=false;
       //if there is a double hit in the same cell, it charges the hits if they have rdrift difference more than p_bmcon->GetRdriftCut()
       for(Int_t j=0;j<i;j++){ 
-        if((rdriftxcell[i]-rdriftxcell[j])<p_bmcon->GetRdriftCut() && rdriftxcell[i]>=rdriftxcell[j] && hitxcell[i]==hitxcell[j])
-          tobecharged[i]=false;
-        if((rdriftxcell[j]-rdriftxcell[i])<p_bmcon->GetRdriftCut() && rdriftxcell[j]>rdriftxcell[i] && hitxcell[i]==hitxcell[j])
-          tobecharged[j]=false;
+        if((rdriftxcell.at(i)-rdriftxcell.at(j))<p_bmcon->GetRdriftCut() && rdriftxcell.at(i)>=rdriftxcell.at(j) && hitxcell.at(i)==hitxcell.at(j))
+          tobecharged.at(i)=false;
+        if((rdriftxcell.at(j)-rdriftxcell.at(i))<p_bmcon->GetRdriftCut() && rdriftxcell.at(j)>rdriftxcell.at(i) && hitxcell.at(i)==hitxcell.at(j))
+          tobecharged.at(j)=false;
         }
       }
     }
@@ -138,7 +138,7 @@ Bool_t TABMactNtuMC::Action()
   if(p_bmcon->GetSmearhits()){
     nrealhits=0;
     for(Int_t i=0;i<tobecharged.size();i++)
-      if(tobecharged[i])
+      if(tobecharged.at(i))
         nrealhits++;
     //prune the real hits
     Int_t nprunehits=nrealhits*(1.-rand->Gaus(p_bmcon->GetMCEffMean(), p_bmcon->GetMCEffSigma()))+0.5;
@@ -164,8 +164,8 @@ Bool_t TABMactNtuMC::Action()
     while(nprunehits>0){
       tmp_int=rand->Uniform(0,nrealhits);
       if(tmp_int<nrealhits)  
-        if(tobecharged[tmp_int]==true){
-          tobecharged[tmp_int]=false;
+        if(tobecharged.at(tmp_int)==true){
+          tobecharged.at(tmp_int)=false;
           nprunehits--;
         }
     };
@@ -181,8 +181,8 @@ Bool_t TABMactNtuMC::Action()
   //charge the hits:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
     if(p_bmcon->GetBMdebug()>=3)
-      cout<<"In the charging hits loop: I'm going to charge hit number:"<<i<<"/"<<fpEvtStr->BMNn<<"  tobecharged="<<tobecharged[i]<<endl;
-    if(tobecharged[i]){
+      cout<<"In the charging hits loop: I'm going to charge hit number:"<<i<<"/"<<fpEvtStr->BMNn<<"  tobecharged="<<tobecharged.at(i)<<endl;
+    if(tobecharged.at(i)){
       ipoint=fpEvtStr->BMNid[i]-1;
       cell = fpEvtStr->BMNicell[i];
       lay = fpEvtStr->BMNilay[i];
@@ -193,24 +193,24 @@ Bool_t TABMactNtuMC::Action()
       //~ cout<<"local:   loc.X="<<loc.X()<<"  loc.Y()="<<loc.Y()<<"  loc.Z()="<<loc.Z()<<endl;
 
       //shift the t0 and change the strelations:
-      realrdrift=rdriftxcell[i];
-      //~ rdriftxcell[i]=p_bmcon->FirstSTrelMC(p_bmcon->InverseStrel(rdriftxcell[i]), 5);
-      //~ if(rdriftxcell[i]==0)
-        //~ rdriftxcell[i]=0.001;
+      realrdrift=rdriftxcell.at(i);
+      //~ rdriftxcell.at(i)=p_bmcon->FirstSTrelMC(p_bmcon->InverseStrel(rdriftxcell.at(i)), 5);
+      //~ if(rdriftxcell.at(i)==0)
+        //~ rdriftxcell.at(i)=0.001;
       
       //create hit
       TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) TABMntuHit(    
                           fpEvtStr->BMNid[i],	view, lay, cell,        
                           loc.X(), loc.Y(), loc.Z(),  
                           fpEvtStr->BMNpxin[i], fpEvtStr->BMNpyin[i], fpEvtStr->BMNpzin[i],  //mom @ entrance in cell
-                          rdriftxcell[i], p_bmcon->InverseStrel(rdriftxcell[i]), fpEvtStr->BMNtim[i]);     
+                          rdriftxcell.at(i), p_bmcon->InverseStrel(rdriftxcell.at(i)), fpEvtStr->BMNtim[i]);     
         
       //X,Y and Z needs to be placed in Local coordinates.
       mytmp->SetAW(p_bmgeo);
-      if(p_bmcon->ResoEval(rdriftxcell[i])>0)
-        mytmp->SetSigma(p_bmcon->ResoEval(rdriftxcell[i]));
+      if(p_bmcon->ResoEval(rdriftxcell.at(i))>0)
+        mytmp->SetSigma(p_bmcon->ResoEval(rdriftxcell.at(i)));
       else{  
-        cout<<"WARNING: error from config resoEval! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<rdriftxcell[i]<<endl;
+        cout<<"WARNING: error from config resoEval! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<rdriftxcell.at(i)<<endl;
         mytmp->SetSigma(rdrift_err);
         }
       mytmp->SetRealRdrift(realrdrift);  
