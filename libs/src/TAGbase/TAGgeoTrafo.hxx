@@ -39,6 +39,8 @@ private:
    static const Float_t fgkCmToMm;        //! conversion factor bw cm and mm
    static const Float_t fgkSecToNs;       //! conversion factor bw second and nanosecond
    static const Float_t fgkNsToSec;       //! conversion factor bw nanosecond and second
+   static const Float_t fgkSecToPs;       //! conversion factor bw second and picosecond
+   static const Float_t fgkPsToSec;       //! conversion factor bw picosecond and second
    static const Float_t fgkCmToM;         //! conversion factor bw cm and m
    static const Float_t fgkMToCm;         //! conversion factor bw m and cm
    static const Float_t fgkGevToMev;      //! conversion factor bw GeV and MeV
@@ -162,6 +164,9 @@ public:
    
    static           Float_t SecToNs()                { return fgkSecToNs;       }
    static           Float_t NsToSec()                { return fgkNsToSec;       }
+   
+   static           Float_t SecToPs()                { return fgkSecToPs;       }
+   static           Float_t PsToSec()                { return fgkPsToSec;       }
    
    static           Float_t GevToMev()               { return fgkGevToMev;      }
    static           Float_t MevToGev()               { return fgkGevToMev;      }
