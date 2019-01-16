@@ -72,21 +72,18 @@ Bool_t TAITactNtuClusterF::FindClusters(Int_t iSensor)
    // Look in a iterative way to next neighbour
    
    TAITntuCluster* pNtuClus = (TAITntuCluster*) fpNtuClus->Object();
-   TAVTbaseParGeo* pGeoMap  = (TAVTbaseParGeo*)     fpGeoMap->Object();
 
-   FillMaps(pGeoMap);
-   SearchCluster(pGeoMap);
+   FillMaps();
+   SearchCluster();
  
-   return CreateClusters(iSensor, pNtuClus, pGeoMap);
+   return CreateClusters(iSensor, pNtuClus);
 }
 
 //______________________________________________________________________________
 //
-Bool_t TAITactNtuClusterF::CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClus, TAVTbaseParGeo* pGeoMap)
+Bool_t TAITactNtuClusterF::CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClus)
 {
-   Int_t nLine = pGeoMap->GetNPixelY()+1;
-   Int_t nCol  = pGeoMap->GetNPixelX()+1;
-   
+   TAVTbaseParGeo* pGeoMap  = (TAVTbaseParGeo*)     fpGeoMap->Object();
    TAITcluster* cluster = 0x0;
 
    // create clusters
@@ -97,12 +94,10 @@ Bool_t TAITactNtuClusterF::CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClu
       TAITntuHit* pixel = (TAITntuHit*)fListOfPixels->At(iPix);
       Int_t line = pixel->GetPixelLine();
       Int_t col  = pixel->GetPixelColumn();
-      if(line >= nLine) continue;
-      if(col >= nCol) continue;
-      if( line < 0) continue;
-      if( col < 0) continue;
+      if(!CheckLine(line)) continue;
+      if(!CheckCol(col)) continue;
       
-      Int_t clusterN = fFlagMap[line*nCol+col];
+      Int_t clusterN = GetClusterNumber(line,col);
       if ( clusterN != -1 ) {
          cluster = pNtuClus->GetCluster(iSensor, clusterN);
          cluster->AddPixel(pixel);
@@ -145,33 +140,6 @@ Bool_t TAITactNtuClusterF::CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClu
       return true;
    
    return false;
-
-}
-
-//______________________________________________________________________________
-//  
-Bool_t TAITactNtuClusterF::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTbaseParGeo* pGeoMap)
-{
-   
-   Int_t nLine = pGeoMap->GetNPixelY()+1;
-   Int_t nCol  = pGeoMap->GetNPixelX()+1;
-
-   if ( fPixelMap[IndX*nCol+IndY] <= 0 ) return false;
-    if ( fFlagMap[IndX*nCol+IndY] != -1 ) return false;
-   fFlagMap[IndX*nCol+IndY] = noClus;
-
-   TAVTntuHit* pixel = (TAVTntuHit*)GetListOfPixels()->At(fIndexMap[IndX*nCol+IndY]);
-   pixel->SetFound(true);
-      
-   for(Int_t i = -1; i <= 1 ; ++i)
-	  if ( IndX+i >= 0 && IndX+i < nLine)
-		 ShapeCluster(noClus, IndX+i, IndY, pGeoMap);
-   
-   for(Int_t j = -1; j <= 1 ; ++j)
-	  if ( IndY+j >= 0 && IndY+j < nCol)
-		 ShapeCluster(noClus, IndX  , IndY+j, pGeoMap);
-   
-   return true;
 }
 
 //______________________________________________________________________________

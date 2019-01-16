@@ -38,9 +38,7 @@ private:
    TAGdataDsc*     fpNtuClus;		  // output data dsc
    
 private:
-   Bool_t  ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTbaseParGeo* pGeoMap);
-   Bool_t  FindClusters(Int_t iSensor, TAITntuCluster* pNtuClus, TAVTbaseParGeo* pGeoMap);
-   Bool_t  CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClus, TAVTbaseParGeo* pGeoMap);
+   Bool_t  CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClus);
 
 
    ClassDef(TAITactNtuClusterF,0)

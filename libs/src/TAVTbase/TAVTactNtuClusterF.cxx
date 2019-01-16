@@ -44,7 +44,6 @@ TAVTactNtuClusterF::~TAVTactNtuClusterF()
    
 }
 
-
 //______________________________________________________________________________
 //
 Bool_t TAVTactNtuClusterF::Action()
@@ -63,6 +62,7 @@ Bool_t TAVTactNtuClusterF::Action()
    
    if(ok)
       fpNtuClus->SetBit(kValid);
+   
    return ok;
 }
 
@@ -74,21 +74,19 @@ Bool_t TAVTactNtuClusterF::FindClusters(Int_t iSensor)
    // Look in a iterative way to next neighbour
    
    TAVTntuCluster* pNtuClus = (TAVTntuCluster*) fpNtuClus->Object();
-   TAVTparGeo*     pGeoMap  = (TAVTparGeo*)     fpGeoMap->Object();
 
-   FillMaps(pGeoMap);
-   SearchCluster(pGeoMap);
+   FillMaps();
+   SearchCluster();
  
-   return CreateClusters(iSensor, pNtuClus, pGeoMap);
+   return CreateClusters(iSensor, pNtuClus);
 }
 
 //______________________________________________________________________________
 //
-Bool_t TAVTactNtuClusterF::CreateClusters(Int_t iSensor, TAVTntuCluster* pNtuClus, TAVTparGeo* pGeoMap)
+Bool_t TAVTactNtuClusterF::CreateClusters(Int_t iSensor, TAVTntuCluster* pNtuClus)
 {
-   Int_t nLine = pGeoMap->GetNPixelY()+1;
-   Int_t nCol  = pGeoMap->GetNPixelX()+1;
-   
+   TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();
+
    TAVTcluster* cluster = 0x0;
 
    // create clusters
@@ -99,12 +97,10 @@ Bool_t TAVTactNtuClusterF::CreateClusters(Int_t iSensor, TAVTntuCluster* pNtuClu
       TAVTntuHit* pixel = (TAVTntuHit*)fListOfPixels->At(iPix);
       Int_t line = pixel->GetPixelLine();
       Int_t col  = pixel->GetPixelColumn();
-      if(line >= nLine) continue;
-      if(col >= nCol) continue;
-      if( line < 0) continue;
-      if( col < 0) continue;
+      if(!CheckLine(line)) continue;
+      if(!CheckCol(col)) continue;
       
-      Int_t clusterN = fFlagMap[line*nCol+col];
+      Int_t clusterN = GetClusterNumber(line,col);
       if ( clusterN != -1 ) {
          cluster = pNtuClus->GetCluster(iSensor, clusterN);
          cluster->AddPixel(pixel);

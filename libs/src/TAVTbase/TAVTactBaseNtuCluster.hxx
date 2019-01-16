@@ -6,24 +6,24 @@
  \brief   Declaration of TAVTactBaseNtuCluster.
  */
 /*------------------------------------------+---------------------------------*/
-#include <map>
 
 #include "TArrayI.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
 #include "TString.h"
 
-#include "TAGaction.hxx"
+#include "TAGobject.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGparaDsc.hxx"
 
+#include "TAGactNtuCluster2D.hxx"
 
 class TAVTbaseCluster;
 class TAVTntuHit;
 class TAVTbaseParGeo;
 class TH1F;
 class TH2F;
-class TAVTactBaseNtuCluster : public TAGaction {
+class TAVTactBaseNtuCluster : public TAGactNtuCluster2D {
    
 public:
    explicit  TAVTactBaseNtuCluster(const char* name     =  0,
@@ -59,6 +59,9 @@ public:
    //! Compute position
    virtual void ComputePosition();
    
+   // Get object in list
+   TAGobject*  GetHitObject(Int_t idx) const;
+   
 protected:
    TAGparaDsc*     fpConfig;		  // config para dsc
    TAGparaDsc*     fpGeoMap;		  // geometry para dsc
@@ -69,13 +72,8 @@ protected:
    TClonesArray*  fListOfPixels;      // list of pixels 
    TClonesArray*  fCurListOfPixels;   // list of pixels in current cluster
    
-   map<Int_t, Int_t> fPixelMap; // pixel map;
-   map<Int_t, Int_t> fIndexMap; // index map of the pixel;
-   TArrayI fFlagMap;
-   
    Int_t          fClustersN;     // number of cluster
 
-   
    TH1F*          fpHisPixelTot;	     // Total number of pixels per cluster
    TH1F*          fpHisPixel[32];	  // number of pixels per cluster per sensor
    TH2F*          fpHisClusMap[32];   // cluster map per sensor
@@ -84,11 +82,18 @@ protected:
    TString        fTitleDev;          // device name for histogram title
 
 protected:
-   void  SearchCluster(TAVTbaseParGeo* pGeoMap);
-   void  FillMaps(TAVTbaseParGeo* pGeoMap);
-   Bool_t ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTbaseParGeo* pGeoMap);
+   void   SearchCluster();
+   void   FillMaps();
+
    void   ComputeSeedPosition();
    void   ComputeCoGPosition();
+   
+//   Bool_t ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY);
+//   Bool_t CheckLine(Int_t idx);
+//   Bool_t CheckCol(Int_t idx);
+//   void   ClearMaps();
+//   void   SetupMaps(Int_t size);
+
    
    ClassDef(TAVTactBaseNtuCluster,0)
 };

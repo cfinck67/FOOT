@@ -27,13 +27,14 @@ ClassImp(TAVTactBaseNtuCluster);
 
 TAVTactBaseNtuCluster::TAVTactBaseNtuCluster(const char* name, 
 											 TAGparaDsc* pConfig, TAGparaDsc* pGeoMap)
-: TAGaction(name, "TAVTactNtuCluster - NTuplize cluster"),
-  fpConfig(pConfig),
-  fpGeoMap(pGeoMap),
-  fCurrentPosition(new TVector3(0., 0., 0.)), 
-  fCurrentPosError(new TVector3(0., 0., 0.)), 
-  fListOfPixels(0x0),
-  fClustersN(0)
+ : TAGactNtuCluster2D(name, "TAVTactNtuCluster - NTuplize cluster"),
+   fpConfig(pConfig),
+   fpGeoMap(pGeoMap),
+   fCurrentPosition(new TVector3(0., 0., 0.)),
+   fCurrentPosError(new TVector3(0., 0., 0.)),
+   fListOfPixels(0x0),
+   fClustersN(0)
+
 {
    AddPara(pGeoMap, "TAVTbaseParGeo");
    AddPara(pConfig, "TAVTbaseParConf");
@@ -50,9 +51,9 @@ TAVTactBaseNtuCluster::TAVTactBaseNtuCluster(const char* name,
       printf("Wrong prefix for histograms !");
 
    TAVTparGeo* geoMap = (TAVTparGeo*)fpGeoMap->Object();
-   Int_t nLines = geoMap->GetNPixelY()+1;
-   Int_t nCols  = geoMap->GetNPixelX()+1;
-   fFlagMap.Set(nLines*nCols);
+   fDimY = geoMap->GetNPixelY()+1;
+   fDimX = geoMap->GetNPixelX()+1;
+   SetupMaps(fDimY*fDimX);
 }
 
 //------------------------------------------+-----------------------------------
@@ -92,19 +93,16 @@ void TAVTactBaseNtuCluster::CreateHistogram()
    }
    
    SetValidHistogram(kTRUE);
+   
    return;
 }
 
 //______________________________________________________________________________
 //
-void TAVTactBaseNtuCluster::FillMaps(TAVTbaseParGeo* pGeoMap)
+void TAVTactBaseNtuCluster::FillMaps()
 {
-   Int_t nLine = pGeoMap->GetNPixelY()+1;
-   Int_t nCol  = pGeoMap->GetNPixelX()+1;
-   
-   fPixelMap.clear();
-   fIndexMap.clear();
-   fFlagMap.Reset(-1);
+   // Clear maps
+   ClearMaps();
    
    if (fListOfPixels->GetEntries() == 0) return;
    
@@ -114,22 +112,17 @@ void TAVTactBaseNtuCluster::FillMaps(TAVTbaseParGeo* pGeoMap)
       TAVTbaseNtuHit* pixel = (TAVTbaseNtuHit*)fListOfPixels->At(i);
       Int_t line = pixel->GetPixelLine();
       Int_t col  = pixel->GetPixelColumn();
-      if (line >= nLine) continue;
-      if (col  >= nCol)  continue;
-      if (line < 0) continue;
-      if (col  < 0)  continue;
-      fPixelMap[line*nCol+col] = 1;
-      fIndexMap[line*nCol+col] = i;
+      if (!CheckLine(line)) continue;
+      if (!CheckCol(col)) continue;
+
+      TAGactNtuCluster2D::FillMaps(line, col, i);
    }
 }
 
 //______________________________________________________________________________
 //
-void TAVTactBaseNtuCluster::SearchCluster(TAVTbaseParGeo* pGeoMap)
+void TAVTactBaseNtuCluster::SearchCluster()
 {
-   Int_t nLine = pGeoMap->GetNPixelY()+1;
-   Int_t nCol  = pGeoMap->GetNPixelX()+1;
-   
    fClustersN = 0;
    // Search for cluster
    
@@ -138,43 +131,28 @@ void TAVTactBaseNtuCluster::SearchCluster(TAVTbaseParGeo* pGeoMap)
       if (pixel->Found()) continue;
       Int_t line = pixel->GetPixelLine();
       Int_t col  = pixel->GetPixelColumn();
-      if (line >= nLine) continue;
-      if (col  >= nCol)  continue;
-      if (line < 0) continue;
-      if (col  < 0)  continue;
+      if (!CheckLine(line)) continue;
+      if (!CheckCol(col)) continue;
       
       // loop over lines & columns
-      if ( ShapeCluster(fClustersN, line, col, pGeoMap) )
+      if ( ShapeCluster(fClustersN, line, col) )
          fClustersN++;
    }
-   
 }
 
 //______________________________________________________________________________
-//
-Bool_t TAVTactBaseNtuCluster::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTbaseParGeo* pGeoMap)
+// Get object in list
+TAGobject*  TAVTactBaseNtuCluster::GetHitObject(Int_t idx) const
 {
+   if (idx >= 0 && idx < GetListOfPixels()->GetEntries() )
+      return (TAGobject*)GetListOfPixels()->At(idx);
    
-   Int_t nLine = pGeoMap->GetNPixelY()+1;
-   Int_t nCol  = pGeoMap->GetNPixelX()+1;
-   
-   if ( fPixelMap[IndX*nCol+IndY] <= 0 ) return false;
-   if ( fFlagMap[IndX*nCol+IndY] != -1 ) return false;
-   fFlagMap[IndX*nCol+IndY] = noClus;
-   
-   TAVTbaseNtuHit* pixel = (TAVTbaseNtuHit*)GetListOfPixels()->At(fIndexMap[IndX*nCol+IndY]);
-   pixel->SetFound(true);
-   
-   for(Int_t i = -1; i <= 1 ; ++i)
-      if ( IndX+i >= 0 && IndX+i < nLine)
-         ShapeCluster(noClus, IndX+i, IndY, pGeoMap);
-   
-   for(Int_t j = -1; j <= 1 ; ++j)
-      if ( IndY+j >= 0 && IndY+j < nCol)
-         ShapeCluster(noClus, IndX  , IndY+j, pGeoMap);
-   
-   return true;
+   else {
+      Error("GetHitObject()", "Error in index %d (max: %d)", idx, GetListOfPixels()->GetEntries()-1);
+      return 0x0;
+   }   
 }
+
 
 //______________________________________________________________________________
 //
