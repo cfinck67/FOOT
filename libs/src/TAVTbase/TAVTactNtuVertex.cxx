@@ -66,11 +66,11 @@ Bool_t TAVTactNtuVertex::ComputeVertex()
 	  }
 	  
 	  if (lowerZdistance < higherZdistance){ //siamo nella prima metá
-		 izMax = (izMin + izMax)/2;
+		 izMax = (izMin + izMax)/2.;
 		 minZdistance = lowerZdistance;
 		 
 	  } else if(lowerZdistance > higherZdistance){ 
-		 izMin = (izMin + izMax)/2;//simao nella seconda metá
+		 izMin = (izMin + izMax)/2.;//simao nella seconda metá
 		 minZdistance = higherZdistance;
 	  }
 	  
@@ -78,7 +78,7 @@ Bool_t TAVTactNtuVertex::ComputeVertex()
    } while(TMath::Abs(lowerZdistance-higherZdistance) >fEps );
    
    
-   z_coordinate = (izMin+izMax)/2;
+   z_coordinate = (izMin+izMax)/2.;
    x_coordinate = ComputeFinalCoordinate(0, z_coordinate);
    y_coordinate = ComputeFinalCoordinate(1, z_coordinate);
    
@@ -112,8 +112,8 @@ Double_t TAVTactNtuVertex::ComputeDistance(Double_t zVal)
         meanY += line.GetPoint(zVal).Y();
     }
    
-    meanX = meanX/nTracks;
-    meanY = meanY/nTracks;
+    meanX /= float(nTracks);
+    meanY /= float(nTracks);
    
     for(Int_t qq = 0; qq < nTracks; ++qq) {
         TAVTtrack* track0 = ntuTrack->GetTrack(qq);
@@ -141,7 +141,7 @@ Double_t TAVTactNtuVertex::ComputeFinalCoordinate(Int_t a, Double_t zVal)
         if(a == 1)
             returnValue += line.GetPoint(zVal).Y();
     }
-    returnValue /= nTracks;
+    returnValue /= float(nTracks);
    
     return returnValue;
 }
