@@ -21,6 +21,7 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 set( with_dictionnaries
    TAGactTreeReader
    TAGactTreeWriter
+   TAGactNtuCluster2D
    TAGaction
    TAGactionFile
    TAGbaseDigitizer

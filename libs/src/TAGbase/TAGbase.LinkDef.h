@@ -10,10 +10,11 @@
 
 #pragma link C++ class TAGactTreeWriter;
 #pragma link C++ class TAGactTreeWriterBranch;
-
 #pragma link C++ class TAGaction+;
 
 #pragma link C++ class TAGactionFile+;
+
+#pragma link C++ class TAGactNtuCluster2D;
 
 #pragma link C++ class TAGwireDisplay+;
 #pragma link C++ class TAGclusterDisplay+;
