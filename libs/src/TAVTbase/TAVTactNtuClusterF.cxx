@@ -151,32 +151,6 @@ Bool_t TAVTactNtuClusterF::CreateClusters(Int_t iSensor, TAVTntuCluster* pNtuClu
 }
 
 //______________________________________________________________________________
-//  
-Bool_t TAVTactNtuClusterF::ShapeCluster(Int_t noClus, Int_t IndX, Int_t IndY, TAVTparGeo* pGeoMap)
-{
-   
-   Int_t nLine = pGeoMap->GetNPixelY()+1;
-   Int_t nCol  = pGeoMap->GetNPixelX()+1;
-
-   if ( fPixelMap[IndX*nCol+IndY] <= 0 ) return false;
-    if ( fFlagMap[IndX*nCol+IndY] != -1 ) return false;
-   fFlagMap[IndX*nCol+IndY] = noClus;
-
-   TAVTntuHit* pixel = (TAVTntuHit*)GetListOfPixels()->At(fIndexMap[IndX*nCol+IndY]);
-   pixel->SetFound(true);
-      
-   for(Int_t i = -1; i <= 1 ; ++i)
-	  if ( IndX+i >= 0 && IndX+i < nLine)
-		 ShapeCluster(noClus, IndX+i, IndY, pGeoMap);
-   
-   for(Int_t j = -1; j <= 1 ; ++j)
-	  if ( IndY+j >= 0 && IndY+j < nCol)
-		 ShapeCluster(noClus, IndX  , IndY+j, pGeoMap);
-   
-   return true;
-}
-
-//______________________________________________________________________________
 //
 void TAVTactNtuClusterF::ComputePosition()
 {
