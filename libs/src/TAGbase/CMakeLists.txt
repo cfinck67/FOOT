@@ -22,6 +22,7 @@ set( with_dictionnaries
    TAGactTreeReader
    TAGactTreeWriter
    TAGactNtuCluster2D
+   TAGactNtuCluster1D
    TAGaction
    TAGactionFile
    TAGbaseDigitizer

@@ -15,6 +15,7 @@
 #pragma link C++ class TAGactionFile+;
 
 #pragma link C++ class TAGactNtuCluster2D;
+#pragma link C++ class TAGactNtuCluster1D;
 
 #pragma link C++ class TAGwireDisplay+;
 #pragma link C++ class TAGclusterDisplay+;
