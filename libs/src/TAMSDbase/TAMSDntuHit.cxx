@@ -39,6 +39,14 @@ TAMSDntuHit::TAMSDntuHit( Int_t input, Float_t value, Int_t view, Int_t strip)
 
 //______________________________________________________________________________
 //
+void TAMSDntuHit::Clear(Option_t* /*option*/)
+{
+   fMCindex.Set(0);
+   fMcTrackId.Set(0);
+}
+
+//______________________________________________________________________________
+//
 Bool_t TAMSDntuHit::IsEqual(const TObject* hit) const
 {
    return ((fSensorId == ((TAMSDntuHit*)hit)->fSensorId) &&

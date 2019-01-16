@@ -55,6 +55,9 @@ public:
    //! Comapre method
    Int_t      Compare(const TObject* obj) const;
    
+   // Clear
+   void       Clear(Option_t* option = "C");
+
    //! Get input type
    Int_t      GetSensorId()     const    { return fSensorId; }
    //! Get value (pulse height)

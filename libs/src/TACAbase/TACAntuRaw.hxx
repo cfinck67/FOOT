@@ -32,6 +32,7 @@ public:
    Int_t           GetMcTrackI(Int_t index)  const   { return fMcTrackId[index];    }
    Int_t           GetMcTrackCount()         const   { return fMcTrackId.GetSize(); }
 
+   void            Clear(Option_t* option = "C");
    void            AddMcTrackId(Int_t trackId, Int_t mcId = -1);
 
 private:

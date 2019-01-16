@@ -47,8 +47,9 @@ TAVTbaseNtuHit::~TAVTbaseNtuHit()
 //
 void TAVTbaseNtuHit::Clear(Option_t* /*option*/)
 {
+   fMCindex.Set(0);
+   fMcTrackId.Set(0);
 }
-
 
 //______________________________________________________________________________
 //  

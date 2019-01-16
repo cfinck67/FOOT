@@ -45,6 +45,14 @@ TACAntuHit::TACAntuHit(int cha, double charge, double time, int typ)
 
 //______________________________________________________________________________
 //
+void TACAntuHit::Clear(Option_t* /*option*/)
+{
+   fMCindex.Set(0);
+   fMcTrackId.Set(0);
+}
+
+//______________________________________________________________________________
+//
 void TACAntuHit:: AddMcTrackId(Int_t trackId, Int_t mcId)
 {
    fMCindex.Set(fMCindex.GetSize()+1);
@@ -133,7 +141,7 @@ TACAntuHit* TACAntuRaw::NewHit(int channel, double charge, double time, int type
 
 void TACAntuRaw::Clear(Option_t*)
 {
-   fListOfHits->Delete();
+   fListOfHits->Clear("C");
    
    return;
 }

@@ -45,3 +45,11 @@ void TATW_Hit::AddMcTrackId(Int_t trackId, Int_t mcId)
    m_McTrackId.Set(m_McTrackId.GetSize()+1);
    m_McTrackId[m_McTrackId.GetSize()-1] = trackId;
 }
+
+//______________________________________________________________________________
+//
+void TATW_Hit::Clear(Option_t* /*option*/)
+{
+   m_MCindex.Set(0);
+   m_McTrackId.Set(0);
+}

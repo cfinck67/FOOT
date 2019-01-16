@@ -59,6 +59,9 @@ public:
    
 	void Initialise();
 
+   
+   void   Clear(Option_t* option = "C");
+
    bool IsColumn() { return ( m_layer == 0 ? true : false ); };
    bool IsRow()    { return ( m_layer == 1 ? true : false ); };
 
