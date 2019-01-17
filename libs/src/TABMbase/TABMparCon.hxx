@@ -65,12 +65,8 @@ class TABMparCon : public TAGpara {
     Double_t GetMCEffMean(){return mceff_mean;};
     Double_t GetMCEffSigma(){return mceff_sigma;};
     Int_t GetSmearrdrift(){return smearrdrift;};
-    //~ Double_t GetXShift(){return meas_shift.X();};
-    //~ Double_t GetYShift(){return meas_shift.Y();};
-    //~ Double_t GetZShift(){return meas_shift.Z();};
-    //~ Double_t GetXrot(){return meas_tilt.X();};
-    //~ Double_t GetYrot(){return meas_tilt.Y();};
-    //~ Double_t GetZrot(){return meas_tilt.Z();};
+    TVector3 GetMeas_shift(){return meas_shift;};
+    TVector3 GetMeas_tilt(){return meas_tilt;};
 
 
     //T0 stuff
@@ -138,8 +134,8 @@ class TABMparCon : public TAGpara {
     Int_t    calibro;//flag for the calibration
     Int_t    strel_switch;//flag to choose the st relations (1=garfield, 0=FIRST embedded)
     Int_t    prefit_enable;//flag to enable or disable the prefit
-    //~ TVector3 meas_shift;//shift for the calibration
-    //~ TVector3 meas_tilt;//tilt for the calibration
+    TVector3 meas_shift;//shift for the calibration
+    TVector3 meas_tilt;//tilt for the calibration
     Int_t    manageT0BM; //0=calculate T0 and save v_t0s in bmt0file, 1=loadT0 from bmt0file
     Int_t    t0_switch;//0=t0 from the beginning of the tdc signal, 1=from the peak, 2=negative T0 enabled
     Int_t    manageADCped; //0=calculate and save ADCped in bmpedfile, 1=loadadcped from bmpedfile

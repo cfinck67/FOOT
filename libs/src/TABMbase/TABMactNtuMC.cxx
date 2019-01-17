@@ -62,19 +62,16 @@ Bool_t TABMactNtuMC::Action()
   vector<bool> tobecharged(fpEvtStr->BMNn, true);
   vector<Double_t> rdriftxcell(fpEvtStr->BMNn, 99.);
   Int_t nhits=0;
-  TVector3 loc, gmom, mom, A0, Wvers, tmp_tvector;
+  TVector3 loc, gmom, mom, A0, Wvers;
   if (!p_nturaw->h) p_nturaw->SetupClones();//se non c'è l'array di h, lo crea
   //The number of hits inside the BM is nmon
   Info("Action()","Processing n :: %2d hits \n",fpEvtStr->BMNn);
 
   if(p_bmcon->GetCalibro()!=0){
-    //~ cout<<"PRIMA DI SPOSTARE I FILI:"<<endl;//PROVV
+    //~ cout<<"Before tilt and shift the wires:"<<endl;//PROVV
     //~ p_bmgeo->CoutWirePosDir();
-    //~ tmp_tvector.SetXYZ(0.5,0.1,0.);//proton_calib_x05_y01_theta3.root
-    tmp_tvector.SetXYZ(0.2,0.5,0.);//proton_calib_xy_rot_tras.root, proton_calib_x02_y05.root
-    if(p_bmcon->GetCalibro()==1)
-      p_bmgeo->RotateNewBmon(real_rotation.X(),real_rotation.Y(),real_rotation.Z(),false);//WARNING!!!! ROOT AND FLUKA ROTATE WITH DIFFERENT SIGN...
-    p_bmgeo->ShiftBmon(tmp_tvector);
+    p_bmgeo->RotateNewBmon(p_bmcon->GetMeas_tilt().X(),p_bmcon->GetMeas_tilt().Y(),p_bmcon->GetMeas_tilt().Z(),false);//WARNING!!!! ROOT AND FLUKA ROTATE WITH DIFFERENT SIGN...
+    p_bmgeo->ShiftBmon(p_bmcon->GetMeas_shift());
     //~ cout<<endl<<"DOPO AVER SPOSTATO I FILI"<<endl;
     //~ p_bmgeo->CoutWirePosDir();
     //~ cout<<endl<<"bm center position X="<<p_bmgeo->GetCenter().X()<<"  Y="<<p_bmgeo->GetCenter().Y()<<"  Z="<<p_bmgeo->GetCenter().Z()<<endl;
@@ -118,10 +115,9 @@ Bool_t TABMactNtuMC::Action()
     }
     
   if(p_bmcon->GetCalibro()!=0){
-    p_bmgeo->ShiftBmon(-tmp_tvector);
-    if(p_bmcon->GetCalibro()==1)
-      p_bmgeo->RotateNewBmon(real_rotation.X(),real_rotation.Y(),real_rotation.Z(),true);    
-    //~ cout<<"FINE CARICAMENTO HIT, HO RIMESSO A POSTO I FILI"<<endl;//PROVV
+    p_bmgeo->ShiftBmon(-p_bmcon->GetMeas_shift());
+    p_bmgeo->RotateNewBmon(p_bmcon->GetMeas_tilt().X(),p_bmcon->GetMeas_tilt().Y(),p_bmcon->GetMeas_tilt().Z(),true);    
+    //~ cout<<"end hits charging, I retilt and reshift the wires"<<endl;//PROVV
     //~ p_bmgeo->CoutWirePosDir();
     }
     

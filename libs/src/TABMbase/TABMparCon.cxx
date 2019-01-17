@@ -212,11 +212,15 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         }
     }else if(strchr(bufConf,'S')) {
       sscanf(bufConf, "S %d %lf %lf %lf %lf %lf %lf",&myArgInt,&myArg1, &myArg2, &myArg3, &myArg4, &myArg5, &myArg6);
-      if(myArgInt>=0 && myArg4<180. && myArg5<180. && myArg6<180.){
+      if(myArgInt>0 && myArg4<180. && myArg5<180. && myArg6<180.){
         calibro=myArgInt;
-        //~ meas_shift.SetXYZ(myArg1,myArg2,myArg3);
-        //~ meas_tilt.SetXYZ(myArg1,myArg2,myArg3);
-      }else {
+        meas_shift.SetXYZ(myArg1,myArg2,myArg3);
+        meas_tilt.SetXYZ(myArg1,myArg2,myArg3);
+      }else if(myArgInt==0){
+        calibro=0;
+        meas_shift.SetXYZ(0.,0.,0.);
+        meas_tilt.SetXYZ(0.,0.,0.);
+      }else{
 	      Error(""," Plane Map Error:: check config file!! (S)");
 	      return kTRUE;
         }  
