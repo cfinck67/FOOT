@@ -40,24 +40,35 @@ public:
    Float_t        GetFieldRad()   const { return fFieldRadius;  }
    TString        GetFieldMat()   const { return fFieldMat;     }
    
+   Float_t        GetFoilThick()  const { return fFoilThick;    }
+   TString        GetFoilMat()    const { return fFoilMat;      }
+   
    TVector3       GetSide()       const { return fBmSideDch;    }
    TVector3       GetDelta()      const { return fBmDeltaDch;   }
    
    TString        GetGasMixture() const { return fGasMixture;   }
    TString        GetGasProp()    const { return fGasProp;      }
    
+   TVector3       GetMylar1()     const { return fMylar1;       }
+   TVector3       GetMylar2()     const { return fMylar2;       }
+   TVector3       GetTarget()     const { return fTarget;       }
+   void           SetTarget(TVector3 v) { fTarget = v;          }
+   
    //Id sense as function of cell
    Int_t          GetSenseId(int cell) { return fBmIdSense[cell]; }
    
    //X,Y,Z as a function of wire, layer, view
-   Float_t        GetWireX(int wire, int layer, int view) const { return fPosX[wire][layer][view]; }
-   Float_t        GetWireY(int wire, int layer, int view) const { return fPosY[wire][layer][view]; }
-   Float_t        GetWireZ(int wire, int layer, int view) const { return fPosZ[wire][layer][view]; }
+   Float_t        GetWireX(int wire, int layer, int view)  const { return fPosX[wire][layer][view]; }
+   Float_t        GetWireY(int wire, int layer, int view)  const { return fPosY[wire][layer][view]; }
+   Float_t        GetWireZ(int wire, int layer, int view)  const { return fPosZ[wire][layer][view]; }
    
    Float_t        GetWireCX(int wire, int layer, int view) const { return fPosCX[wire][layer][view]; }
    Float_t        GetWireCY(int wire, int layer, int view) const { return fPosCY[wire][layer][view]; }
    Float_t        GetWireCZ(int wire, int layer, int view) const { return fPosCZ[wire][layer][view]; }
-   
+
+   TVector3       GetWireAlign()                           const { return fWireAlign;                }
+   TVector3       GetWireTilt()                            const { return fWireTilt;                 }
+
    TVector3       GetWirePos(Int_t view, Int_t layer, Int_t wire) const;
    TVector3       GetWireDir(Int_t view) const;
    
@@ -65,11 +76,27 @@ public:
                               Double_t& h_x, Double_t& h_y, Double_t& h_z,
                               Double_t& h_cx, Double_t& h_cy, Double_t& h_cz);
    
+   //for a given cellid, it sets the ilay (0-5), view (1 or-1) and icell (0-2)
+   Bool_t GetBMNlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_t& icell);
+
    //get a number from 0 to 35 to identify any cell (ivew=1 or -1)
    Int_t          GetBMNcell(Int_t ilay, Int_t iview, Int_t icell){return icell+((iview==1) ? 0:1)*3+ilay*6;};
    
    //get a number from 0 to 12 to identify real wire plane (iview=1 or -1)
    Int_t          GetWirePlane(Int_t ilay, Int_t iview){return ((iview==1) ? 0:1) + ilay*2;};
+   
+   // transformation from BM to wire and vice versa
+   void           Wire2Detector(Double_t xl, Double_t yl, Double_t zl,
+                                Double_t& xg, Double_t& yg, Double_t& zg) const;
+   TVector3       Wire2Detector(TVector3& loc) const;
+   TVector3       Wire2DetectorVect(TVector3& loc) const;
+
+   void           Detector2Wire(Double_t xg, Double_t yg, Double_t zg,
+                                Double_t& xl, Double_t& yl, Double_t& zl) const;
+   TVector3       Detector2Wire(TVector3& glob) const;
+   TVector3       Detector2WireVect(TVector3& glob) const;
+
+   void           SetWireAlignment(Bool_t reverse = false);
    
    void           InitGeo();
    
@@ -106,6 +133,10 @@ private:
    TString         fFieldMat;
    Float_t         fFieldDensity;
 
+   Float_t         fFoilThick;
+   TString         fFoilMat;
+   Float_t         fFoilDensity;
+
    Float_t         fBmStep;
    Float_t         fBmCellWide;
    Float_t         fBmDplane;
@@ -120,19 +151,25 @@ private:
    Float_t         fBmDeltaY;
    Float_t         fBmDeltaX;
    
+   TVector3        fWireAlign;
+   TVector3        fWireTilt;
+   TVector3        fMylar1;  // mylar1 center position in local coord.
+   TVector3        fMylar2;  // mylar2 center position in local coord.
+   TVector3        fTarget;  // target center position in local coord. set outside the class !!
+   
    Int_t           fBmIdSense[3];
    
    TVector3        fBmSideDch;      /* Chamber side dimensions */
    TVector3        fBmDeltaDch;     /* displacement of 1st wire wrt chmb side */
    
    //x,y,z center positions of the wires and dimensions
-   Float_t         fPosX[50][6][2];
-   Float_t         fPosY[50][6][2];
-   Float_t         fPosZ[50][6][2];
+   Double32_t      fPosX[50][6][2];
+   Double32_t      fPosY[50][6][2];
+   Double32_t      fPosZ[50][6][2];
    
-   Float_t         fPosCX[50][6][2];
-   Float_t         fPosCY[50][6][2];
-   Float_t         fPosCZ[50][6][2];
+   Double32_t      fPosCX[50][6][2];
+   Double32_t      fPosCY[50][6][2];
+   Double32_t      fPosCZ[50][6][2];
 
 private:
    static const TString fgkDefParaName;

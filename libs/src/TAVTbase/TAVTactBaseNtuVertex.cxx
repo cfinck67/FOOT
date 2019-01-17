@@ -176,9 +176,9 @@ Bool_t TAVTactBaseNtuVertex::CheckBmMatching()
    TABMntuTrackTr* bmTrack = pBMtrack->Track(0);
    if (!bmTrack) return false;
    
-   TAGgeoTrafo* pFirstGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+   TAGgeoTrafo* pFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
 
-   if (!pFirstGeo) return false;
+   if (!pFootGeo) return false;
 	   
    TVector3 bestRes;
    Int_t    bestIdx = -1;
@@ -186,13 +186,14 @@ Bool_t TAVTactBaseNtuVertex::CheckBmMatching()
    for (Int_t i = 0; i < pNtuVertex->GetVertexN(); ++i) {
 	  TAVTvertex* vtx      = pNtuVertex->GetVertex(i);
 	  TVector3 vtxPosition = vtx->GetVertexPosition();
-	  vtxPosition  = pFirstGeo->FromVTLocalToGlobal(vtxPosition);
+	  vtxPosition  = pFootGeo->FromVTLocalToGlobal(vtxPosition);
 	  
-	  TVector3 bmPosition = pFirstGeo->FromGlobalToBMLocal(vtxPosition);
+	  TVector3 bmPosition = pFootGeo->FromGlobalToBMLocal(vtxPosition);
 	  vtxPosition *= TAGgeoTrafo::CmToMu();
 
-	  bmPosition  = bmTrack->PointAtLocalZ(bmPosition.Z());
-	  bmPosition  = pFirstGeo->FromBMLocalToGlobal(bmPosition);
+      // tmp solution
+	 // bmPosition  = bmTrack->PointAtLocalZ(bmPosition.Z());
+	  bmPosition  = pFootGeo->FromBMLocalToGlobal(bmPosition);
 	  bmPosition *= TAGgeoTrafo::CmToMu();
 	  
 	  TVector3 res = vtxPosition - bmPosition;
@@ -232,39 +233,39 @@ void TAVTactBaseNtuVertex::ComputeInteractionVertex(TABMntuTrackTr* lbm, TAVTlin
    //prendiamo il punto A della retta del bm
    Double_t z = 0;
    Double_t DZ = 1;
-   TVector3 Apoint (lbm->PointAtLocalZ(z).X(), lbm->PointAtLocalZ(z).Y(),z); //coordinate del punto A appartenente alla retta del bm in Z = 0
-   Apoint  = pFirstGeo->FromBMLocalToGlobal(Apoint);
-   Apoint *= TAGgeoTrafo::CmToMu();
-   TVector3 Bpoint (lvtx.GetPoint(z).X(),lvtx.GetPoint(z).Y(),z); //coordinate del punto B appartenente alla retta del vtx in Z = 0
-   Bpoint  = pFirstGeo->FromVTLocalToGlobal(Bpoint*TAGgeoTrafo::MuToCm());
-   Bpoint *= TAGgeoTrafo::CmToMu();
-   
-   TVector3 AmB = Apoint-Bpoint;
-   
-   TVector3 pSlopebm(lbm->ux/lbm->uz, lbm->uy/lbm->uz, 1);
-   TVector3 pDirbm  = pFirstGeo->VecFromBMLocalToGlobal(pSlopebm*DZ); //director parameter of bm line
-   TVector3 pDirvtx = pFirstGeo->VecFromVTLocalToGlobal(lvtx.GetSlopeZ()*DZ); //director parameter of vtx line
-   
-   Double_t etaBm = pDirbm*pDirbm;
-   Double_t eta = pDirvtx*pDirvtx;
-   Double_t mix = pDirbm*pDirvtx;
-   Double_t Apar = AmB*pDirbm;
-   Double_t Bpar = AmB*pDirvtx;
-   
-   
-   Double_t q = (Apar*mix-etaBm*Bpar)/(mix*mix - eta*etaBm);
-   Double_t p = (-Apar+q*mix)/etaBm;
-   
-   TVector3 P = Apoint + pDirbm*p;
-   TVector3 Q = Bpoint + pDirvtx*q;
-   
-   fVtxPos = (P+Q)*0.5;
-   // Again in local frame of VTX
-   fVtxPos = pFirstGeo->FromGlobalToVTLocal(fVtxPos*TAGgeoTrafo::MuToCm());
-   fVtxPos *= TAGgeoTrafo::CmToMu();
-   
-   if (fDebugLevel)
-	  fVtxPos.Print();
+ //  TVector3 Apoint (lbm->PointAtLocalZ(z).X(), lbm->PointAtLocalZ(z).Y(),z); //coordinate del punto A appartenente alla retta del bm in Z = 0
+//   Apoint  = pFirstGeo->FromBMLocalToGlobal(Apoint);
+//   Apoint *= TAGgeoTrafo::CmToMu();
+//   TVector3 Bpoint (lvtx.GetPoint(z).X(),lvtx.GetPoint(z).Y(),z); //coordinate del punto B appartenente alla retta del vtx in Z = 0
+//   Bpoint  = pFirstGeo->FromVTLocalToGlobal(Bpoint*TAGgeoTrafo::MuToCm());
+//   Bpoint *= TAGgeoTrafo::CmToMu();
+//   
+//   TVector3 AmB = Apoint-Bpoint;
+//   
+////   TVector3 pSlopebm(lbm->ux/lbm->uz, lbm->uy/lbm->uz, 1);
+//   TVector3 pDirbm  = pFirstGeo->VecFromBMLocalToGlobal(pSlopebm*DZ); //director parameter of bm line
+//   TVector3 pDirvtx = pFirstGeo->VecFromVTLocalToGlobal(lvtx.GetSlopeZ()*DZ); //director parameter of vtx line
+//   
+//   Double_t etaBm = pDirbm*pDirbm;
+//   Double_t eta = pDirvtx*pDirvtx;
+//   Double_t mix = pDirbm*pDirvtx;
+//   Double_t Apar = AmB*pDirbm;
+//   Double_t Bpar = AmB*pDirvtx;
+//   
+//   
+//   Double_t q = (Apar*mix-etaBm*Bpar)/(mix*mix - eta*etaBm);
+//   Double_t p = (-Apar+q*mix)/etaBm;
+//   
+//   TVector3 P = Apoint + pDirbm*p;
+//   TVector3 Q = Bpoint + pDirvtx*q;
+//   
+//   fVtxPos = (P+Q)*0.5;
+//   // Again in local frame of VTX
+//   fVtxPos = pFirstGeo->FromGlobalToVTLocal(fVtxPos*TAGgeoTrafo::MuToCm());
+//   fVtxPos *= TAGgeoTrafo::CmToMu();
+//   
+//   if (fDebugLevel)
+//	  fVtxPos.Print();
 }
 
 //------------------------------------------------------------------------------------

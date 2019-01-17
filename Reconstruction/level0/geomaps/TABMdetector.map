@@ -18,6 +18,10 @@ FieldRad:      0.0045; // cathode
 FieldMat:      "Al"
 FieldDensity:  2.6989
 
+FoilThick:     0.0025
+FoilMat:       "Mylar"
+FoilDensity:   1.4
+
 Step:          0.5;
 CellWide:      0.8;
 DeltaPlane:    0.3;
@@ -36,6 +40,11 @@ Height:           11.2     Width:      11.2      Length:     21.00
 DeltaX:            2.8     DeltaY:      2.8      DeltaZ:      2.85
 
 
+// -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
+// Alignement parameters of wires (cm, degree)
+// -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
 
+PositionsX:        0.200   PositionsY:   0.500   PositionsZ:  0.000
+Tilt1:            -1.200   Tilt2:       -3.200   Tilt3:       0.000
 
 

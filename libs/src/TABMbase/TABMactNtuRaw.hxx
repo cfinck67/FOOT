@@ -10,6 +10,15 @@
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGparaDsc.hxx"
+#include "TABMdatRaw.hxx"
+#include "TABMrawHit.hxx"
+#include "TATRdatRaw.hxx"
+#include "TATRdatRaw.hxx"
+#include "TABMparGeo.hxx"
+#include "TABMparCon.hxx"
+#include "TABMntuRaw.hxx"
+#include "TABMntuHit.hxx"
+
 
 class TABMactNtuRaw : public TAGaction {
   public:
@@ -17,15 +26,11 @@ class TABMactNtuRaw : public TAGaction {
 				 TAGdataDsc* p_nturaw=0, 
 				 TAGdataDsc* p_datraw=0, 
 				 TAGdataDsc* p_timraw=0, 
-				 TAGdataDsc* p_triraw=0, 
+				 //~ TAGdataDsc* p_triraw=0, 
 				 TAGparaDsc* p_geomap=0, 
 				 TAGparaDsc* p_parcon=0);
     virtual         ~TABMactNtuRaw();
-    void     cleanup();
     
-    vector<double> retrieve_V();
-    vector<double> retrieve_U();
-    void CalcEffi(double nume, double deno, double &eff, double &erro);
     virtual Bool_t  Action();
 
     ClassDef(TABMactNtuRaw,0)
@@ -34,15 +39,10 @@ class TABMactNtuRaw : public TAGaction {
     TAGdataDsc*     fpNtuRaw;		    // output data dsc
     TAGdataDsc*     fpDatRaw;		    // input data dsc
     TAGdataDsc*     fpTimRaw;		    // input time dsc
-    TAGdataDsc*     fpTriRaw;		    // input time dsc
+    //~ TAGdataDsc*     fpTriRaw;		    // input time dsc
     TAGparaDsc*     fpGeoMap;		    // geometry para dsc
     TAGparaDsc*     fpParCon;		    // BM config params.
 
-    double m_fittedVO;
-    double m_fittedVE;
-    double m_fittedUO, m_fittedUE;
-    double m_missedX[6], m_missedY[6];
-     vector<double> eff_V, eff_U;
 };
 
 #endif

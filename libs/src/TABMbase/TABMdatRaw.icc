@@ -6,40 +6,6 @@
 
 
 //------------------------------------------+-----------------------------------
-//! Returns cell number.
-
-inline Int_t TABMrawHit::Cell() const
-{
-  return icell;
-}
-
-//------------------------------------------+-----------------------------------
-//! Returns plane number.
-
-inline Int_t TABMrawHit::Plane() const
-{
-  return ilayer;
-}
-
-//------------------------------------------+-----------------------------------
-//! Returns plane number.
-
-inline Double_t TABMrawHit::Time() const
-{
-  return tdctime;
-}
-
-//------------------------------------------+-----------------------------------
-//! Returns plane number.
-
-inline Int_t TABMrawHit::View() const
-{
-  return iview;
-}
-
-//##############################################################################
-
-//------------------------------------------+-----------------------------------
 //! Returns number of hits.
 
 inline Int_t TABMdatRaw::NHit() const

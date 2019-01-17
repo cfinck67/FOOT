@@ -18,16 +18,20 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 # manual method : base file name separated in two lists with different treatment.
 #
 set( with_dictionnaries
-   TABMdatRaw
    TABMntuRaw
-   TABMparMap
+   TABMntuHit
    TABMparGeo
+   TABMparMap
    TABMactNtuRaw
+   TABMdatRaw
+   TABMrawHit
    TABMactNtuMC
    TABMvieTrackFOOT
+   TABMntuTrackTr
    TABMntuTrack
    TABMactNtuTrack
    TABMparCon
+   TABMactDatRaw
 )
 
 set( without_dictionnaries
@@ -45,7 +49,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 #
 link_directories(${ROOT_LIBRARY_DIR})
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-
 #
 # headers / linkdef etc ... 
 #

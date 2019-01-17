@@ -196,19 +196,8 @@ void TAFOeventDisplay::ReadParFiles()
       parFileName = Form("./config/beammonitor%s.cfg", fExpName.Data());
       parConf->FromFile(parFileName.Data());
       
-      parFileName = "./config/beammonitor_t0s.cfg";
-      parConf->loadT0s(parFileName);
-      
-      parFileName = "./config/file_stlist_FIRST.txt";
-      parConf->LoadSTrel(parFileName);
-      
-      //  parConf->SetIsMC(true);
-      
-      parConf->ConfigureTrkCalib();
-      
       parFileName = "./config/bmreso_vs_r.root";
       parConf->LoadReso(parFileName);
-
    }
 
    // initialise par files for vertex
@@ -1027,36 +1016,33 @@ void TAFOeventDisplay::UpdateWireElements(const TString prefix)
    if (prefix != "bm") return;
    
    
-      TABMntuRaw* pBMntu = (TABMntuRaw*) fpNtuRawBm->Object();
-      Int_t       nHits  = pBMntu->nhit;
-      double bm_h_side;
+   TABMntuRaw* pBMntu = (TABMntuRaw*) fpNtuRawBm->Object();
+   Int_t       nHits  = pBMntu->nhit;
+   double bm_h_side;
    
-      TABMparGeo* pbmGeo = (TABMparGeo*) fpParGeoBm->Object();
+   TABMparGeo* pbmGeo = (TABMparGeo*) fpParGeoBm->Object();
+   
+   
+   //hits
+   for (Int_t i = 0; i < nHits; i++) {
+      TABMntuHit* hit = pBMntu->Hit(i);
+      TVector3 posHit  = hit->Position();
+      TVector3 posHitG = fpFootGeo->FromBMLocalToGlobal(posHit);
       
+      bm_h_side   = pbmGeo->GetWidth();
+      if(hit->View() < 0) {
+         //X,Z, top view
+         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0), posHitG(1)+bm_h_side, posHitG(2));
+      } else {
+         //Y,Z, side view
+         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0)+bm_h_side, posHitG(1), posHitG(2));
+      }
+      
+   }
    
-         //hits
-         for (Int_t i = 0; i < nHits; i++) {
-            TABMntuHit* hit = pBMntu->Hit(i);
-            if(hit->TrkAss()) {
-               TVector3 posHit  = hit->Position();
-               TVector3 posHitG = fpFootGeo->FromBMLocalToGlobal(posHit);
-               posHitG    *= TAGgeoTrafo::CmToMu();
- //              posHitG[2] -= fTgZ;
-               
-               bm_h_side   = pbmGeo->GetWidth();
-               if(hit->View() < 0) {
-                  //X,Z, top view
-                  fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0), posHitG(1)+bm_h_side, posHitG(2));
-               } else {
-                  //Y,Z, side view
-                  fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0)+bm_h_side, posHitG(1), posHitG(2));
-               }
-            }
-         }
+   // tracks
+   fBmClusDisplay->RefitPlex();
    
-         // tracks
-         fBmClusDisplay->RefitPlex();
-
 }
 
 //__________________________________________________________

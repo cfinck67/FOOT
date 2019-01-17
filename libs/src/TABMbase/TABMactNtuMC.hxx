@@ -8,24 +8,31 @@
 /*------------------------------------------+---------------------------------*/
 
 #include "Evento.hxx"
-
-#include "TVector3.h"
+#include "foot_geo.h"
 #include "TAGaction.hxx"
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
+#include "TAGroot.hxx"
+#include "TABMntuRaw.hxx"
+#include "TABMntuHit.hxx"
+#include "TABMparCon.hxx"
+#include "TAGgeoTrafo.hxx"
+
+#include "TVector3.h"
 
 class TABMactNtuMC : public TAGaction {
   public:
     explicit        TABMactNtuMC(const char* name=0,
-				 TAGdataDsc* p_nturaw=0, 
-				 TAGparaDsc* p_parcon=0, 
-				 TAGparaDsc* p_pargeo=0, 
-				 EVENT_STRUCT* evStr=0);
+                                 TAGdataDsc* dscnturaw=0,
+                                 TAGparaDsc* dscbmcon=0,
+                                 TAGparaDsc* dscbmgeo=0,
+                                 EVENT_STRUCT* evStr=0);
     virtual         ~TABMactNtuMC();
 
     virtual Bool_t  Action();
 
     Double_t FindRdrift(TVector3 loc, TVector3 mom, TVector3 A0, TVector3 Wvers);
+    void CreateFakeHits(Int_t nfake, TRandom3 *&rand, Int_t &nhits);
 
     ClassDef(TABMactNtuMC,0)
 
@@ -34,7 +41,15 @@ class TABMactNtuMC : public TAGaction {
     TAGparaDsc*     fpParCon;		    // BM config params.
     TAGparaDsc*     fpParGeo;		    // BM geo params.
     EVENT_STRUCT*   fpEvtStr;
-   Int_t           fDebugLevel;
+    Double_t        rdrift_err;//default error value of the rdrfit
+    
+    //ntu objects
+    TABMntuRaw*   p_nturaw;
+    TABMntuHit*   p_hit;
+    //par objects
+    TABMparCon* p_bmcon;
+    TABMparGeo* p_bmgeo;    
+    
 };
 
 #endif

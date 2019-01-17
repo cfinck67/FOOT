@@ -84,11 +84,17 @@ class TATRdatRaw : public TAGdata {
     TATRrawHit*       Hit(Int_t i_ind);
     const TATRrawHit* Hit(Int_t i_ind) const;
 
+    void            SetTrigTime(double time) { fTrigTime = time; }
+    Double_t        TrigTime()         const { return fTrigTime; }
+
     virtual void    Clear(Option_t* opt="");
 
     void SetupClones();
 
     ClassDef(TATRdatRaw,1)
+
+private:
+   Double32_t       fTrigTime;               //SC trigger time
 
   public:
     Int_t           ntrhit;		    // 

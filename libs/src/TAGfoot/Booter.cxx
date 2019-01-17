@@ -732,18 +732,18 @@ void Booter::initBMCon(TAGparaDsc* beamcon)  {
 
   b_bad = o_beamcon->FromFile(filename);
 
-  filename = m_wd + "/config/beammonitor_t0s.cfg";
-
-  o_beamcon->loadT0s(filename);
-
-  filename = m_wd + "/config/file_stlist_FIRST.txt";
-  //  filename = "config/file_stlist_8020_Cst1_1750.txt";
-
-  o_beamcon->LoadSTrel(filename);
-
-  o_beamcon->SetIsMC(true);
-
-  o_beamcon->ConfigureTrkCalib();
+//  filename = m_wd + "/config/beammonitor_t0s.cfg";
+//
+//  o_beamcon->loadT0s(filename);
+//
+//  filename = m_wd + "/config/file_stlist_FIRST.txt";
+//  //  filename = "config/file_stlist_8020_Cst1_1750.txt";
+//
+//  o_beamcon->LoadSTrel(filename);
+//
+//  o_beamcon->SetIsMC(true);
+//
+//  o_beamcon->ConfigureTrkCalib();
 
   filename = m_wd + "/config/bmreso_vs_r.root";
   o_beamcon->LoadReso(filename);

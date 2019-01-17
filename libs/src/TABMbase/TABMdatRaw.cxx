@@ -4,47 +4,16 @@
   \brief   Implementation of TABMdatRaw.
 */
 
-#include <string.h>
-
-#include <fstream>
-#include <bitset>
 using namespace std;
-#include <algorithm>
-
-#include "TString.h"
 
 #include "TABMdatRaw.hxx"
+
 
 /*!
   \class TABMdatRaw TABMdatRaw.hxx "TABMdatRaw.hxx"
   \brief Mapping and Geometry parameters for Tof wall. **
 */
 
-ClassImp(TABMrawHit);
-
-//------------------------------------------+-----------------------------------
-//! Destructor.
-
-TABMrawHit::~TABMrawHit()
-{}
-
-//------------------------------------------+-----------------------------------
-//! Default constructor.
-
-TABMrawHit::TABMrawHit()
-  : iview(0),    ilayer(0),    icell(0),  tdctime(0.)
-{
-}
-
-void TABMrawHit::SetData(Int_t view, Int_t lay, Int_t cell, double time) {
-
-  iview = view;
-  ilayer = lay;
-  icell = cell;
-  tdctime = time;
-  return;
-}
-//##############################################################################
 
 ClassImp(TABMdatRaw);
 
@@ -62,13 +31,13 @@ TABMdatRaw::~TABMdatRaw() {}
 //------------------------------------------+-----------------------------------
 //! Setup mapping data for a single slat.
 
-void TABMdatRaw::SetHitData(Int_t view, Int_t lay, Int_t cell, double time)
+void TABMdatRaw::SetHitData(Int_t lay, Int_t view, Int_t cell, Double_t time)
 {
 
   Int_t i_ind = (Int_t) fHitList.size();
   fHitList.push_back(TABMrawHit());
  
-  fHitList[i_ind].SetData(view,lay,cell,time);
+  fHitList[i_ind].SetData(lay,view,cell,time);
   
   return;
 }
