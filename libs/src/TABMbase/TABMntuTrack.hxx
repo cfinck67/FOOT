@@ -32,15 +32,7 @@ class TABMntuTrack : public TAGdata {
 
     virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
 
-//OLD TRACKING METHODS:
-    //~ void Chi2Fit(TABMntuRaw *hitp, TABMntuTrackTr *p_trk, int n_ite);
-    //~ Double_t ComputeChiQua(TVectorD Dy, TMatrixD VV);
-    //~ void Update(TVectorD Dy, TVectorD& alpha, TVectorD Eta, TMatrixD VV, TABMntuTrackTr* ptraccia, TABMntuRaw *hitp);
-    //~ TVectorD Mini(int nmeas, TMatrixD AA, TMatrixD VV, TVectorD Dy);
-    //~ TMatrixD ComputeVV(TABMntuRaw *hitp, TABMntuTrackTr* p_trk);
-    //~ TMatrixD ComputeAA(TABMntuRaw *hitp, TABMntuTrackTr *p_trk, TVectorD alpha);
-    //~ TVectorD ComputeDy(TABMntuRaw *hitp, TABMntuTrackTr* p_trk);
-
+   
     ClassDef(TABMntuTrack,2)
 
   public:

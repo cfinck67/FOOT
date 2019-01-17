@@ -50,18 +50,6 @@ TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x, Doubl
   sigma=s;
 }
 
-//~ void TABMntuHit::SetData(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t s) {
-  
-  //~ idmon = id;  
-  //~ iview = iv;  ilayer = il;  icell = ic; 
-  //~ xcamon = x;   ycamon = y;  zcamon = z;
-  //~ pxcamon = px;   pycamon = py;   pzcamon = pz;
-  //~ rdrift = r;   tdrift = t;
-  //~ ichi2 = 0;  
-
-  //~ return;
-//~ }
-
 void TABMntuHit::SetAW(TABMparGeo* f_bmgeo) {
 
   Int_t idfilo = f_bmgeo->GetSenseId(Cell());

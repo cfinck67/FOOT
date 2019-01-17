@@ -44,48 +44,6 @@ class TABMntuTrackTr : public TObject {
                     TABMntuTrackTr();
     virtual         ~TABMntuTrackTr();
 
-    //*********OLD TRACKING:******
-    //~ Int_t Set(Double_t fx0, Double_t fy0, Double_t fux, Double_t fuy);
-    //~ Int_t Set(TVectorD ftrackpar);
-    //~ Int_t Set(Double_t fx0, Double_t fy0, Double_t fux, Double_t fuy, Double_t fuz);
-    //~ Int_t SetR0(Double_t fx0, Double_t fy0);
-    //~ Int_t SetPvers(Double_t fux, Double_t fuy);
-    //~ void  GetPvers(Double_t &fux, Double_t &fuy);
-    //~ Int_t SetPvers(Double_t fux, Double_t fuy, Double_t fuz);
-    //~ void SetAssHits( int nhi) { nass = nhi; };
-    //~ Int_t AddHit(TABMntuHit *wr, TABMparGeo *f_bmgeo);
-    //~ Int_t ComputeDataWire(TABMntuHit *wr, Int_t fwire);
-    //~ Int_t EstimateTrackPar(TABMntuRaw *hitp, TABMparGeo *f_bmgeo);
-    //~ TG_STRUCT Circles2Tangents(double xc1, double yc1, double r1,
-			       //~ double xc2, double yc2, double r2);
-    //~ Int_t ComputeDataAll(TABMntuRaw *hitp);
-    //~ Int_t  GetNwire() {return nwire; };
-    //~ TVectorD GetTrackPar(){ return trackpar; };   //Returns a vector containing x0,y0 ux and uy  
-    //~ TVectorD GetTrackRho(){ return trackrho; };
-    //~ TVector3 PointAtLocalZ(double zloc);
-    //~ Double_t GetX0(){return x0;};
-    //~ Double_t GetY0(){return y0;};
-    //~ Double_t GetZ0(){return z0;};
-    //~ Double_t GetUx(){return ux;};
-    //~ Double_t GetUy(){return uy;};
-    //~ double   GetChi2() { return tr_chi2; }
-    //~ void     SetChi2(double chi2) {tr_chi2 = chi2;};    
-    //~ TVector3 GetDirection(){return Pvers;};
-    //~ void     SetChi2H(TVectorD dy, TVectorD au, TABMntuRaw *hp);
-    //~ Short_t         nwire;	    // number of wires fired per track
-    //~ Int_t           nass;	    // Associated hits
-    //~ Float_t         x0;		    // x offset of track fit (computed @ chmb center)
-    //~ Float_t         y0;		    // y offset of track fit (computed @ chmb center)
-    //~ Float_t         z0;		    // z offset of track fit (computed @ chmb center)
-    //~ Float_t         ux;		    // x slope  of track fit
-    //~ Float_t         uy;		    // y slope  of track fit
-    //~ Float_t         uz;		    // z slope  of track fit
-    //~ TVectorD   trackpar;
-    //~ TVectorD   trackrho;
-    //~ TVector3  R0;
-    //~ TVector3  Pvers;
-    //~ double tr_chi2;
-
     //*************************************In common or to be modified for new tracking*************************
     void Calibrate(TF1* mypol, TF1* mypol2); 
     void Clean(); 
@@ -160,11 +118,8 @@ class TABMntuTrackTr : public TObject {
     TVector3 GetPvers(){return Pvers;};
     TVector3 GetR0(){return R0;};
     Int_t GetNite(){return nite;};
-    //~ Double_t GetTrackPar(Int_t index){return trackpar[index];};
-    //~ TVectorD GetTrackPar(){return trackpar;};
-    
-    //~ void SetSharedPlanes(TABMparGeo* p_bmgeo);
-    void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mysqrtchi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane,SharedPlanePtr &central_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane);////evaluate the projections etc. from genfit tracking parameters
+
+   void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mysqrtchi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane,SharedPlanePtr &central_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane);////evaluate the projections etc. from genfit tracking parameters
     void CalculateFromFirstPar(TABMparCon* p_bmcon, TABMparGeo* p_bmgeo);//evaluate the projections etc. from FIRST tracking parameters
     Double_t FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers);    
     void PrintR0Pvers();

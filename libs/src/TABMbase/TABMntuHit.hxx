@@ -68,12 +68,7 @@ class TABMntuHit : public TAGdata {
     void SetA0(TVector3 a_in){A0=a_in;};
     void SetWvers(TVector3 w_in){Wvers=w_in;};
     void SetIsFake(Int_t in_fake){isFake=in_fake;};
-    
-    //old software
-    //~ void SetTrkAss(Int_t in_ass) { itrkass = in_ass;};
-    //~ Int_t TrkAss() {return itrkass;};
-    //~ Bool_t HorView() const; //Horizontal, Top, XZ == -1
-    //~ Bool_t VertView() const; //Vertical, Side, YZ == 1
+   
 
   ClassDef(TABMntuHit,1)
 

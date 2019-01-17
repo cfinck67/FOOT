@@ -73,18 +73,10 @@ public:
   virtual         ~TABMactNtuTrack();
   virtual Bool_t  Action();
   
-  //old tracking
-  //~ void sortDoubleHits(TABMntuRaw *hp, TABMntuTrack* pntr, TABMparGeo* ppg, TABMntuTrackTr & aRTr, TABMntuTrackTr & RefTr, int add[36], int ndou);
-  //~ void refitImprovedTrackSide(TABMntuRaw *hp, TABMntuTrack* pntr, TABMparGeo* ppg, int mulT, int mulS, double trchi2, TABMntuTrackTr & aRTr, int j);
-  //~ void refitImprovedTrackTop(TABMntuRaw *hp, TABMntuTrack* pntr, TABMparGeo* ppg, int mulT, int mulS, double trchi2, TABMntuTrackTr & aRTr, int j);
-
   //new tracking
   void Print_matrix(vector<vector<int>>& vec);
   bool ToBeConsider(const Int_t cell, const Int_t view, const Int_t lay);
   void SetInitPos(TVector3 &init_pos, Int_t fit_index, Double_t xwire, Double_t xrdrift, Double_t ywire, Double_t yrdrift, Double_t init_z);
-  //~ Bool_t PlaneCounter(vector<Int_t> &hitxtrack_vec, TABMparCon *p_bmcon);
-  //~ Bool_t Refit(vector<Double_t> &hit_mychi2, vector< vector<Int_t> > &hitxtrack, TABMparCon* p_bmcon);//return true if it add another possible track to hitxtrack
-  //~ void RejectSlopedTrack(vector< vector<Int_t> > &hitxtrack, vector<Bool_t>&possiblePrimary, TABMntuHit* p_hit, TABMntuRaw* p_nturaw, Int_t &trk_index);
   void PruneNotConvTrack(vector<vector<Int_t>> &prunedhit,vector< vector<Int_t> > &hitxtrack, Int_t index);
   void ChargePrunedTrack(vector<Int_t> &prunedhit, Int_t &firedUview, Int_t &firedVview, vector< vector<Int_t> > &hitxtrack, Int_t index);  
   void ChargeHits4GenfitTrack(vector<Int_t> &singlehittrack,Int_t &firedUview,Int_t &firedVview, vector<Double_t> &hit_res, TMatrixDSym &hitCov, TVectorD &hitCoords, Track *&fitTrack, Double_t &wire_a_x, Double_t &wire_a_y, Double_t &rdrift_a_x, Double_t &rdrift_a_y);

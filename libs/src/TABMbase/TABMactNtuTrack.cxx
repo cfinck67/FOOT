@@ -611,43 +611,6 @@ void TABMactNtuTrack::SetInitPos(TVector3 &init_pos, Int_t fit_index, Double_t x
   return;  
 }
 
-//add a track in hitxtrack if it pass all the selection criteria eliminating the hit with mychi2>bmcon->GetChi2Redcut()
-//~ Bool_t TABMactNtuTrack::Refit(vector<Double_t> &prunedtrack, vector< vector<Int_t> > &hitxtrack,TABMntuRaw* p_nturaw, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo){
-  
-  //~ TABMntuHit *p_hit;
-  
-  //~ //check if the prunedtrack pass the selection criteria:
-  //~ for(Int_t i=0;i<prunedtrack.size();i++){
-    //~ p_hit=p_nturaw->Hit(prunedtrack[i]);
-    
-    
-  //~ }
-      
-    
-  //~ return kTRUE;
-//~ }
-
-
-//set the possiblePrimary to false if the track contains hits from cells that can not be consistent with a straight trajectory 
-//~ void TABMactNtuTrack::RejectSlopedTrack(vector< vector<Int_t> > &hitxtrack, vector<Bool_t>&possiblePrimary, TABMntuHit* p_hit, TABMntuRaw* p_nturaw, Int_t &trk_index){
-    //~ Int_t tmp_cellx=1;
-    //~ Int_t tmp_celly=1;
-    //~ for(Int_t j=0; j<hitxtrack.at(trk_index).size(); j++) {
-      //~ if(possiblePrimary[trk_index]==true){
-        //~ p_hit = p_nturaw->Hit(hitxtrack.at(trk_index).at(j));
-        //~ if(p_hit->View()==1 && tmp_cellx==1 && p_hit->Cell()!=1)
-          //~ tmp_cellx=p_hit->Cell();
-        //~ if(p_hit->View()==-1 && tmp_celly==1 && p_hit->Cell()!=1)
-          //~ tmp_celly=p_hit->Cell();
-        //~ if(p_hit->View()==1 && tmp_cellx!=1 && p_hit->Cell()!=1 && p_hit->Cell()!=tmp_cellx)
-          //~ possiblePrimary[trk_index]=kFALSE;
-        //~ if(p_hit->View()==-1 && tmp_celly!=1 && p_hit->Cell()!=1 && p_hit->Cell()!=tmp_celly)
-          //~ possiblePrimary[trk_index]=kFALSE;
-        //~ }
-      //~ }
-  
-  //~ return;
-//~ }
 
 void TABMactNtuTrack::ChargeAllTracks(vector< vector<Int_t> > &hitxtrack,vector< vector<Int_t> > &hitxplane, Int_t tracknum, Int_t firedPlane) {
   hitxtrack.clear();
@@ -697,13 +660,6 @@ void TABMactNtuTrack::ChargeHits4GenfitTrack(vector<Int_t> &singlehittrack,Int_t
       firedVview++;        
       
     hit_view=(p_hit->View()==1) ? 0:1;      
-    //~ hitCoords(0)=p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-    //~ hitCoords(1)=p_bmgeo->GetY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-    //~ hitCoords(2)=p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-
-    //~ hitCoords(3)=hitCoords[0]+p_bmgeo->GetCX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-    //~ hitCoords(4)=hitCoords[1]+p_bmgeo->GetCY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-    //~ hitCoords(5)=hitCoords[2]+p_bmgeo->GetCZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
 
     hitCoords(0)= p_hit->GetA0().X();
     hitCoords(1)= p_hit->GetA0().Y();
