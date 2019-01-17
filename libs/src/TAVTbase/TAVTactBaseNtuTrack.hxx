@@ -26,12 +26,12 @@ class TAVTactBaseNtuTrack : public TAGaction {
    
 public:
    explicit  TAVTactBaseNtuTrack(const char* name       = 0,
-								 TAGdataDsc* p_ntuclus  = 0, 
-								 TAGdataDsc* p_ntutrack = 0, 
-								 TAGparaDsc* p_config   = 0,
-								 TAGparaDsc* p_geomap   = 0,
-								 TAGparaDsc* p_calib    = 0,
-								 TAGdataDsc* p_bmtrack  = 0);
+                                 TAGdataDsc* p_ntuclus  = 0,
+                                 TAGdataDsc* p_ntutrack = 0,
+                                 TAGparaDsc* p_config   = 0,
+                                 TAGparaDsc* p_geomap   = 0,
+                                 TAGparaDsc* p_calib    = 0,
+                                 TAGdataDsc* p_bmtrack  = 0);
    
    virtual ~TAVTactBaseNtuTrack();
    
@@ -46,7 +46,7 @@ public:
    //! Set BM track pointer
    void             SetBMntuTrack(TAGdataDsc* pBMtrack)        { fpBMntuTrack = pBMtrack;     }
    //! Get maximum number of tracks
-   Int_t            GetTracksMaximum()                 const   { return  fTracksMaximum;       }
+   Int_t            GetTracksMaximum()                 const   { return  fTracksMaximum;      }
    //! get tracker name
    TString          GetTrackerName()                           { return  TString(GetName());  }
    
@@ -60,13 +60,13 @@ public:
    //! Set debug level
    void             SetDebug(Int_t aDebug);  
    //! Get debug level
-   Int_t            GetDebug()                         const   { return  fDebugLevel;        }
+   Int_t            GetDebug()                         const   { return  fDebugLevel;         }
    
 public:
    //! Set refit flag
-   static void      SetRefit(Bool_t flag)                      { fgRefit = flag;               }
+   static void      SetRefit(Bool_t flag)                      { fgRefit = flag;              }
    //! Get refit flag
-   static Bool_t    GetRefit()                                 { return fgRefit;               }
+   static Bool_t    GetRefit()                                 { return fgRefit;              }
    
 protected:    
    
