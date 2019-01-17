@@ -164,11 +164,14 @@ class TABMntuTrackTr : public TObject {
     //~ TVectorD GetTrackPar(){return trackpar;};
     
     //~ void SetSharedPlanes(TABMparGeo* p_bmgeo);
-    void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mysqrtchi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane,SharedPlanePtr &central_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane);
-    void CalculateFromFirstPar(TABMparCon* p_bmcon, TABMparGeo* p_bmgeo);
+    void CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res, vector<Double_t>& hit_mysqrtchi2, vector<vector<Int_t>> &prunedhit, TABMparCon* p_bmcon, TABMparGeo* p_bmgeo, Int_t rejhit, SharedPlanePtr &mylar1_plane,SharedPlanePtr &central_plane, SharedPlanePtr &mylar2_plane, SharedPlanePtr &target_plane);////evaluate the projections etc. from genfit tracking parameters
+    void CalculateFromFirstPar(TABMparCon* p_bmcon, TABMparGeo* p_bmgeo);//evaluate the projections etc. from FIRST tracking parameters
     Double_t FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers);    
     void PrintR0Pvers();
-    
+   
+   TVector3 PointAtLocalZ(double zloc);
+
+private:  
     //parameters
     Int_t         nhit;	          //number of associated hits (different from nwire because of hits in the same cell)
     Double_t      ndf;            //degree of freedom (I don't know why Genfit uses double instead of int)
@@ -193,7 +196,6 @@ class TABMntuTrackTr : public TObject {
     TVector3      R0;              //position of the track on the xy plane at z=0
     Int_t         nite;            //number of iteration with the leastchi2 method, +=normal, -=reversed
     
-  private:
 
     ClassDef(TABMntuTrackTr,2)
 

@@ -325,6 +325,22 @@ void TABMparGeo::Wire2Detector(Double_t xl, Double_t yl, Double_t zl,
 }   
 
 //_____________________________________________________________________________
+TVector3 TABMparGeo::ProjectFromPversR0(TVector3 Pvers, TVector3 R0, Double_t z)
+{
+   TVector3 projected(Pvers.X()/Pvers.Z()*z+R0.X() ,Pvers.Y()/Pvers.Z()*z+R0.Y(), z);
+   
+   return projected;
+}
+
+//_____________________________________________________________________________
+TVector3 TABMparGeo::ProjectFromPversR0(Double_t PversXZ, Double_t PversYZ, Double_t R0X, Double_t R0Y, Double_t z)
+{
+   TVector3 projected(PversXZ*z+R0X ,PversYZ*z+R0Y, z);
+   
+   return projected;
+}
+
+//_____________________________________________________________________________
 void TABMparGeo::SetWireAlignment(Bool_t reverse)
 {
    Int_t modZ  = 2;

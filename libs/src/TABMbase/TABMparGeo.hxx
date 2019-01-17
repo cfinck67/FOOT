@@ -96,6 +96,10 @@ public:
    TVector3       Detector2Wire(TVector3& glob) const;
    TVector3       Detector2WireVect(TVector3& glob) const;
 
+   //other methods
+   TVector3       ProjectFromPversR0(TVector3 Pvers, TVector3 R0, Double_t z);
+   TVector3       ProjectFromPversR0(Double_t PversXZ, Double_t PversYZ, Double_t R0X, Double_t R0Y, Double_t z);
+   
    void           SetWireAlignment(Bool_t reverse = false);
    
    void           InitGeo();
