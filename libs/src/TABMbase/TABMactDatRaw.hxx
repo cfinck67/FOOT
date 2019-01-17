@@ -21,12 +21,11 @@ class TABMactDatRaw : public TAGaction {
 
     explicit        TABMactDatRaw(const char* name=0,
                                   TAGdataDsc* p_datraw=0,
-                                  //~ TAGdataDsc* p_datmbs=0,
                                   TAGparaDsc* p_parmap=0,
                                   TAGparaDsc* p_parcon=0,
                                   TAGparaDsc* p_pargeo=0,
                                   TAGdataDsc* p_timraw=0,
-                                  BM_struct*  p_bmstruct=0);
+                                  BM_struct*  p_evtstruct=0);
     virtual         ~TABMactDatRaw();
 
     virtual Bool_t  Action();
@@ -35,12 +34,11 @@ class TABMactDatRaw : public TAGaction {
 
   private:
     TAGdataDsc*     fpDatRaw;		    // output data dsc
-    //~ TAGdataDsc*     fpDatMbs;		    // input data dsc
     TAGparaDsc*     fpParMap;		    // parameter dsc
     TAGparaDsc*     fpParCon;		    // parameter dsc
     TAGparaDsc*     fpParGeo;		    // parameter dsc
     TAGdataDsc*     fpTimRaw;		    // input data dsc
-    BM_struct*      bmstruct;
+    BM_struct*      fpEvtStruct;
     //~ ifstream datastream;                  // file di dati in input (cosa provvisoria per test calibrazione)
   
 };
