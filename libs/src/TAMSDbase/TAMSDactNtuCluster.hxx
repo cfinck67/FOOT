@@ -7,14 +7,14 @@
  */
 /*------------------------------------------+---------------------------------*/
 
-#include "TAGaction.hxx"
+#include "TAGactNtuCluster1D.hxx"
 
 class TAMSDntuCluster;
 class TAMSDcluster;
 class TAVTntuHit;
 class TAVTbaseParGeo;
 
-class TAMSDactNtuCluster : public TAGaction {
+class TAMSDactNtuCluster : public TAGactNtuCluster1D {
    
 public:
    explicit  TAMSDactNtuCluster(const char* name     = 0,
@@ -55,6 +55,9 @@ public:
    //! Set position of current cluster
    void SetCurrentPosition(Float_t u)        { fCurrentPosition = u;    }
 
+   // Get object in list
+   TAGobject*  GetHitObject(Int_t idx) const;
+
 private:
    TAGdataDsc*     fpNtuRaw;		  // input data dsc
    TAGdataDsc*     fpNtuClus;		  // output data dsc
@@ -66,10 +69,6 @@ private:
    TClonesArray*   fListOfStrips;      // list of pixels
    TClonesArray*   fCurListOfStrips;   // list of pixels in current cluster
    
-   map<Int_t, Int_t> fStripMap; // pixel map;
-   map<Int_t, Int_t> fIndexMap; // index map of the pixel;
-   TArrayI fFlagMap;
-   
    Int_t          fClustersN;     // number of cluster
    
    TH1F*          fpHisStripTot;	     // Total number of pixels per cluster
@@ -77,10 +76,9 @@ private:
    TH1F*          fpHisClusMap[32];   // cluster map per sensor
 
 private:
-   void  SearchCluster(TAVTbaseParGeo* pGeoMap);
-   void  FillMaps(TAVTbaseParGeo* pGeoMap);
-   Bool_t  ShapeCluster(Int_t noClus, Int_t Ind, TAVTbaseParGeo* pGeoMap);
-   Bool_t  FindClusters(Int_t iSensor, TAMSDntuCluster* pNtuClus, TAVTbaseParGeo* pGeoMap);
+   void    SearchCluster();
+   void    FillMaps();
+   Bool_t  FindClusters(Int_t iSensor, TAMSDntuCluster* pNtuClus);
    Bool_t  CreateClusters(Int_t iSensor, TAMSDntuCluster* pNtuClus, TAVTbaseParGeo* pGeoMap);
 
 

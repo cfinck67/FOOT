@@ -28,7 +28,7 @@ ClassImp(TAMSDactNtuCluster);
 TAMSDactNtuCluster::TAMSDactNtuCluster(const char* name, 
 									 TAGdataDsc* pNtuRaw, TAGdataDsc* pNtuClus,
 									 TAGparaDsc* pConfig, TAGparaDsc* pGeoMap)
- : TAGaction(name, "TAMSDactNtuCluster - NTuplize cluster"),
+ : TAGactNtuCluster1D(name, "TAMSDactNtuCluster - NTuplize cluster"),
    fpNtuRaw(pNtuRaw),
    fpNtuClus(pNtuClus),
    fpConfig(pConfig),
@@ -44,8 +44,8 @@ TAMSDactNtuCluster::TAMSDactNtuCluster(const char* name,
    AddDataOut(pNtuClus, "TAMSDntuCluster");
    
    TAVTparGeo* geoMap = (TAVTparGeo*)fpGeoMap->Object();
-   Int_t strips = geoMap->GetNPixelY()+1;
-   fFlagMap.Set(strips);
+   fDimX = geoMap->GetNPixelY()+1;
+   SetupMaps(fDimX);
 }
 
 //------------------------------------------+-----------------------------------
@@ -101,6 +101,7 @@ Bool_t TAMSDactNtuCluster::Action()
    
    if(ok)
       fpNtuClus->SetBit(kValid);
+   
    return ok;
 }
 
@@ -114,18 +115,16 @@ Bool_t TAMSDactNtuCluster::FindClusters(Int_t iSensor)
    TAMSDntuCluster* pNtuClus = (TAMSDntuCluster*) fpNtuClus->Object();
    TAVTbaseParGeo* pGeoMap  = (TAVTbaseParGeo*)     fpGeoMap->Object();
 
-   FillMaps(pGeoMap);
-   SearchCluster(pGeoMap);
+   FillMaps();
+   SearchCluster();
  
    return CreateClusters(iSensor, pNtuClus, pGeoMap);
 }
 
 //______________________________________________________________________________
 //
-void TAMSDactNtuCluster::SearchCluster(TAVTbaseParGeo* pGeoMap)
+void TAMSDactNtuCluster::SearchCluster()
 {
-   Int_t nStrip  = pGeoMap->GetNPixelX()+1;
-   
    fClustersN = 0;
    // Search for cluster
    
@@ -134,25 +133,35 @@ void TAMSDactNtuCluster::SearchCluster(TAVTbaseParGeo* pGeoMap)
       if (strip->Found()) continue;
       
       Int_t stripId  = strip->GetStrip();
-      if (stripId >= nStrip) continue;
-      if (stripId < 0) continue;
-      
+      if (!CheckLine(stripId)) continue;
+
       // loop over lines & columns
-      if ( ShapeCluster(fClustersN, stripId, pGeoMap) )
+      if ( ShapeCluster(fClustersN, stripId) )
          fClustersN++;
    }
 }
 
 //______________________________________________________________________________
-//
-void TAMSDactNtuCluster::FillMaps(TAVTbaseParGeo* pGeoMap)
+// Get object in list
+TAGobject*  TAMSDactNtuCluster::GetHitObject(Int_t idx) const
 {
-   Int_t nStrip  = pGeoMap->GetNPixelX()+1;
+   if (idx >= 0 && idx < GetListOfStrips()->GetEntries() )
+      return (TAGobject*)GetListOfStrips()->At(idx);
    
-   fStripMap.clear();
-   fIndexMap.clear();
-   fFlagMap.Reset(-1);
+   else {
+      Error("GetHitObject()", "Error in index %d (max: %d)", idx, GetListOfStrips()->GetEntries()-1);
+      return 0x0;
+   }
+}
+
+//______________________________________________________________________________
+//
+void TAMSDactNtuCluster::FillMaps()
+{
    
+   // Clear maps
+   ClearMaps();
+
    if (fListOfStrips->GetEntries() == 0) return;
    
    // fill maps for cluster
@@ -160,10 +169,9 @@ void TAMSDactNtuCluster::FillMaps(TAVTbaseParGeo* pGeoMap)
       
       TAMSDntuHit* strip = (TAMSDntuHit*)fListOfStrips->At(i);
       Int_t stripId  = strip->GetStrip();
-      if (stripId >= nStrip) continue;
-      if (stripId < 0) continue;
-      fStripMap[stripId] = 1;
-      fIndexMap[stripId] = i;
+      if (!CheckLine(stripId)) continue;
+
+      TAGactNtuCluster1D::FillMaps(stripId, i);
    }
 }
 
@@ -171,8 +179,6 @@ void TAMSDactNtuCluster::FillMaps(TAVTbaseParGeo* pGeoMap)
 //
 Bool_t TAMSDactNtuCluster::CreateClusters(Int_t iSensor, TAMSDntuCluster* pNtuClus, TAVTbaseParGeo* pGeoMap)
 {
-   Int_t nStrip = pGeoMap->GetNPixelX()+1;
-   
    TAMSDcluster* cluster = 0x0;
 
    // create clusters
@@ -182,10 +188,9 @@ Bool_t TAMSDactNtuCluster::CreateClusters(Int_t iSensor, TAMSDntuCluster* pNtuCl
    for (Int_t iPix = 0; iPix < fListOfStrips->GetEntries(); ++iPix) {
       TAMSDntuHit* strip = (TAMSDntuHit*)fListOfStrips->At(iPix);
       Int_t stripId = strip->GetStrip();
-      if(stripId >= nStrip) continue;
-      if( nStrip < 0) continue;
+      if(!CheckLine(stripId)) continue;
       
-      Int_t clusterN = fFlagMap[stripId];
+      Int_t clusterN = GetClusterNumber(stripId);
       if ( clusterN != -1 ) {
          cluster = pNtuClus->GetCluster(iSensor, clusterN);
          cluster->AddPixel(strip);
@@ -229,27 +234,6 @@ Bool_t TAMSDactNtuCluster::CreateClusters(Int_t iSensor, TAMSDntuCluster* pNtuCl
    
    return false;
 
-}
-
-//______________________________________________________________________________
-//  
-Bool_t TAMSDactNtuCluster::ShapeCluster(Int_t noClus, Int_t Ind, TAVTbaseParGeo* pGeoMap)
-{
-
-   Int_t nStrip = pGeoMap->GetNPixelX()+1;
-
-   if ( fStripMap[Ind] <= 0 ) return false;
-    if ( fFlagMap[Ind] != -1 ) return false;
-   fFlagMap[Ind] = noClus;
-
-   TAMSDntuHit* strip = (TAMSDntuHit*)GetListOfStrips()->At(fIndexMap[Ind]);
-   strip->SetFound(true);
-      
-   for(Int_t i = -1; i <= 1 ; ++i)
-	  if ( Ind+i >= 0 && Ind+i < nStrip)
-		 ShapeCluster(noClus, Ind+i, pGeoMap);
-   
-   return true;
 }
 
 //______________________________________________________________________________
