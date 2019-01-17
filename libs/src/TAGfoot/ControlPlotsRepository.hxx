@@ -4,8 +4,15 @@
 
 #include <Track.h>
 #include <TMath.h>
+#include <TVectorD.h>
 
+#include "Evento.h"
+// #include "foot.reg"
 #include "ControlPlotInfo.hxx"
+#include "TABMntuTrack.hxx"
+#include "TABMntuTrackTr.hxx"
+#include "TABMntuRaw.hxx"
+#include "TABMntuHit.hxx"
 
 #define build_string(expr) \
     (static_cast<ostringstream*>(&(ostringstream().flush() << expr))->str())
@@ -26,9 +33,13 @@ public:
 	void FillMap( string mapName, double x );
 	
 	void PrintMap();
-    void PrintOutputFile();
-    void PrintOutputNtuple();
-
+  void PrintOutputFile();
+  void PrintOutputNtuple();
+  void SaveOutputFile();
+  TFile* GetTFile(){return f_out;};
+  
+  TFile* f_out;
+  
 
 	//change dir
 	void SetControlPos_4eachState( string hitSampleName, int i, TVector3 *kal, TVector3 *trueMC, TVector3 *detector ) {
@@ -172,22 +183,231 @@ public:
 
 	}
 
+  //Beam Monitor OutputFile
+  void BM_setnturaw_info(string hitSampleName, TABMntuRaw* bmnturaw, TABMparGeo* bmgeo, TABMparCon* bmcon, TABMparMap* bmmap, vector< vector<Int_t> > &cell_occupy){
 
+    //~ char tmp_char[200];
 
+    FillMap( hitSampleName + "__raw_nhitsxevent", bmnturaw->nhit);
+    if(bmnturaw->nhit <= bmcon->GetMinnhit_cut())
+      FillMap( hitSampleName + "__track_error", -1);
+    if(bmnturaw->nhit >= bmcon->GetMaxnhit_cut())
+      FillMap( hitSampleName + "__track_error", -2);
+    //track_error code meaning: 0=ok, -1=nhit<minnhit_cut, -2=nhit>nmaxhit, 1=firedUview<planehit_cut, 2=firedVview<planehit_cut, 3=fit not converged, 4=track_chi2red>bmcon_chi2redcut
+
+    //loop on hits
+    for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
+      bmntuhit = bmnturaw->Hit(i);    
+      FillMap( hitSampleName + "__raw_rdrift", bmntuhit->Dist());
+      FillMap( hitSampleName + "__raw_cell", bmntuhit->Cell());
+      FillMap( hitSampleName + "__raw_view", bmntuhit->View());
+      FillMap( hitSampleName + "__raw_plane", bmntuhit->Plane());
+      FillMap( hitSampleName + "__raw_time", bmntuhit->Tdrift());
+      FillMap( hitSampleName + "__raw_occupancy", bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(), bmntuhit->Cell()));
+      FillMap( hitSampleName + "__raw_selected_rejected", (bmntuhit->GetIsSelected()) ? 1:-1);
+      //~ sprintf(tmp_char,"__tdc_ch_%d",bmmap->cell2tdc(bmgeo->GetBMNcell(bmntuhit->Plane(),bmntuhit->View(), bmntuhit->Cell())));
+      //~ FillMap( hitSampleName + tmp_char, bmntuhit->Tdrift());
+      if(bmntuhit->GetIsSelected()){
+        FillMap( hitSampleName + "__rawsel_chi2", bmntuhit->GetChi2());
+        FillMap( hitSampleName + "__rawsel_rdrift", bmntuhit->Dist());
+        //~ BM_setntuple_hit(bmntuhit->Dist(), *bmntuhit, *bmnturaw);//provv
+        FillMap( hitSampleName + "__rawsel_cell", bmntuhit->Cell());
+        FillMap( hitSampleName + "__rawsel_view", bmntuhit->View());
+        FillMap( hitSampleName + "__rawsel_plane", bmntuhit->Plane());
+        FillMap( hitSampleName + "__rawsel_occupancy", bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(), bmntuhit->Cell()));
+        FillMap( hitSampleName + "__rawsel_residual", bmntuhit->GetResidual());
+      }
+    }
+    
+    //loop on cell_occupy
+    for(Int_t i=0;i<36;i++)
+      FillMap( hitSampleName + "__raw_nhitsxcell", cell_occupy.at(i).size());
+            
+    return;  
+  }
+  
+  
+  Bool_t BM_setntutrack_info(string hitSampleName, TABMparGeo* bmgeo, TABMntuTrack* bmntutrack,TABMntuRaw* bmnturaw, TABMparCon* bmcon){
+    
+    FillMap( hitSampleName + "__track_error", bmntutrack->trk_status);
+    FillMap( hitSampleName + "__track_tracknumxevent", bmntutrack->ntrk);
+    
+    //__track_error code meaning: 0=ok, -1=nhit<minnhit_cut, -2=nhit>nmaxhit, 1=firedUview<planehit_cut, 2=firedVview<planehit_cut, 3=number of hit rejected > rejmax_cut ,4=fit not converged, 5=track_chi2red>bmcon_chi2redcut
+    
+    //loop on ntrk (it should be only one for the moment)  
+    for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
+      bmntutracktr = bmntutrack->Track(i);
+      FillMap( hitSampleName + "__track_chi2red", bmntutracktr->GetMyChi2Red());
+      FillMap( hitSampleName + "__track_nhit", bmntutracktr->GetNhit());
+      FillMap( hitSampleName + "__track_prefit_status", bmntutracktr->GetPrefitStatus());
+      if(bmntutrack->trk_status==0){//selected tracks
+        //~ if(fabs(bmntutracktr->GetMylar1Pos().X())<5.5)
+          //~ FillMap( hitSampleName + "__tracksel_mylar1_x_tight", bmntutracktr->GetMylar1Pos().X());
+        //~ if(fabs(bmntutracktr->GetMylar1Pos().Y())<5.5)
+          //~ FillMap( hitSampleName + "__tracksel_mylar1_y_tight", bmntutracktr->GetMylar1Pos().Y());
+        //~ if(fabs(bmntutracktr->GetMylar2Pos().X())<5.5)
+          //~ FillMap( hitSampleName + "__tracksel_mylar2_x_tight", bmntutracktr->GetMylar2Pos().X());
+        //~ if(fabs(bmntutracktr->GetMylar2Pos().Y())<5.5)
+          //~ FillMap( hitSampleName + "__tracksel_mylar2_y_tight", bmntutracktr->GetMylar2Pos().Y());
+        if(bmcon->GetFitterIndex()==5)
+          FillMap( hitSampleName + "__tracksel_nite", bmntutracktr->GetNite());
+        FillMap( hitSampleName + "__tracksel_target_x", bmntutracktr->GetTargetPos().X());
+        FillMap( hitSampleName + "__tracksel_target_y", bmntutracktr->GetTargetPos().Y());
+        FillMap( hitSampleName + "__tracksel_chi2red", bmntutracktr->GetMyChi2Red());
+        FillMap( hitSampleName + "__tracksel_nhit", bmntutracktr->GetNhit());
+        FillMap( hitSampleName + "__tracksel_hitselected", bmntutracktr->GetNhit());
+        FillMap( hitSampleName + "__tracksel_hitrejected", bmnturaw->nhit-bmntutracktr->GetNhit());
+        FillMap( hitSampleName + "__tracksel_AngZ", bmntutracktr->GetAngZ());
+        FillMap( hitSampleName + "__tracksel_AngZRes", bmntutracktr->GetAngZRes());
+        FillMap( hitSampleName + "__tracksel_AngPhi", bmntutracktr->GetAngPhi());
+        FillMap( hitSampleName + "__tracksel_AngPhiRes", bmntutracktr->GetAngPhiRes());
+        FillMap( hitSampleName + "__tracksel_AngXZ", atan((bmntutracktr->GetMylar2Pos().X()-bmntutracktr->GetMylar1Pos().X())/(bmntutracktr->GetMylar2Pos().Z()-bmntutracktr->GetMylar1Pos().Z())));
+        FillMap( hitSampleName + "__tracksel_AngYZ", atan((bmntutracktr->GetMylar2Pos().Y()-bmntutracktr->GetMylar1Pos().Y())/(bmntutracktr->GetMylar2Pos().Z()-bmntutracktr->GetMylar1Pos().Z())));
+        FillMap( hitSampleName + "__tracksel_mylar1_x", bmntutracktr->GetMylar1Pos().X());
+        FillMap( hitSampleName + "__tracksel_mylar1_y", bmntutracktr->GetMylar1Pos().Y());
+        FillMap( hitSampleName + "__tracksel_mylar2_x", bmntutracktr->GetMylar2Pos().X());
+        FillMap( hitSampleName + "__tracksel_mylar2_y", bmntutracktr->GetMylar2Pos().Y());
+        FillMap( hitSampleName + "__tracksel_target_x", bmntutracktr->GetTargetPos().X());
+        FillMap( hitSampleName + "__tracksel_target_y", bmntutracktr->GetTargetPos().Y());
+        FillMap( hitSampleName + "__tracksel_pversYZangle", bmntutracktr->GetPvers().Y()/bmntutracktr->GetPvers().Z());
+        FillMap( hitSampleName + "__tracksel_pversXZangle", bmntutracktr->GetPvers().X()/bmntutracktr->GetPvers().Z());
+      }
+    }
+  
+    return bmntutrack->trk_status;  
+  }
+  
+  
+  void BM_setMCnturaw_info(string hitSampleName, EVENT_STRUCT* evStr, TABMntuRaw* bmnturaw, TABMparGeo* bmgeo, TABMparCon* bmcon){
+    for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
+      bmntuhit = bmnturaw->Hit(i); 
+      FillMap( hitSampleName + "__MC_raw_realRdrift", bmntuhit->GetRealRdrift());
+      FillMap( hitSampleName + "__MC_raw_realrdrift-smeared", bmntuhit->GetRealRdrift()-bmntuhit->Dist());
+      FillMap( hitSampleName + "__MC_raw_fakehits", bmntuhit->GetIsFake());
+      if(bmntuhit->GetIsSelected()){
+	FillMap( hitSampleName + "__MC_raw_realrdrift-fitted", bmntuhit->GetRealRdrift()+bmntuhit->GetResidual()-bmntuhit->Dist());
+	if(bmntuhit->GetIsFake()!=0)
+	  FillMap( hitSampleName + "__MC_raw_hitselection", 1);
+	else
+	  FillMap( hitSampleName + "__MC_raw_hitselection", 0);
+      }else{
+	if(bmntuhit->GetIsFake()!=0)
+	  FillMap( hitSampleName + "__MC_raw_hitselection", 0);
+	else
+	  FillMap( hitSampleName + "__MC_raw_hitselection", -1);	
+      }
+    }
+    return;
+  }
+  
+  void BM_setMCntutrack_info(string hitSampleName, EVENT_STRUCT* evStr, TABMntuTrack* bmntutrack, TABMparGeo* bmgeo, TABMparCon* bmcon){
+    TVector3 mylar1realpos, mylar2realpos, mctrack;
+    Int_t mylar1cross=-1, mylar2cross=-1;
+
+    // YUN - controlla che non compila...
+
+    // for(Int_t i=0;i<evStr->CROSSn;i++){
+      // if(evStr->CROSSnregold[i]==nregMyl1BMN && evStr->TRpaid[evStr->CROSSid[i]-1]==0)
+      //   mylar1cross=i;
+      // if(evStr->CROSSnreg[i]==nregMyl2BMN && evStr->TRpaid[evStr->CROSSid[i]-1]==0)
+      //   mylar2cross=i;
+    // }
+    
+    if(mylar1cross>=0 && mylar2cross>=0)
+      for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
+	bmntutracktr = bmntutrack->Track(i);
+        mylar1realpos.SetXYZ(evStr->CROSSx[mylar1cross], evStr->CROSSy[mylar1cross], evStr->CROSSz[mylar1cross]);
+        mylar2realpos.SetXYZ(evStr->CROSSx[mylar2cross], evStr->CROSSy[mylar2cross], evStr->CROSSz[mylar2cross]);
+	bmgeo->Global2Local(mylar1realpos);
+	bmgeo->Global2Local(mylar2realpos);
+	mctrack=mylar2realpos-mylar1realpos;
+	FillMap( hitSampleName + "__MC_track_mylar1Res_dist", (mylar1realpos-bmntutracktr->GetMylar1Pos()).Mag());
+        FillMap( hitSampleName + "__MC_track_mylar2Res_dist", (mylar2realpos-bmntutracktr->GetMylar2Pos()).Mag());
+        FillMap( hitSampleName + "__MC_track_angle_res", mctrack.Angle(bmntutracktr->GetPvers())*RAD2DEG);
+        //~ FillMap( hitSampleName + "__MC_track_Theta_res", (mctrack.Theta()-bmntutracktr->GetPvers().Theta())*RAD2DEG);
+        //~ FillMap( hitSampleName + "__MC_track_Phi_res", (mctrack.Phi()-bmntutracktr->GetPvers().Phi())*RAD2DEG);
+        //~ FillMap( hitSampleName + "__MC_track_Mylar2Res_angle", mylar2realpos.Angle(bmntutracktr->GetMylar2Pos())*RAD2DEG);
+
+      }    
+    return;
+  }  
+  
+  //Beam Monitor OutputNtuple
+  //provv, it will be replaced by the real ntupleoutput with the bm objects
+  void BM_setTTree_output(TABMntuRaw* bmnturaw, TABMntuTrack* bmntutrack, Int_t data_num_ev, Int_t time_acq){
+    vector<Double_t> hitcell;
+    vector<Double_t> hitview;
+    vector<Double_t> hitplane;
+    vector<Double_t> hittime;
+    vector<Double_t> hitrdrift;
+    vector<Double_t> hitresidual;
+    for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
+      bmntutracktr = bmntutrack->Track(i);    
+      ntuple_out.BM_track_chi2.push_back(bmntutracktr->GetMyChi2Red());
+      ntuple_out.BM_track_PversX.push_back(bmntutracktr->GetPvers().X());
+      ntuple_out.BM_track_PversY.push_back(bmntutracktr->GetPvers().Y());
+      ntuple_out.BM_track_PversZ.push_back(bmntutracktr->GetPvers().Z());
+      ntuple_out.BM_track_R0X.push_back(bmntutracktr->GetR0().X());
+      ntuple_out.BM_track_R0Y.push_back(bmntutracktr->GetR0().Y());
+      ntuple_out.BM_nhit.push_back(bmnturaw->nhit);
+      ntuple_out.BM_time_acq.push_back(time_acq);
+      for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
+        bmntuhit = bmnturaw->Hit(i);      
+        if(bmntuhit->GetIsSelected()){
+          hitcell.push_back(bmntuhit->Cell());
+          hitview.push_back(bmntuhit->View());
+          hitplane.push_back(bmntuhit->Plane());
+          hittime.push_back(bmntuhit->Tdrift());
+          hitrdrift.push_back(bmntuhit->Dist());
+          hitresidual.push_back(bmntuhit->GetResidual());
+        }
+      }
+      ntuple_out.evnum.push_back(data_num_ev);
+      ntuple_out.BM_nhit.push_back(bmnturaw->nhit);
+      ntuple_out.BM_hit_cell.push_back(hitcell);
+      ntuple_out.BM_hit_view.push_back(hitview);
+      ntuple_out.BM_hit_plane.push_back(hitplane);
+      ntuple_out.BM_hit_time.push_back(hittime);
+      ntuple_out.BM_hit_rdrift.push_back(hitrdrift);
+      ntuple_out.BM_hit_residual.push_back(hitresidual);
+    }
+    
+    return;
+  }
 
 	struct Ntuple_out {
-		vector< double >  Reco_track_px;
-		vector< double >  Reco_track_py;
-		vector< double >  Reco_track_pz;
-		vector< double >  Reco_track_x;
-		vector< double >  Reco_track_y;
-		vector< double >  Reco_track_z;
-		vector< double >  Truth_track_px;
-		vector< double >  Truth_track_py;
-		vector< double >  Truth_track_pz;
+		vector< Double_t >  Reco_track_px;
+		vector< Double_t >  Reco_track_py;
+		vector< Double_t >  Reco_track_pz;
+		vector< Double_t >  Reco_track_x;
+		vector< Double_t >  Reco_track_y;
+		vector< Double_t >  Reco_track_z;
+		vector< Double_t >  Truth_track_px;
+		vector< Double_t >  Truth_track_py;
+		vector< Double_t >  Truth_track_pz;
+		
+    //Beam Monitor stuff
+    vector<vector< Double_t >>  BM_hit_residual;
+    vector<vector< Double_t >>  BM_hit_rdrift;
+    vector<vector< Double_t >>  BM_hit_time;
+    vector<vector< Double_t >>  BM_hit_plane;
+    vector<vector< Double_t >>  BM_hit_view;
+    vector<vector< Double_t >>  BM_hit_cell;
+		
+		vector< Double_t >  BM_track_PversX;
+    vector< Double_t >  BM_track_chi2;
+		vector< Double_t >  BM_track_PversY;
+		vector< Double_t >  BM_track_PversZ;
+		vector< Double_t >  BM_track_R0X;
+		vector< Double_t >  BM_track_R0Y;
+		vector< Double_t >  BM_time_acq;
+    vector< Int_t>  BM_nhit;
+		vector< Int_t >  evnum;
+
 	};
   
   Ntuple_out  ntuple_out;
+  
   
 	void Set_Outputntuple( TVector3 *Reco_mom, TVector3 *Reco_pos, TVector3 *Truth_mom) {
 
@@ -221,38 +441,12 @@ private:
 
 	ControlPlotsRepository();
 	static ControlPlotsRepository* m_pInstance;
-
+  TABMntuHit* bmntuhit;           //hit of tabmnturaw
+  TABMntuTrackTr* bmntutracktr;   //track of tabmntutrack
 
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

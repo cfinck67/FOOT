@@ -53,21 +53,21 @@ inline Double_t TABMntuHit::Tdrift() const
   return tdrift;
 }
 
-inline Double_t TABMntuHit::Timmon() const
-{
-  return timmon;
-}
+//~ inline Double_t TABMntuHit::Timmon() const
+//~ {
+  //~ return timmon;
+//~ }
 
 /* X,Z (V) view */
-inline Bool_t TABMntuHit::HorView() const
-{
-  return (iview==-1);
-}
-/* Y,Z (U) view */
-inline Bool_t TABMntuHit::VertView() const
-{
-  return (iview==1);
-}
+//~ inline Bool_t TABMntuHit::HorView() const
+//~ {
+  //~ return (iview==-1);
+//~ }
+//~ /* Y,Z (U) view */
+//~ inline Bool_t TABMntuHit::VertView() const
+//~ {
+  //~ return (iview==1);
+//~ }
 
 //------------------------------------------+-----------------------------------
 //! Returns Plane number [0-5].
@@ -84,22 +84,3 @@ inline Int_t TABMntuHit::View() const
 {
   return iview;
 }
-
-//##############################################################################
-
-//------------------------------------------+-----------------------------------
-//! Access \a i 'th hit
-
-inline TABMntuHit* TABMntuRaw::Hit(Int_t i)
-{
-  return (TABMntuHit*) ((*h)[i]);;
-}
-
-//------------------------------------------+-----------------------------------
-//! Read-only access \a i 'th hit
-
-inline const TABMntuHit* TABMntuRaw::Hit(Int_t i) const
-{
-  return (const TABMntuHit*) ((*h)[i]);;
-}
-

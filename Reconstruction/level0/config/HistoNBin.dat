@@ -1,1 +1,6 @@
+BM_output__raw_cell*  22
+BM_output__raw_occupancy*  36
+BM_output__MC_track_mylar1Res_dist*  500
+BM_output__MC_track_mylar2Res_dist*  500
+BM_output__MC_track_angle_res*  300
 

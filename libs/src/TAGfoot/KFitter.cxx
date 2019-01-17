@@ -174,6 +174,7 @@ int KFitter::UploadHitsMSD() {
 	
 	// take the ntuple object already filled
 	TAMSDntuRaw* ntup = (TAMSDntuRaw*) gTAGroot->FindDataDsc("msdRaw", "TAMSDntuRaw")->Object();
+
 	if ( m_debug > 0 )		cout << "Strip detector hits read: " << ntup->GetPixelsN(0) << endl;
 
 	// save strips hits in the collection

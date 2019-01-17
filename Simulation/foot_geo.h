@@ -24,17 +24,17 @@ const Double_t  DEG2RAD 	=PI/180;//conversion degree to radiant
 //const Int_t  PRIM_Z	=6;
 //const Int_t  PRIM_A	=12;
 /*  O-16  */
-const Int_t  PRIM_Z	=8;
-const Int_t  PRIM_A	=16;
+const Int_t  PRIM_Z	=1;
+const Int_t  PRIM_A	=1;
 
-const Double_t  PRIM_T		=0.2; //kinetic energy of primaries in GeV/n (if PRIM_Z<2 must be tot energy, non energy/nucleon)
+const Double_t  PRIM_T		=0.08; //kinetic energy of primaries in GeV/n (if PRIM_Z<2 must be tot energy, non energy/nucleon)
 const TString   PRIM_DIST	="GAUSSIAN";//lateral beam distribution
-const Double_t  PRIM_RMAX	=0.48;//maximum radius (FWHM) -> HIT
+const Double_t  PRIM_RMAX	=0.16;//maximum radius (FWHM) -> HIT
 const Double_t  PRIM_dP		=0.0;//momentum spread (+=flat, -=Gaussian (FWHM) )
 const Double_t  PRIM_DIV	=0.0;//in mrad (+=flat, -=Gaussian, 10000.=isotropic)
 const Double_t  PRIM_Pos_X	=0.0;
 const Double_t  PRIM_Pos_Y	=0.0;
-const Double_t  PRIM_Pos_Z	=-30.0;
+const Double_t  PRIM_Pos_Z	=-139.0;
 
 const Double_t  PRIM_Pos_CX	=0.0;//cos y
 const Double_t  PRIM_Pos_CY	=0.0;//cos x
@@ -89,7 +89,7 @@ const TString  AIR_MEDIUM	="AIR";
 
 const Double_t STC_X		=0.0;//center x coordinate
 const Double_t STC_Y		=0.0;//center y coordinate
-const Double_t STC_Z		=-29.0;//center z coordinate
+const Double_t STC_Z		=-800.0;//center z coordinate
 		 
 const Double_t STC_RAD    	=2.6;//STC radius
 const Double_t STC_THICK  	=0.025;//STC thickness (z dimension)
@@ -99,9 +99,14 @@ const TString  STC_MEDIUM	="EJ-232";
 //************************************************************
 // Beam Monitor
 
-const Double_t BMN_X 		=0.0;//center x coordinate
-const Double_t BMN_Y 		=0.0;//center y coordinate
+const Double_t BMN_X 		=0.;//center x coordinate
+const Double_t BMN_Y 		=0.;//center y coordinate
 const Double_t BMN_Z 		=-14.0;//center z coordinate
+
+//using FLUKA 3d rotation convention
+const Double_t BMN_XANG         =0.;  //bm rotation azimuthal angle on X axis
+const Double_t BMN_YANG         =0.;  //bm rotation azimuthal angle on Y axis
+const Double_t BMN_ZANG         =0.;  //bm rotation azimutahl angle on Z axis
 
 const Double_t BMN_SHI_LENGTH  	=23.0;//length (z dimension) of beam monitor shield
 const Double_t BMN_SHI_THICK   	=1.5;//thickness of beam monitor shield
@@ -117,14 +122,14 @@ const Int_t    BMN_NWIRELAY     =6*BMN_NSENSELAY+3;//tot no. of wires (field or 
 const Double_t BMN_UVIEW  	=1;//wire along x (side view) 
 const Double_t BMN_VVIEW  	=-1;//wire along y (top view) 
 
-//ATTENZIONE:controllare i prossimi parametri
+//WARNING:check these parameters!!!
 const Double_t BMN_RSENSE 	=0.0015;//radius of sensitive wires (in first erano 0.003)
 const Double_t BMN_RFIELD 	=0.0045;//radius of field wires (in first erano 0.008)
 const Double_t BMN_STEP		=0.5;//distance between wires (z distance)
 const Double_t BMN_PASSO	=0.8;//distance between wires (x or y distance)
 const Double_t BMN_LAYDIST   	=0.3;//distance between layers U and V
 
-//ATTENZIONE: da controllare
+//WARNING:check these parameters!!!!
 const Double_t BMN_DELTAY	=2.8;//wires x shift from the beam monitor internal sides
 const Double_t BMN_DELTAX	=2.8;//wires y shift from the beam monitor internal sides 
 const Double_t BMN_DELTAZ	=2.85;//wires z shift from the beam monitor internal sides (Alessio's version in FIRST: const Double_t BMN_DELTA_Z	=2.8;)
@@ -151,7 +156,7 @@ const Double_t TG_WIDTH   	=1.5;//x dimension
 const Double_t TG_HEIGHT  	=1.5;//y dimension
 const Double_t TG_THICK   	=0.2;//z dimension
 
-const TString  TG_MEDIUM        ="Polyethy";
+const TString  TG_MEDIUM        ="BLCKHOLE";
 //const TString  TG_MEDIUM        ="CARBON";
 
 //TG_MAG = true if mag field region includes TG
@@ -185,7 +190,7 @@ const Double_t VTX_SENSE_YMIN	=VTX_SENSE_HEIGHT/2.;
 const Double_t VTX_XDEAD	=0.328;//dead space in x
 const Double_t VTX_YDEAD	=0.00;//dead space in y
 
-const TString  VTX_MEDIUM       ="SILICON";
+const TString  VTX_MEDIUM       ="BLCKHOLE";
 
 //VTX_MAG = true if mag field region includes VTX
 const bool VTX_MAG		=true;
@@ -237,12 +242,12 @@ const Double_t ITR_AL_THICK     =0.001;//aluminum layers thickness
 const Double_t ITR_KAP_THICK    =0.005;//kapton layers thickness
 const Double_t ITR_FOAM_THICK   =0.2;//foam layer thickness
 
-const TString  ITR_MEDIUM       ="SILICON";//mimosa28
-const TString  ITR_COV_MEDIUM   ="KAPTON";
-const TString  ITR_EPO_MEDIUM   ="Epoxy";
-const TString  ITR_AL_MEDIUM    ="ALUMINUM";
-const TString  ITR_KAP_MEDIUM   ="KAPTON";
-const TString  ITR_FOAM_MEDIUM  ="SiCFoam";
+const TString  ITR_MEDIUM       ="BLCKHOLE";//mimosa28
+const TString  ITR_COV_MEDIUM   ="BLCKHOLE";
+const TString  ITR_EPO_MEDIUM   ="BLCKHOLE";
+const TString  ITR_AL_MEDIUM    ="BLCKHOLE";
+const TString  ITR_KAP_MEDIUM   ="BLCKHOLE";
+const TString  ITR_FOAM_MEDIUM  ="BLCKHOLE";
 
 //ITR_MAG = true if mag field region includes ITR
 const bool ITR_MAG		=true;
@@ -283,8 +288,8 @@ const Double_t MAG_AIR_WIDTH	=10.0;//width of magnetic field region
 const Double_t MAG_AIR_HEIGHT 	=10.0;//height of magnetic field region
 const Double_t MAG_AIR_LENGTH 	=60.0;//length of magnets
 
-const TString  MAG_PM_MEDIUM    ="SmCo";
-const TString  MAG_CV_MEDIUM    ="ALUMINUM";
+const TString  MAG_PM_MEDIUM    ="BLCKHOLE";
+const TString  MAG_CV_MEDIUM    ="BLCKHOLE";
 const TString  MAG_AIR_MEDIUM   =AIR_MEDIUM;
 
 //MAG_AIR_MAG = true if mag field region includes MAG_AIR
@@ -295,15 +300,15 @@ const bool MAG_AIR_MAG		=true;
 
 const double MSD_X		=0.0; //center x coordinate of the detector system
 const double MSD_Y		=0.0; //center y coordinate of the detector system
-const double MSD_Z		=29.0;//center z coordinate of the detector system
+const double MSD_Z		=-700.0;//center z coordinate of the detector system
 
 const Double_t MSD_WIDTH   	=9.0;//x dimension
 const Double_t MSD_HEIGHT  	=9.0;//y dimension
 const Double_t MSD_THICK   	=0.015;//z dimension
 
 const Int_t    MSD_NVIEW        =2;//no.planes(x and y)
-const Int_t    MSD_NLAY         =3;//no.layers
-const Double_t MSD_LAYDIST   	=2.;//distance btw layers
+const Int_t    MSD_NLAY         =2;//no.layers
+const Double_t MSD_LAYDIST   	=30.;//distance btw layers
 
 //strip parameters
 const Double_t MSD_XMIN		=-MSD_WIDTH/2.; 
@@ -314,7 +319,7 @@ const Int_t MSD_XSTRIP		=int(MSD_WIDTH/MSD_DX);//n. strip in x
 const Int_t MSD_YSTRIP		=int(MSD_HEIGHT/MSD_DY);//n. strip in y
 
 //const TString  MSD_KAP_MEDIUM   ="KAPTON";
-const TString  MSD_MEDIUM       ="SILICON";
+const TString  MSD_MEDIUM       ="BLCKHOLE";
 
 //MSD_MAG = true if mag field region includes MSD
 const bool MSD_MAG		=true;
@@ -333,7 +338,7 @@ const Double_t SCN_Z 		=100.-SCN_BAR_THICK;//center z coordinate
 const Int_t SCN_NLAY            =2;//no. of layers
 const Int_t SCN_NBAR          =SCN_BAR_HEIGHT/SCN_BAR_WIDTH;//no. of strip per layer
 
-const TString  SCN_MEDIUM       ="EJ-232";
+const TString  SCN_MEDIUM       ="BLCKHOLE";
 
 //************************************************************
 // Calorimeter
@@ -353,7 +358,7 @@ const Double_t CAL_Z 		=100.+CAL_CRY_THICK/2.;//center z coordinate
 const Int_t CAL_NROW            =CAL_WIDTH/CAL_CRY_WIDTH;//no. of crystal rows
 const Int_t CAL_NCOL            =CAL_HEIGHT/CAL_CRY_HEIGHT;//no. of crystal columns
 
-const TString  CAL_MEDIUM       ="BGO";
+const TString  CAL_MEDIUM       ="BLCKHOLE";
 
 
 #endif

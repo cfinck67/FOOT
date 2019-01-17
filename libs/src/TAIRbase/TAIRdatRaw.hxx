@@ -35,10 +35,10 @@ class TAIRrawHit : public TObject {
     ClassDef(TAIRrawHit,1)
 
   private:
-    Double_t ir_time;    
-    Double_t ir_chg;    
-    Int_t ir_typ;
-    Int_t ir_chid;
+    Double_t ir_time; //time from tdc   
+    Double_t ir_chg;  //charge from qdc
+    Int_t ir_typ;     //detector type
+    Int_t ir_chid;    //channel
 };
 
 //##############################################################################

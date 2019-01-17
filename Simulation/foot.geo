@@ -4,8 +4,9 @@ RPP blk        -1000. 1000. -1000. 1000. -1000. 1000.
 * ***Air -> no mag field
 RPP air        -900. 900. -900. 900. -900. 900.
 * ***Start Counter
-RCC stc        0.0 0.0 -29. 0.0 0.0 0.025000 2.600000
+RCC stc        0.0 0.0 -800. 0.0 0.0 0.025000 2.600000
 * ***Beam Monitor
+$start_transform BM_rot
 RPP BmnShiOu   -7.100000 7.100000 -7.100000 7.100000 -25.500000 -2.500000
 RPP BmnShiIn   -5.600000 5.600000 -5.600000 5.600000 -25.500000 -2.500000
 XYP BmnMyl0    -24.502500
@@ -300,6 +301,7 @@ RCC BmnF0106   -5.600000 1.200000 -7.650000 11.200000 0.0 0.0 0.004500
 RCC BmnF1106   2. -5.600000 -6.350000 0.0 11.200000 0.0 0.004500
 RCC BmnF0107   -5.600000 2. -7.650000 11.200000 0.0 0.0 0.004500
 RCC BmnF1107   2.800000 -5.600000 -6.350000 0.0 11.200000 0.0 0.004500
+$end_transform 
 * ***Target
 RPP tgt        -0.75 0.75 -0.75 0.75 -0.1 0.1
 * ***Vertex
@@ -312,54 +314,58 @@ RPP vtxs1      -0.960480 0.960480 -0.993600 0.993600 0.997500 1.002500
 RPP vtxs2      -0.960480 0.960480 -0.993600 0.993600 1.997500 2.002500
 RPP vtxs3      -0.960480 0.960480 -0.993600 0.993600 2.347500 2.352500
 * ***Inner Tracker
-RPP itrp2      -9.587000 6.047000 -4.119920 -1.248920 13.390500 13.391500
-RPP itrp23     -9.587000 6.047000 -2.498960 0.372040 14.608500 14.609500
-RPP itrp44     -5.047000 10.587000 -0.372040 2.498960 13.390500 13.391500
-RPP itrp65     -5.047000 10.587000 1.248920 4.119920 14.608500 14.609500
-RPP itrp4      -9.587000 6.047000 -4.119920 -1.248920 13.396500 13.397500
-RPP itrp25     -9.587000 6.047000 -2.498960 0.372040 14.602500 14.603500
-RPP itrp46     -5.047000 10.587000 -0.372040 2.498960 13.396500 13.397500
-RPP itrp67     -5.047000 10.587000 1.248920 4.119920 14.602500 14.603500
-RPP itrp8      -9.587000 6.047000 -4.119920 -1.248920 13.602500 13.603500
-RPP itrp29     -9.587000 6.047000 -2.498960 0.372040 14.396500 14.397500
-RPP itrp50     -5.047000 10.587000 -0.372040 2.498960 13.602500 13.603500
-RPP itrp71     -5.047000 10.587000 1.248920 4.119920 14.396500 14.397500
-RPP itrp10     -9.587000 6.047000 -4.119920 -1.248920 13.608500 13.609500
-RPP itrp31     -9.587000 6.047000 -2.498960 0.372040 14.390500 14.391500
-RPP itrp52     -5.047000 10.587000 -0.372040 2.498960 13.608500 13.609500
-RPP itrp73     -5.047000 10.587000 1.248920 4.119920 14.390500 14.391500
 RPP itrp0      -9.587000 6.047000 -4.119920 -1.248920 13.387000 13.388000
 RPP itrp21     -9.587000 6.047000 -2.498960 0.372040 14.612000 14.613000
 RPP itrp42     -5.047000 10.587000 -0.372040 2.498960 13.387000 13.388000
 RPP itrp63     -5.047000 10.587000 1.248920 4.119920 14.612000 14.613000
-RPP itrp12     -9.587000 6.047000 -4.119920 -1.248920 13.612000 13.613000
-RPP itrp33     -9.587000 6.047000 -2.498960 0.372040 14.387000 14.388000
-RPP itrp54     -5.047000 10.587000 -0.372040 2.498960 13.612000 13.613000
-RPP itrp75     -5.047000 10.587000 1.248920 4.119920 14.387000 14.388000
 RPP itrp1      -9.587000 6.047000 -4.119920 -1.248920 13.388000 13.390500
 RPP itrp22     -9.587000 6.047000 -2.498960 0.372040 14.609500 14.612000
 RPP itrp43     -5.047000 10.587000 -0.372040 2.498960 13.388000 13.390500
 RPP itrp64     -5.047000 10.587000 1.248920 4.119920 14.609500 14.612000
+RPP itrp2      -9.587000 6.047000 -4.119920 -1.248920 13.390500 13.391500
+RPP itrp23     -9.587000 6.047000 -2.498960 0.372040 14.608500 14.609500
+RPP itrp44     -5.047000 10.587000 -0.372040 2.498960 13.390500 13.391500
+RPP itrp65     -5.047000 10.587000 1.248920 4.119920 14.608500 14.609500
 RPP itrp3      -9.587000 6.047000 -4.119920 -1.248920 13.391500 13.396500
 RPP itrp24     -9.587000 6.047000 -2.498960 0.372040 14.603500 14.608500
 RPP itrp45     -5.047000 10.587000 -0.372040 2.498960 13.391500 13.396500
 RPP itrp66     -5.047000 10.587000 1.248920 4.119920 14.603500 14.608500
+RPP itrp4      -9.587000 6.047000 -4.119920 -1.248920 13.396500 13.397500
+RPP itrp25     -9.587000 6.047000 -2.498960 0.372040 14.602500 14.603500
+RPP itrp46     -5.047000 10.587000 -0.372040 2.498960 13.396500 13.397500
+RPP itrp67     -5.047000 10.587000 1.248920 4.119920 14.602500 14.603500
 RPP itrp5      -9.587000 6.047000 -4.119920 -1.248920 13.397500 13.400000
 RPP itrp26     -9.587000 6.047000 -2.498960 0.372040 14.600000 14.602500
 RPP itrp47     -5.047000 10.587000 -0.372040 2.498960 13.397500 13.400000
 RPP itrp68     -5.047000 10.587000 1.248920 4.119920 14.600000 14.602500
+RPP itrp6      -9.587000 6.047000 -4.119920 -1.248920 13.400000 13.600000
+RPP itrp27     -9.587000 6.047000 -2.498960 0.372040 14.400000 14.600000
+RPP itrp48     -5.047000 10.587000 -0.372040 2.498960 13.400000 13.600000
+RPP itrp69     -5.047000 10.587000 1.248920 4.119920 14.400000 14.600000
 RPP itrp7      -9.587000 6.047000 -4.119920 -1.248920 13.600000 13.602500
 RPP itrp28     -9.587000 6.047000 -2.498960 0.372040 14.397500 14.400000
 RPP itrp49     -5.047000 10.587000 -0.372040 2.498960 13.600000 13.602500
 RPP itrp70     -5.047000 10.587000 1.248920 4.119920 14.397500 14.400000
+RPP itrp8      -9.587000 6.047000 -4.119920 -1.248920 13.602500 13.603500
+RPP itrp29     -9.587000 6.047000 -2.498960 0.372040 14.396500 14.397500
+RPP itrp50     -5.047000 10.587000 -0.372040 2.498960 13.602500 13.603500
+RPP itrp71     -5.047000 10.587000 1.248920 4.119920 14.396500 14.397500
 RPP itrp9      -9.587000 6.047000 -4.119920 -1.248920 13.603500 13.608500
 RPP itrp30     -9.587000 6.047000 -2.498960 0.372040 14.391500 14.396500
 RPP itrp51     -5.047000 10.587000 -0.372040 2.498960 13.603500 13.608500
 RPP itrp72     -5.047000 10.587000 1.248920 4.119920 14.391500 14.396500
+RPP itrp10     -9.587000 6.047000 -4.119920 -1.248920 13.608500 13.609500
+RPP itrp31     -9.587000 6.047000 -2.498960 0.372040 14.390500 14.391500
+RPP itrp52     -5.047000 10.587000 -0.372040 2.498960 13.608500 13.609500
+RPP itrp73     -5.047000 10.587000 1.248920 4.119920 14.390500 14.391500
 RPP itrp11     -9.587000 6.047000 -4.119920 -1.248920 13.609500 13.612000
 RPP itrp32     -9.587000 6.047000 -2.498960 0.372040 14.388000 14.390500
 RPP itrp53     -5.047000 10.587000 -0.372040 2.498960 13.609500 13.612000
 RPP itrp74     -5.047000 10.587000 1.248920 4.119920 14.388000 14.390500
+RPP itrp12     -9.587000 6.047000 -4.119920 -1.248920 13.612000 13.613000
+RPP itrp33     -9.587000 6.047000 -2.498960 0.372040 14.387000 14.388000
+RPP itrp54     -5.047000 10.587000 -0.372040 2.498960 13.612000 13.613000
+RPP itrp75     -5.047000 10.587000 1.248920 4.119920 14.387000 14.388000
 RPP itrp13     -3.547000 -1.525000 -3.719920 -1.448920 13.382000 13.387000
 RPP itrp15     -1.523000 0.499000 -3.719920 -1.448920 13.382000 13.387000
 RPP itrp17     0.501000 2.523000 -3.719920 -1.448920 13.382000 13.387000
@@ -424,10 +430,6 @@ RPP itrs310    -3.547000 -1.559800 1.470960 3.391920 14.613000 14.618000
 RPP itrs311    -1.523000 0.464200 1.470960 3.391920 14.613000 14.618000
 RPP itrs312    0.501000 2.488200 1.470960 3.391920 14.613000 14.618000
 RPP itrs313    2.525000 4.512200 1.470960 3.391920 14.613000 14.618000
-RPP itrp6      -9.587000 6.047000 -4.119920 -1.248920 13.400000 13.600000
-RPP itrp27     -9.587000 6.047000 -2.498960 0.372040 14.400000 14.600000
-RPP itrp48     -5.047000 10.587000 -0.372040 2.498960 13.400000 13.600000
-RPP itrp69     -5.047000 10.587000 1.248920 4.119920 14.400000 14.600000
 * ***Magnets
 RCC MagCvOu0   0.0 0.0 2.8 0.0 0.0 10.4 13.9
 RCC MagCvOu1   0.0 0.0 14.8 0.0 0.0 10.4 13.9
@@ -441,9 +443,8 @@ ZCC Gap1       0.0 0.0 3.5
 * ***Magnetic field air region
 RPP MagAir     -5. 5. -5. 5. -16. 44.
 * ***Micro Strip Detector
-RPP msds0      -4.500000 4.500000 -4.500000 4.500000 26.992500 27.007500
-RPP msds1      -4.500000 4.500000 -4.500000 4.500000 28.992500 29.007500
-RPP msds2      -4.500000 4.500000 -4.500000 4.500000 30.992500 31.007500
+RPP msds0      -4.500000 4.500000 -4.500000 4.500000 -715.007500 -714.992500
+RPP msds1      -4.500000 4.500000 -4.500000 4.500000 -685.007500 -684.992500
 * ***Air Box for Scintillator and Calorimeter
 RPP box        -23. 23. -23. 23. 98.55 125.
 * ***Scintillator
@@ -861,15 +862,15 @@ BLACK        5 blk -air
 AIR          5 air -stc -MagAir -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1) -box
                -(BmnShiOu -BmnShiIn)
                -(BmnShiIn -BmnMyl0 +BmnMyl3)
-               -itrp2 -itrp23 -itrp44 -itrp65 -itrp4 -itrp25 -itrp46 -itrp67 -itrp8 -itrp29
-               -itrp50 -itrp71 -itrp10 -itrp31 -itrp52 -itrp73 -itrp0 -itrp21 -itrp42 -itrp63
-               -itrp12 -itrp33 -itrp54 -itrp75 -itrp1 -itrp22 -itrp43 -itrp64 -itrp3 -itrp24
-               -itrp45 -itrp66 -itrp5 -itrp26 -itrp47 -itrp68 -itrp7 -itrp28 -itrp49 -itrp70
-               -itrp9 -itrp30 -itrp51 -itrp72 -itrp11 -itrp32 -itrp53 -itrp74 -itrp13 -itrp15
-               -itrp17 -itrp19 -itrp34 -itrp36 -itrp38 -itrp40 -itrp55 -itrp57 -itrp59 -itrp61
-               -itrp76 -itrp78 -itrp80 -itrp82 -itrp14 -itrp16 -itrp18 -itrp20 -itrp35 -itrp37
-               -itrp39 -itrp41 -itrp56 -itrp58 -itrp60 -itrp62 -itrp77 -itrp79 -itrp81 -itrp83
-               -itrp6 -itrp27 -itrp48 -itrp69 -msds0 -msds1 -msds2
+               -itrp0 -itrp21 -itrp42 -itrp63 -itrp1 -itrp22 -itrp43 -itrp64 -itrp2 -itrp23
+               -itrp44 -itrp65 -itrp3 -itrp24 -itrp45 -itrp66 -itrp4 -itrp25 -itrp46 -itrp67
+               -itrp5 -itrp26 -itrp47 -itrp68 -itrp6 -itrp27 -itrp48 -itrp69 -itrp7 -itrp28
+               -itrp49 -itrp70 -itrp8 -itrp29 -itrp50 -itrp71 -itrp9 -itrp30 -itrp51 -itrp72
+               -itrp10 -itrp31 -itrp52 -itrp73 -itrp11 -itrp32 -itrp53 -itrp74 -itrp12 -itrp33
+               -itrp54 -itrp75 -itrp13 -itrp15 -itrp17 -itrp19 -itrp34 -itrp36 -itrp38 -itrp40
+               -itrp55 -itrp57 -itrp59 -itrp61 -itrp76 -itrp78 -itrp80 -itrp82 -itrp14 -itrp16
+               -itrp18 -itrp20 -itrp35 -itrp37 -itrp39 -itrp41 -itrp56 -itrp58 -itrp60 -itrp62
+               -itrp77 -itrp79 -itrp81 -itrp83 -msds0 -msds1
 * ***Start Counter
 STC          5 stc
 * ***Beam Monitor
@@ -1030,54 +1031,58 @@ VTXS1        5 vtxs1
 VTXS2        5 vtxs2
 VTXS3        5 vtxs3
 * ***Inner Tracker
-ITRP2        5 itrp2
-ITRP23       5 itrp23
-ITRP44       5 itrp44
-ITRP65       5 itrp65
-ITRP4        5 itrp4
-ITRP25       5 itrp25
-ITRP46       5 itrp46
-ITRP67       5 itrp67
-ITRP8        5 itrp8
-ITRP29       5 itrp29
-ITRP50       5 itrp50
-ITRP71       5 itrp71
-ITRP10       5 itrp10
-ITRP31       5 itrp31
-ITRP52       5 itrp52
-ITRP73       5 itrp73
 ITRP0        5 itrp0
 ITRP21       5 itrp21
 ITRP42       5 itrp42
 ITRP63       5 itrp63
-ITRP12       5 itrp12
-ITRP33       5 itrp33
-ITRP54       5 itrp54
-ITRP75       5 itrp75
 ITRP1        5 itrp1
 ITRP22       5 itrp22
 ITRP43       5 itrp43
 ITRP64       5 itrp64
+ITRP2        5 itrp2
+ITRP23       5 itrp23
+ITRP44       5 itrp44
+ITRP65       5 itrp65
 ITRP3        5 itrp3
 ITRP24       5 itrp24
 ITRP45       5 itrp45
 ITRP66       5 itrp66
+ITRP4        5 itrp4
+ITRP25       5 itrp25
+ITRP46       5 itrp46
+ITRP67       5 itrp67
 ITRP5        5 itrp5
 ITRP26       5 itrp26
 ITRP47       5 itrp47
 ITRP68       5 itrp68
+ITRP6        5 itrp6
+ITRP27       5 itrp27
+ITRP48       5 itrp48
+ITRP69       5 itrp69
 ITRP7        5 itrp7
 ITRP28       5 itrp28
 ITRP49       5 itrp49
 ITRP70       5 itrp70
+ITRP8        5 itrp8
+ITRP29       5 itrp29
+ITRP50       5 itrp50
+ITRP71       5 itrp71
 ITRP9        5 itrp9
 ITRP30       5 itrp30
 ITRP51       5 itrp51
 ITRP72       5 itrp72
+ITRP10       5 itrp10
+ITRP31       5 itrp31
+ITRP52       5 itrp52
+ITRP73       5 itrp73
 ITRP11       5 itrp11
 ITRP32       5 itrp32
 ITRP53       5 itrp53
 ITRP74       5 itrp74
+ITRP12       5 itrp12
+ITRP33       5 itrp33
+ITRP54       5 itrp54
+ITRP75       5 itrp75
 ITRP13       5 itrp13 - itrs000
 ITRP15       5 itrp15 - itrs001
 ITRP17       5 itrp17 - itrs002
@@ -1142,31 +1147,26 @@ ITRS310      5 itrs310
 ITRS311      5 itrs311
 ITRS312      5 itrs312
 ITRS313      5 itrs313
-ITRP6        5 itrp6
-ITRP27       5 itrp27
-ITRP48       5 itrp48
-ITRP69       5 itrp69
 * ***Magnets
 MAG_PM0      5 MagPMOu0 -MagPMIn0
 MAG_CV0      5 MagCvOu0 -(MagPMOu0 -MagPMIn0) -Gap0
 MAG_PM1      5 MagPMOu1 -MagPMIn1
 MAG_CV1      5 MagCvOu1 -(MagPMOu1 -MagPMIn1) -Gap1
 * ***Magnetic field air region
-MAG_AIR      5 MagAir -tgt -(BmnShiIn -BmnMyl0 +BmnMyl3) -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1)  -vtxp0 -vtxp1
-               -vtxp2 -vtxp3
-               -itrp2 -itrp23 -itrp44 -itrp65 -itrp4 -itrp25 -itrp46 -itrp67 -itrp8 -itrp29
-               -itrp50 -itrp71 -itrp10 -itrp31 -itrp52 -itrp73 -itrp0 -itrp21 -itrp42 -itrp63
-               -itrp12 -itrp33 -itrp54 -itrp75 -itrp1 -itrp22 -itrp43 -itrp64 -itrp3 -itrp24
-               -itrp45 -itrp66 -itrp5 -itrp26 -itrp47 -itrp68 -itrp7 -itrp28 -itrp49 -itrp70
-               -itrp9 -itrp30 -itrp51 -itrp72 -itrp11 -itrp32 -itrp53 -itrp74 -itrp13 -itrp15
-               -itrp17 -itrp19 -itrp34 -itrp36 -itrp38 -itrp40 -itrp55 -itrp57 -itrp59 -itrp61
-               -itrp76 -itrp78 -itrp80 -itrp82 -itrp14 -itrp16 -itrp18 -itrp20 -itrp35 -itrp37
-               -itrp39 -itrp41 -itrp56 -itrp58 -itrp60 -itrp62 -itrp77 -itrp79 -itrp81 -itrp83
-               -itrp6 -itrp27 -itrp48 -itrp69 -msds0 -msds1 -msds2
+MAG_AIR      5 MagAir -tgt -(BmnShiIn -BmnMyl0 +BmnMyl3) -(BmnShiOu -BmnShiIn) -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1
+               )  -vtxp0 -vtxp1 -vtxp2 -vtxp3
+               -itrp0 -itrp21 -itrp42 -itrp63 -itrp1 -itrp22 -itrp43 -itrp64 -itrp2 -itrp23
+               -itrp44 -itrp65 -itrp3 -itrp24 -itrp45 -itrp66 -itrp4 -itrp25 -itrp46 -itrp67
+               -itrp5 -itrp26 -itrp47 -itrp68 -itrp6 -itrp27 -itrp48 -itrp69 -itrp7 -itrp28
+               -itrp49 -itrp70 -itrp8 -itrp29 -itrp50 -itrp71 -itrp9 -itrp30 -itrp51 -itrp72
+               -itrp10 -itrp31 -itrp52 -itrp73 -itrp11 -itrp32 -itrp53 -itrp74 -itrp12 -itrp33
+               -itrp54 -itrp75 -itrp13 -itrp15 -itrp17 -itrp19 -itrp34 -itrp36 -itrp38 -itrp40
+               -itrp55 -itrp57 -itrp59 -itrp61 -itrp76 -itrp78 -itrp80 -itrp82 -itrp14 -itrp16
+               -itrp18 -itrp20 -itrp35 -itrp37 -itrp39 -itrp41 -itrp56 -itrp58 -itrp60 -itrp62
+               -itrp77 -itrp79 -itrp81 -itrp83 -msds0 -msds1
 * ***Micro Strip Detector
 MSDS0        5 msds0
 MSDS1        5 msds1
-MSDS2        5 msds2
 * ***Air Box for Scintillator and Calorimeter
 BOX          5 box  -scn000 -scn001 -scn002 -scn003 -scn004 -scn005 -scn006 -scn007 -scn008 -scn009
                -scn010 -scn011 -scn012 -scn013 -scn014 -scn015 -scn016 -scn017 -scn018 -scn019

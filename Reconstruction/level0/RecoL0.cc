@@ -40,11 +40,14 @@ int main (int argc, char *argv[]) {
   char name[200];
   TString out("DecodedMC.root");
   TString in("../data/mc/MC_ID040_Evt1k.root");
-  TString wdir("./");
+  TString wdir(".");
   int nTotEv = 0;
-  int debug = 0; int pl_freq(100);
+  int debug = 0; 
+  int pl_freq(100);
   int ke_display = 0;
+  int evstart=0;
   TString outH("DecodeMC_histo.root");
+  bool isdata(kFALSE); //0=MC, 1=real data analysis 
   bool alist(kFALSE);
   for (int i = 0; i < argc; i++){
     if(strcmp(argv[i],"-out") == 0)   { out =TString(argv[++i]);  }                        // Root file name for output
@@ -52,9 +55,11 @@ int main (int argc, char *argv[]) {
     if(strcmp(argv[i],"-in") == 0)    { in = TString(argv[++i]);  }                        // Root file in input
     if(strcmp(argv[i],"-wd") == 0)    { wdir = TString(argv[++i]);  }                      // Working dir
     if(strcmp(argv[i],"-deb") == 0)   { debug = atoi(argv[++i]);      }                    // Enables debugging
+    if(strcmp(argv[i],"-evstart") == 0){ evstart = atoi(argv[++i]);      }                 // Start event number
     if(strcmp(argv[i],"-nev") == 0)   { nTotEv = atoi(argv[++i]);      }                   // Number of events to be analized
     if(strcmp(argv[i],"-pl_fr") == 0) { pl_freq = atoi(argv[++i]);    }                  // Plot Frequency Number 
     if(strcmp(argv[i],"-list") == 0)  { alist = kTRUE;                 }                  // Input File is a list
+    if(strcmp(argv[i],"-data") == 0)  { isdata = kTRUE;               }          // iteration on data/MC
 
     if(strcmp(argv[i],"-help") == 0)  { 
       cout<<" Decoder help:"<<endl;
@@ -68,7 +73,7 @@ int main (int argc, char *argv[]) {
       return 1;
     }
   }
-
+  
   // start time
   start_tot = clock();
 
@@ -99,7 +104,7 @@ int main (int argc, char *argv[]) {
 
   TFile *hF = new TFile(outH.Data(),"RECREATE"); hF->cd();
 
-  RecoTools d(debug,in,alist,out,wdir,nTotEv, hF);
+  RecoTools d(debug,in,alist,out,wdir,nTotEv, hF, evstart, isdata);
 
   d.RecoLoop(pl_freq);
 

@@ -5,34 +5,19 @@
   \version $Id: TABMdatRaw.hxx,v 1.0 2011/04/01 18:11:59 asarti Exp $
   \brief   Declaration of TABMdatRaw.
 */
-/*------------------------------------------+---------------------------------*/
-
-#include <vector>
-using namespace std;
 
 #include "TAGdata.hxx"
+#include "TABMrawHit.hxx"
 
-class TABMrawHit {
-  public:
-    TABMrawHit();
-    virtual         ~TABMrawHit();
+#include <vector>
+#include <string.h>
+#include <fstream>
+#include <bitset>
+#include <algorithm>
 
-    void            SetData(Int_t view, Int_t lay, Int_t cell, double time);
-    Int_t           Cell() const;
-    Int_t           Plane() const;
-    Int_t           View() const;
-    Double_t        Time() const;
+#include "TString.h"
 
-    ClassDef(TABMrawHit,1)
-
-  private:
-    Int_t iview;    
-    Int_t ilayer;    
-    Int_t icell;
-    Double_t tdctime;
-};
-
-//##############################################################################
+using namespace std; 
 
 class TABMdatRaw : public TAGdata {
   public:
@@ -40,7 +25,7 @@ class TABMdatRaw : public TAGdata {
                     TABMdatRaw();
     virtual         ~TABMdatRaw();
 
-    void            SetHitData(Int_t view, Int_t lay, Int_t cell, double time);
+    void            SetHitData(Int_t lay, Int_t view, Int_t cell, Double_t time);
     void            SetCounter(Int_t i_ntdc, Int_t i_ndrop);
 
     Int_t           NHit() const;
@@ -56,9 +41,9 @@ class TABMdatRaw : public TAGdata {
     ClassDef(TABMdatRaw,1)
 
   private:
-    Int_t           fiNTdc;		    // 
-    Int_t           fiNDrop;		    // 
-    vector<TABMrawHit> fHitList;		    // 
+    Int_t           fiNTdc;		      //number of accepted tdc values
+    Int_t           fiNDrop;		    //number of discharged tdc values
+    vector<TABMrawHit> fHitList;		//list of TABMrawHit ATTENZIONE!! NON È UN TCLONESARRAY COME GLI ALTRI!!!
 };
 
 #include "TABMdatRaw.icc"

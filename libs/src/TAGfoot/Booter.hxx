@@ -39,7 +39,7 @@ class Booter {
   Booter() {};
   ~Booter() {};
 
-  void Initialize( EVENT_STRUCT* evStr );
+  void Initialize( EVENT_STRUCT* evStr, Bool_t isdata_in );
   void Process( Long64_t jentry );
   void Finalize();
 
@@ -58,18 +58,22 @@ class Booter {
   void FillMCCalorimeter(EVENT_STRUCT *myStr);
   void FillMCTofWall(EVENT_STRUCT *myStr);
 
+  //Actions for Tupling DATA info for the various subdetectors
+  //~ void FillDataBeamMonitor();
+
   //Monitors/Displays
   // void DisplayIRMonitor(TAGpadGroup* pg, EVENT_STRUCT *myStr);
   // void DisplayBeamMonitor(TAGpadGroup* pg);
 
-  void initBMGeo(TAGparaDsc* p_bmgeo); //Beam Monitor Geometry
-  void initBMCon(TAGparaDsc* beamcon);
+  void initBMGeo(); //Beam Monitor Geometry
+  void initBMCon();
+  void initBMMap();
 
   void bookHisto(TFile *f);
   void CalibBMVT();
   void MonitorBMVTMat();
   void MonitorBMNew(Long64_t jentry);
-  void MonitorBM();
+  //~ void MonitorBM();
   void AssociateHitsToParticle();
 
   TAGgeoTrafo* fGeoTrafo;
@@ -89,7 +93,7 @@ class Booter {
   TFile* m_of;
   TFile* m_hf;
   TString m_oustr;
-  TString m_instr;
+  TString m_instr;//input file name
   TString m_wd;
 
   //MC block
@@ -100,6 +104,12 @@ class Booter {
 
   //Parameters
   TAGparaDsc* myp_bmgeo;
+  TAGparaDsc* myp_bmcon;
+  TAGparaDsc* myp_bmmap;
+    
+  // shared_ptr<TAVTparGeo> m_vtgeo;
+  // shared_ptr<TAITparGeo> m_itgeo;
+  // shared_ptr<TAMSDparGeo> m_msdgeo;
 
   TAGparaDsc* myp_vtmap;
   TAGparaDsc* myp_vtcal;
@@ -120,8 +130,8 @@ class Booter {
  
   TAGdataDsc* myn_irraw;
 
-  TAGparaDsc* myp_bmcon;
   TAGdataDsc* myn_bmraw;
+  TAGdataDsc* myn_bmdatraw;
   TAGdataDsc* myn_bmtrk;
 
   TAGparaDsc* myp_dccon;
@@ -162,6 +172,8 @@ class Booter {
 
   TAGaction* mya_msdraw;
   TAGaction* mya_mceve;
+
+  Bool_t isdata;
 
 };
 

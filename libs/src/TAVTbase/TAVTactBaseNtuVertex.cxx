@@ -11,6 +11,7 @@
 #include "TAGgeoTrafo.hxx"
 //BM
 #include "TABMntuTrack.hxx"
+#include "TABMntuTrackTr.hxx"
 
 // VTX
 #include "TAVTparGeo.hxx"

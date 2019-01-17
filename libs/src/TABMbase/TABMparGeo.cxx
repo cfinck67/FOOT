@@ -24,8 +24,10 @@
 
 
 //#include "Geometry.h" 
+#include "foot_geo.h"
 #include "TAGgeoTrafo.hxx" 
 #include "TABMparGeo.hxx"
+#include "GlobalPar.hxx"
 
 using namespace std;
 
@@ -41,41 +43,7 @@ ClassImp(TABMparGeo);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 TABMparGeo::TABMparGeo() {
-
-  NWIRELAYERNEW  = 21;
-  NLAYERNEW = 6;
-  NSENSENEW = 3;
-  
-  bm_step = 0.5;
-  bm_cellwide = 0.8;
-  bm_dplane = 0.3;
- 
-  /* parametri geometrici per la nuova camera a drift di monitor del beam */
-  BMHEIGHTNEW = 11.2;
-  BMWIDTHNEW  = 11.2;
-  BMLENGHTNEW = 21.0;
- 
-  /*  cordinates of the Beam Monitor center */
-  XMONNEW = 0.0; 
-  YMONNEW = 0.0; 
-  ZMONNEW = -14.; // 51 cm + half leght away from origin //modificato da yun per mettere a mano posizione per ora... poi da fare in modo che legga da file esterno FOOT_geo.map!!!!!!
- 
-  /* Euler angles that defines the BEAM monitor orientation ( degrees)*/
-  EULER1MONNEW  =  0.;
-  EULER2MONNEW  =  0.;
-  EULER3MONNEW  =  0.;
- 
-  /*  shift dei fili rispetto ai lati della camera (-0.8 in x,y if you change senseid)*/
-  DELTAZNEW  =  2.85; 
-  DELTAYNEW  =  2.80;
-  DELTAXNEW  =  2.80;
-
-  TVector3 cen, del, sid, ang, dir; 
-  cen.SetXYZ(XMONNEW,YMONNEW,ZMONNEW);  SetCenter(cen);
-  del.SetXYZ(DELTAXNEW,DELTAYNEW,DELTAZNEW);  SetDelta(del);
-  sid.SetXYZ(BMWIDTHNEW,BMHEIGHTNEW,BMLENGHTNEW); SetSide(sid);
-  ang.SetXYZ(EULER1MONNEW,EULER2MONNEW,EULER3MONNEW); SetAngles(ang);
-
+   
   m_debug = GlobalPar::GetPar()->Debug();
 
 }
@@ -84,14 +52,15 @@ TABMparGeo::TABMparGeo() {
 //! Destructor.
 
 TABMparGeo::~TABMparGeo()
-{}
+{
+delete m_rotation;  
+}
 
 void TABMparGeo::GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_x, Double_t& h_y, Double_t& h_z, Double_t& h_cx, Double_t& h_cy, Double_t& h_cz) {
   
   /* Set Chamber center positioning */
   int my_ID = GetID(cellID);
-  int myview = 0; //U view is default (side view)
-  if(view == -1) myview = 1; //V view (top view)
+  int myview = (view==-1) ? 1:0 ; 
 
   h_x = x_pos[my_ID][plane][myview];
   h_y = y_pos[my_ID][plane][myview];
@@ -104,86 +73,102 @@ void TABMparGeo::GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_
   return;
 }
 
-void TABMparGeo::SetCenter(TVector3 h_vec) {
+Bool_t TABMparGeo::GetBMNlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_t& icell){
+  if(cellid>35 || cellid<0){
+    cout<<"ERROR in TABMparGeo::GetBMNcell, cellid is wrong: cellid="<<cellid<<endl;
+    return kFALSE;
+  }
+  icell=cellid%3;
+  iview=(((Int_t)(cellid/3))%2==0) ? 1:-1; 
+  ilay=(Int_t)(cellid/6);
+  return kTRUE;
+}
 
-  /* Set Chamber center positioning */
-  bm_CenterDch = h_vec;   
-
+void  TABMparGeo::SetA0Wvers(Int_t cellid, TVector3 &A0, TVector3 &Wvers){
+  if(cellid>35 || cellid<0){
+    cout<<"ERROR!!!!!!!!! in TABMparGeo::GetBMNcell, cellid is wrong: cellid="<<cellid<<endl;
+    return;
+  }
+  Int_t icell, iview, ilay;
+  GetBMNlvc(cellid, ilay, iview, icell);
+  iview=(iview==-1)?1:0;
+  A0.SetXYZ(x_pos[bm_idsense[icell]][ilay][iview],  
+            y_pos[bm_idsense[icell]][ilay][iview],
+            z_pos[bm_idsense[icell]][ilay][iview]);
+  Wvers.SetXYZ(cx_pos[bm_idsense[icell]][ilay][iview],  
+               cy_pos[bm_idsense[icell]][ilay][iview],
+               cz_pos[bm_idsense[icell]][ilay][iview]);
+  Wvers.SetMag(1.);
   return;
 }
 
-TVector3 TABMparGeo::GetCenter() {
-  return bm_CenterDch;
+TVector3 TABMparGeo::ProjectFromPversR0(TVector3 Pvers, TVector3 R0, Double_t z){
+  TVector3 projected(Pvers.X()/Pvers.Z()*z+R0.X() ,Pvers.Y()/Pvers.Z()*z+R0.Y(), z);
+  return projected;  
 }
 
-void TABMparGeo::SetDirection(TVector3 dir) {
-
-  bm_Direction = dir;
-  return;
+TVector3 TABMparGeo::ProjectFromPversR0(Double_t PversXZ, Double_t PversYZ, Double_t R0X, Double_t R0Y, Double_t z){
+  TVector3 projected(PversXZ*z+R0X ,PversYZ*z+R0Y, z);
+  return projected;  
 }
 
-TVector3 TABMparGeo::GetDirection() {
+void TABMparGeo::InitGeo() {
+  if ( GlobalPar::GetPar()->Debug() > 0 )     
+    cout << "\n\nTABMparGeo::InitGeo" << endl<< endl;
 
-  return bm_Direction;
-}
+  m_origin=TVector3(0., 0., 0.);
+  m_center = TVector3( BMN_X, BMN_Y, BMN_Z );
+  //WARNING!!!!! other detector use YEulerAngles!!! 
+  //WARNING!!!!! rotations aren't implemented in FLUKA geometry yet
+  //~ m_rotation->SetXEulerAngles(BMN_XPHI,BMN_XTHETA,BMN_XPSI);//XEulerAngles to adopt the Goldstein convention
+  TRotation x_rot, y_rot, z_rot, tot_rot;
+  x_rot.RotateX(-BMN_XANG*DEG2RAD);
+  y_rot.RotateY(-BMN_YANG*DEG2RAD);
+  z_rot.RotateZ(-BMN_ZANG*DEG2RAD);
+  
+  tot_rot=z_rot*(y_rot*x_rot);
+  m_rotation = new TRotation();
+  m_rotation->Transform(tot_rot); 
+  
+  //provv
+  //~ TVector3 xasse(1.,0.,0.), yasse(0.,1.,0.), zasse(0.,0.,1.);
+  //~ xasse.Print();
+  //~ yasse.Print();
+  //~ zasse.Print();
+  //~ cout<<"mrot  IsIdentity()="<<m_rotation->IsIdentity()<<endl;
+  //~ cout<<"totrot  IsIdentity()="<<tot_rot.IsIdentity()<<endl;
+  //~ cout<<"xrot  IsIdentity()="<<x_rot.IsIdentity()<<endl;
+  //~ cout<<"yrot  IsIdentity()="<<y_rot.IsIdentity()<<endl;
+  //~ cout<<"zrot  IsIdentity()="<<z_rot.IsIdentity()<<endl;
+  //~ cout<<"PROVO A RUOTSÌARE "<<endl;
+  //~ xasse.Transform(*m_rotation);
+  //~ yasse.Transform(*m_rotation);
+  //~ zasse.Transform(*m_rotation);
+  //~ xasse.Print();
+  //~ yasse.Print();
+  //~ zasse.Print();
+  
+  bm_mylar1=TVector3(0.,0.,-(BMN_LENGTH+BMN_MYL_THICK)/2.);
+  bm_mylar2=TVector3(0.,0.,(BMN_LENGTH+BMN_MYL_THICK)/2.);
+  bm_target=TVector3(TG_X,TG_Y,-BMN_Z+TG_Z+TG_THICK/2.);
+  bm_DeltaDch=TVector3(BMN_DELTAX,BMN_DELTAY,BMN_DELTAZ);
+  bm_SideDch=TVector3(BMN_WIDTH,BMN_HEIGHT,BMN_LENGTH);
+  bm_idsense[0]=8;
+  bm_idsense[1]=10;
+  bm_idsense[2]=12;
 
-void TABMparGeo::SetAngles(TVector3 h_vec) {
 
-  /* Set Chamber center positioning */
-  bm_AnglesDch = h_vec;   
-  return;
-}
-
-TVector3 TABMparGeo::GetAngles() {
-
-  /* Get Chamber center positioning */
-  return bm_AnglesDch;
-}
-
-void TABMparGeo::SetSide(TVector3 h_vec) {
-
-  /* Set Chamber center positioning */
-  bm_SideDch = h_vec;   
-
-  return;
-}
-
-TVector3 TABMparGeo::GetSide() {
-
-  return bm_SideDch;
-}
-
-void TABMparGeo::SetDelta(TVector3 h_vec) {
-
-  /* Set Chamber center positioning */
-  bm_DeltaDch = h_vec;   
-
-  return;
-}
-
-TVector3 TABMparGeo::GetDelta() {
-
-  /* Get Chamber center positioning */
-  return bm_DeltaDch;
-}
-
-void TABMparGeo::InitGeo(){
-
-  double aa[NWIRELAYERNEW], bb[NWIRELAYERNEW];
-  int iCell[2], iField[2];
+  double aa[BMN_NWIRELAY], bb[BMN_NWIRELAY];
    
-  bm_idsense[0]= 8;
-  bm_idsense[1]= 10;
-  bm_idsense[2]= 12;
 
   for(int nn=0;nn<7;nn++) {
-    bb[nn] = nn*bm_cellwide;
-    bb[nn+7] = nn*bm_cellwide;
-    bb[nn+14] = nn*bm_cellwide;
+    bb[nn] = nn*BMN_PASSO;
+    bb[nn+7] = nn*BMN_PASSO;
+    bb[nn+14] = nn*BMN_PASSO;
 
     aa[nn] = 0. ;
-    aa[nn+7] = bm_step;
-    aa[nn+14] = 2*bm_step;
+    aa[nn+7] = BMN_STEP;
+    aa[nn+14] = 2*BMN_STEP;
   }
 
   /* 
@@ -196,73 +181,91 @@ void TABMparGeo::InitGeo(){
      3) raggio
   */
 
-  for(int il=0; il<NLAYERNEW;il++){
-    for (int kk =0; kk<NWIRELAYERNEW;kk++){       
-
+  for(int il=0; il<BMN_NLAY;il++){
+    for (int kk =0; kk<BMN_NWIRELAY;kk++){       
       /*  U wires -> along x, SIDE view */
       x_pos[kk][il][0] = - bm_SideDch[0]/2;
-      z_pos[kk][il][0] = - bm_SideDch[2]/2 + bm_DeltaDch[2] +
-	aa[kk] + (2*il)*(2*bm_step + bm_dplane) ;
-
+      z_pos[kk][il][0] = - bm_SideDch[2]/2 + bm_DeltaDch[2] +	aa[kk] + (2*il)*(2*BMN_STEP + BMN_LAYDIST);
       if( (il==0) || (il==2) || (il==4) ){
-	iCell[0]++;
-	//       if( (il==1) || (il==3) || (il==5) ){ 
-	y_pos[kk][il][0] = - bm_SideDch[1]/2 + bm_DeltaDch[1] +
-	  bb[kk] + bm_cellwide ;
-	//	 if(kk == 8 || kk == 10 || kk == 12)cout<<" Y,Z::" <<kk<<" "<<il<<" "<<y_pos[kk][il][0]<< " "<<z_pos[kk][il][0]<<endl;
+        y_pos[kk][il][0] = - bm_SideDch[1]/2 + bm_DeltaDch[1] + bb[kk] + BMN_PASSO;
       }
       else{
-	iField[0]++;
-	y_pos[kk][il][0] = - bm_SideDch[1]/2 + bm_DeltaDch[1] +
-	  bb[kk];
-	//	 if(kk == 8 || kk == 10 || kk == 12)cout<<" Y,Z::" <<kk<<" "<<il<<" "<<y_pos[kk][il][0]<< " "<<z_pos[kk][il][0]<<endl;
+        y_pos[kk][il][0] = - bm_SideDch[1]/2 + bm_DeltaDch[1] + bb[kk];
       }
       cx_pos[kk][il][0] = bm_SideDch[0];
       cy_pos[kk][il][0] = 0.;
       cz_pos[kk][il][0] = 0.;
-       
+
       /* V wires -> along y, TOP view*/
       y_pos[kk][il][1] = - bm_SideDch[1]/2;
-      z_pos[kk][il][1] = - bm_SideDch[2]/2 + bm_DeltaDch[2] + aa[kk] + (2*il+1)*(2*bm_step + bm_dplane) ;
-
+      z_pos[kk][il][1] = - bm_SideDch[2]/2 + bm_DeltaDch[2] + aa[kk] + (2*il+1)*(2*BMN_STEP + BMN_LAYDIST);
       if( (il==0) || (il==2) || (il==4) ){
-	iCell[1]++;
-	//       if( (il==1) || (il==3) || (il==5) ){
-	x_pos[kk][il][1] = - bm_SideDch[0]/2 + bm_DeltaDch[0] + bb[kk]  ;
-
-	//	 if(kk == 8 || kk == 10 || kk == 12)cout<<" X,Z::" <<kk<<" "<<il<<" "<<x_pos[kk][il][1]<< " "<<z_pos[kk][il][1]<<endl;
+        x_pos[kk][il][1] = - bm_SideDch[0]/2 + bm_DeltaDch[0] + bb[kk];
       }
       else{
-	iField[1]++;
-	x_pos[kk][il][1] = - bm_SideDch[0]/2 + bm_DeltaDch[0] + bb[kk] + bm_cellwide ;
-	//	 if(kk == 8 || kk == 10 || kk == 12)cout<<" X,Z::" <<kk<<" "<<il<<" "<<x_pos[kk][il][1]<< " "<<z_pos[kk][il][1]<<endl;
+        x_pos[kk][il][1] = - bm_SideDch[0]/2 + bm_DeltaDch[0] + bb[kk] + BMN_PASSO;
       }
-
       cx_pos[kk][il][1] = 0.;
       cy_pos[kk][il][1] = bm_SideDch[1];
       cz_pos[kk][il][1] = 0.;
 
     }
   }
-
-  m_nCell[0] = iCell[0];
-  m_nCell[1] = iCell[1];
-  m_nFieldW[0] = iCell[0];
-  m_nFieldW[1] = iCell[1];
   
-  //to create LocalBM.root file for genfit tracking:
-  // CreateLocalBMGeo();
+  //Create root geometry:
+  //create the universe volume
+  if (GlobalPar::GetPar()->geoROOT()) {
+      m_universe = gGeoManager->MakeBox("BMNuniverse",gGeoManager->GetMedium(BMN_GAS_MEDIUM),(BMN_WIDTH+BMN_SHI_THICK)/2.,(BMN_HEIGHT+BMN_SHI_THICK)/2.,BMN_SHI_LENGTH/2.); //top è scatola che conterrà tutto (dimensioni in cm)
+      gGeoManager->SetTopVisible(1);
+  }
+  if(m_debug) cout<<"Build BM ROOT geometry"<<endl;   
+  //create BM's wire volume
+  TGeoVolume *c_x_wire = gGeoManager->MakeTubs("c_x_wire", gGeoManager->GetMedium(BMN_FWIRE_MEDIUM), 0, BMN_RFIELD,BMN_HEIGHT/2.,0.,0.); //cathod along x 
+  c_x_wire->SetLineColor(kYellow);
+  TGeoVolume *a_x_wire = gGeoManager->MakeTubs("a_x_wire", gGeoManager->GetMedium(BMN_SWIRE_MEDIUM), 0, BMN_RSENSE, BMN_HEIGHT/2.,0.,0.); //anod along x
+  a_x_wire->SetLineColor(kBlue);
+  TGeoVolume *mylar = gGeoManager->MakeBox("mylar",gGeoManager->GetMedium(BMN_MYL_MEDIUM),BMN_WIDTH/2.,BMN_HEIGHT/2., BMN_MYL_THICK/2.);
+  mylar->SetLineColor(kMagenta);
+  TGeoVolume *shield_x = gGeoManager->MakeBox("shield_x",gGeoManager->GetMedium(BMN_SHI_MEDIUM),BMN_WIDTH/2.,BMN_SHI_THICK/2., BMN_SHI_LENGTH/2.);
+  shield_x->SetLineColor(kGray);
+  TGeoVolume *shield_y = gGeoManager->MakeBox("shield_y",gGeoManager->GetMedium(BMN_SHI_MEDIUM),BMN_SHI_THICK/2.,BMN_HEIGHT/2.+BMN_SHI_THICK, BMN_SHI_LENGTH/2.);//shield_y is longer than shield_x
+  shield_y->SetLineColor(kGray);
+
+
+  Int_t c=0;    
+  if (GlobalPar::GetPar()->geoROOT()) {  
+    for(Int_t il=0; il<BMN_NLAY;il++){
+      for (Int_t kk =0; kk<BMN_NWIRELAY;kk++){   
+        if(kk==bm_idsense[0] || kk==bm_idsense[1] || kk==bm_idsense[2]){//sense wire
+          m_universe->AddNode(a_x_wire, c++ ,new TGeoCombiTrans(0.,y_pos[kk][il][0],z_pos[kk][il][0], new TGeoRotation("yrot",90.,90.,0.)));  
+          m_universe->AddNode(a_x_wire, c++ ,new TGeoCombiTrans(x_pos[kk][il][1],0.,z_pos[kk][il][1], new TGeoRotation("xrot",0.,90.,0.)));  
+          //~ m_universe->AddNode(a_y_wire, c++ ,new TGeoCombiTrans(x_pos[kk][il][1],0.,z_pos[kk][il][1], new TGeoRotation("a_y_wire,",0.,90.,0.)));  
+        }else{//cathod wires
+          m_universe->AddNode(c_x_wire, c++ ,new TGeoCombiTrans(0.,y_pos[kk][il][0],z_pos[kk][il][0], new TGeoRotation("yrot",90.,90.,0.)));
+          m_universe->AddNode(c_x_wire, c++ ,new TGeoCombiTrans(x_pos[kk][il][1],0.,z_pos[kk][il][1], new TGeoRotation("xrot",0.,90.,0.)));
+          //~ m_universe->AddNode(c_y_wire, c++ ,new TGeoCombiTrans(x_pos[kk][il][1],0.,z_pos[kk][il][1], new TGeoRotation("c_y_wire,",0.,90.,0.)));  
+        }
+      }
+    }
+  }
+  m_universe->AddNode(mylar, c++, new TGeoCombiTrans(0.,0.,-BMN_LENGTH/2.+ BMN_MYL_THICK/2., new TGeoRotation("null",0.,0.,0.)));
+  m_universe->AddNode(mylar, c++, new TGeoCombiTrans(0.,0.,+BMN_LENGTH/2.- BMN_MYL_THICK/2., new TGeoRotation("null",0.,0.,0.)));
+  m_universe->AddNode(shield_x, c++, new TGeoCombiTrans(0.,(BMN_HEIGHT+BMN_SHI_THICK)/2.,0., new TGeoRotation("null",0.,0.,0.)));
+  m_universe->AddNode(shield_x, c++, new TGeoCombiTrans(0.,-(BMN_HEIGHT+BMN_SHI_THICK)/2.,0., new TGeoRotation("null",0.,0.,0.)));
+  m_universe->AddNode(shield_y, c++, new TGeoCombiTrans((BMN_WIDTH+BMN_SHI_THICK)/2.,0.,0., new TGeoRotation("null",0.,0.,0.)));
+  m_universe->AddNode(shield_y, c++, new TGeoCombiTrans(-(BMN_WIDTH+BMN_SHI_THICK)/2.,0.,0., new TGeoRotation("null",0.,0.,0.)));
 
   return;
 }
 
-
-int TABMparGeo::ShiftBmon(){
+Int_t TABMparGeo::ShiftBmonLG(Bool_t global2local){
 
   TVector3 cen = GetCenter();
+  if(global2local)
+    cen=-cen;
 
-  for(int il=0; il<NLAYERNEW;il++){
-    for (int kk =0; kk<NWIRELAYERNEW;kk++){
+  for(Int_t il=0; il<BMN_NLAY;il++){
+    for (Int_t kk =0; kk<BMN_NWIRELAY;kk++){
 
       x_pos[kk][il][0]  += cen.X();
       y_pos[kk][il][0]  += cen.Y();
@@ -277,17 +280,114 @@ int TABMparGeo::ShiftBmon(){
 }
 
 
-/*-----------------------------------------------------------------*/
-int TABMparGeo::RotateBmon(){
+void TABMparGeo::ShiftBmon(TVector3 shift){
 
+  for (Int_t kk =0; kk<BMN_NWIRELAY;kk++){
+    for(Int_t il=0; il<BMN_NLAY;il++){
+      for (Int_t vie =0; vie<2;vie++){
+      x_pos[kk][il][vie]  += shift.X();
+      y_pos[kk][il][vie]  += shift.Y();
+      z_pos[kk][il][vie]  += shift.Z();
+      }
+    }
+  }
+  return;
+}
+
+
+void TABMparGeo::CoutWirePosDir(){
+  cout<<"TABMparGeo::CoutWirePosDir: now I'll print the wire positions:"<<endl;
+  cout<<"U view: wire along X:"<<endl;
+  for(Int_t k=0;k<BMN_NLAY;k++){
+    for(Int_t i=0;i<BMN_NWIRELAY;i++){
+      cout<<"i="<<i<<" k="<<k<<" x="<<x_pos[i][k][0]<<" y="<<y_pos[i][k][0]<<"  z="<<z_pos[i][k][0]<<endl;
+    }  
+  }
+  cout<<endl<<"V view: wire along Y:"<<endl;
+  for(Int_t i=0;i<BMN_NWIRELAY;i++){
+    for(Int_t k=0;k<BMN_NLAY;k++){
+      cout<<"i="<<i<<" k="<<k<<" x="<<x_pos[i][k][1]<<" y="<<y_pos[i][k][1]<<"  z="<<z_pos[i][k][1]<<endl;
+    }  
+  }
+  
+return;
+}
+
+//-------------------------------------------------------------
+void TABMparGeo::SetRotation(Double_t xrot, Double_t yrot, Double_t zrot){
+  TRotation x_rot, y_rot, z_rot, tot_rot;
+  x_rot.RotateX(BMN_XANG*DEG2RAD);
+  y_rot.RotateX(BMN_YANG*DEG2RAD);
+  z_rot.RotateX(BMN_ZANG*DEG2RAD);
+  tot_rot=z_rot*(y_rot*x_rot);
+  m_rotation->Transform(tot_rot);  
+  return;
+}
+
+
+//-----------------------------------------------------------------
+//rotation with extrinsic euler convention zxz (fixed axys)
+//same as adopted in FLUKA using three rot-defi cards
+//WARNING: THIS METHOD DO NOT USE TROTATION m_rotation...
+void TABMparGeo::RotateNewBmon(Double_t xang, Double_t yang, Double_t zang, Bool_t reverse){//input in deg
+  TVector3 PosWireIn,DirWireIn;
+  xang*=DEG2RAD;
+  yang*=DEG2RAD;
+  zang*=DEG2RAD;
+  
+  for (int iw =0; iw<BMN_NWIRELAY;iw++){       
+    for(int il=0; il<BMN_NLAY;il++){
+      for(int iv=0; iv<2;iv++){
+        PosWireIn.SetX(x_pos[iw][il][iv]);
+        PosWireIn.SetY(y_pos[iw][il][iv]);
+        PosWireIn.SetZ(z_pos[iw][il][iv]);
+        DirWireIn.SetX(cx_pos[iw][il][iv]);
+        DirWireIn.SetY(cy_pos[iw][il][iv]);
+        DirWireIn.SetZ(cz_pos[iw][il][iv]);
+    
+        //~ PosWireIn.Transform(*m_rotation);
+        //~ DirWireIn.Transform(*m_rotation);
+        if(reverse==false){
+          PosWireIn.RotateX(xang);
+          PosWireIn.RotateY(yang);
+          PosWireIn.RotateZ(zang);
+          
+          DirWireIn.RotateX(xang);
+          DirWireIn.RotateY(yang);
+          DirWireIn.RotateZ(zang);
+        }else{
+          PosWireIn.RotateZ(-zang);
+          PosWireIn.RotateY(-yang);
+          PosWireIn.RotateX(-xang);
+          
+          DirWireIn.RotateZ(-zang);
+          DirWireIn.RotateY(-yang);
+          DirWireIn.RotateX(-xang);
+        }
+        
+  
+        x_pos[iw][il][iv] = PosWireIn.X();
+        y_pos[iw][il][iv] = PosWireIn.Y();
+        z_pos[iw][il][iv] = PosWireIn.Z();
+        cx_pos[iw][il][iv] = DirWireIn.X();
+        cy_pos[iw][il][iv] = DirWireIn.Y();
+        cz_pos[iw][il][iv] = DirWireIn.Z();
+      }
+    }
+  }
+  return;
+}
+
+//rotation of the BM wires x_pos... cx_pos
+//rotation with euler angul xzx convention with INTRINSIC angles (the axys change the direction at each rotation)
+Int_t TABMparGeo::RotateBmon(){
   /*
-    Rotate the chamber by means of the Euler angles (in degrees) 
-    WE FOLLOW THE GOLDSTEIN CONVENTION for the Euler angles
-  */
+  //  Rotate the chamber by means of the Euler angles (in degrees) 
+  //  WE FOLLOW THE GOLDSTEIN CONVENTION for the Euler angles
+  
 
-  const int nrows = 3, ncols = 3;
-  const double epsilon = 1.0e-14;
-  const int DBG = 0;
+  const Int_t nrows = 3, ncols = 3;
+  const Double_t epsilon = 1.0e-14;
 
   TVectorD PosWireIn,PosWireOut,DirWireIn,DirWireOut;
   TMatrixD EulerRot(nrows,ncols);
@@ -295,43 +395,41 @@ int TABMparGeo::RotateBmon(){
   PosWireOut.ResizeTo(nrows); PosWireOut.Zero();
   DirWireIn.ResizeTo(nrows); DirWireIn.Zero();
   DirWireOut.ResizeTo(nrows); DirWireOut.Zero();
+
+  // definizione della matrice di rotazione tramite angoli di Eulero 
+  //  http://mathworld.wolfram.com/EulerAngles.html, first case
+
+  EulerRot[0][0] = cos(BMN_XPHI)*cos(BMN_XPSI) - sin(BMN_XPHI)*cos(BMN_XTHETA)*sin(BMN_XPSI);
+  EulerRot[0][1] = sin(BMN_XPHI)*cos(BMN_XPSI) + cos(BMN_XPHI)*cos(BMN_XTHETA)*sin(BMN_XPSI);
+  EulerRot[0][2] = sin(BMN_XTHETA)*sin(BMN_XPSI) ;
   
-  double phi = GetAngles().X()*acos(-1)/180;
-  double theta = GetAngles().Y()*acos(-1)/180;
-  double psi = GetAngles().Z()*acos(-1)/180;
+  EulerRot[1][0] = -cos(BMN_XPHI)*sin(BMN_XPSI) - sin(BMN_XPHI)*cos(BMN_XTHETA)*cos(BMN_XPSI);
+  EulerRot[1][1] = -sin(BMN_XPHI)*sin(BMN_XPSI) + cos(BMN_XPHI)*cos(BMN_XTHETA)*cos(BMN_XPSI);
+  EulerRot[1][2] = sin(BMN_XTHETA)*cos(BMN_XPSI) ;
 
-  /* definizione della matrice di rotazione tramite angoli di Eulero */
+  EulerRot[2][0] = sin(BMN_XPHI)*sin(BMN_XTHETA);
+  EulerRot[2][1] = -cos(BMN_XPHI)*sin(BMN_XTHETA);
+  EulerRot[2][2] = cos(BMN_XTHETA);
 
-  EulerRot[0][0] = cos(phi)*cos(psi) - sin(phi)*cos(theta)*sin(psi);
-  EulerRot[0][1] = sin(phi)*cos(psi) + cos(phi)*cos(theta)*sin(psi);
-  EulerRot[0][2] = sin(theta)*sin(psi) ;
-  EulerRot[1][0] = -cos(phi)*sin(psi) - sin(phi)*cos(theta)*cos(psi);
-  EulerRot[1][1] = -sin(phi)*sin(psi) + cos(phi)*cos(theta)*cos(psi);
-  EulerRot[1][2] = sin(theta)*cos(psi) ;
+  //  clean up very tiny matrix elements due to roundings 
 
-  EulerRot[2][0] = sin(phi)*sin(theta);
-  EulerRot[2][1] = -cos(phi)*sin(theta);
-  EulerRot[2][2] = cos(theta);
-
-  /*  clean up very tiny matrix elements due to roundings */
-
-  for (int nc =0; nc<ncols;nc++){       
-    for(int nr=0; nr<nrows;nr++){
+  for(Int_t nc =0; nc<ncols;nc++){       
+    for(Int_t nr=0; nr<nrows;nr++){
       if(fabs(EulerRot(nr,nc)) < epsilon) EulerRot(nr,nc) = 0 ;
     }
   }
   
-  if(DBG>0) {
-    cout<<" Beam Monitor Rotation: phi = "<<phi<<"  theta= "<<
-      theta<<"  psi= "<<psi<<endl<<endl;
+  if(GlobalPar::GetPar()->Debug() > 0) {
+    cout<<" Beam Monitor Rotation: BMN_XPHI = "<<BMN_XPHI<<"  BMN_XTHETA= "<<
+      BMN_XTHETA<<"  BMN_XPSI= "<<BMN_XPSI<<endl<<endl;
     cout<<"  Rotation Matrix= "<<endl<<endl;
     cout<<"  "<<EulerRot(0,0)<<"  "<<EulerRot(0,1)<<"  "<<EulerRot(0,2)<<endl;
     cout<<"  "<<EulerRot(1,0)<<"  "<<EulerRot(1,1)<<"  "<<EulerRot(1,2)<<endl;
     cout<<"  "<<EulerRot(2,0)<<"  "<<EulerRot(2,1)<<"  "<<EulerRot(2,2)<<endl;
   }
-  /*   rotate the U, SIDE view */
-  for(int il=0; il<NLAYERNEW;il++){
-    for (int iw =0; iw<NWIRELAYERNEW;iw++){       
+  //   rotate the U, SIDE view 
+  for(Int_t il=0; il<BMN_NLAY;il++){
+    for (Int_t iw =0; iw<BMN_NWIRELAY;iw++){       
       
       PosWireIn(0) = x_pos[iw][il][0];
       PosWireIn(1) = y_pos[iw][il][0];
@@ -352,9 +450,9 @@ int TABMparGeo::RotateBmon(){
     }
   }
 
-  /*   rotate the V, TOP view */
-  for(int il=0; il<NLAYERNEW;il++){
-    for (int iw =0; iw<NWIRELAYERNEW;iw++){       
+  //   rotate the V, TOP view 
+  for(Int_t il=0; il<BMN_NLAY;il++){
+    for (Int_t iw =0; iw<BMN_NWIRELAY;iw++){       
       
       PosWireIn(0) = x_pos[iw][il][1];
       PosWireIn(1) = y_pos[iw][il][1];
@@ -375,9 +473,11 @@ int TABMparGeo::RotateBmon(){
 
     }
   }
-
+*/
   return 0;
 }
+
+
 
 
 //------------------------------------------+-----------------------------------
@@ -412,6 +512,7 @@ void TABMparGeo::ToStream(ostream& os, Option_t*) const
 
 //_____________________________________________________________________________
 
+//not used anymore
 void TABMparGeo::CreateLocalBMGeo() 
 {
    
@@ -444,40 +545,40 @@ void TABMparGeo::CreateLocalBMGeo()
   //create gas boxe
   //~ TGeoVolume *top = bm_geo->MakeBox("top",vacuum_med,1000,1000,1000); //top è scatola che conterrà tutto (dimensioni in cm)
   TGeoVolume *top = gGeoManager->MakeBox("top",vacuum_med,1000,1000,1000); //top è scatola che conterrà tutto (dimensioni in cm)
-  //~ TGeoVolume* top = gGeoManager->MakeBox("top", gas_med, BMHEIGHTNEW/2., BMWIDTHNEW/2., BMLENGHTNEW/2.); //scatola di gas poi si dovrà mettere le rotazioni e le traslazioni, per ora centrato nell'origine.
+  //~ TGeoVolume* top = gGeoManager->MakeBox("top", gas_med, BMN_HEIGHT/2., BMN_WIDTH/2., BMN_LENGTH/2.); //scatola di gas poi si dovrà mettere le rotazioni e le traslazioni, per ora centrato nell'origine.
 
   //qua provo a togliere box di area_gas e mettere solo top al suo posto...
   //~ bm_geo->SetTopVolume(top); //setta il mio mondo a top
   //~ bm_geo->SetTopVisible(0);  //per vedere confini del mondo metterci 1 invece che 0   
   gGeoManager->SetTopVolume(top);
   gGeoManager->SetTopVisible(0);
-  //~ TGeoVolume* area_gas = bm_geo->MakeBox("gas_vol", gas_med, BMHEIGHTNEW/2., BMWIDTHNEW/2., BMLENGHTNEW/2.); //scatola di gas poi si dovrà mettere le rotazioni e le traslazioni, per ora centrato nell'origine.
-  TGeoVolume* area_gas = gGeoManager->MakeBox("gas_vol", gas_med, BMHEIGHTNEW/2., BMWIDTHNEW/2., BMLENGHTNEW/2.); //scatola di gas poi si dovrà mettere le rotazioni e le traslazioni, per ora centrato nell'origine.
+  //~ TGeoVolume* area_gas = bm_geo->MakeBox("gas_vol", gas_med, BMN_HEIGHT/2., BMN_WIDTH/2., BMN_LENGTH/2.); //scatola di gas poi si dovrà mettere le rotazioni e le traslazioni, per ora centrato nell'origine.
+  TGeoVolume* area_gas = gGeoManager->MakeBox("gas_vol", gas_med, BMN_HEIGHT/2., BMN_WIDTH/2., BMN_LENGTH/2.); //scatola di gas poi si dovrà mettere le rotazioni e le traslazioni, per ora centrato nell'origine.
   //area_gas->SetLineColor(8);
    
    
    
   //create wires  
-  //TGeoVolume* x_cell = bm_geo->MakeBox("x_cell", gas_med, BMHEIGHTNEW/2., bm_cellwide, bm_step); //cella di gas forse ne faccio a meno
-  //~ TGeoVolume* x_cell = gGeoManager->MakeBox("x_cell", gas_med, BMHEIGHTNEW/2., bm_cellwide, bm_step); //cella di gas forse ne faccio a meno
-  //TGeoVolume *c_x_wire = bm_geo->MakeTubs("c_x_wire", c_wire_med, 0, 0.0045, BMHEIGHTNEW/2.,0.,0.); //filo catodo lungo z 
-  TGeoVolume *c_x_wire = gGeoManager->MakeTubs("c_x_wire", c_wire_med, 0, 0.0045, BMHEIGHTNEW/2.,0.,0.); //filo catodo lungo z 
+  //TGeoVolume* x_cell = bm_geo->MakeBox("x_cell", gas_med, BMN_HEIGHT/2., BMN_PASSO, BMN_STEP); //cella di gas forse ne faccio a meno
+  //~ TGeoVolume* x_cell = gGeoManager->MakeBox("x_cell", gas_med, BMN_HEIGHT/2., BMN_PASSO, BMN_STEP); //cella di gas forse ne faccio a meno
+  //TGeoVolume *c_x_wire = bm_geo->MakeTubs("c_x_wire", c_wire_med, 0, 0.0045, BMN_HEIGHT/2.,0.,0.); //filo catodo lungo z 
+  TGeoVolume *c_x_wire = gGeoManager->MakeTubs("c_x_wire", c_wire_med, 0, 0.0045, BMN_HEIGHT/2.,0.,0.); //filo catodo lungo z 
   c_x_wire->SetLineColor(kBlue);
-  TGeoVolume *c_y_wire = gGeoManager->MakeTubs("c_y_wire", c_wire_med, 0, 0.0045, BMHEIGHTNEW/2.,0.,0.); 
-  //TGeoVolume *c_y_wire = bm_geo->MakeTubs("c_y_wire", c_wire_med, 0, 0.0045, BMHEIGHTNEW/2.,0.,0.); 
+  TGeoVolume *c_y_wire = gGeoManager->MakeTubs("c_y_wire", c_wire_med, 0, 0.0045, BMN_HEIGHT/2.,0.,0.); 
+  //TGeoVolume *c_y_wire = bm_geo->MakeTubs("c_y_wire", c_wire_med, 0, 0.0045, BMN_HEIGHT/2.,0.,0.); 
   c_y_wire->SetLineColor(kRed);
-  TGeoVolume *a_x_wire = gGeoManager->MakeTubs("a_x_wire", a_wire_med, 0, 0.0015, BMHEIGHTNEW/2.,0.,0.); //BISOGNERÀ POI SETTARE MEGLIO IL TUTTO
-  //TGeoVolume *a_x_wire = bm_geo->MakeTubs("a_x_wire", a_wire_med, 0, 0.0015, BMHEIGHTNEW/2.,0.,0.); //BISOGNERÀ POI SETTARE MEGLIO IL TUTTO
+  TGeoVolume *a_x_wire = gGeoManager->MakeTubs("a_x_wire", a_wire_med, 0, 0.0015, BMN_HEIGHT/2.,0.,0.); //BISOGNERÀ POI SETTARE MEGLIO IL TUTTO
+  //TGeoVolume *a_x_wire = bm_geo->MakeTubs("a_x_wire", a_wire_med, 0, 0.0015, BMN_HEIGHT/2.,0.,0.); //BISOGNERÀ POI SETTARE MEGLIO IL TUTTO
   a_x_wire->SetLineColor(kYellow);
-  TGeoVolume *a_y_wire = gGeoManager->MakeTubs("a_y_wire", a_wire_med, 0, 0.0015, BMHEIGHTNEW/2.,0.,0.);  
-  //TGeoVolume *a_y_wire = bm_geo->MakeTubs("a_y_wire", a_wire_med, 0, 0.0015, BMHEIGHTNEW/2.,0.,0.);  
+  TGeoVolume *a_y_wire = gGeoManager->MakeTubs("a_y_wire", a_wire_med, 0, 0.0015, BMN_HEIGHT/2.,0.,0.);  
+  //TGeoVolume *a_y_wire = bm_geo->MakeTubs("a_y_wire", a_wire_med, 0, 0.0015, BMN_HEIGHT/2.,0.,0.);  
   a_y_wire->SetLineColor(kGreen);   
 
   //set wires
   Int_t c=0;
 
-  for(Int_t il=0; il<NLAYERNEW;il++){
-    for (Int_t kk =0; kk<NWIRELAYERNEW;kk++){   
+  for(Int_t il=0; il<BMN_NLAY;il++){
+    for (Int_t kk =0; kk<BMN_NWIRELAY;kk++){   
       //fili || a x:
       if(kk==bm_idsense[0] || kk==bm_idsense[1] || kk==bm_idsense[2]){//se è filo di sense
 	area_gas->AddNode(a_x_wire, c++ , new TGeoCombiTrans(0.,y_pos[kk][il][0],z_pos[kk][il][0], new TGeoRotation("a_x_wire,",90.,90.,0.)));    
@@ -499,7 +600,7 @@ void TABMparGeo::CreateLocalBMGeo()
   top->AddNode(area_gas,c, gGeoIdentity);
   //   bm_geo->CloseGeometry();
   gGeoManager->CloseGeometry();
-  TFile *outfile = TFile::Open("LocalBM_pro.root","RECREATE");
+  TFile *outfile = TFile::Open("LocalBM.root","RECREATE");
   //   bm_geo->Write();
 
   gGeoManager->Write();
@@ -525,8 +626,7 @@ TGeoVolume* TABMparGeo::AddBM(const char *bmName )
   if ( (medBM = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("Vacuum")) == 0x0 )
     medBM = new TGeoMedium("Vacuum", 1, matBM);
    
-  TGeoVolume* tube = gGeoManager->MakeBox(bmName, medBM, TAGgeoTrafo::CmToMu()*GetWidth()/2., TAGgeoTrafo::CmToMu()*GetHeigth()/2., 
-					  TAGgeoTrafo::CmToMu()*GetLength()/2.);
+  TGeoVolume* tube = gGeoManager->MakeBox(bmName, medBM, TAGgeoTrafo::CmToMu()*BMN_WIDTH/2., TAGgeoTrafo::CmToMu()*BMN_HEIGHT/2., TAGgeoTrafo::CmToMu()*BMN_LENGTH/2.);
   tube->SetVisibility(true);
   tube->SetLineColor(17);
   tube->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
@@ -537,8 +637,8 @@ TGeoVolume* TABMparGeo::AddBM(const char *bmName )
 //_____________________________________________________________________________
 TEveGeoShapeExtract* TABMparGeo::AddExtractBM(const char *bmName )
 {
-  TGeoBBox* tube = new TGeoBBox(bmName, TAGgeoTrafo::CmToMu()*GetWidth()/2., TAGgeoTrafo::CmToMu()*GetHeigth()/2., 
-				TAGgeoTrafo::CmToMu()*GetLength()/2.);
+  TGeoBBox* tube = new TGeoBBox(bmName, TAGgeoTrafo::CmToMu()*BMN_WIDTH/2., TAGgeoTrafo::CmToMu()*BMN_HEIGHT/2., 
+				TAGgeoTrafo::CmToMu()*BMN_LENGTH/2.);
   TColor* color = gROOT->GetColor(17);
   Float_t rgba[4];
   color->GetRGB(rgba[0], rgba[1], rgba[2]);
@@ -563,13 +663,14 @@ string TABMparGeo::PrintBodies(){
 
   stringstream outstr;
   outstr << "* ***Beam Monitor" << endl;
-
+  outstr<<"$start_transform BM_rot"<<endl;
+  
   int iSense[2]={-1,-1}, iField[2]={-1,-1};
   // stringstream ss;
   char bodyname[20];
   double xmin, xmax, ymin, ymax, zmin, zmax;
   
-  double shift = 0.00001;
+  double shift = 0.00001;//to avoid overlap of bodies: the wires(RCC) are outside the cells(RPP)
   
   outstr << setiosflags(ios::fixed) << setprecision(6);
 
@@ -598,57 +699,56 @@ string TABMparGeo::PrintBodies(){
   // Cells
   // prima lungo x, poi lungo y
   int cella=0;
-  for (int il=0;il<NLAYERNEW;il++){ // loop on layers
-    for (int ic =0; ic<NWIRELAYERNEW;ic++){  // loop on cells
-      if ( (ic==bm_idsense[0]) ||(ic==bm_idsense[1]) ||
-      	   (ic==bm_idsense[2]) ){
-	for (int iv =0; iv<2;iv++){      // loop on views
-	  if ( iv == 0 ){
-	    xmin = - BMWIDTHNEW/2. + shift;
-	    xmax = + BMWIDTHNEW/2. - shift;
-	    ymin = y_pos[ic][il][iv] - bm_cellwide + BMN_RFIELD + shift;
-	    ymax = y_pos[ic][il][iv] + bm_cellwide - BMN_RFIELD -shift;
-	  }else{
-	    xmin = x_pos[ic][il][iv] - bm_cellwide + BMN_RFIELD + shift;
-	    xmax = x_pos[ic][il][iv] + bm_cellwide - BMN_RFIELD - shift;
-	    ymin = - BMWIDTHNEW/2. + shift;
-	    ymax = + BMWIDTHNEW/2. - shift;
-	  }
-	  zmin = z_pos[ic][il][iv] - bm_step + BMN_RFIELD + shift;
-	  zmax = z_pos[ic][il][iv] + bm_step - BMN_RFIELD -shift;
-	  outstr << "RPP BmnC" << iv << cella << "   "
-		 << xmin << " " << xmax << " " << ymin << " " << ymax
-		 << " " << zmin << " " << zmax << endl;
-	}
-	cella++;
+  for (int il=0;il<BMN_NLAY;il++){ // loop on layers
+    for (int ic =0; ic<BMN_NWIRELAY;ic++){  // loop on cells
+      if ( (ic==bm_idsense[0]) ||(ic==bm_idsense[1]) || (ic==bm_idsense[2]) ){
+        for (int iv =0; iv<2;iv++){      // loop on views
+          if ( iv == 0 ){
+            xmin = - BMN_WIDTH/2. + shift + BMN_X;
+            xmax = + BMN_WIDTH/2. - shift + BMN_X;
+            ymin = y_pos[ic][il][iv] - BMN_PASSO + BMN_RFIELD + shift + BMN_Y;
+            ymax = y_pos[ic][il][iv] + BMN_PASSO - BMN_RFIELD -shift + BMN_Y;
+          }else{
+            xmin = x_pos[ic][il][iv] - BMN_PASSO + BMN_RFIELD + shift + BMN_X;
+            xmax = x_pos[ic][il][iv] + BMN_PASSO - BMN_RFIELD - shift + BMN_X;
+            ymin = - BMN_WIDTH/2. + shift + BMN_Y;
+            ymax = + BMN_WIDTH/2. - shift + BMN_Y;
+          }
+          zmin = z_pos[ic][il][iv] - BMN_STEP + BMN_RFIELD + shift + BMN_Z;
+          zmax = z_pos[ic][il][iv] + BMN_STEP - BMN_RFIELD -shift + BMN_Z;
+          outstr << "RPP BmnC" << iv << cella << "   "
+           << xmin << " " << xmax << " " << ymin << " " << ymax
+           << " " << zmin << " " << zmax << endl;
+        }
+        cella++;
       }
     }
   }
   
   // Wires  
-  for (int il=0;il<NLAYERNEW;il++){
-    for (int iw =0; iw<NWIRELAYERNEW;iw++){ 
+  for (int il=0;il<BMN_NLAY;il++){
+    for (int iw =0; iw<BMN_NWIRELAY;iw++){ 
       for (int iv =0; iv<2;iv++){
-	// int iv=1;
-	if ( (iw==bm_idsense[0]) ||(iw==bm_idsense[1]) ||
-	     (iw==bm_idsense[2]) ){	
-	  iSense[iv]++;	
-	  outstr << "RCC BmnS" << iv << iSense[iv] << "   "
-		 << x_pos[iw][il][iv] << " " << y_pos[iw][il][iv] << " "
-		 << z_pos[iw][il][iv] << " "
-		 << cx_pos[iw][il][iv] << " " << cy_pos[iw][il][iv] << " "
-		 << cz_pos[iw][il][iv] << " " << BMN_RSENSE << endl;
-	} else {
-	  iField[iv]++;     // loop on views    		
-	  outstr << "RCC BmnF" << iv << iField[iv] << "   "
-		 << x_pos[iw][il][iv] << " " << y_pos[iw][il][iv] << " "
-		 << z_pos[iw][il][iv] << " "
-		 << cx_pos[iw][il][iv] << " " << cy_pos[iw][il][iv] << " "
-		 << cz_pos[iw][il][iv] << " " << BMN_RFIELD << endl;
-	}
+        // int iv=1;
+        if ( (iw==bm_idsense[0]) ||(iw==bm_idsense[1]) || (iw==bm_idsense[2]) ){	
+          iSense[iv]++;	
+          outstr << "RCC BmnS" << iv << iSense[iv] << "   "
+           << x_pos[iw][il][iv] + BMN_X << " " << y_pos[iw][il][iv] + BMN_Y << " "
+           << z_pos[iw][il][iv]  + BMN_Z<< " "
+           << cx_pos[iw][il][iv] << " " << cy_pos[iw][il][iv] << " "
+           << cz_pos[iw][il][iv] << " " << BMN_RSENSE << endl;
+        } else {
+          iField[iv]++;     // loop on views    		
+          outstr << "RCC BmnF" << iv << iField[iv] << "   "
+           << x_pos[iw][il][iv]  + BMN_X << " " << y_pos[iw][il][iv] + BMN_Y << " "
+           << z_pos[iw][il][iv] + BMN_Z << " "
+           << cx_pos[iw][il][iv] << " " << cy_pos[iw][il][iv] << " "
+           << cz_pos[iw][il][iv] << " " << BMN_RFIELD << endl;
+        }
       }
     }
   }
+  outstr<<"$end_transform"<<endl;
   
   return outstr.str();
 }
@@ -671,8 +771,8 @@ string TABMparGeo::PrintRegions(){
   outstr << "BMN_MYL1     5 BmnShiIn -BmnMyl2 +BmnMyl3" << endl;
 
   for (int iv =0; iv<2;iv++){      // loop on views
-    for (int il=0;il<NLAYERNEW;il++){ // loop on layers
-      for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
+    for (int il=0;il<BMN_NLAY;il++){ // loop on layers
+      for (int ic =0; ic<BMN_NSENSELAY;ic++){  // loop on cells
   iCell[iv]++;
   outstr << "BMN_C" << iv << setw(2) << setfill('0') << iCell[iv]
      << "     5 BmnC" << iv << iCell[iv]
@@ -684,11 +784,11 @@ string TABMparGeo::PrintRegions(){
   outstr << "BMN_FWI      5";
   int count=0;
   for (int iv = 0; iv<2; iv++){
-    for (int il=0;il<NLAYERNEW;il++){ // loop on layers
-      for (int jj = 0; jj < (NWIRELAYERNEW-NSENSENEW); jj++) {
+    for (int il=0;il<BMN_NLAY;il++){ // loop on layers
+      for (int jj = 0; jj < (BMN_NWIRELAY-BMN_NSENSELAY); jj++) {
 	if ((( count  % 4 ) == 0) && count>0 )
 	  outstr << "\n              ";
-	outstr << " | " << "BmnShiIn + BmnF" << iv  << (NWIRELAYERNEW-NSENSENEW)*il+jj;
+	outstr << " | " << "BmnShiIn + BmnF" << iv  << (BMN_NWIRELAY-BMN_NSENSELAY)*il+jj;
 	count++;
       }
     }
@@ -698,11 +798,11 @@ string TABMparGeo::PrintRegions(){
   outstr << "BMN_SWI      5";
   count =0;
   for (int iv =0; iv<2;iv++){      // loop on views
-    for (int il=0;il<NLAYERNEW;il++){ // loop on layers
-      for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
+    for (int il=0;il<BMN_NLAY;il++){ // loop on layers
+      for (int ic =0; ic<BMN_NSENSELAY;ic++){  // loop on cells
   if ((( count  % 4 ) == 0) && count>0 )
     outstr << "\n              ";
-  outstr << " | " << "BmnC" << iv << NSENSENEW*il+ic << " + BmnS" << iv  << NSENSENEW*il+ic;
+  outstr << " | " << "BmnC" << iv << BMN_NSENSELAY*il+ic << " + BmnS" << iv  << BMN_NSENSELAY*il+ic;
   count++;
       }
     }
@@ -712,17 +812,17 @@ string TABMparGeo::PrintRegions(){
   outstr << "BMN_GAS      5 BmnShiIn -BmnMyl1 +BmnMyl2";
   count =0;
   for (int iv =0; iv<2;iv++){      // loop on views
-    for (int il=0;il<NLAYERNEW;il++){ // loop on layers
-      for (int ic =0; ic<(NWIRELAYERNEW-NSENSENEW);ic++){  // loop on field wires
+    for (int il=0;il<BMN_NLAY;il++){ // loop on layers
+      for (int ic =0; ic<(BMN_NWIRELAY-BMN_NSENSELAY);ic++){  // loop on field wires
   if ((( count  % 6 ) == 0) )
     outstr << "\n              ";
-  outstr << " -BmnF" << iv << (NWIRELAYERNEW-NSENSENEW)*il+ic;
+  outstr << " -BmnF" << iv << (BMN_NWIRELAY-BMN_NSENSELAY)*il+ic;
   count++;
       }
-      for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
+      for (int ic =0; ic<BMN_NSENSELAY;ic++){  // loop on cells
   if ((( count  % 6 ) == 0) )
     outstr << "\n              ";
-  outstr << " -BmnC" << iv << NSENSENEW*il+ic;
+  outstr << " -BmnC" << iv << BMN_NSENSELAY*il+ic;
   count++;
       }
     }
@@ -838,8 +938,8 @@ string TABMparGeo::PrintParameters() {
   outstr << endl;    
   
   map<string, int> intp;
-  intp["nlayBMN"] = NLAYERNEW;
-  intp["ncellBMN"] = NSENSENEW;
+  intp["nlayBMN"] = BMN_NLAY;
+  intp["ncellBMN"] = BMN_NSENSELAY;
   for (auto i : intp){
     outstr << "      integer " << i.first << endl;
     outstr << "      parameter (" << i.first << " = " << i.second << ")" << endl;
@@ -851,6 +951,13 @@ string TABMparGeo::PrintParameters() {
 }
 
 
+TGeoVolume* TABMparGeo::GetVolume() {
+
+    if ( !GlobalPar::GetPar()->geoROOT() ) 
+        cout << "ERROR << TABMparGeo::GetVolume()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
+
+    return m_universe;
+}
 
 
 

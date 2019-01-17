@@ -1,1 +1,7 @@
-
+//questo dovrebbe essere un commento
+BM_output__raw_cell*  -1. 10.
+BM_output__raw_occupancy*  0. 36
+BM_output__rawsel_residual*  -0.1 0.1
+BM_output__MC_track_mylar1Res_dist*  0. 0.5
+BM_output__MC_track_mylar2Res_dist*  0. 0.5
+BM_output__MC_track_angle_res*  0. 3
