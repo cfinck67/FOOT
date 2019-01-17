@@ -88,8 +88,8 @@ void RecoTools::RecoLoop(int fr) {
     booter->Initialize( &evStr );
 
     
-    MultiTrackCheck* multiTrackCheck = new MultiTrackCheck();
-    multiTrackCheck->Initialize( &evStr );
+    // MultiTrackCheck* multiTrackCheck = new MultiTrackCheck();
+    // multiTrackCheck->Initialize( &evStr );
     
     // gTAGroot->AddRequiredItem("itRaw");
     // gTAGroot->AddRequiredItem("myn_mceve");
@@ -121,7 +121,7 @@ void RecoTools::RecoLoop(int fr) {
 
 
 	booter->Process( jentry );
-	multiTrackCheck->Process( jentry );
+	// multiTrackCheck->Process( jentry );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -143,7 +143,7 @@ void RecoTools::RecoLoop(int fr) {
     cout << "End of the event loop " << endl;
 
     booter->Finalize();
-    multiTrackCheck->Finalize();
+    // multiTrackCheck->Finalize();
 
     gTAGroot->EndEventLoop();
     
