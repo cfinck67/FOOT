@@ -54,6 +54,15 @@ TABMactDatRaw::~TABMactDatRaw()
   //~ datastream.close();    
 }
 
+//~ Bool_t TABMactDatRaw::openFile(TABMparCon* p_parcon) {
+
+//~ datastream.open(p_parcon->GetBMdataFileName(), ios::in | ios::binary);
+//~ if(datastream.is_open())
+//~ return kTRUE;
+//~ return kFALSE;
+//~ }
+
+
 //------------------------------------------+-----------------------------------
 //! Action.
 Bool_t TABMactDatRaw::Action() {
