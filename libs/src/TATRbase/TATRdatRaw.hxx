@@ -54,6 +54,10 @@ public:
 
   void           SetVulomTime(int tim);
    
+  Int_t          GetMcIndex(Int_t index)   const   { return fMCindex[index];      }
+  Int_t          GetMcTrackI(Int_t index)  const   { return fMcTrackId[index];    }
+  Int_t          GetMcTrackCount()         const   { return fMcTrackId.GetSize(); }
+   
   void           Clear(Option_t* option = "C");
   void           AddMcTrackId(Int_t trackId, Int_t mcId = -1);
 
