@@ -48,7 +48,7 @@ Bool_t TABMactNtuMC::Action()
 { 
    TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
    TABMntuRaw* p_nturaw  = (TABMntuRaw*) fpNtuMC->Object();
-   TABMparCon* p_parcon  = (TABMparCon*) fpParCon->Object();
+   TABMparCon* p_bmcon  = (TABMparCon*) fpParCon->Object();
    TABMparGeo* p_bmgeo   = (TABMparGeo*) fpParGeo->Object();
   
   //parameters:
@@ -63,11 +63,11 @@ Bool_t TABMactNtuMC::Action()
   TVector3 loc, gmom, mom, A0, Wvers, glo;;
   if (!p_nturaw->h) p_nturaw->SetupClones();//se non c'è l'array di h, lo crea
    
-   if (fDebugLevel)
+   if (fDebugLevel > 0)
       Info("Action()","Processing n :: %2d hits \n",fpEvtStr->BMNn);
    
-   if(p_parcon->GetCalibro()!=0){
-      if(p_parcon->GetCalibro()==1) {
+   if(p_bmcon->GetCalibro()!=0){
+      if(p_bmcon->GetCalibro()==1) {
          p_bmgeo->SetWireAlignment();
       }
    }
@@ -114,8 +114,8 @@ Bool_t TABMactNtuMC::Action()
       }
     }
     
-   if(p_parcon->GetCalibro()!=0){
-      if(p_parcon->GetCalibro()==1) {
+   if(p_bmcon->GetCalibro()!=0){
+      if(p_bmcon->GetCalibro()==1) {
          p_bmgeo->SetWireAlignment(false);
       }
    }
@@ -149,7 +149,7 @@ Bool_t TABMactNtuMC::Action()
     else if((nrealhits-nprunehits) > hitsrandtot)
       nprunehits = nrealhits-hitsrandtot;
      
-    remainhitsn = nrealhits-nprunehits;
+    remainhitsn=nrealhits-nprunehits;
      
     while(nprunehits>0){
       tmp_int=gRandom->Uniform(0,nrealhits);
@@ -225,8 +225,11 @@ Bool_t TABMactNtuMC::Action()
 
 
 
-void TABMactNtuMC::CreateFakeHits(Int_t nfake, Int_t &nhits){
-  
+void TABMactNtuMC::CreateFakeHits(Int_t nfake, Int_t &nhits)
+{
+  TABMparCon* p_bmcon = (TABMparCon*) fpParCon->Object();
+  TABMparGeo* p_bmgeo = (TABMparGeo*) fpParGeo->Object();
+
   Int_t plane, view, cell;
   for(Int_t i=0;i<nfake;i++){
      

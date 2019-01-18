@@ -46,10 +46,7 @@ class TABMactNtuMC : public TAGaction {
     //ntu objects
     TABMntuRaw*   p_nturaw;
     TABMntuHit*   p_hit;
-    //par objects
-    TABMparCon* p_bmcon;
-    TABMparGeo* p_bmgeo;    
-    
+    //par objects    
 };
 
 #endif
