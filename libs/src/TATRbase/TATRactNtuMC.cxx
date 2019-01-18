@@ -4,7 +4,11 @@
   \brief   Implementation of TATRactNtuMC.
 */
 
+#include "TAGroot.hxx"
 #include "TATRdatRaw.hxx"
+#include "TAGgeoTrafo.hxx"
+#include "TATRdigitizer.hxx"
+
 #include "TATRactNtuMC.hxx"
 
 /*!
@@ -24,45 +28,63 @@ TATRactNtuMC::TATRactNtuMC(const char* name,
     fpNtuMC(p_datraw),
     fpEvtStr(evStr)
 {
-  Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
-  AddDataOut(p_datraw, "TATRdatRaw");
+   if (fDebugLevel)
+      Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
+   AddDataOut(p_datraw, "TATRdatRaw");   
+}
+
+//------------------------------------------+-----------------------------------
+//! Create digitizer
+void TATRactNtuMC::CreateDigitizer()
+{
+   TATRdatRaw* p_nturaw = (TATRdatRaw*) fpNtuMC->Object();
+   
+   fDigitizer = new TATRdigitizer(p_nturaw);
 }
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
 TATRactNtuMC::~TATRactNtuMC()
-{}
+{
+   delete fDigitizer;
+}
 
 //------------------------------------------+-----------------------------------
 //! Action.
 
 Bool_t TATRactNtuMC::Action()
 {
-
+  TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
   TATRdatRaw* p_nturaw = (TATRdatRaw*) fpNtuMC->Object();
-  Int_t nhits(0);
-  if (!p_nturaw->h) p_nturaw->SetupClones();
 
   //The number of hits inside the Start Counter is stn
-  Info("Action()","Processing n SC :: %2d hits \n",fpEvtStr->stn);
-  for (Int_t i = 0; i < fpEvtStr->stn; i++) {
-    TATRrawHit *mytmp = new((*(p_nturaw->h))[i]) 
-      TATRrawHit(0,1,fpEvtStr->stSigAmp,fpEvtStr->stSigTime);
-    nhits++;
+   if (fDebugLevel)
+      Info("Action()","Processing n Onion :: %2d hits \n",fpEvtStr->STCn);
+   
+  for (Int_t i = 0; i < fpEvtStr->STCn; i++) {
+     Int_t id      = fpEvtStr->STCid[i];
+     Int_t trackId = fpEvtStr->STCid[i] - 1;
+     Float_t x0    = fpEvtStr->STCxin[i];
+     Float_t y0    = fpEvtStr->STCyin[i];
+     Float_t z0    = fpEvtStr->STCzin[i];
+     Float_t z1    = fpEvtStr->STCzout[i];
+     Float_t edep  = fpEvtStr->STCde[i]*TAGgeoTrafo::GevToMev();
+     Float_t time  = fpEvtStr->STCtim[i]*TAGgeoTrafo::SecToNs();
+     
+     
+     TVector3 posIn(x0, y0, z0);
+     TVector3 posInLoc = geoTrafo->FromGlobalToSTLocal(posIn);
+     
+     // don't use z for the moment
+     fDigitizer->Process(edep, posInLoc[0], posInLoc[1], z0, z1, time, id);
+     TATRrawHit* hit = fDigitizer->GetCurrentHit();
+     hit->AddMcTrackId(trackId, i);
   }
   
-  //The number of hits inside the Start Counter is stn
-  Info("Action()","Processing n Onion :: %2d hits \n",fpEvtStr->onSigN);
-  for (Int_t i = 0; i < fpEvtStr->onSigN; i++) {
-    TATRrawHit *mytmp = new((*(p_nturaw->h))[i]) 
-      TATRrawHit(1,fpEvtStr->onSigReg[i],fpEvtStr->onSigAmp[i],fpEvtStr->onSigTim[i]);
-    nhits++;
-  }
-  
-  p_nturaw->nhit  = nhits;
 
   fpNtuMC->SetBit(kValid);
+   
   return kTRUE;
 }
 

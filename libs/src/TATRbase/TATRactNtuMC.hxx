@@ -7,17 +7,18 @@
 */
 /*------------------------------------------+---------------------------------*/
 
-#include "Evento.h"
-#include "gsi_geo.h"
+#include "Evento.hxx"
 
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 
+class TATRdigitizer;
 class TATRactNtuMC : public TAGaction {
   public:
-    explicit        TATRactNtuMC(const char* name=0,
-				 TAGdataDsc* p_datraw=0, 
-				 EVENT_STRUCT* evStr=0);
+    explicit        TATRactNtuMC(const char* name     = 0,
+                                 TAGdataDsc* p_datraw = 0,
+                                 EVENT_STRUCT* evStr  = 0);
+   
     virtual         ~TATRactNtuMC();
 
     virtual Bool_t  Action();
@@ -27,6 +28,12 @@ class TATRactNtuMC : public TAGaction {
   private:
     TAGdataDsc*     fpNtuMC;		    // output data dsc
     EVENT_STRUCT*   fpEvtStr;
+    TATRdigitizer*  fDigitizer;       // cluster size digitizer
+
+  private:
+    void            CreateDigitizer();
+   
+
 };
 
 #endif
