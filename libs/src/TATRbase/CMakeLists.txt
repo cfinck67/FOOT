@@ -19,10 +19,12 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 #
 set( with_dictionnaries
 #   TATRactDatRaw
-#   TATRactNtuMC
+   TATRactNtuMC
    TATRdatRaw
    TATRparGeo
-   TATRparMap)
+   TATRparMap
+   TATRdigitizer
+)
 
 set( without_dictionnaries
 )

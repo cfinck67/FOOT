@@ -11,7 +11,7 @@
 #pragma link C++ class  TATRrawHit+;
 #pragma link C++ class  TATRparGeo+;
 #pragma link C++ class  TATRparMap+;
-
+#pragma link C++ class  TATRdigitizer+;
 
 
 #endif
