@@ -30,7 +30,9 @@ TATRactNtuMC::TATRactNtuMC(const char* name,
 {
    if (fDebugLevel)
       Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
-   AddDataOut(p_datraw, "TATRntuRaw");   
+   AddDataOut(p_datraw, "TATRntuRaw");
+   
+   CreateDigitizer();
 }
 
 //------------------------------------------+-----------------------------------
@@ -59,8 +61,8 @@ Bool_t TATRactNtuMC::Action()
   TATRntuRaw* p_nturaw = (TATRntuRaw*) fpNtuMC->Object();
 
   //The number of hits inside the Start Counter is stn
-   if (fDebugLevel)
-      Info("Action()","Processing n Onion :: %2d hits \n",fpEvtStr->STCn);
+   if (fDebugLevel > 0)
+      Info("Action()","Processing n Onion :: %2d hits", fpEvtStr->STCn);
    
   for (Int_t i = 0; i < fpEvtStr->STCn; i++) {
      Int_t id      = fpEvtStr->STCid[i];
