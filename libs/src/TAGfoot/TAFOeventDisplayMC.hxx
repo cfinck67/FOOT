@@ -13,6 +13,7 @@
 #include "TTree.h"
 
 #include "TAGdataDsc.hxx"
+#include "TATRactNtuMC.hxx"
 #include "TABMactNtuMC.hxx"
 #include "TAVTactNtuMC.hxx"
 #include "TAITactNtuMC.hxx"
@@ -22,6 +23,8 @@
 
 #include "TAMCntuHit.hxx"
 #include "TAMCntuEve.hxx"
+#include "TAMCactNtuStc.hxx"
+#include "TAMCactNtuBm.hxx"
 #include "TAMCactNtuVtx.hxx"
 #include "TAMCactNtuItr.hxx"
 #include "TAMCactNtuMsd.hxx"
@@ -70,6 +73,7 @@ public:
    void ConnectElements();
 
    //! Update MC info
+   void UpdateStInfo(Int_t idx);
    void UpdateVtInfo(Int_t idx);
    void UpdateItInfo(Int_t idx);
    void UpdateMsInfo(Int_t idx);
@@ -79,6 +83,7 @@ public:
 private:
    EVENT_STRUCT*         fEvtStruct;
    
+   TATRactNtuMC*         fActNtuRawSt;  // action for ntu data
    TABMactNtuMC*         fActNtuRawBm;  // action for ntu data
    TAVTactNtuMC*         fActNtuRawVtx;  // action for ntu data
    TAITactNtuMC*         fActNtuRawIt;  // action for ntu data
@@ -87,6 +92,8 @@ private:
    TACAactNtuMC*         fActNtuRawCa;  // action for ntu data
    
    TAGdataDsc*           fpNtuMcEve;    // input data dsc
+   TAGdataDsc*           fpNtuMcSt;    // input data dsc
+   TAGdataDsc*           fpNtuMcBm;    // input data dsc
    TAGdataDsc*           fpNtuMcVt;    // input data dsc
    TAGdataDsc*           fpNtuMcIt;    // input data dsc
    TAGdataDsc*           fpNtuMcMsd;    // input data dsc
@@ -94,6 +101,8 @@ private:
    TAGdataDsc*           fpNtuMcCa;    // input data dsc
 
    TAMCactNtuEve*        fActNtuMcEve;
+   TAMCactNtuStc*        fActNtuMcSt;
+   TAMCactNtuBm*         fActNtuMcBm;
    TAMCactNtuVtx*        fActNtuMcVt;
    TAMCactNtuItr*        fActNtuMcIt;
    TAMCactNtuMsd*        fActNtuMcMsd;
@@ -104,6 +113,7 @@ private:
    TFile*                fActEvtFile; // file for MC
 
    //Display
+   TAGpointDisplay*      fStMcDisplay;
    TAGpointDisplay*      fVtMcDisplay;
    TAGpointDisplay*      fItMcDisplay;
    TAGpointDisplay*      fMsdMcDisplay;
@@ -114,6 +124,7 @@ private:
    void  UpdateMcElements(const TString prefix);
    void  UpdateMcInfo(TString prefix, Int_t idx);
    
+   void AddRequiredMcItemSt();
    void AddRequiredMcItemVt();
    void AddRequiredMcItemIt();
    void AddRequiredMcItemMs();

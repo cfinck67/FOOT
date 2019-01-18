@@ -15,6 +15,7 @@
 #include "TAGgeoTrafo.hxx"
 #include "TAGparGeo.hxx"
 
+#include "TATRntuRaw.hxx"
 #include "TABMntuRaw.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
@@ -67,12 +68,14 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fpParGeoVtx(0x0),
    fpParConfIt(0x0),
    fpParConfVtx(0x0),
+   fpDatRawSt(0x0),
+   fpDatRawBm(0x0),
+   fpNtuRawBm(0x0),
    fpDatRawVtx(0x0),
    fpNtuRawVtx(0x0),
    fpNtuClusVtx(0x0),
    fpNtuTrackVtx(0x0),
    fpNtuVtx(0x0),
-   fpDatRawIt(0x0),
    fpNtuRawIt(0x0),
    fpNtuClusIt(0x0),
    fpDatRawMsd(0x0),
@@ -90,6 +93,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fActNtuRawMsd(0x0),
    fActClusMsd(0x0),
    fType(type),
+   fStClusDisplay(new TAGclusterDisplay("Start counter hit")),
    fBmClusDisplay(new TAGwireDisplay("BM Wires")),
    fVtxClusDisplay(new TAGclusterDisplay("Vertex Cluster")),
    fVtxTrackDisplay(new TAGtrackDisplay("Vertex Tracks")),
@@ -103,6 +107,11 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    // default constructon
    fBmClusDisplay->SetPickable(true);
    
+   fStClusDisplay->SetMaxEnergy(fMaxEnergy);
+   fStClusDisplay->SetDefWidth(fQuadDefWidth/2.);
+   fStClusDisplay->SetDefHeight(fQuadDefHeight/2.);
+   fStClusDisplay->SetPickable(true);
+
    fVtxClusDisplay->SetMaxEnergy(fMaxEnergy);
    fVtxClusDisplay->SetDefWidth(fQuadDefWidth/2.);
    fVtxClusDisplay->SetDefHeight(fQuadDefHeight/2.);
@@ -149,6 +158,8 @@ TAFOeventDisplay::~TAFOeventDisplay()
    if (fpParGeoCa)  delete fpParGeoCa;
    if (fpParGeoG)   delete fpParGeoG;
    if (fpParGeoDi)  delete fpParGeoDi;
+   
+   delete fStClusDisplay;
    
    delete fVtxClusDisplay;
    delete fVtxTrackDisplay;
@@ -522,6 +533,9 @@ void TAFOeventDisplay::ResetHistogram()
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItem()
 {
+   if (GlobalPar::GetPar()->IncludeST())
+      AddRequiredItemSt();
+   
    if (GlobalPar::GetPar()->IncludeBM())
       AddRequiredItemBm();
 
@@ -542,6 +556,12 @@ void TAFOeventDisplay::AddRequiredItem()
 
    fAGRoot->BeginEventLoop();
    fAGRoot->Print();
+}
+
+//__________________________________________________________
+void TAFOeventDisplay::AddRequiredItemSt()
+{
+   fAGRoot->AddRequiredItem("stActNtu");
 }
 
 //__________________________________________________________
@@ -600,6 +620,9 @@ void TAFOeventDisplay::AddRequiredItemCa()
 //__________________________________________________________
 void TAFOeventDisplay::AddElements()
 {
+   fStClusDisplay->ResetHits();
+   gEve->AddElement(fStClusDisplay);
+
    fVtxClusDisplay->ResetHits();
    gEve->AddElement(fVtxClusDisplay);
 	  
@@ -625,6 +648,9 @@ void TAFOeventDisplay::AddElements()
 //__________________________________________________________
 void TAFOeventDisplay::ConnectElements()
 {
+   fStClusDisplay->SetEmitSignals(true);
+   fStClusDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateHitInfo(TEveDigitSet*, Int_t)");
+
    fVtxClusDisplay->SetEmitSignals(true);
    fVtxClusDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateHitInfo(TEveDigitSet*, Int_t)");
    
@@ -652,15 +678,21 @@ void TAFOeventDisplay::UpdateHitInfo(TEveDigitSet* qs, Int_t idx)
       TVector3 pos = clus->GetPositionG();
       fInfoView->AddLine( Form("Cluster # %3d\n", idx) );
       fInfoView->AddLine( Form("with %3d pixels in sensor %d\n", clus->GetPixelsN(), clus->GetPlaneNumber()) );
-      fInfoView->AddLine( Form("at position: (%.3g %.3g)\n", pos.X(), pos.Y()) );
+      fInfoView->AddLine( Form("at position: (%.3g %.3g) cm\n", pos.X(), pos.Y()) );
+      
    } else if (obj->InheritsFrom("TAVTvertex")) {
       TAVTvertex* vtx = (TAVTvertex*)obj;
       if (vtx == 0x0) return;
       TVector3 pos = vtx->GetVertexPosition();
       fInfoView->AddLine( Form("Vertex# %d at position:\n", idx) );
-      fInfoView->AddLine( Form(" (%.3g %.3gf %.3gf)\n", pos.X(), pos.Y(), pos.Z()) );
+      fInfoView->AddLine( Form(" (%.3g %.3gf %.3gf) cm\n", pos.X(), pos.Y(), pos.Z()) );
       fInfoView->AddLine( Form(" BM Matched %d\n", vtx->IsBmMatched()) );
       
+   } else if (obj->InheritsFrom("TATRntuHit")) {
+      TATRntuHit* hit = (TATRntuHit*)obj;
+      fInfoView->AddLine( Form("Charge: %.3g u.a.\n", hit->GetCharge()) );
+      fInfoView->AddLine( Form("Time: %.3g ps \n", hit->GetTime()) );
+
    } else {
       return;
    }
@@ -690,6 +722,9 @@ void TAFOeventDisplay::UpdateElements()
    if (fgGUIFlag)
       fEventEntry->SetText(Form("Run %d Event %d", fAGRoot->CurrentRunInfo().RunNumber(), fAGRoot->CurrentEventId().EventNumber()));
    
+   if (GlobalPar::GetPar()->IncludeST())
+      UpdateElements("st");
+
    if (GlobalPar::GetPar()->IncludeVertex())
       UpdateElements("vt");
    
@@ -712,9 +747,11 @@ void TAFOeventDisplay::UpdateElements()
 void TAFOeventDisplay::UpdateElements(const TString prefix)
 {
    if (prefix == "tw")
-      UpdateBarElements(prefix);
+      UpdateBarElements();
    else if (prefix == "ca")
-      UpdateCrystalElements(prefix);
+      UpdateCrystalElements();
+   else if (prefix == "st")
+      UpdateStcElements();
    else {
       UpdateQuadElements(prefix);
       if (fgTrackFlag) {
@@ -759,14 +796,14 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
    
    TAVTntuTrack*  pNtuTrack = 0x0;
    
-   if (fgTrackFlag && GlobalPar::GetPar()->IncludeTG()) {
-      // vertex
-      if (fgDrawVertex && prefix == "vt") {
-         pNtuTrack = (TAVTntuTrack*)  fpNtuTrackVtx->Object();
-         TAVTvertex*    vtxPD   = 0x0;//NEW
-         TVector3 vtxPositionPD = pNtuTrack->GetBeamPosition();
-         
-         if (prefix == "vt") {
+   if (prefix == "vt") {
+      if (fgTrackFlag && GlobalPar::GetPar()->IncludeTG()) {
+         // vertex
+         if (fgDrawVertex) {
+            pNtuTrack = (TAVTntuTrack*)  fpNtuTrackVtx->Object();
+            TAVTvertex*    vtxPD   = 0x0;//NEW
+            TVector3 vtxPositionPD = pNtuTrack->GetBeamPosition();
+            
             if (fpNtuVtx->Valid()) {
                TAVTntuVertex* pNtuVtxPD = (TAVTntuVertex*) fpNtuVtx->Object();
                for (Int_t iVtx = 0; iVtx < pNtuVtxPD->GetVertexN(); ++iVtx) {
@@ -906,7 +943,7 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
 }
 
 //__________________________________________________________
-void TAFOeventDisplay::UpdateBarElements(const TString prefix)
+void TAFOeventDisplay::UpdateBarElements()
 {
    if (!fgGUIFlag || (fgGUIFlag && fRefreshButton->IsOn())) {
          fTwClusDisplay->ResetHits();
@@ -964,8 +1001,9 @@ void TAFOeventDisplay::UpdateBarElements(const TString prefix)
    fTwClusDisplay->RefitPlex();
 }
 
+
 //__________________________________________________________
-void TAFOeventDisplay::UpdateCrystalElements(const TString prefix)
+void TAFOeventDisplay::UpdateCrystalElements()
 {
    if (!fgGUIFlag || (fgGUIFlag && fRefreshButton->IsOn())) {
          fCaClusDisplay->ResetHits();
@@ -1010,12 +1048,32 @@ void TAFOeventDisplay::UpdateCrystalElements(const TString prefix)
 }
 
 //__________________________________________________________
-void TAFOeventDisplay::UpdateWireElements(const TString prefix)
+void TAFOeventDisplay::UpdateStcElements()
 {
-   //BM
-   if (prefix != "bm") return;
+   //STC
+   TATRntuRaw* pSTntu = (TATRntuRaw*) fpNtuRawSt->Object();
+   Int_t       nHits  = pSTntu->GetHitsN();
+
+   //hits
+   for (Int_t i = 0; i < nHits; i++) {
+      
+      TATRntuHit* hit = pSTntu->Hit(i);
+      Float_t charge = hit->GetCharge();
    
+      TVector3 posHit(0,0,0); // center
+      
+      TVector3 posHitG = fpFootGeo->FromSTLocalToGlobal(posHit);
+      
+      fMsdClusDisplay->AddHit(charge, posHitG[0], posHitG[1], posHitG[2]);
+      fMsdClusDisplay->QuadId(hit);
+   }
    
+   fStClusDisplay->RefitPlex();
+}
+
+//__________________________________________________________
+void TAFOeventDisplay::UpdateWireElements()
+{
    TABMntuRaw* pBMntu = (TABMntuRaw*) fpNtuRawBm->Object();
    Int_t       nHits  = pBMntu->nhit;
    double bm_h_side;
@@ -1024,25 +1082,24 @@ void TAFOeventDisplay::UpdateWireElements(const TString prefix)
    
    
    //hits
-   for (Int_t i = 0; i < nHits; i++) {
-      TABMntuHit* hit = pBMntu->Hit(i);
-      TVector3 posHit  = hit->Position();
-      TVector3 posHitG = fpFootGeo->FromBMLocalToGlobal(posHit);
-      
-      bm_h_side   = pbmGeo->GetWidth();
-      if(hit->View() < 0) {
-         //X,Z, top view
-         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0), posHitG(1)+bm_h_side, posHitG(2));
-      } else {
-         //Y,Z, side view
-         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0)+bm_h_side, posHitG(1), posHitG(2));
-      }
-      
-   }
+   //   for (Int_t i = 0; i < nHits; i++) {
+   //      TABMntuHit* hit = pBMntu->Hit(i);
+   //      TVector3 posHit  = hit->Position();
+   //      TVector3 posHitG = fpFootGeo->FromBMLocalToGlobal(posHit);
+   //
+   //      bm_h_side   = pbmGeo->GetWidth();
+   //      if(hit->View() < 0) {
+   //         //X,Z, top view
+   //         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0), posHitG(1)+bm_h_side, posHitG(2));
+   //      } else {
+   //         //Y,Z, side view
+   //         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0)+bm_h_side, posHitG(1), posHitG(2));
+   //      }
+   //   }
    
    // tracks
    fBmClusDisplay->RefitPlex();
-   
+
 }
 
 //__________________________________________________________

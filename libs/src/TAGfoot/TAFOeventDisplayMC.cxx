@@ -8,7 +8,7 @@
 
 #include "GlobalPar.hxx"
 #include "TAGgeoTrafo.hxx"
-#include "TATRdatRaw.hxx"
+#include "TATRntuRaw.hxx"
 #include "TABMntuRaw.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
@@ -80,8 +80,8 @@ void TAFOeventDisplayMC::CreateRawAction()
 
    
    if (GlobalPar::GetPar()->IncludeST()) {
-      fpDatRawSt = new TAGdataDsc("stRaw", new TATRdatRaw());
-      fActNtuRawSt = new TATRactNtuMC("stActNtu", fpDatRawSt, fEvtStruct);
+      fpNtuRawSt = new TAGdataDsc("stRaw", new TATRntuRaw());
+      fActNtuRawSt = new TATRactNtuMC("stActNtu", fpNtuRawSt, fEvtStruct);
       fActNtuRawSt->CreateHistogram();
       
       fpNtuMcSt   = new TAGdataDsc("stMc", new TAMCntuHit());
@@ -250,7 +250,7 @@ void TAFOeventDisplayMC::ConnectElements()
    fMsdMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateMsInfo(Int_t)");
    fItMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateItInfo(Int_t)");
    fVtMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateVtInfo(Int_t)");
-   fStMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateTrInfo(Int_t)");
+   fStMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateStInfo(Int_t)");
 }
 
 //__________________________________________________________

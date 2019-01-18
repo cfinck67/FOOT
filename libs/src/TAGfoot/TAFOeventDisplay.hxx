@@ -109,6 +109,7 @@ protected:
    void CreateRecActionIt();
    void CreateRecActionMsd();
 
+   void AddRequiredItemSt();
    void AddRequiredItemBm();
    void AddRequiredItemVtx();
    void AddRequiredItemIt();
@@ -118,9 +119,10 @@ protected:
    
    void ReadParFiles();
 
-   void UpdateWireElements(const TString prefix);
-   void UpdateBarElements(const TString prefix);
-   void UpdateCrystalElements(const TString prefix);
+   void UpdateStcElements();
+   void UpdateWireElements();
+   void UpdateBarElements();
+   void UpdateCrystalElements();
    void UpdateQuadElements(const TString prefix);
    void UpdateTrackElements(const TString prefix);
    void UpdateGlbTrackElements();
@@ -181,6 +183,9 @@ protected:
    TAGparaDsc*           fpParConfVtx;
    TAGparaDsc*           fpParConfMsd;
    
+   TAGdataDsc*           fpDatRawSt;    // input data dsc
+   TAGdataDsc*           fpNtuRawSt;    // input data dsc
+   TAGdataDsc*           fpDatRawBm;    // input data dsc
    TAGdataDsc*           fpNtuRawBm;    // input data dsc
 
    TAGdataDsc*           fpDatRawVtx;    // input data dsc
@@ -217,26 +222,23 @@ protected:
   // TATWactNtuRaw*        fActNtuRawTw;  // action for ntu data
 
    Int_t                 fType;         // type of sensor
+   
    //Display
+   TAGclusterDisplay*    fStClusDisplay;  // list of quad to display hits
+
    TAGclusterDisplay*    fVtxClusDisplay;  // list of quad to display hits
    TAGtrackDisplay*      fVtxTrackDisplay; // list of line to display tracks
    
-   //Display
    TAGclusterDisplay*    fItClusDisplay;  // list of quad to display hits
    
-   //Display
    TAGclusterDisplay*    fMsdClusDisplay;  // list of quad to display hits
    
-   //Display
    TAGclusterDisplay*    fTwClusDisplay;  // list of quad to display hits
    
-   //Display
    TAGclusterDisplay*    fCaClusDisplay;  // list of quad to display hits
    
-   // Display
    TAGwireDisplay*       fBmClusDisplay;  // list of line to display wires
 
-   // Display
    TAGglbTrackDisplay*   fGlbTrackDisplay;  // list of global tracks to display
 
    // Magnet
