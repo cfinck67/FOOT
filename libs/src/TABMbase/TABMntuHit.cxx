@@ -1,3 +1,5 @@
+#include "TRandom3.h"
+
 
 #include "TABMntuHit.hxx"
 
@@ -9,16 +11,16 @@ ClassImp(TABMntuHit);
 //! Destructor.
 
 TABMntuHit::~TABMntuHit()
-{}
+{
+
+}
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
 TABMntuHit::TABMntuHit()
-  : idmon(0),    iview(0),    ilayer(0),    icell(0), ichi2(999),
-    xcamon(0.),    ycamon(0.),    zcamon(0.),
-    pxcamon(0.),   pycamon(0.),   pzcamon(0.),
-    rdrift(0.),    tdrift(0.)
+: idmon(0),    iview(0),    ilayer(0),    icell(0), ichi2(999),
+  rdrift(0.),    tdrift(0.)
 {
   sigma = 0;
   A0.SetXYZ(0,0,0);
@@ -31,12 +33,10 @@ TABMntuHit::TABMntuHit()
   isFake=false;  
 }
 
-TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x, Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t s) {
+TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t r, Double_t t, Double_t s) {
 
   idmon = id;  
   iview = iv;  ilayer = il;   icell = ic;  
-  xcamon = x;  ycamon = y;    zcamon = z;
-  pxcamon = px;   pycamon = py;   pzcamon = pz;
   rdrift = r;   tdrift = t; 
   ichi2 = 999;
   A0.SetXYZ(0,0,0);
@@ -49,6 +49,22 @@ TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x, Doubl
   isFake=false;
   sigma=s;
 }
+
+void TABMntuHit::Clear(Option_t* /*option*/)
+{
+   fMCindex.Set(0);
+   fMcTrackId.Set(0);
+}
+
+void TABMntuHit:: AddMcTrackId(Int_t trackId, Int_t mcId)
+{
+   fMCindex.Set(fMCindex.GetSize()+1);
+   fMCindex[fMCindex.GetSize()-1]   = mcId;
+   
+   fMcTrackId.Set(fMcTrackId.GetSize()+1);
+   fMcTrackId[fMcTrackId.GetSize()-1] = trackId;
+}
+
 
 void TABMntuHit::SetAW(TABMparGeo* f_bmgeo) {
 
@@ -73,36 +89,36 @@ void TABMntuHit::SetAW(TABMparGeo* f_bmgeo) {
   return;
 }
 
-void TABMntuHit::SmearRdrift(Int_t smear_type, TRandom3 *&rand){
-Double_t smeared;
-
-if(smear_type==0)
-  return;
-
-if(smear_type==1){ //gaussian truncated to 1 sigma
-  do{smeared=rand->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>sigma);
-}
-
-if(smear_type==2){ //gaussian truncated to 2 sigma
-  do{smeared=rand->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>2.*sigma);
-}
-
-if(smear_type==3){ //gaussian truncated to 3 sigma
-  do{smeared=rand->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>3.*sigma);
-}
-  
-if(smear_type==4) //gaussian not truncated
-  smeared=rand->Gaus(rdrift,sigma);
-
-
-if(smear_type==5) //flat smearing
-  smeared=rdrift+rand->Uniform(-sigma*sqrt(12.)/2.,sigma*sqrt(12.)/2.);
-
-
-if (smeared<0)
-  smeared=0.;
-rdrift=smeared;
-return;  
+void TABMntuHit::SmearRdrift(Int_t smear_type){
+   Double_t smeared;
+   
+   if(smear_type==0)
+      return;
+   
+   if(smear_type==1){ //gaussian truncated to 1 sigma
+      do{smeared=gRandom->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>sigma);
+   }
+   
+   if(smear_type==2){ //gaussian truncated to 2 sigma
+      do{smeared=gRandom->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>2.*sigma);
+   }
+   
+   if(smear_type==3){ //gaussian truncated to 3 sigma
+      do{smeared=gRandom->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>3.*sigma);
+   }
+   
+   if(smear_type==4) //gaussian not truncated
+      smeared=gRandom->Gaus(rdrift,sigma);
+   
+   
+   if(smear_type==5) //flat smearing
+      smeared=rdrift+gRandom->Uniform(-sigma*sqrt(12.)/2.,sigma*sqrt(12.)/2.);
+   
+   
+   if (smeared<0)
+      smeared=0.;
+   rdrift=smeared;
+   return;  
 } 
 
 

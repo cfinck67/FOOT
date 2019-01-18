@@ -16,33 +16,6 @@ inline Int_t TABMntuHit::Cell() const
 //------------------------------------------+-----------------------------------
 //! Returns X,Y,Z and dist 
 
-inline TVector3 TABMntuHit::Position() const
-{
-  TVector3 pos(xcamon,ycamon,zcamon);
-  return pos;
-}
-
-inline TVector3 TABMntuHit::Momentum() const
-{
-  TVector3 mom(pxcamon,pycamon,pzcamon);
-  return mom;
-}
-
-inline Double_t TABMntuHit::X() const
-{
-  return xcamon;
-}
-
-inline Double_t TABMntuHit::Y() const
-{
-  return ycamon;
-}
-
-inline Double_t TABMntuHit::Z() const
-{
-  return zcamon;
-}
-
 inline Double_t TABMntuHit::Dist() const
 {
   return rdrift;
@@ -52,22 +25,6 @@ inline Double_t TABMntuHit::Tdrift() const
 {
   return tdrift;
 }
-
-//~ inline Double_t TABMntuHit::Timmon() const
-//~ {
-  //~ return timmon;
-//~ }
-
-/* X,Z (V) view */
-//~ inline Bool_t TABMntuHit::HorView() const
-//~ {
-  //~ return (iview==-1);
-//~ }
-//~ /* Y,Z (U) view */
-//~ inline Bool_t TABMntuHit::VertView() const
-//~ {
-  //~ return (iview==1);
-//~ }
 
 //------------------------------------------+-----------------------------------
 //! Returns Plane number [0-5].
