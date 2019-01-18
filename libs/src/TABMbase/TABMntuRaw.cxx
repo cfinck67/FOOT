@@ -48,7 +48,7 @@ void TABMntuRaw::Clear(Option_t*)
 {
   nhit = 0;
   if (h) 
-    h->Clear();
+    h->Clear("C");
   return;
 }
 
