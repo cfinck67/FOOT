@@ -69,7 +69,6 @@ TABMparGeo::TABMparGeo()
    fBmDeltaX(0)
 {
    fgDefaultGeoName = "./geomaps/TABMdetector.map";
-   fDebugLevel = 1;
 }
 
 //------------------------------------------+-----------------------------------
