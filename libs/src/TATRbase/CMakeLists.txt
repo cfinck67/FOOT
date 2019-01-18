@@ -21,6 +21,7 @@ set( with_dictionnaries
 #   TATRactDatRaw
    TATRactNtuMC
    TATRdatRaw
+   TATRNtuRaw
    TATRparGeo
    TATRparMap
    TATRdigitizer
