@@ -36,7 +36,7 @@
 TATRdigitizer::TATRdigitizer(TATRntuRaw* pNtuRaw)
  : TAGbaseDigitizer(),
    fpNtuRaw(pNtuRaw),
-   fGain(10/3.),
+   fGain(5.e-4),
    fResTime(80) // in ps second, to be checked
 {
    SetFunctions();
