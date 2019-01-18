@@ -153,7 +153,7 @@ inline void TATRrawHit::SetScaCount(int ch, int count)
 
 inline TATRrawHit* TATRdatRaw::Hit(Int_t i)
 {
-  return (TATRrawHit*) ((*htr)[i]);;
+  return (TATRrawHit*) ((*fListOfHits)[i]);;
 }
 
 //------------------------------------------+-----------------------------------
@@ -161,6 +161,6 @@ inline TATRrawHit* TATRdatRaw::Hit(Int_t i)
 
 inline const TATRrawHit* TATRdatRaw::Hit(Int_t i) const
 {
-  return (const TATRrawHit*) ((*htr)[i]);;
+  return (const TATRrawHit*) ((*fListOfHits)[i]);;
 }
 

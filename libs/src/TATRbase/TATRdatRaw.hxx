@@ -14,7 +14,7 @@ using namespace std;
 #include "TClonesArray.h"
 
 #include "TAGdata.hxx"
-
+#include "TArrayC.h"
 
 class TATRrawHit : public TObject {
 public:
@@ -53,6 +53,9 @@ public:
   void           SetScaCount(int ch, int count);
 
   void           SetVulomTime(int tim);
+   
+  void           Clear(Option_t* option = "C");
+  void           AddMcTrackId(Int_t trackId, Int_t mcId = -1);
 
 
   ClassDef(TATRrawHit,1)
@@ -70,6 +73,9 @@ public:
   Int_t trg_af_dti[16];
   Int_t trg_af_red[16];
   Int_t sca_cnt[16];
+   
+  TArrayC         fMCindex;                  // Id of the hit created in the simulation
+  TArrayC         fMcTrackId;                // Id of the track created in the simulation
 
 };
 
@@ -81,25 +87,25 @@ class TATRdatRaw : public TAGdata {
                     TATRdatRaw();
     virtual         ~TATRdatRaw();
 
+    Int_t             GetHitsN() const;
+
     TATRrawHit*       Hit(Int_t i_ind);
     const TATRrawHit* Hit(Int_t i_ind) const;
 
-    void            SetTrigTime(double time) { fTrigTime = time; }
-    Double_t        TrigTime()         const { return fTrigTime; }
+   TATRrawHit*        NewHit(int channel, double charge, double time);
 
-    virtual void    Clear(Option_t* opt="");
+    void              SetTrigTime(double time) { fTrigTime = time; }
+    Double_t          TrigTime()         const { return fTrigTime; }
 
-    void SetupClones();
+    virtual void      Clear(Option_t* opt="");
+
+    void              SetupClones();
 
     ClassDef(TATRdatRaw,1)
 
-private:
-   Double32_t       fTrigTime;               //SC trigger time
-
-  public:
-    Int_t           ntrhit;		    // 
-    TClonesArray*   htr;			    // hits
-
+  private:
+    Double32_t        fTrigTime;               //SC trigger tim
+    TClonesArray*     fListOfHits;			    // hits
 };
 
 #include "TATRdatRaw.icc"

@@ -159,6 +159,23 @@ void TATRrawHit::SetData(int sta, int pat, int cnt) {
 
   return;
 }
+
+void TATRrawHit::Clear(Option_t* /*option*/)
+{
+   fMCindex.Set(0);
+   fMcTrackId.Set(0);
+}
+
+void TATRrawHit:: AddMcTrackId(Int_t trackId, Int_t mcId)
+{
+   fMCindex.Set(fMCindex.GetSize()+1);
+   fMCindex[fMCindex.GetSize()-1]   = mcId;
+   
+   fMcTrackId.Set(fMcTrackId.GetSize()+1);
+   fMcTrackId[fMcTrackId.GetSize()-1] = trackId;
+}
+
+
 //##############################################################################
 
 ClassImp(TATRdatRaw);
@@ -166,16 +183,38 @@ ClassImp(TATRdatRaw);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TATRdatRaw::TATRdatRaw() :
-  ntrhit(0), htr(0) {
+TATRdatRaw::TATRdatRaw()
+: TAGdata(),
+ fListOfHits(0)
+{
+   SetupClones();
 }
 
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
-TATRdatRaw::~TATRdatRaw() {
-  delete htr;
+TATRdatRaw::~TATRdatRaw()
+{
+  delete fListOfHits;
+}
+
+//------------------------------------------+-----------------------------------
+Int_t TATRdatRaw::GetHitsN() const
+{
+   return fListOfHits->GetEntries();
+}
+
+//______________________________________________________________________________
+//
+TATRrawHit* TATRdatRaw::NewHit(int channel, double charge, double time)
+{
+   TClonesArray &pixelArray = *fListOfHits;
+   
+   TATRrawHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATRrawHit(channel, charge, time);
+   
+   return hit;
+   
 }
 
 //------------------------------------------+-----------------------------------
@@ -183,7 +222,8 @@ TATRdatRaw::~TATRdatRaw() {
 
 void TATRdatRaw::SetupClones()
 {
-  if (!htr) htr = new TClonesArray("TATRrawHit");
+  if (!fListOfHits) fListOfHits = new TClonesArray("TATRrawHit");
+   
   return;
 }
 
@@ -194,9 +234,7 @@ void TATRdatRaw::SetupClones()
 void TATRdatRaw::Clear(Option_t*)
 {
   TAGdata::Clear();
-
-  ntrhit = 0;
-  if (htr) htr->Clear();
+  if (fListOfHits) fListOfHits->Clear("C");
 
   return;
 }
