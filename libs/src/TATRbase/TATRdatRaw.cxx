@@ -162,19 +162,9 @@ void TATRrawHit::SetData(int sta, int pat, int cnt) {
 
 void TATRrawHit::Clear(Option_t* /*option*/)
 {
-   fMCindex.Set(0);
-   fMcTrackId.Set(0);
+   trg_tim.clear();
+   trg_mul.clear();
 }
-
-void TATRrawHit:: AddMcTrackId(Int_t trackId, Int_t mcId)
-{
-   fMCindex.Set(fMCindex.GetSize()+1);
-   fMCindex[fMCindex.GetSize()-1]   = mcId;
-   
-   fMcTrackId.Set(fMcTrackId.GetSize()+1);
-   fMcTrackId[fMcTrackId.GetSize()-1] = trackId;
-}
-
 
 //##############################################################################
 

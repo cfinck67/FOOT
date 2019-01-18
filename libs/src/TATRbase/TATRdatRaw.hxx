@@ -14,7 +14,6 @@ using namespace std;
 #include "TClonesArray.h"
 
 #include "TAGdata.hxx"
-#include "TArrayC.h"
 
 class TATRrawHit : public TObject {
 public:
@@ -23,17 +22,17 @@ public:
 
   TATRrawHit(int sta, int pat, int cnt);
 
-  virtual         ~TATRrawHit();
+  virtual        ~TATRrawHit();
 
-  void            SetData(int sta, int pat, int cnt);
+  void           SetData(int sta, int pat, int cnt);
 
-  double          TrigTime(int ch) const;
-  double          TrigMult(int ch) const;
-  Int_t           Count() const;
-  Int_t           Pattern() const;
-  Int_t           Status() const;
-  Int_t           VulomTime() const; 
-  Int_t           ScaCount(int ch) const;
+  double         TrigTime(int ch) const;
+  double         TrigMult(int ch) const;
+  Int_t          Count() const;
+  Int_t          Pattern() const;
+  Int_t          Status() const;
+  Int_t          VulomTime() const;
+  Int_t          ScaCount(int ch) const;
   
   void           SetTrigBefLMU(int id, int val);
   int            GetTrigBefLMU(int id);
@@ -53,14 +52,8 @@ public:
   void           SetScaCount(int ch, int count);
 
   void           SetVulomTime(int tim);
-   
-  Int_t          GetMcIndex(Int_t index)   const   { return fMCindex[index];      }
-  Int_t          GetMcTrackI(Int_t index)  const   { return fMcTrackId[index];    }
-  Int_t          GetMcTrackCount()         const   { return fMcTrackId.GetSize(); }
-   
-  void           Clear(Option_t* option = "C");
-  void           AddMcTrackId(Int_t trackId, Int_t mcId = -1);
 
+  void           Clear(Option_t* option = "C");
 
   ClassDef(TATRrawHit,1)
 
@@ -78,9 +71,6 @@ public:
   Int_t trg_af_red[16];
   Int_t sca_cnt[16];
    
-  TArrayC         fMCindex;                  // Id of the hit created in the simulation
-  TArrayC         fMcTrackId;                // Id of the track created in the simulation
-
 };
 
 //##############################################################################
