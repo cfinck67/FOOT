@@ -308,7 +308,7 @@ void TABMparCon::SetT0s(vector<Double_t> t0s) {
   if(t0s.size() == 36) {
     v_t0s = t0s;
   } else {
-    Error("Parameter()","Vectors size mismatch:: fix the t0 vector inmput size!!! %d ",t0s.size());
+    Error("Parameter()","Vectors size mismatch:: fix the t0 vector inmput size!!! %lu ",t0s.size());
   }
 
   return;

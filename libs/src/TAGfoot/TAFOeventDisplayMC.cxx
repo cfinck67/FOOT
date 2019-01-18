@@ -8,6 +8,7 @@
 
 #include "GlobalPar.hxx"
 #include "TAGgeoTrafo.hxx"
+#include "TATRdatRaw.hxx"
 #include "TABMntuRaw.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
@@ -41,7 +42,8 @@ TAFOeventDisplayMC::TAFOeventDisplayMC(Int_t type, const TString expName)
    fTwMcDisplay(new TAGpointDisplay("ToF MC hit")),
    fMsdMcDisplay(new TAGpointDisplay("MSD MC hit")),
    fItMcDisplay(new TAGpointDisplay("IT MC hit")),
-   fVtMcDisplay(new TAGpointDisplay("VTX MC hit"))
+   fVtMcDisplay(new TAGpointDisplay("VTX MC hit")),
+   fStMcDisplay(new TAGpointDisplay("STC MC hit"))
 {
    fEvtStruct = new EVENT_STRUCT;
 }
@@ -57,6 +59,7 @@ TAFOeventDisplayMC::~TAFOeventDisplayMC()
    delete fMsdMcDisplay;
    delete fItMcDisplay;
    delete fVtMcDisplay;
+   delete fStMcDisplay;
 }
 
 //__________________________________________________________
@@ -76,10 +79,22 @@ void TAFOeventDisplayMC::CreateRawAction()
    fActNtuMcEve = new TAMCactNtuEve("eveActNtuMc", fpNtuMcEve, fEvtStruct);
 
    
+   if (GlobalPar::GetPar()->IncludeST()) {
+      fpDatRawSt = new TAGdataDsc("stRaw", new TATRdatRaw());
+      fActNtuRawSt = new TATRactNtuMC("stActNtu", fpDatRawSt, fEvtStruct);
+      fActNtuRawSt->CreateHistogram();
+      
+      fpNtuMcSt   = new TAGdataDsc("stMc", new TAMCntuHit());
+      fActNtuMcSt = new TAMCactNtuStc("stActNtuMc", fpNtuMcSt, fEvtStruct);
+   }
+
    if (GlobalPar::GetPar()->IncludeBM()) {
       fpNtuRawBm = new TAGdataDsc("bmRaw", new TABMntuRaw());
       fActNtuRawBm = new TABMactNtuMC("bmActNtu", fpNtuRawBm, fpParConfBm, fpParGeoBm, fEvtStruct);
       fActNtuRawBm->CreateHistogram();
+      
+      fpNtuMcBm   = new TAGdataDsc("bmMc", new TAMCntuHit());
+      fActNtuMcBm = new TAMCactNtuBm("bmActNtuMc", fpNtuMcBm, fEvtStruct);
    }
 
    if (GlobalPar::GetPar()->IncludeVertex()) {
@@ -134,6 +149,9 @@ void TAFOeventDisplayMC::AddRequiredItem()
 {
    fAGRoot->AddRequiredItem("eveActNtuMc");
 
+   if (GlobalPar::GetPar()->IncludeST())
+      AddRequiredMcItemSt();
+
    if (GlobalPar::GetPar()->IncludeVertex())
       AddRequiredMcItemVt();
 
@@ -150,6 +168,12 @@ void TAFOeventDisplayMC::AddRequiredItem()
       AddRequiredMcItemCa();
    
    TAFOeventDisplay::AddRequiredItem();
+}
+
+//__________________________________________________________
+void TAFOeventDisplayMC::AddRequiredMcItemSt()
+{
+   fAGRoot->AddRequiredItem("stActNtuMc");
 }
 
 //__________________________________________________________
@@ -211,6 +235,9 @@ void TAFOeventDisplayMC::AddElements()
    
    fVtMcDisplay->ResetPoints();
    gEve->AddElement(fVtMcDisplay);
+   
+   fStMcDisplay->ResetPoints();
+   gEve->AddElement(fStMcDisplay);
 }
 
 //__________________________________________________________
@@ -223,6 +250,13 @@ void TAFOeventDisplayMC::ConnectElements()
    fMsdMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateMsInfo(Int_t)");
    fItMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateItInfo(Int_t)");
    fVtMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateVtInfo(Int_t)");
+   fStMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateTrInfo(Int_t)");
+}
+
+//__________________________________________________________
+void TAFOeventDisplayMC::UpdateStInfo(Int_t idx)
+{
+   UpdateMcInfo("st", idx);
 }
 
 //__________________________________________________________
@@ -261,6 +295,11 @@ void TAFOeventDisplayMC::UpdateMcInfo(TString prefix, Int_t idx)
    TAMChit* point = 0x0;
    TString name   = "";
    
+   if (prefix == "st") {
+      point = (TAMChit*)fStMcDisplay->GetPointId(idx);
+      name = "STC";
+   }
+
    if (prefix == "vt") {
       point = (TAMChit*)fVtMcDisplay->GetPointId(idx);
       name = "VTX";
@@ -307,6 +346,8 @@ void TAFOeventDisplayMC::UpdateMcInfo(TString prefix, Int_t idx)
 //__________________________________________________________
 void TAFOeventDisplayMC::UpdateElements()
 {
+   if (GlobalPar::GetPar()->IncludeST())
+      UpdateMcElements("st");
    
    if (GlobalPar::GetPar()->IncludeVertex())
       UpdateMcElements("vt");
@@ -341,6 +382,8 @@ void TAFOeventDisplayMC::UpdateMcElements(const TString prefix)
          fItMcDisplay->Reset();
       if (prefix == "vt")
          fVtMcDisplay->Reset();
+      if (prefix == "st")
+         fStMcDisplay->Reset();
    }
    
    if (!fgDisplayFlag) // do not update event display
@@ -350,6 +393,9 @@ void TAFOeventDisplayMC::UpdateMcElements(const TString prefix)
    
    TAMCntuHit* pNtuHit = 0x0;
    
+   if (prefix == "st")
+      pNtuHit = (TAMCntuHit*) fpNtuMcSt->Object();
+
    if (prefix == "vt")
       pNtuHit = (TAMCntuHit*) fpNtuMcVt->Object();
 
@@ -377,6 +423,11 @@ void TAFOeventDisplayMC::UpdateMcElements(const TString prefix)
       y = pos(1);
       z = pos(2);
       
+      if (prefix == "st") {
+         fStMcDisplay->AddPoint(x, y, z);
+         fStMcDisplay->SetPointId(hit);
+      }
+
       if (prefix == "vt") {
          fVtMcDisplay->AddPoint(x, y, z);
          fVtMcDisplay->SetPointId(hit);
