@@ -63,7 +63,6 @@ Bool_t TABMactNtuRaw::Action()
 
   if (!p_nturaw->h) p_nturaw->SetupClones();
   
-  Double_t h_x,h_y,h_z,h_cx,h_cy,h_cz;
   if(p_timraw->TrigTime() == -10000) {
     Info("Action()","Trigger IR Time is Missing!!!");
     fpNtuRaw->SetBit(kValid);
@@ -82,10 +81,9 @@ Bool_t TABMactNtuRaw::Action()
       i_time=0.;
     
     Double_t i_drift = p_parcon->FirstSTrel(i_time);
-    p_pargeo->GetCellInfo(hit.View(), hit.Plane(), hit.Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
 
     //create the hit (no selection of hit)
-    TABMntuHit *mytmp = new((*(p_nturaw->h))[i]) TABMntuHit(0, hit.View(), hit.Plane(), hit.Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz, i_drift, i_time, p_parcon->ResoEval(i_drift));
+    TABMntuHit *mytmp = new((*(p_nturaw->h))[i]) TABMntuHit(0, hit.View(), hit.Plane(), hit.Cell(), i_drift, i_time, p_parcon->ResoEval(i_drift));
     mytmp->SetAW(p_pargeo);
     p_nturaw->nhit++;
   }

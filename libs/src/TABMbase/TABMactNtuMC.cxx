@@ -11,6 +11,8 @@
   \brief NTuplizer for BM raw hits. **
 */
 
+#include "TRandom3.h"
+
 ClassImp(TABMactNtuMC);
 
 //------------------------------------------+-----------------------------------
@@ -57,6 +59,7 @@ Bool_t TABMactNtuMC::Action()
   vector<bool> tobecharged(fpEvtStr->BMNn, true);
   vector<Double_t> rdriftxcell(fpEvtStr->BMNn, 99.);
   Int_t nhits=0;
+   
   TVector3 loc, gmom, mom, A0, Wvers, glo;;
   if (!p_nturaw->h) p_nturaw->SetupClones();//se non c'è l'array di h, lo crea
    
@@ -70,8 +73,10 @@ Bool_t TABMactNtuMC::Action()
    }
   //loop for double hits and hits with energy less than enxcell_cut:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
+     
     if(fpEvtStr->BMNde[i] < p_bmcon->GetEnxcellcut() && fpEvtStr->TRpaid[fpEvtStr->BMNid[i]-1]!=0)
       tobecharged[i]=false;
+     
     if(tobecharged[i]){
       cell = fpEvtStr->BMNicell[i];
       lay = fpEvtStr->BMNilay[i]; 
@@ -79,27 +84,31 @@ Bool_t TABMactNtuMC::Action()
       hitxcell[i]=p_bmgeo->GetBMNcell(lay, view, cell);
       glo.SetXYZ(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
        
-       loc = geoTrafo->FromGlobalToBMLocal(glo);
+      loc = geoTrafo->FromGlobalToBMLocal(glo);
       gmom.SetXYZ(fpEvtStr->BMNpxin[i],fpEvtStr->BMNpyin[i],fpEvtStr->BMNpzin[i]);
-      view=(view==-1)?1:0;
-       A0.SetXYZ(p_bmgeo->GetWireX(p_bmgeo->GetSenseId(cell),lay,view),    //sarebbe più elegante mettere questa roba in FindRdrift,
-                 p_bmgeo->GetWireY(p_bmgeo->GetSenseId(cell),lay,view),    //ma in FindRdrift dovrei caricare p_bmgeo, e forse non conviene
-                 p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(cell),lay,view));
-       Wvers.SetXYZ(p_bmgeo->GetWireX(p_bmgeo->GetSenseId(cell),lay,view),
-                    p_bmgeo->GetWireY(p_bmgeo->GetSenseId(cell),lay,view),
-                    p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(cell),lay,view));
-       Wvers.SetMag(1.);
-      rdriftxcell[i]=FindRdrift(loc, gmom, A0, Wvers);
-      //~ rdriftxcell[i]-=0.05;//provv
-      //~ if(rdriftxcell[i]<0) rdriftxcell[i]=0.;
+       
+      view = (view == -1) ? 1 : 0;
+       
+      A0.SetXYZ(p_bmgeo->GetWireX(p_bmgeo->GetSenseId(cell),lay,view),    //sarebbe più elegante mettere questa roba in FindRdrift,
+                p_bmgeo->GetWireY(p_bmgeo->GetSenseId(cell),lay,view),    //ma in FindRdrift dovrei caricare p_bmgeo, e forse non conviene
+                p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(cell),lay,view));
+       
+      Wvers.SetXYZ(p_bmgeo->GetWireX(p_bmgeo->GetSenseId(cell),lay,view),
+                   p_bmgeo->GetWireY(p_bmgeo->GetSenseId(cell),lay,view),
+                   p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(cell),lay,view));
+       
+      Wvers.SetMag(1.);
+      rdriftxcell[i] = FindRdrift(loc, gmom, A0, Wvers);
       
       if(rdriftxcell[i]==99) //FindRdrift return 99 if a particle is born without energy, so it shouldn't release energy for a hit.
         tobecharged[i]=false;
+       
       //if there is a double hit in the same cell, it charges the hits if they have rdrift difference more than p_bmcon->GetRdriftCut()
       for(Int_t j=0;j<i;j++){ 
-        if((rdriftxcell[i]-rdriftxcell[j])<p_bmcon->GetRdriftCut() && rdriftxcell[i]>=rdriftxcell[j] && hitxcell[i]==hitxcell[j])
+        if((rdriftxcell[i]-rdriftxcell[j]) < p_bmcon->GetRdriftCut() && rdriftxcell[i] >= rdriftxcell[j] && hitxcell[i]==hitxcell[j])
           tobecharged[i]=false;
-        if((rdriftxcell[j]-rdriftxcell[i])<p_bmcon->GetRdriftCut() && rdriftxcell[j]>rdriftxcell[i] && hitxcell[i]==hitxcell[j])
+         
+        if((rdriftxcell[j]-rdriftxcell[i]) < p_bmcon->GetRdriftCut() && rdriftxcell[j] > rdriftxcell[i] && hitxcell[i]==hitxcell[j])
           tobecharged[j]=false;
         }
       }
@@ -113,98 +122,95 @@ Bool_t TABMactNtuMC::Action()
           
   //set the number of hits
   Int_t hitsrandtot;    
-  TRandom3 *rand = new TRandom3();
-  rand->SetSeed(0);
+  gRandom->SetSeed(0);
   Int_t remainhitsn, nrealhits;
-  
-  //~ TF1 *cauchy = new TF1("cauchy","1./3.14159265359*[0]/(x*x+[0]*[0])",-7.,7.);//just a try
-  //~ cauchy->SetParameter(0,1.5);  
   
   if(p_bmcon->GetSmearhits()){
     nrealhits=0;
     for(Int_t i=0;i<tobecharged.size();i++)
       if(tobecharged[i])
         nrealhits++;
+     
     //prune the real hits
-    Int_t nprunehits=nrealhits*(1.-rand->Gaus(p_bmcon->GetMCEffMean(), p_bmcon->GetMCEffSigma()))+0.5;
+    Int_t nprunehits = nrealhits*(1.-gRandom->Gaus(p_bmcon->GetMCEffMean(), p_bmcon->GetMCEffSigma()))+0.5;
     if(nprunehits<0)
       nprunehits=0;
-    //~ hitsrandtot = 12 + (Int_t) rand->Gaus(p_bmcon->GetFakehitsMean(), p_bmcon->GetFakehitsSigma());//gaussian is too large!  
 
     //provv
-    Int_t tmp_int=rand->Uniform(0,7);
-    if(tmp_int<3.9) 
-      hitsrandtot = 12 - (Int_t) fabs(rand->Gaus(0, 1.8));//gaussian is too large!  
-    //~ else if(tmp_int>6.9)
+    Int_t tmp_int=gRandom->Uniform(0,7);
+    if(tmp_int < 3.9)
+      hitsrandtot = 12 - (Int_t) fabs(gRandom->Gaus(0, 1.8));//gaussian is too large!
     else
-      hitsrandtot = 12 + (Int_t) fabs(rand->Gaus(0, 2.3));//gaussian is too large!  
-      //~ hitsrandtot = 12;//gaussian is too large!  
+      hitsrandtot = 12 + (Int_t) fabs(gRandom->Gaus(0, 2.3));//gaussian is too large!
 
 
-    if(nprunehits>nrealhits)
-      nprunehits=nrealhits;
-    else if((nrealhits-nprunehits)>hitsrandtot)
-      nprunehits=nrealhits-hitsrandtot;
-    remainhitsn=nrealhits-nprunehits;
+    if(nprunehits > nrealhits)
+      nprunehits = nrealhits;
+    else if((nrealhits-nprunehits) > hitsrandtot)
+      nprunehits = nrealhits-hitsrandtot;
+     
+    remainhitsn = nrealhits-nprunehits;
+     
     while(nprunehits>0){
-      tmp_int=rand->Uniform(0,nrealhits);
+      tmp_int=gRandom->Uniform(0,nrealhits);
       if(tmp_int<nrealhits)  
         if(tobecharged[tmp_int]==true){
           tobecharged[tmp_int]=false;
           nprunehits--;
         }
-    };
+    }
     
     //add fake hits
-    if(hitsrandtot-remainhitsn>0)
-      CreateFakeHits(hitsrandtot-remainhitsn, rand, nhits);
-  }
-  
-  //~ delete cauchy;   
-  
-  Double_t realrdrift;    
+    if(hitsrandtot-remainhitsn > 0)
+      CreateFakeHits(hitsrandtot-remainhitsn, nhits);
+     
+  } // smear hit
+   
+  Double_t realrdrift;
+   
   //charge the hits:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
+     
     if(p_bmcon->GetBMdebug()>=3)
       cout<<"In the charging hits loop: I'm going to charge hit number:"<<i<<"/"<<fpEvtStr->BMNn<<"  tobecharged="<<tobecharged[i]<<endl;
-    if(tobecharged[i]){
+     
+    if(tobecharged[i]) {
       ipoint=fpEvtStr->BMNid[i]-1;
       cell = fpEvtStr->BMNicell[i];
       lay = fpEvtStr->BMNilay[i];
       view = fpEvtStr->BMNiview[i];
 
-       glo.SetXYZ(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
+      view = (view == -1) ? 1 : 0;
        
-       loc = geoTrafo->FromGlobalToBMLocal(glo);
-
       //shift the t0 and change the strelations:
-      realrdrift=rdriftxcell[i];
-      //~ rdriftxcell[i]=p_bmcon->FirstSTrelMC(p_bmcon->InverseStrel(rdriftxcell[i]), 5);
-      //~ if(rdriftxcell[i]==0)
-        //~ rdriftxcell[i]=0.001;
-      
+      realrdrift = rdriftxcell[i];
+       
       //create hit
-      TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) TABMntuHit(    
-                          fpEvtStr->BMNid[i],	view, lay, cell,        
-                          loc.X(), loc.Y(), loc.Z(),  
-                          fpEvtStr->BMNpxin[i], fpEvtStr->BMNpyin[i], fpEvtStr->BMNpzin[i],  //mom @ entrance in cell
-                          rdriftxcell[i], p_bmcon->InverseStrel(rdriftxcell[i]), fpEvtStr->BMNtim[i]);     
-        
+      TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) TABMntuHit(fpEvtStr->BMNid[i],	view, lay, cell,
+                                                                  rdriftxcell[i], p_bmcon->InverseStrel(rdriftxcell[i]), fpEvtStr->BMNtim[i]);
+       
+       mytmp->AddMcTrackId(ipoint, i);
+
       //X,Y and Z needs to be placed in Local coordinates.
       mytmp->SetAW(p_bmgeo);
+       
       if(p_bmcon->ResoEval(rdriftxcell[i])>0)
         mytmp->SetSigma(p_bmcon->ResoEval(rdriftxcell[i]));
       else{  
         cout<<"WARNING: error from config resoEval! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<rdriftxcell[i]<<endl;
         mytmp->SetSigma(rdrift_err);
-        }
-      mytmp->SetRealRdrift(realrdrift);  
+      }
+       
+      mytmp->SetRealRdrift(realrdrift);
+       
       if(p_bmcon->GetSmearrdrift()>0)
-        mytmp->SmearRdrift(p_bmcon->GetSmearrdrift(), rand);   //smearing 
+        mytmp->SmearRdrift(p_bmcon->GetSmearrdrift());   //smearing
+       
       if(fpEvtStr->TRpaid[fpEvtStr->BMNid[i]-1]!=0)
         mytmp->SetIsFake(1);
       else
         mytmp->SetIsFake(0);
+       
       nhits++;
     }//end of tobecharded if
   }
@@ -219,21 +225,26 @@ Bool_t TABMactNtuMC::Action()
 
 
 
-void TABMactNtuMC::CreateFakeHits(Int_t nfake, TRandom3 *&rand, Int_t &nhits){
+void TABMactNtuMC::CreateFakeHits(Int_t nfake, Int_t &nhits){
   
   Int_t plane, view, cell;
   for(Int_t i=0;i<nfake;i++){
-    do{plane=rand->Uniform(0,6);}while(plane<0 || plane>5);  
-    view=(rand->Uniform(0,2)>1) ? 1: -1;  
-    do{cell=rand->Uniform(0,3);}while(cell<0 || cell>2);  
-    Double_t rdrift=rand->Uniform(0.,0.9);
-    //~ cout<<"view="<<view<<" plane="<<plane<<"  cell="<<cell<<endl;
-    
+     
+    do{
+       plane=gRandom->Uniform(0,6);
+    }while(plane<0 || plane>5);
+     
+     
+    view=(gRandom->Uniform(0,2)>1) ? 1: -1;
+    do{
+       cell=gRandom->Uniform(0,3);
+    }while(cell<0 || cell>2);
+     
+    Double_t rdrift=gRandom->Uniform(0.,0.9);
+
     //charge the fake hits
     TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) TABMntuHit(    
                     -100,	view, plane, cell,        
-                    -100., -100., -100.,  
-                    -100.,-100.,-100.,  //mom @ entrance in cell
                     rdrift, p_bmcon->InverseStrel(rdrift), -1.);     //tdrift has no meaning for MC (now)
     mytmp->SetAW(p_bmgeo);
     if(p_bmcon->ResoEval(rdrift)>0)
