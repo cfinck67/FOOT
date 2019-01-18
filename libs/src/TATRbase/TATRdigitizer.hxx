@@ -36,10 +36,7 @@ private:
    Float_t       fGain;
    Float_t       fResTime;
    TATRrawHit*   fCurrentHit;
-   
-private:
 
-   
 };
 #endif
 
