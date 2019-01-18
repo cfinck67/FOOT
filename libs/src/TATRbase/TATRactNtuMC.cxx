@@ -5,7 +5,7 @@
 */
 
 #include "TAGroot.hxx"
-#include "TATRdatRaw.hxx"
+#include "TATRntuRaw.hxx"
 #include "TAGgeoTrafo.hxx"
 #include "TATRdigitizer.hxx"
 
@@ -30,14 +30,14 @@ TATRactNtuMC::TATRactNtuMC(const char* name,
 {
    if (fDebugLevel)
       Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
-   AddDataOut(p_datraw, "TATRdatRaw");   
+   AddDataOut(p_datraw, "TATRntuRaw");   
 }
 
 //------------------------------------------+-----------------------------------
 //! Create digitizer
 void TATRactNtuMC::CreateDigitizer()
 {
-   TATRdatRaw* p_nturaw = (TATRdatRaw*) fpNtuMC->Object();
+   TATRntuRaw* p_nturaw = (TATRntuRaw*) fpNtuMC->Object();
    
    fDigitizer = new TATRdigitizer(p_nturaw);
 }
@@ -56,7 +56,7 @@ TATRactNtuMC::~TATRactNtuMC()
 Bool_t TATRactNtuMC::Action()
 {
   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-  TATRdatRaw* p_nturaw = (TATRdatRaw*) fpNtuMC->Object();
+  TATRntuRaw* p_nturaw = (TATRntuRaw*) fpNtuMC->Object();
 
   //The number of hits inside the Start Counter is stn
    if (fDebugLevel)
@@ -78,7 +78,7 @@ Bool_t TATRactNtuMC::Action()
      
      // don't use z for the moment
      fDigitizer->Process(edep, posInLoc[0], posInLoc[1], z0, z1, time, id);
-     TATRrawHit* hit = fDigitizer->GetCurrentHit();
+     TATRntuHit* hit = fDigitizer->GetCurrentHit();
      hit->AddMcTrackId(trackId, i);
   }
   

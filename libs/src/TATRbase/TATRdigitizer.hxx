@@ -3,7 +3,7 @@
 
 #include "TAGbaseDigitizer.hxx"
 
-#include "TATRdatRaw.hxx"
+#include "TATRntuRaw.hxx"
 
 class TF1;
 
@@ -11,7 +11,7 @@ class TF1;
 class TATRdigitizer : public TAGbaseDigitizer {
    
 public:
-   TATRdigitizer(TATRdatRaw* p_datraw);
+   TATRdigitizer(TATRntuRaw* p_datraw);
    ~TATRdigitizer();
    
    void           SetFunctions();
@@ -28,14 +28,14 @@ public:
    void           SetGain(Float_t g)    { fGain = g;          }
    void           SetResTime(Float_t r) { fResTime = r;       }
 
-   TATRrawHit*    GetCurrentHit()       { return fCurrentHit; }
+   TATRntuHit*    GetCurrentHit()       { return fCurrentHit; }
    
 private:
-   TATRdatRaw*   fpNtuRaw;
+   TATRntuRaw*   fpNtuRaw;
    TF1*          fFuncBirks;
    Float_t       fGain;
    Float_t       fResTime;
-   TATRrawHit*   fCurrentHit;
+   TATRntuHit*   fCurrentHit;
 
 };
 #endif

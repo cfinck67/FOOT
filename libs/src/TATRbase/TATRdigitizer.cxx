@@ -33,7 +33,7 @@
 // Compute the number of photons for 5 mm slice width
 
 // --------------------------------------------------------------------------------------
-TATRdigitizer::TATRdigitizer(TATRdatRaw* pNtuRaw)
+TATRdigitizer::TATRdigitizer(TATRntuRaw* pNtuRaw)
  : TAGbaseDigitizer(),
    fpNtuRaw(pNtuRaw),
    fGain(10/3.),
@@ -84,7 +84,7 @@ Bool_t TATRdigitizer::Process(Double_t edep, Double_t x0, Double_t y0, Double_t 
 {
    time += gRandom->Gaus(0, fResTime);
    Float_t charge = GetPhotonsN(x0, y0, edep)*fGain;
-   fCurrentHit = (TATRrawHit*)fpNtuRaw->NewHit(id, charge, time);
+   fCurrentHit = (TATRntuHit*)fpNtuRaw->NewHit(id, charge, time);
    
    return true;
 }
