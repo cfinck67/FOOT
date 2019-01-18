@@ -72,7 +72,7 @@ Bool_t TATRactNtuMC::Action()
      Float_t z0    = fpEvtStr->STCzin[i];
      Float_t z1    = fpEvtStr->STCzout[i];
      Float_t edep  = fpEvtStr->STCde[i]*TAGgeoTrafo::GevToMev();
-     Float_t time  = fpEvtStr->STCtim[i]*TAGgeoTrafo::SecToNs();
+     Float_t time  = fpEvtStr->STCtim[i]*TAGgeoTrafo::SecToPs();
      
      
      TVector3 posIn(x0, y0, z0);
