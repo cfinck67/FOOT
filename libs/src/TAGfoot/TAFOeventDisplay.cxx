@@ -57,7 +57,7 @@ TAFOeventDisplay* TAFOeventDisplay::Instance(Int_t type, const TString name)
 //__________________________________________________________
 TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
  : TAGbaseEventDisplay(expName),
-   fpParGeoTr(0x0),
+   fpParGeoSt(0x0),
    fpParGeoG(0x0),
    fpParGeoDi(0x0),
    fpParGeoBm(0x0),
@@ -94,7 +94,8 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fActClusMsd(0x0),
    fType(type),
    fStClusDisplay(new TAGclusterDisplay("Start counter hit")),
-   fBmClusDisplay(new TAGwireDisplay("BM Wires")),
+   fBmClusDisplay(new TAGwireDisplay("Beam Monitoring Wires")),
+   fBmTrackDisplay(new TAGtrackDisplay("Beam Monitoring Tracks")),
    fVtxClusDisplay(new TAGclusterDisplay("Vertex Cluster")),
    fVtxTrackDisplay(new TAGtrackDisplay("Vertex Tracks")),
    fItClusDisplay(new TAGclusterDisplay("Inner tracker Cluster")),
@@ -105,13 +106,18 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
 {
    
    // default constructon
-   fBmClusDisplay->SetPickable(true);
-   
    fStClusDisplay->SetMaxEnergy(fMaxEnergy);
    fStClusDisplay->SetDefWidth(fQuadDefWidth/2.);
    fStClusDisplay->SetDefHeight(fQuadDefHeight/2.);
    fStClusDisplay->SetPickable(true);
 
+   fBmClusDisplay->SetPickable(true);
+   fBmTrackDisplay->SetMaxEnergy(fMaxEnergy);
+   fBmTrackDisplay->SetDefWidth(fBoxDefWidth);
+   fBmTrackDisplay->SetDefHeight(fBoxDefHeight);
+   fBmTrackDisplay->SetPickable(true);
+
+   
    fVtxClusDisplay->SetMaxEnergy(fMaxEnergy);
    fVtxClusDisplay->SetDefWidth(fQuadDefWidth/2.);
    fVtxClusDisplay->SetDefHeight(fQuadDefHeight/2.);
@@ -151,6 +157,8 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
 TAFOeventDisplay::~TAFOeventDisplay()
 {
    // default destructor
+   if (fpParGeoSt)  delete fpParGeoSt;
+   if (fpParGeoBm)  delete fpParGeoBm;
    if (fpParGeoVtx) delete fpParGeoVtx;
    if (fpParGeoIt)  delete fpParGeoIt;
    if (fpParGeoMsd) delete fpParGeoMsd;
@@ -160,11 +168,10 @@ TAFOeventDisplay::~TAFOeventDisplay()
    if (fpParGeoDi)  delete fpParGeoDi;
    
    delete fStClusDisplay;
-   
+   delete fBmClusDisplay;
+   delete fBmTrackDisplay;
    delete fVtxClusDisplay;
    delete fVtxTrackDisplay;
-   
-   delete fBmClusDisplay;
    delete fItClusDisplay;
    delete fMsdClusDisplay;
    delete fTwClusDisplay;
@@ -180,7 +187,7 @@ TAFOeventDisplay::~TAFOeventDisplay()
 void TAFOeventDisplay::ReadParFiles()
 {
    // initialise par files for target
-   if (GlobalPar::GetPar()->IncludeTG()) {
+   if (GlobalPar::GetPar()->IncludeTG() || GlobalPar::GetPar()->IncludeBM()) {
       fpParGeoG = new TAGparaDsc(TAGparGeo::GetDefParaName(), new TAGparGeo());
       TAGparGeo* parGeo = (TAGparGeo*)fpParGeoG->Object();
       TString parFileName = Form("./geomaps/TAGdetector%s.map", fExpName.Data());
@@ -189,8 +196,8 @@ void TAFOeventDisplay::ReadParFiles()
    
    // initialise par files for start counter
    if (GlobalPar::GetPar()->IncludeST()) {
-      fpParGeoTr = new TAGparaDsc(TATRparGeo::GetDefParaName(), new TATRparGeo());
-      TATRparGeo* parGeo = (TATRparGeo*)fpParGeoTr->Object();
+      fpParGeoSt = new TAGparaDsc(TATRparGeo::GetDefParaName(), new TATRparGeo());
+      TATRparGeo* parGeo = (TATRparGeo*)fpParGeoSt->Object();
       TString parFileName = Form("./geomaps/TATRdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
    }
@@ -293,7 +300,7 @@ void TAFOeventDisplay::BuildDefaultGeometry()
    
    // ST
    if (GlobalPar::GetPar()->IncludeST()) {
-      TATRparGeo* parGeo = (TATRparGeo*)fpParGeoTr->Object();
+      TATRparGeo* parGeo = (TATRparGeo*)fpParGeoSt->Object();
       TGeoVolume* irVol  = parGeo->BuildStartCounter();
    
       const TGeoHMatrix* transfo = fpFootGeo->GetTrafo(TATRparGeo::GetBaseName());
@@ -385,6 +392,9 @@ void TAFOeventDisplay::BuildDefaultGeometry()
 //__________________________________________________________
 void TAFOeventDisplay::CreateRecAction()
 {
+   if (GlobalPar::GetPar()->IncludeBM())
+      CreateRecActionBm();
+
    if (GlobalPar::GetPar()->IncludeVertex())
       CreateRecActionVtx();
    
@@ -393,6 +403,15 @@ void TAFOeventDisplay::CreateRecAction()
    
    if (GlobalPar::GetPar()->IncludeMSD())
       CreateRecActionMsd();
+}
+
+//__________________________________________________________
+void TAFOeventDisplay::CreateRecActionBm()
+{
+   if(fgTrackFlag) {
+      fpNtuTrackBm = new TAGdataDsc("bmTrack", new TABMntuTrack());
+      fActTrackBm  = new TABMactNtuTrack("bmActTrack", fpNtuTrackBm, fpNtuRawBm, fpParGeoBm, fpParConfBm, fpParGeoG);
+   }
 }
 
 //__________________________________________________________
@@ -568,6 +587,8 @@ void TAFOeventDisplay::AddRequiredItemSt()
 void TAFOeventDisplay::AddRequiredItemBm()
 {
    fAGRoot->AddRequiredItem("bmActNtu");
+   if (fgTrackFlag)
+      fAGRoot->AddRequiredItem("bmActTrack");
 }
 
 //__________________________________________________________
@@ -654,6 +675,9 @@ void TAFOeventDisplay::ConnectElements()
    fStClusDisplay->SetEmitSignals(true);
    fStClusDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateHitInfo(TEveDigitSet*, Int_t)");
 
+   fBmTrackDisplay->SetEmitSignals(true);
+   fBmTrackDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateTrackInfo(TEveDigitSet*, Int_t)");
+
    fVtxClusDisplay->SetEmitSignals(true);
    fVtxClusDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateHitInfo(TEveDigitSet*, Int_t)");
    
@@ -705,17 +729,33 @@ void TAFOeventDisplay::UpdateHitInfo(TEveDigitSet* qs, Int_t idx)
 void TAFOeventDisplay::UpdateTrackInfo(TEveDigitSet* qs, Int_t idx)
 {
    TAGtrackDisplay* lineTracks = dynamic_cast<TAGtrackDisplay*> (qs);
-   TAVTtrack* track =  (TAVTtrack*)lineTracks->GetId(idx);
-   if (track == 0x0) return;
-   fInfoView->AddLine( Form("Track # %2d:", track->GetNumber()) );
-   fInfoView->AddLine( Form(" with %3d clusters\n", track->GetClustersN()) );
+   TObject* obj = lineTracks->GetId(idx);
+   if (obj == 0x0) return;
    
-   for (Int_t i = 0; i < track->GetClustersN(); i++) {
-      TAVTcluster* clus = track->GetCluster(i);
-      TVector3 posG = clus->GetPositionG();
-      fInfoView->AddLine( Form(" for plane %d\n", clus->GetPlaneNumber()));
-      fInfoView->AddLine( Form(" at position: (%.3g %.3g) \n", posG.X(), posG.Y()) );
-      fInfoView->AddLine( Form(" with %d pixels\n", clus->GetPixelsN()));
+   if (obj->InheritsFrom("TAVTtrack")) {
+      
+      TAVTtrack* track =  (TAVTtrack*)obj;
+      if (track == 0x0) return;
+
+      fInfoView->AddLine( Form("Track # %2d:", track->GetNumber()) );
+      fInfoView->AddLine( Form(" with %3d clusters\n", track->GetClustersN()) );
+      
+      for (Int_t i = 0; i < track->GetClustersN(); i++) {
+         TAVTcluster* clus = track->GetCluster(i);
+         TVector3 posG = clus->GetPositionG();
+         fInfoView->AddLine( Form(" for plane %d\n", clus->GetPlaneNumber()));
+         fInfoView->AddLine( Form(" at position: (%.3g %.3g) \n", posG.X(), posG.Y()) );
+         fInfoView->AddLine( Form(" with %d pixels\n", clus->GetPixelsN()));
+      }
+      
+   } else if (obj->InheritsFrom("TABMntuTrackTr")) {
+      TABMntuTrackTr* track =  (TABMntuTrackTr*)obj;
+      if (track == 0x0) return;
+
+      fInfoView->AddLine( Form("Track:") );
+      fInfoView->AddLine( Form(" with %3d hit\n", track->GetNhit()) );
+      fInfoView->AddLine( Form(" at Pvers: (%.3g %.3g) \n", track->GetPvers()[0], track->GetPvers()[1]) );
+      fInfoView->AddLine( Form(" and R0 (%.3g %.3g)\n",  track->GetR0()[0], track->GetR0()[1]));
    }
 }
 
@@ -885,10 +925,10 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
 //__________________________________________________________
 void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
 {
-   if (prefix != "vt")
-      return;
-   
    if (!fgGUIFlag || (fgGUIFlag && fRefreshButton->IsOn())) {
+      if (prefix == "bm")
+         fBmTrackDisplay->ResetTracks();
+
       if (prefix == "vt")
          fVtxTrackDisplay->ResetTracks();
    }
@@ -899,31 +939,25 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
    Float_t  x = 0.,  y = 0.,  z = 0.;
    Float_t x1 = 0.,  y1 =0., z1 = 0.;
    
-   TAVTparGeo* parGeo = 0x0;
    
-   if (prefix == "vt")
-      parGeo = (TAVTparGeo*) fpParGeoVtx->Object();
- 
-   
-   Int_t nPlanes         = parGeo->GetNSensors();
-   Float_t posfirstPlane = parGeo->GetSensorPosition(0)[2];
-   Float_t posLastPlane  = parGeo->GetSensorPosition(nPlanes-1)[2];
-   
-   TAVTntuTrack*  pNtuTrack = 0x0;
-   
-   if (prefix == "vt")
-      pNtuTrack = (TAVTntuTrack*)  fpNtuTrackVtx->Object();
-   
-   if( pNtuTrack->GetTracksN() > 0 ) {
-      for( Int_t iTrack = 0; iTrack < pNtuTrack->GetTracksN(); ++iTrack ) {
-         if (prefix == "vt")
+   if (prefix == "vt") {
+      
+      TAVTparGeo*  parGeo = (TAVTparGeo*) fpParGeoVtx->Object();
+      
+      Int_t nPlanes         = parGeo->GetNSensors();
+      Float_t posfirstPlane = parGeo->GetSensorPosition(0)[2];
+      Float_t posLastPlane  = parGeo->GetSensorPosition(nPlanes-1)[2];
+      
+      TAVTntuTrack*  pNtuTrack = (TAVTntuTrack*)  fpNtuTrackVtx->Object();
+      
+      if( pNtuTrack->GetTracksN() > 0 ) {
+         for( Int_t iTrack = 0; iTrack < pNtuTrack->GetTracksN(); ++iTrack ) {
             fVtxTrackDisplay->AddNewTrack();
-         
-         TAVTtrack* track = pNtuTrack->GetTrack(iTrack);
-         TVector3 pos;
-         TVector3 posG;
-         
-         if ( prefix == "vt") {
+            
+            TAVTtrack* track = pNtuTrack->GetTrack(iTrack);
+            TVector3 pos;
+            TVector3 posG;
+            
             if (fgDrawVertex && GlobalPar::GetPar()->IncludeTG())
                pos = track->Intersection(track->GetVertexZ());
             else
@@ -941,13 +975,43 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
             Int_t nClus = track->GetClustersN();
             fVtxTrackDisplay->AddTracklet(nClus*100, x, y, z, x1, y1, z1);
             fVtxTrackDisplay->TrackId(track);
-         }
-      } // end loop on tracks
-      
-   } // nTracks > 0
-   
-   if (prefix == "vt")
+            
+         } // end loop on tracks
+         
+      } // nTracks > 0
       fVtxTrackDisplay->RefitPlex();
+   }
+   
+   if (prefix == "bm") {
+      
+      TABMparGeo*  parGeo = (TABMparGeo*) fpParGeoBm->Object();
+
+      TABMntuTrack*  pNtuTrack = (TABMntuTrack*)  fpNtuTrackBm->Object();
+      
+      if( pNtuTrack->GetTracksN() > 0 ) {
+         
+         for( Int_t iTrack = 0; iTrack < pNtuTrack->GetTracksN(); ++iTrack ) {
+               fBmTrackDisplay->AddNewTrack();
+            
+            TABMntuTrackTr* track = pNtuTrack->Track(iTrack);
+            TVector3 A0 = track->PointAtLocalZ(-parGeo->GetLength());
+            TVector3 A1 = track->PointAtLocalZ(+parGeo->GetLength());
+            
+            TVector3 A0G = fpFootGeo->FromBMLocalToGlobal(A0);
+            TVector3 A1G = fpFootGeo->FromBMLocalToGlobal(A1);
+            
+            x  = A0G(0); y  = A0G(1); z  = A0G(2)*1.1;
+            x1 = A1G(0); y1 = A1G(1); z1 = A1G(2)*1.1;
+            
+            Int_t nHits = track->GetNhit();
+            fBmTrackDisplay->AddTracklet(nHits*100, x, y, z, x1, y1, z1);
+            fBmTrackDisplay->TrackId(track);
+            
+         } // end loop on tracks
+         
+      } // nTracks > 0
+      fBmTrackDisplay->RefitPlex();
+   }
 }
 
 //__________________________________________________________
