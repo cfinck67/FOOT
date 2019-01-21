@@ -49,7 +49,7 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
   // init geometry and mag. field
   
   //~ new TGeoManager("Geometry", "Geane geometry");//load geometry
-  TGeoManager::Import("genfitGeomFOOT.root");
+ // TGeoManager::Import("genfitGeomFOOT.root");
   
   //~ TDatabasePDG* pdg_base = new TDatabasePDG();
   //~ char nome_carbonio[]="carbon";
@@ -651,7 +651,8 @@ void TABMactNtuTrack::ChargeHits4GenfitTrack(vector<Int_t> &singlehittrack,Int_t
   //charging loop
   for(Int_t i_h = 0; i_h <singlehittrack.size() ; i_h++) {
     
-    Info("Action()","create WireHit");
+     if (fDebugLevel > 0)
+        Info("Action()","create WireHit");
     p_hit = p_nturaw->Hit(singlehittrack.at(i_h));
     
     if(p_hit->View()==1) 
