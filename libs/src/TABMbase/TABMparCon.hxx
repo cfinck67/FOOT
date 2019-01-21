@@ -61,7 +61,8 @@ class TABMparCon : public TAGpara {
     Double_t GetParMove(){return par_move;};
     Int_t GetSmearhits(){return smearhits;};
     Double_t GetFakehitsMean(){return fakehits_mean;};
-    Double_t GetFakehitsSigma(){return fakehits_sigma;};
+    Double_t GetFakehitsSigmaLeft(){return fakehits_sigmaleft;};
+    Double_t GetFakehitsSigmaRight(){return fakehits_sigmaright;};
     Double_t GetMCEffMean(){return mceff_mean;};
     Double_t GetMCEffSigma(){return mceff_sigma;};
     Int_t GetSmearrdrift(){return smearrdrift;};
@@ -74,7 +75,7 @@ class TABMparCon : public TAGpara {
     Bool_t      loadT0s(Long64_t); 
     void        SetT0s(vector<Double_t> t0s);
     void        SetT0(Int_t cha, Double_t t0in);   
-    const Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+((view==-1) ? 1:0)*3+plane*6);};
+    const Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+view*3+plane*6);};
     const Double_t    GetT0(Int_t index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
     void        CoutT0();
     
@@ -149,8 +150,9 @@ class TABMparCon : public TAGpara {
     Double_t par_move;//change of the parameters for the FIRST fit
     Int_t    smearhits;//0=no smearhits on MC, 1=smear the number of hits
     Int_t    smearrdrift;//0=no smear rdrift, 1=gauss truncated 1sigma, 2=gaus 2sigma, 3=gaus 3sigma, 4=gaus no truncated, 5=uniform  
-    Double_t fakehits_mean;//mean for the total number of hits (only MC)
-    Double_t fakehits_sigma;//sigma for the total number of hits (only MC)
+    Double_t fakehits_mean;//mean for the fake hits generator(only MC)
+    Double_t fakehits_sigmaleft;//sigma for the fake hits generator on the left tail(only MC)
+    Double_t fakehits_sigmaright;//sigma for the fake hits generator on the right tail (only MC)
     Double_t mceff_mean;//mean for the number of primary hits (only MC)
     Double_t mceff_sigma;//sigma for the number of primary hits (only MC)
 

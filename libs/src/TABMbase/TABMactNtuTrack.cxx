@@ -134,7 +134,7 @@ Bool_t TABMactNtuTrack::Action()
   TABMntuTrackTr best_trackTr;
   //~ vector<AbsMeasurement*> measurements_vec;  
   //~ Double_t x, y, z, cx, cy, cz;
-  Int_t hit_view, tmp_int, tmp_cellx=1, tmp_celly=1, tracknum=1;
+  Int_t tmp_int, tmp_cellx=1, tmp_celly=1, tracknum=1;
   TMatrixDSym hitCov(7);
   TVectorD hitCoords(7);
   vector<vector<Int_t>> hitxplane(BMN_NLAY*2); //number of hit for every bm plane (plane should be 12 in BM)
@@ -532,23 +532,23 @@ void TABMactNtuTrack::ChargePrunedTrack(vector<Int_t> &tobepruned, Int_t &firedU
       cout<<"TABMactNtuTrack::a track has to be pruned:"<<"kk="<<kk<<"  tobepruned(pos)="<<tobepruned.at(kk)<<"  hitxtrack.at(index)[tobepruned.at(kk)]="<<hitxtrack.at(index).at(tobepruned.at(kk))<<endl;
     p_hit=p_nturaw->Hit(hitxtrack.at(index).at(tobepruned.at(kk)));
     if(p_bmcon->GetBMdebug()>4)
-      cout<<"hit_view of the pruned hit="<<p_hit->View()<<"firedUview="<<firedUview<<"  firedVview="<<firedVview<<"  planehitcut="<<p_bmcon->GetPlanehitcut()<<"  new number_of_hit="<<hitxtrack.at(index).size()-tobepruned.size()<<"  minhitcut="<<p_bmcon->GetMinnhit_cut()<<endl;          
+      cout<<"p_hit->View of the pruned hit="<<p_hit->View()<<"firedUview="<<firedUview<<"  firedVview="<<firedVview<<"  planehitcut="<<p_bmcon->GetPlanehitcut()<<"  new number_of_hit="<<hitxtrack.at(index).size()-tobepruned.size()<<"  minhitcut="<<p_bmcon->GetMinnhit_cut()<<endl;          
     //if it can pass, add the pruned track to hitxtrack         
-    if(((p_hit->View()==1 && (firedUview-1)>=p_bmcon->GetPlanehitcut()) || (p_hit->View()==-1 && (firedVview-1)>=p_bmcon->GetPlanehitcut())) && (hitxtrack.at(index).size()-tobepruned.size())>=p_bmcon->GetMinnhit_cut()){
+    if(((p_hit->View()==0 && (firedUview-1)>=p_bmcon->GetPlanehitcut()) || (p_hit->View()==1 && (firedVview-1)>=p_bmcon->GetPlanehitcut())) && (hitxtrack.at(index).size()-tobepruned.size())>=p_bmcon->GetMinnhit_cut()){
       tmp_vec_int=hitxtrack.at(index);
       if(p_bmcon->GetBMdebug()>4){
-	cout<<"Before the pruning:"<<endl;
-	for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
-	  cout<<tmp_vec_int.at(kk)<<" ";
-	cout<<endl;  
+	      cout<<"Before the pruning:"<<endl;
+	      for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
+	        cout<<tmp_vec_int.at(kk)<<" ";
+	      cout<<endl;  
       }
       for(Int_t kk=0;kk<tobepruned.size();kk++)
-	tmp_vec_int.erase(tmp_vec_int.begin()+tobepruned.at(kk));
+	     tmp_vec_int.erase(tmp_vec_int.begin()+tobepruned.at(kk));
       if(p_bmcon->GetBMdebug()>4){
-	cout<<"After the pruning:"<<endl;
-	for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
-		cout<<tmp_vec_int.at(kk)<<" ";
-	cout<<endl;
+	    cout<<"After the pruning:"<<endl;
+	    for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
+		    cout<<tmp_vec_int.at(kk)<<" ";
+	    cout<<endl;
 	}
       hitxtrack.push_back(tmp_vec_int);
     }else if(p_bmcon->GetBMdebug()>4)
@@ -574,7 +574,7 @@ return;
 //this method return true if the cell can be hit by primary and false if not (it need view==1 || view==-1)
 bool TABMactNtuTrack::ToBeConsider(const Int_t cell, const Int_t view, const Int_t lay){
   bool consider=true;
-  if((lay%2==0 && cell==2 && view==1) || (lay%2==1 && cell==0 && view==1) || (lay%2==0 && cell==0 && view==-1) || (lay%2==1 && cell==2 && view==-1))  
+  if((lay%2==0 && cell==2 && view==0) || (lay%2==1 && cell==0 && view==0) || (lay%2==0 && cell==0 && view==1) || (lay%2==1 && cell==2 && view==1))  
     consider=false;
   return consider;
 }
@@ -620,13 +620,13 @@ void TABMactNtuTrack::SetInitPos(TVector3 &init_pos, Int_t fit_index, Double_t x
     //~ for(Int_t j=0; j<hitxtrack.at(trk_index).size(); j++) {
       //~ if(possiblePrimary[trk_index]==true){
         //~ p_hit = p_nturaw->Hit(hitxtrack.at(trk_index).at(j));
-        //~ if(p_hit->View()==1 && tmp_cellx==1 && p_hit->Cell()!=1)
+        //~ if(p_hit->View()==0 && tmp_cellx==1 && p_hit->Cell()!=1)
           //~ tmp_cellx=p_hit->Cell();
-        //~ if(p_hit->View()==-1 && tmp_celly==1 && p_hit->Cell()!=1)
+        //~ if(p_hit->View()==1 && tmp_celly==1 && p_hit->Cell()!=1)
           //~ tmp_celly=p_hit->Cell();
-        //~ if(p_hit->View()==1 && tmp_cellx!=1 && p_hit->Cell()!=1 && p_hit->Cell()!=tmp_cellx)
+        //~ if(p_hit->View()==0 && tmp_cellx!=1 && p_hit->Cell()!=1 && p_hit->Cell()!=tmp_cellx)
           //~ possiblePrimary[trk_index]=kFALSE;
-        //~ if(p_hit->View()==-1 && tmp_celly!=1 && p_hit->Cell()!=1 && p_hit->Cell()!=tmp_celly)
+        //~ if(p_hit->View()==1 && tmp_celly!=1 && p_hit->Cell()!=1 && p_hit->Cell()!=tmp_celly)
           //~ possiblePrimary[trk_index]=kFALSE;
         //~ }
       //~ }
@@ -669,26 +669,24 @@ void TABMactNtuTrack::ChargeHits4GenfitTrack(vector<Int_t> &singlehittrack,Int_t
   hit_res.resize(singlehittrack.size(),999.);
   firedUview=0;
   firedVview=0;      
-  Int_t hit_view;
   //charging loop
   for(Int_t i_h = 0; i_h <singlehittrack.size() ; i_h++) {
     
     Info("Action()","create WireHit");
     p_hit = p_nturaw->Hit(singlehittrack.at(i_h));
     
-    if(p_hit->View()==1) 
+    if(p_hit->View()==0) 
       firedUview++;
     else 
       firedVview++;        
       
-    hit_view=(p_hit->View()==1) ? 0:1;      
-    //~ hitCoords(0)=p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-    //~ hitCoords(1)=p_bmgeo->GetY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-    //~ hitCoords(2)=p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
+    //~ hitCoords(0)=p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
+    //~ hitCoords(1)=p_bmgeo->GetY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
+    //~ hitCoords(2)=p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
 
-    //~ hitCoords(3)=hitCoords[0]+p_bmgeo->GetCX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-    //~ hitCoords(4)=hitCoords[1]+p_bmgeo->GetCY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
-    //~ hitCoords(5)=hitCoords[2]+p_bmgeo->GetCZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view);
+    //~ hitCoords(3)=hitCoords[0]+p_bmgeo->GetCX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
+    //~ hitCoords(4)=hitCoords[1]+p_bmgeo->GetCY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
+    //~ hitCoords(5)=hitCoords[2]+p_bmgeo->GetCZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View());
 
     hitCoords(0)= p_hit->GetA0().X();
     hitCoords(1)= p_hit->GetA0().Y();
@@ -718,10 +716,10 @@ void TABMactNtuTrack::ChargeHits4GenfitTrack(vector<Int_t> &singlehittrack,Int_t
     //~ fitTrack->insertMeasurement(measurements_vec.back()); 	
     fitTrack->insertMeasurement(new WireMeasurement(hitCoords, hitCov, det_Id, i_h, new TrackPoint(fitTrack))); 	
     //set variables for setinitpos:
-    if(hit_view==0 && wire_a_x==-1000.){// view 0 are wire on x, that give a y measurement
+    if(p_hit->View()==0 && wire_a_x==-1000.){// view 0 are wire on x, that give a y measurement
       wire_a_x=hitCoords[1];
       rdrift_a_x=p_hit->Dist();
-    }else if(hit_view==1 && wire_a_y==-1000.){
+    }else if(p_hit->View()==1 && wire_a_y==-1000.){
       wire_a_y=hitCoords[0];
       rdrift_a_y=p_hit->Dist();
     }
@@ -744,7 +742,7 @@ void TABMactNtuTrack::PrefitTracking(Int_t &prefit_status,Int_t &firedUview,Int_
     singlehittrack.clear();
     MeasuredStateOnPlane state, provv_state;
     TVector3 wire_pos, wire_dir;
-    Int_t hit_view, best_hit;
+    Int_t best_hit;
     Double_t best_diff, rdrift_diff;
     for(Int_t i=0; i<hitxplane.size();i++){
       //~ cout<<"i="<<i<<"  hitxplane.at(i).size()="<<hitxplane.at(i).size()<<endl;//provv
@@ -758,12 +756,11 @@ void TABMactNtuTrack::PrefitTracking(Int_t &prefit_status,Int_t &firedUview,Int_
           //~ cout<<"try to calculate best_hit"<<endl;//provv
           for(Int_t k=0;k<hitxplane.at(i).size();k++){
             p_hit=p_nturaw->Hit(hitxplane.at(i).at(k));
-            hit_view=(p_hit->View()==1) ? 0:1;  
-            //~ cout<<"più hit su un unico piano i="<<i<<" size="<<hitxplane.at(i).size()<<"  k="<<k<<"  hitxplane.at(i).at(k)="<<hitxplane.at(i).at(k)<<" plane="<<p_hit->Plane()<<"  view="<<hit_view<<"  cell="<<p_hit->Cell()<<endl;
+            //~ cout<<"more then one hit on the same plane: i="<<i<<" size="<<hitxplane.at(i).size()<<"  k="<<k<<"  hitxplane.at(i).at(k)="<<hitxplane.at(i).at(k)<<" plane="<<p_hit->Plane()<<"  view="<<p_hit->View()<<"  cell="<<p_hit->Cell()<<endl;
             
             //da testare
-            //~ wire_pos.SetXYZ(p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view), p_bmgeo->GetY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view), p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view));
-            //~ wire_dir.SetXYZ(p_bmgeo->GetCX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view), p_bmgeo->GetCY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view), p_bmgeo->GetCZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view));
+            //~ wire_pos.SetXYZ(p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View()), p_bmgeo->GetY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View()), p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View()));
+            //~ wire_dir.SetXYZ(p_bmgeo->GetCX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View()), p_bmgeo->GetCY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View()), p_bmgeo->GetCZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View()));
             wire_pos=p_hit->GetA0();
             wire_dir=p_hit->GetWvers();
             wire_dir.SetMag(1.);
@@ -868,22 +865,20 @@ Int_t TABMactNtuTrack::EstimateFIRSTTrackPar(vector<Int_t> &singlehittrack, Int_
   
   //charge hits and vectors
   vector<Double_t> Ycentro_U, Xcentro_V, Zcentro_U, Zcentro_V, R_U, R_V;
-  Int_t hit_view;
   firedUview=0;
   firedVview=0;
   for(Int_t i_h = 0; i_h <singlehittrack.size() ; i_h++) {
     p_hit = p_nturaw->Hit(singlehittrack.at(i_h));
-    hit_view=(p_hit->View()==1) ? 0:1;
-    if(hit_view==0){//here the inversion in p_bmgeo->Z and Ycentro is right      
-      Ycentro_U.push_back(p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view));
-      Zcentro_U.push_back(p_bmgeo->GetY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view));
+    if(p_hit->View()==0){//here the inversion in p_bmgeo->Z and Ycentro is right      
+      Ycentro_U.push_back(p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View()));
+      Zcentro_U.push_back(p_bmgeo->GetY(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View()));
       R_U.push_back(p_hit->Dist());
       firedUview++;
       //provv
       //~ cout<<"ho caricato i dati: i_h="<<i_h<<"   Ycentro_U.size()="<<Ycentro_U.size()<<"  Yu="<<Ycentro_U.back()<<"  zcU="<<Zcentro_U.back()<<"   ru="<<R_U.back()<<endl;
     }else{
-      Xcentro_V.push_back(p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view));
-      Zcentro_V.push_back(p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),hit_view));
+      Xcentro_V.push_back(p_bmgeo->GetZ(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View()));
+      Zcentro_V.push_back(p_bmgeo->GetX(p_bmgeo->GetID(p_hit->Cell()),p_hit->Plane(),p_hit->View()));
       R_V.push_back(p_hit->Dist());
       firedVview++;
     }
@@ -1004,7 +999,7 @@ Int_t TABMactNtuTrack::EstimateFIRSTTrackPar(vector<Int_t> &singlehittrack, Int_
 
 
 //from https://en.wikipedia.org/wiki/Tangent_lines_to_circles
-//just an alternative method to calculate 1 external tangent line, just to check
+//just an alternative method to calculate 1 external tangent line
 void TABMactNtuTrack::NewCircles2Tan(Double_t xc1, Double_t yc1, Double_t r1, Double_t xc2, Double_t yc2, Double_t r2){
   
   if(r2<r1){
@@ -1323,7 +1318,7 @@ void TABMactNtuTrack::ComputeDataAll(TABMntuTrackTr *&tmp_trackTr, vector<Int_t>
     p_hit=p_nturaw->Hit(singlehittrack.at(i));
     res=p_hit->Dist()-tmp_trackTr->FindRdrift(tmp_trackTr->GetR0(), tmp_trackTr->GetPvers(), p_hit->GetA0(), p_hit->GetWvers());
     p_hit->SetResidual(res);
-    //~ cout<<"res="<<res<<"  hit->View="<<p_hit->View()<<"  plane="<<p_hit->Plane()<<"  cell="<<p_hit->Cell()<<endl;
+    //~ cout<<"res="<<res<<"  hit->View()="<<p_hit->View()<<"  plane="<<p_hit->Plane()<<"  cell="<<p_hit->Cell()<<endl;
     p_hit->SetChi2(res*res/p_hit->GetSigma()/p_hit->GetSigma());
     chi2red+=p_hit->GetChi2();
     //~ cout<<"residui che calcolo ="<<p_hit->GetResidual()<<"  dist="<<p_hit->Dist()<<"  newdist="<<tmp_trackTr->FindRdrift(tmp_trackTr->GetR0(), tmp_trackTr->GetPvers(), p_hit->GetA0(), p_hit->GetWvers())<<endl;//provv

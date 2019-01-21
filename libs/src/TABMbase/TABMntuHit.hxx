@@ -21,7 +21,7 @@ using namespace std;
 class TABMntuHit : public TAGdata {
   public:
     TABMntuHit();
-    TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t s);
+    TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t, Double_t s, TABMparGeo* f_bmgeo);
     virtual         ~TABMntuHit();
 
     //~ void            SetData(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x,    Double_t y, Double_t z, Double_t px, Double_t py, Double_t pz, Double_t r, Double_t t,Double_t s);
@@ -39,7 +39,7 @@ class TABMntuHit : public TAGdata {
     
 
     //Getters
-    void SetAW(TABMparGeo *f_bmgeo);
+    //~ void SetAW(TABMparGeo *f_bmgeo);
     Double_t GetRho() {return rho;};
     Double_t GetChi2() {return ichi2;};
     Double_t GetSigma() {return sigma;};
@@ -72,8 +72,8 @@ class TABMntuHit : public TAGdata {
     //old software
     //~ void SetTrkAss(Int_t in_ass) { itrkass = in_ass;};
     //~ Int_t TrkAss() {return itrkass;};
-    //~ Bool_t HorView() const; //Horizontal, Top, XZ == -1
-    //~ Bool_t VertView() const; //Vertical, Side, YZ == 1
+    //~ Bool_t HorView() const; //Horizontal, Top, XZ == 1
+    //~ Bool_t VertView() const; //Vertical, Side, YZ == 0
 
   ClassDef(TABMntuHit,1)
 

@@ -814,7 +814,7 @@ void TABMntuTrackTr::PrintR0Pvers(){
 
     //~ idwire = f_bmgeo->GetID(cella);
     
-    //~ if(wr->View()>0){    /*   U view */
+    //~ if(wr->View()==0){    /*   U view */
       //~ nwire_U++;
       //~ Ycentro_U[nwire_U-1]= f_bmgeo->GetY(idwire,piano,0); //trackgeo.U_y[idwire][piano];
       //~ Zcentro_U[nwire_U-1]= f_bmgeo->GetZ(idwire,piano,0); //trackgeo.U_z[idwire][piano];

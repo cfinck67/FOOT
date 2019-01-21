@@ -178,13 +178,14 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'M')) {
-      sscanf(bufConf, "M %d %lf %lf %lf %lf %d",&myArgInt, &myArg1, &myArg2, &myArg3, &myArg4, &myArgIntmax);
-      if((myArgInt==0 || myArgInt==1) && myArg1>=0 && myArg2>=0 && myArg3>=0 && myArg4>=0 && myArgIntmax>=0 && myArgIntmax<6){
+      sscanf(bufConf, "M %d %lf %lf %lf %lf %lf %d",&myArgInt, &myArg1, &myArg2, &myArg3, &myArg4, &myArg5, &myArgIntmax);
+      if((myArgInt==0 || myArgInt==1) && myArg1>=0 && myArg2>=0 && myArg3>=0 && myArg4>=0 && myArg5>=0 && myArgIntmax>=0 && myArgIntmax<6){
         smearhits = myArgInt;
         fakehits_mean=myArg1;
-        fakehits_sigma=myArg2;
-        mceff_mean=myArg3;
-        mceff_sigma=myArg4;
+        fakehits_sigmaleft=myArg2;
+        fakehits_sigmaright=myArg3;
+        mceff_mean=myArg4;
+        mceff_sigma=myArg5;
         smearrdrift=myArgIntmax;
       }else {
 	      Error(""," Plane Map Error:: check config file!! (M)");

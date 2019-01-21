@@ -84,13 +84,12 @@ Bool_t TABMactNtuMC::Action()
     if(tobecharged.at(i)){
       cell = fpEvtStr->BMNicell[i];
       lay = fpEvtStr->BMNilay[i]; 
-      view = fpEvtStr->BMNiview[i];
+      view = fpEvtStr->BMNiview[i]==-1 ? 1:0;
       hitxcell.at(i)=p_bmgeo->GetBMNcell(lay, view, cell);
       loc.SetXYZ(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
       p_bmgeo->Global2Local(&loc);
       
       gmom.SetXYZ(fpEvtStr->BMNpxin[i],fpEvtStr->BMNpyin[i],fpEvtStr->BMNpzin[i]);
-      view=(view==-1)?1:0;
       A0.SetXYZ(p_bmgeo->GetX(p_bmgeo->GetID(cell),lay,view),      
                 p_bmgeo->GetY(p_bmgeo->GetID(cell),lay,view),    
                 p_bmgeo->GetZ(p_bmgeo->GetID(cell),lay,view));  
@@ -128,9 +127,6 @@ Bool_t TABMactNtuMC::Action()
   rand->SetSeed(0);
   Int_t remainhitsn, nrealhits;
   
-  //~ TF1 *cauchy = new TF1("cauchy","1./3.14159265359*[0]/(x*x+[0]*[0])",-7.,7.);//just a try
-  //~ cauchy->SetParameter(0,1.5);  
-  
   if(p_bmcon->GetSmearhits()){
     nrealhits=0;
     for(Int_t i=0;i<tobecharged.size();i++)
@@ -140,16 +136,12 @@ Bool_t TABMactNtuMC::Action()
     Int_t nprunehits=nrealhits*(1.-rand->Gaus(p_bmcon->GetMCEffMean(), p_bmcon->GetMCEffSigma()))+0.5;
     if(nprunehits<0)
       nprunehits=0;
-    //~ hitsrandtot = 12 + (Int_t) rand->Gaus(p_bmcon->GetFakehitsMean(), p_bmcon->GetFakehitsSigma());//gaussian is too large!  
 
-    //provv
-    Int_t tmp_int=rand->Uniform(0,7);
-    if(tmp_int<3.9) 
-      hitsrandtot = 12 - (Int_t) fabs(rand->Gaus(0, 1.8));//gaussian is too large!  
-    //~ else if(tmp_int>6.9)
+    Int_t tmp_int=rand->Uniform(0,10);//check if this number is ok 
+    if(tmp_int<p_bmcon->GetFakehitsMean()) 
+      hitsrandtot = 12 - (Int_t) fabs(rand->Gaus(0, p_bmcon->GetFakehitsSigmaLeft()));  
     else
-      hitsrandtot = 12 + (Int_t) fabs(rand->Gaus(0, 2.3));//gaussian is too large!  
-      //~ hitsrandtot = 12;//gaussian is too large!  
+      hitsrandtot = 12 + (Int_t) fabs(rand->Gaus(0, p_bmcon->GetFakehitsSigmaRight()));  
 
 
     if(nprunehits>nrealhits)
@@ -170,9 +162,7 @@ Bool_t TABMactNtuMC::Action()
     if(hitsrandtot-remainhitsn>0)
       CreateFakeHits(hitsrandtot-remainhitsn, rand, nhits);
   }
-  
-  //~ delete cauchy;   
-  
+    
   Double_t realrdrift;    
   //charge the hits:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
@@ -182,7 +172,7 @@ Bool_t TABMactNtuMC::Action()
       ipoint=fpEvtStr->BMNid[i]-1;
       cell = fpEvtStr->BMNicell[i];
       lay = fpEvtStr->BMNilay[i];
-      view = fpEvtStr->BMNiview[i];
+      view = fpEvtStr->BMNiview[i]==-1 ? 1:0;
       loc.SetXYZ(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
       //~ cout<<"da global:   loc.X="<<loc.X()<<"  loc.Y()="<<loc.Y()<<"  loc.Z()="<<loc.Z()<<endl;
       p_bmgeo->Global2Local(&loc);
@@ -199,10 +189,10 @@ Bool_t TABMactNtuMC::Action()
                           fpEvtStr->BMNid[i],	view, lay, cell,        
                           loc.X(), loc.Y(), loc.Z(),  
                           fpEvtStr->BMNpxin[i], fpEvtStr->BMNpyin[i], fpEvtStr->BMNpzin[i],  //mom @ entrance in cell
-                          rdriftxcell.at(i), p_bmcon->InverseStrel(rdriftxcell.at(i)), fpEvtStr->BMNtim[i]);     
+                          rdriftxcell.at(i), p_bmcon->InverseStrel(rdriftxcell.at(i)), fpEvtStr->BMNtim[i], p_bmgeo);     
         
       //X,Y and Z needs to be placed in Local coordinates.
-      mytmp->SetAW(p_bmgeo);
+      //~ mytmp->SetAW(p_bmgeo);
       if(p_bmcon->ResoEval(rdriftxcell.at(i))>0)
         mytmp->SetSigma(p_bmcon->ResoEval(rdriftxcell.at(i)));
       else{  
@@ -235,7 +225,7 @@ void TABMactNtuMC::CreateFakeHits(Int_t nfake, TRandom3 *&rand, Int_t &nhits){
   Int_t plane, view, cell;
   for(Int_t i=0;i<nfake;i++){
     do{plane=rand->Uniform(0,6);}while(plane<0 || plane>5);  
-    view=(rand->Uniform(0,2)>1) ? 1: -1;  
+    view=(rand->Uniform(0,2)>1) ? 0: 1;  
     do{cell=rand->Uniform(0,3);}while(cell<0 || cell>2);  
     Double_t rdrift=rand->Uniform(0.,0.9);
     //~ cout<<"view="<<view<<" plane="<<plane<<"  cell="<<cell<<endl;
@@ -245,8 +235,8 @@ void TABMactNtuMC::CreateFakeHits(Int_t nfake, TRandom3 *&rand, Int_t &nhits){
                     -100,	view, plane, cell,        
                     -100., -100., -100.,  
                     -100.,-100.,-100.,  //mom @ entrance in cell
-                    rdrift, p_bmcon->InverseStrel(rdrift), -1.);     //tdrift has no meaning for MC (now)
-    mytmp->SetAW(p_bmgeo);
+                    rdrift, p_bmcon->InverseStrel(rdrift), -1., p_bmgeo);     //tdrift has no meaning for MC (now)
+    //~ mytmp->SetAW(p_bmgeo);
     if(p_bmcon->ResoEval(rdrift)>0)
       mytmp->SetSigma(p_bmcon->ResoEval(rdrift));
     else

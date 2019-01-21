@@ -360,7 +360,7 @@ void BmBooter::PrintFromControlPlots(){
   Int_t cell, view, plane, up;
   for(Int_t i=0;i<36;i++){
     bmgeo->GetBMNlvc(i, plane, view, cell);
-    if(view==1){
+    if(view==0){
       up=(plane%2==0) ? 1:0;
       histo2db->SetBinContent(plane*2+1,cell*2+up+1,((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))->GetBinContent(((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))->FindBin((Double_t)i)));
       histo2db->SetBinContent(plane*2+1,cell*2+up+2,((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))->GetBinContent(((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/BM_output__raw_occupancy")))->FindBin((Double_t)i)));
@@ -1316,14 +1316,14 @@ void BmBooter::efficiency_fittedplane(){
   for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
     bmntuhit = bmnturaw->Hit(i); 
     if(bmntuhit->GetIsSelected() && bmntutrack->trk_status==0){
-      if(bmntuhit->View()==1)
+      if(bmntuhit->View()==0)
         hit_fittedplane.at(bmntuhit->Plane())++;
       else
         hit_fittedplane.at(bmntuhit->Plane()+6)++;
     }  
   }  
   
-  //view==1
+  //view==0
   if(hit_fittedplane.at(0)>0 && hit_fittedplane.at(2)>0 && hit_fittedplane.at(4)>0){
     eff_fittedplane.at(0).at(0)++;
     if(hit_fittedplane.at(1)>0 && hit_fittedplane.at(3)>0)
@@ -1334,7 +1334,7 @@ void BmBooter::efficiency_fittedplane(){
     if(hit_fittedplane.at(2)>0 && hit_fittedplane.at(4)>0)
       eff_fittedplane.at(1).at(1)++;
   }
-  //view==-1
+  //view==1
   if(hit_fittedplane.at(6)>0 && hit_fittedplane.at(8)>0 && hit_fittedplane.at(10)>0){
     eff_fittedplane.at(2).at(0)++;
     if(hit_fittedplane.at(7)>0 && hit_fittedplane.at(9)>0)
@@ -1404,14 +1404,14 @@ void BmBooter::efficiency_fittedtracks(){
 void BmBooter::efficiency_paoloni(){
   //~ for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
     //~ bmntuhit = bmnturaw->Hit(i); 
-    //~ if(bmntuhit->View()==1)
+    //~ if(bmntuhit->View()==0)
       //~ hit_plane[bmntuhit->Plane()]++;
     //~ else
       //~ hit_plane[bmntuhit->Plane()+6]++;
   //~ }
   
   //~ //eff_plane calculation
-  //~ //view==1
+  //~ //view==0
   //~ if(hit_plane[0]>0 && hit_plane[2]>0 && hit_plane[4]>0){
     //~ eff_plane[0][0]++;
     //~ if(hit_plane[1]>0 && hit_plane[3]>0)
@@ -1422,7 +1422,7 @@ void BmBooter::efficiency_paoloni(){
     //~ if(hit_plane[2]>0 && hit_plane[4]>0)
       //~ eff_plane[1][1]++;
   //~ }
-  //~ //view==-1
+  //~ //view==0
   //~ if(hit_plane[6]>0 && hit_plane[8]>0 && hit_plane[10]>0){
     //~ eff_plane[2][0]++;
     //~ if(hit_plane[7]>0 && hit_plane[9]>0)
@@ -1506,7 +1506,7 @@ void BmBooter::MCxEvent(){
   Int_t nuhit=0, nvhit=0;
   for(Int_t i=0;i<bmnturaw->nhit;i++){
     bmntuhit=bmnturaw->Hit(i);
-    if(bmntuhit->View()==1 && !bmntuhit->GetIsFake())
+    if(bmntuhit->View()==0 && !bmntuhit->GetIsFake())
       nuhit++;
     else if(!bmntuhit->GetIsFake())
       nvhit++;
