@@ -74,6 +74,7 @@ public:
 
    //! Update MC info
    void UpdateStInfo(Int_t idx);
+   void UpdateBmInfo(Int_t idx);
    void UpdateVtInfo(Int_t idx);
    void UpdateItInfo(Int_t idx);
    void UpdateMsInfo(Int_t idx);
@@ -114,6 +115,7 @@ private:
 
    //Display
    TAGpointDisplay*      fStMcDisplay;
+   TAGpointDisplay*      fBmMcDisplay;
    TAGpointDisplay*      fVtMcDisplay;
    TAGpointDisplay*      fItMcDisplay;
    TAGpointDisplay*      fMsdMcDisplay;
@@ -125,6 +127,7 @@ private:
    void  UpdateMcInfo(TString prefix, Int_t idx);
    
    void AddRequiredMcItemSt();
+   void AddRequiredMcItemBm();
    void AddRequiredMcItemVt();
    void AddRequiredMcItemIt();
    void AddRequiredMcItemMs();

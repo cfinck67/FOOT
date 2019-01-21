@@ -622,6 +622,9 @@ void TAFOeventDisplay::AddElements()
 {
    fStClusDisplay->ResetHits();
    gEve->AddElement(fStClusDisplay);
+   
+   fBmClusDisplay->ResetWires();
+   gEve->AddElement(fBmClusDisplay);
 
    fVtxClusDisplay->ResetHits();
    gEve->AddElement(fVtxClusDisplay);
@@ -724,6 +727,9 @@ void TAFOeventDisplay::UpdateElements()
    
    if (GlobalPar::GetPar()->IncludeST())
       UpdateElements("st");
+   
+   if (GlobalPar::GetPar()->IncludeBM())
+      UpdateElements("bm");
 
    if (GlobalPar::GetPar()->IncludeVertex())
       UpdateElements("vt");
@@ -752,6 +758,8 @@ void TAFOeventDisplay::UpdateElements(const TString prefix)
       UpdateCrystalElements();
    else if (prefix == "st")
       UpdateStcElements();
+   else if (prefix == "bm")
+      UpdateWireElements();
    else {
       UpdateQuadElements(prefix);
       if (fgTrackFlag) {
@@ -1050,6 +1058,13 @@ void TAFOeventDisplay::UpdateCrystalElements()
 //__________________________________________________________
 void TAFOeventDisplay::UpdateStcElements()
 {
+   if (!fgGUIFlag || (fgGUIFlag && fRefreshButton->IsOn())) {
+      fStClusDisplay->ResetHits();
+   }
+   
+   if (!fgDisplayFlag) // do not update event display
+      return;
+
    //STC
    TATRntuRaw* pSTntu = (TATRntuRaw*) fpNtuRawSt->Object();
    Int_t       nHits  = pSTntu->GetHitsN();
@@ -1064,8 +1079,8 @@ void TAFOeventDisplay::UpdateStcElements()
       
       TVector3 posHitG = fpFootGeo->FromSTLocalToGlobal(posHit);
       
-      fMsdClusDisplay->AddHit(charge, posHitG[0], posHitG[1], posHitG[2]);
-      fMsdClusDisplay->QuadId(hit);
+      fStClusDisplay->AddHit(charge, posHitG[0], posHitG[1], posHitG[2]);
+      fStClusDisplay->QuadId(hit);
    }
    
    fStClusDisplay->RefitPlex();
@@ -1074,32 +1089,46 @@ void TAFOeventDisplay::UpdateStcElements()
 //__________________________________________________________
 void TAFOeventDisplay::UpdateWireElements()
 {
+   
+   if (!fgGUIFlag || (fgGUIFlag && fRefreshButton->IsOn())) {
+      fBmClusDisplay->ResetWires();
+   }
+   
+   if (!fgDisplayFlag) // do not update event display
+      return;
+
    TABMntuRaw* pBMntu = (TABMntuRaw*) fpNtuRawBm->Object();
    Int_t       nHits  = pBMntu->nhit;
    double bm_h_side;
    
    TABMparGeo* pbmGeo = (TABMparGeo*) fpParGeoBm->Object();
    
-   
    //hits
-   //   for (Int_t i = 0; i < nHits; i++) {
-   //      TABMntuHit* hit = pBMntu->Hit(i);
-   //      TVector3 posHit  = hit->Position();
-   //      TVector3 posHitG = fpFootGeo->FromBMLocalToGlobal(posHit);
-   //
-   //      bm_h_side   = pbmGeo->GetWidth();
-   //      if(hit->View() < 0) {
-   //         //X,Z, top view
-   //         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0), posHitG(1)+bm_h_side, posHitG(2));
-   //      } else {
-   //         //Y,Z, side view
-   //         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0)+bm_h_side, posHitG(1), posHitG(2));
-   //      }
-   //   }
+   for (Int_t i = 0; i < nHits; i++) {
+      TABMntuHit* hit = pBMntu->Hit(i);
+      
+      Int_t view  = hit->View();
+      Int_t lay  = hit->Plane();
+      Int_t cell  = hit->Cell();
+      
+      Float_t x = pbmGeo->GetWireX(pbmGeo->GetSenseId(cell),lay,view);
+      Float_t y = pbmGeo->GetWireY(pbmGeo->GetSenseId(cell),lay,view);
+      Float_t z = pbmGeo->GetWireZ(pbmGeo->GetSenseId(cell),lay,view);
+      
+      TVector3 posHit(x, y, z);
+      TVector3 posHitG = fpFootGeo->FromBMLocalToGlobal(posHit);
+      
+      bm_h_side   = pbmGeo->GetWidth();
+      if(view == 1) {
+         //X,Z, top view
+         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0), posHitG(1)+bm_h_side, posHitG(2));
+      } else {
+         //Y,Z, side view
+         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0)+bm_h_side, posHitG(1), posHitG(2));
+      }
+   }
    
-   // tracks
    fBmClusDisplay->RefitPlex();
-
 }
 
 //__________________________________________________________

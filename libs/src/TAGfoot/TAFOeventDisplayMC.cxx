@@ -43,6 +43,7 @@ TAFOeventDisplayMC::TAFOeventDisplayMC(Int_t type, const TString expName)
    fMsdMcDisplay(new TAGpointDisplay("MSD MC hit")),
    fItMcDisplay(new TAGpointDisplay("IT MC hit")),
    fVtMcDisplay(new TAGpointDisplay("VTX MC hit")),
+   fBmMcDisplay(new TAGpointDisplay("STC MC hit")),
    fStMcDisplay(new TAGpointDisplay("STC MC hit"))
 {
    fEvtStruct = new EVENT_STRUCT;
@@ -59,6 +60,7 @@ TAFOeventDisplayMC::~TAFOeventDisplayMC()
    delete fMsdMcDisplay;
    delete fItMcDisplay;
    delete fVtMcDisplay;
+   delete fBmMcDisplay;
    delete fStMcDisplay;
 }
 
@@ -151,6 +153,9 @@ void TAFOeventDisplayMC::AddRequiredItem()
 
    if (GlobalPar::GetPar()->IncludeST())
       AddRequiredMcItemSt();
+   
+   if (GlobalPar::GetPar()->IncludeBM())
+      AddRequiredMcItemBm();
 
    if (GlobalPar::GetPar()->IncludeVertex())
       AddRequiredMcItemVt();
@@ -174,6 +179,12 @@ void TAFOeventDisplayMC::AddRequiredItem()
 void TAFOeventDisplayMC::AddRequiredMcItemSt()
 {
    fAGRoot->AddRequiredItem("stActNtuMc");
+}
+
+//__________________________________________________________
+void TAFOeventDisplayMC::AddRequiredMcItemBm()
+{
+   fAGRoot->AddRequiredItem("bmActNtuMc");
 }
 
 //__________________________________________________________
@@ -236,6 +247,9 @@ void TAFOeventDisplayMC::AddElements()
    fVtMcDisplay->ResetPoints();
    gEve->AddElement(fVtMcDisplay);
    
+   fBmMcDisplay->ResetPoints();
+   gEve->AddElement(fBmMcDisplay);
+   
    fStMcDisplay->ResetPoints();
    gEve->AddElement(fStMcDisplay);
 }
@@ -250,6 +264,7 @@ void TAFOeventDisplayMC::ConnectElements()
    fMsdMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateMsInfo(Int_t)");
    fItMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateItInfo(Int_t)");
    fVtMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateVtInfo(Int_t)");
+   fBmMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateBmInfo(Int_t)");
    fStMcDisplay->Connect("PointSelected(Int_t )", "TAFOeventDisplayMC", this, "UpdateStInfo(Int_t)");
 }
 
@@ -257,6 +272,12 @@ void TAFOeventDisplayMC::ConnectElements()
 void TAFOeventDisplayMC::UpdateStInfo(Int_t idx)
 {
    UpdateMcInfo("st", idx);
+}
+
+//__________________________________________________________
+void TAFOeventDisplayMC::UpdateBmInfo(Int_t idx)
+{
+   UpdateMcInfo("bm", idx);
 }
 
 //__________________________________________________________
@@ -300,6 +321,11 @@ void TAFOeventDisplayMC::UpdateMcInfo(TString prefix, Int_t idx)
       name = "STC";
    }
 
+   if (prefix == "bm") {
+      point = (TAMChit*)fBmMcDisplay->GetPointId(idx);
+      name = "BM";
+   }
+   
    if (prefix == "vt") {
       point = (TAMChit*)fVtMcDisplay->GetPointId(idx);
       name = "VTX";
@@ -349,6 +375,9 @@ void TAFOeventDisplayMC::UpdateElements()
    if (GlobalPar::GetPar()->IncludeST())
       UpdateMcElements("st");
    
+   if (GlobalPar::GetPar()->IncludeBM())
+      UpdateMcElements("bm");
+   
    if (GlobalPar::GetPar()->IncludeVertex())
       UpdateMcElements("vt");
    
@@ -382,6 +411,8 @@ void TAFOeventDisplayMC::UpdateMcElements(const TString prefix)
          fItMcDisplay->Reset();
       if (prefix == "vt")
          fVtMcDisplay->Reset();
+      if (prefix == "bm")
+         fBmMcDisplay->Reset();
       if (prefix == "st")
          fStMcDisplay->Reset();
    }
@@ -395,6 +426,9 @@ void TAFOeventDisplayMC::UpdateMcElements(const TString prefix)
    
    if (prefix == "st")
       pNtuHit = (TAMCntuHit*) fpNtuMcSt->Object();
+   
+   if (prefix == "bm")
+      pNtuHit = (TAMCntuHit*) fpNtuMcBm->Object();
 
    if (prefix == "vt")
       pNtuHit = (TAMCntuHit*) fpNtuMcVt->Object();
@@ -426,6 +460,11 @@ void TAFOeventDisplayMC::UpdateMcElements(const TString prefix)
       if (prefix == "st") {
          fStMcDisplay->AddPoint(x, y, z);
          fStMcDisplay->SetPointId(hit);
+      }
+      
+      if (prefix == "bm") {
+         fBmMcDisplay->AddPoint(x, y, z);
+         fBmMcDisplay->SetPointId(hit);
       }
 
       if (prefix == "vt") {
