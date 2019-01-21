@@ -129,7 +129,6 @@ Bool_t TABMactNtuTrack::Action()
 
   Double_t chisquare_cut = 5.;
 
-  if (!p_ntutrk->t) p_ntutrk->SetupClones();
 
   Int_t i_nhit = p_nturaw->nhit;
 
@@ -206,15 +205,15 @@ Bool_t TABMactNtuTrack::Action()
     if(p_bmcon->GetBMdebug()>3)
       cout<<"TABMactNtuTrack::WARNING!!::no possible track!!: firedUview="<<firedUview<<"  firedVview="<<firedVview<<"   planehitcut="<<p_bmcon->GetPlanehitcut()<<endl;
     if(firedUview<p_bmcon->GetPlanehitcut())
-      p_ntutrk->trk_status=1;
+      p_ntutrk->GetTrackStatus()=1;
     else
-      p_ntutrk->trk_status=2;
+      p_ntutrk->GetTrackStatus()=2;
     //~ delete fitTrack;
     //~ delete tmp_trackTr;
     fpNtuTrk->SetBit(kValid);
     return kTRUE;
   }else
-    p_ntutrk->trk_status=-1000;
+    p_ntutrk->GetTrackStatus()=-1000;
   
   //print hitxplane
   if(p_bmcon->GetBMdebug()>4){  
@@ -401,7 +400,7 @@ Bool_t TABMactNtuTrack::Action()
     
     //check on rejmax_cut
     if(rejhit>p_bmcon->GetRejmaxcut()){
-      p_ntutrk->trk_status=3;    
+      p_ntutrk->GetTrackStatus()=3;
       //~ delete fitTrack;
       //~ delete tmp_trackTr;      
       fpNtuTrk->SetBit(kValid);
@@ -499,9 +498,9 @@ Bool_t TABMactNtuTrack::Action()
     cout<<"TABMactNtuTrack:end of tracking"<<endl;
   
   if(best_trackTr.GetNhit()!=0){
-    new((*(p_ntutrk->t))[p_ntutrk->ntrk]) TABMntuTrackTr(best_trackTr);
-    p_ntutrk->ntrk++; 
-    p_ntutrk->trk_status= (best_trackTr.GetMyChi2Red()>=p_bmcon->GetChi2Redcut())? 5:0;
+    new((*(p_ntutrk->GetListOfTracks()))[p_ntutrk->GetTracksN()]) TABMntuTrackTr(best_trackTr);
+    p_ntutrk->GetTrackStatus()++;
+    p_ntutrk->GetTrackStatus()= (best_trackTr.GetMyChi2Red()>=p_bmcon->GetChi2Redcut())? 5:0;
     //flag the hit of the best track
     for(Int_t i=0;i<hitxtrack.at(best_index).size();i++){
       p_hit = p_nturaw->Hit(hitxtrack.at(best_index).at(i));    
@@ -512,7 +511,7 @@ Bool_t TABMactNtuTrack::Action()
       }
     }
   }else if(converged==false)
-    p_ntutrk->trk_status=4;
+    p_ntutrk->GetTrackStatus()=4;
   else
     cout<<"ERROR in TABMactNtuTrack :: track converged lost!"<<endl;
   

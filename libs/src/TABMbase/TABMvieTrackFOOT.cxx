@@ -154,7 +154,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
     //Displays the fitted tracks
     Info("Viewer()","Displaying the BM Tracks");
 
-    for (Int_t i_t = 0; i_t < p_ntutrk->ntrk; i_t++) {
+    for (Int_t i_t = 0; i_t < p_ntutrk->GetTracksN(); i_t++) {
       p_trk = p_ntutrk->Track(i_t);
       sprintf(text,"MyChi2Red: %lf",p_trk->GetMyChi2Red());
       gPad->PaintText(-0.6*BMN_WIDTH, +0.40*BMN_LENGTH,text);
@@ -268,7 +268,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
     //Displays the fitted tracks
     Info("Viewer()","Displaying the BM Tracks");
 
-    for (Int_t i_t = 0; i_t < p_ntutrk->ntrk; i_t++) {
+    for (Int_t i_t = 0; i_t < p_ntutrk->GetTracksN(); i_t++) {
       p_trk = p_ntutrk->Track(i_t);
       //~ x_target = p_trk->GetX0();
       //~ y_target = p_trk->GetY0();

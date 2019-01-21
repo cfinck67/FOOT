@@ -22,7 +22,7 @@ class TABMntuTrack : public TAGdata {
                     TABMntuTrack();
     virtual         ~TABMntuTrack();
 
-    Int_t                 GetTracksN() const  { return t->GetEntries(); }
+    Int_t                 GetTracksN()  const;
     TABMntuTrackTr*       Track(Int_t i);
     const TABMntuTrackTr* Track(Int_t i) const;
     
@@ -33,14 +33,15 @@ class TABMntuTrack : public TAGdata {
 
     virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
 
+   TClonesArray*    GetListOfTracks() { return fListOfTracks; }
+   
+   Int_t&           GetTrackStatus();
    
     ClassDef(TABMntuTrack,2)
 
-  public:
-    Short_t         ntrk;		    // number of tracks old tracking 
-    Int_t           trk_status; //-1000=notset, 0=ok, 1=firedUplane<plane_mincut, 2=firedVplane<plane_mincut, 3=hit rejected > rejmax_cut, 4=Genfit fit is not converged, 5=chi2red>chi2redcut
-        
-    TClonesArray*   t;			    // list of tracks
+  private:
+    Int_t           fStatus; //-1000=notset, 0=ok, 1=firedUplane<plane_mincut, 2=firedVplane<plane_mincut, 3=hit rejected > rejmax_cut, 4=Genfit fit is not converged, 5=chi2red>chi2redcut
+    TClonesArray*   fListOfTracks;			    // list of tracks
 };
 
 #include "TABMntuTrack.icc"
