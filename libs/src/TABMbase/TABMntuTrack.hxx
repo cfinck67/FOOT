@@ -22,6 +22,7 @@ class TABMntuTrack : public TAGdata {
                     TABMntuTrack();
     virtual         ~TABMntuTrack();
 
+    Int_t                 GetTracksN() const  { return t->GetEntries(); }
     TABMntuTrackTr*       Track(Int_t i);
     const TABMntuTrackTr* Track(Int_t i) const;
     
