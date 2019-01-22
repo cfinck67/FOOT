@@ -1221,7 +1221,7 @@ void TAFOeventDisplay::UpdateDefCanvases()
       if (!canvas) continue;
 
       for (Int_t k = 0; k < nHisto; ++k) {
-         TH1* h = (TH1*)fHistoList->At(i);
+         TH1* h = (TH1*)fHistoList->At(k);
          if (nHisto == 1)
             canvas->cd();
          else
