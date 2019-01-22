@@ -647,6 +647,9 @@ void TAFOeventDisplay::AddElements()
    fBmClusDisplay->ResetWires();
    gEve->AddElement(fBmClusDisplay);
 
+   fBmTrackDisplay->ResetTracks();
+   gEve->AddElement(fBmTrackDisplay);
+
    fVtxClusDisplay->ResetHits();
    gEve->AddElement(fVtxClusDisplay);
 	  
@@ -798,9 +801,11 @@ void TAFOeventDisplay::UpdateElements(const TString prefix)
       UpdateCrystalElements();
    else if (prefix == "st")
       UpdateStcElements();
-   else if (prefix == "bm")
+   else if (prefix == "bm") {
       UpdateWireElements();
-   else {
+      if (fgTrackFlag)
+         UpdateTrackElements(prefix);
+   } else {
       UpdateQuadElements(prefix);
       if (fgTrackFlag) {
          UpdateTrackElements(prefix);
@@ -983,7 +988,6 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
    }
    
    if (prefix == "bm") {
-      
       TABMparGeo*  parGeo = (TABMparGeo*) fpParGeoBm->Object();
 
       TABMntuTrack*  pNtuTrack = (TABMntuTrack*)  fpNtuTrackBm->Object();
@@ -1207,530 +1211,62 @@ void TAFOeventDisplay::UpdateGlbTrackElements()
 }
 
 //__________________________________________________________
-void TAFOeventDisplay::CreateCanvases()
+void TAFOeventDisplay::UpdateDefCanvases()
 {
-   // GUI
-   TGHorizontalFrame *histoFrame = new TGHorizontalFrame(frmMain);
-   
-   fClusterButton = new TGCheckButton(histoFrame, "Cluster 2D", 1);
-   fClusterButton->SetToolTipText("Enable rawdata histo");
-   fClusterButton->SetState(kButtonUp);
-   histoFrame->AddFrame(fClusterButton, new TGLayoutHints(kLHintsLeft | kLHintsLeft, 5, 0, 5, 0));
-   
-   fRawDataButton = new TGCheckButton(histoFrame, "Rawdata 2D", 1);
-   fRawDataButton->SetToolTipText("Enable rawdata histo");
-   fRawDataButton->SetState(kButtonUp);
-   histoFrame->AddFrame(fRawDataButton, new TGLayoutHints(kLHintsLeft | kLHintsLeft, 5, 0, 5, 0));
-   
-   frmMain->AddFrame(histoFrame, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 2, 0, 5, 5));
-   
-   // rate button
-   TGHorizontalFrame *rateFrame = new TGHorizontalFrame(frmMain);
-   fRateButton = new TGCheckButton(rateFrame, "Rates 2D", 1);
-   fRateButton->SetToolTipText("Enable rates histo");
-   fRateButton->SetState(kButtonUp);
-   rateFrame->AddFrame(fRateButton, new TGLayoutHints(kLHintsLeft | kLHintsLeft, 5, 0, 5, 0));
-   fRefreshEvent  = new TGNumberEntry(rateFrame, 0, 4, -1,
-                                      TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative,
-                                      TGNumberFormat::kNELLimitMinMax, 1, 1500);
-   
-   fRefreshEvent->Resize(60,20);
-   fRefreshEvent->SetNumber(100);
-   rateFrame->AddFrame(fRefreshEvent, new TGLayoutHints(kLHintsLeft | kLHintsLeft, 5, 0, 5, 0));
-   
-   frmMain->AddFrame(rateFrame, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 2, 0, 5, 5));
-   
-   frmMain->MapSubwindows();
-   frmMain->Resize();
-   frmMain->MapWindow();
-   
-   if (GlobalPar::GetPar()->IncludeVertex())
-      CreateCanvases("vt");
-   
-   if (GlobalPar::GetPar()->IncludeInnerTracker())
-      CreateCanvases("it");
-   
-   if (GlobalPar::GetPar()->IncludeMSD())
-      CreateCanvases("ms");
+   Int_t nCanvas = fListOfCanvases->GetEntries();
+   Int_t nHisto = fHistoList->GetEntries();
+
+   for (Int_t i = 0; i < nCanvas; ++i) {
+      TCanvas* canvas = (TCanvas*)fListOfCanvases->At(i);
+      if (!canvas) continue;
+
+      for (Int_t k = 0; k < nHisto; ++k) {
+         TH1* h = (TH1*)fHistoList->At(i);
+         if (nHisto == 1)
+            canvas->cd();
+         else
+            canvas->cd(k+1);
+         h->Draw();
+      }
+      
+      canvas->Update();
+   }
 }
 
 //__________________________________________________________
-void TAFOeventDisplay::CreateCanvases(const TString prefix)
+void TAFOeventDisplay::CreateCanvases()
 {
-   // histo 2D
-   TAVTparGeo* parGeo = 0x0;
-   
-   if (prefix == "vt")
-      parGeo= (TAVTparGeo*) fpParGeoVtx->Object();
-   else if (prefix == "it")
-      parGeo= (TAVTparGeo*) fpParGeoIt->Object();
-   else if (prefix == "ms")
-      parGeo= (TAVTparGeo*) fpParGeoMsd->Object();
-
-   Int_t nPlanes = parGeo->GetNSensors();
-   
+   // GUI
+   // histo
    TCanvas* canvas = 0x0;
    TVirtualPad* pad    = 0x0;
    TEveWindowSlot* slot0 = TEveWindow::CreateWindowInTab(gEve->GetBrowser()->GetTabRight());
    TEveWindowTab*  tab0 = slot0->MakeTab();
-   tab0->SetElementName(Form("Histo2D %s", prefix.Data()));
+   tab0->SetElementName("Histogram");
    tab0->SetShowTitleBar(kFALSE);
    
    // canvas tab
    slot0 = tab0->NewSlot();
    TRootEmbeddedCanvas* eCanvas00 = new TRootEmbeddedCanvas();
    TEveWindowFrame* frame00 = slot0->MakeFrame(eCanvas00);
-   frame00->SetElementName(Form("Clusters 2D %s", prefix.Data()));
+   frame00->SetElementName("Histograms");
    canvas = eCanvas00->GetCanvas();
-   canvas->SetName(Form("%sClus2D", prefix.Data()));
+   canvas->SetName("HistoCanvas");
    canvas->Resize();
    fListOfCanvases->Add(canvas);
-   pad = new TPad(Form("%sClus2D", prefix.Data()),"",0.,0.,1.,1);
-   pad->Divide( (Int_t)ceil(nPlanes/2.), 2);
+   pad = new TPad("HistoPad","",0.,0.,1.,1);
+   
+   fHistoListBox->GetSelectedEntries(fSelecHistoList);
+   Int_t nHisto = fSelecHistoList->GetEntries();
+   
+   if (nHisto != 1)
+      pad->Divide(nHisto/2, 2);
+   
    pad->Draw();
    fListOfPads->Add(pad);
    
-   slot0 = tab0->NewSlot();
-   TRootEmbeddedCanvas* eCanvas01 = new TRootEmbeddedCanvas();
-   TEveWindowFrame* frame01 = slot0->MakeFrame(eCanvas01);
-   frame01->SetElementName(Form("Pixel Pos 2D %s", prefix.Data()));
-   canvas = eCanvas01->GetCanvas();
-   canvas->SetName(Form("%sPixelPos2D", prefix.Data()));
-   canvas->Resize();
-   fListOfCanvases->Add(canvas);
-   pad = new TPad(Form("%sPixelPos2D", prefix.Data()),"",0.,0.,1.,1);
-   pad->Divide( (Int_t)ceil(nPlanes/2.), 2);
-   pad->Draw();
-   fListOfPads->Add(pad);
-   
-   slot0 = tab0->NewSlot();
-   TRootEmbeddedCanvas* eCanvas02 = new TRootEmbeddedCanvas();
-   TEveWindowFrame* frame02 = slot0->MakeFrame(eCanvas02);
-   frame02->SetElementName(Form("Pixel Raw 2D %s", prefix.Data()));
-   canvas = eCanvas02->GetCanvas();
-   canvas->SetName(Form("%sPixelRaw2D", prefix.Data()));
-   canvas->Resize();
-   fListOfCanvases->Add(canvas);
-   pad = new TPad(Form("%sPixelRaw2D", prefix.Data()),"",0.,0.,1.,1);
-   pad->Divide( (Int_t)ceil(nPlanes/2.), 2);
-   pad->Draw();
-   fListOfPads->Add(pad);
-   
-   slot0 = tab0->NewSlot();
-   TRootEmbeddedCanvas* eCanvas03 = new TRootEmbeddedCanvas();
-   TEveWindowFrame* frame03 = slot0->MakeFrame(eCanvas03);
-   frame03->SetElementName(Form("Beam Profile %s", prefix.Data()));
-   canvas = eCanvas03->GetCanvas();
-   canvas->SetName(Form("%sBeam2D", prefix.Data()));
-   canvas->Resize();
-   fListOfCanvases->Add(canvas);
-   pad = new TPad(Form("%sBeam2D", prefix.Data()),"",0.,0.,1.,1);
-   pad->Draw();
-   fListOfPads->Add(pad);
-   
-   // other histo tab
-   TEveWindowSlot* slot1 = TEveWindow::CreateWindowInTab(gEve->GetBrowser()->GetTabRight());
-   TEveWindowTab*  tab1 = slot1->MakeTab();
-   tab1->SetElementName(Form("Histos %s", prefix.Data()));
-   tab1->SetShowTitleBar(kFALSE);
-   
-   // Residuals
-   slot1 = tab1->NewSlot();
-   TRootEmbeddedCanvas* eCanvas10 = new TRootEmbeddedCanvas();
-   TEveWindowFrame* frame10 = slot1->MakeFrame(eCanvas10);
-   frame10->SetElementName(Form("Total Residual %s", prefix.Data()));
-   canvas = eCanvas10->GetCanvas();
-   canvas->SetName(Form("%sTotRes", prefix.Data()));
-   canvas->Resize();
-   fListOfCanvases->Add(canvas);
-   pad = new TPad(Form("%sTotRes", prefix.Data()),"",0.,0.,1.,1);
-   pad->Divide(2, 1);
-   pad->Draw();
-   fListOfPads->Add(pad);
-   
-   slot1 = tab1->NewSlot();
-   TRootEmbeddedCanvas* eCanvas11 = new TRootEmbeddedCanvas();
-   TEveWindowFrame* frame11 = slot1->MakeFrame(eCanvas11);
-   frame11->SetElementName(Form("Individual Residual X %s", prefix.Data()));
-   canvas = eCanvas11->GetCanvas();
-   canvas->SetName(Form("%sIndResX", prefix.Data()));
-   canvas->Resize();
-   fListOfCanvases->Add(canvas);
-   pad = new TPad(Form("%sIndResX", prefix.Data()),"",0.,0.,1.,1);
-   pad->Divide( (Int_t)ceil(nPlanes/2.), 2);
-   pad->Draw();
-   fListOfPads->Add(pad);
-   
-   slot1 = tab1->NewSlot();
-   TRootEmbeddedCanvas* eCanvas12 = new TRootEmbeddedCanvas();
-   TEveWindowFrame* frame12 = slot1->MakeFrame(eCanvas12);
-   frame12->SetElementName(Form("Individual Residual Y %s", prefix.Data()));
-   canvas = eCanvas12->GetCanvas();
-   canvas->SetName(Form("%sIndResY", prefix.Data()));
-   canvas->Resize();
-   fListOfCanvases->Add(canvas);
-   pad = new TPad(Form("%sIndResY", prefix.Data()),"",0.,0.,1.,1);
-   pad->Divide( (Int_t)ceil(nPlanes/2.), 2);
-   pad->Draw();
-   fListOfPads->Add(pad);
-   
-   // rates tab
-   TEveWindowSlot* slot10 = TEveWindow::CreateWindowInTab(gEve->GetBrowser()->GetTabRight());
-   TEveWindowTab*  tab10 = slot10->MakeTab();
-   tab10->SetElementName(Form("Rates %s", prefix.Data()));
-   tab10->SetShowTitleBar(kFALSE);
-   
-   slot10 = tab10->NewSlot();
-   TRootEmbeddedCanvas* eCanvas13 = new TRootEmbeddedCanvas();
-   TEveWindowFrame* frame13 = slot10->MakeFrame(eCanvas13);
-   frame13->SetElementName(Form("Individual Rates %s", prefix.Data()));
-   canvas = eCanvas13->GetCanvas();
-   canvas->SetName(Form("%sIndRates", prefix.Data()));
-   canvas->Resize();
-   fListOfCanvases->Add(canvas);
-   pad = new TPad(Form("%sIndRates", prefix.Data()),"",0.,0.,1.,1);
-   pad->Divide( (Int_t)ceil(nPlanes/2.), 2);
-   pad->Draw();
-   fListOfPads->Add(pad);
-   
-   slot1 = tab1->NewSlot();
-   TRootEmbeddedCanvas* eCanvas14 = new TRootEmbeddedCanvas();
-   TEveWindowFrame* frame14 = slot1->MakeFrame(eCanvas14);
-   frame14->SetElementName(Form("Individual # pixels/Cluster %s", prefix.Data()));
-   canvas = eCanvas14->GetCanvas();
-   canvas->SetName(Form("%sIndPixClus", prefix.Data()));
-   canvas->Resize();
-   fListOfCanvases->Add(canvas);
-   pad = new TPad(Form("%sIndPixClus", prefix.Data()),"",0.,0.,1.,1);
-   pad->Divide( (Int_t)ceil(nPlanes/2.), 2);
-   pad->Draw();
-   fListOfPads->Add(pad);
-   
-   // canvas Chi2
-   slot1 = tab1->NewSlot();
-   TRootEmbeddedCanvas* eCanvas20 = new TRootEmbeddedCanvas();
-   TEveWindowFrame* frame20 = slot1->MakeFrame(eCanvas20);
-   frame20->SetElementName(Form("Global Histo %s", prefix.Data()));
-   canvas = eCanvas20->GetCanvas();
-   canvas->SetName(Form("%sChi2", prefix.Data()));
-   canvas->Resize();
-   fListOfCanvases->Add(canvas);
-   pad = new TPad(Form("%sChi2", prefix.Data()),"",0.,0.,1.,1);
-   pad->Divide(2, 2);
-   pad->Draw();
-   fListOfPads->Add(pad);
-   
-   slot10 = tab10->NewSlot();
-   TRootEmbeddedCanvas* eCanvas15 = new TRootEmbeddedCanvas();
-   TEveWindowFrame* frame15 = slot10->MakeFrame(eCanvas15);
-   frame15->SetElementName(Form("Individual length/evt %s", prefix.Data()));
-   canvas = eCanvas15->GetCanvas();
-   canvas->SetName(Form("%sIndLengthEvt", prefix.Data()));
-   canvas->Resize();
-   fListOfCanvases->Add(canvas);
-   pad = new TPad(Form("%sIndLengthEvt", prefix.Data()),"",0.,0.,1.,1);
-   pad->Divide( (Int_t)ceil(nPlanes/2.), 2);
-   pad->Draw();
-   fListOfPads->Add(pad);
-   
-   slot10 = tab10->NewSlot();
-   TRootEmbeddedCanvas* eCanvas16 = new TRootEmbeddedCanvas();
-   TEveWindowFrame* frame16 = slot10->MakeFrame(eCanvas16);
-   frame16->SetElementName(Form("Individual QRates %s", prefix.Data()));
-   canvas = eCanvas16->GetCanvas();
-   canvas->SetName(Form("%sIndQRates", prefix.Data()));
-   canvas->Resize();
-   fListOfCanvases->Add(canvas);
-   pad = new TPad(Form("%sIndQRates", prefix.Data()),"",0.,0.,1.,1);
-   pad->Divide( (Int_t)ceil(nPlanes/2.), 2);
-   pad->Draw();
-   fListOfPads->Add(pad);
-}
-
-//______________________________________________________________________________
-void TAFOeventDisplay::DrawReco()
-{
-   if (GlobalPar::GetPar()->IncludeVertex())
-      DrawReco("vt");
-   
-   if (GlobalPar::GetPar()->IncludeInnerTracker())
-      DrawReco("it");
-   
-   if (GlobalPar::GetPar()->IncludeMSD())
-      DrawReco("ms");
-}
-
-//______________________________________________________________________________
-void TAFOeventDisplay::DrawReco(const TString prefix)
-{
-   TAVTbaseParGeo* parGeo = 0x0;
-   TList* histoClus   = 0x0;
-   TList* histoTrack  = 0x0;
-   
-   if (prefix == "vt") {
-      parGeo = (TAVTparGeo*) fpParGeoVtx->Object();
-      histoClus  = fActClusVtx->GetHistogrammList();
-      if (fActTrackVtx)
-         histoTrack = fActTrackVtx->GetHistogrammList();
-
-   } else if (prefix == "it"){
-      parGeo = (TAITparGeo*) fpParGeoIt->Object();
-      histoClus  = fActClusIt->GetHistogrammList();
-      
-   } else if (prefix == "ms") {
-      parGeo = (TAMSDparGeo*) fpParGeoMsd->Object();
-      histoClus  = fActClusMsd->GetHistogrammList();
-   }
-   
-   Int_t nPlanes = parGeo->GetNSensors();
-   
-   TVirtualPad* pad = 0x0;
-   
-   pad = (TVirtualPad*)fListOfPads->FindObject(Form("%sChi2", prefix.Data()));
-   TH1F* pHisPixelTot = (TH1F*)histoClus->FindObject(Form("%sClusPixelTot", prefix.Data()));
-   pad->cd(4);
-   pHisPixelTot->Draw();
-   
-   if (fActTrackVtx && prefix == "vt") {
-      TH1F* pHisChi2TotX = (TH1F*)histoTrack->FindObject(Form("%sChi2TotX", prefix.Data()));
-      pad->cd(1);
-      pHisChi2TotX->Draw();
-      
-      TH1F* pHisChi2TotY = (TH1F*)histoTrack->FindObject(Form("%sChi2TotY", prefix.Data()));
-      pad->cd(2);
-      pHisChi2TotY->Draw();
-      
-      TH1F* pHisTrackEvt = (TH1F*)histoTrack->FindObject(Form("%sTrackEvt", prefix.Data()));
-      pad->cd(3);
-      pHisTrackEvt->Draw();
-      
-      pad = (TVirtualPad*)fListOfPads->FindObject(Form("%sTotRes", prefix.Data()));
-      TH1F* pHisResTotX = (TH1F*)histoTrack->FindObject(Form("%sResTotX", prefix.Data()));
-      pad->cd(1);
-      pHisResTotX->Draw();
-      
-      TH1F* pHisResTotY = (TH1F*)histoTrack->FindObject(Form("%sResTotY", prefix.Data()));
-      pad->cd(2);
-      pHisResTotY->Draw();
-      
-      pad = (TVirtualPad*)fListOfPads->FindObject(Form("%sBeam2D", prefix.Data()));
-      TH2F* pHisBeamProf = (TH2F*)histoTrack->FindObject(Form("%sBeamProf", prefix.Data()));
-      pad->cd();
-      pHisBeamProf->Draw("colz");
-   }
-   
-   TVirtualPad* pad0 = (TVirtualPad*)fListOfPads->FindObject(Form("%sClus2D", prefix.Data()));
-   TVirtualPad* pad4 = (TVirtualPad*)fListOfPads->FindObject(Form("%sIndResX", prefix.Data()));
-   TVirtualPad* pad5 = (TVirtualPad*)fListOfPads->FindObject(Form("%sIndResY", prefix.Data()));
-   TVirtualPad* pad7 = (TVirtualPad*)fListOfPads->FindObject(Form("%sIndPixClus", prefix.Data()));
-   
-   for( Int_t iPlane = 0; iPlane < nPlanes; iPlane++) {
-      
-      TH2F* pHisClusMap = (TH2F*)histoClus->FindObject(Form("%sClusMap%d", prefix.Data(), iPlane+1));
-      pad0->cd(iPlane+1);
-      pHisClusMap->Draw("P");
-      
-      if (fActTrackVtx && prefix == "vt") {
-         TH2F* pHisTrackMap = (TH2F*)histoTrack->FindObject(Form("%sTrackMap%d", prefix.Data(), iPlane+1));
-         pad0->cd(iPlane+1);
-         pHisTrackMap->Draw("SAME");
-         
-         TH1F* pHisResX = (TH1F*)histoTrack->FindObject(Form("%sResX%d", prefix.Data(), iPlane+1));
-         pad4->cd(iPlane+1);
-         pHisResX->Draw("");
-         
-         TH1F* pHisResY = (TH1F*)histoTrack->FindObject(Form("%sResY%d", prefix.Data(), iPlane+1));
-         pad5->cd(iPlane+1);
-         pHisResY->Draw("");
-      }
-      
-      TH1F* pHisPixel = (TH1F*)histoClus->FindObject(Form("%sClusPixel%d", prefix.Data(), iPlane+1));
-      pad7->cd(iPlane+1);
-      pHisPixel->Draw();
-   }
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::UpdateFreqCanvases()
-{
-   if (GlobalPar::GetPar()->IncludeVertex())
-      UpdateFreqCanvases("vt");
-   
-   if (GlobalPar::GetPar()->IncludeInnerTracker())
-      UpdateFreqCanvases("it");
-   
-   if (GlobalPar::GetPar()->IncludeMSD())
-      UpdateFreqCanvases("ms");
+   frmMain->MapSubwindows();
+   frmMain->Resize();
+   frmMain->MapWindow();
 
 }
-
-//__________________________________________________________
-void TAFOeventDisplay::UpdateFreqCanvases(const TString prefix)
-{
-   TCanvas* canvas = 0x0;
-   DrawRate(prefix);
-   
-   if (fRateButton->IsOn()) {
-      canvas = (TCanvas*)fListOfCanvases->FindObject(Form("%sIndRates", prefix.Data()));
-      canvas->Modified();
-      canvas->Update();
-      
-      canvas = (TCanvas*)fListOfCanvases->FindObject(Form("%sIndQRates", prefix.Data()));
-      canvas->Modified();
-      canvas->Update();
-      
-      canvas = (TCanvas*)fListOfCanvases->FindObject(Form("%sIndLengthEvt", prefix.Data()));
-      canvas->Modified();
-      canvas->Update();
-   }
-   
-   ResetRate(prefix);
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::UpdateDefCanvases()
-{
-   if (GlobalPar::GetPar()->IncludeVertex())
-      UpdateDefCanvases("vt");
-   
-   if (GlobalPar::GetPar()->IncludeInnerTracker())
-      UpdateDefCanvases("it");
-   
-   if (GlobalPar::GetPar()->IncludeMSD())
-      UpdateDefCanvases("ms");
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::UpdateDefCanvases(const TString prefix)
-{
-   DrawReco(prefix);
-   DrawRawdata(prefix);
-   
-   TCanvas* canvas = 0x0;
-   if (fClusterButton->IsOn()) {
-      canvas = (TCanvas*)fListOfCanvases->FindObject(Form("%sClus2D", prefix.Data()));
-      canvas->Modified();
-      canvas->Update();
-   }
-   
-   if (fRawDataButton->IsOn()) {
-      
-      canvas = (TCanvas*)fListOfCanvases->FindObject(Form("%sPixelPos2D", prefix.Data()));
-      canvas->Modified();
-      canvas->Update();
-      
-      canvas = (TCanvas*)fListOfCanvases->FindObject(Form("%sPixelRaw2D", prefix.Data()));
-      canvas->Modified();
-      canvas->Update();
-   }
-   
-   canvas = (TCanvas*)fListOfCanvases->FindObject(Form("%sTotRes", prefix.Data()));
-   canvas->Modified();
-   canvas->Update();
-   
-   canvas = (TCanvas*)fListOfCanvases->FindObject(Form("%sIndResX", prefix.Data()));
-   canvas->Modified();
-   canvas->Update();
-   
-   canvas = (TCanvas*)fListOfCanvases->FindObject(Form("%sIndResY", prefix.Data()));
-   canvas->Modified();
-   canvas->Update();
-   
-   canvas = (TCanvas*)fListOfCanvases->FindObject(Form("%sIndPixClus", prefix.Data()));
-   canvas->Modified();
-   canvas->Update();
-   
-   canvas = (TCanvas*)fListOfCanvases->FindObject(Form("%sChi2", prefix.Data()));
-   canvas->Modified();
-   canvas->Update(); 
-   
-   canvas = (TCanvas*)fListOfCanvases->FindObject(Form("%sBeam2D", prefix.Data()));
-   canvas->Modified();
-   canvas->Update(); 
-}
-
-
-
-
-//__________________________________________________________
-void TAFOeventDisplay::DrawRawdata(const TString prefix)
-{
-   if (fType == 0) {
-      TAVTbaseParGeo* parGeo = 0x0;
-      TList* histoDat    = 0x0;
-   
-      if (prefix == "vt") {
-         parGeo   = (TAVTparGeo*) fpParGeoVtx->Object();
-         histoDat = fActNtuRawVtx->GetHistogrammList();
-      } else if (prefix == "it") {
-         parGeo   = (TAITparGeo*) fpParGeoIt->Object();
-         histoDat = fActNtuRawIt->GetHistogrammList();
-      } else if (prefix == "ms") {
-         parGeo   = (TAMSDparGeo*) fpParGeoMsd->Object();
-         histoDat = fActNtuRawMsd->GetHistogrammList();
-      }
-   
-      Int_t nPlanes = parGeo->GetNSensors();
-      TVirtualPad* pad2 = (TVirtualPad*)fListOfPads->FindObject(Form("%sPixelRaw2D", prefix.Data()));
-      for( Int_t iPlane = 0; iPlane < nPlanes; iPlane++) {
-         TH2F* pHisPixel = (TH2F*)histoDat->FindObject(Form("%sPosMap%d", prefix.Data(), iPlane+1));
-         pad2->cd(iPlane+1);
-         pHisPixel->Draw("colz");
-      }
-   }
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::DrawRate(const TString prefix)
-{
-   TAVTbaseParGeo* parGeo = 0x0;
-   
-   if (prefix == "vt")
-      parGeo = (TAVTparGeo*) fpParGeoVtx->Object();
-   else if (prefix == "it")
-      parGeo   = (TAITparGeo*) fpParGeoIt->Object();
-   else if (prefix == "ms")
-      parGeo = (TAMSDparGeo*) fpParGeoMsd->Object();
-   
-   Int_t nPlanes = parGeo->GetNSensors();
-   
-   if (fType == -1) {
-      TList* histoDat  = fActEvtReader->GetHistogrammList();
-      TVirtualPad* pad9 = (TVirtualPad*)fListOfPads->FindObject(Form("%sIndLengthEvt", prefix.Data()));
-      
-      for( Int_t iPlane = 0; iPlane < nPlanes; iPlane++) {
-         
-         TH1F* pHisEvtLength = (TH1F*)histoDat->FindObject(Form("%sEvtLength%d", prefix.Data(), iPlane+1));
-         pad9->cd(iPlane+1);
-         pHisEvtLength->Draw(); 
-      }
-   }
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::ResetRate(const TString prefix)
-{
-   TAVTbaseParGeo* parGeo = 0x0;
-   if (prefix == "vt")
-      parGeo = (TAVTparGeo*) fpParGeoVtx->Object();
-   else if (prefix == "it")
-      parGeo = (TAITparGeo*) fpParGeoIt->Object();
-   else if (prefix == "ms")
-      parGeo = (TAMSDparGeo*) fpParGeoMsd->Object();
-   
-   Int_t nPlanes = parGeo->GetNSensors();
-   
-   if (fType == -1) {
-      TList* histoDat  = fActDatRawVtx->GetHistogrammList();
-      for( Int_t iPlane = 0; iPlane < nPlanes; iPlane++) {
-         if (fRateButton->IsOn()) {
-            TH1F* pHisRateMap = (TH1F*)histoDat->FindObject(Form("%sRateMap%d", prefix.Data(), iPlane+1));
-            pHisRateMap->Reset();
-            
-            TH1F* pHisQRate = (TH1F*)histoDat->FindObject(Form("%sRateMapQ%d", prefix.Data(), iPlane+1));
-            pHisQRate->Reset();
-         }
-      }
-   }
-}
-

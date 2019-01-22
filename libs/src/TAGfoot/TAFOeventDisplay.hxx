@@ -80,10 +80,7 @@ public:
    
    //! Update normal Canvases
    virtual void UpdateDefCanvases();
-   
-   //! Update Canvases at a given frequence (e.g.: rates)
-   virtual void UpdateFreqCanvases();
-   
+
    //! Add required items
    virtual void AddRequiredItem();
 
@@ -129,17 +126,6 @@ protected:
    void UpdateTrackElements(const TString prefix);
    void UpdateGlbTrackElements();
    void UpdateElements(const TString prefix);
-   void CreateCanvases(const TString prefix);
-   void DrawReco(const TString prefix);
-   void DrawRawdata(const TString prefix);
-   void DrawRate(const TString prefix);
-   void ResetRate(const TString prefix);
-   void UpdateFreqCanvases(const TString prefix);
-   void UpdateDefCanvases(const TString prefix);
-
-   
-   //! Update histo of clusters and tracks
-   virtual void DrawReco();
    
 public:
    //! Set Tracking algorithm
