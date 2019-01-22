@@ -409,7 +409,7 @@ Bool_t TABMparGeo::GetBMNlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_
    }
    
    icell = cellid % 3;
-   iview = (((Int_t)(cellid/3)) % 2 == 0) ? 1:-1;
+   iview = (((Int_t)(cellid/3)) % 2 == 0) ? 0:1;
    ilay  = (Int_t)(cellid/6);
    
    return kTRUE;
@@ -420,16 +420,14 @@ void TABMparGeo::GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_
    
    /* Set Chamber center positioning */
    int my_ID = GetSenseId(cellID);
-   int myview = 0; //U view is default (side view)
-   if(view == -1) myview = 1; //V view (top view)
    
-   h_x = fPosX[my_ID][plane][myview];
-   h_y = fPosY[my_ID][plane][myview];
-   h_z = fPosZ[my_ID][plane][myview];
+   h_x = fPosX[my_ID][plane][view];
+   h_y = fPosY[my_ID][plane][view];
+   h_z = fPosZ[my_ID][plane][view];
    
-   h_cx =  fPosCX[my_ID][plane][myview];
-   h_cy =  fPosCY[my_ID][plane][myview];
-   h_cz =  fPosCZ[my_ID][plane][myview];
+   h_cx =  fPosCX[my_ID][plane][view];
+   h_cy =  fPosCY[my_ID][plane][view];
+   h_cz =  fPosCZ[my_ID][plane][view];
    
    return;
 }

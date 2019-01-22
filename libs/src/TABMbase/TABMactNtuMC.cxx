@@ -80,14 +80,12 @@ Bool_t TABMactNtuMC::Action()
     if(tobecharged[i]){
       cell = fpEvtStr->BMNicell[i];
       lay = fpEvtStr->BMNilay[i]; 
-      view = fpEvtStr->BMNiview[i];
+      view = fpEvtStr->BMNiview[i]==-1 ? 1:0;
       hitxcell[i]=p_bmgeo->GetBMNcell(lay, view, cell);
       glo.SetXYZ(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
        
       loc = geoTrafo->FromGlobalToBMLocal(glo);
       gmom.SetXYZ(fpEvtStr->BMNpxin[i],fpEvtStr->BMNpyin[i],fpEvtStr->BMNpzin[i]);
-       
-      view = (view == -1) ? 1 : 0;
        
       A0.SetXYZ(p_bmgeo->GetWireX(p_bmgeo->GetSenseId(cell),lay,view),    //sarebbe più elegante mettere questa roba in FindRdrift,
                 p_bmgeo->GetWireY(p_bmgeo->GetSenseId(cell),lay,view),    //ma in FindRdrift dovrei caricare p_bmgeo, e forse non conviene
@@ -137,12 +135,11 @@ Bool_t TABMactNtuMC::Action()
       nprunehits=0;
 
     //provv
-    Int_t tmp_int=gRandom->Uniform(0,7);
-    if(tmp_int < 3.9)
-      hitsrandtot = 12 - (Int_t) fabs(gRandom->Gaus(0, 1.8));//gaussian is too large!
-    else
-      hitsrandtot = 12 + (Int_t) fabs(gRandom->Gaus(0, 2.3));//gaussian is too large!
-
+     Int_t tmp_int=gRandom->Uniform(0,10);//check if this number is ok
+     if(tmp_int<p_bmcon->GetFakehitsMean())
+        hitsrandtot = 12 - (Int_t) fabs(gRandom->Gaus(0, p_bmcon->GetFakehitsSigmaLeft()));
+     else
+        hitsrandtot = 12 + (Int_t) fabs(gRandom->Gaus(0, p_bmcon->GetFakehitsSigmaRight()));
 
     if(nprunehits > nrealhits)
       nprunehits = nrealhits;
@@ -178,9 +175,7 @@ Bool_t TABMactNtuMC::Action()
       ipoint=fpEvtStr->BMNid[i]-1;
       cell = fpEvtStr->BMNicell[i];
       lay = fpEvtStr->BMNilay[i];
-      view = fpEvtStr->BMNiview[i];
-
-      view = (view == -1) ? 1 : 0;
+      view = fpEvtStr->BMNiview[i]==-1 ? 1:0;
        
       //shift the t0 and change the strelations:
       realrdrift = rdriftxcell[i];
@@ -190,9 +185,6 @@ Bool_t TABMactNtuMC::Action()
                                                                   rdriftxcell[i], p_bmcon->InverseStrel(rdriftxcell[i]), fpEvtStr->BMNtim[i]);
        
        mytmp->AddMcTrackId(ipoint, i);
-
-      //X,Y and Z needs to be placed in Local coordinates.
-      mytmp->SetAW(p_bmgeo);
        
       if(p_bmcon->ResoEval(rdriftxcell[i])>0)
         mytmp->SetSigma(p_bmcon->ResoEval(rdriftxcell[i]));
@@ -249,7 +241,7 @@ void TABMactNtuMC::CreateFakeHits(Int_t nfake, Int_t &nhits)
     TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) TABMntuHit(    
                     -100,	view, plane, cell,        
                     rdrift, p_bmcon->InverseStrel(rdrift), -1.);     //tdrift has no meaning for MC (now)
-    mytmp->SetAW(p_bmgeo);
+
     if(p_bmcon->ResoEval(rdrift)>0)
       mytmp->SetSigma(p_bmcon->ResoEval(rdrift));
     else

@@ -34,7 +34,7 @@ class TABMntuHit : public TAGdata {
     
 
     //Getters
-    void SetAW(TABMparGeo *f_bmgeo);
+    void SetAW();
     Double_t GetRho() {return rho;};
     Double_t GetChi2() {return ichi2;};
     Double_t GetSigma() {return sigma;};

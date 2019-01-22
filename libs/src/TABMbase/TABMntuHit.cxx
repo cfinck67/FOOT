@@ -1,6 +1,9 @@
 #include "TRandom3.h"
 
 
+#include "TAGroot.hxx"
+#include "TAGparaDsc.hxx"
+#include "TABMparGeo.hxx"
 #include "TABMntuHit.hxx"
 
 using namespace std;
@@ -48,6 +51,8 @@ TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t r, Doubl
   isSelected=false;
   isFake=false;
   sigma=s;
+
+   SetAW();
 }
 
 void TABMntuHit::Clear(Option_t* /*option*/)
@@ -66,26 +71,21 @@ void TABMntuHit:: AddMcTrackId(Int_t trackId, Int_t mcId)
 }
 
 
-void TABMntuHit::SetAW(TABMparGeo* f_bmgeo) {
+void TABMntuHit::SetAW() {
+
+   TABMparGeo* f_bmgeo = (TABMparGeo*) gTAGroot->FindParaDsc(TABMparGeo::GetDefParaName(), "TABMparGeo")->Object();
 
   Int_t idfilo = f_bmgeo->GetSenseId(Cell());
-  /*  vista U */
-  Int_t tmp_fview = (View()<0)? 1 : 0;            
 
- // if(idfilo <0 || idfilo>2) idfilo = 2; //yun: nosense questa cosa...
-
-  A0.SetXYZ(f_bmgeo->GetWireX(idfilo,Plane(),tmp_fview), f_bmgeo->GetWireY(idfilo,Plane(),tmp_fview), f_bmgeo->GetWireZ(idfilo,Plane(),tmp_fview));
-  Wvers.SetXYZ(f_bmgeo->GetWireCX(idfilo,Plane(),tmp_fview), f_bmgeo->GetWireCY(idfilo,Plane(),tmp_fview), f_bmgeo->GetWireCZ(idfilo,Plane(),tmp_fview));
+   A0.SetXYZ(f_bmgeo->GetWireX(idfilo,Plane(),iview), f_bmgeo->GetWireY(idfilo,Plane(),iview), f_bmgeo->GetWireZ(idfilo,Plane(),iview));
+   Wvers.SetXYZ(f_bmgeo->GetWireCX(idfilo,Plane(),iview), f_bmgeo->GetWireCY(idfilo,Plane(),iview), f_bmgeo->GetWireCZ(idfilo,Plane(),iview));
   
-  Double_t modulo = Wvers.Mag();
-  if(modulo!=0.) {
-    Wvers = (1./modulo)*Wvers;
-  }
-  else{
-    cout<<"Track::AddWire-> ERROR Wvers modulo: "<<modulo<<endl;
-    return;
-  }
-  
+   if(Wvers.Mag()!=0.)
+      Wvers.SetMag(1.);
+   else{
+      cout<<"Error in TABMntuHit constructor::AddWire-> ERROR Wvers.Mag()==0!!!"<<endl;
+      return;
+   }
   return;
 }
 
