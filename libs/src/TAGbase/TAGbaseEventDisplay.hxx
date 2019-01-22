@@ -114,6 +114,7 @@ public:
    
    void         ClearInfoView();
    void         HistoSelected(Int_t id);
+   void         ResetHisto();
 
    void         MakeGUI();
    

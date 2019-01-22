@@ -334,17 +334,23 @@ void TAGbaseEventDisplay::MakeGUI()
    fInfoView->ShowBottom();
    infoFrameView->AddFrame(fInfoView, new TGLayoutHints(kLHintsLeft | kLHintsCenterY  |
                                                         kLHintsExpandX, 2, 10, 0, 0));
-   
+   // Clear info
    TGTextButton* clearInfo = new TGTextButton(infoFrameView,"&Clear");
    clearInfo->Connect("Clicked()","TAGbaseEventDisplay",this,"ClearInfoView()");
    clearInfo->SetToolTipText("Clear Info View");
-   infoFrameView->AddFrame(clearInfo, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 15, 5, 3, 4));
+   infoFrameView->AddFrame(clearInfo, new TGLayoutHints(kLHintsTop | kLHintsLeft, 5, 0, 5, 0));
    
+   // Reset histo
+   TGTextButton* resetHisto = new TGTextButton(infoFrameView,"&Reset Histo");
+   resetHisto->Connect("Clicked()","TAGbaseEventDisplay",this,"ResetHisto()");
+   resetHisto->SetToolTipText("Reset selected histo");
+   infoFrameView->AddFrame(resetHisto, new TGLayoutHints(kLHintsTop | kLHintsLeft, 55, 0, -20, 0));
+
    fHistoListBox = new TGListBox(infoFrameView, 200);
    fHistoListBox->SetMultipleSelections();
    fHistoListBox->Connect("Selected(Int_t)", "TAGbaseEventDisplay", this, "HistoSelected(Int_t)");
 
-   infoFrameView->AddFrame(fHistoListBox, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 15, 5, 3, 4));
+   infoFrameView->AddFrame(fHistoListBox, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 15, 5, 10, 4));
    
    fSelecHistoList = new TList();
    TList* list = gTAGroot->ListOfAction();
@@ -478,6 +484,17 @@ void TAGbaseEventDisplay::HistoSelected(Int_t /*id*/)
       canvas->Clear();
       Int_t ndiv = TMath::Nint(float(nHisto)/2. + 0.4);
       canvas->Divide(ndiv, 2);
+   }
+}
+
+//__________________________________________________________
+void TAGbaseEventDisplay::ResetHisto()
+{
+   Int_t nHisto = fHistoList->GetEntries();
+   
+   for (Int_t k = 0; k < nHisto; ++k) {
+      TH1* h = (TH1*)fHistoList->At(k);
+      h->Reset();
    }
 }
 
