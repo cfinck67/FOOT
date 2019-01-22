@@ -60,7 +60,7 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
   //Bfield is along Y in our case.
   
   FieldManager::getInstance()->init(new ConstField(0.,0.,0.)); //one day the magnetic field map will be load here, but now there isn't any accurate magnetic field... 
-  //~ MaterialEffects::getInstance()->init(new TGeoMaterialInterface());//it is really necessary?
+  MaterialEffects::getInstance()->init(new TGeoMaterialInterface());//it is necessary
   
   p_bmcon = (TABMparCon*) fpBMCon->Object();
   p_bmgeo = (TABMparGeo*) fpBMGeo->Object();
