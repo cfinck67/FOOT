@@ -998,8 +998,9 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
                fBmTrackDisplay->AddNewTrack();
             
             TABMntuTrackTr* track = pNtuTrack->Track(iTrack);
-            TVector3 A0 = track->PointAtLocalZ(-parGeo->GetLength());
-            TVector3 A1 = track->PointAtLocalZ(+parGeo->GetLength());
+
+            TVector3 A0 = track->GetMylar1Pos();
+            TVector3 A1 = track->GetMylar2Pos();
             
             TVector3 A0G = fpFootGeo->FromBMLocalToGlobal(A0);
             TVector3 A1G = fpFootGeo->FromBMLocalToGlobal(A1);
@@ -1008,7 +1009,8 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
             x1 = A1G(0); y1 = A1G(1); z1 = A1G(2)*1.1;
             
             Int_t nHits = track->GetNhit();
-            fBmTrackDisplay->AddTracklet(nHits*100, x, y, z, x1, y1, z1);
+            // inverse view ??
+            fBmTrackDisplay->AddTracklet(nHits*100, y, x, z, y1, x1, z1);
             fBmTrackDisplay->TrackId(track);
             
          } // end loop on tracks
