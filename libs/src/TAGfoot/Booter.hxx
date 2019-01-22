@@ -118,7 +118,7 @@ class Booter {
 
   //Data descriptions
  
-  TAGdataDsc* myn_irraw;
+  TAGdataDsc* myn_scraw;
 
   TAGparaDsc* myp_bmcon;
   TAGdataDsc* myn_bmraw;

@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include <fstream>
-
+#include <sstream>
 #include "TSystem.h"
 #include "TString.h"
 #include "TGeoManager.h"
@@ -37,6 +37,7 @@ TATRparGeo::TATRparGeo()
    fMaterial(""),
    fDensity(0.)
 {
+  fgDefaultGeoName = "./geomaps/TATRdetector.map";
 }
 
 //------------------------------------------+-----------------------------------
@@ -72,7 +73,8 @@ Bool_t TATRparGeo::FromFile(const TString& name)
       nameExp = name;
    
    if (!Open(nameExp)) return false;
-   
+
+   //The center is taken from the global setup of the experiment.
    ReadVector3(fSize);
    if(fDebugLevel)
       cout  << "  Size: "
@@ -126,5 +128,52 @@ TGeoVolume* TATRparGeo::BuildStartCounter(const char *stName )
    start->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
    
    return start;
+}
+
+//_____________________________________________________________________________
+string TATRparGeo::PrintBodies( ) {
+  
+  stringstream outstr;
+  outstr << "* ***Start Counter" << endl;
+
+  stringstream ss;
+  double zero = 0.;
+
+  outstr << setiosflags(ios::fixed) << setprecision(6);
+  outstr << "RPP stc     "  << fCenter[0]-fSize[0]/2. << " " << fCenter[0]+fSize[0]/2 << " " <<
+    fCenter[1]-fSize[1]/2. << " " << fCenter[1]+fSize[1]/2 << " " <<
+    fCenter[2]-fSize[2]/2. << " " << fCenter[2]+fSize[2]/2 << " " <<  endl;
+
+  //Mylar that is 10\mum thick
+  outstr << "XYP stcmyl1    "  << fCenter[2]-fSize[2]/2. - 0.001<<  endl;
+  //Mylar that is 10\mum thick
+  outstr << "XYP stcmyl2    "  << fCenter[2]+fSize[2]/2. + 0.001<<  endl;
+  
+  return outstr.str();
+}
+
+
+//_____________________________________________________________________________
+string TATRparGeo::PrintRegions() {
+  
+  stringstream outstr;
+  outstr << "* ***Start Counter" << endl;
+
+  outstr << "STC          5 +stc -stcmyl1 +stcmyl2" << endl;
+  outstr << "STCMYL1      5 +stc +stcmyl1" << endl;
+  outstr << "STCMYL2      5 +stc -stcmyl2" << endl;
+
+  return outstr.str();
+}
+
+//_____________________________________________________________________________
+string TATRparGeo::PrintAssignMaterial() {
+
+  stringstream outstr;
+
+    outstr << "ASSIGNMA      EJ-232       STC                            1." << endl;
+    outstr << "ASSIGNMA       Mylar   STCMYL1   STCMYL2                  1." << endl;
+
+    return outstr.str();
 }
 
