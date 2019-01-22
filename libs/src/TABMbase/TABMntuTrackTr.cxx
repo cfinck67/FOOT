@@ -239,7 +239,8 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
   
   //out of cicle state should be the state of last measurement
   //other fitpos parameter
-  if(hit_num_withcov>0 && mychi2Red<p_bmcon->GetChi2Redcut()){
+   
+ // if(hit_num_withcov>0 && mychi2Red<p_bmcon->GetChi2Redcut()){
     
     //calculate AngZ and AngPhi with momentum:
     if(angZ_vec.size()!=angPhi_vec.size())
@@ -291,7 +292,7 @@ void TABMntuTrackTr::CalculateFitPar(Track* fitTrack, vector<Double_t>& hit_res,
     fitTrack->getTrackRep(0)->extrapolateToPlane(state, target_plane);
     target_pos=state.getPos();
 
-    }//fine if hit_num_withcov>0 
+  //  }//fine if hit_num_withcov>0
     
       if(p_bmcon->GetBMdebug()>10)
         cout<<"TABMntuTrack::CalculateFitPar::end of CalculateFitPar"<<endl;  
