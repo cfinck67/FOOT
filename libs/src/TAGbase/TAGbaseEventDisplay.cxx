@@ -118,7 +118,11 @@ TAGbaseEventDisplay::~TAGbaseEventDisplay()
    // default destructor
    delete fListOfCanvases;
    delete fListOfPads;
+   delete fSelecHistoList;
+   delete fHistoList;
    
+   if (fHistoListBox)
+      delete fHistoListBox;
    if (fInfoView)
       delete fInfoView;
    if (fEventEntry)
@@ -339,6 +343,29 @@ void TAGbaseEventDisplay::MakeGUI()
    clearInfo->SetToolTipText("Clear Info View");
    infoFrameView->AddFrame(clearInfo, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 15, 5, 3, 4));
    
+   fHistoListBox = new TGListBox(infoFrameView, 200);
+   fHistoListBox->SetMultipleSelections();
+   fHistoListBox->Connect("Selected(Int_t)", "TAGbaseEventDisplay", this, "HistoSelected(Int_t)");
+
+   infoFrameView->AddFrame(fHistoListBox, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 15, 5, 3, 4));
+   
+   fSelecHistoList = new TList();
+   TList* list = gTAGroot->ListOfAction();
+   Int_t hCnt = 0;
+   for (Int_t i = 0; i < list->GetEntries(); ++i) {
+      TAGaction* action = (TAGaction*)list->At(i);
+      TList* hlist = action->GetHistogrammList();
+      if (hlist == 0x0) continue;
+      for (Int_t j = 0; j < hlist->GetEntries(); ++j) {
+         TH1* h = (TH1*)hlist->At(j);
+         fHistoListBox->AddEntry(h->GetName(), hCnt);
+      }
+   }
+   fHistoListBox->Resize(200, 130);
+
+   fHistoList = new TList();
+   fHistoList->SetOwner(false);
+   
    frmMain->AddFrame(infoFrameView, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 2, 0, 5, 5));
    
    frmMain->MapSubwindows();
@@ -391,9 +418,7 @@ void TAGbaseEventDisplay::LoopEvent(Int_t nEvts)
    
    if (fRefreshButton->IsOn())
       ResetHistogram();
-   
-   Int_t freq = fRefreshEvent->GetIntNumber();
-   
+      
    for (Int_t i = 0; i < nEvts; ++i) {
       if (! GetEntry(fCurrentEventId)) return;
       if (!fAGRoot->NextEvent()) return;
@@ -402,10 +427,6 @@ void TAGbaseEventDisplay::LoopEvent(Int_t nEvts)
       
       if (!fRefreshButton->IsOn())
          UpdateElements();
-      
-      if (fCurrentEventId % freq == 0) {
-         UpdateFreqCanvases();
-      }
    }
    
    UpdateElements();
@@ -423,5 +444,45 @@ void TAGbaseEventDisplay::NextEvent()
 {   
    LoopEvent(1);
 }
+
+//__________________________________________________________
+void TAGbaseEventDisplay::HistoSelected(Int_t /*id*/)
+{
+   fSelecHistoList->Clear();
+   fHistoList->Clear();
+   fHistoListBox->GetSelectedEntries(fSelecHistoList);
+   Int_t nHisto = fSelecHistoList->GetEntries();
+   
+   TList* list = gTAGroot->ListOfAction();
+   Int_t hCnt = 0;
+   for (Int_t i = 0; i < list->GetEntries(); ++i) {
+      TAGaction* action = (TAGaction*)list->At(i);
+      TList* hlist = action->GetHistogrammList();
+      if (hlist == 0x0) continue;
+      for (Int_t j = 0; j < hlist->GetEntries(); ++j) {
+         TH1* h = (TH1*)hlist->At(j);
+         
+         for (Int_t k = 0; k < fSelecHistoList->GetEntries(); ++k) {
+            
+            TGTextLBEntry* t = (TGTextLBEntry*)fSelecHistoList->At(k);
+            if (t == 0x0) continue;
+            TString s(t->GetText()->GetString());
+            if (s == h->GetName()) {
+               fHistoList->Add(h);
+            }
+         }
+      }
+   }
+   
+   Int_t nCanvas = fListOfCanvases->GetEntries();
+   for (Int_t i = 0; i < nCanvas; ++i) {
+      TCanvas* canvas = (TCanvas*)fListOfCanvases->At(i);
+      if (!canvas) continue;
+      canvas->Clear();
+      Int_t ndiv = TMath::Nint(float(nHisto)/2. + 0.4);
+      canvas->Divide(ndiv, 2);
+   }
+}
+
 
 
