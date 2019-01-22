@@ -137,7 +137,6 @@ public:
    void         SetTAGroot(TAGroot* root)   { fAGRoot = root;         }
    TAGroot*     GetTAGroot()                { return fAGRoot;         }
    
-   TList*       GetPadList()        const   { return fListOfPads;     }
    TList*       GetCanvasList()     const   { return fListOfCanvases; }
    
    //! Set width/height of box
@@ -201,7 +200,6 @@ protected:
    
    //histos
    TList*             fListOfCanvases;   // list of canvases
-   TList*             fListOfPads;       // list of pads for histo
 
 protected:
    static Bool_t      fgIsGeoLoaded;       // flag if geometry loaded

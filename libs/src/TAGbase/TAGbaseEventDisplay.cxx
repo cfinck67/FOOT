@@ -85,13 +85,11 @@ TAGbaseEventDisplay::TAGbaseEventDisplay(const TString expName)
   fInfoView(0x0),
   fEventEntry(0x0),
   fDebugLevel(0),
-  fListOfCanvases(new TList()),
-  fListOfPads(new TList())
+  fListOfCanvases(new TList())
 { 
   // default constructor
 
    fListOfCanvases->SetOwner(false);
-   fListOfPads->SetOwner(false);
    
    // define TAGroot
    fAGRoot = new TAGroot();
@@ -117,7 +115,6 @@ TAGbaseEventDisplay::~TAGbaseEventDisplay()
 {
    // default destructor
    delete fListOfCanvases;
-   delete fListOfPads;
    delete fSelecHistoList;
    delete fHistoList;
    

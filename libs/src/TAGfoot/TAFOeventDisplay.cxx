@@ -1256,19 +1256,8 @@ void TAFOeventDisplay::CreateCanvases()
    canvas->SetName("HistoCanvas");
    canvas->Resize();
    fListOfCanvases->Add(canvas);
-   pad = new TPad("HistoPad","",0.,0.,1.,1);
-   
-   fHistoListBox->GetSelectedEntries(fSelecHistoList);
-   Int_t nHisto = fSelecHistoList->GetEntries();
-   
-   if (nHisto != 1)
-      pad->Divide(nHisto/2, 2);
-   
-   pad->Draw();
-   fListOfPads->Add(pad);
    
    frmMain->MapSubwindows();
    frmMain->Resize();
    frmMain->MapWindow();
-
 }
