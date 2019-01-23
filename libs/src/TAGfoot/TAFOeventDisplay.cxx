@@ -950,8 +950,8 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
       TAVTparGeo*  parGeo = (TAVTparGeo*) fpParGeoVtx->Object();
       
       Int_t nPlanes         = parGeo->GetNSensors();
-      Float_t posfirstPlane = parGeo->GetSensorPosition(0)[2];
-      Float_t posLastPlane  = parGeo->GetSensorPosition(nPlanes-1)[2];
+      Float_t posfirstPlane = parGeo->GetSensorPosition(0)[2]*1.1;
+      Float_t posLastPlane  = parGeo->GetSensorPosition(nPlanes-1)[2]*1.1;
       
       TAVTntuTrack*  pNtuTrack = (TAVTntuTrack*)  fpNtuTrackVtx->Object();
       
@@ -970,12 +970,12 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
             
             posG = fpFootGeo->FromVTLocalToGlobal(pos);
             
-            x = posG(0); y = posG(1); z = posG(2)*0.9;
+            x = posG(0); y = posG(1); z = posG(2);
             
             pos = track->Intersection(posLastPlane);
             posG = fpFootGeo->FromVTLocalToGlobal(pos);
             
-            x1 = posG(0); y1 = posG(1); z1 = posG(2)*1.1;
+            x1 = posG(0); y1 = posG(1); z1 = posG(2);
             
             Int_t nClus = track->GetClustersN();
             fVtxTrackDisplay->AddTracklet(nClus*100, x, y, z, x1, y1, z1);
