@@ -108,8 +108,8 @@ bool TATWactNtuMC::Action() {
        
 
         // layer, bar, de, time, ntupID, parentID
-        int view = ( m_eventStruct->SCNiview[i] == -1 ? 0 : 1 );    // in ntuple layers are -1 and 1
-        //int view = ( m_eventStruct->SCNiview[i] == -1 ? 1 : 0 );    // in ntuple layers are -1 and 1
+       // int view = ( m_eventStruct->SCNiview[i] == -1 ? 0 : 1 );    // in ntuple layers are -1 and 1
+        int view = ( m_eventStruct->SCNiview[i] == -1 ? 1 : 0 );    // in ntuple layers are -1 and 1
        
        if ( fDebugLevel> 0 )
           printf("%d %d\n", view,  m_eventStruct->SCNibar[i]);
@@ -117,7 +117,7 @@ bool TATWactNtuMC::Action() {
        TVector3 posIn(x0, y0, z0);
        TVector3 posInLoc = geoTrafo->FromGlobalToTWLocal(posIn);
 
-       m_Digitizer->Process(edep, posInLoc[0], posInLoc[1], z0, z1, time, id);
+       m_Digitizer->Process(edep, posInLoc[0], posInLoc[1], z0, z1, time, id+TATWparGeo::GetLayerOffset()*view);
        TATW_Hit* hit = m_Digitizer->GetCurrentHit();
        hit->AddMcTrackId(trackId, i);
 
