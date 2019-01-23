@@ -179,8 +179,9 @@ string TATRparGeo::PrintRegions() {
 string TATRparGeo::PrintAssignMaterial() {
 
   stringstream outstr;
+  const Char_t* matName = fMaterial.Data();
 
-    outstr << "ASSIGNMA      EJ-232       STC                            1." << endl;
+  outstr << "ASSIGNMA       "<<matName<<"       STC                            1." << endl;
     outstr << "ASSIGNMA       Mylar   STCMYL1   STCMYL2                  1." << endl;
 
     return outstr.str();

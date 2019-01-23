@@ -84,6 +84,10 @@ COMPOUND          4.   BISMUTH        3.  GERMANIU       12.    OXYGENBGO
 *
 MATERIAL                           1.023                              EJ-232
 COMPOUND         10.  HYDROGEN        9.    CARBON                    EJ-232
+* Scintillator - EJ228
+*
+MATERIAL                           1.023                              EJ228
+COMPOUND         10.  HYDROGEN        9.    CARBON                    EJ228
 *EMFRAY            4.   BLKBODY  @LASTREG
 * Barium sulfate Ba_S_O4
 MATERIAL         16.                2.07                              SULFUR
@@ -164,7 +168,7 @@ COMPOUND         -4.       SiC      -96.       AIR                    SiCFoam
 * @@@START GENERATED, DO NOT MODIFY:MATERIAL&MAGFIELD@@@ ***********************
 ASSIGNMA    BLCKHOLE     BLACK
 ASSIGNMA         AIR       AIR
-ASSIGNMA      EJ-232       STC
+ASSIGNMA      EJ228       STC
 ASSIGNMA    ALUMINUM   BMN_SHI
 ASSIGNMA       Mylar  BMN_MYL0
 ASSIGNMA       Mylar  BMN_MYL1
