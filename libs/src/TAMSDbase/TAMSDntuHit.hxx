@@ -8,7 +8,7 @@
 #include "TClonesArray.h"
 #include "TVector3.h"
 
-#include "TAGobject.hxX"
+#include "TAGobject.hxx"
 #include "TAGroot.hxx"
 #include "TAMSDparGeo.hxx"
 #include "TAGparaDsc.hxx"

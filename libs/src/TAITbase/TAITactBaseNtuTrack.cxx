@@ -242,7 +242,7 @@ void TAITactBaseNtuTrack::CheckBM()
    TABMntuTrack* pBMtrack = 0x0;
    fBmTrackOk    = false;
    pBMtrack = (TABMntuTrack*) fpBMntuTrack->Object();
-   if (pBMtrack->ntrk > 0)
+   if (pBMtrack->GetTracksN() > 0)
 	  fBmTrack = pBMtrack->Track(0);
    
    if (fBmTrack) {

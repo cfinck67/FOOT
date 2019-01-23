@@ -21,21 +21,21 @@ ClassImp(TABMntuTrack);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TABMntuTrack::TABMntuTrack() :
-   //~ TAGdata(),//da capire se serve...
-     ntrk(0),
-    t(0),
-    trk_status(-1000)
-{}
+TABMntuTrack::TABMntuTrack()
+ : TAGdata(),
+   fListOfTracks(0),
+   fStatus(-1000)
+{
+   SetupClones();
+}
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
 TABMntuTrack::~TABMntuTrack()
 {
-  if(t)
-    t->Delete();
-    //~ delete t;
+  if(fListOfTracks)
+    fListOfTracks->Delete();
 }
 
 //------------------------------------------+-----------------------------------
@@ -43,8 +43,8 @@ TABMntuTrack::~TABMntuTrack()
 
 void TABMntuTrack::SetupClones()
 {
-  if (!t) 
-    t = new TClonesArray("TABMntuTrackTr");
+  if (!fListOfTracks)
+    fListOfTracks = new TClonesArray("TABMntuTrackTr");
   return;
 }
 
@@ -54,12 +54,11 @@ void TABMntuTrack::SetupClones()
 void TABMntuTrack::Clear(Option_t*)
 { 
   TAGdata::Clear();
-  ntrk   = 0;
-  trk_status=-1000;
-  if(t) 
-    t->Delete();//presente prima
-    //~ t->Clear();    
-  return;
+  fStatus=-1000;
+  if(fListOfTracks) 
+    fListOfTracks->Delete();//presente prima
+
+   return;
 }
 
 //*************************************************** OLD TRACKING ********************************************************

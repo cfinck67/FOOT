@@ -41,6 +41,7 @@
 #include "TGProgressBar.h"
 #include "TGTextView.h"
 #include "TGTextEntry.h"
+#include "TGListBox.h"
 
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
@@ -77,9 +78,6 @@ public:
    //! Update normal Canvases
    virtual void UpdateDefCanvases() = 0;
    
-   //! Update Canvases at a given frequence (e.g.: rates)
-   virtual void UpdateFreqCanvases() = 0;
-   
    //! Add required items
    virtual void AddRequiredItem() = 0;
    
@@ -113,8 +111,10 @@ public:
    virtual void BuildDefaultGeometry();
    
    virtual void NextEvent(); //*MENU*
-
+   
    void         ClearInfoView();
+   void         HistoSelected(Int_t id);
+
    void         MakeGUI();
    
    void         SetWorldSizeZ(Float_t sizeZ);
@@ -192,9 +192,11 @@ protected:
    TGTextView*        fInfoView;         // text view for hit/track info
    TGTextEntry*       fEventEntry;       // text entry for event number
    TGNumberEntry*     fNumberEvent;      // number of events to loop
-   TGNumberEntry*     fRefreshEvent;     // refreshing frequency
    TGCheckButton*     fRefreshButton;    // refresh display for each event otherwise superimpose events
    TGHProgressBar*    fEventProgress;    // progress event bar
+   TGListBox*         fHistoListBox;     // list of histograms
+   TList*             fSelecHistoList;   // list of slected histograms
+   TList*             fHistoList;        // list of slected histograms
    Int_t              fDebugLevel;       // debug level
    
    //histos

@@ -9,8 +9,8 @@
 
 inline TABMntuTrackTr* TABMntuTrack::Track(Int_t i)
 {
-  if(ntrk)
-    return (TABMntuTrackTr*) ((*t)[i]);
+  if(GetTracksN())
+    return (TABMntuTrackTr*) ((*fListOfTracks)[i]);
   else 
     return 0x0;
 }
@@ -20,9 +20,24 @@ inline TABMntuTrackTr* TABMntuTrack::Track(Int_t i)
 
 inline const TABMntuTrackTr* TABMntuTrack::Track(Int_t i) const
 {
-  if(ntrk)
-    return (const TABMntuTrackTr*) ((*t)[i]);
+  if(GetTracksN())
+    return (const TABMntuTrackTr*) ((*fListOfTracks)[i]);
   else 
     return 0x0;;
+}
+
+//------------------------------------------+-----------------------------------
+//! return number of tracks
+inline Int_t TABMntuTrack::GetTracksN() const
+{
+   return fListOfTracks->GetEntries();
+}
+
+
+//------------------------------------------+-----------------------------------
+//! return number of tracks
+inline Int_t& TABMntuTrack::GetTrackStatus()
+{
+   return fStatus;
 }
 

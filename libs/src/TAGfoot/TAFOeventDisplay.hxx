@@ -43,6 +43,7 @@
 //#include "TATWactNtuRaw.hxx"
 
 
+#include "TABMactNtuTrack.hxx"
 #include "TAVTactBaseNtuTrack.hxx"
 #include "TAVTactNtuVertex.hxx"
 
@@ -79,10 +80,7 @@ public:
    
    //! Update normal Canvases
    virtual void UpdateDefCanvases();
-   
-   //! Update Canvases at a given frequence (e.g.: rates)
-   virtual void UpdateFreqCanvases();
-   
+
    //! Add required items
    virtual void AddRequiredItem();
 
@@ -105,6 +103,7 @@ public:
    void UpdateTrackInfo(TEveDigitSet* qs, Int_t idx);
    
 protected:
+   void CreateRecActionBm();
    void CreateRecActionVtx();
    void CreateRecActionIt();
    void CreateRecActionMsd();
@@ -127,17 +126,6 @@ protected:
    void UpdateTrackElements(const TString prefix);
    void UpdateGlbTrackElements();
    void UpdateElements(const TString prefix);
-   void CreateCanvases(const TString prefix);
-   void DrawReco(const TString prefix);
-   void DrawRawdata(const TString prefix);
-   void DrawRate(const TString prefix);
-   void ResetRate(const TString prefix);
-   void UpdateFreqCanvases(const TString prefix);
-   void UpdateDefCanvases(const TString prefix);
-
-   
-   //! Update histo of clusters and tracks
-   virtual void DrawReco();
    
 public:
    //! Set Tracking algorithm
@@ -167,7 +155,7 @@ public:
    static void EnableDrawVertex()  { fgDrawVertex = true;  }
 
 protected:
-   TAGparaDsc*           fpParGeoTr;
+   TAGparaDsc*           fpParGeoSt;
    TAGparaDsc*           fpParGeoG;
    TAGparaDsc*           fpParGeoDi;
    TAGparaDsc*           fpParGeoBm;
@@ -187,6 +175,7 @@ protected:
    TAGdataDsc*           fpNtuRawSt;    // input data dsc
    TAGdataDsc*           fpDatRawBm;    // input data dsc
    TAGdataDsc*           fpNtuRawBm;    // input data dsc
+   TAGdataDsc*           fpNtuTrackBm;  // input track data dsc
 
    TAGdataDsc*           fpDatRawVtx;    // input data dsc
    TAGdataDsc*           fpNtuRawVtx;	  // input ntu data dsc
@@ -208,6 +197,8 @@ protected:
    TAGaction*            fActDatRawVtx;     // action for raw data
    TAGactionFile*        fActEvtReader;
    
+   TABMactNtuTrack*  fActTrackBm;   // action for tracks
+
    TAVTactNtuRaw*        fActNtuRawVtx;  // action for ntu data
    TAVTactNtuClusterF*   fActClusVtx;    // action for clusters
    TAVTactBaseNtuTrack*  fActTrackVtx;   // action for tracks
@@ -238,6 +229,7 @@ protected:
    TAGclusterDisplay*    fCaClusDisplay;  // list of quad to display hits
    
    TAGwireDisplay*       fBmClusDisplay;  // list of line to display wires
+   TAGtrackDisplay*      fBmTrackDisplay; // list of line to display tracks
 
    TAGglbTrackDisplay*   fGlbTrackDisplay;  // list of global tracks to display
 

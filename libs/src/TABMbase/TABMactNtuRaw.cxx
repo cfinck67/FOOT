@@ -84,7 +84,6 @@ Bool_t TABMactNtuRaw::Action()
 
     //create the hit (no selection of hit)
     TABMntuHit *mytmp = new((*(p_nturaw->h))[i]) TABMntuHit(0, hit.View(), hit.Plane(), hit.Cell(), i_drift, i_time, p_parcon->ResoEval(i_drift));
-    mytmp->SetAW(p_pargeo);
     p_nturaw->nhit++;
   }
 
