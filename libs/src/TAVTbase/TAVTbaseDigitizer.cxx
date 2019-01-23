@@ -70,7 +70,7 @@ Bool_t TAVTbaseDigitizer::Process( Double_t edep, Double_t x0, Double_t y0, Doub
    
    fPixelsN = TMath::Nint(fFuncClusterSize->Eval(deltaE));
    
-   if (fPixelsN <= 0) return false;
+   if (fPixelsN <= 0) fPixelsN = 1;
    
    if (fDebugLevel) {
       printf("\nnext hit:\n");
