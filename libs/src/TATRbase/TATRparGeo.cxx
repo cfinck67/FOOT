@@ -16,6 +16,7 @@
 #include "TATRparGeo.hxx"
 #include "TAGmaterials.hxx"
 #include "TAGgeoTrafo.hxx"
+#include "TAGroot.hxx"
 
 //##############################################################################
 
@@ -138,6 +139,14 @@ string TATRparGeo::PrintBodies( ) {
 
   stringstream ss;
   double zero = 0.;
+
+  TAGgeoTrafo* fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+  if (!fpFootGeo)
+    printf("No default GeoTrafo action available yet\n");
+  else 
+    printf("GeoTrafo default action found\n");
+
+  TVector3  fCenter = fpFootGeo->GetSTCenter();
 
   outstr << setiosflags(ios::fixed) << setprecision(6);
   outstr << "RPP stc     "  << fCenter[0]-fSize[0]/2. << " " << fCenter[0]+fSize[0]/2 << " " <<

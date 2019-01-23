@@ -15,6 +15,8 @@
 #include "TAMSDparGeo.hxx"
 #include "TATWparGeo.hxx"
 #include "TACAparGeo.hxx"
+#include "TAGgeoTrafo.hxx"
+#include "TAGroot.hxx"
 
 #include "Materials.hxx"
 
@@ -49,6 +51,11 @@ int main (int argc, char *argv[]) {
     GlobalPar::Instance("GeoConfig.par");
     GlobalPar::GetPar()->Print();
 
+    TAGroot* fTAGroot = new TAGroot();
+   
+    TAGgeoTrafo geoTrafo;
+    geoTrafo.FromFile();
+   
     // crea la lista dei materiali nel costruttore
     // leggi i materiali da file o definiti nella calsse stessa?
     // Materials listOfMaterials();

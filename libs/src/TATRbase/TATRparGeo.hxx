@@ -20,7 +20,6 @@ public:
    TATRparGeo();
    virtual         ~TATRparGeo();
    
-   TVector3        GetCenter()   const { return fCenter;     }
    TVector3        GetSize()      const { return fSize;     }
    TString         GetMaterial()  const { return fMaterial; }
    Float_t         GetDensity()   const { return fDensity;  }
@@ -46,7 +45,6 @@ public:
    
 private:
    TVector3  fSize;
-   TVector3  fCenter;
    TString   fMaterial;
    Float_t   fDensity;
    
