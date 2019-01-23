@@ -1051,7 +1051,6 @@ void TAFOeventDisplay::UpdateBarElements()
    
    for( Int_t iLayer = 0; iLayer < 2; iLayer++) {
       
-
       Int_t nHits = pNtuHit->GetHitN(iLayer);
       if (nHits == 0) continue;
 
@@ -1060,17 +1059,11 @@ void TAFOeventDisplay::UpdateBarElements()
          TATW_Hit *hit = pNtuHit->GetHit(iLayer, iHit);
 
          Int_t iBar = hit->GetBar();
-        // printf("re %d %d\n", iLayer, iBar);
 
-         Int_t layer = 0;
-         
-         if (iLayer == 0) layer = 1;
-         if (iLayer == 1) layer = 0;
-         
-         pair<int, int> idx(iBar, layer);
+         pair<int, int> idx(iBar, iLayer);
          
          fFiredTofBar[idx] = 1;
-         parGeo->SetBarColorOn(iBar, layer);
+         parGeo->SetBarColorOn(iBar, iLayer);
 
       } //end loop on hits
       
