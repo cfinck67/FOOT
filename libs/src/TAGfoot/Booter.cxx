@@ -15,9 +15,9 @@
 #include "TAMCactNtuEve.hxx"
 
 
-//Interaction region
-#include "TAIRdatRaw.hxx"
-#include "TAIRactNtuMC.hxx"
+//Start counter
+#include "TATRdatRaw.hxx"
+#include "TATRactNtuMC.hxx"
 
 //Beam Monitor
 #include "TABMparGeo.hxx"
@@ -496,11 +496,10 @@ void Booter::FillMCInteractionRegion(EVENT_STRUCT *myStr) {
     // top->AddNode( m_irgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_irgeo->GetCenter().z(), new TGeoRotation("Marghe",0,0,0)) );-}
 
     /*Ntupling the MC Beam Monitor information*/
-    myn_irraw    = new TAGdataDsc("myn_irraw", new TAIRdatRaw());
-    new TAIRactNtuMC("an_irraw", myn_irraw, myStr);
-    // my_out->SetupElementBranch(myn_irraw,     "irrh.");
+    myn_scraw    = new TAGdataDsc("myn_scraw", new TATRdatRaw());
+    new TATRactNtuMC("an_scraw", myn_scraw, myStr);
 
-    gTAGroot->AddRequiredItem("myn_irraw");
+    gTAGroot->AddRequiredItem("myn_scraw");
 
 }
 

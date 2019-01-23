@@ -12,7 +12,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/foot.inp DESTINATION ${CMAKE_BINARY_DIR}/S
 #----------------------------------------------------------------------------
 # internal and external dependencies
 #
-set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TAVT} ${TAIT} ${TAMSD} ${TABM} ${TATW} ${TACA} ${TAIR} ${TAMC} ${TAFO})
+set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TAVT} ${TAIT} ${TAMSD} ${TABM} ${TATW} ${TACA} ${TATR} ${TAMC} ${TAFO})
 set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES} ${GENFIT_LIBRARIES})
 
 
@@ -20,7 +20,7 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES} ${GENFIT_LIBRARIES})
 #
 include_directories(${ROOT_INCLUDE_DIR})
 include_directories(${TAG_INCLUDE_DIR})
-include_directories(${TAIR_INCLUDE_DIR})
+include_directories(${TATR_INCLUDE_DIR})
 include_directories(${TABM_INCLUDE_DIR})
 include_directories(${TAVT_INCLUDE_DIR})
 include_directories(${TAIT_INCLUDE_DIR})

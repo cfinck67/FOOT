@@ -8,13 +8,15 @@
 #include <ostream>
 #include <sstream>
 
-#include "TAIRparGeo.hxx"
+#include "TATRparGeo.hxx"
 #include "TABMparGeo.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAITparGeo.hxx"
 #include "TAMSDparGeo.hxx"
 #include "TATWparGeo.hxx"
 #include "TACAparGeo.hxx"
+#include "TAGgeoTrafo.hxx"
+#include "TAGroot.hxx"
 
 #include "Materials.hxx"
 
@@ -49,6 +51,11 @@ int main (int argc, char *argv[]) {
     GlobalPar::Instance("GeoConfig.par");
     GlobalPar::GetPar()->Print();
 
+    TAGroot* fTAGroot = new TAGroot();
+   
+    TAGgeoTrafo geoTrafo;
+    geoTrafo.FromFile();
+   
     // crea la lista dei materiali nel costruttore
     // leggi i materiali da file o definiti nella calsse stessa?
     // Materials listOfMaterials();
@@ -62,7 +69,7 @@ int main (int argc, char *argv[]) {
     listMaterials->PrintCompMap();
 
     // GlobalFootGeo footGeo;
-    TAIRparGeo* stcGeo = new TAIRparGeo();
+    TATRparGeo* stcGeo = new TATRparGeo();
     TABMparGeo* bmGeo = new TABMparGeo();
     TAVTparGeo* vtxGeo = new TAVTparGeo();
     TAITparGeo* itrGeo = new TAITparGeo();
@@ -71,7 +78,7 @@ int main (int argc, char *argv[]) {
     TACAparGeo* caGeo = new TACAparGeo();
 
     //  si costruisce le coordinate di ogni oggetto geometrico e sensibile
-    stcGeo->InitGeo();
+    stcGeo->FromFile();
     bmGeo->FromFile();
     vtxGeo->FromFile();
     itrGeo->FromFile();
@@ -84,7 +91,7 @@ int main (int argc, char *argv[]) {
     ifstream file;
     string fileName = "foot.inp";
     file.open( fileName.c_str(), ios::in );
-    if ( !file.is_open() )        cout<< "ERROR  -->  wrong input in GlobalPar::ReadParemFile file "<< endl, exit(0);
+    if ( !file.is_open() )        cout<< "ERROR  -->  wrong input in GlobalPar::ReadParemFile file:: "<<fileName.c_str()<< endl, exit(0);
     
     string line = "";
     stringstream init, geomat, end;

@@ -32,7 +32,11 @@ public:
    virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
    
    TGeoVolume*     BuildStartCounter(const char *bmName = "ST");
-   
+
+  string PrintBodies();
+  string PrintRegions();
+  string PrintAssignMaterial();
+
 public:
    static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }
    static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
