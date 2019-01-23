@@ -233,6 +233,7 @@ Bool_t TATWdigitizer::Process(Double_t edep, Double_t x0, Double_t y0, Double_t 
    } else {
       pos = x0;
       view = 1;
+      id -= TATWparGeo::GetLayerOffset();
    }
    
    Float_t energyL = GetDeAttLeft(pos, edep);
