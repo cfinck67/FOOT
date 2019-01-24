@@ -123,7 +123,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fVtxClusDisplay->SetDefHeight(fQuadDefHeight/2.);
    fVtxClusDisplay->SetPickable(true);
    
-   fVtxTrackDisplay->SetMaxEnergy(fMaxEnergy);
+   fVtxTrackDisplay->SetMaxEnergy(fMaxEnergy/2.);
    fVtxTrackDisplay->SetDefWidth(fBoxDefWidth);
    fVtxTrackDisplay->SetDefHeight(fBoxDefHeight);
    fVtxTrackDisplay->SetPickable(true);
@@ -977,8 +977,8 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
             
             x1 = posG(0); y1 = posG(1); z1 = posG(2);
             
-            Int_t nClus = track->GetClustersN();
-            fVtxTrackDisplay->AddTracklet(nClus*100, x, y, z, x1, y1, z1);
+            Float_t nPix = track->GetMeanPixelsN();
+            fVtxTrackDisplay->AddTracklet(nPix*10, x, y, z, x1, y1, z1);
             fVtxTrackDisplay->TrackId(track);
             
          } // end loop on tracks
