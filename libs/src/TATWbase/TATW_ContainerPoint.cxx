@@ -19,7 +19,7 @@
 
 #include "TString.h"
 #include "TClonesArray.h"
-
+#include "TATWparGeo.hxx"
 #include "TATW_ContainerPoint.hxx"
 
 
@@ -37,7 +37,7 @@ TATW_ContainerPoint::TATW_ContainerPoint()
 : TAGdata(),
   m_listOfPoints(0x0)
 {
-	m_twGeo = (TATWparGeo*) gTAGroot->FindParaDsc("twGeo", "TATWparGeo")->Object();
+   m_twGeo = (TATWparGeo*) gTAGroot->FindParaDsc(TATWparGeo::GetDefParaName(), "TATWparGeo")->Object();
 	SetupClones();
 }
 

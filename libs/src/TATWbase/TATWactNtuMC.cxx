@@ -89,7 +89,7 @@ bool TATWactNtuMC::Action() {
    TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
 
    TATW_ContainerHit* containerHit = (TATW_ContainerHit*) m_hitContainer->Object();
-    TATWparGeo* geoMap = (TATWparGeo*) gTAGroot->FindParaDsc("twGeo", "TATWparGeo")->Object();
+   TATWparGeo* geoMap = (TATWparGeo*) gTAGroot->FindParaDsc(TATWparGeo::GetDefParaName(), "TATWparGeo")->Object();
 
     //The number of hits inside the Start Counter is stn
     if ( fDebugLevel> 0 )     cout << "Processing n Scint " << m_eventStruct->SCNn << endl;
