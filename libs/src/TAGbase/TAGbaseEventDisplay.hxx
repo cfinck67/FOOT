@@ -210,6 +210,8 @@ protected:
    static Bool_t      fgGUIFlag;           // flag to disable or enable gui interface
    static Bool_t      fgDisplayFlag;       // do not display event and do not make clustering/tracking, define before running
 
+   static Int_t       fgkMaxHistosN;       // Maximum number per canvas;
+   
    ClassDef(TAGbaseEventDisplay, 1); // Base class for event display
 
 };
