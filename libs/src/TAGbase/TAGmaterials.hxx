@@ -38,7 +38,7 @@ private:
 
 private:
    vector<TString>              fIsotope;
-   vector<Int_t>                fIsotopeWeight;
+   vector<Float_t>              fIsotopeWeight;
    TGeoElementTable*            fTable;
    map<TString, Int_t>          fPrintedElt;
    Int_t                        fDegugLevel;

@@ -117,13 +117,18 @@ TGeoMaterial* TAGmaterials::CreateMaterial(TString name, Float_t density,
    // mixture
    for (Int_t i = 0; i < fIsotope.size(); ++i) {
       if (fDebugLevel > 0)
-         printf("%s %d\n", fIsotope[i].Data(), fIsotopeWeight[i]);
+         printf("%s %g\n", fIsotope[i].Data(), fIsotopeWeight[i]);
       TGeoElement* element = fTable->FindElement(fIsotope[i].Data());
       if (element == 0x0) {
          Error("CreateMixture()", "Unknown element %s in formula %s\n", fIsotope[i].Data(), formula.Data());
          return 0x0;
       }
-      ((TGeoMixture*)mat)->AddElement(element, fIsotopeWeight[i]);
+      TString tmp = Form("%g", fIsotopeWeight[i]);
+      if (tmp.Contains(".")) {
+         ((TGeoMixture*)mat)->AddElement(element, fIsotopeWeight[i]);
+      } else
+         ((TGeoMixture*)mat)->AddElement(element, TMath::Nint(fIsotopeWeight[i]));
+
    }
    
    if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(name.Data())) == 0x0 )
@@ -290,11 +295,12 @@ void TAGmaterials::GetIsotopeAndWeight(const TString formula)
    
    // Weight
    TString sWeight = key(i, length);
-   Int_t weight     = sWeight.Atoi();
-   if (weight < 1) weight = 1;
+   
+   Float_t weight  = sWeight.Atof();
+   if (weight < 1) weight = 1.;
    
    if (fDegugLevel > 0)
-      printf("%s %d\n", sIsotope.Data(), weight);
+      printf("%s %g\n", sIsotope.Data(), weight);
    
    fIsotope.push_back(sIsotope);
    fIsotopeWeight.push_back(weight);
