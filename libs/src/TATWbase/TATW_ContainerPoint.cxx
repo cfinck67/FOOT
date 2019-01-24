@@ -23,12 +23,8 @@
 #include "TATW_ContainerPoint.hxx"
 
 
-
-
 ClassImp(TATW_ContainerPoint);
-// TString TATW_ContainerPoint::fgkBranchName   = "vtrh.";
-
-
+//TString TATW_ContainerPoint::fgkBranchName   = "twrh.";
 
 
 //------------------------------------------+-----------------------------------
@@ -41,10 +37,6 @@ TATW_ContainerPoint::TATW_ContainerPoint()
 	SetupClones();
 }
 
-
-
-
-
 //------------------------------------------+-----------------------------------
 //! Destructor.
 TATW_ContainerPoint::~TATW_ContainerPoint() {
@@ -52,12 +44,6 @@ TATW_ContainerPoint::~TATW_ContainerPoint() {
 	m_pointVector.clear();
 	m_degeneratePointMap.clear();
 }
-
-
-
-
-
-
 
 //______________________________________________________________________________
 //  standard 
@@ -87,22 +73,16 @@ TATW_Point* TATW_ContainerPoint::NewPoint( int iCol, TATW_Hit* colHit, int iRow,
 	return pixel;
 }
 
-
-
-
 //------------------------------------------+-----------------------------------
 int TATW_ContainerPoint::AlgoColRow( int col, int row ) {
 	return (col * m_twGeo->GetNBars()) + row;
 }
-
-
 
 //------------------------------------------+-----------------------------------
 int TATW_ContainerPoint::GetPointN() { 
 	// DegeneratePoint dimension
 	return m_degeneratePointMap.size();
 }
-
 
 
 //------------------------------------------+-----------------------------------
