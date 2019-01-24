@@ -187,7 +187,8 @@ TAVTtrack::TAVTtrack()
    fChargeMaxProba(0.),
    fChargeProbaNorm(new TArrayF(6)),
    fChargeWithMaxProbaNorm(0),
-   fChargeMaxProbaNorm(0.)
+   fChargeMaxProbaNorm(0.),
+   fMeanPixelsN(0)
 {
    fListOfClusters->SetOwner(true);
 }
@@ -212,7 +213,8 @@ TAVTtrack::TAVTtrack(const TAVTtrack& aTrack)
    fChargeMaxProba(aTrack.fChargeMaxProba),
    fChargeProbaNorm(new TArrayF(*aTrack.fChargeProbaNorm)),
    fChargeWithMaxProbaNorm(aTrack.fChargeWithMaxProbaNorm),
-   fChargeMaxProbaNorm(aTrack.fChargeMaxProbaNorm)
+   fChargeMaxProbaNorm(aTrack.fChargeMaxProbaNorm),
+   fMeanPixelsN(aTrack.fMeanPixelsN)
 {
    fListOfClusters = (TClonesArray*)aTrack.fListOfClusters->Clone();
 }
@@ -371,7 +373,7 @@ void TAVTtrack::AddCluster(TAVTcluster* cluster)
 {
    TClonesArray &clusterArray = *fListOfClusters;
    new(clusterArray[clusterArray.GetEntriesFast()]) TAVTcluster(*cluster);
-   
+   fMeanPixelsN += cluster->GetPixelsN()/float(fListOfClusters->GetEntries());
 }
 
 //##############################################################################

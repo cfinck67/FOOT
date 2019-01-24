@@ -105,7 +105,7 @@ private:
    TArrayF*       fChargeProbaNorm;              // charge probability array for normalized charge disttribution
    Int_t          fChargeWithMaxProbaNorm;       // charge with maximum probability for normalized charge disttribution
    Float_t        fChargeMaxProbaNorm;           // charge maximum probability for normalized charge disttribution
-
+   Double_t       fMeanPixelsN;                  // Average number of pixels per track
 
 public:
    TAVTtrack();                                 
@@ -201,6 +201,8 @@ public:
    //Get charge max proba
    Float_t       GetChargeMaxProbaNorm()     const { return fChargeMaxProbaNorm; }
 
+   //Get mean number of pixels per tracks
+   Float_t       GetMeanPixelsN()             const { return fMeanPixelsN; }
    
    ClassDef(TAVTtrack,6)                      // Describes TAVTtrack
 };
