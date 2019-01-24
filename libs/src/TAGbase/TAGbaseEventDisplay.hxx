@@ -162,10 +162,13 @@ protected:
   
 public:
    //! Disable GUI
-   static void  DisableGUI()     { fgGUIFlag = false; }
+   static void  DisableGUI()                { fgGUIFlag = false;      }
    
    //! Disable Display
-   static void  DisableDisplay() { fgDisplayFlag = false; }
+   static void  DisableDisplay()            { fgDisplayFlag = false;  }
+   
+   //! Set maximum number of histograms per canvas
+   static void  SetMaxHistosCanvas(Int_t m) { fgMaxHistosN = m;       }
 
 protected:
    TString            fExpName;
@@ -210,7 +213,7 @@ protected:
    static Bool_t      fgGUIFlag;           // flag to disable or enable gui interface
    static Bool_t      fgDisplayFlag;       // do not display event and do not make clustering/tracking, define before running
 
-   static Int_t       fgkMaxHistosN;       // Maximum number per canvas;
+   static Int_t       fgMaxHistosN;       // Maximum number per canvas;
    
    ClassDef(TAGbaseEventDisplay, 1); // Base class for event display
 

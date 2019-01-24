@@ -1213,13 +1213,13 @@ void TAFOeventDisplay::UpdateDefCanvases()
 
    for (Int_t k = 0; k < nHisto; ++k) {
       
-      Int_t iCanvas = k / fgkMaxHistosN;
+      Int_t iCanvas = k / fgMaxHistosN;
       if (iCanvas > 2) continue;
       TCanvas* canvas = (TCanvas*)fListOfCanvases->At(iCanvas);
       if (!canvas) continue;
          
       TH1* h = (TH1*)fHistoList->At(k);
-      Int_t iCd = k % fgkMaxHistosN + 1;
+      Int_t iCd = k % fgMaxHistosN + 1;
 
       if (nHisto == 1)
          canvas->cd();

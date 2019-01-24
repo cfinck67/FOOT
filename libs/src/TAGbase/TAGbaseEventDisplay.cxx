@@ -61,7 +61,7 @@ Bool_t TAGbaseEventDisplay::fgIsDisplayed   = false;
 Bool_t TAGbaseEventDisplay::fgGeoDone       = false;
 Bool_t TAGbaseEventDisplay::fgGUIFlag       = true;
 Bool_t TAGbaseEventDisplay::fgDisplayFlag   = true;
-Int_t  TAGbaseEventDisplay::fgkMaxHistosN   =  4;
+Int_t  TAGbaseEventDisplay::fgMaxHistosN   =  4;
 
 ClassImp(TAGbaseEventDisplay)
 
@@ -481,17 +481,17 @@ void TAGbaseEventDisplay::HistoSelected(Int_t /*id*/)
    
    // Pads creation
    Int_t nCanvas = fListOfCanvases->GetEntries();
-   if (nHisto > fgkMaxHistosN*nCanvas) {
-      Error("HistoSelected()", "Number of histogram out of limit %d (max: %d)", nHisto, fgkMaxHistosN*nCanvas);
+   if (nHisto > fgMaxHistosN*nCanvas) {
+      Error("HistoSelected()", "Number of histogram out of limit %d (max: %d)", nHisto, fgMaxHistosN*nCanvas);
       return;
    }
    
    Int_t divX[nCanvas];
    Int_t divY[nCanvas];
    
-   nCanvas = (nHisto - 1)/fgkMaxHistosN + 1;
+   nCanvas = (nHisto - 1)/fgMaxHistosN + 1;
 
-   divX[nCanvas-1] = ((nHisto - 1) % fgkMaxHistosN)/2 + 1;
+   divX[nCanvas-1] = ((nHisto - 1) % fgMaxHistosN)/2 + 1;
    divY[nCanvas-1] = 2;
    
    for (Int_t i = nCanvas-2; i >= 0; --i) {
