@@ -59,16 +59,15 @@ delete m_rotation;
 void TABMparGeo::GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_x, Double_t& h_y, Double_t& h_z, Double_t& h_cx, Double_t& h_cy, Double_t& h_cz) {
   
   /* Set Chamber center positioning */
-  int my_ID = GetID(cellID);
-  int myview = (view==-1) ? 1:0 ; 
+  Int_t my_ID = GetID(cellID);
 
-  h_x = x_pos[my_ID][plane][myview];
-  h_y = y_pos[my_ID][plane][myview];
-  h_z = z_pos[my_ID][plane][myview];
+  h_x = x_pos[my_ID][plane][view];
+  h_y = y_pos[my_ID][plane][view];
+  h_z = z_pos[my_ID][plane][view];
 
-  h_cx =  cx_pos[my_ID][plane][myview];
-  h_cy =  cy_pos[my_ID][plane][myview];
-  h_cz =  cz_pos[my_ID][plane][myview];
+  h_cx =  cx_pos[my_ID][plane][view];
+  h_cy =  cy_pos[my_ID][plane][view];
+  h_cz =  cz_pos[my_ID][plane][view];
 
   return;
 }
@@ -79,7 +78,7 @@ Bool_t TABMparGeo::GetBMNlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_
     return kFALSE;
   }
   icell=cellid%3;
-  iview=(((Int_t)(cellid/3))%2==0) ? 1:-1; 
+  iview=(((Int_t)(cellid/3))%2==0) ? 0:1; 
   ilay=(Int_t)(cellid/6);
   return kTRUE;
 }
@@ -91,7 +90,6 @@ void  TABMparGeo::SetA0Wvers(Int_t cellid, TVector3 &A0, TVector3 &Wvers){
   }
   Int_t icell, iview, ilay;
   GetBMNlvc(cellid, ilay, iview, icell);
-  iview=(iview==-1)?1:0;
   A0.SetXYZ(x_pos[bm_idsense[icell]][ilay][iview],  
             y_pos[bm_idsense[icell]][ilay][iview],
             z_pos[bm_idsense[icell]][ilay][iview]);
@@ -100,6 +98,12 @@ void  TABMparGeo::SetA0Wvers(Int_t cellid, TVector3 &A0, TVector3 &Wvers){
                cz_pos[bm_idsense[icell]][ilay][iview]);
   Wvers.SetMag(1.);
   return;
+}
+
+TVector3 TABMparGeo::ProjectFromTwoPoints(TVector3 inpos, TVector3 outpos, Double_t z){
+  TVector3 projected((inpos.X()-outpos.X())/(inpos.Z()-outpos.Z())*(z-outpos.Z())+ outpos.X(),
+                   (inpos.Y()-outpos.Y())/(inpos.Z()-outpos.Z())*(z-outpos.Z())+ outpos.Y(),   z);
+  return projected;
 }
 
 TVector3 TABMparGeo::ProjectFromPversR0(TVector3 Pvers, TVector3 R0, Double_t z){
@@ -512,7 +516,8 @@ void TABMparGeo::ToStream(ostream& os, Option_t*) const
 
 //_____________________________________________________________________________
 
-//not used anymore
+//OLD METHOD!
+//not used anymore, however, can be used to create a separated geometry root file with only the BM geo 
 void TABMparGeo::CreateLocalBMGeo() 
 {
    

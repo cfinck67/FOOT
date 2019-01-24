@@ -103,9 +103,9 @@ Bool_t TAMSDactNtuMC::Action() {
   TAMSDparGeo* pGeoMap  = (TAMSDparGeo*) fpGeoMap->Object();
   // bool doXchk = kFALSE;    // era della vecchia ricostruzione
 
-  TAGgeoTrafo *fGeoTrafo =  (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-  if (fGeoTrafo == 0x0)
-    Error("SetGeoTrafoName","No GeoTrafo action called %s available", TAGgeoTrafo::GetDefaultActName().Data());
+  //~ TAGgeoTrafo *fGeoTrafo =  (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+  //~ if (fGeoTrafo == 0x0)
+    //~ Error("SetGeoTrafoName","No GeoTrafo action called %s available", TAGgeoTrafo::GetDefaultActName().Data());
 
   pNtuRaw->Clear();
 

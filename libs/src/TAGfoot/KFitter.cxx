@@ -870,14 +870,14 @@ int KFitter::MakeFit( long evNum ) {
 			fitTrack->insertMeasurement( (*hitSample).second.at(i) );
 			fitTrack->checkConsistency();
 			if ( m_debug > 3 )		fitTrack->Print("C");
-		}
+    }
 
 		if ( m_reverse )		fitTrack->reverseTrackPoints();
 
 		//check
 		fitTrack->checkConsistency();
 		if ( m_debug > 3 )		fitTrack->Print();
-
+    
 		//pre-fit
 		MakePrefit();
 

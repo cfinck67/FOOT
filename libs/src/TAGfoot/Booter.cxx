@@ -111,7 +111,7 @@ using namespace std;
 
 
 
-void Booter::Initialize( EVENT_STRUCT* evStr, Bool_t isdata_in ) {
+void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in, Bool_t isdata_in ) {
 
     // debug fie
     if ( GlobalPar::GetPar()->Debug() > 1 ) {
@@ -126,13 +126,13 @@ void Booter::Initialize( EVENT_STRUCT* evStr, Bool_t isdata_in ) {
 
     
     isdata=isdata_in;
-    // m_wd=wd_in;  
+    m_wd=wd_in;  
     
 	//Initializing the Geometry class that handles the
     //detector positioning and global to local transformations
-    // fGeoTrafo = new TAGgeoTrafo();   
-    // TString filename = m_wd + "/FOOT_geo.map";   // obsolete, to be removed carefully
-    // fGeoTrafo->InitGeo(filename.Data());
+    //~ fGeoTrafo = new TAGgeoTrafo();   
+    //~ TString filename = m_wd + "/FOOT_geo.map";   // obsolete, to be removed carefully
+    //~ fGeoTrafo->InitGeo(filename.Data());
 
 	cout << "Make Geo" << endl;
     TGeoManager *masterGeo = new TGeoManager("genfitGeom", "GENFIT geometry");
@@ -161,58 +161,55 @@ void Booter::Initialize( EVENT_STRUCT* evStr, Bool_t isdata_in ) {
 
     UpdatePDG::Instance();
 
+
     // Setting up the detectors that we want to decode.    
     // Initialization of detectors parameters, geometry and materials 
     if(!isdata){  
       if( GlobalPar::GetPar()->IncludeEvent() )           FillMCEvent(evStr);
-      if( GlobalPar::GetPar()->IncludeBM() )              FillMCBeamMonitor(evStr);
       if( GlobalPar::GetPar()->IncludeIR() )              FillMCInteractionRegion(evStr);
       if( GlobalPar::GetPar()->IncludeInnerTracker() )    FillMCInnerTracker(evStr);
       if( GlobalPar::GetPar()->IncludeVertex() )          FillMCVertex(evStr);
       if( GlobalPar::GetPar()->IncludeMSD() )             FillMCMSD(evStr);
       if( GlobalPar::GetPar()->IncludeTW() )              FillMCTofWall(evStr);
       if( GlobalPar::GetPar()->IncludeCA() )              FillMCCalorimeter(evStr);
+      //~ if( GlobalPar::GetPar()->IncludeBM() )              FillMCBeamMonitor(evStr);
     }
+  
+    // set material and geometry into genfit
+    MaterialEffects* materialEffects = MaterialEffects::getInstance();
+    materialEffects->init(new TGeoMaterialInterface());
 
+    //--- draw the ROOT box
+    GeoPrint();
 
+    // Initialisation of KFfitter
+    if(!isdata){
+      if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init!" << endl;
+      m_kFitter = new KFitter();
+      if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
+    }
+    // // cluster test  -  myn_vtclus
+    // pos2D = new TH2F( "pos2D", "pos2D", 500, -4, 4 , 500, -4, 4 ); // IT
+    pos2D = new TH2F( "pos2D", "pos2D", 500, -1, 1 , 500, -1, 1 );  // VT
+
+    
     if( GlobalPar::GetPar()->IncludeBM() ) {
     //~ //     // DisplayBeamMonitor(pg);
       myp_bmgeo  = new TAGparaDsc("myp_bmgeo", new TABMparGeo());
       myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
-      myp_bmmap = new TAGparaDsc("myp_bmmap", new TABMparMap());
+      if(isdata)
+        myp_bmmap = new TAGparaDsc("myp_bmmap", new TABMparMap());
       initBMGeo();
       initBMCon();
-      initBMMap();
+      if(isdata)
+        initBMMap();
       //~ bmcon = (TABMparCon*) myp_bmcon->Object();
       //~ bmmap = (TABMparMap*) myp_bmmap->Object();
-      //~ FillMCBeamMonitor(evStr);//da modificare: se lo abilito qua la geometria degli altri detectors non funzia... 
+      if(!isdata)
+        FillMCBeamMonitor(evStr); 
     }
-
-
-    if(!isdata){    
-  
-        // set material and geometry into genfit
-        MaterialEffects* materialEffects = MaterialEffects::getInstance();
-        materialEffects->init(new TGeoMaterialInterface());
-
-        //--- draw the ROOT box
-        GeoPrint();
-
-        // Initialisation of KFfitter
-        if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init!" << endl;
-        m_kFitter = new KFitter();
-        if ( GlobalPar::GetPar()->Debug() > 1 )       cout << "KFitter init done!" << endl;
-
-        // // cluster test  -  myn_vtclus
-        // pos2D = new TH2F( "pos2D", "pos2D", 500, -4, 4 , 500, -4, 4 ); // IT
-        // pos2D = new TH2F( "pos2D", "pos2D", 500, -1, 1 , 500, -1, 1 );  // VT
-
-    }
-
-    if( GlobalPar::GetPar()->IncludeBM() && !isdata) 
-      FillMCBeamMonitor(evStr);//da modificare: va messo qua... così non crea problemi
       
-    if (GlobalPar::GetPar()->Debug()>10)
+    if (GlobalPar::GetPar()->Debug()>1)
       cout<<"I finish Booter::Initialize"<<endl;
 }
 
@@ -225,14 +222,26 @@ void Booter::Process( Long64_t jentry ) {
   // //to be moved to framework
   // if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeInnerTracker() )
   //     AssociateHitsToParticle();
-  
-  
-    if ( GlobalPar::GetPar()->IncludeBM() ) {
-            MonitorBMNew(jentry); // Yun
+
+    // Kalman Filter
+    int isKalmanConverged = 0;
+    if ( GlobalPar::GetPar()->IncludeKalman() ) {
+        // start time
+        start_kal = clock();
+
+        // check other tracking systems are enabled
+        if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit" << endl;
+        isKalmanConverged = m_kFitter->MakeFit( jentry );
+        if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit done. Converged = " << isKalmanConverged << endl;
+
+        if ( isKalmanConverged == 1 && GlobalPar::GetPar()->Debug() > 1 )    eventListFile << jentry<< endl;
+
+        // stop time
+        end_kal = clock();
+        m_tempo_kal+=(double)(end_kal-start_kal);
+
     }
-      
-
-
+    
     // cluster test  -  myn_vtclus
     // TAVTntuCluster* ntup = (TAVTntuCluster*)myn_vtclus->Object();
     TAVTntuCluster* ntup = (TAVTntuCluster*) gTAGroot->FindDataDsc("vtClus", "TAVTntuCluster")->Object();
@@ -276,24 +285,7 @@ void Booter::Process( Long64_t jentry ) {
 
 
 
-    // Kalman Filter
-    int isKalmanConverged = 0;
-    if ( GlobalPar::GetPar()->IncludeKalman() ) {
-        // start time
-        start_kal = clock();
 
-        // check other tracking systems are enabled
-        if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit" << endl;
-        isKalmanConverged = m_kFitter->MakeFit( jentry );
-        if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "MakeFit done. Converged = " << isKalmanConverged << endl;
-
-        if ( isKalmanConverged == 1 && GlobalPar::GetPar()->Debug() > 1 )    eventListFile << jentry<< endl;
-
-        // stop time
-        end_kal = clock();
-        m_tempo_kal+=(double)(end_kal-start_kal);
-
-    }
 
     // stop time
     end_kal = clock();
@@ -309,13 +301,13 @@ void Booter::Process( Long64_t jentry ) {
 //------------------------------------------------------------------------------
 void Booter::Finalize() {
 
-    // // cluster test
+    // // cluster test 
     TCanvas* quadrante = new TCanvas( "q","q", 1000, 800 );
     pos2D->Draw("colz");
     quadrante->SaveAs("cluster.png");
-
-	if ( GlobalPar::GetPar()->IncludeKalman() )      m_kFitter->Finalize();
-
+  
+	if ( GlobalPar::GetPar()->IncludeKalman() && !isdata)      m_kFitter->Finalize();
+    
     if ( GlobalPar::GetPar()->IsPrintOutputFile() )         
         ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputFile();
     else                        
@@ -323,15 +315,6 @@ void Booter::Finalize() {
     
     if( GlobalPar::GetPar()->IsPrintOutputNtuple() )        
         ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputNtuple();
-
-  if ( GlobalPar::GetPar()->IsPrintOutputFile() ) {
-      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputFile();
-    }
-  else                        
-    ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintMap();
-  
-  if( GlobalPar::GetPar()->IsPrintOutputNtuple() )        
-      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputNtuple();
 
   if (GlobalPar::GetPar()->Debug() > 1)   eventListFile.close();
 
@@ -494,27 +477,6 @@ void Booter::AssociateHitsToParticle() {
 
 
 
-
-
-
-// //----------------------------------------------------------------------------------------------------
-// void Booter::DisplayBeamMonitor(TAGpadGroup* pg) {
-
-//   TCanvas *c_bmhview;
-//   c_bmhview = new TCanvas("bmhview", "Beam Monitor - horizontal view",20,20,700,900);
-//   pg->AddPad(c_bmhview);
-
-//   TAGview* pbmh_view = new TABMvieTrackFOOT(myn_bmtrk,
-// 					     myn_bmraw,
-// 					     myp_bmgeo);
-//   pbmh_view->Draw();
-// }
-
-
-
-
-
-
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCEvent(EVENT_STRUCT *myStr) {
 
@@ -534,24 +496,6 @@ void Booter::FillMCEvent(EVENT_STRUCT *myStr) {
 
 }
 
-
-//~ void Booter::FillDataBeamMonitor() {
-  //~ if (GlobalPar::GetPar()->Debug()>10)
-    //~ cout<<"I'm in Booter::FillDataBeamMonitor"<<endl;  
-  
-  //~ myn_bmdatraw    = new TAGdataDsc("myn_bmdatraw", new TABMdatRaw());
-  //~ new TABMactDatRaw("an_bmdatraw",myn_bmdatraw, myp_bmmap, myp_bmcon); 
-   
-  //~ myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
-  //~ new TABMactNtuRaw("an_bmraw", myn_bmraw, myn_bmdatraw, myp_bmgeo, myp_bmcon); 
-  
-  //~ myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());  
-  //~ new TABMactNtuTrack("an_bmtrk", myn_bmtrk, myn_bmraw, myp_bmgeo, myp_bmcon);
-    
-  //~ if (GlobalPar::GetPar()->Debug()>10)
-    //~ cout<<"I finish Booter::FillDataBeamMonitor"<<endl;  
-  //~ return;
-//~ }
 
 
 //----------------------------------------------------------------------------------------------------
@@ -582,9 +526,6 @@ void Booter::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
   /*Ntupling the MC Beam Monitor information*/
   myn_bmraw    = new TAGdataDsc("myn_bmraw", new TABMntuRaw());
   myn_bmtrk    = new TAGdataDsc("myn_bmtrk", new TABMntuTrack());
-
-  // ?? @ Yun, serve ??
-  // ((TABMparGeo*) myp_bmgeo->Object())->ShiftBmon();
 
   new TABMactNtuMC("an_bmraw", myn_bmraw, myp_bmcon, myp_bmgeo, myStr);
 
@@ -762,27 +703,6 @@ void Booter::FillMCCalorimeter(EVENT_STRUCT *myStr) {
 
     gTAGroot->AddRequiredItem("myn_caraw");
 }
-
-
-
-
-
-
-
-
-
-//~ void Booter::MonitorBM() {}
-//Yun new graphs:
-void Booter::MonitorBMNew(Long64_t jentry) {
-  
-  
-  
-  
-  return;
-  }
-// void Booter::MonitorBMVTMat() {}
-// void Booter::CalibBMVT() {}
-
 
 
 

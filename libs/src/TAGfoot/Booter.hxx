@@ -39,7 +39,7 @@ class Booter {
   Booter() {};
   ~Booter() {};
 
-  void Initialize( EVENT_STRUCT* evStr, Bool_t isdata_in );
+  void Initialize( EVENT_STRUCT* evStr, TString wd_in, Bool_t isdata_in );
   void Process( Long64_t jentry );
   void Finalize();
 
@@ -66,14 +66,10 @@ class Booter {
   // void DisplayBeamMonitor(TAGpadGroup* pg);
 
   void initBMGeo(); //Beam Monitor Geometry
-  void initBMCon();
-  void initBMMap();
+  void initBMCon(); //BM Configuration file
+  void initBMMap(); //BM map
 
   void bookHisto(TFile *f);
-  void CalibBMVT();
-  void MonitorBMVTMat();
-  void MonitorBMNew(Long64_t jentry);
-  //~ void MonitorBM();
   void AssociateHitsToParticle();
 
   TAGgeoTrafo* fGeoTrafo;

@@ -60,7 +60,7 @@ void RecoTools::RecoLoop(int fr) {
 
     // input ntuple tree
     if(!m_isdata){
-        TChain *tree = new TChain("EventTree");
+        tree = new TChain("EventTree");
         for(unsigned int ifi=0; ifi<my_files.size(); ifi++) {
             tree->Add(my_files.at(ifi).data());
             cout<<"Adding :: "<<my_files.at(ifi).data() << " file"<<endl;
@@ -78,12 +78,11 @@ void RecoTools::RecoLoop(int fr) {
         // gTAGroot->Print();
         // if (my_out->Open(m_oustr, "RECREATE")) return;
     }
-
     booter = new Booter();
     bmbooter = new BmBooter();
-    booter->Initialize( &evStr, m_isdata);
+    booter->Initialize( &evStr, m_wd, m_isdata);
     if (GlobalPar::GetPar()->IncludeBM())
-    bmbooter->Initialize( m_instr, m_isdata, &evStr);
+      bmbooter->Initialize( m_instr, m_isdata, &evStr);
        
 
 
@@ -100,17 +99,16 @@ void RecoTools::RecoLoop(int fr) {
 
     /***********  The event Loop   ****************************************   */
     gTAGroot->BeginEventLoop();
-    Long64_t nentries = tree->GetEntries();
+    Long64_t nentries;
 
-
-    // YUN - move in bm booter?
-    if(m_isdata && GlobalPar::GetPar()->IncludeBM()){
-      cout<<"Total number of Beam Monitor events="<<bmbooter->GetTotnumev()<<endl;
-      nentries=(m_nev==0) ? bmbooter->GetTotnumev()-bmbooter->GetAcqStartEv()+1 : m_nev;
-    }else {
+    //~ Long64_t nentries = tree->GetEntries();
+    if(!m_isdata){
       nentries = tree->GetEntries(); 
       if(m_nev != 0)      
         nentries = m_nev;
+    }else{
+      if(GlobalPar::GetPar()->IncludeBM())
+        nentries=bmbooter->GetNentries(m_nev);
     }
 ///////////////////////////////////////////////
 
@@ -153,7 +151,6 @@ void RecoTools::RecoLoop(int fr) {
         if (!pg->IsEmpty() && tobedrawn && !(jentry%fr) && !m_isdata && skip_event<m_evstart) {
             pg->Modified();
             pg->Update();
-
             sprintf(flag,"plots/%s_%d","Test_MC",(int)jentry);
             pg->Print(flag);
         }
@@ -171,14 +168,14 @@ void RecoTools::RecoLoop(int fr) {
     booter->Finalize();
     // multiTrackCheck->Finalize();
 
-
     if (GlobalPar::GetPar()->IncludeBM())
         bmbooter->Finalize();
+
     if(GlobalPar::GetPar()->IsPrintOutputFile())      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->SaveOutputFile();//close and save OutputFile    
-    if(!m_isdata){
-      my_out->Print();
-      my_out->Close();
-    }
+    //~ if(!m_isdata){
+      //~ my_out->Print();
+      //~ my_out->Close();
+    //~ }
     
     gTAGroot->EndEventLoop();
 
@@ -186,71 +183,6 @@ void RecoTools::RecoLoop(int fr) {
 }
 
 
-//OLD STUFF if we want to separate the event loop for the data from the MC it could be useful, otherwise it's useless and it can be deleted
-//recoloop for the bm calibration
-/*
-void RecoTools::RecoBMcal(TAGroot *tagr) {
-  TAGpadGroup* pg = new TAGpadGroup();
-  //~ ifstream inF; //input file
-  //~ int eSwSize; //dummy variable to read the input file 
-
-  //Configure the output flagging
-  tagr->SetCampaignNumber(100);
-  tagr->SetRunNumber(1);
-
-  //Define the output file content.
-  //~ my_out = new TAGactTreeWriter("my_out");
-
-
-  tagr->AddRequiredItem("my_out");
-  tagr->Print();
-  //~ if (my_out->Open(m_oustr, "RECREATE")) return;
-
-
-  bmcalbooter = new BMcalBooter();
-  bmcalbooter->Initialize(m_wd,m_instr,m_isroma);
-
-  //~ ***********  The event Loop   ****************************************       
-  tagr->BeginEventLoop();
-  Long64_t nentries=(m_nev==0) ? bmcalbooter->GetData_numev() : m_nev;
-  //~ Long64_t nbytes = 0, nb = 0;
-  char flag[200]; bool tobedrawn = kFALSE;
-
-  for (Long64_t jentry=0; jentry<nentries;jentry++) {
-      if(m_debug) cout<<" New Eve "<<endl;
-      //~ nb = tree->GetEntry(jentry);   
-      //~ nbytes += nb;
-      // if (Cut(ientry) < 0) continue;
-      // if (jentry>1)  break;
-      // if (jentry<33061)  continue;
-      tagr->NextEvent();
-
-
-      ///////////////  Call here your Process() functions    /////////////////////////////////////////////
-
-      bmcalbooter->Process();
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-      if(m_debug) cout<<" Loaded Event:: "<<jentry<<endl;
-
-      if ( GlobalPar::GetPar()->Debug() > 0 )         cout << "End event n: " << jentry << endl;
-
-  }
-  cout << "End of the event loop " << endl;
-
-  bmcalbooter->Finalize();
-  
-  //~ if(GlobalPar::GetPar()->IsPrintOutputFile())
-    //~ ControlPlotsRepository::GetControlObject( "BooterFinalize" )->SaveOutputFile();//close and save OutputFile
-  
-  tagr->EndEventLoop();
-  
-  //~ my_out->Print();
-  //~ my_out->Close();
-}
-*/
 
 
 

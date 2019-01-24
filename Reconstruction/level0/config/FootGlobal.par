@@ -16,8 +16,8 @@ MC Particle Types:	C11	C12	C13 C14	Li6	Li7	B7	B9	B10	Be10	Be11	N14	N15	O16 O15
 
 ############	Kalman Filter Control Parameters	################
 
-IncludeKalman: 		n
-Kalman Mode: 		ON
+IncludeKalman: 		y
+Kalman Mode: ON
 Tracking Systems Considered:		all
 Reverse Tracking:	false
 
@@ -51,7 +51,7 @@ Magnetic field map name:  SummedSingleMap.table
 Print OutputFile: true
 Output Filename: RecoHistos.root
 
-Print OutputNtuple: true
+Print OutputNtuple: false
 Output Ntuplename: RecoTree.root
 
 Create Reconstruction Geo: y

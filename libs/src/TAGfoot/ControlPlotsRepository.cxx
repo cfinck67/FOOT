@@ -105,7 +105,7 @@ void ControlPlotsRepository::PrintOutputFile() {
 		(*it).second.PrintHisto( mirror);	
 	}
 
-	//~ f_out->Write();
+	f_out->Write();
 	//~ f_out->Close();
 };
 
