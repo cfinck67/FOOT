@@ -85,7 +85,6 @@ Bool_t TAVTactNtuTrackF::FindTiltedTracks()
 	  for( Int_t iLastClus = 0; iLastClus < nLastClusters; ++iLastClus) { // loop on cluster of last plane
 		 TAVTcluster* lastCluster = (TAVTcluster*)lastList->At(iLastClus);
 		 if (lastCluster->Found()) continue;
-		 if (lastCluster->GetPixelsN() <= 1) continue;
 		 lastCluster->SetFound();
 
 		 for( Int_t iPlane = curPlane-1; iPlane >= 0; --iPlane) { // loop on next planes
@@ -96,8 +95,7 @@ Bool_t TAVTactNtuTrackF::FindTiltedTracks()
 			for( Int_t iNextClus = 0; iNextClus < nNextClusters; ++iNextClus) { // loop on cluster of next plane
 			   TAVTcluster* nextCluster = (TAVTcluster*)nextList->At(iNextClus);
 			   if (nextCluster->Found()) continue;
-			   if (nextCluster->GetPixelsN() <= 1) continue;
-			   
+            
 			   track = new TAVTtrack();
 			   track->AddCluster(lastCluster);
 			   nextCluster->SetFound();
@@ -124,7 +122,6 @@ Bool_t TAVTactNtuTrackF::FindTiltedTracks()
 				  TAVTcluster* bestCluster = 0x0;
 				  for( Int_t iFirstClus = 0; iFirstClus < nFirstClusters; ++iFirstClus) { // loop on cluster of first planes
 					 TAVTcluster* firstCluster = (TAVTcluster*)firstList->At(iFirstClus);
-					 if (firstCluster->GetPixelsN() <= 1) continue;
 					 if( firstCluster->Found()) continue; // skip cluster already found
 					 
 					 aDistance = firstCluster->Distance(track);
@@ -184,6 +181,7 @@ Bool_t TAVTactNtuTrackF::IsGoodCandidate(TAVTtrack* track)
    Float_t width  = pGeoMap->GetEpiSize()[0];//VTX_WIDTH/2.;
    Float_t height = pGeoMap->GetEpiSize()[1];//VTX_HEIGHT/2.;
    TVector3 vec = track->Intersection(-pFootGeo->GetVTCenter()[2]);
+   
    if (TMath::Abs(vec.X()) > width || TMath::Abs(vec.Y()) > height)
 	  return false;
    
