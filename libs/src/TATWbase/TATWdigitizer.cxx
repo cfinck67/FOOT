@@ -219,7 +219,7 @@ Bool_t TATWdigitizer::Process(Double_t edep, Double_t x0, Double_t y0, Double_t 
 {
    // energy resolution
    fDeAttAsymSmear = gRandom->Uniform(-fDeAttAsym, +fDeAttAsym); // asymmetry btw left/right ends
-   Float_t pos     = 0;
+   Double_t pos     = 0;
 
    if (fDebugLevel) {
       printf("asym %4.2f\n", fDeAttAsymSmear);
@@ -263,8 +263,10 @@ Bool_t TATWdigitizer::Process(Double_t edep, Double_t x0, Double_t y0, Double_t 
    Double_t tof = (timeL+timeR)/2.;
    Double_t energy = (energyL+energyR)/2.;
    
+   pos = (timeR-timeL)/fTofPropAlpha;
+   
    // no threshold ??
-   fCurrentHit = (TATW_Hit*)fpNtuRaw->NewHit(view, id, energy, tof); // save time in ns, Class TATW_Hit not compatible with real data)
+   fCurrentHit = (TATW_Hit*)fpNtuRaw->NewHit(view, id, energy, tof, pos); // save time in ns, Class TATW_Hit not compatible with real data)
    
    return true;
 }
