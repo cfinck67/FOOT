@@ -52,12 +52,12 @@ TATW_ContainerHit::~TATW_ContainerHit()
 
 //______________________________________________________________________________
 //  standard 
-TATW_Hit* TATW_ContainerHit::NewHit( int layer, int bar, double energyLoss, double atime ) {
+TATW_Hit* TATW_ContainerHit::NewHit( int layer, int bar, double energyLoss, double atime, double pos ) {
 
     if ( layer >= 0  && layer < m_twGeo->GetNLayers() ) {
 
         TClonesArray &pixelArray = *GetListOfHits(layer);
-        TATW_Hit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATW_Hit( layer, bar, energyLoss, atime);
+        TATW_Hit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATW_Hit( layer, bar, energyLoss, atime, pos);
        
         return hit;
     } else {

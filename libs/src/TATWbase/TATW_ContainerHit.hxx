@@ -22,7 +22,7 @@ public:
     TATW_ContainerHit();
     virtual          ~TATW_ContainerHit();
 
-    TATW_Hit*         NewHit( int layer, int bar, double energyLoss, double time);
+    TATW_Hit*         NewHit( int layer, int bar, double energyLoss, double time, double pos);
     TATW_Hit*         NewHit( TATWrawHit* hit );
     
     int               GetHitN(  int layer  ); 
