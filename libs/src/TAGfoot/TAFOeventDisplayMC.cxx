@@ -127,9 +127,9 @@ void TAFOeventDisplayMC::CreateRawAction()
    }
    
    if(GlobalPar::GetPar()->IncludeTW()) {
-      new TAGdataDsc("containerPoint", new TATW_ContainerPoint());
-      fpNtuRawTw   = new TAGdataDsc("containerHit", new TATW_ContainerHit());
-      fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fEvtStruct);
+      fpNtuRecTw = new TAGdataDsc("twRec", new TATW_ContainerPoint());
+      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
+      fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fpNtuRecTw, fEvtStruct);
       fActNtuRawTw->CreateHistogram();
       
       fpNtuMcTw   = new TAGdataDsc("twMc", new TAMCntuHit());
@@ -232,26 +232,40 @@ void TAFOeventDisplayMC::AddElements()
 {
    TAFOeventDisplay::AddElements();
 
-   fCaMcDisplay->ResetPoints();
-   gEve->AddElement(fCaMcDisplay);
+   if (GlobalPar::GetPar()->IncludeCA()) {
+      fCaMcDisplay->ResetPoints();
+      gEve->AddElement(fCaMcDisplay);
+   }
    
-   fTwMcDisplay->ResetPoints();
-   gEve->AddElement(fTwMcDisplay);
+   if (GlobalPar::GetPar()->IncludeTW()) {
+      fTwMcDisplay->ResetPoints();
+      gEve->AddElement(fTwMcDisplay);
+   }
    
-   fMsdMcDisplay->ResetPoints();
-   gEve->AddElement(fMsdMcDisplay);
+   if (GlobalPar::GetPar()->IncludeMSD()){
+      fMsdMcDisplay->ResetPoints();
+      gEve->AddElement(fMsdMcDisplay);
+   }
    
-   fItMcDisplay->ResetPoints();
-   gEve->AddElement(fItMcDisplay);
+   if (GlobalPar::GetPar()->IncludeInnerTracker()) {
+      fItMcDisplay->ResetPoints();
+      gEve->AddElement(fItMcDisplay);
+   }
    
-   fVtMcDisplay->ResetPoints();
-   gEve->AddElement(fVtMcDisplay);
+   if (GlobalPar::GetPar()->IncludeVertex()) {
+      fVtMcDisplay->ResetPoints();
+      gEve->AddElement(fVtMcDisplay);
+   }
    
-   fBmMcDisplay->ResetPoints();
-   gEve->AddElement(fBmMcDisplay);
+   if (GlobalPar::GetPar()->IncludeBM()) {
+      fBmMcDisplay->ResetPoints();
+      gEve->AddElement(fBmMcDisplay);
+   }
    
-   fStMcDisplay->ResetPoints();
-   gEve->AddElement(fStMcDisplay);
+   if (GlobalPar::GetPar()->IncludeST()) {
+      fStMcDisplay->ResetPoints();
+      gEve->AddElement(fStMcDisplay);
+   }
 }
 
 //__________________________________________________________

@@ -641,35 +641,51 @@ void TAFOeventDisplay::AddRequiredItemCa()
 //__________________________________________________________
 void TAFOeventDisplay::AddElements()
 {
-   fStClusDisplay->ResetHits();
-   gEve->AddElement(fStClusDisplay);
+   if (GlobalPar::GetPar()->IncludeST()){
+      fStClusDisplay->ResetHits();
+      gEve->AddElement(fStClusDisplay);
+   }
    
-   fBmClusDisplay->ResetWires();
-   gEve->AddElement(fBmClusDisplay);
+   if (GlobalPar::GetPar()->IncludeBM()) {
+      fBmClusDisplay->ResetWires();
+      gEve->AddElement(fBmClusDisplay);
+      
+      fBmTrackDisplay->ResetTracks();
+      gEve->AddElement(fBmTrackDisplay);
+   }
 
-   fBmTrackDisplay->ResetTracks();
-   gEve->AddElement(fBmTrackDisplay);
-
-   fVtxClusDisplay->ResetHits();
-   gEve->AddElement(fVtxClusDisplay);
+   if (GlobalPar::GetPar()->IncludeVertex()) {
+      fVtxClusDisplay->ResetHits();
+      gEve->AddElement(fVtxClusDisplay);
 	  
-   fVtxTrackDisplay->ResetTracks();
-   gEve->AddElement(fVtxTrackDisplay);
+      fVtxTrackDisplay->ResetTracks();
+      gEve->AddElement(fVtxTrackDisplay);
+   }
    
-   fItClusDisplay->ResetHits();
-   gEve->AddElement(fItClusDisplay);
+   if (GlobalPar::GetPar()->IncludeInnerTracker()) {
+      fItClusDisplay->ResetHits();
+      gEve->AddElement(fItClusDisplay);
+   }
    
-   fMsdClusDisplay->ResetHits();
-   gEve->AddElement(fMsdClusDisplay);
+   if (GlobalPar::GetPar()->IncludeMSD()) {
+      fMsdClusDisplay->ResetHits();
+      gEve->AddElement(fMsdClusDisplay);
+   }
    
-   fTwClusDisplay->ResetHits();
-   gEve->AddElement(fTwClusDisplay);
+   if (GlobalPar::GetPar()->IncludeTW()) {
+      fTwClusDisplay->ResetHits();
+      gEve->AddElement(fTwClusDisplay);
+   }
    
-   fCaClusDisplay->ResetHits();
-   gEve->AddElement(fCaClusDisplay);
-   
-   fGlbTrackDisplay->ResetTracks();
-   gEve->AddElement(fGlbTrackDisplay);
+   if (GlobalPar::GetPar()->IncludeCA()) {
+      fCaClusDisplay->ResetHits();
+      gEve->AddElement(fCaClusDisplay);
+   }
+
+   if (GlobalPar::GetPar()->IncludeKalman()) {
+      fGlbTrackDisplay->ResetTracks();
+      gEve->AddElement(fGlbTrackDisplay);
+   }
 }
 
 //__________________________________________________________

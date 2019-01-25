@@ -192,6 +192,7 @@ protected:
    TAGdataDsc*           fpNtuClusMsd;	  // input cluster data dsc
 
    TAGdataDsc*           fpNtuRawTw;    // input data dsc
+   TAGdataDsc*           fpNtuRecTw;    // input data dsc
    TAGdataDsc*           fpNtuRawCa;    // input data dsc
 
    TAGaction*            fActDatRawVtx;     // action for raw data
