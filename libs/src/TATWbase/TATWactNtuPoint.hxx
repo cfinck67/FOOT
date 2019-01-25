@@ -16,25 +16,23 @@ class TAVTparGeo;
 class TATWactNtuPoint : public TAGaction {
    
 public:
-   explicit  TATWactNtuPoint(const char* name     = 0,
-								       TAGdataDsc* p_nturaw  = 0,
-                               TAGdataDsc* p_ntupoint = 0,
-							          TAGparaDsc* p_geomap  = 0);
-   
+   explicit  TATWactNtuPoint(const char* name       = 0,
+                             TAGdataDsc* p_nturaw   = 0,
+                             TAGdataDsc* p_ntupoint = 0,
+                             TAGparaDsc* p_geomap   = 0);
+
    virtual ~TATWactNtuPoint();
    
    //! Action
    virtual  Bool_t Action();
    
-
    //! Find point
    virtual Bool_t  FindPoints();
    
-
 private:
-   TAGdataDsc*     fpNtuRaw;		  // input data dsc
-   TAGdataDsc*     fpNtuPoint;		  // output data dsc
-   TAGparaDsc*     fpGeoMap;		  // geometry para dsc
+   TAGdataDsc*     fpNtuRaw;		 // input data dsc
+   TAGdataDsc*     fpNtuPoint;	 // output data dsc
+   TAGparaDsc*     fpGeoMap;		 // geometry para dsc
 
    ClassDef(TATWactNtuPoint,0)
 };
