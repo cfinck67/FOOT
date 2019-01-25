@@ -76,6 +76,7 @@ Bool_t TATWactNtuPoint::FindPoints()
    if (nHits2 == 0) return false;
 
    for (Int_t i = 0; i < nHits1; ++i) {
+      minDist = 99999; // should put a given value (2*BarWidth ?)
       layer = 0;
       TATW_Hit* hit1 = pNtuHit->GetHit(layer, i);
       
