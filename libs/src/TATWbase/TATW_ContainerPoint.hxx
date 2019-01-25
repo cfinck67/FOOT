@@ -18,33 +18,20 @@ class TATW_ContainerPoint : public TAGdata {
    
 private:
    
-   struct DegeneratePoint {
-      TATW_Point* primaryPoint;
-      vector<TATW_Point*> allPoints;
-   };
-   
-	TClonesArray*        m_listOfPoints; 
+   TClonesArray*        m_listOfPoints;
 
 	TATWparGeo* m_twGeo; //! do not save in file
-
-   vector<int> m_pointVector;  //! cannot be saved in root file
-   map<int, DegeneratePoint> m_degeneratePointMap; //! cannot be saved in a root file
    
 public:
 
 	TATW_ContainerPoint();
 	virtual ~TATW_ContainerPoint();
 	
-	TATW_Point*         NewPoint( int iCol, TATW_Hit* colHit, int iRow, TATW_Hit* rowHit );
+	TATW_Point*         NewPoint( double x, TATW_Hit* colHit, double y, TATW_Hit* rowHit );
 
-	int                 GetPointN(); 
-	TATW_Point*         GetPoint( int iPixel );
-	vector<TATW_Point*> GetPoint_AllTheDegenerate( int iPoint );
+	int                 GetPointN();
+	TATW_Point*         GetPoint( int iPoint );
 
-	int                 GetPointN_includingDuplicates();
-	TATW_Point*         GetPoint_includingDuplicates( int iPoint );
-
-	int                 AlgoColRow( int col, int row );
 
 	virtual void        Clear(Option_t* opt="");
 

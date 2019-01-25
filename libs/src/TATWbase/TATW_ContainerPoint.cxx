@@ -39,120 +39,48 @@ TATW_ContainerPoint::TATW_ContainerPoint()
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
-TATW_ContainerPoint::~TATW_ContainerPoint() {
+TATW_ContainerPoint::~TATW_ContainerPoint()
+{
 	delete m_listOfPoints;
-	m_pointVector.clear();
-	m_degeneratePointMap.clear();
 }
 
 //______________________________________________________________________________
 //  standard 
-TATW_Point* TATW_ContainerPoint::NewPoint( int iCol, TATW_Hit* colHit, int iRow, TATW_Hit* rowHit ) {
+TATW_Point* TATW_ContainerPoint::NewPoint(double x, TATW_Hit* colHit, double y, TATW_Hit* rowHit ) {
 
 	// check on aorigin
 	TClonesArray &pixelArray = *m_listOfPoints;
-	TATW_Point* pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TATW_Point( iCol, colHit, iRow, rowHit );
-
-	int mask = AlgoColRow( colHit->GetBar(), rowHit->GetBar() );
-
-	// fill DegeneratePoint map
-	if ( m_degeneratePointMap.find( mask ) == m_degeneratePointMap.end() ) {	// if element doesn't exist
-		// m_degeneratePointMap[mask].SetPrimaryPoint( pixel );
-		m_degeneratePointMap[mask].primaryPoint = pixel;
-		m_pointVector.push_back( mask );
-
-	}
-	else if ( !pixel->IsTrueGhost() ) {
-		// m_degeneratePointMap[mask].SetPrimaryPoint( pixel );
-		m_degeneratePointMap[mask].primaryPoint = pixel;
-
-	}
-	// m_degeneratePointMap[mask].AddPoint( pixel );
-	m_degeneratePointMap[mask].allPoints.push_back( pixel );
+	TATW_Point* pixel = new(pixelArray[pixelArray.GetEntriesFast()]) TATW_Point( x, colHit, y, rowHit );
 
 	return pixel;
 }
 
 //------------------------------------------+-----------------------------------
-int TATW_ContainerPoint::AlgoColRow( int col, int row ) {
-	return (col * m_twGeo->GetNBars()) + row;
+int TATW_ContainerPoint::GetPointN()
+{
+	return m_listOfPoints->GetEntries();
 }
 
-//------------------------------------------+-----------------------------------
-int TATW_ContainerPoint::GetPointN() { 
-	// DegeneratePoint dimension
-	return m_degeneratePointMap.size();
-}
 
 
 //------------------------------------------+-----------------------------------
 //! return a pixel for a given sensor
-TATW_Point* TATW_ContainerPoint::GetPoint( int iPoint ) {
-
-	if ( m_degeneratePointMap.size() != m_pointVector.size() ) 	{	// sanity check
-		cout << "ERROR >> TATW_ContainerPoint::GetPoint  -->  different size of m_degeneratePointMap "<<m_degeneratePointMap.size()<<" and m_pointVector.size() " << m_pointVector.size() << endl;
-        exit(0);
-	}
+TATW_Point* TATW_ContainerPoint::GetPoint(int iPoint) {
 
 	if ( iPoint < 0  || iPoint >= GetPointN() ) {
-		cout << "ERROR >> TATW_ContainerPoint::GetPoint  -->  number of point "<<iPoint<<" required is wrong. Max num  " << m_degeneratePointMap.size() << endl;
+		cout << "ERROR >> TATW_ContainerPoint::GetPoint_includingDuplicates  -->  number of point "<<iPoint<<" required is wrong. Max num  " << GetPointN() << endl;
         exit(0);
 	}
 
-	// from DegeneratePoint
-	// return m_degeneratePointMap[ m_pointVector.at(iPoint) ].GetPrimaryPoint();
-	return m_degeneratePointMap[ m_pointVector.at(iPoint) ].primaryPoint;
-}
-
-
-
-
-//------------------------------------------+-----------------------------------
-//! return a pixel for a given sensor
-vector<TATW_Point*> TATW_ContainerPoint::GetPoint_AllTheDegenerate( int iPoint ) {
-
-	if ( m_degeneratePointMap.size() != m_pointVector.size() ) 	{	// sanity check
-		cout << "ERROR >> TATW_ContainerPoint::GetPoint  -->  different size of m_degeneratePointMap "<<m_degeneratePointMap.size()<<" and m_pointVector.size() " << m_pointVector.size() << endl;
-        exit(0);
-	}
-
-	if ( iPoint < 0  || iPoint >= GetPointN() ) {
-		cout << "ERROR >> TATW_ContainerPoint::GetPoint  -->  number of point "<<iPoint<<" required is wrong. Max num  " << m_degeneratePointMap.size() << endl;
-        exit(0);
-	}
-
-	// from DegeneratePoint
-	// return m_degeneratePointMap[ m_pointVector.at(iPoint) ].GetAllPoints();
-	return m_degeneratePointMap[ m_pointVector.at(iPoint) ].allPoints;
-}
-
-
-
-
-//------------------------------------------+-----------------------------------
-int TATW_ContainerPoint::GetPointN_includingDuplicates() {
-	return m_listOfPoints->GetEntries();   
-}
-
-
-
-//------------------------------------------+-----------------------------------
-//! return a pixel for a given sensor
-TATW_Point* TATW_ContainerPoint::GetPoint_includingDuplicates( int iPoint ) {
-
-	if ( iPoint < 0  || iPoint >= GetPointN_includingDuplicates() ) {
-		cout << "ERROR >> TATW_ContainerPoint::GetPoint_includingDuplicates  -->  number of point "<<iPoint<<" required is wrong. Max num  " << GetPointN_includingDuplicates() << endl;
-        exit(0);
-	}
-
-	return (TATW_Point*)m_listOfPoints->At( iPoint );
+	return (TATW_Point*)m_listOfPoints->At(iPoint);
 }
 
 
 
 //------------------------------------------+-----------------------------------
 //! Setup clones. Crate and initialise the list of pixels
-void TATW_ContainerPoint::SetupClones()	{
+void TATW_ContainerPoint::SetupClones()
+{
    if (m_listOfPoints) return;
    m_listOfPoints = new TClonesArray("TATW_Point", 500);
 }
@@ -163,12 +91,9 @@ void TATW_ContainerPoint::SetupClones()	{
 
 //------------------------------------------+-----------------------------------
 //! Clear event.
-void TATW_ContainerPoint::Clear(Option_t*) {
-	m_listOfPoints->Delete();   
-	m_listOfPoints->Clear();
-	// m_listOfPoints->Clear("C");
-	m_pointVector.clear();
-	m_degeneratePointMap.clear();
+void TATW_ContainerPoint::Clear(Option_t*)
+{
+	m_listOfPoints->Clear("C");
 }
 
 
