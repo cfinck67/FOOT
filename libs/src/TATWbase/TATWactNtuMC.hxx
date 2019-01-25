@@ -24,7 +24,7 @@ class TATWdigitizer;
 
 class TATWactNtuMC : public TAGaction {
 public:
-    explicit TATWactNtuMC(const char* name=0, TAGdataDsc* p_datraw=0, EVENT_STRUCT* evStr=0);
+    explicit TATWactNtuMC(const char* name=0, TAGdataDsc* p_hitraw=0, TAGdataDsc* p_pointraw=0, EVENT_STRUCT* evStr=0);
     virtual  ~TATWactNtuMC();
 
     virtual bool  Action();
@@ -33,6 +33,7 @@ public:
 
 private:
     TAGdataDsc*     m_hitContainer;		// output data dsc
+    TAGdataDsc*     m_pointContainer;		// output data dsc
     EVENT_STRUCT*   m_eventStruct;
     TATWdigitizer*  m_Digitizer;       // digitizer
 

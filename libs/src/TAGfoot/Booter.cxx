@@ -653,12 +653,11 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
   //  top->AddNode( ((TATWparGeo*) myp_twgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
 
     /*Ntupling the MC Tof Wall information*/
-    myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
     containerHit    = new TAGdataDsc("containerHit", new TATW_ContainerHit());
     containerPoint  = new TAGdataDsc("containerPoint", new TATW_ContainerPoint());
     
 
-    new TATWactNtuMC("an_twraw", myn_twraw, myStr);
+    new TATWactNtuMC("an_twraw", containerHit, containerPoint, myStr);
 
     // gTAGroot->AddRequiredItem("myn_twraw");
     gTAGroot->AddRequiredItem("containerHit");

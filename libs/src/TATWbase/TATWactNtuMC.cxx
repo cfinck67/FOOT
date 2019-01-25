@@ -21,13 +21,16 @@ ClassImp(TATWactNtuMC);
 //! Default constructor.
 
 TATWactNtuMC::TATWactNtuMC(const char* name,
-			 TAGdataDsc* p_datraw, 
-			 EVENT_STRUCT* evStr)
+                           TAGdataDsc* p_hitraw,
+                           TAGdataDsc* p_pointraw,
+                           EVENT_STRUCT* evStr)
   : TAGaction(name, "TATWactNtuMC - NTuplize ToF raw data"),
-    m_hitContainer(p_datraw),
+   m_hitContainer(p_hitraw),
+   m_pointContainer(p_pointraw),
     m_eventStruct(evStr)
 {
-  AddDataOut(p_datraw, "TATW_ContainerHit");
+  AddDataOut(p_hitraw, "TATW_ContainerHit");
+  AddDataOut(p_pointraw, "TATW_ContainerPoint");
   CreateDigitizer();
 }
 
@@ -136,7 +139,7 @@ bool TATWactNtuMC::Action() {
     }
 
     // container of points, name of descriptor is hard coded
-    TATW_ContainerPoint* containerPoint = (TATW_ContainerPoint*) gTAGroot->FindDataDsc("containerPoint", "TATW_ContainerPoint")->Object(); // extremly dangerous no check !!
+   TATW_ContainerPoint* containerPoint = (TATW_ContainerPoint*)m_pointContainer->Object();
 
     if ( fDebugLevel> 0 )     cout << "N Col: "<<containerHit->GetHitN( 0 )<<endl;
     if ( fDebugLevel> 0 )     cout << "N Row: "<<containerHit->GetHitN( 1 )<<endl;
