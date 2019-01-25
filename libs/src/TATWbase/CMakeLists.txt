@@ -22,6 +22,7 @@ set( with_dictionnaries
    TATWdatRaw
    TATWparMap
    TATWactNtuMC
+   TATWactNtuPoint
    TATWparGeo
    TATW_ContainerHit
    TATW_ContainerPoint

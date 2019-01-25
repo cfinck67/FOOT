@@ -9,6 +9,7 @@
 #pragma link C++ class TATWrawHit+;
 #pragma link C++ class TATWparMap+;
 #pragma link C++ class TATWactNtuMC+;
+#pragma link C++ class TATWactNtuPoint+;
 #pragma link C++ class TATWparGeo+;
 #pragma link C++ class TATW_ContainerHit+;
 #pragma link C++ class TATW_ContainerPoint+;
