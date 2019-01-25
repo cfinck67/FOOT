@@ -25,13 +25,29 @@ TATW_Hit::TATW_Hit( TATWrawHit* hit )
 }
 
 //______________________________________________________________________________
+//
+TATW_Hit::TATW_Hit(const TATW_Hit& aHit)
+:  TAGobject(aHit),
+   m_layer(aHit.m_layer),
+   m_bar(aHit.m_bar),
+   m_de(aHit.m_de),
+   m_time(aHit.m_time),
+   m_coordinate(aHit.m_coordinate),
+   m_z(aHit.m_z)
+{
+   
+}
+
+//______________________________________________________________________________
 // Build the hit from its sensor, line and column// constructor of a Pixel with column and line 
-TATW_Hit::TATW_Hit ( int aView, int aBar, Double_t aDe, Double_t aTime)
+TATW_Hit::TATW_Hit ( int aView, int aBar, Double_t aDe, Double_t aTime, Double_t pos)
 : TAGobject(),
   m_layer(aView),
   m_bar(aBar),
   m_de(aDe),
-  m_time(aTime)
+  m_time(aTime),
+  m_coordinate(pos),
+  m_z(0)
 {
 }
 

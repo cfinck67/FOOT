@@ -41,10 +41,10 @@ private:
     Int_t m_layer;
     Int_t m_bar;
 	
-    Double32_t m_de;                        // energy loss in the scintillator bar
-    Double32_t m_time;
+    Double32_t m_de;                     // energy loss in the scintillator bar
+    Double32_t m_time;                   // time of flight
 
-    Float_t m_coordinate;                // x or y coordinate in the local detector frame, depending on the layer
+    Double32_t m_coordinate;                // x or y coordinate in the local detector frame, depending on the layer
     Float_t m_z;                         // z coordinate in the local detector frame
 
    TArrayC   m_MCindex;                  // Id of the hit created in the simulation
@@ -53,7 +53,9 @@ private:
 public:
 	TATW_Hit() {};
 	TATW_Hit( TATWrawHit* hit );
-	TATW_Hit ( Int_t aView, Int_t aBar, Double_t aDe, Double_t aTime);
+	TATW_Hit ( Int_t aView, Int_t aBar, Double_t aDe, Double_t aTime, Double_t pos);
+   TATW_Hit(const TATW_Hit& aHit);
+
 	~TATW_Hit() {};
    
    void   Clear(Option_t* option = "C");
@@ -67,6 +69,7 @@ public:
    
    Double_t  GetEnergyLoss()           const   { return m_de;                }
    Double_t  GetTime()                 const   { return m_time;              }
+   Double_t  GetPosition()             const   { return m_coordinate;        }
    
    Float_t    GetHitCoordinate_detectorFrame() const   { return m_coordinate; }
    Float_t    GetHitZ_detectorFrame()          const   { return m_z;          }
