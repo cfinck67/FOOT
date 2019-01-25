@@ -201,7 +201,7 @@ int KFitter::UploadHitsTW() {
 
 	// save hits in the collection
 	for (int i = 0; i < ntup->GetPointN(); i++) {
-		if ( ntup->GetPoint(i)->IsTrueGhost() )		continue;		// skip the ghost hits
+		//if ( ntup->GetPoint(i)->IsTrueGhost() )		continue;		// skip the ghost hits
         m_TW_hitCollection.push_back( ntup->GetPoint(i) );
     }
 
@@ -392,8 +392,8 @@ void KFitter::Prepare4TofWall( Track* fitTrack ) {
         
         TATW_Point* p_hit = m_TW_hitCollection.at(i);
 
-        // get pixel coord
-        TVector3 hitPos = p_hit->GetPosition_footFrame();
+        // get pixel coord// should used TAGgeoTrafo
+        TVector3 hitPos = p_hit->GetPosition();
 
         // if ( m_debug > 0 )		cout << "Hit " << i;
         if ( m_debug > 0 )		hitPos.Print();
