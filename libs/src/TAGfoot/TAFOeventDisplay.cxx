@@ -21,6 +21,7 @@
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
 #include "TATW_ContainerHit.hxx"
+#include "TATW_ContainerPoint.hxx"
 #include "TACAntuRaw.hxx"
 
 #include "TAVTntuCluster.hxx"
@@ -139,8 +140,8 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fMsdClusDisplay->SetPickable(true);
    
    fTwClusDisplay->SetMaxEnergy(fMaxEnergy);
-   fTwClusDisplay->SetDefWidth(fQuadDefWidth*4);
-   fTwClusDisplay->SetDefHeight(fQuadDefHeight*4);
+   fTwClusDisplay->SetDefWidth(fQuadDefWidth*8);
+   fTwClusDisplay->SetDefHeight(fQuadDefHeight*8);
    fTwClusDisplay->SetPickable(true);
    
    fCaClusDisplay->SetMaxEnergy(fMaxEnergy);
@@ -403,6 +404,9 @@ void TAFOeventDisplay::CreateRecAction()
    
    if (GlobalPar::GetPar()->IncludeMSD())
       CreateRecActionMsd();
+   
+   if (GlobalPar::GetPar()->IncludeTW())
+      CreateRecActionTw();
 }
 
 //__________________________________________________________
@@ -460,6 +464,15 @@ void TAFOeventDisplay::CreateRecActionMsd()
    fActClusMsd   = new TAMSDactNtuCluster("msdActClus", fpNtuRawMsd, fpNtuClusMsd, fpParConfMsd, fpParGeoMsd);
    fActClusMsd->CreateHistogram();
 }
+
+//__________________________________________________________
+void TAFOeventDisplay::CreateRecActionTw()
+{
+   fpNtuRecTw  = new TAGdataDsc("twPoint", new TATW_ContainerPoint());
+   fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw);
+   fActPointTw->CreateHistogram();
+}
+
 
 
 //__________________________________________________________
@@ -630,6 +643,7 @@ void TAFOeventDisplay::AddRequiredItemMsd()
 void TAFOeventDisplay::AddRequiredItemTw()
 {
    fAGRoot->AddRequiredItem("twActNtu");
+   fAGRoot->AddRequiredItem("twActPoint");
 }
 
 //__________________________________________________________
@@ -708,6 +722,10 @@ void TAFOeventDisplay::ConnectElements()
    
    fMsdClusDisplay->SetEmitSignals(true);
    fMsdClusDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateHitInfo(TEveDigitSet*, Int_t)");
+   
+   fTwClusDisplay->SetEmitSignals(true);
+   fTwClusDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateHitInfo(TEveDigitSet*, Int_t)");
+
 }
 
 //__________________________________________________________
@@ -731,13 +749,22 @@ void TAFOeventDisplay::UpdateHitInfo(TEveDigitSet* qs, Int_t idx)
       if (vtx == 0x0) return;
       TVector3 pos = vtx->GetVertexPosition();
       fInfoView->AddLine( Form("Vertex# %d at position:\n", idx) );
-      fInfoView->AddLine( Form(" (%.3g %.3gf %.3gf) cm\n", pos.X(), pos.Y(), pos.Z()) );
+      fInfoView->AddLine( Form(" (%.3g %.3g %.3g) cm\n", pos.X(), pos.Y(), pos.Z()) );
       fInfoView->AddLine( Form(" BM Matched %d\n", vtx->IsBmMatched()) );
       
    } else if (obj->InheritsFrom("TATRntuHit")) {
       TATRntuHit* hit = (TATRntuHit*)obj;
       fInfoView->AddLine( Form("Charge: %.3g u.a.\n", hit->GetCharge()) );
       fInfoView->AddLine( Form("Time: %.3g ps \n", hit->GetTime()) );
+
+   } else if (obj->InheritsFrom("TATW_Point")) {
+      TATW_Point* point = (TATW_Point*)obj;
+      if (point == 0x0) return;
+      TVector3 pos = point->GetPosition();
+      fInfoView->AddLine( Form("Point# %d at position:\n", idx) );
+      fInfoView->AddLine( Form(" (%.1f %.1f %.1f) cm\n", pos.X(), pos.Y(), pos.Z()) );
+      fInfoView->AddLine( Form("Charge: %.3e u.a.\n", point->GetEnergyLoss()) );
+      fInfoView->AddLine( Form("Time: %.3g ps \n", point->GetTime()) );
 
    } else {
       return;
@@ -1048,6 +1075,7 @@ void TAFOeventDisplay::UpdateBarElements()
    
    Float_t  x = 0.,  y = 0.,  z = 0.;
    
+   // Color bar
    TATWparGeo* parGeo = parGeo = (TATWparGeo*) fpParGeoTw->Object();
 
    // reset previous fired bar
@@ -1065,7 +1093,7 @@ void TAFOeventDisplay::UpdateBarElements()
 
    TATW_ContainerHit* pNtuHit = (TATW_ContainerHit*) fpNtuRawTw->Object();
    
-   for( Int_t iLayer = 0; iLayer < 2; iLayer++) {
+   for( Int_t iLayer = 0; iLayer < parGeo->GetNLayers(); iLayer++) {
       
       Int_t nHits = pNtuHit->GetHitN(iLayer);
       if (nHits == 0) continue;
@@ -1084,6 +1112,26 @@ void TAFOeventDisplay::UpdateBarElements()
       } //end loop on hits
       
    } //end loop on planes
+
+   
+   // Draw Quad
+   TATW_ContainerPoint* pNtuPoint = (TATW_ContainerPoint*) fpNtuRecTw->Object();
+
+   Int_t nPoints = pNtuPoint->GetPointN();
+   
+   for (Int_t iPoint = 0; iPoint < nPoints; ++iPoint) {
+      
+      TATW_Point *point = pNtuPoint->GetPoint(iPoint);
+      
+      TVector3 posG = point->GetPosition();
+      posG = fpFootGeo->FromTWLocalToGlobal(posG);
+      
+      Float_t edep = point->GetEnergyLoss();
+
+      fTwClusDisplay->AddHit(edep/1e5, posG[0], posG[1], posG[2]);
+      fTwClusDisplay->QuadId(point);
+   } //end loop on points
+   
    
    fTwClusDisplay->RefitPlex();
 }

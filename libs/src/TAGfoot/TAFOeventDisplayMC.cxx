@@ -127,9 +127,8 @@ void TAFOeventDisplayMC::CreateRawAction()
    }
    
    if(GlobalPar::GetPar()->IncludeTW()) {
-      fpNtuRecTw = new TAGdataDsc("twRec", new TATW_ContainerPoint());
       fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
-      fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fpNtuRecTw, fEvtStruct);
+      fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fEvtStruct);
       fActNtuRawTw->CreateHistogram();
       
       fpNtuMcTw   = new TAGdataDsc("twMc", new TAMCntuHit());

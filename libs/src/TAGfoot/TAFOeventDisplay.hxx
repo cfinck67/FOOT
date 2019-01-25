@@ -37,6 +37,7 @@
 #include "TAVTactNtuClusterF.hxx"
 #include "TAITactNtuClusterF.hxx"
 #include "TAMSDactNtuCluster.hxx"
+#include "TATWactNtuPoint.hxx"
 
 #include "TAVTactNtuRaw.hxx"
 #include "TAITactNtuRaw.hxx"
@@ -107,7 +108,8 @@ protected:
    void CreateRecActionVtx();
    void CreateRecActionIt();
    void CreateRecActionMsd();
-
+   void CreateRecActionTw();
+   
    void AddRequiredItemSt();
    void AddRequiredItemBm();
    void AddRequiredItemVtx();
@@ -212,6 +214,7 @@ protected:
    TAMSDactNtuCluster*   fActClusMsd;    // action for clusters
    
   // TATWactNtuRaw*        fActNtuRawTw;  // action for ntu data
+   TATWactNtuPoint*      fActPointTw;    // action for clusters
 
    Int_t                 fType;         // type of sensor
    
