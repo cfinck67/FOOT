@@ -22,15 +22,12 @@ ClassImp(TATWactNtuMC);
 
 TATWactNtuMC::TATWactNtuMC(const char* name,
                            TAGdataDsc* p_hitraw,
-                           TAGdataDsc* p_pointraw,
                            EVENT_STRUCT* evStr)
   : TAGaction(name, "TATWactNtuMC - NTuplize ToF raw data"),
    m_hitContainer(p_hitraw),
-   m_pointContainer(p_pointraw),
     m_eventStruct(evStr)
 {
   AddDataOut(p_hitraw, "TATW_ContainerHit");
-  AddDataOut(p_pointraw, "TATW_ContainerPoint");
   CreateDigitizer();
 }
 
@@ -136,36 +133,6 @@ bool TATWactNtuMC::Action() {
           else
              fpHisHitLine->Fill(hit->GetBar());
        }
-    }
-
-    // container of points, name of descriptor is hard coded
-   TATW_ContainerPoint* containerPoint = (TATW_ContainerPoint*)m_pointContainer->Object();
-
-    if ( fDebugLevel> 0 )     cout << "N Col: "<<containerHit->GetHitN( 0 )<<endl;
-    if ( fDebugLevel> 0 )     cout << "N Row: "<<containerHit->GetHitN( 1 )<<endl;
-
-    // built the points from the hits
-    for (int iCol=0; iCol < containerHit->GetHitN( 0 ); iCol++) {  // col loop
-        
-        // FOR TEST, REMOVE
-        if ( !containerHit->GetHit( 0, iCol )->IsColumn() )       cout <<"TATWactNtuMC::Action() cazzoCol"<<endl, exit(0);
-        TATW_Hit* colHit = containerHit->GetHit( 0, iCol );
-       
-
-        for (int iRow=0; iRow < containerHit->GetHitN( 1 ); iRow++) {  // row loop 
-            
-            // FOR TEST, REMOVE
-            if ( !containerHit->GetHit( 1, iRow )->IsRow() )        cout <<"TATWactNtuMC::Action() cazzoRow"<<endl, exit(0);
-            TATW_Hit* rowHit = containerHit->GetHit( 1, iRow );
-           
-            TATW_Point* point = containerPoint->NewPoint( iRow, rowHit, iCol, colHit );
-           
-            if ( fDebugLevel> 0 )     cout << "Point "<<iCol<<" "<<iRow<<" -> Col: "<<point->GetColumn()<<" row: "<<point->GetRow()<<endl;
-
-           // ControlPlotsRepository::GetControlObject( "TWcontrol" )->SetTW_HitPoint( "TW___Point", point->GetColumn(), point->GetRow() );
-           if (ValidHistogram())
-              fpHisHitMap->Fill(point->GetColumn(), point->GetRow());
-        }
     }
 
      m_hitContainer->SetBit(kValid);
