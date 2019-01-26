@@ -34,8 +34,11 @@ private:
 	TATW_Hit*   m_columnHit;     // hit col
 	TATW_Hit*   m_rowHit;        // hit row 
 
-	Double32_t  m_de;            // energy loss in the scintillator bars
+   Double32_t  m_de1;           // energy loss in the scintillator bars layer 1
+   Double32_t  m_de2;           // energy loss in the scintillator bars layer 2
 	Double32_t  m_time;          // for the moment I take the column time
+   
+   int         m_chargeZ;       // raw guess of charge Z
 
 public:
 
@@ -55,9 +58,14 @@ public:
 	TATW_Hit* GetColumnHit()	const	 { return m_columnHit;           }
    TATW_Hit* GetRowHit()	   const	 { return m_rowHit;              }
 
-	double    GetEnergyLoss()  const  { return m_de;                  }
-	double    GetTime()        const  { return m_time;                }
+   double    GetEnergyLoss1() const  { return m_de1;                 }
+   double    GetEnergyLoss2() const  { return m_de2;                 }
+   double    GetEnergyLoss()  const  { return m_de1+m_de2;           }
+   double    GetTime()        const  { return m_time;                }
+   int       GetChargeZ()     const  { return m_chargeZ;             }
    
+   void      SetChargeZ(int z)       { m_chargeZ = z;                }
+    
    void      Clear(Option_t* opt);
 
 	ClassDef(TATW_Point,3)                            

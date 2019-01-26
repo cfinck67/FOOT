@@ -16,8 +16,10 @@ TATW_Point::TATW_Point()
    m_row(0),
    m_columnHit(0x0),
    m_rowHit(0x0),
-   m_de(0.),
-   m_time(0.)
+   m_de1(0.),
+   m_de2(0.),
+   m_time(0.),
+   m_chargeZ(0)
 {
 }
 
@@ -32,7 +34,8 @@ TATW_Point::TATW_Point( double x, TATW_Hit* colHit, double y, TATW_Hit* rowHit )
    m_column = m_columnHit->GetBar();
    m_row    = m_rowHit->GetBar();
    
-   m_de     = m_columnHit->GetEnergyLoss() + m_rowHit->GetEnergyLoss();
+   m_de1    = m_columnHit->GetEnergyLoss();
+   m_de2    = m_rowHit->GetEnergyLoss();
    m_time   = m_columnHit->GetTime();
 }
 
