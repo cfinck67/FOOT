@@ -281,6 +281,11 @@ void TAFOeventDisplay::ReadParFiles()
       TATWparGeo* parGeo = (TATWparGeo*)fpParGeoTw->Object();
       TString parFileName = Form("./geomaps/TATWdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName);
+      
+      fpParCalTw = new TAGparaDsc("itConf", new TATWparCal());
+      TATWparCal* parCal = (TATWparCal*)fpParCalTw->Object();
+      parFileName = Form("./config/TATWdetector%s.cal", fExpName.Data());
+      parCal->FromFile(parFileName.Data());
    }
    
    // initialise par files for caloriomter
@@ -469,7 +474,7 @@ void TAFOeventDisplay::CreateRecActionMsd()
 void TAFOeventDisplay::CreateRecActionTw()
 {
    fpNtuRecTw  = new TAGdataDsc("twPoint", new TATW_ContainerPoint());
-   fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw);
+   fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
    fActPointTw->CreateHistogram();
 }
 
@@ -765,6 +770,7 @@ void TAFOeventDisplay::UpdateHitInfo(TEveDigitSet* qs, Int_t idx)
       fInfoView->AddLine( Form(" (%.1f %.1f %.1f) cm\n", pos.X(), pos.Y(), pos.Z()) );
       fInfoView->AddLine( Form("Charge: %.3e u.a.\n", point->GetEnergyLoss()) );
       fInfoView->AddLine( Form("Time: %.3g ps \n", point->GetTime()) );
+      fInfoView->AddLine( Form("Charge Z: %d \n", point->GetChargeZ()) );
 
    } else {
       return;
