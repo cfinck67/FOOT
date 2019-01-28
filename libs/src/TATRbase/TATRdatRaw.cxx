@@ -32,140 +32,27 @@ TATRrawHit::~TATRrawHit()
 //! Default constructor.
 
 TATRrawHit::TATRrawHit()
-  : vu_stat(-1), trg_pat(-1), trg_count(-1)
+  : ir_time(999999.), ir_chg(0.), ir_typ(0), ir_chid(0)
 {
-  trg_tim.clear();    trg_tim.resize(7);
-  trg_mul.clear();    trg_mul.resize(7);
-  for(int i=0; i<trg_tim.size(); i++) {trg_tim.at(i) =  10000;}
-  for(int i=0; i<trg_mul.size(); i++) {trg_mul.at(i) =  0;}
-  for(int i=0; i<16; i++) { sca_cnt[i] = -1 ;}
-  for(int i=0; i<16; i++) { 
-    trg_bf_lmu[i]=-1;
-    trg_bf_dti[i]=-1;
-    trg_af_dti[i]=-1;
-    trg_af_red[i]=-1;
-  }
-  trg_vul_time=-1;
 }
 
-TATRrawHit::TATRrawHit(int sta, int pat, int cnt) {
+TATRrawHit::TATRrawHit(int typ, int cha, double charge, double time) {
 
-  vu_stat = sta;
-  trg_pat  = pat;
-  trg_count  = cnt;
-  for(int i=0; i<16; i++) { sca_cnt[i] = -1 ;}
+  ir_time = time;
+  ir_chg  = charge;
+  ir_typ  = typ;
+  ir_chid   = cha;
 
 }
 
-void TATRrawHit::SetTrigBefLMU(int id, int val) {
+void TATRrawHit::SetData(Int_t type, Int_t id, Double_t time, Double_t charge) {
 
-  if(id>=0 && id<16) {
-    trg_bf_lmu[id] = val;
-  } else {
-    Error("Action()","SetTrigBef LMU %d Array out of size",id);
-  }
-  return;
-
-}
-
-int TATRrawHit::GetTrigBefLMU(int id) {
-
-  int val = -1000;
-  if(id>=0 && id<16) {
-    val = trg_bf_lmu[id];
-  } else {
-    Error("Action()","SetTrigBef LMU %d Array out of size",id);
-  }
-  return val;
-
-}
-
-
-void TATRrawHit::SetTrigBefDT(int id, int val) {
-
-  if(id>=0 && id<16) {
-    trg_bf_dti[id] = val;
-  } else {
-    Error("Action()","SetTrigBef DT %d Array out of size",id);
-  }
-  return;
-
-}
-
-int TATRrawHit::GetTrigBefDT(int id) {
-
-  int val = -1000;
-  if(id>=0 && id<16) {
-    val = trg_bf_dti[id];
-  } else {
-    Error("Action()","SetTrigBef DT %d Array out of size",id);
-  }
-  return val;
-
-}
-
-void TATRrawHit::SetTrigAftDT(int id, int val) {
-
-  if(id>=0 && id<16) {
-    trg_af_dti[id] = val;
-  } else {
-    Error("Action()","SetTrigAft DT %d Array out of size",id);
-  }
-  return;
-
-}
-
-int TATRrawHit::GetTrigAftDT(int id) {
-
-  int val = -1000;
-  if(id>=0 && id<16) {
-    val = trg_af_dti[id];
-  } else {
-    Error("Action()","SetTrigAft DT %d Array out of size",id);
-  }
-  return val;
-
-}
-
-void TATRrawHit::SetTrigAftRed(int id, int val) {
-
-  if(id>=0 && id<16) {
-    trg_af_red[id] = val;
-  } else {
-    Error("Action()","SetTrigAft Red %d Array out of size",id);
-  }
-  return;
-
-}
-
-int TATRrawHit::GetTrigAftRed(int id) {
-
-  int val = -1000;
-  if(id>=0 && id<16) {
-    val = trg_af_red[id];
-  } else {
-    Error("Action()","SetTrigAft Red %d Array out of size",id);
-  }
-  return val;
-
-}
-
-
-void TATRrawHit::SetData(int sta, int pat, int cnt) {
-
-  vu_stat = sta;
-  trg_pat  = pat;
-  trg_count  = cnt;
-
+  ir_time = time;
+  ir_chg  = charge;
+  ir_typ  = type;
+  ir_chid   = id;
   return;
 }
-
-void TATRrawHit::Clear(Option_t* /*option*/)
-{
-   trg_tim.clear();
-   trg_mul.clear();
-}
-
 //##############################################################################
 
 ClassImp(TATRdatRaw);
@@ -173,38 +60,16 @@ ClassImp(TATRdatRaw);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TATRdatRaw::TATRdatRaw()
-: TAGdata(),
- fListOfHits(0)
-{
-   SetupClones();
+TATRdatRaw::TATRdatRaw() :
+  nirhit(0), hir(0) {
 }
 
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
-TATRdatRaw::~TATRdatRaw()
-{
-  delete fListOfHits;
-}
-
-//------------------------------------------+-----------------------------------
-Int_t TATRdatRaw::GetHitsN() const
-{
-   return fListOfHits->GetEntries();
-}
-
-//______________________________________________________________________________
-//
-TATRrawHit* TATRdatRaw::NewHit(int channel, double charge, double time)
-{
-   TClonesArray &pixelArray = *fListOfHits;
-   
-   TATRrawHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATRrawHit(channel, charge, time);
-   
-   return hit;
-   
+TATRdatRaw::~TATRdatRaw() {
+  delete hir;
 }
 
 //------------------------------------------+-----------------------------------
@@ -212,11 +77,21 @@ TATRrawHit* TATRdatRaw::NewHit(int channel, double charge, double time)
 
 void TATRdatRaw::SetupClones()
 {
-  if (!fListOfHits) fListOfHits = new TClonesArray("TATRrawHit");
-   
+  if (!hir) hir = new TClonesArray("TATRrawHit");
   return;
 }
 
+
+/*------------------------------------------+---------------------------------*/
+//! Set statistics counters.
+
+void TATRdatRaw::SetCounter(Int_t i_ntdc, Int_t i_nadc, Int_t i_ndrop)
+{
+  fiNTdc  = i_ntdc;
+  fiNAdc  = i_nadc;
+  fiNDrop = i_ndrop;
+  return;
+}
 
 //------------------------------------------+-----------------------------------
 //! Clear event.
@@ -224,8 +99,19 @@ void TATRdatRaw::SetupClones()
 void TATRdatRaw::Clear(Option_t*)
 {
   TAGdata::Clear();
-  if (fListOfHits) fListOfHits->Clear("C");
+
+  nirhit = 0;
+  if (hir) hir->Clear();
 
   return;
 }
 
+/*------------------------------------------+---------------------------------*/
+//! ostream insertion.
+
+void TATRdatRaw::ToStream(ostream& os, Option_t* option) const
+{
+  os << "TATRdatRaw " << GetName()
+     << endl;
+  return;
+}

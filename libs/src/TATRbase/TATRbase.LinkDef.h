@@ -8,6 +8,8 @@
 #pragma link C++ class  TATRactDatRaw+;
 #pragma link C++ class  TATRactNtuMC+;
 #pragma link C++ class  TATRdatRaw+;
+#pragma link C++ class  TATRtrigRaw+;
+#pragma link C++ class  TATRtrigHit+;
 #pragma link C++ class  TATRntuRaw+;
 #pragma link C++ class  TATRrawHit+;
 #pragma link C++ class  TATRntuHit+;

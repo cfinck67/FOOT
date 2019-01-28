@@ -16,61 +16,29 @@ using namespace std;
 #include "TAGdata.hxx"
 
 class TATRrawHit : public TObject {
-public:
-  
-  TATRrawHit();
+  public:
+    TATRrawHit();
+    TATRrawHit(int typ, int cha, double charge, double time);
+    virtual         ~TATRrawHit();
 
-  TATRrawHit(int sta, int pat, int cnt);
+    void            SetData(Int_t type, Int_t id, Double_t time, Double_t charge);
+    Double_t        Time() const;
+    Double_t        Charge() const;
+    Int_t           ChID() const;
+    Int_t           Type() const;
 
-  virtual        ~TATRrawHit();
+    void            SetTime(double time);
+    void            SetCharge(double charge);
+    void            SetChID(int id);  //SC channel ID
+    void            SetType(int typ); //meaningless for now.
 
-  void           SetData(int sta, int pat, int cnt);
-
-  double         TrigTime(int ch) const;
-  double         TrigMult(int ch) const;
-  Int_t          Count() const;
-  Int_t          Pattern() const;
-  Int_t          Status() const;
-  Int_t          VulomTime() const;
-  Int_t          ScaCount(int ch) const;
-  
-  void           SetTrigBefLMU(int id, int val);
-  int            GetTrigBefLMU(int id);
-  
-  void           SetTrigBefDT(int id, int val); //
-  int            GetTrigBefDT(int id);    //
-  void           SetTrigAftDT(int id, int val);
-  int            GetTrigAftDT(int id);    
-  void           SetTrigAftRed(int id, int val);
-  int            GetTrigAftRed(int id);    
-
-  void           SetTrigTime(int ch, double time);
-  void           SetTrigMult(int ch, int mult);
-  void           SetCount(int count);
-  void           SetPattern(int patt);
-  void           SetStatus(int stat);
-  void           SetScaCount(int ch, int count);
-
-  void           SetVulomTime(int tim);
-
-  void           Clear(Option_t* option = "C");
-
-  ClassDef(TATRrawHit,1)
+    ClassDef(TATRrawHit,1)
 
   private:
-
-  Int_t vu_stat;    
-  Int_t trg_pat;    
-  Int_t trg_count;
-  Int_t trg_vul_time;
-  vector<double> trg_tim;
-  vector<int>    trg_mul;
-  Int_t trg_bf_lmu[16];
-  Int_t trg_bf_dti[16];
-  Int_t trg_af_dti[16];
-  Int_t trg_af_red[16];
-  Int_t sca_cnt[16];
-   
+    Double_t ir_time;    
+    Double_t ir_chg;    
+    Int_t ir_typ;
+    Int_t ir_chid;
 };
 
 //##############################################################################
@@ -81,25 +49,37 @@ class TATRdatRaw : public TAGdata {
                     TATRdatRaw();
     virtual         ~TATRdatRaw();
 
-    Int_t             GetHitsN() const;
+    void            SetCounter(Int_t i_ntdc, Int_t i_nadc, Int_t i_ndrop);
 
     TATRrawHit*       Hit(Int_t i_ind);
     const TATRrawHit* Hit(Int_t i_ind) const;
 
-   TATRrawHit*        NewHit(int channel, double charge, double time);
+    void            SetTrigTime(double time);
+    Double_t        TrigTime() const;
 
-    void              SetTrigTime(double time) { fTrigTime = time; }
-    Double_t          TrigTime()         const { return fTrigTime; }
+    Int_t           NTdc() const;
+    Int_t           NAdc() const;
+    Int_t           NDrop() const;
 
-    virtual void      Clear(Option_t* opt="");
+    virtual void    Clear(Option_t* opt="");
 
-    void              SetupClones();
+    void SetupClones();
+
+    virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
 
     ClassDef(TATRdatRaw,1)
 
+  public:
+    Int_t           nirhit;		    // 
+    TClonesArray*   hir;			    // hits
+
   private:
-    Double32_t        fTrigTime;               //SC trigger tim
-    TClonesArray*     fListOfHits;			    // hits
+
+    double          trg_time;               //SC trigger time
+    Int_t           fiNAdc;		    // 
+    Int_t           fiNTdc;		    // 
+    Int_t           fiNDrop;		    // 
+
 };
 
 #include "TATRdatRaw.icc"
