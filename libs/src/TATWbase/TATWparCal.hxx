@@ -49,9 +49,12 @@ public:
    //! Stream output
    virtual void       ToStream(ostream& os = cout, Option_t* option = "") const;
    
-   //! Get Lnadau parameter
+   //! Get charge parameter
    ChargeParameter_t& GetChargePar(Int_t idx) {return fChargeParameter[idx];}
    
+   Int_t              GetCharge(Int_t idx) const { return fChargeParameter[idx].Charge; }
+   Float_t            GetCutLow(Int_t idx) const { return fChargeParameter[idx].CutLow; }
+   Float_t            GetCutUp(Int_t idx)  const { return fChargeParameter[idx].CutUp; }
    
 public:
    static const Char_t* GetDefaultCalName()      { return fgkDefaultCalName.Data(); }
