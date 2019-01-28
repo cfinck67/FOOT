@@ -53,11 +53,6 @@ int main (int argc, char *argv[])
    if(his)
       locRec->EnableHisto();
    
-   // VTX tracks
-   if (GlobalPar::GetPar()->IncludeVertex()) {
-      locRec->EnableVtxTrack();
-   }
-   
    TStopwatch watch;
    watch.Start();
    
