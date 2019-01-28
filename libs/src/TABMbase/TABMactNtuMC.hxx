@@ -41,12 +41,8 @@ class TABMactNtuMC : public TAGaction {
     TAGparaDsc*     fpParCon;		    // BM config params.
     TAGparaDsc*     fpParGeo;		    // BM geo params.
     EVENT_STRUCT*   fpEvtStr;
-    Double_t        rdrift_err;//default error value of the rdrfit
-    
-    //ntu objects
-    TABMntuRaw*   p_nturaw;
-    TABMntuHit*   p_hit;
-    //par objects    
+    Double_t        rdrift_err;      //default error value of the rdrfit
+
 };
 
 #endif

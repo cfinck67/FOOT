@@ -221,6 +221,7 @@ void TABMactNtuMC::CreateFakeHits(Int_t nfake, Int_t &nhits)
 {
   TABMparCon* p_bmcon = (TABMparCon*) fpParCon->Object();
   TABMparGeo* p_bmgeo = (TABMparGeo*) fpParGeo->Object();
+  TABMntuRaw* p_nturaw  = (TABMntuRaw*) fpNtuMC->Object();
 
   Int_t plane, view, cell;
   for(Int_t i=0;i<nfake;i++){
