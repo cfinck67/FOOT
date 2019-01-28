@@ -113,6 +113,26 @@ TABMactNtuTrack::~TABMactNtuTrack()
 
 
 //------------------------------------------+-----------------------------------
+//! Setup all histograms.
+void TABMactNtuTrack::CreateHistogram()
+{
+   
+   DeleteHistogram();
+   
+   fpHisR0X = new TH1F("bmR0X", "BM - PositionX of the track(z=0)", 200, -6, 6);
+   fpHisR0Y = new TH1F("bmR0Y", "BM - PositionY of the track(z=0)", 200, -6, 6);
+   AddHistogram(fpHisR0X);
+   AddHistogram(fpHisR0Y);
+   
+   fpHisPversX = new TH1F("bmPversX", "BM - DirectionX of the track", 200, -1, 1);
+   fpHisPversY = new TH1F("bmPversY", "BM - DirectionY of the track", 200, -1, 1);
+   AddHistogram(fpHisPversX);
+   AddHistogram(fpHisPversX);
+
+   SetValidHistogram(kTRUE);
+}
+
+//------------------------------------------+-----------------------------------
 //! Action.
 Bool_t TABMactNtuTrack::Action()
 {  
@@ -170,8 +190,9 @@ Bool_t TABMactNtuTrack::Action()
     p_hit = p_nturaw->Hit(i_h);
     //~ if(ToBeConsider(p_hit->Cell(), p_hit->View(), p_hit->Plane())) 
     if(p_bmcon->GetBMdebug()>10)
-      cout<<"hit="<<i_h<<" plane="<<p_hit->Plane()<<"  view="<<p_hit->View()<<"  cell="<<p_hit->Cell()<<"  piano="<<p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())<<endl; 
-    hitxplane.at(p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())).push_back(i_h);
+      cout<<"hit="<<i_h<<" plane="<<p_hit->Plane()<<"  view="<<p_hit->View()<<"  cell="<<p_hit->Cell()<<"  piano="<<p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())<<endl;
+     if (p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View()) >= 0)
+        hitxplane.at(p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())).push_back(i_h);
   }
   //calculate number of possible tracks (tracknum), the number of the plane with at least one hit for each view (firedUview/firedVview) and for both the views (firedPlane)
   for(Int_t j = 0; j < hitxplane.size(); j++) {  
@@ -498,7 +519,7 @@ Bool_t TABMactNtuTrack::Action()
     cout<<"TABMactNtuTrack:end of tracking"<<endl;
   
   if(best_trackTr.GetNhit()!=0){
-    new((*(p_ntutrk->GetListOfTracks()))[p_ntutrk->GetTracksN()]) TABMntuTrackTr(best_trackTr);
+    TABMntuTrackTr* trk = new((*(p_ntutrk->GetListOfTracks()))[p_ntutrk->GetTracksN()]) TABMntuTrackTr(best_trackTr);
     p_ntutrk->GetTrackStatus()++;
     p_ntutrk->GetTrackStatus()= (best_trackTr.GetMyChi2Red()>=p_bmcon->GetChi2Redcut())? 5:0;
     //flag the hit of the best track
@@ -510,6 +531,12 @@ Bool_t TABMactNtuTrack::Action()
 	p_hit->SetResidualSigma(best_mysqrtchi2.at(i));
       }
     }
+     fpHisR0X->Fill(trk->GetR0()[0]);
+     fpHisR0Y->Fill(trk->GetR0()[1]);
+     
+     fpHisPversX->Fill(trk->GetPvers()[0]);
+     fpHisPversY->Fill(trk->GetPvers()[1]);
+     
   }else if(converged==false)
     p_ntutrk->GetTrackStatus()=4;
   else

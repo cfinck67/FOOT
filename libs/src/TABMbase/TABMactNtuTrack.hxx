@@ -73,6 +73,8 @@ public:
   virtual         ~TABMactNtuTrack();
   virtual Bool_t  Action();
   
+  virtual  void   CreateHistogram();
+   
   //new tracking
   void Print_matrix(vector<vector<int>>& vec);
   bool ToBeConsider(const Int_t cell, const Int_t view, const Int_t lay);
@@ -137,6 +139,13 @@ public:
   TABMparCon* p_bmcon;
   TABMparGeo* p_bmgeo;
   TAGparGeo*  p_tggeo;
+   
+   TH1F*            fpHisR0X;
+   TH1F*            fpHisR0Y;
+
+   TH1F*            fpHisPversX;
+   TH1F*            fpHisPversY;
+
 };
 
 
