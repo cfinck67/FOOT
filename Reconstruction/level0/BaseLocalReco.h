@@ -3,18 +3,50 @@
 #define _BaseLocalReco_HXX_
 
 #include "TNamed.h"
+#include "TString.h"
 
 #include "TAGaction.hxx"
 #include "TAGactTreeWriter.hxx"
+#include "TAGgeoTrafo.hxx"
+
+#include "TATRparGeo.hxx"
+#include "TABMparGeo.hxx"
+#include "TAGparGeo.hxx"
+#include "TAVTparGeo.hxx"
+#include "TAVTparGeo.hxx"
+#include "TAITparGeo.hxx"
+#include "TADIparGeo.hxx"
+#include "TAMSDparGeo.hxx"
+#include "TATWparGeo.hxx"
+#include "TACAparGeo.hxx"
+
+#include "TATWparCal.hxx"
+
+#include "TABMparCon.hxx"
+#include "TAVTparConf.hxx"
+#include "TAITparConf.hxx"
+#include "TAMSDparConf.hxx"
+
+#include "TAGclusterDisplay.hxx"
+#include "TAGtrackDisplay.hxx"
+#include "TAGwireDisplay.hxx"
+#include "TAGglbTrackDisplay.hxx"
+#include "TAGbaseEventDisplay.hxx"
+#include "TAGactionFile.hxx"
 
 #include "TAVTactNtuClusterF.hxx"
-#include "TAVTactNtuTrackF.hxx"
-#include "TAVTactNtuTrack.hxx"
-#include "TAVTactNtuVertexPD.hxx"
-
 #include "TAITactNtuClusterF.hxx"
 #include "TAMSDactNtuCluster.hxx"
+#include "TATWactNtuPoint.hxx"
 
+#include "TAVTactNtuRaw.hxx"
+#include "TAITactNtuRaw.hxx"
+//#include "TATWactNtuRaw.hxx"
+
+
+#include "TABMactNtuTrack.hxx"
+#include "TAVTactBaseNtuTrack.hxx"
+#include "TAVTactNtuVertex.hxx"
 
 class BaseLocalReco : public TNamed // using TNamed for the in/out files
 {
@@ -66,15 +98,18 @@ public:
    //! Create branch in tree
    virtual void SetTreeBranches();
    
+   //! Set experiment name
+   virtual void SetExpName(const Char_t* name) { fExpName = name; }
+   
    // Enable global
-   void EnableTree()      { fFlagTree = true;      }
-   void DisableTree()     { fFlagTree = false;     }
+   void EnableTree()      { fFlagTree = true;    }
+   void DisableTree()     { fFlagTree = false;   }
    
-   void EnableHisto()     { fFlagHisto = true;     }
-   void DisableHisto()    { fFlagHisto = false;    }
+   void EnableHisto()     { fFlagHisto = true;   }
+   void DisableHisto()    { fFlagHisto = false;  }
    
-   void EnableVtxTrack()  { fVtxTrackFlag = true;  }
-   void DisableVtxTrack() { fVtxTrackFlag = false; }
+   void EnableVtxTrack()  { fgTrackFlag = true;  }
+   void DisableVtxTrack() { fgTrackFlag = false; }
 
    //! Set Tracking algorithm
    void SetTrackingAlgo(char c);
@@ -83,8 +118,13 @@ private:
    void InitParameters();
 
 protected:
+   TString               fExpName;
    TAGroot*              fTAGroot;             // pointer to TAGroot
-   TAGparaDsc*           fpParGeoTr;
+   TAGgeoTrafo*          fpFootGeo;           // trafo prointer
+
+   TAGparaDsc*           fpParGeoSt;
+   TAGparaDsc*           fpParGeoG;
+   TAGparaDsc*           fpParGeoDi;
    TAGparaDsc*           fpParGeoBm;
    
    TAGparaDsc*           fpParGeoIt;
@@ -93,43 +133,77 @@ protected:
    TAGparaDsc*           fpParGeoTw;
    TAGparaDsc*           fpParGeoCa;
    
+   TAGparaDsc*           fpParCalTw;
+   
+   TAGparaDsc*           fpParConfBm;
    TAGparaDsc*           fpParConfIt;
    TAGparaDsc*           fpParConfVtx;
    TAGparaDsc*           fpParConfMsd;
    
-   TAGdataDsc*           fpNtuRawVtx;	  // input raw data dsc
+   TAGdataDsc*           fpDatRawSt;    // input data dsc
+   TAGdataDsc*           fpNtuRawSt;    // input data dsc
+   TAGdataDsc*           fpDatRawBm;    // input data dsc
+   TAGdataDsc*           fpNtuRawBm;    // input data dsc
+   TAGdataDsc*           fpNtuTrackBm;  // input track data dsc
+   
+   TAGdataDsc*           fpDatRawVtx;    // input data dsc
+   TAGdataDsc*           fpNtuRawVtx;	  // input ntu data dsc
    TAGdataDsc*           fpNtuClusVtx;	  // input cluster data dsc
    TAGdataDsc*           fpNtuTrackVtx;  // input track data dsc
    TAGdataDsc*           fpNtuVtx;		  // input Vtx data dsc
    
-   TAGdataDsc*           fpNtuRawIt;	  // input raw data dsc
+   TAGdataDsc*           fpDatRawIt;    // input data dsc
+   TAGdataDsc*           fpNtuRawIt;	  // input ntu data dsc
    TAGdataDsc*           fpNtuClusIt;	  // input cluster data dsc
    
-   TAGdataDsc*           fpNtuRawMsd;	  // input raw data dsc
+   TAGdataDsc*           fpDatRawMsd;    // input data dsc
+   TAGdataDsc*           fpNtuRawMsd;	  // input ntu data dsc
    TAGdataDsc*           fpNtuClusMsd;	  // input cluster data dsc
-
-   TAGactTreeWriter*     fActEvtWriter;  // write histo and tree
    
+   TAGdataDsc*           fpNtuRawTw;    // input data dsc
+   TAGdataDsc*           fpNtuRecTw;    // input data dsc
+   TAGdataDsc*           fpNtuRawCa;    // input data dsc
+   
+   TAGaction*            fActDatRawVtx;     // action for raw data
+   TAGactionFile*        fActEvtReader;
+   TAGactTreeWriter*     fActEvtWriter;  // write histo and tree
+
+   TABMactNtuTrack*      fActTrackBm;   // action for tracks
+   
+   TAVTactNtuRaw*        fActNtuRawVtx;  // action for ntu data
    TAVTactNtuClusterF*   fActClusVtx;    // action for clusters
    TAVTactBaseNtuTrack*  fActTrackVtx;   // action for tracks
    TAVTactBaseNtuVertex* fActVtx;        // action for vertex
    
-   TAITactNtuClusterF*    fActClusIt;    // action for clusters
-   TAMSDactNtuCluster*    fActClusMsd;    // action for clusters
+   TAITactNtuRaw*        fActNtuRawIt;  // action for ntu data
+   TAITactNtuClusterF*   fActClusIt;    // action for clusters
    
-   Bool_t                fFlagTr;
-   Bool_t                fFlagBm;
-   Bool_t                fFlagVtx;
-   Bool_t                fFlagIt;
-   Bool_t                fFlagMsd;
-   Bool_t                fFlagTw;
-   Bool_t                fFlagCa;
+   TAVTactNtuRaw*        fActNtuRawMsd;  // action for ntu data
+   TAMSDactNtuCluster*   fActClusMsd;    // action for clusters
+   
+   // TATWactNtuRaw*        fActNtuRawTw;  // action for ntu data
+   TATWactNtuPoint*      fActPointTw;    // action for clusters
    
    Bool_t                fFlagTree;
    Bool_t                fFlagHisto;
-   Bool_t                fVtxTrackFlag;      // flag for tracking
-   TString               fTrackingAlgo;   // tracking algorithm ("std" with BM, "Full" combinatory)
+   Bool_t                fgTrackFlag;      // flag for tracking
+   TString               fgTrackingAlgo;   // tracking algorithm ("std" with BM, "Full" combinatory)
 
+protected:
+   void CreateRecActionBm();
+   void CreateRecActionVtx();
+   void CreateRecActionIt();
+   void CreateRecActionMsd();
+   void CreateRecActionTw();
+   
+   void AddRequiredItemSt();
+   void AddRequiredItemBm();
+   void AddRequiredItemVtx();
+   void AddRequiredItemIt();
+   void AddRequiredItemMsd();
+   void AddRequiredItemTw();
+   void AddRequiredItemCa();
+   
    ClassDef(BaseLocalReco, 1); // Base class for event display
 };
 

@@ -4,9 +4,16 @@
 
 #include "LocalRecoMC.h"
 
+#include "GlobalPar.hxx"
+#include "TAGgeoTrafo.hxx"
+#include "TATRntuRaw.hxx"
+#include "TABMntuRaw.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
+#include "TATW_ContainerHit.hxx"
+#include "TACAntuRaw.hxx"
+
 
 
 
@@ -57,25 +64,78 @@ void LocalRecoMC::LoopEvent(Int_t nEvents)
 //__________________________________________________________
 void LocalRecoMC::CreateRawAction()
 {
-   if (fFlagVtx) {
+   fpNtuMcEve = new TAGdataDsc("eveMc", new TAMCntuEve());
+   fActNtuMcEve = new TAMCactNtuEve("eveActNtuMc", fpNtuMcEve, fEvtStruct);
+   
+   
+   if (GlobalPar::GetPar()->IncludeST()) {
+      fpNtuRawSt = new TAGdataDsc("stRaw", new TATRntuRaw());
+      fActNtuRawSt = new TATRactNtuMC("stActNtu", fpNtuRawSt, fEvtStruct);
+      if (fFlagHisto)
+         fActNtuRawSt->CreateHistogram();
+      
+      fpNtuMcSt   = new TAGdataDsc("stMc", new TAMCntuHit());
+      fActNtuMcSt = new TAMCactNtuStc("stActNtuMc", fpNtuMcSt, fEvtStruct);
+   }
+   
+   if (GlobalPar::GetPar()->IncludeBM()) {
+      fpNtuRawBm = new TAGdataDsc("bmRaw", new TABMntuRaw());
+      fActNtuRawBm = new TABMactNtuMC("bmActNtu", fpNtuRawBm, fpParConfBm, fpParGeoBm, fEvtStruct);
+      if (fFlagHisto)
+         fActNtuRawBm->CreateHistogram();
+      
+      fpNtuMcBm   = new TAGdataDsc("bmMc", new TAMCntuHit());
+      fActNtuMcBm = new TAMCactNtuBm("bmActNtuMc", fpNtuMcBm, fEvtStruct);
+   }
+   
+   if (GlobalPar::GetPar()->IncludeVertex()) {
       fpNtuRawVtx = new TAGdataDsc("vtRaw", new TAVTntuRaw());
       fActNtuRawVtx = new TAVTactNtuMC("vtActNtu", fpNtuRawVtx, fpParGeoVtx, fEvtStruct);
       if (fFlagHisto)
          fActNtuRawVtx->CreateHistogram();
+      
+      fpNtuMcVt   = new TAGdataDsc("vtMc", new TAMCntuHit());
+      fActNtuMcVt = new TAMCactNtuVtx("vtActNtuMc", fpNtuMcVt, fEvtStruct);
    }
    
-   if (fFlagIt) {
+   if (GlobalPar::GetPar()->IncludeInnerTracker()) {
       fpNtuRawIt = new TAGdataDsc("itRaw", new TAITntuRaw());
       fActNtuRawIt = new TAITactNtuMC("itActNtu", fpNtuRawIt, fpParGeoIt, fEvtStruct);
       if (fFlagHisto)
          fActNtuRawIt->CreateHistogram();
+      
+      fpNtuMcIt   = new TAGdataDsc("itMc", new TAMCntuHit());
+      fActNtuMcIt = new TAMCactNtuItr("itActNtuMc", fpNtuMcIt, fEvtStruct);
    }
    
-   if (fFlagMsd) {
+   if (GlobalPar::GetPar()->IncludeMSD()) {
       fpNtuRawMsd = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
       fActNtuRawMsd = new TAMSDactNtuMC("msdActNtu", fpNtuRawMsd, fpParGeoMsd, fEvtStruct);
       if (fFlagHisto)
          fActNtuRawMsd->CreateHistogram();
+      
+      fpNtuMcMsd   = new TAGdataDsc("msdMc", new TAMCntuHit());
+      fActNtuMcMsd = new TAMCactNtuMsd("msdActNtuMc", fpNtuMcMsd, fEvtStruct);
+   }
+   
+   if(GlobalPar::GetPar()->IncludeTW()) {
+      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
+      fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fEvtStruct);
+      if (fFlagHisto)
+         fActNtuRawTw->CreateHistogram();
+      
+      fpNtuMcTw   = new TAGdataDsc("twMc", new TAMCntuHit());
+      fActNtuMcTw = new TAMCactNtuTof("twActNtuMc", fpNtuMcTw, fEvtStruct);
+   }
+   
+   if(GlobalPar::GetPar()->IncludeCA()) {
+      fpNtuRawCa   = new TAGdataDsc("caRaw", new TACAntuRaw());
+      fActNtuRawCa = new TACAactNtuMC("caActNtu", fpNtuRawCa, fpParGeoCa, fEvtStruct);
+      if (fFlagHisto)
+         fActNtuRawCa->CreateHistogram();
+      
+      fpNtuMcCa   = new TAGdataDsc("caMc", new TAMCntuHit());
+      fActNtuMcCa = new TAMCactNtuCal("caActNtuMc", fpNtuMcCa, fEvtStruct);
    }
 }
 
@@ -92,18 +152,34 @@ void LocalRecoMC::OpenFileIn()
 //__________________________________________________________
 void LocalRecoMC::SetRawHistogramDir()
 {
+   // ST
+   if (GlobalPar::GetPar()->IncludeST())
+      fActNtuRawSt->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+   
+   // BM
+   if (GlobalPar::GetPar()->IncludeBM())
+      fActNtuRawBm->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+
    // VTX
-   if (fFlagVtx)
+   if (GlobalPar::GetPar()->IncludeVertex())
       fActNtuRawVtx->SetHistogramDir((TDirectory*)fActEvtWriter->File());
    
    // IT
-   if (fFlagIt)
+   if (GlobalPar::GetPar()->IncludeInnerTracker())
       fActNtuRawIt->SetHistogramDir((TDirectory*)fActEvtWriter->File());
    
-   
    // MSD
-   if (fFlagMsd)
+   if (GlobalPar::GetPar()->IncludeMSD())
       fActNtuRawMsd->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+   
+   // TOF
+   if (GlobalPar::GetPar()->IncludeTW())
+      fActNtuRawTw->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+   
+   // CAL
+   if (GlobalPar::GetPar()->IncludeCA())
+      fActNtuRawCa->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+
 }
 
 //__________________________________________________________
@@ -115,12 +191,67 @@ void LocalRecoMC::CloseFileIn()
 //__________________________________________________________
 void LocalRecoMC::AddRawRequiredItem()
 {
-   if (fFlagVtx)
-      fTAGroot->AddRequiredItem("vtActNtu");
+   fTAGroot->AddRequiredItem("eveActNtuMc");
    
-   if (fFlagIt)
-      fTAGroot->AddRequiredItem("itActNtu");
+   if (GlobalPar::GetPar()->IncludeST())
+      AddRequiredMcItemSt();
    
-   if (fFlagMsd)
-      fTAGroot->AddRequiredItem("msdActNtu");
+   if (GlobalPar::GetPar()->IncludeBM())
+      AddRequiredMcItemBm();
+   
+   if (GlobalPar::GetPar()->IncludeVertex())
+      AddRequiredMcItemVt();
+   
+   if (GlobalPar::GetPar()->IncludeInnerTracker())
+      AddRequiredMcItemIt();
+   
+   if (GlobalPar::GetPar()->IncludeMSD())
+      AddRequiredMcItemMs();
+   
+   if (GlobalPar::GetPar()->IncludeTW())
+      AddRequiredMcItemTw();
+   
+   if (GlobalPar::GetPar()->IncludeCA())
+      AddRequiredMcItemCa();
+}
+//__________________________________________________________
+void LocalRecoMC::AddRequiredMcItemSt()
+{
+   fTAGroot->AddRequiredItem("stActNtuMc");
+}
+
+//__________________________________________________________
+void LocalRecoMC::AddRequiredMcItemBm()
+{
+   fTAGroot->AddRequiredItem("bmActNtuMc");
+}
+
+//__________________________________________________________
+void LocalRecoMC::AddRequiredMcItemVt()
+{
+   fTAGroot->AddRequiredItem("vtActNtuMc");
+}
+
+//__________________________________________________________
+void LocalRecoMC::AddRequiredMcItemIt()
+{
+   fTAGroot->AddRequiredItem("itActNtuMc");
+}
+
+//__________________________________________________________
+void LocalRecoMC::AddRequiredMcItemMs()
+{
+   fTAGroot->AddRequiredItem("msdActNtuMc");
+}
+
+//__________________________________________________________
+void LocalRecoMC::AddRequiredMcItemTw()
+{
+   fTAGroot->AddRequiredItem("twActNtuMc");
+}
+
+//__________________________________________________________
+void LocalRecoMC::AddRequiredMcItemCa()
+{
+   fTAGroot->AddRequiredItem("caActNtuMc");
 }
