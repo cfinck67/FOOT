@@ -37,11 +37,19 @@ class TABMntuTrack : public TAGdata {
    
    Int_t&           GetTrackStatus();
    
-    ClassDef(TABMntuTrack,2)
+  public:
+   static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
+
 
   private:
     Int_t           fStatus; //-1000=notset, 0=ok, 1=firedUplane<plane_mincut, 2=firedVplane<plane_mincut, 3=hit rejected > rejmax_cut, 4=Genfit fit is not converged, 5=chi2red>chi2redcut
     TClonesArray*   fListOfTracks;			    // list of tracks
+   
+  private:
+   static TString fgkBranchName;    // Branch name in TTree
+
+   ClassDef(TABMntuTrack,2)
+
 };
 
 #include "TABMntuTrack.icc"

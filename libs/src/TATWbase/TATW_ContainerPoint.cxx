@@ -24,8 +24,8 @@
 
 
 ClassImp(TATW_ContainerPoint);
-//TString TATW_ContainerPoint::fgkBranchName   = "twrh.";
 
+TString TATW_ContainerPoint::fgkBranchName   = "twrec.";
 
 //------------------------------------------+-----------------------------------
 //! 
