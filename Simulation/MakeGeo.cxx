@@ -18,6 +18,7 @@
 #include "TAGgeoTrafo.hxx"
 #include "TAGroot.hxx"
 
+#include "foot_geo.h"
 #include "Materials.hxx"
 
 #include "GlobalPar.hxx"
