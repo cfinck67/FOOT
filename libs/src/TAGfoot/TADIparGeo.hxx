@@ -48,6 +48,7 @@ private:
    TVector3   fSizeBox;
    
 private:
+   static const TString fgkDefParaName;
    static       TString fgDefaultGeoName; // default detector geomap file
    static const TString fgkDevBaseName;   // device base name
    static const Int_t fgkDefMagnetsN;     // default number of Magnets
@@ -55,7 +56,8 @@ private:
 public:
    static Int_t         GetDefMagnetsN()      { return fgkDefMagnetsN;        }
    static const Char_t* GetBaseName()         { return fgkDevBaseName.Data(); }
-   
+   static const Char_t* GetDefParaName()      { return fgkDefParaName.Data(); }
+
 public:
    TADIparGeo();
     virtual ~TADIparGeo();
