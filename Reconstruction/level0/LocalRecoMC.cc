@@ -255,3 +255,32 @@ void LocalRecoMC::AddRequiredMcItemCa()
 {
    fTAGroot->AddRequiredItem("caActNtuMc");
 }
+//__________________________________________________________
+void LocalRecoMC::SetTreeBranches()
+{
+   BaseLocalReco::SetTreeBranches();
+   
+   fActEvtWriter->SetupElementBranch(fpNtuMcEve, TAMCntuEve::GetBranchName());
+
+   if (GlobalPar::GetPar()->IncludeST())
+      fActEvtWriter->SetupElementBranch(fpNtuMcSt, TAMCntuHit::GetStcBranchName());
+   
+   if (GlobalPar::GetPar()->IncludeBM())
+      fActEvtWriter->SetupElementBranch(fpNtuMcBm, TAMCntuHit::GetBmBranchName());
+   
+   if (GlobalPar::GetPar()->IncludeVertex())
+      fActEvtWriter->SetupElementBranch(fpNtuMcVt, TAMCntuHit::GetVtxBranchName());
+   
+   if (GlobalPar::GetPar()->IncludeInnerTracker())
+      fActEvtWriter->SetupElementBranch(fpNtuMcIt, TAMCntuHit::GetItrBranchName());
+   
+   if (GlobalPar::GetPar()->IncludeMSD())
+      fActEvtWriter->SetupElementBranch(fpNtuMcMsd, TAMCntuHit::GetMsdBranchName());
+   
+   if (GlobalPar::GetPar()->IncludeTW())
+      fActEvtWriter->SetupElementBranch(fpNtuMcTw, TAMCntuHit::GetTofBranchName());
+   
+   if (GlobalPar::GetPar()->IncludeCA())
+      fActEvtWriter->SetupElementBranch(fpNtuMcCa, TAMCntuHit::GetCalBranchName());
+}
+

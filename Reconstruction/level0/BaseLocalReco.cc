@@ -86,6 +86,7 @@ BaseLocalReco::~BaseLocalReco()
    
    delete fTAGroot;
    delete fActEvtWriter;
+   delete fpFootGeo;
 }
 
 
@@ -140,7 +141,8 @@ void BaseLocalReco::SetRecHistogramDir()
       
       if (fTrackFlag) {
          fActTrackVtx->SetHistogramDir((TDirectory*)fActEvtWriter->File());
-         fActVtx->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+         if (GlobalPar::GetPar()->IncludeTG()) 
+            fActVtx->SetHistogramDir((TDirectory*)fActEvtWriter->File());
       }
    }
    
@@ -352,11 +354,17 @@ void BaseLocalReco::CreateRecActionTw()
 //__________________________________________________________
 void BaseLocalReco::SetTreeBranches()
 {
+   if (GlobalPar::GetPar()->IncludeBM()) {
+      if (fTrackFlag)
+         fActEvtWriter->SetupElementBranch(fpNtuTrackBm, TABMntuTrack::GetBranchName());
+   }
+      
    if (GlobalPar::GetPar()->IncludeVertex()) {
       fActEvtWriter->SetupElementBranch(fpNtuClusVtx, TAVTntuCluster::GetBranchName());
       if (fTrackFlag) {
          fActEvtWriter->SetupElementBranch(fpNtuTrackVtx, TAVTntuTrack::GetBranchName());
-         fActEvtWriter->SetupElementBranch(fpNtuVtx, TAVTntuVertex::GetBranchName());
+         if (GlobalPar::GetPar()->IncludeTG())
+            fActEvtWriter->SetupElementBranch(fpNtuVtx, TAVTntuVertex::GetBranchName());
       }
    }
    
@@ -365,6 +373,9 @@ void BaseLocalReco::SetTreeBranches()
 
    if (GlobalPar::GetPar()->IncludeMSD()) 
       fActEvtWriter->SetupElementBranch(fpNtuClusMsd, TAMSDntuCluster::GetBranchName());
+   
+   if (GlobalPar::GetPar()->IncludeTW())
+      fActEvtWriter->SetupElementBranch(fpNtuRecTw, TATW_ContainerPoint::GetBranchName());
 }
 
 //__________________________________________________________

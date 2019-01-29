@@ -47,6 +47,9 @@ public:
    //! Set raw histogram directory
    virtual void SetRawHistogramDir();
    
+   //! Create branch in tree
+   virtual void SetTreeBranches();
+   
    //! Open File
    virtual void OpenFileIn();
    
