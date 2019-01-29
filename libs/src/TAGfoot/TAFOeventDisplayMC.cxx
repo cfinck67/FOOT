@@ -148,7 +148,7 @@ void TAFOeventDisplayMC::CreateRawAction()
 //__________________________________________________________
 void TAFOeventDisplayMC::AddRequiredItem()
 {
-   fAGRoot->AddRequiredItem("eveActNtuMc");
+   fTAGroot->AddRequiredItem("eveActNtuMc");
 
    if (GlobalPar::GetPar()->IncludeST())
       AddRequiredMcItemSt();
@@ -177,43 +177,43 @@ void TAFOeventDisplayMC::AddRequiredItem()
 //__________________________________________________________
 void TAFOeventDisplayMC::AddRequiredMcItemSt()
 {
-   fAGRoot->AddRequiredItem("stActNtuMc");
+   fTAGroot->AddRequiredItem("stActNtuMc");
 }
 
 //__________________________________________________________
 void TAFOeventDisplayMC::AddRequiredMcItemBm()
 {
-   fAGRoot->AddRequiredItem("bmActNtuMc");
+   fTAGroot->AddRequiredItem("bmActNtuMc");
 }
 
 //__________________________________________________________
 void TAFOeventDisplayMC::AddRequiredMcItemVt()
 {
-   fAGRoot->AddRequiredItem("vtActNtuMc");
+   fTAGroot->AddRequiredItem("vtActNtuMc");
 }
 
 //__________________________________________________________
 void TAFOeventDisplayMC::AddRequiredMcItemIt()
 {
-   fAGRoot->AddRequiredItem("itActNtuMc");
+   fTAGroot->AddRequiredItem("itActNtuMc");
 }
 
 //__________________________________________________________
 void TAFOeventDisplayMC::AddRequiredMcItemMs()
 {
-   fAGRoot->AddRequiredItem("msdActNtuMc");
+   fTAGroot->AddRequiredItem("msdActNtuMc");
 }
 
 //__________________________________________________________
 void TAFOeventDisplayMC::AddRequiredMcItemTw()
 {
-   fAGRoot->AddRequiredItem("twActNtuMc");
+   fTAGroot->AddRequiredItem("twActNtuMc");
 }
 
 //__________________________________________________________
 void TAFOeventDisplayMC::AddRequiredMcItemCa()
 {
-   fAGRoot->AddRequiredItem("caActNtuMc");
+   fTAGroot->AddRequiredItem("caActNtuMc");
 }
 
 //__________________________________________________________

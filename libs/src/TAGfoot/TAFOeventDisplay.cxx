@@ -591,35 +591,35 @@ void TAFOeventDisplay::AddRequiredItem()
    if (GlobalPar::GetPar()->IncludeCA())
       AddRequiredItemCa();
 
-   fAGRoot->BeginEventLoop();
-   fAGRoot->Print();
+   fTAGroot->BeginEventLoop();
+   fTAGroot->Print();
 }
 
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItemSt()
 {
-   fAGRoot->AddRequiredItem("stActNtu");
+   fTAGroot->AddRequiredItem("stActNtu");
 }
 
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItemBm()
 {
-   fAGRoot->AddRequiredItem("bmActNtu");
+   fTAGroot->AddRequiredItem("bmActNtu");
    if (fgTrackFlag)
-      fAGRoot->AddRequiredItem("bmActTrack");
+      fTAGroot->AddRequiredItem("bmActTrack");
 }
 
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItemVtx()
 {
-   fAGRoot->AddRequiredItem("vtActNtu");
+   fTAGroot->AddRequiredItem("vtActNtu");
    
    if (fgDisplayFlag) {
-      fAGRoot->AddRequiredItem("vtActClus");
+      fTAGroot->AddRequiredItem("vtActClus");
       if (fgTrackFlag) {
-         fAGRoot->AddRequiredItem("vtActTrack");
+         fTAGroot->AddRequiredItem("vtActTrack");
          if (GlobalPar::GetPar()->IncludeTG())
-            fAGRoot->AddRequiredItem("vtActVtx");
+            fTAGroot->AddRequiredItem("vtActVtx");
       }
    }
 }
@@ -627,34 +627,34 @@ void TAFOeventDisplay::AddRequiredItemVtx()
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItemIt()
 {
-   fAGRoot->AddRequiredItem("itActNtu");
+   fTAGroot->AddRequiredItem("itActNtu");
    
    if (fgDisplayFlag) {
-      fAGRoot->AddRequiredItem("itActClus");
+      fTAGroot->AddRequiredItem("itActClus");
    }
 }
 
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItemMsd()
 {
-   fAGRoot->AddRequiredItem("msdActNtu");
+   fTAGroot->AddRequiredItem("msdActNtu");
    
    if (fgDisplayFlag) {
-      fAGRoot->AddRequiredItem("msdActClus");
+      fTAGroot->AddRequiredItem("msdActClus");
    }
 }
 
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItemTw()
 {
-   fAGRoot->AddRequiredItem("twActNtu");
-   fAGRoot->AddRequiredItem("twActPoint");
+   fTAGroot->AddRequiredItem("twActNtu");
+   fTAGroot->AddRequiredItem("twActPoint");
 }
 
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItemCa()
 {
-   fAGRoot->AddRequiredItem("caActNtu");
+   fTAGroot->AddRequiredItem("caActNtu");
 }
 
 //__________________________________________________________
@@ -815,7 +815,7 @@ void TAFOeventDisplay::UpdateTrackInfo(TEveDigitSet* qs, Int_t idx)
 void TAFOeventDisplay::UpdateElements()
 {
    if (fgGUIFlag)
-      fEventEntry->SetText(Form("Run %d Event %d", fAGRoot->CurrentRunInfo().RunNumber(), fAGRoot->CurrentEventId().EventNumber()));
+      fEventEntry->SetText(Form("Run %d Event %d", fTAGroot->CurrentRunInfo().RunNumber(), fTAGroot->CurrentEventId().EventNumber()));
    
    if (GlobalPar::GetPar()->IncludeST())
       UpdateElements("st");

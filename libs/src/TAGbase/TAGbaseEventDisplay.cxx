@@ -72,7 +72,7 @@ TAGbaseEventDisplay::TAGbaseEventDisplay(const TString expName)
   fWorldSizeZ(120),
   fWorldSizeXY(25),
   fWorldMedium(0x0),
-  fAGRoot(0x0),
+  fTAGroot(0x0),
   fTopVolume(0x0),
   fpFootGeo(0x0),
   fCurrentEventId(0),
@@ -93,7 +93,7 @@ TAGbaseEventDisplay::TAGbaseEventDisplay(const TString expName)
    fListOfCanvases->SetOwner(false);
    
    // define TAGroot
-   fAGRoot = new TAGroot();
+   fTAGroot = new TAGroot();
 
    // check geometry manager
    if ( gGeoManager == NULL )  // a new Geo Manager is created if needed
@@ -132,8 +132,8 @@ TAGbaseEventDisplay::~TAGbaseEventDisplay()
    if (frmMain)
       frmMain->Delete();
    
-   fAGRoot->EndEventLoop();
-   delete fAGRoot;
+   fTAGroot->EndEventLoop();
+   delete fTAGroot;
    delete fTopVolume;
    delete fpFootGeo;
 
@@ -425,7 +425,7 @@ void TAGbaseEventDisplay::LoopEvent(Int_t nEvts)
       
    for (Int_t i = 0; i < nEvts; ++i) {
       if (! GetEntry(fCurrentEventId)) return;
-      if (!fAGRoot->NextEvent()) return;
+      if (!fTAGroot->NextEvent()) return;
       fCurrentEventId++;
       UpdateEventBar();
       

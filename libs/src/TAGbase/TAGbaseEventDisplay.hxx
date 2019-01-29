@@ -135,8 +135,8 @@ public:
    void         SetMaxMomentum(Float_t m)   { fMaxMomentum = m;       }
    Float_t      GetMaxMomentum()    const   { return fMaxMomentum;    }
    
-   void         SetTAGroot(TAGroot* root)   { fAGRoot = root;         }
-   TAGroot*     GetTAGroot()                { return fAGRoot;         }
+   void         SetTAGroot(TAGroot* root)   { fTAGroot = root;         }
+   TAGroot*     GetTAGroot()                { return fTAGroot;         }
    
    TList*       GetCanvasList()     const   { return fListOfCanvases; }
    
@@ -176,7 +176,7 @@ protected:
    Float_t            fWorldSizeXY;
    TGeoMedium*        fWorldMedium;
    
-   TAGroot*           fAGRoot;             // pointer to TAGroot
+   TAGroot*           fTAGroot;             // pointer to TAGroot
    TGeoVolume*        fTopVolume;          // top volume of geometry
    TAGgeoTrafo*       fpFootGeo;           // trafo prointer
    Int_t              fCurrentEventId;     // Current event id
