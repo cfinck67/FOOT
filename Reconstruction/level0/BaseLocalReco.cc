@@ -64,7 +64,7 @@ BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
    fActClusIt(0x0),
    fFlagTree(false),
    fFlagHisto(false),
-   fgTrackFlag(false),
+   fTrackFlag(true),
    fgTrackingAlgo("Full")
 {
    // define TAGroot
@@ -134,10 +134,11 @@ void BaseLocalReco::OpenFileOut()
 //__________________________________________________________
 void BaseLocalReco::SetRecHistogramDir()
 {
+   // VTX
    if (GlobalPar::GetPar()->IncludeVertex()) {
       fActClusVtx->SetHistogramDir((TDirectory*)fActEvtWriter->File());
       
-      if (fgTrackFlag) {
+      if (fTrackFlag) {
          fActTrackVtx->SetHistogramDir((TDirectory*)fActEvtWriter->File());
          fActVtx->SetHistogramDir((TDirectory*)fActEvtWriter->File());
       }
@@ -280,7 +281,7 @@ void BaseLocalReco::CreateRecAction()
 //__________________________________________________________
 void BaseLocalReco::CreateRecActionBm()
 {
-   if(fgTrackFlag) {
+   if(fTrackFlag) {
       fpNtuTrackBm = new TAGdataDsc("bmTrack", new TABMntuTrack());
       fActTrackBm  = new TABMactNtuTrack("bmActTrack", fpNtuTrackBm, fpNtuRawBm, fpParGeoBm, fpParConfBm, fpParGeoG);
       if (fFlagHisto)
@@ -291,7 +292,7 @@ void BaseLocalReco::CreateRecActionBm()
 //__________________________________________________________
 void BaseLocalReco::CreateRecActionVtx()
 {
-   if(fgTrackFlag) {
+   if(fTrackFlag) {
       fpNtuTrackVtx = new TAGdataDsc("vtTrack", new TAVTntuTrack());
       if (GlobalPar::GetPar()->IncludeTG())
          fpNtuVtx      = new TAGdataDsc("vtVtx",   new TAVTntuVertex());
@@ -302,7 +303,7 @@ void BaseLocalReco::CreateRecActionVtx()
    if (fFlagHisto)
       fActClusVtx->CreateHistogram();
    
-   if (fgTrackFlag) {
+   if (fTrackFlag) {
       if (fgTrackingAlgo.Contains("Std") )
          fActTrackVtx  = new TAVTactNtuTrack("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
       else if (fgTrackingAlgo.Contains("Full"))
@@ -353,7 +354,7 @@ void BaseLocalReco::SetTreeBranches()
 {
    if (GlobalPar::GetPar()->IncludeVertex()) {
       fActEvtWriter->SetupElementBranch(fpNtuClusVtx, TAVTntuCluster::GetBranchName());
-      if (fgTrackFlag) {
+      if (fTrackFlag) {
          fActEvtWriter->SetupElementBranch(fpNtuTrackVtx, TAVTntuTrack::GetBranchName());
          fActEvtWriter->SetupElementBranch(fpNtuVtx, TAVTntuVertex::GetBranchName());
       }
@@ -403,7 +404,7 @@ void BaseLocalReco::AddRequiredItemSt()
 void BaseLocalReco::AddRequiredItemBm()
 {
    fTAGroot->AddRequiredItem("bmActNtu");
-   if (fgTrackFlag)
+   if (fTrackFlag)
       fTAGroot->AddRequiredItem("bmActTrack");
 }
 
@@ -413,7 +414,7 @@ void BaseLocalReco::AddRequiredItemVtx()
    fTAGroot->AddRequiredItem("vtActNtu");
    
    fTAGroot->AddRequiredItem("vtActClus");
-   if (fgTrackFlag) {
+   if (fTrackFlag) {
       fTAGroot->AddRequiredItem("vtActTrack");
       if (GlobalPar::GetPar()->IncludeTG())
          fTAGroot->AddRequiredItem("vtActVtx");

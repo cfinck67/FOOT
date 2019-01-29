@@ -108,8 +108,8 @@ public:
    void EnableHisto()     { fFlagHisto = true;   }
    void DisableHisto()    { fFlagHisto = false;  }
    
-   void EnableVtxTrack()  { fgTrackFlag = true;  }
-   void DisableVtxTrack() { fgTrackFlag = false; }
+   void EnableTracking()  { fTrackFlag = true;  }
+   void DisableTracking() { fTrackFlag = false; }
 
    //! Set Tracking algorithm
    void SetTrackingAlgo(char c);
@@ -186,7 +186,7 @@ protected:
    
    Bool_t                fFlagTree;
    Bool_t                fFlagHisto;
-   Bool_t                fgTrackFlag;      // flag for tracking
+   Bool_t                fTrackFlag;      // flag for tracking
    TString               fgTrackingAlgo;   // tracking algorithm ("std" with BM, "Full" combinatory)
 
 protected:
