@@ -15,7 +15,6 @@
 
 #include <TVector3.h>
 
-#include "foot_geo.h"
 
 #include "AbsBField.h"
 
@@ -29,7 +28,7 @@ class FootField : public AbsBField {
 
 public:
 
-	FootField( string fileName );
+	FootField( string fileName ="" );
 	FootField( float constValue );
 
 	~FootField() {};

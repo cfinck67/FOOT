@@ -2,6 +2,9 @@
 
 #include <TRandom3.h>
 
+#include "TAGroot.hxx"
+#include "TAGgeoTrafo.hxx"
+#include "TADIparGeo.hxx"
 #include "FootField.hxx"
 
 #include "GlobalPar.hxx"
@@ -10,14 +13,21 @@
 //	Real field constructor read info from file
 FootField::FootField ( string fileName ) {
 
+   TADIparGeo* diGeo = (TADIparGeo*) gTAGroot->FindParaDsc(TADIparGeo::GetDefParaName(), "TADIparGeo")->Object();
+
 	// parameter to be set outside, switch between different field type
-	m_fieldSetting = "realFieldMap";
+   if (diGeo->GetMagnetType() == 2)
+      m_fieldSetting = "realFieldMap";
 
 	ifstream ifile;
-	string fullFileName = "./data/" + fileName;
+   string fullFileName;
+   if (fileName == "")
+      fullFileName = diGeo->GetMapName().Data();
+   else
+      fullFileName = "./data/" + fileName;
+
     ifile.open( fullFileName.c_str() );
 
-    cout << "\tB center =  " << MAG_AIR_X <<"  "<< MAG_AIR_Y << "  "<< MAG_AIR_Z << endl;
 
     if ( !ifile.is_open() )        
     	cout<< "ERROR >> FootField::FootField  ::  cannot open magnetic map for file " << fullFileName << endl, exit(0);
@@ -75,27 +85,37 @@ FootField::FootField ( string fileName ) {
 
 
 // constant simple field constructor, Field along y axis ONLY in the magnet reagion taken from the foot_geo.h file
-FootField::FootField ( float constValue ) {
-	
-	m_fieldSetting = "constField";
+FootField::FootField ( float constValue )
+{
+   TADIparGeo* diGeo       = (TADIparGeo*) gTAGroot->FindParaDsc(TADIparGeo::GetDefParaName(), "TADIparGeo")->Object();
+   TAGgeoTrafo* geoTrafo   = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+
+   Double_t mag_dist       = diGeo->GetPosition(1).Z() -  diGeo->GetPosition(0).Z();
+   Double_t mag_air_width  = diGeo->GetMagnetPar(1).Size[0];
+   Double_t mag_air_height = diGeo->GetMagnetPar(1).Size[1];
+   Double_t mag_air_length = (diGeo->GetMagnetPar(1).Size[2] - diGeo->GetPosition(0).Z())*3.;
+   
+   Double_t mag_Z          = geoTrafo->GetDICenter().Z() ;
+   Double_t mag_air_X      = 0;
+   Double_t mag_air_Y      = 0;
+   Double_t mag_air_Z      = mag_Z + mag_dist/2.;
+   
+   if (diGeo->GetMagnetType() == 0)
+      m_fieldSetting = "constField";
 	
 	if ( GlobalPar::GetPar()->Debug() > 0 )    {
 		cout << "Creating Constant B field" << endl;
-		// cout << "\tB min vertex =  " << MAG_AIR_X-MAG_AIR_WIDTH <<"  "<< MAG_AIR_Y-MAG_AIR_HEIGHT << "  "<< MAG_AIR_Z-MAG_AIR_LENGTH << endl;
-		// cout << "\tB min vertex =  " << MAG_AIR_X+MAG_AIR_WIDTH <<"  "<< MAG_AIR_Y+MAG_AIR_HEIGHT << "  "<< MAG_AIR_Z+MAG_AIR_LENGTH << endl;
-		// m_filedMap[ MAG_AIR_X-MAG_AIR_WIDTH ][ MAG_AIR_Y-MAG_AIR_HEIGHT ][ MAG_AIR_Z-MAG_AIR_LENGTH ] = TVector3(0, constValue, 0);
-		// m_filedMap[ MAG_AIR_X+MAG_AIR_WIDTH ][ MAG_AIR_Y+MAG_AIR_HEIGHT ][ MAG_AIR_Z+MAG_AIR_LENGTH ] = TVector3(0, constValue, 0);
 
-		cout << "\tB center =  " << MAG_AIR_X <<"  "<< MAG_AIR_Y << "  "<< MAG_AIR_Z << endl;
-		cout << "\tB MIN vertex local =  " << -MAG_AIR_WIDTH/2 <<"  "<< -MAG_AIR_HEIGHT/2 << "  "<< -MAG_AIR_LENGTH/2 << endl;
-		cout << "\tB MAX vertex local =  " << +MAG_AIR_WIDTH/2 <<"  "<< +MAG_AIR_HEIGHT/2 << "  "<< MAG_AIR_LENGTH/2 << endl;
-		cout << "\n\tB MIN vertex global =  " << MAG_AIR_X-MAG_AIR_WIDTH/2 <<"  "<< MAG_AIR_Y-MAG_AIR_HEIGHT/2 << "  "<< MAG_AIR_Z-MAG_AIR_LENGTH/2 << endl;
-		cout << "\tB MAX vertex = global " << MAG_AIR_X+MAG_AIR_WIDTH/2 <<"  "<< MAG_AIR_Y+MAG_AIR_HEIGHT/2 << "  "<< MAG_AIR_Z+MAG_AIR_LENGTH/2 << endl;
+		cout << "\tB center =  " << mag_air_X <<"  "<< mag_air_Y << "  "<< mag_air_Z << endl;
+		cout << "\tB MIN vertex local =  " << -mag_air_width/2 <<"  "<< -mag_air_height/2 << "  "<< -mag_air_length/2 << endl;
+		cout << "\tB MAX vertex local =  " << +mag_air_width/2 <<"  "<< +mag_air_height/2 << "  "<< mag_air_length/2 << endl;
+		cout << "\n\tB MIN vertex global =  " << mag_air_X-mag_air_width/2 <<"  "<< mag_air_Y-mag_air_height/2 << "  "<< mag_air_Z-mag_air_length/2 << endl;
+		cout << "\tB MAX vertex = global " << mag_air_X+mag_air_width/2 <<"  "<< mag_air_Y+mag_air_height/2 << "  "<< mag_air_Z+mag_air_length/2 << endl;
 	}
 	
 	// local coordiantes 
-	m_filedMap[  - MAG_AIR_WIDTH/2 ][  - MAG_AIR_HEIGHT/2 ][ -MAG_AIR_LENGTH/2 ] = TVector3(0, constValue, 0);
-	m_filedMap[  + MAG_AIR_WIDTH/2 ][  + MAG_AIR_HEIGHT/2 ][ MAG_AIR_LENGTH/2 ] = TVector3(0, constValue, 0);
+	m_filedMap[  - mag_air_width/2 ][  - mag_air_height/2 ][ -mag_air_length/2 ] = TVector3(0, constValue, 0);
+	m_filedMap[  + mag_air_width/2 ][  + mag_air_height/2 ][ mag_air_length/2 ] = TVector3(0, constValue, 0);
 
 } 
 
@@ -105,7 +125,6 @@ FootField::FootField ( float constValue ) {
 // return B as a vector, given vector position
 TVector3 FootField::get(const TVector3& position) const {
 	const TVector3 localPosition = TVector3( position.x(), position.y(), position.z() );	// v14.0.1  map is in global coord ...
-	// const TVector3 localPosition = TVector3( position.x() - MAG_AIR_X, position.y() - MAG_AIR_Y, position.z() - MAG_AIR_Z );	//to local coord
 	return const_cast<FootField*>(this)->Interpolate( localPosition );
 }
 
@@ -116,7 +135,6 @@ TVector3 FootField::get(const TVector3& position) const {
 void FootField::get(const double& posX, const double& posY, const double& posZ, double& Bx, double& By, double& Bz) const { 
 		
 	const TVector3 position = TVector3(posX, posY, posZ );	// v14.0.1  map is in global coord ...
-	// const TVector3 position = TVector3(posX - MAG_AIR_X, posY - MAG_AIR_Y, posZ - MAG_AIR_Z );	//to local coord
 
 	TVector3 outField = const_cast<FootField*>(this)->Interpolate( position );
 
