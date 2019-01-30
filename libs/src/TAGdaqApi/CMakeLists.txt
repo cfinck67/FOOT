@@ -9,7 +9,7 @@ set(LIBNAME ${PROJECT_NAME})
 #
 # internal and external dependencies
 #
-set( EXTRA_INTERNAL_LIBRARIES ${TAAPI})
+set( EXTRA_INTERNAL_LIBRARIES "")
 set( EXTRA_EXTERNAL_LIBRARIES "")
 
 #
@@ -36,8 +36,6 @@ set( files
 # add includes : current 
 #
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${TAAPI_INCLUDE_DIR})
-
 #
 #
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
