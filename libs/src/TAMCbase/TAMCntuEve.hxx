@@ -121,10 +121,16 @@ class TAMCntuEve : public TAGdata {
 	virtual void        SetupClones();
 	virtual void        Clear(Option_t* opt="");
 	virtual void        ToStream(ostream& os=cout, Option_t* option="") const;
-   
+
+public:
+   static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
+
 private:
    TClonesArray*   fListOfTracks; // ttracks
    
+private:
+   static TString fgkBranchName;    // Branch name in TTree
+
    ClassDef(TAMCntuEve,1)
 };
 
