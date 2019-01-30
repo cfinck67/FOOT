@@ -49,6 +49,7 @@ public:
    TAVTcluster*       NewCluster(Int_t iSensor);
    TAVTcluster*       NewCluster(TAVTcluster* clus, Int_t iSensor);
 
+   void               SetParGeo(TAVTbaseParGeo* par) { fGeometry = par; }
    virtual void       SetupClones();
    virtual void       Clear(Option_t* opt="");
    
