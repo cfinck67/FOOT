@@ -119,15 +119,15 @@ void TABMactNtuTrack::CreateHistogram()
    
    DeleteHistogram();
    
-   fpHisR0X = new TH1F("bmR0X", "BM - PositionX of the track(z=0)", 200, -6, 6);
-   fpHisR0Y = new TH1F("bmR0Y", "BM - PositionY of the track(z=0)", 200, -6, 6);
+   fpHisR0X = new TH1F("bmR0X", "BM - PositionX of the track(z=0)", 500, -3, 3);
+   fpHisR0Y = new TH1F("bmR0Y", "BM - PositionY of the track(z=0)", 500, -3, 3);
    AddHistogram(fpHisR0X);
    AddHistogram(fpHisR0Y);
    
-   fpHisPversX = new TH1F("bmPversX", "BM - DirectionX of the track", 200, -1, 1);
-   fpHisPversY = new TH1F("bmPversY", "BM - DirectionY of the track", 200, -1, 1);
+   fpHisPversX = new TH1F("bmPversX", "BM - DirectionX of the track", 500, -1, 1);
+   fpHisPversY = new TH1F("bmPversY", "BM - DirectionY of the track", 500, -1, 1);
    AddHistogram(fpHisPversX);
-   AddHistogram(fpHisPversX);
+   AddHistogram(fpHisPversY);
 
    SetValidHistogram(kTRUE);
 }
