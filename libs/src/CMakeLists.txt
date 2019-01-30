@@ -16,6 +16,7 @@ MESSAGE("  src:")
 # Add sub directories
 #
 add_subdirectory(TAGdaq)
+add_subdirectory(TAGdaqApi)
 add_subdirectory(TAGbase)
 add_subdirectory(TATRbase)
 add_subdirectory(TAIRbase)
