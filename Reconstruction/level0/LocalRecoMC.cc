@@ -262,25 +262,44 @@ void LocalRecoMC::SetTreeBranches()
    
    fActEvtWriter->SetupElementBranch(fpNtuMcEve, TAMCntuEve::GetBranchName());
 
-   if (GlobalPar::GetPar()->IncludeST())
+   if (GlobalPar::GetPar()->IncludeST()) {
+    //  fActEvtWriter->SetupElementBranch(fpNtuRawSt, TATRntuRaw::GetBranchName());
       fActEvtWriter->SetupElementBranch(fpNtuMcSt, TAMCntuHit::GetStcBranchName());
+   }
    
-   if (GlobalPar::GetPar()->IncludeBM())
+   if (GlobalPar::GetPar()->IncludeBM()) {
+    //  fActEvtWriter->SetupElementBranch(fpNtuRawBm, TABMntuRaw::GetBranchName());
       fActEvtWriter->SetupElementBranch(fpNtuMcBm, TAMCntuHit::GetBmBranchName());
+   }
    
-   if (GlobalPar::GetPar()->IncludeVertex())
+   if (GlobalPar::GetPar()->IncludeVertex()) {
+      if (fFlagHits)
+         fActEvtWriter->SetupElementBranch(fpNtuRawVtx, TAVTntuRaw::GetBranchName());
       fActEvtWriter->SetupElementBranch(fpNtuMcVt, TAMCntuHit::GetVtxBranchName());
+   }
    
-   if (GlobalPar::GetPar()->IncludeInnerTracker())
+   if (GlobalPar::GetPar()->IncludeInnerTracker()) {
+      if (fFlagHits)
+         fActEvtWriter->SetupElementBranch(fpNtuRawIt, TAITntuRaw::GetBranchName());
       fActEvtWriter->SetupElementBranch(fpNtuMcIt, TAMCntuHit::GetItrBranchName());
+   }
    
-   if (GlobalPar::GetPar()->IncludeMSD())
+   if (GlobalPar::GetPar()->IncludeMSD()) {
+      if (fFlagHits)
+         fActEvtWriter->SetupElementBranch(fpNtuRawMsd, TAMSDntuRaw::GetBranchName());
       fActEvtWriter->SetupElementBranch(fpNtuMcMsd, TAMCntuHit::GetMsdBranchName());
+   }
    
-   if (GlobalPar::GetPar()->IncludeTW())
+   if (GlobalPar::GetPar()->IncludeTW()) {
+      if (fFlagHits)
+         fActEvtWriter->SetupElementBranch(fpNtuRawTw, TATW_ContainerHit::GetBranchName());
       fActEvtWriter->SetupElementBranch(fpNtuMcTw, TAMCntuHit::GetTofBranchName());
+   }
    
-   if (GlobalPar::GetPar()->IncludeCA())
+   if (GlobalPar::GetPar()->IncludeCA()) {
+      if (fFlagHits)
+         fActEvtWriter->SetupElementBranch(fpNtuRawCa, TACAntuRaw::GetBranchName());
       fActEvtWriter->SetupElementBranch(fpNtuMcCa, TAMCntuHit::GetCalBranchName());
+   }
 }
 

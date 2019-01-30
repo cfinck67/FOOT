@@ -105,11 +105,15 @@ public:
    void EnableTree()      { fFlagTree = true;    }
    void DisableTree()     { fFlagTree = false;   }
    
+   void EnableSaveHits()  { fFlagHits = true;    }
+   void DisableDaveHits() { fFlagHits = false;   }
+
+   
    void EnableHisto()     { fFlagHisto = true;   }
    void DisableHisto()    { fFlagHisto = false;  }
    
-   void EnableTracking()  { fTrackFlag = true;  }
-   void DisableTracking() { fTrackFlag = false; }
+   void EnableTracking()  { fFlagTrack = true;  }
+   void DisableTracking() { fFlagTrack = false; }
 
    //! Set Tracking algorithm
    void SetTrackingAlgo(char c);
@@ -152,7 +156,7 @@ protected:
    TAGdataDsc*           fpNtuTrackVtx;  // input track data dsc
    TAGdataDsc*           fpNtuVtx;		  // input Vtx data dsc
    
-   TAGdataDsc*           fpDatRawIt;    // input data dsc
+   TAGdataDsc*           fpDatRawIt;     // input data dsc
    TAGdataDsc*           fpNtuRawIt;	  // input ntu data dsc
    TAGdataDsc*           fpNtuClusIt;	  // input cluster data dsc
    
@@ -160,23 +164,23 @@ protected:
    TAGdataDsc*           fpNtuRawMsd;	  // input ntu data dsc
    TAGdataDsc*           fpNtuClusMsd;	  // input cluster data dsc
    
-   TAGdataDsc*           fpNtuRawTw;    // input data dsc
-   TAGdataDsc*           fpNtuRecTw;    // input data dsc
-   TAGdataDsc*           fpNtuRawCa;    // input data dsc
+   TAGdataDsc*           fpNtuRawTw;     // input data dsc
+   TAGdataDsc*           fpNtuRecTw;     // input data dsc
+   TAGdataDsc*           fpNtuRawCa;     // input data dsc
    
-   TAGaction*            fActDatRawVtx;     // action for raw data
+   TAGaction*            fActDatRawVtx;  // action for raw data
    TAGactionFile*        fActEvtReader;
    TAGactTreeWriter*     fActEvtWriter;  // write histo and tree
 
-   TABMactNtuTrack*      fActTrackBm;   // action for tracks
+   TABMactNtuTrack*      fActTrackBm;    // action for tracks
    
    TAVTactNtuRaw*        fActNtuRawVtx;  // action for ntu data
    TAVTactNtuClusterF*   fActClusVtx;    // action for clusters
    TAVTactBaseNtuTrack*  fActTrackVtx;   // action for tracks
    TAVTactBaseNtuVertex* fActVtx;        // action for vertex
    
-   TAITactNtuRaw*        fActNtuRawIt;  // action for ntu data
-   TAITactNtuClusterF*   fActClusIt;    // action for clusters
+   TAITactNtuRaw*        fActNtuRawIt;   // action for ntu data
+   TAITactNtuClusterF*   fActClusIt;     // action for clusters
    
    TAVTactNtuRaw*        fActNtuRawMsd;  // action for ntu data
    TAMSDactNtuCluster*   fActClusMsd;    // action for clusters
@@ -184,10 +188,11 @@ protected:
    // TATWactNtuRaw*        fActNtuRawTw;  // action for ntu data
    TATWactNtuPoint*      fActPointTw;    // action for clusters
    
-   Bool_t                fFlagTree;
-   Bool_t                fFlagHisto;
-   Bool_t                fTrackFlag;      // flag for tracking
-   TString               fgTrackingAlgo;   // tracking algorithm ("std" with BM, "Full" combinatory)
+   Bool_t                fFlagTree;      // flag to save in tree
+   Bool_t                fFlagHits;      // flag to save hits in tree
+   Bool_t                fFlagHisto;     // flag for histo generatiom
+   Bool_t                fFlagTrack;     // flag for tracking
+   TString               fgTrackingAlgo; // tracking algorithm ("std" with BM, "Full" combinatory)
 
 protected:
    void CreateRecActionBm();
