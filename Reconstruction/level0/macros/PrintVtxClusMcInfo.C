@@ -31,7 +31,7 @@ void PrintVtxClusMcInfo(TString nameFile = "12C_400_vtx_Out.root", Int_t nentrie
    tree = (TTree*)f->Get("tree");
    
    TAVTntuCluster *vtClus = new TAVTntuCluster();
-   vtClus->SetParGeometry(parGeo);
+   vtClus->SetParGeo(parGeo);
    tree->SetBranchAddress(TAVTntuCluster::GetBranchName(), &vtClus);
    
    TAMCntuEve *eve = new TAMCntuEve();
