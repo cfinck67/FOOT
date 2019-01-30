@@ -30,15 +30,6 @@ void PrintVtxClusMcInfo(TString nameFile = "12C_400_vtx_Out.root", Int_t nentrie
    TFile *f = new TFile(nameFile.Data());
    tree = (TTree*)f->Get("tree");
    
-   
-   // isotopes
-   TString title;
-   TString name;
-   
-   TString recTitle;
-   TString recName;
-
-   
    TAVTntuCluster *vtClus = new TAVTntuCluster();
    vtClus->SetParGeometry(parGeo);
    tree->SetBranchAddress(TAVTntuCluster::GetBranchName(), &vtClus);
@@ -48,11 +39,11 @@ void PrintVtxClusMcInfo(TString nameFile = "12C_400_vtx_Out.root", Int_t nentrie
 
    TAMCntuHit *vtMc = new TAMCntuHit();
    tree->SetBranchAddress(TAMCntuHit::GetVtxBranchName(), &vtMc);
-
    
    if (nentries == 0)
       nentries = tree->GetEntries();
    printf("nentries %d\n", nentries);
+   
    printf("plane %d\n", plane);
    
    for (Int_t ev = 0; ev < nentries; ++ev) {
@@ -82,9 +73,7 @@ void PrintVtxClusMcInfo(TString nameFile = "12C_400_vtx_Out.root", Int_t nentrie
                TAMChit* mcHit = vtMc->GetHit(idx);
                TVector3 pos = mcHit->GetPosition();
                printf("MC pos (%.4f %.4f %.4f)\n", pos[0], pos[1], pos[2]);
-
             }
-            
          }
       }
    }
