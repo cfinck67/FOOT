@@ -72,11 +72,23 @@ install(TARGETS ${LIBNAME}  RUNTIME DESTINATION bin
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Genfit and root libraries
 #
-add_executable(CheckMain CheckMain.cpp)
+add_executable(CheckDAQFile CheckMain.cpp)
 #
-target_link_libraries(CheckMain ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} ${LIBNAME} )
+target_link_libraries(CheckDAQFile ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} ${LIBNAME} )
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS CheckMain DESTINATION bin)
+install(TARGETS CheckDAQFile DESTINATION bin)
+
+#----------------------------------------------------------------------------
+# Add the executable, and link it to the Genfit and root libraries
+#
+add_executable(readDAQFile EventReaderMain.cpp)
+#
+target_link_libraries(readDAQFile ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} ${LIBNAME} )
+
+#----------------------------------------------------------------------------
+# Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
+#
+install(TARGETS readDAQFile DESTINATION bin)
