@@ -98,7 +98,7 @@ public:
 
    // MC track id
    Int_t      GetMcIndex(Int_t index)   const   { return fMCindex[index];      }
-   Int_t      GetMcTrackI(Int_t index)  const   { return fMcTrackId[index];    }
+   Int_t      GetMcTrackId(Int_t index) const   { return fMcTrackId[index];    }
    Int_t      GetMcTrackCount()         const   { return fMcTrackId.GetSize(); }
    
    // Add MC track Id
