@@ -436,7 +436,7 @@ void TABMparGeo::GetCellInfo(Int_t view, Int_t plane, Int_t cellID, Double_t& h_
 //______________________________________________________________________________
 TVector3 TABMparGeo::GetWirePos(Int_t view, Int_t layer, Int_t wire) const
 {
-   return TVector3(fPosY[wire][layer][view], fPosX[wire][layer][view], fPosZ[wire][layer][view]);
+   return TVector3(fPosX[wire][layer][view], fPosY[wire][layer][view], fPosZ[wire][layer][view]);
 }
 
 //______________________________________________________________________________
