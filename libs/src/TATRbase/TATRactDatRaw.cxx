@@ -26,7 +26,7 @@ TATRactDatRaw::TATRactDatRaw(const char* name,
 			     TAGdataDsc* p_datraw, 
 			     TAGdataDsc* p_datqevt,
 			     TAGparaDsc* p_parmap)
-  : TAGaction(name, "TATRactDatRaw - Unpack BM raw data"),
+  : TAGaction(name, "TATRactDatRaw - Unpack start counter raw data"),
     fpDatRaw(p_datraw),
     fpDaqEvent(p_datqevt),
     fpParMap(p_parmap)
