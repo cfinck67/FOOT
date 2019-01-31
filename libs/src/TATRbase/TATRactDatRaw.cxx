@@ -14,7 +14,7 @@
 
 /*!
   \class TATRactDatRaw TATRactDatRaw.hxx "TATRactDatRaw.hxx"
-  \brief Get Beam Monitor raw data from MBS. **
+  \brief Get start counter raw data from DAQ. **
 */
 
 ClassImp(TATRactDatRaw);
