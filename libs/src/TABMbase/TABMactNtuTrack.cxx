@@ -531,11 +531,13 @@ Bool_t TABMactNtuTrack::Action()
 	p_hit->SetResidualSigma(best_mysqrtchi2.at(i));
       }
     }
-     fpHisR0X->Fill(trk->GetR0()[0]);
-     fpHisR0Y->Fill(trk->GetR0()[1]);
+     if (ValidHistogram()) {
+        fpHisR0X->Fill(trk->GetR0()[0]);
+        fpHisR0Y->Fill(trk->GetR0()[1]);
      
-     fpHisPversX->Fill(trk->GetPvers()[0]);
-     fpHisPversY->Fill(trk->GetPvers()[1]);
+        fpHisPversX->Fill(trk->GetPvers()[0]);
+        fpHisPversY->Fill(trk->GetPvers()[1]);
+     }
      
   }else if(converged==false)
     p_ntutrk->GetTrackStatus()=4;
