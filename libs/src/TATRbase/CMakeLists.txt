@@ -9,7 +9,7 @@ set(LIBNAME ${PROJECT_NAME})
 #
 # internal and external dependencies
 #
-set( EXTRA_INTERNAL_LIBRARIES ${TAG}  ${TAMC} ${GENFIT_LIBRARIES})
+set( EXTRA_INTERNAL_LIBRARIES ${TADAQ} ${TAAPI} ${TAG}  ${TAMC} ${GENFIT_LIBRARIES})
 set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 #
 # headers / dictionnary / sources 
@@ -18,7 +18,7 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 # manual method : base file name separated in two lists with different treatment.
 #
 set( with_dictionnaries
-#   TATRactDatRaw
+   TATRactDatRaw
    TATRactNtuMC
    TATRdatRaw
    TATRtrigRaw
@@ -36,6 +36,8 @@ set( without_dictionnaries
 include_directories(${ROOT_INCLUDE_DIR})
 include_directories(${SIM_INCLUDE_DIR})
 include_directories(${GENFIT_INCLUDE_DIR})
+include_directories(${TADAQ_INCLUDE_DIR})
+include_directories(${TAAPI_INCLUDE_DIR})
 include_directories(${TAG_INCLUDE_DIR})
 include_directories(${TAMC_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
