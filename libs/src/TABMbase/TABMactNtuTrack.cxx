@@ -1168,6 +1168,7 @@ void TABMactNtuTrack::Chi2Fit(vector<Int_t> &singlehittrack, vector<vector<Int_t
   //~ *tmp_btrackTr=*tmp_trackTr;
   Int_t worst_hit=-1;
   for (Int_t hh=0; hh<p_bmcon->GetNumIte();hh++){
+     if(p_bmcon->GetBMdebug()>2)
     Info("Action()"," Iteration number %d\n",hh);
     old_chi2=tmp_atrackTr->GetMyChi2Red();
     ComputeDy(singlehittrack, tmp_atrackTr, Dy);
@@ -1208,6 +1209,7 @@ void TABMactNtuTrack::Chi2Fit(vector<Int_t> &singlehittrack, vector<vector<Int_t
       //~ }
     //~ }else if(p_bmcon->GetBMdebug()>0)
       //~ cout<<"TABMactNtuTrack::Chi2Fit:: Mini not possible"<<hh<<endl;
+   if(p_bmcon->GetBMdebug()>0)
     Info("Action()","A:: %lf, %lf, %lf %lf\n",alpha(0),alpha(1),alpha(2),alpha(3));
   //~ }
   //~ if(tmp_btrackTr->GetNite()==0)
