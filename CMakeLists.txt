@@ -66,8 +66,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/libs/lib)
 # Set src libraries name
 #
 Set(TAG   "TAGbase")
-Set(TADAQ "TAGdaqApi")
-Set(TAAPI "TAGdaq")
+Set(TADAQ "TAGdaq")
+Set(TAAPI "TAGdaqApi")
 Set(TAIR  "TAIRbase")
 Set(TATR  "TATRbase")
 Set(TABM  "TABMbase")
