@@ -10,28 +10,38 @@
 #include "TString.h"
 
 #include "TAGactionFile.hxx"
+#include "EventReader.hh"
+#include "DAQFileHeader.hh"
+#include "DAQMarkers.hh"
+#include "InfoEvent.hh"
+#include "TrgEvent.hh"
+#include "TDCEvent.hh"
+
+#include "TAGdaqEvent.hxx"
 
 //##############################################################################
 
 class TAGactDaqReader : public TAGactionFile {
-  public:
-    explicit        TAGactDaqReader(const char* name=0);
-    virtual         ~TAGactDaqReader();
 
-    void            SetupChannel(TAGdataDsc* p_data);
+public:
+   explicit        TAGactDaqReader(const char* name=0);
+   virtual         ~TAGactDaqReader();
+      
+   virtual Int_t   Open(const TString& name, Option_t* option=0);
+   virtual void    Close();
+   
+   virtual Bool_t  IsOpen() const;
+   
+   virtual Bool_t  Process();
 
-    virtual Int_t   Open(const TString& name, Option_t* option=0);
-    virtual void    Close();
+   DAQFileHeader*  GetFileHeader()  const { return fDaqFileHeader;  }
 
-    virtual Bool_t  IsOpen() const;
-
-    virtual Bool_t  Process();
-
-    ClassDef(TAGactDaqReader,0)
-
-  private:
-  
-
+private:
+   EventReader*    fDaqFileReader;
+   DAQFileHeader*  fDaqFileHeader;
+   TAGdaqEvent*    fDaqEvent;
+   
+   ClassDef(TAGactDaqReader,0)
 };
 
 

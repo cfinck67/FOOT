@@ -9,7 +9,7 @@ set(LIBNAME ${PROJECT_NAME})
 #
 # internal and external dependencies
 #
-set( EXTRA_INTERNAL_LIBRARIES ${TAG})
+set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TAAPI})
 set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 #
 # headers / dictionnary / sources 
@@ -28,6 +28,8 @@ set( without_dictionnaries
 #
 include_directories(${ROOT_INCLUDE_DIR})
 include_directories(${TAG_INCLUDE_DIR})
+include_directories(${TAAPI_INCLUDE_DIR})
+message("${TAAPI_INCLUDE_DIR}")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 #
 link_directories(${ROOT_LIBRARY_DIR})

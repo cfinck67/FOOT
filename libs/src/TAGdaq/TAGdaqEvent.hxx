@@ -2,45 +2,52 @@
 #define _TAGdaqEvent_HXX
 
 /*------------------------------------------+---------------------------------*/
-/* TEMPLATE CLASS
-   Need real implementation
+/*
+     Interface with DAQ fragment
  */
 
 #include <vector>
+#include <string>
 using namespace std;
+
+#include "TString.h"
+
+#include "DAQFileHeader.hh"
+#include "InfoEvent.hh"
+#include "TrgEvent.hh"
+#include "BaseFragment.hh"
 
 #include "TAGdata.hxx"
 
 class TAGdaqEvent : public TAGdata {
 public:
    TAGdaqEvent();
-   virtual         ~TAGdaqEvent();
+   virtual              ~TAGdaqEvent();
 
-   Int_t           NSubEvent()                   const {return (Int_t)fOffset.size(); }
+   InfoEvent*             GetInfoEvent()          const  { return fInfoEvent;                    }
+   TrgEvent*              GetTrgEvent()           const  { return fTrgEvent;                     }
    
-   Int_t           SubEventType(Int_t i_ind)     const { return (fData[fOffset[i_ind]+1]>>16) & 0xffff;; }
-   Int_t           SubEventSubType(Int_t i_ind)  const { return fData[fOffset[i_ind]+1] & 0xffff;;       }
-   Int_t           SubEventProcId(Int_t i_ind)   const { return (fData[fOffset[i_ind]+2]>>16) & 0xffff;; }
-   Int_t           SubEventProcType(Int_t i_ind) const { return fData[fOffset[i_ind]+2] & 0xff;;         }
-   Int_t           SubEventCrate(Int_t i_ind)    const { return fData[fOffset[i_ind]+2] & 0xff;          }
+   void                   SetInfoEvent(InfoEvent* info)  {  fInfoEvent = info;                   }
+   void                   SetTrgEvent(TrgEvent* trg)     {  fTrgEvent = trg;                     }
    
-   Int_t           SubEventSize(Int_t i_ind) const { return fData[fOffset[i_ind]];        }
-   const UInt_t*   SubEventData(Int_t i_ind) const { return &fData[0] + fOffset[i_ind]+3; }
+   Int_t                  GetFragmentsN()         const  { return (int)fListOfFragments.size();  }
+   const BaseFragment*    GetFragment(Int_t idx)         { return fListOfFragments[idx];         }
    
-   virtual Bool_t  NeedAutoDelete() const;
+   const Char_t*          GetClassType(Int_t idx) const  { return fListOfClassTypes[idx].data(); }
    
-   virtual void    Clear(Option_t* opt="");
+   void                   AddFragment(const BaseFragment* frag);
+
+   virtual void           Clear(Option_t* opt="");
    
-   virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
-   
-   ClassDef(TAGdaqEvent,2)
+   virtual void           ToStream(ostream& os = cout, Option_t* option = "") const;
    
 private:
-   void            SetupOffset();
+   InfoEvent*                   fInfoEvent;
+   TrgEvent*                    fTrgEvent;
+   vector<const BaseFragment*>  fListOfFragments;
+   vector<string>               fListOfClassTypes;
    
-private:				    // NOTE: CUSTOM STREAMER
-   vector<UInt_t>  fData;		    // data vector (common for all SE's)
-   vector<Int_t>   fOffset;		    // offset table for SE's
+   ClassDef(TAGdaqEvent,0)
 };
 
 #endif
