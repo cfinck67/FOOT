@@ -420,6 +420,7 @@ void TAFOeventDisplay::CreateRecActionBm()
    if(fgTrackFlag) {
       fpNtuTrackBm = new TAGdataDsc("bmTrack", new TABMntuTrack());
       fActTrackBm  = new TABMactNtuTrack("bmActTrack", fpNtuTrackBm, fpNtuRawBm, fpParGeoBm, fpParConfBm, fpParGeoG);
+      fActTrackBm->CreateHistogram();
    }
 }
 
