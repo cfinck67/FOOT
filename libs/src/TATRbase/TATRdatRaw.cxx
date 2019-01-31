@@ -53,6 +53,16 @@ void TATRrawHit::SetData(Int_t type, Int_t id, Double_t time, Double_t charge) {
   ir_chid   = id;
   return;
 }
+
+
+void TATRrawHit::Clear(Option_t* /*option*/)
+{
+   ir_time = 0.;
+   ir_chg  = 0.;
+   ir_typ  = 0;
+   ir_chid = 0;
+}
+
 //##############################################################################
 
 ClassImp(TATRdatRaw);
@@ -60,16 +70,19 @@ ClassImp(TATRdatRaw);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TATRdatRaw::TATRdatRaw() :
-  nirhit(0), hir(0) {
+TATRdatRaw::TATRdatRaw()
+: TAGdata(),
+  fListOfHits(0)
+{
 }
 
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
-TATRdatRaw::~TATRdatRaw() {
-  delete hir;
+TATRdatRaw::~TATRdatRaw()
+{
+  delete fListOfHits;
 }
 
 //------------------------------------------+-----------------------------------
@@ -77,8 +90,20 @@ TATRdatRaw::~TATRdatRaw() {
 
 void TATRdatRaw::SetupClones()
 {
-  if (!hir) hir = new TClonesArray("TATRrawHit");
+  if (!fListOfHits) fListOfHits = new TClonesArray("TATRrawHit");
   return;
+}
+
+//______________________________________________________________________________
+//
+TATRrawHit* TATRdatRaw::NewHit(int type, int channel, double charge, double time)
+{
+   TClonesArray &pixelArray = *fListOfHits;
+   
+   TATRrawHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATRrawHit(type, channel, charge, time);
+   
+   return hit;
+   
 }
 
 
@@ -99,9 +124,7 @@ void TATRdatRaw::SetCounter(Int_t i_ntdc, Int_t i_nadc, Int_t i_ndrop)
 void TATRdatRaw::Clear(Option_t*)
 {
   TAGdata::Clear();
-
-  nirhit = 0;
-  if (hir) hir->Clear();
+  if (fListOfHits) fListOfHits->Clear("C");
 
   return;
 }

@@ -32,6 +32,8 @@ class TATRrawHit : public TObject {
     void            SetChID(int id);  //SC channel ID
     void            SetType(int typ); //meaningless for now.
 
+    void            Clear(Option_t* option = "C");
+
     ClassDef(TATRrawHit,1)
 
   private:
@@ -46,39 +48,40 @@ class TATRrawHit : public TObject {
 class TATRdatRaw : public TAGdata {
   public:
 
-                    TATRdatRaw();
+                     TATRdatRaw();
     virtual         ~TATRdatRaw();
 
-    void            SetCounter(Int_t i_ntdc, Int_t i_nadc, Int_t i_ndrop);
+    void              SetCounter(Int_t i_ntdc, Int_t i_nadc, Int_t i_ndrop);
+
+    Int_t             GetHitsN() const;
 
     TATRrawHit*       Hit(Int_t i_ind);
     const TATRrawHit* Hit(Int_t i_ind) const;
+   
+    TATRrawHit*       NewHit(int tyoe, int channel, double charge, double time);
 
-    void            SetTrigTime(double time);
-    Double_t        TrigTime() const;
 
-    Int_t           NTdc() const;
-    Int_t           NAdc() const;
-    Int_t           NDrop() const;
+    void              SetTrigTime(double time);
+    Double_t          TrigTime() const;
 
-    virtual void    Clear(Option_t* opt="");
+    Int_t             NTdc() const;
+    Int_t             NAdc() const;
+    Int_t             NDrop() const;
 
-    void SetupClones();
+    virtual void      Clear(Option_t* opt="");
 
-    virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
+    void              SetupClones();
+
+    virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
 
     ClassDef(TATRdatRaw,1)
 
-  public:
-    Int_t           nirhit;		    // 
-    TClonesArray*   hir;			    // hits
-
   private:
-
-    double          trg_time;               //SC trigger time
-    Int_t           fiNAdc;		    // 
-    Int_t           fiNTdc;		    // 
-    Int_t           fiNDrop;		    // 
+    TClonesArray*   fListOfHits; // hits
+    double          fdTrgTime;   // SC trigger time
+    Int_t           fiNAdc;		//
+    Int_t           fiNTdc;		//
+    Int_t           fiNDrop;		// 
 
 };
 

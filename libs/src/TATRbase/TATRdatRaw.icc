@@ -80,7 +80,7 @@ inline void TATRrawHit::SetCharge(double chg)
 
 inline Double_t TATRdatRaw::TrigTime() const
 {
-  return trg_time;
+  return fdTrgTime;
 }
 
 
@@ -89,7 +89,7 @@ inline Double_t TATRdatRaw::TrigTime() const
 
 inline void TATRdatRaw::SetTrigTime(double time)
 {
-  trg_time = time;
+  fdTrgTime = time;
   return;
 }
 
@@ -99,7 +99,7 @@ inline void TATRdatRaw::SetTrigTime(double time)
 
 inline TATRrawHit* TATRdatRaw::Hit(Int_t i)
 {
-  return (TATRrawHit*) ((*hir)[i]);;
+  return (TATRrawHit*) ((*fListOfHits)[i]);;
 }
 
 //------------------------------------------+-----------------------------------
@@ -107,7 +107,7 @@ inline TATRrawHit* TATRdatRaw::Hit(Int_t i)
 
 inline const TATRrawHit* TATRdatRaw::Hit(Int_t i) const
 {
-  return (const TATRrawHit*) ((*hir)[i]);;
+  return (const TATRrawHit*) ((*fListOfHits)[i]);;
 }
 
 //------------------------------------------+-----------------------------------

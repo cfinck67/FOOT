@@ -53,7 +53,7 @@ Bool_t TATRactDatRaw::Action() {
   //From there we get the Mapping of the wires into the Chamber to the VUL channels
   TATRparMap*    p_parmap = (TATRparMap*)    fpParMap->Object();
   
-  if(!p_datraw->hir) p_datraw->SetupClones();
+  p_datraw->SetupClones();
 
    Int_t nFragements = p_datqevt->GetFragmentsN();
    
@@ -74,9 +74,13 @@ Bool_t TATRactDatRaw::Action() {
 //------------------------------------------+-----------------------------------
 //! Fill hits.
 
-void TATRactDatRaw::DecodeHits(const TDCEvent* evt)
+void TATRactDatRaw::DecodeHits(const TDCEvent* /*evt*/)
 {
+   int type;
+   int channel;
+   double charge;
+   double time;
+   
    TATRdatRaw* p_datraw = (TATRdatRaw*)    fpDatRaw->Object();
-   TATRrawHit* mytmp    = new((*(p_datraw->hir))[p_datraw->nirhit]) TATRrawHit();
-   p_datraw->nirhit++;
+   TATRrawHit* mytmp    = p_datraw->NewHit(type, channel, charge, time);
 }
