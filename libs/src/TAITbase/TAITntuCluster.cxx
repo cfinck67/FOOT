@@ -153,7 +153,7 @@ void TAITntuCluster::ToStream(ostream& os, Option_t* option) const
    for (Int_t j = 0; j < GetClustersN(i); j++) {
 	  const TAITcluster*  cluster = GetCluster(i,j);
 	  if (cluster)
-		 os << Form("%4d", cluster->GetNumber());
+		 os << Form("%4d", j);
 	  os << endl;
 	  
    }

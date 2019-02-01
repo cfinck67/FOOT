@@ -515,7 +515,7 @@ Bool_t TAIRalignC::Align(Bool_t rough)
          if (cluster->IsValid() != true) continue;
          nValidCluster++;
          if (nValidCluster > 1) return false;
-         aCluster = cluster->GetNumber();
+         aCluster = j;
       }
       if (nValidCluster < 1) return false;
       fHitPlanes ++;
@@ -615,7 +615,7 @@ Bool_t TAIRalignC::FillHistograms()
          if (cluster->IsValid() != true) continue;
          nValidCluster++;
          if (nValidCluster > 1) return false;
-         aCluster[i] = cluster->GetNumber();
+         aCluster[i] = j;
       }
       if (nValidCluster < 1) return false;
       fHitPlanes ++;

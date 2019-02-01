@@ -20,9 +20,7 @@ TAVTbaseCluster::TAVTbaseCluster()
    fNumber(0),
    fPlaneNumber(10),
 	fFoundXZ(kFALSE),
-	fFoundYZ(kFALSE),
-   fPhSeed(0),
-   fIndexSeed(0)
+	fFoundYZ(kFALSE)
 {
 }
 
@@ -36,9 +34,7 @@ TAVTbaseCluster::TAVTbaseCluster(const TAVTbaseCluster& cluster)
    fNumber(cluster.fNumber),
    fPlaneNumber(cluster.fPlaneNumber),
    fFoundXZ(cluster.fFoundXZ),
-   fFoundYZ(cluster.fFoundYZ),
-   fPhSeed(cluster.fPhSeed),  
-   fIndexSeed(cluster.fIndexSeed)
+   fFoundYZ(cluster.fFoundYZ)
 {
    // TAVTbaseCluster constructor
    fListOfPixels = (TClonesArray*)cluster.fListOfPixels->Clone();
@@ -58,7 +54,7 @@ TAVTbaseCluster::~TAVTbaseCluster()
 
 //______________________________________________________________________________
 //
-void TAVTbaseCluster::ComputeSize()
+TVector2 TAVTbaseCluster::ComputeSize()
 {
    Int_t minLine = 99999;
    Int_t maxLine = 0;
@@ -81,7 +77,7 @@ void TAVTbaseCluster::ComputeSize()
    Int_t length = (maxLine - minLine) + 1;
    Int_t width  = (maxCol - minCol)   + 1;
    
-   fSize.Set((float)length, (float)width);
+   return TVector2((float)length, (float)width);
 }
 
 //______________________________________________________________________________

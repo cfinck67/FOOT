@@ -108,16 +108,13 @@ Bool_t TAITactNtuClusterF::CreateClusters(Int_t iSensor, TAITntuCluster* pNtuClu
    for (Int_t i = 0; i< pNtuClus->GetClustersN(iSensor); ++i) {
       cluster = pNtuClus->GetCluster(iSensor, i);
       cluster->SetPlaneNumber(iSensor);
-      fPSeed = cluster->GetPixel(0);
       fCurListOfPixels = cluster->GetListOfPixels();
       ComputePosition();
-      cluster->SetNumber(i);
       TVector3 posG = *GetCurrentPosition();
       posG = pGeoMap->Sensor2Detector(iSensor, posG);
       cluster->SetPositionG(&posG);
       cluster->SetPosition(GetCurrentPosition());
       cluster->SetPosError(GetCurrentPosError());
-      cluster->SetIndexSeed(fPSeed->GetPixelIndex());
       
       if (ApplyCuts(cluster)) {
          // histogramms
