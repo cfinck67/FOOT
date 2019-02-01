@@ -23,9 +23,8 @@ private:
    TVector3*        fPositionG;                // position of the clus in tracker frame
    TClonesArray*    fListOfStrips;             // list of strips attached to this cluster
    
-   Int_t              fNumber;                   // number
-   Int_t              fPlaneNumber;              // plane number
-   Bool_t             fIsValid;                 //! validity flag
+   Int_t            fPlaneNumber;              // plane number
+   Bool_t           fIsValid;                  // validity flag
 
 public:
    TAMSDcluster(); 
@@ -38,14 +37,10 @@ public:
    void               SetPosError(Float_t pos)               { fPosError = pos; }
    //! Set position in global tracker frame
    void               SetPositionG(TVector3* pos);
-   //! Set cluster number
-   void               SetNumber(Int_t nb)                    { fNumber = nb;           }
    //! Set plane number
    void               SetPlaneNumber(Int_t nb)               { fPlaneNumber = nb;      }
    //! Set validy
    void               SetValid(Bool_t v = true)              { fIsValid = v;           }
-   // Compute size
-   void               ComputeSize();
    
    //! Get position in local frame
    Float_t           GetPosition()                     const { return fPosition;      }
@@ -55,8 +50,6 @@ public:
    TVector3&           GetPositionG()                  const { return *fPositionG ;    }
    //! Get Pixel list
    TClonesArray*      GetListOfStrips()                const { return fListOfStrips;   }
-   //! Get cluster number
-   Int_t              GetNumber()                      const { return fNumber;         }
    //! Get cluster number
    Int_t              GetPlaneNumber()                 const { return fPlaneNumber;    }
    

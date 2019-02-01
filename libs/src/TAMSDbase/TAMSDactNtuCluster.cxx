@@ -203,7 +203,6 @@ Bool_t TAMSDactNtuCluster::CreateClusters(Int_t iSensor, TAMSDntuCluster* pNtuCl
       cluster->SetPlaneNumber(iSensor);
       fCurListOfStrips = cluster->GetListOfStrips();
       ComputePosition();
-      cluster->SetNumber(i);
       
       TVector3 posG(GetCurrentPosition(), 0, 0);
       posG = pGeoMap->Sensor2Detector(iSensor, posG);
