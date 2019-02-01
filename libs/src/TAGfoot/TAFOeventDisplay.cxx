@@ -1232,7 +1232,7 @@ void TAFOeventDisplay::UpdateWireElements()
       return;
 
    TABMntuRaw* pBMntu = (TABMntuRaw*) fpNtuRawBm->Object();
-   Int_t       nHits  = pBMntu->nhit;
+   Int_t       nHits  = pBMntu->GetHitsN();
    double bm_h_side;
    
    TABMparGeo* pbmGeo = (TABMparGeo*) fpParGeoBm->Object();
