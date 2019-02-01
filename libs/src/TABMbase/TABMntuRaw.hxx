@@ -33,20 +33,29 @@ class TABMntuRaw : public TAGdata {
                     TABMntuRaw();
     virtual         ~TABMntuRaw();
 
+    Int_t             GetHitsN() const;
+
     TABMntuHit*       Hit(Int_t i_ind);
     const TABMntuHit* Hit(Int_t i_ind) const;
 
-    virtual void    SetupClones();
+    TABMntuHit*       NewHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t r, Double_t t, Double_t s);
 
-    virtual void    Clear(Option_t* opt="");
+    virtual void      SetupClones();
 
-    virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
+    virtual void      Clear(Option_t* opt="");
 
-    ClassDef(TABMntuRaw,1)
+    virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
 
   public:
-    Int_t           nhit;		    // 
-    TClonesArray*   h;			    // hits
+   static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
+
+  private:
+    TClonesArray*   fListOfHits;			    // hits
+   
+  private:
+   static TString fgkBranchName;    // Branch name in TTree
+
+   ClassDef(TABMntuRaw,1)
 };
 
 //------------------------------------------+-----------------------------------
@@ -54,7 +63,7 @@ class TABMntuRaw : public TAGdata {
 
 inline TABMntuHit* TABMntuRaw::Hit(Int_t i)
 {
-  return (TABMntuHit*) ((*h)[i]);;
+  return (TABMntuHit*) ((*fListOfHits)[i]);;
 }
 
 //------------------------------------------+-----------------------------------
@@ -62,7 +71,7 @@ inline TABMntuHit* TABMntuRaw::Hit(Int_t i)
 
 inline const TABMntuHit* TABMntuRaw::Hit(Int_t i) const
 {
-  return (const TABMntuHit*) ((*h)[i]);;
+  return (const TABMntuHit*) ((*fListOfHits)[i]);;
 }
 
 

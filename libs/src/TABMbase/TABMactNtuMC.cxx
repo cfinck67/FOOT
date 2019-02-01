@@ -61,7 +61,7 @@ Bool_t TABMactNtuMC::Action()
   Int_t nhits=0;
    
   TVector3 loc, gmom, mom, A0, Wvers, glo;;
-  if (!p_nturaw->h) p_nturaw->SetupClones();//se non c'è l'array di h, lo crea
+  p_nturaw->SetupClones();//se non c'è l'array di h, lo crea
    
    if (fDebugLevel > 0)
       Info("Action()","Processing n :: %2d hits \n",fpEvtStr->BMNn);
@@ -181,7 +181,7 @@ Bool_t TABMactNtuMC::Action()
       realrdrift = rdriftxcell[i];
        
       //create hit
-      TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) TABMntuHit(fpEvtStr->BMNid[i],	view, lay, cell,
+      TABMntuHit *mytmp = p_nturaw->NewHit(fpEvtStr->BMNid[i],	view, lay, cell,
                                                                   rdriftxcell[i], p_bmcon->InverseStrel(rdriftxcell[i]), fpEvtStr->BMNtim[i]);
        
        mytmp->AddMcTrackId(ipoint, i);
@@ -209,7 +209,6 @@ Bool_t TABMactNtuMC::Action()
   
   if(hitsrandtot!= nhits && p_bmcon->GetSmearhits())
     cout<<"TABMactNtuMC::ERROR!!!!!!!!  nhits="<<nhits<<"  hitsrandtot="<<hitsrandtot<<"  remainhitsn"<<remainhitsn<<"  nrealhits"<<nrealhits<<endl;
-  p_nturaw->nhit  = nhits;
 
   fpNtuMC->SetBit(kValid);
   return kTRUE;
@@ -239,7 +238,7 @@ void TABMactNtuMC::CreateFakeHits(Int_t nfake, Int_t &nhits)
     Double_t rdrift=gRandom->Uniform(0.,0.9);
 
     //charge the fake hits
-    TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) TABMntuHit(    
+    TABMntuHit *mytmp = p_nturaw->NewHit(
                     -100,	view, plane, cell,        
                     rdrift, p_bmcon->InverseStrel(rdrift), -1.);     //tdrift has no meaning for MC (now)
 

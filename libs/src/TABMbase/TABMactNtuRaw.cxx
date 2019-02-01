@@ -61,7 +61,7 @@ Bool_t TABMactNtuRaw::Action()
   TABMparCon* p_parcon = (TABMparCon*) fpParCon->Object();
 
 
-  if (!p_nturaw->h) p_nturaw->SetupClones();
+  p_nturaw->SetupClones();
   
   if(p_timraw->TrigTime() == -10000) {
     Info("Action()","Trigger IR Time is Missing!!!");
@@ -83,8 +83,7 @@ Bool_t TABMactNtuRaw::Action()
     Double_t i_drift = p_parcon->FirstSTrel(i_time);
 
     //create the hit (no selection of hit)
-    TABMntuHit *mytmp = new((*(p_nturaw->h))[i]) TABMntuHit(0, hit.View(), hit.Plane(), hit.Cell(), i_drift, i_time, p_parcon->ResoEval(i_drift));
-    p_nturaw->nhit++;
+    TABMntuHit *mytmp = p_nturaw->NewHit(0, hit.View(), hit.Plane(), hit.Cell(), i_drift, i_time, p_parcon->ResoEval(i_drift));
   }
 
   fpNtuRaw->SetBit(kValid);

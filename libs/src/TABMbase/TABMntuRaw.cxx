@@ -18,26 +18,48 @@ using namespace std;
 
 ClassImp(TABMntuRaw);
 
+TString TABMntuRaw::fgkBranchName   = "bmrh.";
+
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
 TABMntuRaw::TABMntuRaw() :
-  nhit(0), h(0) {}
+  fListOfHits(0x0) {}
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
 TABMntuRaw::~TABMntuRaw() {
-  delete h;
+  delete fListOfHits;
 }
 
+//------------------------------------------+-----------------------------------
+// ! Get number of hits
+Int_t TABMntuRaw::GetHitsN() const
+{
+   return fListOfHits->GetEntries();
+}
+
+
+//______________________________________________________________________________
+//! new hit
+
+TABMntuHit* TABMntuRaw::NewHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t r, Double_t t, Double_t s)
+{
+   TClonesArray &pixelArray = *fListOfHits;
+   
+   TABMntuHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TABMntuHit(id, iv, il, ic, r, t,  s);
+   
+   return hit;
+   
+}
 
 //------------------------------------------+-----------------------------------
 //! Setup clones.
 
 void TABMntuRaw::SetupClones()
 {
-  if (!h) h = new TClonesArray("TABMntuHit");
+  if (!fListOfHits) fListOfHits = new TClonesArray("TABMntuHit");
   return;
 }
 
@@ -46,9 +68,9 @@ void TABMntuRaw::SetupClones()
 
 void TABMntuRaw::Clear(Option_t*)
 {
-  nhit = 0;
-  if (h) 
-    h->Clear("C");
+  if (fListOfHits)
+    fListOfHits->Clear("C");
+   
   return;
 }
 
@@ -68,11 +90,11 @@ static void print_value(ostream& os, Int_t i_val)
 void TABMntuRaw::ToStream(ostream& os, Option_t* option) const
 {
   os << "TABMntuRaw " << GetName()
-     << Form("  nhit=%3d", nhit)
+     << Form("  nhit=%3d", fListOfHits->GetEntries())
      << endl;
   
   os << "slat stat    adct    adcb    tdct    tdcb" << endl;
-  for (Int_t i = 0; i < nhit; i++) {
+  for (Int_t i = 0; i < fListOfHits->GetEntries(); i++) {
     const TABMntuHit*  hit = Hit(i);
     os << Form("%4d", hit->Cell());
     os << "  "; print_value(os, hit->Plane());

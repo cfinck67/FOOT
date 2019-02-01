@@ -198,7 +198,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   
   if (p_nturaw) {
     //Displays the Reconstructed hits in the orizontal view
-    Info("Viewer()","Displaying the BM Hits %2d ",p_nturaw->nhit);
+    Info("Viewer()","Displaying the BM Hits %2d ",p_nturaw->GetHitsN());
 
     for (Int_t i=3; i<36;) {
       tmp_int=0;
@@ -307,7 +307,7 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
 
   if (p_nturaw) {
     //Displays the Reconstructed hits in the orizontal view
-    Info("Viewer()","Displaying the BM Hits %2d ",p_nturaw->nhit);
+    Info("Viewer()","Displaying the BM Hits %2d ",p_nturaw->GetHitsN());
 
     for (Int_t i=0; i<33;) {
       tmp_int=0;

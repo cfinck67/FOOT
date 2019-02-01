@@ -150,7 +150,7 @@ Bool_t TABMactNtuTrack::Action()
   Double_t chisquare_cut = 5.;
 
 
-  Int_t i_nhit = p_nturaw->nhit;
+  Int_t i_nhit = p_nturaw->GetHitsN();
 
   
 //******************************************************NEW tracking********************************************
