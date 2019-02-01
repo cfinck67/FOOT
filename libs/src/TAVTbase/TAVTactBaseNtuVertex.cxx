@@ -284,7 +284,6 @@ Bool_t TAVTactBaseNtuVertex::SetNotValidVertex(Int_t idTk)
    vtxPos = track0->Intersection(0);//Target center
    vtx->SetVertexPosition(vtxPos);
    track0->SetValidity(-1);
-   track0->SetIP(0);
    track0->SetVertexZ(vtxPos.Z());
    vtx->AddTrack(track0);
    pNtuVertex->NewVertex(*vtx);

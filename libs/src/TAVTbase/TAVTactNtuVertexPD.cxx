@@ -297,7 +297,6 @@ void TAVTactNtuVertexPD::ImpactParameterAdjustement()
             distance += (minPoint[pq] - fVtxPos[pq])*(minPoint[pq] - fVtxPos[pq]);
         
         distance = TMath::Sqrt(distance);
-        track1->SetIP(distance);
 
         if(distance>fImpactParameterCut) {//500 micron - Setto la traccia non valid
             fNotValidTrack[q] = 1;
