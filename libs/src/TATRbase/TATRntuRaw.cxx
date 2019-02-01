@@ -67,6 +67,8 @@ void TATRntuHit:: AddMcTrackId(Int_t trackId, Int_t mcId)
 
 ClassImp(TATRntuRaw);
 
+TString TATRntuRaw::fgkBranchName   = "strh.";
+
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
