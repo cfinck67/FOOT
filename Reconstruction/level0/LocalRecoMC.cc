@@ -263,12 +263,12 @@ void LocalRecoMC::SetTreeBranches()
    fActEvtWriter->SetupElementBranch(fpNtuMcEve, TAMCntuEve::GetBranchName());
 
    if (GlobalPar::GetPar()->IncludeST()) {
-    //  fActEvtWriter->SetupElementBranch(fpNtuRawSt, TATRntuRaw::GetBranchName());
+      fActEvtWriter->SetupElementBranch(fpNtuRawSt, TATRntuRaw::GetBranchName());
       fActEvtWriter->SetupElementBranch(fpNtuMcSt, TAMCntuHit::GetStcBranchName());
    }
    
    if (GlobalPar::GetPar()->IncludeBM()) {
-    //  fActEvtWriter->SetupElementBranch(fpNtuRawBm, TABMntuRaw::GetBranchName());
+      fActEvtWriter->SetupElementBranch(fpNtuRawBm, TABMntuRaw::GetBranchName());
       fActEvtWriter->SetupElementBranch(fpNtuMcBm, TAMCntuHit::GetBmBranchName());
    }
    
