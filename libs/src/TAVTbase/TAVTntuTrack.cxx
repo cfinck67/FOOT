@@ -34,9 +34,7 @@ ClassImp(TAVTline) // Description of a Line
 TAVTline::TAVTline() 
 : fOrigin(new TVector3()),
   fSlope(new TVector3()),
-  fLength(0.0),
-  fTheta(0.0),
-  fPhi(0.0)
+  fLength(0.0)
 {
 }
 
@@ -48,11 +46,6 @@ TAVTline::TAVTline(TVector3 &aOrigin, TVector3 &aSlope, Float_t aLength)
    fOrigin    = new TVector3(aOrigin);
    fSlope     = new TVector3(aSlope);
    fLength    = aLength;
-   TVector3 direction = fSlope->Unit();
-   fTheta = direction.Theta()*TMath::RadToDeg();
-   
-   TVector3 origin = fOrigin->Unit();
-   fPhi   = origin.Phi()*TMath::RadToDeg();
 }
 
 //______________________________________________________________________________
@@ -62,9 +55,7 @@ TAVTline::TAVTline(const TAVTline& aLine)
 :  TAGobject(aLine),
    fOrigin(new TVector3(*aLine.fOrigin)),
    fSlope(new TVector3(*aLine.fSlope)),
-   fLength(aLine.fLength),
-   fTheta(aLine.fTheta),
-   fPhi(aLine.fPhi)
+   fLength(aLine.fLength)
 {
 }
 
@@ -78,8 +69,6 @@ TAVTline& TAVTline::operator=(const TAVTline& aLine)
    fOrigin = new TVector3(*aLine.fOrigin);
    fSlope  = new TVector3(*aLine.fSlope);
    fLength = aLine.fLength;
-   fTheta  = aLine.fTheta;
-   fPhi    = aLine.fPhi;
    
    return *this;
 }
@@ -93,26 +82,40 @@ TAVTline::~TAVTline()
 }
 
 //______________________________________________________________________________
+//
+Float_t TAVTline::GetTheta() const
+{
+   TVector3 direction = fSlope->Unit();
+   Float_t theta      = direction.Theta()*TMath::RadToDeg();
+
+   return theta;
+}
+
+//______________________________________________________________________________
+//
+Float_t TAVTline::GetPhi() const
+{
+   TVector3 origin = fOrigin->Unit();
+   Float_t phi     = origin.Phi()*TMath::RadToDeg();
+
+   return phi;
+}
+
+//______________________________________________________________________________
 //  
 void TAVTline::SetValue(const TVector3& aOrigin, const TVector3& aSlope, const Float_t aLength)
 {
    *fOrigin = aOrigin;
    *fSlope  = aSlope;
    fLength  = aLength;
-   TVector3 direction = fSlope->Unit();
-   fTheta = direction.Theta()*TMath::RadToDeg();
-   
-   TVector3 origin = fOrigin->Unit();
-   fPhi   = origin.Phi()*TMath::RadToDeg();
 }
+
 //______________________________________________________________________________
 //  
 void TAVTline::Zero(){
    fOrigin->SetXYZ(0., 0., 0.);
    fSlope->SetXYZ(0., 0., 0.);
    fLength = 0;
-   fTheta  = 0;
-   fPhi    = 0;
 }
 
 //______________________________________________________________________________
@@ -175,13 +178,11 @@ TAVTtrack::TAVTtrack()
    fTrackNumber(-1),
    fLineTrajectory(new TAVTline()),
    fListOfClusters(new TClonesArray("TAVTcluster")),
-   fShareCluster(0),
    fChiSquare(0.),
    fChiSquareU(0.),
    fChiSquareV(0.),
    fVertexZ(0.),
    fValidity(false),
-   fImpactParameter(false),
    fChargeProba(new TArrayF(6)),
    fChargeWithMaxProba(0),
    fChargeMaxProba(0.),
@@ -201,13 +202,11 @@ TAVTtrack::TAVTtrack(const TAVTtrack& aTrack)
    fType(aTrack.GetType()),
    fTrackNumber(aTrack.GetNumber()),
    fLineTrajectory(new TAVTline(aTrack.GetTrackLine())),
-   fShareCluster(aTrack.GetShareCluster()),
    fChiSquare(aTrack.GetChi2()),
    fChiSquareU(aTrack.GetChi2U()),
    fChiSquareV(aTrack.GetChi2V()),
    fVertexZ(aTrack.fVertexZ),
    fValidity(aTrack.fValidity),
-   fImpactParameter(aTrack.fImpactParameter),
    fChargeProba(new TArrayF(*aTrack.fChargeProba)),
    fChargeWithMaxProba(aTrack.fChargeWithMaxProba),
    fChargeMaxProba(aTrack.fChargeMaxProba),

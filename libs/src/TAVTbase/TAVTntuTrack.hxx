@@ -39,8 +39,6 @@ private:
    // the slope (dx/dz, dy/dz, 1)
    TVector3* fSlope;        //-> 
    Float_t   fLength;
-   Float_t   fTheta;
-   Float_t   fPhi;
 
 public:
    TAVTline();                       
@@ -60,9 +58,9 @@ public:
    //! Get length of line
    Float_t            GetLength()   const { return fLength;  }
    //! Get theta angle of line
-   Float_t            GetTheta()    const { return fTheta;   }  
+   Float_t            GetTheta()    const;
    //! Get phi angle of line
-   Float_t            GetPhi()      const { return fPhi;     }
+   Float_t            GetPhi()      const;
    
    //! Get point on line at beta, parameter along the line
    TVector3           GetPoint(Float_t beta); 
@@ -90,22 +88,20 @@ private:
    Int_t          fTrackNumber;                  // number of the track
    TAVTline*      fLineTrajectory;               // line trajectory
    TClonesArray*  fListOfClusters;               // list of cluster associated to the track
-   Int_t          fShareCluster;                 // number of the track with common cluster, 0 otherwise 
    
    Float_t        fChiSquare;                    // chisquare/ndf of track fit in 2D
    Float_t        fChiSquareU;                   // chisquare/ndf of track fit, U dim
    Float_t        fChiSquareV;                   // chisquare/ndf of track fit, V dim
    Float_t        fVertexZ;                      // vertex z-position
   
-   Int_t          fValidity;                     //if = 1 track attached to vertex,
-   Double_t       fImpactParameter;              //impact parameter, if fValidity = -1 impact Parameter = 0
-   TArrayF*       fChargeProba;                  // charge probability array
-   Int_t          fChargeWithMaxProba;           // charge with maximum probability
-   Float_t        fChargeMaxProba;               // charge maximum probability
-   TArrayF*       fChargeProbaNorm;              // charge probability array for normalized charge disttribution
-   Int_t          fChargeWithMaxProbaNorm;       // charge with maximum probability for normalized charge disttribution
-   Float_t        fChargeMaxProbaNorm;           // charge maximum probability for normalized charge disttribution
-   Double_t       fMeanPixelsN;                  // Average number of pixels per track
+   Int_t          fValidity;                     // if = 1 track attached to vertex,
+   TArrayF*       fChargeProba;                  //! charge probability array
+   Int_t          fChargeWithMaxProba;           //! charge with maximum probability
+   Float_t        fChargeMaxProba;               //! charge maximum probability
+   TArrayF*       fChargeProbaNorm;              //! charge probability array for normalized charge disttribution
+   Int_t          fChargeWithMaxProbaNorm;       //! charge with maximum probability for normalized charge disttribution
+   Float_t        fChargeMaxProbaNorm;           //! charge maximum probability for normalized charge disttribution
+   Double32_t     fMeanPixelsN;                  // Average number of pixels per track
 
 public:
    TAVTtrack();                                 
@@ -133,8 +129,6 @@ public:
    Int_t          GetClustersN()            const { return   fListOfClusters->GetEntries(); }
    //! Get valid flag
    Bool_t         IsPileUp()                const { return   fPileup;                }
-   //! Get number of shared cluster 
-   Int_t          GetShareCluster()         const { return   fShareCluster;          } 
    //! Get track type
    UInt_t         GetType()                 const { return   fType;                  }
    //! Get cluster
@@ -145,8 +139,6 @@ public:
    void           AddCluster(TAVTcluster* cluster);
    //! Set track number
    void           SetNumber(Int_t number)            { fTrackNumber = number;       }
-   //! Set number of shared cluster 
-   void           SetShareCluster(Int_t shared)      { fShareCluster = shared;      } 
    //! Set track type
    void           SetType(UInt_t type)               { fType = type;                }
    //! Set pileup flag
@@ -155,8 +147,6 @@ public:
    void           SetValidity(Int_t q)               { fValidity = q;               }
    //! Set Z vertex
    void           SetVertexZ(Float_t z)              { fVertexZ = z;                }
-   //Set Impact Parameter
-   void           SetIP(Double_t q)                  { fImpactParameter = q;        } 
    //! Set values of line track
    void           SetLineValue(const TVector3& aOrigin, const TVector3& aSlope, const Float_t aLength = 0.);
    //! Make chi square 
@@ -185,8 +175,6 @@ public:
    Float_t       GetVertexZ()         const { return fVertexZ;         }
    //Get Validity
    Int_t         GetValidity()        const { return fValidity;        }
-   //Get impact Parameter
-   Double_t      GetIP()              const { return fImpactParameter; }
    //Get charge proba
    TArrayF*      GetChargeProba()     const { return fChargeProba; }
    //Get charge with max proba
