@@ -13,7 +13,6 @@
 void DisplayMcFOOT(TString file = "16O_C2H4_200_1.root")
 {
    TAFOeventDisplay::SetTrackingAlgo('F');
-   TAFOeventDisplay::DisableDrawVertex();
 //   TAFOeventDisplay::DisableTracking();
    
    TAFOeventDisplayMC::Instance(1)->ShowDisplay(file);

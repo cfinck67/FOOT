@@ -154,10 +154,6 @@ public:
    static void DisableTracking()   { fgTrackFlag = false;  }
    static void EnableTracking()    { fgTrackFlag = true;   }
    
-   //! Disable/Enable draw vertex
-   static void DisableDrawVertex() { fgDrawVertex = false; }
-   static void EnableDrawVertex()  { fgDrawVertex = true;  }
-
 protected:
    TAGparaDsc*           fpParGeoSt;
    TAGparaDsc*           fpParGeoG;
@@ -257,7 +253,6 @@ protected:
    TGCheckButton*       fRateButton;       // toggle recompute parameters at each plane
    
 private:
-   static Bool_t         fgDrawVertex;     // flag for vertex drawing
    static Bool_t         fgTrackFlag;      // flag for tracking
    static TString        fgTrackingAlgo;   // tracking algorithm ("std" with BM, "Full" combinatory and "Hough" Hough transformation)
  

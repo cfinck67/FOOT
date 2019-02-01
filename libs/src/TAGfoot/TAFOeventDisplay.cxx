@@ -42,7 +42,6 @@ ClassImp(TAFOeventDisplay)
 
 Bool_t  TAFOeventDisplay::fgTrackFlag    = true;
 TString TAFOeventDisplay::fgTrackingAlgo = "Std";
-Bool_t  TAFOeventDisplay::fgDrawVertex   = true;
 
 TAFOeventDisplay* TAFOeventDisplay::fgInstance = 0x0;
 
@@ -902,21 +901,19 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
    if (prefix == "vt") {
       if (fgTrackFlag && GlobalPar::GetPar()->IncludeTG()) {
          // vertex
-         if (fgDrawVertex) {
-            pNtuTrack = (TAVTntuTrack*)  fpNtuTrackVtx->Object();
-            TAVTvertex*    vtxPD   = 0x0;//NEW
-            TVector3 vtxPositionPD = pNtuTrack->GetBeamPosition();
-            
-            if (fpNtuVtx->Valid()) {
-               TAVTntuVertex* pNtuVtxPD = (TAVTntuVertex*) fpNtuVtx->Object();
-               for (Int_t iVtx = 0; iVtx < pNtuVtxPD->GetVertexN(); ++iVtx) {
-                  vtxPD = pNtuVtxPD->GetVertex(iVtx);
-                  if (vtxPD == 0x0) continue;
-                  vtxPositionPD = vtxPD->GetVertexPosition();
-                  vtxPositionPD = fpFootGeo->FromVTLocalToGlobal(vtxPositionPD);
-                  fVtxClusDisplay->AddHit(50, vtxPositionPD.X(), vtxPositionPD.Y(), vtxPositionPD.Z());
-                  fVtxClusDisplay->QuadId(vtxPD);
-               }
+         pNtuTrack = (TAVTntuTrack*)  fpNtuTrackVtx->Object();
+         TAVTvertex*    vtxPD   = 0x0;//NEW
+         TVector3 vtxPositionPD = pNtuTrack->GetBeamPosition();
+         
+         if (fpNtuVtx->Valid()) {
+            TAVTntuVertex* pNtuVtxPD = (TAVTntuVertex*) fpNtuVtx->Object();
+            for (Int_t iVtx = 0; iVtx < pNtuVtxPD->GetVertexN(); ++iVtx) {
+               vtxPD = pNtuVtxPD->GetVertex(iVtx);
+               if (vtxPD == 0x0) continue;
+               vtxPositionPD = vtxPD->GetVertexPosition();
+               vtxPositionPD = fpFootGeo->FromVTLocalToGlobal(vtxPositionPD);
+               fVtxClusDisplay->AddHit(50, vtxPositionPD.X(), vtxPositionPD.Y(), vtxPositionPD.Z());
+               fVtxClusDisplay->QuadId(vtxPD);
             }
          }
       }
@@ -1013,7 +1010,7 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
             TVector3 pos;
             TVector3 posG;
             
-            if (fgDrawVertex && GlobalPar::GetPar()->IncludeTG())
+            if (GlobalPar::GetPar()->IncludeTG() && track->GetValidity() == 1)
                pos = track->Intersection(track->GetVertexZ());
             else
                pos = track->Intersection(posfirstPlane);
