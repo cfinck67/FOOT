@@ -44,31 +44,25 @@ Bool_t TACAactNtuMC::Action()
 
   if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "TACAactNtuMC::Action() start" << endl;
 
-  // TATW_ContainerHit* containerHit = (TATW_ContainerHit*) m_hitContainer->Object();
-    TACA_ContainerHit* containerHit = (TACA_ContainerHit*) gTAGroot->FindDataDsc("containerHit", "TACA_ContainerHit")->Object();
-    TACAparGeo* geoMap = (TACAparGeo*) gTAGroot->FindParaDsc("caGeo", "TACAparGeo")->Object();
+    // TACA_ContainerHit* containerHit = (TACA_ContainerHit*) m_hitContainer->Object();
+    TACA_ContainerHit* containerHit = (TACA_ContainerHit*) gTAGroot->FindDataDsc("containerHit", "TACA_ContainerHit")->Object(); 
+    TACAparGeo* geoMap = (TACAparGeo*) gTAGroot->FindParaDsc("caGeo", "TACAparGeo")->Object();     // *** Break *** segmentation violation
 
     // int nhits(0);
     // if (!containerHit->m_listOfHits) containerHit->SetupClones();
 
-    //The number of hits inside the Calorimeter is stn
-    if ( GlobalPar::GetPar()->Debug() > 0 )     cout << "Processing n Scint " << m_eventStruct->CALn << endl;
+    //The number of hits inside the Calorimeter is CALn
+    if ( GlobalPar::GetPar()->Debug() > 0 ) cout << "Processing n BGO: " << m_eventStruct -> CALn << endl;
 
     // fill the container of hits
-    for (int i = 0; i < m_eventStruct->CALn; i++) { 
+    for (int i = 0; i < m_eventStruct -> CALn; i++) { 
 
         // int BGOsensorId  = geoMap->GetSensorID( m_eventStruct->CALxin[i], m_eventStruct->CALyin[i] );
-    
-        //First two numbers make sense only for data (typ, channel)
-        // TATW_Hit *mytmp = new((*(containerHit->hir))[i]) 
-        // TATWrawHit(0,0,m_eventStruct->SCNde[i],m_eventStruct->SCNtim[i]);
-
-        // ID_BGO, EnLoss, time
-        // TACA_Hit* hit = containerHit->NewHit( BGOsensorId, m_eventStruct->CALde[i], 
-           //                                     m_eventStruct->CALtim[i] );
-
-        TACA_Hit* hit = containerHit->NewHit( m_eventStruct->CALicry[i], m_eventStruct->CALde[i], 
+        
+        TACA_Hit* hit = containerHit -> NewHit( m_eventStruct->CALicry[i], m_eventStruct->CALde[i],   
                                                 m_eventStruct->CALtim[i] );
+
+        cout << "So far, so good" << endl;
         
         TVector3 MCpos = TVector3(  (m_eventStruct->CALxin[i]  + m_eventStruct->CALxout[i])/2,  
                                     (m_eventStruct->CALyin[i]  + m_eventStruct->CALyout[i])/2,  
@@ -82,8 +76,9 @@ Bool_t TACAactNtuMC::Action()
 
         hit->SetMCPosition( MCpos );
         hit->SetMCMomentum( MCmom );
-    }
 
+    }
+    
     return true;
 }
 

@@ -75,7 +75,7 @@ public:
 
   int GetNBGOx() { return m_nBGO_X; }
   int GetNBGOy() { return m_nBGO_Y; }
-  int GetNBGO() {return m_nBGO_X*m_nBGO_Y;}
+  int GetNBGO() { return m_nBGO_X*m_nBGO_Y; }
   
   void AssignMaterial() {};
   void AssignMagnetField() {};

@@ -11,6 +11,7 @@
 
 #include "Evento.h"
 
+#include "TACA_Hit.hxx"
 #include "TACA_ContainerHit.hxx"
 #include "TACAparGeo.hxx"
 
@@ -23,6 +24,8 @@ class TACAactNtuMC : public TAGaction {
     virtual         ~TACAactNtuMC();
 
     virtual Bool_t  Action();
+
+    TAGparaDsc* geoMap;
 
     ClassDef(TACAactNtuMC,0)
 

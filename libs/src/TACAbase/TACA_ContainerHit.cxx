@@ -61,6 +61,7 @@ TACA_ContainerHit::~TACA_ContainerHit() {
 TACA_Hit* TACA_ContainerHit::NewHit( int id_BGO, double enLoss, double time ) {
 
     if ( id_BGO >= 0  && id_BGO < m_caGeo->GetNBGO() ) {
+    // if ( id_BGO >= 0  && id_BGO < 400 ) {
 
         // check on aorigin
         TClonesArray &bgoArray = *GetListOfHits();     

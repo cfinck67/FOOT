@@ -85,6 +85,7 @@
 #include "TACAparMap.hxx"
 #include "TACAdatRaw.hxx"
 #include "TACAactNtuMC.hxx"
+#include "TACA_Hit.hxx"
 
 #include "foot_geo.h"
 
@@ -197,19 +198,21 @@ void Booter::Initialize( EVENT_STRUCT* evStr ) {
     }
     
     if( GlobalPar::GetPar()->IncludeTW() ) {
-      shared_ptr<TATWparGeo> m_twgeo = shared_ptr<TATWparGeo> ( (TATWparGeo*) myp_twgeo->Object() );
+      // shared_ptr<TATWparGeo> m_twgeo = shared_ptr<TATWparGeo> ( (TATWparGeo*) myp_twgeo->Object() );
       //Initialization of SCINT parameters
-      m_twgeo->InitGeo();
-      top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
+      // m_twgeo->InitGeo();
+      // top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
       // top->AddNode( m_twgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_twgeo->GetCenter().z(), new TGeoRotation("Scint",0,0,0)) );
     }    
 
-    if( GlobalPar::GetPar()->IncludeCA() ) {
-        shared_ptr<TACAparGeo> m_cageo = shared_ptr<TACAparGeo> ( (TACAparGeo*) myp_cageo->Object() );
-        m_cageo->InitGeo();
-        // top->AddNode( m_cageo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_cageo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
+    // if( GlobalPar::GetPar()->IncludeCA() ) {
+    //     shared_ptr<TACAparGeo> m_cageo = shared_ptr<TACAparGeo> ( (TACAparGeo*) myp_cageo->Object() );
+    //     m_cageo->InitGeo();
+
+    //     TACA_Hit *hit = new TACA_Hit(2,3.,5.); 
+    //     // top->AddNode( m_cageo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_cageo->GetCenter().z(), new TGeoRotation("Strip",0,0,0)) );
     
-    }
+    // }
  
     if( GlobalPar::GetPar()->IncludeIR() ) {
         // shared_ptr<TAIRparGeo>  m_irgeo = shared_ptr<TAIRparGeo> ( (TAIRparGeo*) myp_irgeo->Object() );
@@ -249,6 +252,12 @@ void Booter::Process( Long64_t jentry ) {
         // if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeInnerTracker() )
         //     AssociateHitsToParticle();
 
+        // if( GlobalPar::GetPar()->IncludeCA() ) {
+
+        // prova -> Action();
+
+
+        // }
 
         // Kalman
         if( GlobalPar::GetPar()->IncludeVertex() && GlobalPar::GetPar()->IncludeKalman() ) {
@@ -301,6 +310,7 @@ void Booter::Finalize() {
 
 
     if (GlobalPar::GetPar()->Debug() > 1)   eventListFile.close();
+
 
 }
 
@@ -521,11 +531,31 @@ void Booter::FillMCBeamMonitor(EVENT_STRUCT *myStr) {
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
 
-  /*Ntupling the MC Tof Wall information*/
-  myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
+  // /*Ntupling the MC Tof Wall information*/
+  // myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
+  // myp_twgeo    = new TAGparaDsc("twGeo", new TATWparGeo());
+  // new TATWactNtuMC("an_twraw", myn_twraw, myStr);
+  // // my_out->SetupElementBranch(myn_twraw,     "twrh.");
+
   myp_twgeo    = new TAGparaDsc("twGeo", new TATWparGeo());
-  new TATWactNtuMC("an_twraw", myn_twraw, myStr);
-  // my_out->SetupElementBranch(myn_twraw,     "twrh.");
+  ((TATWparGeo*) myp_twgeo -> Object())->InitGeo();
+  // TVector3 transf (0,0,0);    ((TATWparGeo*) myp_twgeo->Object())->Local2Global( &transf );
+  // top->AddNode( ((TATWparGeo*) myp_twgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( transf.x(),transf.y(),transf.z(), new TGeoRotation("Scint",0,0,0)) );
+  top->AddNode( ((TATWparGeo*) myp_twgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
+
+  /*Ntupling the MC Tof Wall information*/
+  // myn_twraw    = new TAGdataDsc("myn_twraw", new TATWdatRaw());
+  // containerHit    = new TAGdataDsc("containerHit", new TATW_ContainerHit());
+  // containerPoint  = new TAGdataDsc("containerPoint", new TATW_ContainerPoint());
+  
+
+  // new TATWactNtuMC("an_twraw", myn_twraw, myStr);
+
+  // gTAGroot->AddRequiredItem("myn_twraw");
+  // gTAGroot->AddRequiredItem("containerHit");
+  // gTAGroot->AddRequiredItem("containerPoint");
+  // gTAGroot->AddRequiredItem("an_twraw");   // prova --> funge!!!
+
 }
 
 
@@ -536,11 +566,18 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
 //----------------------------------------------------------------------------------------------------
 void Booter::FillMCCalorimeter(EVENT_STRUCT *myStr) {
 
-  /*Ntupling the MC Calorimeter information*/
   myp_cageo    = new TAGparaDsc("caGeo", new TACAparGeo());
+  ((TACAparGeo*) myp_cageo->Object()) -> InitGeo();
+
+  /*Ntupling the MC Tof CALO information*/
   myn_caraw    = new TAGdataDsc("myn_caraw", new TACAdatRaw());
+  containerHit    = new TAGdataDsc("containerHit", new TACA_ContainerHit());
+  
   new TACAactNtuMC("an_caraw", myn_caraw, myStr);
-  // my_out->SetupElementBranch(myn_caraw,     "carh.");
+
+  gTAGroot -> AddRequiredItem("containerHit");
+  gTAGroot -> AddRequiredItem("an_caraw"); 
+  
 }
 
 

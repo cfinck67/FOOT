@@ -110,9 +110,6 @@ void ControlPlotsRepository::PrintOutputFile() {
 };
 
 
-
-
-
  
 void ControlPlotsRepository::PrintOutputNtuple() {
   

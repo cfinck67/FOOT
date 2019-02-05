@@ -20,6 +20,7 @@
 #include "KFitter.hxx"
 #include "GlobalPar.hxx"
 #include "UpdatePDG.hxx"
+#include "TACAactNtuMC.hxx"
 
 
 #include <ctime>
@@ -146,10 +147,13 @@ class Booter {
 
   TAGdataDsc* myn_twraw;
   TAGparaDsc* myp_twgeo;
+
+  TAGdataDsc* containerHit;
   TAGparaDsc* myp_cageo;
   TAGdataDsc* myn_caraw;
 
   //Actions
+  // TACAactNtuMC* prova;
 
   // TAGactTreeWriter* my_out;
   TAGaction* mya_vtraw;

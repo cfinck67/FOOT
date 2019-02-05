@@ -30,6 +30,8 @@ public:
     void PrintOutputNtuple();
 
 
+
+
 	//change dir
 	void SetControlPos_4eachState( string hitSampleName, int i, TVector3 *kal, TVector3 *trueMC, TVector3 *detector ) {
 
@@ -204,7 +206,6 @@ public:
 		ntuple_out.Truth_track_pz.push_back(Truth_mom->z());
 
 	}
-
 
 
 	bool m_alreadyPrintedOut;

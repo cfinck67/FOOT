@@ -25,7 +25,6 @@ private:
     // static TString    fgkBranchName;    // Branch name in TTree
 
     TACAparGeo* m_caGeo;
-
     // virtual void      SetupClones();
     // TClonesArray*     GetListOfHits( int layer );
 

@@ -20,7 +20,7 @@ LDLIBS     = $(shell root-config --glibs) -lGeom -lGeomPainter
 #
 TOBJ_all   = TACAdatRaw.hxx  TACAparMap.hxx \
              TACAactNtuMC.hxx TACAparGeo.hxx  TACAparTools.hxx \
-             TACA_ContainerHit.hxx  TACA_Hit.hxx 
+             TACA_Hit.hxx TACA_ContainerHit.hxx 
 			 # TACAactAscReader.hxx TACArawEvent.hxx TACAactBaseRaw.hxx  \	
 			 # TACAactAscRaw.hxx	TACAparCal.hxx 	\
 			 
