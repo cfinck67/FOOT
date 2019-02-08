@@ -1042,7 +1042,7 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
       if( pNtuTrack->GetTracksN() > 0 ) {
          
          for( Int_t iTrack = 0; iTrack < pNtuTrack->GetTracksN(); ++iTrack ) {
-               fBmTrackDisplay->AddNewTrack();
+            fBmTrackDisplay->AddNewTrack();
             
             TABMntuTrackTr* track = pNtuTrack->Track(iTrack);
 
