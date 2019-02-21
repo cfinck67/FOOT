@@ -7,8 +7,11 @@ MESSAGE("${PROJECT_NAME}:")
 #----------------------------------------------------------------------------
 # Copy foot.inp DoubleDipole.table
 #
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/link_FOOT.sh DESTINATION ${CMAKE_BINARY_DIR}/Simulation/)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/link_FOOT_mag.sh DESTINATION ${CMAKE_BINARY_DIR}/Simulation/)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/foot.inp DESTINATION ${CMAKE_BINARY_DIR}/Simulation/)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/ROUTINES/  DESTINATION ${CMAKE_BINARY_DIR}/Simulation/ROUTINES)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/TXT2ROOT/  DESTINATION ${CMAKE_BINARY_DIR}/Simulation/TXT2ROOT)
 
 #----------------------------------------------------------------------------
 # internal and external dependencies
