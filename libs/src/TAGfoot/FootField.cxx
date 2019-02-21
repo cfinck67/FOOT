@@ -4,103 +4,117 @@
 
 #include "TAGroot.hxx"
 #include "TAGgeoTrafo.hxx"
-#include "TADIparGeo.hxx"
 #include "FootField.hxx"
 
 #include "GlobalPar.hxx"
 
 
 //	Real field constructor read info from file
-FootField::FootField ( string fileName ) {
+FootField::FootField ( string fileName , TADIparGeo* diGeo) {
 
-   TADIparGeo* diGeo = (TADIparGeo*) gTAGroot->FindParaDsc(TADIparGeo::GetDefParaName(), "TADIparGeo")->Object();
+  cout<<" Going to open "<<fileName.data()<<endl;
+  TADIparGeo* m_diGeo;
+  if(!diGeo) {
+    m_diGeo = (TADIparGeo*) gTAGroot->FindParaDsc(TADIparGeo::GetDefParaName(), "TADIparGeo")->Object();
+  } else {
+    m_diGeo = diGeo;  
+  }
 
-	// parameter to be set outside, switch between different field type
-   if (diGeo->GetMagnetType() == 2)
-      m_fieldSetting = "realFieldMap";
+  cout<<" Retrieved "<<endl;
+  // parameter to be set outside, switch between different field type
+  if (m_diGeo->GetMagnetType() == 2)
+    m_fieldSetting = "realFieldMap";
+  
+  ifstream ifile;
+  string fullFileName;
+  if (fileName == "")
+    fullFileName = m_diGeo->GetMapName().Data();
+  else
+    fullFileName = "./data/" + fileName;
+  
+  cout<<" Going to open "<<fullFileName.data()<<endl;
+  
+  ifile.open( fullFileName.c_str() );
+  
+  
+  if ( !ifile.is_open() )        
+    cout<< "ERROR >> FootField::FootField  ::  cannot open magnetic map for file " << fullFileName << endl, exit(0);
+  
+  TRandom3* m_diceRoll;
+  bool bFieldSmearTest = false;
+  float smearingPerc = 0.01;
+  if ( bFieldSmearTest ) {
+    m_diceRoll = new TRandom3();
+    m_diceRoll->SetSeed(0);
+  }
+  
+  
+  // read position and field  -->	 fill a multidimensional map called lattice3D = map< double, map< double, map< double, TVector3 > > >
+  string line = "";
+  while( getline( ifile, line ) ) {  
+    
+    if (line == "")  continue;
+    if ( line.find("#") != string::npos || line.find("*") != string::npos )
+      continue;
+    // if ( line.find("#") != string::npos || line.find("//") != string::npos )     continue;
+    
+    double x = -1;
+    double y = -1;
+    double z = -1;
+    double bx = -1;
+    double by = -1;
+    double bz = -1;
+    
+    istringstream getall(line);
+    getall  >> x;
+    getall  >> y;
+    getall  >> z;
+    getall  >> bx;
+    getall  >> by;
+    getall  >> bz;
 
-	ifstream ifile;
-   string fullFileName;
-   if (fileName == "")
-      fullFileName = diGeo->GetMapName().Data();
-   else
-      fullFileName = "./data/" + fileName;
-
-    ifile.open( fullFileName.c_str() );
-
-
-    if ( !ifile.is_open() )        
-    	cout<< "ERROR >> FootField::FootField  ::  cannot open magnetic map for file " << fullFileName << endl, exit(0);
-
-    TRandom3* m_diceRoll;
-    bool bFieldSmearTest = false;
-    float smearingPerc = 0.01;
-    if ( bFieldSmearTest ) {
-    	m_diceRoll = new TRandom3();
-	    m_diceRoll->SetSeed(0);
+    // cout << "x " << x << " y " << y << " z " << z << " px " <<  bx << " by " << by << " bz " << bz << endl;
+    // multidimensional map called lattice3D = map< double, map< double, map< double, TVector3 > > >
+    
+    // m_filedMap[x][y][z] = TVector3(bx, by, bz);
+    if ( !bFieldSmearTest ) {
+      m_filedMap[x][y][z] = TVector3(bx, by, bz);
     }
-
-
-    // read position and field  -->	 fill a multidimensional map called lattice3D = map< double, map< double, map< double, TVector3 > > >
-    string line = "";
-    while( getline( ifile, line ) ) {  
-
-        if (line == "")  continue;
-        if ( line.find("#") != string::npos || line.find("*") != string::npos )
-            continue;
-        // if ( line.find("#") != string::npos || line.find("//") != string::npos )     continue;
-
-        double x = -1;
-        double y = -1;
-        double z = -1;
-        double bx = -1;
-        double by = -1;
-        double bz = -1;
-
-        istringstream getall(line);
-        getall  >> x;
-        getall  >> y;
-        getall  >> z;
-        getall  >> bx;
-        getall  >> by;
-        getall  >> bz;
-
-        // cout << "x " << x << " y " << y << " z " << z << " px " <<  bx << " by " << by << " bz " << bz << endl;
-        // multidimensional map called lattice3D = map< double, map< double, map< double, TVector3 > > >
-        
-        // m_filedMap[x][y][z] = TVector3(bx, by, bz);
-        if ( !bFieldSmearTest ) {
-	        m_filedMap[x][y][z] = TVector3(bx, by, bz);
-	    }
-	    else {
-		    m_filedMap[x][y][z] = TVector3(	bx * (1 + m_diceRoll->Gaus(0.,1.) * smearingPerc), 
-	        								by * (1 + m_diceRoll->Gaus(0.,1.) * smearingPerc), 
-	        								bz * (1 + m_diceRoll->Gaus(0.,1.) * smearingPerc) );
-		}
-
+    else {
+      m_filedMap[x][y][z] = TVector3(	bx * (1 + m_diceRoll->Gaus(0.,1.) * smearingPerc), 
+					by * (1 + m_diceRoll->Gaus(0.,1.) * smearingPerc), 
+					bz * (1 + m_diceRoll->Gaus(0.,1.) * smearingPerc) );
+    }
+    
     }  
-    ifile.close();
-
+  ifile.close();
+  
 }
 
 
 // constant simple field constructor, Field along y axis ONLY in the magnet reagion taken from the foot_geo.h file
-FootField::FootField ( float constValue )
+FootField::FootField ( float constValue, TADIparGeo* diGeo)
 {
-   TADIparGeo* diGeo       = (TADIparGeo*) gTAGroot->FindParaDsc(TADIparGeo::GetDefParaName(), "TADIparGeo")->Object();
+  TADIparGeo* m_diGeo;
+  if(!diGeo) {
+    m_diGeo = (TADIparGeo*) gTAGroot->FindParaDsc(TADIparGeo::GetDefParaName(), "TADIparGeo")->Object();
+  } else {
+    m_diGeo = diGeo;  
+  }
+
    TAGgeoTrafo* geoTrafo   = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
 
-   Double_t mag_dist       = diGeo->GetPosition(1).Z() -  diGeo->GetPosition(0).Z();
-   Double_t mag_air_width  = diGeo->GetMagnetPar(1).Size[0];
-   Double_t mag_air_height = diGeo->GetMagnetPar(1).Size[1];
-   Double_t mag_air_length = (diGeo->GetMagnetPar(1).Size[2] - diGeo->GetPosition(0).Z())*3.;
+   Double_t mag_dist       = m_diGeo->GetPosition(1).Z() -  m_diGeo->GetPosition(0).Z();
+   Double_t mag_air_width  = m_diGeo->GetMagnetPar(1).Size[0];
+   Double_t mag_air_height = m_diGeo->GetMagnetPar(1).Size[1];
+   Double_t mag_air_length = (m_diGeo->GetMagnetPar(1).Size[2] - m_diGeo->GetPosition(0).Z())*3.;
    
    Double_t mag_Z          = geoTrafo->GetDICenter().Z() ;
    Double_t mag_air_X      = 0;
    Double_t mag_air_Y      = 0;
    Double_t mag_air_Z      = mag_Z + mag_dist/2.;
    
-   if (diGeo->GetMagnetType() == 0)
+   if (m_diGeo->GetMagnetType() == 0)
       m_fieldSetting = "constField";
 	
 	if ( GlobalPar::GetPar()->Debug() > 0 )    {

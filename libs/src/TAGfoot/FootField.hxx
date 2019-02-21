@@ -16,6 +16,7 @@
 #include <TVector3.h>
 
 
+#include "TADIparGeo.hxx"
 #include "AbsBField.h"
 
 using namespace std;
@@ -28,8 +29,8 @@ class FootField : public AbsBField {
 
 public:
 
-	FootField( string fileName ="" );
-	FootField( float constValue );
+	FootField( string fileName =""  , TADIparGeo* diGeo=NULL);
+	FootField( float constValue , TADIparGeo* diGeo=NULL);
 
 	~FootField() {};
 
