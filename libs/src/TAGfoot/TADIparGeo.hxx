@@ -28,9 +28,10 @@ private:
    Int_t     fType;       // Magnet type
    TString   fMapName;    // Map filename
    
-   Float_t   fCovRadius;  // cover radius
-   TString   fCovMat;     // cover material
-   Float_t   fCovDensity; // cover material density
+   Float_t   fShieldRadius;  // cover radius
+   TString   fShieldMat;     // cover material
+   Float_t   fShieldDensity; // cover material density
+   Float_t   fShieldThick; // cover material density
    
    TString   fMagMat;     // Magnet material
    Float_t   fMagDensity; // Magnet material density
@@ -42,6 +43,11 @@ private:
 	  TVector3  Tilt;        // current tilt angles
    };
    MagnetParameter_t  fMagnetParameter[10];
+   
+   struct ShieldParameter_t : public  TObject {
+      TVector3  Size;        // current size
+   };
+   ShieldParameter_t  fShieldParameter[10];
    
    TVector3   fMinPosition;
    TVector3   fMaxPosition;

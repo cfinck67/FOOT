@@ -74,21 +74,21 @@ Bool_t TADIparGeo::FromFile(const TString& name)
          cout  << "   Map File Name:  "<< fMapName.Data() << endl;
    }
    
-   // Read cover radius
-   ReadItem(fCovRadius);
+   // Read cover thickness
+   ReadItem(fShieldThick);
    if(fDebugLevel)
-      cout << endl << "   Cover radius: "<< fCovRadius << endl;
+      cout << endl << "   Shield thickness: "<< fShieldThick << endl;
    
    // Read cover material
-   ReadStrings(fCovMat);
+   ReadStrings(fShieldMat);
    if(fDebugLevel)
-      cout  << "   Cover material:  "<< fCovMat.Data() << endl;
+      cout  << "   Shield material:  "<< fShieldMat.Data() << endl;
 
    // read cover material density
-	  ReadItem(fCovDensity);
+	  ReadItem(fShieldDensity);
 	  if(fDebugLevel)
-        cout  << "   Cover material density: " <<  fCovDensity << endl;
-   
+        cout  << "   Shield material density: " <<  fShieldDensity << endl;
+
    // Read magnet material
    ReadStrings(fMagMat);
    if(fDebugLevel)
@@ -117,6 +117,15 @@ Bool_t TADIparGeo::FromFile(const TString& name)
       if(fDebugLevel)
          cout << "   Size: "
          << Form("%f %f %f", fMagnetParameter[p].Size[0], fMagnetParameter[p].Size[1], fMagnetParameter[p].Size[2]) << endl;
+
+      fShieldParameter[p].Size[0] = fMagnetParameter[p].Size[0] - fShieldThick;
+      fShieldParameter[p].Size[1] = fMagnetParameter[p].Size[1] + fShieldThick;
+      fShieldParameter[p].Size[2] = fMagnetParameter[p].Size[2] + 2*fShieldThick;
+      
+      if(fDebugLevel)
+         cout << "   Shield Size: "
+         << Form("%f %f %f", fShieldParameter[p].Size[0], fShieldParameter[p].Size[1], fShieldParameter[p].Size[2]) << endl;
+      
 
 	  // read Magnet position
 	  ReadVector3(fMagnetParameter[p].Position);
@@ -173,10 +182,10 @@ void TADIparGeo::DefineMaterial()
       new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
    }
    
-   // Cover material
-   TGeoMaterial* mat = TAGmaterials::Instance()->CreateMaterial(fCovMat, fCovDensity);
+   // Shield material
+   TGeoMaterial* mat = TAGmaterials::Instance()->CreateMaterial(fShieldMat, fShieldDensity);
    if (fDebugLevel) {
-      printf("Cover material:\n");
+      printf("Shield material:\n");
       mat->Print();
    }
 

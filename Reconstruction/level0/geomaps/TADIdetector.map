@@ -12,11 +12,11 @@ Magnets:     2
 Type:        2
 MapName:     "./data/NewDoubleDipole.table"
 
-CovRad:        0.2
-CovMat:        "Al"
-CovDensity:  2.6989
+ShieldThickness:  0.5
+ShieldMat:        "Al"
+ShieldDensity:    2.6989
 
-MagMat:      "SmCo"
+MagMat:       "SmCo"
 MagDensity:    8.3
 
 // -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
@@ -25,13 +25,13 @@ MagDensity:    8.3
 
 // -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- Magnet 1  -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 Inputs:            1
-InnerRad:          3.5     OuterRad:    10.040   Size3:          11.0
+InnerRad:          3.0     OuterRad:    15.000   Size3:          10.0
 PositionsX:        0.0000  PositionsY:   0.000   PositionsZ:     -8.0
 Tilt1:             0.0000  Tilt2:        0.000   Tilt3:           0.0
 
 // -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- Magnet 2  -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 Inputs:            2
-InnerRad:          3.5     OuterRad:    14.020   Size3:          11.0
+InnerRad:          6.2     OuterRad:    25.000   Size3:          10.0
 PositionsX:        0.0000  PositionsY:   0.000   PositionsZ:      8.0
 Tilt1:             0.0000  Tilt2:        0.000   Tilt3:           0.0
 
