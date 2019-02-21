@@ -8,6 +8,7 @@
 #include <ostream>
 #include <sstream>
 
+#include "TADIparGeo.hxx"
 #include "TATRparGeo.hxx"
 #include "TABMparGeo.hxx"
 #include "TAVTparGeo.hxx"
@@ -63,13 +64,11 @@ int main (int argc, char *argv[]) {
     // Materials* listOfMaterials = new Materials();
     // listOfMaterials->PrintMap();
 
-    genfit::FieldManager::getInstance()->init(new FootField( "DoubleDipole.table" ) ); // variable field
-    // genfit::FieldManager::getInstance()->init(new FootField("DoubleGaussMag.table")); // variable field
-
     Materials* listMaterials = new Materials() ;
     listMaterials->PrintCompMap();
 
     // GlobalFootGeo footGeo;
+    TADIparGeo* dipGeo = new TADIparGeo();
     TATRparGeo* stcGeo = new TATRparGeo();
     TABMparGeo* bmGeo = new TABMparGeo();
     TAVTparGeo* vtxGeo = new TAVTparGeo();
@@ -79,6 +78,7 @@ int main (int argc, char *argv[]) {
     TACAparGeo* caGeo = new TACAparGeo();
 
     //  si costruisce le coordinate di ogni oggetto geometrico e sensibile
+    dipGeo->FromFile();
     stcGeo->FromFile();
     bmGeo->FromFile();
     vtxGeo->FromFile();
@@ -86,6 +86,9 @@ int main (int argc, char *argv[]) {
     msdGeo->FromFile();
     twGeo->FromFile();
     caGeo->FromFile();
+
+    genfit::FieldManager::getInstance()->init(new FootField( "DoubleDipole.table",dipGeo) ); // variable field
+    // genfit::FieldManager::getInstance()->init(new FootField("DoubleGaussMag.table")); // variable field
 
 
     // assegna ad ogni oggetto se sta nel campo magnetico
