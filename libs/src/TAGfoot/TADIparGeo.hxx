@@ -39,15 +39,12 @@ private:
    struct MagnetParameter_t : public  TObject {
 	  Int_t     MagnetIdx;   // Magnet index
      TVector3  Size;        // current size
+     TVector3  ShieldSize;  // shield size
 	  TVector3  Position;    // current position
 	  TVector3  Tilt;        // current tilt angles
    };
    MagnetParameter_t  fMagnetParameter[10];
    
-   struct ShieldParameter_t : public  TObject {
-      TVector3  Size;        // current size
-   };
-   ShieldParameter_t  fShieldParameter[10];
    
    TVector3   fMinPosition;
    TVector3   fMaxPosition;

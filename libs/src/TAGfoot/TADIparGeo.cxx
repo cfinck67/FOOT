@@ -118,13 +118,13 @@ Bool_t TADIparGeo::FromFile(const TString& name)
          cout << "   Size: "
          << Form("%f %f %f", fMagnetParameter[p].Size[0], fMagnetParameter[p].Size[1], fMagnetParameter[p].Size[2]) << endl;
 
-      fShieldParameter[p].Size[0] = fMagnetParameter[p].Size[0] - fShieldThick;
-      fShieldParameter[p].Size[1] = fMagnetParameter[p].Size[1] + fShieldThick;
-      fShieldParameter[p].Size[2] = fMagnetParameter[p].Size[2] + 2*fShieldThick;
+      fMagnetParameter[p].ShieldSize[0] = fMagnetParameter[p].Size[0] - fShieldThick;
+      fMagnetParameter[p].ShieldSize[1] = fMagnetParameter[p].Size[1] + fShieldThick;
+      fMagnetParameter[p].ShieldSize[2] = fMagnetParameter[p].Size[2] + 2*fShieldThick;
       
       if(fDebugLevel)
          cout << "   Shield Size: "
-         << Form("%f %f %f", fShieldParameter[p].Size[0], fShieldParameter[p].Size[1], fShieldParameter[p].Size[2]) << endl;
+         << Form("%f %f %f", fMagnetParameter[p].ShieldSize[0], fMagnetParameter[p].ShieldSize[1], fMagnetParameter[p].ShieldSize[2]) << endl;
       
 
 	  // read Magnet position
