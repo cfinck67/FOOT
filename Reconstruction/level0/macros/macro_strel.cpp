@@ -8,7 +8,7 @@ void macro_strel(){
   
   TFile *f_out = new TFile("Outstrel.root","RECREATE");  
   TFile *bminfile = new TFile("../RecoTree.root","READ");  
-  TFile *msdinfile = new TFile("provoyun.root","READ");  
+  TFile *msdinfile = new TFile("../strel_msddata/1544818479_hits.root","READ");  
   Booking(f_out);
   
   //******************************************BM stuff****************************************

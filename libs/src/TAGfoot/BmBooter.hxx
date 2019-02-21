@@ -10,7 +10,7 @@
 
 #include "Evento.h"
 // #include "Segnale.h"
-#include "Geometry.h"
+// #include "Geometry.h"
 // #include "Trigger.h"
 
 #include "TAGpadGroup.hxx"
@@ -24,7 +24,6 @@
 #include "TObjString.h"
 #include "TNamed.h"
 
-//~ #include "foot.reg"
 #include "TAGroot.hxx"
 #include "TAGview.hxx"
 #include "GlobalPar.hxx"
@@ -59,13 +58,14 @@ public:
   //initialize
   void Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evStr_in);
   void evaluateT0();//evaluate the T0 from datafile
-  
+  Int_t GetNentries(Int_t m_nev);
+    
   //process
   void Process();
   void FillDataBeamMonitor();
   void Projecttracktr(); //to save the tracktr2dprojects matrix
   void ResidualDistance();//to save the residual_distance matrix
-  void MCxEvent();// to save the mcxevent matrix
+  Bool_t MCxEvent();// to save the mcxevent matrix
   
   //read data event
   Bool_t read_event(Bool_t);//read an event from the datafile and charge bmstruct, it returns true if it read the event, false if the file is end
@@ -137,14 +137,19 @@ private:
   vector<vector<Int_t>> cell_occupy;// occupancy of the cell for a given event, first index is the cellid, the value stored is the position of the hit in the bmnturaw vector
   TString m_instr;   //input file name
   Bool_t isdata;     //to separate MC and data
-  Bool_t isroma;     //true if the input data is the BM refurbishment data taken in 2017 in Rome
   Bool_t isallign;   //true if the allign parameters can be shown
   ifstream datafile;
   BM_struct bmstruct;
+  TVector3 mylar1realpos; //only for MC 
+  TVector3 mylar2realpos; //only for MC
+  Int_t MC_track; //0=no MC track; 1=ok 1 MC track 
+  Int_t track_ok;  //-2=maxnhit_cut; -1=minhit_cut; otherwise=track_status 
+  
   Long64_t tot_num_ev;  //total number of events
   Long64_t data_num_ev; //current number of events
   Long64_t data_sync_num_ev; //current number of events + number of sync
   Int_t    acq_start_ev;//acquisition start event
+  
   vector<vector<Int_t>> eff_pp; //efficiency calculation with the pivot-probe method, eff_pp[0]=pivot counter row, eff_pp[1]=probe counter row, each row is made by 16 elements, ordered as the cellindex, wihtout the non probe cells 
   vector<vector<Int_t>> eff_plane;//efficieny with the "Paoloni" method 
   vector<vector<Int_t>> eff_fittedplane;//efficieny with the "Paoloni" method only on fitted tracks

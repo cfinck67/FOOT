@@ -300,32 +300,13 @@ public:
     return;
   }
   
-  void BM_setMCntutrack_info(string hitSampleName, EVENT_STRUCT* evStr, TABMntuTrack* bmntutrack, TABMparGeo* bmgeo, TABMparCon* bmcon){
-    TVector3 mylar1realpos, mylar2realpos, mctrack;
-    Int_t mylar1cross=-1, mylar2cross=-1;
-    for(Int_t i=0;i<evStr->CROSSn;i++){
-      if(evStr->CROSSnregold[i]==nregMyl1BMN && evStr->TRpaid[evStr->CROSSid[i]-1]==0)
-        mylar1cross=i;
-      if(evStr->CROSSnreg[i]==nregMyl2BMN && evStr->TRpaid[evStr->CROSSid[i]-1]==0)
-        mylar2cross=i;
-    }
-    
-    if(mylar1cross>=0 && mylar2cross>=0)
-      for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
-	bmntutracktr = bmntutrack->Track(i);
-        mylar1realpos.SetXYZ(evStr->CROSSx[mylar1cross], evStr->CROSSy[mylar1cross], evStr->CROSSz[mylar1cross]);
-        mylar2realpos.SetXYZ(evStr->CROSSx[mylar2cross], evStr->CROSSy[mylar2cross], evStr->CROSSz[mylar2cross]);
-	bmgeo->Global2Local(mylar1realpos);
-	bmgeo->Global2Local(mylar2realpos);
-	mctrack=mylar2realpos-mylar1realpos;
-	FillMap( hitSampleName + "__MC_track_mylar1Res_dist", (mylar1realpos-bmntutracktr->GetMylar1Pos()).Mag());
-        FillMap( hitSampleName + "__MC_track_mylar2Res_dist", (mylar2realpos-bmntutracktr->GetMylar2Pos()).Mag());
-        FillMap( hitSampleName + "__MC_track_angle_res", mctrack.Angle(bmntutracktr->GetPvers())*RAD2DEG);
-        //~ FillMap( hitSampleName + "__MC_track_Theta_res", (mctrack.Theta()-bmntutracktr->GetPvers().Theta())*RAD2DEG);
-        //~ FillMap( hitSampleName + "__MC_track_Phi_res", (mctrack.Phi()-bmntutracktr->GetPvers().Phi())*RAD2DEG);
-        //~ FillMap( hitSampleName + "__MC_track_Mylar2Res_angle", mylar2realpos.Angle(bmntutracktr->GetMylar2Pos())*RAD2DEG);
-
-      }    
+  void BM_setMCntutrack_info(string hitSampleName, EVENT_STRUCT* evStr, TABMntuTrack* bmntutrack, TABMparGeo* bmgeo, TVector3 &mylar1realpos, TVector3 &mylar2realpos){
+    for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
+      bmntutracktr = bmntutrack->Track(i);
+      FillMap( hitSampleName + "__MC_track_mylar1Res_dist", (mylar1realpos-bmntutracktr->GetMylar1Pos()).Mag());
+      FillMap( hitSampleName + "__MC_track_mylar2Res_dist", (mylar2realpos-bmntutracktr->GetMylar2Pos()).Mag());
+      FillMap( hitSampleName + "__MC_track_angle_res", (mylar2realpos-mylar1realpos).Angle(bmntutracktr->GetPvers())*RAD2DEG);
+    }    
     return;
   }  
   

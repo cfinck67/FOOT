@@ -12,11 +12,12 @@ void macro_provv_strel(){
     return;
   }
   
-  TString out_filename("Outstrel.root");
-  //~ TString bmin_filename("../strel_msddata/RecoTree_228MeV_HV2200_100kEv_400delayLong_1000delayShort_Xbello.root");
-  //~ TString msdin_filename("../strel_msddata/1544818479_hits.root");
-  TString bmin_filename("../strel_msddata/RecoTree_80MeV_HV2200_100kEv_400delayLong_1000delayShort_Xbello.root");
-  TString msdin_filename("../strel_msddata/1544818921_hits.root");
+  TString out_filename("Outstrel_228_chi2ext.root");
+  TString bmin_filename("../strel_msddata/RecoTree_228MeV_HV2200_100kEv_400delayLong_1000delayShort_Xbello_chi2_ext.root");
+  TString msdin_filename("../strel_msddata/1544818479_hits.root");
+  //~ TString out_filename("Outstrel_80_chi2ext.root");
+  //~ TString bmin_filename("../strel_msddata/RecoTree_80MeV_HV2200_100kEv_400delayLong_1000delayShort_Xbello_chi2_ext.root");
+  //~ TString msdin_filename("../strel_msddata/1544818921_hits.root");
 
   //~ TString bmin_filename("../strel_msddata/RecoTree_80MeV_HV2200_100kEv_400delayLong_1000delayShort_Xbello_tiltx5deg_0shift.root");
   //~ TString msdin_filename("../strel_msddata/1544819626_hits.root");
@@ -37,7 +38,7 @@ void macro_provv_strel(){
   cout<<"MSD input file="<<msdin_filename.Data()<<endl;
   cout<<"output file="<<out_filename.Data()<<endl;
 
-  BookingBMMSD(f_out, false);
+  BookingBMMSD(f_out, false, false);
   
   //******************************************BM stuff****************************************
   //bm geo
@@ -68,22 +69,6 @@ void macro_provv_strel(){
   vector<BM_evstruct> allbmeventin;
   clean_bmevstruct(bmevent, true);
   
- //~ double pversx, pversy, pversz, r0x, r0y;
-  //set bm data
-  //~ TTree *bmdata = (TTree*)bminfile->Get("EventTree");
-  //~ TBranch *bra_evnum = bmdata->GetBranch("evnum");
-  //~ bra_evnum->SetAddress(&evnum);
-  //~ totentries=bra_evnum->GetEntries();
-  //~ TBranch *bra_pversx = bmdata->GetBranch("BM_track_PverX");
-  //~ bra_pversx->SetAddress(&pversx);
-  //~ TBranch *bra_pversy = bmdata->GetBranch("BM_track_PverY");
-  //~ bra_pversy->SetAddress(&pversy);
-  //~ TBranch *bra_pversz = bmdata->GetBranch("BM_track_PverZ");
-  //~ bra_pversz->SetAddress(&pversz);
-  //~ TBranch *bra_r0x = bmdata->GetBranch("BM_track_R0X");
-  //~ bra_r0x->SetAddress(&r0x);
-  //~ TBranch *bra_r0y = bmdata->GetBranch("BM_track_R0Y");
-  //~ bra_r0y->SetAddress(&r0y);  
   
   //read msd loop
   bmReader.Next();
@@ -101,19 +86,6 @@ void macro_provv_strel(){
   msdinfile->cd();
   TTreeReader msd1Reader("treeMSD1", msdinfile);
   TTreeReader msd2Reader("treeMSD2", msdinfile);
-  //~ TTreeReaderValue<int> evnumMSDreader(msdReader, "evnum");
-  //~ TTreeReaderValue<int> timeacqMSDreader(msdReader, "timeacq");
-  //~ TTreeReaderValue<double> trackchi2MSDreader(msdReader, "MSD_track_chi2");
-  //~ TTreeReaderValue<double> thetaMSDreader(msdReader, "MSD_track_Theta");
-  //~ TTreeReaderValue<double> thetaerrMSDreader(msdReader, "MSD_track_ThetaErr");
-  //~ TTreeReaderValue<double> phiMSDreader(msdReader, "MSD_track_Phi");
-  //~ TTreeReaderValue<double> phierrMSDreader(msdReader, "MSD_track_PhiErr");
-  //~ TTreeReaderValue<double> r0xMSDreader(msdReader, "MSD_track_R0X");
-  //~ TTreeReaderValue<double> r0xerrMSDreader(msdReader, "MSD_track_R0Xerr");
-  //~ TTreeReaderValue<double> r0yMSDreader(msdReader, "MSD_track_R0Y");
-  //~ TTreeReaderValue<double> r0yerrMSDreader(msdReader, "MSD_track_R0Yerr");
-  //~ TTreeReaderValue<double> r0zMSDreader(msdReader, "MSD_track_R0Z");
-  //~ TTreeReaderValue<double> r0zerrMSDreader(msdReader, "MSD_track_R0Zerr");
   TTreeReaderValue<double> x1msd(msd1Reader, "x12");
   TTreeReaderValue<double> y1msd(msd1Reader, "y12");
   TTreeReaderValue<double> x2msd(msd2Reader, "x16");
@@ -136,8 +108,15 @@ void macro_provv_strel(){
   cout<<"MSD read events="<<allmsdeventin.size()<<endl;  
   msdinfile->Close();
   
+  
+  
+  
+  
+  
+  
   //****************************************************** evaluate strel *************************************
-  vector<vector<vector<double>>> space_residual(STBIN+1);
+  vector<vector<double>> space_residual(STBIN+1);
+  vector<vector<double>> time_residual(STBIN+1);
   vector<vector<int>> selected_index;//matrix with the two index in allbmeventin and allmsdeventin that are correlated
   vector<int> event_index(3,-1);//0=allbmeventin index, 1=allmsdeventin index, 2=combine code(0=msd1 && msd2, 1=only msd1, 2=only msd2)
   for(int i=0;i<allbmeventin.size();i++){
@@ -149,7 +128,7 @@ void macro_provv_strel(){
         event_index.at(1)=k;
         event_index.at(2)=0;
         selected_index.push_back(event_index);
-        EvaluateSpaceResidual(space_residual, allbmeventin.at(i), allmsdeventin.at(k), wire_pos, wire_dir);        
+        EvaluateSpaceResidual(space_residual, time_residual, allbmeventin.at(i), allmsdeventin.at(k), wire_pos, wire_dir);        
         //~ ((TH1D*)gDirectory->Get("time_diff"))->Fill(allbmeventin.at(i).timeacq-allmsdeventin.at(k).timeacq);
       }else if(allmsdeventin.at(k).x1raw!=-999 && allmsdeventin.at(k).x2raw==-999){
         event_index.at(0)=i;
@@ -167,7 +146,7 @@ void macro_provv_strel(){
   
   
   //****************************************************** end of program, print! *********************************
-  Printoutput(f_out, allbmeventin, allmsdeventin, space_residual, selected_index, false);
+  Printoutput(f_out, allbmeventin, allmsdeventin, space_residual, time_residual, selected_index, false);
   fitPositionResidual();
   Allign_estimate();
   
@@ -187,7 +166,8 @@ void readallMSDfile(){
   TFile *f_out = new TFile(out_filename.Data(),"RECREATE");  
   //dummy variables
   vector<BM_evstruct> dummybm_evstruct_vec;
-  vector<vector<vector<double>>> dummy_vecvecvecdouble;
+  vector<vector<double>> dummy_vecvecdouble;
+  vector<vector<double>> dummy2_vecvecdouble;
   vector<vector<int>> dummy_vecvecint;  
 
   vector<TString> msd_input_filename;
@@ -205,7 +185,7 @@ void readallMSDfile(){
   msd_input_filename.push_back(msdin_filename);
   
   
-  BookingBMMSD(f_out, true);
+  BookingBMMSD(f_out, true, false);
   cout<<"output file="<<out_filename.Data()<<endl;
 
   //read msd
@@ -240,7 +220,7 @@ void readallMSDfile(){
     
     cout<<"From msd file "<<msd_input_filename.at(i).Data()<<"  number of events read="<<allmsdeventin.size()-totalmsdev<<endl;
     totalmsdev=allmsdeventin.size();  
-    Printoutput(f_out, dummybm_evstruct_vec, allmsdeventin, dummy_vecvecvecdouble, dummy_vecvecint, true);
+    Printoutput(f_out, dummybm_evstruct_vec, allmsdeventin, dummy_vecvecdouble,dummy2_vecvecdouble, dummy_vecvecint, true);
     msdinfile->Close();
     delete msdinfile;
   }

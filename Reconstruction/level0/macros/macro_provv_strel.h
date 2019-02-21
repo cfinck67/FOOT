@@ -6,7 +6,7 @@
 #define debug            0
 #define BMNEV            0    //number of bm events to analyze
 #define MSDNEV           0    //number of msd events to analyze
-#define STBIN          100    //strel binning on rdrift
+#define STBIN          100    //strel binning on rdrift/tdrift
 #define BMNCUT          10.   //cut on bm track chi2 
 #define MAXBMHITNUM     30    //number of maximum bm hit 
 #define NUMEVTSHIFT      1    //shift of the MSD evnum with respect to BM evnum (to be checked carefully!!)     
@@ -83,11 +83,13 @@ typedef struct MSD_evstruct {
 
 //general functions
 void readallMSDfile();
-void BookingBMMSD(TFile* f_out, bool onlyMSD);
-void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<MSD_evstruct> &allmsdeventin, vector<vector<vector<double>>> &space_residual, vector<vector<int>> &selected_index, bool onlyMSD);
-void EvaluateSpaceResidual(vector<vector<vector<double>>> &space_residual, BM_evstruct &bmevent, MSD_evstruct &msdevent, vector<TVector3> &wire_pos, vector<TVector3> &wire_dir);
+void BookingBMMSD(TFile* f_out, bool onlyMSD, bool merging);
+void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<MSD_evstruct> &allmsdeventin, vector<vector<double>> &space_residual, vector<vector<double>> &time_residual, vector<vector<int>> &selected_index, bool onlyMSD);
+void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<double>> &time_residual, BM_evstruct &bmevent, MSD_evstruct &msdevent, vector<TVector3> &wire_pos, vector<TVector3> &wire_dir);
 void Allign_estimate();
 void fitPositionResidual();
+void fitStrel(TFile *f_out, const int index);
+void merge_graphics(TFile* infile, TFile* f_out);
 
 //bm functions
 TVector3 BMlocaltoiso(TVector3 local);//from local to labo syst of ref., including the shift

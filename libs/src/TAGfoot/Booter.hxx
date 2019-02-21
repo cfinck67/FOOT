@@ -71,10 +71,6 @@ class Booter {
   void initBMMap();
 
   void bookHisto(TFile *f);
-  void CalibBMVT();
-  void MonitorBMVTMat();
-  void MonitorBMNew(Long64_t jentry);
-  //~ void MonitorBM();
   void AssociateHitsToParticle();
 
   TAGgeoTrafo* fGeoTrafo;

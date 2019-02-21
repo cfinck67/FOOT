@@ -32,14 +32,13 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evS
   clear_bmstruct(kTRUE);
   myp_bmgeo = gTAGroot->FindParaDsc("myp_bmgeo", "TABMparGeo");  
   myp_bmcon = gTAGroot->FindParaDsc("myp_bmcon", "TABMparCon");  
-  myp_bmmap = gTAGroot->FindParaDsc("myp_bmmap", "TABMparMap");  
+  if(isdata)
+    myp_bmmap = gTAGroot->FindParaDsc("myp_bmmap", "TABMparMap");  
   bmcon = (TABMparCon*) (gTAGroot->FindParaDsc("myp_bmcon", "TABMparCon")->Object()); 
   bmgeo = (TABMparGeo*) (gTAGroot->FindParaDsc("myp_bmgeo", "TABMparGeo")->Object());
-  bmmap = (TABMparMap*) (gTAGroot->FindParaDsc("myp_bmmap", "TABMparMap")->Object());
-  if(bmcon->GetParmapfile().compare("beammonitor_geoch_roma.map")==0 || bmcon->GetParmapfile().compare("beammonitor_geoch_trento.map")==0)
-    isroma=kTRUE;
-  else
-    isroma=kFALSE;
+  if(isdata)
+    bmmap = (TABMparMap*) (gTAGroot->FindParaDsc("myp_bmmap", "TABMparMap")->Object());
+
   cell_occupy.resize(36);
   vector<Int_t> row(16,0);
   eff_pp.push_back(row);
@@ -121,14 +120,7 @@ return;
 
 //----------------------------------------------------------------------------------------------------
 void BmBooter::Process() {
-  
-  Int_t track_ok;
-   
-   //~ if(isroma && (data_num_ev==-1000 || data_num_ev==-999) && isdata ){
-    //~ drop_event();
-    //~ return;
-  //~ }
-  
+     
   if(isdata){
     read_event(kFALSE);
     if(bmstruct.tot_status==0 && bmstruct.tdc_status==-1000){
@@ -145,21 +137,23 @@ void BmBooter::Process() {
       data_sync_num_ev+=bmstruct.tdc_numsync;
       return;
     }
+    if (bmcon->GetBMdebug()>3){
+      cout<<"I'm in BmBooter::Process, data_num_ev="<<data_num_ev<<"   bmstruct.evnum="<<bmstruct.evnum<<"   tdcev="<<bmstruct.tdcev<<"   tdc_numsync="<<bmstruct.tdc_numsync<<"  data_sync_num_ev="<<data_sync_num_ev<<endl;
+      //~ if(bmmap->GetSca830Ch()>0)
+        //~ cout<<"  sca_counts="<<bmstruct.sca830_counts[7]<<endl;
+      //~ else
+        //~ cout<<endl;  
+    } 
   }
   
-  if (bmcon->GetBMdebug()>3 && isdata){
-    cout<<"I'm in BmBooter::Process, data_num_ev="<<data_num_ev<<"   bmstruct.evnum="<<bmstruct.evnum<<"   tdcev="<<bmstruct.tdcev<<"   tdc_numsync="<<bmstruct.tdc_numsync<<"  data_sync_num_ev="<<data_sync_num_ev;
-    if(bmmap->GetSca830Ch()>0)
-      cout<<"  sca_counts="<<bmstruct.sca830_counts[7]<<endl;//da aggiungere
-    else
-      cout<<endl;  
-  }else if(bmcon->GetBMdebug()>0)
+  if(bmcon->GetBMdebug()>0)
     cout<<"I'm in BmBooter::Process, event number: data_num_ev="<<data_num_ev<<endl;  
  
   bmnturaw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
   //~ bmnturaw=(TABMntuRaw*) myn_bmraw->GenerateObject();
   evaluate_cell_occupy();
   
+    track_ok=-3;
   if(bmnturaw->nhit >= bmcon->GetMaxnhit_cut())
     track_ok=-2;
   else if(bmnturaw->nhit <= bmcon->GetMinnhit_cut())
@@ -168,10 +162,6 @@ void BmBooter::Process() {
     bmntutrack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
     track_ok=bmntutrack->trk_status;
   }
- 
- //provo
-  //~ bmnturaw->SetHistogramDir(outTree->File());
-  //~ bmntutrack->SetHistogramDir(outTree->File());
  
   if (bmcon->GetBMdebug()>10)
     cout<<"in BmBooter::Process, I finished to create the BM hits and tracks"<<endl<<"Now I'll printout BM hits if enable"<<endl;
@@ -186,10 +176,13 @@ void BmBooter::Process() {
     if(m_controlPlotter->BM_setntutrack_info("BM_output", bmgeo, bmntutrack, bmnturaw, bmcon)==0)
       isallign=kTRUE;      
       
-  if(!isdata && GlobalPar::GetPar()->IsPrintOutputFile()){    
-    m_controlPlotter->BM_setMCnturaw_info("BM_output",evStr, bmnturaw, bmgeo, bmcon);
-    if(track_ok==0)
-      m_controlPlotter->BM_setMCntutrack_info("BM_output",evStr, bmntutrack, bmgeo, bmcon);
+  if(!isdata){
+    MC_track=MCxEvent();  
+    if(GlobalPar::GetPar()->IsPrintOutputFile()){    
+      m_controlPlotter->BM_setMCnturaw_info("BM_output",evStr, bmnturaw, bmgeo, bmcon);
+      if(track_ok==0 && MC_track)
+        m_controlPlotter->BM_setMCntutrack_info("BM_output",evStr, bmntutrack, bmgeo, mylar1realpos, mylar2realpos);
+    }
   }
   
   //temporary ttree output
@@ -223,9 +216,6 @@ void BmBooter::Process() {
       efficiency_fittedtracks();
     }
     
-  if(!isdata)
-    MCxEvent();  
-      
   data_num_ev++;
   data_sync_num_ev+=bmstruct.tdc_numsync;
 
@@ -493,7 +483,6 @@ void BmBooter::PrintResDist(){
   }
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/ResxDist")))->cd("..");
   
-  
   //create TDC_dist
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("TDC_time");
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("TDC_time");
@@ -505,7 +494,7 @@ void BmBooter::PrintResDist(){
 
   TH2D* histo2da=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
   TH2D* histo2db=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]", 600, -0.3, 0.3,350,0.,350.);
-    
+        
   //fill the histos
   for(Int_t i=0;i<residual_distance.size();i++){
     if(residual_distance.at(i).size()>4){
@@ -521,7 +510,6 @@ void BmBooter::PrintResDist(){
     sprintf(tmp_char,"BM_output/TDC_time/tdc_cha_%d",(Int_t) (residual_distance.at(i).at(1)+0.5));      
     ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance.at(i).at(2));
   }
-  
   
   //fit hitres_x_dist
   TF1 *fb = new TF1("fb","gaus", -0.3,0.3);
@@ -624,14 +612,18 @@ void BmBooter::PrintMCxEvent(){
     return;
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();
   
-  TH2D* histoa=new TH2D( "MC_mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 500, -5., 5.,500, -5.,5.);
-  TH2D* histob=new TH2D( "MC_mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 500, -5., 5.,500, -5.,5.);
-
+  TH2D* histoa=new TH2D( "MC_mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
+  TH2D* histob=new TH2D( "MC_mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
+  TH1D* hphi=new TH1D("MC_angle_phi","track phi angle;Phi[DEG]; Number of events",360.,-180.,180.);
+  TH1D* htheta=new TH1D("MC_angle_theta","track theta angle;Theta[DEG]; Number of events",180.,0.,180.);
+  TVector3 mcpvers;
   for(Int_t i=0;i<mcxevent.size();i++){
     histoa->Fill(mcxevent.at(i).at(1), mcxevent.at(i).at(2));
     histob->Fill(mcxevent.at(i).at(3), mcxevent.at(i).at(4));
+    mcpvers.SetXYZ(mcxevent.at(i).at(3)-mcxevent.at(i).at(1),mcxevent.at(i).at(4)-mcxevent.at(i).at(2),bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z());
+    hphi->Fill(mcpvers.Phi()*RAD2DEG);
+    htheta->Fill(mcpvers.Theta()*RAD2DEG);
   }  
-    
   
   return;
 }
@@ -757,10 +749,6 @@ void BmBooter::evaluateT0() {
   
   //jump the first event IS NECESSARY????????????
   //~ drop_event();
-  if(isroma){//jump two event if isroma    
-    drop_event();
-    drop_event();
-  }
       
   //charge the tdc_cha_* TH1D graph of the tdc signals    
   while(read_event(kTRUE)) {
@@ -1043,7 +1031,7 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
         if(bmcon->GetBMdebug()>11 && (!(evt0 && bmcon->GetBMdebug()==99)))
           cout<<"global header found, windex="<<windex<<"  tdcev="<<bmstruct.tdcev<<endl;
         }
-      //~ if(read_meas && ev_words[windex]<0 && isroma==kFALSE && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//global trailer found //se uso acquisizione mio (yun)
+      //~ if(read_meas && ev_words[windex]<0 && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//global trailer found //se uso acquisizione mio (yun)
         //~ read_meas=false;
         //~ new_event=true;
         //~ bmstruct.tdc_status=ev_words[windex];
@@ -1055,7 +1043,7 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
           //~ cout<<"global trailer found, windex="<<windex<<"  ev_words="<<ev_words[windex]<<endl;
       //~ }
       //~ //old trento software...i wanna get rid of this!!!
-      if(read_meas && ev_words[windex]==0 && isroma==kFALSE && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//global trailer found //se uso acquisizione trento con 0 invece che -1000
+      if(read_meas && ev_words[windex]==0 && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//global trailer found //se uso acquisizione trento con 0 invece che -1000
         read_meas=false;
         new_event=true;
         bmstruct.tdc_status=-1000;
@@ -1067,13 +1055,14 @@ Bool_t BmBooter::read_event(Bool_t evt0) {
           cout<<"global trailer found, windex="<<windex<<"  ev_words="<<ev_words[windex]<<endl;
       }      
               
-      if(read_meas && ev_words[windex]==0 && isroma==kTRUE && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//global trailer found //se uso dati letti a Roma per BM refurbishment
-        read_meas=false;
-        new_event=true;
-        bmstruct.tdc_status=-1000;
-        if(bmcon->GetBMdebug()>11 && (!(evt0 && bmcon->GetBMdebug()==99)))
-          cout<<"global trailer found, i="<<windex<<"  ev_words="<<ev_words[windex]<<endl;
-      }        
+      //only for data from cosmic rays taken in 2017 in Rome        
+      //~ if(read_meas && ev_words[windex]==0 && false && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//global trailer found //se uso dati letti a Roma per BM refurbishment
+        //~ read_meas=false;
+        //~ new_event=true;
+        //~ bmstruct.tdc_status=-1000;
+        //~ if(bmcon->GetBMdebug()>11 && (!(evt0 && bmcon->GetBMdebug()==99)))
+          //~ cout<<"global trailer found, i="<<windex<<"  ev_words="<<ev_words[windex]<<endl;
+      //~ }        
       if(read_meas && (bmstruct.tdc_status==0 || bmstruct.tdc_status==-1000)){//read measure  
         if(ev_words[windex++]!=bmstruct.tdc_evnum[bmstruct.tdcev-1]){
           cout<<"ERROR in BmBooter:read_event: tdc_evnum="<<bmstruct.tdc_evnum[bmstruct.tdcev-1]<<"  measured event number="<<ev_words[windex-1]<<"  windex="<<windex<<"  data_num_ev="<<data_num_ev<<endl;
@@ -1499,10 +1488,9 @@ void BmBooter::Projecttracktr(){
 return;
 }
   
-void BmBooter::MCxEvent(){
+Bool_t BmBooter::MCxEvent(){
   
   vector<Double_t> vec_pro(5);
-  Int_t status=0;
   Int_t nuhit=0, nvhit=0;
   for(Int_t i=0;i<bmnturaw->nhit;i++){
     bmntuhit=bmnturaw->Hit(i);
@@ -1511,25 +1499,35 @@ void BmBooter::MCxEvent(){
     else if(!bmntuhit->GetIsFake())
       nvhit++;
   }
+  if(nvhit<3 || nuhit<3)
+    return kFALSE;
   
   vec_pro.at(0)=data_num_ev;
-  for(Int_t i=0;i<evStr->CROSSn;i++){
-    //~ cout<<evStr->CROSSnreg[i]<<"  "<<evStr->CROSSnregold[i]<<"  "<<evStr->CROSSn<<"    "<<evStr->TRpaid[evStr->CROSSid[i]-1]<<endl;
-    if(evStr->CROSSnregold[i]==nregMyl1BMN && evStr->TRpaid[evStr->CROSSid[i]-1]==0 && nuhit>3 && nvhit>3){
-      vec_pro.at(1)=evStr->CROSSx[i];
-      vec_pro.at(2)=evStr->CROSSy[i];
-      status+=2;
-    }
-    if(evStr->CROSSnreg[i]==nregMyl2BMN && evStr->TRpaid[evStr->CROSSid[i]-1]==0  && nuhit>3 && nvhit>3){
-      vec_pro.at(3)=evStr->CROSSx[i];
-      vec_pro.at(4)=evStr->CROSSy[i];
-      status+=2;
-    }
+  TVector3 inpos, outpos;
+  inpos.SetZ(99999);
+  outpos.SetZ(-99999);
+  for(Int_t i=0;i<evStr->BMNn;i++){
+    if(evStr->BMNzin[i]<inpos.Z() && evStr->TRpaid[evStr->BMNid[i]-1]==0)
+      inpos.SetXYZ(evStr->BMNxin[i], evStr->BMNyin[i], evStr->BMNzin[i]);
+    if(evStr->BMNzout[i]>outpos.Z() && evStr->TRpaid[evStr->CROSSid[i]-1]==0)
+      outpos.SetXYZ(evStr->BMNxout[i], evStr->BMNyout[i], evStr->BMNzout[i]);
   }
-  if(status==4)
-    mcxevent.push_back(vec_pro);
   
-  return;
+  if(inpos.Z()==99999 || outpos.Z()==-99999)
+    return kFALSE;
+    
+  bmgeo->Global2Local(inpos);
+  bmgeo->Global2Local(outpos);
+  mylar1realpos=bmgeo->ProjectFromTwoPoints(inpos, outpos, bmgeo->GetMylar1().Z());
+  mylar2realpos=bmgeo->ProjectFromTwoPoints(inpos, outpos, bmgeo->GetMylar2().Z());    
+  vec_pro.at(1)=mylar1realpos.X();
+  vec_pro.at(2)=mylar1realpos.Y();
+  vec_pro.at(3)=mylar2realpos.X();
+  vec_pro.at(4)=mylar2realpos.Y();
+  
+  mcxevent.push_back(vec_pro);
+  
+  return kTRUE;
 }  
   
 //used in process to charge residual_distance
@@ -1727,4 +1725,11 @@ void BmBooter::FillDataBeamMonitor() {
     cout<<"I finish BmBooter::FillDataBeamMonitor"<<endl;  
   return;
 }
+
+
+Int_t BmBooter::GetNentries(Int_t m_nev){
+  cout<<"Total number of Beam Monitor events="<<tot_num_ev<<endl;
+  return (m_nev==0) ? tot_num_ev-acq_start_ev+1 : min((Long64_t)m_nev, tot_num_ev);
+}
+
 

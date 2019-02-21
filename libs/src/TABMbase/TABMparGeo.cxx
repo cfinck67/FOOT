@@ -100,6 +100,12 @@ void  TABMparGeo::SetA0Wvers(Int_t cellid, TVector3 &A0, TVector3 &Wvers){
   return;
 }
 
+TVector3 TABMparGeo::ProjectFromTwoPoints(TVector3 inpos, TVector3 outpos, Double_t z){
+  TVector3 projected((inpos.X()-outpos.X())/(inpos.Z()-outpos.Z())*(z-outpos.Z())+ outpos.X(),
+                   (inpos.Y()-outpos.Y())/(inpos.Z()-outpos.Z())*(z-outpos.Z())+ outpos.Y(),   z);
+  return projected;
+}
+
 TVector3 TABMparGeo::ProjectFromPversR0(TVector3 Pvers, TVector3 R0, Double_t z){
   TVector3 projected(Pvers.X()/Pvers.Z()*z+R0.X() ,Pvers.Y()/Pvers.Z()*z+R0.Y(), z);
   return projected;  
@@ -302,8 +308,8 @@ void TABMparGeo::CoutWirePosDir(){
     }  
   }
   cout<<endl<<"V view: wire along Y:"<<endl;
-  for(Int_t i=0;i<BMN_NWIRELAY;i++){
-    for(Int_t k=0;k<BMN_NLAY;k++){
+  for(Int_t k=0;k<BMN_NLAY;k++){
+    for(Int_t i=0;i<BMN_NWIRELAY;i++){
       cout<<"i="<<i<<" k="<<k<<" x="<<x_pos[i][k][1]<<" y="<<y_pos[i][k][1]<<"  z="<<z_pos[i][k][1]<<endl;
     }  
   }
@@ -315,8 +321,8 @@ return;
 void TABMparGeo::SetRotation(Double_t xrot, Double_t yrot, Double_t zrot){
   TRotation x_rot, y_rot, z_rot, tot_rot;
   x_rot.RotateX(BMN_XANG*DEG2RAD);
-  y_rot.RotateX(BMN_YANG*DEG2RAD);
-  z_rot.RotateX(BMN_ZANG*DEG2RAD);
+  y_rot.RotateY(BMN_YANG*DEG2RAD);
+  z_rot.RotateZ(BMN_ZANG*DEG2RAD);
   tot_rot=z_rot*(y_rot*x_rot);
   m_rotation->Transform(tot_rot);  
   return;

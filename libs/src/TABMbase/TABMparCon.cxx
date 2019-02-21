@@ -504,26 +504,36 @@ Double_t TABMparCon::FirstSTrel(Double_t tdrift){
       return 0.;
   }
   
+  Double_t rdrift;
+  
   if(strel_switch==1){ //garfield strel
-    return 0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
+    rdrift=0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
   }else if(strel_switch==2){//
-    return 0.00972903*tdrift-8.21676e-05*tdrift*tdrift+3.66446e-07*tdrift*tdrift*tdrift-5.85882e-10*tdrift*tdrift*tdrift*tdrift;  
+    rdrift= 0.00972903*tdrift-8.21676e-05*tdrift*tdrift+3.66446e-07*tdrift*tdrift*tdrift-5.85882e-10*tdrift*tdrift*tdrift*tdrift;  
   }else if(strel_switch==3){//
-    return 0.0087776*tdrift-6.41845e-05*tdrift*tdrift+2.4946e-07*tdrift*tdrift*tdrift-3.48422e-10*tdrift*tdrift*tdrift*tdrift;  
+    rdrift= 0.0087776*tdrift-6.41845e-05*tdrift*tdrift+2.4946e-07*tdrift*tdrift*tdrift-3.48422e-10*tdrift*tdrift*tdrift*tdrift;  
   }else if(strel_switch==4){//HIT 2014
-    return 0.0092254*tdrift-7.1192e-5*tdrift*tdrift+3.01951e-7*tdrift*tdrift*tdrift-4.66646e-10*tdrift*tdrift*tdrift*tdrift;  
-  }else if (strel_switch==5)
-    return (0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift)*0.8/0.78;     
-      
-  //FIRST strel embedded in old Framework
-  return 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift;
+    rdrift= 0.0092254*tdrift-7.1192e-5*tdrift*tdrift+3.01951e-7*tdrift*tdrift*tdrift-4.66646e-10*tdrift*tdrift*tdrift*tdrift;  
+  }else if (strel_switch==5){
+    rdrift= (0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift)/0.78;     
+  }else if (strel_switch==6){//from strel calibration
+    rdrift= -0.118715 + (0.0098028*tdrift) + (-0.000119206*tdrift*tdrift) + (8.75103e-07*tdrift*tdrift*tdrift) + (-3.16015e-09*tdrift*tdrift*tdrift*tdrift) + (4.37948e-12*tdrift*tdrift*tdrift*tdrift*tdrift);    
+  }else if (strel_switch==7){//from strel calibration
+    tdrift+=43.7;
+    rdrift= 0.0201024 + (0.00408601*tdrift) + (-4.42738e-05*tdrift*tdrift) + (4.9932e-07*tdrift*tdrift*tdrift) + (-2.45383e-09*tdrift*tdrift*tdrift*tdrift) + (4.08383e-12*tdrift*tdrift*tdrift*tdrift*tdrift);     
+  }else{
+    //FIRST strel embedded in old Framework
+    rdrift= 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift;
+  }
+  
+  return rdrift<0 ? 0.:rdrift;
   
 }
 
 
 Double_t TABMparCon::InverseStrel(Double_t rdrift){
   //~ if(strel_switch==5){
-    TF1 f1("f1","0.8/0.78*(0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 320.);
+    TF1 f1("f1","1./0.78*(0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 320.);
     return f1.GetX(rdrift);
   //~ }else if(strel_switch==0){
     //~ TF1 f1("f1","0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x", 0., 320.);
@@ -556,7 +566,7 @@ Double_t TABMparCon::FirstSTrelMC(Double_t tdrift, Int_t mc_switch){
   }else if(mc_switch==4){//HIT 2014
     return 0.0092254*tdrift-7.1192e-5*tdrift*tdrift+3.01951e-7*tdrift*tdrift*tdrift-4.66646e-10*tdrift*tdrift*tdrift*tdrift;  
   }else if (mc_switch==5)
-    return (0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift)*0.8/0.78; 
+    return (0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift)/0.78; 
 
   //FIRST strel embedded in old Framework
   return 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift; 

@@ -173,10 +173,12 @@ void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in, Bool_t isdata_in ) 
     //~ //     // DisplayBeamMonitor(pg);
       myp_bmgeo  = new TAGparaDsc("myp_bmgeo", new TABMparGeo());
       myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
-      myp_bmmap = new TAGparaDsc("myp_bmmap", new TABMparMap());
+      if(isdata)
+        myp_bmmap = new TAGparaDsc("myp_bmmap", new TABMparMap());
       initBMGeo();
       initBMCon();
-      initBMMap();
+      if(isdata)
+        initBMMap();
       //~ bmcon = (TABMparCon*) myp_bmcon->Object();
       //~ bmmap = (TABMparMap*) myp_bmmap->Object();
       //~ FillMCBeamMonitor(evStr);//da modificare: se lo abilito qua la geometria degli altri detectors non funzia... 
@@ -665,20 +667,6 @@ void Booter::FillMCInnerTracker(EVENT_STRUCT *myStr) {
 
 }
 
-
-
-
-//~ void Booter::MonitorBM() {}
-//Yun new graphs:
-void Booter::MonitorBMNew(Long64_t jentry) {
-  
-  
-  
-  
-  return;
-  }
-// void Booter::MonitorBMVTMat() {}
-// void Booter::CalibBMVT() {}
 
 
 //----------------------------------------------------------------------------------------------------

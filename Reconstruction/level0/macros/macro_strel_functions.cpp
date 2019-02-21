@@ -1,6 +1,6 @@
 
 //*********************************************  combined functions  *****************************************
-void BookingBMMSD(TFile* f_out, bool onlyMSD){
+void BookingBMMSD(TFile* f_out, bool onlyMSD, bool merging){
 
   f_out->cd();
   TH1D *h; 
@@ -8,62 +8,76 @@ void BookingBMMSD(TFile* f_out, bool onlyMSD){
   char tmp_char[200];
   
   //msd stuff
-  h = new TH1D("MSD_xzval_coeff","MSD xz m coeff for corrected positions;m;Events",1000,-0.5,0.5);
-  h = new TH1D("MSD_xzraw_coeff","MSD xz m coeff from raw data;m;Events",2000,-100.,100.);
-  h = new TH1D("MSD_xztra_coeff","MSD xz m coeff from translated data;m;Events",1000,-0.5,0.5);
-  h = new TH1D("MSD_1xraw","MSD 1x raw channel value;x[cm];Events",2000,0.,2000.);
-  h = new TH1D("MSD_2xraw","MSD 2x raw channel value;x[cm];Events",2000,0.,2000.);
-  h = new TH1D("MSD_1yraw","MSD 1y raw channel value;y[cm];Events",2000,0.,2000.);
-  h = new TH1D("MSD_1xtra","MSD 1x channel value translated;x[cm];Events",2000,-1000.,1000.);
-  h = new TH1D("MSD_2xtra","MSD 2x channel value translated;x[cm];Events",2000,-1000.,1000.);
-  h = new TH1D("MSD_1ytra","MSD 1y channel value translated;y[cm];Events",2000,-1000.,1000.);
-  h = new TH1D("MSD_1xval","MSD 1x selected value;x[cm];Events",1000,-5.,5.);
-  h = new TH1D("MSD_2xval","MSD 2x selected value;x[cm];Events",1000,-5.,5.);
-  h = new TH1D("MSD_1yval","MSD 1y selected value;y[cm];Events",1000,-5.,5.);
-  h = new TH1D("MSD_trackset","MSD tracksset;x[cm];Events",2,0.,2.);
-  h2 = new TH2D("msd_msd1proISOsys","MSD tracks projection on msd 1 plane in ISO sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
+  if(!merging){
+    h = new TH1D("MSD_xzval_coeff","MSD xz m coeff for corrected positions;m;Events",1000,-0.5,0.5);
+    h = new TH1D("MSD_xzraw_coeff","MSD xz m coeff from raw data;m;Events",2000,-100.,100.);
+    h = new TH1D("MSD_xztra_coeff","MSD xz m coeff from translated data;m;Events",1000,-0.5,0.5);
+    h = new TH1D("MSD_1xraw","MSD 1x raw channel value;x[cm];Events",2000,0.,2000.);
+    h = new TH1D("MSD_2xraw","MSD 2x raw channel value;x[cm];Events",2000,0.,2000.);
+    h = new TH1D("MSD_1yraw","MSD 1y raw channel value;y[cm];Events",2000,0.,2000.);
+    h = new TH1D("MSD_1xtra","MSD 1x channel value translated;x[cm];Events",2000,-1000.,1000.);
+    h = new TH1D("MSD_2xtra","MSD 2x channel value translated;x[cm];Events",2000,-1000.,1000.);
+    h = new TH1D("MSD_1ytra","MSD 1y channel value translated;y[cm];Events",2000,-1000.,1000.);
+    h = new TH1D("MSD_1xval","MSD 1x selected value;x[cm];Events",1000,-5.,5.);
+    h = new TH1D("MSD_2xval","MSD 2x selected value;x[cm];Events",1000,-5.,5.);
+    h = new TH1D("MSD_1yval","MSD 1y selected value;y[cm];Events",1000,-5.,5.);
+    h = new TH1D("MSD_trackset","MSD tracksset;x[cm];Events",2,0.,2.);
+    h2 = new TH2D("msd_msd1proISOsys","MSD tracks projection on msd 1 plane in ISO sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
+    
+    if(onlyMSD){
+      f_out->cd("..");
+      return;
+    }
   
-  if(onlyMSD){
-    f_out->cd("..");
-    return;
+    //bm stuff
+    h = new TH1D("bmnhitsxevent","number of hits x event ;N of hits;Events",36,0.,36.);
+    h = new TH1D("bm_polar_angle","BM polar angle distribution ;AngZ(deg);Events",400,0.,10.);
+    h = new TH1D("bm_azimuth_angle","BM azimuth angle distribution ;Phi(deg);Events",180,0.,180.);
+    h = new TH1D("bm_xz_coeff","BM xz m coeff ;m;Events",1000,-0.5,0.5);
+    h2 = new TH2D("bmisoproISOsys","BM tracks on isocenter  projections in ISO sys ;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
+    h2 = new TH2D("bmisoproBMsys","BM tracks on isocenter projections in BM sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
+    h2 = new TH2D("bm_msd1proISOsys","bm tracks projection on msd 1 plane in ISO sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
+    h2 = new TH2D("bm_msd2proISOsys","bm tracks projection on msd 2 plane in ISO sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
+    h2 = new TH2D("bmmylar1BMsys","bm tracks on mylar1 projections in BM sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
+    h2 = new TH2D("bmmylar2BMsys","bm tracks on mylar2 projections in BM sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
+  
+    //combined stuff not for merging
+    h = new TH1D("track_iso_diff_x","x difference for bm tracks and msd tracks on isocenter plane;x[cm];Events",500,-5.,5.);
+    h = new TH1D("bm_onmsd1diff_x","x difference for bm tracks on mylar1 plane and msd1 hits;x[cm];Events",500,-5.,5.);
+    h = new TH1D("bm_onmsd2diff_x","x difference for bm tracks on mylar2 plane and msd2 hits;x[cm];Events",500,-5.,5.);
+    h = new TH1D("bm_onmsd1diff_channel_x","x difference for bm tracks on mylar1 plane and msd1 hits;x[msd channel];Events",2000,-1000.,1000.);
+    h = new TH1D("bm_onmsd2diff_channel_x","x difference for bm tracks on mylar2 plane and msd2 hits;x[msd channel];Events",2000,-1000.,1000.);
+    h = new TH1D("pvers_ratio_vs_numev","mx ratio bm_track/msd_track;Event;bm_mx/msd_mx",110000,0.,110000.);
+    h = new TH1D("pvers_diff_vs_numev","mx difference bm_track - msd_track x numev;Event;bm_mx/msd_mx",110000,0.,110000.);
   }
   
-  //bm stuff
-  h = new TH1D("bmnhitsxevent","number of hits x event ;N of hits;Events",36,0.,36.);
-  h = new TH1D("bm_polar_angle","BM polar angle distribution ;AngZ(deg);Events",400,0.,10.);
-  h = new TH1D("bm_azimuth_angle","BM azimuth angle distribution ;Phi(deg);Events",180,0.,180.);
-  h = new TH1D("bm_xz_coeff","BM xz m coeff ;m;Events",1000,-0.5,0.5);
-  h2 = new TH2D("bmisoproISOsys","BM tracks on isocenter  projections in ISO sys ;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
-  h2 = new TH2D("bmisoproBMsys","BM tracks on isocenter projections in BM sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
-  h2 = new TH2D("bm_msd1proISOsys","bm tracks projection on msd 1 plane in ISO sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
-  h2 = new TH2D("bm_msd2proISOsys","bm tracks projection on msd 2 plane in ISO sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
-  h2 = new TH2D("bmmylar1BMsys","bm tracks on mylar1 projections in BM sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
-  h2 = new TH2D("bmmylar2BMsys","bm tracks on mylar2 projections in BM sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
-
-  //combined stuff
-  h = new TH1D("track_iso_diff_x","x difference for bm tracks and msd tracks on isocenter plane;x[cm];Events",500,-5.,5.);
-  h = new TH1D("bm_onmsd1diff_x","x difference for bm tracks on mylar1 plane and msd1 hits;x[cm];Events",500,-5.,5.);
-  h = new TH1D("bm_onmsd2diff_x","x difference for bm tracks on mylar2 plane and msd2 hits;x[cm];Events",500,-5.,5.);
-  h = new TH1D("bm_onmsd1diff_channel_x","x difference for bm tracks on mylar1 plane and msd1 hits;x[msd channel];Events",2000,-1000.,1000.);
-  h = new TH1D("bm_onmsd2diff_channel_x","x difference for bm tracks on mylar2 plane and msd2 hits;x[msd channel];Events",2000,-1000.,1000.);
-    
+  //combined stuff also for merging
   h2 = new TH2D("rdrift_vs_residual","residual calculation ;rdrift[cm];residual",STBIN,0.,1.,400, -0.5,0.5 );
   h = new TH1D("space_residual_error","error events ;rdrift;Events",STBIN,0.,1.);
+  h = new TH1D("time_residual_error","error events ;tdrift;Events",STBIN,0.,1.);
   //~ h = new TH1D("time_diff","bm event timeacq - msd event timeacq ;time;Events",500,0.,100.);
   h2 = new TH2D("pvers_mx_bmmsd","pvers mx angle for bm and msd for selected tracks;BM Pvers mx;MSD Pverse mx ",500,-0.05,0.05,500,-0.05,0.05);
-  h = new TH1D("pvers_ratio_vs_numev","mx ratio bm_track/msd_track;Event;bm_mx/msd_mx",110000,0.,110000.);
-  h = new TH1D("pvers_diff_vs_numev","mx difference bm_track - msd_track x numev;Event;bm_mx/msd_mx",110000,0.,110000.);
   h = new TH1D("pvers_total_diff","mx difference bm_track - msd_track;bm_track - msd_track;Events",2000,-0.1,0.1);
   h = new TH1D("space_residual_numev","number of events for each bin in strel residual graph;bin;events",STBIN,0.,STBIN);
-  h = new TH1D("space_residual_total","total space residual;x[cm];events",STBIN,0.,STBIN);
+  h = new TH1D("space_residual_total","total space residual;x[cm];events",200,-1.,1.);
+  h = new TH1D("time_residual_total","total time residual;x[cm];events",200,-1.,1.);
   
   h2 = new TH2D("old_strel","old FIRST strel ;time;rdrift",400,0.,400.,1000, 0., 1.);
-  h2 = new TH2D("new_strel","new strel ;time;rdrift",400,0.,400., 1000, 0., 1.);
+  h2 = new TH2D("new_strel_rdrift","new strel ;time;rdrift",300,0.,300., 1000, 0., 1.);
+  h2 = new TH2D("new_strel_time","new strel ;rdrift;time", 1000, 0., 1., 300,0.,300.);
   
   f_out->mkdir("Res_vs_rdrift");
   f_out->cd("Res_vs_rdrift");
   for(int i=0;i<STBIN;i++){
     sprintf(tmp_char,"strel_rdrift_%d", i);
+    h = new TH1D(tmp_char,"strel residual ;Residual[cm];Events",600,-1.,1.);
+  }
+  f_out->cd("..");
+  
+  f_out->mkdir("Res_vs_tdrift");
+  f_out->cd("Res_vs_tdrift");
+  for(int i=0;i<STBIN;i++){
+    sprintf(tmp_char,"strel_tdrift_%d", i);
     h = new TH1D(tmp_char,"strel residual ;Residual[cm];Events",600,-1.,1.);
   }
   
@@ -73,7 +87,7 @@ void BookingBMMSD(TFile* f_out, bool onlyMSD){
 }
 
 
-void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<MSD_evstruct> &allmsdeventin, vector<vector<vector<double>>> &space_residual, vector<vector<int>> &selected_index, bool onlyMSD){
+void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<MSD_evstruct> &allmsdeventin, vector<vector<double>> &space_residual, vector<vector<double>> &time_residual, vector<vector<int>> &selected_index, bool onlyMSD){
   f_out->cd();
   if(debug)
     cout<<"I'm in Printoutput:: allbmeventin.size():"<<allbmeventin.size()<<endl;
@@ -132,17 +146,15 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<MSD_evs
     for(int k=0;k<allbmeventin.at(i).hitnum;k++)
       ((TH2D*)gDirectory->Get("old_strel"))->Fill(allbmeventin.at(i).bm_hit_time[k],allbmeventin.at(i).bm_hit_rdrift[k]);
   }  
-    
   
   //combined
   TVector3 bmproject, msdproject;
   for(int i=0;i<selected_index.size();i++){
     if(selected_index.at(i).at(2)==0){//both bm and msd track
       ((TH2D*)gDirectory->Get("pvers_mx_bmmsd"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z(), allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers.X()/allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers.Z());        
-      ((TH1D*)gDirectory->Get("pvers_ratio_vs_numev"))->SetBinContent(allbmeventin.at(selected_index.at(i).at(0)).evnum , (allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) / (allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers.X()/allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers.Z()));        
-      ((TH1D*)gDirectory->Get("pvers_diff_vs_numev"))->SetBinContent(allbmeventin.at(selected_index.at(i).at(0)).evnum , (allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) - (allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers.X()/allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers.Z()));        
+      ((TH1D*)gDirectory->Get("pvers_ratio_vs_numev"))->AddBinContent(allbmeventin.at(selected_index.at(i).at(0)).evnum , (allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) / (allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers.X()/allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers.Z()));        
+      ((TH1D*)gDirectory->Get("pvers_diff_vs_numev"))->AddBinContent(allbmeventin.at(selected_index.at(i).at(0)).evnum , (allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) - (allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers.X()/allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers.Z()));        
       ((TH1D*)gDirectory->Get("pvers_total_diff"))->Fill((allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) - (allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers.X()/allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers.Z()));        
-      
       
       bmproject=ExtrapolateZ(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers, allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos, BMISOZ,true, true);
       msdproject=ExtrapolateZ(allmsdeventin.at(selected_index.at(i).at(1)).msd_track_pvers, allmsdeventin.at(selected_index.at(i).at(1)).msd_track_r0pos, 0.,true, false);
@@ -163,17 +175,18 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<MSD_evs
     }
   }
 
-  //try to estimate the new strel
+  //try to estimate the new strel with space_residual
   for(int i=0; i<space_residual.size();i++){
-    ((TH1D*)gDirectory->Get("space_residual_numev"))->SetBinContent(i+1,space_residual.at(i).size());
+    ((TH1D*)gDirectory->Get("space_residual_numev"))->AddBinContent(i+1,space_residual.at(i).size());
     for(int k=0; k<space_residual.at(i).size();k++){
-      ((TH2D*)gDirectory->Get("rdrift_vs_residual"))->Fill((double)i/STBIN,space_residual.at(i).at(k).at(0));
+      ((TH2D*)gDirectory->Get("rdrift_vs_residual"))->Fill((double)i/STBIN,space_residual.at(i).at(k));
       sprintf(tmp_char,"Res_vs_rdrift/strel_rdrift_%d", i);
-      ((TH1D*)gDirectory->Get(tmp_char))->Fill(space_residual.at(i).at(k).at(0));
+      ((TH1D*)gDirectory->Get(tmp_char))->Fill(space_residual.at(i).at(k));
+      ((TH1D*)gDirectory->Get("space_residual_total"))->Fill(space_residual.at(i).at(k));
     }
   }
   for(int k=0; k<space_residual.at(STBIN).size();k++)
-      ((TH1D*)gDirectory->Get("space_residual_error"))->Fill(space_residual.at(STBIN).at(k).at(0));  
+    ((TH1D*)gDirectory->Get("space_residual_error"))->Fill(space_residual.at(STBIN).at(k));  
   //no gaussian fit on the slice of rdrift for the moment
   int binpos;
   double tmp_double;
@@ -183,54 +196,97 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<MSD_evs
       if(binpos<STBIN){
         sprintf(tmp_char,"Res_vs_rdrift/strel_rdrift_%d", binpos);
         tmp_double=((TH1D*)gDirectory->Get(tmp_char))->GetMean();
-        ((TH2D*)gDirectory->Get("new_strel"))->Fill(allbmeventin.at(i).bm_hit_time[k],allbmeventin.at(i).bm_hit_rdrift[k]-tmp_double);
+        ((TH2D*)gDirectory->Get("new_strel_rdrift"))->Fill(allbmeventin.at(i).bm_hit_time[k],allbmeventin.at(i).bm_hit_rdrift[k]+tmp_double);
       }    
     }
   }
 
   //fit the new_strel
-  //draw the two strel in the same canvas
+  fitStrel(f_out,1);
+  
+//try to estimate the new strel with TIME_residual
+  for(int i=0; i<time_residual.size();i++){
+    for(int k=0; k<time_residual.at(i).size();k++){
+      sprintf(tmp_char,"Res_vs_tdrift/strel_tdrift_%d", i);
+      ((TH1D*)gDirectory->Get(tmp_char))->Fill(time_residual.at(i).at(k));
+      ((TH1D*)gDirectory->Get("time_residual_total"))->Fill(time_residual.at(i).at(k));
+    }
+  }
+  for(int k=0; k<time_residual.at(STBIN).size();k++)
+    ((TH1D*)gDirectory->Get("time_residual_error"))->Fill(time_residual.at(STBIN).at(k));  
+  //no gaussian fit on the slice of rdrift for the moment
+  for(int i=0; i<allbmeventin.size();i++){
+    for(int k=0;k<allbmeventin.at(i).hitnum;k++){
+      binpos=(int)(allbmeventin.at(i).bm_hit_time[k]*STBIN/300.);
+      if(binpos<STBIN){
+        sprintf(tmp_char,"Res_vs_tdrift/strel_tdrift_%d", binpos);
+        tmp_double=((TH1D*)gDirectory->Get(tmp_char))->GetMean();
+        ((TH2D*)gDirectory->Get("new_strel_time"))->Fill(allbmeventin.at(i).bm_hit_rdrift[k]+tmp_double, allbmeventin.at(i).bm_hit_time[k]);
+      }    
+    }
+  }
+
+  //fit the new_strel
+  fitStrel(f_out, 2);
+   
+    return;  
+}
+
+
+void fitStrel(TFile *f_out, const int index){
+
   TCanvas *strels=new TCanvas("strels","strels",800,800);
   strels->cd();
-  TProfile *prof_oldstrel = ((TH2D*)gDirectory->Get("old_strel"))->ProfileX();
-  prof_oldstrel->SetLineColor(1);
-  prof_oldstrel->Draw();
-  TProfile *prof_newstrel = ((TH2D*)gDirectory->Get("new_strel"))->ProfileX();
+  TProfile *prof_newstrel;
+  if(index==0) 
+    prof_newstrel=((TH2D*)gDirectory->Get("old_strel"))->ProfileX(); 
+  else if(index==1) 
+    prof_newstrel=((TH2D*)gDirectory->Get("new_strel_rdrift"))->ProfileX(); 
+  else if(index==2)
+    prof_newstrel=((TH2D*)gDirectory->Get("new_strel_time"))->ProfileY(); 
   prof_newstrel->SetLineColor(3);
-  prof_newstrel->Draw("SAME");
+  prof_newstrel->Draw();
+  
+  TF1 poly ("poly","pol5", 0, 400);
+  prof_newstrel->Fit("poly","Q+");
+  if(index==1)
+    cout<<endl<<"new strel parameters from space residuals"<<endl;
+  else if(index==2)
+    cout<<endl<<"new strel parameters from time residuals"<<endl;
+  cout<<poly.GetParameter(0)<<" + ("<<poly.GetParameter(1)<<"*tdrift) + ("<<poly.GetParameter(2)<<"*tdrift*tdrift) + ("<<poly.GetParameter(3)<<"*tdrift*tdrift*tdrift) + ("<<poly.GetParameter(4)<<"*tdrift*tdrift*tdrift*tdrift) + ("<<poly.GetParameter(5)<<"*tdrift*tdrift*tdrift*tdrift*tdrift)"<<endl<<endl;  
+
   f_out->Append(strels);
-  
-  TF1 *poly = new TF1("poly","pol5", 0, 400);
-  prof_newstrel->Fit("poly","Q");
-  cout<<endl<<"new strel parameters:"<<endl;
-  cout<<poly->GetParameter(0)<<" + ("<<poly->GetParameter(1)<<"*tdrift) + ("<<poly->GetParameter(2)<<"*tdrift*tdrift) + ("<<poly->GetParameter(3)<<"*tdrift*tdrift*tdrift) + ("<<poly->GetParameter(4)<<"*tdrift*tdrift*tdrift*tdrift) + ("<<poly->GetParameter(5)<<"*tdrift*tdrift*tdrift*tdrift*tdrift)"<<endl<<endl;
-  
-  return;  
+  return;
 }
 
 
 //to be made with labo sys of ref. (with respect to isocenter) 
-void EvaluateSpaceResidual(vector<vector<vector<double>>> &space_residual, BM_evstruct &bmevent, MSD_evstruct &msdevent, vector<TVector3> &wire_pos, vector<TVector3> &wire_dir){
-  int binpos;
+void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<double>> &time_residual, BM_evstruct &bmevent, MSD_evstruct &msdevent, vector<TVector3> &wire_pos, vector<TVector3> &wire_dir){
+  int binpos, timepos;
   double residual;
-  vector<double> eventtoadd(2,-999.);
   for(int i=0;i<bmevent.hitnum;i++){
     if(CellId2view(bmevent.bm_hit_cellid[i])==1)  {
       binpos=(int)(bmevent.bm_hit_rdrift[i]*STBIN);
+      timepos=(int)(bmevent.bm_hit_time[i]*STBIN/300.);
       if(binpos>STBIN-1) 
         binpos=STBIN;
+      if(timepos>STBIN-1) 
+        timepos=STBIN;
       residual=bmevent.bm_hit_rdrift[i]-FindRdrift(msdevent.msd_track_pvers, msdevent.msd_track_r0pos, wire_pos.at(bmevent.bm_hit_cellid[i]), wire_dir.at(bmevent.bm_hit_cellid[i]));
       //~ if(fabs(residual)<0.8 && binpos!=STBIN){
       if(binpos!=STBIN){
-        eventtoadd.at(0)=residual;
-        eventtoadd.at(1)=bmevent.bm_hit_time[i];
-        space_residual.at(binpos).push_back(eventtoadd);
+        space_residual.at(binpos).push_back(residual);
       }else{
         //~ if(debug>0)
-        cout<<"possible ERROR in EvaluateSpaceResidual??? residual="<<residual<<"  hit_id="<<bmevent.bm_hit_cellid[i]<<"  hit_rdrift="<<bmevent.bm_hit_rdrift[i]<<endl;
-        eventtoadd.at(0)=bmevent.bm_hit_rdrift[i];
-        eventtoadd.at(1)=bmevent.bm_hit_time[i];
-        space_residual.at(STBIN).push_back(eventtoadd);
+        cout<<"possible ERROR in EvaluateSpaceResidual space_residual??? residual="<<residual<<"  hit_id="<<bmevent.bm_hit_cellid[i]<<"  hit_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  hit time="<<bmevent.bm_hit_time[i]<<endl;
+        space_residual.at(STBIN).push_back(bmevent.bm_hit_rdrift[i]);
+      }  
+      if(timepos!=STBIN){
+        time_residual.at(timepos).push_back(residual);
+      }else{
+        //~ if(debug>0)
+        cout<<"possible ERROR in EvaluateSpaceResidual time_residual??? residual="<<residual<<"  hit_id="<<bmevent.bm_hit_cellid[i]<<"  hit_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  hit time="<<bmevent.bm_hit_time[i]<<endl;
+        time_residual.at(STBIN).push_back(bmevent.bm_hit_time[i]);
       }  
     }
   }
@@ -340,6 +396,65 @@ cout<<endl;
 return;  
 }
 
+void merge_graphics(TFile* infile, TFile* f_out){
+  vector<TString> h2tstring, h1tstring;
+  TString tmp_tstring;
+  TH2D* histo2d;
+  TH1D* histo1d;
+  char tmp_char[200];
+  
+  //th2d
+  tmp_tstring="rdrift_vs_residual";
+  h2tstring.push_back(tmp_tstring);
+  tmp_tstring="pvers_mx_bmmsd";
+  h2tstring.push_back(tmp_tstring);
+  tmp_tstring="old_strel";
+  h2tstring.push_back(tmp_tstring);
+  //th1d
+  tmp_tstring="space_residual_error";
+  h1tstring.push_back(tmp_tstring);
+  tmp_tstring="time_residual_error";
+  h1tstring.push_back(tmp_tstring);
+  tmp_tstring="pvers_total_diff";
+  h1tstring.push_back(tmp_tstring);
+  tmp_tstring="space_residual_numev";
+  h1tstring.push_back(tmp_tstring);
+  tmp_tstring="space_residual_total";
+  h1tstring.push_back(tmp_tstring);
+  tmp_tstring="time_residual_total";
+  h1tstring.push_back(tmp_tstring);
+  
+  //merge h1tstring and h2tstring histograms
+  for(int i=0;i<h2tstring.size();i++){
+    infile->cd();
+    histo2d=(TH2D*)((TH2D*)gDirectory->Get(h2tstring.at(i).Data()))->Clone();
+    f_out->cd();
+    ((TH2D*)gDirectory->Get(h2tstring.at(i).Data()))->Add(histo2d);
+  }
+  for(int i=0;i<h1tstring.size();i++){
+    infile->cd();
+    histo1d=(TH1D*)((TH1D*)gDirectory->Get(h1tstring.at(i).Data()))->Clone();
+    f_out->cd();
+    ((TH1D*)gDirectory->Get(h1tstring.at(i).Data()))->Add(histo1d);
+  }
+  
+  //merge residual histograms
+  for(int i=0;i<STBIN;i++){
+    sprintf(tmp_char,"Res_vs_rdrift/strel_rdrift_%d", i);
+    infile->cd();
+    histo1d=(TH1D*)((TH1D*)gDirectory->Get(tmp_char))->Clone();
+    f_out->cd();
+    ((TH1D*)gDirectory->Get(tmp_char))->Add(histo1d);
+    sprintf(tmp_char,"Res_vs_tdrift/strel_tdrift_%d", i);
+    infile->cd();
+    histo1d=(TH1D*)((TH1D*)gDirectory->Get(tmp_char))->Clone();
+    f_out->cd();
+    ((TH1D*)gDirectory->Get(tmp_char))->Add(histo1d);
+  }
+  
+  return;
+}
+
 
 //*************************************************** MSD STUFF  ***************************************** 
     
@@ -374,7 +489,7 @@ bool msdreadevent(MSD_evstruct &msdevent,TTreeReader &msd1Reader,TTreeReader &ms
   if(*x1msd!=-999 && *x2msd!=-999){
     //~ msdevent.msd_track_pvers.SetXYZ((msdevent.x1val-msdevent.x2val)/(MSD1Z-MSD2Z),0.,1.);  
     msdevent.msd_track_pvers.SetXYZ((msdevent.x1val-msdevent.x2val)/(-MSD1Z+MSD2Z),0.,1.);  //provv
-    msdevent.msd_track_pvers.SetMag(1.);  
+    //~ msdevent.msd_track_pvers.SetMag(1.);  
     //~ msdevent.msd_track_r0pos.SetXYZ(-(*x1msd-*x2msd)/(MSD1Z-MSD2Z)*MSD2Z+*x2msd,*y1msd,0.);  
     msdevent.msd_track_r0pos.SetXYZ(msdevent.x1val, msdevent.y1val, MSD1Z);  
     msdevent.trackset=true;  

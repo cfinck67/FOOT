@@ -57,7 +57,7 @@ Bool_t TABMactNtuMC::Action()
   //~ TVector3 real_rotation(-3.,0.,0.);//proton_calib_x05_y01_theta3.root
   TVector3 real_rotation(-1.2,-3.2,0.);//proton_calib_xy_rot_tras.root
 
-  Int_t cell, view, lay, ipoint, tmp_int;
+  Int_t cell, view, lay, ipoint, tmp_int, tmp2int;
   vector<Int_t> hitxcell(fpEvtStr->BMNn, 99); 
   vector<bool> tobecharged(fpEvtStr->BMNn, true);
   vector<Double_t> rdriftxcell(fpEvtStr->BMNn, 99.);
@@ -98,6 +98,8 @@ Bool_t TABMactNtuMC::Action()
                    p_bmgeo->GetCZ(p_bmgeo->GetID(cell),lay,view)); 
       Wvers.SetMag(1.);                      
       rdriftxcell.at(i)=FindRdrift(loc, gmom, A0, Wvers);
+      
+      
       //~ rdriftxcell.at(i)-=0.05;//provv
       //~ if(rdriftxcell.at(i)<0) rdriftxcell.at(i)=0.;
       
@@ -132,30 +134,38 @@ Bool_t TABMactNtuMC::Action()
     for(Int_t i=0;i<tobecharged.size();i++)
       if(tobecharged.at(i))
         nrealhits++;
+        
     //prune the real hits
-    Int_t nprunehits=nrealhits*(1.-rand->Gaus(p_bmcon->GetMCEffMean(), p_bmcon->GetMCEffSigma()))+0.5;
-    if(nprunehits<0)
-      nprunehits=0;
-
-    Int_t tmp_int=rand->Uniform(0,10);//check if this number is ok 
+    Int_t tmp_int=rand->Uniform(0,10);
     if(tmp_int<p_bmcon->GetFakehitsMean()) 
       hitsrandtot = 12 - (Int_t) fabs(rand->Gaus(0, p_bmcon->GetFakehitsSigmaLeft()));  
     else
       hitsrandtot = 12 + (Int_t) fabs(rand->Gaus(0, p_bmcon->GetFakehitsSigmaRight()));  
-
-
+    Int_t nprunehits=nrealhits*(1.-rand->Gaus(p_bmcon->GetMCEffMean(), p_bmcon->GetMCEffSigma()))+0.5;
+    if(nprunehits<0)
+      nprunehits=0;
     if(nprunehits>nrealhits)
       nprunehits=nrealhits;
-    else if((nrealhits-nprunehits)>hitsrandtot)
+    if((nrealhits-nprunehits)>hitsrandtot)
       nprunehits=nrealhits-hitsrandtot;
     remainhitsn=nrealhits-nprunehits;
     while(nprunehits>0){
-      tmp_int=rand->Uniform(0,nrealhits);
-      if(tmp_int<nrealhits)  
-        if(tobecharged.at(tmp_int)==true){
-          tobecharged.at(tmp_int)=false;
-          nprunehits--;
+      tmp_int=rand->Uniform(0.5,nprunehits+0.5);
+        //~ if(tobecharged.at(tmp_int)==true){
+          //~ tobecharged.at(tmp_int)=false;
+          //~ nprunehits--;
+        //~ }
+      tmp2int=0;
+      for(Int_t i=0;i<tobecharged.size();i++){
+        if(tobecharged.at(i)){
+          if(tmp2int==tmp_int){
+            tobecharged.at(i)=false;
+            nprunehits--;
+            i=tobecharged.size()+1;
+          }else
+            tmp2int++;
         }
+      }
     };
     
     //add fake hits
@@ -180,7 +190,8 @@ Bool_t TABMactNtuMC::Action()
 
       //shift the t0 and change the strelations:
       realrdrift=rdriftxcell.at(i);
-      //~ rdriftxcell.at(i)=p_bmcon->FirstSTrelMC(p_bmcon->InverseStrel(rdriftxcell.at(i)), 5);
+      if(p_bmcon->GetCalibro()>0)
+        rdriftxcell.at(i)=p_bmcon->FirstSTrelMC(p_bmcon->InverseStrel(rdriftxcell.at(i)), p_bmcon->GetCalibro());//this is useful if you want to change the strel      
       //~ if(rdriftxcell.at(i)==0)
         //~ rdriftxcell.at(i)=0.001;
       
@@ -221,7 +232,6 @@ Bool_t TABMactNtuMC::Action()
 
 
 void TABMactNtuMC::CreateFakeHits(Int_t nfake, TRandom3 *&rand, Int_t &nhits){
-  
   Int_t plane, view, cell;
   for(Int_t i=0;i<nfake;i++){
     do{plane=rand->Uniform(0,6);}while(plane<0 || plane>5);  

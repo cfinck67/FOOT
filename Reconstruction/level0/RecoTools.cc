@@ -84,12 +84,12 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
       if (my_out->Open(m_oustr, "RECREATE")) return;    
     }
 
-      booter = new Booter();
-      bmbooter = new BmBooter();
-      booter->Initialize( &evStr, m_wd, m_isdata);
-      if (GlobalPar::GetPar()->IncludeBM())
-        bmbooter->Initialize( m_instr, m_isdata, &evStr);
-    //~ }//end of MC initializers
+    booter = new Booter();
+    bmbooter = new BmBooter();
+    booter->Initialize( &evStr, m_wd, m_isdata);
+    if (GlobalPar::GetPar()->IncludeBM())
+      bmbooter->Initialize( m_instr, m_isdata, &evStr);
+  //~ }//end of MC initializers
 
     
     /***********  The event Loop   ****************************************   */

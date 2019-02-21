@@ -61,6 +61,7 @@ public:
   //other methods
   TVector3 ProjectFromPversR0(TVector3 Pvers, TVector3 R0, Double_t z);  
   TVector3 ProjectFromPversR0(Double_t PversXZ, Double_t PversYZ, Double_t R0X, Double_t R0Y, Double_t z);
+  TVector3 ProjectFromTwoPoints(TVector3 inpos, TVector3 outpos, Double_t z);
     
   //inline getters
   Int_t    GetID(Int_t cell);//Id sense as function of cell
