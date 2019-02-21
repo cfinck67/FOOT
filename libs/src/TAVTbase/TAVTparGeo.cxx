@@ -281,19 +281,10 @@ string TAVTparGeo::PrintAssignMaterial()
          outstr << setw(10) << setfill( ' ' ) << std::right  << " ";
       }
       
+      // region in the magnetic filed condition
+      bool isMag = GlobalPar::GetPar()->IncludeDI();
       
-      // region in the magnetic filed condition, why we need that ???
-//      bool isMag = true;
-//      for (int i=0; i<(*itMat).second.size(); i++) {
-//         if ( m_magneticRegion[ (*itMat).second.at(i) ] == 0 ) {
-//            isMag = false;
-//            break;
-//         }
-//      }
-//      if ( isMag )
-//         outstr << setw(10) << setfill( ' ' ) << std::right  << 1 ;
-//      else
-//         outstr << setw(10) << setfill( ' ' ) << std::right  << " " ;
+      outstr << setw(10) << setfill( ' ' ) << std::right  << isMag ;
       
       outstr << endl;
    }
