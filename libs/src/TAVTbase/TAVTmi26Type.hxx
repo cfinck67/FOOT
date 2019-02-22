@@ -34,7 +34,8 @@ typedef union {
    struct {
 	  
 	  UShort_t StateNb  :  4;
-	  UShort_t LineAddr : 11;
+     UShort_t LineAddr : 10;
+     UShort_t NotUsed  :  1;
 	  UShort_t Ovf      :  1;
 	  
    } F;
@@ -48,8 +49,8 @@ typedef union {
    struct {
 	  
 	  UShort_t HitNb   :  2;
-	  UShort_t ColAddr : 11;
-	  UShort_t NotUsed :  3;
+	  UShort_t ColAddr : 10;
+	  UShort_t NotUsed :  4;
 	  
    } F;
    
