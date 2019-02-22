@@ -127,7 +127,7 @@ Bool_t TAVTactVmeReader::Process()
    
    DecodeFrame();
    
-   fpDatRaw->SetBit(kValid);
+   fpNtuRaw->SetBit(kValid);
 
    return true;
 }
@@ -273,7 +273,7 @@ Bool_t TAVTactVmeReader::DecodeFrame()
 	7) Trailer;
 	*/
    
-   TAVTdatRaw* pDatRaw  = (TAVTdatRaw*) fpDatRaw->Object();
+   TAVTdatRaw* pDatRaw  = (TAVTdatRaw*) fpNtuRaw->Object();
    TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
    TAVTparGeo*  pGeoPar = (TAVTparGeo*) fpGeoMap->Object();
 

@@ -8,7 +8,7 @@
 #include "TAGdataDsc.hxx"
 
 
-class TAVTdatRaw;
+class TAVTntuRaw;
 class TH2F;
 class TH1F;
 
@@ -50,7 +50,7 @@ protected:
    
 protected:
       
-   TAGdataDsc*       fpDatRaw;		    // output data dsc
+   TAGdataDsc*       fpNtuRaw;		    // output data dsc
    TAGparaDsc*       fpGeoMap;		    // geo para dsc
    TAGparaDsc*       fpConfig;		    // config para dsc
    

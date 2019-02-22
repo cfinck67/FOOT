@@ -9,7 +9,7 @@
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
 
-#include "TAVTdatRaw.hxx"
+#include "TAVTntuRaw.hxx"
 #include "TAVTactBaseRaw.hxx"
 
 /*!
@@ -27,7 +27,7 @@ const UInt_t TAVTactBaseRaw::fgkTailHeader = 0xaaa1aaa1;
 
 TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig)
 : TAGaction(name, "TAVTactBaseRaw - Base action for unpack vertex raw data"),
-  fpDatRaw(pDatRaw),
+  fpNtuRaw(pDatRaw),
   fpGeoMap(pGeoMap),
   fpConfig(pConfig),
   fData(0x0),
@@ -39,7 +39,7 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc
   fEventsOverflow(0), 
   fNStatesInLine(0)
 {
-   AddDataOut(pDatRaw, "TAVTdatRaw");
+   AddDataOut(pDatRaw, "TAVTntuRaw");
    AddPara(pGeoMap, "TAVTparGeo");
    AddPara(pConfig, "TAVTparConf");
    TAVTparGeo* geoMap = (TAVTparGeo*) fpGeoMap->Object();
@@ -92,8 +92,8 @@ void TAVTactBaseRaw::AddPixel( Int_t iSensor, Int_t value, Int_t aLine, Int_t aC
    // - value = analog value of this pixel
    // - line & column = position of the pixel in the matrix
    
-   TAVTdatRaw* pDatRaw  = (TAVTdatRaw*) fpDatRaw->Object();
-   pDatRaw->AddPixel(iSensor, value, aLine, aColumn);
+   TAVTntuRaw* pDatRaw  = (TAVTntuRaw*) fpNtuRaw->Object();
+   pDatRaw->NewPixel(iSensor, value, aLine, aColumn);
    
    
    if (ValidHistogram()) {
@@ -151,7 +151,7 @@ Bool_t TAVTactBaseRaw::DecodeFrame()
 	7) Trailer;
 	*/
    
-   TAVTdatRaw* pDatRaw  = (TAVTdatRaw*) fpDatRaw->Object();
+   TAVTntuRaw* pDatRaw  = (TAVTntuRaw*) fpNtuRaw->Object();
    TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
 
    fIndex = 0;
