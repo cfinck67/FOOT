@@ -116,7 +116,7 @@ return;
 }
 
  
-void ControlPlotsRepository::PrintOutputNtuple() {
+void ControlPlotsRepository::PrintOutputNtuple(Bool_t isdata) {
 	m_outputntuplename = GlobalPar::GetPar()->OutputNtuple();
 	TFile* n_out = new TFile(m_outputntuplename.c_str(),"RECREATE");  
 
@@ -142,7 +142,7 @@ void ControlPlotsRepository::PrintOutputNtuple() {
   //Beam Monitor stuff
   //provv, it will be replaced by the real ntupleoutput with the bm objects  
   if(GlobalPar::GetPar()->IncludeBM()){
-    Double_t hitrdrift,hittime, hitresidual, trackchi2, trackpversx, trackpversy,trackpversz,trackr0x,trackr0y;
+    Double_t hitrdrift,hittime, hitresidual, trackchi2, trackpversx, trackpversy,trackpversz,trackr0x,trackr0y, mcpversx, mcpversy, mcr0x, mcr0y;
     Int_t evnum,hitplane,hitview,hitcell, time_acq;
     tree_out->Branch("evnum", &evnum);
     tree_out->Branch("timeacq", &time_acq);
@@ -158,6 +158,12 @@ void ControlPlotsRepository::PrintOutputNtuple() {
     tree_out->Branch("BM_track_PversZ", &trackpversz);
     tree_out->Branch("BM_track_R0X", &trackr0x );
     tree_out->Branch("BM_track_R0Y", &trackr0y );
+    if(!isdata){
+      tree_out->Branch("BM_MC_PversX", &mcpversx);
+      tree_out->Branch("BM_MC_PversY", &mcpversy);
+      tree_out->Branch("BM_MC_R0X", &mcr0x);
+      tree_out->Branch("BM_MC_R0Y", &mcr0y);
+    }
     for(Int_t k=0;k<ntuple_out.evnum.size();k++){
       for (Int_t i = 0; i< ntuple_out.BM_hit_rdrift.at(k).size(); i++){//loop on BM hits
         evnum=ntuple_out.evnum.at(k);
@@ -173,6 +179,12 @@ void ControlPlotsRepository::PrintOutputNtuple() {
         trackpversz=ntuple_out.BM_track_PversZ.at(k);
         trackr0x=ntuple_out.BM_track_R0X.at(k);
         trackr0y=ntuple_out.BM_track_R0Y.at(k);
+        if(!isdata){
+          mcpversx=ntuple_out.BM_MC_PversX.at(k);
+          mcpversy=ntuple_out.BM_MC_PversY.at(k);
+          mcr0x=ntuple_out.BM_MC_R0X.at(k);
+          mcr0y=ntuple_out.BM_MC_R0Y.at(k);
+        }
         tree_out->Fill();
       }
     }

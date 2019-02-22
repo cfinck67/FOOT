@@ -605,6 +605,10 @@ bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<i
 }
 
 
+void bmMCreadevent(){
+  //SONO ARRIVATO QUA
+}
+
 void clean_bmevstruct(BM_evstruct &bmevstruct, bool forced){
 
 if(forced){

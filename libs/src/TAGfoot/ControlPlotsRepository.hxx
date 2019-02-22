@@ -34,7 +34,7 @@ public:
 	
 	void PrintMap();
   void PrintOutputFile();
-  void PrintOutputNtuple();
+  void PrintOutputNtuple(Bool_t isdata);
   void SaveOutputFile();
   TFile* GetTFile(){return f_out;};
   
@@ -352,6 +352,13 @@ public:
     
     return;
   }
+  void BM_setMCTTree_output(TVector3 &mylar1realpos, TVector3 &mylar2realpos){
+    ntuple_out.BM_MC_PversX.push_back((mylar2realpos.X()-mylar1realpos.X())/(mylar2realpos.Z()-mylar1realpos.Z()));  
+    ntuple_out.BM_MC_PversY.push_back((mylar2realpos.Y()-mylar1realpos.Y())/(mylar2realpos.Z()-mylar1realpos.Z()));  
+    ntuple_out.BM_MC_R0X.push_back((mylar2realpos.X()-mylar1realpos.X())/2.+mylar1realpos.X());  
+    ntuple_out.BM_MC_R0Y.push_back((mylar2realpos.Y()-mylar1realpos.Y())/2.+mylar1realpos.Y());  
+}
+
 
 	struct Ntuple_out {
 		vector< Double_t >  Reco_track_px;
@@ -372,12 +379,16 @@ public:
     vector<vector< Double_t >>  BM_hit_view;
     vector<vector< Double_t >>  BM_hit_cell;
 		
-		vector< Double_t >  BM_track_PversX;
     vector< Double_t >  BM_track_chi2;
+		vector< Double_t >  BM_track_PversX;
 		vector< Double_t >  BM_track_PversY;
 		vector< Double_t >  BM_track_PversZ;
 		vector< Double_t >  BM_track_R0X;
 		vector< Double_t >  BM_track_R0Y;
+		vector< Double_t >  BM_MC_PversX;
+		vector< Double_t >  BM_MC_PversY;
+		vector< Double_t >  BM_MC_R0X;
+		vector< Double_t >  BM_MC_R0Y;
 		vector< Double_t >  BM_time_acq;
     vector< Int_t>  BM_nhit;
 		vector< Int_t >  evnum;

@@ -4,6 +4,7 @@
 
 //general par
 #define debug            0
+#define bmmcstudy        0    //if >0, study with only bm and bm mc events
 #define BMNEV            0    //number of bm events to analyze
 #define VTXNEV           1000    //number of msd events to analyze
 #define STBIN          100    //strel binning on rdrift/tdrift

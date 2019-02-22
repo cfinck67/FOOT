@@ -186,9 +186,11 @@ void BmBooter::Process() {
   }
   
   //temporary ttree output
-  if( GlobalPar::GetPar()->IsPrintOutputNtuple() && track_ok==0 )        
+  if( GlobalPar::GetPar()->IsPrintOutputNtuple() && track_ok==0 ){        
       ControlPlotsRepository::GetControlObject( "BooterFinalize" )->BM_setTTree_output(bmnturaw, bmntutrack, data_num_ev,bmstruct.time_acq);
-
+    if(!isdata)
+      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->BM_setMCTTree_output(mylar1realpos, mylar2realpos);
+  }
   //draw and save tracks
   if(bmcon->GetBMvietrack()>0 && data_num_ev%bmcon->GetBMvietrack()==0){
     TCanvas *c_bmhview = new TCanvas("bmhview", "BM_tracks",20,20,800,900);

@@ -64,47 +64,54 @@ void macro_mcvertex_strel(){
   clean_bmevstruct(bmevent, true);
   
   
-  //read msd loop
-  bmReader.Next();
+  //read BM loop
   while(bmreadevent(bmReader, bmevent, evnumreader, timeacqreader, trackchi2reader, pversxreader, pversyreader, pverszreader, r0xreader, r0yreader, rdriftreader, residualreader, hittimereader, planereader, viewreader, cellreader)){
     allbmeventin.push_back(bmevent);
   };
   
   cout<<"BM read events="<<allbmeventin.size()<<"   total ttree events="<<bmReader.GetEntries(true)<<endl;
-  bminfile->Close();
+  if(bmmcstudy==0)
+    bminfile->Close();
 
   //***************************************************** vtx stuff ***********************************
-
-  //vtx geo
-  
-  vtxinfile->cd();
-  TTreeReader vtxReader("EventTree", vtxinfile);
-
-  TTreeReaderValue<int> evnum(vtxReader, "evnum");
-  TTreeReaderValue<int> tracknum(vtxReader, "tracknum");
-  TTreeReaderValue<double> chi2tot(vtxReader, "chi2tot");
-  TTreeReaderValue<double> chi2uview(vtxReader, "chi2uview");
-  TTreeReaderValue<double> chi2vview(vtxReader, "chi2vview");
-  TTreeReaderValue<double> r0x(vtxReader, "r0x");
-  TTreeReaderValue<double> r0y(vtxReader, "r0y");
-  TTreeReaderValue<double> pversx(vtxReader, "pversx");
-  TTreeReaderValue<double> pversy(vtxReader, "pversy");
-  
-  //read msd
   vtx_evstruct vtxevent;
   vector<vtx_evstruct> allvtxeventin;
   clean_vtxevstruct(vtxevent);
-  
-  
-  //read msd loop
-  while(vtxreadevent(vtxevent, vtxReader, evnum, tracknum, chi2tot, chi2uview, chi2vview, r0x, r0y, pversx, pversy)){
-    allvtxeventin.push_back(vtxevent);
-  };
-  
-  cout<<"VTX read events="<<allvtxeventin.size()<<"  total ttree events="<<vtxReader.GetEntries(true)<<endl;  
-  vtxinfile->Close();
-  
-  
+
+//comment the following line to use the BM MC info and use "fake vtx data"!!!!!!!!!!!!!!!!
+  if(bmmcstudy==0){
+    vtxinfile->cd();
+    TTreeReader vtxReader("EventTree", vtxinfile);
+    TTreeReaderValue<int> evnum(vtxReader, "evnum");
+    TTreeReaderValue<int> tracknum(vtxReader, "tracknum");
+    TTreeReaderValue<double> chi2tot(vtxReader, "chi2tot");
+    TTreeReaderValue<double> chi2uview(vtxReader, "chi2uview");
+    TTreeReaderValue<double> chi2vview(vtxReader, "chi2vview");
+    TTreeReaderValue<double> r0x(vtxReader, "r0x");
+    TTreeReaderValue<double> r0y(vtxReader, "r0y");
+    TTreeReaderValue<double> pversx(vtxReader, "pversx");
+    TTreeReaderValue<double> pversy(vtxReader, "pversy");  
+    //read vtx loop
+    while(vtxreadevent(vtxevent, vtxReader, evnum, tracknum, chi2tot, chi2uview, chi2vview, r0x, r0y, pversx, pversy)){
+      allvtxeventin.push_back(vtxevent);
+    };
+    cout<<"VTX read events="<<allvtxeventin.size()<<"  total ttree events="<<vtxReader.GetEntries(true)<<endl;  
+    vtxinfile->Close();
+  }else{//**************************************************** real BM MC ************************************
+    //here I read the BM MC data and fill the allvtxeventin vector to simulate the vtx
+    bminfile->cd();
+    TTreeReader mcvtxReader("EventTree", bminfile);
+    TTreeReaderValue<int> mcevnumreader(bmReader, "evnum");
+    TTreeReaderValue<double> mcpversxreader(bmReader, "BM_MC_PversX");
+    TTreeReaderValue<double> mcpversyreader(bmReader, "BM_MC_PversY");
+    TTreeReaderValue<double> mcr0xreader(bmReader, "BM_MC_R0X");
+    TTreeReaderValue<double> mcr0yreader(bmReader, "BM_MC_R0Y");
+    while(bmMCreadevent(vtxevent, mcvtxReader, mcevnumreader, mcpversxreader, mcpversyreader, mcr0xreader, mcr0yreader)){
+      allvtxeventin.push_back(vtxevent);
+    };
+    cout<<"BM MC read events="<<allvtxeventin.size()<<"   total ttree events="<<mcvtxReader.GetEntries(true)<<endl;
+    bminfile->Close();
+  }
   
   //****************************************************** evaluate strel *************************************
   vector<vector<double>> space_residual(STBIN+1);

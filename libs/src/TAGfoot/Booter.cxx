@@ -314,7 +314,7 @@ void Booter::Finalize() {
     ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintMap();
   
   if( GlobalPar::GetPar()->IsPrintOutputNtuple() )        
-      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputNtuple();
+      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->PrintOutputNtuple(isdata);
 
   if (GlobalPar::GetPar()->Debug() > 1)   eventListFile.close();
 
