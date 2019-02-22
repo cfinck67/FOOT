@@ -26,6 +26,7 @@
 
 
 #pragma link C++ class TAVTactBaseRaw+;
+#pragma link C++ class TAVTactVmeReader+;
 #pragma link C++ class TAVTactNtuRaw+;
 
 #pragma link C++ class TAVTactBaseNtuMC+;
