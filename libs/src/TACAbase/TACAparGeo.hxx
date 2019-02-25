@@ -29,12 +29,15 @@ public:
    
    void DefineMaterial();
    
+   TVector3       GetCrystalSize()     const  { return fCrystalSize;    }
    Float_t        GetCrystalWidth()    const  { return fCrystalSize[0]; }
    Float_t        GetCrystalHeight()   const  { return fCrystalSize[1]; }
    Float_t        GetCrystalThick()    const  { return fCrystalSize[2]; }
 
    Int_t          GetCrystalsN()       const  { return fCrystalsN;      }
    
+   TString        GetCrystalMat()      const  { return fCrystalMat;     }
+
    TVector3       GetCrystalPosition(Int_t iCrystal);
 
    //! Transform point from the global detector reference frame

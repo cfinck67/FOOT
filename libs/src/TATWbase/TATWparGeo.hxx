@@ -15,8 +15,6 @@
 
 #include "GlobalPar.hxx"
 
-#include <FieldManager.h>
-
 class TGeoHMatrix;
 class TGeoVolume;
 class TObjArray;
@@ -32,9 +30,12 @@ public:
 
     void           DefineMaterial();
 
+   TVector3       GetBarSize()     const  { return fBarSize;    }
    Float_t        GetBarWidth()    const  { return fBarSize[0]; }
    Float_t        GetBarHeight()   const  { return fBarSize[1]; }
    Float_t        GetBarThick()    const  { return fBarSize[2]; }
+
+   TString        GetBarMat()      const  { return fBarMat;     }
 
    Int_t          GetBarId(Int_t layer, Float_t xGlob, Float_t yGlob);
    TVector3       GetBarPosition(Int_t layer, Int_t barId);
