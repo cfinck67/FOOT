@@ -8,19 +8,19 @@
 
 # check that library path for rec exist
 
-set(BUILD_REC "${CMAKE_BINARY_DIR}/rec")
-set(QAPIVI_REC "${CMAKE_SOURCE_DIR}/rec")
-set(REC_INCLUDE_DIR ${QAPIVI_REC}/TAGbase ${QAPIVI_REC}/TAIRbase ${QAPIVI_REC}/TABMbase ${QAPIVI_REC}/TAVTbase ${QAPIVI_REC}/TAITbase ${QAPIVI_REC}/TAEMbase ${QAPIVI_REC}/TAMSDbase ${QAPIVI_REC}/TACAbase ${QAPIVI_REC}/TATWbase)
+set(BUILD_REC "${CMAKE_BINARY_DIR}/libs")
+set(FOOT_REC "${CMAKE_SOURCE_DIR}/libs/src")
+set(REC_INCLUDE_DIR ${FOOT_REC}/TAGbase ${FOOT_REC}/TAMCbase ${FOOT_REC}/TATRbase ${FOOT_REC}/TABMbase ${FOOT_REC}/TAVTbase ${FOOT_REC}/TAITbase ${FOOT_REC}/TAMSDbase ${FOOT_REC}/TACAbase ${FOOT_REC}/TATWbase ${FOOT_REC}/TAGfoot)
 
 
-set(REC_LIBRARIES -lTAGbase -lTAGpxi -lTAIRbase -lTABMbase -lTAVTbase -lTAITbase -lTAEMbase -lTAMSDbase -lTACAbase -lTATWbase -L${BUILD_REC}/lib)
-set(REC_LIBRARY_DIR ${QAPIVI_REC}/lib)
+set(REC_LIBRARIES -lTAGbase -lTAMCbase -lTATRbase -lTABMbase -lTAMCbase -lTAVTbase -lTAITbase -lTAMSDbase -lTACAbase -lTATWbase -lTAGfoot -L${BUILD_REC}/lib)
+set(REC_LIBRARY_DIR ${FOOT_REC}/lib)
 
-set(REC_GEOMAPS_DIR ${QAPIVI_REC}/geomaps)
-set(REC_CONFIG_DIR  ${QAPIVI_REC}/config)
+set(REC_GEOMAPS_DIR ${FOOT_REC}/geomaps)
+set(REC_CONFIG_DIR  ${FOOT_REC}/config)
   
 if(NOT REC_FIND_QUIETLY)
-  message(STATUS "Found REC in ${QAPIVI_REC}")
+  message(STATUS "Found REC in ${FOOT_REC}")
  endif()
  
 set(REC_FOUND TRUE)
