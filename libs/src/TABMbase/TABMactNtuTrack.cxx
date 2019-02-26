@@ -492,8 +492,8 @@ Bool_t TABMactNtuTrack::Action()
       p_hit = p_nturaw->Hit(hitxtrack.at(best_index).at(i));    
       p_hit->SetIsSelected(true);
       if(p_bmcon->GetFitterIndex()<5){
-	p_hit->SetChi2(best_mysqrtchi2.at(i)*best_mysqrtchi2.at(i));
-	p_hit->SetResidualSigma(best_mysqrtchi2.at(i));
+        p_hit->SetChi2(best_mysqrtchi2.at(i)*best_mysqrtchi2.at(i));
+        p_hit->SetResidualSigma(best_mysqrtchi2.at(i));
       }
     }
   }else if(converged==false)
@@ -507,9 +507,11 @@ Bool_t TABMactNtuTrack::Action()
     
   fpNtuTrk->SetBit(kValid);
 
-  if(p_bmcon->GetBMdebug()>10)
+  if(p_bmcon->GetBMdebug()>10){
     cout<<"end of TABMactNtuTrack"<<endl;
-
+    cout<<"best_trackTr parameters:"<<endl;
+    best_trackTr.PrintR0Pvers();  
+  }
   return kTRUE;
   
 }

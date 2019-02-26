@@ -312,13 +312,14 @@ public:
   
   //Beam Monitor OutputNtuple
   //provv, it will be replaced by the real ntupleoutput with the bm objects
-  void BM_setTTree_output(TABMntuRaw* bmnturaw, TABMntuTrack* bmntutrack, Int_t data_num_ev, Int_t time_acq){
+  void BM_setTTree_output(TABMntuRaw* bmnturaw, TABMntuTrack* bmntutrack, Int_t data_num_ev, Int_t time_acq, Bool_t isdata){
     vector<Double_t> hitcell;
     vector<Double_t> hitview;
     vector<Double_t> hitplane;
     vector<Double_t> hittime;
     vector<Double_t> hitrdrift;
     vector<Double_t> hitresidual;
+    vector<Double_t> realrdrift;
     for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
       bmntutracktr = bmntutrack->Track(i);    
       ntuple_out.BM_track_chi2.push_back(bmntutracktr->GetMyChi2Red());
@@ -338,6 +339,8 @@ public:
           hittime.push_back(bmntuhit->Tdrift());
           hitrdrift.push_back(bmntuhit->Dist());
           hitresidual.push_back(bmntuhit->GetResidual());
+          if(!isdata)
+            realrdrift.push_back(bmntuhit->GetRealRdrift());
         }
       }
       ntuple_out.evnum.push_back(data_num_ev);
@@ -348,6 +351,8 @@ public:
       ntuple_out.BM_hit_time.push_back(hittime);
       ntuple_out.BM_hit_rdrift.push_back(hitrdrift);
       ntuple_out.BM_hit_residual.push_back(hitresidual);
+      if(!isdata)
+        ntuple_out.BM_MC_hit_realrdrift.push_back(realrdrift);
     }
     
     return;
@@ -378,6 +383,7 @@ public:
     vector<vector< Double_t >>  BM_hit_plane;
     vector<vector< Double_t >>  BM_hit_view;
     vector<vector< Double_t >>  BM_hit_cell;
+    vector<vector< Double_t >>  BM_MC_hit_realrdrift;
 		
     vector< Double_t >  BM_track_chi2;
 		vector< Double_t >  BM_track_PversX;

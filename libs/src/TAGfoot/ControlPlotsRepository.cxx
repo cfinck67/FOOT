@@ -142,7 +142,7 @@ void ControlPlotsRepository::PrintOutputNtuple(Bool_t isdata) {
   //Beam Monitor stuff
   //provv, it will be replaced by the real ntupleoutput with the bm objects  
   if(GlobalPar::GetPar()->IncludeBM()){
-    Double_t hitrdrift,hittime, hitresidual, trackchi2, trackpversx, trackpversy,trackpversz,trackr0x,trackr0y, mcpversx, mcpversy, mcr0x, mcr0y;
+    Double_t hitrdrift,hittime, hitresidual, trackchi2, trackpversx, trackpversy,trackpversz,trackr0x,trackr0y, mcpversx, mcpversy, mcr0x, mcr0y, realrdrift;
     Int_t evnum,hitplane,hitview,hitcell, time_acq;
     tree_out->Branch("evnum", &evnum);
     tree_out->Branch("timeacq", &time_acq);
@@ -159,6 +159,7 @@ void ControlPlotsRepository::PrintOutputNtuple(Bool_t isdata) {
     tree_out->Branch("BM_track_R0X", &trackr0x );
     tree_out->Branch("BM_track_R0Y", &trackr0y );
     if(!isdata){
+      tree_out->Branch("BM_MC_hit_realrdrift", &realrdrift );
       tree_out->Branch("BM_MC_PversX", &mcpversx);
       tree_out->Branch("BM_MC_PversY", &mcpversy);
       tree_out->Branch("BM_MC_R0X", &mcr0x);
@@ -180,6 +181,7 @@ void ControlPlotsRepository::PrintOutputNtuple(Bool_t isdata) {
         trackr0x=ntuple_out.BM_track_R0X.at(k);
         trackr0y=ntuple_out.BM_track_R0Y.at(k);
         if(!isdata){
+          realrdrift=ntuple_out.BM_MC_hit_realrdrift.at(k).at(i);
           mcpversx=ntuple_out.BM_MC_PversX.at(k);
           mcpversy=ntuple_out.BM_MC_PversY.at(k);
           mcr0x=ntuple_out.BM_MC_R0X.at(k);

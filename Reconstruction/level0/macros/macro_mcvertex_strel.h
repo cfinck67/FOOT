@@ -5,15 +5,16 @@
 //general par
 #define debug            0
 #define bmmcstudy        0    //if >0, study with only bm and bm mc events
+#define MCSTREL          8    //8=first strel*0.8/0.78, 1=first strel*1./0.78 otherwise=garfield strel       
 #define BMNEV            0    //number of bm events to analyze
-#define VTXNEV           1000    //number of msd events to analyze
+#define VTXNEV           0    //number of msd events to analyze
 #define STBIN          100    //strel binning on rdrift/tdrift
-#define BMNCUT          1.   //cut on bm track chi2 
+#define BMNCUT          10.   //cut on bm track chi2 
 #define MAXBMHITNUM     30    //number of maximum bm hit 
-#define NUMEVTSHIFT      0    //shift of the MSD evnum with respect to BM evnum (to be checked carefully!!)     
+#define NUMEVTSHIFT      1    //shift of the MSD evnum with respect to BM evnum (to be checked carefully!!)     
 #define NUMEVT2SHIFT     0    //shift of the MSD evnum with respect to BM evnum after changeshift 
 #define CHANGESHIFT      999999999 //event number in which numevtshift change to numevt2shift      
-#define CORRMINIMUM      0.3 //minimum value of the correlation factor between the pvers of the BM and the vtx to evaluate the new strel      
+#define CORRMINIMUM      0.9 //minimum value of the correlation factor between the pvers of the BM and the vtx to evaluate the new strel      
 
 //~ #include "../../../Simulation/foot_geo.h"
 
@@ -79,7 +80,7 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
 void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<double>> &time_residual, BM_evstruct &bmevent, vtx_evstruct &vtxevent, vector<TVector3> &wire_pos, vector<TVector3> &wire_dir);
 void Allign_estimate();
 void fitPositionResidual();
-void fitStrel(TFile *f_out, const int index);
+void fitStrel(TFile *f_out, const int index, TF1* first_strel_tf1_1, TF1* first_strel_tf1_08 ,TF1* garfield_strel_tf1);
 void merge_graphics(TFile* infile, TFile* f_out);
 
 //bm functions
@@ -90,12 +91,13 @@ TVector3 ExtrapolateZ(TVector3 pvers, TVector3 r0pos, double proposz, bool globa
 void setbmgeo(vector<TVector3> &wire_pos, vector<TVector3> &wire_dir);
 bool Getlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_t& icell);
 Double_t FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers);
+bool bmMCreadevent(vtx_evstruct &vtxevent,TTreeReader &mcvtxReader, TTreeReaderValue<int> &mcevnumreader, TTreeReaderValue<double> &mcpversxreader, TTreeReaderValue<double> &mcpversyreader, TTreeReaderValue<double> &mcr0xreader, TTreeReaderValue<double> &mcr0yreader);
 Int_t GetBMNcell(Int_t ilay, Int_t iview, Int_t icell){return icell+iview*3+ilay*6;};
 void print_bmevstruct(BM_evstruct &bmevstruct);
 int CellId2lay(Int_t cellid){return (int)(cellid/6);}; 
 int CellId2view(Int_t cellid){return (((int)(cellid/3))%2==0) ? 0:1;}; 
   
-//msd functions
+//vtx functions
 void clean_vtxevstruct(vtx_evstruct &vtxevstruct);
 bool vtxreadevent(vtx_evstruct &vtxevent,TTreeReader &vtxReader, TTreeReaderValue<int> &evnum, TTreeReaderValue<int> &tracknum, TTreeReaderValue<double> &chi2tot, TTreeReaderValue<double> &chi2uview, TTreeReaderValue<double> &chi2vview, TTreeReaderValue<double> &r0x, TTreeReaderValue<double> &r0y, TTreeReaderValue<double> &pversx, TTreeReaderValue<double> &pversy);
 void print_vtxevstruct(vtx_evstruct &vtxevstruct);

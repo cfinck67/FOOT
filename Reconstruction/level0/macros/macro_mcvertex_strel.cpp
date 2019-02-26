@@ -10,30 +10,50 @@ void macro_mcvertex_strel(){
   TString out_filename("Outstrel_mcvertex.root");
   //~ TString bmin_filename("RecoTree_nosmearrdrift_nosmearhits_w0_strel_primZ-40_BM_X0.2_Y0.1_Z_-14_Xang1.5_VTX_Y0.2_Z1.5.root");
   //~ TString vtxin_filename("bmvertex_strel_primZ-40_BM_X0.2_Y0.1_Z_-14_Xang1.5_VTX_Y0.2_Z1.5_Outprovayun.root");
-  //~ TString bmin_filename("RecoTree_dritto.root");
+
+  //~ TString bmin_filename("RecoTree_dritto.root"); //funzia
   //~ TString vtxin_filename("dritto_txt_Outyun.root");
+
   //~ TString bmin_filename("RecoTree_largo_dritto.root");
-  TString bmin_filename("RecoTree_prova.root");
-  TString vtxin_filename("largo_dritto_Outyun.root");
+  //~ TString bmin_filename("RecoTree_prova.root");
+  //~ TString bmin_filename("../RecoTree_mc_largo_dritto.root");
+  //~ TString bmin_filename("../RecoTree.root");
+  //~ TString vtxin_filename("largo_dritto_Outyun.root");
+  //~ TString bmin_filename("RecoTree_test_alig_clean.root");
+  //~ TString bmin_filename("RecoTree_test_align_smearrdrift_smearnhits.root");
+  //~ TString bmin_filename("RecoTree_test_align_clean_garfield_firstreal0_8.root");
+  //~ TString bmin_filename("RecoTree_test_align_smearrdrift_garfield_firstreal0_8.root");
+  //~ TString bmin_filename("RecoTree_test_align_smearnhits_smearrdrift_garfield_firstreal0_8.root");
+  //~ TString bmin_filename("RecoTree_test_align_nocalibration.root");
+  TString bmin_filename("RecoTree_test_align_clean_garfield_firstreal1.root");
   
+  //~ TString vtxin_filename("test_alig_Outprova.root");
+  TString vtxin_filename("test_alig_Outrebuild.root");
+    
   TFile *f_out = new TFile(out_filename.Data(),"RECREATE");  
   TFile *bminfile = new TFile(bmin_filename.Data(),"READ");  
-  TFile *vtxinfile = new TFile(vtxin_filename.Data(),"READ");
+  TFile *vtxinfile=nullptr; 
+  if(bmmcstudy==0)
+    vtxinfile= new TFile(vtxin_filename.Data(),"READ");
   
   if(!bminfile->IsOpen()){
-    cout<<"I cannot open "<<bmin_filename.Data()<<endl; return;
+    cout<<"I cannot open "<<bmin_filename.Data()<<endl; 
+    return;
   }
-  if(!vtxinfile->IsOpen()){
-    cout<<"I cannot open "<<vtxin_filename.Data()<<endl; return;
-  }
+  if(bmmcstudy==0)
+    if(!vtxinfile->IsOpen()){
+      cout<<"I cannot open "<<vtxin_filename.Data()<<endl; 
+      return;
+    }
   
   
   cout<<"Beam Monitor input file="<<bmin_filename.Data()<<endl;
-  cout<<"vtx input file="<<vtxin_filename.Data()<<endl;
+  if(bmmcstudy==0)
+    cout<<"vtx input file="<<vtxin_filename.Data()<<endl;
   cout<<"output file="<<out_filename.Data()<<endl;
 
   BookingBMVTX(f_out, false, false);
-  
+
   //******************************************BM stuff****************************************
   //bm geo
   vector<TVector3> wire_pos, wire_dir;//wire position and direction in isocenter system of ref.
@@ -70,8 +90,7 @@ void macro_mcvertex_strel(){
   };
   
   cout<<"BM read events="<<allbmeventin.size()<<"   total ttree events="<<bmReader.GetEntries(true)<<endl;
-  if(bmmcstudy==0)
-    bminfile->Close();
+  bminfile->Close();
 
   //***************************************************** vtx stuff ***********************************
   vtx_evstruct vtxevent;
@@ -99,18 +118,19 @@ void macro_mcvertex_strel(){
     vtxinfile->Close();
   }else{//**************************************************** real BM MC ************************************
     //here I read the BM MC data and fill the allvtxeventin vector to simulate the vtx
-    bminfile->cd();
-    TTreeReader mcvtxReader("EventTree", bminfile);
-    TTreeReaderValue<int> mcevnumreader(bmReader, "evnum");
-    TTreeReaderValue<double> mcpversxreader(bmReader, "BM_MC_PversX");
-    TTreeReaderValue<double> mcpversyreader(bmReader, "BM_MC_PversY");
-    TTreeReaderValue<double> mcr0xreader(bmReader, "BM_MC_R0X");
-    TTreeReaderValue<double> mcr0yreader(bmReader, "BM_MC_R0Y");
+    TFile *mcbminfile = new TFile(bmin_filename.Data(),"READ");  
+    mcbminfile->cd();
+    TTreeReader mcvtxReader("EventTree", mcbminfile);
+    TTreeReaderValue<int> mcevnumreader(mcvtxReader, "evnum");
+    TTreeReaderValue<double> mcpversxreader(mcvtxReader, "BM_MC_PversX");
+    TTreeReaderValue<double> mcpversyreader(mcvtxReader, "BM_MC_PversY");
+    TTreeReaderValue<double> mcr0xreader(mcvtxReader, "BM_MC_R0X");
+    TTreeReaderValue<double> mcr0yreader(mcvtxReader, "BM_MC_R0Y");
     while(bmMCreadevent(vtxevent, mcvtxReader, mcevnumreader, mcpversxreader, mcpversyreader, mcr0xreader, mcr0yreader)){
       allvtxeventin.push_back(vtxevent);
     };
     cout<<"BM MC read events="<<allvtxeventin.size()<<"   total ttree events="<<mcvtxReader.GetEntries(true)<<endl;
-    bminfile->Close();
+    mcbminfile->Close();
   }
   
   //****************************************************** evaluate strel *************************************
@@ -118,28 +138,38 @@ void macro_mcvertex_strel(){
   vector<vector<double>> time_residual(STBIN+1);
   vector<vector<int>> selected_index;//matrix with the two index in allbmeventin and allvtxeventin that are correlated
   vector<int> event_index(3,-1);//0=allbmeventin index, 1=allvtxeventin index, 2=combine code(0=bm && msd, 1=only msd1, 2=only msd2)
+  int last_vtxindex=0;
   for(int i=0;i<allbmeventin.size();i++){
     int k=allbmeventin.at(i).evnum;
     k+=allbmeventin.at(i).evnum<CHANGESHIFT ? NUMEVTSHIFT : NUMEVT2SHIFT;
-    if(allbmeventin.at(i).bm_track_chi2<BMNCUT && allvtxeventin.size()>k && k>=0){
-      if(allvtxeventin.at(k).vtx_track_chi2tot<1. && allvtxeventin.at(k).vtx_track_chi2uview<1. && allvtxeventin.at(k).vtx_track_chi2vview<1.){//there's a good track fitted both by msd and bm
-        event_index.at(0)=i;
-        event_index.at(1)=k;
-        event_index.at(2)=0;
-        selected_index.push_back(event_index);
-        EvaluateSpaceResidual(space_residual, time_residual, allbmeventin.at(i), allvtxeventin.at(k), wire_pos, wire_dir);        
-        //~ ((TH1D*)gDirectory->Get("time_diff"))->Fill(allbmeventin.at(i).timeacq-allvtxeventin.at(k).timeacq);
-      }else if(allvtxeventin.at(k).vtx_track_chi2uview>1.){
-        event_index.at(0)=i;
-        event_index.at(1)=k;
-        event_index.at(2)=1;
-        selected_index.push_back(event_index);
-      }else if (allvtxeventin.at(k).vtx_track_chi2vview>1.){
-        event_index.at(0)=i;
-        event_index.at(1)=k;
-        event_index.at(2)=2;
-        selected_index.push_back(event_index);
+    //~ cout<<"i="<<i<<"  allbmeventin.at(i).evnum="<<allbmeventin.at(i).evnum<<"  k="<<k<<endl;
+    if(allbmeventin.at(i).bm_track_chi2<BMNCUT && k>=0){
+      for(int l=last_vtxindex;l<allvtxeventin.size();l++){
+        if(allvtxeventin.at(l).evnum==k){
+          //~ cout<<"trovato traccia con stesso evnum: l="<<l<<"  allvtxeventin.at(l).evnum="<<allvtxeventin.at(l).evnum<<endl;
+          if(allvtxeventin.at(l).vtx_track_chi2tot<1. && allvtxeventin.at(l).vtx_track_chi2uview<1. && allvtxeventin.at(l).vtx_track_chi2vview<1.){//there's a good track fitted both by msd and bm
+            event_index.at(0)=i;
+            event_index.at(1)=l;
+            event_index.at(2)=0;
+            selected_index.push_back(event_index);
+            EvaluateSpaceResidual(space_residual, time_residual, allbmeventin.at(i), allvtxeventin.at(l), wire_pos, wire_dir);        
+            //~ ((TH1D*)gDirectory->Get("time_diff"))->Fill(allbmeventin.at(i).timeacq-allvtxeventin.at(k).timeacq);
+          }else if(allvtxeventin.at(l).vtx_track_chi2uview>1.){
+            event_index.at(0)=i;
+            event_index.at(1)=l;
+            event_index.at(2)=1;
+            selected_index.push_back(event_index);
+          }else if (allvtxeventin.at(l).vtx_track_chi2vview>1.){
+            event_index.at(0)=i;
+            event_index.at(1)=l;
+            event_index.at(2)=2;
+            selected_index.push_back(event_index);
+          }
+          last_vtxindex=l;
+          break;
+        }
       }
+      
     }
   }
   
@@ -154,6 +184,7 @@ void macro_mcvertex_strel(){
   //~ f_out->Close();
   gROOT->SetBatch(kFALSE);//enable graphical output  
   new TBrowser();
+  cout<<"End of program"<<endl;
   
   return 0;
 }

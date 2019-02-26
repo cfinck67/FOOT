@@ -187,7 +187,7 @@ void BmBooter::Process() {
   
   //temporary ttree output
   if( GlobalPar::GetPar()->IsPrintOutputNtuple() && track_ok==0 ){        
-      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->BM_setTTree_output(bmnturaw, bmntutrack, data_num_ev,bmstruct.time_acq);
+      ControlPlotsRepository::GetControlObject( "BooterFinalize" )->BM_setTTree_output(bmnturaw, bmntutrack, data_num_ev,bmstruct.time_acq, isdata);
     if(!isdata)
       ControlPlotsRepository::GetControlObject( "BooterFinalize" )->BM_setMCTTree_output(mylar1realpos, mylar2realpos);
   }
@@ -445,8 +445,10 @@ void BmBooter::PrintProjections(){
   TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histoc=new TH2D( "R0_xy", "R0 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histod=new TH2D( "target_xy", "target projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
+  //~ TH2D* histoe=new TH2D( "pvers_mx_MCvsFitted", "mx for the MC and fitted tracks; mx tracks; mx MC", 500,-0.05,0.05,500,-0.05,0.05);
   
   TVector3 projection;
+  //~ Int_t mcindex=0;
   for(Int_t i=0;i<tracktr2dprojects.size();i++){
     projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmgeo->GetMylar1().Z());
     histoa->Fill(projection.X(), projection.Y());
@@ -455,6 +457,14 @@ void BmBooter::PrintProjections(){
     histoc->Fill(tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4));
     projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmgeo->GetTarget().Z());
     histod->Fill(projection.X(), projection.Y());
+    //~ for(Int_t k=mcindex;k<mcxevent.size();k++){
+      //~ if(mcxevent.at(k).at(0)==tracktr2dprojects.at(i).at(0)){
+        //~ histoe->Fill(tracktr2dprojects.at(i).at(1), (mcxevent.at(k).at(3)-mcxevent.at(k).at(1))/(bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z()));
+        //~ mcindex=k;
+        //~ break;
+      //~ }else if(mcxevent.at(k).at(0)>tracktr2dprojects.at(i).at(0))
+        //~ break;
+    //~ }
   }
 
 return;
