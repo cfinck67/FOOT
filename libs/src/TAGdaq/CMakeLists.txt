@@ -29,7 +29,6 @@ set( without_dictionnaries
 include_directories(${ROOT_INCLUDE_DIR})
 include_directories(${TAG_INCLUDE_DIR})
 include_directories(${TAAPI_INCLUDE_DIR})
-message("${TAAPI_INCLUDE_DIR}")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 #
 link_directories(${ROOT_LIBRARY_DIR})
