@@ -92,6 +92,9 @@ TAIRalignC::TAIRalignC(const TString name, Bool_t flagVtx, Bool_t flagIt, Bool_t
    Int_t devsNtot = 0;
    
    fAGRoot        = new TAGroot();
+   fGeoTrafo      = new TAGgeoTrafo();
+   fGeoTrafo->FromFile();
+   
    fClusterArray  = new TObjArray();
    fClusterArray->SetOwner(false);
    
@@ -177,6 +180,7 @@ TAIRalignC::~TAIRalignC()
    delete fResidualX;
    delete fResidualY;
    delete fClusterArray;
+   delete fGeoTrafo;
 }
 
 //______________________________________________________________________________
@@ -420,11 +424,11 @@ void TAIRalignC::LoopEvent(Int_t nEvts)
          break;
    }
    
-//   for (Int_t i = 0; i < fSecArray.GetSize(); i++ ) {
-//      UpdateTransfo(i);
-//   }
+   for (Int_t i = 0; i < fSecArray.GetSize(); i++ ) {
+      UpdateTransfo(i);
+   }
    
-  // UpdateGeoMaps();
+   UpdateGeoMaps();
    
   
    
@@ -843,37 +847,42 @@ void TAIRalignC::UpdateTransfo(Int_t idx)
 // Modification of the geomap file with the final results of alignment
 void TAIRalignC::UpdateGeoMaps()
 {
-   TAVTparGeo* pGeoMap  = (TAVTparGeo*)fpGeoMapVtx->Object();
    fstream  configFileOld;
    fstream  configFileNew;
    Char_t configFileName[1000];
-   sprintf(configFileName,"%s", pGeoMap->GetFileName().Data());
-   configFileOld.open(configFileName, ios::in);
-   sprintf(configFileName,"%s_new", pGeoMap->GetFileName().Data());
-   configFileNew.open(configFileName, ios::out);
-   Char_t tmp[255];
    
-   printf("\nCreating new file %s with updated alignment parameters\n", configFileName);
-   
-   TString key;
-   while (!configFileOld.eof()) {
-      configFileOld.getline(tmp, 255);
-      key = tmp;
-      configFileNew << tmp;
-      configFileNew << "\n";
-      if (key.Contains("Inputs:")) {
-         Int_t pos = key.First(':');
-         TString sIdx = key(pos+1, key.Length());
-         Int_t idx = (Int_t)sIdx.Atoi()-1;
-         for (Int_t i = 0; i < fSecArray.GetSize(); ++i) {
-            if (idx == fSecArray[i]){
-               UpdateGeoMapsUVW(configFileOld, configFileNew, idx);
-               break;
+   if (fFlagVtx) { // tmp solution
+      TAVTparGeo* pGeoMap  = (TAVTparGeo*)fpGeoMapVtx->Object();
+      sprintf(configFileName,"%s", pGeoMap->GetFileName().Data());
+      configFileOld.open(configFileName, ios::in);
+      sprintf(configFileName,"%s_new", pGeoMap->GetFileName().Data());
+      configFileNew.open(configFileName, ios::out);
+      
+      
+      Char_t tmp[255];
+      
+      printf("\nCreating new file %s with updated alignment parameters\n", configFileName);
+      
+      TString key;
+      while (!configFileOld.eof()) {
+         configFileOld.getline(tmp, 255);
+         key = tmp;
+         configFileNew << tmp;
+         configFileNew << "\n";
+         if (key.Contains("Inputs:")) {
+            Int_t pos = key.First(':');
+            TString sIdx = key(pos+1, key.Length());
+            Int_t idx = (Int_t)sIdx.Atoi()-1;
+            for (Int_t i = 0; i < fSecArray.GetSize(); ++i) {
+               if (idx == fSecArray[i]){
+                  UpdateGeoMapsUVW(configFileOld, configFileNew, idx);
+                  break;
+               }
             }
          }
       }
+      configFileOld.close();
    }
-   configFileOld.close();
    
    return;
 }
@@ -887,9 +896,9 @@ void TAIRalignC::UpdateGeoMapsUVW(fstream &fileIn, fstream &fileOut, Int_t idx)
    TString key;
    TAVTparGeo* pGeoMap  = (TAVTparGeo*)fpGeoMapVtx->Object();
    
-   Float_t alignU = pGeoMap->GetSensorPar(idx).AlignmentU;
-   Float_t alignV = pGeoMap->GetSensorPar(idx).AlignmentV;
-   Float_t tiltW  = pGeoMap->GetSensorPar(idx).TiltW;
+   Float_t alignU = pGeoMap->GetSensorPar(idx).AlignmentU*TAGgeoTrafo::MmToCm();
+   Float_t alignV = pGeoMap->GetSensorPar(idx).AlignmentV*TAGgeoTrafo::MmToCm();
+   Float_t tiltW  = pGeoMap->GetSensorPar(idx).TiltW*TMath::RadToDeg();
    
    while (!fileIn.eof()) {
       fileIn.getline(tmp, 255);
@@ -907,7 +916,7 @@ void TAIRalignC::UpdateGeoMapsUVW(fstream &fileIn, fstream &fileOut, Int_t idx)
          fileOut << line.Data();
          fileIn.getline(tmp, 255);
          key = "AlignementTilt:";
-         sIdx = Form("   %6.3f\n", tiltW*TMath::RadToDeg());
+         sIdx = Form("   %6.3f\n", tiltW);
          line = key + sIdx;
          fileOut << line.Data();
          break;

@@ -16,6 +16,7 @@
 #include "TGraphErrors.h"
 
 #include "TAGroot.hxx"
+#include "TAGgeoTrafo.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGparaDsc.hxx"
 #include "TAGactTreeReader.hxx"
@@ -70,6 +71,7 @@ private:
       
 private:
    TAGroot*             fAGRoot;        // pointer to TAGroot
+   TAGgeoTrafo*         fGeoTrafo;
    Bool_t               fFlagVtx;
    Bool_t               fFlagIt;
    Bool_t               fFlagMsd;
