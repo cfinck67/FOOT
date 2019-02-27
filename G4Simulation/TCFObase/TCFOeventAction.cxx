@@ -187,8 +187,8 @@ void TCFOeventAction::FillHits(Evento* hit, TCGmcHit* mcHit)
 
    Int_t    sensorId = mcHit->GetSensorId();
    Int_t    trackId  = mcHit->GetTrackId();
-   Double_t edep     = mcHit->GetEdep();
-   Double_t time     = mcHit->GetGlobalTime();
+   Double_t edep     = mcHit->GetEdep()*TAGgeoTrafo::MevToGev(); 
+   Double_t time     = mcHit->GetGlobalTime()*TAGgeoTrafo::NsToSec();
    Double_t al       = 0;
    
    if (fIrCollId >= 0)
