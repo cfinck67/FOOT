@@ -69,11 +69,14 @@ int main(int argc,char** argv)
 		 seed = sSeed.Atoi();
 	  }
       
-      if(strcmp(argv[i],"-phys") == 0)
-         physListName  = argv[++i];
+     if(strcmp(argv[i],"-phys") == 0)
+        physListName  = argv[++i];
 	  
 	  if(strcmp(argv[i],"-b") == 0)
 		 batchMode  = true;
+      
+     if(strcmp(argv[i],"-out") == 0)
+        rootFileName  = argv[++i];
 
 	  if(strcmp(argv[i],"-help") == 0) {
 		 printf("Possible arguments are:\n");
