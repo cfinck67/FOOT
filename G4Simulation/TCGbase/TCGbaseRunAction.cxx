@@ -51,7 +51,7 @@ void TCGbaseRunAction::EndOfRunAction(const G4Run* aRun)
    G4cout<<"The total number of events number of events is "<<aRun->GetNumberOfEvent()<<G4endl;
    
    //close file
- //  fpOutFile->Print();
+   fpTree->Write();
    fpOutFile->Close();
    fWatch.Print();
 }
@@ -59,5 +59,6 @@ void TCGbaseRunAction::EndOfRunAction(const G4Run* aRun)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void TCGbaseRunAction::FillAndClear()
 {
+   fpTree->Fill();
    ClearContainers();
 }
