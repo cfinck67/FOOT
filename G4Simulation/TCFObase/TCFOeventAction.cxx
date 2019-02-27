@@ -180,7 +180,7 @@ void TCFOeventAction::GetHitPerPlane(const G4Event* evt, G4int idColl)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void TCFOeventAction::FillHits(Evento* hit, TCGmcHit* mcHit)
 {
-   G4ThreeVector vin  = mcHit->GetPosIn();
+   G4ThreeVector vin = mcHit->GetPosIn();
    G4ThreeVector vou = mcHit->GetPosOut();
    G4ThreeVector pin = mcHit->GetMomIn();
    G4ThreeVector pou = mcHit->GetMomOut();
