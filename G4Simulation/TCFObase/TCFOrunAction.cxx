@@ -27,7 +27,6 @@ TCFOrunAction::TCFOrunAction()
 TCFOrunAction::~TCFOrunAction()
 {
    delete fpEventMC;
-   delete fpEveStruct;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -39,10 +38,9 @@ void TCFOrunAction::SetContainers()
    fpOutFile->cd();
    
    fpTree      = new TTree("EventTree", "FOOT");
-   fpEveStruct = new EVENT_STRUCT;
    fpEventMC   = new Evento();
    
-   fpEventMC->SetBranches(fpTree, fpEveStruct);
+   fpEventMC->SetBranches(fpTree);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

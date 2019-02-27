@@ -21,11 +21,9 @@ public:
    
 public:
    Evento*        GetEventMC()     const { return fpEventMC; }
-   EVENT_STRUCT*  GetEveStruct()   const { return fpEveStruct; }
    
 private:
    Evento*        fpEventMC;  // For data form Simulation
-   EVENT_STRUCT*  fpEveStruct;  // For data form Simulation
    
 private:
    void           SetContainers();
