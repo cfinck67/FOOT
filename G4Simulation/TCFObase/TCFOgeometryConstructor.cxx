@@ -73,14 +73,17 @@ using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
 : TCGbaseGeometryConstructor(expName),
+  fStartCounter(0x0),
+  fBeamMonitor(0x0),
   fVertex(0x0),
   fInnerTracker(0x0),
   fMultiStrip(0x0),
+  fCalorimeter(0x0),
+  fTofWall(0x0),
   fMagnet(0x0),
-  fField(0x0),
   fFieldImpl(0x0),
   fFieldSetup(0x0),
-  fpParGeoIr(0x0),
+  fpParGeoSt(0x0),
   fpParGeoBm(0x0),
   fpParGeoVtx(0x0),
   fpParGeoIt(0x0),
@@ -152,10 +155,10 @@ TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
    
    // initialise map file for start counter
    if (GlobalPar::GetPar()->IncludeST()) {
-      fpParGeoIr = new TATRparGeo();
+      fpParGeoSt = new TATRparGeo();
       TString mapFileName = Form("./geomaps/TATRdetector%s.map", fExpName.Data());
-      fpParGeoIr->FromFile(mapFileName.Data());
-      fStartCounter = new TCSTgeometryConstructor(fpParGeoIr);
+      fpParGeoSt->FromFile(mapFileName.Data());
+      fStartCounter = new TCSTgeometryConstructor(fpParGeoSt);
    }
  }
 
@@ -174,7 +177,7 @@ TCFOgeometryConstructor::~TCFOgeometryConstructor()
    if (fFieldImpl)    delete fFieldImpl;
    if (fFieldSetup)   delete fFieldSetup;
     
-   if (fpParGeoIr)    delete fpParGeoIr;
+   if (fpParGeoSt)    delete fpParGeoSt;
    if (fpParGeoBm)    delete fpParGeoBm;
    if (fpParGeoVtx)   delete fpParGeoVtx;
    if (fpParGeoIt)    delete fpParGeoIt;

@@ -73,7 +73,7 @@ public:
    G4VPhysicalVolume* Construct();
    
    G4Material*  GetWorldMaterial()         { return fWorldMaterial;   }
-   TATRparGeo*  GetParGeoIr()              { return fpParGeoIr;       }
+   TATRparGeo*  GetParGeoIr()              { return fpParGeoSt;       }
    TABMparGeo*  GetParGeoBm()              { return fpParGeoBm;       }
    TAVTparGeo*  GetParGeoVtx()             { return fpParGeoVtx;      }
    TAITparGeo*  GetParGeoIt()              { return fpParGeoIt;       }
@@ -96,7 +96,7 @@ private:
    FootField*                fFieldImpl;
    TCEMfieldSetup*           fFieldSetup;
 
-   TATRparGeo*               fpParGeoIr;
+   TATRparGeo*               fpParGeoSt;
    TABMparGeo*               fpParGeoBm;
    TAVTparGeo*               fpParGeoVtx;
    TAITparGeo*               fpParGeoIt;
