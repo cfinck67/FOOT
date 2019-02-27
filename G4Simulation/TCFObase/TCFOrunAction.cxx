@@ -36,12 +36,12 @@ void TCFOrunAction::SetContainers()
    //File for
    fpOutFile = new TFile(GetRootFileName(), "RECREATE");
    if (!fpOutFile) return;
+   fpOutFile->cd();
    
-   fpTree = new TTree("EventTree", "FOOT");
-
+   fpTree      = new TTree("EventTree", "FOOT");
    fpEveStruct = new EVENT_STRUCT;
+   fpEventMC   = new Evento();
    
-   fpEventMC = new Evento();
    fpEventMC->SetBranches(fpTree, fpEveStruct);
 }
 
