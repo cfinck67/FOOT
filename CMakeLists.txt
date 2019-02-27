@@ -14,6 +14,10 @@ project (FOOT)
 MESSAGE("${PROJECT_NAME}:")
 
 #------------------------------------------------------------------------------
+# option Geant4
+option(Geant4_DIR "Include G4 simulation" OFF)
+
+#------------------------------------------------------------------------------
 # Enforce an out-of-source builds before anything else
 #
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -120,3 +124,7 @@ set (GENFIT_LIBRARIES  genfit2)
 add_subdirectory(libs)
 add_subdirectory(Reconstruction)
 add_subdirectory(Simulation)
+if (Geant4_DIR)
+  add_subdirectory(G4Simulation)
+endif(Geant4_DIR)
+
