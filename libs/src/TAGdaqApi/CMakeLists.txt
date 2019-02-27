@@ -24,6 +24,7 @@ set( files
    DECardEvent
    EventReaderAndChecker
    TDCEvent
+   WDEvent
    DAQFileHeader
    EmptyEvent
    InfoEvent
