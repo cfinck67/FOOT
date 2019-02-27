@@ -80,7 +80,7 @@ file(COPY ${FOOT_LEVEL0}/geomaps/ DESTINATION ${CMAKE_BINARY_DIR}/G4Simulation/g
 file(COPY ${FOOT_LEVEL0}/config/  DESTINATION ${CMAKE_BINARY_DIR}/G4Simulation/config/)
 
 #
-file(COPY ${CMAKE_SOURCE_DIR}/G4Simulation/macros DESTINATION ${CMAKE_BINARY_DIR}/G4Simulation/)
+file(COPY ${CMAKE_SOURCE_DIR}/G4Simulation/macros/ DESTINATION ${CMAKE_BINARY_DIR}/G4Simulation/)
 
 #----------------------------------------------------------------------------
 # Copy rootlogon
