@@ -169,7 +169,7 @@ public:
    static           Float_t PsToSec()                { return fgkPsToSec;       }
    
    static           Float_t GevToMev()               { return fgkGevToMev;      }
-   static           Float_t MevToGev()               { return fgkGevToMev;      }
+   static           Float_t MevToGev()               { return fgkMevToGev;      }
    
    static           Float_t GevToKev()               { return fgkGevToKev;      }
 
