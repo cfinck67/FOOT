@@ -1,5 +1,5 @@
 #ifndef WDEVENT_HH
-#define WDCEVENT_HH
+#define WDEVENT_HH
 #include "BaseFragment.hh"
 
 #include <vector>
