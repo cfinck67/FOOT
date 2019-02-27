@@ -14,7 +14,7 @@
 #include "G4SDManager.hh"
 #include "G4RunManager.hh"
 
-#include "TATRparGeo.hxx"
+#include "TASTparGeo.hxx"
 #include "TAGroot.hxx"
 #include "TAGgeoTrafo.hxx"
 
@@ -29,7 +29,7 @@ using namespace CLHEP;
 TString TCSTgeometryConstructor::fgkIrSDname  = "IrSD";
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-TCSTgeometryConstructor::TCSTgeometryConstructor(TATRparGeo* pParGeo)
+TCSTgeometryConstructor::TCSTgeometryConstructor(TASTparGeo* pParGeo)
 : TCGbaseConstructor("TCSTgeometryConstructor", "1.0"),
   fBoxLog(0x0),
   fpParGeo(pParGeo)

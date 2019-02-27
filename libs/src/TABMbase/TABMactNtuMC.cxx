@@ -79,8 +79,10 @@ Bool_t TABMactNtuMC::Action()
      
     if(tobecharged[i]){
       cell = fpEvtStr->BMNicell[i];
-      lay = fpEvtStr->BMNilay[i]; 
+      lay = fpEvtStr->BMNilay[i];
       view = fpEvtStr->BMNiview[i]==-1 ? 1:0;
+//       printf("cell %d layer %d view %d\n", cell, lay, view);
+
       hitxcell[i]=p_bmgeo->GetBMNcell(lay, view, cell);
       glo.SetXYZ(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
        

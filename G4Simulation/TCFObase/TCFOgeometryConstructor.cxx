@@ -155,8 +155,8 @@ TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
    
    // initialise map file for start counter
    if (GlobalPar::GetPar()->IncludeST()) {
-      fpParGeoSt = new TATRparGeo();
-      TString mapFileName = Form("./geomaps/TATRdetector%s.map", fExpName.Data());
+      fpParGeoSt = new TASTparGeo();
+      TString mapFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
       fpParGeoSt->FromFile(mapFileName.Data());
       fStartCounter = new TCSTgeometryConstructor(fpParGeoSt);
    }

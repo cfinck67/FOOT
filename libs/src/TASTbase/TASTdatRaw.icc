@@ -8,13 +8,17 @@
 //------------------------------------------+-----------------------------------
 //! Returns Detector type
 
+inline Int_t TASTrawHit::Type() const
+{
+  return ir_typ;
+}
 
 //------------------------------------------+-----------------------------------
 //! Returns channel ID
 
 inline Int_t TASTrawHit::ChID() const
 {
-  return st_chid;
+  return ir_chid;
 }
 
 //------------------------------------------+-----------------------------------
@@ -22,7 +26,7 @@ inline Int_t TASTrawHit::ChID() const
 
 inline Double_t TASTrawHit::Time() const
 {
-  return st_time;
+  return ir_time;
 }
 
 //------------------------------------------+-----------------------------------
@@ -30,20 +34,24 @@ inline Double_t TASTrawHit::Time() const
 
 inline Double_t TASTrawHit::Charge() const
 {
-  return st_chg;
+  return ir_chg;
 }
 
 //------------------------------------------+-----------------------------------
 //! Returns Detector type
 
-
+inline void TASTrawHit::SetType(int typ)
+{
+  ir_typ = typ;
+  return;	
+}
 
 //------------------------------------------+-----------------------------------
 //! Returns channel ID
 
 inline void TASTrawHit::SetChID(int id)
 {
-  st_chid = id;
+  ir_chid = id;
   return;
 }
 
@@ -52,7 +60,7 @@ inline void TASTrawHit::SetChID(int id)
 
 inline void TASTrawHit::SetTime(double time)
 {
-  st_time = time;
+  ir_time = time;
   return;
 }
 
@@ -61,47 +69,29 @@ inline void TASTrawHit::SetTime(double time)
 
 inline void TASTrawHit::SetCharge(double chg)
 {
-  st_chg = chg;
+  ir_chg = chg;
   return;
 }
 
 //##############################################################################
 
 //------------------------------------------+-----------------------------------
-//! Returns time from ST
+//! Returns trigger time from SC
 
-inline Double_t TASTdatRaw::Time() const
+inline Double_t TASTdatRaw::TrigTime() const
 {
-  return time;
+  return fdTrgTime;
 }
 
 
 //------------------------------------------+-----------------------------------
-//! Set time from ST
+//! Returns time from SC
 
-inline void TASTdatRaw::SetTime(double t)
+inline void TASTdatRaw::SetTrigTime(double time)
 {
-  time = t;
+  fdTrgTime = time;
   return;
 }
-
-//! Set charge from ST
-
-inline void TASTdatRaw::SetCharge(double q)
-{
-  charge = q;
-  return;
-}
-
-//------------------------------------------+-----------------------------------
-
-//! Returns  cahrge from ST
-
-inline Double_t TASTdatRaw::Charge() const
-{
-  return charge;
-}
-
 
 
 //------------------------------------------+-----------------------------------
@@ -109,7 +99,7 @@ inline Double_t TASTdatRaw::Charge() const
 
 inline TASTrawHit* TASTdatRaw::Hit(Int_t i)
 {
-  return (TASTrawHit*) ((*hst)[i]);;
+  return (TASTrawHit*) ((*fListOfHits)[i]);;
 }
 
 //------------------------------------------+-----------------------------------
@@ -117,7 +107,30 @@ inline TASTrawHit* TASTdatRaw::Hit(Int_t i)
 
 inline const TASTrawHit* TASTdatRaw::Hit(Int_t i) const
 {
-  return (const TASTrawHit*) ((*hst)[i]);;
+  return (const TASTrawHit*) ((*fListOfHits)[i]);;
 }
 
 //------------------------------------------+-----------------------------------
+//! Returns number of accepted TDC values.
+
+inline Int_t TASTdatRaw::NTdc() const
+{
+  return fiNTdc;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns number of accepted ADC values.
+
+inline Int_t TASTdatRaw::NAdc() const
+{
+  return fiNAdc;
+}
+
+//------------------------------------------+-----------------------------------
+//! Returns number of discarded FastBus values.
+
+inline Int_t TASTdatRaw::NDrop() const
+{
+  return fiNDrop;
+}
+

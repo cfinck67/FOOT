@@ -35,7 +35,7 @@ TABMactNtuRaw::TABMactNtuRaw(const char* name,
   AddDataOut(p_nturaw, "TABMntuRaw");
   AddDataIn(p_datraw, "TABMdatRaw");
   AddDataIn(p_timraw, "TAIRdatRaw");
-  //~ AddDataIn(p_triraw, "TATRdatRaw");
+  //~ AddDataIn(p_triraw, "TASTdatRaw");
   AddPara(p_geomap, "TABMparGeo");
   AddPara(p_parcon, "TABMparCon");
 
@@ -54,8 +54,8 @@ TABMactNtuRaw::~TABMactNtuRaw()
 Bool_t TABMactNtuRaw::Action()
 {
   TABMdatRaw* p_datraw = (TABMdatRaw*) fpDatRaw->Object();
-  TATRdatRaw* p_timraw = (TATRdatRaw*) fpTimRaw->Object();
-  //~ TATRdatRaw* p_triraw = (TATRdatRaw*) fpTriRaw->Object();//è l'equivalente del BM...
+  TASTdatRaw* p_timraw = (TASTdatRaw*) fpTimRaw->Object();
+  //~ TASTdatRaw* p_triraw = (TASTdatRaw*) fpTriRaw->Object();//è l'equivalente del BM...
   TABMntuRaw* p_nturaw = (TABMntuRaw*) fpNtuRaw->Object();
   TABMparGeo* p_pargeo = (TABMparGeo*) fpGeoMap->Object();
   TABMparCon* p_parcon = (TABMparCon*) fpParCon->Object();

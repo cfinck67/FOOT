@@ -11,7 +11,7 @@
 
 #include "TVirtualMagField.h"
 
-#include "TATRparGeo.hxx"
+#include "TASTparGeo.hxx"
 #include "TABMparGeo.hxx"
 #include "TAGparGeo.hxx"
 #include "TAVTparGeo.hxx"

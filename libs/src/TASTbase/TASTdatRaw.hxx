@@ -18,64 +18,71 @@ using namespace std;
 class TASTrawHit : public TObject {
   public:
     TASTrawHit();
-    TASTrawHit(int cha, double charge, double time);
+    TASTrawHit(int typ, int cha, double charge, double time);
     virtual         ~TASTrawHit();
 
-    void            SetData(Int_t id, Double_t time, Double_t charge);
+    void            SetData(Int_t type, Int_t id, Double_t time, Double_t charge);
     Double_t        Time() const;
     Double_t        Charge() const;
     Int_t           ChID() const;
+    Int_t           Type() const;
 
-    void            SetTime(double);
-    void            SetCharge(double);
-    void            SetChID(int);  //SC channel ID
+    void            SetTime(double time);
+    void            SetCharge(double charge);
+    void            SetChID(int id);  //SC channel ID
+    void            SetType(int typ); //meaningless for now.
+
+    void            Clear(Option_t* option = "C");
 
     ClassDef(TASTrawHit,1)
 
   private:
-    Double_t st_time;    
-    Double_t st_chg;    
-    Int_t st_chid;
+    Double_t ir_time;    
+    Double_t ir_chg;    
+    Int_t ir_typ;
+    Int_t ir_chid;
 };
-
-
-
 
 //##############################################################################
 
 class TASTdatRaw : public TAGdata {
   public:
 
-    TASTdatRaw();
+                     TASTdatRaw();
     virtual         ~TASTdatRaw();
 
- 
+    void              SetCounter(Int_t i_ntdc, Int_t i_nadc, Int_t i_ndrop);
+
+    Int_t             GetHitsN() const;
+
     TASTrawHit*       Hit(Int_t i_ind);
     const TASTrawHit* Hit(Int_t i_ind) const;
+   
+    TASTrawHit*       NewHit(int tyoe, int channel, double charge, double time);
 
-    void            SetTime(double time);
-    Double_t        Time() const;
 
-    void            SetCharge(double time);
-    Double_t        Charge() const;
-  
-    virtual void    Clear(Option_t* opt="");
+    void              SetTrigTime(double time);
+    Double_t          TrigTime() const;
 
-  void SetupClones();
-  
-  virtual void   ToStream(ostream& os=cout, Option_t* option="") const;
+    Int_t             NTdc() const;
+    Int_t             NAdc() const;
+    Int_t             NDrop() const;
+
+    virtual void      Clear(Option_t* opt="");
+
+    void              SetupClones();
+
+    virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
 
     ClassDef(TASTdatRaw,1)
 
-  public:
-    Int_t           nsthit;	//fare getter	    // 
-    TClonesArray*   hst;			    // hits
-
   private:
- 
-    Double_t         time;                //SC trigger time
-    Double_t         charge;		    // 
-   
+    TClonesArray*   fListOfHits; // hits
+    double          fdTrgTime;   // SC trigger time
+    Int_t           fiNAdc;		//
+    Int_t           fiNTdc;		//
+    Int_t           fiNDrop;		// 
+
 };
 
 #include "TASTdatRaw.icc"

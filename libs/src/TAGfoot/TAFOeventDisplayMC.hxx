@@ -13,7 +13,7 @@
 #include "TTree.h"
 
 #include "TAGdataDsc.hxx"
-#include "TATRactNtuMC.hxx"
+#include "TASTactNtuMC.hxx"
 #include "TABMactNtuMC.hxx"
 #include "TAVTactNtuMC.hxx"
 #include "TAITactNtuMC.hxx"
@@ -84,7 +84,7 @@ public:
 private:
    EVENT_STRUCT*         fEvtStruct;
    
-   TATRactNtuMC*         fActNtuRawSt;  // action for ntu data
+   TASTactNtuMC*         fActNtuRawSt;  // action for ntu data
    TABMactNtuMC*         fActNtuRawBm;  // action for ntu data
    TAVTactNtuMC*         fActNtuRawVtx;  // action for ntu data
    TAITactNtuMC*         fActNtuRawIt;  // action for ntu data

@@ -8,7 +8,7 @@
 
 #include "GlobalPar.hxx"
 #include "TAGgeoTrafo.hxx"
-#include "TATRntuRaw.hxx"
+#include "TASTntuRaw.hxx"
 #include "TABMntuRaw.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
@@ -82,8 +82,8 @@ void TAFOeventDisplayMC::CreateRawAction()
 
    
    if (GlobalPar::GetPar()->IncludeST()) {
-      fpNtuRawSt = new TAGdataDsc("stRaw", new TATRntuRaw());
-      fActNtuRawSt = new TATRactNtuMC("stActNtu", fpNtuRawSt, fEvtStruct);
+      fpNtuRawSt = new TAGdataDsc("stRaw", new TASTntuRaw());
+      fActNtuRawSt = new TASTactNtuMC("stActNtu", fpNtuRawSt, fEvtStruct);
       fActNtuRawSt->CreateHistogram();
       
       fpNtuMcSt   = new TAGdataDsc("stMc", new TAMCntuHit());

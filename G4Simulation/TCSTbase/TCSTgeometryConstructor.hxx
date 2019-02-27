@@ -13,12 +13,12 @@
 
 class G4LogicalVolume; //General class to define a logical volume (properties, material)
 
-class TATRparGeo;
+class TASTparGeo;
 
 class TCSTgeometryConstructor : public TCGbaseConstructor
 {
 public:
-   TCSTgeometryConstructor(TATRparGeo* pParGeo);
+   TCSTgeometryConstructor(TASTparGeo* pParGeo);
    virtual ~TCSTgeometryConstructor();
    
    virtual G4LogicalVolume* Construct(); //method in which the physical volume is constructed
@@ -34,7 +34,7 @@ public:
 private:
    G4LogicalVolume* fBoxLog;
    G4LogicalVolume* fIrLog;
-   TATRparGeo*      fpParGeo;
+   TASTparGeo*      fpParGeo;
    TVector3         fSizeBoxIr;
    TVector3         fMinPosition;
    TVector3         fMaxPosition;

@@ -9,7 +9,7 @@
 //~ #include "TAGmbsEvent.hxx"
 #include "TABMdatRaw.hxx"
 #include "TABMrawHit.hxx"
-#include "TATRdatRaw.hxx"
+#include "TASTdatRaw.hxx"
 
 #include "TABMactDatRaw.hxx"
 #include <iomanip>
@@ -74,7 +74,7 @@ Bool_t TABMactDatRaw::Action() {
   TABMparMap*    p_parmap = (TABMparMap*)    fpParMap->Object();
   TABMparCon*    p_parcon = (TABMparCon*)    fpParCon->Object();
   TABMparGeo*    p_pargeo = (TABMparGeo*)    fpParGeo->Object();
-  TATRdatRaw*    p_timraw = (TATRdatRaw*)    fpTimRaw->Object();
+  TASTdatRaw*    p_timraw = (TASTdatRaw*)    fpTimRaw->Object();
   
   Int_t view,plane,cell;
     

@@ -16,8 +16,8 @@
 
 
 //Start counter
-#include "TATRdatRaw.hxx"
-#include "TATRactNtuMC.hxx"
+#include "TASTdatRaw.hxx"
+#include "TASTactNtuMC.hxx"
 
 //Beam Monitor
 #include "TABMparGeo.hxx"
@@ -496,8 +496,8 @@ void Booter::FillMCInteractionRegion(EVENT_STRUCT *myStr) {
     // top->AddNode( m_irgeo->GetVolume(), 0, new TGeoCombiTrans( 0, 0,  m_irgeo->GetCenter().z(), new TGeoRotation("Marghe",0,0,0)) );-}
 
     /*Ntupling the MC Beam Monitor information*/
-    myn_scraw    = new TAGdataDsc("myn_scraw", new TATRdatRaw());
-    new TATRactNtuMC("an_scraw", myn_scraw, myStr);
+    myn_scraw    = new TAGdataDsc("myn_scraw", new TASTdatRaw());
+    new TASTactNtuMC("an_scraw", myn_scraw, myStr);
 
     gTAGroot->AddRequiredItem("myn_scraw");
 

@@ -69,10 +69,16 @@ public:
    
    void              SetupClones();
    
-   ClassDef(TASTntuRaw,1)
+public:
+   static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
    
 private:
    TClonesArray*     fListOfHits;			    // hits
+   
+private:
+   static TString fgkBranchName;    // Branch name in TTree
+   
+   ClassDef(TASTntuRaw,1)
 };
 
 

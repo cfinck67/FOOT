@@ -10,7 +10,7 @@
 #include "TAGgeoTrafo.hxx"
 #include "TAGparGeo.hxx"
 
-#include "TATRntuRaw.hxx"
+#include "TASTntuRaw.hxx"
 #include "TABMntuRaw.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
@@ -177,9 +177,9 @@ void BaseLocalReco::InitParameters()
 
    // initialise parameters for start counter
    if (GlobalPar::GetPar()->IncludeST()) {
-      fpParGeoSt = new TAGparaDsc(TATRparGeo::GetDefParaName(), new TATRparGeo());
-      TATRparGeo* parGeo = (TATRparGeo*)fpParGeoSt->Object();
-      TString parFileName = Form("./geomaps/TATRdetector%s.map", fExpName.Data());
+      fpParGeoSt = new TAGparaDsc(TASTparGeo::GetDefParaName(), new TASTparGeo());
+      TASTparGeo* parGeo = (TASTparGeo*)fpParGeoSt->Object();
+      TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
    }
 

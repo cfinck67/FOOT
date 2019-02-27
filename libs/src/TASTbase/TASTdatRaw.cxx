@@ -32,25 +32,37 @@ TASTrawHit::~TASTrawHit()
 //! Default constructor.
 
 TASTrawHit::TASTrawHit()
-  : st_time(999999.), st_chg(0.), st_chid(0)
+  : ir_time(999999.), ir_chg(0.), ir_typ(0), ir_chid(0)
 {
 }
 
-TASTrawHit::TASTrawHit(int cha, double charge, double time) {
+TASTrawHit::TASTrawHit(int typ, int cha, double charge, double time) {
 
-  st_time = time;
-  st_chg  = charge;
-  st_chid   = cha;
+  ir_time = time;
+  ir_chg  = charge;
+  ir_typ  = typ;
+  ir_chid   = cha;
 
 }
 
-void TASTrawHit::SetData(Int_t id, Double_t time, Double_t charge) {
+void TASTrawHit::SetData(Int_t type, Int_t id, Double_t time, Double_t charge) {
 
-  st_time = time;
-  st_chg  = charge;
-  st_chid   = id;
+  ir_time = time;
+  ir_chg  = charge;
+  ir_typ  = type;
+  ir_chid   = id;
   return;
 }
+
+
+void TASTrawHit::Clear(Option_t* /*option*/)
+{
+   ir_time = 0.;
+   ir_chg  = 0.;
+   ir_typ  = 0;
+   ir_chid = 0;
+}
+
 //##############################################################################
 
 ClassImp(TASTdatRaw);
@@ -58,16 +70,19 @@ ClassImp(TASTdatRaw);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TASTdatRaw::TASTdatRaw() :
-  nsthit(0), hst(0) {
+TASTdatRaw::TASTdatRaw()
+: TAGdata(),
+  fListOfHits(0)
+{
 }
 
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
-TASTdatRaw::~TASTdatRaw() {
-  delete hst;
+TASTdatRaw::~TASTdatRaw()
+{
+  delete fListOfHits;
 }
 
 //------------------------------------------+-----------------------------------
@@ -75,11 +90,33 @@ TASTdatRaw::~TASTdatRaw() {
 
 void TASTdatRaw::SetupClones()
 {
-  if (!hst) hst = new TClonesArray("TASTrawHit");
+  if (!fListOfHits) fListOfHits = new TClonesArray("TASTrawHit");
   return;
 }
 
+//______________________________________________________________________________
+//
+TASTrawHit* TASTdatRaw::NewHit(int type, int channel, double charge, double time)
+{
+   TClonesArray &pixelArray = *fListOfHits;
+   
+   TASTrawHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TASTrawHit(type, channel, charge, time);
+   
+   return hit;
+   
+}
 
+
+/*------------------------------------------+---------------------------------*/
+//! Set statistics counters.
+
+void TASTdatRaw::SetCounter(Int_t i_ntdc, Int_t i_nadc, Int_t i_ndrop)
+{
+  fiNTdc  = i_ntdc;
+  fiNAdc  = i_nadc;
+  fiNDrop = i_ndrop;
+  return;
+}
 
 //------------------------------------------+-----------------------------------
 //! Clear event.
@@ -87,9 +124,7 @@ void TASTdatRaw::SetupClones()
 void TASTdatRaw::Clear(Option_t*)
 {
   TAGdata::Clear();
-
-  nsthit = 0;
-  if (hst) hst->Clear();
+  if (fListOfHits) fListOfHits->Clear("C");
 
   return;
 }

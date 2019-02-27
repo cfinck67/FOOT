@@ -6,7 +6,7 @@
 
 #include "GlobalPar.hxx"
 #include "TAGgeoTrafo.hxx"
-#include "TATRntuRaw.hxx"
+#include "TASTntuRaw.hxx"
 #include "TABMntuRaw.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
@@ -69,8 +69,8 @@ void LocalRecoMC::CreateRawAction()
    
    
    if (GlobalPar::GetPar()->IncludeST()) {
-      fpNtuRawSt = new TAGdataDsc("stRaw", new TATRntuRaw());
-      fActNtuRawSt = new TATRactNtuMC("stActNtu", fpNtuRawSt, fEvtStruct);
+      fpNtuRawSt = new TAGdataDsc("stRaw", new TASTntuRaw());
+      fActNtuRawSt = new TASTactNtuMC("stActNtu", fpNtuRawSt, fEvtStruct);
       if (fFlagHisto)
          fActNtuRawSt->CreateHistogram();
       
@@ -263,7 +263,7 @@ void LocalRecoMC::SetTreeBranches()
    fActEvtWriter->SetupElementBranch(fpNtuMcEve, TAMCntuEve::GetBranchName());
 
    if (GlobalPar::GetPar()->IncludeST()) {
-      fActEvtWriter->SetupElementBranch(fpNtuRawSt, TATRntuRaw::GetBranchName());
+      fActEvtWriter->SetupElementBranch(fpNtuRawSt, TASTntuRaw::GetBranchName());
       fActEvtWriter->SetupElementBranch(fpNtuMcSt, TAMCntuHit::GetStcBranchName());
    }
    

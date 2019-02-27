@@ -35,7 +35,7 @@
 #include "globals.hh"
 #include "G4String.hh"
 
-#include "TATRparGeo.hxx"
+#include "TASTparGeo.hxx"
 #include "TABMparGeo.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAITparGeo.hxx"
@@ -73,7 +73,7 @@ public:
    G4VPhysicalVolume* Construct();
    
    G4Material*  GetWorldMaterial()         { return fWorldMaterial;   }
-   TATRparGeo*  GetParGeoIr()              { return fpParGeoSt;       }
+   TASTparGeo*  GetParGeoIr()              { return fpParGeoSt;       }
    TABMparGeo*  GetParGeoBm()              { return fpParGeoBm;       }
    TAVTparGeo*  GetParGeoVtx()             { return fpParGeoVtx;      }
    TAITparGeo*  GetParGeoIt()              { return fpParGeoIt;       }
@@ -96,7 +96,7 @@ private:
    FootField*                fFieldImpl;
    TCEMfieldSetup*           fFieldSetup;
 
-   TATRparGeo*               fpParGeoSt;
+   TASTparGeo*               fpParGeoSt;
    TABMparGeo*               fpParGeoBm;
    TAVTparGeo*               fpParGeoVtx;
    TAITparGeo*               fpParGeoIt;

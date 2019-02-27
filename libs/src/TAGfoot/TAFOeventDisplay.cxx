@@ -15,7 +15,7 @@
 #include "TAGgeoTrafo.hxx"
 #include "TAGparGeo.hxx"
 
-#include "TATRntuRaw.hxx"
+#include "TASTntuRaw.hxx"
 #include "TABMntuRaw.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
@@ -196,9 +196,9 @@ void TAFOeventDisplay::ReadParFiles()
    
    // initialise par files for start counter
    if (GlobalPar::GetPar()->IncludeST()) {
-      fpParGeoSt = new TAGparaDsc(TATRparGeo::GetDefParaName(), new TATRparGeo());
-      TATRparGeo* parGeo = (TATRparGeo*)fpParGeoSt->Object();
-      TString parFileName = Form("./geomaps/TATRdetector%s.map", fExpName.Data());
+      fpParGeoSt = new TAGparaDsc(TASTparGeo::GetDefParaName(), new TASTparGeo());
+      TASTparGeo* parGeo = (TASTparGeo*)fpParGeoSt->Object();
+      TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
    }
 
@@ -305,10 +305,10 @@ void TAFOeventDisplay::BuildDefaultGeometry()
    
    // ST
    if (GlobalPar::GetPar()->IncludeST()) {
-      TATRparGeo* parGeo = (TATRparGeo*)fpParGeoSt->Object();
+      TASTparGeo* parGeo = (TASTparGeo*)fpParGeoSt->Object();
       TGeoVolume* irVol  = parGeo->BuildStartCounter();
    
-      const TGeoHMatrix* transfo = fpFootGeo->GetTrafo(TATRparGeo::GetBaseName());
+      const TGeoHMatrix* transfo = fpFootGeo->GetTrafo(TASTparGeo::GetBaseName());
       TGeoHMatrix* transf        = (TGeoHMatrix*)transfo->Clone();
       AddGeometry(irVol, transf);
    }
@@ -757,8 +757,8 @@ void TAFOeventDisplay::UpdateHitInfo(TEveDigitSet* qs, Int_t idx)
       fInfoView->AddLine( Form(" (%.3g %.3g %.3g) cm\n", pos.X(), pos.Y(), pos.Z()) );
       fInfoView->AddLine( Form(" BM Matched %d\n", vtx->IsBmMatched()) );
       
-   } else if (obj->InheritsFrom("TATRntuHit")) {
-      TATRntuHit* hit = (TATRntuHit*)obj;
+   } else if (obj->InheritsFrom("TASTntuHit")) {
+      TASTntuHit* hit = (TASTntuHit*)obj;
       fInfoView->AddLine( Form("Charge: %.3g u.a.\n", hit->GetCharge()) );
       fInfoView->AddLine( Form("Time: %.3g ps \n", hit->GetTime()) );
 
@@ -1197,13 +1197,13 @@ void TAFOeventDisplay::UpdateStcElements()
       return;
 
    //STC
-   TATRntuRaw* pSTntu = (TATRntuRaw*) fpNtuRawSt->Object();
+   TASTntuRaw* pSTntu = (TASTntuRaw*) fpNtuRawSt->Object();
    Int_t       nHits  = pSTntu->GetHitsN();
 
    //hits
    for (Int_t i = 0; i < nHits; i++) {
       
-      TATRntuHit* hit = pSTntu->Hit(i);
+      TASTntuHit* hit = pSTntu->Hit(i);
       Float_t charge = hit->GetCharge();
    
       TVector3 posHit(0,0,0); // center
@@ -1245,7 +1245,7 @@ void TAFOeventDisplay::UpdateWireElements()
       Float_t x = pbmGeo->GetWireX(pbmGeo->GetSenseId(cell),lay,view);
       Float_t y = pbmGeo->GetWireY(pbmGeo->GetSenseId(cell),lay,view);
       Float_t z = pbmGeo->GetWireZ(pbmGeo->GetSenseId(cell),lay,view);
-      
+
       TVector3 posHit(x, y, z);
       TVector3 posHitG = fpFootGeo->FromBMLocalToGlobal(posHit);
       

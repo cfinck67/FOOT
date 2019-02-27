@@ -51,7 +51,7 @@ Bool_t TASTactDatRaw::Action() {
    TAGdaqEvent*   p_datdaq = (TAGdaqEvent*)  fpDatDaq->Object();
    TASTparMap*    p_parmap = (TASTparMap*)    fpParMap->Object();
   
-   if(!p_datraw->hst) p_datraw->SetupClones();
+   p_datraw->SetupClones();
    
    Int_t nFragments = p_datdaq->GetFragmentsN();
 

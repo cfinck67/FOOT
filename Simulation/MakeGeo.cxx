@@ -9,7 +9,7 @@
 #include <sstream>
 
 #include "TADIparGeo.hxx"
-#include "TATRparGeo.hxx"
+#include "TASTparGeo.hxx"
 #include "TABMparGeo.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAITparGeo.hxx"
@@ -69,7 +69,7 @@ int main (int argc, char *argv[]) {
 
     // GlobalFootGeo footGeo;
     TADIparGeo* dipGeo = new TADIparGeo();
-    TATRparGeo* stcGeo = new TATRparGeo();
+    TASTparGeo* stcGeo = new TASTparGeo();
     TABMparGeo* bmGeo = new TABMparGeo();
     TAVTparGeo* vtxGeo = new TAVTparGeo();
     TAITparGeo* itrGeo = new TAITparGeo();

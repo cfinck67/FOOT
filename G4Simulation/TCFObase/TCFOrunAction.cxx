@@ -9,7 +9,7 @@
 
 #include "TAGactTreeWriter.hxx"
 
-#include "TATRparGeo.hxx"
+#include "TASTparGeo.hxx"
 #include "TABMparGeo.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAITparGeo.hxx"
