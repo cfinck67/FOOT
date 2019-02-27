@@ -57,7 +57,6 @@ Set(TCIT  "TCITbase")
 Set(TCMSD "TCMSDbase")
 Set(TCCA  "TCCAbase")
 Set(TCTW  "TCTWbase")
-Set(TCHIT "TCHITbase")
 Set(TCFO  "TCFObase")
 
 #----------------------------------------------------------------------------
