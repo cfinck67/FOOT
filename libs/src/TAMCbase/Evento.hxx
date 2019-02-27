@@ -94,7 +94,7 @@ class Evento : public TObject {
 		 Double_t fCROSSm, Double_t fCROSSch,Double_t fCROSSt);
 
   int FindBranches(TTree *RootTree,EVENT_STRUCT *eve);
-  int SetBranches(TTree *RootTree, EVENT_STRUCT *eve);
+  int SetBranches(TTree *RootTree);
 
   void Dump() const;
 
