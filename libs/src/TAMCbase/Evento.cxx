@@ -585,7 +585,6 @@ Int_t Evento::AddVTX(Int_t fVTXid, Int_t fVTXilay,
       eve.VTXde[eve.VTXn-1] = fVTXde;
       eve.VTXal[eve.VTXn-1] = fVTXal;
       eve.VTXtim[eve.VTXn-1] = fVTXtim;
-     printf("%d %g\n", fVTXilay, fVTXde);
       return 0;
     }
   else
