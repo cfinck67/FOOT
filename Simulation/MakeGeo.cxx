@@ -50,7 +50,8 @@ int main (int argc, char *argv[]) {
 
 
     // real coding starts here!
-    GlobalPar::Instance("GeoConfig.par");
+    // GlobalPar* GlobalPar;
+    GlobalPar::Instance("FootGlobal.par");
     GlobalPar::GetPar()->Print();
 
     TAGroot* fTAGroot = new TAGroot();
@@ -127,8 +128,147 @@ int main (int argc, char *argv[]) {
 
     
     file.close();
+  
 
-    // rewrite the file in the correct way
+    // PRINT OUT foot.geo
+    // per ora chiamati da qui, si puo fare una classe gestore separata se serve
+    string geofileName = "foot.geo";
+
+    ofstream geofile;
+    geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::trunc );
+
+    geofile << "    0    0          FOOT experiment geometry" << endl;
+    geofile << "* ***Black Body" << endl;
+    geofile << "RPP blk        -1000. 1000. -1000. 1000. -1000. 1000." << endl;
+    geofile << "* ***Air -> no mag field" << endl;
+    geofile << "RPP air        -900.0 900.0 -900.0 900.0 -900.0 900.0" << endl;
+
+    // geofile.close();
+
+    geofile << stcGeo->PrintBodies(  );
+    // geofile << bmGeo->PrintBodies(  );
+
+    geofile << "* ***Target\n";
+    geofile << "RPP tgt        " << ( TG_X - TG_WIDTH/2. ) << " "
+	    << ( TG_X + TG_WIDTH/2. ) << " "
+	    << ( TG_Y - TG_HEIGHT/2. ) << " "
+	    << ( TG_Y + TG_HEIGHT/2. ) << " "
+	    << ( TG_Z - TG_THICK/2. ) << " "
+	    << ( TG_Z + TG_THICK/2. ) << endl;
+    
+    geofile << vtxGeo->PrintBodies(  );
+    // geofile << itrGeo->PrintBodies(  );
+    
+    // geofile << "* ***Magnets\n";    
+    // geofile << "RCC MagCvOu0   " << MAG_X << " " << MAG_Y << " "
+    // 	    << MAG_Z - MAG_CV_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
+    // 	    // << MAG_Z - MAG_DIST/2. << " 0.000000 0.000000 "
+    // 	    << MAG_CV_LENGTH << " " << MAG_CV0_OUTRAD << endl;
+    // geofile << "RCC MagCvOu1   " << MAG_X << " " << MAG_Y << " "
+    // 	    << MAG_Z - MAG_CV_LENGTH/2. + MAG_DIST/2. << " 0.000000 0.000000 "
+    // 	    // << MAG_Z + MAG_DIST/2. << " 0.000000 0.000000 "
+    // 	    << MAG_CV_LENGTH << " " << MAG_CV1_OUTRAD << endl;
+    // geofile << "RCC MagPMOu0   " << MAG_X << " " << MAG_Y << " "
+    // 	    << MAG_Z - MAG_PM_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
+    // 	    // << MAG_Z - MAG_DIST/2. << " 0.000000 0.000000 "
+    // 	    << MAG_PM_LENGTH << " " << MAG_PM0_OUTRAD << endl;
+    // geofile << "RCC MagPMOu1   " << MAG_X << " " << MAG_Y << " "
+    // 	    << MAG_Z - MAG_PM_LENGTH/2. + MAG_DIST/2. << " 0.000000 0.000000 "
+    // 	    // << MAG_Z + MAG_DIST/2. << " 0.000000 0.000000 "
+    // 	    << MAG_PM_LENGTH << " " << MAG_PM1_OUTRAD << endl;
+    // geofile << "RCC MagPMIn0   " << MAG_X << " " << MAG_Y << " "
+    // 	    << MAG_Z - MAG_PM_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
+    // 	    // << MAG_Z - MAG_DIST/2. << " 0.000000 0.000000 "
+    // 	    << MAG_PM_LENGTH << " " << MAG_PM0_INRAD << endl;
+    // geofile << "RCC MagPMIn1   " << MAG_X << " " << MAG_Y << " "
+    // 	    << MAG_Z - MAG_PM_LENGTH/2. + MAG_DIST/2. << " 0.000000 0.000000 "
+    // 	    // << MAG_Z + MAG_DIST/2. << " 0.000000 0.000000 "
+    // 	    << MAG_PM_LENGTH << " " << MAG_PM1_INRAD << endl;
+    // geofile << "* ***Gap for magnets\n";
+    // geofile << "ZCC Gap0       0.000000 0.000000 " << MAG_CV0_INRAD << endl;
+    // geofile << "ZCC Gap1       0.000000 0.000000 " << MAG_CV1_INRAD << endl;
+    // geofile << "* ***Magnetic field air region\n";
+    // //mappa sanelli si estende per: -5<x<5 , -5<y<5 , -30<z<30
+    // geofile << "RPP MagAir     " << MAG_X - 5. << " " << MAG_X + 5. << " "
+    // 	    << MAG_Y - 5. << " " << MAG_Y + 5. << " "
+    // 	    << MAG_Z - 30. << " " << MAG_Z + 30. << endl;
+    
+    // geofile << msdGeo->PrintBodies(  );
+    
+    // geofile << "* ***Air Box for Scintillator and Calorimeter\n";
+    // geofile << "RPP box     " << SCN_X - SCN_BAR_HEIGHT/2. - 1. << " "
+    // 	    << SCN_X + SCN_BAR_HEIGHT/2. + 1. << " "
+    // 	    << SCN_Y - SCN_BAR_HEIGHT/2. - 1. << " "
+    // 	    << SCN_Y + SCN_BAR_HEIGHT/2. + 1. << " "
+    // 	    << SCN_Z - SCN_BAR_THICK/2. - 1. << " "
+    // 	    << CAL_Z + CAL_CRY_THICK/2. +1. << endl;
+    
+    geofile << twGeo->PrintBodies(  );
+    // geofile << caGeo->PrintBodies(  );
+
+
+
+
+    // print bodies
+    // geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::app );
+    geofile << "END        " <<endl;
+
+
+     // region print begins here
+    geofile <<"* ******************************************************************************"<<endl;
+    geofile <<"*                         REGIONS                                              *"<<endl;
+    geofile <<"* ******************************************************************************"<<endl;
+
+    //print  regioni
+
+    geofile <<"BLACK        5 blk -air\n";
+    geofile <<"* ***Air\n";
+    geofile <<"AIR          5 air -stc -tgt\n";
+    // geofile <<"AIR          5 air -stc -tgt -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1)\n";
+    // geofile <<"AIR          5 air -stc -MagAir -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1) -box\n";
+    // geofile <<" -(BmnShiOu -BmnShiIn)\n";
+    // geofile <<" -(BmnShiIn -BmnMyl0 +BmnMyl3)\n";
+    geofile << vtxGeo->PrintSubtractBodiesFromAir();
+    geofile << twGeo->PrintSubtractBodiesFromAir();
+    // geofile << itrGeo->PrintSubtractBodiesFromAir();
+    // geofile << msdGeo->PrintSubtractBodiesFromAir();
+    // geofile <<"\n";
+
+    geofile << stcGeo->PrintRegions(  );
+    // geofile << bmGeo->PrintRegions(  );
+    
+    geofile <<"* ***Target\n";
+    geofile <<"TARGET       5 tgt\n";
+    
+    geofile << vtxGeo->PrintRegions(  );
+    // geofile << itrGeo->PrintRegions(  );
+    
+    // geofile <<"* ***Magnets\n";
+    // geofile <<"MAG_PM0      5 MagPMOu0 -MagPMIn0\n";
+    // geofile <<"MAG_CV0      5 MagCvOu0 -(MagPMOu0 -MagPMIn0) -Gap0\n";
+    // geofile <<"MAG_PM1      5 MagPMOu1 -MagPMIn1\n";
+    // geofile <<"MAG_CV1      5 MagCvOu1 -(MagPMOu1 -MagPMIn1) -Gap1\n";
+    // geofile <<"* ***Magnetic field air region\n";
+    // geofile <<"MAG_AIR      5 MagAir -tgt -(BmnShiIn -BmnMyl0 +BmnMyl3) -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1) ";
+    // geofile << vtxGeo->PrintSubtractBodiesFromAir();
+    // geofile << itrGeo->PrintSubtractBodiesFromAir();
+    // geofile << msdGeo->PrintSubtractBodiesFromAir();
+    // geofile <<"\n";
+
+    // geofile << msdGeo->PrintRegions(  );
+
+    // geofile <<"* ***Air Box for Scintillator and Calorimeter\n";
+    // geofile <<"BOX          5 box ";
+    // geofile << caGeo->PrintSubtractBodiesFromAir();
+    // geofile <<"\n";
+
+    geofile << twGeo->PrintRegions(  );
+    // geofile << caGeo->PrintRegions(  );
+
+    geofile << "END        " <<endl;
+    geofile.close();
+
+        // rewrite the file in the correct way
     ofstream outfile;
     outfile.open( fileName.c_str(), fstream::trunc );
 
@@ -168,169 +308,35 @@ int main (int argc, char *argv[]) {
     outfile << geomat.str();
 
     outfile << "ASSIGNMA    BLCKHOLE     BLACK\n";
-    outfile << "ASSIGNMA         AIR       AIR\n";
+    outfile << "ASSIGNMA         AIR       AIR                             1\n";
 
     outfile << stcGeo->PrintAssignMaterial();
-    outfile << bmGeo->PrintAssignMaterial();
+    // outfile << bmGeo->PrintAssignMaterial();
     outfile << "ASSIGNMA    Polyethy    TARGET                             1\n";
     outfile << vtxGeo->PrintAssignMaterial();
-    outfile << itrGeo->PrintAssignMaterial();
-    outfile << "ASSIGNMA        SmCo   MAG_PM0\n";
-    outfile << "ASSIGNMA    ALUMINUM   MAG_CV0\n";
-    outfile << "ASSIGNMA        SmCo   MAG_PM1\n";
-    outfile << "ASSIGNMA    ALUMINUM   MAG_CV1\n";
-    outfile << "ASSIGNMA         AIR   MAG_AIR                             1\n";
-    outfile << msdGeo->PrintAssignMaterial();
-    outfile << "ASSIGNMA         AIR       BOX\n";
+    // outfile << itrGeo->PrintAssignMaterial();
+    // outfile << "ASSIGNMA        SmCo   MAG_PM0\n";
+    // outfile << "ASSIGNMA    ALUMINUM   MAG_CV0\n";
+    // outfile << "ASSIGNMA        SmCo   MAG_PM1\n";
+    // outfile << "ASSIGNMA    ALUMINUM   MAG_CV1\n";
+    // outfile << "ASSIGNMA         AIR   MAG_AIR                             1\n";
+    // outfile << msdGeo->PrintAssignMaterial();
+    // outfile << "ASSIGNMA         AIR       BOX\n";
     outfile << twGeo->PrintAssignMaterial();
-    outfile << caGeo->PrintAssignMaterial();
+    // outfile << caGeo->PrintAssignMaterial();
 
     outfile << PrintCard("MGNFIELD",TString::Format("%f",MaxAng),
 			 TString::Format("%f",BoundAcc),"",
 			 TString::Format("%f",Bx),TString::Format("%f",By),
 			 TString::Format("%f",Bz),"") << endl;
     // outfile << "MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000" << endl;
+    
+    outfile << vtxGeo->PrintRotations();
+    outfile << twGeo->PrintRotations();
 
     outfile << end.str();
 
     outfile.close();
-
-    
-
-    // PRINT OUT foot.geo
-    // per ora chiamati da qui, si puo fare una classe gestore separata se serve
-    string geofileName = "foot.geo";
-
-    ofstream geofile;
-    geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::trunc );
-
-    geofile << "    0    0          FOOT experiment geometry" << endl;
-    geofile << "* ***Black Body" << endl;
-    geofile << "RPP blk        -1000. 1000. -1000. 1000. -1000. 1000." << endl;
-    geofile << "* ***Air -> no mag field" << endl;
-    geofile << "RPP air        -900.0 900.0 -900.0 900.0 -900.0 900.0" << endl;
-
-    // geofile.close();
-
-    geofile << stcGeo->PrintBodies(  );
-    geofile << bmGeo->PrintBodies(  );
-
-    geofile << "* ***Target\n";
-    geofile << "RPP tgt        " << ( TG_X - TG_WIDTH/2. ) << " "
-	    << ( TG_X + TG_WIDTH/2. ) << " "
-	    << ( TG_Y - TG_HEIGHT/2. ) << " "
-	    << ( TG_Y + TG_HEIGHT/2. ) << " "
-	    << ( TG_Z - TG_THICK/2. ) << " "
-	    << ( TG_Z + TG_THICK/2. ) << endl;
-    
-    geofile << vtxGeo->PrintBodies(  );
-    geofile << itrGeo->PrintBodies(  );
-    
-    geofile << "* ***Magnets\n";    
-    geofile << "RCC MagCvOu0   " << MAG_X << " " << MAG_Y << " "
-	    << MAG_Z - MAG_CV_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
-	    // << MAG_Z - MAG_DIST/2. << " 0.000000 0.000000 "
-	    << MAG_CV_LENGTH << " " << MAG_CV0_OUTRAD << endl;
-    geofile << "RCC MagCvOu1   " << MAG_X << " " << MAG_Y << " "
-	    << MAG_Z - MAG_CV_LENGTH/2. + MAG_DIST/2. << " 0.000000 0.000000 "
-	    // << MAG_Z + MAG_DIST/2. << " 0.000000 0.000000 "
-	    << MAG_CV_LENGTH << " " << MAG_CV1_OUTRAD << endl;
-    geofile << "RCC MagPMOu0   " << MAG_X << " " << MAG_Y << " "
-	    << MAG_Z - MAG_PM_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
-	    // << MAG_Z - MAG_DIST/2. << " 0.000000 0.000000 "
-	    << MAG_PM_LENGTH << " " << MAG_PM0_OUTRAD << endl;
-    geofile << "RCC MagPMOu1   " << MAG_X << " " << MAG_Y << " "
-	    << MAG_Z - MAG_PM_LENGTH/2. + MAG_DIST/2. << " 0.000000 0.000000 "
-	    // << MAG_Z + MAG_DIST/2. << " 0.000000 0.000000 "
-	    << MAG_PM_LENGTH << " " << MAG_PM1_OUTRAD << endl;
-    geofile << "RCC MagPMIn0   " << MAG_X << " " << MAG_Y << " "
-	    << MAG_Z - MAG_PM_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
-	    // << MAG_Z - MAG_DIST/2. << " 0.000000 0.000000 "
-	    << MAG_PM_LENGTH << " " << MAG_PM0_INRAD << endl;
-    geofile << "RCC MagPMIn1   " << MAG_X << " " << MAG_Y << " "
-	    << MAG_Z - MAG_PM_LENGTH/2. + MAG_DIST/2. << " 0.000000 0.000000 "
-	    // << MAG_Z + MAG_DIST/2. << " 0.000000 0.000000 "
-	    << MAG_PM_LENGTH << " " << MAG_PM1_INRAD << endl;
-    geofile << "* ***Gap for magnets\n";
-    geofile << "ZCC Gap0       0.000000 0.000000 " << MAG_CV0_INRAD << endl;
-    geofile << "ZCC Gap1       0.000000 0.000000 " << MAG_CV1_INRAD << endl;
-    geofile << "* ***Magnetic field air region\n";
-    //mappa sanelli si estende per: -5<x<5 , -5<y<5 , -30<z<30
-    geofile << "RPP MagAir     " << MAG_X - 5. << " " << MAG_X + 5. << " "
-	    << MAG_Y - 5. << " " << MAG_Y + 5. << " "
-	    << MAG_Z - 30. << " " << MAG_Z + 30. << endl;
-    
-    geofile << msdGeo->PrintBodies(  );
-    
-    geofile << "* ***Air Box for Scintillator and Calorimeter\n";
-    geofile << "RPP box     " << SCN_X - SCN_BAR_HEIGHT/2. - 1. << " "
-	    << SCN_X + SCN_BAR_HEIGHT/2. + 1. << " "
-	    << SCN_Y - SCN_BAR_HEIGHT/2. - 1. << " "
-	    << SCN_Y + SCN_BAR_HEIGHT/2. + 1. << " "
-	    << SCN_Z - SCN_BAR_THICK/2. - 1. << " "
-	    << CAL_Z + CAL_CRY_THICK/2. +1. << endl;
-    
-    geofile << twGeo->PrintBodies(  );
-    geofile << caGeo->PrintBodies(  );
-
-
-
-
-    // print bodies
-    // geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::app );
-    geofile << "END        " <<endl;
-
-
-     // region print begins here
-    geofile <<"* ******************************************************************************"<<endl;
-    geofile <<"*                         REGIONS                                              *"<<endl;
-    geofile <<"* ******************************************************************************"<<endl;
-
-    //print  regioni
-
-    geofile <<"BLACK        5 blk -air\n";
-    geofile <<"* ***Air -> no mag field\n";
-    geofile <<"AIR          5 air -stc -MagAir -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1) -box\n";
-    geofile <<" -(BmnShiOu -BmnShiIn)\n";
-    geofile <<" -(BmnShiIn -BmnMyl0 +BmnMyl3)\n";
-    geofile << itrGeo->PrintSubtractBodiesFromAir();
-    geofile << msdGeo->PrintSubtractBodiesFromAir();
-    geofile <<"\n";
-
-    geofile << stcGeo->PrintRegions(  );
-    geofile << bmGeo->PrintRegions(  );
-    
-    geofile <<"* ***Target\n";
-    geofile <<"TARGET       5 tgt\n";
-    
-    geofile << vtxGeo->PrintRegions(  );
-    geofile << itrGeo->PrintRegions(  );
-    
-    geofile <<"* ***Magnets\n";
-    geofile <<"MAG_PM0      5 MagPMOu0 -MagPMIn0\n";
-    geofile <<"MAG_CV0      5 MagCvOu0 -(MagPMOu0 -MagPMIn0) -Gap0\n";
-    geofile <<"MAG_PM1      5 MagPMOu1 -MagPMIn1\n";
-    geofile <<"MAG_CV1      5 MagCvOu1 -(MagPMOu1 -MagPMIn1) -Gap1\n";
-    geofile <<"* ***Magnetic field air region\n";
-    geofile <<"MAG_AIR      5 MagAir -tgt -(BmnShiIn -BmnMyl0 +BmnMyl3) -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1) ";
-    geofile << vtxGeo->PrintSubtractBodiesFromAir();
-    geofile << itrGeo->PrintSubtractBodiesFromAir();
-    geofile << msdGeo->PrintSubtractBodiesFromAir();
-    geofile <<"\n";
-
-    geofile << msdGeo->PrintRegions(  );
-
-    geofile <<"* ***Air Box for Scintillator and Calorimeter\n";
-    geofile <<"BOX          5 box ";
-    geofile << twGeo->PrintSubtractBodiesFromAir();
-    geofile << caGeo->PrintSubtractBodiesFromAir();
-    geofile <<"\n";
-
-    geofile << twGeo->PrintRegions(  );
-    geofile << caGeo->PrintRegions(  );
-
-    geofile << "END        " <<endl;
-    geofile.close();
 
 
     ofstream paramfile;

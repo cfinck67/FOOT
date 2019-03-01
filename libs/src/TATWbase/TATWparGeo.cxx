@@ -17,8 +17,8 @@
 #include "TAGmaterials.hxx"
 #include "TAGgeoTrafo.hxx"
 
-// #include "TATWparMap.hxx"
 #include "TATWparGeo.hxx"
+#include "TAGroot.hxx"
 
 
       TString TATWparGeo::fgkDefParaName     = "twGeo";
@@ -108,6 +108,8 @@ Bool_t TATWparGeo::FromFile(const TString& name)
          if(fDebugLevel)
             cout  << "   Tilt: "
             << Form("%f %f %f", tilt[0], tilt[1], tilt[2]) << endl;
+
+	 vTilt.push_back(tilt);
          
          TGeoRotation rot;
          rot.RotateX(tilt[0]);
@@ -372,137 +374,218 @@ Int_t TATWparGeo::GetBarId(Int_t layer, Float_t xGlob, Float_t yGlob)
    return barId;
 }
 
+//_____________________________________________________________________________
+string TATWparGeo::PrintRotations()
+{
+  stringstream ss;
 
+  if(GlobalPar::GetPar()->IncludeTW()){
 
+    TAGgeoTrafo* fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+  
+    TVector3 fCenter = fpFootGeo->GetTWCenter();
+    TVector3 pos;
+    
+    int c=0;
+    
+    for (int i=0; i<GetNLayers(); i++){
+      for (int j=0; j<GetNBars(); j++){      
+  
+	pos.SetXYZ( fCenter.X() + GetBarPosition(i,j).X(),
+		    fCenter.Y() + GetBarPosition(i,j).Y(),
+		    fCenter.Z() + GetBarPosition(i,j).Z());
+
+	// if(vTilt.at(i).X()!=0){
+	// 	ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
+	// 	   << setw(10) << setfill(' ') << std::right << "100."
+	// 	   << setw(10) << setfill(' ') << std::right << " "
+	// 	   << setw(10) << setfill(' ') << std::right << vTilt.at(i).X()*TMath::RadToDeg()
+	// 	   << setw(10) << setfill(' ') << std::right << " "
+	// 	   << setw(10) << setfill(' ') << std::right << " "
+	// 	   << setw(10) << setfill(' ') << std::right << " "
+	// 	   << setfill(' ') << std::left << Form("twX_%d",i) 
+	// 	   << endl;
+	// }
+	// if(vTilt.at(i).Y()!=0){
+	// 	ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
+	// 	   << setw(10) << setfill(' ') << std::right << "200."
+	// 	   << setw(10) << setfill(' ') << std::right << " "
+	// 	   << setw(10) << setfill(' ') << std::right << vTilt.at(i).Y()*TMath::RadToDeg()
+	// 	   << setw(10) << setfill(' ') << std::right << " "
+	// 	   << setw(10) << setfill(' ') << std::right << " "
+	// 	   << setw(10) << setfill(' ') << std::right << " "
+	// 	   << setfill(' ') << std::left << Form("twY_%d",i) 
+	// 	   << endl;
+	// }
+
+	if(vTilt.at(c).Z()!=0){  
+	  ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
+	     << setw(10) << setfill(' ') << std::right << "300."
+	     << setw(10) << setfill(' ') << std::right << " "
+	     << setw(10) << setfill(' ') << std::right << " "
+	     << setw(10) << setfill(' ') << std::right << " "
+	     << setw(10) << setfill(' ') << std::right << -pos.Y()
+	     << setw(10) << setfill(' ') << std::right << " "
+	     << setfill(' ') << std::left << Form("twZ_%d",c) 
+	     << endl;
+	  ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
+	     << setw(10) << setfill(' ') << std::right << "300."
+	     << setw(10) << setfill(' ') << std::right << " "
+	     << setw(10) << setfill(' ') << std::right << vTilt.at(c).Z()
+	     << setw(10) << setfill(' ') << std::right << " "
+	     << setw(10) << setfill(' ') << std::right << " "
+	     << setw(10) << setfill(' ') << std::right << " "
+	     << setfill(' ') << std::left << Form("twZ_%d",c) 
+	     << endl;
+	  ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
+	     << setw(10) << setfill(' ') << std::right << "300."
+	     << setw(10) << setfill(' ') << std::right << " "
+	     << setw(10) << setfill(' ') << std::right << " "
+	     << setw(10) << setfill(' ') << std::right << " "
+	     << setw(10) << setfill(' ') << std::right << pos.Y()
+	     << setw(10) << setfill(' ') << std::right << " "
+	     << setfill(' ') << std::left << Form("twZ_%d",c) 
+	     << endl;
+
+	}
+	
+	c++;
+      }
+    }
+  }
+
+  return ss.str();
+
+}
 
 //_____________________________________________________________________________
-string TATWparGeo::PrintBodies() {
+string TATWparGeo::PrintBodies()
+{
+  
+  stringstream ss;
 
-  if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-	cout << "ERROR << TATWparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
+  if(GlobalPar::GetPar()->IncludeTW()){
 
-  stringstream outstr;
-  outstr << "* ***Scintillator" << endl;
+    TAGgeoTrafo* fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+  
+    TVector3  fCenter = fpFootGeo->GetTWCenter();
+    TVector3 pos;
+    
+    string bodyname, regionname;
+  
+    ss << "* ***Scintillator bodies" << endl;  
 
-  // loop in order of the material alfabeth
-  for ( map<string, vector<string> >::iterator itMat = m_bodyPrintOut.begin(); itMat != m_bodyPrintOut.end(); itMat++ ) {
-	// loop over all body of the same material
-	for ( vector<string>::iterator itBody = (*itMat).second.begin(); itBody != (*itMat).second.end(); itBody++ ) {
-	  outstr << (*itBody);
-	  if (fDebugLevel > 3)    cout << (*itBody);
-	}        
+    int c=0;
+    
+    for (int i=0; i<GetNLayers(); i++){
+      for (int j=0; j<GetNBars(); j++){
+    
+	// Double_t *rot = TATWparGeo::GetTransfo(i,j)->GetRotationMatrix();
+
+ 	// if (vTilt.at(c).X()!=0)
+	//   ss << "$start_transform " << Form("twX_%d",c) << endl;
+ 	// if (vTilt.at(c).Y()!=0)
+	//   ss << "$start_transform " << Form("twY_%d",c) << endl;
+ 	if (vTilt.at(c).Z()!=0)
+	  ss << "$start_transform " << Form("twZ_%d",c) << endl;
+      	
+	bodyname = Form("scn%02d",c);
+	regionname = Form("SCN%02d",c);
+	pos.SetXYZ( fCenter.X() + GetBarPosition(i,j).X(),
+		    fCenter.Y() + GetBarPosition(i,j).Y(),
+		    fCenter.Z() + GetBarPosition(i,j).Z());
+	ss <<  "RPP " << bodyname <<  "     "
+	   << pos.x() - fBarSize.X()/2. << " "
+	   << pos.x() + fBarSize.X()/2. << " "
+	   << pos.y() - fBarSize.Y()/2. << " "
+	   << pos.y() + fBarSize.Y()/2. << " "
+	   << pos.z() - fBarSize.Z()/2. << " "
+	   << pos.z() + fBarSize.Z()/2. << endl;
+	vBody.push_back(bodyname);
+	vRegion.push_back(regionname);
+
+	// if (vTilt.at(c).X()!=0)
+	//   ss << "$end_transform " << endl;
+	// if (vTilt.at(c).Y()!=0)
+	//   ss << "$end_transform " << endl;
+	if (vTilt.at(c).Z()!=0)
+	  ss << "$end_transform " << endl;
+
+	c++;
+      }
+    }
+
   }
-  return outstr.str();
+
+  return ss.str();
 }
 
 
-
 //_____________________________________________________________________________
-string TATWparGeo::PrintRegions() {
+string TATWparGeo::PrintRegions()
+{
 
-  if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-	cout << "ERROR << TATWparGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
+  stringstream ss;
 
-  stringstream outstr;
-  outstr << "* ***Scintillator" << endl;
+  if(GlobalPar::GetPar()->IncludeTW()){
 
-  // loop in order of the material alfabeth
-  for ( map<string, vector<string> >::iterator itMat = m_regionPrintOut.begin(); itMat != m_regionPrintOut.end(); itMat++ ) {
-	// loop over all region of the same material
-	for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-	  outstr << (*itRegion);
-	  if (fDebugLevel > 3)    cout << (*itRegion);
-	}        
+    string name;
+
+    ss << "* ***Scintillator regions" << endl;
+
+    for(int i=0; i<vRegion.size(); i++) {
+      ss << setw(13) << setfill( ' ' ) << std::left << vRegion.at(i)
+    	 << "5 " << vBody.at(i) <<endl;
+    }    
+    
   }
-  return outstr.str();
+  return ss.str();
 }
-
-
 
 
 //_____________________________________________________________________________
 string TATWparGeo::PrintSubtractBodiesFromAir() {
 
-  stringstream outstr;
-  int count=0;
-  // loop in order of the material alfabeth
-  for ( map<string, vector<string> >::iterator itMat = m_bodyName.begin(); itMat != m_bodyName.end(); itMat++ ) {
-	// loop over all region of the same material
-	for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-	  if ( count % 10 == 0 && count>0 )
-	outstr << "\n              ";
-	  count++;
-	  outstr << " -" << (*itRegion);
-	}        
+  stringstream ss;
+
+  if(GlobalPar::GetPar()->IncludeTW()){
+
+    for (int i=0; i<vBody.size(); i++) {
+      ss << " -" << vBody.at(i);
+      if ((i+1)%10==0) ss << endl;
+    }
+    ss << endl;
+
   }
-  return outstr.str();
+  
+  return ss.str();
 
 }
 
 
-
-
-
 //_____________________________________________________________________________
-string TATWparGeo::PrintAssignMaterial() {
+string TATWparGeo::PrintAssignMaterial()
+{
 
-  if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-	cout << "ERROR << TATWparGeo::PrintAssignMaterial()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
+  stringstream ss; 
+  
+  if(GlobalPar::GetPar()->IncludeTW()){
 
+    const Char_t* mat = fBarMat.Data();;
 
-  // loop in order of the material alfabeth
-  stringstream outstr; 
-  for ( map<string, vector<string> >::iterator itMat = m_regionName.begin(); itMat != m_regionName.end(); itMat++ ) {
-
-	// check dimension greater than 0
-	if ( (*itMat).second.size() == 0 ) {
-	  cout << "ERROR << TATWparGeo::PrintAssignMaterial  ::  "<<endl, exit(0);
-	}
-
-	// take the first region
-	string firstReg = (*itMat).second.at(0);
-	// take the last region
-	string lastReg = "";
-	if ( (*itMat).second.size() != 1 ) 
-	  lastReg = (*itMat).second.at( (*itMat).second.size()-1 );
-
-	// build output string 
-	outstr  << setw(10) << setfill( ' ' ) << std::left << "ASSIGNMA" 
-		<< setw(10) << setfill( ' ' ) << std::right << (*itMat).first 
-		<< setw(10) << setfill( ' ' ) << std::right << firstReg 
-		<< setw(10) << setfill( ' ' ) << std::right << lastReg;
-					   
-		
-	// multiple region condition 
-	if ( (*itMat).second.size() != 1 ) {
-	  outstr << setw(10) << setfill( ' ' ) << std::right  << 1 ;
-	}
-	else {
-	  outstr << setw(10) << setfill( ' ' ) << std::right  << " ";
-	}
-
-
-	// region in the magnetic filed condition
-	bool isMag = true;
-	for (int i=0; i<(*itMat).second.size(); i++) {
-	  if ( m_magneticRegion[ (*itMat).second.at(i) ] == 0 ) {
-	isMag = false;
-	break;
-	  }
-	}
-	if ( isMag )
-	  outstr << setw(10) << setfill( ' ' ) << std::right  << 1 ;
-	else 
-	  outstr << setw(10) << setfill( ' ' ) << std::right  << " " ;
-		
-	outstr << endl;
-
-	// DEBUG
-	// if (fDebugLevel > 0)    cout << outstr.str();
-
+    if (vRegion.size()==0 )
+      cout << "Error: TW regions vector not correctly filled!"<<endl;
+    
+    ss << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+       << setw(10) << setfill(' ') << std::right << mat
+       << setw(10) << setfill(' ') << std::right << vRegion.at(0)
+       << setw(10) << setfill(' ') << std::right << vRegion.back()
+       << setw(10) << setfill(' ') << std::right << "1."
+       << setw(10) << setfill(' ') << std::right << "1."
+       << endl;
   }
 
-  return outstr.str();
+  return ss.str();
 
 }
 
@@ -521,20 +604,13 @@ string TATWparGeo::PrintParameters() {
   
   string nstrip = "nstripSCN";
   outstr << "      integer " << nstrip << endl;
-  outstr << "      parameter(" << nstrip << " = " << fBarsN << ")" << endl;
+  outstr << "      parameter(" << nstrip << " = " << GetNBars() << ")" << endl;
   // outstr << typeid(m_nBar).name()<< endl;
   outstr << endl;  
 
   return outstr.str();
 
 }
-
-
-
-
-
-
-
 
 
 

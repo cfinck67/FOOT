@@ -42,17 +42,19 @@ public:
    
    // to keep interace for compilation
    virtual string PrintParameters();
+   virtual string PrintRotations();
    virtual string PrintBodies();
    virtual string PrintRegions();
    virtual string PrintAssignMaterial();
    virtual string PrintSubtractBodiesFromAir();
-   virtual void   PrintFluka();
    
 protected:
    map<string, vector<string> > m_regionName;
    map<string, vector<string> > m_bodyName;
-   map<string, vector<string> > m_regionPrintOut;
+   // map<string, vector<string> > m_regionPrintOut;
    map<string, vector<string> > m_bodyPrintOut;
+   vector<string> vEpiBody, vModBody, vPixBody;
+   vector<string> vEpiRegion, vModRegion, vPixRegion;
 
 public:
    static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }

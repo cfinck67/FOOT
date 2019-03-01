@@ -34,6 +34,7 @@
 #include "TAGmaterials.hxx"
 
 #include "TAVTparGeo.hxx"
+#include "TAGroot.hxx"
 
 //##############################################################################
 
@@ -50,16 +51,16 @@ const TString TAVTparGeo::fgkDefParaName   = "vtGeo";
 
 //______________________________________________________________________________
 TAVTparGeo::TAVTparGeo()
-: TAVTbaseParGeo()
+  : TAVTbaseParGeo()
 {
-   // Standard constructor
-   fgDefaultGeoName = "./geomaps/TAVTdetector.map";
+  // Standard constructor
+  fgDefaultGeoName = "./geomaps/TAVTdetector.map";
 }
 
 //______________________________________________________________________________
 TAVTparGeo::~TAVTparGeo()
 {
-   // Destructor
+  // Destructor
 }
 
 
@@ -67,45 +68,45 @@ TAVTparGeo::~TAVTparGeo()
 //_____________________________________________________________________________
 void TAVTparGeo::DefineMaterial()
 {
-   // Silicon material
-   TAVTbaseParGeo::DefineMaterial();
+  // Silicon material
+  TAVTbaseParGeo::DefineMaterial();
    
-   // Pixel material
-   TGeoMixture* mix = TAGmaterials::Instance()->CreateMixture(fPixMat, fPixMatDensities, fPixMatProp, fPixMatDensity);
-   if (fDebugLevel) {
-      printf("pixels material:\n");
-      mix->Print();
-   }
+  // Pixel material
+  TGeoMixture* mix = TAGmaterials::Instance()->CreateMixture(fPixMat, fPixMatDensities, fPixMatProp, fPixMatDensity);
+  if (fDebugLevel) {
+    printf("pixels material:\n");
+    mix->Print();
+  }
 }
 
 //_____________________________________________________________________________
 TGeoVolume* TAVTparGeo::BuildVertex(const char *vertexName, const char* basemoduleName)
 {
-   if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
-	  new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
-   }
+  if ( gGeoManager == 0x0 ) { // a new Geo Manager is created if needed
+    new TGeoManager( TAGgeoTrafo::GetDefaultGeomName(), TAGgeoTrafo::GetDefaultGeomTitle());
+  }
  
-   // define box
-   DefineMaxMinDimension();
+  // define box
+  DefineMaxMinDimension();
    
-   TGeoVolume* vertex = gGeoManager->FindVolumeFast(vertexName);
-   if ( vertex == 0x0 ) {
-      TGeoMedium*   med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("AIR");
-      vertex = gGeoManager->MakeBox(vertexName,med,fSizeBox.X()/2.,fSizeBox.Y()/2.,fSizeBox.Z()/2.); // volume corresponding to vertex
-   }
+  TGeoVolume* vertex = gGeoManager->FindVolumeFast(vertexName);
+  if ( vertex == 0x0 ) {
+    TGeoMedium*   med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject("AIR");
+    vertex = gGeoManager->MakeBox(vertexName,med,fSizeBox.X()/2.,fSizeBox.Y()/2.,fSizeBox.Z()/2.); // volume corresponding to vertex
+  }
    
-   TGeoVolume* vertexMod = 0x0; 
+  TGeoVolume* vertexMod = 0x0; 
    
-   for(Int_t iSensor = 0; iSensor < GetNSensors(); iSensor++) {
+  for(Int_t iSensor = 0; iSensor < GetNSensors(); iSensor++) {
       
-	  TGeoHMatrix* hm = GetTransfo(iSensor);
-      vertexMod = AddModule(Form("%s%d",basemoduleName, iSensor), vertexName);
+    TGeoHMatrix* hm = GetTransfo(iSensor);
+    vertexMod = AddModule(Form("%s%d",basemoduleName, iSensor), vertexName);
       
-      TGeoHMatrix* transf = (TGeoHMatrix*)hm->Clone();
-	  vertex->AddNode(vertexMod, iSensor, transf);
-   }
+    TGeoHMatrix* transf = (TGeoHMatrix*)hm->Clone();
+    vertex->AddNode(vertexMod, iSensor, transf);
+  }
    
-   return vertex;
+  return vertex;
 }
 
 //_____________________________________________________________________________
@@ -122,174 +123,272 @@ TGeoVolume* TAVTparGeo::AddModule(const char* basemoduleName, const char *vertex
    vertexMod->SetLineColor(kAzure-5);
    vertexMod->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
    
-   if (GlobalPar::GetPar()->geoFLUKA())
-      PrintFluka();
+   // if (GlobalPar::GetPar()->geoFLUKA())
+   //    PrintFluka();
    
    return vertexMod;
 }
 
-//_____________________________________________________________________________
-void TAVTparGeo::PrintFluka()
-{
-   static Int_t count = 0;
-   const Char_t* matName = fEpiMat.Data();
-
-   TVector3 pos = GetSensorPosition(count);
-   stringstream ss;
-   ss << setiosflags(ios::fixed) << setprecision(6);
-   ss <<  "RPP " << Form("VTXP%d", count) <<  "     "
-   << pos.x() - fTotalSize.X()/2.  << " " << pos.x() +  fTotalSize.X()/2. << " "
-   << pos.y() - fTotalSize.Y()/2.  << " " << pos.y() +  fTotalSize.Y()/2. << " "
-   << pos.z() - fTotalSize.Z()/2.  << " " << pos.z() +  fTotalSize.Z()/2. << endl;
-   
-   m_bodyPrintOut[matName].push_back( ss.str() );
-   
-   m_regionName[matName].push_back(Form("vtxp%d", count));
-   m_bodyName[matName].push_back(Form("VTXP%d", count));
-   m_bodyPrintOut[matName].push_back(Form("VTXP%d", count));
-   m_bodyName[matName].push_back(Form("VTXP%d", count));
-}
 
 //_____________________________________________________________________________
 string TAVTparGeo::PrintParameters()
 {   
-   stringstream outstr;
-   outstr << setiosflags(ios::fixed) << setprecision(5);
+  stringstream outstr;
+  outstr << setiosflags(ios::fixed) << setprecision(5);
    
-   string precision = "D+00";
+  if(GlobalPar::GetPar()->IncludeVertex()){
+    
+    string precision = "D+00";
    
-   outstr << "c     VERTEX PARAMETERS " << endl;
-   outstr << endl;
+    outstr << "c     VERTEX PARAMETERS " << endl;
+    outstr << endl;
    
-   map<string, int> intp;
-   intp["xpixVTX"] = fPixelsNx;
-   intp["ypixVTX"] = fPixelsNx;
-   intp["nlayVTX"] = fSensorsN;
-   for (auto i : intp){
+    map<string, int> intp;
+    intp["nlayVTX"] = fSensorsN;
+    for (auto i : intp){
       outstr << "      integer " << i.first << endl;
       outstr << "      parameter (" << i.first << " = " << i.second << ")" << endl;
-      // outstr << endl;
-   }
+    }
    
-   map<string, double> doublep;
-   doublep["dxVTX"] = fTotalSize[0];
-   doublep["dyVTX"] = fTotalSize[1];
-   doublep["xminVTX"] = fMinPosition[0];
-   doublep["yminVTX"] = fMinPosition[1];
-   for (auto i : doublep){
-      outstr << "      double precision " << i.first << endl;
-      outstr << "      parameter (" << i.first << " = " << i.second << precision << ")" << endl;
-      // outstr << endl;
-   }
-   outstr << endl;
+    outstr << endl;
+  }
    
-   return outstr.str();
+  return outstr.str();
 }
+
+
+//_____________________________________________________________________________
+string TAVTparGeo::PrintRotations()
+{
+  stringstream ss;
+
+  if(GlobalPar::GetPar()->IncludeVertex()){
+  
+    for(int iSens=0; iSens<GetNSensors(); iSens++) {
+
+      // if(fSensorParameter[iSens].Tilt[0]!=0){
+      // 	ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
+      // 	   << setw(10) << setfill(' ') << std::right << "100."
+      // 	   << setw(10) << setfill(' ') << std::right << " "
+      // 	   << setw(10) << setfill(' ') << std::right << fSensorParameter[iSens].Tilt[0]*TMath::RadToDeg()
+      // 	   << setw(10) << setfill(' ') << std::right << " "
+      // 	   << setw(10) << setfill(' ') << std::right << " "
+      // 	   << setw(10) << setfill(' ') << std::right << " "
+      // 	   << setfill(' ') << std::left << Form("vtX_%d",iSens) 
+      // 	   << endl;
+      // }
+      // if(fSensorParameter[iSens].Tilt[1]!=0){
+      // 	ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
+      // 	   << setw(10) << setfill(' ') << std::right << "200."
+      // 	   << setw(10) << setfill(' ') << std::right << " "
+      // 	   << setw(10) << setfill(' ') << std::right << fSensorParameter[iSens].Tilt[1]*TMath::RadToDeg()
+      // 	   << setw(10) << setfill(' ') << std::right << " "
+      // 	   << setw(10) << setfill(' ') << std::right << " "
+      // 	   << setw(10) << setfill(' ') << std::right << " "
+      // 	   << setfill(' ') << std::left << Form("vtY_%d",iSens) 
+      // 	   << endl;
+      // }
+      if(fSensorParameter[iSens].Tilt[2]!=0){
+	ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
+	   << setw(10) << setfill(' ') << std::right << "300."
+	   << setw(10) << setfill(' ') << std::right << " "
+	   << setw(10) << setfill(' ') << std::right << fSensorParameter[iSens].Tilt[2]*TMath::RadToDeg()
+	   << setw(10) << setfill(' ') << std::right << " "
+	   << setw(10) << setfill(' ') << std::right << " "
+	   << setw(10) << setfill(' ') << std::right << " "
+	   << setfill(' ') << std::left << Form("vtZ_%d",iSens) 
+	   << endl;
+      }
+
+    }
+  }
+  return ss.str();
+
+}
+
+
 //_____________________________________________________________________________
 string TAVTparGeo::PrintBodies()
 {
-   if ( !GlobalPar::GetPar()->geoFLUKA() )
-      cout << "ERROR << TAVTbaseParGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
-   
-   stringstream outstr;
-   outstr << "* ***Vertex" << endl;
-   
-   // loop in order of the material alfabeth
-   for ( map<string, vector<string> >::iterator itMat = m_bodyPrintOut.begin(); itMat != m_bodyPrintOut.end(); itMat++ ) {
-      // loop over all body of the same material
-      for ( vector<string>::iterator itBody = (*itMat).second.begin(); itBody != (*itMat).second.end(); itBody++ ) {
-         outstr << (*itBody);
+
+  stringstream ss;
+
+  if(GlobalPar::GetPar()->IncludeVertex()){
+
+    TAGgeoTrafo* fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+  
+    TVector3  fCenter = fpFootGeo->GetVTCenter();
+    TVector3 posEpi, posPix, posMod;
+
+    string bodyname, regionname;
+  
+    ss << "* ***Vertex bodies" << endl;  
+
+    for(int iSens=0; iSens<GetNSensors(); iSens++) {
+
+      // if(fSensorParameter[iSens].Tilt[0]!=0)
+      // 	ss << "$start_transform " << Form("vtX_%d",iSens) << endl;
+      // if(fSensorParameter[iSens].Tilt[1]!=0)
+      // 	ss << "$start_transform " << Form("vtY_%d",iSens) << endl;
+      if(fSensorParameter[iSens].Tilt[2]!=0)
+	ss << "$start_transform " << Form("vtZ_%d",iSens) << endl;
+        
+      //epitaxial layer
+      bodyname = Form("vtxe%d",iSens);
+      regionname = Form("VTXE%d",iSens);
+      posEpi.SetXYZ( fCenter.X() + GetSensorPosition(iSens).X(),
+		     fCenter.Y() + GetSensorPosition(iSens).Y(),
+		     fCenter.Z() + GetSensorPosition(iSens).Z() - fTotalSize.Z()/2. + fPixThickness + fEpiSize.Z()/2. );
+      ss <<  "RPP " << bodyname <<  "     "
+	 << posEpi.x() - fEpiSize.X()/2. << " "
+	 << posEpi.x() + fEpiSize.X()/2. << " "
+	 << posEpi.y() - fEpiSize.Y()/2. << " "
+	 << posEpi.y() + fEpiSize.Y()/2. << " "
+	 << posEpi.z() - fEpiSize.Z()/2. << " "
+	 << posEpi.z() + fEpiSize.Z()/2. << endl;
+      vEpiBody.push_back(bodyname);
+      vEpiRegion.push_back(regionname);
+    
+      //module
+      bodyname = Form("vtxm%d",iSens);
+      regionname = Form("VTXM%d",iSens);
+      posMod.SetXYZ( posEpi.X() + fEpiSize.X()/2. + fEpiOffset.X() - fTotalSize.X()/2.,
+		     posEpi.Y() - fEpiSize.Y()/2. - fEpiOffset.Y() + fTotalSize.Y()/2.,
+		     fCenter.Z() + GetSensorPosition(iSens).Z() );
+      ss <<  "RPP " << bodyname <<  "     "
+	 << posMod.x() - fTotalSize.X()/2. << " "
+	 << posMod.x() + fTotalSize.X()/2. << " "
+	 << posMod.y() - fTotalSize.Y()/2. << " "
+	 << posMod.y() + fTotalSize.Y()/2. << " "
+	 << posMod.z() - fTotalSize.Z()/2. << " "
+	 << posMod.z() + fTotalSize.Z()/2. << endl;
+      vModBody.push_back(bodyname);
+      vModRegion.push_back(regionname);
+    
+      //pixel layer
+      bodyname = Form("vtxp%d",iSens);
+      regionname = Form("VTXP%d",iSens);
+      posPix.SetXYZ( posEpi.X(), posEpi.Y(), posEpi.Z() - fEpiSize.Z()/2. - fPixThickness/2.);   
+      ss <<  "RPP " << bodyname <<  "     "
+	 << posPix.x() - fEpiSize.X()/2. << " "
+	 << posPix.x() + fEpiSize.X()/2. << " "
+	 << posPix.y() - fEpiSize.Y()/2. << " "
+	 << posPix.y() + fEpiSize.Y()/2. << " "
+	 << posPix.z() - fPixThickness/2. << " "
+	 << posPix.z() + fPixThickness/2. << endl;
+      vPixBody.push_back(bodyname);
+      vPixRegion.push_back(regionname);
+
+      // if(fSensorParameter[iSens].Tilt[0]!=0){
+      // 	ss << "$end_transform " << endl;
+      // }
+      // if(fSensorParameter[iSens].Tilt[1]!=0){
+      // 	ss << "$end_transform " << endl;
+      // }
+      if(fSensorParameter[iSens].Tilt[2]!=0){
+	ss << "$end_transform " << endl;
       }
-   }
-   return outstr.str();
+    
+    }
+  }
+  
+  return ss.str();
 }
 
 //_____________________________________________________________________________
 string TAVTparGeo::PrintRegions()
 {
-   if ( !GlobalPar::GetPar()->geoFLUKA() )
-      cout << "ERROR << TAVTbaseParGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
-   
-   stringstream outstr;
-   outstr << "* ***Vertex" << endl;
-   
-   // loop in order of the material alfabeth
-   for ( map<string, vector<string> >::iterator itMat = m_regionPrintOut.begin(); itMat != m_regionPrintOut.end(); itMat++ ) {
-      // loop over all body of the same material
-      for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-         outstr << (*itRegion);
-      }
-   }
-   return outstr.str();
+
+  stringstream ss;
+
+  if(GlobalPar::GetPar()->IncludeVertex()){
+
+    string name;
+
+    ss << "* ***Vertex regions" << endl;
+
+    for(int i=0; i<vEpiRegion.size(); i++) {
+      ss << setw(13) << setfill( ' ' ) << std::left << vEpiRegion.at(i)
+    	 << "5 " << vEpiBody.at(i) <<endl;
+    }
+
+    for(int i=0; i<vModRegion.size(); i++) {
+      ss << setw(13) << setfill( ' ' ) << std::left << vModRegion.at(i)
+	 << "5 " << vModBody.at(i)
+	 << " -" << vEpiBody.at(i) << " -" << vPixBody.at(i) <<endl;
+    }
+
+    for(int i=0; i<vPixRegion.size(); i++) {
+      ss << setw(13) << setfill( ' ' ) << std::left << vPixRegion.at(i)
+    	 << "5 " << vPixBody.at(i) <<endl;
+    }
+
+  }
+  
+  return ss.str();
+  
 }
 
 //_____________________________________________________________________________
 string TAVTparGeo::PrintSubtractBodiesFromAir()
 {
-   
-   if ( !GlobalPar::GetPar()->geoFLUKA() )
-      cout << "ERROR << TAVTbaseParGeo::PrintSubtractMaterialFromAir()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
-   
-   
-   stringstream outstr;
-   // loop in order of the material alfabeth
-   for ( map<string, vector<string> >::iterator itMat = m_bodyName.begin(); itMat != m_bodyName.end(); itMat++ ) {
-      // loop over all region of the same material
-      for ( vector<string>::iterator itRegion = (*itMat).second.begin(); itRegion != (*itMat).second.end(); itRegion++ ) {
-         outstr << " -" << (*itRegion);
-      }
-   }
-   return outstr.str();
-   
+  
+  stringstream ss;
+
+  if(GlobalPar::GetPar()->IncludeVertex()){
+
+    for(int i=0; i<vModBody.size(); i++) {
+      ss << " -" << vModBody.at(i);
+    }
+    ss << endl;
+
+  }
+
+   return ss.str();   
 }
 
 //_____________________________________________________________________________
 string TAVTparGeo::PrintAssignMaterial()
 {
-   if ( !GlobalPar::GetPar()->geoFLUKA() )
-      cout << "ERROR << TAVTbaseParGeo::PrintAssignMaterial()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
-   
-   
-   // loop in order of the material alfabeth
-   stringstream outstr;
-   for ( map<string, vector<string> >::iterator itMat = m_regionName.begin(); itMat != m_regionName.end(); itMat++ ) {
-      
-      // check dimension greater than 0
-      if ( (*itMat).second.size() == 0 ) {
-         cout << "ERROR << TAVTbaseParGeo::PrintAssignMaterial  ::  "<<endl, exit(0);
-      }
-      
-      // take the first region
-      string firstReg = (*itMat).second.at(0);
-      // take the last region
-      string lastReg = "";
-      if ( (*itMat).second.size() != 1 )
-         lastReg = (*itMat).second.at( (*itMat).second.size()-1 );
-      
-      // build output string
-      outstr  << setw(10) << setfill( ' ' ) << std::left << "ASSIGNMA"
-      << setw(10) << setfill( ' ' ) << std::right << (*itMat).first
-      << setw(10) << setfill( ' ' ) << std::right << firstReg
-      << setw(10) << setfill( ' ' ) << std::right << lastReg;
-      
-      
-      // multiple region condition
-      if ( (*itMat).second.size() != 1 ) {
-         outstr << setw(10) << setfill( ' ' ) << std::right  << 1 ;
-      }
-      else {
-         outstr << setw(10) << setfill( ' ' ) << std::right  << " ";
-      }
-      
-      // region in the magnetic filed condition
-      bool isMag = GlobalPar::GetPar()->IncludeDI();
-      
-      outstr << setw(10) << setfill( ' ' ) << std::right  << isMag ;
-      
-      outstr << endl;
-   }
-   
-   return outstr.str();
+
+  stringstream ss;
+  
+  if(GlobalPar::GetPar()->IncludeVertex()){
+
+    const Char_t* matMod = fEpiMat.Data();
+    const Char_t* matPix = fPixMat.Data();
+
+    if (vEpiRegion.size()==0 || vModRegion.size()==0 || vPixRegion.size()==0 )
+      cout << "Error: VT regions vector not correctly filled!"<<endl;
+    
+    ss << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+       << setw(10) << setfill(' ') << std::right << "SILICON"//matMod
+       << setw(10) << setfill(' ') << std::right << vEpiRegion.at(0)
+       << setw(10) << setfill(' ') << std::right << vEpiRegion.back()
+       << setw(10) << setfill(' ') << std::right << "1."
+       << setw(10) << setfill(' ') << std::right << "1."
+       << endl;
+
+    ss << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+       << setw(10) << setfill(' ') << std::right << "SILICON"//matMod
+       << setw(10) << setfill(' ') << std::right << vModRegion.at(0)
+       << setw(10) << setfill(' ') << std::right << vModRegion.back()
+       << setw(10) << setfill(' ') << std::right << "1."
+       << setw(10) << setfill(' ') << std::right << "1."
+       << endl;
+
+    ss << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+       << setw(10) << setfill(' ') << std::right << "SILICON"//matPix
+       << setw(10) << setfill(' ') << std::right << vPixRegion.at(0)
+       << setw(10) << setfill(' ') << std::right << vPixRegion.back()
+       << setw(10) << setfill(' ') << std::right << "1."
+       << setw(10) << setfill(' ') << std::right << "1."
+       << endl;
+
+  }
+
+  return ss.str();
+
 }
 
 
