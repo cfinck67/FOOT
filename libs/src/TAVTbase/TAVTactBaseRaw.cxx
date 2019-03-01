@@ -118,7 +118,7 @@ Bool_t TAVTactBaseRaw::DecodeFrame()
     7) Trailer;
     */
    
-   TAVTntuRaw* pDatRaw  = (TAVTntuRaw*)  fpNtuRaw->Object();
+   TAVTntuRaw*  pDatRaw = (TAVTntuRaw*)  fpNtuRaw->Object();
    TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
    TAVTparGeo*  pGeoPar = (TAVTparGeo*)  fpGeoMap->Object();
    
