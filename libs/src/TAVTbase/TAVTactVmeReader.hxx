@@ -5,7 +5,6 @@
   \brief   Declaration of TAVTactVmeReader.
 */
 /*------------------------------------------+---------------------------------*/
-#include "TAVTmi26Type.hxx"
 #include <fstream>
 
 #include "TString.h"
@@ -32,13 +31,10 @@ public:
    static void     SetDefaultFolderName(const Char_t* name) { fgDefaultFolderName = name; }
    static TString  GetDefaultFolderName()                   { return fgDefaultFolderName; }
   
-   static  UInt_t  GetKeyHeader(Int_t idx)                  { return fgkKeyHeader[idx];   }
    static  UInt_t  GetDataTail(Int_t idx)                   { return fgkKeyTail[idx];     }
-   static  Int_t   GetHeaderSize()                          { return fgkFrameHeaderSize;  }
    static  Int_t   GetLineWidth()                           { return fgkLineWidth;        }
  
 private:
-   UInt_t*           fData;                // data array to fill
    ifstream          fRawFileAscii[kSize]; // file streamm
    Int_t             fEventNumber;         // number of the event
    Int_t             fRunNumber;           // run number
@@ -48,9 +44,7 @@ private:
    Int_t             fDebugLevel;          // debug level
    
 private:
-   static const UInt_t  fgkKeyHeader[];
    static const UInt_t  fgkKeyTail[];
-   static const Int_t   fgkFrameHeaderSize;
    static const Int_t   fgkLineWidth;
    static const UInt_t  fgkEventHeader;
    static const UInt_t  fgkEventTail;
@@ -75,12 +69,6 @@ private:
    
    //! Get next frames with same trigger
    void   GetNextFrames(Int_t iSensor, UInt_t trigger);
-	  
-   //! Get Sensor number
-   Int_t  GetSensor(UInt_t key);
-   
-   //! decode frame
-   Bool_t DecodeFrame();
    
    //! Set run number
    void   SetRunNumber(const TString& name);

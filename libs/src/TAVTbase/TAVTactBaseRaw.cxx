@@ -11,6 +11,7 @@
 
 #include "TAVTntuRaw.hxx"
 #include "TAVTactBaseRaw.hxx"
+#include "TAVTmi26Type.hxx"
 
 /*!
  \class TAVTactBaseRaw TAVTactBaseRaw.hxx "TAVTactBaseRaw.hxx"
@@ -18,6 +19,9 @@
  */
 
 ClassImp(TAVTactBaseRaw);
+
+const UInt_t TAVTactBaseRaw::fgkKeyHeader[]      = {0x8001, 0x8002, 0x8003, 0x8004, 0x8005, 0x8006, 0x8007, 0x8008};
+const Int_t  TAVTactBaseRaw::fgkFrameHeaderSize  = 5;
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
@@ -39,14 +43,19 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc
    AddDataOut(pDatRaw, "TAVTntuRaw");
    AddPara(pGeoMap, "TAVTparGeo");
    AddPara(pConfig, "TAVTparConf");
-   TAVTparGeo* geoMap = (TAVTparGeo*) fpGeoMap->Object();
-   fNSensors = geoMap->GetNSensors();
+   
+   TAVTparGeo* parGeo = (TAVTparGeo*) fpGeoMap->Object();
+   fNSensors = parGeo->GetNSensors();
+   
+   Int_t size = parGeo->GetNSensors()*sizeof(MI26_FrameRaw);
+   fData      = new UInt_t[size];
 }
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 TAVTactBaseRaw::~TAVTactBaseRaw()
-{   
+{
+   delete fData;
 }
 
 //------------------------------------------+-----------------------------------
@@ -78,6 +87,131 @@ void TAVTactBaseRaw::CreateHistogram()
    
    SetValidHistogram(kTRUE);
    return;
+}
+
+// --------------------------------------------------------------------------------------
+Int_t TAVTactBaseRaw::GetSensor(UInt_t key)
+{
+   TAVTparGeo*  pGeoMap = (TAVTparGeo*)  fpGeoMap->Object();
+   
+   key = (key >> 16) & 0xFFFF;
+   for (Int_t i = 0; i <  pGeoMap->GetNSensors(); ++i) {
+      if (fgkKeyHeader[i] == key)
+         return i;
+   }
+   return -1;
+}
+
+// --------------------------------------------------------------------------------------
+Bool_t TAVTactBaseRaw::DecodeFrame()
+{
+   // Read the information of a frame for a given sensor
+   // We use extensively the structure definined by Gille Clauss
+   /*
+    Events Words:
+    1) Header;
+    2) TriggerCnt;
+    3) TimeStamp;
+    4) FrameCnt;
+    5) DataLength;
+    6) ADataW16[140]; //data MI26
+    7) Trailer;
+    */
+   
+   TAVTdatRaw* pDatRaw  = (TAVTdatRaw*) fpNtuRaw->Object();
+   TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
+   TAVTparGeo*  pGeoPar = (TAVTparGeo*) fpGeoMap->Object();
+   
+   fIndex = 0;
+   while (fIndex < fEventSize) {
+      MI26_FrameRaw *frame = (MI26_FrameRaw*)(&fData[fIndex]);
+      Int_t iSensor        = GetSensor(frame->Header);
+      
+      if (!CheckTriggerCnt(frame->TriggerCnt)) {
+         Warning("DecodeFrame()", "Wrong trigger number %x instead of %x for sensor %d, re-synchrnizing", frame->TriggerCnt, fgCurrentTriggerCnt, iSensor);
+         fgCurrentTriggerCnt = frame->TriggerCnt;
+      }
+      
+      Int_t dataLength    = ((frame->DataLength & 0xFFFF0000)>>16);
+      UShort_t *frameData = (UShort_t*)(&fData[fIndex+fgkFrameHeaderSize]);
+      fIndex             += fgkFrameHeaderSize + dataLength + 1;
+      dataLength         *= 2; // go to short
+      
+      if (ValidHistogram()) {
+         fpHisEvtLength[iSensor]->Fill(frame->TriggerCnt % 1000, dataLength/2);
+         if (frame->TriggerCnt % 1000 == 0) fpHisEvtLength[iSensor]->Reset();
+      }
+      
+      if (iSensor == -1) {
+         Warning("DecodeFrame()", "Wrong header key %x\n", frame->Header);
+         return false;
+      }
+      
+      // -+-+- Pointers AND LOOP to usefull data, i.e. line and states
+      MI26__TStatesLine* lineStatus;
+      MI26__TState*      state;
+      
+      Int_t index = 0;
+      while( index < dataLength) { // Loop over usefull data
+         // first 16 bits word is the Status/Line
+         lineStatus = (MI26__TStatesLine*)frameData;
+         
+         if (fDebugLevel > 3)
+            printf("frame %x %x #state %d Line add %d ovf %d\n", frameData[0], frameData[1], lineStatus->F.StateNb,
+                   lineStatus->F.LineAddr, lineStatus->F.Ovf);
+         
+         frameData += 1; // goto next word
+         index += 2;
+         
+         if( lineStatus->F.Ovf > 0 ) { // Stop when overflow
+            if(fEventsOverflow%1000==0 && fReadingEvent)
+               printf("WARNING : overflow while reading %d at frame %d and sensor %d, total overflow number is %d\n",
+                      fReadingEvent, frame->FrameCnt, iSensor, fEventsOverflow);
+            fOverflow = true;
+         }
+         
+         if(fDebugLevel>3)
+            printf("  line %d, #states %d, overflow %d, reading event  %d\n",
+                   lineStatus->F.LineAddr, lineStatus->F.StateNb, lineStatus->F.Ovf, fReadingEvent);
+         
+         fNStatesInLine = 0;
+         // Next words are the states if any
+         for( Int_t iState = 0; iState < lineStatus->F.StateNb; ++iState ) { // loop over states found on sensor
+            state = (MI26__TState*)frameData;
+            frameData += 1; // goto next word
+            index++;
+            if(fDebugLevel > 3)
+               printf("                  number of states %d, number of hits %d,\n", lineStatus->F.StateNb, state->F.HitNb+1);
+            
+            fNStatesInLine++;
+            
+            // A state contains HitNb+1 pixels
+            // the first pixel being on the left at the column ColAddr
+            for( Int_t iPixel=0; iPixel < state->F.HitNb+1; iPixel++) { // loop on pixels in the state
+               
+               if(fDebugLevel > 3)
+                  printf("   line %3d, col %3d\n", lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
+               
+               // create a new pixel only if we are reading an event
+               // and if the line is in the proper limit
+               if (!lineStatus->F.Ovf) {
+                  AddPixel(iSensor, 1, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
+                  if(fDebugLevel>3)
+                     printf("sensor %d, line %d, col %d\n", iSensor, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
+                  if (pDatRaw->GetPixelsN(iSensor) > pConfig->GetAnalysisPar().HitsInPlaneMaximum) return false;
+                  
+               }
+            }
+            
+            if(fDebugLevel>3) 
+               printf("                  state %d, #pixels %d, column %d at mem.pos %ld\n", 
+                      iState, state->F.HitNb+1, state->F.ColAddr, (long int)state);
+         } // end loop over states
+         
+      } // end loop over usefull data
+   } // while still sensor to unpack
+   
+   return true;   
 }
 
 // --------------------------------------------------------------------------------------

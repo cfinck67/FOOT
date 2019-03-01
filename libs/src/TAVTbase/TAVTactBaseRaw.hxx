@@ -31,13 +31,17 @@ public:
    //! Base creation of histogram
    void CreateHistogram();
    
+public:
+   static  UInt_t  GetKeyHeader(Int_t idx)                  { return fgkKeyHeader[idx];   }
+   static  Int_t   GetHeaderSize()                          { return fgkFrameHeaderSize;  }
+
 protected:
       
    TAGdataDsc*       fpNtuRaw;		    // output data dsc
    TAGparaDsc*       fpGeoMap;		    // geo para dsc
    TAGparaDsc*       fpConfig;		    // config para dsc
    
-   const UInt_t*     fData;
+   UInt_t*           fData;                // data array to fill
 
    Int_t             fNSensors;
    Int_t             fIndex;
@@ -55,11 +59,20 @@ protected:
    TH1F*             fpHisEvtLength[8]; // event data length for each sensor (all 3 frames)
    
 protected:
+   static const UInt_t  fgkKeyHeader[];
+   static const Int_t   fgkFrameHeaderSize;
+   
+protected:
    
    //! Add pixel to list
    void  AddPixel( Int_t input, Int_t value, Int_t aLine, Int_t aColumn);
    
-   
+   //! Get Sensor number
+   Int_t  GetSensor(UInt_t key);
+
+   //! decode frame
+   Bool_t DecodeFrame();
+
    ClassDef(TAVTactBaseRaw,0)
 
 };
