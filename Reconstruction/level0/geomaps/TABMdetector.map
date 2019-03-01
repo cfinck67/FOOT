@@ -14,7 +14,7 @@ Senses:        3
 SenseRad:      0.0015; // Anode
 SenseMat:      "W"
 SenseDensity:  19.3
-FieldRad:      0.0045; // cathode
+FieldRad:   fFoilThick   0.0045; // cathode
 FieldMat:      "Al"
 FieldDensity:  2.6989
 
@@ -31,6 +31,8 @@ GasDensities: "0.001662/0.00187"
 GasProporton: "0.8/0.2"
 GasDensity:    0.001677136
 
+//Aluminum cage thickness
+ShieldingThick:    1.5;
 
 // -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
 // Parameter of the BM (cm)
