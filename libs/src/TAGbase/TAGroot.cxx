@@ -16,6 +16,7 @@
 #include "TList.h"
 
 #include "TAGroot.hxx"
+#include "TAGactionFile.hxx"
 #include "TAGaction.hxx"
 #include "TAGdataDsc.hxx"
 #include "TAGparaDsc.hxx"
@@ -224,6 +225,8 @@ Bool_t TAGroot::NextEvent()
   }
   
   gSystem->ProcessEvents();
+
+  TAGactionFile::IncrementTrigger();
 
   ClearAllAction();
   ClearAllData();

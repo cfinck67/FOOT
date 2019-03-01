@@ -129,20 +129,6 @@ Int_t TAVTactBaseRaw::GetSensor(UInt_t key)
 }
 
 // --------------------------------------------------------------------------------------
-Bool_t TAVTactBaseRaw::CheckTriggerCnt(UInt_t trig)
-{
-   if (fCurrentTriggerCnt == 0) {
-	  fCurrentTriggerCnt = trig;
-	  return true;
-   }
-   
-   if (fCurrentTriggerCnt != trig)
-	  return false;
-   
-   return true;
-}
-
-// --------------------------------------------------------------------------------------
 Bool_t TAVTactBaseRaw::DecodeFrame() 
 {
    // Read the information of a frame for a given sensor

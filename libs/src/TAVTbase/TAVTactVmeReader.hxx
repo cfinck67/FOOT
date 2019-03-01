@@ -37,11 +37,6 @@ public:
    static  Int_t   GetHeaderSize()                          { return fgkFrameHeaderSize;  }
    static  Int_t   GetLineWidth()                           { return fgkLineWidth;        }
  
-   static UInt_t   GetCurrentTriger()                       { return fgCurrentTriggerCnt; }
-   static void     SetCurrentTriger(UInt_t trig)            { fgCurrentTriggerCnt = trig; }
-   static void     IncrementTrigger()                       { fgCurrentTriggerCnt++;      }
-   static Bool_t   CheckTriggerCnt(UInt_t trig);
-
 private:
    UInt_t*           fData;                // data array to fill
    ifstream          fRawFileAscii[kSize]; // file streamm
@@ -70,7 +65,6 @@ private:
 
    static       TString fgDefaultFolderName;
    static       TString fgDefaultExtName;
-   static       UInt_t  fgCurrentTriggerCnt;
 
 private:
    //! Build event

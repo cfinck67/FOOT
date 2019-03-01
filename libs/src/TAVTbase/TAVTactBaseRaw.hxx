@@ -78,10 +78,7 @@ protected:
    
    //! Get Sensor number
    Int_t GetSensor(UInt_t key);
-   
-   //! Check trigger counts
-   Bool_t CheckTriggerCnt(UInt_t trig);
-   
+      
    
    ClassDef(TAVTactBaseRaw,0)
 
