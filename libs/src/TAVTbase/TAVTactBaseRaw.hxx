@@ -6,6 +6,7 @@
 #include "TAGactionFile.hxx"
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
+#include <vector>
 
 
 class TAVTntuRaw;
@@ -18,6 +19,8 @@ class TH1F;
  \brief   Declaration of TAVTactBaseRaw.
  */
 /*------------------------------------------+---------------------------------*/
+
+using namespace std;
 
 class TAVTactBaseRaw : public TAGactionFile {
 public:
@@ -41,7 +44,7 @@ protected:
    TAGparaDsc*       fpGeoMap;		    // geo para dsc
    TAGparaDsc*       fpConfig;		    // config para dsc
    
-   UInt_t*           fData;                // data array to fill
+   vector<UInt_t>    fData;             // data array to fill
 
    Int_t             fNSensors;
    Int_t             fIndex;

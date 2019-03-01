@@ -48,14 +48,13 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc
    fNSensors = parGeo->GetNSensors();
    
    Int_t size = parGeo->GetNSensors()*sizeof(MI26_FrameRaw);
-   fData      = new UInt_t[size];
+   fData.resize(size);
 }
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 TAVTactBaseRaw::~TAVTactBaseRaw()
 {
-   delete fData;
 }
 
 //------------------------------------------+-----------------------------------
