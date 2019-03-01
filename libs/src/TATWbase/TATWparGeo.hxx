@@ -68,11 +68,12 @@ public:
     int GetNBars() { return fBarsN; };
     int GetNLayers() { return fLayersN; };
 
-    string PrintBodies();
-    string PrintRegions();
-    string PrintAssignMaterial();
-    string PrintSubtractBodiesFromAir();
-    string PrintParameters();
+    virtual string PrintBodies();
+    virtual string PrintRegions();
+    virtual string PrintAssignMaterial();
+    virtual string PrintSubtractBodiesFromAir();
+    virtual string PrintParameters();
+    virtual string PrintRotations();
 
     TGeoVolume*     BuildTofWall(const char *twName = "TW");
     TGeoVolume*     BuildTofWallXY(const char *twName = "TW", Int_t iLayer = 0);
@@ -94,11 +95,13 @@ private:
   int fLayersN;
    int fBarsN;
 
-  map<string, vector<string> > m_regionPrintOut;
-  map<string, vector<string> > m_bodyPrintOut;
-  map<string, vector<string> > m_regionName;
-  map<string, vector<string> > m_bodyName;
-  map<string, int > m_magneticRegion;
+  // map<string, vector<string> > m_regionPrintOut;
+  // map<string, vector<string> > m_bodyPrintOut;
+  // map<string, vector<string> > m_regionName;
+  // map<string, vector<string> > m_bodyName;
+  // map<string, int > m_magneticRegion;
+   vector<string> vBody, vRegion;
+  vector<TVector3> vTilt;
    
 private:
    static TString       fgkDefParaName;
