@@ -26,7 +26,7 @@ const UInt_t TAVTactBaseRaw::fgkTailHeader = 0xaaa1aaa1;
 //! Default constructor.
 
 TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig)
-: TAGaction(name, "TAVTactBaseRaw - Base action for unpack vertex raw data"),
+: TAGactionFile(name, "TAVTactBaseRaw - Base action for unpack vertex raw data"),
   fpNtuRaw(pDatRaw),
   fpGeoMap(pGeoMap),
   fpConfig(pConfig),

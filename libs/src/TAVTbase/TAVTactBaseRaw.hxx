@@ -3,7 +3,7 @@
 
 #include "TAVTmi26Type.hxx"
 
-#include "TAGaction.hxx"
+#include "TAGactionFile.hxx"
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
 
@@ -19,7 +19,7 @@ class TH1F;
  */
 /*------------------------------------------+---------------------------------*/
 
-class TAVTactBaseRaw : public TAGaction {
+class TAVTactBaseRaw : public TAGactionFile {
 public:
    
    explicit TAVTactBaseRaw(const char* name=0, TAGdataDsc* p_datraw=0, TAGparaDsc* p_geomap=0, TAGparaDsc* p_config=0);
