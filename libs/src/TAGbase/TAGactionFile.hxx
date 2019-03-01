@@ -30,8 +30,18 @@ class TAGactionFile : public TAGaction {
 
     ClassDef(TAGactionFile,0)
 
+  public:
+    static UInt_t GetCurrentTriger()            { return fgCurrentTriggerCnt; }
+    static void   SetCurrentTriger(UInt_t trig) { fgCurrentTriggerCnt = trig; }
+    static void   IncrementTrigger()            { fgCurrentTriggerCnt++; }
+    static Bool_t CheckTriggerCnt(UInt_t trig);
+
   protected:
     TString         fOpenOpt;		    // default open option
+   
+  protected:
+    static UInt_t    fgCurrentTriggerCnt;
+
 };
 
 #endif

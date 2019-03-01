@@ -11,6 +11,8 @@
   \brief Abstract base class for event I/O handling actions **
 */
 
+UInt_t TAGactionFile::fgCurrentTriggerCnt = 0;
+
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
@@ -68,4 +70,13 @@ void TAGactionFile::SetupBranch(TAGdataDsc* p_data, const char* branch)
 {
    return;
 }
+
+// --------------------------------------------------------------------------------------
+Bool_t TAGactionFile::CheckTriggerCnt(UInt_t trig)
+{
+   if (fgCurrentTriggerCnt != trig)
+      return false;
    
+   return true;
+}
+
