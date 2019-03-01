@@ -42,6 +42,7 @@
 #include "TATWactNtuPoint.hxx"
 
 #include "TAVTactNtuRaw.hxx"
+#include "TAVTactVmeReader.hxx"
 #include "TAITactNtuRaw.hxx"
 //#include "TATWactNtuRaw.hxx"
 
@@ -151,9 +152,13 @@ public:
    }
    
    //! Disable/Enable tracking
-   static void DisableTracking()   { fgTrackFlag = false;  }
-   static void EnableTracking()    { fgTrackFlag = true;   }
-   
+   static void DisableTracking()   { fgTrackFlag = false;     }
+   static void EnableTracking()    { fgTrackFlag = true;      }
+
+   //! Disable/Enable stand alone DAQ
+   static void DisableStdAlone()   { fgStdAloneFlag = false;  }
+   static void EnableStdAlone()    { fgStdAloneFlag = true;   }
+
 protected:
    TAGparaDsc*           fpParGeoSt;
    TAGparaDsc*           fpParGeoG;
@@ -197,11 +202,11 @@ protected:
    TAGdataDsc*           fpNtuRecTw;    // input data dsc
    TAGdataDsc*           fpNtuRawCa;    // input data dsc
 
-   TAGaction*            fActDatRawVtx;     // action for raw data
    TAGactionFile*        fActEvtReader;
    
-   TABMactNtuTrack*  fActTrackBm;   // action for tracks
+   TABMactNtuTrack*      fActTrackBm;   // action for tracks
 
+   TAVTactVmeReader*     fActVmeReaderVtx; // action for stand alone reader VTX
    TAVTactNtuRaw*        fActNtuRawVtx;  // action for ntu data
    TAVTactNtuClusterF*   fActClusVtx;    // action for clusters
    TAVTactBaseNtuTrack*  fActTrackVtx;   // action for tracks
@@ -254,6 +259,7 @@ protected:
    
 private:
    static Bool_t         fgTrackFlag;      // flag for tracking
+   static Bool_t         fgStdAloneFlag;   // flag for standalone DAQ
    static TString        fgTrackingAlgo;   // tracking algorithm ("std" with BM, "Full" combinatory and "Hough" Hough transformation)
  
    ClassDef(TAFOeventDisplay, 1); // Base class for event display

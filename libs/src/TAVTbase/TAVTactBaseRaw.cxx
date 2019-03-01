@@ -26,7 +26,7 @@ const UInt_t TAVTactBaseRaw::fgkTailHeader = 0xaaa1aaa1;
 //! Default constructor.
 
 TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig)
-: TAGaction(name, "TAVTactBaseRaw - Base action for unpack vertex raw data"),
+: TAGactionFile(name, "TAVTactBaseRaw - Base action for unpack vertex raw data"),
   fpNtuRaw(pDatRaw),
   fpGeoMap(pGeoMap),
   fpConfig(pConfig),
@@ -126,20 +126,6 @@ Int_t TAVTactBaseRaw::GetSensor(UInt_t key)
 		 return i;
    }
    return -1;
-}
-
-// --------------------------------------------------------------------------------------
-Bool_t TAVTactBaseRaw::CheckTriggerCnt(UInt_t trig)
-{
-   if (fCurrentTriggerCnt == 0) {
-	  fCurrentTriggerCnt = trig;
-	  return true;
-   }
-   
-   if (fCurrentTriggerCnt != trig)
-	  return false;
-   
-   return true;
 }
 
 // --------------------------------------------------------------------------------------

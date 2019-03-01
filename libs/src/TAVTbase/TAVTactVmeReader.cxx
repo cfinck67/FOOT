@@ -32,7 +32,6 @@ const UInt_t TAVTactVmeReader::fgkKeyTail[]        = {0xaaa1, 0xaaa2, 0xaaa3, 0x
 
      TString TAVTactVmeReader::fgDefaultFolderName = "run_";
      TString TAVTactVmeReader::fgDefaultExtName    = ".dat";
-      UInt_t TAVTactVmeReader::fgCurrentTriggerCnt = 0;
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
@@ -283,9 +282,8 @@ Bool_t TAVTactVmeReader::DecodeFrame()
 	  Int_t iSensor        = GetSensor(frame->Header);
       
 	  if (!CheckTriggerCnt(frame->TriggerCnt)) {
-		 Warning("DecodeFrame()", "Wrong trigger number %x instead of %x for sensor %d, re-synchrnizing\n", frame->TriggerCnt, fgCurrentTriggerCnt, iSensor);
+		 Warning("DecodeFrame()", "Wrong trigger number %x instead of %x for sensor %d, re-synchrnizing", frame->TriggerCnt, fgCurrentTriggerCnt, iSensor);
        fgCurrentTriggerCnt = frame->TriggerCnt;
-        return true;
 	  }   
 	  
 	  Int_t dataLength    = ((frame->DataLength & 0xFFFF0000)>>16); 
@@ -384,13 +382,3 @@ void TAVTactVmeReader::SetRunNumber(const TString& filename)
    fRunNumber = tmp.Atoi();
    gTAGroot->SetRunNumber(fRunNumber);
 }
-
-// --------------------------------------------------------------------------------------
-Bool_t TAVTactVmeReader::CheckTriggerCnt(UInt_t trig)
-{
-   if (fgCurrentTriggerCnt != trig)
-      return false;
-   
-   return true;
-}
-

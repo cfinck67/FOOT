@@ -99,8 +99,7 @@ void ReadVtxVme(TString path = "./run_1041", Int_t nMaxEvts = 10000)
    
    Int_t nEvents = 0;
    while (tagr.NextEvent() ){
-      TAVTactVmeReader::IncrementTrigger();
-
+      
      // printf("\n");
       if (++nEvents % 100 == 0)
 		printf("Event: %d\n", nEvents); 
