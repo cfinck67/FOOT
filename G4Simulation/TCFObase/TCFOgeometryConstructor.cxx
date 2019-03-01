@@ -81,6 +81,7 @@ TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
   fCalorimeter(0x0),
   fTofWall(0x0),
   fMagnet(0x0),
+  fField(0x0),
   fFieldImpl(0x0),
   fFieldSetup(0x0),
   fpParGeoSt(0x0),
