@@ -26,6 +26,7 @@
 #include "QGSP_INCLXX.hh"
 #include "QGSP_BIC.hh"
 #endif
+#include "TCGphysicsQMD.hxx"
 
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"
@@ -104,7 +105,7 @@ int main(int argc,char** argv)
    
    // Set various flag
    TCVTgeometryConstructor::SetSmearFlag(false); // smearing due to the accurancy of the alignment (DeltaPos = 5mu, DeltaAng = 0.1º default)
-   TCGbaseRunAction::SetRootFileName(rootFileName.Data());
+   TCFOrunAction::SetRootFileName(rootFileName.Data());
 
    // Detector construction
    TCGbaseGeometryConstructor* theDetector =  new TCFOgeometryConstructor("");
@@ -132,8 +133,8 @@ int main(int argc,char** argv)
 
    TCGprimaryGeneratorAction* kin = new TCGprimaryGeneratorAction(theDetector->GetParGeoG());
    G4int eventsNToBeProcessed     = theDetector->GetParGeoG()->GetBeamPar().PartNumber;
-   TCGbaseRunAction*   run        = new TCFOrunAction();
-   TCGbaseEventAction* event      = new TCFOeventAction(run, theDetector);
+   TCFOrunAction*   run        = new TCFOrunAction();
+   TCFOeventAction* event      = new TCFOeventAction(run, theDetector);
    
    runManager->SetUserAction(kin);
    runManager->SetUserAction(event);

@@ -16,8 +16,6 @@ set(LIBNAME ${PROJECT_NAME})
 #
 set( Qapivi_file
    TCGprimaryGeneratorAction
-   TCGbaseRunAction
-   TCGbaseEventAction
    TCGbaseConstructor
    TCGtargetConstructor
    TCGbaseGeometryConstructor
