@@ -33,6 +33,7 @@
 
 #include "TAVTdatRaw.hxx"
 #include "TAVTactNtuRaw.hxx"
+#include "TAVTactVmeReader.hxx"
 #include "TAVTactNtuTrackF.hxx"
 #include "TAVTactNtuTrack.hxx"
 #include "TAVTactNtuVertexPD.hxx"
@@ -42,6 +43,7 @@ ClassImp(TAFOeventDisplay)
 
 Bool_t  TAFOeventDisplay::fgTrackFlag    = true;
 TString TAFOeventDisplay::fgTrackingAlgo = "Std";
+Bool_t  TAFOeventDisplay::fgStdAloneFlag = true;
 
 TAFOeventDisplay* TAFOeventDisplay::fgInstance = 0x0;
 
@@ -82,8 +84,8 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fpNtuRawMsd(0x0),
    fpNtuClusMsd(0x0),
    fpNtuRawTw(0x0),
-   fActDatRawVtx(0x0),
    fActEvtReader(0x0),
+   fActVmeReaderVtx(0x0),
    fActNtuRawVtx(0x0),
    fActClusVtx(0x0),
    fActTrackVtx(0x0),
@@ -487,9 +489,16 @@ void TAFOeventDisplay::CreateRawAction()
 
    if (GlobalPar::GetPar()->IncludeVertex()) {
       fpNtuRawVtx   = new TAGdataDsc("vtRaw", new TAVTntuRaw());
-      fpDatRawVtx   = new TAGdataDsc("vtDat", new TAVTdatRaw());
-      fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDatRawVtx, fpParGeoVtx);
-      fActNtuRawVtx->CreateHistogram();
+      
+      if (fgStdAloneFlag) {
+         fActVmeReaderVtx  = new TAVTactVmeReader("vtActNtu", fpNtuRawVtx, fpParGeoVtx, fpParConfVtx);
+         fActVmeReaderVtx->CreateHistogram();
+
+      } else {
+         fpDatRawVtx   = new TAGdataDsc("vtDat", new TAVTdatRaw());
+         fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDatRawVtx, fpParGeoVtx);
+         fActNtuRawVtx->CreateHistogram();
+      }
    }
    
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
@@ -524,7 +533,10 @@ void TAFOeventDisplay::CreateRawAction()
 //__________________________________________________________
 void TAFOeventDisplay::OpenFile(const TString fileName)
 {
-   fActEvtReader->Open(fileName.Data());
+   if (fgStdAloneFlag)
+      fActVmeReaderVtx->Open(fileName.Data());
+   else
+      fActEvtReader->Open(fileName.Data());
 }
 
 //__________________________________________________________
