@@ -21,6 +21,10 @@ class DECardEvent : public RemoteEvent {
 
     virtual std::string classType() const {return "DECardEvent";};
   
+  private:
+    static const u_int eventHeader;
+    static const u_int eventTail;
+
 };
 
 #endif

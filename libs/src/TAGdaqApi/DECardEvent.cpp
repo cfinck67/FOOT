@@ -3,41 +3,51 @@
 #include "DECardEvent.hh"
 #include <iostream>
 
-DECardEvent::~DECardEvent(){}
+const u_int DECardEvent::eventHeader = 0xfafafafa;
+const u_int DECardEvent::eventTail   = 0xabcdabcd;
 
 
-void DECardEvent::readData(unsigned int **p1){
-
-  RemoteEvent::readData(p1);
-
-  if( evtSize!=0){
-    detectorHeader = values[0];
-    boardHeader = values[1];
-    triggerCounter = values[2];
-    BCOofTrigger = values[3];
-    clockCounter = values[4];
-  }
+DECardEvent::~DECardEvent()
+{
 }
 
+void DECardEvent::readData(unsigned int **p1)
+{
+   evtSize   = 0;
+   u_int * p = *p1;
+   
+   // check header
+   if (*p != eventHeader)
+      printf("Error in the event reader %x instead of %x\n", *p, eventHeader);
+   values.push_back(*p);
+   evtSize++;
+   
+   // event number
+   eventNumber = *(++p);
+   evtSize++;
+   values.push_back(*p);
 
-void DECardEvent::printData () const{
+   while (*p != eventTail) {
+      values.push_back(*p);
+      p++;
+      evtSize++;
+   }
+   
+   // push back trailer
+   values.push_back(*p);
+}
+
+void DECardEvent::printData () const
+{
 
   printf ("DECardEvent DATA: \n");
-  printf ("Channel ID (hex): %x\n",  channelID);
-  printf ("Time in seconds: %d\n",  time_sec);
-  printf ("Time in microseconds: %d\n",  time_usec);
-  printf ("Lumi Block: %d\n",  lumiBlock);
   printf ("Number of Event: %d\n",  eventNumber);
-  printf ("Detector Header: %x\n",  detectorHeader);
-  printf ("Board Header: %x\n",  boardHeader);
-  printf ("Trigger Counter (hw): %d\n",  triggerCounter);
-  printf ("BCO counter: %d\n",  BCOofTrigger);
-  printf ("BX counter: %d\n",  clockCounter);
   printf("\n");
 }
 
 
-bool DECardEvent::check() const { 
+bool DECardEvent::check() const
+{
   if( eventNumber==triggerCounter)
     return true;
   else 
