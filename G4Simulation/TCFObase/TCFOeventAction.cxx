@@ -44,7 +44,7 @@
 #include "Evento.hxx"
 #include "TCGmcHit.hxx"
 
-#include "TCGbaseRunAction.hxx"
+#include "TCFOrunAction.hxx"
 #include "TAGroot.hxx"
 #include "TAGgeoTrafo.hxx"
 
@@ -56,10 +56,27 @@
 //
 //---------------------------------------------------------------------------
 //
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+TAGeventInterruptHandler::TAGeventInterruptHandler()
+: TSignalHandler(kSigInterrupt, kFALSE)
+{}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-TCFOeventAction::TCFOeventAction(TCGbaseRunAction* runAction, TCGbaseGeometryConstructor* footGeomConstructor)
-: TCGbaseEventAction(),
+Bool_t TAGeventInterruptHandler::Notify()
+{
+    G4RunManager::GetRunManager()->AbortRun(false);
+    return kTRUE;
+}
+
+//
+//---------------------------------------------------------------------------
+//
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+TCFOeventAction::TCFOeventAction(TCFOrunAction* runAction, TCGbaseGeometryConstructor* footGeomConstructor)
+: G4UserEventAction(),
+  fDebugLevel(0),
+  fEventNumber(-1),
   fIrCollId(-1),
   fBmCollId(-1),
   fVtxCollId(-1),
@@ -68,6 +85,12 @@ TCFOeventAction::TCFOeventAction(TCGbaseRunAction* runAction, TCGbaseGeometryCon
   fTwCollId(-1),
   fCaCollId(-1)
 {
+    fEventInterruptHandler = new TAGeventInterruptHandler();
+    fEventInterruptHandler->Add();
+
+    if (fDebugLevel >0 )
+    G4cout<<"Construct event action "<<G4endl;
+
    fFootGeomConstructor = (TCFOgeometryConstructor*)footGeomConstructor;
    fRunAction           = (TCFOrunAction*)runAction;
    fpGeoTrafo           = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
@@ -76,6 +99,52 @@ TCFOeventAction::TCFOeventAction(TCGbaseRunAction* runAction, TCGbaseGeometryCon
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 TCFOeventAction::~TCFOeventAction()
 {
+    if(fDebugLevel > 0)
+    G4cout<<"Distructor Event Action "<<G4endl;
+
+    delete fEventInterruptHandler;
+
+    if(fDebugLevel > 0)
+    G4cout<<"Out Destructor Event Action "<<G4endl;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+void TCFOeventAction::BeginOfEventAction(const G4Event* evt)
+{
+    fEventNumber = evt->GetEventID()+1;
+    if(fDebugLevel > 0)
+    G4cout<<"********************************************************************Begin event actions "<<evt->GetEventID()<<G4endl;
+
+    static Int_t frequency = 1;
+    static Int_t max       = 0;
+    static Bool_t hasDigit = false;
+
+    if(max == 0) {
+        max = GetEventsNToBeProcessed();
+
+        if( max > 100000)      frequency = 10000;
+        else if( max >= 10000) frequency = 1000;
+        else if( max >= 1000)  frequency = 100;
+        else if( max >= 100)   frequency = 10;
+    }
+
+    if(fEventNumber % frequency == 0)
+    G4cout<<fEventNumber<<G4endl;
+
+    if (!hasDigit) {
+        ConstructCollection();
+        hasDigit = true;
+    }
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+void TCFOeventAction::EndOfEventAction(const G4Event* evt)
+{
+    // digitize evt
+    Collect(evt);
+
+    //At the end of each EVENT
+    FillAndClear();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -190,7 +259,9 @@ void TCFOeventAction::FillHits(Evento* hit, TCGmcHit* mcHit)
    Double_t edep     = mcHit->GetEdep()*TAGgeoTrafo::MevToGev(); 
    Double_t time     = mcHit->GetGlobalTime()*TAGgeoTrafo::NsToSec();
    Double_t al       = 0;
-   
+
+   hit->SetEvent(fEventNumber);
+
    if (fIrCollId >= 0)
       hit->AddSTC(trackId, vin[0], vin[1], vin[2], vou[0], vou[1], vou[2], pin[0], pin[1], pin[2], pou[0], pou[1], pou[2],
                   edep, al, time);
