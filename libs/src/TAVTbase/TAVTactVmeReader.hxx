@@ -40,15 +40,9 @@ public:
 private:
    UInt_t*           fData;                // data array to fill
    ifstream          fRawFileAscii[kSize]; // file streamm
-   Int_t             fIndex;               // index of data array
-   Int_t             fEventSize;           // size of the event
    Int_t             fEventNumber;         // number of the event
    Int_t             fRunNumber;           // run number
-   Bool_t            fReadingEvent;
-   Bool_t            fOverflow;
-   Int_t             fEventsOverflow; 
-   Int_t             fNStatesInLine;
-   Int_t             fChannelsN;           // Number of ADC channels
+
    TString           fPrefixName;          // prefix folder name
    TString           fBaseName;         // base file name
    Int_t             fDebugLevel;          // debug level

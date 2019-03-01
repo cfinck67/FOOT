@@ -24,29 +24,12 @@ public:
    
    explicit TAVTactBaseRaw(const char* name=0, TAGdataDsc* p_datraw=0, TAGparaDsc* p_geomap=0, TAGparaDsc* p_config=0);
    virtual  ~TAVTactBaseRaw();
-     
-   //! Decode rawdata
-   virtual Bool_t DecodeFrame();
    
    //! Get number of sensors
    Int_t GetSensorsN() const { return fNSensors; }
    
    //! Base creation of histogram
    void CreateHistogram();
-   
-public:
-   
-   static  UInt_t GetKeyHeader(Int_t idx) { return fgKeyHeader[idx]; }
-   static  UInt_t GetTailHeader()         { return fgkTailHeader;    }
-   static  Int_t GetHeaderSize()          { return fgkHeaderSize;    }
-   static  Int_t GetLineWidth()           { return fgkLineWidth;     }
-   
-protected: 
-   
-   static const UInt_t  fgKeyHeader[];
-   static const Int_t   fgkHeaderSize;
-   static const Int_t   fgkLineWidth;
-   static const UInt_t  fgkTailHeader;
    
 protected:
       
@@ -76,9 +59,6 @@ protected:
    //! Add pixel to list
    void  AddPixel( Int_t input, Int_t value, Int_t aLine, Int_t aColumn);
    
-   //! Get Sensor number
-   Int_t GetSensor(UInt_t key);
-      
    
    ClassDef(TAVTactBaseRaw,0)
 

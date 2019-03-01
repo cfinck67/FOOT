@@ -38,12 +38,7 @@ const UInt_t TAVTactVmeReader::fgkKeyTail[]        = {0xaaa1, 0xaaa2, 0xaaa3, 0x
 TAVTactVmeReader::TAVTactVmeReader(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig)
 : TAVTactBaseRaw(name, pDatRaw, pGeoMap, pConfig),
   fData(0x0),
-  fIndex(0),
-  fReadingEvent(0),
-  fRunNumber(-1),
-  fOverflow(0),
-  fEventsOverflow(0), 
-  fNStatesInLine(0)
+  fRunNumber(-1)
 {
    SetTitle("TAVTactVmeReader - reader for VME reader");
    fBaseName ="FIFOdata_ch";
