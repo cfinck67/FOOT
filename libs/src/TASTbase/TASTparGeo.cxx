@@ -135,29 +135,31 @@ TGeoVolume* TASTparGeo::BuildStartCounter(const char *stName )
 string TASTparGeo::PrintBodies( ) {
   
   stringstream outstr;
-  outstr << "* ***Start Counter" << endl;
 
-  stringstream ss;
-  double zero = 0.;
+  if(GlobalPar::GetPar()->IncludeST()){
+    outstr << "* ***Start Counter" << endl;
 
-  TAGgeoTrafo* fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-  if (!fpFootGeo)
-    printf("No default GeoTrafo action available yet\n");
-  else 
-    printf("GeoTrafo default action found\n");
+    stringstream ss;
+    double zero = 0.;
 
-  TVector3  fCenter = fpFootGeo->GetSTCenter();
+    TAGgeoTrafo* fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+    if (!fpFootGeo)
+      printf("No default GeoTrafo action available yet\n");
+    else 
+      printf("GeoTrafo default action found\n");
 
-  outstr << setiosflags(ios::fixed) << setprecision(6);
-  outstr << "RPP stc     "  << fCenter[0]-fSize[0]/2. << " " << fCenter[0]+fSize[0]/2 << " " <<
-    fCenter[1]-fSize[1]/2. << " " << fCenter[1]+fSize[1]/2 << " " <<
-    fCenter[2]-fSize[2]/2. << " " << fCenter[2]+fSize[2]/2 << " " <<  endl;
+    TVector3  fCenter = fpFootGeo->GetSTCenter();
 
-  //Mylar that is 10\mum thick
-  outstr << "XYP stcmyl1    "  << fCenter[2]-fSize[2]/2. - 0.001<<  endl;
-  //Mylar that is 10\mum thick
-  outstr << "XYP stcmyl2    "  << fCenter[2]+fSize[2]/2. + 0.001<<  endl;
-  
+    outstr << setiosflags(ios::fixed) << setprecision(6);
+    outstr << "RPP stc     "  << fCenter[0]-fSize[0]/2. << " " << fCenter[0]+fSize[0]/2 << " " <<
+      fCenter[1]-fSize[1]/2. << " " << fCenter[1]+fSize[1]/2 << " " <<
+      fCenter[2]-fSize[2]/2. << " " << fCenter[2]+fSize[2]/2 << " " <<  endl;
+
+    //Mylar that is 10\mum thick
+    outstr << "XYP stcmyl1    "  << fCenter[2]-fSize[2]/2. - 0.001<<  endl;
+    //Mylar that is 10\mum thick
+    outstr << "XYP stcmyl2    "  << fCenter[2]+fSize[2]/2. + 0.001<<  endl;
+  }
   return outstr.str();
 }
 
@@ -166,24 +168,50 @@ string TASTparGeo::PrintBodies( ) {
 string TASTparGeo::PrintRegions() {
   
   stringstream outstr;
-  outstr << "* ***Start Counter" << endl;
 
-  outstr << "STC          5 +stc -stcmyl1 +stcmyl2" << endl;
-  outstr << "STCMYL1      5 +stc +stcmyl1" << endl;
-  outstr << "STCMYL2      5 +stc -stcmyl2" << endl;
+  if(GlobalPar::GetPar()->IncludeST()){
+
+    outstr << "* ***Start Counter" << endl;
+
+    outstr << "STC          5 +stc -stcmyl1 +stcmyl2" << endl;
+    outstr << "STCMYL1      5 +stc +stcmyl1" << endl;
+    outstr << "STCMYL2      5 +stc -stcmyl2" << endl;
+
+  }
 
   return outstr.str();
+}
+
+
+//_____________________________________________________________________________
+string TASTparGeo::PrintSubtractBodiesFromAir() {
+
+  stringstream ss;
+
+  if(GlobalPar::GetPar()->IncludeST()){
+
+    ss << "-stc " << endl;;
+
+  }
+  
+  return ss.str();
+
 }
 
 //_____________________________________________________________________________
 string TASTparGeo::PrintAssignMaterial() {
 
   stringstream outstr;
-  const Char_t* matName = fMaterial.Data();
 
-  outstr << "ASSIGNMA       "<<matName<<"       STC                            1." << endl;
+  if(GlobalPar::GetPar()->IncludeST()){
+  
+    const Char_t* matName = fMaterial.Data();
+
+    outstr << "ASSIGNMA       "<<matName<<"       STC                            1." << endl;
     outstr << "ASSIGNMA       Mylar   STCMYL1   STCMYL2                  1." << endl;
-
-    return outstr.str();
+    
+  }
+  
+  return outstr.str();
 }
 

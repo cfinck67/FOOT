@@ -12,6 +12,8 @@
 
 #include "TAGparTools.hxx"
 
+#include "GlobalPar.hxx"
+
 //##############################################################################
 
 class TASTparGeo : public TAGparTools {
@@ -36,6 +38,7 @@ public:
   string PrintBodies();
   string PrintRegions();
   string PrintAssignMaterial();
+  string PrintSubtractBodiesFromAir();
 
 public:
    static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }
