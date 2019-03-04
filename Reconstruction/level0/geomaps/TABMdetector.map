@@ -14,7 +14,7 @@ Senses:        3
 SenseRad:      0.0015; // Anode
 SenseMat:      "W"
 SenseDensity:  19.3
-FieldRad:   fFoilThick   0.0045; // cathode
+FieldRad:      0.0045; // cathode
 FieldMat:      "Al"
 FieldDensity:  2.6989
 
