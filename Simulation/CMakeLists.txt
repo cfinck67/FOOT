@@ -4,35 +4,38 @@ project (Simulation)
 #
 MESSAGE("${PROJECT_NAME}:")
 #
+
 #----------------------------------------------------------------------------
-# Copy foot.inp DoubleDipole.table
+#  Print Geant4 directory and find REC part of FOOT
+#
+find_package(REC)
+if (REC_FOUND)
+   	include_directories(${REC_INCLUDE_DIR})
+else()
+   MESSAGE(" --> REC has NOT been found")
+endif()
+
+#----------------------------------------------------------------------------
+# Copy
 #
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/link_FOOT.sh DESTINATION ${CMAKE_BINARY_DIR}/Simulation/)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/link_FOOT_mag.sh DESTINATION ${CMAKE_BINARY_DIR}/Simulation/)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/foot.inp DESTINATION ${CMAKE_BINARY_DIR}/Simulation/)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/ROUTINES/  DESTINATION ${CMAKE_BINARY_DIR}/Simulation/ROUTINES)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/TXT2ROOT/  DESTINATION ${CMAKE_BINARY_DIR}/Simulation/TXT2ROOT)
+file(COPY ${FOOT_LEVEL0}/geomaps/ DESTINATION ${CMAKE_BINARY_DIR}/Simulation/geomaps/)
+file(COPY ${FOOT_LEVEL0}/config/  DESTINATION ${CMAKE_BINARY_DIR}/Simulation/config/)
 
 #----------------------------------------------------------------------------
 # internal and external dependencies
 #
-set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TAVT} ${TAIT} ${TAMSD} ${TABM} ${TATW} ${TACA} ${TAST} ${TAMC} ${TAFO})
+set( EXTRA_INTERNAL_LIBRARIES ${REC_LIBRARIES})
 set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES} ${GENFIT_LIBRARIES})
 
 
 # add includes : root + current + dependencies
 #
 include_directories(${ROOT_INCLUDE_DIR})
-include_directories(${TAG_INCLUDE_DIR})
-include_directories(${TAST_INCLUDE_DIR})
-include_directories(${TABM_INCLUDE_DIR})
-include_directories(${TAVT_INCLUDE_DIR})
-include_directories(${TAIT_INCLUDE_DIR})
-include_directories(${TAMC_INCLUDE_DIR})
-include_directories(${TAMSD_INCLUDE_DIR})
-include_directories(${TATW_INCLUDE_DIR})
-include_directories(${TACA_INCLUDE_DIR})
-include_directories(${TAFO_INCLUDE_DIR})
+include_directories(${REC_INCLUDE_DIR})
 include_directories(${GENFIT_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
