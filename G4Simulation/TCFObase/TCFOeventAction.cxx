@@ -43,6 +43,7 @@
 
 #include "Evento.hxx"
 #include "TCGmcHit.hxx"
+#include "TAMCntuEve.hxx"
 
 #include "TCFOrunAction.hxx"
 #include "TAGroot.hxx"
@@ -88,6 +89,8 @@ TCFOeventAction::TCFOeventAction(TCFOrunAction* runAction, TCGbaseGeometryConstr
     fEventInterruptHandler = new TAGeventInterruptHandler();
     fEventInterruptHandler->Add();
 
+    fMcTrack = new TAMCntuEve();
+
     if (fDebugLevel >0 )
     G4cout<<"Construct event action "<<G4endl;
 
@@ -103,6 +106,7 @@ TCFOeventAction::~TCFOeventAction()
     G4cout<<"Distructor Event Action "<<G4endl;
 
     delete fEventInterruptHandler;
+    delete fMcTrack;
 
     if(fDebugLevel > 0)
     G4cout<<"Out Destructor Event Action "<<G4endl;
@@ -142,6 +146,8 @@ void TCFOeventAction::EndOfEventAction(const G4Event* evt)
 {
     // digitize evt
     Collect(evt);
+
+    FillTrack();
 
     //At the end of each EVENT
     FillAndClear();
@@ -244,6 +250,50 @@ void TCFOeventAction::GetHitPerPlane(const G4Event* evt, G4int idColl)
      }
       
    }
+}
+
+////....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+void TCFOeventAction::FillTrack()
+{
+    Evento* hit = fRunAction->GetEventMC();
+
+    Int_t nTracks = fMcTrack->GetHitsN();
+
+    TVector3 initpos ;
+    TVector3 initmom ;
+    TVector3 finalpos ;
+    TVector3 finalmom ;
+    Int_t flukaID ;
+    Int_t trackID ;
+    Int_t parentID ;
+    Int_t nbaryon ;
+    Int_t charge ;
+    Double_t mass ;
+    Double_t tof ;
+    Double_t time ;
+    Double_t length ;
+
+    for(Int_t i=0 ; i<nTracks ; ++i){
+        flukaID = fMcTrack->GetHit(i)->GetFlukaID();
+        trackID = fMcTrack->GetHit(i)->GetType();
+        parentID = fMcTrack->GetHit(i)->GetMotherID();
+        mass = fMcTrack->GetHit(i)->GetMass();
+        charge = fMcTrack->GetHit(i)->GetCharge();
+        nbaryon = fMcTrack->GetHit(i)->GetBaryon();
+        tof = fMcTrack->GetHit(i)->GetTof();
+        time = fMcTrack->GetHit(i)->GetTime();
+        length = fMcTrack->GetHit(i)->GetTrkLength();
+        initpos = fMcTrack->GetHit(i)->GetInitPos();
+        initmom = fMcTrack->GetHit(i)->GetInitP();
+        finalpos = fMcTrack->GetHit(i)->GetFinalPos();
+        finalmom = fMcTrack->GetHit(i)->GetFinalP();
+        hit->AddPart(parentID,trackID,charge,-1,nbaryon,-1,flukaID,
+                     initpos.X(),initpos.Y(),initpos.Z(),
+                     finalpos.X(),finalpos.Y(),finalpos.Z(),
+                     initmom.X(),initmom.Y(),initmom.Z(),
+                     finalmom.X(),finalmom.Y(),finalmom.Z(),
+                     mass,time,tof,length);
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

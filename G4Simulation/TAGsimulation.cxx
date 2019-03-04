@@ -15,6 +15,7 @@
 #include "TCFOgeometryConstructor.hxx"
 #include "TCFOrunAction.hxx"
 #include "TCFOeventAction.hxx"
+#include "TCFOtrackingAction.hxx"
 
 #include "G4UImanager.hh"
 #include "G4String.hh"
@@ -135,9 +136,12 @@ int main(int argc,char** argv)
    G4int eventsNToBeProcessed     = theDetector->GetParGeoG()->GetBeamPar().PartNumber;
    TCFOrunAction*   run        = new TCFOrunAction();
    TCFOeventAction* event      = new TCFOeventAction(run, theDetector);
-   
+   TCFOtrackingAction *tracking = new TCFOtrackingAction(event) ;
+
+
    runManager->SetUserAction(kin);
    runManager->SetUserAction(event);
+   runManager->SetUserAction(tracking) ;
    runManager->SetUserAction(run);
    
    runManager->SetVerboseLevel(-1);

@@ -55,7 +55,7 @@ void TCGprimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
    }
    
    // beam position
-   G4double beamPosX  = fpParGeo->GetBeamPar().Position[0]*cm; //converte le info in cm del beam size in mm
+   G4double beamPosX  = fpParGeo->GetBeamPar().Position[0]*cm; //convert in cm
    G4double beamPosY  = fpParGeo->GetBeamPar().Position[1]*cm;
    G4double beamPosZ  = fpParGeo->GetBeamPar().Position[2]*cm;
    G4double beamSize  = fpParGeo->GetBeamPar().Size*cm;

@@ -21,6 +21,7 @@ set( Qapivi_file
     TCFOgeometryConstructor
     TCFOeventAction
     TCFOrunAction
+    TCFOtrackingAction
 )
 
 # add includes : root + current + dependencies 
