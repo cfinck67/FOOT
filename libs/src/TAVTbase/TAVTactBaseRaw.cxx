@@ -38,6 +38,7 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc
   fpGeoMap(pGeoMap),
   fpConfig(pConfig),
   fData(0x0),
+  fEventNumber(-1),
   fNSensors(8),
   fIndex(0),
   fCurrentTriggerCnt(0),

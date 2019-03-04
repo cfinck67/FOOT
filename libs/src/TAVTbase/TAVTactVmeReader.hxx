@@ -33,7 +33,6 @@ public:
    
 private:
    ifstream          fRawFileAscii[kSize]; // file streamm
-   Int_t             fEventNumber;         // number of the event
    Int_t             fRunNumber;           // run number
 
    TString           fPrefixName;          // prefix folder name

@@ -48,6 +48,8 @@ protected:
    
    vector<UInt_t>    fData;             // data array to fill
 
+   Int_t             fEventNumber;         // number of the event
+
    Int_t             fNSensors;
    Int_t             fIndex;
    UInt_t            fCurrentTriggerCnt;
