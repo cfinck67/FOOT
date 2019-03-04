@@ -24,6 +24,13 @@
 #include "TATW_ContainerPoint.hxx"
 #include "TACAntuRaw.hxx"
 
+#include "TASTDatRaw.hxx"
+#include "TABMDatRaw.hxx"
+
+#include "TABMactVmeReader.hxx"
+#include "TABMactDatRaw.hxx"
+
+
 #include "TAVTntuCluster.hxx"
 #include "TAITntuCluster.hxx"
 #include "TAMSDntuCluster.hxx"
@@ -63,17 +70,20 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fpParGeoG(0x0),
    fpParGeoDi(0x0),
    fpParGeoBm(0x0),
+   fpParGeoVtx(0x0),
    fpParGeoIt(0x0),
    fpParGeoMsd(0x0),
    fpParGeoTw(0x0),
    fpParGeoCa(0x0),
-   fpParGeoVtx(0x0),
-   fpParConfIt(0x0),
+   fpParMapSt(0x0),
+   fpParMapBm(0x0),
+   fpParConfBm(0x0),
    fpParConfVtx(0x0),
+   fpParConfIt(0x0),
    fpDatRawSt(0x0),
    fpDatRawBm(0x0),
    fpNtuRawBm(0x0),
-   fpDatRawVtx(0x0),
+   fpDatDaqVtx(0x0),
    fpNtuRawVtx(0x0),
    fpNtuClusVtx(0x0),
    fpNtuTrackVtx(0x0),
@@ -85,6 +95,9 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fpNtuClusMsd(0x0),
    fpNtuRawTw(0x0),
    fActEvtReader(0x0),
+   fActVmeReaderBm(0x0),
+   fActDatRawBm(0x0),
+   fActTrackBm(0x0),
    fActVmeReaderVtx(0x0),
    fActNtuRawVtx(0x0),
    fActClusVtx(0x0),
@@ -202,6 +215,7 @@ void TAFOeventDisplay::ReadParFiles()
       TASTparGeo* parGeo = (TASTparGeo*)fpParGeoSt->Object();
       TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
+      fpParMapSt = new TAGparaDsc("stMap", new TASTparMap()); // need the file
    }
 
    // initialise par files for Beam Monitor
@@ -218,6 +232,8 @@ void TAFOeventDisplay::ReadParFiles()
       
       parFileName = "./config/bmreso_vs_r.root";
       parConf->LoadReso(parFileName);
+      
+      fpParMapBm = new TAGparaDsc("bmMap", new TABMparMap());
    }
 
    // initialise par files for vertex
@@ -487,6 +503,27 @@ void TAFOeventDisplay::CreateRawAction()
 {
    ReadParFiles();
 
+   if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
+      fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
+      fpDatDaqSt   = new TAGdataDsc("stDaq", new TAGdaqEvent());
+      fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDatDaqSt, fpParMapSt);
+      fActDatRawSt->CreateHistogram();
+   }
+
+   if (GlobalPar::GetPar()->IncludeBM()) {
+      fpDatRawBm   = new TAGdataDsc("bmDat", new TAVTdatRaw());
+      
+      if (fgStdAloneFlag) {
+         fActVmeReaderBm  = new TABMactVmeReader("bmActNtu", fpDatRawBm, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
+         fActVmeReaderBm->CreateHistogram();
+         
+      } else {
+         fpDatDaqBm   = new TAGdataDsc("bmDaq", new TAGdaqEvent());
+         fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDatDaqBm, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
+         fActDatRawBm->CreateHistogram();
+      }
+   }
+
    if (GlobalPar::GetPar()->IncludeVertex()) {
       fpNtuRawVtx   = new TAGdataDsc("vtRaw", new TAVTntuRaw());
       
@@ -495,8 +532,8 @@ void TAFOeventDisplay::CreateRawAction()
          fActVmeReaderVtx->CreateHistogram();
 
       } else {
-         fpDatRawVtx   = new TAGdataDsc("vtDat", new TAVTdatRaw());
-         fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDatRawVtx, fpParGeoVtx);
+         fpDatDaqVtx   = new TAGdataDsc("vtDaq", new TAGdaqEvent());
+         fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDatDaqVtx, fpParGeoVtx);
          fActNtuRawVtx->CreateHistogram();
       }
    }

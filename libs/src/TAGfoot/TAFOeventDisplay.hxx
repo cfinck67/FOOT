@@ -11,6 +11,7 @@
 
 #include "TVirtualMagField.h"
 
+#include "TAGdaqEvent.hxx"
 #include "TASTparGeo.hxx"
 #include "TABMparGeo.hxx"
 #include "TAGparGeo.hxx"
@@ -21,6 +22,9 @@
 #include "TAMSDparGeo.hxx"
 #include "TATWparGeo.hxx"
 #include "TACAparGeo.hxx"
+
+#include "TASTparMap.hxx"
+#include "TABMparMap.hxx"
 
 #include "TATWparCal.hxx"
 
@@ -35,6 +39,11 @@
 #include "TAGglbTrackDisplay.hxx"
 #include "TAGbaseEventDisplay.hxx"
 #include "TAGactionFile.hxx"
+
+#include "TASTactDatRaw.hxx"
+
+#include "TABMactVmeReader.hxx"
+#include "TABMactDatRaw.hxx"
 
 #include "TAVTactNtuClusterF.hxx"
 #include "TAITactNtuClusterF.hxx"
@@ -164,27 +173,33 @@ protected:
    TAGparaDsc*           fpParGeoG;
    TAGparaDsc*           fpParGeoDi;
    TAGparaDsc*           fpParGeoBm;
-   
-   TAGparaDsc*           fpParGeoIt;
    TAGparaDsc*           fpParGeoVtx;
+   TAGparaDsc*           fpParGeoIt;
    TAGparaDsc*           fpParGeoMsd;
    TAGparaDsc*           fpParGeoTw;
    TAGparaDsc*           fpParGeoCa;
    
+   TAGparaDsc*           fpParMapSt;
+   TAGparaDsc*           fpParMapBm;
+
+   TAGparaDsc*           fpParCalBm;
    TAGparaDsc*           fpParCalTw;
    
    TAGparaDsc*           fpParConfBm;
-   TAGparaDsc*           fpParConfIt;
    TAGparaDsc*           fpParConfVtx;
+   TAGparaDsc*           fpParConfIt;
    TAGparaDsc*           fpParConfMsd;
    
+   TAGdataDsc*           fpDatDaqSt;    // input data dsc
    TAGdataDsc*           fpDatRawSt;    // input data dsc
    TAGdataDsc*           fpNtuRawSt;    // input data dsc
+   
+   TAGdataDsc*           fpDatDaqBm;    // input data dsc
    TAGdataDsc*           fpDatRawBm;    // input data dsc
    TAGdataDsc*           fpNtuRawBm;    // input data dsc
    TAGdataDsc*           fpNtuTrackBm;  // input track data dsc
 
-   TAGdataDsc*           fpDatRawVtx;    // input data dsc
+   TAGdataDsc*           fpDatDaqVtx;    // input data dsc
    TAGdataDsc*           fpNtuRawVtx;	  // input ntu data dsc
    TAGdataDsc*           fpNtuClusVtx;	  // input cluster data dsc
    TAGdataDsc*           fpNtuTrackVtx;  // input track data dsc
@@ -203,7 +218,11 @@ protected:
    TAGdataDsc*           fpNtuRawCa;    // input data dsc
 
    TAGactionFile*        fActEvtReader;
-   
+
+   TASTactDatRaw*        fActDatRawSt;   // action for dat raw ST
+
+   TABMactVmeReader*     fActVmeReaderBm; // action for stand alone reader BM
+   TABMactDatRaw*        fActDatRawBm;   // action for dat raw BM
    TABMactNtuTrack*      fActTrackBm;   // action for tracks
 
    TAVTactVmeReader*     fActVmeReaderVtx; // action for stand alone reader VTX
