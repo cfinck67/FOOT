@@ -19,11 +19,16 @@ class DECardEvent : public RemoteEvent {
     virtual void printData() const;
     virtual bool check() const;
 
-    virtual std::string classType() const {return "DECardEvent";};
-  
-  private:
-    static const u_int eventHeader;
-    static const u_int eventTail;
+    virtual std::string classType() const {return "DECardEvent";   }
+   
+  public:
+   static  u_int  GetEventHeader()        { return eventHeader; }
+   static  u_int  GetEventTail()          { return eventTail;   }
+
+  protected:
+   static const u_int  eventHeader;
+   static const u_int  eventTail;
+
 
 };
 
