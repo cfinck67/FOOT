@@ -138,7 +138,7 @@ private:
    Float_t         fFoilThick;
    TString         fFoilMat;
    Float_t         fFoilDensity;
-
+   Float_t         fShieldThick;
    Float_t         fBmStep;
    Float_t         fBmCellWide;
    Float_t         fBmDplane;

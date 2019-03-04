@@ -23,6 +23,7 @@
 #include "TFile.h"
 
 
+#include "TAGroot.hxx"
 #include "TAGmaterials.hxx"
 #include "TAGgeoTrafo.hxx" 
 #include "TABMparGeo.hxx"
@@ -57,6 +58,7 @@ TABMparGeo::TABMparGeo()
    fFoilThick(0),
    fFoilMat(""),
    fFoilDensity(0.),
+   fShieldThick(0.),
    fBmStep(0),
    fBmCellWide(0),
    fBmDplane(0),
@@ -138,7 +140,6 @@ Bool_t TABMparGeo::FromFile(const TString& name)
    if(fDebugLevel)
       cout  << "  Foil density:  "<< fFoilDensity << endl;
 
-   
    ReadItem(fBmStep);
    if(fDebugLevel)
       cout  << "  BM step  "<< fBmStep << endl;
@@ -167,6 +168,10 @@ Bool_t TABMparGeo::FromFile(const TString& name)
    if(fDebugLevel)
       cout  << "  BM gas mixture density:  "<< fGasDensity << endl;
 
+   ReadItem(fShieldThick);
+   if(fDebugLevel)
+      cout  << "  Shielding Thickness:  "<< fShieldThick << endl;
+   
    
    ReadVector3(fBmSideDch);
    if(fDebugLevel)
@@ -528,6 +533,15 @@ string TABMparGeo::PrintBodies(){
     cout << "ERROR << TABMparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
     
 
+  TAGgeoTrafo* fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+  if (!fpFootGeo)
+    printf("No default GeoTrafo action available yet\n");
+  else 
+    printf("GeoTrafo default action found\n");
+
+  //Reading the BM global position from global map file.
+  TVector3  fCenter = fpFootGeo->GetBMCenter();
+
   stringstream outstr;
   outstr << "* ***Beam Monitor" << endl;
 
@@ -540,82 +554,82 @@ string TABMparGeo::PrintBodies(){
   
   outstr << setiosflags(ios::fixed) << setprecision(6);
 
-//  outstr << "RPP BmnShiOu    "
-//	 << BMN_X-BMN_WIDTH/2.-BMN_SHI_THICK << "   "
-//	 << BMN_X+BMN_WIDTH/2.+BMN_SHI_THICK << " "
-//	 << BMN_Y-BMN_HEIGHT/2.-BMN_SHI_THICK << " "
-//	 << BMN_Y+BMN_HEIGHT/2.+BMN_SHI_THICK << " "
-//	 << BMN_Z-BMN_SHI_LENGTH/2. << " "
-//	 << BMN_Z+BMN_SHI_LENGTH/2. << endl;
-//  
-//  outstr << "RPP BmnShiIn    "
-//	 << BMN_X-BMN_WIDTH/2. << "   "
-//	 << BMN_X+BMN_WIDTH/2. << " "
-//	 << BMN_Y-BMN_HEIGHT/2. << " "
-//	 << BMN_Y+BMN_HEIGHT/2. << " "
-//	 << BMN_Z-BMN_SHI_LENGTH/2. << " "
-//	 << BMN_Z+BMN_SHI_LENGTH/2. << endl;
+  outstr << "RPP BmnShiOu    "
+	 << fCenter[0]-fBmSideDch[0]/2.-fShieldThick << "   "
+	 << fCenter[0]+fBmSideDch[0]/2.+fShieldThick << " "
+	 << fCenter[1]-fBmSideDch[1]/2.-fShieldThick << " "
+	 << fCenter[1]+fBmSideDch[1]/2.+fShieldThick << " "
+	 << fCenter[2]-fFoilThick/2. << " "
+	 << fCenter[2]+fFoilThick/2. << endl;
   
-//  outstr << "XYP BmnMyl0     " << BMN_Z-BMN_LENGTH/2.-BMN_MYL_THICK << endl;
-//  outstr << "XYP BmnMyl1     " << BMN_Z-BMN_LENGTH/2. << endl;
-//  outstr << "XYP BmnMyl2     " << BMN_Z+BMN_LENGTH/2. << endl;
-//  outstr << "XYP BmnMyl3     " << BMN_Z+BMN_LENGTH/2.+BMN_MYL_THICK << endl;
-//  
-//	
-//  // Cells
-//  // prima lungo x, poi lungo y
-//  int cella=0;
-//  for (int il=0;il<NLAYERNEW;il++){ // loop on layers
-//    for (int ic =0; ic<NWIRELAYERNEW;ic++){  // loop on cells
-//      if ( (ic==bm_idsense[0]) ||(ic==bm_idsense[1]) ||
-//      	   (ic==bm_idsense[2]) ){
-//	for (int iv =0; iv<2;iv++){      // loop on views
-//	  if ( iv == 0 ){
-//	    xmin = - BMWIDTHNEW/2. + shift;
-//	    xmax = + BMWIDTHNEW/2. - shift;
-//	    ymin = y_pos[ic][il][iv] - bm_cellwide + BMN_RFIELD + shift;
-//	    ymax = y_pos[ic][il][iv] + bm_cellwide - BMN_RFIELD -shift;
-//	  }else{
-//	    xmin = x_pos[ic][il][iv] - bm_cellwide + BMN_RFIELD + shift;
-//	    xmax = x_pos[ic][il][iv] + bm_cellwide - BMN_RFIELD - shift;
-//	    ymin = - BMWIDTHNEW/2. + shift;
-//	    ymax = + BMWIDTHNEW/2. - shift;
-//	  }
-//	  zmin = z_pos[ic][il][iv] - bm_step + BMN_RFIELD + shift;
-//	  zmax = z_pos[ic][il][iv] + bm_step - BMN_RFIELD -shift;
-//	  outstr << "RPP BmnC" << iv << cella << "   "
-//		 << xmin << " " << xmax << " " << ymin << " " << ymax
-//		 << " " << zmin << " " << zmax << endl;
-//	}
-//	cella++;
-//      }
-//    }
-//  }
-//  
-//  // Wires  
-//  for (int il=0;il<NLAYERNEW;il++){
-//    for (int iw =0; iw<NWIRELAYERNEW;iw++){ 
-//      for (int iv =0; iv<2;iv++){
-//	// int iv=1;
-//	if ( (iw==bm_idsense[0]) ||(iw==bm_idsense[1]) ||
-//	     (iw==bm_idsense[2]) ){	
-//	  iSense[iv]++;	
-//	  outstr << "RCC BmnS" << iv << iSense[iv] << "   "
-//		 << x_pos[iw][il][iv] << " " << y_pos[iw][il][iv] << " "
-//		 << z_pos[iw][il][iv] << " "
-//		 << cx_pos[iw][il][iv] << " " << cy_pos[iw][il][iv] << " "
-//		 << cz_pos[iw][il][iv] << " " << BMN_RSENSE << endl;
-//	} else {
-//	  iField[iv]++;     // loop on views    		
-//	  outstr << "RCC BmnF" << iv << iField[iv] << "   "
-//		 << x_pos[iw][il][iv] << " " << y_pos[iw][il][iv] << " "
-//		 << z_pos[iw][il][iv] << " "
-//		 << cx_pos[iw][il][iv] << " " << cy_pos[iw][il][iv] << " "
-//		 << cz_pos[iw][il][iv] << " " << BMN_RFIELD << endl;
-//	}
-//      }
-//    }
-//  }
+  outstr << "RPP BmnShiIn    "
+	 << fCenter[0]-fBmSideDch[0]/2. << "   "
+	 << fCenter[0]+fBmSideDch[0]/2. << " "
+	 << fCenter[1]-fBmSideDch[1]/2. << " "
+	 << fCenter[1]+fBmSideDch[1]/2. << " "
+	 << fCenter[2]-fFoilThick/2. << " "
+	 << fCenter[2]+fFoilThick/2. << endl;
+  
+  outstr << "XYP BmnMyl0     " << fCenter[2]-fBmSideDch[2]/2.-fFoilThick << endl;
+  outstr << "XYP BmnMyl1     " << fCenter[2]-fBmSideDch[2]/2. << endl;
+  outstr << "XYP BmnMyl2     " << fCenter[2]+fBmSideDch[2]/2. << endl;
+  outstr << "XYP BmnMyl3     " << fCenter[2]+fBmSideDch[2]/2.+fFoilThick << endl;
+ 
+	
+ // Cells
+ // prima lungo x, poi lungo y
+ int cella=0;
+ for (int il=0;il<fLayersN;il++){ // loop on layers
+   for (int ic =0; ic<fWireLayersN;ic++){  // loop on cells
+     if ( (ic==fBmIdSense[0]) ||(ic==fBmIdSense[1]) ||
+     	   (ic==fBmIdSense[2]) ){
+	for (int iv =0; iv<2;iv++){      // loop on views
+	  if ( iv == 0 ){
+	    xmin = - fBmSideDch[0]/2. + shift;
+	    xmax = + fBmSideDch[0]/2. - shift;
+	    ymin = fPosY[ic][il][iv] - fBmCellWide + fFieldRadius + shift;
+	    ymax = fPosY[ic][il][iv] + fBmCellWide - fFieldRadius -shift;
+	  }else{
+	    xmin = fPosX[ic][il][iv] - fBmCellWide + fFieldRadius + shift;
+	    xmax = fPosX[ic][il][iv] + fBmCellWide - fFieldRadius - shift;
+	    ymin = - fBmSideDch[1]/2. + shift;
+	    ymax = + fBmSideDch[1]/2. - shift;
+	  }
+	  zmin = fPosZ[ic][il][iv] - fBmStep + fFieldRadius + shift;
+	  zmax = fPosZ[ic][il][iv] + fBmStep - fFieldRadius -shift;
+	  outstr << "RPP BmnC" << iv << cella << "   "
+		 << xmin << " " << xmax << " " << ymin << " " << ymax
+		 << " " << zmin << " " << zmax << endl;
+	}
+	cella++;
+     }
+   }
+ }
+ 
+ // Wires  
+ for (int il=0;il<fLayersN;il++){
+   for (int iw =0; iw<fWireLayersN;iw++){ 
+     for (int iv =0; iv<2;iv++){
+	// int iv=1;
+	if ( (iw==fBmIdSense[0]) ||(iw==fBmIdSense[1]) ||
+	     (iw==fBmIdSense[2]) ){	
+	  iSense[iv]++;	
+	  outstr << "RCC BmnS" << iv << iSense[iv] << "   "
+		 << fPosX[iw][il][iv] << " " << fPosY[iw][il][iv] << " "
+		 << fPosZ[iw][il][iv] << " "
+		 << fPosCX[iw][il][iv] << " " << fPosCY[iw][il][iv] << " "
+		 << fPosCZ[iw][il][iv] << " " << fSenseRadius << endl;
+	} else {
+	  iField[iv]++;     // loop on views    		
+	  outstr << "RCC BmnF" << iv << iField[iv] << "   "
+		 << fPosX[iw][il][iv] << " " << fPosY[iw][il][iv] << " "
+		 << fPosZ[iw][il][iv] << " "
+		 << fPosCX[iw][il][iv] << " " << fPosCY[iw][il][iv] << " "
+		 << fPosCZ[iw][il][iv] << " " << fFieldRadius << endl;
+	}
+     }
+   }
+ }
   
   return outstr.str();
 }
@@ -630,76 +644,76 @@ string TABMparGeo::PrintRegions(){
   stringstream outstr;
   outstr << "* ***Beam Monitor" << endl;
 
-//  int iCell[2]={-1,-1}, iSense[2]={-1,-1}, iField[2]={-1,-1};
-//  char stringa[100];
-//  
-//  outstr << "BMN_SHI      5 BmnShiOu -BmnShiIn" << endl;
-//  outstr << "BMN_MYL0     5 BmnShiIn -BmnMyl0 +BmnMyl1" << endl;
-//  outstr << "BMN_MYL1     5 BmnShiIn -BmnMyl2 +BmnMyl3" << endl;
-//
-//  for (int iv =0; iv<2;iv++){      // loop on views
-//    for (int il=0;il<NLAYERNEW;il++){ // loop on layers
-//      for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
-//  iCell[iv]++;
-//  outstr << "BMN_C" << iv << setw(2) << setfill('0') << iCell[iv]
-//     << "     5 BmnC" << iv << iCell[iv]
-//     << " -BmnS" << iv << iCell[iv] << endl;
-//      }
-//    }
-//  }
-//  
-//  outstr << "BMN_FWI      5";
-//  int count=0;
-//  for (int iv = 0; iv<2; iv++){
-//    for (int il=0;il<NLAYERNEW;il++){ // loop on layers
-//      for (int jj = 0; jj < (NWIRELAYERNEW-NSENSENEW); jj++) {
-//	if ((( count  % 4 ) == 0) && count>0 )
-//	  outstr << "\n              ";
-//	outstr << " | " << "BmnShiIn + BmnF" << iv  << (NWIRELAYERNEW-NSENSENEW)*il+jj;
-//	count++;
-//      }
-//    }
-//  }
-//  outstr << endl;
-//  
-//  outstr << "BMN_SWI      5";
-//  count =0;
-//  for (int iv =0; iv<2;iv++){      // loop on views
-//    for (int il=0;il<NLAYERNEW;il++){ // loop on layers
-//      for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
-//  if ((( count  % 4 ) == 0) && count>0 )
-//    outstr << "\n              ";
-//  outstr << " | " << "BmnC" << iv << NSENSENEW*il+ic << " + BmnS" << iv  << NSENSENEW*il+ic;
-//  count++;
-//      }
-//    }
-//  }
-//
-//  outstr << endl;
-//  outstr << "BMN_GAS      5 BmnShiIn -BmnMyl1 +BmnMyl2";
-//  count =0;
-//  for (int iv =0; iv<2;iv++){      // loop on views
-//    for (int il=0;il<NLAYERNEW;il++){ // loop on layers
-//      for (int ic =0; ic<(NWIRELAYERNEW-NSENSENEW);ic++){  // loop on field wires
-//  if ((( count  % 6 ) == 0) )
-//    outstr << "\n              ";
-//  outstr << " -BmnF" << iv << (NWIRELAYERNEW-NSENSENEW)*il+ic;
-//  count++;
-//      }
-//      for (int ic =0; ic<NSENSENEW;ic++){  // loop on cells
-//  if ((( count  % 6 ) == 0) )
-//    outstr << "\n              ";
-//  outstr << " -BmnC" << iv << NSENSENEW*il+ic;
-//  count++;
-//      }
-//    }
-//  }
-//  
-//  outstr << endl; 
-//
-  return outstr.str();
-  
+  int iCell[2]={-1,-1}, iSense[2]={-1,-1}, iField[2]={-1,-1};
+  char stringa[100];
+
+ outstr << "BMN_SHI      5 BmnShiOu -BmnShiIn" << endl;
+ outstr << "BMN_MYL0     5 BmnShiIn -BmnMyl0 +BmnMyl1" << endl;
+ outstr << "BMN_MYL1     5 BmnShiIn -BmnMyl2 +BmnMyl3" << endl;
+ 
+ for (int iv =0; iv<2;iv++){      // loop on views
+   for (int il=0;il<fLayersN;il++){ // loop on layers
+     for (int ic =0; ic<fSensesN;ic++){  // loop on cells
+       iCell[iv]++;
+       outstr << "BMN_C" << iv << setw(2) << setfill('0') << iCell[iv]
+ 	      << "     5 BmnC" << iv << iCell[iv]
+ 	      << " -BmnS" << iv << iCell[iv] << endl;
+     }
+   }
  }
+ 
+ outstr << "BMN_FWI      5";
+ int count=0;
+ for (int iv = 0; iv<2; iv++){
+   for (int il=0;il<fLayersN;il++){ // loop on layers
+     for (int jj = 0; jj < (fWireLayersN-fSensesN); jj++) {
+	if ((( count  % 4 ) == 0) && count>0 )
+	  outstr << "\n              ";
+	outstr << " | " << "BmnShiIn + BmnF" << iv  << (fWireLayersN-fSensesN)*il+jj;
+	count++;
+     }
+   }
+ }
+ outstr << endl;
+ 
+ outstr << "BMN_SWI      5";
+ count =0;
+ for (int iv =0; iv<2;iv++){      // loop on views
+   for (int il=0;il<fLayersN;il++){ // loop on layers
+     for (int ic =0; ic<fSensesN;ic++){  // loop on cells
+       if ((( count  % 4 ) == 0) && count>0 )
+	 outstr << "\n              ";
+       outstr << " | " << "BmnC" << iv << fSensesN*il+ic << " + BmnS" << iv  << fSensesN*il+ic;
+       count++;
+     }
+   }
+ }
+ 
+ outstr << endl;
+ outstr << "BMN_GAS      5 BmnShiIn -BmnMyl1 +BmnMyl2";
+ count =0;
+ for (int iv =0; iv<2;iv++){      // loop on views
+   for (int il=0;il<fLayersN;il++){ // loop on layers
+     for (int ic =0; ic<(fWireLayersN-fSensesN);ic++){  // loop on field wires
+       if ((( count  % 6 ) == 0) )
+	 outstr << "\n              ";
+       outstr << " -BmnF" << iv << (fWireLayersN-fSensesN)*il+ic;
+       count++;
+     }
+     for (int ic =0; ic<fSensesN;ic++){  // loop on cells
+       if ((( count  % 6 ) == 0) )
+	 outstr << "\n              ";
+       outstr << " -BmnC" << iv << fSensesN*il+ic;
+       count++;
+     }
+   }
+ }
+ 
+ outstr << endl; 
+
+ return outstr.str();
+ 
+}
 
 
 
