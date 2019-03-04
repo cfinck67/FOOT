@@ -82,8 +82,8 @@ MATERIAL                            7.13                              BGO
 COMPOUND          4.   BISMUTH        3.  GERMANIU       12.    OXYGENBGO
 * Scintillator - EJ-232
 *
-MATERIAL                           1.023                              EJ-232
-COMPOUND         10.  HYDROGEN        9.    CARBON                    EJ-232
+MATERIAL                           1.023                              EJ232
+COMPOUND         10.  HYDROGEN        9.    CARBON                    EJ232
 * Scintillator - EJ228
 *
 MATERIAL                           1.023                              EJ228
@@ -130,8 +130,8 @@ COMPOUND          9.  HYDROGEN        9.    CARBON        1.    OXYGENBAKELITE
 MATERIAL                        0.001842                              CO2
 COMPOUND          1.    CARBON        2.    OXYGEN                    CO2
 MAT-PROP         0.2                           CO2
-MATERIAL                      .001677136                              Ar-CO2
-COMPOUND        -0.8    -ARGON      -0.2      -CO2                    Ar-CO2
+MATERIAL                      .001677136                              Ar/CO2
+COMPOUND        -0.8    -ARGON      -0.2      -CO2                    Ar/CO2
 MAT-PROP          1.                        Ar-CO2
 MATERIAL         18.            0.001662                              ARGON
 * Kapton polyimide film (C22_H10_N2_O5)n

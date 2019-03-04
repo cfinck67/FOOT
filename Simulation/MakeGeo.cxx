@@ -48,7 +48,6 @@ int main (int argc, char *argv[]) {
 
     cout << "Hello Footer!" << endl;
 
-
     // real coding starts here!
     // GlobalPar* GlobalPar;
     GlobalPar::Instance("FootGlobal.par");
@@ -89,10 +88,7 @@ int main (int argc, char *argv[]) {
     caGeo->FromFile();
 
     genfit::FieldManager::getInstance()->init(new FootField( "DoubleDipole.table",dipGeo) ); // variable field
-    // genfit::FieldManager::getInstance()->init(new FootField("DoubleGaussMag.table")); // variable field
 
-
-    // assegna ad ogni oggetto se sta nel campo magnetico
     ifstream file;
     string fileName = "foot.inp";
     file.open( fileName.c_str(), ios::in );
@@ -146,7 +142,7 @@ int main (int argc, char *argv[]) {
     // geofile.close();
 
     geofile << stcGeo->PrintBodies(  );
-    // geofile << bmGeo->PrintBodies(  );
+    geofile << bmGeo->PrintBodies(  );
 
     geofile << "* ***Target\n";
     geofile << "RPP tgt        " << ( TG_X - TG_WIDTH/2. ) << " "
@@ -223,11 +219,13 @@ int main (int argc, char *argv[]) {
 
     geofile <<"BLACK        5 blk -air\n";
     geofile <<"* ***Air\n";
-    geofile <<"AIR          5 air -stc -tgt\n";
+    geofile <<"AIR          5 air -tgt \n";
     // geofile <<"AIR          5 air -stc -tgt -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1)\n";
     // geofile <<"AIR          5 air -stc -MagAir -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1) -box\n";
     // geofile <<" -(BmnShiOu -BmnShiIn)\n";
     // geofile <<" -(BmnShiIn -BmnMyl0 +BmnMyl3)\n";
+    geofile << stcGeo->PrintSubtractBodiesFromAir();
+    geofile << bmGeo->PrintSubtractBodiesFromAir();
     geofile << vtxGeo->PrintSubtractBodiesFromAir();
     geofile << twGeo->PrintSubtractBodiesFromAir();
     // geofile << itrGeo->PrintSubtractBodiesFromAir();
@@ -235,7 +233,7 @@ int main (int argc, char *argv[]) {
     // geofile <<"\n";
 
     geofile << stcGeo->PrintRegions(  );
-    // geofile << bmGeo->PrintRegions(  );
+    geofile << bmGeo->PrintRegions(  );
     
     geofile <<"* ***Target\n";
     geofile <<"TARGET       5 tgt\n";
@@ -311,7 +309,7 @@ int main (int argc, char *argv[]) {
     outfile << "ASSIGNMA         AIR       AIR                             1\n";
 
     outfile << stcGeo->PrintAssignMaterial();
-    // outfile << bmGeo->PrintAssignMaterial();
+    outfile << bmGeo->PrintAssignMaterial();
     outfile << "ASSIGNMA    Polyethy    TARGET                             1\n";
     outfile << vtxGeo->PrintAssignMaterial();
     // outfile << itrGeo->PrintAssignMaterial();
@@ -325,11 +323,12 @@ int main (int argc, char *argv[]) {
     outfile << twGeo->PrintAssignMaterial();
     // outfile << caGeo->PrintAssignMaterial();
 
-    outfile << PrintCard("MGNFIELD",TString::Format("%f",MaxAng),
-			 TString::Format("%f",BoundAcc),"",
-			 TString::Format("%f",Bx),TString::Format("%f",By),
-			 TString::Format("%f",Bz),"") << endl;
-    // outfile << "MGNFIELD    0.100000  0.000010            0.000000  0.000000  0.000000" << endl;
+    // if(GlobalPar::GetPar()->IncludeDI()){
+      outfile << PrintCard("MGNFIELD",TString::Format("%f",MaxAng),
+			   TString::Format("%f",BoundAcc),"",
+			   TString::Format("%f",Bx),TString::Format("%f",By),
+			   TString::Format("%f",Bz),"") << endl;
+    // }
     
     outfile << vtxGeo->PrintRotations();
     outfile << twGeo->PrintRotations();
@@ -344,10 +343,10 @@ int main (int argc, char *argv[]) {
     
     paramfile << bmGeo->PrintParameters();
     paramfile << vtxGeo->PrintParameters();
-    paramfile << itrGeo->PrintParameters();
-    paramfile << msdGeo->PrintParameters();
+    // paramfile << itrGeo->PrintParameters();
+    // paramfile << msdGeo->PrintParameters();
     paramfile << twGeo->PrintParameters();
-    paramfile << caGeo->PrintParameters();
+    // paramfile << caGeo->PrintParameters();
     
     paramfile.close();
     
