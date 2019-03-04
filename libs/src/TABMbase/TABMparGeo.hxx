@@ -119,6 +119,7 @@ public:
    string PrintRegions();
    string PrintAssignMaterial();
    string PrintParameters();
+   string PrintSubtractBodiesFromAir();
 
 
   ClassDef(TABMparGeo,1)

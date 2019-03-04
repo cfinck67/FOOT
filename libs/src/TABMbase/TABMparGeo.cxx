@@ -528,108 +528,110 @@ TGeoVolume* TABMparGeo::BuildBeamMonitor(const char *bmName )
 
 //_____________________________________________________________________________
 string TABMparGeo::PrintBodies(){
-
-  if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-    cout << "ERROR << TABMparGeo::PrintBodies()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
     
-
-  TAGgeoTrafo* fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-  if (!fpFootGeo)
-    printf("No default GeoTrafo action available yet\n");
-  else 
-    printf("GeoTrafo default action found\n");
-
-  //Reading the BM global position from global map file.
-  TVector3  fCenter = fpFootGeo->GetBMCenter();
-
   stringstream outstr;
-  outstr << "* ***Beam Monitor" << endl;
+    
+  if(GlobalPar::GetPar()->IncludeBM()){
+    
+    TAGgeoTrafo* fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+    if (!fpFootGeo)
+      printf("No default GeoTrafo action available yet\n");
+    else 
+      printf("GeoTrafo default action found\n");
 
-  int iSense[2]={-1,-1}, iField[2]={-1,-1};
-  // stringstream ss;
-  char bodyname[20];
-  double xmin, xmax, ymin, ymax, zmin, zmax;
-  
-  double shift = 0.00001;
-  
-  outstr << setiosflags(ios::fixed) << setprecision(6);
+    //Reading the BM global position from global map file.
+    TVector3  fCenter = fpFootGeo->GetBMCenter();
 
-  outstr << "RPP BmnShiOu    "
-	 << fCenter[0]-fBmSideDch[0]/2.-fShieldThick << "   "
-	 << fCenter[0]+fBmSideDch[0]/2.+fShieldThick << " "
-	 << fCenter[1]-fBmSideDch[1]/2.-fShieldThick << " "
-	 << fCenter[1]+fBmSideDch[1]/2.+fShieldThick << " "
-	 << fCenter[2]-fFoilThick/2. << " "
-	 << fCenter[2]+fFoilThick/2. << endl;
+    outstr << "* ***Beam Monitor" << endl;
+
+    int iSense[2]={-1,-1}, iField[2]={-1,-1};
+    // stringstream ss;
+    char bodyname[20];
+    double xmin, xmax, ymin, ymax, zmin, zmax;
   
-  outstr << "RPP BmnShiIn    "
-	 << fCenter[0]-fBmSideDch[0]/2. << "   "
-	 << fCenter[0]+fBmSideDch[0]/2. << " "
-	 << fCenter[1]-fBmSideDch[1]/2. << " "
-	 << fCenter[1]+fBmSideDch[1]/2. << " "
-	 << fCenter[2]-fFoilThick/2. << " "
-	 << fCenter[2]+fFoilThick/2. << endl;
+    double shift = 0.00001;
   
-  outstr << "XYP BmnMyl0     " << fCenter[2]-fBmSideDch[2]/2.-fFoilThick << endl;
-  outstr << "XYP BmnMyl1     " << fCenter[2]-fBmSideDch[2]/2. << endl;
-  outstr << "XYP BmnMyl2     " << fCenter[2]+fBmSideDch[2]/2. << endl;
-  outstr << "XYP BmnMyl3     " << fCenter[2]+fBmSideDch[2]/2.+fFoilThick << endl;
+    outstr << setiosflags(ios::fixed) << setprecision(6);
+
+    outstr << "RPP BmnShiOu    "
+	   << fCenter[0]-fBmSideDch[0]/2.-fShieldThick << " "
+	   << fCenter[0]+fBmSideDch[0]/2.+fShieldThick << " "
+	   << fCenter[1]-fBmSideDch[1]/2.-fShieldThick << " "
+	   << fCenter[1]+fBmSideDch[1]/2.+fShieldThick << " "
+	   << fCenter[2]-fBmSideDch[2]/2.-1. << " "
+	   << fCenter[2]+fBmSideDch[2]/2.+1. << endl;
+  
+    outstr << "RPP BmnShiIn    "
+	   << fCenter[0]-fBmSideDch[0]/2. << " "
+	   << fCenter[0]+fBmSideDch[0]/2. << " "
+	   << fCenter[1]-fBmSideDch[1]/2. << " "
+	   << fCenter[1]+fBmSideDch[1]/2. << " "
+	   << fCenter[2]-fBmSideDch[2]/2.-1. << " "
+	   << fCenter[2]+fBmSideDch[2]/2.+1. << endl;
+  
+    outstr << "XYP BmnMyl0     " << fCenter[2]-fBmSideDch[2]/2.-fFoilThick << endl;
+    outstr << "XYP BmnMyl1     " << fCenter[2]-fBmSideDch[2]/2. << endl;
+    outstr << "XYP BmnMyl2     " << fCenter[2]+fBmSideDch[2]/2. << endl;
+    outstr << "XYP BmnMyl3     " << fCenter[2]+fBmSideDch[2]/2.+fFoilThick << endl;
  
 	
- // Cells
- // prima lungo x, poi lungo y
- int cella=0;
- for (int il=0;il<fLayersN;il++){ // loop on layers
-   for (int ic =0; ic<fWireLayersN;ic++){  // loop on cells
-     if ( (ic==fBmIdSense[0]) ||(ic==fBmIdSense[1]) ||
-     	   (ic==fBmIdSense[2]) ){
-	for (int iv =0; iv<2;iv++){      // loop on views
-	  if ( iv == 0 ){
-	    xmin = - fBmSideDch[0]/2. + shift;
-	    xmax = + fBmSideDch[0]/2. - shift;
-	    ymin = fPosY[ic][il][iv] - fBmCellWide + fFieldRadius + shift;
-	    ymax = fPosY[ic][il][iv] + fBmCellWide - fFieldRadius -shift;
-	  }else{
-	    xmin = fPosX[ic][il][iv] - fBmCellWide + fFieldRadius + shift;
-	    xmax = fPosX[ic][il][iv] + fBmCellWide - fFieldRadius - shift;
-	    ymin = - fBmSideDch[1]/2. + shift;
-	    ymax = + fBmSideDch[1]/2. - shift;
+    // Cells
+    // prima lungo x, poi lungo y
+    int cella=0;
+    for (int il=0;il<fLayersN;il++){ // loop on layers
+      for (int ic =0; ic<fWireLayersN;ic++){  // loop on cells
+	if ( (ic==fBmIdSense[0]) ||(ic==fBmIdSense[1]) ||
+	     (ic==fBmIdSense[2]) ){
+	  for (int iv =0; iv<2;iv++){      // loop on views
+	    if ( iv == 0 ){
+	      xmin = fCenter[0] - fBmSideDch[0]/2. + shift;
+	      xmax = fCenter[0] + fBmSideDch[0]/2. - shift;
+	      ymin = fCenter[1] + fPosY[ic][il][iv] - fBmCellWide + fFieldRadius + shift;
+	      ymax = fCenter[1] + fPosY[ic][il][iv] + fBmCellWide - fFieldRadius -shift;
+	    }else{
+	      xmin = fCenter[0] + fPosX[ic][il][iv] - fBmCellWide + fFieldRadius + shift;
+	      xmax = fCenter[0] + fPosX[ic][il][iv] + fBmCellWide - fFieldRadius - shift;
+	      ymin = fCenter[1] - fBmSideDch[1]/2. + shift;
+	      ymax = fCenter[1] + fBmSideDch[1]/2. - shift;
+	    }
+	    zmin = fCenter[2] + fPosZ[ic][il][iv] - fBmStep + fFieldRadius + shift;
+	    zmax = fCenter[2] + fPosZ[ic][il][iv] + fBmStep - fFieldRadius -shift;
+	    outstr << "RPP BmnC" << iv << cella << "   "
+		   << xmin << " " << xmax << " " << ymin << " " << ymax
+		   << " " << zmin << " " << zmax << endl;
 	  }
-	  zmin = fPosZ[ic][il][iv] - fBmStep + fFieldRadius + shift;
-	  zmax = fPosZ[ic][il][iv] + fBmStep - fFieldRadius -shift;
-	  outstr << "RPP BmnC" << iv << cella << "   "
-		 << xmin << " " << xmax << " " << ymin << " " << ymax
-		 << " " << zmin << " " << zmax << endl;
+	  cella++;
 	}
-	cella++;
-     }
-   }
- }
+      }
+    }
  
- // Wires  
- for (int il=0;il<fLayersN;il++){
-   for (int iw =0; iw<fWireLayersN;iw++){ 
-     for (int iv =0; iv<2;iv++){
-	// int iv=1;
-	if ( (iw==fBmIdSense[0]) ||(iw==fBmIdSense[1]) ||
-	     (iw==fBmIdSense[2]) ){	
-	  iSense[iv]++;	
-	  outstr << "RCC BmnS" << iv << iSense[iv] << "   "
-		 << fPosX[iw][il][iv] << " " << fPosY[iw][il][iv] << " "
-		 << fPosZ[iw][il][iv] << " "
-		 << fPosCX[iw][il][iv] << " " << fPosCY[iw][il][iv] << " "
-		 << fPosCZ[iw][il][iv] << " " << fSenseRadius << endl;
-	} else {
-	  iField[iv]++;     // loop on views    		
-	  outstr << "RCC BmnF" << iv << iField[iv] << "   "
-		 << fPosX[iw][il][iv] << " " << fPosY[iw][il][iv] << " "
-		 << fPosZ[iw][il][iv] << " "
-		 << fPosCX[iw][il][iv] << " " << fPosCY[iw][il][iv] << " "
-		 << fPosCZ[iw][il][iv] << " " << fFieldRadius << endl;
+    // Wires  
+    for (int il=0;il<fLayersN;il++){
+      for (int iw =0; iw<fWireLayersN;iw++){ 
+	for (int iv =0; iv<2;iv++){
+	  // int iv=1;
+	  if ( (iw==fBmIdSense[0]) ||(iw==fBmIdSense[1]) ||
+	       (iw==fBmIdSense[2]) ){	
+	    iSense[iv]++;	
+	    outstr << "RCC BmnS" << iv << iSense[iv] << "   "
+		   << fCenter[0] + fPosX[iw][il][iv] << " "
+		   << fCenter[1] + fPosY[iw][il][iv] << " "
+		   << fCenter[2] + fPosZ[iw][il][iv] << " "
+		   << fPosCX[iw][il][iv] << " " << fPosCY[iw][il][iv] << " "
+		   << fPosCZ[iw][il][iv] << " " << fSenseRadius << endl;
+	  } else {
+	    iField[iv]++;     // loop on views    		
+	    outstr << "RCC BmnF" << iv << iField[iv] << "   "
+		   << fCenter[0] + fPosX[iw][il][iv] << " "
+		   << fCenter[1] + fPosY[iw][il][iv] << " "
+		   << fCenter[2] + fPosZ[iw][il][iv] << " "
+		   << fPosCX[iw][il][iv] << " " << fPosCY[iw][il][iv] << " "
+		   << fPosCZ[iw][il][iv] << " " << fFieldRadius << endl;
+	  }
 	}
-     }
-   }
- }
+      }
+    }
+  }
   
   return outstr.str();
 }
@@ -638,107 +640,128 @@ string TABMparGeo::PrintBodies(){
 //_____________________________________________________________________________
 string TABMparGeo::PrintRegions(){
 
-  if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-    cout << "ERROR << TABMparGeo::PrintRegions()  -->  Calling this function without enabling the corrct parameter in the param file.\n", exit(0);
-
   stringstream outstr;
-  outstr << "* ***Beam Monitor" << endl;
+    
+  if(GlobalPar::GetPar()->IncludeBM()){
 
-  int iCell[2]={-1,-1}, iSense[2]={-1,-1}, iField[2]={-1,-1};
-  char stringa[100];
+    outstr << "* ***Beam Monitor" << endl;
 
- outstr << "BMN_SHI      5 BmnShiOu -BmnShiIn" << endl;
- outstr << "BMN_MYL0     5 BmnShiIn -BmnMyl0 +BmnMyl1" << endl;
- outstr << "BMN_MYL1     5 BmnShiIn -BmnMyl2 +BmnMyl3" << endl;
- 
- for (int iv =0; iv<2;iv++){      // loop on views
-   for (int il=0;il<fLayersN;il++){ // loop on layers
-     for (int ic =0; ic<fSensesN;ic++){  // loop on cells
-       iCell[iv]++;
-       outstr << "BMN_C" << iv << setw(2) << setfill('0') << iCell[iv]
- 	      << "     5 BmnC" << iv << iCell[iv]
- 	      << " -BmnS" << iv << iCell[iv] << endl;
-     }
-   }
- }
- 
- outstr << "BMN_FWI      5";
- int count=0;
- for (int iv = 0; iv<2; iv++){
-   for (int il=0;il<fLayersN;il++){ // loop on layers
-     for (int jj = 0; jj < (fWireLayersN-fSensesN); jj++) {
-	if ((( count  % 4 ) == 0) && count>0 )
-	  outstr << "\n              ";
-	outstr << " | " << "BmnShiIn + BmnF" << iv  << (fWireLayersN-fSensesN)*il+jj;
-	count++;
-     }
-   }
- }
- outstr << endl;
- 
- outstr << "BMN_SWI      5";
- count =0;
- for (int iv =0; iv<2;iv++){      // loop on views
-   for (int il=0;il<fLayersN;il++){ // loop on layers
-     for (int ic =0; ic<fSensesN;ic++){  // loop on cells
-       if ((( count  % 4 ) == 0) && count>0 )
-	 outstr << "\n              ";
-       outstr << " | " << "BmnC" << iv << fSensesN*il+ic << " + BmnS" << iv  << fSensesN*il+ic;
-       count++;
-     }
-   }
- }
- 
- outstr << endl;
- outstr << "BMN_GAS      5 BmnShiIn -BmnMyl1 +BmnMyl2";
- count =0;
- for (int iv =0; iv<2;iv++){      // loop on views
-   for (int il=0;il<fLayersN;il++){ // loop on layers
-     for (int ic =0; ic<(fWireLayersN-fSensesN);ic++){  // loop on field wires
-       if ((( count  % 6 ) == 0) )
-	 outstr << "\n              ";
-       outstr << " -BmnF" << iv << (fWireLayersN-fSensesN)*il+ic;
-       count++;
-     }
-     for (int ic =0; ic<fSensesN;ic++){  // loop on cells
-       if ((( count  % 6 ) == 0) )
-	 outstr << "\n              ";
-       outstr << " -BmnC" << iv << fSensesN*il+ic;
-       count++;
-     }
-   }
- }
- 
- outstr << endl; 
+    int iCell[2]={-1,-1}, iSense[2]={-1,-1}, iField[2]={-1,-1};
+    char stringa[100];
 
- return outstr.str();
+    outstr << "BMN_SHI      5 BmnShiOu -BmnShiIn" << endl;
+    outstr << "BMN_MYL0     5 BmnShiIn -BmnMyl0 +BmnMyl1" << endl;
+    outstr << "BMN_MYL1     5 BmnShiIn -BmnMyl2 +BmnMyl3" << endl;
+ 
+    for (int iv =0; iv<2;iv++){      // loop on views
+      for (int il=0;il<fLayersN;il++){ // loop on layers
+	for (int ic =0; ic<fSensesN;ic++){  // loop on cells
+	  iCell[iv]++;
+	  outstr << "BMN_C" << iv << setw(2) << setfill('0') << iCell[iv]
+		 << "     5 BmnC" << iv << iCell[iv]
+		 << " -BmnS" << iv << iCell[iv] << endl;
+	}
+      }
+    }
+ 
+    outstr << "BMN_FWI      5";
+    int count=0;
+    for (int iv = 0; iv<2; iv++){
+      for (int il=0;il<fLayersN;il++){ // loop on layers
+	for (int jj = 0; jj < (fWireLayersN-fSensesN); jj++) {
+	  if ((( count  % 4 ) == 0) && count>0 )
+	    outstr << "\n              ";
+	  outstr << " | " << "BmnShiIn + BmnF" << iv  << (fWireLayersN-fSensesN)*il+jj;
+	  count++;
+	}
+      }
+    }
+    outstr << endl;
+ 
+    outstr << "BMN_SWI      5";
+    count =0;
+    for (int iv =0; iv<2;iv++){      // loop on views
+      for (int il=0;il<fLayersN;il++){ // loop on layers
+	for (int ic =0; ic<fSensesN;ic++){  // loop on cells
+	  if ((( count  % 4 ) == 0) && count>0 )
+	    outstr << "\n              ";
+	  outstr << " | " << "BmnC" << iv << fSensesN*il+ic << " + BmnS" << iv  << fSensesN*il+ic;
+	  count++;
+	}
+      }
+    }
+ 
+    outstr << endl;
+    outstr << "BMN_GAS      5 BmnShiIn -BmnMyl1 +BmnMyl2";
+    count =0;
+    for (int iv =0; iv<2;iv++){      // loop on views
+      for (int il=0;il<fLayersN;il++){ // loop on layers
+	for (int ic =0; ic<(fWireLayersN-fSensesN);ic++){  // loop on field wires
+	  if ((( count  % 6 ) == 0) )
+	    outstr << "\n              ";
+	  outstr << " -BmnF" << iv << (fWireLayersN-fSensesN)*il+ic;
+	  count++;
+	}
+	for (int ic =0; ic<fSensesN;ic++){  // loop on cells
+	  if ((( count  % 6 ) == 0) )
+	    outstr << "\n              ";
+	  outstr << " -BmnC" << iv << fSensesN*il+ic;
+	  count++;
+	}
+      }
+    }
+ 
+    outstr << endl;
+  }
+
+  return outstr.str();
  
 }
 
 
 
 
+//_____________________________________________________________________________
+string TABMparGeo::PrintSubtractBodiesFromAir() {
+
+  stringstream ss;
+
+  if(GlobalPar::GetPar()->IncludeBM()){
+
+    ss << "-(BmnShiOu -BmnShiIn) -(BmnShiIn -BmnMyl0 +BmnMyl3)" << endl;
+    ss << endl;
+
+  }
+  
+  return ss.str();
+
+}
+
+
 
 //_____________________________________________________________________________
 string TABMparGeo::PrintAssignMaterial() {
 
-    if ( !GlobalPar::GetPar()->geoFLUKA() ) 
-        cout << "ERROR << TABMparGeo::PrintAssignMaterial()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
+    // if ( !GlobalPar::GetPar()->geoFLUKA() ) 
+    //     cout << "ERROR << TABMparGeo::PrintAssignMaterial()  -->  Calling this function without enabling the correct parameter in the param file.\n", exit(0);
 
 
     // loop in order of the material alfabeth
     stringstream outstr; 
  
-    outstr << "ASSIGNMA    ALUMINUM   BMN_SHI" << endl;
-    outstr << "ASSIGNMA       Mylar  BMN_MYL0" << endl;
-    outstr << "ASSIGNMA       Mylar  BMN_MYL1" << endl;
-    outstr << "ASSIGNMA      Ar/CO2  BMN_C000  BMN_C017         1" << endl;
-    outstr << "ASSIGNMA      Ar/CO2  BMN_C100  BMN_C117         1" << endl;
-    outstr << "ASSIGNMA      Ar/CO2   BMN_GAS" << endl;
-    outstr << "ASSIGNMA    ALUMINUM   BMN_FWI" << endl;
-    outstr << "ASSIGNMA    TUNGSTEN   BMN_SWI" << endl;
+    if(GlobalPar::GetPar()->IncludeBM()){
+    
+      outstr << "ASSIGNMA    ALUMINUM   BMN_SHI" << endl;
+      outstr << "ASSIGNMA       Mylar  BMN_MYL0" << endl;
+      outstr << "ASSIGNMA       Mylar  BMN_MYL1" << endl;
+      outstr << "ASSIGNMA      Ar/CO2  BMN_C000  BMN_C017         1" << endl;
+      outstr << "ASSIGNMA      Ar/CO2  BMN_C100  BMN_C117         1" << endl;
+      outstr << "ASSIGNMA      Ar/CO2   BMN_GAS" << endl;
+      outstr << "ASSIGNMA    ALUMINUM   BMN_FWI" << endl;
+      outstr << "ASSIGNMA    TUNGSTEN   BMN_SWI" << endl;
 
-
+    }
+    
     return outstr.str();
 }
 
@@ -748,18 +771,21 @@ string TABMparGeo::PrintParameters() {
   stringstream outstr;
   outstr << setiosflags(ios::fixed) << setprecision(5);
 
+  if(GlobalPar::GetPar()->IncludeBM()){
 
-  outstr << "c     BEAM MONITOR PARAMETERS " << endl;
-  outstr << endl;    
+    outstr << "c     BEAM MONITOR PARAMETERS " << endl;
+    outstr << endl;    
   
-  map<string, int> intp;
-  intp["nlayBMN"] = fLayersN;
-  intp["ncellBMN"] = fSensesN;
-  for (auto i : intp){
-    outstr << "      integer " << i.first << endl;
-    outstr << "      parameter (" << i.first << " = " << i.second << ")" << endl;
+    map<string, int> intp;
+    intp["nlayBMN"] = fLayersN;
+    intp["ncellBMN"] = fSensesN;
+    for (auto i : intp){
+      outstr << "      integer " << i.first << endl;
+      outstr << "      parameter (" << i.first << " = " << i.second << ")" << endl;
+    }
+    outstr << endl;    
+
   }
-  outstr << endl;    
   
   return outstr.str();
 

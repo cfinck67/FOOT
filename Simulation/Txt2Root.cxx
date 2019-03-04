@@ -397,18 +397,18 @@ int main(int argc, char *argv[])
  
 	for(int jj=0; jj<eve.VTXn;jj++){
 	  nread = fscanf(pfile,
-			 "%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
-			 &eve.VTXid[jj],&eve.VTXilay[jj],&eve.VTXirow[jj],
-			 &eve.VTXicol[jj],
+			 "%d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
+			 &eve.VTXid[jj],&eve.VTXilay[jj],
+			 // &eve.VTXirow[jj],&eve.VTXicol[jj],
 			 &eve.VTXxin[jj],&eve.VTXyin[jj],&eve.VTXzin[jj],
 			 &eve.VTXxout[jj],&eve.VTXyout[jj],&eve.VTXzout[jj],
 			 &eve.VTXpxin[jj],&eve.VTXpyin[jj],&eve.VTXpzin[jj],
 			 &eve.VTXpxout[jj],&eve.VTXpyout[jj],&eve.VTXpzout[jj],
 			 &eve.VTXde[jj],&eve.VTXal[jj],&eve.VTXtim[jj]);
-	  if(nread!=19){
+	  if(nread!=17){
 	    ReadError = true;
 	    cout<<"ReadError in VTX section: nread = "<<nread<<
-	      " instead of 19; ev= "<<NumProcessed<<endl;
+	      " instead of 17; ev= "<<NumProcessed<<endl;
 	    break;
 	  }
 	}
@@ -420,18 +420,18 @@ int main(int argc, char *argv[])
  
 	for(int jj=0; jj<eve.ITRn;jj++){
 	  nread = fscanf(pfile,
-			 "%d %d %d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
+			 "%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
 			 &eve.ITRid[jj],&eve.ITRiplume[jj],&eve.ITRimimo[jj],
-			 &eve.ITRilay[jj],&eve.ITRirow[jj],&eve.ITRicol[jj],
+			 &eve.ITRilay[jj],//&eve.ITRirow[jj],&eve.ITRicol[jj],
 			 &eve.ITRxin[jj],&eve.ITRyin[jj],&eve.ITRzin[jj],
 			 &eve.ITRxout[jj],&eve.ITRyout[jj],&eve.ITRzout[jj],
 			 &eve.ITRpxin[jj],&eve.ITRpyin[jj],&eve.ITRpzin[jj],
 			 &eve.ITRpxout[jj],&eve.ITRpyout[jj],&eve.ITRpzout[jj],
 			 &eve.ITRde[jj],&eve.ITRal[jj],&eve.ITRtim[jj]);
-	  if(nread!=21){
+	  if(nread!=19){
 	    ReadError = true;
 	    cout<<"ReadError in ITR section: nread = "<<nread<<
-	      " instead of 21; ev= "<<NumProcessed<<endl;
+	      " instead of 19; ev= "<<NumProcessed<<endl;
 	    break;
 	  }
 	}
@@ -444,18 +444,18 @@ int main(int argc, char *argv[])
  
 	for(int jj=0; jj<eve.MSDn;jj++){
 	  nread = fscanf(pfile,
-			 "%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
+			 "%d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
 			 &eve.MSDid[jj],&eve.MSDilay[jj],
-			 &eve.MSDistripx[jj],&eve.MSDistripy[jj],
+			 // &eve.MSDistripx[jj],&eve.MSDistripy[jj],
 			 &eve.MSDxin[jj],&eve.MSDyin[jj],&eve.MSDzin[jj],
 			 &eve.MSDxout[jj],&eve.MSDyout[jj],&eve.MSDzout[jj],
 			 &eve.MSDpxin[jj],&eve.MSDpyin[jj],&eve.MSDpzin[jj],
 			 &eve.MSDpxout[jj],&eve.MSDpyout[jj],&eve.MSDpzout[jj],
 			 &eve.MSDde[jj],&eve.MSDal[jj],&eve.MSDtim[jj]);
-	  if(nread!=19){
+	  if(nread!=17){
 	    ReadError = true;
 	    cout<<"ReadError in MSD section: nread = "<<nread<<
-	      " instead of 19; ev= "<<NumProcessed<<endl;
+	      " instead of 17; ev= "<<NumProcessed<<endl;
 	    break;
 	  }
 	}

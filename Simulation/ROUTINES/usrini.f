@@ -139,7 +139,7 @@ c
                ig = ig + 1
             elseif(REGNAM.eq.'TARGET')then
                nregtarg = ii
-            elseif(REGNAM(1:4).eq.'VTXS') then
+            elseif(REGNAM(1:4).eq.'VTXE') then
                if(ia.eq.1) then
                   nregFirstVTX=ii
                elseif(ia.eq.nlayVTX) then
