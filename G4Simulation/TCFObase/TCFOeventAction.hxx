@@ -6,6 +6,8 @@
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 
+#include "TAMCntuEve.hxx"
+
 #include "TSysEvtHandler.h"
 
 class TCFOrunAction;
@@ -14,6 +16,7 @@ class TCFOgeometryConstructor;
 class TAGgeoTrafo;
 class Evento;
 class TCGmcHit;
+class TAMCntuEve;
 
 class TAGeventInterruptHandler : public TSignalHandler {
     public:
@@ -36,6 +39,8 @@ class TCFOeventAction : public G4UserEventAction
     void   ConstructCollection();
     void   Collect(const G4Event* evt);
 
+    TAMCntuEve* GetTrackMc(){ return fMcTrack ; };
+
     private:
     TCFOrunAction*           fRunAction;           // run action for FOOT
     TCFOgeometryConstructor* fFootGeomConstructor; // geometry for FOOT
@@ -49,11 +54,13 @@ class TCFOeventAction : public G4UserEventAction
     Int_t                    fTwCollId;            // Id of ToF collection
     Int_t                    fCaCollId;            // Id of Calo collection
     TSignalHandler*          fEventInterruptHandler;
+    TAMCntuEve*            fMcTrack;
 
     TAGgeoTrafo*             fpGeoTrafo;           // trafo pointer
 
     private:
     Int_t  GetEventsNToBeProcessed();
+    void   FillTrack();
     void   FillAndClear();
     void   GetHitPerPlane(const G4Event* evt, G4int idColl);
     void   FillHits(Evento* mcHit, TCGmcHit* hit);
