@@ -4,9 +4,11 @@
   \brief   Implementation of TABMactDatRaw.
 */
 
+#include "TDCEvent.hh"
+
 #include "TABMparMap.hxx"
 #include "TABMparCon.hxx"
-//~ #include "TAGmbsEvent.hxx"
+#include "TAGdaqEvent.hxx"
 #include "TABMdatRaw.hxx"
 #include "TABMrawHit.hxx"
 #include "TASTdatRaw.hxx"
@@ -25,25 +27,25 @@ ClassImp(TABMactDatRaw);
 //! Default constructor.
 
 TABMactDatRaw::TABMactDatRaw(const char* name,
-			     TAGdataDsc* p_datraw, 
-			     TAGparaDsc* p_parmap,
-			     TAGparaDsc* p_parcon,
-			     TAGparaDsc* p_pargeo,
-			     TAGdataDsc* p_timraw, 
-              BM_struct*  p_bmstruct)
+                             TAGdataDsc* p_datraw,
+                             TAGdataDsc* p_datdaq,
+                             TAGparaDsc* p_parmap,
+                             TAGparaDsc* p_parcon,
+                             TAGparaDsc* p_pargeo,
+                             TAGdataDsc* p_timraw)
   : TAGaction(name, "TABMactDatRaw - Unpack BM raw data"),
     fpDatRaw(p_datraw),
+    fpDatDaq(p_datdaq),
     fpParMap(p_parmap),
     fpParCon(p_parcon),
     fpParGeo(p_pargeo),
-    fpTimRaw(p_timraw),
-    fpEvtStruct(p_bmstruct)
+    fpTimRaw(p_timraw)
 {
   AddDataOut(p_datraw, "TABMdatRaw");
   AddPara(p_parmap, "TABMparMap");
   AddPara(p_parcon, "TABMparCon");
   AddPara(p_pargeo, "TABMparGeo");
-  AddDataIn(p_timraw, "TAIRdatRaw");
+  AddDataIn(p_timraw, "TASTdatRaw");
 }
 
 //------------------------------------------+-----------------------------------
@@ -51,31 +53,44 @@ TABMactDatRaw::TABMactDatRaw(const char* name,
 
 TABMactDatRaw::~TABMactDatRaw()
 {
-  //~ datastream.close();    
 }
-
-//~ Bool_t TABMactDatRaw::openFile(TABMparCon* p_parcon) {
-
-//~ datastream.open(p_parcon->GetBMdataFileName(), ios::in | ios::binary);
-//~ if(datastream.is_open())
-//~ return kTRUE;
-//~ return kFALSE;
-//~ }
-
 
 //------------------------------------------+-----------------------------------
 //! Action.
 Bool_t TABMactDatRaw::Action() {
-  //~ cout<<"sono in action di tabmactdatraw"<<endl;
   
-  TABMdatRaw*    p_datraw = (TABMdatRaw*)    fpDatRaw->Object();
-  
-  //From there we get the Mapping of the wires into the Chamber to the TDC channels
-  TABMparMap*    p_parmap = (TABMparMap*)    fpParMap->Object();
-  TABMparCon*    p_parcon = (TABMparCon*)    fpParCon->Object();
-  TABMparGeo*    p_pargeo = (TABMparGeo*)    fpParGeo->Object();
-  TASTdatRaw*    p_timraw = (TASTdatRaw*)    fpTimRaw->Object();
-  
+   TAGdaqEvent*   p_datqevt = (TAGdaqEvent*)  fpDatDaq->Object();
+
+   Int_t nFragments = p_datqevt->GetFragmentsN();
+   
+   for (Int_t i = 0; i < nFragments; ++i) {
+      
+       TString type = p_datqevt->GetClassType(i);
+       if (type.Contains("TDCEvent")) {
+         const TDCEvent* evt = static_cast<const TDCEvent*> (p_datqevt->GetFragment(i));
+         DecodeHits(evt);
+       }
+   }
+   
+   fpDatRaw->SetBit(kValid);
+   
+   return kTRUE;
+}
+   
+//------------------------------------------+-----------------------------------
+//! Action.
+Bool_t TABMactDatRaw::DecodeHits(const TDCEvent* evt) {
+   
+   // Fill BM_struct with TDCEvent output
+   TABMdatRaw*    p_datraw = (TABMdatRaw*)    fpDatRaw->Object();
+
+   //From there we get the Mapping of the wires into the Chamber to the TDC channels
+   TABMparMap*    p_parmap = (TABMparMap*)    fpParMap->Object();
+   TABMparCon*    p_parcon = (TABMparCon*)    fpParCon->Object();
+   TABMparGeo*    p_pargeo = (TABMparGeo*)    fpParGeo->Object();
+   TASTdatRaw*    p_timraw = (TASTdatRaw*)    fpTimRaw->Object();
+   
+
   Int_t view,plane,cell;
     
   for(Int_t i=0;i<fpEvtStruct->tdc_hitnum[0];i++){
@@ -85,8 +100,6 @@ Bool_t TABMactDatRaw::Action() {
     }
   }
   
-  
-  fpDatRaw->SetBit(kValid);
-  return kTRUE;
+   return true;
 }
 
