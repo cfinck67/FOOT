@@ -18,5 +18,6 @@
 #pragma link C++ class TABMactNtuTrack+;
 #pragma link C++ class TABMparCon+;
 #pragma link C++ class TABMactDatRaw+;
+#pragma link C++ class TABMactVmeReader+;
 
 #endif
