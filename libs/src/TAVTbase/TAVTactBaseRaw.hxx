@@ -37,6 +37,8 @@ public:
 public:
    static  UInt_t  GetKeyHeader(Int_t idx)                  { return fgkKeyHeader[idx];   }
    static  Int_t   GetHeaderSize()                          { return fgkFrameHeaderSize;  }
+   static  UInt_t  GetDataTail(Int_t idx)                   { return fgkKeyTail[idx];     }
+   static  Int_t   GetLineWidth()                           { return fgkLineWidth;        }
 
 protected:
       
@@ -64,6 +66,10 @@ protected:
 protected:
    static const UInt_t  fgkKeyHeader[];
    static const Int_t   fgkFrameHeaderSize;
+   static const UInt_t  fgkKeyTail[];
+   static const Int_t   fgkLineWidth;
+   static const UInt_t  fgkFrameHeader;
+   static const UInt_t  fgkFrameTail;
    
 protected:
    

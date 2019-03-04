@@ -3,7 +3,7 @@
   \brief   Implementation of TAVTactVmeReader.
 */
 
-#include "TH2F.h"
+#include "DECardEvent.hh"
 
 #include "TAGroot.hxx"
 #include "TAVTparConf.hxx"
@@ -19,16 +19,8 @@
 
 ClassImp(TAVTactVmeReader);
 
-const Int_t  TAVTactVmeReader::fgkLineWidth        = 9;
-const UInt_t TAVTactVmeReader::fgkEventHeader      = 0xfafafafa;
-const UInt_t TAVTactVmeReader::fgkEventTail        = 0xabcdabcd;
-const UInt_t TAVTactVmeReader::fgkFrameHeader      = 0x80088007;
-const UInt_t TAVTactVmeReader::fgkFrameTail        = 0xaaa8aaa7;
-const UInt_t TAVTactVmeReader::fgkKeyTail[]        = {0xaaa1, 0xaaa2, 0xaaa3, 0xaaa4, 0xaaa5, 0xaaa6, 0xaaa7, 0xaaa8};
-
-
-     TString TAVTactVmeReader::fgDefaultFolderName = "run_";
-     TString TAVTactVmeReader::fgDefaultExtName    = ".dat";
+TString TAVTactVmeReader::fgDefaultFolderName = "run_";
+TString TAVTactVmeReader::fgDefaultExtName    = ".dat";
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
@@ -156,7 +148,7 @@ Bool_t TAVTactVmeReader::GetEventHeader(Int_t iSensor)
    do {
       fRawFileAscii[iSensor] >> tmp;
       TString line = tmp;
-      TString key  = Form("%x", fgkEventHeader);
+      TString key  = Form("%x", DECardEvent::GetEventHeader());
       if (line.Contains(key)) {
          fRawFileAscii[iSensor] >> fEventNumber;
          return true;

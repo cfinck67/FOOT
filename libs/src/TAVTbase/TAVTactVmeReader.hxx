@@ -30,10 +30,7 @@ public:
    enum {kSize = 10};
    static void     SetDefaultFolderName(const Char_t* name) { fgDefaultFolderName = name; }
    static TString  GetDefaultFolderName()                   { return fgDefaultFolderName; }
-  
-   static  UInt_t  GetDataTail(Int_t idx)                   { return fgkKeyTail[idx];     }
-   static  Int_t   GetLineWidth()                           { return fgkLineWidth;        }
- 
+   
 private:
    ifstream          fRawFileAscii[kSize]; // file streamm
    Int_t             fEventNumber;         // number of the event
@@ -44,13 +41,6 @@ private:
    Int_t             fDebugLevel;          // debug level
    
 private:
-   static const UInt_t  fgkKeyTail[];
-   static const Int_t   fgkLineWidth;
-   static const UInt_t  fgkEventHeader;
-   static const UInt_t  fgkEventTail;
-   static const UInt_t  fgkFrameHeader;
-   static const UInt_t  fgkFrameTail;
-
    static       TString fgDefaultFolderName;
    static       TString fgDefaultExtName;
 
