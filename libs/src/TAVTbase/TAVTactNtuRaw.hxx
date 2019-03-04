@@ -1,44 +1,47 @@
 #ifndef _TAVTactNtuRaw_HXX
 #define _TAVTactNtuRaw_HXX
+
+#include "TAVTactBaseRaw.hxx"
+
 /*!
  \file
- \version $Id: TAVTactNtuRaw.hxx,v 1.4 2003/06/09 18:17:14 mueller Exp $
+ \version $Id: TAVTactNtuRaw.hxx $
  \brief   Declaration of TAVTactNtuRaw.
  */
+
 /*------------------------------------------+---------------------------------*/
+class TAGdataDsc;
+class DECardEvent;
 
-#include "TAGaction.hxx"
-#include "TAGdataDsc.hxx"
-#include "TAGparaDsc.hxx"
-class TH2F;
-
-class TAVTactNtuRaw : public TAGaction {
+using namespace std;
+class TAVTactNtuRaw : public TAVTactBaseRaw {
 public:
-   explicit  TAVTactNtuRaw(const char* name=0,
-						   TAGdataDsc* p_nturaw=0, 
-						   TAGdataDsc* p_datraw=0, 
-						   TAGparaDsc* p_parmap=0,
-						   TAGparaDsc* p_geomap=0);
-   virtual ~TAVTactNtuRaw();
    
-   //! Base action 
+   explicit TAVTactNtuRaw(const char* name=0, TAGdataDsc* p_datraw=0, TAGdataDsc* p_datmbs=0, TAGparaDsc* p_pargeo=0, TAGparaDsc* p_parconf=0);
+   virtual  ~TAVTactNtuRaw();
+   
    virtual Bool_t  Action();
    
-   //! Base creation of histogram
-   virtual  void   CreateHistogram();
-   
-   //! Delete
-   virtual void DeleteDoublet(Int_t iSensor);
-   
-   ClassDef(TAVTactNtuRaw,0)
-   
 private:
-   TAGdataDsc*     fpNtuRaw;		    // output data dsc
-   TAGdataDsc*     fpDatRaw;		    // input data dsc
-   TAGparaDsc*     fpParMap;		    // map para dsc
-   TAGparaDsc*     fpGeoMap;		    // geometry para dsc
+   TAGdataDsc*     fpDatDaq;		    // input data dsc
+   
+private:   
+   //! Find vertex data
+   Bool_t DecodeEvent(const DECardEvent* evt);
       
-   TH2F*           fpHisPosMap[8];    // pixel map per sensor   
+   //! Get the starting point of each event
+   Bool_t GetEventHeader();
+   
+   //! Get the starting point of each frame
+   Bool_t GetStart();
+   
+   //! Get frame and returns frameRaw
+   void   GetFrame(MI26_FrameRaw* data);
+   
+   //! Get next frames with same trigger
+   void   GetNextFrames(UInt_t trigger);
+
+   ClassDef(TAVTactNtuRaw,0)
 };
 
 #endif
