@@ -78,11 +78,18 @@ Bool_t TAGactDaqReader::Process()
 
    // TDC # 0 and # 1 as an example
    const TDCEvent* evTDC0 = static_cast<const TDCEvent*>(fDaqFileReader->getFragmentID(dataV1190 | 0x30));
-   fDaqEvent->AddFragment(evTDC0);
+   if (evTDC0)
+      fDaqEvent->AddFragment(evTDC0);
    
    const TDCEvent* evTDC1 = static_cast<const TDCEvent*>(fDaqFileReader->getFragmentID(dataV1190 | 0x31));
-   fDaqEvent->AddFragment(evTDC1);
+   if (evTDC1)
+      fDaqEvent->AddFragment(evTDC1);
 
+   const DECardEvent* evVTX = static_cast<const DECardEvent*>(fDaqFileReader->getFragmentID(dataVTX));
+   if (evVTX)
+      fDaqEvent->AddFragment(evVTX);
+   
+   
    if (fDaqFileReader->endOfFileReached())
       return false;
    
