@@ -54,7 +54,7 @@ class TCFOeventAction : public G4UserEventAction
     Int_t                    fTwCollId;            // Id of ToF collection
     Int_t                    fCaCollId;            // Id of Calo collection
     TSignalHandler*          fEventInterruptHandler;
-    TAMCntuEve*            fMcTrack;
+    TAMCntuEve*              fMcTrack;
 
     TAGgeoTrafo*             fpGeoTrafo;           // trafo pointer
 
