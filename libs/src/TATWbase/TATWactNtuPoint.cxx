@@ -140,11 +140,13 @@ Bool_t TATWactNtuPoint::FindPoints()
          
          Int_t Z = pCalMap->GetChargeZ(point->GetEnergyLoss1());
          point->SetChargeZ(Z);
-         
-         fpHisDist->Fill(minDist);
-         fpHisCharge1->Fill(point->GetEnergyLoss1());
-         fpHisCharge2->Fill(point->GetEnergyLoss2());
-         fpHisChargeTot->Fill(point->GetEnergyLoss());
+	 
+	 if (ValidHistogram()) {
+	   fpHisDist->Fill(minDist);
+	   fpHisCharge1->Fill(point->GetEnergyLoss1());
+	   fpHisCharge2->Fill(point->GetEnergyLoss2());
+	   fpHisChargeTot->Fill(point->GetEnergyLoss());
+	 }
       }
    }
 
