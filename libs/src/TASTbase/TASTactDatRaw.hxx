@@ -11,6 +11,8 @@
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
 
+class WDEvent;
+
 class TASTactDatRaw : public TAGaction {
 
 public:
@@ -31,6 +33,8 @@ public:
   TAGdataDsc*     fpDatDaq;		    // input data dsc
   TAGparaDsc*     fpParMap;		    // parameter dsc
   
+ private:
+   Bool_t DecodeHits(const WDEvent* evt);
 };
 
 #endif
