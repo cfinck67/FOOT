@@ -147,9 +147,8 @@ void TCFOeventAction::EndOfEventAction(const G4Event* evt)
     // digitize evt
     Collect(evt);
 
-    FillTrack();
-
     //At the end of each EVENT
+    FillTrack();
     FillAndClear();
 }
 
@@ -196,6 +195,7 @@ Int_t TCFOeventAction::GetEventsNToBeProcessed()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void TCFOeventAction::FillAndClear()
 {
+   fMcTrack->Clear();
    return fRunAction->FillAndClear();
 }
 
