@@ -55,11 +55,6 @@ int main( int argc, char *argv[] ){
     if( verbose ) daqFileChecker.printData();
  
     bool checkOK = daqFileChecker.check();
-//    myfile << daqFileChecker.getBCOdiff() << " " << nEventsRead << "\n";
-//    if( !checkOK ){
-//      if( verbose ) std::cout<<"--- @@@ Error on data!!! "<<std::endl;
-//      nErrors++;
-//    }
     
     if( verbose ) std::cout<<std::endl;
     nEventsRead++;
