@@ -68,10 +68,16 @@ void EventReader::closeFile(){
 // read the header of the whole DAQ file
 void  EventReader::readFileHeader(){
 
+  unsigned int partFile;
   unsigned int word = readWord();
   if( word == FileHeader){
     unsigned int size = readWord();
-    for( unsigned int i=0; i< size-2; i++)
+    readWord();
+    partFile = readWord();
+    m_isFirstFile = true;
+    if ( partFile != 1 )
+      m_isFirstFile = false;
+    for( unsigned int i=0; i< size-4; i++)
       readWord();
   } else {
     m_errorOnRead = true;
@@ -83,6 +89,7 @@ void  EventReader::readFileHeader(){
     m_head = new DAQFileHeader;
     m_head->writer = readString();
     m_head->filename = readString();
+    m_head->fileNumber = partFile;
 
   } else {
     // std::cout << "first part of header of file not working" << std::endl;
@@ -110,9 +117,8 @@ void  EventReader::readFileHeader(){
 /************************************************/
 // read the full event and stores it in memory
 void  EventReader::getNextEvent(){
-
+  
   unsigned int sizeROS = 0;
-
   // clear maps and derived pointers
   for(std::map<u_int, BaseFragment*>::reverse_iterator it=m_fragments.rbegin();
       it!=m_fragments.rend(); ++it){
@@ -134,7 +140,6 @@ void  EventReader::getNextEvent(){
 
     // actual reading of all event
     unsigned int * base = (unsigned int *) readInEvent(); 
-    
     if( base == NULL ){
       m_errorOnRead = true;
       // error reading file
@@ -147,16 +152,16 @@ void  EventReader::getNextEvent(){
 
     // go to event header ID (run, time, evt number)
     p +=4;
-    if( ((*p)&0xffffff00)!=EventHeaderID) {
+    if( ((*p) & 0xffffff00) != EventHeaderID) {
       std::cout << "Error reading event 1 - " << (std::hex)<<*p<<std::endl;
     }
 
-    if( ((*p)&0xffffff00)==EventHeaderID) {
+    if( ((*p) & 0xffffff00) == EventHeaderID) {
       readInfoEvent(&p);  // read event info
       //std::cout << "after readinfo" <<std::endl;
       p = base+base[2];
 
-      while( *p==ROSHeader1 && p<endBuffer){
+      while( *p == ROSHeader1 && p < endBuffer){
 	//std::cout << "ROS1 Current word: " << (std::hex)<<*p<<std::endl;
 	sizeROS = getROSInformation(&p); // get Readout system information
 	//std::cout << "after get ROS" <<std::endl;
@@ -165,7 +170,7 @@ void  EventReader::getNextEvent(){
     p = base+base[2]+sizeROS;
 
     //std::cout << "ROS2 Current word: " << (std::hex)<<*p<<std::endl;
-    if(*p==ROSHeader1) {
+    if(*p == ROSHeader1) {
       getROSInformation(&p);
       //std::cout << "after get ROS2" <<std::endl;
     }
@@ -173,7 +178,7 @@ void  EventReader::getNextEvent(){
   // provide the pointer to the trigger object
   std::map<unsigned int,BaseFragment*>::iterator bp = m_fragments.find(dataV2495+0x30);
   //std::cout << "trigger fragment " <<bp->first<<std::endl;
-  if( bp!=m_fragments.end() ){
+  if( bp != m_fragments.end() ){
     m_trg = static_cast<TrgEvent*>(bp->second);
   }
   m_eventsRead++;
@@ -207,7 +212,7 @@ void EventReader::printData(){
 // returns true if all OK
 //
 bool EventReader::check(){
-  bool check=true;
+  bool rccheck=true;
   if( m_eventsRead>0 ){
     for(std::map<u_int, BaseFragment*>::iterator it=m_fragments.begin();
 	it!=m_fragments.end(); ++it){
@@ -215,13 +220,13 @@ bool EventReader::check(){
       if( !ok ){
 	std::cout<<" Fragment "<<(std::hex)<<it->second->channelID
 		 <<" failed simple check"<<std::endl;
-	check = false;
+	rccheck = false;
       }
     }
   } else {
-    check = false;
+    rccheck = false;
   }
-  return check;
+  return rccheck;
 }
 
 
@@ -240,7 +245,7 @@ void EventReader::preEvent(){
   while( word!=EventMarker ){
     word = readWord();
     //std::cout << "\n Looking for EventMarker or EndOfFile" << std::endl;
-    if ( word==EndOfFile || m_errorOnRead ) {
+    if ( word == EndOfFile || m_errorOnRead ) {
       m_errorOnRead = true;
       std::cout << "\nEnd of file" << std::endl;
       return;

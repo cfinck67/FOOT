@@ -51,11 +51,11 @@ void  fADCEvent::readData(unsigned int **p1){
 }
 
 
-void fADCEvent::printV ( int nCHans ){
+void fADCEvent::printV (){
 
   for ( u_int sample = 0; sample < channel[0].size(); sample++ ){
     std::cout << sample <<" - ";
-    for ( int i = 0; i < nCHans; i++ ){
+    for ( u_int i = 0; i < nchans; i++ ){
       std::cout << channel[i][sample] << " ";
     }
     std::cout << std::endl;
@@ -73,18 +73,18 @@ int fADCEvent::getWordsChannel( int aWord, int nCHans ) {
 int fADCEvent::getnchans ( int aData ){
 
   int mask=1;
-  int nCHans=0;
+  int numChans=0;
   bool status;
   for ( int i = 0; i < 8; i++ ){
     status = false;
     if( ( aData & mask )== mask ){
       status = true;
-      nCHans++;
+      numChans++;
     }
     active.push_back(status);
     mask *=2;
   }
-  return nCHans;
+  return numChans;
 }
 
 

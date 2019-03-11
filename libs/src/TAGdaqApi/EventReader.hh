@@ -60,6 +60,7 @@ protected:
   std::ifstream* m_file;
   bool m_isOpened;
   bool m_errorOnRead;
+  bool m_isFirstFile;
 
   // main fragment storage
   std::map<u_int, BaseFragment*> m_fragments;

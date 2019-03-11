@@ -24,7 +24,7 @@ class fADCEvent : public BaseFragment {
  
   private:
   
-    void printV ( int nchans );
+    void printV ();
     int getWordsChannel( int word, int nchans );
     int getnchans ( int data );
 	

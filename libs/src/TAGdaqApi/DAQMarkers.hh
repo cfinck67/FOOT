@@ -22,12 +22,14 @@ const unsigned int dataV2495 = 0x00463000;
 const unsigned int dataV1190 = 0x00463100;
 // DE0/DE10
 const unsigned int dataVTX   = 0x00463300;
+//Remote board with PC
+const unsigned int dataWD = 0x00463200;
 // FADC
 const unsigned int dataV1720 = 0x00463500;
 // Generic
 const unsigned int dataEmpty = 0x00463800;
 
-const unsigned int FRAGTYPES = 6;
+const unsigned int FRAGTYPES = 7;
 
 
 #endif

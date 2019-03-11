@@ -7,6 +7,8 @@
 #include "TDCEvent.hh"
 #include "EmptyEvent.hh"
 #include "DECardEvent.hh"
+#include "WDEvent.hh"
+
 #include <stdio.h>
 
 std::string FRAGnames[] =
@@ -15,11 +17,12 @@ std::string FRAGnames[] =
    "FADC    fragment ",
    "TDC     fragment ",
    "Empty   fragment ",
-   "VTX     fragment "};
+   "VTX     fragment ",
+   "WD      fragment "};
 
 unsigned int FRAGkeys[] =
   {EventHeaderID, dataV2495, dataV1720, dataV1190,
-   dataEmpty, dataVTX};
+   dataEmpty, dataVTX, dataWD};
 
 
 std::map<unsigned int, std::string> BaseFragment::fragnames;
@@ -57,6 +60,8 @@ BaseFragment* BaseFragment::create(unsigned int **p){
     p_bf = new EmptyEvent;
   } else if( chID==dataVTX ){ // get DECardEvent info
     p_bf = new DECardEvent;
+  } else if( chID==dataWD ){ // get WD info
+    p_bf = new WDEvent;
   }
 
   if( p_bf!=NULL ) p_bf->readData(p);

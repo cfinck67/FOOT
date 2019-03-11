@@ -32,6 +32,7 @@ private:
 
   std::map<u_int,ErrInfo> m_infos;
   u_int m_fileErrors;
+  u_int m_eventOffset;
 };
 
 #endif

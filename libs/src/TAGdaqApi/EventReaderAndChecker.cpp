@@ -6,13 +6,15 @@
 #include "DECardEvent.hh"
 #include "EmptyEvent.hh"
 #include "TDCEvent.hh"
+#include "WDEvent.hh"
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>
 
 // default constructor
 EventReaderAndChecker::EventReaderAndChecker(int debugLevel) : 
-  EventReader(debugLevel) {
+  EventReader(debugLevel),
+  m_eventOffset(0) {
 }
 
 
@@ -72,7 +74,6 @@ bool EventReaderAndChecker::check(){
     m_fileErrors=0;
   }
 
-  u_int eventNumber = m_eventsRead-1;
 
   // set to false the ifFound flags
   for(std::map<u_int, ErrInfo>::iterator it=m_infos.begin();
@@ -84,6 +85,10 @@ bool EventReaderAndChecker::check(){
   //
   InfoEvent*     infoEv = getInfoEvent();   // infoEvent
   TrgEvent*      trgEv = getTriggerEvent(); // Trigger Event
+
+  if( m_eventsRead == 1 )
+    m_eventOffset = infoEv->eventNumber; 
+  u_int eventNumber = m_eventsRead + m_eventOffset -1;
 
 
   for(std::map<u_int, BaseFragment*>::iterator it=m_fragments.begin();
@@ -149,7 +154,16 @@ bool EventReaderAndChecker::check(){
 		   <<eventNumber<<std::endl;	  
 	  checkPassed = false;
 	}
-      } else if( keym==dataVTX ){ // DE boards
+      } else if( keym==dataWD ){ // remote check ev num
+	WDEvent* wdp = static_cast<WDEvent*>(it->second);
+	if( wdp->eventNumber != eventNumber ){
+	  iterr->second.errors++;
+	  std::cout<<" WD Event with ID "<<std::hex<<(iterr->first)<<std::dec
+	           <<" has event number "<<wdp->eventNumber<<"instead of "
+	           <<eventNumber<<std::endl;
+	  checkPassed = false;
+	  }
+	} else if( keym==dataVTX ){ // DE boards
 	// check ev number
 	DECardEvent* dep = static_cast<DECardEvent*>(it->second);
       	if( dep->eventNumber != eventNumber ){

@@ -6,6 +6,7 @@
 #include "EventReaderAndChecker.hh"
 #include "DAQFileHeader.hh"
 #include <stdlib.h>
+#include <fstream>
 
 int main( int argc, char *argv[] ){
 
@@ -42,6 +43,9 @@ int main( int argc, char *argv[] ){
 
   int nEventsRead=0;
   int nErrors=0;
+  std::ofstream myfile;
+  myfile.open("timediff.dat");
+  myfile << "BCO" << " " << "event\n";
   while ( daqFileChecker.endOfFileReached()==false ){
    
     daqFileChecker.getNextEvent();
@@ -51,10 +55,11 @@ int main( int argc, char *argv[] ){
     if( verbose ) daqFileChecker.printData();
  
     bool checkOK = daqFileChecker.check();
-    if( !checkOK ){
-      if( verbose ) std::cout<<"--- @@@ Error on data!!! "<<std::endl;
-      nErrors++;
-    }
+//    myfile << daqFileChecker.getBCOdiff() << " " << nEventsRead << "\n";
+//    if( !checkOK ){
+//      if( verbose ) std::cout<<"--- @@@ Error on data!!! "<<std::endl;
+//      nErrors++;
+//    }
     
     if( verbose ) std::cout<<std::endl;
     nEventsRead++;
@@ -66,5 +71,6 @@ int main( int argc, char *argv[] ){
 
   daqFileChecker.printStatistics();
   daqFileChecker.closeFile();
+  myfile.close();
   
 }

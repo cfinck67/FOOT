@@ -10,7 +10,6 @@ class RemoteEvent : public BaseFragment {
     u_int time_sec;
     u_int time_usec;
     u_int eventNumber;
-    u_int lumiBlock;
 
     u_int evtSize;
     std::vector<u_int> values;

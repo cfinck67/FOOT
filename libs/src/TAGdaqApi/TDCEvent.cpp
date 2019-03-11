@@ -59,7 +59,7 @@ void TDCEvent::printData() const {
     printf ("TDC Header %i: %x\n", i, tdcHeader.at( i ) );
   }
   for ( unsigned int i = 0; i < measurement.size(); ++i ){
-    printf ("Measurement number %i: %d\n", i, measurement.at( i ) );
+    printf ("Measurement number %i: %x\n", i, measurement.at( i ) );
   }
   for ( unsigned int i = 0; i < tdcTrailer.size(); ++i ){
     printf ("TDC Trailer %i: %x\n", i, tdcTrailer.at( i ) );
