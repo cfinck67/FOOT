@@ -22,12 +22,12 @@ class DECardEvent : public RemoteEvent {
     virtual std::string classType() const {return "DECardEvent";   }
    
   public:
-   static  u_int  GetEventHeader()        { return eventHeader; }
-   static  u_int  GetEventTail()          { return eventTail;   }
+   static  u_int  GetVertexHeader()        { return m_vtxHeader; }
+   static  u_int  GetVertexTail()          { return m_vtxTail;   }
 
   protected:
-   static const u_int  eventHeader;
-   static const u_int  eventTail;
+   static const u_int  m_vtxHeader;
+   static const u_int  m_vtxTail;
 
 
 };

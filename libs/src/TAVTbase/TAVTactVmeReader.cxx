@@ -148,7 +148,7 @@ Bool_t TAVTactVmeReader::GetEventHeader(Int_t iSensor)
    do {
       fRawFileAscii[iSensor] >> tmp;
       TString line = tmp;
-      TString key  = Form("%x", DECardEvent::GetEventHeader());
+      TString key  = Form("%x", DECardEvent::GetVertexHeader());
       if (line.Contains(key)) {
          fRawFileAscii[iSensor] >> fEventNumber;
          return true;

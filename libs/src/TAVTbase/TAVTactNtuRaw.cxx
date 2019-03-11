@@ -91,7 +91,7 @@ Bool_t TAVTactNtuRaw::DecodeEvent(const DECardEvent* evt)
 Bool_t TAVTactNtuRaw::GetEventHeader()
 {
    do {
-      if (fData[fIndex] == DECardEvent::GetEventHeader()) {
+      if (fData[fIndex] == DECardEvent::GetVertexHeader()) {
          fEventNumber = fData[++fIndex];
          return true;
       }

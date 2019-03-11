@@ -3,8 +3,8 @@
 #include "DECardEvent.hh"
 #include <iostream>
 
-const u_int DECardEvent::eventHeader = 0xfafafafa;
-const u_int DECardEvent::eventTail   = 0xabcdabcd;
+const u_int DECardEvent::m_vtxHeader = 0xfafafafa;
+const u_int DECardEvent::m_vtxTail   = 0xabcdabcd;
 
 
 DECardEvent::~DECardEvent()
@@ -17,8 +17,8 @@ void DECardEvent::readData(unsigned int **p1)
    u_int * p = *p1;
    
    // check header
-   if (*p != eventHeader)
-      printf("Error in the event reader %x instead of %x\n", *p, eventHeader);
+   if (*p != m_vtxHeader)
+      printf("Error in the event reader %x instead of %x\n", *p, m_vtxHeader);
    values.push_back(*p);
    evtSize++;
    
@@ -27,7 +27,7 @@ void DECardEvent::readData(unsigned int **p1)
    evtSize++;
    values.push_back(*p);
 
-   while (*p != eventTail) {
+   while (*p != m_vtxTail) {
       values.push_back(*p);
       p++;
       evtSize++;
