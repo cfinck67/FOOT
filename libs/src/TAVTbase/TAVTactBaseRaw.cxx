@@ -22,12 +22,12 @@
 
 ClassImp(TAVTactBaseRaw);
 
-const UInt_t TAVTactBaseRaw::fgkKeyHeader[]      = {0x8001, 0x8002, 0x8003, 0x8004, 0x8005, 0x8006, 0x8007, 0x8008};
+const UInt_t TAVTactBaseRaw::fgkKeyHeader[]      = {0x80018001, 0x80028002, 0x80038003, 0x80048004};
 const Int_t  TAVTactBaseRaw::fgkFrameHeaderSize  = 5;
 const Int_t  TAVTactBaseRaw::fgkLineWidth        = 9;
 const UInt_t TAVTactBaseRaw::fgkFrameHeader      = 0x80088007;
 const UInt_t TAVTactBaseRaw::fgkFrameTail        = 0xaaa8aaa7;
-const UInt_t TAVTactBaseRaw::fgkKeyTail[]        = {0xaaa1, 0xaaa2, 0xaaa3, 0xaaa4, 0xaaa5, 0xaaa6, 0xaaa7, 0xaaa8};
+const UInt_t TAVTactBaseRaw::fgkKeyTail[]        = {0x8bb18bb1, 0x8bb28bb2, 0x8bb38bb3, 0x8bb48bb4};
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
