@@ -85,10 +85,15 @@ Bool_t TAGactDaqReader::Process()
    if (evTDC1)
       fDaqEvent->AddFragment(evTDC1);
 
+   // vertex
    const DECardEvent* evVTX = static_cast<const DECardEvent*>(fDaqFileReader->getFragmentID(dataVTX));
    if (evVTX)
       fDaqEvent->AddFragment(evVTX);
    
+   // WD for ST and TW (marker is hard coded !!!)
+   const WDEvent* evWD = static_cast<const WDEvent*>(fDaqFileReader->getFragmentID(0x0463230));
+   if (evWD)
+      fDaqEvent->AddFragment(evWD);
    
    if (fDaqFileReader->endOfFileReached())
       return false;
