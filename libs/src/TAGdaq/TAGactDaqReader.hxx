@@ -2,8 +2,7 @@
 #define _TAGactDaqReader_HXX
 
 /*------------------------------------------+---------------------------------*/
-/* TEMPLATE CLASS
-   Need real implementation
+/* Interface for DAQ file reader
 */
 
 #include "TList.h"
