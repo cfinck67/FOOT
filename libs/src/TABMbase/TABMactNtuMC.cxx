@@ -125,8 +125,6 @@ Bool_t TABMactNtuMC::Action()
           
   //set the number of hits
   Int_t hitsrandtot;    
-  TRandom3 *rand = new TRandom3();
-  rand->SetSeed(0);
   Int_t remainhitsn, nrealhits;
   
   if(p_bmcon->GetSmearhits()){
@@ -136,12 +134,12 @@ Bool_t TABMactNtuMC::Action()
         nrealhits++;
         
     //prune the real hits
-    Int_t tmp_int=rand->Uniform(0,10);
+    Int_t tmp_int=p_bmcon->GetRand()->Uniform(0,10);
     if(tmp_int<p_bmcon->GetFakehitsMean()) 
-      hitsrandtot = 12 - (Int_t) fabs(rand->Gaus(0, p_bmcon->GetFakehitsSigmaLeft()));  
+      hitsrandtot = 12 - (Int_t) fabs(p_bmcon->GetRand()->Gaus(0, p_bmcon->GetFakehitsSigmaLeft()));  
     else
-      hitsrandtot = 12 + (Int_t) fabs(rand->Gaus(0, p_bmcon->GetFakehitsSigmaRight()));  
-    Int_t nprunehits=nrealhits*(1.-rand->Gaus(p_bmcon->GetMCEffMean(), p_bmcon->GetMCEffSigma()))+0.5;
+      hitsrandtot = 12 + (Int_t) fabs(p_bmcon->GetRand()->Gaus(0, p_bmcon->GetFakehitsSigmaRight()));  
+    Int_t nprunehits=nrealhits*(1.-p_bmcon->GetRand()->Gaus(p_bmcon->GetMCEffMean(), p_bmcon->GetMCEffSigma()))+0.5;
     if(nprunehits<0)
       nprunehits=0;
     if(nprunehits>nrealhits)
@@ -150,7 +148,7 @@ Bool_t TABMactNtuMC::Action()
       nprunehits=nrealhits-hitsrandtot;
     remainhitsn=nrealhits-nprunehits;
     while(nprunehits>0){
-      tmp_int=rand->Uniform(0.5,nprunehits+0.5);
+      tmp_int=p_bmcon->GetRand()->Uniform(0.5,nprunehits+0.5);
         //~ if(tobecharged.at(tmp_int)==true){
           //~ tobecharged.at(tmp_int)=false;
           //~ nprunehits--;
@@ -170,7 +168,7 @@ Bool_t TABMactNtuMC::Action()
     
     //add fake hits
     if(hitsrandtot-remainhitsn>0)
-      CreateFakeHits(hitsrandtot-remainhitsn, rand, nhits);
+      CreateFakeHits(hitsrandtot-remainhitsn, nhits);
   }
     
   Double_t realrdrift;    
@@ -200,7 +198,7 @@ Bool_t TABMactNtuMC::Action()
                           fpEvtStr->BMNid[i],	view, lay, cell,        
                           loc.X(), loc.Y(), loc.Z(),  
                           fpEvtStr->BMNpxin[i], fpEvtStr->BMNpyin[i], fpEvtStr->BMNpzin[i],  //mom @ entrance in cell
-                          rdriftxcell.at(i), p_bmcon->InverseStrel(rdriftxcell.at(i)), fpEvtStr->BMNtim[i], p_bmgeo);     
+                          rdriftxcell.at(i), p_bmcon->InverseStrel(realrdrift), fpEvtStr->BMNtim[i], p_bmgeo);     
         
       //X,Y and Z needs to be placed in Local coordinates.
       //~ mytmp->SetAW(p_bmgeo);
@@ -212,7 +210,7 @@ Bool_t TABMactNtuMC::Action()
         }
       mytmp->SetRealRdrift(realrdrift);  
       if(p_bmcon->GetSmearrdrift()>0)
-        mytmp->SmearRdrift(p_bmcon->GetSmearrdrift(), rand);   //smearing 
+        mytmp->SmearRdrift(p_bmcon->GetSmearrdrift(), p_bmcon);   //smearing 
       if(fpEvtStr->TRpaid[fpEvtStr->BMNid[i]-1]!=0)
         mytmp->SetIsFake(1);
       else
@@ -231,13 +229,13 @@ Bool_t TABMactNtuMC::Action()
 
 
 
-void TABMactNtuMC::CreateFakeHits(Int_t nfake, TRandom3 *&rand, Int_t &nhits){
+void TABMactNtuMC::CreateFakeHits(Int_t nfake, Int_t &nhits){
   Int_t plane, view, cell;
   for(Int_t i=0;i<nfake;i++){
-    do{plane=rand->Uniform(0,6);}while(plane<0 || plane>5);  
-    view=(rand->Uniform(0,2)>1) ? 0: 1;  
-    do{cell=rand->Uniform(0,3);}while(cell<0 || cell>2);  
-    Double_t rdrift=rand->Uniform(0.,0.9);
+    do{plane=p_bmcon->GetRand()->Uniform(0,6);}while(plane<0 || plane>5);  
+    view=(p_bmcon->GetRand()->Uniform(0,2)>1) ? 0: 1;  
+    do{cell=p_bmcon->GetRand()->Uniform(0,3);}while(cell<0 || cell>2);  
+    Double_t rdrift=p_bmcon->GetRand()->Uniform(0.,0.9);
     //~ cout<<"view="<<view<<" plane="<<plane<<"  cell="<<cell<<endl;
     
     //charge the fake hits

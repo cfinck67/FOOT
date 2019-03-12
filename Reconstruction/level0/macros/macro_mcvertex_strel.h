@@ -4,7 +4,7 @@
 
 //general par
 #define debug            0
-#define bmmcstudy        0    //if >0, study with only bm and bm mc events
+#define bmmcstudy        0    //<0: real data study; ==0 mc study with vtx events; >0 study with only bm and bm mc events, 
 #define MCSTREL          8    //8=first strel*0.8/0.78, 1=first strel*1./0.78 otherwise=garfield strel       
 #define BMNEV            0    //number of bm events to analyze
 #define VTXNEV           0    //number of msd events to analyze
@@ -21,25 +21,25 @@
 //bm theorical geo par
 #define BMISOZ         -14.   //position of the BM with respect to ISO 
 #define BMISOX         0.             
-#define BMISOY         0.             
+#define BMISOY         0.            
 #define BMISOXZANGLE   0.     //rotation of the BM with respect to ISO        
 #define BMISOYZANGLE   0.             
 
 //bm residual calculated shift & rotation
-#define BMSHIFTX       0.
-#define BMSHIFTY       0.
-#define BMSHIFTZ       0.
-#define BMYZANGLE      0.     //bm rotation around X axis in deg (provv)        
-#define BMXZANGLE      0.    //bm rotation around Y axis in deg (provv)        
+//~ #define BMSHIFTX       0.
+//~ #define BMSHIFTY       0.
+//~ #define BMSHIFTZ       0.
+//~ #define BMYZANGLE      0.     //bm rotation around X axis in deg (provv)        
+//~ #define BMXZANGLE      0.    //bm rotation around Y axis in deg (provv)        
 
 //VTX residual calculated shift & rotation (a tentative)
 #define VTXLAYERNUM       4
 #define VTXISOZ       1.5
 #define VTXISOX       0.
 #define VTXISOY       0.
-#define VTXSHIFTX       0.
-#define VTXSHIFTY       0.
-#define VTXSHIFTZ       0.
+//~ #define VTXSHIFTX       0.
+//~ #define VTXSHIFTY       0.
+//~ #define VTXSHIFTZ       0.
 #define VTXYZANGLE      0.     //VTX rotation around X axis in deg (provv)        
 #define VTXXZANGLE      0.     //VTX rotation around Y axis in deg (provv)  
 
@@ -60,6 +60,7 @@ typedef struct BM_evstruct {
   double bm_hit_residual[MAXBMHITNUM];
   double bm_hit_time[MAXBMHITNUM];
   int bm_hit_cellid[MAXBMHITNUM];
+  double bm_hit_realrdrift[MAXBMHITNUM];
 
 } BM_evstruct;
 
@@ -86,7 +87,7 @@ void merge_graphics(TFile* infile, TFile* f_out);
 //bm functions
 TVector3 BMlocaltoiso(TVector3 local);//from local to labo syst of ref., including the shift
 void clean_bmevstruct(BM_evstruct &bmevstruct, bool forced);
-bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<int> &evnumreader,   TTreeReaderValue<int> &timeacqreader, TTreeReaderValue<double> &trackchi2reader, TTreeReaderValue<double> &pversxreader,   TTreeReaderValue<double> &pversyreader, TTreeReaderValue<double> &pverszreader,   TTreeReaderValue<double> &r0xreader,   TTreeReaderValue<double> &r0yreader,   TTreeReaderValue<double> &rdriftreader,   TTreeReaderValue<double> &residualreader,   TTreeReaderValue<double> &hittimereader,   TTreeReaderValue<int> &planereader,  TTreeReaderValue<int> &viewreader,   TTreeReaderValue<int> &cellreader);
+bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<int> &evnumreader,   TTreeReaderValue<int> &timeacqreader, TTreeReaderValue<double> &trackchi2reader, TTreeReaderValue<double> &pversxreader,   TTreeReaderValue<double> &pversyreader, TTreeReaderValue<double> &pverszreader,   TTreeReaderValue<double> &r0xreader,   TTreeReaderValue<double> &r0yreader,   TTreeReaderValue<double> &rdriftreader,   TTreeReaderValue<double> &residualreader,   TTreeReaderValue<double> &hittimereader,   TTreeReaderValue<int> &planereader,  TTreeReaderValue<int> &viewreader,   TTreeReaderValue<int> &cellreader, TTreeReaderValue<double> &realrdriftreader);
 TVector3 ExtrapolateZ(TVector3 pvers, TVector3 r0pos, double proposz, bool global,  bool beammonitor);
 void setbmgeo(vector<TVector3> &wire_pos, vector<TVector3> &wire_dir);
 bool Getlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_t& icell);

@@ -66,30 +66,30 @@ TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x, Doubl
 }
 
 
-void TABMntuHit::SmearRdrift(Int_t smear_type, TRandom3 *&rand){
+void TABMntuHit::SmearRdrift(Int_t smear_type, TABMparCon *p_bmcon){
 Double_t smeared;
 
 if(smear_type==0)
   return;
 
 if(smear_type==1){ //gaussian truncated to 1 sigma
-  do{smeared=rand->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>sigma);
+  do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>sigma);
 }
 
 if(smear_type==2){ //gaussian truncated to 2 sigma
-  do{smeared=rand->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>2.*sigma);
+  do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>2.*sigma);
 }
 
 if(smear_type==3){ //gaussian truncated to 3 sigma
-  do{smeared=rand->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>3.*sigma);
+  do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>3.*sigma);
 }
   
 if(smear_type==4) //gaussian not truncated
-  smeared=rand->Gaus(rdrift,sigma);
+  smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);
 
 
 if(smear_type==5) //flat smearing
-  smeared=rdrift+rand->Uniform(-sigma*sqrt(12.)/2.,sigma*sqrt(12.)/2.);
+  smeared=rdrift+p_bmcon->GetRand()->Uniform(-sigma*sqrt(12.)/2.,sigma*sqrt(12.)/2.);
 
 
 if (smeared<0)

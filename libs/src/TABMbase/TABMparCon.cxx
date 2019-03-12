@@ -50,14 +50,14 @@ TABMparCon::TABMparCon() {
 
   //~ f_mypol = new TF1("mymcpol","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.003);
   //~ f_mypol2 = new TF1("mymcpol2","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.004);
-
+  rand= new TRandom3();
 }
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
 TABMparCon::~TABMparCon()
-{}
+{delete rand;}
 
 
 //------------------------------------------+-----------------------------------
@@ -151,10 +151,12 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'Z')) {
-      sscanf(bufConf, "Z %d %d %s",&myArgInt, &myArgIntmax, tmp_char);
-      if((myArgInt==0 || myArgInt==1) && (myArgIntmax==1 || myArgIntmax==0 || myArgIntmax==2)){
+      sscanf(bufConf, "Z %d %d %lf %lf %s",&myArgInt, &myArgIntmax, &myArg1, &myArg2, tmp_char);
+      if((myArgInt==0 || myArgInt==1) && (myArgIntmax==1 || myArgIntmax==0 || myArgIntmax==2 || myArgIntmax==3)  &&  myArg1>=0 && myArg2>=0){
         manageT0BM = myArgInt;
         t0_switch=myArgIntmax;
+        t0_sigma=myArg1;
+        hit_timecut=myArg2;
         bmt0file=tmp_char;
       }else {
 	      Error(""," Plane Map Error:: check config file!! (Z)");
@@ -213,10 +215,10 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         }
     }else if(strchr(bufConf,'S')) {
       sscanf(bufConf, "S %d %lf %lf %lf %lf %lf %lf",&myArgInt,&myArg1, &myArg2, &myArg3, &myArg4, &myArg5, &myArg6);
-      if(myArgInt>0 && myArg4<180. && myArg5<180. && myArg6<180.){
+      if(myArg4<180. && myArg5<180. && myArg6<180.){
         calibro=myArgInt;
         meas_shift.SetXYZ(myArg1,myArg2,myArg3);
-        meas_tilt.SetXYZ(myArg1,myArg2,myArg3);
+        meas_tilt.SetXYZ(myArg4,myArg5,myArg6);
       }else if(myArgInt==0){
         calibro=0;
         meas_shift.SetXYZ(0.,0.,0.);
@@ -497,12 +499,8 @@ void TABMparCon::LoadSTrel(TString sF) {
 
 Double_t TABMparCon::FirstSTrel(Double_t tdrift){
   
-  if(tdrift<0){
-    if(t0_switch==2)
-      return 0.03289 + 0.008*tdrift;
-    else
-      return 0.;
-  }
+  if(tdrift<0 && t0_switch==2)
+    return 0.03289 + 0.008*tdrift;
   
   Double_t rdrift;
   
@@ -550,12 +548,8 @@ Double_t TABMparCon::InverseStrel(Double_t rdrift){
 
 Double_t TABMparCon::FirstSTrelMC(Double_t tdrift, Int_t mc_switch){
   
-  if(tdrift<0){
-    if(t0_switch==2)
+  if(tdrift<0 && t0_switch==2)
       return 0.03289 + 0.008*tdrift;
-    else
-      return 0.;
-  }  
   
   if(mc_switch==1){ //garfield strel
     return 0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  

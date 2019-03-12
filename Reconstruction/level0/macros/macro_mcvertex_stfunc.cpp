@@ -38,6 +38,8 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
     h2 = new TH2D("bmisoproBMsys","BM tracks on isocenter projections in BM sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
     h2 = new TH2D("bmmylar1BMsys","bm tracks on mylar1 projections in BM sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
     h2 = new TH2D("bmmylar2BMsys","bm tracks on mylar2 projections in BM sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
+    if(bmmcstudy==0)
+      h = new TH1D("bm_realrdrift","real bm rdrift;rdrift[cm];Events",1000,0.,1.);    
   
     //combined stuff not for merging
     h = new TH1D("track_iso_diff_total","Difference for bm tracks and vtx tracks on isocenter plane;diff[cm];Events",500,0.,5.);
@@ -50,8 +52,8 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
   h = new TH1D("space_residual_error","error events ;rdrift;Events",1000.,1.,10.);
   h = new TH1D("time_residual_error","error events ;tdrift;Events",1000.,1.,10.);
   //~ h = new TH1D("time_diff","bm event timeacq - msd event timeacq ;time;Events",500,0.,100.);
-  h = new TH1D("pvers_diff_vs_xevent_mx","mx diff bm_track-vtx_track;Event;bm_mx-vtx_mx",2000,0.,1000.);
-  h = new TH1D("pvers_diff_vs_xevent_my","my diff bm_track-vtx_track;Event;bm_my-vtx_my",2000,0.,1000.);
+  h = new TH1D("pvers_diff_vs_xevent_mx","mx diff bm_track-vtx_track;Event;bm_mx-vtx_mx",1000,0.,1000.);
+  h = new TH1D("pvers_diff_vs_xevent_my","my diff bm_track-vtx_track;Event;bm_my-vtx_my",1000,0.,1000.);
   h = new TH1D("r0x_diff_vs_xevent","r0x diff bm_track-vtx_track;Event;bm_mx-vtx_mx",1000,0.,1000.);
   h = new TH1D("r0y_diff_vs_xevent","r0y diff bm_track-vtx_track;Event;bm_my-vtx_my",1000,0.,1000.);
   h2 = new TH2D("pvers_mx_bmvtx","pvers mx angle for bm and vertex for selected tracks;BM Pvers mx;vtx Pverse mx ",500,-0.05,0.05,500,-0.05,0.05);
@@ -68,6 +70,8 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
   h2 = new TH2D("new_strel_time","new strel ;rdrift;time", 1000, 0., 1., 400,0.,400.);
   h2 = new TH2D("residual_strel_time","strel residuals of fitted_timestrel-MC teorical strel ;rdrift;time", 400,0.,400., 1000, -0.5, 0.5);
   h2 = new TH2D("residual_strel_rdrift","strel residuals of fitted_rdriftstrel-MC teorical strel ;rdrift;time",400,0.,400., 1000, -0.5, 0.5);
+  if(bmmcstudy==0)
+    h2 = new TH2D("strel_realrdrift","old FIRST strel from realrdrift ;time;rdrift",400,0.,400.,1000, 0., 1.);
   
   f_out->mkdir("Res_vs_rdrift");
   f_out->cd("Res_vs_rdrift");
@@ -154,8 +158,13 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
     tmp_tvector3=ExtrapolateZ(allbmeventin.at(i).bm_track_pvers, allbmeventin.at(i).bm_track_r0pos, BMN_MYLAR2Z, false, true);
     ((TH2D*)gDirectory->Get("bmmylar2BMsys"))->Fill(tmp_tvector3.X(), tmp_tvector3.Y());
     
-    for(int k=0;k<allbmeventin.at(i).hitnum;k++)
+    for(int k=0;k<allbmeventin.at(i).hitnum;k++){
       ((TH2D*)gDirectory->Get("old_strel_data"))->Fill(allbmeventin.at(i).bm_hit_time[k],allbmeventin.at(i).bm_hit_rdrift[k]);
+      if(bmmcstudy==0){
+        ((TH1D*)gDirectory->Get("bm_realrdrift"))->Fill(allbmeventin.at(i).bm_hit_realrdrift[k]);
+        ((TH2D*)gDirectory->Get("strel_realrdrift"))->Fill(allbmeventin.at(i).bm_hit_time[k],allbmeventin.at(i).bm_hit_realrdrift[k]);
+      }
+    }
   }
   
   if(debug)
@@ -201,8 +210,8 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
   }
   
   cout<<"calcolo correlation factor"<<endl;
-  cout<<"pvers_mx_bmvtx correlation factor from root: "<<((TH2D*)gDirectory->Get("r0x_bmvtx"))->GetCorrelationFactor()<<endl;
-  cout<<"pvers_my_bmvtx correlation factor from root: "<<((TH2D*)gDirectory->Get("r0y_bmvtx"))->GetCorrelationFactor()<<endl;
+  cout<<"r0x_bmvtx correlation factor from root: "<<((TH2D*)gDirectory->Get("r0x_bmvtx"))->GetCorrelationFactor()<<endl;
+  cout<<"r0y_bmvtx correlation factor from root: "<<((TH2D*)gDirectory->Get("r0y_bmvtx"))->GetCorrelationFactor()<<endl;
 
   if(debug)
     cout<<"I'm in Printoutput:: combined graph finished"<<endl;
@@ -210,7 +219,7 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
   //old strel
   fitStrel(f_out, 0,first_strel_tf1_1, first_strel_tf1_08, garfield_strel_tf1);
 
-  if(((TH2D*)gDirectory->Get("r0x_bmvtx"))->GetCorrelationFactor()>CORRMINIMUM && ((TH2D*)gDirectory->Get("r0y_bmvtx"))->GetCorrelationFactor()>CORRMINIMUM){
+  if(((TH2D*)gDirectory->Get("r0x_bmvtx"))->GetCorrelationFactor()>CORRMINIMUM || ((TH2D*)gDirectory->Get("r0y_bmvtx"))->GetCorrelationFactor()>CORRMINIMUM){
     //try to estimate the new strel with space_residual
     for(int i=0; i<STBIN;i++){
       ((TH1D*)gDirectory->Get("space_residual_numev"))->AddBinContent(i+1,space_residual.at(i).size());
@@ -354,7 +363,7 @@ void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<
     if(timepos>STBIN-1) 
       timepos=STBIN;
     vtxpversr02global(vtxevent.vtx_track_pvers, vtxevent.vtx_track_r0pos,  pversout, r0posout);    
-    residual=bmevent.bm_hit_rdrift[i]-FindRdrift(pversout, r0posout, wire_pos.at(bmevent.bm_hit_cellid[i]), wire_dir.at(bmevent.bm_hit_cellid[i]));
+    residual=FindRdrift(pversout, r0posout, wire_pos.at(bmevent.bm_hit_cellid[i]), wire_dir.at(bmevent.bm_hit_cellid[i]))-bmevent.bm_hit_rdrift[i];
     if(debug>2)
       cout<<"residual="<<residual<<"  original_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  fitted_rdrift="<<FindRdrift(pversout, r0posout, wire_pos.at(bmevent.bm_hit_cellid[i]), wire_dir.at(bmevent.bm_hit_cellid[i]))<<endl;
     //~ if(fabs(residual)<0.8 && binpos!=STBIN){
@@ -386,14 +395,14 @@ void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<
 TVector3 ExtrapolateZ(TVector3 pvers, TVector3 r0pos, double proposz, bool global, bool beammonitor){
   TVector3 projection, shifttoglobal;
   if(global && beammonitor){
-    TVector3 BMshift(BMSHIFTX, BMSHIFTY, BMSHIFTZ);
-    r0pos+=BMshift;
-    pvers.RotateX(BMYZANGLE*DEG2RAD);
-    pvers.RotateY(BMXZANGLE*DEG2RAD);
+    //~ TVector3 BMshift(BMSHIFTX, BMSHIFTY, BMSHIFTZ);
+    //~ r0pos+=BMshift;
+    pvers.RotateX(BMISOYZANGLE*DEG2RAD);
+    pvers.RotateY(BMISOXZANGLE*DEG2RAD);
     shifttoglobal.SetXYZ(BMISOX,BMISOY,BMISOZ);
   }else if(!beammonitor){
-    TVector3 VTXshift(VTXSHIFTX, VTXSHIFTY, VTXSHIFTZ);
-    r0pos+=VTXshift;
+    //~ TVector3 VTXshift(VTXSHIFTX, VTXSHIFTY, VTXSHIFTZ);
+    //~ r0pos+=VTXshift;
     pvers.RotateX(VTXYZANGLE*DEG2RAD);
     pvers.RotateY(VTXXZANGLE*DEG2RAD);    
     shifttoglobal.SetXYZ(VTXISOX,VTXISOY,VTXISOZ);
@@ -406,12 +415,12 @@ TVector3 ExtrapolateZ(TVector3 pvers, TVector3 r0pos, double proposz, bool globa
 
 //to set the pvers and r0 from vtx to global coordinate
 void vtxpversr02global(const TVector3 vtxpvers, const TVector3 vtxr0pos, TVector3 &pversout, TVector3 &r0posout ){
-  TVector3 VTXshift(VTXSHIFTX, VTXSHIFTY, VTXSHIFTZ);
+  TVector3 VTXshift(VTXISOX, VTXISOY, 0.);
   double proposz=BMISOZ-VTXISOZ;
   pversout=vtxpvers;
   r0posout=vtxr0pos+VTXshift;
-  pversout.RotateX((VTXYZANGLE-BMYZANGLE)*DEG2RAD);
-  pversout.RotateY((VTXXZANGLE-BMXZANGLE)*DEG2RAD);    
+  pversout.RotateX((BMISOYZANGLE-VTXYZANGLE)*DEG2RAD);
+  pversout.RotateY((BMISOXZANGLE-VTXXZANGLE)*DEG2RAD);    
   r0posout.SetXYZ(pversout.X()/pversout.Z()*proposz+r0posout.X(),  pversout.Y()/pversout.Z()*proposz+r0posout.Y(), proposz);
   return;
 }
@@ -631,7 +640,7 @@ return;
 
 //read the next bm event, return false if the file is finished, otherwise true
 //at the end bmReader is on the new event
-bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<int> &evnumreader,   TTreeReaderValue<int> &timeacqreader, TTreeReaderValue<double> &trackchi2reader, TTreeReaderValue<double> &pversxreader,   TTreeReaderValue<double> &pversyreader, TTreeReaderValue<double> &pverszreader,   TTreeReaderValue<double> &r0xreader,   TTreeReaderValue<double> &r0yreader,   TTreeReaderValue<double> &rdriftreader,   TTreeReaderValue<double> &residualreader,   TTreeReaderValue<double> &hittimereader,   TTreeReaderValue<int> &planereader,  TTreeReaderValue<int> &viewreader,   TTreeReaderValue<int> &cellreader){
+bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<int> &evnumreader,   TTreeReaderValue<int> &timeacqreader, TTreeReaderValue<double> &trackchi2reader, TTreeReaderValue<double> &pversxreader,   TTreeReaderValue<double> &pversyreader, TTreeReaderValue<double> &pverszreader,   TTreeReaderValue<double> &r0xreader,   TTreeReaderValue<double> &r0yreader,   TTreeReaderValue<double> &rdriftreader,   TTreeReaderValue<double> &residualreader,   TTreeReaderValue<double> &hittimereader,   TTreeReaderValue<int> &planereader,  TTreeReaderValue<int> &viewreader,   TTreeReaderValue<int> &cellreader, TTreeReaderValue<double> &realrdriftreader){
   
   if(debug>2)
     cout<<"I'm in bmreadevent, current entry="<<bmReader.GetCurrentEntry()<<endl;
@@ -661,6 +670,8 @@ bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<i
     bmevent.bm_hit_residual[evhitnum]=*residualreader;
     bmevent.bm_hit_time[evhitnum]=*hittimereader;
     bmevent.bm_hit_cellid[evhitnum]=GetBMNcell(*planereader, *viewreader,*cellreader);
+    if(bmmcstudy==0)
+      bmevent.bm_hit_realrdrift[evhitnum]=*realrdriftreader;
     evhitnum++;
   }while(bmReader.Next() && bmevent.evnum==*evnumreader);
   bmevent.hitnum=evhitnum;
@@ -817,21 +828,21 @@ void setbmgeo(vector<TVector3> &wire_pos, vector<TVector3> &wire_dir){
   
   wire_pos.clear();
   wire_dir.clear();
-  TVector3 tmp_tvector3, bmshift(BMISOX+BMSHIFTX, BMISOY+BMSHIFTY, BMISOZ+BMSHIFTZ);
+  TVector3 tmp_tvector3, bmshift(BMISOX, BMISOY, BMISOZ);
   int ilay, iview, icell;
   int bm_idsense[3]={8,10,12};
   for(int i=0;i<36;i++){
     Getlvc(i,ilay, iview, icell);
     //rotate and translate the bm wires (before the traslation)
     tmp_tvector3.SetXYZ(x_pos[bm_idsense[icell]][ilay][iview], y_pos[bm_idsense[icell]][ilay][iview],z_pos[bm_idsense[icell]][ilay][iview]);
-    tmp_tvector3.RotateX((BMISOYZANGLE+BMYZANGLE)*DEG2RAD);
-    tmp_tvector3.RotateY((BMISOXZANGLE+BMXZANGLE)*DEG2RAD);
+    tmp_tvector3.RotateX((BMISOYZANGLE)*DEG2RAD);
+    tmp_tvector3.RotateY((BMISOXZANGLE)*DEG2RAD);
     tmp_tvector3+=bmshift;
     wire_pos.push_back(tmp_tvector3);
     //rotate the bm direction wires (before the traslation)
     tmp_tvector3.SetXYZ(cx_pos[bm_idsense[icell]][ilay][iview], cy_pos[bm_idsense[icell]][ilay][iview],cz_pos[bm_idsense[icell]][ilay][iview]);
-    tmp_tvector3.RotateX((BMISOYZANGLE+BMYZANGLE)*DEG2RAD);
-    tmp_tvector3.RotateY((BMISOXZANGLE+BMXZANGLE)*DEG2RAD);
+    tmp_tvector3.RotateX((BMISOYZANGLE)*DEG2RAD);
+    tmp_tvector3.RotateY((BMISOXZANGLE)*DEG2RAD);
     tmp_tvector3.SetMag(1.);
     wire_dir.push_back(tmp_tvector3);
     if(debug>1){
@@ -848,9 +859,9 @@ void setbmgeo(vector<TVector3> &wire_pos, vector<TVector3> &wire_dir){
 }
 
 TVector3 BMlocaltoiso(TVector3 local){
-  local.RotateX((BMISOYZANGLE+BMYZANGLE)*DEG2RAD);
-  local.RotateY((BMISOXZANGLE+BMXZANGLE)*DEG2RAD);
-  TVector3 bmshift(BMISOX+BMSHIFTX, BMISOY+BMSHIFTY, BMISOZ+BMSHIFTZ);
+  local.RotateX((BMISOYZANGLE)*DEG2RAD);
+  local.RotateY((BMISOXZANGLE)*DEG2RAD);
+  TVector3 bmshift(BMISOX, BMISOY, BMISOZ);
   return local+bmshift;
 }
 

@@ -592,7 +592,7 @@ void BmBooter::LegendrePoly(){
           break;
       }//end of i loop on residual_distance  
       //draw two lines on the legendre th2d to represent the fitted theta and r
-      theta=atan(-1./tracktr2dprojects.at(n).at(1));//here theta is in radiant;
+      theta=atan(-1./tracktr2dprojects.at(n).at(1));//here theta is in radiant;//maybe are inverted, to be checked!!!
       horiz->FixParameter(0,-tracktr2dprojects.at(n).at(2)*sin(theta));
       histolegxz->Fit("horiz","QC","", 0., 180.);
       theta=(theta<0) ? theta*RAD2DEG+180. : theta*RAD2DEG;
@@ -756,12 +756,6 @@ void BmBooter::evaluateT0() {
     //~ f_out->cd("..");
   //~ }
   
-  
-  //~ f_out->ls();
-  
-  //jump the first event IS NECESSARY????????????
-  //~ drop_event();
-      
   //charge the tdc_cha_* TH1D graph of the tdc signals    
   while(read_event(kTRUE)) {
     if(bmcon->GetBMdebug()>11 && bmcon->GetBMdebug()!=99)
@@ -866,7 +860,7 @@ void BmBooter::evaluateT0() {
 
 
   //EVALUATE T0
-  Int_t tdc_peak;
+  Int_t tdc_peak, start_bin, peak_bin;
   if(bmcon->GetBMdebug()>3)
     cout<<"BMbooter::evaluatet0 step EVALUATE T0"<<endl;
   if(bmcon->GetmanageT0BM()==0){
@@ -892,18 +886,25 @@ void BmBooter::evaluateT0() {
 
           //old WRONG method: here I'm considering the begining of the tdc rise (plus: it works only if I have enough data)
           tdc_peak=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();
-          if(bmcon->GetT0switch()==0){
+          if(bmcon->GetT0switch()==0 || bmcon->GetT0switch()==3){
             for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j>0;j--)
               if(((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j)>((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/10.)
-                tdc_peak=j;
-          }else if(bmcon->GetT0switch()>0){ //I take the first peak as the T0
+                start_bin=j;
+            if(bmcon->GetT0switch()==0)
+              tdc_peak=start_bin;
+          }
+          if(bmcon->GetT0switch()==1 || bmcon->GetT0switch()==2 || bmcon->GetT0switch()==3){ //I take the first peak as the T0
             for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove();j<=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
               if((((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j) < ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1)) && (((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1) > ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/2.)){
-                tdc_peak=j-1;      
+                peak_bin=j-1;      
                 break;      
               }              
-          }   
-           
+            if(bmcon->GetT0switch()==1 || bmcon->GetT0switch()==2)
+              tdc_peak=peak_bin;
+          }
+          if(bmcon->GetT0switch()==3)//T0=middle point between first signal and peak   
+            tdc_peak=(peak_bin+start_bin)/2.;
+         
           //~ cout<<"tdc_peak="<<tdc_peak<<"  i="<<i<<"  bmcon->GetT0switch="<<bmcon->GetT0switch()<<endl;            
           bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tdc_peak)); 
         }

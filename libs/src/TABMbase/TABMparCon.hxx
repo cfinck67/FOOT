@@ -12,6 +12,7 @@
 #include "TSpline.h"
 #include "TF1.h"
 #include "TH1.h"
+#include "TRandom3.h"
 
 #include <vector>
 
@@ -54,6 +55,8 @@ class TABMparCon : public TAGpara {
     Double_t GetBMmom(){return part_in_mom;};
     Int_t GetmanageT0BM(){return manageT0BM;};
     Int_t GetT0switch(){return t0_switch;};
+    Double_t GetT0sigma(){return t0_sigma;};
+    Double_t GetHitTimecut(){return hit_timecut;};
     Int_t GetmanageADCped(){return manageADCped;};
     string GetParmapfile(){return parmapfile;};
     Int_t GetCalibro(){return calibro;};
@@ -68,6 +71,7 @@ class TABMparCon : public TAGpara {
     Int_t GetSmearrdrift(){return smearrdrift;};
     TVector3 GetMeas_shift(){return meas_shift;};
     TVector3 GetMeas_tilt(){return meas_tilt;};
+    TRandom3* GetRand(){return rand;};
 
 
     //T0 stuff
@@ -139,6 +143,8 @@ class TABMparCon : public TAGpara {
     TVector3 meas_tilt;//tilt for the calibration
     Int_t    manageT0BM; //0=calculate T0 and save v_t0s in bmt0file, 1=loadT0 from bmt0file
     Int_t    t0_switch;//0=t0 from the beginning of the tdc signal, 1=from the peak, 2=negative T0 enabled
+    Double_t t0_sigma;//t0 with the gaussian shift for the negative T0 hits
+    Double_t hit_timecut;//timecut on the lenght of the signal (ns)
     Int_t    manageADCped; //0=calculate and save ADCped in bmpedfile, 1=loadadcped from bmpedfile
     string   bmt0file; //name of the T0 value file to be charged or to be written 
     string   bmpedfile; //name of the ped value file to be charged or to be written 
@@ -155,6 +161,7 @@ class TABMparCon : public TAGpara {
     Double_t fakehits_sigmaright;//sigma for the fake hits generator on the right tail (only MC)
     Double_t mceff_mean;//mean for the number of primary hits (only MC)
     Double_t mceff_sigma;//sigma for the number of primary hits (only MC)
+    TRandom3 *rand;
 
     //~ TF1* f_mypol;
     //~ TF1* f_mypol2;

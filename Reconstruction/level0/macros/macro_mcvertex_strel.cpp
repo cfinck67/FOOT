@@ -25,22 +25,32 @@ void macro_mcvertex_strel(){
   //~ TString bmin_filename("RecoTree_test_align_smearrdrift_garfield_firstreal0_8.root");
   //~ TString bmin_filename("RecoTree_test_align_smearnhits_smearrdrift_garfield_firstreal0_8.root");
   //~ TString bmin_filename("RecoTree_test_align_nocalibration.root");
-  TString bmin_filename("RecoTree_test_align_clean_garfield_firstreal1.root");
+  //~ TString bmin_filename("RecoTree_test_align_clean_garfield_firstreal1.root");
+  TString bmin_filename("RecoTree_test_align_smearrdrift_garfield_firstreal1real.root");
+
+  TString vtxin_filename("test_alig_Outprova.root");
+  //~ TString vtxin_filename("test_alig_Outrebuild.root");
   
-  //~ TString vtxin_filename("test_alig_Outprova.root");
-  TString vtxin_filename("test_alig_Outrebuild.root");
+  //~ TString bmin_filename("RecoTree_onlyshift_smearrdrift_garfield_first1real.root");
+  //~ TString bmin_filename("RecoTree_onlyshift_smearnhits_smearrdrift_garfield_first1real.root");
+  //~ TString vtxin_filename("onlytrans_txt_Outyun.root");
+
+  //~ TString bmin_filename("RecoTree_-5degree_smearrdrift_first1real_chi35.root");
+  //~ TString vtxin_filename("5degree_Outrebuild.root");
+  //~ TString bmin_filename("RecoTree_onlyshift_smearnhits_smearrdrift_garfield_first1real.root");
+  //~ TString vtxin_filename("5degree_Outrebuild.root");
     
   TFile *f_out = new TFile(out_filename.Data(),"RECREATE");  
   TFile *bminfile = new TFile(bmin_filename.Data(),"READ");  
   TFile *vtxinfile=nullptr; 
-  if(bmmcstudy==0)
+  if(bmmcstudy<=0)
     vtxinfile= new TFile(vtxin_filename.Data(),"READ");
   
   if(!bminfile->IsOpen()){
     cout<<"I cannot open "<<bmin_filename.Data()<<endl; 
     return;
   }
-  if(bmmcstudy==0)
+  if(bmmcstudy<=0)
     if(!vtxinfile->IsOpen()){
       cout<<"I cannot open "<<vtxin_filename.Data()<<endl; 
       return;
@@ -48,7 +58,7 @@ void macro_mcvertex_strel(){
   
   
   cout<<"Beam Monitor input file="<<bmin_filename.Data()<<endl;
-  if(bmmcstudy==0)
+  if(bmmcstudy<=0)
     cout<<"vtx input file="<<vtxin_filename.Data()<<endl;
   cout<<"output file="<<out_filename.Data()<<endl;
 
@@ -78,6 +88,7 @@ void macro_mcvertex_strel(){
   TTreeReaderValue<int> planereader(bmReader, "BM_hitplane");
   TTreeReaderValue<int> viewreader(bmReader, "BM_hitview");
   TTreeReaderValue<int> cellreader(bmReader, "BM_hitcell");
+  TTreeReaderValue<double> realrdriftreader(bmReader, "BM_MC_hit_realrdrift");
   
   BM_evstruct bmevent;
   vector<BM_evstruct> allbmeventin;
@@ -85,7 +96,7 @@ void macro_mcvertex_strel(){
   
   
   //read BM loop
-  while(bmreadevent(bmReader, bmevent, evnumreader, timeacqreader, trackchi2reader, pversxreader, pversyreader, pverszreader, r0xreader, r0yreader, rdriftreader, residualreader, hittimereader, planereader, viewreader, cellreader)){
+  while(bmreadevent(bmReader, bmevent, evnumreader, timeacqreader, trackchi2reader, pversxreader, pversyreader, pverszreader, r0xreader, r0yreader, rdriftreader, residualreader, hittimereader, planereader, viewreader, cellreader, realrdriftreader)){
     allbmeventin.push_back(bmevent);
   };
   
@@ -98,7 +109,7 @@ void macro_mcvertex_strel(){
   clean_vtxevstruct(vtxevent);
 
 //comment the following line to use the BM MC info and use "fake vtx data"!!!!!!!!!!!!!!!!
-  if(bmmcstudy==0){
+  if(bmmcstudy<=0){
     vtxinfile->cd();
     TTreeReader vtxReader("EventTree", vtxinfile);
     TTreeReaderValue<int> evnum(vtxReader, "evnum");

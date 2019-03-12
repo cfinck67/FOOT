@@ -36,12 +36,12 @@ Bool_t TAIRactDatRaw::Action()
   
   Int_t nhits(0);
   if (!p_nturaw->hir) p_nturaw->SetupClones();
-  Double_t meantime(0);
+  //~ Double_t meantime(0);
  
   //for the moment only one hit for each event... (det type,channel,charge,time)
   while(bmstruct->tdc_sync[nhits]!=-1000){
     new((*(p_nturaw->hir))[nhits]) TAIRrawHit(0,p_parmap->GetTrefCh(),0,bmstruct->tdc_sync[nhits]);
-    meantime+=bmstruct->tdc_sync[nhits];
+    //~ meantime+=bmstruct->tdc_sync[nhits];
     nhits++;
   }
   
@@ -54,7 +54,7 @@ Bool_t TAIRactDatRaw::Action()
       //~ meantime += aHi->Time();
     //~ }
   //~ }
-  if(nhits) meantime /= nhits;
+  //~ if(nhits) meantime /= nhits;
   
   //Set up of the Trigger Time
   p_nturaw->SetTrigTime((Double_t) bmstruct->tdc_sync[0]/10.);//meantime? isn't used... I'm using the first trigger time...
