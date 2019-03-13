@@ -29,10 +29,11 @@ public:
    
 public:
    static const Char_t* GetSDname()  { return fgkBmSDname.Data();}
-
+   Int_t GetNlayers();
    
 private:
    G4LogicalVolume* fBoxLog;
+   G4LogicalVolume* fLayerLog;
    TABMparGeo*      fpParGeo;
    TVector3         fSizeBoxBm;
    TVector3         fMinPosition;
