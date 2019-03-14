@@ -37,8 +37,11 @@ public:
 public:
    static  UInt_t  GetKeyHeader(Int_t idx)                  { return fgkKeyHeader[idx];   }
    static  Int_t   GetHeaderSize()                          { return fgkFrameHeaderSize;  }
-   static  UInt_t  GetDataTail(Int_t idx)                   { return fgkKeyTail[idx];     }
+   static  UInt_t  GetKeyTail(Int_t idx)                    { return fgkKeyTail[idx];     }
    static  Int_t   GetLineWidth()                           { return fgkLineWidth;        }
+
+   static  UInt_t  GetFrameHeader()                         { return fgkFrameHeader;      }
+   static  UInt_t  GetFrameTail()                           { return fgkFrameTail;        }
 
 protected:
       
@@ -48,7 +51,10 @@ protected:
    
    vector<UInt_t>    fData;             // data array to fill
 
-   Int_t             fEventNumber;         // number of the event
+   Int_t             fEventNumber;      // number of the event
+   Int_t             fTriggerNumber;    // number of the trigger
+   Int_t             fTimeStamp;        // time stamp per frame
+   Int_t             fFrameCount;       // number of frame
 
    Int_t             fNSensors;
    Int_t             fIndex;
@@ -82,7 +88,10 @@ protected:
    Int_t  GetSensor(UInt_t key);
 
    //! decode frame
-   Bool_t DecodeFrame();
+   Bool_t DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame);
+
+   //! Get next frames with same trigger
+   Bool_t CheckTrigger(MI26_FrameRaw* data);
 
    ClassDef(TAVTactBaseRaw,0)
 
