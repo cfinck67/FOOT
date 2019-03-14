@@ -885,6 +885,8 @@ void BmBooter::evaluateT0() {
                 
 
           //old WRONG method: here I'm considering the begining of the tdc rise (plus: it works only if I have enough data)
+          start_bin=0;
+          peak_bin=0;
           tdc_peak=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();
           if(bmcon->GetT0switch()==0 || bmcon->GetT0switch()==3){
             for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j>0;j--)
@@ -894,8 +896,8 @@ void BmBooter::evaluateT0() {
               tdc_peak=start_bin;
           }
           if(bmcon->GetT0switch()==1 || bmcon->GetT0switch()==2 || bmcon->GetT0switch()==3){ //I take the first peak as the T0
-            for(Int_t j=((TH1D*)gDirectory->Get(tmp_char))->FindFirstBinAbove();j<=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin();j++)
-              if((((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j) < ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1)) && (((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1) > ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())/2.)){
+            for(Int_t j=start_bin;j<=((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin()+1;j++)
+              if((((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j) < ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1)) && (((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(j-1) > ((TH1D*)gDirectory->Get(tmp_char))->GetBinContent(((TH1D*)gDirectory->Get(tmp_char))->GetMaximumBin())*3/5.)){
                 peak_bin=j-1;      
                 break;      
               }              
@@ -903,10 +905,12 @@ void BmBooter::evaluateT0() {
               tdc_peak=peak_bin;
           }
           if(bmcon->GetT0switch()==3)//T0=middle point between first signal and peak   
-            tdc_peak=(peak_bin+start_bin)/2.;
-         
-          //~ cout<<"tdc_peak="<<tdc_peak<<"  i="<<i<<"  bmcon->GetT0switch="<<bmcon->GetT0switch()<<endl;            
-          bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tdc_peak)); 
+            tdc_peak=(peak_bin+start_bin+0.5)/2;
+
+         if(start_bin==0 || peak_bin==0 || start_bin>peak_bin)
+           cout<<"ERROR in BmBooter::EvaluateT0:   cella: "<<bmmap->tdc2cell(i)<<"  i="<<i<<"   peak_bin="<<peak_bin<<"   start_bin="<<start_bin<<"  tdc_peak="<<tdc_peak<<endl;
+          else
+            bmcon->SetT0(bmmap->tdc2cell(i),(Double_t)((TH1D*)gDirectory->Get(tmp_char))->GetBinCenter(tdc_peak)); 
         }
         else{
           cout<<"WARNING IN BmBooter::EvaluateT0! too few events to evaluate T0 in tdc_cha=i="<<i<<"  cellid="<<bmmap->tdc2cell(i)<<"  Number of events="<<((TH1D*)gDirectory->Get(tmp_char))->GetEntries()<<"  T0 for this channel will wrongly set to -20000"<<endl;
