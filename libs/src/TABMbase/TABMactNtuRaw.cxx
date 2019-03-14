@@ -83,7 +83,7 @@ Bool_t TABMactNtuRaw::Action()
         i_time=0.;
       else if(p_parcon->GetT0switch()==3)
         while(i_time<0)
-          i_time=p_parcon->GetRand()->Gaus(p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()), p_parcon->GetT0sigma());  
+          i_time=p_parcon->GetRand()->Gaus(hit.Time()- p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) - p_timraw->TrigTime(), p_parcon->GetT0sigma());  
     }
     
     Double_t i_drift = p_parcon->FirstSTrel(i_time);

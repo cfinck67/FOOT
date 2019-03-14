@@ -51,6 +51,7 @@ TABMparCon::TABMparCon() {
   //~ f_mypol = new TF1("mymcpol","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.003);
   //~ f_mypol2 = new TF1("mymcpol2","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.004);
   rand= new TRandom3();
+  rdrift_err=0.015;  
 }
 
 //------------------------------------------+-----------------------------------

@@ -72,6 +72,7 @@ class TABMparCon : public TAGpara {
     TVector3 GetMeas_shift(){return meas_shift;};
     TVector3 GetMeas_tilt(){return meas_tilt;};
     TRandom3* GetRand(){return rand;};
+    Double_t GetRdrift_err(){return rdrift_err;};
 
 
     //T0 stuff
@@ -162,6 +163,7 @@ class TABMparCon : public TAGpara {
     Double_t mceff_mean;//mean for the number of primary hits (only MC)
     Double_t mceff_sigma;//sigma for the number of primary hits (only MC)
     TRandom3 *rand;
+    Double_t rdrift_err;  //rdrift default error (used if from parcon file the error isn't loaded)
 
     //~ TF1* f_mypol;
     //~ TF1* f_mypol2;

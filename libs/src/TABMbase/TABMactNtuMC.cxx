@@ -53,7 +53,6 @@ Bool_t TABMactNtuMC::Action()
   p_nturaw = (TABMntuRaw*) fpNtuMC->Object();
   
   //parameters:
-  rdrift_err=0.015;  //rdrift default error (used if from parcon file the error isn't loaded)
   //~ TVector3 real_rotation(-3.,0.,0.);//proton_calib_x05_y01_theta3.root
   TVector3 real_rotation(-1.2,-3.2,0.);//proton_calib_xy_rot_tras.root
 
@@ -206,7 +205,7 @@ Bool_t TABMactNtuMC::Action()
         mytmp->SetSigma(p_bmcon->ResoEval(rdriftxcell.at(i)));
       else{  
         cout<<"WARNING: error from config resoEval! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<rdriftxcell.at(i)<<endl;
-        mytmp->SetSigma(rdrift_err);
+        mytmp->SetSigma(p_bmcon->GetRdrift_err());
         }
       mytmp->SetRealRdrift(realrdrift);  
       if(p_bmcon->GetSmearrdrift()>0)
@@ -248,7 +247,7 @@ void TABMactNtuMC::CreateFakeHits(Int_t nfake, Int_t &nhits){
     if(p_bmcon->ResoEval(rdrift)>0)
       mytmp->SetSigma(p_bmcon->ResoEval(rdrift));
     else
-      mytmp->SetSigma(rdrift_err);
+      mytmp->SetSigma(p_bmcon->GetRdrift_err());
     mytmp->SetRealRdrift(rdrift);  
     mytmp->SetIsFake(2);
     nhits++;  
