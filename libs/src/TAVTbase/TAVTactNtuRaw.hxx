@@ -30,17 +30,14 @@ private:
    Bool_t DecodeEvent(const DECardEvent* evt);
       
    //! Get the starting point of each event
-   Bool_t GetEventHeader();
+   Bool_t GetVtxHeader();
    
    //! Get the starting point of each frame
-   Bool_t GetStart();
+   Bool_t GetSensorHeader(Int_t iSensor);
    
    //! Get frame and returns frameRaw
-   void   GetFrame(MI26_FrameRaw* data);
+   Bool_t GetFrame(MI26_FrameRaw* data);
    
-   //! Get next frames with same trigger
-   void   GetNextFrames(UInt_t trigger);
-
    ClassDef(TAVTactNtuRaw,0)
 };
 
