@@ -24,8 +24,8 @@
 #include "TATW_ContainerPoint.hxx"
 #include "TACAntuRaw.hxx"
 
-#include "TASTDatRaw.hxx"
-#include "TABMDatRaw.hxx"
+#include "TASTdatRaw.hxx"
+#include "TABMdatRaw.hxx"
 
 #include "TABMactVmeReader.hxx"
 #include "TABMactDatRaw.hxx"
@@ -514,7 +514,7 @@ void TAFOeventDisplay::CreateRawAction()
       fpDatRawBm   = new TAGdataDsc("bmDat", new TAVTdatRaw());
       
       if (fgStdAloneFlag) {
-         fActVmeReaderBm  = new TABMactVmeReader("bmActNtu", fpDatRawBm, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
+         fActVmeReaderBm  = new TABMactVmeReader("bmActNtu", fpNtuRawBm, fpParMapBm, fpParConfBm, fpParGeoBm);
          fActVmeReaderBm->CreateHistogram();
          
       } else {

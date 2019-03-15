@@ -74,7 +74,8 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
       //      Info("FromFile()","Skip comment line:: %s",bufConf);
     }else if(strchr(bufConf,'#')) {
       sscanf(bufConf, "#%d %d %d %d %d",&myArg1,&myArg2,&myArg3,&myArg4, &myArg5);
-       if(myArg1>-1 && myArg1<tdc_maxcha && myArg2<36 && myArg2>-1 && (myArg3>=0 || myArg3<=5) && (myArg4==1 || myArg4==0) && myArg5>-1 && myArg5<3) {        //~ chaBoID.push_back(myArg2);
+       if(myArg1>-1 && myArg1<tdc_maxcha && myArg2<36 && myArg2>-1 && (myArg3>=0 || myArg3<=5) && (myArg4==1 || myArg4==0) && myArg5>-1 && myArg5<3) {   
+        //~ chaBoID.push_back(myArg2);
         //~ chaPlane.push_back(myArg3);
         //~ chaView.push_back(myArg4);
         //~ chaSense.push_back(myArg5);

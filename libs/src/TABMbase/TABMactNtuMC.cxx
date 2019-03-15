@@ -51,9 +51,6 @@ Bool_t TABMactNtuMC::Action()
    TABMparCon* p_bmcon  = (TABMparCon*) fpParCon->Object();
    TABMparGeo* p_bmgeo   = (TABMparGeo*) fpParGeo->Object();
   
-  //parameters:
-  rdrift_err=0.015;  //rdrift default error (used if from parcon file the error isn't loaded)
-   
   Int_t cell, view, lay, ipoint, tmp_int;
   vector<Int_t> hitxcell(fpEvtStr->BMNn, 99); 
   vector<bool> tobecharged(fpEvtStr->BMNn, true);
@@ -169,7 +166,7 @@ Bool_t TABMactNtuMC::Action()
    
   //charge the hits:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
-     
+          
     if(p_bmcon->GetBMdebug()>=3)
       cout<<"In the charging hits loop: I'm going to charge hit number:"<<i<<"/"<<fpEvtStr->BMNn<<"  tobecharged="<<tobecharged[i]<<endl;
      
@@ -183,16 +180,14 @@ Bool_t TABMactNtuMC::Action()
       realrdrift = rdriftxcell[i];
        
       //create hit
-      TABMntuHit *mytmp = p_nturaw->NewHit(fpEvtStr->BMNid[i],	view, lay, cell,
-                                                                  rdriftxcell[i], p_bmcon->InverseStrel(rdriftxcell[i]), fpEvtStr->BMNtim[i]);
-       
+      TABMntuHit *mytmp = p_nturaw->NewHit(fpEvtStr->BMNid[i],	view, lay, cell, rdriftxcell[i], p_bmcon->InverseStrel(rdriftxcell[i]), 0.);
        mytmp->AddMcTrackId(ipoint, i);
        
       if(p_bmcon->ResoEval(rdriftxcell[i])>0)
         mytmp->SetSigma(p_bmcon->ResoEval(rdriftxcell[i]));
       else{  
         cout<<"WARNING: error from config resoEval! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<rdriftxcell[i]<<endl;
-        mytmp->SetSigma(rdrift_err);
+        mytmp->SetSigma(p_bmcon->GetRdrift_err());
       }
        
       mytmp->SetRealRdrift(realrdrift);
@@ -247,7 +242,7 @@ void TABMactNtuMC::CreateFakeHits(Int_t nfake, Int_t &nhits)
     if(p_bmcon->ResoEval(rdrift)>0)
       mytmp->SetSigma(p_bmcon->ResoEval(rdrift));
     else
-      mytmp->SetSigma(rdrift_err);
+      mytmp->SetSigma(p_bmcon->GetRdrift_err());
     mytmp->SetRealRdrift(rdrift);  
     mytmp->SetIsFake(2);
     nhits++;  

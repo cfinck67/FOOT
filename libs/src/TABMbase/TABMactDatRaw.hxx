@@ -39,7 +39,7 @@ class TABMactDatRaw : public TAGaction {
     TAGparaDsc*     fpParCon;		    // parameter dsc
     TAGparaDsc*     fpParGeo;		    // parameter dsc
     TAGdataDsc*     fpTimRaw;		    // input data dsc
-    BM_struct*      fpEvtStruct;
+//    BM_struct*      fpEvtStruct;
 
   private:
      Bool_t DecodeHits(const TDCEvent* evt);

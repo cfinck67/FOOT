@@ -10,7 +10,6 @@
 #include "TAGaction.hxx"
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
-#include "TABMparCon.hxx"
 #include "BM_struct.h"
 #include <fstream>
 
@@ -20,27 +19,35 @@ class TABMactVmeReader : public TAGaction {
     //~ Bool_t openFile(TABMparCon*);  //load in datastream the data file, provv da modificare cancellare
 
     explicit        TABMactVmeReader(const char* name=0,
-                                  TAGdataDsc* p_datraw=0,
+                                  TAGdataDsc* p_nturaw=0,
                                   TAGparaDsc* p_parmap=0,
                                   TAGparaDsc* p_parcon=0,
-                                  TAGparaDsc* p_pargeo=0,
-                                  TAGdataDsc* p_timraw=0,
-                                  BM_struct*  p_evtstruct=0);
+                                  TAGparaDsc* p_pargeo=0);
     virtual         ~TABMactVmeReader();
-
-    virtual Bool_t  Action();
+    virtual Int_t   Open(const TString& name);
+    virtual void    Close();
+    virtual Bool_t  Process();
+    //~ virtual Bool_t  Action();
+    
+    void clear_bmstruct(Bool_t forced);
+    Bool_t read_event(Bool_t evt0);    
+    void PrintBMstruct();
+    void monitorQDC(vector<Int_t>& adc792_words);
 
     ClassDef(TABMactVmeReader,0)
 
   private:
-    TAGdataDsc*     fpDatRaw;		    // output data dsc
+    TAGdataDsc*     fpNtuRaw;		    // output data dsc
     TAGparaDsc*     fpParMap;		    // parameter dsc
     TAGparaDsc*     fpParCon;		    // parameter dsc
     TAGparaDsc*     fpParGeo;		    // parameter dsc
-    TAGdataDsc*     fpTimRaw;		    // input data dsc
-    BM_struct*      fpEvtStruct;
-    //~ ifstream datastream;                  // file di dati in input (cosa provvisoria per test calibrazione)
-  
+    BM_struct*      fpEvtStruct;    
+    ifstream        fbmfile;      //bm raw file
+
+    Int_t track_ok;  //-2=maxnhit_cut; -1=minhit_cut; otherwise=track_status     
+    Long64_t data_num_ev; //current number of events
+    Long64_t data_sync_num_ev; //current number of events + number of sync
+
 };
 
 #endif
