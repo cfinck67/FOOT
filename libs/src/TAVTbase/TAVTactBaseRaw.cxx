@@ -45,6 +45,7 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc
   fNSensors(-1),
   fIndex(0),
   fCurrentTriggerCnt(0),
+  fEventSize(0),
   fReadingEvent(0),
   fOverflow(0),
   fEventsOverflow(0), 
