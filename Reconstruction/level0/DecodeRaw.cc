@@ -3,7 +3,7 @@
 #include <TApplication.h>
 
 #include "GlobalPar.hxx"
-#include "LocalRecoMC.h"
+#include "LocalReco.h"
 
 int main (int argc, char *argv[])  {
 
@@ -52,7 +52,7 @@ int main (int argc, char *argv[])  {
    GlobalPar::Instance();
    GlobalPar::GetPar()->Print();
    
-   LocalRecoMC* locRec = new LocalRecoMC(in, out);
+   LocalReco* locRec = new LocalReco(in, out);
    
    // global setting
    if (ntu)

@@ -40,6 +40,7 @@ ClassImp(BaseLocalReco)
 BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
  : TNamed(fileNameIn.Data(), fileNameout.Data()),
    fExpName(""),
+   fpParMapSt(0x0),
    fpParGeoSt(0x0),
    fpParGeoBm(0x0),
    fpParGeoIt(0x0),
@@ -181,6 +182,7 @@ void BaseLocalReco::InitParameters()
       TASTparGeo* parGeo = (TASTparGeo*)fpParGeoSt->Object();
       TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
+      fpParMapSt = new TAGparaDsc("stMap", new TASTparMap()); // need the file
    }
 
    // initialise parameters for Beam Monitor
@@ -197,6 +199,8 @@ void BaseLocalReco::InitParameters()
       
       parFileName = "./config/bmreso_vs_r.root";
       parConf->LoadReso(parFileName);
+      
+      fpParMapBm = new TAGparaDsc("bmMap", new TABMparMap());
    }
 
    // initialise parameters for vertex

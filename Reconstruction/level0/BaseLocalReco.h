@@ -9,6 +9,9 @@
 #include "TAGactTreeWriter.hxx"
 #include "TAGgeoTrafo.hxx"
 
+#include "TASTparMap.hxx"
+#include "TABMparMap.hxx"
+
 #include "TASTparGeo.hxx"
 #include "TABMparGeo.hxx"
 #include "TAGparGeo.hxx"
@@ -38,11 +41,6 @@
 #include "TAITactNtuClusterF.hxx"
 #include "TAMSDactNtuCluster.hxx"
 #include "TATWactNtuPoint.hxx"
-
-#include "TAVTactNtuRaw.hxx"
-#include "TAITactNtuRaw.hxx"
-//#include "TATWactNtuRaw.hxx"
-
 
 #include "TABMactNtuTrack.hxx"
 #include "TAVTactBaseNtuTrack.hxx"
@@ -126,6 +124,9 @@ protected:
    TAGroot*              fTAGroot;             // pointer to TAGroot
    TAGgeoTrafo*          fpFootGeo;           // trafo prointer
 
+   TAGparaDsc*           fpParMapSt;
+   TAGparaDsc*           fpParMapBm;
+
    TAGparaDsc*           fpParGeoSt;
    TAGparaDsc*           fpParGeoG;
    TAGparaDsc*           fpParGeoDi;
@@ -168,21 +169,17 @@ protected:
    TAGdataDsc*           fpNtuRecTw;     // input data dsc
    TAGdataDsc*           fpNtuRawCa;     // input data dsc
    
-   TAGaction*            fActDatRawVtx;  // action for raw data
    TAGactionFile*        fActEvtReader;
    TAGactTreeWriter*     fActEvtWriter;  // write histo and tree
 
    TABMactNtuTrack*      fActTrackBm;    // action for tracks
    
-   TAVTactNtuRaw*        fActNtuRawVtx;  // action for ntu data
    TAVTactNtuClusterF*   fActClusVtx;    // action for clusters
    TAVTactBaseNtuTrack*  fActTrackVtx;   // action for tracks
    TAVTactBaseNtuVertex* fActVtx;        // action for vertex
    
-   TAITactNtuRaw*        fActNtuRawIt;   // action for ntu data
    TAITactNtuClusterF*   fActClusIt;     // action for clusters
    
-   TAVTactNtuRaw*        fActNtuRawMsd;  // action for ntu data
    TAMSDactNtuCluster*   fActClusMsd;    // action for clusters
    
    // TATWactNtuRaw*        fActNtuRawTw;  // action for ntu data
