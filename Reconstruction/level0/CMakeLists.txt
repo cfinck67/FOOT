@@ -35,6 +35,7 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES} ${GENFIT_LIBRARIES})
 set( with_dictionnaries
    BaseLocalReco
    LocalRecoMC
+   LocalReco
    LocalRecoData
 )
 
@@ -113,7 +114,17 @@ target_link_libraries(DecodeData ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LI
 #
 install(TARGETS DecodeData DESTINATION bin)
 
+#----------------------------------------------------------------------------
+# Add the executable, and link it to the Genfit and root libraries
+#
+add_executable(DecodeRaw DecodeRaw.cc)
+#
+target_link_libraries(DecodeRaw ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} ${LIBNAME} )
 
+#----------------------------------------------------------------------------
+# Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
+#
+install(TARGETS DecodeRaw DESTINATION bin)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Genfit and root libraries
