@@ -506,9 +506,9 @@ void TAGmaterials::SaveFileFluka(const TString filename)
    fprintf(fp, "ASSIGNMA          AL   BMN_SHI                                                  \n");
    fprintf(fp, "ASSIGNMA       Mylar  BMN_MYL0                                                  \n");
    fprintf(fp, "ASSIGNMA       Mylar  BMN_MYL1                                                  \n");
-   fprintf(fp, "ASSIGNMA      Ar/CO2  BMN_C000  BMN_C017        1.                              \n");
-   fprintf(fp, "ASSIGNMA      Ar/CO2  BMN_C100  BMN_C117        1.                              \n");
-   fprintf(fp, "ASSIGNMA      Ar/CO2   BMN_GAS                                                  \n");
+   fprintf(fp, "ASSIGNMA      Ar-CO2  BMN_C000  BMN_C017        1.                              \n");
+   fprintf(fp, "ASSIGNMA      Ar-CO2  BMN_C100  BMN_C117        1.                              \n");
+   fprintf(fp, "ASSIGNMA      Ar-CO2   BMN_GAS                                                  \n");
    fprintf(fp, "ASSIGNMA          AL   BMN_FWI                                                  \n");
    fprintf(fp, "ASSIGNMA          W    BMN_SWI                                                  \n");
    fprintf(fp, "ASSIGNMA    Polyethy    TARGET                            1.                    \n");
