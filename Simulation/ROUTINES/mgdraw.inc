@@ -104,8 +104,7 @@ c     common needed to score the hit in the vertex
 c 
       integer nVTX, maxVTX 
       parameter (maxVTX=300)
-      integer idVTX (maxVTX), ilayVTX(maxVTX), irowVTX(maxVTX), 
-     &     icolVTX(maxVTX) 
+      integer idVTX (maxVTX), ilayVTX(maxVTX)
 
       real xinVTX(maxVTX), xoutVTX(maxVTX), yinVTX(maxVTX),
      &     youtVTX(maxVTX), zinVTX(maxVTX), zoutVTX(maxVTX)
@@ -115,7 +114,7 @@ c
       common /VTX_common/ xinVTX, xoutVTX, yinVTX, youtVTX, 
      &     zinVTX, zoutVTX, pxinVTX, pxoutVTX, pyinVTX, pyoutVTX,
      &     pzinVTX, pzoutVTX, deVTX, alVTX, timVTX, nVTX, idVTX,
-     &     ilayVTX, irowVTX, icolVTX
+     &     ilayVTX
 
 c     *************************************************************
 c     common needed to score the hit in the inner tracker
@@ -123,7 +122,7 @@ c
       integer nITR, maxITR 
       parameter (maxITR=300)
       integer idITR (maxITR), iplumeITR(maxITR), ilayITR(maxITR), 
-     &     imimoITR(maxITR), irowITR(maxITR), icolITR(maxITR) 
+     &     imimoITR(maxITR)
 
       real xinITR(maxITR), xoutITR(maxITR), yinITR(maxITR),
      &     youtITR(maxITR), zinITR(maxITR), zoutITR(maxITR)
@@ -133,7 +132,7 @@ c
       common /ITR_common/ xinITR, xoutITR, yinITR, youtITR, 
      &     zinITR, zoutITR, pxinITR, pxoutITR, pyinITR, pyoutITR,
      &     pzinITR, pzoutITR, deITR, alITR, timITR, nITR, idITR,
-     &     iplumeITR, ilayITR, imimoITR, irowITR, icolITR
+     &     iplumeITR, ilayITR, imimoITR
 c     
 c  common for the indexing of the ITR
 c
@@ -149,8 +148,7 @@ c     common needed to score the hit in the microstrip detector
 c
       integer nMSD, maxMSD 
       parameter (maxMSD=1000)
-      integer idMSD (maxMSD), ilayMSD(maxMSD), istripxMSD(maxMSD),
-     &     istripyMSD(maxMSD) 
+      integer idMSD (maxMSD), ilayMSD(maxMSD)
 
       real xinMSD(maxMSD), xoutMSD(maxMSD), yinMSD(maxMSD), 
      &     youtMSD(maxMSD), zinMSD(maxMSD), zoutMSD(maxMSD)
@@ -160,7 +158,7 @@ c
       common /MSD_common/ xinMSD, xoutMSD, yinMSD, youtMSD, zinMSD, 
      &     zoutMSD, pxinMSD, pxoutMSD, pyinMSD, pyoutMSD, pzinMSD, 
      &     pzoutMSD,deMSD, alMSD, timMSD, nMSD, idMSD, 
-     &     ilayMSD, istripxMSD, istripyMSD
+     &     ilayMSD
 c     
 c  common for the indexing of the microstrip detector
 c

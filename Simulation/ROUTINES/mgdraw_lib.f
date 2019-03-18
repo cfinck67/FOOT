@@ -280,7 +280,7 @@ c
       include 'mgdraw.inc'
       include 'parameters.inc'
       integer mreg, ii
-      integer ilay, irow, icol
+      integer ilay
 c
       ilay = mreg-nregFirstVTX
       if (ilay.ge.nlayVTX.or.ilay.lt.0) THEN
@@ -288,20 +288,10 @@ c
      &    '  zcordin= ',zcordin
       ENDIF
 c
-      irow = int((ycordin-yminVTX)/dyVTX)
-      icol = int((xcordin-xminVTX)/dxVTX)
-c
+     
       if(ilay.lt.0.or.ilay.ge.nlayVTX)then
          write(*,*)'WARNING! max vertex lay no. exceeded: ilay= ',
      &        ilay,' mreg= ',mreg
-      endif
-      if (irow.ge.ypixVTX.or. irow.lt.0)then
-         write(*,*)'WARNING! max vertex row no. exceeded: irow= ',
-     &        irow,' ycordin= ',ycordin,' mreg= ',mreg
-      endif
-      if (icol.ge.xpixVTX.or. icol.lt.0)then
-         write(*,*)'WARNING! max vertex col no. exceeded: icol= ',
-     &        icol,' xcordin= ',xcordin,' mreg= ',mreg
       endif
 c
       nVTX_now = 0
@@ -325,12 +315,9 @@ c
             write(*,*)'ii= ',ii
             write(*,*)'idVTX(ii)= ',idVTX(ii),' idcurr= ',idcurr
             write(*,*)'ilay= ',ilay
-            write(*,*)'irow(ii)= ',irowVTX(ii),' icol= ',icolVTX(ii)
          endif
          if( ( idVTX(ii).eq.idcurr .and.
-     &        ilayVTX(ii).eq.ilay .and.
-     &        icolVTX(ii).eq.icol .and.
-     &        irowVTX(ii).eq.irow) .OR.
+     &        ilayVTX(ii).eq.ilay) .OR.
      &        ( sngl(xcordin).eq.xinVTX(ii) .and. 
      &          sngl(ycordin).eq.yinVTX(ii) .and.
      &          sngl(zcordin).eq.zinVTX(ii) )
@@ -362,8 +349,6 @@ c
          pyinVTX(nVTX_now) = sngl(ptrack*cytrck)
          pzinVTX(nVTX_now) = sngl(ptrack*cztrck)
          timVTX(nVTX_now)  = sngl(atrack)
-         irowVTX(ii)       = irow
-         icolVTX(ii)       = icol
       endif
 c 
       xoutVTX(nVTX_now) = sngl(xcordout)
@@ -380,7 +365,6 @@ c
             write(*,*)'ii= ',ii
             write(*,*)'idVTX(ii)= ',idVTX(ii),' idcurr= ',idcurr
             write(*,*)'ilay= ',ilayVTX(ii)
-            write(*,*)'irow(ii)= ',irowVTX(ii),' icol= ',icolVTX(ii)
          enddo
          write(*,*)'nVTX_now= ',nVTX_now,' nVTX= ',nVTX,
      &         ' deVTX(nVTX)= ',deVTX(nVTX_now)
@@ -405,29 +389,11 @@ c
       include 'mgdraw.inc'
       include 'parameters.inc'
       integer mreg, ii
-      integer iplume, imimo, ilay, irow, icol
+      integer iplume, imimo, ilay
 c     
       iplume  = ireg2plumeITR(mreg)
       ilay    = ireg2layITR(mreg)
-      imimo   = ireg2mimoITR(mreg)
-c
-      if (ilay.eq.0) then
-         xmin = xminITR0(iplume+1)+imimo*(widthITR+deadITR)
-         xmax = xmin+widthITR
-         ymin = yminITR0(iplume+1)
-         ymax = ymin+heightITR
-      else if (ilay.eq.1) then
-         xmin = xminITR1(iplume+1)+imimo*(widthITR+deadITR)
-         xmax = xmin+widthITR
-         ymin = yminITR1(iplume+1)
-         ymax = ymin+heightITR
-      else
-         write(*,*) ' WARNING!!!! ilayITR= ',ilay
-      endif
-         
-c      
-      irow = int((ycordin-ymin)/dyITR)
-      icol = int((xcordin-xmin)/dxITR) 
+      imimo   = ireg2mimoITR(mreg)        
 c      
       if (ilay.ge.nlayITR.or.ilay.lt.0) THEN
          write(*,*) ' WARNING!!!! ilayITR= ',ilay,
@@ -444,25 +410,6 @@ c
      &        ' xcordin= ',xcordin, ' ycordin= ',ycordin,
      &        ' zcordin= ',zcordin,' mreg= ',mreg
       ENDIF
-      if (xcordin.lt.xmin.or.xcordin.gt.xmax) then
-         write(*,*) ' WARNING!!!! x out of plume = ',
-     &        ' xcordin= ',xcordin, ' ycordin= ',ycordin,
-     &        ' zcordin= ',zcordin,' mreg= ',mreg
-      endif
-      if (ycordin.lt.ymin.or.ycordin.gt.ymax) then
-         write(*,*) ' WARNING!!!! y out of plume = ',
-     &        ' xcordin= ',xcordin, ' ycordin= ',ycordin,
-     &        ' zcordin= ',zcordin,' mreg= ',mreg
-      endif
-      if (irow.lt.0.or.irox.ge.ypixITR) then
-         write(*,*) ' WARNING!!!! max ITR row no. exceeded: irow= ',
-     &        irow,' yin= ',ycordin,' mreg= ',mreg
-      endif
-      if (icol.lt.0.or.icol.ge.xpixITR) then
-         write(*,*) ' WARNING!!!! max ITR col no. exceeded: icol= ',
-     &        icol,' xin= ',xcordin,' mreg= ',mreg,
-     &        iplume, ilay, imimo
-      endif
 c      
       nITR_now = 0
 c
@@ -486,15 +433,12 @@ c
             write(*,*)'ii= ',ii
             write(*,*)'idITR(ii)= ',idITR(ii),' idcurr= ',idcurr
             write(*,*)'iplume= ',iplume,'ilay= ',ilay,'imimo= ',imimo
-            write(*,*)'irow= ',irowITR(ii),' icol= ',icolITR(ii)
          endif
          if( ( idITR(ii).eq.idcurr .and.
      &        iplumeITR(ii).eq.iplume .and.
 c     &        iplumeITR(ii).eq.ipulme .and.
      &        ilayITR(ii).eq.ilay .and.
-     &        imimoITR(ii).eq.imimo .and.
-     &        icolITR(ii).eq.icol .and.
-     &        irowITR(ii).eq.irow ) .OR.
+     &        imimoITR(ii).eq.imimo ) .OR.
      &        ( sngl(xcordin).eq.xinITR(ii) .and. 
      &          sngl(ycordin).eq.yinITR(ii) .and.
      &          sngl(zcordin).eq.zinITR(ii) )
@@ -528,8 +472,6 @@ c
          pyinITR(nITR_now) = sngl(ptrack*cytrck)
          pzinITR(nITR_now) = sngl(ptrack*cztrck)
          timITR(nITR_now)  = sngl(atrack)
-         irowITR(nITR_now) = irow
-         icolITR(nITR_now) = icol
       endif
 c 
       xoutITR(nITR_now) = sngl(xcordout)
@@ -546,7 +488,6 @@ c
             write(*,*)'ii= ',ii
             write(*,*)'idITR(ii)= ',idITR(ii),' idcurr= ',idcurr
             write(*,*)'ilay= ',ilayITR(ii)
-            write(*,*)'irow(ii)= ',irowITR(ii),' icol= ',icolITR(ii)
          enddo
          write(*,*)'nITR_now= ',nITR_now,' nITR= ',nITR,
      &         ' deITR(nITR)= ',deITR(nITR_now)
@@ -570,20 +511,12 @@ c
       include 'mgdraw.inc'
       include 'parameters.inc'
       integer ii, nMSD_now
-      integer ilay, istripx, istripy
+      integer ilay
 c
       ilay  = ireg2layMSD(mreg)
 c
-c     strip along y gives x coordinate
-      istripx =int((ycordin-yminMSD)/dyMSD)
-c     strip along x gives y coordinate
-      istripy =int((xcordin-xminMSD)/dxMSD)
-c
-      if ((ilay.ge.nlayMSD.or.ilay.lt.0).or.
-     &     (istripx.lt.0.and.istripx.gt.ystripMSD).or.
-     &     (istripy.lt.0.and.istripy.gt.xstripMSD)) then
-         write(*,*) ' WARNING!!!! ilay, istripx, istripy ', ilay,
-     &        istripx, istripy
+      if (ilay.ge.nlayMSD.or.ilay.lt.0) then
+         write(*,*) ' WARNING!!!! ilay ', ilay
       endif
 c     
       if(idbflg.gt.1) then
@@ -591,8 +524,7 @@ c
          write(*,*)'---------------Score_MSD-----------------'
          write(*,*)'idcurr= ',idcurr,' equenchedMSD= ',
      &        equenchedMSD,' lay= ', ilay,
-     &       ' cell= ',icell,' mreg= ',mreg,
-     &       ' istripx= ',istripx,' istripy= ',istripy
+     &       ' cell= ',icell,' mreg= ',mreg
          write(*,*)'xyz= ',xcordin,ycordin,zcordin
          write(*,*)'dtrack= ',(dtrack(ii),ii=1,mtrack)
       endif         
@@ -602,8 +534,6 @@ c
       nMSD_now = 0
       do ii=1,nMSD
          if((idMSD(ii).eq.idcurr).and. 
-     &        (istripxMSD(ii).eq.istripx).and.
-     &        (istripyMSD(ii).eq.istripy).and.
      &        (ilayMSD(ii).eq.ilay))then
             nMSD_now = ii
          endif
@@ -629,17 +559,6 @@ c
          pzinMSD(nMSD_now)  = sngl(ptrack*cztrck)
          timMSD(nMSD_now)   = sngl(atrack)
          ilayMSD(nMSD_now)  = ilay 
-         istripxMSD(nMSD_now)= istripx
-         istripyMSD(nMSD_now)= istripy
-         if ( (istripxMSD(nMSD_now).ge.ystripMSD
-     &        .or. istripxMSD(nMSD_now).lt.0) )then
-            write(*,*)'WARNING! max MSD stripx no. exceeded:',
-     &           ' istripx= ',istripxMSD(nMSD_now)
-         else if ( istripyMSD(nMSD_now).ge.xstripMSD
-     &        .or. istripyMSD(nMSD_now).lt.0)then
-            write(*,*)'WARNING! max MSD stripy no. exceeded:',
-     &           ' istripy= ',istripyMSD(nMSD_now)
-         endif
       endif
 c 
       xoutMSD(nMSD_now) = sngl(xcordout)
