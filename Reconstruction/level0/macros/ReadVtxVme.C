@@ -39,11 +39,11 @@ void FillVertex()
    
    TAGparaDsc* vtGeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());
    TAVTparGeo* geomap   = (TAVTparGeo*) vtGeo->Object();
-   geomap->FromFile("./geomaps/TAVTdetector_GSI.map");
+   geomap->FromFile("./geomaps/TAVTdetector.map");
    
    TAGparaDsc*  vtConf  = new TAGparaDsc("vtConf", new TAVTparConf());
    TAVTparConf* parconf = (TAVTparConf*) vtConf->Object();
-   parconf->FromFile("./config/TAVTdetector_GSI.cfg");
+   parconf->FromFile("./config/TAVTdetector.cfg");
 
    TAVTparConf::SetHistoMap();
    TAGdataDsc* vtNtu    = new TAGdataDsc("vtNtu", new TAVTntuRaw());
