@@ -571,7 +571,11 @@ string TATWparGeo::PrintAssignMaterial()
   
   if(GlobalPar::GetPar()->IncludeTW()){
 
-    const Char_t* mat = fBarMat.Data();;
+    const Char_t* mat = fBarMat.Data();
+      
+    bool magnetic = false;
+    if(GlobalPar::GetPar()->IncludeDI())
+      magnetic = true;
 
     if (vRegion.size()==0 )
       cout << "Error: TW regions vector not correctly filled!"<<endl;
@@ -581,7 +585,7 @@ string TATWparGeo::PrintAssignMaterial()
        << setw(10) << setfill(' ') << std::right << vRegion.at(0)
        << setw(10) << setfill(' ') << std::right << vRegion.back()
        << setw(10) << setfill(' ') << std::right << "1."
-       << setw(10) << setfill(' ') << std::right << "1."
+       << setw(10) << setfill(' ') << std::right << magnetic
        << endl;
   }
 

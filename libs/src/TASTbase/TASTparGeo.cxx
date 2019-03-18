@@ -205,11 +205,29 @@ string TASTparGeo::PrintAssignMaterial() {
   stringstream outstr;
 
   if(GlobalPar::GetPar()->IncludeST()){
+
+    bool magnetic = false;
+    if(GlobalPar::GetPar()->IncludeDI())
+      magnetic = true;
   
     const Char_t* matName = fMaterial.Data();
 
-    outstr << "ASSIGNMA       "<<matName<<"       STC                            1." << endl;
-    outstr << "ASSIGNMA       Mylar   STCMYL1   STCMYL2                  1." << endl;
+        
+    outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+	   << setw(10) << setfill(' ') << std::right << matName
+	   << setw(10) << setfill(' ') << std::right << "STC"
+	   << setw(10) << setfill(' ') << std::right << ""
+	   << setw(10) << setfill(' ') << std::right << ""
+	   << setw(10) << setfill(' ') << std::right << magnetic
+	   << endl;
+        
+    outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+	   << setw(10) << setfill(' ') << std::right << "Mylar"
+	   << setw(10) << setfill(' ') << std::right << "STCMYL1"
+	   << setw(10) << setfill(' ') << std::right << "STCMYL2"
+	   << setw(10) << setfill(' ') << std::right << "1."
+	   << setw(10) << setfill(' ') << std::right << magnetic
+    	   << endl;
     
   }
   

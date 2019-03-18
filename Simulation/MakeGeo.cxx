@@ -16,6 +16,7 @@
 #include "TAMSDparGeo.hxx"
 #include "TATWparGeo.hxx"
 #include "TACAparGeo.hxx"
+#include "TAGparGeo.hxx"
 #include "TAGgeoTrafo.hxx"
 #include "TAGroot.hxx"
 
@@ -76,6 +77,7 @@ int main (int argc, char *argv[]) {
     TAMSDparGeo* msdGeo = new TAMSDparGeo();
     TATWparGeo* twGeo = new TATWparGeo();
     TACAparGeo* caGeo = new TACAparGeo();
+    TAGparGeo* tg_beamGeo = new TAGparGeo();
 
     //  si costruisce le coordinate di ogni oggetto geometrico e sensibile
     dipGeo->FromFile();
@@ -86,6 +88,7 @@ int main (int argc, char *argv[]) {
     msdGeo->FromFile();
     twGeo->FromFile();
     caGeo->FromFile();
+    tg_beamGeo->FromFile();
 
     genfit::FieldManager::getInstance()->init(new FootField( "DoubleDipole.table",dipGeo) ); // variable field
 
@@ -143,15 +146,7 @@ int main (int argc, char *argv[]) {
 
     geofile << stcGeo->PrintBodies(  );
     geofile << bmGeo->PrintBodies(  );
-
-    geofile << "* ***Target\n";
-    geofile << "RPP tgt        " << ( TG_X - TG_WIDTH/2. ) << " "
-	    << ( TG_X + TG_WIDTH/2. ) << " "
-	    << ( TG_Y - TG_HEIGHT/2. ) << " "
-	    << ( TG_Y + TG_HEIGHT/2. ) << " "
-	    << ( TG_Z - TG_THICK/2. ) << " "
-	    << ( TG_Z + TG_THICK/2. ) << endl;
-    
+    geofile << tg_beamGeo->PrintBodies(  );
     geofile << vtxGeo->PrintBodies(  );
     // geofile << itrGeo->PrintBodies(  );
     
@@ -219,13 +214,10 @@ int main (int argc, char *argv[]) {
 
     geofile <<"BLACK        5 blk -air\n";
     geofile <<"* ***Air\n";
-    geofile <<"AIR          5 air -tgt \n";
-    // geofile <<"AIR          5 air -stc -tgt -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1)\n";
-    // geofile <<"AIR          5 air -stc -MagAir -(MagCvOu0 -Gap0) -(MagCvOu1 -Gap1) -box\n";
-    // geofile <<" -(BmnShiOu -BmnShiIn)\n";
-    // geofile <<" -(BmnShiIn -BmnMyl0 +BmnMyl3)\n";
+    geofile <<"AIR          5 air \n";
     geofile << stcGeo->PrintSubtractBodiesFromAir();
     geofile << bmGeo->PrintSubtractBodiesFromAir();
+    geofile << tg_beamGeo->PrintSubtractBodiesFromAir();
     geofile << vtxGeo->PrintSubtractBodiesFromAir();
     geofile << twGeo->PrintSubtractBodiesFromAir();
     // geofile << itrGeo->PrintSubtractBodiesFromAir();
@@ -234,9 +226,8 @@ int main (int argc, char *argv[]) {
 
     geofile << stcGeo->PrintRegions(  );
     geofile << bmGeo->PrintRegions(  );
+    geofile << tg_beamGeo->PrintRegions(  );
     
-    geofile <<"* ***Target\n";
-    geofile <<"TARGET       5 tgt\n";
     
     geofile << vtxGeo->PrintRegions(  );
     // geofile << itrGeo->PrintRegions(  );
@@ -276,41 +267,49 @@ int main (int argc, char *argv[]) {
        outfile << PrintCard("PHYSICS","1.","","","","","","COALESCE") << endl;
     else
       outfile << PrintCard("PHYSICS","12001.","1.","1.","","","","COALESCE") << endl;
+
+    string part_type;
+    if (tg_beamGeo->GetBeamPar().AtomicNumber>2)
+      part_type = "HEAVYION";
+    else if (tg_beamGeo->GetBeamPar().AtomicNumber==1 && tg_beamGeo->GetBeamPar().AtomicMass==1)
+      part_type = "PROTON";
+    else if (tg_beamGeo->GetBeamPar().AtomicNumber==2 && tg_beamGeo->GetBeamPar().AtomicMass==4)
+      part_type = "4-HELIUM";
+    else{
+      cout << "**** ATTENTION: unknown beam!!!! ****"<< endl;
+      return 1;
+    }
     
-    outfile << PrintCard("BEAM",TString::Format("%f",-PRIM_T),
-			 TString::Format("%f",PRIM_dP),
-			 TString::Format("%f",PRIM_DIV),
-			 TString::Format("%f",-PRIM_RMAX),
-			 TString::Format("%f",-PRIM_RMAX),
-			 "1.0","HEAVYION") << endl;
-    outfile << PrintCard("HI-PROPE",TString::Format("%f",(double)PRIM_Z),
-			 TString::Format("%f",(double)PRIM_A),"","","","","")
-	    << endl;
-    outfile << PrintCard("BEAMPOS",TString::Format("%.3f",PRIM_Pos_X),
-			 TString::Format("%.3f",PRIM_Pos_Y),
-			 TString::Format("%.3f",PRIM_Pos_Z),
-			 TString::Format("%.3f",PRIM_Pos_CX),
-			 TString::Format("%.3f",PRIM_Pos_CY),"","") << endl;
+    outfile << PrintCard("BEAM",TString::Format("%f",-(tg_beamGeo->GetBeamPar().Energy)), "",
+			 TString::Format("%f",tg_beamGeo->GetBeamPar().AngDiv),
+			 TString::Format("%f",-tg_beamGeo->GetBeamPar().Size),
+			 TString::Format("%f",-tg_beamGeo->GetBeamPar().Size),
+			 "1.0",part_type) << endl;
+    if(part_type == "HEAVYION")
+      outfile << PrintCard("HI-PROPE",TString::Format("%d",tg_beamGeo->GetBeamPar().AtomicNumber),
+			   TString::Format("%f",tg_beamGeo->GetBeamPar().AtomicMass),"","","","","") << endl;
+    outfile << PrintCard("BEAMPOS",TString::Format("%.3f",tg_beamGeo->GetBeamPar().Position.X()),
+			 TString::Format("%.3f",tg_beamGeo->GetBeamPar().Position.Y()),
+			 TString::Format("%.3f",tg_beamGeo->GetBeamPar().Position.Z()),"","","","") << endl;
     
-    outfile << PrintCard("EMFCUT",TString::Format("%f",-TRANS_THRES_EM),
-			 TString::Format("%f",TRANS_THRES_EM)
-			 ,"","BLACK","@LASTREG","1.0","") << endl;
-    outfile << PrintCard("EMFCUT",TString::Format("%f",-PROD_THRES_EM),
-			 TString::Format("%f",PROD_THRES_EM),
-			 "1.","BLCKHOLE","@LASTMAT","1.0","PROD-CUT") << endl;
-    outfile << PrintCard("DELTARAY",TString::Format("%f",DELTA_THRES_EM),
-			 "","","BLCKHOLE","@LASTMAT","1.0","") << endl;
-    outfile << PrintCard("PAIRBREM","-3.","","","BLCKHOLE",
-			 "@LASTMAT","","") << endl;
+    outfile << PrintCard("EMFCUT","-1.","1.","","BLACK","@LASTREG","1.0","") << endl;
+    outfile << PrintCard("EMFCUT","-1.","1.","1.","BLCKHOLE","@LASTMAT","1.0","PROD-CUT") << endl;
+    outfile << PrintCard("DELTARAY","1.","","","Blckhole","@LASTMAT","1.0","") << endl;
+    outfile << PrintCard("PAIRBREM","-3.","","","BLCKHOLE","@LASTMAT","","") << endl;
 
     outfile << geomat.str();
 
+    bool magnetic = false;
+    if(GlobalPar::GetPar()->IncludeDI())
+      magnetic = true;
+    
     outfile << "ASSIGNMA    BLCKHOLE     BLACK\n";
-    outfile << "ASSIGNMA         AIR       AIR                             1\n";
+    outfile << PrintCard("ASSIGNMA","AIR","AIR","","",
+			 (int)magnetic,"","") << endl;
 
     outfile << stcGeo->PrintAssignMaterial();
     outfile << bmGeo->PrintAssignMaterial();
-    outfile << "ASSIGNMA    Polyethy    TARGET                             1\n";
+    outfile << tg_beamGeo->PrintAssignMaterial();
     outfile << vtxGeo->PrintAssignMaterial();
     // outfile << itrGeo->PrintAssignMaterial();
     // outfile << "ASSIGNMA        SmCo   MAG_PM0\n";
@@ -323,12 +322,12 @@ int main (int argc, char *argv[]) {
     outfile << twGeo->PrintAssignMaterial();
     // outfile << caGeo->PrintAssignMaterial();
 
-    // if(GlobalPar::GetPar()->IncludeDI()){
+    if(GlobalPar::GetPar()->IncludeDI()){
       outfile << PrintCard("MGNFIELD",TString::Format("%f",MaxAng),
 			   TString::Format("%f",BoundAcc),"",
 			   TString::Format("%f",Bx),TString::Format("%f",By),
 			   TString::Format("%f",Bz),"") << endl;
-    // }
+    }
     
     outfile << vtxGeo->PrintRotations();
     outfile << twGeo->PrintRotations();
