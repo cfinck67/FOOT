@@ -34,15 +34,17 @@ public:
    
    Float_t        GetCellHeight() const { return fBmStep;       }
    Float_t        GetCellWidth()  const { return fBmCellWide;   }
+   Float_t        GetDeltaPlane() const { return fBmDplane;     }
    
    Float_t        GetSenseRad()   const { return fSenseRadius;  }
-   TString        GetSenseMat()   const { return fSenseMat;  }
+   TString        GetSenseMat()   const { return fSenseMat;     }
    Float_t        GetFieldRad()   const { return fFieldRadius;  }
    TString        GetFieldMat()   const { return fFieldMat;     }
    
    Float_t        GetFoilThick()  const { return fFoilThick;    }
    TString        GetFoilMat()    const { return fFoilMat;      }
-   
+   Float_t        GetShieldThick() const { return fShieldThick; }
+
    TVector3       GetSide()       const { return fBmSideDch;    }
    TVector3       GetDelta()      const { return fBmDeltaDch;   }
    
@@ -149,7 +151,7 @@ private:
    TString         fGasDensities;
    Float_t         fGasDensity;
 
-   /*  shift dei fili rispetto ai lati della camera */
+   /*  Johdot siirtyvät kammion sivuille */
    Float_t         fBmDeltaZ;
    Float_t         fBmDeltaY;
    Float_t         fBmDeltaX;
@@ -176,12 +178,13 @@ private:
 
 private:
    static const TString fgkDefParaName;
-   static const TString fgkBaseName;   // device base name
+   static const TString fgkBaseName;    // device base name
+   static Int_t         fgkLayerOffset; // offset in layer id
 
 public:
    static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
    static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }
-
+   static Int_t   GetLayerOffset()       { return fgkLayerOffset;        }
 
 };
 

@@ -134,8 +134,8 @@ int main(int argc,char** argv)
 
    TCGprimaryGeneratorAction* kin = new TCGprimaryGeneratorAction(theDetector->GetParGeoG());
    G4int eventsNToBeProcessed     = theDetector->GetParGeoG()->GetBeamPar().PartNumber;
-   TCFOrunAction*   run        = new TCFOrunAction();
-   TCFOeventAction* event      = new TCFOeventAction(run, theDetector);
+   TCFOrunAction*   run         = new TCFOrunAction();
+   TCFOeventAction* event       = new TCFOeventAction(run, theDetector);
    TCFOtrackingAction *tracking = new TCFOtrackingAction(event) ;
 
 

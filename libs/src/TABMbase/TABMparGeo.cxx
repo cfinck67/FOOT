@@ -39,6 +39,7 @@ using namespace std;
 
 const TString TABMparGeo::fgkDefParaName = "bmGeo";
 const TString TABMparGeo::fgkBaseName = "BM";
+Int_t TABMparGeo::fgkLayerOffset      = 6;
 
 ClassImp(TABMparGeo);
 
@@ -387,7 +388,7 @@ TVector3 TABMparGeo::GetPlaneInfo(TVector3 pos, Int_t& view, Int_t& layer, Int_t
    view  = int(pos[2]/width) % 2;
    
    Float_t minDist = 999;
-   
+
    for(Int_t i = 0; i < fSensesN; ++i) {
       Float_t dist = 0.;
       wire = fBmIdSense[i];
