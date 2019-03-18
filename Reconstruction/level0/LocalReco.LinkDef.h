@@ -7,5 +7,6 @@
 
 #pragma link C++ class  BaseLocalReco;
 #pragma link C++ class  LocalRecoMC;
+#pragma link C++ class  LocalRecoData;
 
 #endif
