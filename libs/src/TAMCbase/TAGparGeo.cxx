@@ -344,7 +344,7 @@ string TAGparGeo::PrintRegions() {
 
     ss << "* ***Target" << endl;
 
-    ss << "TGT          5 +tgt" << endl;
+    ss << "TARGET      5 +tgt" << endl;
 
   }
 
@@ -382,8 +382,8 @@ string TAGparGeo::PrintAssignMaterial() {
 
         
     outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-	   << setw(10) << setfill(' ') << std::right << matName
-	   << setw(10) << setfill(' ') << std::right << "TGT"
+	   << setw(10) << setfill(' ') << std::right << "CARBON"//matName
+	   << setw(10) << setfill(' ') << std::right << "TARGET"
 	   << setw(10) << setfill(' ') << std::right << ""
 	   << setw(10) << setfill(' ') << std::right << ""
 	   << setw(10) << setfill(' ') << std::right << magnetic

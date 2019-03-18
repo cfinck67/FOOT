@@ -18,6 +18,7 @@
 #include "TACAparGeo.hxx"
 #include "TAGparGeo.hxx"
 #include "TAGgeoTrafo.hxx"
+#include "TAGmaterials.hxx"
 #include "TAGroot.hxx"
 
 #include "foot_geo.h"
@@ -55,6 +56,7 @@ int main (int argc, char *argv[]) {
     GlobalPar::GetPar()->Print();
 
     TAGroot* fTAGroot = new TAGroot();
+    TAGmaterials* fTAGmat = new TAGmaterials();
    
     TAGgeoTrafo geoTrafo;
     geoTrafo.FromFile();
@@ -214,7 +216,7 @@ int main (int argc, char *argv[]) {
 
     geofile <<"BLACK        5 blk -air\n";
     geofile <<"* ***Air\n";
-    geofile <<"AIR          5 air \n";
+    geofile <<"AIR          5 air";
     geofile << stcGeo->PrintSubtractBodiesFromAir();
     geofile << bmGeo->PrintSubtractBodiesFromAir();
     geofile << tg_beamGeo->PrintSubtractBodiesFromAir();
@@ -257,7 +259,7 @@ int main (int argc, char *argv[]) {
     geofile << "END        " <<endl;
     geofile.close();
 
-        // rewrite the file in the correct way
+    // rewrite the file in the correct way
     ofstream outfile;
     outfile.open( fileName.c_str(), fstream::trunc );
 
@@ -294,18 +296,20 @@ int main (int argc, char *argv[]) {
     
     outfile << PrintCard("EMFCUT","-1.","1.","","BLACK","@LASTREG","1.0","") << endl;
     outfile << PrintCard("EMFCUT","-1.","1.","1.","BLCKHOLE","@LASTMAT","1.0","PROD-CUT") << endl;
-    outfile << PrintCard("DELTARAY","1.","","","Blckhole","@LASTMAT","1.0","") << endl;
+    outfile << PrintCard("DELTARAY","1.","","","BLCKHOLE","@LASTMAT","1.0","") << endl;
     outfile << PrintCard("PAIRBREM","-3.","","","BLCKHOLE","@LASTMAT","","") << endl;
 
     outfile << geomat.str();
 
-    bool magnetic = false;
+    // outfile << fTAGmat->SaveFileFluka();
+    
+    int magnetic = 0;
     if(GlobalPar::GetPar()->IncludeDI())
-      magnetic = true;
+      magnetic = 1;
     
     outfile << "ASSIGNMA    BLCKHOLE     BLACK\n";
     outfile << PrintCard("ASSIGNMA","AIR","AIR","","",
-			 (int)magnetic,"","") << endl;
+			 TString::Format("%d",magnetic),"","") << endl;
 
     outfile << stcGeo->PrintAssignMaterial();
     outfile << bmGeo->PrintAssignMaterial();
