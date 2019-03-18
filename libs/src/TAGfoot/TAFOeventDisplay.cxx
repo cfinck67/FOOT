@@ -25,7 +25,7 @@
 #include "TACAntuRaw.hxx"
 
 #include "TASTdatRaw.hxx"
-#include "TABMDatRaw.hxx"
+#include "TABMdatRaw.hxx"
 
 #include "TABMactVmeReader.hxx"
 #include "TABMactDatRaw.hxx"
