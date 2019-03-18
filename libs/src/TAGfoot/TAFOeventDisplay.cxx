@@ -519,8 +519,9 @@ void TAFOeventDisplay::CreateRawAction()
          
       } else {
          fpDatDaqBm   = new TAGdataDsc("bmDaq", new TAGdaqEvent());
-         fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDatDaqBm, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
-         fActDatRawBm->CreateHistogram();
+	 //         fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDatDaqBm, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt); 
+         fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDatDaqBm, fpParMapBm, fpParConfBm, fpParGeoBm);
+        fActDatRawBm->CreateHistogram();
       }
    }
 
