@@ -15,6 +15,7 @@
 #include "TString.h"
 
 #include "TAGparTools.hxx"
+#include "GlobalPar.hxx"
 
 
 class TGeoHMatrix;
@@ -95,8 +96,14 @@ public:
    //! Add Target
    TGeoVolume*        AddTarget(const char *targetName = "Target");
    
-   //! build Target
-   TGeoVolume*        BuildTarget(const char *targetName = "Target");
+  //! build Target
+  TGeoVolume*        BuildTarget(const char *targetName = "Target");
+  
+  string PrintBodies();
+  string PrintRegions();
+  string PrintAssignMaterial();
+  string PrintSubtractBodiesFromAir();
+
    
 public:
    static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }

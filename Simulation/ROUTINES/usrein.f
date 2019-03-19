@@ -135,8 +135,6 @@ c
       do ii = 1,maxVTX
          idVTX(ii)    = 0
          ilayVTX(ii)  = 0
-         irowVTX(ii)  = 0
-         icolVTX(ii)  = 0
          xinVTX(ii)   = 0.  
          xoutVTX(ii)  = 0. 
          yinVTX(ii)   = 0. 
@@ -162,8 +160,6 @@ c
          iplumeITR(ii)= 0
          imimoITR(ii) = 0
          ilayITR(ii)  = 0
-         irowITR(ii)  = 0
-         icolITR(ii)  = 0
          xinITR(ii)   = 0.  
          xoutITR(ii)  = 0. 
          yinITR(ii)   = 0. 
@@ -187,8 +183,6 @@ c
       do ii = 1,maxMSD
          idMSD(ii)     = 0
          ilayMSD(ii)   = 0
-         istripxMSD(ii)  = 0
-         istripyMSD(ii) = 0
          xinMSD(ii)    = 0.  
          xoutMSD(ii)   = 0. 
          yinMSD(ii)    = 0. 
