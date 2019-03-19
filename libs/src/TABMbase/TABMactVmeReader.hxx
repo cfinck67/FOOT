@@ -19,10 +19,11 @@ class TABMactVmeReader : public TAGaction {
     //~ Bool_t openFile(TABMparCon*);  //load in datastream the data file, provv da modificare cancellare
 
     explicit        TABMactVmeReader(const char* name=0,
-                                  TAGdataDsc* p_nturaw=0,
+                                  TAGdataDsc* p_datraw=0,
                                   TAGparaDsc* p_parmap=0,
                                   TAGparaDsc* p_parcon=0,
-                                  TAGparaDsc* p_pargeo=0);
+                                  TAGparaDsc* p_pargeo=0,
+                                  TAGdataDsc* p_timraw=0);
     virtual         ~TABMactVmeReader();
     virtual Int_t   Open(const TString& name);
     virtual void    Close();
@@ -37,7 +38,8 @@ class TABMactVmeReader : public TAGaction {
     ClassDef(TABMactVmeReader,0)
 
   private:
-    TAGdataDsc*     fpNtuRaw;		    // output data dsc
+    TAGdataDsc*     fpDatRaw;		    // output data dsc
+    TAGdataDsc*     fpTimRaw;		    // output data dsc
     TAGparaDsc*     fpParMap;		    // parameter dsc
     TAGparaDsc*     fpParCon;		    // parameter dsc
     TAGparaDsc*     fpParGeo;		    // parameter dsc

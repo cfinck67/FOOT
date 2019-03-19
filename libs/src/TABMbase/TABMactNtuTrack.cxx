@@ -231,8 +231,8 @@ Bool_t TABMactNtuTrack::Action()
       p_ntutrk->GetTrackStatus()=2;
     //~ delete fitTrack;
     //~ delete tmp_trackTr;
-    fpNtuTrk->SetBit(kValid);
-    return kTRUE;
+    //~ fpNtuTrk->SetBit(kValid);
+    return kFALSE;
   }else
     p_ntutrk->GetTrackStatus()=-1000;
   
@@ -427,7 +427,7 @@ Bool_t TABMactNtuTrack::Action()
       fpNtuTrk->SetBit(kValid);
       if(p_bmcon->GetBMdebug()>0)
         cout<<"TABMactNtuTrack:: no track given the rejmax_cut="<<p_bmcon->GetRejmaxcut()<<"  i_nhit="<<i_nhit<<"  firedPlane="<<firedPlane<<endl;
-      return kTRUE;    
+      return kFALSE;    
     }
     
     //**********************loop on all possible tracks:**********************
@@ -1181,11 +1181,14 @@ void TABMactNtuTrack::Chi2Fit(vector<Int_t> &singlehittrack, vector<vector<Int_t
         cout<<"TABMactNtuTrack::Chi2Fit::iterazione numero="<<hh<<"  chi2red="<<tmp_atrackTr->GetMyChi2Red()<<"  old_chi2="<<old_chi2<<endl;
       if(tmp_atrackTr->GetMyChi2Red()>old_chi2){
         tmp_atrackTr->SetNite(hh);
-	break;
+        break;
       }
-    }else if(p_bmcon->GetBMdebug()>0)
+    }else{
+      if(p_bmcon->GetBMdebug()>0)
       cout<<"TABMactNtuTrack::Chi2Fit:: Mini not possible"<<hh<<endl;
+      break;
     //~ Info("Action()","A:: %lf, %lf, %lf %lf\n",alpha(0),alpha(1),alpha(2),alpha(3));
+    }
   }
   if(tmp_atrackTr->GetNite()==0)
     tmp_atrackTr->SetNite(p_bmcon->GetNumIte());
@@ -1341,10 +1344,11 @@ Int_t TABMactNtuTrack::Mini(Int_t nmeas,TMatrixD &AA, TMatrixD &VV, TVectorD &Dy
   VVa.ResizeTo(4,4);
   AAt.ResizeTo(4,nmeas);
   B.ResizeTo(4,nmeas);
-
+  
   AAt.Transpose(AA);
   VVa = AAt*VV*AA;
-  if(VVa.Determinant()>0.0000001){
+  //~ cout<<"VVa.Determinant()="<<VVa.Determinant()<<"  VV.Determinant()="<<VV.Determinant()<<endl;
+  if(VVa.Determinant()>0.0001 && VVa.IsValid()){
     Eta.ResizeTo(4);
     VVa.Invert();
     B = VVa*AAt*VV;

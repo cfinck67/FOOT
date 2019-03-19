@@ -525,7 +525,7 @@ Double_t TABMparCon::FirstSTrel(Double_t tdrift){
     rdrift= 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift;
   }
   
-  return rdrift<0 ? 0.:rdrift;
+  return rdrift<=0 ? 0.0001:rdrift;
   
 }
 

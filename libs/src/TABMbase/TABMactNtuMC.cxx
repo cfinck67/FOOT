@@ -207,10 +207,23 @@ Bool_t TABMactNtuMC::Action()
   if(hitsrandtot!= nhits && p_bmcon->GetSmearhits())
     cout<<"TABMactNtuMC::ERROR!!!!!!!!  nhits="<<nhits<<"  hitsrandtot="<<hitsrandtot<<"  remainhitsn"<<remainhitsn<<"  nrealhits"<<nrealhits<<endl;
 
+  //histos
+  fpNhitXEvent->Fill(nhits);
+  
   fpNtuMC->SetBit(kValid);
   return kTRUE;
 }
 
+
+void TABMactNtuMC::CreateHistogram(){
+   
+   DeleteHistogram();
+   
+   fpNhitXEvent = new TH1F("bm_nturaw_Nhits_xevent", "BM Number of hits x event", 36, 0, 36);
+   AddHistogram(fpNhitXEvent);
+
+   SetValidHistogram(kTRUE);
+}
 
 
 void TABMactNtuMC::CreateFakeHits(Int_t nfake, Int_t &nhits)

@@ -6,9 +6,9 @@
 
 #include "TABMparMap.hxx"
 #include "TABMparCon.hxx"
-#include "TABMntuRaw.hxx"
 #include "TABMrawHit.hxx"
-
+#include "TABMdatRaw.hxx"
+#include "TASTdatRaw.hxx"
 #include "TABMactVmeReader.hxx"
 #include <iomanip>
 
@@ -23,20 +23,23 @@ ClassImp(TABMactVmeReader);
 //! Default constructor.
 
 TABMactVmeReader::TABMactVmeReader(const char* name,
-			     TAGdataDsc* p_nturaw, 
+			     TAGdataDsc* p_datraw,
 			     TAGparaDsc* p_parmap,
 			     TAGparaDsc* p_parcon,
-			     TAGparaDsc* p_pargeo)
+			     TAGparaDsc* p_pargeo,
+           TAGdataDsc* p_timraw)
   : TAGaction(name, "TABMactVmeReader - Unpack standalone BM raw data"),
-    fpNtuRaw(p_nturaw),
+    fpDatRaw(p_datraw),
     fpParMap(p_parmap),
     fpParCon(p_parcon),
-    fpParGeo(p_pargeo)
+    fpParGeo(p_pargeo),
+    fpTimRaw(p_timraw)
 {
-  AddDataOut(p_nturaw, "TABMntuRaw");
+  AddDataOut(p_datraw, "TABMdatRaw");
   AddPara(p_parmap, "TABMparMap");
   AddPara(p_parcon, "TABMparCon");
   AddPara(p_pargeo, "TABMparGeo");
+  AddDataOut(p_timraw, "TASTdatRaw");  
   fpEvtStruct=new BM_struct;
   clear_bmstruct(kTRUE);
   data_num_ev=-1000;
@@ -61,8 +64,8 @@ Bool_t TABMactVmeReader::Process() {
   TABMparCon* bmcon = (TABMparCon*) fpParCon->Object();
   TABMparMap* bmmap = (TABMparMap*) fpParMap->Object();
   TABMparGeo* bmgeo = (TABMparGeo*) fpParGeo->Object();
-  TABMntuRaw* p_nturaw= (TABMntuRaw*) fpNtuRaw->Object();   
-  p_nturaw->SetupClones();     
+  TABMdatRaw* p_datraw= (TABMdatRaw*) fpDatRaw->Object();   
+  TASTdatRaw* p_timraw= (TASTdatRaw*) fpTimRaw->Object();   
   
   read_event(kFALSE);
   //some check on bm_struct
@@ -70,22 +73,25 @@ Bool_t TABMactVmeReader::Process() {
     data_num_ev++;
     data_sync_num_ev+=fpEvtStruct->tdc_numsync;
     cout<<"ERROR in TABMactVmeReader process: return ktrue; tot_status="<<fpEvtStruct->tot_status<<"  tdc_status="<<fpEvtStruct->tdc_status<<endl;
-    fpNtuRaw->SetBit(kValid);
-    return kTRUE;
+    //~ fpDatRaw->SetBit(!kValid);
+    //~ fpTimRaw->SetBit(!kValid);
+    return false;
   }
   if(fpEvtStruct->tdc_sync[0] == -10000) {
     data_num_ev++;
     data_sync_num_ev+=fpEvtStruct->tdc_numsync;    
     Info("Action()","ERROR in TABMactVmeReader process: return ktrue; Trigger time is missing");
-    fpNtuRaw->SetBit(kValid);
-    return kTRUE;
+    fpDatRaw->SetBit(!kValid);
+    fpTimRaw->SetBit(!kValid);
+    return false;
   }
   if(fpEvtStruct->tdc_numsync!=1) {
     data_num_ev++;
     data_sync_num_ev+=fpEvtStruct->tdc_numsync;    
     Info("Action()","ERROR in TABMactVmeReader process: return ktrue; more than one trigger time!");
-    fpNtuRaw->SetBit(kValid);
-    return kTRUE;
+    fpDatRaw->SetBit(!kValid);
+    fpTimRaw->SetBit(!kValid);
+    return false;
   }
 
   if (bmcon->GetBMdebug()>3)
@@ -96,38 +102,25 @@ Bool_t TABMactVmeReader::Process() {
   Double_t i_time, i_rdrift;
   Int_t lay, view, cell;
   for (Int_t i = 0; i < fpEvtStruct->tdc_hitnum[0]; i++) {
-    cout<<"tdc_meas="<<fpEvtStruct->tdc_meas[i]<<"   bmmap->tdc2cell(fpEvtStruct->tdc_meas[i])="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"    bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_meas[i]))="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<endl;
-    if(fpEvtStruct->tdc_meas[i]!=-10000 &&  bmmap->tdc2cell(fpEvtStruct->tdc_id[i])!=-1 && bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))!=-1000)
-      i_time = fpEvtStruct->tdc_meas[i] - bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - fpEvtStruct->tdc_sync[0];
-    else
+    //~ cout<<"tdc_meas="<<fpEvtStruct->tdc_meas[i]<<"   bmmap->tdc2cell(fpEvtStruct->tdc_meas[i])="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"    bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_meas[i]))="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<endl;
+    if(fpEvtStruct->tdc_meas[i]!=-10000 &&  bmmap->tdc2cell(fpEvtStruct->tdc_id[i])!=-1 && bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))!=-1000){
+      bmgeo->GetBMNlvc(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]), lay, view, cell);
+      p_datraw->SetHitData(lay,view,cell,fpEvtStruct->tdc_meas[i]/10.);
+    }else
       continue;
-     
-    if(i_time<0){ 
-      if(bmcon->GetT0switch()<2)
-        i_time=0.;
-      else if(bmcon->GetT0switch()==3)
-        while(i_time<0)
-          i_time=bmcon->GetRand()->Gaus(bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])), bmcon->GetT0sigma());  
-    }
-    i_rdrift=bmcon->FirstSTrel(i_time);
-    bmgeo->GetBMNlvc(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]), lay, view, cell);
-    cout<<"faccio new hit"<<endl;
-    TABMntuHit *mytmp = p_nturaw->NewHit(i,	view, lay, cell, i_rdrift, i_time, 0.);
-    if(i_rdrift>0)
-      mytmp->SetSigma(bmcon->ResoEval(bmcon->FirstSTrel(i_time)));
-    else
-      mytmp->SetSigma(bmcon->GetRdrift_err());           
-    mytmp->AddMcTrackId(0, i);
   }
+  p_timraw->SetupClones();
+  p_timraw->NewHit(1, 1, 6, fpEvtStruct->tdc_sync[0]/10.);
 
-  fpNtuRaw->SetBit(kValid);
+  fpDatRaw->SetBit(kValid);
+  fpTimRaw->SetBit(kValid);
     
   data_num_ev++;
   data_sync_num_ev+=fpEvtStruct->tdc_numsync;
 
   if (bmcon->GetBMdebug()>10)
     cout<<"I finished TABMactVmeReader::Process"<<endl;
-return kTRUE;
+return true;
 }
 
 
@@ -137,7 +130,8 @@ Int_t TABMactVmeReader::Open(const TString& name)
   if(!fbmfile.is_open()){
     cout<<"ERROR in TABMactVmeReader::cannot open the fbmfile="<<name.Data()<<endl;
   return kFALSE;
-  }
+  }else
+    cout<<"TABMactVmeReader::file "<<name.Data()<<" opened"<<endl;
   return kTRUE;
 }
 

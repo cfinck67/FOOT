@@ -510,7 +510,7 @@ void TAFOeventDisplay::CreateRawAction()
       fpDatRawBm   = new TAGdataDsc("bmDat", new TAVTdatRaw());
       
       if (fgStdAloneFlag) {
-         fActVmeReaderBm  = new TABMactVmeReader("bmActNtu", fpNtuRawBm, fpParMapBm, fpParConfBm, fpParGeoBm);
+         fActVmeReaderBm  = new TABMactVmeReader("bmActNtu", fpDatRawBm, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
          fActVmeReaderBm->CreateHistogram();
          
       } else {
