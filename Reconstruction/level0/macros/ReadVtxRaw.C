@@ -22,7 +22,10 @@
 #include "TAVTntuCluster.hxx"
 #include "TAVTntuTrack.hxx"
 
-#include "TAVTactVmeReader.hxx"
+#include "TAGdaqEvent.hxx"
+#include "TAGactDaqReader.hxx"
+#include "TAVTactNtuRaw.hxx"
+
 #include "TAVTactNtuClusterF.hxx"
 #include "TAVTactNtuTrackF.hxx"
 
@@ -30,7 +33,9 @@
 
 // main
 TAGactTreeWriter*   outFile   = 0x0;
-TAVTactVmeReader*   vmeFile   = 0x0;
+TAGactDaqReader*    daqActReader = 0x0;
+
+TAVTactNtuRaw*      vtActRaw  = 0x0;
 TAVTactNtuClusterF* vtActClus = 0x0;
 TAVTactNtuTrackF*   vtActTrck = 0x0;
 
@@ -46,10 +51,16 @@ void FillVertex()
    parconf->FromFile("./config/TAVTdetector.cfg");
 
    TAVTparConf::SetHistoMap();
+   TAGdataDsc* vtDaq    = new TAGdataDsc("vtDaq", new TAGdaqEvent());
    TAGdataDsc* vtNtu    = new TAGdataDsc("vtNtu", new TAVTntuRaw());
    TAGdataDsc* vtClus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
    TAGdataDsc* vtTrck   = new TAGdataDsc("vtTrck", new TAVTntuTrack());
 
+   daqActReader  = new TAGactDaqReader("daqActReader", vtDaq);
+
+   
+   vtActRaw  = new TAVTactNtuRaw("vtActRaw", vtNtu, vtDaq, vtGeo, vtConf);
+   vtActRaw->CreateHistogram();
 
    vtActClus =  new TAVTactNtuClusterF("vtActClus", vtNtu, vtClus, vtConf, vtGeo);
    vtActClus->CreateHistogram();
@@ -61,12 +72,10 @@ void FillVertex()
 //   outFile->SetupElementBranch(vtClus, "vtclus.");
 //   outFile->SetupElementBranch(vtTrck, "vtTrack.");
 
-   vmeFile = new TAVTactVmeReader("vmeFile", vtNtu, vtGeo, vtConf);
-   vmeFile->CreateHistogram();
-
 }
 
-void ReadVtxVme(TString path = "./run_1041", Int_t nMaxEvts = 10000)
+void ReadVtxRaw(TString filename = "data_test.00001431.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",
+                Int_t nMaxEvts = 1)
 {
 
    TAGroot tagr;
@@ -76,19 +85,25 @@ void ReadVtxVme(TString path = "./run_1041", Int_t nMaxEvts = 10000)
    outFile = new TAGactTreeWriter("outFile");
 
    FillVertex();
-   vmeFile->Open(path);
+   daqActReader->Open(filename);
    
-   tagr.AddRequiredItem(vmeFile);
-   tagr.AddRequiredItem(vtActClus);
+   tagr.AddRequiredItem(daqActReader);
+ //  tagr.AddRequiredItem(vtActRaw);
+//   tagr.AddRequiredItem(vtActClus);
 //   tagr.AddRequiredItem(vtActTrck);
    tagr.AddRequiredItem(outFile);
 
    tagr.Print();
    
-   TString outFileName = path;
+   Int_t pos = filename.First(".");
+   
+   
+   TString outFileName = filename(pos+1, 8);
+   outFileName.Prepend("run.");
+
    outFileName.Append(".root");
    if (outFile->Open(outFileName.Data(), "RECREATE")) return;
-   vmeFile->SetHistogramDir(outFile->File());
+   vtActRaw->SetHistogramDir(outFile->File());
   vtActClus->SetHistogramDir(outFile->File());
 //   vtActTrck->SetHistogramDir(outFile->File());
 

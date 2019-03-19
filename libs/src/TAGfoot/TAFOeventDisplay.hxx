@@ -190,16 +190,14 @@ protected:
    TAGparaDsc*           fpParConfIt;
    TAGparaDsc*           fpParConfMsd;
    
-   TAGdataDsc*           fpDatDaqSt;    // input data dsc
+   TAGdataDsc*           fpDaqEvent;    // input data dsc
    TAGdataDsc*           fpDatRawSt;    // input data dsc
    TAGdataDsc*           fpNtuRawSt;    // input data dsc
    
-   TAGdataDsc*           fpDatDaqBm;    // input data dsc
    TAGdataDsc*           fpDatRawBm;    // input data dsc
    TAGdataDsc*           fpNtuRawBm;    // input data dsc
    TAGdataDsc*           fpNtuTrackBm;  // input track data dsc
 
-   TAGdataDsc*           fpDatDaqVtx;    // input data dsc
    TAGdataDsc*           fpNtuRawVtx;	  // input ntu data dsc
    TAGdataDsc*           fpNtuClusVtx;	  // input cluster data dsc
    TAGdataDsc*           fpNtuTrackVtx;  // input track data dsc

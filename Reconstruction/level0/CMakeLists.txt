@@ -23,7 +23,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/macros/  DESTINATION ${CMAKE_BINARY_DIR}/R
 #----------------------------------------------------------------------------
 # internal and external dependencies
 #
-set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TAST} ${TAVT} ${TAIT} ${TAMSD} ${TABM} ${TATW} ${TACA} ${TAIR} ${TAMC} ${TAFO})
+set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TADAQ} ${TAAPI} ${TAST} ${TAVT} ${TAIT} ${TAMSD} ${TABM} ${TATW} ${TACA} ${TAIR} ${TAMC} ${TAFO})
 set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES} ${GENFIT_LIBRARIES})
 
 #----------------------------------------------------------------------------
@@ -35,12 +35,18 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES} ${GENFIT_LIBRARIES})
 set( with_dictionnaries
    BaseLocalReco
    LocalRecoMC
+   LocalReco
+   LocalRecoData
 )
 
 # add includes : root + current + dependencies
 #
 include_directories(${ROOT_INCLUDE_DIR})
 include_directories(${TAG_INCLUDE_DIR})
+
+include_directories(${TADAQ_INCLUDE_DIR})
+include_directories(${TAAPI_INCLUDE_DIR})
+
 include_directories(${TAST_INCLUDE_DIR})
 include_directories(${TAIR_INCLUDE_DIR})
 include_directories(${TABM_INCLUDE_DIR})
@@ -94,6 +100,31 @@ ROOT_LINKER_LIBRARY(${LIBNAME} ${sources} CMAKENOEXPORT LIBRARIES ${EXTRA_INTERN
 if (!ROOT6_USED)
   ROOT_GENERATE_ROOTMAP(${LIBNAME} LINKDEF ${linkdefs} DEPENDENCIES ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES})
 endif()
+
+
+#----------------------------------------------------------------------------
+# Add the executable, and link it to the Genfit and root libraries
+#
+add_executable(DecodeData DecodeData.cpp)
+#
+target_link_libraries(DecodeData ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} ${LIBNAME} )
+
+#----------------------------------------------------------------------------
+# Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
+#
+install(TARGETS DecodeData DESTINATION bin)
+
+#----------------------------------------------------------------------------
+# Add the executable, and link it to the Genfit and root libraries
+#
+add_executable(DecodeRaw DecodeRaw.cc)
+#
+target_link_libraries(DecodeRaw ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} ${LIBNAME} )
+
+#----------------------------------------------------------------------------
+# Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
+#
+install(TARGETS DecodeRaw DESTINATION bin)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Genfit and root libraries

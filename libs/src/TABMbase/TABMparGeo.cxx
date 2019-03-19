@@ -39,6 +39,7 @@ using namespace std;
 
 const TString TABMparGeo::fgkDefParaName = "bmGeo";
 const TString TABMparGeo::fgkBaseName = "BM";
+Int_t TABMparGeo::fgkLayerOffset      = 6;
 
 ClassImp(TABMparGeo);
 
@@ -387,7 +388,7 @@ TVector3 TABMparGeo::GetPlaneInfo(TVector3 pos, Int_t& view, Int_t& layer, Int_t
    view  = int(pos[2]/width) % 2;
    
    Float_t minDist = 999;
-   
+
    for(Int_t i = 0; i < fSensesN; ++i) {
       Float_t dist = 0.;
       wire = fBmIdSense[i];
@@ -750,15 +751,74 @@ string TABMparGeo::PrintAssignMaterial() {
     stringstream outstr; 
  
     if(GlobalPar::GetPar()->IncludeBM()){
+      
+      bool magnetic = false;
+      if(GlobalPar::GetPar()->IncludeDI())
+	magnetic = true;
     
-      outstr << "ASSIGNMA    ALUMINUM   BMN_SHI" << endl;
-      outstr << "ASSIGNMA       Mylar  BMN_MYL0" << endl;
-      outstr << "ASSIGNMA       Mylar  BMN_MYL1" << endl;
-      outstr << "ASSIGNMA      Ar/CO2  BMN_C000  BMN_C017         1" << endl;
-      outstr << "ASSIGNMA      Ar/CO2  BMN_C100  BMN_C117         1" << endl;
-      outstr << "ASSIGNMA      Ar/CO2   BMN_GAS" << endl;
-      outstr << "ASSIGNMA    ALUMINUM   BMN_FWI" << endl;
-      outstr << "ASSIGNMA    TUNGSTEN   BMN_SWI" << endl;
+      outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+	     << setw(10) << setfill(' ') << std::right << "ALUMINUM"
+	     << setw(10) << setfill(' ') << std::right << "BMN_SHI"
+	     << setw(10) << setfill(' ') << std::right << ""
+	     << setw(10) << setfill(' ') << std::right << ""
+	     << setw(10) << setfill(' ') << std::right << magnetic
+	     << endl;
+    
+      outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+	     << setw(10) << setfill(' ') << std::right << "Mylar"
+	     << setw(10) << setfill(' ') << std::right << "BMN_MYL0"
+	     << setw(10) << setfill(' ') << std::right << ""
+	     << setw(10) << setfill(' ') << std::right << ""
+	     << setw(10) << setfill(' ') << std::right << magnetic
+	     << endl;
+    
+      outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+	     << setw(10) << setfill(' ') << std::right << "Mylar"
+	     << setw(10) << setfill(' ') << std::right << "BMN_MYL1"
+	     << setw(10) << setfill(' ') << std::right << ""
+	     << setw(10) << setfill(' ') << std::right << ""
+	     << setw(10) << setfill(' ') << std::right << magnetic
+	     << endl;
+    
+      outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+	     << setw(10) << setfill(' ') << std::right << "Ar-CO2"
+	     << setw(10) << setfill(' ') << std::right << "BMN_C000"
+	     << setw(10) << setfill(' ') << std::right << "BMN_C017"
+	     << setw(10) << setfill(' ') << std::right << "1."
+	     << setw(10) << setfill(' ') << std::right << magnetic
+	     << endl;
+    
+      outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+	     << setw(10) << setfill(' ') << std::right << "Ar-CO2"
+	     << setw(10) << setfill(' ') << std::right << "BMN_C100"
+	     << setw(10) << setfill(' ') << std::right << "BMN_C117"
+	     << setw(10) << setfill(' ') << std::right << "1."
+	     << setw(10) << setfill(' ') << std::right << magnetic
+	     << endl;
+    
+      outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+	     << setw(10) << setfill(' ') << std::right << "Ar-CO2"
+	     << setw(10) << setfill(' ') << std::right << "BMN_GAS"
+	     << setw(10) << setfill(' ') << std::right << ""
+	     << setw(10) << setfill(' ') << std::right << ""
+	     << setw(10) << setfill(' ') << std::right << magnetic
+	     << endl;
+    
+      outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+	     << setw(10) << setfill(' ') << std::right << "ALUMINUM"
+	     << setw(10) << setfill(' ') << std::right << "BMN_FWI"
+	     << setw(10) << setfill(' ') << std::right << ""
+	     << setw(10) << setfill(' ') << std::right << ""
+	     << setw(10) << setfill(' ') << std::right << magnetic
+	     << endl;
+    
+      outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+	     << setw(10) << setfill(' ') << std::right << "ALUMINUM"
+	     << setw(10) << setfill(' ') << std::right << "BMN_SWI"
+	     << setw(10) << setfill(' ') << std::right << ""
+	     << setw(10) << setfill(' ') << std::right << ""
+	     << setw(10) << setfill(' ') << std::right << magnetic
+	     << endl;
 
     }
     

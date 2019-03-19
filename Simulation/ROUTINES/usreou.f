@@ -355,8 +355,8 @@ c
 c     scrivo il vertice
 c         
          do ii = 1,nVTX
-            write(outunit,*) idVTX(ii), ilayVTX(ii), irowVTX(ii),
-     &           icolVTX(ii), xinVTX(ii), yinVTX(ii), zinVTX(ii),
+            write(outunit,*) idVTX(ii), ilayVTX(ii),
+     &           xinVTX(ii), yinVTX(ii), zinVTX(ii),
      &           xoutVTX(ii), youtVTX(ii), zoutVTX(ii),
      &           pxinVTX(ii), pyinVTX(ii), pzinVTX(ii), 
      &           pxoutVTX(ii), pyoutVTX(ii), pzoutVTX(ii),
@@ -367,7 +367,7 @@ c     scrivo l'inner tracker
 c         
          do ii = 1,nITR
             write(outunit,*) idITR(ii), iplumeITR(ii), imimoITR(ii),
-     &           ilayITR(ii),irowITR(ii), icolITR(ii), 
+     &           ilayITR(ii),
      &           xinITR(ii), yinITR(ii), zinITR(ii),
      &           xoutITR(ii), youtITR(ii), zoutITR(ii),
      &           pxinITR(ii), pyinITR(ii), pzinITR(ii), 
@@ -379,7 +379,7 @@ c     scrivo le microstrip
 c         
          do ii = 1,nMSD   
             write(outunit,*) idMSD(ii), 
-     &           ilayMSD(ii), istripxMSD(ii), istripyMSD(ii),
+     &           ilayMSD(ii),
      &           xinMSD(ii), yinMSD(ii), zinMSD(ii),
      &           xoutMSD(ii), youtMSD(ii), zoutMSD(ii),
      &           pxinMSD(ii), pyinMSD(ii), pzinMSD(ii), 

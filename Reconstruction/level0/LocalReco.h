@@ -6,14 +6,16 @@
 
 #include "TAGdataDsc.hxx"
 
+#include "TASTactDatRaw.hxx"
+#include "TABMactDatRaw.hxx"
+
 #include "TAVTactNtuRaw.hxx"
 #include "TAITactNtuRaw.hxx"
-#include "TAMSDactNtuRaw.hxx"
+//#include "TAMSDactNtuRaw.hxx"
 
-#include "TAVTactDatRaw.hxx"
-#include "TAITactDatRaw.hxx"
-#include "TAMSDactDatRaw.hxx"
+//#include "TAMSDactDatRaw.hxx"
 
+#include "TAGdaqEvent.hxx"
 #include "TAGactDaqReader.hxx"
 
 class LocalReco : public BaseLocalReco
@@ -43,18 +45,16 @@ public:
    virtual void LoopEvent(Int_t nEvents);
 
 private:
-   TAGdataDsc*           fpDatRawVtx;    // input data dsc
-   TAGdataDsc*           fpDatRawIt;    // input data dsc
-   TAGdataDsc*           fpDatRawMsd;    // input data dsc
-   
-   TAVTactDatRaw*        fActDatRawVtx;  // action for raw data
-   TAITactDatRaw*        fActDatRawIt;  // action for raw data
-   TAMSDactDatuRaw*      fActDatRawMsd;  // action for raw data
+   TAGdataDsc*           fpDaqEvent;
+ //  TAGdataDsc*           fpDatRawMsd;    // input data dsc
 
+   TASTactDatRaw*        fActDatRawSt;  // action for ntu data
+   TABMactDatRaw*        fActDatRawBm;
+   //   TAMSDactDatuRaw*      fActDatRawMsd;  // action for raw data
 
    TAVTactNtuRaw*        fActNtuRawVtx;  // action for ntu data
    TAITactNtuRaw*        fActNtuRawIt;  // action for ntu data
-   TAMSDactNtuRaw*       fActNtuRawMsd;  // action for ntu data
+//   TAMSDactNtuRaw*       fActNtuRawMsd;  // action for ntu data
 
    TAGactDaqReader*      fActEvtReader; // reader for real data (DAQ)
    

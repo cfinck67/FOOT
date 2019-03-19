@@ -10,8 +10,7 @@
 #include "TAGbaseEventDisplay.hxx"
 #endif
 
-//void DisplayFOOT(TString file = "12C_400_vtx.root")
-void DisplayFOOT(TString file = "16O_C2H4_200_1.root")
+void DisplayFOOT(TString file = "./run_1004")
 {
 //   TAFOeventDisplay::SetTrackingAlgo('F');
    

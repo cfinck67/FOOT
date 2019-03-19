@@ -25,7 +25,7 @@
 class TAGactDaqReader : public TAGactionFile {
 
 public:
-   explicit        TAGactDaqReader(const char* name=0);
+   explicit        TAGactDaqReader(const char* name=0, TAGdataDsc* p_datdaq=0);
    virtual         ~TAGactDaqReader();
       
    virtual Int_t   Open(const TString& name, Option_t* option=0);
@@ -40,7 +40,7 @@ public:
 private:
    EventReader*    fDaqFileReader;
    DAQFileHeader*  fDaqFileHeader;
-   TAGdaqEvent*    fDaqEvent;
+   TAGdataDsc*     fDaqEvent;		    // input data dsc
    
    ClassDef(TAGactDaqReader,0)
 };

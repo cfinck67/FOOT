@@ -43,21 +43,13 @@ private:
    static       TString fgDefaultFolderName;
    static       TString fgDefaultExtName;
 
-private:
-   //! Build event
-   Bool_t FetchEvent();
-	
-   //! Get the starting point of each event
-   Bool_t GetEventHeader(Int_t iSensor);
-
+private:	
    //! Get the starting point of each frame
-   Bool_t GetStart(Int_t iSensor);
+   Bool_t GetSensorHeader(Int_t iSensor);
    
    //! Get frame and returns frameRaw
-   void   GetFrame(Int_t iSensor, MI26_FrameRaw* data);
+   Bool_t GetFrame(Int_t iSensor, MI26_FrameRaw* data);
    
-   //! Get next frames with same trigger
-   void   GetNextFrames(Int_t iSensor, UInt_t trigger);
    
    //! Set run number
    void   SetRunNumber(const TString& name);

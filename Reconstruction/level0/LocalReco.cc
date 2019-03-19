@@ -2,13 +2,19 @@
 
 #include "LocalReco.h"
 
+#include "TASTntuRaw.hxx"
+#include "TABMntuRaw.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
+#include "TATW_ContainerHit.hxx"
+#include "TATW_ContainerPoint.hxx"
+#include "TACAntuRaw.hxx"
 
-#include "TAVTdatRaw.hxx"
-#include "TAITdatRaw.hxx"
+#include "TASTdatRaw.hxx"
+#include "TABMdatRaw.hxx"
 #include "TAMSDdatRaw.hxx"
+
 
 ClassImp(LocalReco)
 
@@ -16,12 +22,15 @@ ClassImp(LocalReco)
 //__________________________________________________________
 LocalReco::LocalReco(TString fileNameIn, TString fileNameout)
  : BaseLocalReco(fileNameIn, fileNameout),
+   fpDaqEvent(0x0),
+   fActDatRawSt(0x0),
+   fActDatRawBm(0x0),
    fActNtuRawVtx(0x0),
    fActNtuRawIt(0x0),
-   fActNtuRawMsd(0x0),
-   fpDatRawVtx(0x0),
-   fpDatRawIt(0x0),
-   fpDatRawMsd(0x0),
+//   fActNtuRawMsd(0x0),
+//   fpDatRawVtx(0x0),
+//   fpDatRawIt(0x0),
+//   fpDatRawMsd(0x0),
    fActEvtReader(0x0)
 {
 }
@@ -49,34 +58,39 @@ void LocalReco::LoopEvent(Int_t nEvents)
 //__________________________________________________________
 void LocalReco::CreateRawAction()
 {
-   fpDaqEvent    = new TAGdataDsc("daqEvt", new TAGdaqEvent());
+
+   if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
+      fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
+      fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDaqEvent, fpParMapSt);
+      fActDatRawSt->CreateHistogram();
+   }
+
+   if (GlobalPar::GetPar()->IncludeBM()) {
+      fpDatRawBm   = new TAGdataDsc("bmDat", new TAVTdatRaw());
+      fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm);
+      fActDatRawBm->CreateHistogram();
+   }
 
    if (GlobalPar::GetPar()->IncludeVertex()) {
       fpNtuRawVtx   = new TAGdataDsc("vtRaw", new TAVTntuRaw());
-      fpDatRawVtx   = new TAGdataDsc("vtDat", new TAVTdatRaw());
-      fActDatRawVtx = new TAVTactDaqRaw("vtAcDat", fpDatRawVtx, fpDaqEvent, fpParGeoVtx);
-      fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDatRawVtx, fpParGeoVtx);
-      if (fFlagHisto)
-         fActNtuRawVtx->CreateHistogram();
+      fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDaqEvent, fpParGeoVtx, fpParConfVtx);
+      fActNtuRawVtx->CreateHistogram();
    }
    
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
-      fpDatRawIt   = new TAGdataDsc("itDat", new TAVTdatRaw());
       fpNtuRawIt   = new TAGdataDsc("itRaw", new TAITntuRaw());
-      fActDatRawIt = new TAITactDaqRaw("itAcDat", fpDatRawIt, fpDaqEvent, fpParGeoIt);
-      fActNtuRawIt = new TAITactNtuRaw("itActNtu", fpNtuRawIt, fpDatRawIt, fpParGeoIt);
-      if (fFlagHisto)
-         fActNtuRawIt->CreateHistogram();
+      fActNtuRawIt = new TAITactNtuRaw("itActNtu", fpNtuRawIt, fpDaqEvent, fpParGeoIt, fpParConfIt);
+      fActNtuRawIt->CreateHistogram();
    }
    
-   if (GlobalPar::GetPar()->IncludeMSD()) {
-      fpDatRawMsd   = new TAGdataDsc("msdDat", new TAVTdatRaw());
-      fpNtuRawMsd   = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
-      fActDatRawMsd = new TAMSDactDaqRaw("msdAcDat", fpDatRawMsd, fpDaqEvent, fpParGeoMsd);
-      fActNtuRawMsd = new TAVTactNtuRaw("msdActNtu", fpNtuRawMsd, fpDatRawMsd, fpParGeoMsd);
-      if (fFlagHisto)
-         fActNtuRawMsd->CreateHistogram();
-   }
+//   if (GlobalPar::GetPar()->IncludeMSD()) {
+//      fpDatRawMsd   = new TAGdataDsc("msdDat", new TAVTdatRaw());
+//      fpNtuRawMsd   = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
+//      fActDatRawMsd = new TAMSDactDaqRaw("msdAcDat", fpDatRawMsd, fpDaqEvent, fpParGeoMsd);
+//      fActNtuRawMsd = new TAVTactNtuRaw("msdActNtu", fpNtuRawMsd, fpDatRawMsd, fpParGeoMsd);
+//      if (fFlagHisto)
+//         fActNtuRawMsd->CreateHistogram();
+//   }
    
    //   if(GlobalPar::GetPar()->IncludeTW()) {
    //      fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
@@ -97,9 +111,8 @@ void LocalReco::CreateRawAction()
 //__________________________________________________________
 void LocalReco::OpenFileIn()
 {
-   fActEvtReader = new TAGactDaqReader("daqAct");
-   
-   fActEvtReader->SetupChannel(fpDaqEvent);
+   fpDaqEvent    = new TAGdataDsc("daqEvt", new TAGdaqEvent());
+   fActEvtReader = new TAGactDaqReader("daqAct", fpDaqEvent);
    fActEvtReader->Open(GetName());
 }
 
@@ -108,21 +121,19 @@ void LocalReco::SetRawHistogramDir()
 {
    // VTX
    if (GlobalPar::GetPar()->IncludeVertex()) {
-      fActDatRawVtx->SetHistogramDir((TDirectory*)fActEvtWriter->File());
       fActNtuRawVtx->SetHistogramDir((TDirectory*)fActEvtWriter->File());
    }
    
    // IT
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
-      fActDatRawIt->SetHistogramDir((TDirectory*)fActEvtWriter->File());
       fActNtuRawIt->SetHistogramDir((TDirectory*)fActEvtWriter->File());
    }
    
    // MSD
-   if (GlobalPar::GetPar()->IncludeMSD()) {
-      fActDatRawMsd->SetHistogramDir((TDirectory*)fActEvtWriter->File());
-      fActNtuRawMsd->SetHistogramDir((TDirectory*)fActEvtWriter->File());
-   }
+//   if (GlobalPar::GetPar()->IncludeMSD()) {
+//      fActDatRawMsd->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+//      fActNtuRawMsd->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+//   }
 }
 
 //__________________________________________________________
@@ -134,18 +145,26 @@ void LocalReco::CloseFileIn()
 //__________________________________________________________
 void LocalReco::AddRawRequiredItem()
 {
+   fTAGroot->AddRequiredItem("daqAct");
+
+   if (GlobalPar::GetPar()->IncludeST()) {
+      fTAGroot->AddRequiredItem("stActNtu");
+   }
+
+   if (GlobalPar::GetPar()->IncludeBM()) {
+      fTAGroot->AddRequiredItem("bmActNtu");
+   }
+
    if (GlobalPar::GetPar()->IncludeVertex()) {
-      fTAGroot->AddRequiredItem("vtActDat");
       fTAGroot->AddRequiredItem("vtActNtu");
    }
    
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
-      fTAGroot->AddRequiredItem("itActDat");
       fTAGroot->AddRequiredItem("itActNtu");
    }
    
-   if (GlobalPar::GetPar()->IncludeMSD()) {
-      fTAGroot->AddRequiredItem("msdActDat");
-      fTAGroot->AddRequiredItem("msdActNtu");
-   }
+//   if (GlobalPar::GetPar()->IncludeMSD()) {
+//      fTAGroot->AddRequiredItem("msdActDat");
+//      fTAGroot->AddRequiredItem("msdActNtu");
+//   }
 }

@@ -1,6 +1,9 @@
 
 
 #include <Riostream.h>
+#include <fstream>
+#include <sstream>
+
 
 #include "TGeoBBox.h"
 #include "TColor.h"
@@ -14,6 +17,7 @@
 #include "TAGmaterials.hxx"
 
 #include "TAGparGeo.hxx"
+#include "TAGroot.hxx"
 
 //##############################################################################
 
@@ -297,5 +301,96 @@ void TAGparGeo::Print(Option_t* /*opt*/) const
    }
    cout << endl;
 
+}
+
+
+
+//_____________________________________________________________________________
+string TAGparGeo::PrintBodies( ) {
+  
+  stringstream ss;
+
+  if(GlobalPar::GetPar()->IncludeTG()){
+    ss << "* ***Target" << endl;
+
+    double zero = 0.;
+
+    TAGgeoTrafo* fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+    if (!fpFootGeo)
+      printf("No default GeoTrafo action available yet\n");
+    else 
+      printf("GeoTrafo default action found\n");
+
+    TVector3  fCenter = fpFootGeo->GetTGCenter();
+
+    TVector3 tgSize =  GetTargetPar().Size;
+
+    ss << setiosflags(ios::fixed) << setprecision(6);
+    ss << "RPP tgt     "  << fCenter[0]-tgSize.X()/2. << " " << fCenter[0]+tgSize.X()/2 << " " <<
+      fCenter[1]-tgSize.Y()/2. << " " << fCenter[1]+tgSize.Y()/2. << " " <<
+      fCenter[2]-tgSize.Z()/2. << " " << fCenter[2]+tgSize.Z()/2. << " " <<  endl;
+
+  }
+  return ss.str();
+}
+
+
+//_____________________________________________________________________________
+string TAGparGeo::PrintRegions() {
+  
+  stringstream ss;
+
+  if(GlobalPar::GetPar()->IncludeTG()){
+
+    ss << "* ***Target" << endl;
+
+    ss << "TARGET      5 +tgt" << endl;
+
+  }
+
+  return ss.str();
+}
+
+
+//_____________________________________________________________________________
+string TAGparGeo::PrintSubtractBodiesFromAir() {
+
+  stringstream ss;
+
+  if(GlobalPar::GetPar()->IncludeTG()){
+
+    ss << "-tgt " << endl;;
+
+  }
+  
+  return ss.str();
+
+}
+
+//_____________________________________________________________________________
+string TAGparGeo::PrintAssignMaterial() {
+
+  stringstream outstr;
+
+  if(GlobalPar::GetPar()->IncludeTG()){
+
+    bool magnetic = false;
+    if(GlobalPar::GetPar()->IncludeDI())
+      magnetic = true;
+  
+    const Char_t* matName =  GetTargetPar().Material;
+
+        
+    outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
+	   << setw(10) << setfill(' ') << std::right << "CARBON"//matName
+	   << setw(10) << setfill(' ') << std::right << "TARGET"
+	   << setw(10) << setfill(' ') << std::right << ""
+	   << setw(10) << setfill(' ') << std::right << ""
+	   << setw(10) << setfill(' ') << std::right << magnetic
+	   << endl;
+    
+  }
+  
+  return outstr.str();
 }
 

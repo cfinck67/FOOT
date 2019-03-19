@@ -84,7 +84,8 @@ TCFOeventAction::TCFOeventAction(TCFOrunAction* runAction, TCGbaseGeometryConstr
   fItCollId(-1),
   fMsdCollId(-1),
   fTwCollId(-1),
-  fCaCollId(-1)
+  fCaCollId(-1),
+  fDetName("")
 {
     fEventInterruptHandler = new TAGeventInterruptHandler();
     fEventInterruptHandler->Add();
@@ -206,12 +207,14 @@ void TCFOeventAction::Collect(const G4Event* evt)
    if (fIrCollId >= 0)
       GetHitPerPlane(evt, fIrCollId);
    
-   if (fBmCollId >= 0)
+    if (fBmCollId >= 0){
       GetHitPerPlane(evt, fBmCollId);
+    }
    
-   if (fVtxCollId >= 0)
+    if (fVtxCollId >= 0){
       GetHitPerPlane(evt, fVtxCollId);
-   
+    }
+
    if (fItCollId >= 0)
       GetHitPerPlane(evt, fItCollId);
    
@@ -234,7 +237,8 @@ void TCFOeventAction::GetHitPerPlane(const G4Event* evt, G4int idColl)
    Evento*            hit      = fRunAction->GetEventMC();
    
    Int_t entries =  hitList->entries();
-
+    fDetName = hitList->GetName();
+    
    if (fDebugLevel)
       printf("IdColl %d entries %d\n", idColl, entries);
 
@@ -312,20 +316,25 @@ void TCFOeventAction::FillHits(Evento* hit, TCGmcHit* mcHit)
 
    hit->SetEvent(fEventNumber);
 
-   if (fIrCollId >= 0)
+   if (fIrCollId >= 0 && fDetName==TCSTgeometryConstructor::GetSDname())
       hit->AddSTC(trackId, vin[0], vin[1], vin[2], vou[0], vou[1], vou[2], pin[0], pin[1], pin[2], pou[0], pou[1], pou[2],
                   edep, al, time);
    
-   if (fBmCollId >= 0) {
-      Int_t layer = -1;
-      Int_t view   = -1;
-      Int_t cell  = -1;
-      hit->AddBMN(trackId,layer, view, cell,
+   if (fBmCollId >= 0  && fDetName==TCBMgeometryConstructor::GetSDname()) {
+       Int_t layer ;
+       Int_t view   = -2;
+//       if(layer%2 == 0) view =1 ;
+//       else view = 0;
+       Int_t wire = 0;
+       Int_t cell  = -1;
+       fFootGeomConstructor->GetParGeoBm()->GetPlaneInfo(TVector3(vin[0],vin[1],vin[2]),view,layer,wire,cell);
+       layer = sensorId+1;
+       hit->AddBMN(trackId,layer,TMath::Abs(view), cell,
                   vin[0], vin[1], vin[2], vou[0], vou[1], vou[2], pin[0], pin[1], pin[2], pou[0], pou[1], pou[2],
                   edep, al, time);
    }
    
-   if (fVtxCollId >= 0) {
+   if (fVtxCollId >= 0 && fDetName==TCVTgeometryConstructor::GetSDname()) {
       Int_t layer = sensorId;
       Int_t row   = -1;
       Int_t line  = -1;
@@ -334,7 +343,7 @@ void TCFOeventAction::FillHits(Evento* hit, TCGmcHit* mcHit)
                   edep, al, time);
    }
    
-   if (fItCollId >= 0) {
+   if (fItCollId >= 0 && fDetName==TCITgeometryConstructor::GetSDname()) {
       Int_t layer = sensorId;
       Int_t row   = -1;
       Int_t line  = -1;
@@ -345,7 +354,7 @@ void TCFOeventAction::FillHits(Evento* hit, TCGmcHit* mcHit)
                   edep, al, time);
    }
    
-   if (fMsdCollId >= 0) {
+   if (fMsdCollId >= 0 && fDetName==TCMSDgeometryConstructor::GetSDname()) {
       Int_t layer  = sensorId;
       Int_t stripx = -1;
       Int_t stripy = -1;
@@ -354,7 +363,7 @@ void TCFOeventAction::FillHits(Evento* hit, TCGmcHit* mcHit)
                   edep, al, time);
    }
    
-   if (fTwCollId >= 0) {
+   if (fTwCollId >= 0 && fDetName==TCTWgeometryConstructor::GetSDname()) {
       Int_t barId  = sensorId % TATWparGeo::GetLayerOffset();
       Int_t view  = sensorId /  TATWparGeo::GetLayerOffset();
       hit->AddSCN(trackId, barId, view,
@@ -362,7 +371,7 @@ void TCFOeventAction::FillHits(Evento* hit, TCGmcHit* mcHit)
                   edep, al, time);
    }
    
-   if (fCaCollId >= 0) {
+   if (fCaCollId >= 0 && fDetName==TCCAgeometryConstructor::GetSDname()) {
       Int_t crystalId  = sensorId;
       hit->AddCAL(trackId, crystalId,
                   vin[0], vin[1], vin[2], vou[0], vou[1], vou[2], pin[0], pin[1], pin[2], pou[0], pou[1], pou[2],

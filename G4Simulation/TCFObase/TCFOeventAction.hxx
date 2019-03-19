@@ -53,6 +53,7 @@ class TCFOeventAction : public G4UserEventAction
     Int_t                    fMsdCollId;           // Id of MSD collection
     Int_t                    fTwCollId;            // Id of ToF collection
     Int_t                    fCaCollId;            // Id of Calo collection
+    TString                  fDetName;
     TSignalHandler*          fEventInterruptHandler;
     TAMCntuEve*              fMcTrack;
 

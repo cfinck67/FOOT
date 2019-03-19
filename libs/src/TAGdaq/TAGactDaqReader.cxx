@@ -6,11 +6,12 @@ ClassImp(TAGactDaqReader);
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
-TAGactDaqReader::TAGactDaqReader(const char* name)
-  : TAGactionFile(name, "TAGactDaqReader - DAQ file reader", "READ")
+TAGactDaqReader::TAGactDaqReader(const char* name, TAGdataDsc* p_datdaq)
+  : TAGactionFile(name, "TAGactDaqReader - DAQ file reader", "READ"),
+   fDaqFileReader(new EventReader()),
+   fDaqEvent(p_datdaq)
 {
-   fDaqFileReader = new EventReader();
-   fDaqEvent      = new TAGdaqEvent();
+   AddDataIn(p_datdaq, "TAGdaqEvent");
 }
 
 //------------------------------------------+-----------------------------------
@@ -18,7 +19,6 @@ TAGactDaqReader::TAGactDaqReader(const char* name)
 TAGactDaqReader::~TAGactDaqReader()
 {
    delete fDaqFileReader;
-   delete fDaqEvent;
 }
 
 //------------------------------------------+-----------------------------------
@@ -64,36 +64,38 @@ Bool_t TAGactDaqReader::Process()
   if (Valid()) return kTRUE;
   if (IsZombie()) return kFALSE;
 
-   fDaqEvent->Clear();
+   TAGdaqEvent* datDaq = (TAGdaqEvent*)  fDaqEvent->Object();
+
+   datDaq->Clear();
    
    fDaqFileReader->getNextEvent();
-
+   
    // Global event information
    InfoEvent* evInfo = fDaqFileReader->getInfoEvent();
-   fDaqEvent->SetInfoEvent(evInfo);
+   datDaq->SetInfoEvent(evInfo);
    
    // Trigger data
    TrgEvent*  evTrg  = fDaqFileReader->getTriggerEvent();
-   fDaqEvent->SetTrgEvent(evTrg);
+   datDaq->SetTrgEvent(evTrg);
 
    // TDC # 0 and # 1 as an example
    const TDCEvent* evTDC0 = static_cast<const TDCEvent*>(fDaqFileReader->getFragmentID(dataV1190 | 0x30));
    if (evTDC0)
-      fDaqEvent->AddFragment(evTDC0);
+      datDaq->AddFragment(evTDC0);
    
    const TDCEvent* evTDC1 = static_cast<const TDCEvent*>(fDaqFileReader->getFragmentID(dataV1190 | 0x31));
    if (evTDC1)
-      fDaqEvent->AddFragment(evTDC1);
+      datDaq->AddFragment(evTDC1);
 
    // vertex
-   const DECardEvent* evVTX = static_cast<const DECardEvent*>(fDaqFileReader->getFragmentID(dataVTX));
+   const DECardEvent* evVTX = static_cast<const DECardEvent*>(fDaqFileReader->getFragmentID(dataVTX | 0x30));
    if (evVTX)
-      fDaqEvent->AddFragment(evVTX);
+      datDaq->AddFragment(evVTX);
    
    // WD for ST and TW
    const WDEvent* evWD = static_cast<const WDEvent*>(fDaqFileReader->getFragmentID(dataWD));
    if (evWD)
-      fDaqEvent->AddFragment(evWD);
+      datDaq->AddFragment(evWD);
    
    if (fDaqFileReader->endOfFileReached())
       return false;

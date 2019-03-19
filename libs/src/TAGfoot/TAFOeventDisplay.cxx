@@ -83,7 +83,6 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fpDatRawSt(0x0),
    fpDatRawBm(0x0),
    fpNtuRawBm(0x0),
-   fpDatDaqVtx(0x0),
    fpNtuRawVtx(0x0),
    fpNtuClusVtx(0x0),
    fpNtuTrackVtx(0x0),
@@ -496,8 +495,6 @@ void TAFOeventDisplay::CreateRecActionTw()
    fActPointTw->CreateHistogram();
 }
 
-
-
 //__________________________________________________________
 void TAFOeventDisplay::CreateRawAction()
 {
@@ -505,8 +502,7 @@ void TAFOeventDisplay::CreateRawAction()
 
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
-      fpDatDaqSt   = new TAGdataDsc("stDaq", new TAGdaqEvent());
-      fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDatDaqSt, fpParMapSt);
+      fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDaqEvent, fpParMapSt);
       fActDatRawSt->CreateHistogram();
    }
 
@@ -518,8 +514,7 @@ void TAFOeventDisplay::CreateRawAction()
          fActVmeReaderBm->CreateHistogram();
          
       } else {
-         fpDatDaqBm   = new TAGdataDsc("bmDaq", new TAGdaqEvent());
-         fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDatDaqBm, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
+         fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm);
          fActDatRawBm->CreateHistogram();
       }
    }
@@ -532,8 +527,7 @@ void TAFOeventDisplay::CreateRawAction()
          fActVmeReaderVtx->CreateHistogram();
 
       } else {
-         fpDatDaqVtx   = new TAGdataDsc("vtDaq", new TAGdaqEvent());
-         fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDatDaqVtx, fpParGeoVtx);
+         fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDaqEvent, fpParGeoVtx);
          fActNtuRawVtx->CreateHistogram();
       }
    }
@@ -572,8 +566,10 @@ void TAFOeventDisplay::OpenFile(const TString fileName)
 {
    if (fgStdAloneFlag)
       fActVmeReaderVtx->Open(fileName.Data());
-   else
+   else {
+      fpDaqEvent = new TAGdataDsc("daqEvt", new TAGdaqEvent());
       fActEvtReader->Open(fileName.Data());
+   }
 }
 
 //__________________________________________________________

@@ -3,11 +3,10 @@
 #include <TApplication.h>
 
 #include "GlobalPar.hxx"
-#include "LocalRecoMC.h"
+#include "LocalRecoData.h"
 
-int main (int argc, char *argv[])  {
-
-	
+int main (int argc, char *argv[])
+{
    TString in("12C_400_vtx.root");
    
    Int_t pos = in.Last('.');
@@ -52,7 +51,7 @@ int main (int argc, char *argv[])  {
    GlobalPar::Instance();
    GlobalPar::GetPar()->Print();
    
-   LocalRecoMC* locRec = new LocalRecoMC(in, out);
+   LocalRecoData* locRec = new LocalRecoData(in, out);
    
    // global setting
    if (ntu)

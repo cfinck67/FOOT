@@ -69,8 +69,8 @@ void TCFOtrackingAction::PostUserTrackingAction(const G4Track* aTrack){
     vtxmom.SetY(aTrack->GetMomentum().getY()/GeV);
     vtxmom.SetZ(aTrack->GetMomentum().getZ()/GeV);
 
-    TVector3 finpos = TVector3(0,0,0); /// final position of the track
-    TVector3 finmom = TVector3(0,0,0); /// final momentum of the track
+    TVector3 finpos(0,0,0); /// final position of the track
+    TVector3 finmom(0,0,0); /// final momentum of the track
     if(aTrack->GetTrackStatus()==fStopAndKill){
         finpos.SetX(aTrack->GetPosition().getX()/cm);
         finpos.SetY(aTrack->GetPosition().getY()/cm);
@@ -79,7 +79,7 @@ void TCFOtrackingAction::PostUserTrackingAction(const G4Track* aTrack){
         finmom.SetY(aTrack->GetMomentum().getY()/GeV);
         finmom.SetZ(aTrack->GetMomentum().getZ()/GeV);
     }
-    TVector3 xposparent = TVector3(0,0,0);  /// position of the parent particle - not needed, so initialized to zero
+    TVector3 xposparent(0,0,0);  /// position of the parent particle - not needed, so initialized to zero
 
     fEventAction->GetTrackMc()->NewHit(flukaID,charge,trackID,-1,baryon,-1,mass,parentID,time,tof,length,vtxpos,finpos,vtxmom,finmom,xposparent,xposparent,-1);
 }

@@ -26,7 +26,7 @@ Step:          0.5;
 CellWide:      0.8;
 DeltaPlane:    0.3;
 
-GasMixture:   "Ar/CO2"
+GasMixture:   "Ar-CO2"
 GasDensities: "0.001662/0.00187"
 GasProporton: "0.8/0.2"
 GasDensity:    0.001677136

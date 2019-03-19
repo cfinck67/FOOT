@@ -50,8 +50,7 @@ Bool_t TAVTactNtuRaw::Action() {
        TString type = datDaq->GetClassType(i);
        if (type.Contains("DECardEvent")) {
          const DECardEvent* evt = static_cast<const DECardEvent*> (datDaq->GetFragment(i));
-         if (DecodeEvent(evt))
-            DecodeFrame();
+          DecodeEvent(evt);
        }
    }
    
@@ -66,33 +65,43 @@ Bool_t TAVTactNtuRaw::DecodeEvent(const DECardEvent* evt)
    fData      = evt->values;
    fEventSize = evt->evtSize;
    fIndex     = 0;
-   
-   if (!GetEventHeader()) return false;
-      
-   if (!GetStart()) return false;
-      
    MI26_FrameRaw* data = new MI26_FrameRaw;
-   GetFrame(data);
-   UInt_t trigger = data->TriggerCnt;
-   GetNextFrames(trigger);
-   delete data;
+
    
+   TAVTparGeo*  pGeoMap = (TAVTparGeo*)  fpGeoMap->Object();
+   
+   // Vertex header
+   if (!GetVtxHeader()) return false;
+   
+   // loop over boards
+   for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
+      
+      if (!GetSensorHeader(i)) return false;
+      
+      fTriggerNumber = -1;
+      
+      // loop over frame (3 max)
+      while (GetFrame(data)) {
+         DecodeFrame(i, data);
+      }
+   }
    
    if(fDebugLevel>3)
       for (Int_t i = 0; i < fEventSize; ++i)
          printf("Data %x\n", fData[i]);
    
-   return true;   
+   delete data;
+
+   return true;
 }
 
 
 // private method
 // --------------------------------------------------------------------------------------
-Bool_t TAVTactNtuRaw::GetEventHeader()
+Bool_t TAVTactNtuRaw::GetVtxHeader()
 {
    do {
       if (fData[fIndex] == DECardEvent::GetVertexHeader()) {
-         fEventNumber = fData[++fIndex];
          return true;
       }
    } while (fIndex++ < fEventSize);
@@ -101,41 +110,54 @@ Bool_t TAVTactNtuRaw::GetEventHeader()
 }
 
 // --------------------------------------------------------------------------------------
-Bool_t TAVTactNtuRaw::GetStart()
-{   
-   do {
-      if (fData[fIndex] == fgkFrameHeader)
-         return true;
+Bool_t TAVTactNtuRaw::GetSensorHeader(Int_t iSensor)
+{
+   UInt_t fakeTrigger   = 0;
+   UInt_t fakeTimeStamp = 0;
    
+   do {
+      if (fData[fIndex] == GetKeyHeader(iSensor)) {
+         fEventNumber  = fData[++fIndex];
+         fakeTrigger   = fData[++fIndex];
+         fakeTimeStamp = fData[++fIndex];
+         return true;
+      }
    } while (fIndex++ < fEventSize);
    
    return false;
 }
 
 // --------------------------------------------------------------------------------------
-void TAVTactNtuRaw::GetNextFrames(UInt_t trigger)
+Bool_t TAVTactNtuRaw::GetFrame(MI26_FrameRaw* data)
 {
-   MI26_FrameRaw* data = new MI26_FrameRaw;
-   Bool_t sameTrigger = true;
-   Int_t index = 0;
+   Bool_t ok = false;
+   
+   // check frame header
+   if (fData[fIndex] ==  (GetFrameHeader() & 0xFFF)) { // protection against wrong header !!!
+      memcpy(data, &fData[fIndex], sizeof(MI26_FrameRaw));
+      if (fTriggerNumber == -1) fTriggerNumber = data->TriggerCnt;
+      ok =  CheckTrigger(data);
+      
+   } else
+      return false;
+ 
+   // go to frame trailer
    do {
-      index = fIndex;
-      GetStart();
-      GetFrame(data);
-      if (data->TriggerCnt != trigger) {
-         sameTrigger = false;
+      if (fData[fIndex] == (GetFrameTail() & 0xFFF))
          break;
-      }
-   } while(sameTrigger);
+      
+   } while (fIndex++ < fEventSize);
    
-   fIndex = index;
-   fEventSize = fIndex;
-   delete data;
-}
-
-// --------------------------------------------------------------------------------------
-void TAVTactNtuRaw::GetFrame(MI26_FrameRaw* data)
-{
-   memcpy(data, &fData[fIndex-GetHeaderSize()], GetHeaderSize()*4);   
+   if (fDebugLevel) {
+      printf("%08x\n", data->Header);
+      printf("%08x\n", data->TriggerCnt);
+      printf("%08x\n", data->TimeStamp);
+      printf("%08x\n", data->FrameCnt);
+      printf("%08x\n", data->DataLength);
+      Int_t dataLength    = ((data->DataLength & 0xFFFF0000)>>16);
+      for (Int_t i = 0; i < dataLength; ++i)
+         printf("%08x\n", data->ADataW16[i]);
+   }
+   return ok;
 }
 
