@@ -547,7 +547,7 @@ void TAFOeventDisplay::CreateRawAction()
          fActVmeReaderBm->CreateHistogram();
          
       } else {
-         fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm);
+         fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
          fActDatRawBm->CreateHistogram();
       }
    }
