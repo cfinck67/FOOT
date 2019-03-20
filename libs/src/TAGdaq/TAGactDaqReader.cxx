@@ -78,7 +78,7 @@ Bool_t TAGactDaqReader::Process()
    TrgEvent*  evTrg  = fDaqFileReader->getTriggerEvent();
    datDaq->SetTrgEvent(evTrg);
 
-   // TDC # 0 and # 1 as an example
+   // TDC # 0 and # 1 for BM
    const TDCEvent* evTDC0 = static_cast<const TDCEvent*>(fDaqFileReader->getFragmentID(dataV1190 | 0x30));
    if (evTDC0)
       datDaq->AddFragment(evTDC0);
@@ -100,9 +100,13 @@ Bool_t TAGactDaqReader::Process()
    if (fDaqFileReader->endOfFileReached())
       return false;
    
-   if( fDaqFileReader->check())
-      return false;
+   if( fDaqFileReader->check()) {
+      fDaqEvent->SetBit(kValid);
+      return true;
+   }
    
+   fDaqEvent->SetBit(kValid);
+
   return true;
 }
 
