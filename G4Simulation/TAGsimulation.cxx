@@ -140,11 +140,9 @@ int main(int argc,char** argv)
    G4int eventsNToBeProcessed   = theDetector->GetParGeoG()->GetBeamPar().PartNumber;
    TCFOrunAction*   run         = new TCFOrunAction();
    run->SetEvento(kEvento);
-//   TCFObaseEventAction* event = new TCFObaseEventAction(run, theDetector);
-//    TCFOeventoAction* event = new TCFOeventoAction(run, theDetector);
-    TCFOeventAction* event = new TCFOeventAction(run, theDetector);
-//   if(kEvento) event = new TCFOeventoAction(run, theDetector);
-//   else event  = new TCFOeventAction(run, theDetector);
+   TCFObaseEventAction* event = 0 ;
+   if(kEvento) event = new TCFOeventoAction(run, theDetector);
+   else event  = new TCFOeventAction(run, theDetector);
    TCFOtrackingAction *tracking = new TCFOtrackingAction(event) ;
 
    runManager->SetUserAction(kin);
