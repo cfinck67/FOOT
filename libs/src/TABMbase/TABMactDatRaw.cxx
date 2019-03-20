@@ -92,15 +92,11 @@ Bool_t TABMactDatRaw::DecodeHits(const TDCEvent* evt) {
    // TASTdatRaw*    p_timraw = (TASTdatRaw*)    fpTimRaw->Object();
    
 
-  Int_t view,plane,cell;
-    
-  // for(Int_t i=0;i<fpEvtStruct->tdc_hitnum[0];i++){
-  //   if(p_parmap->tdc2cell(fpEvtStruct->tdc_id[i])>=0 && (((Double_t) (fpEvtStruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(fpEvtStruct->tdc_id[i]))-p_timraw->TrigTime())<300.){//-1000=syncTime, -1=not set
-  //     p_pargeo->GetBMNlvc(p_parmap->tdc2cell(fpEvtStruct->tdc_id[i]),plane,view,cell);
-  //     p_datraw->SetHitData(plane,view,cell,(Double_t) (fpEvtStruct->tdc_meas[i])/10.);
-  //   }
-  // }
-  
+   Int_t size = (int)evt->measurement.size();
+   
+   for (Int_t i = 0; i < size; ++i) {
+      printf("%08x\n", evt->measurement[i]);
+   }
    return true;
 }
 
