@@ -16,48 +16,71 @@ void DECardEvent::readData(unsigned int **p1)
    evtSize   = 0;
    u_int * p = *p1;
    
-   // check header
-   if (*p != m_vtxHeader)
-      printf("Error in the event reader %x instead of %x\n", *p, m_vtxHeader);
+   channelID= *p;
+   ++p;
+   time_sec= *p;
+   ++p;
+   time_usec= *p;
+   ++p;
+   eventNumber= *p;
+   ++p;
+   ++p;
+   evtSize= *p;
+   ++p;
    
-   detectorHeader = *p;
-   evtSize++;
-   values.push_back(*p);
-   
-   // 1st board header
-   boardHeader = *(++p);
-   evtSize++;
-   values.push_back(*p);
-   
-   // event number
-   eventNumber = *(++p);
-   evtSize++;
-   values.push_back(*p);
-   
-   // skip 2 words and frame header
-   p += 3;
-   
-   // trigger number
-   triggerCounter = *(++p);
-   evtSize++;
-   values.push_back(*p);
-   
-   // timestamp
-   clockCounter = *(++p);
-   evtSize++;
-   values.push_back(*p);
-   
-   // frame counter
-   BCOofTrigger = *(++p);
-   evtSize++;
-   values.push_back(*p);
-
-   do {
-      p++;
+   if(evtSize != 0) {
+      // check header
+      if (*p != m_vtxHeader)
+         printf("Error in the event reader %x instead of %x\n", *p, m_vtxHeader);
+      
+      detectorHeader = *p;
       evtSize++;
       values.push_back(*p);
-    
-   } while (*p != m_vtxTail);
+      
+      // 1st board header
+      boardHeader = *(++p);
+      evtSize++;
+      values.push_back(*p);
+      
+      // event number
+      eventNumber = *(++p);
+      evtSize++;
+      values.push_back(*p);
+      
+      // skip 2 words and frame header
+      evtSize++;
+      values.push_back(*(++p));
+      
+      evtSize++;
+      values.push_back(*(++p));
+
+      evtSize++;
+      values.push_back(*(++p));
+      
+      // trigger number
+      triggerCounter = *(++p);
+      evtSize++;
+      values.push_back(*p);
+      
+      // timestamp
+      clockCounter = *(++p);
+      evtSize++;
+      values.push_back(*p);
+      
+      // frame counter
+      BCOofTrigger = *(++p);
+      evtSize++;
+      values.push_back(*p);
+      
+      do {
+         p++;
+         evtSize++;
+         values.push_back(*p);
+         
+      } while (*p != m_vtxTail);
+   }
+   
+   *p1 = p;
 }
 
 void DECardEvent::printData () const
@@ -77,9 +100,13 @@ void DECardEvent::printData () const
 
 bool DECardEvent::check() const
 {
-  if( eventNumber==triggerCounter)
-    return true;
-  else 
-    return false;
+   if( evtSize!=0 ){
+      if( eventNumber==triggerCounter)
+         return true;
+      else
+         return false;
+   }
+   else
+      return true;
 }
 	
