@@ -71,8 +71,19 @@ Bool_t TASTactDatRaw::Action() {
 //------------------------------------------+-----------------------------------
 //! Decoding
 
-Bool_t TASTactDatRaw::DecodeHits(const WDEvent* /*evt*/)
+Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt)
 {
+      printf("%08x ", evt->evtSize);
+      for (Int_t i = 0; i < ( evt->evtSize)/2; ++i) {
+         if (i == 9) {
+            printf("\n");
+         } else {
+            if ((i+1) % 10 == 0) printf("\n");
+         }
+         printf("%08x ",  evt->values[i]);
+      }
+      printf("\n");
+
    return true;
 }
 
