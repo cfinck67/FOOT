@@ -19,7 +19,9 @@ set( EXTRA_INTERNAL_LIBRARIES ${TCST} ${TCBM} ${TCVT} ${TCEM} ${TCIT} ${TCMSD} $
 set( Qapivi_file
     TCFOfield
     TCFOgeometryConstructor
+    TCFObaseEventAction
     TCFOeventAction
+    TCFOeventoAction
     TCFOrunAction
     TCFOtrackingAction
 )

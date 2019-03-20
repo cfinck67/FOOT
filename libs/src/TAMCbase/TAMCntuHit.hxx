@@ -16,32 +16,47 @@
 class TAMChit : public TObject {
 public:
    TAMChit();
-   TAMChit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof, Int_t trackId);
+   TAMChit(Int_t id, Int_t layer, Int_t view, Int_t cell, TVector3 inpos, TVector3 outpos,TVector3 inmom, TVector3 outmom, Double_t de, Double_t tof, Int_t trackId);
    virtual      ~TAMChit();
    
    Int_t         GetID()            const  { return fID;       }
-   TVector3      GetPosition()      const  { return fPosition; }
-   TVector3      GetMomentum()      const  { return fMomentum; }
+   Int_t         GetLayer()         const  { return fLayer;    }
+   Int_t         GetView()          const  { return fView;     }
+   Int_t         GetCell()          const  { return fCell;     }
+   TVector3      GetInPosition()    const  { return fInPosition;  }
+   TVector3      GetOutPosition()   const  { return fOutPosition; }
+   TVector3      GetInMomentum()    const  { return fInMomentum;  }
+   TVector3      GetOutMomentum()   const  { return fOutMomentum; }
    Double_t      GetDeltaE()        const  { return fDelatE;   }
    Double_t      GetTof()           const  { return fTof;      }
    Double_t      GetTrackId()       const  { return fTrackId;  }
    
    
    void          SetID(int aid)            { fID = aid;        }
-   void          SetPosition(TVector3 pos) { fPosition = pos;  }
-   void          SetMomentum(TVector3 mom) { fMomentum = mom;  }
+   void          SetLayer(int aLayer)      { fLayer = aLayer;  }
+   void          SetView(int aView)        { fView = aView;    }
+   void          SetCell(int aCell)        { fCell = aCell;    }
+   void          SetInPosition(TVector3 pos) { fInPosition = pos;  }
+   void          SetOutPosition(TVector3 pos){ fOutPosition = pos; }
+   void          SetInMomentum(TVector3 mom) { fInMomentum = mom;  }
+   void          SetOutMomentum(TVector3 mom){ fOutMomentum = mom; }
    void          SetDeltaE(Double_t e)     { fDelatE   = e;    }
    void          SetTof(Double_t tof)      { fTof      = tof;  }
    void          SetTrackId(int aid)       { fTrackId = aid;   }
 
-   Int_t         fID;         // identity
-   TVector3      fPosition;   // initial position
-   TVector3      fMomentum;   // initial momentum
+   Int_t         fID;           // identity
+   Int_t         fLayer;        // layer number
+   Int_t         fView;         // view number (for BM)
+   Int_t         fCell;         // cell number (for BM)
+   TVector3      fInPosition;   // initial position
+   TVector3      fOutPosition;  // final position
+   TVector3      fInMomentum;   // initial momentum
+   TVector3      fOutMomentum;  // final momentum
    Double_t      fDelatE;     // deposited energy
    Double_t      fTof;        // time fo flight
    Double_t      fTrackId;    // MC track Id
    
-   ClassDef(TAMChit,1)
+   ClassDef(TAMChit,2)
 };
 
 //##############################################################################
@@ -56,7 +71,7 @@ public:
    TAMChit*          GetHit(Int_t i);
    const TAMChit*    GetHit(Int_t i) const;
    
-   TAMChit*          NewHit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof, Int_t trackId);
+   TAMChit*          NewHit(Int_t id, Int_t layer, Int_t view, Int_t cell, TVector3 inpos, TVector3 outpos, TVector3 inmom, TVector3 outmom, Double_t de, Double_t tof, Int_t trackId);
 
    virtual void      SetupClones();
    virtual void      Clear(Option_t* opt="");

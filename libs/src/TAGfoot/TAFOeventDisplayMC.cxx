@@ -366,8 +366,8 @@ void TAFOeventDisplayMC::UpdateMcInfo(TString prefix, Int_t idx)
    
    if(point == 0x0) return;
 
-   TVector3 pos = point->GetPosition();
-   TVector3 mom = point->GetMomentum();
+   TVector3 pos = point->GetInPosition();
+   TVector3 mom = point->GetInMomentum();
    
    fInfoView->AddLine( Form("%s sensor id: %d, Hit:\n", name.Data(), point->GetID()) );
    fInfoView->AddLine( Form("at position:   (%.3g %.3g %.3g) cm\n", pos[0], pos[1], pos[2]) );
@@ -464,7 +464,7 @@ void TAFOeventDisplayMC::UpdateMcElements(const TString prefix)
    for (Int_t iHit = 0; iHit < nHits; ++iHit) {
 
       TAMChit *hit = pNtuHit->GetHit(iHit);
-      TVector3 pos = hit->GetPosition();
+      TVector3 pos = hit->GetInPosition();
       
       x = pos(0);
       y = pos(1);

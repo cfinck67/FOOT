@@ -1,0 +1,6 @@
+
+/gun/particle ion
+/gun/ion 8 16 8
+/gun/energy 6400.0 MeV
+
+/run/beamOn 10000

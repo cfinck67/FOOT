@@ -34,7 +34,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 
-#include "TCFOeventAction.hxx"
+#include "TCFObaseEventAction.hxx"
 #include <map>
 
 using namespace std;
@@ -44,12 +44,12 @@ class TCFOtrackingAction : public G4UserTrackingAction
 
    private :
 
-    TCFOeventAction* fEventAction ;
+    TCFObaseEventAction* fEventAction ;
     static map<TString, Int_t> fgkGeantToFlukaID;
 
    public :
    
-      TCFOtrackingAction (TCFOeventAction* aEventAction) ;
+      TCFOtrackingAction (TCFObaseEventAction* aEventAction) ;
       ~TCFOtrackingAction() ;
 
     virtual void PreUserTrackingAction(const G4Track*);

@@ -78,17 +78,17 @@ public:
 	Int_t         fBaryon;                  // baryonic number
 	Int_t         fDead;                    // region in which it dies
 	Double32_t    fMass;                    // mass
-   Int_t         fMotherId;                // mother identity
+    Int_t         fMotherId;                // mother identity
 	Double32_t    fTime;                    // time of production
 	Double_t      fTof;                     // time of flight
 	Double_t      fTrkLength;               // track length
-	TVector3      fInitPos;		             // initial position
-	TVector3      fFinalPos;		          // final position
+	TVector3      fInitPos;		            // initial position
+	TVector3      fFinalPos;		        // final position
 	TVector3      fInitMom;	          	    // initial momentum
-	TVector3      fFinalMom;	          	 // final momentum
-	TVector3      fMotherInitMom;		       // mother init momentum
+	TVector3      fFinalMom;	          	// final momentum
+	TVector3      fMotherInitMom;		    // mother init momentum
 	TVector3      fMotherFinalMom;		    // mother final momentum
-   Int_t         fPileUp;                  // pile-up index =0 current event
+    Int_t         fPileUp;                  // pile-up index =0 current event
 
 	ClassDef(TAMCeveTrack,1)
 };
