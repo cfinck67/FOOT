@@ -93,7 +93,7 @@ Bool_t TAGactDaqReader::Process()
       datDaq->AddFragment(evVTX);
    
    // WD for ST and TW
-   const WDEvent* evWD = static_cast<const WDEvent*>(fDaqFileReader->getFragmentID(dataWD));
+   const WDEvent* evWD = static_cast<const WDEvent*>(fDaqFileReader->getFragmentID(dataWD | 0x30));
    if (evWD)
       datDaq->AddFragment(evWD);
    
