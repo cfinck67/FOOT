@@ -11,7 +11,6 @@
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
 
-#include "TAVTdatRaw.hxx"
 #include "TAVTactNtuRaw.hxx"
 
 /*!
@@ -39,7 +38,8 @@ TAVTactNtuRaw::~TAVTactNtuRaw()
 
 //------------------------------------------+-----------------------------------
 //! Action.
-Bool_t TAVTactNtuRaw::Action() {
+Bool_t TAVTactNtuRaw::Action()
+{
    
    TAGdaqEvent* datDaq = (TAGdaqEvent*)  fpDatDaq->Object();
    
@@ -54,6 +54,7 @@ Bool_t TAVTactNtuRaw::Action() {
        }
    }
    
+   SetBit(kValid);
    fpNtuRaw->SetBit(kValid);
    
    return kTRUE;
@@ -64,6 +65,9 @@ Bool_t TAVTactNtuRaw::DecodeEvent(const DECardEvent* evt)
 {
    fData      = evt->values;
    fEventSize = evt->evtSize;
+   
+   if (fEventSize == 0) return true;
+
    fIndex     = 0;
    MI26_FrameRaw* data = new MI26_FrameRaw;
 
@@ -86,9 +90,18 @@ Bool_t TAVTactNtuRaw::DecodeEvent(const DECardEvent* evt)
       }
    }
    
-   if(fDebugLevel>3)
-      for (Int_t i = 0; i < fEventSize; ++i)
-         printf("Data %x\n", fData[i]);
+   if(fDebugLevel > 3) {
+      printf("%08x ", fEventSize);
+      for (Int_t i = 0; i < (fEventSize)/2; ++i) {
+         if (i == 9) {
+            printf("\n");
+         } else {
+            if ((i+1) % 10 == 0) printf("\n");
+         }
+         printf("%08x ", fData[i]);
+      }
+      printf("\n");
+  }
    
    delete data;
 
@@ -133,7 +146,7 @@ Bool_t TAVTactNtuRaw::GetFrame(MI26_FrameRaw* data)
    Bool_t ok = false;
    
    // check frame header
-   if (fData[fIndex] ==  (GetFrameHeader() & 0xFFF)) { // protection against wrong header !!!
+   if ((fData[++fIndex] & 0xFFF) ==  (GetFrameHeader() & 0xFFF)) { // protection against wrong header !!!
       memcpy(data, &fData[fIndex], sizeof(MI26_FrameRaw));
       if (fTriggerNumber == -1) fTriggerNumber = data->TriggerCnt;
       ok =  CheckTrigger(data);
@@ -143,12 +156,13 @@ Bool_t TAVTactNtuRaw::GetFrame(MI26_FrameRaw* data)
  
    // go to frame trailer
    do {
-      if (fData[fIndex] == (GetFrameTail() & 0xFFF))
+      if ((fData[fIndex] & 0xFFF) == (GetFrameTail() & 0xFFF)) {
+         data->Trailer = fData[fIndex];
          break;
-      
+      }
    } while (fIndex++ < fEventSize);
    
-   if (fDebugLevel) {
+   if (fDebugLevel > 3) {
       printf("%08x\n", data->Header);
       printf("%08x\n", data->TriggerCnt);
       printf("%08x\n", data->TimeStamp);
@@ -157,7 +171,9 @@ Bool_t TAVTactNtuRaw::GetFrame(MI26_FrameRaw* data)
       Int_t dataLength    = ((data->DataLength & 0xFFFF0000)>>16);
       for (Int_t i = 0; i < dataLength; ++i)
          printf("%08x\n", data->ADataW16[i]);
+      printf("%08x\n", data->Trailer);
    }
+   
    return ok;
 }
 
