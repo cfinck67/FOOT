@@ -69,8 +69,8 @@ void TCVTgeometryConstructor::BuildSensor()
       sizeEpi[i]  = fpParGeo->GetEpiSize()[i]*cm; //21.2*mm;10.6*mm;0.014*mm;*/
    }
    
-   sizePix.SetX(fpParGeo->GetEpiSize().X()*cm); //21.2*mm;
-   sizePix.SetY(fpParGeo->GetEpiSize().Y()*cm);// 10.6*mm;
+   sizePix.SetX(fpParGeo->GetEpiSize().X()*cm); //21.2*mum;
+   sizePix.SetY(fpParGeo->GetEpiSize().Y()*cm);// 10.6*mum;
    sizePix.SetZ(fpParGeo->GetPixThickness()*cm);//0.0064*mm;
    
    G4double size_tot_epi_z = sizeEpi.Z() + sizePix.Z();

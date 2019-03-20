@@ -8,6 +8,7 @@
 #include "globals.hh"
 
 #include "Evento.hxx"
+#include "TAMCevent.hxx"
 #include "TAGroot.hxx"
 #include "TString.h"
 
@@ -31,12 +32,18 @@ class TCFOrunAction : public G4UserRunAction
     Int_t  GetEventsNToBeProcessed()   const { return fEventsNToBeProcessed;}
 
     public:
-    Evento*      GetEventMC()     const { return fpEventMC; }
+    void         DisableEvento()         { fkEvento = 0 ; }
+    Bool_t       GetEvento()       const { return fkEvento  ; }
+    Evento*      GetEventoMC()     const { return fpEventoMC; }
+    TAMCevent*   GetEventMC()      const { return fpEventMC; }
+    void SetEvento(Bool_t akEvento){ fkEvento = akEvento ; }
     static void SetRootFileName(const char* name) { fgRootFileName = name; }
     static const char* GetRootFileName() { return fgRootFileName; }
 
     private:
-    Evento*        fpEventMC;  // For data form Simulation
+    Bool_t         fkEvento;
+    Evento*        fpEventoMC; // For data form Simulation
+    TAMCevent*     fpEventMC;  // For data form Simulation
     static TString fgRootFileName;
     TFile*         fpOutFile;
     TTree*         fpTree;

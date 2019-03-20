@@ -1,8 +1,8 @@
 
-#include "TCFOeventAction.hxx"
+#include "TCFOeventoAction.hxx"
 
 //include hit class
-//Endo of event:
+//End of event:
 //collection hits: all hits of this collections contains the information about what happened in the sensitive volume (epitaxial layer)
 //each hit represents a step and in the epi layer there may have been many
 //than the position to send to CmosDigitizer is the PosIn of the first hits and the pos out of the last hits
@@ -39,7 +39,7 @@
 #include "TATWparGeo.hxx"
 #include "TACAparGeo.hxx"
 
-#include "TAMCevent.hxx"
+#include "Evento.hxx"
 #include "TCGmcHit.hxx"
 #include "TAMCntuEve.hxx"
 
@@ -52,22 +52,22 @@
 #include "TGeoMatrix.h"
 #include "TFile.h"
 
+//
 //---------------------------------------------------------------------------
 //
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-TCFOeventAction::TCFOeventAction(TCFOrunAction* runAction, TCGbaseGeometryConstructor* footGeomConstructor)
+TCFOeventoAction::TCFOeventoAction(TCFOrunAction* runAction, TCGbaseGeometryConstructor* footGeomConstructor)
 : TCFObaseEventAction(runAction,footGeomConstructor)
 {
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-TCFOeventAction::~TCFOeventAction()
+TCFOeventoAction::~TCFOeventoAction()
 {
 }
 
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-void TCFOeventAction::EndOfEventAction(const G4Event* evt)
+void TCFOeventoAction::EndOfEventAction(const G4Event* evt)
 {
     // digitize evt
     Collect(evt);
@@ -78,17 +78,19 @@ void TCFOeventAction::EndOfEventAction(const G4Event* evt)
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-void TCFOeventAction::Collect(const G4Event* evt)
+void TCFOeventoAction::Collect(const G4Event* evt)
 {
    
    if (fIrCollId >= 0)
       GetHitPerPlane(evt, fIrCollId);
    
-    if (fBmCollId >= 0)
+    if (fBmCollId >= 0){
       GetHitPerPlane(evt, fBmCollId);
+    }
    
-    if (fVtxCollId >= 0)
+    if (fVtxCollId >= 0){
       GetHitPerPlane(evt, fVtxCollId);
+    }
 
    if (fItCollId >= 0)
       GetHitPerPlane(evt, fItCollId);
@@ -104,13 +106,12 @@ void TCFOeventAction::Collect(const G4Event* evt)
    
 }
 
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-void TCFOeventAction::GetHitPerPlane(const G4Event* evt, G4int idColl)
+void TCFOeventoAction::GetHitPerPlane(const G4Event* evt, G4int idColl)
 {
    G4HCofThisEvent*  hitCollEv = evt->GetHCofThisEvent();
    TCGmcCollections* hitList   = (TCGmcCollections*)(hitCollEv->GetHC(idColl));
-   TAMCevent*            hit   = fRunAction->GetEventMC();
+   Evento*           hit       = fRunAction->GetEventoMC();
    
    Int_t entries =  hitList->entries();
     fDetName = hitList->GetName();
@@ -133,9 +134,9 @@ void TCFOeventAction::GetHitPerPlane(const G4Event* evt, G4int idColl)
 }
 
 ////....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-void TCFOeventAction::FillTrack()
+void TCFOeventoAction::FillTrack()
 {
-    TAMCevent* hit = fRunAction->GetEventMC();
+    Evento* hit = fRunAction->GetEventoMC();
 
     Int_t nTracks = fMcTrack->GetHitsN();
 
@@ -168,12 +169,16 @@ void TCFOeventAction::FillTrack()
         finalpos = fMcTrack->GetHit(i)->GetFinalPos();
         finalmom = fMcTrack->GetHit(i)->GetFinalP();
         hit->AddPart(parentID,trackID,charge,-1,nbaryon,-1,flukaID,
-                     initpos,finalpos,initmom,finalmom,mass,time,tof,length);
+                     initpos.X(),initpos.Y(),initpos.Z(),
+                     finalpos.X(),finalpos.Y(),finalpos.Z(),
+                     initmom.X(),initmom.Y(),initmom.Z(),
+                     finalmom.X(),finalmom.Y(),finalmom.Z(),
+                     mass,time,tof,length);
     }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-void TCFOeventAction::FillHits(TAMCevent* hit, TCGmcHit* mcHit)
+void TCFOeventoAction::FillHits(Evento* hit, TCGmcHit* mcHit)
 {
    G4ThreeVector vin = mcHit->GetPosIn()*TAGgeoTrafo::MmToCm();
    G4ThreeVector vou = mcHit->GetPosOut()*TAGgeoTrafo::MmToCm();
@@ -189,7 +194,8 @@ void TCFOeventAction::FillHits(TAMCevent* hit, TCGmcHit* mcHit)
    hit->SetEvent(fEventNumber);
 
    if (fIrCollId >= 0 && fDetName==TCSTgeometryConstructor::GetSDname())
-      hit->AddSTC(trackId, TVector3(vin[0],vin[1],vin[2]), TVector3(vou[0],vou[1],vou[2]), TVector3(pin[0],pin[1],pin[2]), TVector3(pou[0],pou[1],pou[2]), edep, al, time);
+      hit->AddSTC(trackId, vin[0], vin[1], vin[2], vou[0], vou[1], vou[2], pin[0], pin[1], pin[2], pou[0], pou[1], pou[2],
+                  edep, al, time);
    
    if (fBmCollId >= 0  && fDetName==TCBMgeometryConstructor::GetSDname()) {
        Int_t layer ;
@@ -198,40 +204,55 @@ void TCFOeventAction::FillHits(TAMCevent* hit, TCGmcHit* mcHit)
        Int_t cell = -1;
        fFootGeomConstructor->GetParGeoBm()->GetPlaneInfo(TVector3(vin[0],vin[1],vin[2]),view,layer,wire,cell);
        layer = sensorId+1;
-       hit->AddBMN(trackId,layer,TMath::Abs(view), cell, TVector3(vin[0],vin[1],vin[2]), TVector3(vou[0],vou[1],vou[2]), TVector3(pin[0],pin[1],pin[2]), TVector3(pou[0],pou[1],pou[2]), edep, al, time);
+       hit->AddBMN(trackId,layer,TMath::Abs(view), cell,
+                  vin[0], vin[1], vin[2], vou[0], vou[1], vou[2], pin[0], pin[1], pin[2], pou[0], pou[1], pou[2],
+                  edep, al, time);
    }
    
    if (fVtxCollId >= 0 && fDetName==TCVTgeometryConstructor::GetSDname()) {
       Int_t layer = sensorId;
-      hit->AddVTX(trackId, layer,TVector3(vin[0],vin[1],vin[2]), TVector3(vou[0],vou[1],vou[2]), TVector3(pin[0],pin[1],pin[2]), TVector3(pou[0],pou[1],pou[2]), edep, al, time);
+      Int_t row   = -1;
+      Int_t line  = -1;
+      hit->AddVTX(trackId, layer, row, line,
+                  vin[0], vin[1], vin[2], vou[0], vou[1], vou[2], pin[0], pin[1], pin[2], pou[0], pou[1], pou[2],
+                  edep, al, time);
    }
    
    if (fItCollId >= 0 && fDetName==TCITgeometryConstructor::GetSDname()) {
       Int_t layer = sensorId;
+      Int_t row   = -1;
+      Int_t line  = -1;
       Int_t plume = -1;
       Int_t mimo  = -1;
-      hit->AddITR(trackId, layer, plume, mimo, TVector3(vin[0],vin[1],vin[2]), TVector3(vou[0],vou[1],vou[2]), TVector3(pin[0],pin[1],pin[2]), TVector3(pou[0],pou[1],pou[2]),edep, al, time);
+      hit->AddITR(trackId, layer, row, line, plume, mimo,
+                  vin[0], vin[1], vin[2], vou[0], vou[1], vou[2], pin[0], pin[1], pin[2], pou[0], pou[1], pou[2],
+                  edep, al, time);
    }
    
    if (fMsdCollId >= 0 && fDetName==TCMSDgeometryConstructor::GetSDname()) {
       Int_t layer  = sensorId;
       Int_t stripx = -1;
       Int_t stripy = -1;
-      hit->AddMSD(trackId, layer, stripx, stripy, TVector3(vin[0],vin[1],vin[2]), TVector3(vou[0],vou[1],vou[2]), TVector3(pin[0],pin[1],pin[2]), TVector3(pou[0],pou[1],pou[2]),edep, al, time);
+      hit->AddMSD(trackId, layer, stripx, stripy,
+                  vin[0], vin[1], vin[2], vou[0], vou[1], vou[2], pin[0], pin[1], pin[2], pou[0], pou[1], pou[2],
+                  edep, al, time);
    }
    
    if (fTwCollId >= 0 && fDetName==TCTWgeometryConstructor::GetSDname()) {
       Int_t barId  = sensorId % TATWparGeo::GetLayerOffset();
       Int_t view  = sensorId /  TATWparGeo::GetLayerOffset();
-      hit->AddTW(trackId, barId, view,TVector3(vin[0],vin[1],vin[2]), TVector3(vou[0],vou[1],vou[2]), TVector3(pin[0],pin[1],pin[2]), TVector3(pou[0],pou[1],pou[2]), edep, al, time);
+      hit->AddSCN(trackId, barId, view,
+                  vin[0], vin[1], vin[2], vou[0], vou[1], vou[2], pin[0], pin[1], pin[2], pou[0], pou[1], pou[2],
+                  edep, al, time);
    }
    
    if (fCaCollId >= 0 && fDetName==TCCAgeometryConstructor::GetSDname()) {
       Int_t crystalId  = sensorId;
-      hit->AddCAL(trackId, crystalId,TVector3(vin[0],vin[1],vin[2]), TVector3(vou[0],vou[1],vou[2]), TVector3(pin[0],pin[1],pin[2]), TVector3(pou[0],pou[1],pou[2]),edep, al, time);
+      hit->AddCAL(trackId, crystalId,
+                  vin[0], vin[1], vin[2], vou[0], vou[1], vou[2], pin[0], pin[1], pin[2], pou[0], pou[1], pou[2],
+                  edep, al, time);
+
    }
 
 }
-
-
 
