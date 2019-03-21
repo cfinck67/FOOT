@@ -32,7 +32,7 @@ TABMactDatRaw::TABMactDatRaw(const char* name,
                              TAGparaDsc* p_parmap,
                              TAGparaDsc* p_parcon,
                              TAGparaDsc* p_pargeo,
-			     TAGdataDsc* p_timraw
+                             TAGdataDsc* p_timraw
                              )
   : TAGaction(name, "TABMactDatRaw - Unpack BM raw data"),
     fpDatRaw(p_datraw),

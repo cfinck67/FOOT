@@ -17,6 +17,7 @@
 #include "TAGactTreeWriter.hxx"
 
 #include "TASTdatRaw.hxx"
+#include "TASTparMap.hxx"
 
 #include "TABMparGeo.hxx"
 #include "TABMparCon.hxx"
@@ -24,6 +25,7 @@
 
 #include "TAGdaqEvent.hxx"
 #include "TAGactDaqReader.hxx"
+#include "TASTactDatRaw.hxx"
 #include "TABMactDatRaw.hxx"
 
 #endif
@@ -31,7 +33,24 @@
 // main
 TAGactTreeWriter*   outFile   = 0x0;
 TAGactDaqReader*    daqActReader = 0x0;
+TAGdataDsc*         stDat     = 0x0;
+TAGdataDsc*         evDaq     = 0x0;
+TASTactDatRaw*      stActRaw  = 0x0;
 TABMactDatRaw*      bmActRaw  = 0x0;
+
+void FillST()
+{
+   TAGparaDsc* stMap = new TAGparaDsc("stMap", new TASTparMap());
+   
+   evDaq    = new TAGdataDsc("evDaq", new TAGdaqEvent());
+   stDat    = new TAGdataDsc("stDat", new TASTdatRaw());
+   
+   daqActReader  = new TAGactDaqReader("daqActReader", evDaq);
+   
+   stActRaw  = new TASTactDatRaw("stActRaw", stDat, evDaq, stMap);
+   stActRaw->CreateHistogram();
+   
+}
 
 void FillBM()
 {
@@ -46,20 +65,17 @@ void FillBM()
 
    TAGparaDsc* bmMap = new TAGparaDsc("bmMap", new TABMparMap());
 
-
-   TAGdataDsc* bmDaq    = new TAGdataDsc("bmDaq", new TAGdaqEvent());
-   TAGdataDsc* stDat    = new TAGdataDsc("stDat", new TASTdatRaw());
    TAGdataDsc* bmDat    = new TAGdataDsc("bmDat", new TABMdatRaw());
 
-   daqActReader  = new TAGactDaqReader("daqActReader", bmDaq);
+   daqActReader  = new TAGactDaqReader("daqActReader", evDaq);
 
-   bmActRaw  = new TABMactDatRaw("bmActRaw", bmDat, bmDaq, bmMap, bmConf, bmGeo, stDat);
+   bmActRaw  = new TABMactDatRaw("bmActRaw", bmDat, evDaq, bmMap, bmConf, bmGeo, stDat);
    bmActRaw->CreateHistogram();
 
 }
 
-void ReadBmRaw(TString filename = "data_test.00001431.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",
-                Int_t nMaxEvts = 3)
+//void ReadStBmRaw(TString filename = "data_test.00001431.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",  Int_t nMaxEvts = 3)
+void ReadStBmRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",  Int_t nMaxEvts = 3)
 {
 
    TAGroot tagr;
@@ -68,10 +84,12 @@ void ReadBmRaw(TString filename = "data_test.00001431.physics_foot.daq.RAW._lb00
    
    outFile = new TAGactTreeWriter("outFile");
 
+   FillST();
    FillBM();
    daqActReader->Open(filename);
    
    tagr.AddRequiredItem(daqActReader);
+   tagr.AddRequiredItem(stActRaw);
    tagr.AddRequiredItem(bmActRaw);
    tagr.AddRequiredItem(outFile);
 
