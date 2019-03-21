@@ -74,7 +74,7 @@ void FillBM()
 
 }
 
-//void ReadBmRaw(TString filename = "data_test.00001431.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",  Int_t nMaxEvts = 3)
+//void ReadStBmRaw(TString filename = "data_test.00001431.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",  Int_t nMaxEvts = 3)
 void ReadStBmRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",  Int_t nMaxEvts = 3)
 {
 
