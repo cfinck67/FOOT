@@ -1,0 +1,145 @@
+// Macro to make reconstruction from MC data
+// Ch. Finck
+
+
+#if !defined(__CINT__) || defined(__MAKECINT__)
+
+#include <Riostream.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TString.h>
+#include <TROOT.h>
+#include <TStopwatch.h>
+#include <TGeoManager.h>
+#include <TGeoVolume.h>
+
+#include "TAGaction.hxx"
+#include "TAGroot.hxx"
+#include "TAGactTreeWriter.hxx"
+#include "TAGgeoTrafo.hxx"
+
+#include "TAGparGeo.hxx"
+#include "TABMparGeo.hxx"
+#include "TABMparMap.hxx"
+#include "TABMparCon.hxx"
+#include "TASTdatRaw.hxx"
+#include "TABMdatRaw.hxx"
+#include "TABMntuRaw.hxx"
+#include "TABMactNtuRaw.hxx"
+#include "TABMactVmeReader.hxx"
+#include "TABMactNtuTrack.hxx"
+
+#include "GlobalPar.hxx"
+#include "Materials.hxx"
+
+#endif
+
+// main
+TAGactTreeWriter* outFile   = 0x0;
+TABMactVmeReader* bmActVmeReader  = 0x0;
+TABMactNtuRaw* bmActNtuRaw  = 0x0;
+TABMactNtuTrack* bmActTrack = 0x0;
+
+void FillBmVME(TString name) {
+   
+   cout<<"start FillBmVME"<<endl;
+   
+   TAGparaDsc* bmGeo    = new TAGparaDsc(TABMparGeo::GetDefParaName(), new TABMparGeo());
+   TABMparGeo* geomap   = (TABMparGeo*) bmGeo->Object();
+   geomap->FromFile();
+            
+   TAGparaDsc* tgGeo = new TAGparaDsc(TAGparGeo::GetDefParaName(), new TAGparGeo());
+   TAGparGeo* parGeo = (TAGparGeo*)tgGeo->Object();
+   parGeo->FromFile();
+
+   TAGparaDsc*  bmConf  = new TAGparaDsc("bmConf", new TABMparCon());
+   TABMparCon* parConf = (TABMparCon*)bmConf->Object();
+   TString parFileName = "./config/beammonitor.cfg";
+   parConf->FromFile(parFileName.Data());
+   parFileName = "./config/bmreso_vs_r.root";
+   parConf->LoadReso(parFileName);
+
+   TAGparaDsc*  bmMap  = new TAGparaDsc("bmMap", new TABMparMap());
+   TABMparMap*  parMap = (TABMparMap*)bmMap->Object();
+   parFileName = "./geomaps/";
+   parFileName += parConf->GetParmapfile();
+   parMap->FromFile(parFileName.Data(), geomap);
+
+  
+   TAGdataDsc* stDatRaw    = new TAGdataDsc("stDatRaw", new TASTdatRaw());
+   TAGdataDsc* bmDatRaw    = new TAGdataDsc("bmDatRaw", new TABMdatRaw());
+   bmActVmeReader  = new TABMactVmeReader("bmActVmeReader", bmDatRaw, bmMap, bmConf, bmGeo,stDatRaw);
+   bmActVmeReader->Open(name);
+
+
+   TAGdataDsc* bmNtuRaw    = new TAGdataDsc("bmNtuRaw", new TABMntuRaw());
+   bmActNtuRaw  = new TABMactNtuRaw("bmActNtuRaw", bmNtuRaw, bmDatRaw, stDatRaw, bmGeo, bmConf);
+   bmActNtuRaw->CreateHistogram();   
+   
+   TAGdataDsc* bmTrack = new TAGdataDsc("bmTrack", new TABMntuTrack());
+   bmActTrack  = new TABMactNtuTrack("bmActTrack", bmTrack, bmNtuRaw, bmGeo, bmConf, tgGeo);
+   bmActTrack->CreateHistogram();
+
+   cout<<"end of FillBmVME"<<endl;
+
+   // outFile->SetupElementBranch(bmNtuRaw, TABMntuRaw::GetBranchName());
+   // outFile->SetupElementBranch(bmTrck, TABMntuTrack::GetBranchName());
+}
+
+void ReadBmRawVME(TString name = "80MeV_HV2175_100kEv.dat")
+{
+   GlobalPar::Instance();
+   GlobalPar::GetPar()->Print();
+
+   TAGroot tagr;
+   TAGgeoTrafo geoTrafo;
+   geoTrafo.FromFile();
+
+   tagr.SetCampaignNumber(-1);
+   tagr.SetRunNumber(1);
+
+   outFile = new TAGactTreeWriter("outFile");
+   FillBmVME(name);
+   
+   tagr.AddRequiredItem("bmActVmeReader");
+   tagr.AddRequiredItem("bmActNtuRaw");
+   tagr.AddRequiredItem("bmActTrack");
+   tagr.AddRequiredItem("outFile");
+   tagr.Print();
+   
+   Int_t pos = name.Last('.');
+   TString nameOut = name(0, pos);
+   nameOut.Append("_readbmrawvme_Out.root");
+   
+   if (outFile->Open(nameOut.Data(), "RECREATE")) return;
+   bmActTrack->SetHistogramDir(outFile->File());
+   bmActNtuRaw->SetHistogramDir(outFile->File());
+   
+   cout<<" Beginning the Event Loop "<<endl;
+   tagr.BeginEventLoop();
+   TStopwatch watch;
+   watch.Start();
+   
+   for (Long64_t ientry = 0; ientry < 1000; ientry++) {
+      
+      
+      //~ if(ientry % 100 == 0)
+         cout<<" Loaded Event:: " << ientry << endl;
+      
+      if (ientry == 1000)
+//      if (ientry == 20000)
+         break;
+      
+      tagr.NextEvent();
+   }
+   
+   tagr.EndEventLoop();
+   
+   outFile->Print();
+   outFile->Close();
+   bmActVmeReader->Close();
+   
+   watch.Print();
+}
+
+

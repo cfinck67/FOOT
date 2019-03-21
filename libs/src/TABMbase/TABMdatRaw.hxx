@@ -32,7 +32,7 @@ class TABMdatRaw : public TAGdata {
     Int_t           NHit() const;
     const TABMrawHit& Hit(Int_t i_ind) const;
 
-    Int_t           NTdc() const;
+    //~ Int_t           NTdc() const;
     Int_t           NDrop() const;
 
     virtual void    Clear(Option_t* opt="");

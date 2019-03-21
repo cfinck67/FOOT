@@ -66,6 +66,7 @@ void TABMdatRaw::Clear(Option_t*)
   TAGdata::Clear();
 
   fHitList.clear();
+  fiNDrop=0;
   return;
 }
 

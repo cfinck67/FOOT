@@ -119,14 +119,17 @@ void TABMactNtuTrack::CreateHistogram()
    
    DeleteHistogram();
    
-   fpHisR0X = new TH1F("bmR0X", "BM - PositionX of the track(z=0)", 500, -3, 3);
-   fpHisR0Y = new TH1F("bmR0Y", "BM - PositionY of the track(z=0)", 500, -3, 3);
+   fpHisPrefitStatus = new TH1S("bmPrefitStatus", "Prefit status", 2, 0,2);
+   AddHistogram(fpHisPrefitStatus);
+   fpHisR0X = new TH1F("bmR0X", "BM - PositionX of the track(z=0)", 500, -3., 3.);
    AddHistogram(fpHisR0X);
+   fpHisR0Y = new TH1F("bmR0Y", "BM - PositionY of the track(z=0)", 500, -3., 3.);
    AddHistogram(fpHisR0Y);
-   
+   fpHisR02d = new TH2D("bmR02d","BM - Position of the track on the BM center plane", 500, -3., 3.,500 , -3., 3.);
+   AddHistogram(fpHisR02d);   
    fpHisPversX = new TH1F("bmPversX", "BM - DirectionX of the track", 500, -1, 1);
-   fpHisPversY = new TH1F("bmPversY", "BM - DirectionY of the track", 500, -1, 1);
    AddHistogram(fpHisPversX);
+   fpHisPversY = new TH1F("bmPversY", "BM - DirectionY of the track", 500, -1, 1);
    AddHistogram(fpHisPversY);
 
    SetValidHistogram(kTRUE);
@@ -527,13 +530,14 @@ Bool_t TABMactNtuTrack::Action()
       p_hit = p_nturaw->Hit(hitxtrack.at(best_index).at(i));    
       p_hit->SetIsSelected(true);
       if(p_bmcon->GetFitterIndex()<5){
-	p_hit->SetChi2(best_mysqrtchi2.at(i)*best_mysqrtchi2.at(i));
-	p_hit->SetResidualSigma(best_mysqrtchi2.at(i));
+        p_hit->SetChi2(best_mysqrtchi2.at(i)*best_mysqrtchi2.at(i));
+        p_hit->SetResidualSigma(best_mysqrtchi2.at(i));
       }
     }
      if (ValidHistogram()) {
         fpHisR0X->Fill(trk->GetR0()[0]);
         fpHisR0Y->Fill(trk->GetR0()[1]);
+        fpHisR02d->Fill(trk->GetR0()[0],trk->GetR0()[1]);
      
         fpHisPversX->Fill(trk->GetPvers()[0]);
         fpHisPversY->Fill(trk->GetPvers()[1]);
@@ -543,6 +547,10 @@ Bool_t TABMactNtuTrack::Action()
     p_ntutrk->GetTrackStatus()=4;
   else
     cout<<"ERROR in TABMactNtuTrack :: track converged lost!"<<endl;
+  
+  if(ValidHistogram()){
+    fpHisPrefitStatus->Fill(prefit_status);
+  }
   
   //~ delete fitTrack;
   //~ delete rep; //included in fitTrack delete
