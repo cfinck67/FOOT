@@ -24,7 +24,7 @@ public:
    TGeoMaterial* CreateMaterial(TString formula, Float_t density, Float_t temperature = STP_temperature, Float_t pressure = STP_pressure);
    TGeoMixture*  CreateMixture(TString formula, const TString densities, const TString prop, Float_t density);
 
-   void          SaveFileFluka(const TString filename = "foot.inp");
+   string          SaveFileFluka();
    
 public:
    static TAGmaterials* Instance();
