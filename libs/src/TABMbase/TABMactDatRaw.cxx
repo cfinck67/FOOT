@@ -46,6 +46,7 @@ TABMactDatRaw::TABMactDatRaw(const char* name,
   AddPara(p_parmap, "TABMparMap");
   AddPara(p_parcon, "TABMparCon");
   AddPara(p_pargeo, "TABMparGeo");
+  AddDataIn(p_timraw, "TASTdatRaw");
 }
 
 //------------------------------------------+-----------------------------------
