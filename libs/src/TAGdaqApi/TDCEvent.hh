@@ -12,7 +12,7 @@ public:
   u_int eventNumber;
   u_int globalHeader;
   std::vector<u_int> tdcHeader;
-  std::vector<u_int> measurement;
+  std::vector<u_int> measurement;//measurement read directly from the TDC 7 bits (19-25) for the channel and 19 bits for the meas (0-18) 
   std::vector<u_int> tdcTrailer;
   u_int globalTrailer;
 

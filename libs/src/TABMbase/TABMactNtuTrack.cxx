@@ -119,14 +119,17 @@ void TABMactNtuTrack::CreateHistogram()
    
    DeleteHistogram();
    
-   fpHisR0X = new TH1F("bmR0X", "BM - PositionX of the track(z=0)", 500, -3, 3);
-   fpHisR0Y = new TH1F("bmR0Y", "BM - PositionY of the track(z=0)", 500, -3, 3);
+   fpHisPrefitStatus = new TH1S("bmPrefitStatus", "Prefit status", 2, 0,2);
+   AddHistogram(fpHisPrefitStatus);
+   fpHisR0X = new TH1F("bmR0X", "BM - PositionX of the track(z=0)", 500, -3., 3.);
    AddHistogram(fpHisR0X);
+   fpHisR0Y = new TH1F("bmR0Y", "BM - PositionY of the track(z=0)", 500, -3., 3.);
    AddHistogram(fpHisR0Y);
-   
+   fpHisR02d = new TH2D("bmR02d","BM - Position of the track on the BM center plane", 500, -3., 3.,500 , -3., 3.);
+   AddHistogram(fpHisR02d);   
    fpHisPversX = new TH1F("bmPversX", "BM - DirectionX of the track", 500, -1, 1);
-   fpHisPversY = new TH1F("bmPversY", "BM - DirectionY of the track", 500, -1, 1);
    AddHistogram(fpHisPversX);
+   fpHisPversY = new TH1F("bmPversY", "BM - DirectionY of the track", 500, -1, 1);
    AddHistogram(fpHisPversY);
 
    SetValidHistogram(kTRUE);
@@ -231,8 +234,8 @@ Bool_t TABMactNtuTrack::Action()
       p_ntutrk->GetTrackStatus()=2;
     //~ delete fitTrack;
     //~ delete tmp_trackTr;
-    fpNtuTrk->SetBit(kValid);
-    return kTRUE;
+    //~ fpNtuTrk->SetBit(kValid);
+    return kFALSE;
   }else
     p_ntutrk->GetTrackStatus()=-1000;
   
@@ -427,7 +430,7 @@ Bool_t TABMactNtuTrack::Action()
       fpNtuTrk->SetBit(kValid);
       if(p_bmcon->GetBMdebug()>0)
         cout<<"TABMactNtuTrack:: no track given the rejmax_cut="<<p_bmcon->GetRejmaxcut()<<"  i_nhit="<<i_nhit<<"  firedPlane="<<firedPlane<<endl;
-      return kTRUE;    
+      return kFALSE;    
     }
     
     //**********************loop on all possible tracks:**********************
@@ -527,13 +530,14 @@ Bool_t TABMactNtuTrack::Action()
       p_hit = p_nturaw->Hit(hitxtrack.at(best_index).at(i));    
       p_hit->SetIsSelected(true);
       if(p_bmcon->GetFitterIndex()<5){
-	p_hit->SetChi2(best_mysqrtchi2.at(i)*best_mysqrtchi2.at(i));
-	p_hit->SetResidualSigma(best_mysqrtchi2.at(i));
+        p_hit->SetChi2(best_mysqrtchi2.at(i)*best_mysqrtchi2.at(i));
+        p_hit->SetResidualSigma(best_mysqrtchi2.at(i));
       }
     }
      if (ValidHistogram()) {
         fpHisR0X->Fill(trk->GetR0()[0]);
         fpHisR0Y->Fill(trk->GetR0()[1]);
+        fpHisR02d->Fill(trk->GetR0()[0],trk->GetR0()[1]);
      
         fpHisPversX->Fill(trk->GetPvers()[0]);
         fpHisPversY->Fill(trk->GetPvers()[1]);
@@ -543,6 +547,10 @@ Bool_t TABMactNtuTrack::Action()
     p_ntutrk->GetTrackStatus()=4;
   else
     cout<<"ERROR in TABMactNtuTrack :: track converged lost!"<<endl;
+  
+  if(ValidHistogram()){
+    fpHisPrefitStatus->Fill(prefit_status);
+  }
   
   //~ delete fitTrack;
   //~ delete rep; //included in fitTrack delete
@@ -1181,11 +1189,14 @@ void TABMactNtuTrack::Chi2Fit(vector<Int_t> &singlehittrack, vector<vector<Int_t
         cout<<"TABMactNtuTrack::Chi2Fit::iterazione numero="<<hh<<"  chi2red="<<tmp_atrackTr->GetMyChi2Red()<<"  old_chi2="<<old_chi2<<endl;
       if(tmp_atrackTr->GetMyChi2Red()>old_chi2){
         tmp_atrackTr->SetNite(hh);
-	break;
+        break;
       }
-    }else if(p_bmcon->GetBMdebug()>0)
+    }else{
+      if(p_bmcon->GetBMdebug()>0)
       cout<<"TABMactNtuTrack::Chi2Fit:: Mini not possible"<<hh<<endl;
+      break;
     //~ Info("Action()","A:: %lf, %lf, %lf %lf\n",alpha(0),alpha(1),alpha(2),alpha(3));
+    }
   }
   if(tmp_atrackTr->GetNite()==0)
     tmp_atrackTr->SetNite(p_bmcon->GetNumIte());
@@ -1341,10 +1352,11 @@ Int_t TABMactNtuTrack::Mini(Int_t nmeas,TMatrixD &AA, TMatrixD &VV, TVectorD &Dy
   VVa.ResizeTo(4,4);
   AAt.ResizeTo(4,nmeas);
   B.ResizeTo(4,nmeas);
-
+  
   AAt.Transpose(AA);
   VVa = AAt*VV*AA;
-  if(VVa.Determinant()>0.0000001){
+  //~ cout<<"VVa.Determinant()="<<VVa.Determinant()<<"  VV.Determinant()="<<VV.Determinant()<<endl;
+  if(VVa.Determinant()>0.0001 && VVa.IsValid()){
     Eta.ResizeTo(4);
     VVa.Invert();
     B = VVa*AAt*VV;

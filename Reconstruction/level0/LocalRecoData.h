@@ -15,6 +15,8 @@
 #include "TAGactDaqReader.hxx"
 // #include "TAGactDaqReader.hxx"
 
+#include "TASTactDatRaw.hxx"
+
 #include "TABMactDatRaw.hxx"
 #include "TABMactNtuRaw.hxx"
 #include "TABMactNtuTrack.hxx"
@@ -65,6 +67,7 @@ private:
 private:
    EVENT_STRUCT*         fEvtStruct;
    
+   TASTactDatRaw*         m_actDatRaw_ST;  // action for ntu data
    TABMactDatRaw*         m_actDatRaw_BM;  // action for ntu data
    TABMactNtuRaw*         m_actNtuRaw_BM;  // action for ntu data
    TABMactNtuTrack*       m_actNtuTrack_BM;  // action for ntu data
@@ -73,9 +76,15 @@ private:
    TAGdataDsc *   m_datRaw_BM ;
    TAGdataDsc *   m_ntuRaw_BM;
    TAGdataDsc *   m_ntuTrack_BM;
+   TAGdataDsc *   m_datRaw_ST ;
 
+   TAGparaDsc*    m_parGeo_BM;
+   TAGparaDsc*    m_parCon_BM;
    TAGparaDsc*    m_parMap_BM;
    
+   TAGparaDsc*    m_parMap_ST;
+   
+   TAGparaDsc*    m_parGeo_TG;
    
    TTree*                fTree;         // tree for MC
 

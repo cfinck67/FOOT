@@ -32,8 +32,7 @@ TABMactDatRaw::TABMactDatRaw(const char* name,
                              TAGparaDsc* p_parmap,
                              TAGparaDsc* p_parcon,
                              TAGparaDsc* p_pargeo,
-                             TAGdataDsc* p_timraw
-                             )
+                             TAGdataDsc* p_timraw)
   : TAGaction(name, "TABMactDatRaw - Unpack BM raw data"),
     fpDatRaw(p_datraw),
     fpDatDaq(p_datdaq),
@@ -47,6 +46,7 @@ TABMactDatRaw::TABMactDatRaw(const char* name,
   AddPara(p_parcon, "TABMparCon");
   AddPara(p_pargeo, "TABMparGeo");
   AddDataIn(p_timraw, "TASTdatRaw");
+  AddDataIn(p_datdaq, "TAGdaqEvent");
 }
 
 //------------------------------------------+-----------------------------------
@@ -60,15 +60,15 @@ TABMactDatRaw::~TABMactDatRaw()
 //! Action.
 Bool_t TABMactDatRaw::Action() {
   
-   TAGdaqEvent*   p_datqevt = (TAGdaqEvent*)  fpDatDaq->Object();
+   TAGdaqEvent*   p_datdaq = (TAGdaqEvent*)  fpDatDaq->Object();
 
-   Int_t nFragments = p_datqevt->GetFragmentsN();
+   Int_t nFragments = p_datdaq->GetFragmentsN();
    
    for (Int_t i = 0; i < nFragments; ++i) {
       
-       TString type = p_datqevt->GetClassType(i);
+       TString type = p_datdaq->GetClassType(i);
        if (type.Contains("TDCEvent")) {
-         const TDCEvent* evt = static_cast<const TDCEvent*> (p_datqevt->GetFragment(i));
+         const TDCEvent* evt = static_cast<const TDCEvent*> (p_datdaq->GetFragment(i));
          DecodeHits(evt);
        }
    }
@@ -91,12 +91,29 @@ Bool_t TABMactDatRaw::DecodeHits(const TDCEvent* evt) {
    TABMparGeo*    p_pargeo = (TABMparGeo*)    fpParGeo->Object();
    TASTdatRaw*    p_timraw = (TASTdatRaw*)    fpTimRaw->Object();
    
+  Int_t view,plane,cell, channel, measurement;
+    
+  //~ if(evt->tdcHeader.size()>1 || evt->tdcHeader.size()>1) //double sync event
+    //~ return true;
+  //~ else
+    for(Int_t i=0;i<((int)evt->measurement.size());i++){
+      measurement=evt->measurement.at(i) & 0x7ffff;
+      channel=(evt->measurement.at(i)>>19) & 0x7f;
+      //~ cout<<"measurement="<<measurement<<"  channel="<<channel<<endl;
+      if(p_parmap->tdc2cell(channel)>=0 && ((((Double_t) measurement)/10.) - p_parcon->GetT0(p_parmap->tdc2cell(channel))-p_timraw->TrigTime())<p_parcon->GetHitTimecut()){//-1000=syncTime, -1=not set
+        p_pargeo->GetBMNlvc(p_parmap->tdc2cell(channel),plane,view,cell);
+        p_datraw->SetHitData(plane,view,cell,((Double_t) (measurement))/10.);
+      }else
+        p_datraw->AddDischarged();    
+    }
+    
+  //~ for(Int_t i=0;i<fpEvtStruct->tdc_hitnum[0];i++){
+    //~ if(p_parmap->tdc2cell(fpEvtStruct->tdc_id[i])>=0 && (((Double_t) (fpEvtStruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(fpEvtStruct->tdc_id[i]))-p_timraw->TrigTime())<300.){//-1000=syncTime, -1=not set
+      //~ p_pargeo->GetBMNlvc(p_parmap->tdc2cell(fpEvtStruct->tdc_id[i]),plane,view,cell);
+      //~ p_datraw->SetHitData(plane,view,cell,(Double_t) (fpEvtStruct->tdc_meas[i])/10.);
+    //~ }
+  //~ }
 
-   Int_t size = (int)evt->measurement.size();
-   
-   for (Int_t i = 0; i < size; ++i) {
-      printf("%08x\n", evt->measurement[i]);
-   }
    return true;
 }
 

@@ -12,6 +12,7 @@
 #include "TSpline.h"
 #include "TF1.h"
 #include "TH1.h"
+#include "TRandom3.h"
 
 #include <vector>
 
@@ -53,6 +54,8 @@ class TABMparCon : public TAGpara {
     Double_t GetBMmom(){return part_in_mom;};
     Int_t GetmanageT0BM(){return manageT0BM;};
     Int_t GetT0switch(){return t0_switch;};
+    Double_t GetT0sigma(){return t0_sigma;};
+    Double_t GetHitTimecut(){return hit_timecut;};
     Int_t GetmanageADCped(){return manageADCped;};
     string GetParmapfile(){return parmapfile;};
     Int_t GetCalibro(){return calibro;};
@@ -61,24 +64,22 @@ class TABMparCon : public TAGpara {
     Int_t GetSmearhits(){return smearhits;};
     Double_t GetFakehitsMean(){return fakehits_mean;};
     Double_t GetFakehitsSigmaLeft(){return fakehits_sigmaleft;};
-    Double_t GetFakehitsSigmaRight(){return fakehits_sigmaright;};    Double_t GetMCEffMean(){return mceff_mean;};
+    Double_t GetFakehitsSigmaRight(){return fakehits_sigmaright;};
+    Double_t GetMCEffMean(){return mceff_mean;};
     Double_t GetMCEffSigma(){return mceff_sigma;};
     Int_t GetSmearrdrift(){return smearrdrift;};
-    //~ Double_t GetXShift(){return meas_shift.X();};
-    //~ Double_t GetYShift(){return meas_shift.Y();};
-    //~ Double_t GetZShift(){return meas_shift.Z();};
-    //~ Double_t GetXrot(){return meas_tilt.X();};
-    //~ Double_t GetYrot(){return meas_tilt.Y();};
-    //~ Double_t GetZrot(){return meas_tilt.Z();};
-
+    TVector3 GetMeas_shift(){return meas_shift;};
+    TVector3 GetMeas_tilt(){return meas_tilt;};
+    TRandom3* GetRand(){return rand;};
+    Double_t GetRdrift_err(){return rdrift_err;};
 
     //T0 stuff
     void        PrintT0s(TString &input_file_name, Long64_t);
     Bool_t      loadT0s(Long64_t); 
     void        SetT0s(vector<Double_t> t0s);
     void        SetT0(Int_t cha, Double_t t0in);   
-    Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+view*3+plane*6);};
-    Double_t    GetT0(Int_t index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
+    const Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+view*3+plane*6);};
+    const Double_t    GetT0(Int_t index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
     void        CoutT0();
     
     //ADC stuff
@@ -87,8 +88,8 @@ class TABMparCon : public TAGpara {
     void        SetADCchanum(Int_t cha);
     void        SetADCped(Int_t cha, Double_t pedin, Double_t rmsin);
     void        CoutADCped();
-    Double_t    GetADCped(Int_t cha){return (cha<(Int_t)adc_ped_mean.size()) ? adc_ped_mean[cha]:10000.;};
-    Double_t    GetADCrms(Int_t cha){return (cha<(Int_t)adc_ped_rms.size()) ? adc_ped_rms[cha]:10000.;};
+    Double_t    GetADCped(Int_t cha){return (cha<adc_ped_mean.size()) ? adc_ped_mean[cha]:10000.;};
+    Double_t    GetADCrms(Int_t cha){return (cha<adc_ped_rms.size()) ? adc_ped_rms[cha]:10000.;};
     
     //strel stuff
     void LoadSTrel(TString sF);
@@ -137,10 +138,12 @@ class TABMparCon : public TAGpara {
     Int_t    calibro;//flag for the calibration
     Int_t    strel_switch;//flag to choose the st relations (1=garfield, 0=FIRST embedded)
     Int_t    prefit_enable;//flag to enable or disable the prefit
-    //~ TVector3 meas_shift;//shift for the calibration
-    //~ TVector3 meas_tilt;//tilt for the calibration
+    TVector3 meas_shift;//shift for the calibration
+    TVector3 meas_tilt;//tilt for the calibration
     Int_t    manageT0BM; //0=calculate T0 and save v_t0s in bmt0file, 1=loadT0 from bmt0file
     Int_t    t0_switch;//0=t0 from the beginning of the tdc signal, 1=from the peak, 2=negative T0 enabled
+    Double_t t0_sigma;//t0 with the gaussian shift for the negative T0 hits
+    Double_t hit_timecut;//timecut on the lenght of the signal (ns)
     Int_t    manageADCped; //0=calculate and save ADCped in bmpedfile, 1=loadadcped from bmpedfile
     string   bmt0file; //name of the T0 value file to be charged or to be written 
     string   bmpedfile; //name of the ped value file to be charged or to be written 
@@ -151,15 +154,15 @@ class TABMparCon : public TAGpara {
     Int_t    num_ite;//number of iteration for the fit (only for FIRST fit)
     Double_t par_move;//change of the parameters for the FIRST fit
     Int_t    smearhits;//0=no smearhits on MC, 1=smear the number of hits
-    Int_t    smearrdrift;//0=no smear rdrift, 1=gauss truncated 1sigma, 2=gaus 2sigma, 3=gaus 3sigma, 4=gaus no truncated, 5=uniform
-   
-   Double_t fakehits_mean;//mean for the fake hits generator(only MC)
-   Double_t fakehits_sigmaleft;//sigma for the fake hits generator on the left tail(only MC)
-   Double_t fakehits_sigmaright;//sigma for the fake hits generator on the right tail (only MC)
-   
+    Int_t    smearrdrift;//0=no smear rdrift, 1=gauss truncated 1sigma, 2=gaus 2sigma, 3=gaus 3sigma, 4=gaus no truncated, 5=uniform  
+    Double_t fakehits_mean;//mean for the fake hits generator(only MC)
+    Double_t fakehits_sigmaleft;//sigma for the fake hits generator on the left tail(only MC)
+    Double_t fakehits_sigmaright;//sigma for the fake hits generator on the right tail (only MC)
     Double_t mceff_mean;//mean for the number of primary hits (only MC)
     Double_t mceff_sigma;//sigma for the number of primary hits (only MC)
-
+    TRandom3 *rand;
+    Double_t rdrift_err;  //rdrift default error (used if from parcon file the error isn't loaded)
+    
     //~ TF1* f_mypol;
     //~ TF1* f_mypol2;
     TSpline3 *m_mySpl;

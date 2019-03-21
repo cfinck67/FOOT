@@ -30,9 +30,11 @@ class TABMactNtuMC : public TAGaction {
     virtual         ~TABMactNtuMC();
 
     virtual Bool_t  Action();
+    virtual  void   CreateHistogram();
 
     Double_t FindRdrift(TVector3 loc, TVector3 mom, TVector3 A0, TVector3 Wvers);
     void CreateFakeHits(Int_t nfake, Int_t &nhits);
+
 
     ClassDef(TABMactNtuMC,0)
 
@@ -42,6 +44,9 @@ class TABMactNtuMC : public TAGaction {
     TAGparaDsc*     fpParGeo;		    // BM geo params.
     EVENT_STRUCT*   fpEvtStr;
     Double_t        rdrift_err;      //default error value of the rdrfit
+    
+    //histos
+    TH1F* fpNhitXEvent;
 
 };
 

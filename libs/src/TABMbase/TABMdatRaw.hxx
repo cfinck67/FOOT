@@ -27,11 +27,12 @@ class TABMdatRaw : public TAGdata {
 
     void            SetHitData(Int_t lay, Int_t view, Int_t cell, Double_t time);
     void            SetCounter(Int_t i_ntdc, Int_t i_ndrop);
+    void            AddDischarged();
 
     Int_t           NHit() const;
     const TABMrawHit& Hit(Int_t i_ind) const;
 
-    Int_t           NTdc() const;
+    //~ Int_t           NTdc() const;
     Int_t           NDrop() const;
 
     virtual void    Clear(Option_t* opt="");
@@ -41,7 +42,7 @@ class TABMdatRaw : public TAGdata {
     ClassDef(TABMdatRaw,1)
 
   private:
-    Int_t           fiNTdc;		      //number of accepted tdc values
+    //~ Int_t           fiNTdc;		      //number of accepted tdc values
     Int_t           fiNDrop;		    //number of discharged tdc values
     vector<TABMrawHit> fHitList;		//list of TABMrawHit ATTENZIONE!! NON È UN TCLONESARRAY COME GLI ALTRI!!!
 };
