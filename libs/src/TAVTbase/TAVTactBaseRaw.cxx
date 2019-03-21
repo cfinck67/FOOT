@@ -32,9 +32,9 @@ const UInt_t TAVTactBaseRaw::fgkKeyTail[]        = {0x8bb08bb0, 0x8bb18bb1, 0x8b
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig)
+TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig)
 : TAGactionFile(name, "TAVTactBaseRaw - Base action for unpack vertex raw data"),
-  fpNtuRaw(pDatRaw),
+  fpNtuRaw(pNtuRaw),
   fpGeoMap(pGeoMap),
   fpConfig(pConfig),
   fData(0x0),
@@ -51,7 +51,7 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc
   fEventsOverflow(0), 
   fNStatesInLine(0)
 {
-   AddDataOut(pDatRaw, "TAVTntuRaw");
+   AddDataOut(pNtuRaw, "TAVTntuRaw");
    AddPara(pGeoMap, "TAVTparGeo");
    AddPara(pConfig, "TAVTparConf");
    
@@ -137,7 +137,7 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
     7) Trailer;
     */
    
-   TAVTntuRaw*  pDatRaw = (TAVTntuRaw*)  fpNtuRaw->Object();
+   TAVTntuRaw*  pNtuRaw = (TAVTntuRaw*)  fpNtuRaw->Object();
    TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
    TAVTparGeo*  pGeoPar = (TAVTparGeo*)  fpGeoMap->Object();
    
@@ -211,7 +211,7 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
                AddPixel(iSensor, 1, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
                if(fDebugLevel>3)
                   printf("sensor %d, line %d, col %d\n", iSensor, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
-               if (pDatRaw->GetPixelsN(iSensor) > pConfig->GetAnalysisPar().HitsInPlaneMaximum) return false;
+               if (pNtuRaw->GetPixelsN(iSensor) > pConfig->GetAnalysisPar().HitsInPlaneMaximum) return false;
                
             }
          }
@@ -235,10 +235,10 @@ void TAVTactBaseRaw::AddPixel( Int_t iSensor, Int_t value, Int_t aLine, Int_t aC
    // - value = analog value of this pixel
    // - line & column = position of the pixel in the matrix
    
-   TAVTntuRaw* pDatRaw = (TAVTntuRaw*) fpNtuRaw->Object();
+   TAVTntuRaw* pNtuRaw = (TAVTntuRaw*) fpNtuRaw->Object();
    TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
    
-   TAVTntuHit* pixel   = (TAVTntuHit*)pDatRaw->NewPixel(iSensor, value, aLine, aColumn);
+   TAVTntuHit* pixel   = (TAVTntuHit*)pNtuRaw->NewPixel(iSensor, value, aLine, aColumn);
    
    double v = pGeoMap->GetPositionV(aLine);
    double u = pGeoMap->GetPositionU(aColumn);

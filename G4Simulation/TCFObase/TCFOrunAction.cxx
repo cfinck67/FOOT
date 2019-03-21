@@ -25,6 +25,9 @@ TString TCFOrunAction::fgRootFileName = "ionCa1000.root";
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 TCFOrunAction::TCFOrunAction()
 : G4UserRunAction(),
+fkEvento(1),
+fpEventoMC(0x0),
+fpEventMC(0x0),
 fpOutFile(0x0),
 fpTree(0x0),
 fEventsNToBeProcessed(-1)
@@ -36,7 +39,8 @@ fEventsNToBeProcessed(-1)
 TCFOrunAction::~TCFOrunAction()
 {
    G4cout<<"Distructor of my class run Action "<<G4endl;
-   delete fpEventMC;
+   if(fpEventoMC) delete fpEventoMC;
+   if(fpEventMC)  delete fpEventMC;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -87,15 +91,21 @@ void TCFOrunAction::SetContainers()
    fpOutFile->cd();
    
    fpTree      = new TTree("EventTree", "FOOT");
-   fpEventMC   = new Evento();
-   
-   fpEventMC->SetBranches(fpTree);
+    if(fkEvento){
+        fpEventoMC = new Evento();
+        fpEventoMC->SetBranches(fpTree);
+    }
+    else{
+        fpEventMC = new TAMCevent();
+        fpEventMC->SetBranches(fpTree);
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void TCFOrunAction::ClearContainers()
 {
-   fpEventMC->Clean();
+   if(fpEventoMC) fpEventoMC->Clean();
+   if(fpEventMC)  fpEventMC->Clean();
 }
 
 

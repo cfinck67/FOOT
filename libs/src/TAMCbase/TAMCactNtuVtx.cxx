@@ -49,13 +49,18 @@ Bool_t TAMCactNtuVtx::Action() {
       
       Int_t sensorId = fpEvtStr->VTXilay[i];
       Int_t trackId  = fpEvtStr->VTXid[i] - 1;
+      Int_t row = fpEvtStr->VTXirow[i];
+      Int_t col = fpEvtStr->VTXicol[i];
 
-      TVector3 pos( fpEvtStr->VTXxin[i], fpEvtStr->VTXyin[i], fpEvtStr->VTXzin[i]);
-      TVector3 mom( fpEvtStr->VTXpxin[i], fpEvtStr->VTXpyin[i], fpEvtStr->VTXpzin[i]);
-      
-      p_nturaw->NewHit(sensorId, pos, mom, fpEvtStr->VTXde[i], fpEvtStr->VTXtim[i], trackId);
+      TVector3 ipos( fpEvtStr->VTXxin[i], fpEvtStr->VTXyin[i], fpEvtStr->VTXzin[i]);
+      TVector3 imom( fpEvtStr->VTXpxin[i], fpEvtStr->VTXpyin[i], fpEvtStr->VTXpzin[i]);
+      TVector3 fpos( fpEvtStr->VTXxout[i], fpEvtStr->VTXyout[i], fpEvtStr->VTXzout[i]);
+      TVector3 fmom( fpEvtStr->VTXpxout[i], fpEvtStr->VTXpyout[i], fpEvtStr->VTXpzout[i]);
+
+//      p_nturaw->NewHit(sensorId, pos, mom, fpEvtStr->VTXde[i], fpEvtStr->VTXtim[i], trackId);
+       p_nturaw->NewHit(sensorId, row, col, -99,ipos, fpos, imom, fmom, fpEvtStr->VTXde[i], fpEvtStr->VTXtim[i], trackId);
    }
-   
+
    fpNtuMC->SetBit(kValid);
    return kTRUE;
 }

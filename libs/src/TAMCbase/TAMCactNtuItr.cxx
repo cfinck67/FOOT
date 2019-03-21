@@ -49,13 +49,18 @@ Bool_t TAMCactNtuItr::Action() {
       
       Int_t sensorId = fpEvtStr->ITRilay[i]*16 +  fpEvtStr->ITRiplume[i]*4 + fpEvtStr->ITRimimo[i];
       Int_t trackId  = fpEvtStr->ITRid[i] - 1;
+      Int_t layer = fpEvtStr->ITRilay[i];
+      Int_t plume = fpEvtStr->ITRiplume[i];
+      Int_t mimo  = fpEvtStr->ITRimimo[i];
 
-      TVector3 pos( fpEvtStr->ITRxin[i], fpEvtStr->ITRyin[i], fpEvtStr->ITRzin[i]);
-      TVector3 mom( fpEvtStr->ITRpxin[i], fpEvtStr->ITRpyin[i], fpEvtStr->ITRpzin[i]);
-      
-      p_nturaw->NewHit(sensorId, pos, mom, fpEvtStr->ITRde[i], fpEvtStr->ITRtim[i], trackId);
+      TVector3 ipos( fpEvtStr->ITRxin[i], fpEvtStr->ITRyin[i], fpEvtStr->ITRzin[i]);
+      TVector3 fpos( fpEvtStr->ITRxout[i], fpEvtStr->ITRyout[i], fpEvtStr->ITRzout[i]);
+      TVector3 imom( fpEvtStr->ITRpxin[i], fpEvtStr->ITRpyin[i], fpEvtStr->ITRpzin[i]);
+      TVector3 fmom( fpEvtStr->ITRpxout[i],fpEvtStr->ITRpyout[i],fpEvtStr->ITRpzout[i]);
+
+      p_nturaw->NewHit(sensorId, layer, plume, mimo, ipos, fpos, imom, fmom, fpEvtStr->ITRde[i], fpEvtStr->ITRtim[i], trackId);
    }
-   
+
    fpNtuMC->SetBit(kValid);
    return kTRUE;
 }

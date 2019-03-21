@@ -50,7 +50,6 @@ private:
    //! Get frame and returns frameRaw
    Bool_t GetFrame(Int_t iSensor, MI26_FrameRaw* data);
    
-   
    //! Set run number
    void   SetRunNumber(const TString& name);
    

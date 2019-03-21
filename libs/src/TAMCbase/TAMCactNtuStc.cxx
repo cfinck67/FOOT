@@ -50,12 +50,14 @@ Bool_t TAMCactNtuStc::Action() {
       Int_t id      = 0;
       Int_t trackId = fpEvtStr->STCid[i] - 1;
 
-      TVector3 pos( fpEvtStr->STCxin[i], fpEvtStr->STCyin[i], fpEvtStr->STCzin[i]);
-      TVector3 mom( fpEvtStr->STCpxin[i], fpEvtStr->STCpyin[i], fpEvtStr->STCpzin[i]);
-      
-      p_nturaw->NewHit(id, pos, mom, fpEvtStr->STCde[i], fpEvtStr->STCtim[i], trackId);
+      TVector3 ipos( fpEvtStr->STCxin[i], fpEvtStr->STCyin[i], fpEvtStr->STCzin[i]);
+      TVector3 fpos( fpEvtStr->STCxout[i], fpEvtStr->STCyout[i], fpEvtStr->STCzout[i]);
+      TVector3 imom( fpEvtStr->STCpxin[i], fpEvtStr->STCpyin[i], fpEvtStr->STCpzin[i]);
+      TVector3 fmom( fpEvtStr->STCpxout[i], fpEvtStr->STCpyout[i], fpEvtStr->STCpzout[i]);
+
+      p_nturaw->NewHit(id, -99, -99, -99, ipos, fpos, imom, fmom, fpEvtStr->STCde[i], fpEvtStr->STCtim[i], trackId);
    }
-   
+
    fpNtuMC->SetBit(kValid);
    return kTRUE;
 }

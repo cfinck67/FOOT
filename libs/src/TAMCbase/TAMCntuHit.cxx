@@ -26,8 +26,10 @@ TString  TAMCntuHit::fgkCalBranchName = "mcca.";
 
 TAMChit::TAMChit()
  : fID(-99),
-   fPosition(0,0,0),
-   fMomentum(0,0,0),
+   fInPosition(0,0,0),
+   fOutPosition(0,0,0),
+   fInMomentum(0,0,0),
+   fOutMomentum(0,0,0),
    fDelatE(0.),
    fTof(0.),
    fTrackId(-1)
@@ -36,10 +38,15 @@ TAMChit::TAMChit()
 
 //------------------------------------------+-----------------------------------
 //! Construct with data
-TAMChit::TAMChit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof, Int_t trackId)
+TAMChit::TAMChit(Int_t id, Int_t layer, Int_t view, Int_t cell, TVector3 inpos, TVector3 outpos,TVector3 inmom, TVector3 outmom, Double_t de, Double_t tof, Int_t trackId)
  : fID(id),
-   fPosition(ipos),
-   fMomentum(imom),
+   fLayer(layer),
+   fView(view),
+   fCell(cell),
+   fInPosition(inpos),
+   fOutPosition(outpos),
+   fInMomentum(inmom),
+   fOutMomentum(outmom),
    fDelatE(de),
    fTof(tof),
    fTrackId(trackId)
@@ -122,11 +129,10 @@ const TAMChit* TAMCntuHit::GetHit(Int_t id) const
 
 //______________________________________________________________________________
 //
-TAMChit* TAMCntuHit::NewHit(Int_t id, TVector3 ipos, TVector3 imom, Double_t de, Double_t tof, Int_t trackId)
+TAMChit* TAMCntuHit::NewHit(Int_t id, Int_t layer, Int_t view, Int_t cell, TVector3 inpos, TVector3 outpos, TVector3 inmom, TVector3 outmom, Double_t de, Double_t tof, Int_t trackId)
 {
    TClonesArray &pixelArray = *fListOfHits;
-   TAMChit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TAMChit(id, ipos, imom, de, tof, trackId);
-   
+   TAMChit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TAMChit(id, layer, view, cell, inpos, outpos, inmom, outmom, de, tof, trackId);
    return hit;
 }
 

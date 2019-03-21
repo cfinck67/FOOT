@@ -49,13 +49,17 @@ Bool_t TAMCactNtuBm::Action() {
       
       Int_t cellId  = fpEvtStr->BMNicell[i];
       Int_t trackId = fpEvtStr->BMNid[i] - 1;
+      Int_t layer = fpEvtStr->BMNilay[i];
+      Int_t view = fpEvtStr->BMNicell[i];
 
-      TVector3 pos( fpEvtStr->BMNxin[i], fpEvtStr->BMNyin[i], fpEvtStr->BMNzin[i]);
-      TVector3 mom( fpEvtStr->BMNpxin[i], fpEvtStr->BMNpyin[i], fpEvtStr->BMNpzin[i]);
-      
-      p_nturaw->NewHit(cellId, pos, mom, fpEvtStr->BMNde[i], fpEvtStr->BMNtim[i], trackId);
+      TVector3 ipos( fpEvtStr->BMNxin[i], fpEvtStr->BMNyin[i], fpEvtStr->BMNzin[i]);
+      TVector3 fpos( fpEvtStr->BMNxout[i], fpEvtStr->BMNyout[i], fpEvtStr->BMNzout[i]);
+      TVector3 imom( fpEvtStr->BMNpxin[i], fpEvtStr->BMNpyin[i], fpEvtStr->BMNpzin[i]);
+      TVector3 fmom( fpEvtStr->BMNpxout[i],fpEvtStr->BMNpyout[i],fpEvtStr->BMNpzout[i]);
+
+      p_nturaw->NewHit(cellId, layer, view, -99, ipos, fpos, imom, fmom, fpEvtStr->BMNde[i], fpEvtStr->BMNtim[i], trackId);
    }
-   
+
    fpNtuMC->SetBit(kValid);
    return kTRUE;
 }

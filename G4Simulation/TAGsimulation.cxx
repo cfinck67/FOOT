@@ -14,6 +14,8 @@
 //FOOT
 #include "TCFOgeometryConstructor.hxx"
 #include "TCFOrunAction.hxx"
+#include "TCFObaseEventAction.hxx"
+#include "TCFOeventoAction.hxx"
 #include "TCFOeventAction.hxx"
 #include "TCFOtrackingAction.hxx"
 
@@ -60,6 +62,8 @@ int main(int argc,char** argv)
    // initialise physics list
    TString physListName("BIC");
 
+   // select the output type (Evento tree or TAMCevent tree)
+    G4bool kEvento(0);
 
    // looking for arguments
    for (int i = 0; i < argc; i++) {
@@ -73,18 +77,18 @@ int main(int argc,char** argv)
       
      if(strcmp(argv[i],"-phys") == 0)
         physListName  = argv[++i];
-	  
-	  if(strcmp(argv[i],"-b") == 0)
+
+     if(strcmp(argv[i],"-b") == 0)
 		 batchMode  = true;
-      
+
      if(strcmp(argv[i],"-out") == 0)
         rootFileName  = argv[++i];
 
 	  if(strcmp(argv[i],"-help") == 0) {
 		 printf("Possible arguments are:\n");
 		 printf("  -b batch mode active \n");
-       printf("  -out rootFileName: root output file name \n");
-       printf("  -phys physList: physics list: BIC, BERT or INCL \n");
+         printf("  -out rootFileName: root output file name \n");
+         printf("  -phys physList: physics list: BIC, BERT or INCL \n");
 		 printf("  -seed seedNb: seed number for random initialisation  \n");
 		 return 1;
 	  }
@@ -133,11 +137,13 @@ int main(int argc,char** argv)
    runManager->SetUserInitialization(physics);
 
    TCGprimaryGeneratorAction* kin = new TCGprimaryGeneratorAction(theDetector->GetParGeoG());
-   G4int eventsNToBeProcessed     = theDetector->GetParGeoG()->GetBeamPar().PartNumber;
+   G4int eventsNToBeProcessed   = theDetector->GetParGeoG()->GetBeamPar().PartNumber;
    TCFOrunAction*   run         = new TCFOrunAction();
-   TCFOeventAction* event       = new TCFOeventAction(run, theDetector);
+   run->SetEvento(kEvento);
+   TCFObaseEventAction* event = 0 ;
+   if(kEvento) event = new TCFOeventoAction(run, theDetector);
+   else event  = new TCFOeventAction(run, theDetector);
    TCFOtrackingAction *tracking = new TCFOtrackingAction(event) ;
-
 
    runManager->SetUserAction(kin);
    runManager->SetUserAction(event);

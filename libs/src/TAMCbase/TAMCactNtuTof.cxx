@@ -49,11 +49,15 @@ Bool_t TAMCactNtuTof::Action() {
       
       Int_t viewId  = ( fpEvtStr->SCNiview[i] == -1 ? 0 : 1 );
       Int_t trackId = fpEvtStr->SCNid[i] - 1;
+      Int_t barId   = fpEvtStr->SCNibar[i];
+      Int_t view    = fpEvtStr->SCNiview[i];
 
-      TVector3 pos( fpEvtStr->SCNxin[i], fpEvtStr->SCNyin[i], fpEvtStr->SCNzin[i]);
-      TVector3 mom( fpEvtStr->SCNpxin[i], fpEvtStr->SCNpyin[i], fpEvtStr->SCNpzin[i]);
-      
-      p_nturaw->NewHit(viewId, pos, mom, fpEvtStr->SCNde[i], fpEvtStr->SCNtim[i], trackId);
+      TVector3 ipos( fpEvtStr->SCNxin[i], fpEvtStr->SCNyin[i], fpEvtStr->SCNzin[i]);
+      TVector3 fpos( fpEvtStr->SCNxout[i], fpEvtStr->SCNyout[i], fpEvtStr->SCNzout[i]);
+      TVector3 imom( fpEvtStr->SCNpxin[i], fpEvtStr->SCNpyin[i], fpEvtStr->SCNpzin[i]);
+      TVector3 fmom( fpEvtStr->SCNpxout[i], fpEvtStr->SCNpyout[i], fpEvtStr->SCNpzout[i]);
+
+      p_nturaw->NewHit(viewId, barId, view, -99, ipos, fpos, imom, fmom, fpEvtStr->SCNde[i], fpEvtStr->SCNtim[i], trackId);
    }
    
    fpNtuMC->SetBit(kValid);

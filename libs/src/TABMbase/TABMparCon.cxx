@@ -101,7 +101,6 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      Error(""," Plane Map Error:: check config file!! (D)");
 	      return kTRUE;
         }
-      bm_debug=max(bm_debug,GlobalPar::GetPar()->Debug());
     }else if(strchr(bufConf,'P')) {
       sscanf(bufConf, "P %d",&myArgInt);
       if(myArgInt>=0) 

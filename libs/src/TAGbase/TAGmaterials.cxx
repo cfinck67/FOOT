@@ -24,6 +24,8 @@
 // ********************************************************************
 //
 //
+#include <fstream>
+#include <sstream>
 
 #include "TAGmaterials.hxx"
 
@@ -37,8 +39,8 @@
                  Int_t TAGmaterials::fgkWhatWidth = 10;
 
 map<TString, TString> TAGmaterials::fgkCommonName = {{"SmCo", "Sm2Co17"}, {"Polyethy", "CH24C2H4"}, {"Kapton", "C22H10N2O5"}, {"Epoxy", "C18H19O3"},
-                                                     {"BGO", "Bi4Ge3O12"}, {"SiCFoam", "SiC/AIR"}, {"TUNGSTEN", "W"}, {"Graphite", "C3"}, {"EJ232", "C9H10"},
-                                                     {"EJ228", "C9H10"}, {"Mylar", "C10H8O4"}  };
+                                                     {"BGO", "Bi4Ge3O12"}, {"SiCFoam", "SiC/AIR"}, {"TUNGSTEN", "W"}, {"Graphite", "C3"}, {"EJ232", "C4.66H5.13"},
+                                                     {"EJ228", "C4.69H5.17"}, {"Mylar", "C10H8O4"}  };
 
 map<TString, Int_t>   TAGmaterials::fgkLowMat     = {{"Graphite", 1}};
 
@@ -300,7 +302,7 @@ void TAGmaterials::GetIsotopeAndWeight(const TString formula)
    if (weight < 1) weight = 1.;
    
    if (fDegugLevel > 0)
-      printf("%s %g\n", sIsotope.Data(), weight);
+      printf("Isotope:: %s %g\n", sIsotope.Data(), weight);
    
    fIsotope.push_back(sIsotope);
    fIsotopeWeight.push_back(weight);
@@ -343,53 +345,13 @@ void TAGmaterials::CreateDefaultMaterials()
 // Emulate automatically FLUKA file
 // Taking into account the MATERIAL, COMPOUND and LOW-MAT
 // Aligned variables on the dedicated column
-void TAGmaterials::SaveFileFluka(const TString filename)
+string TAGmaterials::SaveFileFluka()
 {
    
    TList* list = gGeoManager->GetListOfMaterials();
    
-   FILE* fp = fopen(filename.Data(), "w");
-   
-   fprintf(fp, "TITLE\n");
-   fprintf(fp, "FOOT setup\n");
-   fprintf(fp, "* ****************************************************************************\n");
-   fprintf(fp, "GLOBAL         9999.                                      1.\n");
-   fprintf(fp, "DEFAULTS                                                              PRECISIO\n");
-   fprintf(fp, "PHYSICS           3.                                                  EVAPORAT\n");
-   fprintf(fp, "IONTRANS    HEAVYION\n");
-   fprintf(fp, "RADDECAY          2.                  1.\n");
-   fprintf(fp, " * ******************************************************************************\n");
-   fprintf(fp, "*                           GENERAL & PRIMARY                                  *\n");
-   fprintf(fp, "* ******************************************************************************\n");
-   fprintf(fp, "* -------1---------2---------3---------4---------5---------6---------7---------8\n");
-   fprintf(fp, "* command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |\n");
-   fprintf(fp, "* -------1---------2---------3---------4---------5---------6---------7---------8\n");
-   fprintf(fp, "* @@@START GENERATED, DO NOT MODIFY:GENERAL@@@ *********************************\n");
-   fprintf(fp, "PHYSICS           1.                                                  COALESCE\n");
-   fprintf(fp, "BEAM       -0.200000       0.0       0.0 -0.480000 -0.480000        1.HEAVYION\n");
-   fprintf(fp, "HI-PROPE          8.       16.\n");
-   fprintf(fp, "BEAMPOS          0.0       0.0      -30.       0.0       0.0\n");
-   fprintf(fp, "EMFCUT           -1.        1.               BLACK  @LASTREG        1.\n");
-   fprintf(fp, "EMFCUT           -1.        1.        1.  BLCKHOLE  @LASTMAT        1.PROD-CUT\n");
-   fprintf(fp, "DELTARAY          1.                      BLCKHOLE  @LASTMAT        1.\n");
-   fprintf(fp, "PAIRBREM         -3.                      BLCKHOLE  @LASTMAT\n");
-   fprintf(fp, "* @@@END GENERATED:GENERAL@@@ **************************************************\n");
-   fprintf(fp, "* ******************************************************************************\n");
-   fprintf(fp, "*                          GEOMETRY                                            *\n");
-   fprintf(fp, "* ******************************************************************************\n");
-   fprintf(fp, "GEOBEGIN                             15.                              COMBNAME\n");
-   fprintf(fp, "foot.geo\n");
-   fprintf(fp, "GEOEND\n");
-   fprintf(fp, "* ******************************************************************************\n");
-   fprintf(fp, "*                          MEDIA                                               *\n");
-   fprintf(fp, "* ******************************************************************************\n");
-   fprintf(fp, "* -------1---------2---------3---------4---------5---------6---------7---------8\n");
-   fprintf(fp, "* command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |\n");
-   fprintf(fp, "* -------1---------2---------3---------4---------5---------6---------7---------8\n");
-   fprintf(fp, "* *** Added manually\n");
-   fprintf(fp, "MATERIAL          0.        0.                                        BLCKHOLE\n");
+   stringstream ss;
 
-   
    for (Int_t i = 0; i < list->GetEntries(); ++i) {
       
       TGeoMixture *mix = (TGeoMixture *)gGeoManager->GetListOfMaterials()->At(i);
@@ -412,7 +374,7 @@ void TAGmaterials::SaveFileFluka(const TString filename)
                      PrependFlukaName(element->GetName(), 3);
             else
                cmd = AppendFluka("MATERIAL") + PrependFluka(Form("%4d.", element->Z())) + PrependFluka(Form("%-g", element->A())) + PrependFlukaName(element->GetName(), 4);
-            fprintf(fp, "%s\n", cmd.Data());
+	    ss << cmd.Data() << endl;
             
          } else { // LOW-MAT
             TGeoElement *element = mix->GetElement(0);
@@ -422,10 +384,10 @@ void TAGmaterials::SaveFileFluka(const TString filename)
             fPrintedElt[element->GetName()] = 1;
             
             TString cmd = AppendFluka("MATERIAL") + PrependFluka(Form("%4d.", element->Z())) + PrependFluka(Form("%-g", element->A())) + PrependFlukaName(element->GetName(), 4);
-            fprintf(fp, "%s\n", cmd.Data());
+	    ss << cmd.Data() << endl;
 
             cmd = AppendFluka("MATERIAL") + PrependFluka(Form("%4d.", element->Z())) + PrependFluka(Form("%-g",mix->GetDensity()), 2) +  PrependFlukaName(mix->GetName(), 3);
-            fprintf(fp, "%s\n", cmd.Data());
+	    ss << cmd.Data() << endl;
          }
       }
       
@@ -440,12 +402,12 @@ void TAGmaterials::SaveFileFluka(const TString filename)
                continue;
             
             TString cmd = AppendFluka("MATERIAL") + PrependFluka(Form("%4d.", element->Z())) + PrependFluka(Form("%-g", element->A())) + PrependFlukaName(element->GetName(), 4);
-            fprintf(fp, "%s\n", cmd.Data());
+	    ss << cmd.Data() << endl;
             fPrintedElt[element->GetName()] = 1;
          }
 
          TString cmd = AppendFluka("MATERIAL") + PrependFluka(Form("%g",mix->GetDensity()), 3) +  PrependFlukaName(mix->GetName(), 3);
-         fprintf(fp, "%s\n", cmd.Data());
+	    ss << cmd.Data() << endl;
 
           cmd = AppendFluka("COMPOUND");
          
@@ -470,7 +432,7 @@ void TAGmaterials::SaveFileFluka(const TString filename)
          else
             Warning("SaveFileFluka()", "Number of element in the compund material is %d (max: 3)", nElements);
 
-         fprintf(fp, "%s\n", cmd.Data());
+	 ss << cmd.Data() << endl;
       }
       
       
@@ -485,66 +447,15 @@ void TAGmaterials::SaveFileFluka(const TString filename)
                
                TString cmd = AppendFluka("LOW-MAT") +  PrependFlukaName(mix->GetName(), 1, -1) + PrependFluka(Form("%4d.", element->Z())) + PrependFluka(Form("%4d.", -mix->GetNmixt()[0]));
                cmd += PrependFluka(Form("%-g", mix->GetTemperature())) +  PrependFlukaName(element->GetName(), 2);
-               fprintf(fp, "%s\n", cmd.Data());
+	       ss << cmd.Data() << endl;
             }
          }
       }
       
    }
-   
-   fprintf(fp, "*\n");
-   fprintf(fp, "* ******************************************************************************\n");
-   fprintf(fp, "*                         MEDIA & MAGFIELD                                     *\n");
-   fprintf(fp, "* ******************************************************************************\n");
-   fprintf(fp, "* -------1---------2---------3---------4---------5---------6---------7---------8\n");
-   fprintf(fp, "* command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |\n");
-   fprintf(fp, "* -------1---------2---------3---------4---------5---------6---------7---------8\n");
-   fprintf(fp, "* @@@START GENERATED, DO NOT MODIFY:MATERIAL&MAGFIELD@@@ ***********************\n");
-   fprintf(fp, "ASSIGNMA    BLCKHOLE     BLACK                                                  \n");
-   fprintf(fp, "ASSIGNMA         AIR       AIR                                                  \n");
-   fprintf(fp, "ASSIGNMA       EJ232       STC                                                  \n");
-   fprintf(fp, "ASSIGNMA          AL   BMN_SHI                                                  \n");
-   fprintf(fp, "ASSIGNMA       Mylar  BMN_MYL0                                                  \n");
-   fprintf(fp, "ASSIGNMA       Mylar  BMN_MYL1                                                  \n");
-   fprintf(fp, "ASSIGNMA      Ar-CO2  BMN_C000  BMN_C017        1.                              \n");
-   fprintf(fp, "ASSIGNMA      Ar-CO2  BMN_C100  BMN_C117        1.                              \n");
-   fprintf(fp, "ASSIGNMA      Ar-CO2   BMN_GAS                                                  \n");
-   fprintf(fp, "ASSIGNMA          AL   BMN_FWI                                                  \n");
-   fprintf(fp, "ASSIGNMA          W    BMN_SWI                                                  \n");
-   fprintf(fp, "ASSIGNMA    Polyethy    TARGET                            1.                    \n");
-   fprintf(fp, "ASSIGNMA          SI     VTXP0     VTXS3        1.        1.                    \n");
-   fprintf(fp, "ASSIGNMA          AL     ITRP2    ITRP73        1.                              \n");
-   fprintf(fp, "ASSIGNMA       Epoxy     ITRP0    ITRP75        1.                              \n");
-   fprintf(fp, "ASSIGNMA      Kapton     ITRP1    ITRP74        1.                              \n");
-   fprintf(fp, "ASSIGNMA          SI    ITRP13   ITRS313        1.        1.                    \n");
-   fprintf(fp, "ASSIGNMA     SiC/AIR     ITRP6    ITRP69        1.                              \n");
-   fprintf(fp, "ASSIGNMA        SmCo   MAG_PM0                                                  \n");
-   fprintf(fp, "ASSIGNMA          AL   MAG_CV0                                                  \n");
-   fprintf(fp, "ASSIGNMA        SmCo   MAG_PM1                                                  \n");
-   fprintf(fp, "ASSIGNMA          AL   MAG_CV1                                                  \n");
-   fprintf(fp, "ASSIGNMA         AIR   MAG_AIR                            1.                    \n");
-   fprintf(fp, "ASSIGNMA          SI     MSDS0     MSDS2        1.        1.                    \n");
-   fprintf(fp, "ASSIGNMA         AIR       BOX                                                  \n");
-   fprintf(fp, "ASSIGNMA       EJ232    SCN000    SCN121        1.                              \n");
-   fprintf(fp, "ASSIGNMA         BGO    CAL000    CAL359        1.                              \n");
-   fprintf(fp, "MGNFIELD    0.100000  0.000010                 0.0       0.0       0.0\n");
-   fprintf(fp, "* @@@END GENERATED:MATERIAL&MAGFIELD@@@ ****************************************\n");
-   fprintf(fp, "*\n");
-   fprintf(fp, "* ******************************************************************************\n");
-   fprintf(fp, "* -------1---------2---------3---------4---------5---------6---------7---------8\n");
-   fprintf(fp, "* command| idbflg  | FragTrg |Eth(Mev) |unused   |unused   |unused | SDUM      |\n");
-   fprintf(fp, "* -------1---------2---------3---------4---------5---------6---------7---------8\n");
-   fprintf(fp, "USRICALL         0.0        6.       0.1       0.0       0.0       0.0\n");
-   fprintf(fp, "USERDUMP        100.       69.       0.0        1.                    Opt\n");
-   fprintf(fp, "USROCALL\n");
-   fprintf(fp, "RANDOMIZ          1.   593585.\n");
-   fprintf(fp, "* ******************************************************************************\n");
-   fprintf(fp, "*                          RUN                                                 *\n");
-   fprintf(fp, "* ******************************************************************************\n");
-   fprintf(fp, "START            10.\n");
-   fprintf(fp, "STOP\n");
 
-   fclose(fp);
+   return ss.str();
+      
 }
 
 //______________________________________________________________________________

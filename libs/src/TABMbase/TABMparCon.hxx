@@ -16,7 +16,6 @@
 
 #include <vector>
 
-#include "GlobalPar.hxx"
 #include "TAGpara.hxx"
 #include "foot_geo.h"
 #include "TABMparMap.hxx"

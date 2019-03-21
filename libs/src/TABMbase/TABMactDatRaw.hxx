@@ -27,8 +27,8 @@ class TABMactDatRaw : public TAGaction {
                                   TAGdataDsc* p_datdaq=0,
                                   TAGparaDsc* p_parmap=0,
                                   TAGparaDsc* p_parcon=0,
-                                  TAGparaDsc* p_pargeo=0);
-                                  // TAGdataDsc* p_timraw=0);
+                                  TAGparaDsc* p_pargeo=0,
+				  TAGdataDsc* p_timraw=0);
     virtual         ~TABMactDatRaw();
 
     virtual Bool_t  Action();

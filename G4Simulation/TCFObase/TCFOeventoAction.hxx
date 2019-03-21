@@ -1,7 +1,7 @@
-//TCFOeventAction
+//TCFOeventoAction
 
-#ifndef TCFOeventAction_h
-#define TCFOeventAction_h 1
+#ifndef TCFOeventoAction_h
+#define TCFOeventoAction_h 1
 
 #include "TCFObaseEventAction.hxx"
 #include "globals.hh"
@@ -11,18 +11,17 @@
 class TCFOrunAction;
 class TCGbaseGeometryConstructor;
 class TCFOgeometryConstructor;
-class TAMCevent;
+class Evento;
 class TCGmcHit;
-
 
 // Event action for HIT geometry
 
 //------------------------------------------------
-class TCFOeventAction : public TCFObaseEventAction
+class TCFOeventoAction : public TCFObaseEventAction
 {
     public:
-    TCFOeventAction(TCFOrunAction* runAction, TCGbaseGeometryConstructor* hitGeomConstructor);
-    ~TCFOeventAction();
+    TCFOeventoAction(TCFOrunAction* runAction, TCGbaseGeometryConstructor* hitGeomConstructor);
+    ~TCFOeventoAction();
 
     public:
     void   EndOfEventAction(const G4Event*);
@@ -31,7 +30,7 @@ class TCFOeventAction : public TCFObaseEventAction
     private:
     void   FillTrack();
     void   GetHitPerPlane(const G4Event* evt, G4int idColl);
-    void   FillHits(TAMCevent* mcHit, TCGmcHit* hit);
+    void   FillHits(Evento* mcHit, TCGmcHit* hit);
 };
 
 #endif

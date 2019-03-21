@@ -50,7 +50,7 @@ ClassImp(TAFOeventDisplay)
 
 Bool_t  TAFOeventDisplay::fgTrackFlag    = true;
 TString TAFOeventDisplay::fgTrackingAlgo = "Std";
-Bool_t  TAFOeventDisplay::fgStdAloneFlag = true;
+Bool_t  TAFOeventDisplay::fgStdAloneFlag = false;
 
 TAFOeventDisplay* TAFOeventDisplay::fgInstance = 0x0;
 
@@ -75,37 +75,65 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fpParGeoMsd(0x0),
    fpParGeoTw(0x0),
    fpParGeoCa(0x0),
+
    fpParMapSt(0x0),
    fpParMapBm(0x0),
+
+   fpParCalBm(0x0),
+   fpParCalTw(0x0),
+
    fpParConfBm(0x0),
    fpParConfVtx(0x0),
    fpParConfIt(0x0),
+   fpParConfMsd(0x0),
+
+   fpDaqEvent(0x0),
    fpDatRawSt(0x0),
+   fpNtuRawSt(0x0),
+
    fpDatRawBm(0x0),
    fpNtuRawBm(0x0),
+   fpNtuTrackBm(0x0),
+
    fpNtuRawVtx(0x0),
    fpNtuClusVtx(0x0),
    fpNtuTrackVtx(0x0),
    fpNtuVtx(0x0),
+
+   fpDatRawIt(0x0),
    fpNtuRawIt(0x0),
    fpNtuClusIt(0x0),
+
    fpDatRawMsd(0x0),
    fpNtuRawMsd(0x0),
    fpNtuClusMsd(0x0),
+
    fpNtuRawTw(0x0),
+   fpNtuRecTw(0x0),
+   fpNtuRawCa(0x0),
+
    fActEvtReader(0x0),
+
+   fActDatRawSt(0x0),
+
    fActVmeReaderBm(0x0),
    fActDatRawBm(0x0),
    fActTrackBm(0x0),
+
    fActVmeReaderVtx(0x0),
    fActNtuRawVtx(0x0),
    fActClusVtx(0x0),
    fActTrackVtx(0x0),
    fActVtx(0x0),
+
    fActNtuRawIt(0x0),
    fActClusIt(0x0),
+
    fActNtuRawMsd(0x0),
    fActClusMsd(0x0),
+
+   //fActNtuRawTw(0x0),
+   fActPointTw(0x0),
    fType(type),
    fStClusDisplay(new TAGclusterDisplay("Start counter hit")),
    fBmClusDisplay(new TAGwireDisplay("Beam Monitoring Wires")),
@@ -500,6 +528,11 @@ void TAFOeventDisplay::CreateRawAction()
 {
    ReadParFiles();
 
+   if (!fgStdAloneFlag) {
+      fpDaqEvent = new TAGdataDsc("daqEvt", new TAGdaqEvent());
+      fActEvtReader = new TAGactDaqReader("daqActReader", fpDaqEvent);
+   }
+   
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
       fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDaqEvent, fpParMapSt);
@@ -514,7 +547,7 @@ void TAFOeventDisplay::CreateRawAction()
          fActVmeReaderBm->CreateHistogram();
          
       } else {
-         fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm);
+         fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
          fActDatRawBm->CreateHistogram();
       }
    }
@@ -527,7 +560,7 @@ void TAFOeventDisplay::CreateRawAction()
          fActVmeReaderVtx->CreateHistogram();
 
       } else {
-         fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDaqEvent, fpParGeoVtx);
+         fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDaqEvent, fpParGeoVtx, fpParConfVtx);
          fActNtuRawVtx->CreateHistogram();
       }
    }
@@ -567,7 +600,6 @@ void TAFOeventDisplay::OpenFile(const TString fileName)
    if (fgStdAloneFlag)
       fActVmeReaderVtx->Open(fileName.Data());
    else {
-      fpDaqEvent = new TAGdataDsc("daqEvt", new TAGdaqEvent());
       fActEvtReader->Open(fileName.Data());
    }
 }
@@ -615,6 +647,9 @@ void TAFOeventDisplay::ResetHistogram()
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItem()
 {
+   if (!fgStdAloneFlag)
+      fTAGroot->AddRequiredItem("daqActReader");
+
    if (GlobalPar::GetPar()->IncludeST())
       AddRequiredItemSt();
    
@@ -977,7 +1012,10 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
       
       Int_t nclus = pNtuClus->GetClustersN(iPlane);
       
-      if (nclus == 0) continue;
+      if (fTAGroot->CurrentRunInfo().RunNumber() == -1 && nclus == 0) // known bug if first event is empty
+         fVtxClusDisplay->AddHit(50, 0, 0, 0);
+      else if (nclus == 0) continue;
+      
       for (Int_t iClus = 0; iClus < nclus; ++iClus) {
          TAVTcluster *clus = pNtuClus->GetCluster(iPlane, iClus);
          if (!clus->IsValid()) continue;

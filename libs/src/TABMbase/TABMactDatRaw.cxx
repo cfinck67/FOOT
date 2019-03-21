@@ -31,22 +31,22 @@ TABMactDatRaw::TABMactDatRaw(const char* name,
                              TAGdataDsc* p_datdaq,
                              TAGparaDsc* p_parmap,
                              TAGparaDsc* p_parcon,
-                             TAGparaDsc* p_pargeo
-                             // TAGdataDsc* p_timraw
+                             TAGparaDsc* p_pargeo,
+			     TAGdataDsc* p_timraw
                              )
   : TAGaction(name, "TABMactDatRaw - Unpack BM raw data"),
     fpDatRaw(p_datraw),
     fpDatDaq(p_datdaq),
     fpParMap(p_parmap),
     fpParCon(p_parcon),
-    fpParGeo(p_pargeo)
-    // fpTimRaw(p_timraw)
+    fpParGeo(p_pargeo),
+    fpTimRaw(p_timraw)
 {
   AddDataOut(p_datraw, "TABMdatRaw");
   AddPara(p_parmap, "TABMparMap");
   AddPara(p_parcon, "TABMparCon");
   AddPara(p_pargeo, "TABMparGeo");
-  // AddDataIn(p_timraw, "TASTdatRaw");
+  AddDataIn(p_timraw, "TASTdatRaw");
 }
 
 //------------------------------------------+-----------------------------------
@@ -89,15 +89,14 @@ Bool_t TABMactDatRaw::DecodeHits(const TDCEvent* evt) {
    TABMparMap*    p_parmap = (TABMparMap*)    fpParMap->Object();
    TABMparCon*    p_parcon = (TABMparCon*)    fpParCon->Object();
    TABMparGeo*    p_pargeo = (TABMparGeo*)    fpParGeo->Object();
-   // TASTdatRaw*    p_timraw = (TASTdatRaw*)    fpTimRaw->Object();
+   TASTdatRaw*    p_timraw = (TASTdatRaw*)    fpTimRaw->Object();
    
-
   Int_t view,plane,cell, channel, measurement;
     
   if(evt->tdcHeader.size()>1 || evt->tdcHeader.size()>1) //double sync event
     return true;
   else
-    for(Int_t i=0;i<evt->measurement.size();i++){
+    for(Int_t i=0;i<((int)evt->measurement.size());i++){
       measurement=evt->measurement.at(i) & 0x7ffff;
       channel=(evt->measurement.at(i)>>19) & 0x7f;
       if(p_parmap->tdc2cell(channel)>=0 && ((((Double_t) measurement)/10.) - p_parcon->GetT0(p_parmap->tdc2cell(channel))-p_timraw->TrigTime())<p_parcon->GetHitTimecut()){//-1000=syncTime, -1=not set
@@ -113,7 +112,6 @@ Bool_t TABMactDatRaw::DecodeHits(const TDCEvent* evt) {
     //~ }
   //~ }
 
-  
    return true;
 }
 
