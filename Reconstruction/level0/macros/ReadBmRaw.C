@@ -16,6 +16,8 @@
 #include "TAGroot.hxx"
 #include "TAGactTreeWriter.hxx"
 
+#include "TASTdatRaw.hxx"
+
 #include "TABMparGeo.hxx"
 #include "TABMparCon.hxx"
 #include "TABMdatRaw.hxx"
@@ -44,12 +46,14 @@ void FillBM()
 
    TAGparaDsc* bmMap = new TAGparaDsc("bmMap", new TABMparMap());
 
+
    TAGdataDsc* bmDaq    = new TAGdataDsc("bmDaq", new TAGdaqEvent());
+   TAGdataDsc* stDat    = new TAGdataDsc("stDat", new TASTdatRaw());
    TAGdataDsc* bmDat    = new TAGdataDsc("bmDat", new TABMdatRaw());
 
    daqActReader  = new TAGactDaqReader("daqActReader", bmDaq);
 
-   bmActRaw  = new TABMactDatRaw("bmActRaw", bmDat, bmDaq, bmMap, bmConf, bmGeo);
+   bmActRaw  = new TABMactDatRaw("bmActRaw", bmDat, bmDaq, bmMap, bmConf, bmGeo, stDat);
    bmActRaw->CreateHistogram();
 
 }
