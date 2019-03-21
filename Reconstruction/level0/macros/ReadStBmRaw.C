@@ -41,15 +41,12 @@ TABMactDatRaw*      bmActRaw  = 0x0;
 void FillST()
 {
    TAGparaDsc* stMap = new TAGparaDsc("stMap", new TASTparMap());
-   
-   evDaq    = new TAGdataDsc("evDaq", new TAGdaqEvent());
-   stDat    = new TAGdataDsc("stDat", new TASTdatRaw());
-   
-   daqActReader  = new TAGactDaqReader("daqActReader", evDaq);
+   evDaq             = new TAGdataDsc("evDaq", new TAGdaqEvent());
+   stDat             = new TAGdataDsc("stDat", new TASTdatRaw());
+   daqActReader       = new TAGactDaqReader("daqActReader", evDaq);
    
    stActRaw  = new TASTactDatRaw("stActRaw", stDat, evDaq, stMap);
    stActRaw->CreateHistogram();
-   
 }
 
 void FillBM()
@@ -64,20 +61,16 @@ void FillBM()
    parconf->LoadReso("./config/bmreso_vs_r.root");
 
    TAGparaDsc* bmMap = new TAGparaDsc("bmMap", new TABMparMap());
-
-   TAGdataDsc* bmDat    = new TAGdataDsc("bmDat", new TABMdatRaw());
-
-   daqActReader  = new TAGactDaqReader("daqActReader", evDaq);
+   TAGdataDsc* bmDat = new TAGdataDsc("bmDat", new TABMdatRaw());
+   daqActReader      = new TAGactDaqReader("daqActReader", evDaq);
 
    bmActRaw  = new TABMactDatRaw("bmActRaw", bmDat, evDaq, bmMap, bmConf, bmGeo, stDat);
    bmActRaw->CreateHistogram();
-
 }
 
 //void ReadStBmRaw(TString filename = "data_test.00001431.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",  Int_t nMaxEvts = 3)
 void ReadStBmRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",  Int_t nMaxEvts = 3)
 {
-
    TAGroot tagr;
    tagr.SetCampaignNumber(100);
    tagr.SetRunNumber(1);
