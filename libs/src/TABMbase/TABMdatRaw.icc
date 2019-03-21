@@ -24,10 +24,10 @@ inline const TABMrawHit& TABMdatRaw::Hit(Int_t i_ind) const
 //------------------------------------------+-----------------------------------
 //! Returns number of accepted TDC values.
 
-inline Int_t TABMdatRaw::NTdc() const
-{
-  return fiNTdc;
-}
+//~ inline Int_t TABMdatRaw::NTdc() const
+//~ {
+  //~ return fiNTdc;
+//~ }
 
 //------------------------------------------+-----------------------------------
 //! Returns number of discarded FastBus values.

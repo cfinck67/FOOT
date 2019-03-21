@@ -45,10 +45,16 @@ void TABMdatRaw::SetHitData(Int_t lay, Int_t view, Int_t cell, Double_t time)
 /*------------------------------------------+---------------------------------*/
 //! Set statistics counters.
 
-void TABMdatRaw::SetCounter(Int_t i_ntdc, Int_t i_ndrop)
+//~ void TABMdatRaw::SetCounter(Int_t i_ntdc, Int_t i_ndrop)
+//~ {
+  //~ fiNTdc  = i_ntdc;
+  //~ fiNDrop = i_ndrop;
+  //~ return;
+//~ }
+
+void TABMdatRaw::AddDischarged()
 {
-  fiNTdc  = i_ntdc;
-  fiNDrop = i_ndrop;
+  fiNDrop++;
   return;
 }
 
@@ -80,7 +86,6 @@ void TABMdatRaw::ToStream(ostream& os, Option_t* option) const
 {
   os << "TABMdatRaw " << GetName()
      << Form("  nhit=%3d", NHit())
-     << Form("  ntdc=%3d", NTdc())
      << Form("  ndrop=%3d", NDrop())
      << endl;
   

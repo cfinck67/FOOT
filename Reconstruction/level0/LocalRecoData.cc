@@ -66,22 +66,49 @@ void LocalRecoData::CreateRawAction() {
    
    
    m_daqEvent    = new TAGdataDsc("daqEvt", new TAGdaqEvent());
+   TString parFileName;
+   
+   m_parGeo_TG = new TAGparaDsc(TAGparGeo::GetDefParaName(), new TAGparGeo());
+   TAGparGeo* fpParGeo = (TAGparGeo*)m_parGeo_TG->Object();
+   fpParGeo->FromFile();   
 
-   if (GlobalPar::GetPar()->IncludeST()) {}
+   if (GlobalPar::GetPar()->IncludeST()) {
+     m_parMap_ST = new TAGparaDsc("parMap_ST", new TASTparMap());
+     TASTparMap* fpParMapSt = (TASTparMap*) m_parMap_ST->Object();
+     parFileName="./geomaps/tr_ch.map";
+     fpParMapSt->FromFile(parFileName);
+     
+     m_datRaw_ST = new TAGdataDsc("datRaw_ST", new TASTdatRaw()); 
+     m_actDatRaw_ST = new TASTactDatRaw( "actDatRaw_ST", m_datRaw_ST,m_daqEvent,m_parMap_ST);
+   }
    
    if (GlobalPar::GetPar()->IncludeBM()) {
-      
-
       m_datRaw_BM = new TAGdataDsc("datRaw_BM", new TABMdatRaw()); 
       m_ntuRaw_BM = new TAGdataDsc("ntuRaw_BM", new TABMntuRaw()); 
       m_ntuTrack_BM = new TAGdataDsc("ntuTrack_BM", new TABMntuTrack()); 
-
-      m_parMap_BM = new TAGparaDsc("parMap_BM", new TABMparMap());
+  
+     m_parGeo_BM    = new TAGparaDsc(TABMparGeo::GetDefParaName(), new TABMparGeo());
+     TABMparGeo* fpParGeoBm   = (TABMparGeo*) m_parGeo_BM->Object();
+     fpParGeoBm->FromFile();
+  
+      m_parCon_BM  = new TAGparaDsc("parCon_BM", new TABMparCon());
+      TABMparCon* fpParConfBm = (TABMparCon*)m_parCon_BM->Object();
+      parFileName = "./config/beammonitor.cfg";
+      fpParConfBm->FromFile(parFileName.Data());
+      parFileName = "./config/bmreso_vs_r.root";
+      fpParConfBm->LoadReso(parFileName);
+   
+      m_parMap_BM  = new TAGparaDsc("parMap_BM", new TABMparMap());
+      TABMparMap*  fpParMap_BM = (TABMparMap*)m_parMap_BM->Object();
+      parFileName = "./geomaps/";
+      parFileName += fpParConfBm->GetParmapfile();
+      fpParMap_BM->FromFile(parFileName.Data(), fpParGeoBm);
+    
 
       // TABMactVmeReader // later...
-      m_actDatRaw_BM = new TABMactDatRaw( "actDatRaw_BM", m_datRaw_BM, m_daqEvent, m_parMap_BM, fpParConfBm, fpParGeoBm );
-      m_actNtuRaw_BM = new TABMactNtuRaw( "actNtuRaw_BM", m_ntuRaw_BM, m_datRaw_BM, fpParGeoBm, fpParConfBm );
-      m_actNtuTrack_BM = new TABMactNtuTrack( "actNtuTrack_BM",m_ntuTrack_BM, m_ntuRaw_BM,  fpParGeoBm, fpParConfBm, fpParGeoG );
+      m_actDatRaw_BM = new TABMactDatRaw( "actDatRaw_BM", m_datRaw_BM, m_daqEvent, m_parMap_BM, m_parCon_BM, m_parGeo_BM, m_datRaw_ST);
+      m_actNtuRaw_BM = new TABMactNtuRaw( "actNtuRaw_BM", m_ntuRaw_BM, m_datRaw_BM, m_datRaw_ST, m_parGeo_BM, m_parCon_BM );
+      m_actNtuTrack_BM = new TABMactNtuTrack( "actNtuTrack_BM",m_ntuTrack_BM, m_ntuRaw_BM,  m_parGeo_BM, m_parCon_BM, m_parGeo_TG );
       
       if (fFlagHisto) {
          // m_actDatRaw->CreateHistogram();
@@ -106,7 +133,7 @@ void LocalRecoData::CreateRawAction() {
 void LocalRecoData::OpenFileIn()
 {
 
-   fActEvtReader = new TAGactDaqReader("/gpfs_data/local/foot/DAQfiles/data_test.00001201.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data.moved");
+   fActEvtReader = new TAGactDaqReader("data_test.00001201.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data.moved");
    // fActEvtReader = new TAGactDaqReader(fileNameIn);
 
    // fActEvtReader->SetupChannel(m_daqEvent);

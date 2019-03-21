@@ -23,12 +23,11 @@ ClassImp(TABMactVmeReader);
 //! Default constructor.
 
 TABMactVmeReader::TABMactVmeReader(const char* name,
-				   TAGdataDsc* p_datraw, 
-				   TAGparaDsc* p_parmap,
-				   TAGparaDsc* p_parcon,
-				   TAGparaDsc* p_pargeo,
-				   TAGdataDsc* p_timraw, 
-				   BM_struct*  p_bmstruct)
+			     TAGdataDsc* p_datraw,
+			     TAGparaDsc* p_parmap,
+			     TAGparaDsc* p_parcon,
+			     TAGparaDsc* p_pargeo,
+           TAGdataDsc* p_timraw)
   : TAGaction(name, "TABMactVmeReader - Unpack standalone BM raw data"),
     fpDatRaw(p_datraw),
     fpParMap(p_parmap),
