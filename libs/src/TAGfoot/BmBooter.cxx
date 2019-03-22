@@ -152,13 +152,13 @@ void BmBooter::Process() {
   bmnturaw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
   //~ bmnturaw=(TABMntuRaw*) myn_bmraw->GenerateObject();
   evaluate_cell_occupy();
+  track_ok=-3;
   
-    track_ok=-3;
   if(bmnturaw->nhit >= bmcon->GetMaxnhit_cut())
     track_ok=-2;
   else if(bmnturaw->nhit <= bmcon->GetMinnhit_cut())
     track_ok=-1;  
-  else if(bmcon->GetFitterIndex()>0){  
+  else if(bmcon->GetFitterIndex()>0){    
     bmntutrack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
     track_ok=bmntutrack->trk_status;
   }

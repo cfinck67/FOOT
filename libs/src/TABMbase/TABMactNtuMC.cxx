@@ -98,7 +98,6 @@ Bool_t TABMactNtuMC::Action()
       Wvers.SetMag(1.);                      
       rdriftxcell.at(i)=FindRdrift(loc, gmom, A0, Wvers);
       
-      
       //~ rdriftxcell.at(i)-=0.05;//provv
       //~ if(rdriftxcell.at(i)<0) rdriftxcell.at(i)=0.;
       
@@ -173,8 +172,7 @@ Bool_t TABMactNtuMC::Action()
   Double_t realrdrift;    
   //charge the hits:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
-    if(p_bmcon->GetBMdebug()>=3)
-      cout<<"In the charging hits loop: I'm going to charge hit number:"<<i<<"/"<<fpEvtStr->BMNn<<"  tobecharged="<<tobecharged.at(i)<<endl;
+
     if(tobecharged.at(i)){
       ipoint=fpEvtStr->BMNid[i]-1;
       cell = fpEvtStr->BMNicell[i];
@@ -191,7 +189,9 @@ Bool_t TABMactNtuMC::Action()
         rdriftxcell.at(i)=p_bmcon->FirstSTrelMC(p_bmcon->InverseStrel(rdriftxcell.at(i)), p_bmcon->GetCalibro());//this is useful if you want to change the strel      
       //~ if(rdriftxcell.at(i)==0)
         //~ rdriftxcell.at(i)=0.001;
-      
+
+      if(p_bmcon->GetBMdebug()>=3)
+        cout<<"In the charging hits loop: I'm going to charge hit number:"<<i<<"/"<<fpEvtStr->BMNn<<"  tobecharged="<<tobecharged[i]<<"  view="<<view<<"  lay="<<lay<<"  cell="<<cell<<"  rdriftxcell[i]="<<rdriftxcell[i]<<"  time="<<fpEvtStr->BMNtim[i]<<endl;      
       //create hit
       TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) TABMntuHit(    
                           fpEvtStr->BMNid[i],	view, lay, cell,        

@@ -69,7 +69,6 @@ TABMactDatRaw::~TABMactDatRaw()
 //~ }
 
 Bool_t TABMactDatRaw::Action() {
-  //~ cout<<"sono in action di tabmactdatraw"<<endl;
   
   TABMdatRaw*    p_datraw = (TABMdatRaw*)    fpDatRaw->Object();
   

@@ -156,7 +156,7 @@ Bool_t TABMactNtuTrack::Action()
     p_hit = p_nturaw->Hit(i_h);
     //~ if(ToBeConsider(p_hit->Cell(), p_hit->View(), p_hit->Plane())) 
     if(p_bmcon->GetBMdebug()>10)
-      cout<<"hit="<<i_h<<" plane="<<p_hit->Plane()<<"  view="<<p_hit->View()<<"  cell="<<p_hit->Cell()<<"  piano="<<p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())<<endl; 
+      cout<<"hit="<<i_h<<" plane="<<p_hit->Plane()<<"  view="<<p_hit->View()<<"  cell="<<p_hit->Cell()<<"  piano="<<p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())<<"  rdrift="<<p_hit->Dist()<<endl; 
     hitxplane.at(p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())).push_back(i_h);
   }
   //calculate number of possible tracks (tracknum), the number of the plane with at least one hit for each view (firedUview/firedVview) and for both the views (firedPlane)
@@ -1028,6 +1028,7 @@ void TABMactNtuTrack::NewCircles2Tan(Double_t xc1, Double_t yc1, Double_t r1, Do
 //da ottimizzare e controllare!
 TG_STRUCT TABMactNtuTrack::Circles2Tangents(Double_t xc1, Double_t yc1, Double_t r1, Double_t xc2, Double_t yc2, Double_t r2){
   TG_STRUCT tan_par;
+  
   for (int ii=0;ii<4;ii++){ /* clean up */
     tan_par.mm[ii] =0. ;
     tan_par.qq[ii] =0. ;
@@ -1067,7 +1068,6 @@ TG_STRUCT TABMactNtuTrack::Circles2Tangents(Double_t xc1, Double_t yc1, Double_t
     else if( (fabs(qmeno1-qmeno2)<0.001)||(fabs(qmeno1-qpiu2)<0.001)){ 
       tan_par.qq[hh] = qmeno1; 
     }
-    //~ cout<<"p= "<<tan_par.mm[hh]<<" qpiu1= "<<qpiu1<<" qmeno1= "<<qmeno1<<" qpiu2= "<<qpiu2<<" qmeno2= "<<qmeno2<<" q= "<<tan_par.qq[hh]<<endl<<endl;
   }
   
   return tan_par;
