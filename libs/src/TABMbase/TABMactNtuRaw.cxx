@@ -56,8 +56,6 @@ void TABMactNtuRaw::CreateHistogram(){
    
    DeleteHistogram();
    
-   fpNhitXEvent = new TH1F("bm_nturaw_Nhits_xevent", "BM Number of hits x event", 36, 0, 36);
-   AddHistogram(fpNhitXEvent);
 
    SetValidHistogram(kTRUE);
 }
@@ -96,7 +94,6 @@ Bool_t TABMactNtuRaw::Action()
     //create the hit (no selection of hit)
     TABMntuHit *mytmp = p_nturaw->NewHit(0, hit.View(), hit.Plane(), hit.Cell(), i_drift, i_time, p_parcon->ResoEval(i_drift));
   }
-  fpNhitXEvent->Fill(p_datraw->NHit());
 
   fpNtuRaw->SetBit(kValid);
   return kTRUE;
