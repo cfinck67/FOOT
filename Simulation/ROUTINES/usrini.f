@@ -169,13 +169,14 @@ c
                endif
                il = il + 1
             elseif(REGNAM(1:3).eq.'SCN') then
-               if (REGNAM(4:4).eq.'0')then
+               read(REGNAM(4:5),*) strip
+               if (strip.lt.nstripSCN)then
                   ireg2viewSCN(ii) = 1
-               elseif(REGNAM(4:4).eq.'1') then
+                  ireg2stripSCN(ii) = strip
+               elseif(strip.ge.nstripSCN) then
                   ireg2viewSCN(ii) = -1
+                  ireg2stripSCN(ii) = strip - nstripSCN
                endif
-               read(REGNAM(5:6),*) strip
-               ireg2stripSCN(ii) = strip
                if(ic.eq.1) then
                   nregFirstSCN=ii
                elseif(ic.eq.nstripSCN*2) then
