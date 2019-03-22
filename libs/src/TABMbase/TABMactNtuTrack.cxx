@@ -118,7 +118,7 @@ void TABMactNtuTrack::CreateHistogram()
 {
    
    DeleteHistogram();
-
+   
    fpHisR02d = new TH2D("bmR02d","BM - Position of the track on the BM center plane", 500, -3., 3.,500 , -3., 3.);
    AddHistogram(fpHisR02d);   
    
@@ -224,8 +224,20 @@ Bool_t TABMactNtuTrack::Action()
       p_ntutrk->GetTrackStatus()=2;
     //~ delete fitTrack;
     //~ delete tmp_trackTr;
-    //~ fpNtuTrk->SetBit(kValid);
-    return kFALSE;
+    fpNtuTrk->SetBit(kValid);
+    return kTRUE;
+  }else if(i_nhit>=p_bmcon->GetMaxnhit_cut()){
+    if(p_bmcon->GetBMdebug()>3)
+      cout<<"TABMactNtuTrack::WARNING!!::the number of hits is too high:  number of hit="<<i_nhit<<"  Maxhitcut="<<p_bmcon->GetMaxnhit_cut()<<endl;
+      p_ntutrk->GetTrackStatus()=-2;
+    fpNtuTrk->SetBit(kValid);
+    return kTRUE;
+  }else if(i_nhit<=p_bmcon->GetMinnhit_cut()){
+    if(p_bmcon->GetBMdebug()>3)
+      cout<<"TABMactNtuTrack::WARNING!!::the number of hits is too low:  number of hit="<<i_nhit<<"  Maxhitcut="<<p_bmcon->GetMaxnhit_cut()<<endl;
+      p_ntutrk->GetTrackStatus()=-1;  
+    fpNtuTrk->SetBit(kValid);
+    return kTRUE;
   }else
     p_ntutrk->GetTrackStatus()=-1000;
   
@@ -420,7 +432,8 @@ Bool_t TABMactNtuTrack::Action()
       fpNtuTrk->SetBit(kValid);
       if(p_bmcon->GetBMdebug()>0)
         cout<<"TABMactNtuTrack:: no track given the rejmax_cut="<<p_bmcon->GetRejmaxcut()<<"  i_nhit="<<i_nhit<<"  firedPlane="<<firedPlane<<endl;
-      return kFALSE;    
+      fpNtuTrk->SetBit(kValid);
+      return kTRUE;    
     }
     
     //**********************loop on all possible tracks:**********************
@@ -538,11 +551,11 @@ Bool_t TABMactNtuTrack::Action()
   //~ delete rep; //included in fitTrack delete
   delete tmp_trackTr;    
     
-  fpNtuTrk->SetBit(kValid);
 
   if(p_bmcon->GetBMdebug()>10)
     cout<<"end of TABMactNtuTrack"<<endl;
 
+  fpNtuTrk->SetBit(kValid);
   return kTRUE;
   
 }

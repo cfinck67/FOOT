@@ -73,25 +73,25 @@ Bool_t TABMactVmeReader::Process() {
     data_num_ev++;
     data_sync_num_ev+=fpEvtStruct->tdc_numsync;
     cout<<"ERROR in TABMactVmeReader process: return ktrue; tot_status="<<fpEvtStruct->tot_status<<"  tdc_status="<<fpEvtStruct->tdc_status<<endl;
-    //~ fpDatRaw->SetBit(!kValid);
-    //~ fpTimRaw->SetBit(!kValid);
-    return false;
+    fpDatRaw->SetBit(kValid);
+    fpTimRaw->SetBit(kValid);
+    return kTRUE;
   }
   if(fpEvtStruct->tdc_sync[0] == -10000) {
     data_num_ev++;
     data_sync_num_ev+=fpEvtStruct->tdc_numsync;    
     Info("Action()","ERROR in TABMactVmeReader process: return ktrue; Trigger time is missing");
-    fpDatRaw->SetBit(!kValid);
-    fpTimRaw->SetBit(!kValid);
-    return false;
+    fpDatRaw->SetBit(kValid);
+    fpTimRaw->SetBit(kValid);
+    return kTRUE;
   }
   if(fpEvtStruct->tdc_numsync!=1) {
     data_num_ev++;
     data_sync_num_ev+=fpEvtStruct->tdc_numsync;    
     Info("Action()","ERROR in TABMactVmeReader process: return ktrue; more than one trigger time!");
-    fpDatRaw->SetBit(!kValid);
-    fpTimRaw->SetBit(!kValid);
-    return false;
+    fpDatRaw->SetBit(kValid);
+    fpTimRaw->SetBit(kValid);
+    return kTRUE;
   }
 
   if (bmcon->GetBMdebug()>3)
@@ -112,15 +112,16 @@ Bool_t TABMactVmeReader::Process() {
   p_timraw->SetupClones();
   p_timraw->NewHit(1, 1, 6, fpEvtStruct->tdc_sync[0]/10.);
 
-  fpDatRaw->SetBit(kValid);
-  fpTimRaw->SetBit(kValid);
     
   data_num_ev++;
   data_sync_num_ev+=fpEvtStruct->tdc_numsync;
 
   if (bmcon->GetBMdebug()>10)
     cout<<"I finished TABMactVmeReader::Process"<<endl;
-return true;
+  
+  fpDatRaw->SetBit(kValid);
+  fpTimRaw->SetBit(kValid);
+  return kTRUE;
 }
 
 
