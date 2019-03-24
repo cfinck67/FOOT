@@ -351,21 +351,20 @@ string TAGmaterials::SaveFileFluka()
    TList* list = gGeoManager->GetListOfMaterials();
    
    stringstream ss;
-
    for (Int_t i = 0; i < list->GetEntries(); ++i) {
       
       TGeoMixture *mix = (TGeoMixture *)gGeoManager->GetListOfMaterials()->At(i);
       
       Int_t nElements = mix->GetNelements();
-      
       // Single material
       if (nElements == 1) {
          
          if (fgkLowMat[mix->GetName()] == 0) {
             
             TGeoElement *element = mix->GetElement(0);
+	    
             if (fPrintedElt[element->GetName()] == 1)
-               break;
+               continue;
 
             fPrintedElt[element->GetName()] = 1;
             TString cmd;
@@ -377,9 +376,10 @@ string TAGmaterials::SaveFileFluka()
 	    ss << cmd.Data() << endl;
             
          } else { // LOW-MAT
-            TGeoElement *element = mix->GetElement(0);
+
+	   TGeoElement *element = mix->GetElement(0);
             if (fPrintedElt[element->GetName()] == 1)
-               break;
+               continue;
 
             fPrintedElt[element->GetName()] = 1;
             
@@ -411,8 +411,12 @@ string TAGmaterials::SaveFileFluka()
 
           cmd = AppendFluka("COMPOUND");
          
-         for (Int_t e = 0; e < nElements; ++e) {
-            
+	  for (Int_t e = 0; e < nElements; ++e) {
+	    if(e == 3) {
+	      cmd += PrependFlukaName(mix->GetName(), 0);
+	      ss << cmd.Data() << endl;
+	      cmd = AppendFluka("COMPOUND");
+	    }
             TGeoElement *element = mix->GetElement(e);
             if (mix->GetNmixt() != 0x0) {
                
@@ -422,13 +426,15 @@ string TAGmaterials::SaveFileFluka()
                   cmd += PrependFluka(Form("%d.", mix->GetNmixt()[e])) + PrependFlukaName(element->GetName(), 1, -1);
                
             } else
-               cmd += PrependFluka(Form("%-g", -mix->GetWmixt()[e])) + PrependFlukaName(element->GetName(), 1, -1);
+               cmd += PrependFluka(Form("%-.3e", -mix->GetWmixt()[e])) + PrependFlukaName(element->GetName(), 1, -1);
 
          }
          if (nElements == 2)
             cmd += PrependFlukaName(mix->GetName(), 2);
          else if (nElements == 3)
             cmd += PrependFlukaName(mix->GetName(), 0);
+         else if (nElements == 4)
+            cmd += PrependFlukaName(mix->GetName(), 4);
          else
             Warning("SaveFileFluka()", "Number of element in the compund material is %d (max: 3)", nElements);
 
