@@ -141,12 +141,7 @@ public:
   TABMparGeo* p_bmgeo;
   TAGparGeo*  p_tggeo;
    
-   TH1F*            fpHisR0X;
-   TH1S*            fpHisPrefitStatus;
-   TH1F*            fpHisR0Y;
-   TH2D*            fpHisR02d;
-   TH1F*            fpHisPversX;
-   TH1F*            fpHisPversY;
+  TH2D*            fpHisR02d;
 
 };
 

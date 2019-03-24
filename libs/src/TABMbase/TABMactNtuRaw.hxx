@@ -45,7 +45,6 @@ class TABMactNtuRaw : public TAGaction {
     TAGparaDsc*     fpParCon;		    // BM config params.
 
     //histos
-    TH1F* fpNhitXEvent;
 
 };
 

@@ -114,6 +114,6 @@ Bool_t TABMactDatRaw::DecodeHits(const TDCEvent* evt) {
     //~ }
   //~ }
 
-   return true;
+   return kTRUE;
 }
 

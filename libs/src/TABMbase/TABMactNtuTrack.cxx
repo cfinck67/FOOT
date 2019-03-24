@@ -119,19 +119,9 @@ void TABMactNtuTrack::CreateHistogram()
    
    DeleteHistogram();
    
-   fpHisPrefitStatus = new TH1S("bmPrefitStatus", "Prefit status", 2, 0,2);
-   AddHistogram(fpHisPrefitStatus);
-   fpHisR0X = new TH1F("bmR0X", "BM - PositionX of the track(z=0)", 500, -3., 3.);
-   AddHistogram(fpHisR0X);
-   fpHisR0Y = new TH1F("bmR0Y", "BM - PositionY of the track(z=0)", 500, -3., 3.);
-   AddHistogram(fpHisR0Y);
    fpHisR02d = new TH2D("bmR02d","BM - Position of the track on the BM center plane", 500, -3., 3.,500 , -3., 3.);
    AddHistogram(fpHisR02d);   
-   fpHisPversX = new TH1F("bmPversX", "BM - DirectionX of the track", 500, -1, 1);
-   AddHistogram(fpHisPversX);
-   fpHisPversY = new TH1F("bmPversY", "BM - DirectionY of the track", 500, -1, 1);
-   AddHistogram(fpHisPversY);
-
+   
    SetValidHistogram(kTRUE);
 }
 
@@ -193,9 +183,9 @@ Bool_t TABMactNtuTrack::Action()
     p_hit = p_nturaw->Hit(i_h);
     //~ if(ToBeConsider(p_hit->Cell(), p_hit->View(), p_hit->Plane())) 
     if(p_bmcon->GetBMdebug()>10)
-      cout<<"hit="<<i_h<<" plane="<<p_hit->Plane()<<"  view="<<p_hit->View()<<"  cell="<<p_hit->Cell()<<"  piano="<<p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())<<endl;
-     if (p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View()) >= 0)
-        hitxplane.at(p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())).push_back(i_h);
+      cout<<"hit="<<i_h<<" plane="<<p_hit->Plane()<<"  view="<<p_hit->View()<<"  cell="<<p_hit->Cell()<<"  piano="<<p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())<<"  rdrift="<<p_hit->Dist()<<endl;
+     //~ if (p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View()) >= 0)
+      hitxplane.at(p_bmgeo->GetWirePlane(p_hit->Plane(),p_hit->View())).push_back(i_h);
   }
   //calculate number of possible tracks (tracknum), the number of the plane with at least one hit for each view (firedUview/firedVview) and for both the views (firedPlane)
   for(Int_t j = 0; j < hitxplane.size(); j++) {  
@@ -234,8 +224,20 @@ Bool_t TABMactNtuTrack::Action()
       p_ntutrk->GetTrackStatus()=2;
     //~ delete fitTrack;
     //~ delete tmp_trackTr;
-    //~ fpNtuTrk->SetBit(kValid);
-    return kFALSE;
+    fpNtuTrk->SetBit(kValid);
+    return kTRUE;
+  }else if(i_nhit>=p_bmcon->GetMaxnhit_cut()){
+    if(p_bmcon->GetBMdebug()>3)
+      cout<<"TABMactNtuTrack::WARNING!!::the number of hits is too high:  number of hit="<<i_nhit<<"  Maxhitcut="<<p_bmcon->GetMaxnhit_cut()<<endl;
+      p_ntutrk->GetTrackStatus()=-2;
+    fpNtuTrk->SetBit(kValid);
+    return kTRUE;
+  }else if(i_nhit<=p_bmcon->GetMinnhit_cut()){
+    if(p_bmcon->GetBMdebug()>3)
+      cout<<"TABMactNtuTrack::WARNING!!::the number of hits is too low:  number of hit="<<i_nhit<<"  Maxhitcut="<<p_bmcon->GetMaxnhit_cut()<<endl;
+      p_ntutrk->GetTrackStatus()=-1;  
+    fpNtuTrk->SetBit(kValid);
+    return kTRUE;
   }else
     p_ntutrk->GetTrackStatus()=-1000;
   
@@ -430,7 +432,8 @@ Bool_t TABMactNtuTrack::Action()
       fpNtuTrk->SetBit(kValid);
       if(p_bmcon->GetBMdebug()>0)
         cout<<"TABMactNtuTrack:: no track given the rejmax_cut="<<p_bmcon->GetRejmaxcut()<<"  i_nhit="<<i_nhit<<"  firedPlane="<<firedPlane<<endl;
-      return kFALSE;    
+      fpNtuTrk->SetBit(kValid);
+      return kTRUE;    
     }
     
     //**********************loop on all possible tracks:**********************
@@ -535,12 +538,7 @@ Bool_t TABMactNtuTrack::Action()
       }
     }
      if (ValidHistogram()) {
-        fpHisR0X->Fill(trk->GetR0()[0]);
-        fpHisR0Y->Fill(trk->GetR0()[1]);
         fpHisR02d->Fill(trk->GetR0()[0],trk->GetR0()[1]);
-     
-        fpHisPversX->Fill(trk->GetPvers()[0]);
-        fpHisPversY->Fill(trk->GetPvers()[1]);
      }
      
   }else if(converged==false)
@@ -548,19 +546,16 @@ Bool_t TABMactNtuTrack::Action()
   else
     cout<<"ERROR in TABMactNtuTrack :: track converged lost!"<<endl;
   
-  if(ValidHistogram()){
-    fpHisPrefitStatus->Fill(prefit_status);
-  }
   
   //~ delete fitTrack;
   //~ delete rep; //included in fitTrack delete
   delete tmp_trackTr;    
     
-  fpNtuTrk->SetBit(kValid);
 
   if(p_bmcon->GetBMdebug()>10)
     cout<<"end of TABMactNtuTrack"<<endl;
 
+  fpNtuTrk->SetBit(kValid);
   return kTRUE;
   
 }
@@ -875,7 +870,6 @@ Int_t TABMactNtuTrack::EstimateFIRSTTrackPar(vector<Int_t> &singlehittrack, Int_
   
   //charge hits and vectors
   vector<Double_t> Ycentro_U, Xcentro_V, Zcentro_U, Zcentro_V, R_U, R_V;
-
   firedUview=0;
   firedVview=0;
   for(Int_t i_h = 0; i_h <singlehittrack.size() ; i_h++) {
@@ -889,8 +883,8 @@ Int_t TABMactNtuTrack::EstimateFIRSTTrackPar(vector<Int_t> &singlehittrack, Int_
       //provv
       //~ cout<<"ho caricato i dati: i_h="<<i_h<<"   Ycentro_U.size()="<<Ycentro_U.size()<<"  Yu="<<Ycentro_U.back()<<"  zcU="<<Zcentro_U.back()<<"   ru="<<R_U.back()<<endl;
     }else{
-       Xcentro_V.push_back(p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(p_hit->Cell()),p_hit->Plane(),p_hit->View()));
-       Zcentro_V.push_back(p_bmgeo->GetWireX(p_bmgeo->GetSenseId(p_hit->Cell()),p_hit->Plane(),p_hit->View()));
+      Xcentro_V.push_back(p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(p_hit->Cell()),p_hit->Plane(),p_hit->View()));
+      Zcentro_V.push_back(p_bmgeo->GetWireX(p_bmgeo->GetSenseId(p_hit->Cell()),p_hit->Plane(),p_hit->View()));
       R_V.push_back(p_hit->Dist());
       firedVview++;
     }
@@ -1077,7 +1071,6 @@ TG_STRUCT TABMactNtuTrack::Circles2Tangents(Double_t xc1, Double_t yc1, Double_t
     else if( (fabs(qmeno1-qmeno2)<0.001)||(fabs(qmeno1-qpiu2)<0.001)){ 
       tan_par.qq[hh] = qmeno1; 
     }
-    //~ cout<<"p= "<<tan_par.mm[hh]<<" qpiu1= "<<qpiu1<<" qmeno1= "<<qmeno1<<" qpiu2= "<<qpiu2<<" qmeno2= "<<qmeno2<<" q= "<<tan_par.qq[hh]<<endl<<endl;
   }
   
   return tan_par;

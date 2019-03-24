@@ -90,22 +90,22 @@ Bool_t TABMactNtuMC::Action()
                 p_bmgeo->GetWireY(p_bmgeo->GetSenseId(cell),lay,view),    //ma in FindRdrift dovrei caricare p_bmgeo, e forse non conviene
                 p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(cell),lay,view));
        
-      Wvers.SetXYZ(p_bmgeo->GetWireX(p_bmgeo->GetSenseId(cell),lay,view),
-                   p_bmgeo->GetWireY(p_bmgeo->GetSenseId(cell),lay,view),
-                   p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(cell),lay,view));
+      Wvers.SetXYZ(p_bmgeo->GetWireCX(p_bmgeo->GetSenseId(cell),lay,view),
+                   p_bmgeo->GetWireCY(p_bmgeo->GetSenseId(cell),lay,view),
+                   p_bmgeo->GetWireCZ(p_bmgeo->GetSenseId(cell),lay,view));
        
       Wvers.SetMag(1.);
-      rdriftxcell[i] = FindRdrift(loc, gmom, A0, Wvers);
+      rdriftxcell.at(i) = FindRdrift(loc, gmom, A0, Wvers);
       
-      if(rdriftxcell[i]==99) //FindRdrift return 99 if a particle is born without energy, so it shouldn't release energy for a hit.
+      if(rdriftxcell.at(i)==99) //FindRdrift return 99 if a particle is born without energy, so it shouldn't release energy for a hit.
         tobecharged[i]=false;
        
       //if there is a double hit in the same cell, it charges the hits if they have rdrift difference more than p_bmcon->GetRdriftCut()
       for(Int_t j=0;j<i;j++){ 
-        if((rdriftxcell[i]-rdriftxcell[j]) < p_bmcon->GetRdriftCut() && rdriftxcell[i] >= rdriftxcell[j] && hitxcell[i]==hitxcell[j])
+        if((rdriftxcell.at(i)-rdriftxcell.at(j)) < p_bmcon->GetRdriftCut() && rdriftxcell.at(i) >= rdriftxcell.at(j) && hitxcell[i]==hitxcell[j])
           tobecharged[i]=false;
          
-        if((rdriftxcell[j]-rdriftxcell[i]) < p_bmcon->GetRdriftCut() && rdriftxcell[j] > rdriftxcell[i] && hitxcell[i]==hitxcell[j])
+        if((rdriftxcell.at(j)-rdriftxcell.at(i)) < p_bmcon->GetRdriftCut() && rdriftxcell.at(j) > rdriftxcell.at(i) && hitxcell[i]==hitxcell[j])
           tobecharged[j]=false;
         }
       }
@@ -167,8 +167,6 @@ Bool_t TABMactNtuMC::Action()
   //charge the hits:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
           
-    if(p_bmcon->GetBMdebug()>=3)
-      cout<<"In the charging hits loop: I'm going to charge hit number:"<<i<<"/"<<fpEvtStr->BMNn<<"  tobecharged="<<tobecharged[i]<<endl;
      
     if(tobecharged[i]) {
       ipoint=fpEvtStr->BMNid[i]-1;
@@ -177,16 +175,19 @@ Bool_t TABMactNtuMC::Action()
       view = fpEvtStr->BMNiview[i]==-1 ? 1:0;
        
       //shift the t0 and change the strelations:
-      realrdrift = rdriftxcell[i];
+      realrdrift = rdriftxcell.at(i);
        
+    if(p_bmcon->GetBMdebug()>=3)
+      cout<<"In the charging hits loop: I'm going to charge hit number:"<<i<<"/"<<fpEvtStr->BMNn<<"  tobecharged="<<tobecharged[i]<<"  view="<<view<<"  lay="<<lay<<"  cell="<<cell<<"  rdriftxcell.at(i)="<<rdriftxcell.at(i)<<"  time="<<p_bmcon->InverseStrel(rdriftxcell.at(i))<<endl;
+      
       //create hit
-      TABMntuHit *mytmp = p_nturaw->NewHit(fpEvtStr->BMNid[i],	view, lay, cell, rdriftxcell[i], p_bmcon->InverseStrel(rdriftxcell[i]), 0.);
+      TABMntuHit *mytmp = p_nturaw->NewHit(fpEvtStr->BMNid[i],	view, lay, cell, rdriftxcell.at(i), p_bmcon->InverseStrel(rdriftxcell.at(i)), 0.);
        mytmp->AddMcTrackId(ipoint, i);
        
-      if(p_bmcon->ResoEval(rdriftxcell[i])>0)
-        mytmp->SetSigma(p_bmcon->ResoEval(rdriftxcell[i]));
+      if(p_bmcon->ResoEval(rdriftxcell.at(i))>0)
+        mytmp->SetSigma(p_bmcon->ResoEval(rdriftxcell.at(i)));
       else{  
-        cout<<"WARNING: error from config resoEval! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<rdriftxcell[i]<<endl;
+        cout<<"WARNING: error from config resoEval! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<rdriftxcell.at(i)<<endl;
         mytmp->SetSigma(p_bmcon->GetRdrift_err());
       }
        
@@ -206,9 +207,6 @@ Bool_t TABMactNtuMC::Action()
   
   if(hitsrandtot!= nhits && p_bmcon->GetSmearhits())
     cout<<"TABMactNtuMC::ERROR!!!!!!!!  nhits="<<nhits<<"  hitsrandtot="<<hitsrandtot<<"  remainhitsn"<<remainhitsn<<"  nrealhits"<<nrealhits<<endl;
-
-  //histos
-  fpNhitXEvent->Fill(nhits);
   
   fpNtuMC->SetBit(kValid);
   return kTRUE;
@@ -219,8 +217,6 @@ void TABMactNtuMC::CreateHistogram(){
    
    DeleteHistogram();
    
-   fpNhitXEvent = new TH1F("bm_nturaw_Nhits_xevent", "BM Number of hits x event", 36, 0, 36);
-   AddHistogram(fpNhitXEvent);
 
    SetValidHistogram(kTRUE);
 }
