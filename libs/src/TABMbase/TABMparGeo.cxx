@@ -169,6 +169,14 @@ Bool_t TABMparGeo::FromFile(const TString& name)
    if(fDebugLevel)
       cout  << "  BM gas mixture density:  "<< fGasDensity << endl;
 
+   ReadStrings(fMyl);
+   if(fDebugLevel)
+      cout  << "  BM myl mixture  "<< fMyl << endl;
+   
+   ReadItem(fMylDensity);
+   if(fDebugLevel)
+      cout  << "  BM myl mixture density:  "<< fMylDensity << endl;
+
    ReadItem(fShieldThick);
    if(fDebugLevel)
       cout  << "  Shielding Thickness:  "<< fShieldThick << endl;
@@ -287,6 +295,12 @@ void TABMparGeo::DefineMaterial()
    if (fDebugLevel) {
       printf("Gas mixture material:\n");
       mix->Print();
+   }
+   // Mylar
+   mat = TAGmaterials::Instance()->CreateMaterial(fMyl, fMylDensity);
+   if (fDebugLevel) {
+     printf("Mylar mixture material:\n");
+      mat->Print();
    }
 }
 
@@ -781,7 +795,7 @@ string TABMparGeo::PrintAssignMaterial() {
 	     << endl;
     
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-	     << setw(10) << setfill(' ') << std::right << "Ar-CO2"
+	     << setw(10) << setfill(' ') << std::right << "Ar/CO2"
 	     << setw(10) << setfill(' ') << std::right << "BMN_C000"
 	     << setw(10) << setfill(' ') << std::right << "BMN_C017"
 	     << setw(10) << setfill(' ') << std::right << "1."
@@ -789,7 +803,7 @@ string TABMparGeo::PrintAssignMaterial() {
 	     << endl;
     
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-	     << setw(10) << setfill(' ') << std::right << "Ar-CO2"
+	     << setw(10) << setfill(' ') << std::right << "Ar/CO2"
 	     << setw(10) << setfill(' ') << std::right << "BMN_C100"
 	     << setw(10) << setfill(' ') << std::right << "BMN_C117"
 	     << setw(10) << setfill(' ') << std::right << "1."
@@ -797,7 +811,7 @@ string TABMparGeo::PrintAssignMaterial() {
 	     << endl;
     
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-	     << setw(10) << setfill(' ') << std::right << "Ar-CO2"
+	     << setw(10) << setfill(' ') << std::right << "Ar/CO2"
 	     << setw(10) << setfill(' ') << std::right << "BMN_GAS"
 	     << setw(10) << setfill(' ') << std::right << ""
 	     << setw(10) << setfill(' ') << std::right << ""

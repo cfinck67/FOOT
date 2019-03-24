@@ -151,6 +151,9 @@ private:
    TString         fGasDensities;
    Float_t         fGasDensity;
 
+   TString         fMyl;
+   Float_t         fMylDensity;
+
    /*  Johdot siirtyvät kammion sivuille */
    Float_t         fBmDeltaZ;
    Float_t         fBmDeltaY;
