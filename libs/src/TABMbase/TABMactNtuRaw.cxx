@@ -56,8 +56,6 @@ void TABMactNtuRaw::CreateHistogram(){
    
    DeleteHistogram();
    
-   fpNhitXEvent = new TH1F("bm_nturaw_Nhits_xevent", "BM Number of hits x event", 36, 0, 36);
-   AddHistogram(fpNhitXEvent);
 
    SetValidHistogram(kTRUE);
 }
@@ -88,15 +86,19 @@ Bool_t TABMactNtuRaw::Action()
     //~ Double_t t0_corr = (p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) > -10000) ? p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) : 0.; //to avoid not settled T0
     i_time = hit.Time()- p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) -p_timraw->TrigTime();
     
-    if(p_parcon->GetT0switch()<2 && i_time<0)
-      i_time=0.;
+    if(i_time<0){ 
+      if(p_parcon->GetT0switch()!=2 && p_parcon->GetT0sigma()==0)
+        i_time=0.;
+      else if(p_parcon->GetT0sigma()>0)
+        while(i_time<0)
+          i_time=p_parcon->GetRand()->Gaus(hit.Time()- p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) - p_timraw->TrigTime(), p_parcon->GetT0sigma());  
+    }
     
     Double_t i_drift = p_parcon->FirstSTrel(i_time);
 
     //create the hit (no selection of hit)
     TABMntuHit *mytmp = p_nturaw->NewHit(0, hit.View(), hit.Plane(), hit.Cell(), i_drift, i_time, p_parcon->ResoEval(i_drift));
   }
-  fpNhitXEvent->Fill(p_datraw->NHit());
 
   fpNtuRaw->SetBit(kValid);
   return kTRUE;

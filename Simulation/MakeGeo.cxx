@@ -22,7 +22,7 @@
 #include "TAGroot.hxx"
 
 #include "foot_geo.h"
-#include "Materials.hxx"
+//#include "Materials.hxx"
 
 #include "GlobalPar.hxx"
 #include "FootField.hxx"
@@ -67,8 +67,8 @@ int main (int argc, char *argv[]) {
     // Materials* listOfMaterials = new Materials();
     // listOfMaterials->PrintMap();
 
-    Materials* listMaterials = new Materials() ;
-    listMaterials->PrintCompMap();
+    //    Materials* listMaterials = new Materials() ;
+    //    listMaterials->PrintCompMap();
 
     // GlobalFootGeo footGeo;
     TADIparGeo* dipGeo = new TADIparGeo();
@@ -92,7 +92,7 @@ int main (int argc, char *argv[]) {
     caGeo->FromFile();
     tg_beamGeo->FromFile();
 
-    genfit::FieldManager::getInstance()->init(new FootField( "DoubleDipole.table",dipGeo) ); // variable field
+    genfit::FieldManager::getInstance()->init(new FootField( GlobalPar::GetPar()->MagFieldInputMapName().data(),dipGeo) ); // variable field
 
     ifstream file;
     string fileName = "foot.inp";
@@ -301,7 +301,8 @@ int main (int argc, char *argv[]) {
 
     outfile << geomat.str();
 
-    // outfile << fTAGmat->SaveFileFluka();
+    
+    outfile << fTAGmat->SaveFileFluka();
     
     int magnetic = 0;
     if(GlobalPar::GetPar()->IncludeDI())

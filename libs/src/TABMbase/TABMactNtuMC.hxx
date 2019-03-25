@@ -46,7 +46,6 @@ class TABMactNtuMC : public TAGaction {
     Double_t        rdrift_err;      //default error value of the rdrfit
     
     //histos
-    TH1F* fpNhitXEvent;
 
 };
 

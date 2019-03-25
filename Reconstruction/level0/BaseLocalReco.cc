@@ -137,6 +137,12 @@ void BaseLocalReco::OpenFileOut()
 //__________________________________________________________
 void BaseLocalReco::SetRecHistogramDir()
 {
+   //BMN
+   if (GlobalPar::GetPar()->IncludeBM()) {
+     if (fFlagTrack) 
+       fActTrackBm->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+   }
+   
    // VTX
    if (GlobalPar::GetPar()->IncludeVertex()) {
       fActClusVtx->SetHistogramDir((TDirectory*)fActEvtWriter->File());
