@@ -238,7 +238,7 @@ void TAFOeventDisplay::ReadParFiles()
    }
    
    // initialise par files for start counter
-   if (GlobalPar::GetPar()->IncludeST()) {
+   if (GlobalPar::GetPar()->IncludeST() || GlobalPar::GetPar()->IncludeBM()) {
       fpParGeoSt = new TAGparaDsc(TASTparGeo::GetDefParaName(), new TASTparGeo());
       TASTparGeo* parGeo = (TASTparGeo*)fpParGeoSt->Object();
       TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
@@ -545,11 +545,12 @@ void TAFOeventDisplay::CreateRawAction()
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
       fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDaqEvent, fpParMapSt);
+      printf("%p %p %p", fpDatRawSt, fpDaqEvent, fpParMapSt);
       fActDatRawSt->CreateHistogram();
    }
 
    if (GlobalPar::GetPar()->IncludeBM()) {
-      fpDatRawBm = new TAGdataDsc("bmDat", new TAVTdatRaw());
+      fpDatRawBm = new TAGdataDsc("bmDat", new TABMdatRaw());
       fpNtuRawBm = new TAGdataDsc("bmNtu", new TABMntuRaw());
 
       if (fgStdAloneFlag) {
@@ -557,7 +558,7 @@ void TAFOeventDisplay::CreateRawAction()
          fActVmeReaderBm->CreateHistogram();
          
       } else {
-         fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
+         fActDatRawBm = new TABMactDatRaw("bmActDat", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
          fActDatRawBm->CreateHistogram();
          
          fActNtuRawBm = new TABMactNtuRaw("bmActNtu", fpNtuRawBm, fpDatRawBm, fpDatRawSt, fpParGeoBm, fpParConfBm);
@@ -697,6 +698,7 @@ void TAFOeventDisplay::AddRequiredItemSt()
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItemBm()
 {
+   fTAGroot->AddRequiredItem("bmActDat");
    fTAGroot->AddRequiredItem("bmActNtu");
    if (fgTrackFlag)
       fTAGroot->AddRequiredItem("bmActTrack");
