@@ -44,6 +44,7 @@
 
 #include "TABMactVmeReader.hxx"
 #include "TABMactDatRaw.hxx"
+#include "TABMactNtuRaw.hxx"
 
 #include "TAVTactNtuClusterF.hxx"
 #include "TAITactNtuClusterF.hxx"
@@ -221,6 +222,7 @@ protected:
 
    TABMactVmeReader*     fActVmeReaderBm; // action for stand alone reader BM
    TABMactDatRaw*        fActDatRawBm;   // action for dat raw BM
+   TABMactNtuRaw*        fActNtuRawBm;   // action for ntu raw BM
    TABMactNtuTrack*      fActTrackBm;   // action for tracks
 
    TAVTactVmeReader*     fActVmeReaderVtx; // action for stand alone reader VTX

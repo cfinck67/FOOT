@@ -93,6 +93,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
 
    fpDatRawBm(0x0),
    fpNtuRawBm(0x0),
+   fActNtuRawBm(0x0),
    fpNtuTrackBm(0x0),
 
    fpNtuRawVtx(0x0),
@@ -243,6 +244,9 @@ void TAFOeventDisplay::ReadParFiles()
       TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
       fpParMapSt = new TAGparaDsc("stMap", new TASTparMap()); // need the file
+      TASTparMap* parMapSt = (TASTparMap*) fpParMapSt->Object();
+      parFileName="./geomaps/tr_ch.map";
+      parMapSt->FromFile(parFileName);
    }
 
    // initialise par files for Beam Monitor
@@ -261,6 +265,11 @@ void TAFOeventDisplay::ReadParFiles()
       parConf->LoadReso(parFileName);
       
       fpParMapBm = new TAGparaDsc("bmMap", new TABMparMap());
+      TABMparMap*  parMapBm = (TABMparMap*)fpParMapBm->Object();
+
+      parFileName = "./geomaps/";
+      parFileName += parConf->GetParmapfile();
+      parMapBm->FromFile(parFileName.Data(), parGeo);
    }
 
    // initialise par files for vertex
@@ -540,8 +549,9 @@ void TAFOeventDisplay::CreateRawAction()
    }
 
    if (GlobalPar::GetPar()->IncludeBM()) {
-      fpDatRawBm   = new TAGdataDsc("bmDat", new TAVTdatRaw());
-      
+      fpDatRawBm = new TAGdataDsc("bmDat", new TAVTdatRaw());
+      fpNtuRawBm = new TAGdataDsc("bmNtu", new TABMntuRaw());
+
       if (fgStdAloneFlag) {
          fActVmeReaderBm  = new TABMactVmeReader("bmActNtu", fpDatRawBm, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
          fActVmeReaderBm->CreateHistogram();
@@ -549,6 +559,9 @@ void TAFOeventDisplay::CreateRawAction()
       } else {
          fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
          fActDatRawBm->CreateHistogram();
+         
+         fActNtuRawBm = new TABMactNtuRaw("bmActNtu", fpNtuRawBm, fpDatRawBm, fpDatRawSt, fpParGeoBm, fpParConfBm);
+         fActNtuRawBm->CreateHistogram();
       }
    }
 
