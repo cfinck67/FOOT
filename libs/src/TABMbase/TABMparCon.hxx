@@ -78,8 +78,8 @@ class TABMparCon : public TAGpara {
     Bool_t      loadT0s(Long64_t); 
     void        SetT0s(vector<Double_t> t0s);
     void        SetT0(Int_t cha, Double_t t0in);   
-    const Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+view*3+plane*6);};
-    const Double_t    GetT0(Int_t index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
+    Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+view*3+plane*6);};
+    Double_t    GetT0(Int_t index_in){return (index_in<36 && index_in>-1) ? v_t0s[index_in]:-1000;};
     void        CoutT0();
     
     //ADC stuff
@@ -88,8 +88,8 @@ class TABMparCon : public TAGpara {
     void        SetADCchanum(Int_t cha);
     void        SetADCped(Int_t cha, Double_t pedin, Double_t rmsin);
     void        CoutADCped();
-    Double_t    GetADCped(Int_t cha){return (cha<adc_ped_mean.size()) ? adc_ped_mean[cha]:10000.;};
-    Double_t    GetADCrms(Int_t cha){return (cha<adc_ped_rms.size()) ? adc_ped_rms[cha]:10000.;};
+    Double_t    GetADCped(Int_t cha){return (cha<int(adc_ped_mean.size())) ? adc_ped_mean[cha]:10000.;};
+    Double_t    GetADCrms(Int_t cha){return (cha<int(adc_ped_rms.size())) ? adc_ped_rms[cha]:10000.;};
     
     //strel stuff
     void LoadSTrel(TString sF);

@@ -4,7 +4,7 @@
   \brief   Implementation of TABMdatRaw.
 */
 
-using namespace std;
+//using namespace std;
 
 #include "TABMdatRaw.hxx"
 
@@ -76,7 +76,7 @@ void TABMdatRaw::Clear(Option_t*)
 static void print_value(ostream& os, Int_t i_val)
 {
   char c_ran = (i_val & 0x1000) ? 'h' : 'l';
-  os << Form("%4d", i_val & 0x0fff, "d", 4) << " " << c_ran;
+  os << Form("%4d", i_val & 0x0fff) << " " << c_ran;
   return;
 }
 
