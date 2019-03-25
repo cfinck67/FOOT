@@ -330,8 +330,11 @@ Bool_t TABMactNtuTrack::Action()
         best_index=i;
       }
       
-      if(prunedhit.at(0).size()>0){//prune hits
-        ChargePrunedTrack(prunedhit.at(0), firedUview, firedVview, hitxtrack, i);
+      if(prunedhit.at(0).size()>0){//charge prune hits
+        if((i_nhit-hitxtrack.at(i).size()-prunedhit.at(0).size())>p_bmcon->GetRejmaxcut())
+          ChargePrunedTrack(prunedhit.at(0), firedUview, firedVview, hitxtrack, i);
+        else if(p_bmcon->GetBMdebug()>3)
+          cout<<"TABMactNtuTrack:: prunedhit cannot added to hitxtrack due to Rejmaxcut:  hitxtrack index="<<i<<"  i_nhit="<<i_nhit<<"  hitxtrack.at(i).size()="<<hitxtrack.at(i).size()<<"  prunedhit.at(0).size()="<<prunedhit.at(0).size()<<"  rejhitmax="<<p_bmcon->GetRejmaxcut()<<endl;
         prunedhit.at(0).clear();
       }
       
