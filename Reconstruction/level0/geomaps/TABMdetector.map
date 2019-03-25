@@ -31,6 +31,9 @@ GasDensities: "0.001662/0.00187"
 GasProporton: "0.8/0.2"
 GasDensity:    0.001677136
 
+MylMat:          "Mylar"
+MylDensity:      1.4
+
 //Aluminum cage thickness
 ShieldingThick:    1.5;
 
