@@ -18,7 +18,7 @@
 
 /*!
   \class TABMactDatRaw TABMactDatRaw.hxx "TABMactDatRaw.hxx"
-  \brief Get Beam Monitor raw data from MBS. **
+  \brief Get Beam Monitor raw data from DAQ. **
 */
 
 ClassImp(TABMactDatRaw);
@@ -104,6 +104,6 @@ Bool_t TABMactDatRaw::DecodeHits(const TDCEvent* evt) {
         p_datraw->AddDischarged();    
     }
     
-   return true;
+   return kTRUE;
 }
 
