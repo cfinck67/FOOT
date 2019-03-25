@@ -187,7 +187,7 @@ void LocalReco::AddRawRequiredItem()
 {
    fTAGroot->AddRequiredItem("daqActReader");
 
-   if (GlobalPar::GetPar()->IncludeST()) {
+   if (GlobalPar::GetPar()->IncludeST() || GlobalPar::GetPar()->IncludeBM()) {
       fTAGroot->AddRequiredItem("stActNtu");
    }
 

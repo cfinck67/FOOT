@@ -668,7 +668,7 @@ void TAFOeventDisplay::AddRequiredItem()
    if (!fgStdAloneFlag)
       fTAGroot->AddRequiredItem("daqActReader");
 
-   if (GlobalPar::GetPar()->IncludeST())
+   if (GlobalPar::GetPar()->IncludeST() || GlobalPar::GetPar()->IncludeBM())
       AddRequiredItemSt();
    
    if (GlobalPar::GetPar()->IncludeBM())
