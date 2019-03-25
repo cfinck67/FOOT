@@ -97,10 +97,10 @@ void BaseLocalReco::BeforeEventLoop()
 {
    InitParameters();
    
-   OpenFileIn();
-   
    CreateRawAction();
    CreateRecAction();
+
+   OpenFileIn();
 
    AddRawRequiredItem();
    AddRecRequiredItem();
@@ -177,7 +177,7 @@ void BaseLocalReco::InitParameters()
    }
 
    // initialise parameters for start counter
-   if (GlobalPar::GetPar()->IncludeST()) {
+   if (GlobalPar::GetPar()->IncludeST() || GlobalPar::GetPar()->IncludeBM()) {
       fpParGeoSt = new TAGparaDsc(TASTparGeo::GetDefParaName(), new TASTparGeo());
       TASTparGeo* parGeo = (TASTparGeo*)fpParGeoSt->Object();
       TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
