@@ -313,9 +313,9 @@ Bool_t TABMparCon::loadT0s(Long64_t tot_num_ev) {
 void TABMparCon::SetT0s(vector<Double_t> t0s) {
 
   if(t0s.size() == 36) {
-    v_t0s = t0s;
+    v_t0s = t0s; 
   } else {
-    Error("Parameter()","Vectors size mismatch:: fix the t0 vector inmput size!!! %d ",t0s.size());
+    Error("Parameter()","Vectors size mismatch:: fix the t0 vector inmput size!!! %d ",(int) t0s.size());
   }
 
   return;

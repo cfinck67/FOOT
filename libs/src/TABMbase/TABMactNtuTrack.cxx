@@ -145,8 +145,6 @@ Bool_t TABMactNtuTrack::Action()
 
   Int_t i_nhit = p_nturaw->GetHitsN();
 
-  
-//******************************************************NEW tracking********************************************
    //NB.: If the preselection reject the event no track will be saved     
   
   if(p_bmcon->GetBMdebug()>10)
@@ -234,7 +232,7 @@ Bool_t TABMactNtuTrack::Action()
     return kTRUE;
   }else if(i_nhit<=p_bmcon->GetMinnhit_cut()){
     if(p_bmcon->GetBMdebug()>3)
-      cout<<"TABMactNtuTrack::WARNING!!::the number of hits is too low:  number of hit="<<i_nhit<<"  Maxhitcut="<<p_bmcon->GetMaxnhit_cut()<<endl;
+      cout<<"TABMactNtuTrack::WARNING!!::the number of hits is too low:  number of hit="<<i_nhit<<"  Minhitcut="<<p_bmcon->GetMinnhit_cut()<<endl;
       p_ntutrk->GetTrackStatus()=-1;  
     fpNtuTrk->SetBit(kValid);
     return kTRUE;
@@ -370,8 +368,11 @@ Bool_t TABMactNtuTrack::Action()
         best_index=i;
       }
       
-      if(prunedhit.at(0).size()>0){//prune hits
-        ChargePrunedTrack(prunedhit.at(0), firedUview, firedVview, hitxtrack, i);
+      if(prunedhit.at(0).size()>0){//charge prune hits
+        if((i_nhit-hitxtrack.at(i).size()-prunedhit.at(0).size())>p_bmcon->GetRejmaxcut())
+          ChargePrunedTrack(prunedhit.at(0), firedUview, firedVview, hitxtrack, i);
+        else if(p_bmcon->GetBMdebug()>3)
+          cout<<"TABMactNtuTrack:: prunedhit cannot added to hitxtrack due to Rejmaxcut:  hitxtrack index="<<i<<"  i_nhit="<<i_nhit<<"  hitxtrack.at(i).size()="<<hitxtrack.at(i).size()<<"  prunedhit.at(0).size()="<<prunedhit.at(0).size()<<"  rejhitmax="<<p_bmcon->GetRejmaxcut()<<endl;
         prunedhit.at(0).clear();
       }
       
@@ -384,7 +385,7 @@ Bool_t TABMactNtuTrack::Action()
     //~ delete tmp_btrackTr;
     //~ UpdateHitsFromTrack(best_mysqrtchi2, best_trackTr, hitxtrack[best_index]);//useless
 
-  }else if(p_bmcon->GetFitterIndex()<5){   //***********GENFIT TRACKING*******
+  }else if(p_bmcon->GetFitterIndex()<5){   //************************* GENFIT TRACKING***********************************
     //provv check
     //~ if(singlehittrack.size()!=firedSingleVview+firedSingleUview){
       //~ cout<<"TABMactNtuTrack::ERROR in PrefitTracking:: singlehittrack.size()="<<singlehittrack.size()<<" firedSingleUview="<<firedSingleUview<<"  firedSingleVview="<<firedSingleVview<<endl;
@@ -583,18 +584,18 @@ void TABMactNtuTrack::ChargePrunedTrack(vector<Int_t> &tobepruned, Int_t &firedU
     if(((p_hit->View()==1 && (firedUview-1)>=p_bmcon->GetPlanehitcut()) || (p_hit->View()==-1 && (firedVview-1)>=p_bmcon->GetPlanehitcut())) && (hitxtrack.at(index).size()-tobepruned.size())>=p_bmcon->GetMinnhit_cut()){
       tmp_vec_int=hitxtrack.at(index);
       if(p_bmcon->GetBMdebug()>4){
-	cout<<"Before the pruning:"<<endl;
-	for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
-	  cout<<tmp_vec_int.at(kk)<<" ";
-	cout<<endl;  
+        cout<<"Before the pruning:"<<endl;
+        for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
+          cout<<tmp_vec_int.at(kk)<<" ";
+        cout<<endl;  
       }
       for(Int_t kk=0;kk<tobepruned.size();kk++)
-	tmp_vec_int.erase(tmp_vec_int.begin()+tobepruned.at(kk));
+        tmp_vec_int.erase(tmp_vec_int.begin()+tobepruned.at(kk));
       if(p_bmcon->GetBMdebug()>4){
-	cout<<"After the pruning:"<<endl;
-	for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
-		cout<<tmp_vec_int.at(kk)<<" ";
-	cout<<endl;
+        cout<<"After the pruning:"<<endl;
+        for(Int_t kk=0;kk<tmp_vec_int.size();kk++)
+          cout<<tmp_vec_int.at(kk)<<" ";
+        cout<<endl;
 	}
       hitxtrack.push_back(tmp_vec_int);
     }else if(p_bmcon->GetBMdebug()>4)

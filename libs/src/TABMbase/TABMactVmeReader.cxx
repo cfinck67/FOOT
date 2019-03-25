@@ -102,16 +102,20 @@ Bool_t TABMactVmeReader::Process() {
   Double_t i_time, i_rdrift;
   Int_t lay, view, cell;
   for (Int_t i = 0; i < fpEvtStruct->tdc_hitnum[0]; i++) {
-    //~ cout<<"tdc_meas="<<fpEvtStruct->tdc_meas[i]<<"   bmmap->tdc2cell(fpEvtStruct->tdc_meas[i])="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"    bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_meas[i]))="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<endl;
-    if(fpEvtStruct->tdc_meas[i]!=-10000 &&  bmmap->tdc2cell(fpEvtStruct->tdc_id[i])!=-1 && bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))!=-1000){
+    if(fpEvtStruct->tdc_meas[i]!=-10000 && bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))!=-1000 &&  bmmap->tdc2cell(fpEvtStruct->tdc_id[i])>=0 && ((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - fpEvtStruct->tdc_sync[0]/10.)<bmcon->GetHitTimecut()){
       bmgeo->GetBMNlvc(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]), lay, view, cell);
       p_datraw->SetHitData(lay,view,cell,fpEvtStruct->tdc_meas[i]/10.);
-    }else
+      if(bmcon->GetBMdebug()>10)
+        cout<<"hit charged: i="<<i<<"  tdc_id="<<fpEvtStruct->tdc_id[i]<<"  tdc2cell="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"  tdc_meas/10.="<<fpEvtStruct->tdc_meas[i]/10.<<"  T0="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<"  trigtime="<<fpEvtStruct->tdc_sync[0]/10.<<"  timecut="<<bmcon->GetHitTimecut()<<"  hittime="<<((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - fpEvtStruct->tdc_sync[0]/10.)<<endl;
+    }else{
+      if(bmcon->GetBMdebug()>10)
+        cout<<"hit NOT charged: i="<<i<<"  tdc_id="<<fpEvtStruct->tdc_id[i]<<"  tdc2cell="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"  tdc_meas/10.="<<fpEvtStruct->tdc_meas[i]/10.<<"  T0="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<"  trigtime="<<fpEvtStruct->tdc_sync[0]/10.<<"  timecut="<<bmcon->GetHitTimecut()<<"  hittime="<<((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - fpEvtStruct->tdc_sync[0]/10.)<<endl;
       continue;
+    }
   }
-  p_timraw->SetupClones();
-  p_timraw->NewHit(1, 1, 6, fpEvtStruct->tdc_sync[0]/10.);
-
+  
+  //set the trigger time
+  p_timraw->SetTrigTime(fpEvtStruct->tdc_sync[0]/10.);  
     
   data_num_ev++;
   data_sync_num_ev+=fpEvtStruct->tdc_numsync;

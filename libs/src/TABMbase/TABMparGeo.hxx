@@ -138,9 +138,10 @@ private:
    TString         fFieldMat;
    Float_t         fFieldDensity;
 
-   Float_t         fFoilThick;
+   Float_t         fFoilThick; //foil==mylar
    TString         fFoilMat;
    Float_t         fFoilDensity;
+   
    Float_t         fShieldThick;
    Float_t         fBmStep;
    Float_t         fBmCellWide;
@@ -150,9 +151,6 @@ private:
    TString         fGasProp;
    TString         fGasDensities;
    Float_t         fGasDensity;
-
-   TString         fMyl;
-   Float_t         fMylDensity;
 
    /*  Johdot siirtyvät kammion sivuille */
    Float_t         fBmDeltaZ;

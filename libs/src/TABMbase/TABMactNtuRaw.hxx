@@ -13,7 +13,6 @@
 #include "TABMdatRaw.hxx"
 #include "TABMrawHit.hxx"
 #include "TASTdatRaw.hxx"
-#include "TASTdatRaw.hxx"
 #include "TABMparGeo.hxx"
 #include "TABMparCon.hxx"
 #include "TABMntuRaw.hxx"

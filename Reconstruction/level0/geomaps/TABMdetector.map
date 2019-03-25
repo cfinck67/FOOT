@@ -27,12 +27,9 @@ CellWide:      0.8;
 DeltaPlane:    0.3;
 
 GasMixture:   "Ar/CO2"
-GasDensities: "0.001662/0.00187"
 GasProporton: "0.8/0.2"
+GasDensities: "0.001662/0.00187"
 GasDensity:    0.001677136
-
-MylMat:          "Mylar"
-MylDensity:      1.4
 
 //Aluminum cage thickness
 ShieldingThick:    1.5;
@@ -49,7 +46,7 @@ DeltaX:            2.8     DeltaY:      2.8      DeltaZ:      2.85
 // Alignement parameters of wires (cm, degree)
 // -+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+--+-+-+-+-+-
 
-PositionsX:        0.200   PositionsY:   0.500   PositionsZ:  0.000
-Tilt1:            -1.200   Tilt2:       -3.200   Tilt3:       0.000
+PositionsX:        0.000   PositionsY:   0.000   PositionsZ:  0.000
+Tilt1:             0.000   Tilt2:        0.000   Tilt3:       0.000
 
 
