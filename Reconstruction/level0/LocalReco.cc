@@ -60,7 +60,6 @@ void LocalReco::LoopEvent(Int_t nEvents)
 //__________________________________________________________
 void LocalReco::CreateRawAction()
 {
-
    if (!fgStdAloneFlag) {
       fpDaqEvent = new TAGdataDsc("daqEvt", new TAGdaqEvent());
       fActEvtReader = new TAGactDaqReader("daqActReader", fpDaqEvent);
@@ -73,7 +72,7 @@ void LocalReco::CreateRawAction()
    }
 
    if (GlobalPar::GetPar()->IncludeBM()) {
-      fpDatRawBm = new TAGdataDsc("bmDat", new TAVTdatRaw());
+      fpDatRawBm = new TAGdataDsc("bmDat", new TABMdatRaw());
       fpNtuRawBm = new TAGdataDsc("bmNtu", new TABMntuRaw());
       
       if (fgStdAloneFlag) {
@@ -81,7 +80,7 @@ void LocalReco::CreateRawAction()
          fActVmeReaderBm->CreateHistogram();
          
       } else {
-         fActDatRawBm = new TABMactDatRaw("bmActNtu", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm);
+         fActDatRawBm = new TABMactDatRaw("bmActDat", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
          fActDatRawBm->CreateHistogram();
          fActNtuRawBm = new TABMactNtuRaw("bmActNtu", fpNtuRawBm, fpDatRawBm, fpDatRawSt, fpParGeoBm, fpParConfBm);
          fActNtuRawBm->CreateHistogram();
@@ -135,7 +134,10 @@ void LocalReco::CreateRawAction()
 //__________________________________________________________
 void LocalReco::OpenFileIn()
 {
-   fActEvtReader->Open(GetName());
+   if (fgStdAloneFlag)
+      fActVmeReaderVtx->Open(GetName());
+   else
+      fActEvtReader->Open(GetName());
 }
 
 //__________________________________________________________
@@ -178,7 +180,7 @@ void LocalReco::CloseFileIn()
 //__________________________________________________________
 void LocalReco::AddRawRequiredItem()
 {
-   fTAGroot->AddRequiredItem("daqAct");
+   fTAGroot->AddRequiredItem("daqActReader");
 
    if (GlobalPar::GetPar()->IncludeST()) {
       fTAGroot->AddRequiredItem("stActNtu");
