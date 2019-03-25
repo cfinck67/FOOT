@@ -7,9 +7,13 @@
 #include "TAGdataDsc.hxx"
 
 #include "TASTactDatRaw.hxx"
+#include "TABMactVmeReader.hxx"
 #include "TABMactDatRaw.hxx"
+#include "TABMactNtuRaw.hxx"
 
+#include "TAVTactVmeReader.hxx"
 #include "TAVTactNtuRaw.hxx"
+
 #include "TAITactNtuRaw.hxx"
 //#include "TAMSDactNtuRaw.hxx"
 
@@ -35,6 +39,9 @@ public:
    //! Set raw histogram directory
    virtual void SetRawHistogramDir();
    
+   //! Create branch in tree
+   virtual void SetTreeBranches();
+
    //! Open File
    virtual void OpenFileIn();
    
@@ -44,20 +51,32 @@ public:
    //! Loop events
    virtual void LoopEvent(Int_t nEvents);
 
+public:
+   //! Disable/Enable stand alone DAQ
+   static void DisableStdAlone()   { fgStdAloneFlag = false;  }
+   static void EnableStdAlone()    { fgStdAloneFlag = true;   }
+   
 private:
    TAGdataDsc*           fpDaqEvent;
  //  TAGdataDsc*           fpDatRawMsd;    // input data dsc
 
    TASTactDatRaw*        fActDatRawSt;  // action for ntu data
+   
+   TABMactVmeReader*     fActVmeReaderBm; // action for stand alone reader BM
    TABMactDatRaw*        fActDatRawBm;
+   TABMactNtuRaw*        fActNtuRawBm;
    //   TAMSDactDatuRaw*      fActDatRawMsd;  // action for raw data
 
+   TAVTactVmeReader*     fActVmeReaderVtx; // action for stand alone reader VTX
    TAVTactNtuRaw*        fActNtuRawVtx;  // action for ntu data
    TAITactNtuRaw*        fActNtuRawIt;  // action for ntu data
 //   TAMSDactNtuRaw*       fActNtuRawMsd;  // action for ntu data
 
    TAGactDaqReader*      fActEvtReader; // reader for real data (DAQ)
-   
+  
+private:
+   static Bool_t         fgStdAloneFlag;   // flag for standalone DAQ
+
    ClassDef(LocalReco, 1); // Base class for event display
 };
 

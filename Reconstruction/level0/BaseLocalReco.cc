@@ -183,6 +183,9 @@ void BaseLocalReco::InitParameters()
       TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
       fpParMapSt = new TAGparaDsc("stMap", new TASTparMap()); // need the file
+      TASTparMap* parMapSt = (TASTparMap*) fpParMapSt->Object();
+      parFileName="./geomaps/tr_ch.map";
+      parMapSt->FromFile(parFileName);
    }
 
    // initialise parameters for Beam Monitor
@@ -201,6 +204,11 @@ void BaseLocalReco::InitParameters()
       parConf->LoadReso(parFileName);
       
       fpParMapBm = new TAGparaDsc("bmMap", new TABMparMap());
+      TABMparMap*  parMapBm = (TABMparMap*)fpParMapBm->Object();
+      
+      parFileName = "./geomaps/";
+      parFileName += parConf->GetParmapfile();
+      parMapBm->FromFile(parFileName.Data(), parGeo);
    }
 
    // initialise parameters for vertex
