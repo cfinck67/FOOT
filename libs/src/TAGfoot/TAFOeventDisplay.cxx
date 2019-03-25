@@ -611,11 +611,15 @@ void TAFOeventDisplay::CreateRawAction()
 //__________________________________________________________
 void TAFOeventDisplay::OpenFile(const TString fileName)
 {
-   if (fgStdAloneFlag)
-      fActVmeReaderVtx->Open(fileName.Data());
-   else {
+   if (fgStdAloneFlag) {
+      if (GlobalPar::GetPar()->IncludeVertex())
+         fActVmeReaderVtx->Open(fileName.Data());
+      
+      if (GlobalPar::GetPar()->IncludeBM())
+         fActVmeReaderBm->Open(fileName.Data());
+
+   } else
       fActEvtReader->Open(fileName.Data());
-   }
 }
 
 //__________________________________________________________

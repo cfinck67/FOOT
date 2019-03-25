@@ -134,9 +134,14 @@ void LocalReco::CreateRawAction()
 //__________________________________________________________
 void LocalReco::OpenFileIn()
 {
-   if (fgStdAloneFlag)
-      fActVmeReaderVtx->Open(GetName());
-   else
+   if (fgStdAloneFlag) {
+      if (GlobalPar::GetPar()->IncludeVertex())
+         fActVmeReaderVtx->Open(GetName());
+      
+      if (GlobalPar::GetPar()->IncludeBM())
+         fActVmeReaderBm->Open(GetName());
+      
+   } else
       fActEvtReader->Open(GetName());
 }
 
