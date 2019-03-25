@@ -92,7 +92,7 @@ int main (int argc, char *argv[]) {
     caGeo->FromFile();
     tg_beamGeo->FromFile();
 
-    genfit::FieldManager::getInstance()->init(new FootField( "DoubleDipole.table",dipGeo) ); // variable field
+    genfit::FieldManager::getInstance()->init(new FootField( GlobalPar::GetPar()->MagFieldInputMapName().data(),dipGeo) ); // variable field
 
     ifstream file;
     string fileName = "foot.inp";
@@ -301,6 +301,7 @@ int main (int argc, char *argv[]) {
 
     outfile << geomat.str();
 
+    
     outfile << fTAGmat->SaveFileFluka();
     
     int magnetic = 0;
