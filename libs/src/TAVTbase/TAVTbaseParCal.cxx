@@ -31,7 +31,8 @@ TAVTbaseParCal::TAVTbaseParCal()
   fChargeProba(new TArrayF(6)),
   fChargeProbaNorm(new TArrayF(6)),
   fChargeWithMaxProba(0),
-  fChargeMaxProba(0.)
+  fChargeMaxProba(0.),
+  fkDefaultCalName("")
 {
   // Standard constructor
 }
@@ -56,7 +57,7 @@ Bool_t TAVTbaseParCal::FromFile(const TString& name)
    TString nameExp;
    
    if (name.IsNull())
-     nameExp = fgkDefaultCalName;
+     nameExp = fkDefaultCalName;
    else 
      nameExp = name;
    

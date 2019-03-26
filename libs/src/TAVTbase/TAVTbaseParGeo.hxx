@@ -25,6 +25,7 @@ class TAVTbaseParGeo : public TAGparTools {
       
 protected:   
    Int_t      fSensorsN;         // Number of sensors
+   TString    fkDefaultGeoName;  // default par geo file name
    Int_t      fLayersN;          // Number of layer (planes)
 
    TString    fTypeName;         // Type name

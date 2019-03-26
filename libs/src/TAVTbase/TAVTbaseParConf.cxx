@@ -50,7 +50,7 @@ Bool_t TAVTbaseParConf::FromFile(const TString& name)
    TString nameExp;
    
    if (name.IsNull())
-     nameExp = fgkDefaultConfName;
+     nameExp = fkDefaultConfName;
    else 
      nameExp = name;
    

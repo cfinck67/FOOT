@@ -33,7 +33,7 @@ const TString TATWparGeo::fgkDefaultBarName = "twBar";
 TATWparGeo::TATWparGeo()
 : TAGparTools()
 {
-   fgDefaultGeoName = "./geomaps/TATWdetector.map";
+   fkDefaultGeoName = "./geomaps/TATWdetector.map";
 }
 
 //______________________________________________________________________________
@@ -47,7 +47,7 @@ Bool_t TATWparGeo::FromFile(const TString& name)
    TString nameExp;
    
    if (name.IsNull())
-      nameExp = fgDefaultGeoName;
+      nameExp = fkDefaultGeoName;
    else
       nameExp = name;
    

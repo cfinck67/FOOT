@@ -37,7 +37,7 @@ TAGparGeo::TAGparGeo()
 : TAGparTools()
 {
    // Standard constructor
-   fgDefaultGeoName = "./geomaps/TAGdetector.map";
+   fkDefaultGeoName = "./geomaps/TAGdetector.map";
 }
 
 //______________________________________________________________________________
@@ -67,7 +67,7 @@ Bool_t TAGparGeo::FromFile(const TString& name)
    TString nameExp;
    
    if (name.IsNull())
-      nameExp = fgDefaultGeoName;
+      nameExp = fkDefaultGeoName;
    else
       nameExp = name;
    

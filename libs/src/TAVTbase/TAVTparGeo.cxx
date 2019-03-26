@@ -54,7 +54,7 @@ TAVTparGeo::TAVTparGeo()
   : TAVTbaseParGeo()
 {
   // Standard constructor
-  fgDefaultGeoName = "./geomaps/TAVTdetector.map";
+  fkDefaultGeoName = "./geomaps/TAVTdetector.map";
 }
 
 //______________________________________________________________________________

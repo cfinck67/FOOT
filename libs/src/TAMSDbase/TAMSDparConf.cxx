@@ -16,13 +16,13 @@
 
 ClassImp(TAMSDparConf);
 
-TString TAVTbaseParConf::fgkDefaultConfName = "./config/TAVTdetector.cfg";
 
 //______________________________________________________________________________
 TAMSDparConf::TAMSDparConf()
 : TAVTbaseParConf()
 {
    // Standard constructor
+   fkDefaultConfName = "./config/TAMSDdetector.cfg";
 }
 
 //______________________________________________________________________________

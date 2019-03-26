@@ -71,7 +71,7 @@ TABMparGeo::TABMparGeo()
    fBmDeltaY(0),
    fBmDeltaX(0)
 {
-   fgDefaultGeoName = "./geomaps/TABMdetector.map";
+   fkDefaultGeoName = "./geomaps/TABMdetector.map";
 }
 
 //------------------------------------------+-----------------------------------
@@ -86,7 +86,7 @@ Bool_t TABMparGeo::FromFile(const TString& name)
    TString nameExp;
    
    if (name.IsNull())
-      nameExp = fgDefaultGeoName;
+      nameExp = fkDefaultGeoName;
    else
       nameExp = name;
    

@@ -23,13 +23,14 @@
 
 ClassImp(TAVTparCal);
 
-TString TAVTbaseParCal::fgkDefaultCalName = "./config/TAVTdetector.cal";
 
 //------------------------------------------+-----------------------------------
 TAVTparCal::TAVTparCal()
 : TAVTbaseParCal()
 {
   // Standard constructor
+   fkDefaultCalName = "./config/TAVTdetector.cal";
+
 }
 
 //------------------------------------------+-----------------------------------

@@ -31,6 +31,7 @@ const Int_t TAVTbaseParGeo::fgkDefSensorsN   = 32;
 TAVTbaseParGeo::TAVTbaseParGeo()
  : TAGparTools(),
    fSensorsN(0),
+   fkDefaultGeoName(""),
    fLayersN(fSensorsN)
 {
    // Standard constructor
@@ -64,7 +65,7 @@ Bool_t TAVTbaseParGeo::FromFile(const TString& name)
    TString nameExp;
    
    if (name.IsNull())
-      nameExp = fgDefaultGeoName;
+      nameExp = fkDefaultGeoName;
    else
       nameExp = name;
    

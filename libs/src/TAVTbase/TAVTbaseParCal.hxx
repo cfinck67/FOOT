@@ -19,7 +19,7 @@
 
 class TAVTbaseParCal : public TAGparTools {
       
-private:
+protected:
    TF1*     fLandau[6];
    TF1*     fLandauNorm[6];
    TF1*     fLandauTot;
@@ -40,9 +40,10 @@ private:
    
    LandauParameter_t  fLandauParameter[6];
 
-private: 
+   TString fkDefaultCalName; // default detector charge calibration file
+
+private:
    static Int_t   fgkChargesN;       // number of charge states
-   static TString fgkDefaultCalName; // default detector charge calibration file
    
 private:
    void SetFunction();
@@ -83,13 +84,16 @@ public:
    Float_t            GetChargeMaxProbaNorm()     const { return fChargeMaxProbaNorm; }
    
    //! Get Pointer to Landau Norm
-   TF1*               GetLandauNormFunc(Int_t idx)    const { return fLandauNorm[idx]; }
+   TF1*               GetLandauNormFunc(Int_t idx) const { return fLandauNorm[idx]; }
    
    //! Get Pointer to Landau
    TF1*               GetLandauFunc(Int_t idx)    const { return fLandau[idx]; }
 
    //! Get Pointer to total Landau (z < 6) 
    TF1*               GetLandauTot()              const { return fLandauTot; }
+
+   //! return defaut cal name
+   const Char_t*      GetDefaultCalName()         const { return fkDefaultCalName.Data(); }
 
    //! Quenched Landau function
    Double_t           QLandau(Double_t *x, Double_t *par);
@@ -101,8 +105,6 @@ public:
    //! Total quenched Landau function
    Double_t           QLandauTot(Double_t *x, Double_t *par);
    
-public:
-   static const Char_t* GetDefaultCalName()      { return fgkDefaultCalName.Data(); }
 
    ClassDef(TAVTbaseParCal,1)
 };

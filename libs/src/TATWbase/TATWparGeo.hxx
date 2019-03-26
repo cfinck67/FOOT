@@ -92,15 +92,17 @@ private:
    TString fBarMat;
    Float_t fBarDensity;
 
-  int fLayersN;
+   int fLayersN;
    int fBarsN;
+
+   TString    fkDefaultGeoName;  // default par geo file name
 
   // map<string, vector<string> > m_regionPrintOut;
   // map<string, vector<string> > m_bodyPrintOut;
   // map<string, vector<string> > m_regionName;
   // map<string, vector<string> > m_bodyName;
   // map<string, int > m_magneticRegion;
-   vector<string> vBody, vRegion;
+  vector<string> vBody, vRegion;
   vector<TVector3> vTilt;
    
 private:

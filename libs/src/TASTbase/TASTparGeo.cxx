@@ -38,7 +38,7 @@ TASTparGeo::TASTparGeo()
    fMaterial(""),
    fDensity(0.)
 {
-  fgDefaultGeoName = "./geomaps/TASTdetector.map";
+  fkDefaultGeoName = "./geomaps/TASTdetector.map";
 }
 
 //------------------------------------------+-----------------------------------
@@ -69,7 +69,7 @@ Bool_t TASTparGeo::FromFile(const TString& name)
    TString nameExp;
    
    if (name.IsNull())
-      nameExp = fgDefaultGeoName;
+      nameExp = fkDefaultGeoName;
    else
       nameExp = name;
    

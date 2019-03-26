@@ -28,7 +28,7 @@ TAITparGeo::TAITparGeo()
 {
    // Constructor
    fLayersN = 2;
-   fgDefaultGeoName = "./geomaps/TAITdetector.map";
+   fkDefaultGeoName = "./geomaps/TAITdetector.map";
 }
 
 //______________________________________________________________________________

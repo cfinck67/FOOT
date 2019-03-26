@@ -19,10 +19,10 @@
 
 class TAVTbaseParConf : public TAGparTools {
       
-private:
+protected:
    Int_t      fSensorsN;         // Number of sensors	 
-   
-   static Bool_t  fgIsMapHist;   // enable  map histo
+   TString    fkDefaultConfName; // default detector configuration file
+
 
    struct SensorParameter_t : public  TObject {
 	  Int_t     SensorIdx;              // sensor index
@@ -44,8 +44,8 @@ private:
    };
    
    
-private: 
-   static       TString fgkDefaultConfName; // default detector configuration file
+private:
+   static Bool_t  fgIsMapHist;   // enable  map histo
 
 public:
 
@@ -61,23 +61,23 @@ public:
    
    Int_t           GetStatus(Int_t idx) const;
    Int_t           GetStatusMinor(Int_t idx) const ;
-   
-public:
+
+
       
    SensorParameter_t fSensorParameter[32];
-   SensorParameter_t& GetSensorPar(Int_t idx){return fSensorParameter[idx];}
+   SensorParameter_t& GetSensorPar(Int_t idx)  { return fSensorParameter[idx];    }
    
    AnalysisParameter_t fAnalysisParameter;
-   AnalysisParameter_t& GetAnalysisPar(){return fAnalysisParameter;}
+   AnalysisParameter_t& GetAnalysisPar()       { return fAnalysisParameter;       }
    
-   Int_t  GetSensorsN()  const { return fSensorsN; }
-   
+   Int_t         GetSensorsN()          const  { return fSensorsN;                }
+   const Char_t* GetDefaultConfName()   const  { return fkDefaultConfName.Data(); }
+
 public:
    
    static Bool_t IsMapHistOn()                   { return fgIsMapHist; }
    static void   SetHistoMap(Bool_t flag = true) { fgIsMapHist = flag; }
    
-   static const Char_t* GetDefaultConfName()     { return fgkDefaultConfName.Data(); }
 
    ClassDef(TAVTbaseParConf,1)
 };

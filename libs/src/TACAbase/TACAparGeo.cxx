@@ -32,7 +32,7 @@ const TString TACAparGeo::fgkDefaultCrysName = "caCrys";
 TACAparGeo::TACAparGeo()
 : TAGparTools()
 {
-   fgDefaultGeoName = "./geomaps/TACAdetector.map";
+   fkDefaultGeoName = "./geomaps/TACAdetector.map";
 }
 
 //______________________________________________________________________________
@@ -46,7 +46,7 @@ Bool_t TACAparGeo::FromFile(const TString& name)
    TString nameExp;
    
    if (name.IsNull())
-      nameExp = fgDefaultGeoName;
+      nameExp = fkDefaultGeoName;
    else
       nameExp = name;
    

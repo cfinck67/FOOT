@@ -26,7 +26,6 @@ class TAGparTools : public TAGpara {
 protected:
    ifstream fFileStream; // parameter file
    TString  fFileName;   // name of the file
-   TString  fgDefaultGeoName;  // default detector geomap file
 
    TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each crystal)
    TVector3   fCurrentPosition;  // current position

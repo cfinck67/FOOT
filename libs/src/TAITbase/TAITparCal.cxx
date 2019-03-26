@@ -23,13 +23,13 @@
 
 ClassImp(TAITparCal);
 
-TString TAVTbaseParCal::fgkDefaultCalName = "./config/TAITdetector.cal";
 
 //------------------------------------------+-----------------------------------
 TAITparCal::TAITparCal()
 : TAVTbaseParCal()
 {
   // Standard constructor
+   fkDefaultCalName = "./config/TAITdetector.cal";
 }
 
 //------------------------------------------+-----------------------------------

@@ -50,7 +50,8 @@ private:
    TVector3  fSize;
    TString   fMaterial;
    Float_t   fDensity;
-   
+   TString   fkDefaultGeoName;  // default par geo file name
+
 private:
    static const TString fgkBaseName;
    static const TString fgkDefParaName;

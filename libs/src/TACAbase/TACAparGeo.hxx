@@ -3,9 +3,8 @@
 
 #include "Riostream.h"
 
-#include "TEveGeoShapeExtract.h"
-
 #include "TObject.h"
+#include "TString.h"
 
 #include "TAGparTools.hxx"
 
@@ -88,6 +87,7 @@ private:
    TString   fCrystalMat;
    Float_t   fCrystalDensity;
    Int_t     fCrystalsN;
+   TString   fkDefaultGeoName;  // default par geo file name
 
   ClassDef(TACAparGeo,1)
 };

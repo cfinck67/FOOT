@@ -25,6 +25,9 @@ class TGeoVolume;
 class TAGparGeo : public TAGparTools {
       
 private:
+   
+   TString    fkDefaultGeoName;  // default par geo file name
+
    // Target parameters
    struct TargetParameter_t : public  TObject {
 	  TString   Shape;    // Target shape

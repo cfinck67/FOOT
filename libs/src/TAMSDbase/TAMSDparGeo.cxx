@@ -23,7 +23,7 @@ const TString TAMSDparGeo::fgkDefParaName   = "msdGeo";
 TAMSDparGeo::TAMSDparGeo()
 : TAVTparGeo()
 {
-   fgDefaultGeoName = "./geomaps/TAMSDdetector.map";
+   fkDefaultGeoName = "./geomaps/TAMSDdetector.map";
 }
 
 //_____________________________________________________________________________

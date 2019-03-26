@@ -179,6 +179,8 @@ private:
    Double32_t      fPosCY[50][6][2];
    Double32_t      fPosCZ[50][6][2];
 
+   TString         fkDefaultGeoName;  // default par geo file name
+
 private:
    static const TString fgkDefParaName;
    static const TString fgkBaseName;    // device base name
