@@ -19,8 +19,8 @@
 
 //##############################################################################
 
-const TString TAITparGeo::fgkBaseName      = "IT";
-const TString TAITparGeo::fgkDefParaName   = "itGeo";
+const TString TAITparGeo::fgkBaseNameIt      = "IT";
+const TString TAITparGeo::fgkDefParaNameIt   = "itGeo";
 
 //_____________________________________________________________________________
 TAITparGeo::TAITparGeo()

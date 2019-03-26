@@ -152,7 +152,7 @@ int KFitter::UploadHitsIT() {
 	
 	// take the ntuple object already filled
 	TAITntuRaw* ntup = (TAITntuRaw*) gTAGroot->FindDataDsc("itRaw", "TAITntuRaw")->Object();
-   TAITparGeo* vtxGeo = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefParaName(), "TAITparGeo")->Object();
+   TAITparGeo* vtxGeo = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetItDefParaName(), "TAITparGeo")->Object();
 
 	if ( m_debug > 0 )		cout << "N IT sensors: " << vtxGeo->GetNSensors() << endl;
 

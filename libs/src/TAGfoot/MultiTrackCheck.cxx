@@ -152,7 +152,7 @@ void MultiTrackCheck::Process( Long64_t jentry ){
 //  // }
 //  
 //  
-//   TAITparGeo* itGeo = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetDefParaName(), "TAITparGeo")->Object();
+//   TAITparGeo* itGeo = (TAITparGeo*) gTAGroot->FindParaDsc(TAITparGeo::GetItDefParaName(), "TAITparGeo")->Object();
 //
 //  
 //  for (int nSensor = 0; nSensor < itGeo->GetNSensors(); nSensor++) {	// over all sensors

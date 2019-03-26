@@ -30,7 +30,7 @@ void PrintVtxClusMcInfo(TString nameFile = "12C_400_vtx_Out.root", Int_t nentrie
   TAVTparGeo* parGeo = (TAVTparGeo*)parGeoVtx->Object();
   parGeo->FromFile();
 
-  TAGparaDsc* parGeoIt = new TAGparaDsc(TAITparGeo::GetDefParaName(), new TAITparGeo());
+  TAGparaDsc* parGeoIt = new TAGparaDsc(TAITparGeo::GetItDefParaName(), new TAITparGeo());
   TAITparGeo* iparGeo = (TAITparGeo*)parGeoIt->Object();
   iparGeo->FromFile();
   

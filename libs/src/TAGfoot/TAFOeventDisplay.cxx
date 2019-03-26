@@ -304,7 +304,7 @@ void TAFOeventDisplay::ReadParFiles()
 
    // initialise par files for inner tracker
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
-      fpParGeoIt = new TAGparaDsc(TAITparGeo::GetDefParaName(), new TAITparGeo());
+      fpParGeoIt = new TAGparaDsc(TAITparGeo::GetItDefParaName(), new TAITparGeo());
       TAITparGeo* parGeo = (TAITparGeo*)fpParGeoIt->Object();
       TString parItFileName = Form("./geomaps/TAITdetector%s.map", fExpName.Data());
       parGeo->FromFile(parItFileName.Data());
@@ -412,7 +412,7 @@ void TAFOeventDisplay::BuildDefaultGeometry()
       TAITparGeo* parGeo = (TAITparGeo*)fpParGeoIt->Object();
       TGeoVolume* itVol  = parGeo->BuildInnerTracker();
       
-      const TGeoHMatrix* transfo = fpFootGeo->GetTrafo(TAITparGeo::GetBaseName());
+      const TGeoHMatrix* transfo = fpFootGeo->GetTrafo(TAITparGeo::GetItBaseName());
       TGeoHMatrix* transf        = (TGeoHMatrix*)transfo->Clone();
       AddGeometry(itVol, transf);
    }

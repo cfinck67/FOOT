@@ -37,8 +37,8 @@ private:
    Float_t    fAlMatDensity;      // Density of aluminum material
 
 protected:
-   static const TString fgkBaseName;   // IT base name
-   static const TString fgkDefParaName;
+   static const TString fgkBaseNameIt;   // IT base name
+   static const TString fgkDefParaNameIt;
 
 public:
    TAITparGeo();
@@ -96,8 +96,8 @@ public:
    virtual void   PrintFluka();
    
 public:
-   static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }
-   static const Char_t* GetDefParaName() { return fgkDefParaName.Data(); }
+   static const Char_t* GetItBaseName()    { return fgkBaseNameIt.Data();    }
+   static const Char_t* GetItDefParaName() { return fgkDefParaNameIt.Data(); }
 
    ClassDef(TAITparGeo,1)
 };

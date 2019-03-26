@@ -232,7 +232,7 @@ void BaseLocalReco::InitParameters()
    
    // initialise parameters for inner tracker
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
-      fpParGeoIt = new TAGparaDsc(TAITparGeo::GetDefParaName(), new TAITparGeo());
+      fpParGeoIt = new TAGparaDsc(TAITparGeo::GetItDefParaName(), new TAITparGeo());
       TAITparGeo* parGeo = (TAITparGeo*)fpParGeoIt->Object();
       TString parItFileName = Form("./geomaps/TAITdetector%s.map", fExpName.Data());
       parGeo->FromFile(parItFileName.Data());

@@ -47,7 +47,7 @@ TAITactNtuTrackF*    itActTrck = 0x0;
 void FillMCInner(EVENT_STRUCT *myStr) {
    
    /*Ntupling the MC Vertex information*/
-   TAGparaDsc* itGeo    = new TAGparaDsc(TAITparGeo::GetDefParaName(), new TAITparGeo());
+   TAGparaDsc* itGeo    = new TAGparaDsc(TAITparGeo::GetItDefParaName(), new TAITparGeo());
    TAITparGeo* geomap   = (TAITparGeo*) itGeo->Object();
    geomap->FromFile();
    
