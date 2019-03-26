@@ -355,7 +355,9 @@ string TAVTparGeo::PrintAssignMaterial()
   
   if(GlobalPar::GetPar()->IncludeVertex()){
 
-    const Char_t* matMod = fEpiMat.Data();
+    string matMod = fEpiMat.Data();
+    matMod[1] =toupper(matMod[1]);
+    // const Char_t* matMod = fEpiMat.Data();
     const Char_t* matPix = fPixMat.Data();
     bool magnetic = false;
     if(GlobalPar::GetPar()->IncludeDI())
@@ -365,7 +367,7 @@ string TAVTparGeo::PrintAssignMaterial()
       cout << "Error: VT regions vector not correctly filled!"<<endl;
     
     ss << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-       << setw(10) << setfill(' ') << std::right << "SILICON"//matMod
+       << setw(10) << setfill(' ') << std::right << matMod
        << setw(10) << setfill(' ') << std::right << vEpiRegion.at(0)
        << setw(10) << setfill(' ') << std::right << vEpiRegion.back()
        << setw(10) << setfill(' ') << std::right << "1."
@@ -373,7 +375,7 @@ string TAVTparGeo::PrintAssignMaterial()
        << endl;
 
     ss << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-       << setw(10) << setfill(' ') << std::right << "SILICON"//matMod
+       << setw(10) << setfill(' ') << std::right << matMod
        << setw(10) << setfill(' ') << std::right << vModRegion.at(0)
        << setw(10) << setfill(' ') << std::right << vModRegion.back()
        << setw(10) << setfill(' ') << std::right << "1."
@@ -381,7 +383,7 @@ string TAVTparGeo::PrintAssignMaterial()
        << endl;
 
     ss << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-       << setw(10) << setfill(' ') << std::right << "SILICON"//matPix
+       << setw(10) << setfill(' ') << std::right << matPix
        << setw(10) << setfill(' ') << std::right << vPixRegion.at(0)
        << setw(10) << setfill(' ') << std::right << vPixRegion.back()
        << setw(10) << setfill(' ') << std::right << "1."
