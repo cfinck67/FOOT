@@ -755,9 +755,16 @@ string TABMparGeo::PrintAssignMaterial() {
       bool magnetic = false;
       if(GlobalPar::GetPar()->IncludeDI())
 	magnetic = true;
-    
+         
+      string matFWire = fFieldMat.Data();
+      matFWire[1] =toupper(matFWire[1]);
+      const Char_t* matGas = fGasMixture.Data();
+      // const Char_t* matFWire = fFieldMat.Data();
+      const Char_t* matSWire = fSenseMat.Data();
+      const Char_t* matFoil = fFoilMat.Data();
+      
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-	     << setw(10) << setfill(' ') << std::right << "ALUMINUM"
+	     << setw(10) << setfill(' ') << std::right << matFWire// same mat as Field Wires
 	     << setw(10) << setfill(' ') << std::right << "BMN_SHI"
 	     << setw(10) << setfill(' ') << std::right << ""
 	     << setw(10) << setfill(' ') << std::right << ""
@@ -765,7 +772,7 @@ string TABMparGeo::PrintAssignMaterial() {
 	     << endl;
     
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-	     << setw(10) << setfill(' ') << std::right << "Mylar"
+	     << setw(10) << setfill(' ') << std::right << matFoil
 	     << setw(10) << setfill(' ') << std::right << "BMN_MYL0"
 	     << setw(10) << setfill(' ') << std::right << ""
 	     << setw(10) << setfill(' ') << std::right << ""
@@ -773,7 +780,7 @@ string TABMparGeo::PrintAssignMaterial() {
 	     << endl;
     
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-	     << setw(10) << setfill(' ') << std::right << "Mylar"
+	     << setw(10) << setfill(' ') << std::right << matFoil
 	     << setw(10) << setfill(' ') << std::right << "BMN_MYL1"
 	     << setw(10) << setfill(' ') << std::right << ""
 	     << setw(10) << setfill(' ') << std::right << ""
@@ -781,7 +788,7 @@ string TABMparGeo::PrintAssignMaterial() {
 	     << endl;
     
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-	     << setw(10) << setfill(' ') << std::right << "Ar-CO2"
+	     << setw(10) << setfill(' ') << std::right << matGas
 	     << setw(10) << setfill(' ') << std::right << "BMN_C000"
 	     << setw(10) << setfill(' ') << std::right << "BMN_C017"
 	     << setw(10) << setfill(' ') << std::right << "1."
@@ -789,7 +796,7 @@ string TABMparGeo::PrintAssignMaterial() {
 	     << endl;
     
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-	     << setw(10) << setfill(' ') << std::right << "Ar-CO2"
+	     << setw(10) << setfill(' ') << std::right << matGas
 	     << setw(10) << setfill(' ') << std::right << "BMN_C100"
 	     << setw(10) << setfill(' ') << std::right << "BMN_C117"
 	     << setw(10) << setfill(' ') << std::right << "1."
@@ -797,7 +804,7 @@ string TABMparGeo::PrintAssignMaterial() {
 	     << endl;
     
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-	     << setw(10) << setfill(' ') << std::right << "Ar-CO2"
+	     << setw(10) << setfill(' ') << std::right << matGas
 	     << setw(10) << setfill(' ') << std::right << "BMN_GAS"
 	     << setw(10) << setfill(' ') << std::right << ""
 	     << setw(10) << setfill(' ') << std::right << ""
@@ -805,7 +812,7 @@ string TABMparGeo::PrintAssignMaterial() {
 	     << endl;
     
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-	     << setw(10) << setfill(' ') << std::right << "ALUMINUM"
+	     << setw(10) << setfill(' ') << std::right << matFWire
 	     << setw(10) << setfill(' ') << std::right << "BMN_FWI"
 	     << setw(10) << setfill(' ') << std::right << ""
 	     << setw(10) << setfill(' ') << std::right << ""
@@ -813,7 +820,7 @@ string TABMparGeo::PrintAssignMaterial() {
 	     << endl;
     
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
-	     << setw(10) << setfill(' ') << std::right << "ALUMINUM"
+	     << setw(10) << setfill(' ') << std::right << matSWire
 	     << setw(10) << setfill(' ') << std::right << "BMN_SWI"
 	     << setw(10) << setfill(' ') << std::right << ""
 	     << setw(10) << setfill(' ') << std::right << ""
