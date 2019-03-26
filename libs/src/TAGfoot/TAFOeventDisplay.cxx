@@ -545,7 +545,6 @@ void TAFOeventDisplay::CreateRawAction()
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
       fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDaqEvent, fpParMapSt);
-      printf("%p %p %p", fpDatRawSt, fpDaqEvent, fpParMapSt);
       fActDatRawSt->CreateHistogram();
    }
 
