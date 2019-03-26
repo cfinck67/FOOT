@@ -72,7 +72,7 @@ Bool_t TABMactNtuRaw::Action()
 
   p_nturaw->SetupClones();
   
-  if(p_timraw->TrigTime() == -10000) {
+  if(p_timraw->TrigTime() == -10000 || p_timraw->TrigTime()<-9999999999) {
      Info("Action()","Trigger IR Time is Missing!!!");
      fpNtuRaw->SetBit(kValid);
      return kTRUE;
@@ -95,7 +95,10 @@ Bool_t TABMactNtuRaw::Action()
     }
     
     Double_t i_drift = p_parcon->FirstSTrel(i_time);
-
+    if(p_parcon->GetBMdebug()>10)
+      cout<<"TABMactNtuRaw:: charging hit i_time="<<i_time<<"  i_drift="<<i_drift<<"  cell="<<hit.Cell()<<"  view="<<hit.View()<<"  Plane="<<hit.Plane()<<"   hit.time="<<hit.Time()<<"  T0="<<p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell())<<"  trigtime="<<p_timraw->TrigTime()<<endl;
+    
+    
     //create the hit (no selection of hit)
     TABMntuHit *mytmp = p_nturaw->NewHit(0, hit.View(), hit.Plane(), hit.Cell(), i_drift, i_time, p_parcon->ResoEval(i_drift));
   }

@@ -58,6 +58,8 @@ void FillBmVME(TString name) {
    parConf->FromFile(parFileName.Data());
    parFileName = "./config/bmreso_vs_r.root";
    parConf->LoadReso(parFileName);
+   parConf->loadT0s(10000000000);
+   parConf->CoutT0();
 
    TAGparaDsc*  bmMap  = new TAGparaDsc("bmMap", new TABMparMap());
    TABMparMap*  parMap = (TABMparMap*)bmMap->Object();
@@ -82,8 +84,8 @@ void FillBmVME(TString name) {
 
    cout<<"end of FillBmVME"<<endl;
 
-   // outFile->SetupElementBranch(bmNtuRaw, TABMntuRaw::GetBranchName());
-   // outFile->SetupElementBranch(bmTrck, TABMntuTrack::GetBranchName());
+   outFile->SetupElementBranch(bmNtuRaw, TABMntuRaw::GetBranchName());
+   outFile->SetupElementBranch(bmTrack, TABMntuTrack::GetBranchName());
 }
 
 void ReadBmRawVME(TString name = "80MeV_HV2175_100kEv.dat")
@@ -126,7 +128,7 @@ void ReadBmRawVME(TString name = "80MeV_HV2175_100kEv.dat")
       //~ if(ientry % 100 == 0)
          cout<<" Loaded Event:: " << ientry << endl;
       
-      if (ientry == 1000)
+      if (ientry == 10000)
 //      if (ientry == 20000)
          break;
       
