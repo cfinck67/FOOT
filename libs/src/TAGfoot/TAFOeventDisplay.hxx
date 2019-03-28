@@ -134,7 +134,7 @@ protected:
    void ReadParFiles();
 
    void UpdateStcElements();
-   void UpdateWireElements();
+   void UpdateLayerElements();
    void UpdateBarElements();
    void UpdateCrystalElements();
    void UpdateQuadElements(const TString prefix);

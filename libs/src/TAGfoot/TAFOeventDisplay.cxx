@@ -950,7 +950,7 @@ void TAFOeventDisplay::UpdateElements(const TString prefix)
    else if (prefix == "st")
       UpdateStcElements();
    else if (prefix == "bm") {
-      UpdateWireElements();
+      UpdateLayerElements();
       if (fgTrackFlag)
          UpdateTrackElements(prefix);
    } else {
@@ -1155,7 +1155,7 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
             TVector3 A1G = fpFootGeo->FromBMLocalToGlobal(A1);
             
             x  = A0G(0); y  = A0G(1); z  = A0G(2)*1.1;
-            x1 = A1G(0); y1 = A1G(1); z1 = A1G(2)*1.1;
+            x1 = A1G(0); y1 = A1G(1); z1 = A1G(2)*0.9;
             
             Int_t nHits = track->GetNhit();
             // inverse view ??
@@ -1320,11 +1320,15 @@ void TAFOeventDisplay::UpdateStcElements()
 }
 
 //__________________________________________________________
-void TAFOeventDisplay::UpdateWireElements()
+void TAFOeventDisplay::UpdateLayerElements()
 {
-   
+    TABMparGeo* pbmGeo = (TABMparGeo*) fpParGeoBm->Object();
+    
+    
    if (!fgGUIFlag || (fgGUIFlag && fRefreshButton->IsOn())) {
       fBmClusDisplay->ResetWires();
+       
+       for(auto l = 0; l < 12 ; ++l) {  pbmGeo->SetLayerColorOff(l); }
    }
    
    if (!fgDisplayFlag) // do not update event display
@@ -1332,10 +1336,12 @@ void TAFOeventDisplay::UpdateWireElements()
 
    TABMntuRaw* pBMntu = (TABMntuRaw*) fpNtuRawBm->Object();
    Int_t       nHits  = pBMntu->GetHitsN();
-   double bm_h_side;
+    
    
-   TABMparGeo* pbmGeo = (TABMparGeo*) fpParGeoBm->Object();
-   
+  
+   double bm_h_side = pbmGeo->GetWidth();
+    
+    
    //hits
    for (Int_t i = 0; i < nHits; i++) {
       TABMntuHit* hit = pBMntu->Hit(i);
@@ -1343,7 +1349,13 @@ void TAFOeventDisplay::UpdateWireElements()
       Int_t view  = hit->View();
       Int_t lay  = hit->Plane();
       Int_t cell  = hit->Cell();
-      
+       
+
+      //layer
+       pbmGeo->SetLayerColorOn(lay + view * 6);
+       
+       
+       //wires
       Float_t x = pbmGeo->GetWireX(pbmGeo->GetSenseId(cell),lay,view);
       Float_t y = pbmGeo->GetWireY(pbmGeo->GetSenseId(cell),lay,view);
       Float_t z = pbmGeo->GetWireZ(pbmGeo->GetSenseId(cell),lay,view);
@@ -1351,10 +1363,12 @@ void TAFOeventDisplay::UpdateWireElements()
       TVector3 posHit(x, y, z);
       TVector3 posHitG = fpFootGeo->FromBMLocalToGlobal(posHit);
       
-      bm_h_side   = pbmGeo->GetWidth();
+
       if(view == 1) {
          //X,Z, top view
          fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0), posHitG(1)+bm_h_side, posHitG(2));
+          
+          
       } else {
          //Y,Z, side view
          fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0)+bm_h_side, posHitG(1), posHitG(2));

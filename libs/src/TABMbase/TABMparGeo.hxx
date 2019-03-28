@@ -115,7 +115,10 @@ public:
    virtual void   ToStream(ostream& os = cout, Option_t* option = "") const;
    
    TGeoVolume*    BuildBeamMonitor(const char *bmName = "BM");
-
+    TGeoVolume*   BuildLayer(Int_t idx);
+    
+    void SetLayerColorOn(Int_t idx);
+    void SetLayerColorOff(Int_t idx);
    
    string PrintBodies();
    string PrintRegions();
