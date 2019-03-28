@@ -139,6 +139,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fStClusDisplay(new TAGclusterDisplay("Start counter hit")),
    fBmClusDisplay(new TAGwireDisplay("Beam Monitoring Wires")),
    fBmTrackDisplay(new TAGtrackDisplay("Beam Monitoring Tracks")),
+   fBmDriftCircleDisplay(new TEveBoxSet("Beam Monitoring Drift Circle")),
    fVtxClusDisplay(new TAGclusterDisplay("Vertex Cluster")),
    fVtxTrackDisplay(new TAGtrackDisplay("Vertex Tracks")),
    fItClusDisplay(new TAGclusterDisplay("Inner tracker Cluster")),
@@ -159,6 +160,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fBmTrackDisplay->SetDefWidth(fBoxDefWidth);
    fBmTrackDisplay->SetDefHeight(fBoxDefHeight);
    fBmTrackDisplay->SetPickable(true);
+    fBmDriftCircleDisplay->SetPickable(true);
 
    
    fVtxClusDisplay->SetMaxEnergy(fMaxEnergy);
@@ -219,6 +221,7 @@ TAFOeventDisplay::~TAFOeventDisplay()
    delete fMsdClusDisplay;
    delete fTwClusDisplay;
    delete fCaClusDisplay;
+    delete fBmDriftCircleDisplay;
    
    delete fGlbTrackDisplay;
    
@@ -745,6 +748,9 @@ void TAFOeventDisplay::AddElements()
       
       fBmTrackDisplay->ResetTracks();
       gEve->AddElement(fBmTrackDisplay);
+       
+       fBmDriftCircleDisplay->Reset(TEveBoxSet::kBT_Cone, kFALSE, 32);
+       gEve->AddElement(fBmDriftCircleDisplay);
    }
 
    if (GlobalPar::GetPar()->IncludeVertex()) {
@@ -789,6 +795,10 @@ void TAFOeventDisplay::ConnectElements()
 
    fBmTrackDisplay->SetEmitSignals(true);
    fBmTrackDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateTrackInfo(TEveDigitSet*, Int_t)");
+    
+    fBmDriftCircleDisplay->SetEmitSignals(true);
+    fBmDriftCircleDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateDriftCircleInfo(TEveDigitSet*, Int_t)");
+    
 
    fVtxClusDisplay->SetEmitSignals(true);
    fVtxClusDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateHitInfo(TEveDigitSet*, Int_t)");
@@ -883,6 +893,25 @@ void TAFOeventDisplay::UpdateTrackInfo(TEveDigitSet* qs, Int_t idx)
       fInfoView->AddLine( Form(" at Pvers: (%.3g %.3g) \n", track->GetPvers()[0], track->GetPvers()[1]) );
       fInfoView->AddLine( Form(" and R0 (%.3g %.3g)\n",  track->GetR0()[0], track->GetR0()[1]));
    }
+}
+
+
+
+//__________________________________________________________
+void TAFOeventDisplay::UpdateDriftCircleInfo(TEveDigitSet* qs, Int_t idx)
+{
+    TEveBoxSet* tpCircle = dynamic_cast<TEveBoxSet*>(qs);
+    
+    TABMntuHit* hit = dynamic_cast<TABMntuHit*>( tpCircle->GetId(idx) );
+    if(!hit){return;}
+    
+    TABMparGeo* pbmGeo = dynamic_cast<TABMparGeo*> (fpParGeoBm->Object());
+    if(!pbmGeo){return;}
+    
+    fInfoView->AddLine( Form("In layer: %d, view: %d\n", hit->Plane(), hit->View()) );
+    fInfoView->AddLine( Form("Wire is: %d\n", pbmGeo->GetSenseId( hit->Cell() )) );
+    fInfoView->AddLine( Form("Drift radius is: %f (cm)\n", hit->Dist()) );
+    
 }
 
 //__________________________________________________________
@@ -1302,8 +1331,8 @@ void TAFOeventDisplay::UpdateLayerElements()
     
    if (!fgGUIFlag || (fgGUIFlag && fRefreshButton->IsOn())) {
       fBmClusDisplay->ResetWires();
-       
-       for(auto l = 0; l < 12 ; ++l) {  pbmGeo->SetLayerColorOff(l); }
+       fBmDriftCircleDisplay->Reset(TEveBoxSet::kBT_Cone, kFALSE, 32);
+       for(auto l = 0; l < 2 * pbmGeo->GetLayersN() ; ++l) {  pbmGeo->SetLayerColorOff(l); }
    }
    
    if (!fgDisplayFlag) // do not update event display
@@ -1327,7 +1356,7 @@ void TAFOeventDisplay::UpdateLayerElements()
        
 
       //layer
-       pbmGeo->SetLayerColorOn(lay + view * 6);
+       pbmGeo->SetLayerColorOn(lay + view * pbmGeo->GetLayersN());
        
        
        //wires
@@ -1337,17 +1366,33 @@ void TAFOeventDisplay::UpdateLayerElements()
 
       TVector3 posHit(x, y, z);
       TVector3 posHitG = fpFootGeo->FromBMLocalToGlobal(posHit);
-      
+       
+       
+       TEveVector tPosCWG( static_cast<float>( posHitG.X() ),
+                           static_cast<float>( posHitG.Y() ),
+                           static_cast<float>( posHitG.Z() ));
+       TEveVector tDir{0, 0, 0};
 
       if(view == 1) {
          //X,Z, top view
          fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0), posHitG(1)+bm_h_side, posHitG(2));
           
+          tPosCWG[1]+=bm_h_side/2;
+          tDir[1]=0.01;
           
       } else {
          //Y,Z, side view
          fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0)+bm_h_side, posHitG(1), posHitG(2));
+          
+          tPosCWG[0]+=bm_h_side/2;
+          tDir[0]=0.01;
+          
       }
+       
+       
+       fBmDriftCircleDisplay->AddCone(tPosCWG, tDir, hit->Dist());
+       fBmDriftCircleDisplay->DigitId(hit);
+       
    }
    
    fBmClusDisplay->RefitPlex();

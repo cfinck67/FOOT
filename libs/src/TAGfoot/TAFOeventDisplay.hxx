@@ -115,6 +115,7 @@ public:
    
    void UpdateHitInfo(TEveDigitSet* qs, Int_t idx);
    void UpdateTrackInfo(TEveDigitSet* qs, Int_t idx);
+    void UpdateDriftCircleInfo(TEveDigitSet* qs, Int_t idx);
    
 protected:
    void CreateRecActionBm();
@@ -258,6 +259,7 @@ protected:
    
    TAGwireDisplay*       fBmClusDisplay;  // list of line to display wires
    TAGtrackDisplay*      fBmTrackDisplay; // list of line to display tracks
+    TEveBoxSet*          fBmDriftCircleDisplay;
 
    TAGglbTrackDisplay*   fGlbTrackDisplay;  // list of global tracks to display
 
