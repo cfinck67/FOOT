@@ -624,39 +624,15 @@ void TAFOeventDisplay::OpenFile(const TString fileName)
 //__________________________________________________________
 void TAFOeventDisplay::ResetHistogram()
 {
-   TList* histoList  = 0x0;
-   
-   if (GlobalPar::GetPar()->IncludeVertex()) {
-      histoList = fActClusVtx->GetHistogrammList();
-      for (Int_t i = 0; i < histoList->GetEntries(); ++i) {
-         TH1* h = (TH1*)histoList->At(i);
-         h->Reset();
-      }
-      
-      if (fgTrackFlag) {
-         histoList = fActTrackVtx->GetHistogrammList();
-         for (Int_t i = 0; i < histoList->GetEntries(); ++i) {
-            TH1* h = (TH1*)histoList->At(i);
-            h->Reset();
-         }
-      }
-   }
-   
-   if (GlobalPar::GetPar()->IncludeInnerTracker()) {
-      
-      histoList = fActClusIt->GetHistogrammList();
-      for (Int_t i = 0; i < histoList->GetEntries(); ++i) {
-         TH1* h = (TH1*)histoList->At(i);
-         h->Reset();
-      }
-   }
-   
-   if (GlobalPar::GetPar()->IncludeMSD()) {
-      
-      histoList = fActClusMsd->GetHistogrammList();
-      for (Int_t i = 0; i < histoList->GetEntries(); ++i) {
-         TH1* h = (TH1*)histoList->At(i);
-         h->Reset();
+   TList* list = gTAGroot->ListOfAction();
+   Int_t hCnt = 0;
+   for (Int_t i = 0; i < list->GetEntries(); ++i) {
+      TAGaction* action = (TAGaction*)list->At(i);
+      TList* hlist = action->GetHistogrammList();
+      if (hlist == 0x0) continue;
+      for (Int_t j = 0; j < hlist->GetEntries(); ++j) {
+         TH1* h = (TH1*)hlist->At(j);
+         if (h) h->Reset();
       }
    }
 }
