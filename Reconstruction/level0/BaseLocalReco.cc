@@ -63,15 +63,20 @@ BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
    fActTrackVtx(0x0),
    fActVtx(0x0),
    fActClusIt(0x0),
+   fFlagOut(false),
    fFlagTree(false),
    fFlagHits(false),
    fFlagHisto(false),
    fFlagTrack(false),
    fgTrackingAlgo("Full")
 {
+   if (fileNameout == "")
+      fFlagOut = false;
+
    // define TAGroot
    fTAGroot = new TAGroot();
-   fActEvtWriter = new TAGactTreeWriter("locRecFile");
+   if (fFlagOut)
+      fActEvtWriter = new TAGactTreeWriter("locRecFile");
    
    // Read Trafo file
    fpFootGeo = new TAGgeoTrafo();
@@ -87,7 +92,8 @@ BaseLocalReco::~BaseLocalReco()
    if (fpParGeoMsd) delete fpParGeoMsd;
    
    delete fTAGroot;
-   delete fActEvtWriter;
+   if (fFlagOut)
+      delete fActEvtWriter;
    delete fpFootGeo;
 }
 
@@ -105,7 +111,8 @@ void BaseLocalReco::BeforeEventLoop()
    AddRawRequiredItem();
    AddRecRequiredItem();
    
-   OpenFileOut();
+   if (fFlagOut)
+      OpenFileOut();
    
    fTAGroot->BeginEventLoop();
    fTAGroot->Print();
@@ -115,7 +122,8 @@ void BaseLocalReco::BeforeEventLoop()
 void BaseLocalReco::AfterEventLoop()
 {
    fTAGroot->EndEventLoop();
-   CloseFileOut();
+   if (fFlagOut)
+      CloseFileOut();
    CloseFileIn();
 }
 

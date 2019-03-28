@@ -185,6 +185,7 @@ protected:
    // TATWactNtuRaw*        fActNtuRawTw;  // action for ntu data
    TATWactNtuPoint*      fActPointTw;    // action for clusters
    
+   Bool_t                fFlagOut;       // flag for output file
    Bool_t                fFlagTree;      // flag to save in tree
    Bool_t                fFlagHits;      // flag to save hits in tree
    Bool_t                fFlagHisto;     // flag for histo generatiom
