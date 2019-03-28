@@ -409,7 +409,8 @@ void BaseLocalReco::SetTreeBranches()
 //__________________________________________________________
 void BaseLocalReco::AddRecRequiredItem()
 {
-   fTAGroot->AddRequiredItem("locRecFile");
+   if (fFlagOut)
+      fTAGroot->AddRequiredItem("locRecFile");
    
    if (GlobalPar::GetPar()->IncludeST())
       AddRequiredItemSt();
