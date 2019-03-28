@@ -554,7 +554,7 @@ TGeoVolume* TABMparGeo::BuildLayer(Int_t idx )
         layer = gGeoManager->MakeBox(layerName, med,  3. * fBmCellWide, GetHeigth()/2 , fBmStep);
     }
     
-    layer->SetVisibility(false);
+    layer->SetVisibility(true);
     layer->SetLineColor(kGray);
     layer->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
     
