@@ -480,9 +480,25 @@ TGeoVolume* TABMparGeo::BuildBeamMonitor(const char *bmName )
    
    TGeoVolume* box = gGeoManager->MakeBox(bmName, medBM, GetWidth()/2., GetHeigth()/2., GetLength()/2.);
    box->SetVisibility(true);
-   box->SetLineColor(17);
+   box->SetLineColor(kGray);
    box->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
    
+    for(auto j = 0 ; j < GetLayersN() ; ++j){
+        for(auto i = 0 ; i < 2 ; ++i){
+
+            TGeoVolume* layer = BuildLayer( j + 6*i );
+            
+            auto tShift = (fBmDeltaDch[0] - GetCellsN()*GetCellWidth()) * ( j%2 == 0 ? +1 : -1);
+            TGeoTranslation tTranslation{-i*tShift ,
+                                         (1-i)*tShift ,
+                                         -GetLength()/2 +fBmDeltaDch[2] + GetCellHeight() +i*(GetCellHeight()*2 + GetDeltaPlane()) + j*2*(GetCellHeight()*2 + GetDeltaPlane())};
+            TGeoRotation tRotation{"tRotation", static_cast<Double_t>( 90*(1-i) ), 0, 0};
+            auto pTransfo = new TGeoCombiTrans(tTranslation, tRotation);
+        
+            box->AddNode(layer, i, pTransfo);
+        }
+    }
+    
    if ( GlobalPar::GetPar()->geoFLUKA() ) {
 
       matName = fFieldMat.Data();
@@ -526,6 +542,56 @@ TGeoVolume* TABMparGeo::BuildBeamMonitor(const char *bmName )
    return box;
 }
 
+
+//_____________________________________________________________________________
+TGeoVolume* TABMparGeo::BuildLayer(Int_t idx )
+{
+    const char* layerName = Form("%s_%d", GetBaseName(), idx) ;
+    TGeoVolume* layer     = gGeoManager->FindVolumeFast(layerName);
+    if ( !layer ) {
+        const Char_t* matName = fGasMixture.Data();
+        TGeoMedium*  med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matName);
+        layer = gGeoManager->MakeBox(layerName, med,  3. * fBmCellWide, GetHeigth()/2 , fBmStep);
+    }
+    
+    layer->SetVisibility(true);
+    layer->SetLineColor(kGray);
+    layer->SetTransparency(TAGgeoTrafo::GetDefaultTransp());
+    
+    return layer;
+}
+
+//_____________________________________________________________________________
+//! set color on for fired bars
+void TABMparGeo::SetLayerColorOn(Int_t idx)
+{
+    if (!gGeoManager) {
+        Error("SetBarcolorOn()", "No Geo manager defined");
+        return;
+    }
+    
+    TString name(Form("%s_%d", GetBaseName(), idx ));
+    
+    TGeoVolume* vol = gGeoManager->FindVolumeFast(name.Data());
+    if (vol)
+        vol->SetLineColor(kRed-3);
+}
+
+//_____________________________________________________________________________
+//! reset color for unfired bars
+void TABMparGeo::SetLayerColorOff(Int_t idx)
+{
+    if (!gGeoManager) {
+        Error("SetBarcolorOn()", "No Geo manager defined");
+        return;
+    }
+    
+    TString name(Form("%s_%d", GetBaseName(), idx ));
+    
+    TGeoVolume* vol = gGeoManager->FindVolumeFast(name.Data());
+    if (vol)
+        vol->SetLineColor(kGray);
+}
 
 //_____________________________________________________________________________
 string TABMparGeo::PrintBodies(){

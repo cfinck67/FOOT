@@ -115,6 +115,7 @@ public:
    
    void UpdateHitInfo(TEveDigitSet* qs, Int_t idx);
    void UpdateTrackInfo(TEveDigitSet* qs, Int_t idx);
+    void UpdateDriftCircleInfo(TEveDigitSet* qs, Int_t idx);
    
 protected:
    void CreateRecActionBm();
@@ -123,18 +124,15 @@ protected:
    void CreateRecActionMsd();
    void CreateRecActionTw();
    
-   void AddRequiredItemSt();
-   void AddRequiredItemBm();
-   void AddRequiredItemVtx();
-   void AddRequiredItemIt();
-   void AddRequiredItemMsd();
-   void AddRequiredItemTw();
-   void AddRequiredItemCa();
+   //! Add required items
+   void AddRequiredRawItem();
+   void AddRequiredRecItem();
+
    
    void ReadParFiles();
 
    void UpdateStcElements();
-   void UpdateWireElements();
+   void UpdateLayerElements();
    void UpdateBarElements();
    void UpdateCrystalElements();
    void UpdateQuadElements(const TString prefix);
@@ -258,6 +256,7 @@ protected:
    
    TAGwireDisplay*       fBmClusDisplay;  // list of line to display wires
    TAGtrackDisplay*      fBmTrackDisplay; // list of line to display tracks
+    TEveBoxSet*          fBmDriftCircleDisplay;
 
    TAGglbTrackDisplay*   fGlbTrackDisplay;  // list of global tracks to display
 

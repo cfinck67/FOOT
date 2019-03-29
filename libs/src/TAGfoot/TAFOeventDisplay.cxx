@@ -139,6 +139,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fStClusDisplay(new TAGclusterDisplay("Start counter hit")),
    fBmClusDisplay(new TAGwireDisplay("Beam Monitoring Wires")),
    fBmTrackDisplay(new TAGtrackDisplay("Beam Monitoring Tracks")),
+   fBmDriftCircleDisplay(new TEveBoxSet("Beam Monitoring Drift Circle")),
    fVtxClusDisplay(new TAGclusterDisplay("Vertex Cluster")),
    fVtxTrackDisplay(new TAGtrackDisplay("Vertex Tracks")),
    fItClusDisplay(new TAGclusterDisplay("Inner tracker Cluster")),
@@ -159,6 +160,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fBmTrackDisplay->SetDefWidth(fBoxDefWidth);
    fBmTrackDisplay->SetDefHeight(fBoxDefHeight);
    fBmTrackDisplay->SetPickable(true);
+    fBmDriftCircleDisplay->SetPickable(true);
 
    
    fVtxClusDisplay->SetMaxEnergy(fMaxEnergy);
@@ -219,6 +221,7 @@ TAFOeventDisplay::~TAFOeventDisplay()
    delete fMsdClusDisplay;
    delete fTwClusDisplay;
    delete fCaClusDisplay;
+    delete fBmDriftCircleDisplay;
    
    delete fGlbTrackDisplay;
    
@@ -624,39 +627,15 @@ void TAFOeventDisplay::OpenFile(const TString fileName)
 //__________________________________________________________
 void TAFOeventDisplay::ResetHistogram()
 {
-   TList* histoList  = 0x0;
-   
-   if (GlobalPar::GetPar()->IncludeVertex()) {
-      histoList = fActClusVtx->GetHistogrammList();
-      for (Int_t i = 0; i < histoList->GetEntries(); ++i) {
-         TH1* h = (TH1*)histoList->At(i);
-         h->Reset();
-      }
-      
-      if (fgTrackFlag) {
-         histoList = fActTrackVtx->GetHistogrammList();
-         for (Int_t i = 0; i < histoList->GetEntries(); ++i) {
-            TH1* h = (TH1*)histoList->At(i);
-            h->Reset();
-         }
-      }
-   }
-   
-   if (GlobalPar::GetPar()->IncludeInnerTracker()) {
-      
-      histoList = fActClusIt->GetHistogrammList();
-      for (Int_t i = 0; i < histoList->GetEntries(); ++i) {
-         TH1* h = (TH1*)histoList->At(i);
-         h->Reset();
-      }
-   }
-   
-   if (GlobalPar::GetPar()->IncludeMSD()) {
-      
-      histoList = fActClusMsd->GetHistogrammList();
-      for (Int_t i = 0; i < histoList->GetEntries(); ++i) {
-         TH1* h = (TH1*)histoList->At(i);
-         h->Reset();
+   TList* list = gTAGroot->ListOfAction();
+   Int_t hCnt = 0;
+   for (Int_t i = 0; i < list->GetEntries(); ++i) {
+      TAGaction* action = (TAGaction*)list->At(i);
+      TList* hlist = action->GetHistogrammList();
+      if (hlist == 0x0) continue;
+      for (Int_t j = 0; j < hlist->GetEntries(); ++j) {
+         TH1* h = (TH1*)hlist->At(j);
+         if (h) h->Reset();
       }
    }
 }
@@ -664,95 +643,72 @@ void TAFOeventDisplay::ResetHistogram()
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItem()
 {
-   if (!fgStdAloneFlag)
-      fTAGroot->AddRequiredItem("daqActReader");
-
-   if (GlobalPar::GetPar()->IncludeST() || GlobalPar::GetPar()->IncludeBM())
-      AddRequiredItemSt();
-   
-   if (GlobalPar::GetPar()->IncludeBM())
-      AddRequiredItemBm();
-
-   if (GlobalPar::GetPar()->IncludeVertex())
-      AddRequiredItemVtx();
-   
-   if (GlobalPar::GetPar()->IncludeInnerTracker())
-      AddRequiredItemIt();
-   
-   if (GlobalPar::GetPar()->IncludeMSD())
-      AddRequiredItemMsd();
-   
-   if (GlobalPar::GetPar()->IncludeTW())
-      AddRequiredItemTw();
-   
-   if (GlobalPar::GetPar()->IncludeCA())
-      AddRequiredItemCa();
-
+   AddRequiredRawItem();
+   AddRequiredRecItem();
    fTAGroot->BeginEventLoop();
    fTAGroot->Print();
 }
 
 //__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemSt()
+void TAFOeventDisplay::AddRequiredRawItem()
 {
-   fTAGroot->AddRequiredItem("stActNtu");
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemBm()
-{
-   fTAGroot->AddRequiredItem("bmActDat");
-   fTAGroot->AddRequiredItem("bmActNtu");
-   if (fgTrackFlag)
-      fTAGroot->AddRequiredItem("bmActTrack");
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemVtx()
-{
-   fTAGroot->AddRequiredItem("vtActNtu");
+   if (!fgStdAloneFlag)
+      fTAGroot->AddRequiredItem("daqActReader");
    
-   if (fgDisplayFlag) {
-      fTAGroot->AddRequiredItem("vtActClus");
-      if (fgTrackFlag) {
-         fTAGroot->AddRequiredItem("vtActTrack");
-         if (GlobalPar::GetPar()->IncludeTG())
-            fTAGroot->AddRequiredItem("vtActVtx");
+   if (GlobalPar::GetPar()->IncludeBM())
+      fTAGroot->AddRequiredItem("bmActDat");
+}
+
+
+//__________________________________________________________
+void TAFOeventDisplay::AddRequiredRecItem()
+{
+   if (GlobalPar::GetPar()->IncludeBM()) {
+      fTAGroot->AddRequiredItem("bmActNtu");
+      if (fgTrackFlag)
+         fTAGroot->AddRequiredItem("bmActTrack");
+   }
+   
+   if (GlobalPar::GetPar()->IncludeVertex()) {
+      fTAGroot->AddRequiredItem("vtActNtu");
+      
+      if (fgDisplayFlag) {
+         fTAGroot->AddRequiredItem("vtActClus");
+         if (fgTrackFlag) {
+            fTAGroot->AddRequiredItem("vtActTrack");
+            if (GlobalPar::GetPar()->IncludeTG())
+               fTAGroot->AddRequiredItem("vtActVtx");
+         }
       }
    }
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemIt()
-{
-   fTAGroot->AddRequiredItem("itActNtu");
    
-   if (fgDisplayFlag) {
-      fTAGroot->AddRequiredItem("itActClus");
+   if (GlobalPar::GetPar()->IncludeInnerTracker()) {
+      fTAGroot->AddRequiredItem("itActNtu");
+      
+      if (fgDisplayFlag) {
+         fTAGroot->AddRequiredItem("itActClus");
+      }
    }
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemMsd()
-{
-   fTAGroot->AddRequiredItem("msdActNtu");
    
-   if (fgDisplayFlag) {
-      fTAGroot->AddRequiredItem("msdActClus");
+   if (GlobalPar::GetPar()->IncludeMSD()) {
+      fTAGroot->AddRequiredItem("msdActNtu");
+      
+      if (fgDisplayFlag) {
+         fTAGroot->AddRequiredItem("msdActClus");
+      }
    }
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemTw()
-{
-   fTAGroot->AddRequiredItem("twActNtu");
-   fTAGroot->AddRequiredItem("twActPoint");
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemCa()
-{
-   fTAGroot->AddRequiredItem("caActNtu");
+   
+   if (GlobalPar::GetPar()->IncludeTW()) {
+      fTAGroot->AddRequiredItem("twActNtu");
+      fTAGroot->AddRequiredItem("twActPoint");
+   }
+   
+   if (GlobalPar::GetPar()->IncludeCA()) {
+      fTAGroot->AddRequiredItem("caActNtu");
+   }
+   
+   fTAGroot->BeginEventLoop();
+   fTAGroot->Print();
 }
 
 //__________________________________________________________
@@ -769,6 +725,9 @@ void TAFOeventDisplay::AddElements()
       
       fBmTrackDisplay->ResetTracks();
       gEve->AddElement(fBmTrackDisplay);
+       
+       fBmDriftCircleDisplay->Reset(TEveBoxSet::kBT_Cone, kFALSE, 32);
+       gEve->AddElement(fBmDriftCircleDisplay);
    }
 
    if (GlobalPar::GetPar()->IncludeVertex()) {
@@ -813,6 +772,10 @@ void TAFOeventDisplay::ConnectElements()
 
    fBmTrackDisplay->SetEmitSignals(true);
    fBmTrackDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateTrackInfo(TEveDigitSet*, Int_t)");
+    
+    fBmDriftCircleDisplay->SetEmitSignals(true);
+    fBmDriftCircleDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateDriftCircleInfo(TEveDigitSet*, Int_t)");
+    
 
    fVtxClusDisplay->SetEmitSignals(true);
    fVtxClusDisplay->Connect("SecSelected(TEveDigitSet*, Int_t )", "TAFOeventDisplay", this, "UpdateHitInfo(TEveDigitSet*, Int_t)");
@@ -909,6 +872,25 @@ void TAFOeventDisplay::UpdateTrackInfo(TEveDigitSet* qs, Int_t idx)
    }
 }
 
+
+
+//__________________________________________________________
+void TAFOeventDisplay::UpdateDriftCircleInfo(TEveDigitSet* qs, Int_t idx)
+{
+    TEveBoxSet* tpCircle = dynamic_cast<TEveBoxSet*>(qs);
+    
+    TABMntuHit* hit = dynamic_cast<TABMntuHit*>( tpCircle->GetId(idx) );
+    if(!hit){return;}
+    
+    TABMparGeo* pbmGeo = dynamic_cast<TABMparGeo*> (fpParGeoBm->Object());
+    if(!pbmGeo){return;}
+    
+    fInfoView->AddLine( Form("In layer: %d, view: %d\n", hit->Plane(), hit->View()) );
+    fInfoView->AddLine( Form("Wire is: %d\n", pbmGeo->GetSenseId( hit->Cell() )) );
+    fInfoView->AddLine( Form("Drift radius is: %f (cm)\n", hit->Dist()) );
+    
+}
+
 //__________________________________________________________
 void TAFOeventDisplay::UpdateElements()
 {
@@ -949,7 +931,7 @@ void TAFOeventDisplay::UpdateElements(const TString prefix)
    else if (prefix == "st")
       UpdateStcElements();
    else if (prefix == "bm") {
-      UpdateWireElements();
+      UpdateLayerElements();
       if (fgTrackFlag)
          UpdateTrackElements(prefix);
    } else {
@@ -1154,7 +1136,7 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
             TVector3 A1G = fpFootGeo->FromBMLocalToGlobal(A1);
             
             x  = A0G(0); y  = A0G(1); z  = A0G(2)*1.1;
-            x1 = A1G(0); y1 = A1G(1); z1 = A1G(2)*1.1;
+            x1 = A1G(0); y1 = A1G(1); z1 = A1G(2)*0.9;
             
             Int_t nHits = track->GetNhit();
             // inverse view ??
@@ -1319,11 +1301,15 @@ void TAFOeventDisplay::UpdateStcElements()
 }
 
 //__________________________________________________________
-void TAFOeventDisplay::UpdateWireElements()
+void TAFOeventDisplay::UpdateLayerElements()
 {
-   
+    TABMparGeo* pbmGeo = (TABMparGeo*) fpParGeoBm->Object();
+    
+    
    if (!fgGUIFlag || (fgGUIFlag && fRefreshButton->IsOn())) {
       fBmClusDisplay->ResetWires();
+       fBmDriftCircleDisplay->Reset(TEveBoxSet::kBT_Cone, kFALSE, 32);
+       for(auto l = 0; l < 2 * pbmGeo->GetLayersN() ; ++l) {  pbmGeo->SetLayerColorOff(l); }
    }
    
    if (!fgDisplayFlag) // do not update event display
@@ -1331,10 +1317,12 @@ void TAFOeventDisplay::UpdateWireElements()
 
    TABMntuRaw* pBMntu = (TABMntuRaw*) fpNtuRawBm->Object();
    Int_t       nHits  = pBMntu->GetHitsN();
-   double bm_h_side;
+    
    
-   TABMparGeo* pbmGeo = (TABMparGeo*) fpParGeoBm->Object();
-   
+  
+   double bm_h_side = pbmGeo->GetWidth();
+    
+    
    //hits
    for (Int_t i = 0; i < nHits; i++) {
       TABMntuHit* hit = pBMntu->Hit(i);
@@ -1342,22 +1330,46 @@ void TAFOeventDisplay::UpdateWireElements()
       Int_t view  = hit->View();
       Int_t lay  = hit->Plane();
       Int_t cell  = hit->Cell();
-      
+       
+
+      //layer
+       pbmGeo->SetLayerColorOn(lay + view * pbmGeo->GetLayersN());
+       
+       
+       //wires
       Float_t x = pbmGeo->GetWireX(pbmGeo->GetSenseId(cell),lay,view);
       Float_t y = pbmGeo->GetWireY(pbmGeo->GetSenseId(cell),lay,view);
       Float_t z = pbmGeo->GetWireZ(pbmGeo->GetSenseId(cell),lay,view);
 
       TVector3 posHit(x, y, z);
       TVector3 posHitG = fpFootGeo->FromBMLocalToGlobal(posHit);
-      
-      bm_h_side   = pbmGeo->GetWidth();
+       
+       
+       TEveVector tPosCWG( static_cast<float>( posHitG.X() ),
+                           static_cast<float>( posHitG.Y() ),
+                           static_cast<float>( posHitG.Z() ));
+       TEveVector tDir{0, 0, 0};
+
       if(view == 1) {
          //X,Z, top view
          fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0), posHitG(1)+bm_h_side, posHitG(2));
+          
+          tPosCWG[1]+=bm_h_side/2;
+          tDir[1]=0.01;
+          
       } else {
          //Y,Z, side view
          fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0)+bm_h_side, posHitG(1), posHitG(2));
+          
+          tPosCWG[0]+=bm_h_side/2;
+          tDir[0]=0.01;
+          
       }
+       
+       
+       fBmDriftCircleDisplay->AddCone(tPosCWG, tDir, hit->Dist());
+       fBmDriftCircleDisplay->DigitId(hit);
+       
    }
    
    fBmClusDisplay->RefitPlex();

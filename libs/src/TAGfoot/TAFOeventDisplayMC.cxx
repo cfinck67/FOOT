@@ -171,7 +171,7 @@ void TAFOeventDisplayMC::AddRequiredItem()
    if (GlobalPar::GetPar()->IncludeCA())
       AddRequiredMcItemCa();
    
-   TAFOeventDisplay::AddRequiredItem();
+   TAFOeventDisplay::AddRequiredRecItem();
 }
 
 //__________________________________________________________
