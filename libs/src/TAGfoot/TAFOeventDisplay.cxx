@@ -643,95 +643,72 @@ void TAFOeventDisplay::ResetHistogram()
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredItem()
 {
-   if (!fgStdAloneFlag)
-      fTAGroot->AddRequiredItem("daqActReader");
-
-   if (GlobalPar::GetPar()->IncludeST() || GlobalPar::GetPar()->IncludeBM())
-      AddRequiredItemSt();
-   
-   if (GlobalPar::GetPar()->IncludeBM())
-      AddRequiredItemBm();
-
-   if (GlobalPar::GetPar()->IncludeVertex())
-      AddRequiredItemVtx();
-   
-   if (GlobalPar::GetPar()->IncludeInnerTracker())
-      AddRequiredItemIt();
-   
-   if (GlobalPar::GetPar()->IncludeMSD())
-      AddRequiredItemMsd();
-   
-   if (GlobalPar::GetPar()->IncludeTW())
-      AddRequiredItemTw();
-   
-   if (GlobalPar::GetPar()->IncludeCA())
-      AddRequiredItemCa();
-
+   AddRequiredRawItem();
+   AddRequiredRecItem();
    fTAGroot->BeginEventLoop();
    fTAGroot->Print();
 }
 
 //__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemSt()
+void TAFOeventDisplay::AddRequiredRawItem()
 {
-   fTAGroot->AddRequiredItem("stActNtu");
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemBm()
-{
-   fTAGroot->AddRequiredItem("bmActDat");
-   fTAGroot->AddRequiredItem("bmActNtu");
-   if (fgTrackFlag)
-      fTAGroot->AddRequiredItem("bmActTrack");
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemVtx()
-{
-   fTAGroot->AddRequiredItem("vtActNtu");
+   if (!fgStdAloneFlag)
+      fTAGroot->AddRequiredItem("daqActReader");
    
-   if (fgDisplayFlag) {
-      fTAGroot->AddRequiredItem("vtActClus");
-      if (fgTrackFlag) {
-         fTAGroot->AddRequiredItem("vtActTrack");
-         if (GlobalPar::GetPar()->IncludeTG())
-            fTAGroot->AddRequiredItem("vtActVtx");
+   if (GlobalPar::GetPar()->IncludeBM())
+      fTAGroot->AddRequiredItem("bmActDat");
+}
+
+
+//__________________________________________________________
+void TAFOeventDisplay::AddRequiredRecItem()
+{
+   if (GlobalPar::GetPar()->IncludeBM()) {
+      fTAGroot->AddRequiredItem("bmActNtu");
+      if (fgTrackFlag)
+         fTAGroot->AddRequiredItem("bmActTrack");
+   }
+   
+   if (GlobalPar::GetPar()->IncludeVertex()) {
+      fTAGroot->AddRequiredItem("vtActNtu");
+      
+      if (fgDisplayFlag) {
+         fTAGroot->AddRequiredItem("vtActClus");
+         if (fgTrackFlag) {
+            fTAGroot->AddRequiredItem("vtActTrack");
+            if (GlobalPar::GetPar()->IncludeTG())
+               fTAGroot->AddRequiredItem("vtActVtx");
+         }
       }
    }
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemIt()
-{
-   fTAGroot->AddRequiredItem("itActNtu");
    
-   if (fgDisplayFlag) {
-      fTAGroot->AddRequiredItem("itActClus");
+   if (GlobalPar::GetPar()->IncludeInnerTracker()) {
+      fTAGroot->AddRequiredItem("itActNtu");
+      
+      if (fgDisplayFlag) {
+         fTAGroot->AddRequiredItem("itActClus");
+      }
    }
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemMsd()
-{
-   fTAGroot->AddRequiredItem("msdActNtu");
    
-   if (fgDisplayFlag) {
-      fTAGroot->AddRequiredItem("msdActClus");
+   if (GlobalPar::GetPar()->IncludeMSD()) {
+      fTAGroot->AddRequiredItem("msdActNtu");
+      
+      if (fgDisplayFlag) {
+         fTAGroot->AddRequiredItem("msdActClus");
+      }
    }
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemTw()
-{
-   fTAGroot->AddRequiredItem("twActNtu");
-   fTAGroot->AddRequiredItem("twActPoint");
-}
-
-//__________________________________________________________
-void TAFOeventDisplay::AddRequiredItemCa()
-{
-   fTAGroot->AddRequiredItem("caActNtu");
+   
+   if (GlobalPar::GetPar()->IncludeTW()) {
+      fTAGroot->AddRequiredItem("twActNtu");
+      fTAGroot->AddRequiredItem("twActPoint");
+   }
+   
+   if (GlobalPar::GetPar()->IncludeCA()) {
+      fTAGroot->AddRequiredItem("caActNtu");
+   }
+   
+   fTAGroot->BeginEventLoop();
+   fTAGroot->Print();
 }
 
 //__________________________________________________________

@@ -124,13 +124,10 @@ protected:
    void CreateRecActionMsd();
    void CreateRecActionTw();
    
-   void AddRequiredItemSt();
-   void AddRequiredItemBm();
-   void AddRequiredItemVtx();
-   void AddRequiredItemIt();
-   void AddRequiredItemMsd();
-   void AddRequiredItemTw();
-   void AddRequiredItemCa();
+   //! Add required items
+   void AddRequiredRawItem();
+   void AddRequiredRecItem();
+
    
    void ReadParFiles();
 
