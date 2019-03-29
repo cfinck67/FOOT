@@ -87,11 +87,8 @@ BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
 BaseLocalReco::~BaseLocalReco()
 {
    // default destructor
-   if (fpParGeoVtx) delete fpParGeoVtx;
-   if (fpParGeoIt)  delete fpParGeoIt;
-   if (fpParGeoMsd) delete fpParGeoMsd;
+   delete fTAGroot; // should delete all data, para and actions
    
-   delete fTAGroot;
    if (fFlagOut)
       delete fActEvtWriter;
    delete fpFootGeo;
