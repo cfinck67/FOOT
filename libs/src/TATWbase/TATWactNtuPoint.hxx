@@ -36,7 +36,7 @@ public:
    
 private:
    TAGdataDsc*     fpNtuRaw;		 // input data dsc
-   TAGdataDsc*     fpNtuPoint;	 // output data dsc
+   TAGdataDsc*     fpNtuPoint;	 	// output data dsc
    TAGparaDsc*     fpGeoMap;		 // geometry para dsc
    TAGparaDsc*     fpCalMap;		 // calibration Z para dsc
 

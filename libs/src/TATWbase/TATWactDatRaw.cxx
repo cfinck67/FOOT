@@ -49,30 +49,26 @@ Bool_t TATWactDatRaw::Action() {
    TATWdatRaw*    p_datraw = (TATWdatRaw*)   fpDatRaw->Object();
    TAGdaqEvent*   p_datdaq = (TAGdaqEvent*)  fpDatDaq->Object();
    TATWparMap*    p_parmap = (TATWparMap*)   fpParMap->Object();
-  
    p_datraw->SetupClones();
-   
    Int_t nFragments = p_datdaq->GetFragmentsN();
-
    for (Int_t i = 0; i < nFragments; ++i) {
-
       TString type = p_datdaq->GetClassType(i);
       if (type.Contains("WDEvent")) {
         const WDEvent* evt = static_cast<const WDEvent*> (p_datdaq->GetFragment(i));
-        DecodeHits(evt);
+        TWaveformContainer w;
+        DecodeHits(evt,w);
+
       }
    }
-   
    fpDatRaw->SetBit(kValid);
-   
   return kTRUE;
 }
 
 //------------------------------------------+-----------------------------------
 //! Decoding
 
-Bool_t TATWactDatRaw::DecodeHits(const WDEvent* /*evt*/)
+Bool_t TATWactDatRaw::DecodeHits(const WDEvent*,TWaveformContainer &w)
 {
-   return true;
+	return true;
 }
 

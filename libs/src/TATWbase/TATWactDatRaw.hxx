@@ -10,6 +10,7 @@
 #include "TAGaction.hxx"
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
+#include "TWaveformContainer.hxx"
 
 class WDEvent;
 
@@ -34,7 +35,7 @@ public:
   TAGparaDsc*     fpParMap;		    // parameter dsc
   
  private:
-   Bool_t DecodeHits(const WDEvent* evt);
+   Bool_t DecodeHits(const WDEvent*,TWaveformContainer &w);
 };
 
 #endif
