@@ -288,6 +288,13 @@ void TABMparGeo::DefineMaterial()
       printf("Gas mixture material:\n");
       mix->Print();
    }
+   
+   // Mylar
+   mat = TAGmaterials::Instance()->CreateMaterial(fFoilMat, fFoilDensity);
+   if (fDebugLevel) {
+      printf("Anode material:\n");
+      mat->Print();
+   }
 }
 
 //_____________________________________________________________________________
