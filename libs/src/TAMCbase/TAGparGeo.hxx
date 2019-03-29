@@ -101,12 +101,25 @@ public:
    
   //! build Target
   TGeoVolume*        BuildTarget(const char *targetName = "Target");
-  
-  string PrintBodies();
-  string PrintRegions();
-  string PrintAssignMaterial();
-  string PrintSubtractBodiesFromAir();
 
+  //blackbody and air
+  string PrintStandardBodies();
+  string PrintStandardRegions();
+  string PrintStandardAssignMaterial();
+
+  //target
+  string PrintTargBody();
+  string PrintTargRegion();
+  string PrintTargAssignMaterial();
+  string PrintSubtractTargBodyFromAir();
+
+  //beam cards
+  string PrintBeam();
+  //physics cards
+  string PrintPhysics();
+  
+  string PrintCard(TString fTitle, TString fWHAT1, TString fWHAT2, TString fWHAT3,
+		   TString fWHAT4, TString fWHAT5, TString fWHAT6, TString fSDUM);
    
 public:
    static const Char_t* GetBaseName()    { return fgkBaseName.Data();    }

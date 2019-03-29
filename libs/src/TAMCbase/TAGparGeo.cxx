@@ -304,9 +304,22 @@ void TAGparGeo::Print(Option_t* /*opt*/) const
 }
 
 
+//_____________________________________________________________________________
+string TAGparGeo::PrintStandardBodies( ) {
+  
+  stringstream ss;
+
+  ss << "* ***Black Body" << endl;
+  ss << "RPP blk        -1000. 1000. -1000. 1000. -1000. 1000." << endl;
+  ss << "* ***Air" << endl;
+  ss << "RPP air        -900.0 900.0 -900.0 900.0 -900.0 900.0" << endl;
+
+  return ss.str();
+  
+}
 
 //_____________________________________________________________________________
-string TAGparGeo::PrintBodies( ) {
+string TAGparGeo::PrintTargBody( ) {
   
   stringstream ss;
 
@@ -336,7 +349,21 @@ string TAGparGeo::PrintBodies( ) {
 
 
 //_____________________________________________________________________________
-string TAGparGeo::PrintRegions() {
+string TAGparGeo::PrintStandardRegions() {
+  
+  stringstream ss;
+
+  ss <<"BLACK        5 blk -air\n";
+  ss <<"* ***Air\n";
+  ss <<"AIR          5 air";
+  
+  return ss.str();
+
+}
+
+
+//_____________________________________________________________________________
+string TAGparGeo::PrintTargRegion() {
   
   stringstream ss;
 
@@ -353,7 +380,7 @@ string TAGparGeo::PrintRegions() {
 
 
 //_____________________________________________________________________________
-string TAGparGeo::PrintSubtractBodiesFromAir() {
+string TAGparGeo::PrintSubtractTargBodyFromAir() {
 
   stringstream ss;
 
@@ -368,7 +395,7 @@ string TAGparGeo::PrintSubtractBodiesFromAir() {
 }
 
 //_____________________________________________________________________________
-string TAGparGeo::PrintAssignMaterial() {
+string TAGparGeo::PrintTargAssignMaterial() {
 
   stringstream outstr;
 
@@ -394,3 +421,98 @@ string TAGparGeo::PrintAssignMaterial() {
   return outstr.str();
 }
 
+//_____________________________________________________________________________
+string TAGparGeo::PrintStandardAssignMaterial() {
+
+  stringstream ss;
+
+  int magnetic = 0;
+  if(GlobalPar::GetPar()->IncludeDI())
+    magnetic = 1;
+    
+  ss << PrintCard("ASSIGNMA","BLCKHOLE", "BLACK","","","","","") << endl;
+  ss << PrintCard("ASSIGNMA","AIR","AIR","","",TString::Format("%d",magnetic),"","") << endl;
+  
+  return ss.str();
+}
+
+//_____________________________________________________________________________
+string TAGparGeo::PrintBeam() {
+
+  stringstream str;
+
+  string part_type;
+  if (GetBeamPar().AtomicNumber>2)
+    part_type = "HEAVYION";
+  else if (GetBeamPar().AtomicNumber==1 && GetBeamPar().AtomicMass==1)
+    part_type = "PROTON";
+  else if (GetBeamPar().AtomicNumber==2 && GetBeamPar().AtomicMass==4)
+    part_type = "4-HELIUM";
+  else{
+    cout << "**** ATTENTION: unknown beam!!!! ****"<< endl;
+    exit(0);
+  }
+  
+  str << PrintCard("BEAM",TString::Format("%f",-(GetBeamPar().Energy)), "",
+		   TString::Format("%f",GetBeamPar().AngDiv),
+		   TString::Format("%f",GetBeamPar().Size),
+		   TString::Format("%f",-GetBeamPar().Size),
+		   "1.0",part_type) << endl;
+  if(part_type == "HEAVYION")
+    str << PrintCard("HI-PROPE",TString::Format("%d",GetBeamPar().AtomicNumber),
+		     TString::Format("%.0f",GetBeamPar().AtomicMass),"","","","","") << endl;
+  str << PrintCard("BEAMPOS",TString::Format("%.3f",GetBeamPar().Position.X()),
+		   TString::Format("%.3f",GetBeamPar().Position.Y()),
+		   TString::Format("%.3f",GetBeamPar().Position.Z()),"","","","") << endl;
+
+  return str.str();
+  
+}
+
+
+//_____________________________________________________________________________
+string TAGparGeo::PrintPhysics() {
+
+  stringstream str;
+ 
+  if ( GlobalPar::GetPar()->verFLUKA() )
+    str << PrintCard("PHYSICS","1.","","","","","","COALESCE") << endl;
+  else
+    str << PrintCard("PHYSICS","12001.","1.","1.","","","","COALESCE") << endl;
+    
+  str << PrintCard("EMFCUT","-1.","1.","","BLACK","@LASTREG","1.0","") << endl;
+  str << PrintCard("EMFCUT","-1.","1.","1.","BLCKHOLE","@LASTMAT","1.0","PROD-CUT") << endl;
+  str << PrintCard("DELTARAY","1.","","","BLCKHOLE","@LASTMAT","1.0","") << endl;
+  str << PrintCard("PAIRBREM","-3.","","","BLCKHOLE","@LASTMAT","","") << endl;
+  
+  if(GlobalPar::GetPar()->IncludeDI()){
+    str << PrintCard("MGNFIELD","0.1","0.00001","","0.","0.","0.","") << endl;
+  }
+    
+  return str.str();
+  
+}
+
+
+//_____________________________________________________________________________
+string  TAGparGeo::PrintCard(TString fTitle, TString fWHAT1, TString fWHAT2, TString fWHAT3,
+		 TString fWHAT4, TString fWHAT5, TString fWHAT6, TString fSDUM) {
+  
+  stringstream fLine;
+	
+  if (fTitle.Sizeof() != 10) fTitle.Resize(10);
+  if (fSDUM.Sizeof() != 10) fSDUM.Resize(10);
+  if (fWHAT1.Sizeof() > 10) fWHAT1.Resize(10);
+  if (fWHAT2.Sizeof() > 10) fWHAT2.Resize(10);
+  if (fWHAT3.Sizeof() > 10) fWHAT3.Resize(10);
+  if (fWHAT4.Sizeof() > 10) fWHAT4.Resize(10);
+  if (fWHAT5.Sizeof() > 10) fWHAT5.Resize(10);
+  if (fWHAT6.Sizeof() > 10) fWHAT6.Resize(10);
+
+  fLine << setw(10) << fTitle << setw(10) << fWHAT1 << setw(10) << fWHAT2
+	<< setw(10) << fWHAT3 << setw(10) << fWHAT4 << setw(10) << fWHAT5
+	<< setw(10) << fWHAT6 << setw(10) << fSDUM;
+	
+  return fLine.str();
+  
+}

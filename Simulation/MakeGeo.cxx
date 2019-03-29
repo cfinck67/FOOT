@@ -31,8 +31,6 @@
 
 using namespace std;
 
-string PrintCard(TString fTitle, TString fWHAT1, TString fWHAT2, TString fWHAT3,
-		 TString fWHAT4, TString fWHAT5, TString fWHAT6, TString fSDUM);
 
 int main (int argc, char *argv[]) {
 
@@ -61,15 +59,6 @@ int main (int argc, char *argv[]) {
     TAGgeoTrafo geoTrafo;
     geoTrafo.FromFile();
    
-    // crea la lista dei materiali nel costruttore
-    // leggi i materiali da file o definiti nella calsse stessa?
-    // Materials listOfMaterials();
-    // Materials* listOfMaterials = new Materials();
-    // listOfMaterials->PrintMap();
-
-    //    Materials* listMaterials = new Materials() ;
-    //    listMaterials->PrintCompMap();
-
     // GlobalFootGeo footGeo;
     TADIparGeo* dipGeo = new TADIparGeo();
     TASTparGeo* stcGeo = new TASTparGeo();
@@ -79,9 +68,9 @@ int main (int argc, char *argv[]) {
     TAMSDparGeo* msdGeo = new TAMSDparGeo();
     TATWparGeo* twGeo = new TATWparGeo();
     TACAparGeo* caGeo = new TACAparGeo();
-    TAGparGeo* tg_beamGeo = new TAGparGeo();
+    TAGparGeo* generalGeo = new TAGparGeo();
 
-    //  si costruisce le coordinate di ogni oggetto geometrico e sensibile
+    // read geomap files
     dipGeo->FromFile();
     stcGeo->FromFile();
     bmGeo->FromFile();
@@ -90,9 +79,10 @@ int main (int argc, char *argv[]) {
     msdGeo->FromFile();
     twGeo->FromFile();
     caGeo->FromFile();
-    tg_beamGeo->FromFile();
+    generalGeo->FromFile();
 
-    genfit::FieldManager::getInstance()->init(new FootField( GlobalPar::GetPar()->MagFieldInputMapName().data(),dipGeo) ); // variable field
+    if(GlobalPar::GetPar()->IncludeDI())
+      genfit::FieldManager::getInstance()->init(new FootField( GlobalPar::GetPar()->MagFieldInputMapName().data(),dipGeo) ); // variable field
 
     ifstream file;
     string fileName = "foot.inp";
@@ -131,27 +121,23 @@ int main (int argc, char *argv[]) {
     file.close();
   
 
-    // PRINT OUT foot.geo
-    // per ora chiamati da qui, si puo fare una classe gestore separata se serve
+    // PRINT OUT foot.geo -> FLUKA geometry file
     string geofileName = "foot.geo";
-
     ofstream geofile;
     geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::trunc );
 
     geofile << "    0    0          FOOT experiment geometry" << endl;
-    geofile << "* ***Black Body" << endl;
-    geofile << "RPP blk        -1000. 1000. -1000. 1000. -1000. 1000." << endl;
-    geofile << "* ***Air -> no mag field" << endl;
-    geofile << "RPP air        -900.0 900.0 -900.0 900.0 -900.0 900.0" << endl;
-
-    // geofile.close();
-
+    geofile <<"* ******************************************************************************"<<endl;
+    geofile <<"*                         BODIES                                               *"<<endl;
+    geofile <<"* ******************************************************************************"<<endl;
+    
+    //print bodies
+    geofile << generalGeo->PrintStandardBodies(  );
     geofile << stcGeo->PrintBodies(  );
     geofile << bmGeo->PrintBodies(  );
-    geofile << tg_beamGeo->PrintBodies(  );
+    geofile << generalGeo->PrintTargBody(  );
     geofile << vtxGeo->PrintBodies(  );
-    // geofile << itrGeo->PrintBodies(  );
-    
+    // geofile << itrGeo->PrintBodies(  );    
     // geofile << "* ***Magnets\n";    
     // geofile << "RCC MagCvOu0   " << MAG_X << " " << MAG_Y << " "
     // 	    << MAG_Z - MAG_CV_LENGTH/2. - MAG_DIST/2. << " 0.000000 0.000000 "
@@ -185,9 +171,7 @@ int main (int argc, char *argv[]) {
     // geofile << "RPP MagAir     " << MAG_X - 5. << " " << MAG_X + 5. << " "
     // 	    << MAG_Y - 5. << " " << MAG_Y + 5. << " "
     // 	    << MAG_Z - 30. << " " << MAG_Z + 30. << endl;
-    
     // geofile << msdGeo->PrintBodies(  );
-    
     // geofile << "* ***Air Box for Scintillator and Calorimeter\n";
     // geofile << "RPP box     " << SCN_X - SCN_BAR_HEIGHT/2. - 1. << " "
     // 	    << SCN_X + SCN_BAR_HEIGHT/2. + 1. << " "
@@ -195,45 +179,30 @@ int main (int argc, char *argv[]) {
     // 	    << SCN_Y + SCN_BAR_HEIGHT/2. + 1. << " "
     // 	    << SCN_Z - SCN_BAR_THICK/2. - 1. << " "
     // 	    << CAL_Z + CAL_CRY_THICK/2. +1. << endl;
-    
     geofile << twGeo->PrintBodies(  );
     // geofile << caGeo->PrintBodies(  );
 
-
-
-
-    // print bodies
-    // geofile.open( geofileName.c_str(), std::ofstream::out | std::ofstream::app );
+    // end print bodies
     geofile << "END        " <<endl;
 
-
-     // region print begins here
+    // region print begins here
     geofile <<"* ******************************************************************************"<<endl;
     geofile <<"*                         REGIONS                                              *"<<endl;
     geofile <<"* ******************************************************************************"<<endl;
-
-    //print  regioni
-
-    geofile <<"BLACK        5 blk -air\n";
-    geofile <<"* ***Air\n";
-    geofile <<"AIR          5 air";
+    //print regions
+    geofile << generalGeo->PrintStandardRegions();
     geofile << stcGeo->PrintSubtractBodiesFromAir();
     geofile << bmGeo->PrintSubtractBodiesFromAir();
-    geofile << tg_beamGeo->PrintSubtractBodiesFromAir();
+    geofile << generalGeo->PrintSubtractTargBodyFromAir();
     geofile << vtxGeo->PrintSubtractBodiesFromAir();
-    geofile << twGeo->PrintSubtractBodiesFromAir();
     // geofile << itrGeo->PrintSubtractBodiesFromAir();
     // geofile << msdGeo->PrintSubtractBodiesFromAir();
-    // geofile <<"\n";
-
-    geofile << stcGeo->PrintRegions(  );
-    geofile << bmGeo->PrintRegions(  );
-    geofile << tg_beamGeo->PrintRegions(  );
-    
-    
-    geofile << vtxGeo->PrintRegions(  );
-    // geofile << itrGeo->PrintRegions(  );
-    
+    geofile << twGeo->PrintSubtractBodiesFromAir();
+    geofile << stcGeo->PrintRegions();
+    geofile << bmGeo->PrintRegions();
+    geofile << generalGeo->PrintTargRegion();
+    geofile << vtxGeo->PrintRegions();
+    // geofile << itrGeo->PrintRegions();    
     // geofile <<"* ***Magnets\n";
     // geofile <<"MAG_PM0      5 MagPMOu0 -MagPMIn0\n";
     // geofile <<"MAG_CV0      5 MagCvOu0 -(MagPMOu0 -MagPMIn0) -Gap0\n";
@@ -244,77 +213,39 @@ int main (int argc, char *argv[]) {
     // geofile << vtxGeo->PrintSubtractBodiesFromAir();
     // geofile << itrGeo->PrintSubtractBodiesFromAir();
     // geofile << msdGeo->PrintSubtractBodiesFromAir();
-    // geofile <<"\n";
-
     // geofile << msdGeo->PrintRegions(  );
-
     // geofile <<"* ***Air Box for Scintillator and Calorimeter\n";
     // geofile <<"BOX          5 box ";
     // geofile << caGeo->PrintSubtractBodiesFromAir();
     // geofile <<"\n";
-
     geofile << twGeo->PrintRegions(  );
     // geofile << caGeo->PrintRegions(  );
 
+    // end print regions
     geofile << "END        " <<endl;
+
+    // close geometry file
     geofile.close();
 
-    // rewrite the file in the correct way
+    // rewrite the input file in the correct way
     ofstream outfile;
     outfile.open( fileName.c_str(), fstream::trunc );
 
     outfile << init.str();
 
-    if ( GlobalPar::GetPar()->verFLUKA() )
-       outfile << PrintCard("PHYSICS","1.","","","","","","COALESCE") << endl;
-    else
-      outfile << PrintCard("PHYSICS","12001.","1.","1.","","","","COALESCE") << endl;
-
-    string part_type;
-    if (tg_beamGeo->GetBeamPar().AtomicNumber>2)
-      part_type = "HEAVYION";
-    else if (tg_beamGeo->GetBeamPar().AtomicNumber==1 && tg_beamGeo->GetBeamPar().AtomicMass==1)
-      part_type = "PROTON";
-    else if (tg_beamGeo->GetBeamPar().AtomicNumber==2 && tg_beamGeo->GetBeamPar().AtomicMass==4)
-      part_type = "4-HELIUM";
-    else{
-      cout << "**** ATTENTION: unknown beam!!!! ****"<< endl;
-      return 1;
-    }
-    
-    outfile << PrintCard("BEAM",TString::Format("%f",-(tg_beamGeo->GetBeamPar().Energy)), "",
-			 TString::Format("%f",tg_beamGeo->GetBeamPar().AngDiv),
-			 TString::Format("%f",-tg_beamGeo->GetBeamPar().Size),
-			 TString::Format("%f",-tg_beamGeo->GetBeamPar().Size),
-			 "1.0",part_type) << endl;
-    if(part_type == "HEAVYION")
-      outfile << PrintCard("HI-PROPE",TString::Format("%d",tg_beamGeo->GetBeamPar().AtomicNumber),
-			   TString::Format("%f",tg_beamGeo->GetBeamPar().AtomicMass),"","","","","") << endl;
-    outfile << PrintCard("BEAMPOS",TString::Format("%.3f",tg_beamGeo->GetBeamPar().Position.X()),
-			 TString::Format("%.3f",tg_beamGeo->GetBeamPar().Position.Y()),
-			 TString::Format("%.3f",tg_beamGeo->GetBeamPar().Position.Z()),"","","","") << endl;
-    
-    outfile << PrintCard("EMFCUT","-1.","1.","","BLACK","@LASTREG","1.0","") << endl;
-    outfile << PrintCard("EMFCUT","-1.","1.","1.","BLCKHOLE","@LASTMAT","1.0","PROD-CUT") << endl;
-    outfile << PrintCard("DELTARAY","1.","","","BLCKHOLE","@LASTMAT","1.0","") << endl;
-    outfile << PrintCard("PAIRBREM","-3.","","","BLCKHOLE","@LASTMAT","","") << endl;
+    outfile << generalGeo->PrintBeam();
+    outfile << generalGeo->PrintPhysics();
 
     outfile << geomat.str();
 
-    
+    //print materials and compounds
     outfile << fTAGmat->SaveFileFluka();
-    
-    int magnetic = 0;
-    if(GlobalPar::GetPar()->IncludeDI())
-      magnetic = 1;
-    
-    outfile << "ASSIGNMA    BLCKHOLE     BLACK\n";
-    outfile << PrintCard("ASSIGNMA","AIR","AIR","","",
-			 TString::Format("%d",magnetic),"","") << endl;
 
+    //print assig nmaterials
+    outfile << generalGeo->PrintStandardAssignMaterial();
     outfile << stcGeo->PrintAssignMaterial();
     outfile << bmGeo->PrintAssignMaterial();
-    outfile << tg_beamGeo->PrintAssignMaterial();
+    outfile << generalGeo->PrintTargAssignMaterial();
     outfile << vtxGeo->PrintAssignMaterial();
     // outfile << itrGeo->PrintAssignMaterial();
     // outfile << "ASSIGNMA        SmCo   MAG_PM0\n";
@@ -327,13 +258,7 @@ int main (int argc, char *argv[]) {
     outfile << twGeo->PrintAssignMaterial();
     // outfile << caGeo->PrintAssignMaterial();
 
-    if(GlobalPar::GetPar()->IncludeDI()){
-      outfile << PrintCard("MGNFIELD",TString::Format("%f",MaxAng),
-			   TString::Format("%f",BoundAcc),"",
-			   TString::Format("%f",Bx),TString::Format("%f",By),
-			   TString::Format("%f",Bz),"") << endl;
-    }
-    
+    // print rotations 
     outfile << vtxGeo->PrintRotations();
     outfile << twGeo->PrintRotations();
 
@@ -341,9 +266,11 @@ int main (int argc, char *argv[]) {
 
     outfile.close();
 
-
+    //parameter file needed by the user routines
     ofstream paramfile;
-    paramfile.open("ROUTINES/parameters.inc");
+    paramfile.open("../../Simulation/ROUTINES/parameters.inc");
+    if ( !paramfile.is_open() )
+      cout<< "ERROR  --> I do not find the parameters.inc file"<<fileName.c_str()<< endl;
     
     paramfile << bmGeo->PrintParameters();
     paramfile << vtxGeo->PrintParameters();
@@ -372,25 +299,25 @@ int main (int argc, char *argv[]) {
 
 
 
-string PrintCard(TString fTitle, TString fWHAT1, TString fWHAT2, TString fWHAT3,
-		 TString fWHAT4, TString fWHAT5, TString fWHAT6, TString fSDUM) {
+// string PrintCard(TString fTitle, TString fWHAT1, TString fWHAT2, TString fWHAT3,
+// 		 TString fWHAT4, TString fWHAT5, TString fWHAT6, TString fSDUM) {
   
-  stringstream fLine;
+//   stringstream fLine;
 	
-  if (fTitle.Sizeof() != 10) fTitle.Resize(10);
-  if (fSDUM.Sizeof() != 10) fSDUM.Resize(10);
-  if (fWHAT1.Sizeof() > 10) fWHAT1.Resize(10);
-  if (fWHAT2.Sizeof() > 10) fWHAT2.Resize(10);
-  if (fWHAT3.Sizeof() > 10) fWHAT3.Resize(10);
-  if (fWHAT4.Sizeof() > 10) fWHAT4.Resize(10);
-  if (fWHAT5.Sizeof() > 10) fWHAT5.Resize(10);
-  if (fWHAT6.Sizeof() > 10) fWHAT6.Resize(10);
+//   if (fTitle.Sizeof() != 10) fTitle.Resize(10);
+//   if (fSDUM.Sizeof() != 10) fSDUM.Resize(10);
+//   if (fWHAT1.Sizeof() > 10) fWHAT1.Resize(10);
+//   if (fWHAT2.Sizeof() > 10) fWHAT2.Resize(10);
+//   if (fWHAT3.Sizeof() > 10) fWHAT3.Resize(10);
+//   if (fWHAT4.Sizeof() > 10) fWHAT4.Resize(10);
+//   if (fWHAT5.Sizeof() > 10) fWHAT5.Resize(10);
+//   if (fWHAT6.Sizeof() > 10) fWHAT6.Resize(10);
 
-  fLine << setw(10) << fTitle << setw(10) << fWHAT1 << setw(10) << fWHAT2
-	<< setw(10) << fWHAT3 << setw(10) << fWHAT4 << setw(10) << fWHAT5
-	<< setw(10) << fWHAT6 << setw(10) << fSDUM;
+//   fLine << setw(10) << fTitle << setw(10) << fWHAT1 << setw(10) << fWHAT2
+// 	<< setw(10) << fWHAT3 << setw(10) << fWHAT4 << setw(10) << fWHAT5
+// 	<< setw(10) << fWHAT6 << setw(10) << fSDUM;
 	
-  return fLine.str();
+//   return fLine.str();
   
-}
+// }
 
