@@ -50,6 +50,7 @@ int main (int argc, char *argv[]) {
 
     // real coding starts here!
     // GlobalPar* GlobalPar;
+
     GlobalPar::Instance("FootGlobal.par");
     GlobalPar::GetPar()->Print();
 
@@ -281,7 +282,6 @@ int main (int argc, char *argv[]) {
     
     paramfile.close();
     
-
     // stop time
     end_tot = clock();
     double tempo=((double)(end_tot-start_tot ))/CLOCKS_PER_SEC;

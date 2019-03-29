@@ -37,8 +37,8 @@ GlobalPar* GlobalPar::GetPar()  {
 //_____________________________________________________________________________
 GlobalPar::~GlobalPar()
 {
-   m_ClassDebugLevels.Delete();
-   for (Int_t i = 0; i < m_ClassDebugLevels.GetEntriesFast(); i++) {
+  m_ClassDebugLevels.Delete();
+  for (Int_t i = 0; i < m_ClassDebugLevels.GetEntriesFast(); i++) {
       if (m_ClassDebugLevels[i])
          m_ClassDebugLevels[i]->Delete();
    }

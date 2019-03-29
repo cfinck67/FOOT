@@ -387,6 +387,7 @@ void BaseLocalReco::SetTreeBranches()
       if (!fFlagTrack)
          fActEvtWriter->SetupElementBranch(fpNtuClusVtx, TAVTntuCluster::GetBranchName());
       else {
+	fActEvtWriter->SetupElementBranch(fpNtuClusVtx, TAVTntuCluster::GetBranchName());
          fActEvtWriter->SetupElementBranch(fpNtuTrackVtx, TAVTntuTrack::GetBranchName());
          if (GlobalPar::GetPar()->IncludeTG())
             fActEvtWriter->SetupElementBranch(fpNtuVtx, TAVTntuVertex::GetBranchName());

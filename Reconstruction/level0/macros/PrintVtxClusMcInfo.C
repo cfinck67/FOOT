@@ -14,6 +14,7 @@
 #include "TAMCntuHit.hxx"
 
 #include "TAITparGeo.hxx"
+#include "TATWparGeo.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAVTntuCluster.hxx"
 #include "TAITntuCluster.hxx"
@@ -37,6 +38,10 @@ void PrintVtxClusMcInfo(TString nameFile = "12C_400_vtx_Out.root", Int_t nentrie
   TAGparaDsc* parGeoMsd = new TAGparaDsc(TAMSDparGeo::GetDefParaName(), new TAMSDparGeo());
   TAMSDparGeo* msdparGeo = (TAMSDparGeo*)parGeoMsd->Object();
   msdparGeo->FromFile();
+  
+  TAGparaDsc* parGeoTW = new TAGparaDsc(TATWparGeo::GetDefParaName(), new TATWparGeo());
+  TATWparGeo* twparGeo = (TATWparGeo*)parGeoTW->Object();
+  twparGeo->FromFile();
   
   TTree *tree = 0;
   TFile *f = new TFile(nameFile.Data());
