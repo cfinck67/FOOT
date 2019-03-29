@@ -570,6 +570,8 @@ Double_t TABMparCon::FirstSTrelMC(Double_t tdrift, Int_t mc_switch){
 
 
 void TABMparCon::LoadReso(TString sF) {
+  
+  TDirectory* cd_pwd = gDirectory;
 
   TFile *f; 
   Info("Action()","Processing Reso vs R from %s  LIST file!",sF.Data());
@@ -577,7 +579,7 @@ void TABMparCon::LoadReso(TString sF) {
   f = new TFile(sF.Data(),"READ");
   f->cd();
   my_hreso = ((TH1D*)gDirectory->Get("myHp"));
-  
+  gDirectory = cd_pwd;
   return;
   
 }
