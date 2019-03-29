@@ -384,7 +384,20 @@ string TATWparGeo::PrintRotations()
     TAGgeoTrafo* fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
   
     TVector3 fCenter = fpFootGeo->GetTWCenter();
+    TVector3  fAngle = fpFootGeo->GetTWAngles();
     TVector3 pos;
+    
+    if(fAngle.Z()!=0){
+      ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
+	 << setw(10) << setfill(' ') << std::right << "300."
+	 << setw(10) << setfill(' ') << std::right << " "
+	 << setw(10) << setfill(' ') << std::right << fAngle.Z()
+	 << setw(10) << setfill(' ') << std::right << " "
+	 << setw(10) << setfill(' ') << std::right << " "
+	 << setw(10) << setfill(' ') << std::right << " "
+	 << setfill(' ') << std::left << "twZ"
+	 << endl;
+    }
     
     int c=0;
     
@@ -394,29 +407,6 @@ string TATWparGeo::PrintRotations()
 	pos.SetXYZ( fCenter.X() + GetBarPosition(i,j).X(),
 		    fCenter.Y() + GetBarPosition(i,j).Y(),
 		    fCenter.Z() + GetBarPosition(i,j).Z());
-
-	// if(vTilt.at(i).X()!=0){
-	// 	ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
-	// 	   << setw(10) << setfill(' ') << std::right << "100."
-	// 	   << setw(10) << setfill(' ') << std::right << " "
-	// 	   << setw(10) << setfill(' ') << std::right << vTilt.at(i).X()*TMath::RadToDeg()
-	// 	   << setw(10) << setfill(' ') << std::right << " "
-	// 	   << setw(10) << setfill(' ') << std::right << " "
-	// 	   << setw(10) << setfill(' ') << std::right << " "
-	// 	   << setfill(' ') << std::left << Form("twX_%d",i) 
-	// 	   << endl;
-	// }
-	// if(vTilt.at(i).Y()!=0){
-	// 	ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
-	// 	   << setw(10) << setfill(' ') << std::right << "200."
-	// 	   << setw(10) << setfill(' ') << std::right << " "
-	// 	   << setw(10) << setfill(' ') << std::right << vTilt.at(i).Y()*TMath::RadToDeg()
-	// 	   << setw(10) << setfill(' ') << std::right << " "
-	// 	   << setw(10) << setfill(' ') << std::right << " "
-	// 	   << setw(10) << setfill(' ') << std::right << " "
-	// 	   << setfill(' ') << std::left << Form("twY_%d",i) 
-	// 	   << endl;
-	// }
 
 	if(vTilt.at(c).Z()!=0){  
 	  ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
@@ -469,12 +459,20 @@ string TATWparGeo::PrintBodies()
     TAGgeoTrafo* fpFootGeo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
   
     TVector3  fCenter = fpFootGeo->GetTWCenter();
+    TVector3  fAngle = fpFootGeo->GetTWAngles();
     TVector3 pos;
-    
+
     string bodyname, regionname;
   
-    ss << "* ***Scintillator bodies" << endl;  
-
+    ss << "* ***Scintillator bodies" << endl;
+    
+    if(fAngle.X()!=0)
+      cout << "TW rotation around x found: ATTENTION not implemented in fluka" << endl;
+    if(fAngle.Y()!=0)
+      cout << "TW rotation around y found: ATTENTION not implemented in fluka" << endl;
+    if(fAngle.Z()!=0)
+      ss << "$start_transform " << "twZ" << endl;
+    
     int c=0;
     
     for (int i=0; i<GetNLayers(); i++){
@@ -482,10 +480,10 @@ string TATWparGeo::PrintBodies()
     
 	// Double_t *rot = TATWparGeo::GetTransfo(i,j)->GetRotationMatrix();
 
- 	// if (vTilt.at(c).X()!=0)
-	//   ss << "$start_transform " << Form("twX_%d",c) << endl;
- 	// if (vTilt.at(c).Y()!=0)
-	//   ss << "$start_transform " << Form("twY_%d",c) << endl;
+ 	if (vTilt.at(c).X()!=0)
+	  cout << "TW bar rotation around x found: ATTENTION not implemented in fluka" << endl;
+ 	if (vTilt.at(c).Y()!=0)
+	  cout << "TW bar rotation around y found: ATTENTION not implemented in fluka" << endl;
  	if (vTilt.at(c).Z()!=0)
 	  ss << "$start_transform " << Form("twZ_%d",c) << endl;
       	
@@ -514,7 +512,10 @@ string TATWparGeo::PrintBodies()
 	c++;
       }
     }
-
+    
+    if(fAngle.Z()!=0)
+      ss << "$end_transform " << endl;
+    
   }
 
   return ss.str();
