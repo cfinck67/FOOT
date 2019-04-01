@@ -31,6 +31,9 @@ set( with_dictionnaries
    TATW_Hit
    TATW_Point
    TATWdigitizer
+   CChannelMap
+   Message
+   XmlParser
 )
 
 set( without_dictionnaries
@@ -89,9 +92,11 @@ file(GLOB incsrc ${PROJECT_SOURCE_DIR}/*.icc)
 #
 # Use root functions to generate the library and the root map file 
 #
-ROOT_LINKER_LIBRARY(${LIBNAME} ${sources} CMAKENOEXPORT LIBRARIES ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES})
+ROOT_LINKER_LIBRARY(${LIBNAME} ${sources} CMAKENOEXPORT LIBRARIES
+${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} XMLIO XMLParser)
 if (!ROOT6_USED)
-  ROOT_GENERATE_ROOTMAP(${LIBNAME} LINKDEF ${linkdefs} DEPENDENCIES ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES})
+  ROOT_GENERATE_ROOTMAP(${LIBNAME} LINKDEF ${linkdefs} DEPENDENCIES
+  ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} XMLIO XMLParser)
 endif()
 #
 # Install lib and headers 
