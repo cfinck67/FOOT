@@ -22,8 +22,10 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/link_FOOT.sh DESTINATION ${CMAKE_BINARY_DI
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/link_FOOT_mag.sh DESTINATION ${CMAKE_BINARY_DIR}/Simulation/)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/foot.inp DESTINATION ${CMAKE_BINARY_DIR}/Simulation/)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/ROUTINES/  DESTINATION ${CMAKE_BINARY_DIR}/Simulation/ROUTINES)
-file(COPY ${FOOT_LEVEL0}/geomaps/ DESTINATION ${CMAKE_BINARY_DIR}/Simulation/geomaps/)
-file(COPY ${FOOT_LEVEL0}/config/  DESTINATION ${CMAKE_BINARY_DIR}/Simulation/config/)
+
+execute_process(COMMAND ln -sf ${FOOT_FULLREC}/data/  ${CMAKE_BINARY_DIR}/Simulation)
+execute_process(COMMAND ln -sf ${FOOT_LEVEL0}/geomaps/  ${CMAKE_BINARY_DIR}/Simulation)
+execute_process(COMMAND ln -sf ${FOOT_LEVEL0}/config/  ${CMAKE_BINARY_DIR}/Simulation)
 
 #----------------------------------------------------------------------------
 # internal and external dependencies
