@@ -11,6 +11,7 @@
 set(BUILD_REC "${CMAKE_BINARY_DIR}/libs")
 set(FOOT_REC "${CMAKE_SOURCE_DIR}/libs/src")
 set(FOOT_LEVEL0 "${CMAKE_SOURCE_DIR}/Reconstruction/level0")
+set(FOOT_FULLREC "${CMAKE_SOURCE_DIR}/Reconstruction/fullrec")
 set(REC_INCLUDE_DIR ${FOOT_REC}/TAGbase ${FOOT_REC}/TAMCbase ${FOOT_REC}/TASTbase ${FOOT_REC}/TABMbase ${FOOT_REC}/TAVTbase ${FOOT_REC}/TAITbase ${FOOT_REC}/TAMSDbase ${FOOT_REC}/TACAbase ${FOOT_REC}/TATWbase ${FOOT_REC}/TAGfoot)
 
 
