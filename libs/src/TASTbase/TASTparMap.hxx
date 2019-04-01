@@ -24,13 +24,10 @@ class TASTparMap : public TAGpara {
 
     Bool_t          FromFile(const TString& name);
 
-    bool            IsTrigID(int channel, int board, int& trid);
-
     virtual void    Clear(Option_t* opt="");
 
     inline int getTDID(int add) { return TDchaID.at(add); }
     inline int getTDboaID(int add) { return TDboaID.at(add); }
-    inline int getDetID(int add) { return DetID.at(add); }
 
     ClassDef(TASTparMap,1)
 
@@ -38,7 +35,6 @@ class TASTparMap : public TAGpara {
 
     vector<int> TDchaID;
     vector<int> TDboaID;
-    vector<int> DetID;
 };
 
 #endif

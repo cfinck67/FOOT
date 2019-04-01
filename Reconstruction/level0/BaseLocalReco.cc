@@ -195,7 +195,7 @@ void BaseLocalReco::InitParameters()
       parGeo->FromFile(parFileName.Data());
       fpParMapSt = new TAGparaDsc("stMap", new TASTparMap()); // need the file
       TASTparMap* parMapSt = (TASTparMap*) fpParMapSt->Object();
-      parFileName="./geomaps/tr_ch.map";
+      parFileName="./config/TASTdetector.cfg";
       parMapSt->FromFile(parFileName);
    }
 
