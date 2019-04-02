@@ -6,14 +6,6 @@
 
 
 //------------------------------------------+-----------------------------------
-//! Returns Detector type
-
-inline Int_t TATWrawHit::Type() const
-{
-  return ir_typ;
-}
-
-//------------------------------------------+-----------------------------------
 //! Returns channel ID
 
 inline Int_t TATWrawHit::ChID() const
@@ -58,15 +50,6 @@ inline Double_t TATWrawHit::Time() const
 inline Double_t TATWrawHit::Charge() const
 {
   return ir_chg;
-}
-
-//------------------------------------------+-----------------------------------
-//! Returns Detector type
-
-inline void TATWrawHit::SetType(int typ)
-{
-  ir_typ = typ;
-  return;	
 }
 
 //------------------------------------------+-----------------------------------
