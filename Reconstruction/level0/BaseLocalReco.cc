@@ -65,13 +65,14 @@ BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
    fActTrackVtx(0x0),
    fActVtx(0x0),
    fActClusIt(0x0),
-   fFlagOut(false),
+   fFlagOut(true),
    fFlagTree(false),
    fFlagHits(false),
    fFlagHisto(false),
    fFlagTrack(false),
    fgTrackingAlgo("Full")
 {
+
    if (fileNameout == "")
       fFlagOut = false;
 
@@ -355,13 +356,15 @@ void BaseLocalReco::CreateRecActionVtx()
          fActTrackVtx->CreateHistogram();
       
       if (GlobalPar::GetPar()->IncludeTG()) {
-         fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG);
-         if (fFlagHisto)
-            fActVtx->CreateHistogram();
-      } else if (GlobalPar::GetPar()->IncludeTG() && GlobalPar::GetPar()->IncludeBM()) {
-         fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG, fpNtuTrackBm);
-         if (fFlagHisto)
-            fActVtx->CreateHistogram();
+	  if(GlobalPar::GetPar()->IncludeBM()) {
+	    fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG);
+	    if (fFlagHisto)
+	      fActVtx->CreateHistogram();
+	  } else {
+	    fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG, fpNtuTrackBm);
+	    if (fFlagHisto)
+	      fActVtx->CreateHistogram();
+	  }
       }
    }
 }
