@@ -75,6 +75,7 @@ TCGbaseGeometryConstructor::TCGbaseGeometryConstructor(const TString expName)
 
    // default parameter values
    G4Material* pttoMaterial = G4NistManager::Instance()->FindOrBuildMaterial("Vacuum");
+//    G4Material* pttoMaterial = G4NistManager::Instance()->FindOrBuildMaterial("Air");
 	if (pttoMaterial) fWorldMaterial = pttoMaterial;
    
    // initialise map file for target/beam
@@ -89,6 +90,7 @@ TCGbaseGeometryConstructor::TCGbaseGeometryConstructor(const TString expName)
 TCGbaseGeometryConstructor::~TCGbaseGeometryConstructor()
 {
 	delete fTarget;
+    delete fpParGeoG;
 }
 
 

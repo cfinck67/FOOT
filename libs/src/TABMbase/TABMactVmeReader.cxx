@@ -93,7 +93,6 @@ Bool_t TABMactVmeReader::Process() {
     fpTimRaw->SetBit(kValid);
     return kTRUE;
   }
-
   if (bmcon->GetBMdebug()>3)
     cout<<"I'm in TABMactVmeReader::Process, data_num_ev="<<data_num_ev<<"   fpEvtStruct->evnum="<<fpEvtStruct->evnum<<"   tdcev="<<fpEvtStruct->tdcev<<"   tdc_numsync="<<fpEvtStruct->tdc_numsync<<"  data_sync_num_ev="<<data_sync_num_ev<<endl;   
   if(bmcon->GetBMdebug()>0)
@@ -104,7 +103,7 @@ Bool_t TABMactVmeReader::Process() {
   for (Int_t i = 0; i < fpEvtStruct->tdc_hitnum[0]; i++) {
     if(fpEvtStruct->tdc_meas[i]!=-10000 && bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))!=-1000 &&  bmmap->tdc2cell(fpEvtStruct->tdc_id[i])>=0 && ((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - fpEvtStruct->tdc_sync[0]/10.)<bmcon->GetHitTimecut()){
       bmgeo->GetBMNlvc(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]), lay, view, cell);
-      p_datraw->SetHitData(lay,view,cell,fpEvtStruct->tdc_meas[i]/10.);
+      p_datraw->SetHitData(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]),lay,view,cell,fpEvtStruct->tdc_meas[i]/10.);
       if(bmcon->GetBMdebug()>10)
         cout<<"hit charged: i="<<i<<"  tdc_id="<<fpEvtStruct->tdc_id[i]<<"  tdc2cell="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"  tdc_meas/10.="<<fpEvtStruct->tdc_meas[i]/10.<<"  T0="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<"  trigtime="<<fpEvtStruct->tdc_sync[0]/10.<<"  timecut="<<bmcon->GetHitTimecut()<<"  hittime="<<((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - fpEvtStruct->tdc_sync[0]/10.)<<endl;
     }else{

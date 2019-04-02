@@ -38,19 +38,24 @@ public:
    
    Float_t        GetSenseRad()   const { return fSenseRadius;  }
    TString        GetSenseMat()   const { return fSenseMat;     }
+   Float_t        GetSenseRho()   const { return fSenseDensity; }
    Float_t        GetFieldRad()   const { return fFieldRadius;  }
    TString        GetFieldMat()   const { return fFieldMat;     }
-   
+   Float_t        GetFieldRho()   const { return fFieldDensity; }
+
    Float_t        GetFoilThick()  const { return fFoilThick;    }
    TString        GetFoilMat()    const { return fFoilMat;      }
-   Float_t        GetShieldThick() const { return fShieldThick; }
+   Float_t        GetShieldThick()const { return fShieldThick;  }
+   Float_t        GetFoilRho()    const { return fFoilDensity;  }
 
    TVector3       GetSide()       const { return fBmSideDch;    }
    TVector3       GetDelta()      const { return fBmDeltaDch;   }
    
-   TString        GetGasMixture() const { return fGasMixture;   }
-   TString        GetGasProp()    const { return fGasProp;      }
-   
+   TString        GetGasMixture()   const { return fGasMixture;   }
+   TString        GetGasProp()      const { return fGasProp;      }
+   TString        GetGasDensities() const { return fGasDensities; }
+   Float_t        GetGasRho()       const { return fGasDensity;   }
+
    TVector3       GetMylar1()     const { return fMylar1;       }
    TVector3       GetMylar2()     const { return fMylar2;       }
    TVector3       GetTarget()     const { return fTarget;       }

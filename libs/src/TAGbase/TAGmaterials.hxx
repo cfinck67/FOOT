@@ -8,14 +8,14 @@
 #include "TString.h"
 #include "TGeoMaterial.h"
 
-#include "TAGobject.hxx"
+#include "TAGbaseMaterials.hxx"
 
 using namespace std;
 
 class TGeoMixture;
 class TGeoElementTable;
 
-class TAGmaterials : public TAGobject
+class TAGmaterials : public TAGbaseMaterials
 {
 public:
    TAGmaterials();
@@ -27,36 +27,17 @@ public:
    string          SaveFileFluka();
    
 public:
-   static TAGmaterials* Instance();
-   
-private:
-   static TAGmaterials*         fgInstance;
-   static map<TString, TString> fgkCommonName;
-   static map<TString, Int_t>   fgkLowMat;
-   static TString               fgkWhat;
-   static Int_t                 fgkWhatWidth;
+    static TAGmaterials* Instance();
 
 private:
-   vector<TString>              fIsotope;
-   vector<Float_t>              fIsotopeWeight;
-   TGeoElementTable*            fTable;
-   map<TString, Int_t>          fPrintedElt;
-   Int_t                        fDegugLevel;
-   
-private:
-   void             GetIsotopes(const TString formula);
-   TString          GetSubFormula(const TString formula);
-   void             GetIsotopeAndWeight(const TString formula);
-   void             CreateDefaultMaterials();
-   vector<TString>  GetStrings(TString key, const Char_t delimiter = '/');
-   void             GetCoeff(TString key, Float_t* coeff, Int_t size,  const Char_t delimiter = '/');
-   TString          FindByValue(TString value);
+    static TAGmaterials* fgInstance;
 
-   TString          AppendFluka(const Char_t* string, Int_t what = 1);
-   TString          PrependFluka(const Char_t* string, Int_t what = 1);
-   TString          PrependFlukaName(const Char_t* string, Int_t what = 1, Int_t align = 1);
+private:
+   TString  AppendFluka(const Char_t* string, Int_t what = 1);
+   TString  PrependFluka(const Char_t* string, Int_t what = 1);
+   TString  PrependFlukaName(const Char_t* string, Int_t what = 1, Int_t align = 1);
    
-   ClassDef(TAGmaterials,0)
+   ClassDef(TAGmaterials,1)
 
 };
 

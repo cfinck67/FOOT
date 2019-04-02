@@ -116,12 +116,17 @@ TABMactNtuTrack::~TABMactNtuTrack()
 //! Setup all histograms.
 void TABMactNtuTrack::CreateHistogram()
 {
-   
    DeleteHistogram();
    
-   fpHisR02d = new TH2D("bmR02d","BM - Position of the track on the BM center plane", 500, -3., 3.,500 , -3., 3.);
+   fpHisR02d = new TH2F("bmR02d","BM - Position of the track on the BM center plane", 500, -3., 3.,500 , -3., 3.);
    AddHistogram(fpHisR02d);   
-   
+
+   fpHisMap = new TH2F("bmMap","BM - Position of the track at target center", 250, -3., 3.,250 , -3, 3);
+   AddHistogram(fpHisMap);
+
+   fpResTot = new TH2F("bm_residual_tot","Residual vs Rdrift; Residual [cm]; Measured rdrift [cm]", 6000, -0.3, 0.3,250 , 0., 1.);
+   AddHistogram(fpResTot);  
+
    SetValidHistogram(kTRUE);
 }
 
@@ -138,7 +143,8 @@ Bool_t TABMactNtuTrack::Action()
   //~ m_mypol = p_bmcon->GetCalibX();
   //~ m_mypol2 = p_bmcon->GetCalibY();
   
-  p_ntutrk->Clear();//penso non serva visto che viene inizializzato con 0 
+  p_ntutrk->Clear();//maybe useless? 
+  p_ntutrk->SetEffFittedPlane(-3.); 
 
   Double_t chisquare_cut = 5.;
 
@@ -529,6 +535,7 @@ Bool_t TABMactNtuTrack::Action()
     TABMntuTrackTr* trk = new((*(p_ntutrk->GetListOfTracks()))[p_ntutrk->GetTracksN()]) TABMntuTrackTr(best_trackTr);
     p_ntutrk->GetTrackStatus()++;
     p_ntutrk->GetTrackStatus()= (best_trackTr.GetMyChi2Red()>=p_bmcon->GetChi2Redcut())? 5:0;
+    vector<Int_t> hit_fittedplane(12,0);
     //flag the hit of the best track
     for(Int_t i=0;i<hitxtrack.at(best_index).size();i++){
       p_hit = p_nturaw->Hit(hitxtrack.at(best_index).at(i));    
@@ -537,11 +544,48 @@ Bool_t TABMactNtuTrack::Action()
         p_hit->SetChi2(best_mysqrtchi2.at(i)*best_mysqrtchi2.at(i));
         p_hit->SetResidualSigma(best_mysqrtchi2.at(i));
       }
+      if(p_hit->View()==0)
+        hit_fittedplane.at(p_hit->Plane())++;
+      else
+        hit_fittedplane.at(p_hit->Plane()+6)++;      
+      if (ValidHistogram())  
+        fpResTot->Fill(p_hit->GetResidual(),p_hit->Dist());    
+    }//end of loop on hits
+    
+    //evalueate eff_fittedplane
+    Int_t eff_fittedplane_probe=0, eff_fittedplane_pivot=0; 
+    //view==0
+    if(hit_fittedplane.at(0)>0 && hit_fittedplane.at(2)>0 && hit_fittedplane.at(4)>0){
+      eff_fittedplane_pivot++;
+      if(hit_fittedplane.at(1)>0 && hit_fittedplane.at(3)>0)
+        eff_fittedplane_probe++;
     }
-     if (ValidHistogram()) {
-        fpHisR02d->Fill(trk->GetR0()[0],trk->GetR0()[1]);
+    if(hit_fittedplane.at(1)>0 && hit_fittedplane.at(3)>0 && hit_fittedplane.at(5)>0){
+      eff_fittedplane_pivot++;
+      if(hit_fittedplane.at(2)>0 && hit_fittedplane.at(4)>0)
+        eff_fittedplane_probe++;
+    }
+    //view==1
+    if(hit_fittedplane.at(6)>0 && hit_fittedplane.at(8)>0 && hit_fittedplane.at(10)>0){
+      eff_fittedplane_pivot++;
+      if(hit_fittedplane.at(7)>0 && hit_fittedplane.at(9)>0)
+        eff_fittedplane_probe++;
+    }
+    if(hit_fittedplane.at(7)>0 && hit_fittedplane.at(9)>0 && hit_fittedplane.at(11)>0){
+      eff_fittedplane_pivot++;
+      if(hit_fittedplane.at(8)>0 && hit_fittedplane.at(10)>0)
+        eff_fittedplane_probe++;
+    }
+    
+    p_ntutrk->SetEffFittedPlane( (eff_fittedplane_pivot==0) ?  -1 : (Double_t) eff_fittedplane_probe/eff_fittedplane_pivot);
+    if (ValidHistogram()){
+       fpHisR02d->Fill(trk->GetR0()[0],trk->GetR0()[1]);
+       TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+       Float_t posZ = geoTrafo->FromGlobalToBMLocal(TVector3(0,0,0)).Z();
+       
+       TVector3 pos = trk->PointAtLocalZ(posZ);
+       fpHisMap->Fill(pos[0], pos[1]);
      }
-     
   }else if(converged==false)
     p_ntutrk->GetTrackStatus()=4;
   else

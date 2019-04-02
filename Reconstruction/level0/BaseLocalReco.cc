@@ -268,10 +268,15 @@ void BaseLocalReco::InitParameters()
       TString parFileName = Form("./geomaps/TATWdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName);
       
-      fpParCalTw = new TAGparaDsc("itConf", new TATWparCal());
+      fpParCalTw = new TAGparaDsc("twConf", new TATWparCal());
       TATWparCal* parCal = (TATWparCal*)fpParCalTw->Object();
       parFileName = Form("./config/TATWdetector%s.cal", fExpName.Data());
       parCal->FromFile(parFileName.Data());
+      
+      fpParMapTw = new TAGparaDsc("twMap", new TATWparMap());
+      TATWparMap* tw_parMap = (TATWparMap*)fpParMapTw->Object();
+      parFileName = Form("./config/TATWChannelMap%s.xml", fExpName.Data());
+      tw_parMap->FromFile(parFileName.Data());
    }
    
    // initialise parameters for caloriomter
@@ -342,6 +347,12 @@ void BaseLocalReco::CreateRecActionVtx()
       
       if (GlobalPar::GetPar()->IncludeTG()) {
          fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG);
+         if (fFlagHisto)
+            fActVtx->CreateHistogram();
+      }
+      
+      if (GlobalPar::GetPar()->IncludeTG() && GlobalPar::GetPar()->IncludeBM()) {
+         fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG, fpNtuTrackBm);
          if (fFlagHisto)
             fActVtx->CreateHistogram();
       }

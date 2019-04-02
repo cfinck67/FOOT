@@ -72,9 +72,9 @@ protected:
    G4double               fWorldSizeXY;
    G4Material*            fWorldMaterial;
    G4LogicalVolume*       fLogWorld;
-	TCGtargetConstructor*  fTarget;
+	TCGtargetConstructor* fTarget;
    TAGparGeo*             fpParGeoG;
-   
+
 protected:
    void         DefineMaterial();
 };

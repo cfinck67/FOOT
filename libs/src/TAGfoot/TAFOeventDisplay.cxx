@@ -343,7 +343,7 @@ void TAFOeventDisplay::ReadParFiles()
       parFileName = Form("./config/TATWdetector%s.cal", fExpName.Data());
       parCal->FromFile(parFileName.Data());
       
-      fpParMapBm = new TAGparaDsc("twMap", new TATWparMap());
+      fpParMapTw = new TAGparaDsc("twMap", new TATWparMap());
       TATWparMap* parMap = (TATWparMap*)fpParMapTw->Object();
       parFileName = Form("./geomaps/TATWdetector%s.map", fExpName.Data());
       parMap->FromFile(parFileName.Data());
@@ -511,6 +511,11 @@ void TAFOeventDisplay::CreateRecActionVtx()
       
       if (GlobalPar::GetPar()->IncludeTG()) {
          fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG);
+         fActVtx->CreateHistogram();
+      }
+      
+      if (GlobalPar::GetPar()->IncludeTG() && GlobalPar::GetPar()->IncludeBM()) {
+         fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG, fpNtuTrackBm);
          fActVtx->CreateHistogram();
       }
    }
@@ -1108,9 +1113,16 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
             
             x = posG(0); y = posG(1); z = posG(2);
             
-            pos = track->Intersection(posLastPlane);
-            posG = fpFootGeo->FromVTLocalToGlobal(pos);
+            if (GlobalPar::GetPar()->IncludeTW()) {
+               Float_t posZtw = fpFootGeo->FromTWLocalToGlobal(TVector3(0,0,0)).Z();
+               posZtw = fpFootGeo->FromGlobalToVTLocal(TVector3(0, 0, posZtw)).Z();
+               pos = track->Intersection(posZtw);
+            } else {
+               pos  = track->Intersection(posLastPlane);
+            }
             
+            posG = fpFootGeo->FromVTLocalToGlobal(pos);
+
             x1 = posG(0); y1 = posG(1); z1 = posG(2);
             
             Float_t nPix = track->GetMeanPixelsN();
