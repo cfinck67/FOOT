@@ -57,8 +57,8 @@ TCVTgeometryConstructor::~TCVTgeometryConstructor()
 void TCVTgeometryConstructor::BuildSensor()
 {
    
-   G4Material* Si      = G4NistManager::Instance()->FindOrBuildMaterial("G4_Si"); //for sensitive and bulk CMOS
-   G4Material* Mixture = G4NistManager::Instance()->FindOrBuildMaterial("SiO2Al"); //for pixels
+   G4Material* Si      = G4NistManager::Instance()->FindOrBuildMaterial("Si"); //for sensitive and bulk CMOS
+   G4Material* Mixture = G4NistManager::Instance()->FindOrBuildMaterial("SiO2/Al"); //for pixels
    
    TVector3 sizeCmos(0,0,0); //(21.2mm, 13.6 mm, 0.05 mm)
    TVector3 sizeEpi(0,0,0);
@@ -204,28 +204,12 @@ void TCVTgeometryConstructor::PlaceSensor()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void TCVTgeometryConstructor::DefineMaterial()
 {
-   G4NistManager* man = G4NistManager::Instance();
-   //Defined used element
-   
-   //For sensitive and bulck
-   //cmos: fill with silicon rho = 2.329 g/cm^3, 100% Si
-   man->FindOrBuildMaterial("G4_Si");
-   
-   // "pixels" layer: fill with a Si02+al 89%Si02 + 11%Al Rho - 2.3 g/cm^3
-   G4double density, fractionmass;
-   G4String name;
-   G4int ncomponents;
-   
-   G4Material* SiO2 = man->FindOrBuildMaterial("G4_SILICON_DIOXIDE");
-   G4Material* Al   = man->FindOrBuildMaterial("G4_Al");
-   
-    G4Material* mixture = G4NistManager::Instance()->FindOrBuildMaterial("SiO2Al");
-   if (mixture == 0x0) {
-      density = 2.3*g/cm3;
-      mixture = new G4Material(name="SiO2Al", density, ncomponents=2);
-      mixture->AddMaterial(SiO2, fractionmass = 89.*perCent);
-      mixture->AddMaterial (Al,  fractionmass = 11.*perCent);
-   }
+    TString pixMat = fpParGeo->GetPixMaterial();
+    TString pixDens = fpParGeo->GetPixMatDensities();
+    TString pixProp = fpParGeo->GetPixMatProp();
+    G4double pixRho = fpParGeo->GetPixMatDensity();
+    fpMaterials->CreateG4Material(fpParGeo->GetEpiMaterial());
+    fpMaterials->CreateG4Mixture(pixMat,pixDens,pixProp,pixRho);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -30,8 +30,6 @@ public:
    static TCGmaterials* Instance();
    
 private:
-   void   CreateDefaultMaterials();
-
    static TCGmaterials* fgInstance;
 
 };

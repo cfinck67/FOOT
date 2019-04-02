@@ -170,38 +170,6 @@ G4Material* TCGmaterials::ConvertGeoMaterial(const TGeoMaterial *mat)
     return g4mat;
 }
 
-//______________________________________________________________________________
-void TCGmaterials::CreateDefaultMaterials()
-{
-   // create vacuum material
-   TGeoMaterial* mat = 0x0;;
-   TGeoMedium*   med = 0x0;
-   
-   const Char_t* matNameVacuum = "VACUUM";
-   if ( (mat = (TGeoMaterial*)gGeoManager->GetListOfMaterials()->FindObject(matNameVacuum)) == 0x0 )
-      mat  = new TGeoMaterial(matNameVacuum, 0, 0, 0);
-   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(matNameVacuum)) == 0x0 )
-      med  = new TGeoMedium(matNameVacuum, 1, mat);
-
-   // create air mixture
-   TGeoMixture* mix = 0x0;;
-   
-   const Char_t* mixNameAir = "AIR";
-   if ( (mix = (TGeoMixture*)gGeoManager->GetListOfMaterials()->FindObject(mixNameAir)) == 0x0 ) {
-      
-      TGeoElement* elementO = fTable->GetElement(8);
-      TGeoElement* elementN = fTable->GetElement(7);
-      
-      mix = new TGeoMixture(mixNameAir, 2, 1.29e-3);
-      mix->AddElement(elementO, 0.79);
-      mix->AddElement(elementN, 0.21);
-   }
-   
-   if ( (med = (TGeoMedium *)gGeoManager->GetListOfMedia()->FindObject(mixNameAir)) == 0x0 )
-      med = new TGeoMedium(mixNameAir,1,mix);
-   
-  }
-
 
 
 

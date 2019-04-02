@@ -209,10 +209,10 @@ void TCBMgeometryConstructor::DefineMaterial()
     TString gasDens   = fpParGeo->GetGasDensities();
     G4double gasRho = fpParGeo->GetGasRho();
 
-    G4Material *Tungsten  = fpMaterials->CreateG4Material(fpParGeo->GetSenseMat());
-    G4Material *Aluminium = fpMaterials->CreateG4Material(fpParGeo->GetFieldMat());
-    G4Material *Mylar     = fpMaterials->CreateG4Material(fpParGeo->GetFoilMat());
-    G4Material *ArCO2     = fpMaterials->CreateG4Mixture(gasMat,gasDens,gasProp,gasRho);
+    fpMaterials->CreateG4Material(fpParGeo->GetSenseMat());
+    fpMaterials->CreateG4Material(fpParGeo->GetFieldMat());
+    fpMaterials->CreateG4Material(fpParGeo->GetFoilMat());
+    fpMaterials->CreateG4Mixture(gasMat,gasDens,gasProp,gasRho);
 }
 
 
