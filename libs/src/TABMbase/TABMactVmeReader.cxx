@@ -115,7 +115,7 @@ Bool_t TABMactVmeReader::Process() {
   }
   
   //set the trigger time
-  p_timraw->SetTrigTime(fpEvtStruct->tdc_sync[0]/10.);  
+  //  p_timraw->SetTrigTime(fpEvtStruct->tdc_sync[0]/10.);  
     
   data_num_ev++;
   data_sync_num_ev+=fpEvtStruct->tdc_numsync;
