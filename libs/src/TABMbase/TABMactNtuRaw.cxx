@@ -38,7 +38,6 @@ TABMactNtuRaw::TABMactNtuRaw(const char* name,
   //~ AddDataIn(p_triraw, "TASTdatRaw");
   AddPara(p_geomap, "TABMparGeo");
   AddPara(p_parcon, "TABMparCon");
-
 }
 
 //------------------------------------------+-----------------------------------
@@ -56,7 +55,15 @@ void TABMactNtuRaw::CreateHistogram(){
    
    DeleteHistogram();
    
+   fpHisPivot_paoloni = new TH1F( "eff_paoloni_pivot", "pivot counter for the plane efficiency method; index; Counter", 8, 0., 8.);
+   AddHistogram(fpHisPivot_paoloni);   
+   fpHisProbe_paoloni = new TH1F( "eff_paoloni_probe", "probe counter for the plane efficiency method; index; Counter", 8, 0., 8.);
+   AddHistogram(fpHisProbe_paoloni);   
+   //~ fpHisEval_paoloni = new TH1F( "eff_paoloni_eval", "efficiency for the paoloni plane method; index; Counter", 8, 0., 8.);
+   //~ AddHistogram(fpHisEval_paoloni);   
 
+
+   
    SetValidHistogram(kTRUE);
 }
 
@@ -71,6 +78,7 @@ Bool_t TABMactNtuRaw::Action()
 
 
   p_nturaw->SetupClones();
+  p_nturaw->SetEffPaoloni(-3);
   
   if(p_timraw->TrigTime() == -10000 || p_timraw->TrigTime()<-9999999999) {
      Info("Action()","Trigger IR Time is Missing!!!");
@@ -78,7 +86,9 @@ Bool_t TABMactNtuRaw::Action()
      return kTRUE;
   }
 
-  Double_t i_time; 
+  Double_t i_time;
+  p_nturaw->ClearCellOccupy();
+  
   for (Int_t i = 0; i < p_datraw->NHit(); i++) {//loop on p_datrawhit
     const TABMrawHit& hit = p_datraw->Hit(i);
     
@@ -101,12 +111,30 @@ Bool_t TABMactNtuRaw::Action()
     
     //create the hit (no selection of hit)
     TABMntuHit *mytmp = p_nturaw->NewHit(0, hit.View(), hit.Plane(), hit.Cell(), i_drift, i_time, p_parcon->ResoEval(i_drift));
+    p_nturaw->AddCellOccupyHit(hit.Idcell());
   }
+  
+  //print cell_occupy
+  if(p_parcon->GetBMdebug()>9)
+    p_nturaw->PrintCellOccupy();
 
+  vector<Int_t>pivot (8,0);
+  vector<Int_t>probe (8,0);  
+  p_nturaw->Efficiency_paoloni(pivot, probe); 
+  if (ValidHistogram()){
+    for(Int_t i=0;i<8;i++){
+      fpHisProbe_paoloni->Fill(probe.at(i));
+      fpHisPivot_paoloni->Fill(pivot.at(i));
+      //~ fpHisEval_paoloni->SetBinContent(i+1, (Double_t) fpHisProbe_paoloni->GetBinContent(i+1)/fpHisPivot_paoloni->GetBinContent(i+1));
+    }
+  } 
+  
   fpNtuRaw->SetBit(kValid);
   return kTRUE;
 
-
-  
 }
+
+
+
+
 

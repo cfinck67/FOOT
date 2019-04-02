@@ -99,7 +99,7 @@ Bool_t TABMactDatRaw::DecodeHits(const TDCEvent* evt) {
 
       if(p_parmap->tdc2cell(channel)>=0 && ((((Double_t) measurement)/10.) - p_parcon->GetT0(p_parmap->tdc2cell(channel))-p_timraw->TrigTime())<p_parcon->GetHitTimecut()){//-1000=syncTime, -1=not set
         p_pargeo->GetBMNlvc(p_parmap->tdc2cell(channel),plane,view,cell);
-        p_datraw->SetHitData(plane,view,cell,((Double_t) (measurement))/10.);
+        p_datraw->SetHitData(p_parmap->tdc2cell(channel), plane,view,cell,((Double_t) (measurement))/10.);
         if(p_parcon->GetBMdebug()>10)
           cout<<"BM hit charged: channel="<<channel<<"  tdc2cell="<<p_parmap->tdc2cell(channel)<<"  measurement/10.="<<measurement/10.<<"  T0="<<p_parcon->GetT0(p_parmap->tdc2cell(channel))<<"  triggertime="<<p_timraw->TrigTime()<<"  hittime="<<(((Double_t) measurement)/10.) - p_parcon->GetT0(p_parmap->tdc2cell(channel))-p_timraw->TrigTime()<<"  hittimecut="<<p_parcon->GetHitTimecut()<<endl;
       }else

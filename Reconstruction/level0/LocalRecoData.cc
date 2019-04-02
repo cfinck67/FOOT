@@ -75,7 +75,7 @@ void LocalRecoData::CreateRawAction() {
    if (GlobalPar::GetPar()->IncludeST()) {
      m_parMap_ST = new TAGparaDsc("parMap_ST", new TASTparMap());
      TASTparMap* fpParMapSt = (TASTparMap*) m_parMap_ST->Object();
-     parFileName="./geomaps/tr_ch.map";
+     parFileName="./config/TASTdetector.cfg";
      fpParMapSt->FromFile(parFileName);
      
      m_datRaw_ST = new TAGdataDsc("datRaw_ST", new TASTdatRaw()); 

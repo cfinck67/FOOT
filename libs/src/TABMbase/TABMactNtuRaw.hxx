@@ -42,9 +42,14 @@ class TABMactNtuRaw : public TAGaction {
     //~ TAGdataDsc*     fpTriRaw;		    // input time dsc
     TAGparaDsc*     fpGeoMap;		    // geometry para dsc
     TAGparaDsc*     fpParCon;		    // BM config params.
-
+    
+    //~ vector<Int_t>   cell_occupy;    //occupancy of the BM cell
+    //~ Double_t        eff_paoloni;    //value of the efficiency calculated with the Paoloni's method
+    
     //histos
-
+    TH1F*            fpHisPivot_paoloni;  //Pivots of the Paoloni's method
+    TH1F*            fpHisProbe_paoloni;  //Probes of the Paoloni's method
+    //~ TH1F*            fpHisEval_paoloni;   //efficiency evaluation of the Paoloni's method for all the different configuration
 };
 
 #endif
