@@ -7,6 +7,7 @@
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
+#include "TATWdatRaw.hxx"
 #include "TATW_ContainerHit.hxx"
 #include "TATW_ContainerPoint.hxx"
 #include "TACAntuRaw.hxx"
@@ -116,12 +117,13 @@ void LocalReco::CreateRawAction()
 //         fActNtuRawMsd->CreateHistogram();
 //   }
    
-   //   if(GlobalPar::GetPar()->IncludeTW()) {
-   //      fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
-   //      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
-   //      fActNtuRawTw = new TAVTactNtuRaw("twActNtu", fpNtuRawTw, fpNtuRawTw, fpParGeoTw);
-   //      fActNtuRawTw->CreateHistogram();
-   //   }
+   if(GlobalPar::GetPar()->IncludeTW()) {
+      fpParTimeTw   = new TAGparaDsc("stTime", new TATWparTime());
+      fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
+      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
+      fActDatRawTw = new TATWactDatRaw("twActNtu", fpNtuRawTw, fpDaqEvent, fpParMapTw, fpParTimeTw);
+      fActDatRawTw->CreateHistogram();
+   }
    
    //   if(GlobalPar::GetPar()->IncludeCA()) {
    //      fpDatRawCa   = new TAGdataDsc("cadDat", new TACAdatRaw());
