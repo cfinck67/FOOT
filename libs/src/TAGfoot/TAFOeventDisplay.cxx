@@ -500,11 +500,17 @@ void TAFOeventDisplay::CreateRecActionVtx()
    fActClusVtx->CreateHistogram();
    
    if (fgTrackFlag) {
-      if (fgTrackingAlgo.Contains("Std") )
-         fActTrackVtx  = new TAVTactNtuTrack("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
-      else if (fgTrackingAlgo.Contains("Full"))
-         fActTrackVtx  = new TAVTactNtuTrackF("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
-      else {
+      if (fgTrackingAlgo.Contains("Std") ) {
+         if (GlobalPar::GetPar()->IncludeBM())
+            fActTrackVtx  = new TAVTactNtuTrack("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx, 0, fpNtuTrackBm);
+         else
+            fActTrackVtx  = new TAVTactNtuTrack("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
+      } else if (fgTrackingAlgo.Contains("Full")) {
+         if (GlobalPar::GetPar()->IncludeBM())
+            fActTrackVtx  = new TAVTactNtuTrackF("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx, 0, fpNtuTrackBm);
+         else
+            fActTrackVtx  = new TAVTactNtuTrackF("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
+      } else {
          Error("CreateRecActionVtx()", "No Tracking algorithm defined !");
       }
       fActTrackVtx->CreateHistogram();
