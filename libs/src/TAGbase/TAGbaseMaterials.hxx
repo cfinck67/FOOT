@@ -40,7 +40,7 @@ protected:
    vector<TString>  GetStrings(TString key, const Char_t delimiter = '/');
    void             GetCoeff(TString key, Float_t* coeff, Int_t size,  const Char_t delimiter = '/');
    TString          FindByValue(TString value);
-   void             CreateDefaultMaterials();
+   virtual void     CreateDefaultMaterials();
 
    ClassDef(TAGbaseMaterials,0)
 };

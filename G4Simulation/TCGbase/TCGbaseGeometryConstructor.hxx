@@ -37,10 +37,10 @@
 #include "TAVTparGeo.hxx"
 #include "TAGparGeo.hxx"
 
-
 class G4LogicalVolume;
 class G4Material;
 class TCGtargetConstructor;
+class TCGmaterials;
 class TAGgeometryMessenger;
 class TAVTgeometryConstructor;
 
@@ -68,15 +68,14 @@ public:
 
 protected:
    TString                fExpName;
-	G4double               fWorldSizeZ;
+   G4double               fWorldSizeZ;
    G4double               fWorldSizeXY;
    G4Material*            fWorldMaterial;
    G4LogicalVolume*       fLogWorld;
-	TCGtargetConstructor* fTarget;
+   TCGtargetConstructor*  fTarget;
    TAGparGeo*             fpParGeoG;
+   TCGmaterials*          fpMaterials;
 
-protected:
-   void         DefineMaterial();
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

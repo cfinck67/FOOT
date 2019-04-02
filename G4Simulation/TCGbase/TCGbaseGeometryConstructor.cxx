@@ -52,6 +52,7 @@
 #include "G4VisAttributes.hh"
 
 #include "TCGtargetConstructor.hxx"
+#include "TCGmaterials.hxx"
 
 #include "TAGgeoTrafo.hxx"
 #include "GlobalPar.hxx"
@@ -68,14 +69,14 @@ TCGbaseGeometryConstructor::TCGbaseGeometryConstructor(const TString expName)
   fWorldMaterial(0x0),
   fLogWorld(0x0),
   fTarget(0x0),
-  fpParGeoG(new TAGparGeo())
+  fpParGeoG(new TAGparGeo()),
+  fpMaterials(new TCGmaterials())
 {
    // define material
-   DefineMaterial();
+    fpMaterials->CreateG4DefaultMaterials();
 
    // default parameter values
-   G4Material* pttoMaterial = G4NistManager::Instance()->FindOrBuildMaterial("Vacuum");
-//    G4Material* pttoMaterial = G4NistManager::Instance()->FindOrBuildMaterial("Air");
+    G4Material* pttoMaterial = G4NistManager::Instance()->FindOrBuildMaterial("Air");
 	if (pttoMaterial) fWorldMaterial = pttoMaterial;
    
    // initialise map file for target/beam
@@ -91,6 +92,7 @@ TCGbaseGeometryConstructor::~TCGbaseGeometryConstructor()
 {
 	delete fTarget;
     delete fpParGeoG;
+    delete fpMaterials;
 }
 
 
@@ -136,20 +138,6 @@ G4VPhysicalVolume* TCGbaseGeometryConstructor::Construct()
    
    return pWorld;
 }
-
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-void TCGbaseGeometryConstructor::DefineMaterial()
-{
-   //hall: fill with vacuum
-   G4double atomicNumber = 1;
-   G4double massOfMole   = 1.008*g/mole;
-   G4double densityV     = 1.e-25*g/cm3;
-   G4double temperature  = 2.73*kelvin;
-   G4double pressure     = 3.e-18*pascal;
-   new G4Material("Vacuum", atomicNumber, massOfMole, densityV, kStateGas, temperature, pressure);
-}
-
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void TCGbaseGeometryConstructor::SetWordMaterial(G4String materialChoice)
