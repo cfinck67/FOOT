@@ -11,42 +11,43 @@
 #include <TString.h>
 #include <TROOT.h>
 #include <TStopwatch.h>
-#include <iostream>
-#include <map>
-#include <TGeoManager.h>
-#include <TGeoVolume.h>
+
 #include "Evento.hxx"
 #include "TAGaction.hxx"
 #include "TAGroot.hxx"
 #include "TAGactTreeWriter.hxx"
-#include "TASTparMap.hxx"
-#include "TASTdatRaw.hxx"
+
+#include "TATWparMap.hxx"
+#include "TATWparTime.hxx"
+
+#include "TATWdatRaw.hxx"
+
 #include "TAGdaqEvent.hxx"
 #include "TAGactDaqReader.hxx"
-#include "TASTactDatRaw.hxx"
+#include "TATWactDatRaw.hxx"
 
 #endif
 
 // main
 TAGactTreeWriter*   outFile   = 0x0;
 TAGactDaqReader*    daqActReader = 0x0;
-TASTactDatRaw*      stActRaw  = 0x0;
+TATWactDatRaw*      twActRaw  = 0x0;
 
-void FillST()
+void FillTW()
 {
-   TAGparaDsc* stMap = new TAGparaDsc("stMap", new TASTparMap());
-   TAGdataDsc* stDaq    = new TAGdataDsc("stDaq", new TAGdaqEvent());
-   TAGdataDsc* stDat    = new TAGdataDsc("stDat", new TASTdatRaw());
-   TAGparaDsc* stTime   = new TAGparaDsc("stTime", new TASTparTime());
+   TAGparaDsc* twMap = new TAGparaDsc("twMap", new TATWparMap());
+   TAGdataDsc* twDaq    = new TAGdataDsc("twDaq", new TAGdaqEvent());
+   TAGdataDsc* twDat    = new TAGdataDsc("twDat", new TATWdatRaw());
+   TAGparaDsc* twTim    = new TAGparaDsc("twTim", new TATWparTime());
 
-   daqActReader  = new TAGactDaqReader("daqActReader", stDaq);
-   stActRaw  = new TASTactDatRaw("stActRaw", stDat, stDaq, stMap, stTime);
-   //   stActRaw->CreateHistogram();
+   daqActReader  = new TAGactDaqReader("daqActReader", twDaq);
 
-   
+   twActRaw  = new TATWactDatRaw("twActRaw", twDat, twDaq, twMap, twTim);
+   twActRaw->CreateHistogram();
+
 }
 
-void ReadStRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",
+void ReadTwRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",
                 Int_t nMaxEvts = 3)
 {
 
@@ -56,11 +57,11 @@ void ReadStRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
    
    outFile = new TAGactTreeWriter("outFile");
 
-   FillST();
+   FillTW();
    daqActReader->Open(filename);
    
    tagr.AddRequiredItem(daqActReader);
-   tagr.AddRequiredItem(stActRaw);
+   tagr.AddRequiredItem(twActRaw);
    tagr.AddRequiredItem(outFile);
 
    tagr.Print();
@@ -72,7 +73,7 @@ void ReadStRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
 
    outFileName.Append(".root");
    if (outFile->Open(outFileName.Data(), "RECREATE")) return;
-   stActRaw->SetHistogramDir(outFile->File());
+   twActRaw->SetHistogramDir(outFile->File());
 
    cout<<" Beginning the Event Loop "<<endl;
    tagr.BeginEventLoop();
@@ -91,10 +92,8 @@ void ReadStRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
    }
    
    tagr.EndEventLoop();
-   
    outFile->Print();
    outFile->Close();
-   
    watch.Print();
 
 }

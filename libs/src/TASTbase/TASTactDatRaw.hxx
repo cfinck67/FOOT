@@ -52,7 +52,8 @@ public:
   
  private:
   Bool_t DecodeHits(const WDEvent* evt, TASTparTime* p_parTime, TASTdatRaw *p_datraw);
-  double GetTriggerTime(TASTdatRaw *p_datraw);
+  Bool_t ComputeTriggerTime(TASTdatRaw *p_datraw);
+  Bool_t ComputeCharge(TASTdatRaw *p_datraw);
 };
 
 #endif

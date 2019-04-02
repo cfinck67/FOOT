@@ -54,14 +54,22 @@ class TASTdatRaw : public TAGdata {
   void AddWaveform(int ch_num, vector<double> time, vector<double> amplitude);
   void SumWaveforms();
   inline TASTrawHit* GetWaveCFD(){return fSumWaves_cfd;}
+  inline TASTrawHit* GetWaveSum(){return fSumWaves;}
   //bool IsSTChannel();
-  
+
+
+  inline void SetTriggerTime(double value){fdTrgTime = value;}
+  inline void SetCharge(double value){fdCharge = value;}
+
   inline double     TrigTime(){return fdTrgTime;}
+  inline double     Charge(){return fdCharge;}
   inline vector<TASTrawHit*>GetHits(){return  fListOfWaveforms;}  
   
   virtual void      Clear(Option_t* opt="");
   virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
   
+  
+
   
     ClassDef(TASTdatRaw,1)
 
@@ -72,6 +80,7 @@ class TASTdatRaw : public TAGdata {
     TASTrawHit*     fSumWaves; // hits
     TASTrawHit*     fSumWaves_cfd; // hits
     double          fdTrgTime;   // SC trigger time
+    double          fdCharge;   // SC total charge
   //vector<int> m_STchannels;
 
 

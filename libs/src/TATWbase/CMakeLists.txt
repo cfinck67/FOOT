@@ -20,6 +20,7 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 #
 set( with_dictionnaries
    TATWdatRaw
+   TATWparTime
    TATWparMap
    TATWparCal
    TATWactNtuMC
@@ -31,6 +32,7 @@ set( with_dictionnaries
    TATW_Hit
    TATW_Point
    TATWdigitizer
+   TWaveformContainer
    CChannelMap
    Message
    XmlParser
