@@ -11,6 +11,8 @@
 #include "TASTdatRaw.hxx"
 #include "TASTparTime.hxx"
 #include "TASTactDatRaw.hxx"
+#include <TCanvas.h>
+
 
 /*!
   \class TASTactDatRaw TASTactDatRaw.hxx "TASTactDatRaw.hxx"
@@ -71,6 +73,10 @@ Bool_t TASTactDatRaw::Action() {
      }
    }
 
+   p_datraw->SumWaveforms();
+   ComputeTriggerTime(p_datraw);
+   ComputeCharge(p_datraw);
+      
    fpDatRaw->SetBit(kValid);
    
   return kTRUE;
@@ -106,10 +112,6 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
   //   if(i<10)printf("first::%08x\n",  evt->values[i]);
   //   if(i>evt->evtSize-5)printf("last::%08x\n",  evt->values[i]);
   // }
-
-
-
-  
 
   // printf("last %08x\n", evt->values.at(evt->values.size()-2));
   // printf("last %08x\n", evt->values.at(evt->values.size()-1));
@@ -238,17 +240,14 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
   }
 
 
-  p_datraw->SumWaveforms();
-  double TrigTime =   GetTriggerTime(p_datraw);
-  cout << "trigtime::" << TrigTime << endl;
   
-   return true;
+  return true;
 }
 
 
 
 
-double TASTactDatRaw::GetTriggerTime(TASTdatRaw *p_datraw){
+Bool_t TASTactDatRaw::ComputeTriggerTime(TASTdatRaw *p_datraw){
 
   TASTrawHit* myCFDHit = p_datraw->GetWaveCFD();
   
@@ -257,29 +256,74 @@ double TASTactDatRaw::GetTriggerTime(TASTdatRaw *p_datraw){
   
   int min_bin = std::distance(tmp_amp.begin(), std::min_element(tmp_amp.begin(), tmp_amp.end()));
   int cross_bin=min_bin;
-
-  while(tmp_amp.at(cross_bin) < 0 && cross_bin<tmp_amp.size()){
+  
+  while(tmp_amp.at(cross_bin) <0 && cross_bin<tmp_amp.size()){
     cross_bin++;
   }
-
-  for(int i=0;i<1024;i++){
-    cout <<"time::" << tmp_time.at(i) << "   amp::" << tmp_amp.at(i) << endl;
-  }
   
-  double time_crossbin = tmp_amp.at(cross_bin);
+  double time_crossbin = tmp_time.at(cross_bin);
 
-  
   TGraph WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
-  WaveGraph.Fit("pol1","", "",time_crossbin-0.2, time_crossbin+0.8);
+  WaveGraph.Fit("pol1","Q", "",time_crossbin-0.2, time_crossbin+0.5);
 
   TF1 *fitfun =((TF1*) WaveGraph.GetFunction("pol1")); 
   
   double q = fitfun->GetParameter(1);
   double m = fitfun->GetParameter(0);
-    
-  double triggerTime = -q/m;
-    
-  return triggerTime;
+  double TriggerTime = -q/m;
+
+  p_datraw->SetTriggerTime(TriggerTime);
+  
+  return true;
+
+}
+
+
+
+Bool_t TASTactDatRaw::ComputeCharge(TASTdatRaw *p_datraw){
+
+  vector<TASTrawHit*> myHits = p_datraw->GetHits();
+  vector<double> single_charge;
+  single_charge.assign(myHits.size()-1,0);
+  
+  double dt = 0, amp;
+  double single_q=0, q=0;
+  
+  const double mulf = 1/50.; //1/50 Ohm. When applied, you get the charge in nC 
 
   
+  TASTrawHit* currHit;
+  vector<double> currAmpArray, currTimeArray;
+
+  double window=50; //integration time window width
+  double time_amin=0;
+  int bin_amin=0;
+  double tleft=0, tright=0;
+
+  
+  for(int iCh=0; iCh<8;iCh++){
+
+    if(p_datraw->GetWaveform(iCh, currHit)){
+      currAmpArray = currHit->GetAmplitudeArray();
+      currTimeArray = currHit->GetTimeArray();
+
+      bin_amin = std::distance(currAmpArray.begin(), std::min_element(currAmpArray.begin(),currAmpArray.end()));
+      time_amin = currAmpArray.at(bin_amin);
+      tleft = time_amin-5;
+      tright = time_amin+window-5; //this window has to be tuned
+      
+      single_q =0;
+      for(int iSa=0;iSa<currAmpArray.size()-1;iSa++){
+	dt = currTimeArray.at(iSa+1) - currTimeArray.at(iSa);
+	amp = currAmpArray.at(iSa);
+	if(currTimeArray.at(iSa)>tleft && currTimeArray.at(iSa)< tright)single_q+=amp*dt*mulf;
+      }
+    }
+    q+=single_q;
+  }
+  
+  p_datraw->SetCharge(q);
+    
+  return true;
+
 }

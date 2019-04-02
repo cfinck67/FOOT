@@ -94,7 +94,11 @@ TASTdatRaw::~TASTdatRaw(){
    for(int i=0;i<fListOfWaveforms.size();i++){
     delete fListOfWaveforms.at(i);
   }
-  
+
+   delete fSumWaves;
+   delete fSumWaves_cfd;
+   
+   
 }
 
 
@@ -123,7 +127,7 @@ void TASTdatRaw::SumWaveforms(){
  
   for(int i=0;i<1024;i++){
     if(i>3 && i<1021){
-      tmp_amp_cfd.at(i)+=0.2*tmp_amp.at(i)-tmp_amp.at(i-3);
+      tmp_amp_cfd.at(i)+=(0.2*tmp_amp.at(i)-tmp_amp.at(i-3));
     }else{
       tmp_amp_cfd.at(i)=0;
     }
