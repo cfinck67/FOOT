@@ -141,7 +141,6 @@ protected:
    TAGparaDsc*           fpParGeoTw;
    TAGparaDsc*           fpParGeoCa;
    
-   TAGparaDsc*           fpParMapTw;
    TAGparaDsc*           fpParCalTw;
    
    TAGparaDsc*           fpParConfBm;
