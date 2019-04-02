@@ -22,6 +22,7 @@
 
 #include "TASTdatRaw.hxx"
 #include "TASTparMap.hxx"
+#include "TASTparTime.hxx"
 
 #include "TABMparGeo.hxx"
 #include "TABMparCon.hxx"
@@ -75,11 +76,12 @@ void FillTG()
 
 void FillST()
 {
-   TAGparaDsc* stMap = new TAGparaDsc("stMap", new TASTparMap());
-   evDaq             = new TAGdataDsc("evDaq", new TAGdaqEvent());
-   stDat             = new TAGdataDsc("stDat", new TASTdatRaw());
-   
-   stActDat  = new TASTactDatRaw("stActDat", stDat, evDaq, stMap);
+   TAGparaDsc* stMap  = new TAGparaDsc("stMap", new TASTparMap());
+   evDaq              = new TAGdataDsc("evDaq", new TAGdaqEvent());
+   stDat              = new TAGdataDsc("stDat", new TASTdatRaw());
+   TAGparaDsc* stTime = new TAGparaDsc("stTime", new TASTparTime());
+
+   stActDat  = new TASTactDatRaw("stActDat", stDat, evDaq, stMap, stTime);
    stActDat->CreateHistogram();
 }
 
