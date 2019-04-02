@@ -121,7 +121,7 @@ void LocalReco::CreateRawAction()
       fpParTimeTw   = new TAGparaDsc("twTime", new TATWparTime());
       fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
       fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
-      fActDatRawTw = new TATWactDatRaw("twActNtu", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimeTw);
+      fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimeTw);
       fActDatRawTw->CreateHistogram();
    }
    

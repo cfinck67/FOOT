@@ -495,8 +495,8 @@ void BaseLocalReco::AddRequiredItemMsd()
 //__________________________________________________________
 void BaseLocalReco::AddRequiredItemTw()
 {
-   fTAGroot->AddRequiredItem("twActNtu");
-   fTAGroot->AddRequiredItem("twActPoint");
+//   fTAGroot->AddRequiredItem("twActNtu");
+//   fTAGroot->AddRequiredItem("twActPoint");
 }
 
 //__________________________________________________________
