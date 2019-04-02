@@ -343,7 +343,7 @@ void TAFOeventDisplay::ReadParFiles()
       parFileName = Form("./config/TATWdetector%s.cal", fExpName.Data());
       parCal->FromFile(parFileName.Data());
       
-      fpParMapBm = new TAGparaDsc("twMap", new TATWparMap());
+      fpParMapTw = new TAGparaDsc("twMap", new TATWparMap());
       TATWparMap* parMap = (TATWparMap*)fpParMapTw->Object();
       parFileName = Form("./geomaps/TATWdetector%s.map", fExpName.Data());
       parMap->FromFile(parFileName.Data());
@@ -1109,7 +1109,10 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
             x = posG(0); y = posG(1); z = posG(2);
             
             pos = track->Intersection(posLastPlane);
-            posG = fpFootGeo->FromVTLocalToGlobal(pos);
+            if (GlobalPar::GetPar()->IncludeTW())
+               posG = fpFootGeo->FromTWLocalToGlobal(TVector3(0,0,0));
+            else
+               posG = fpFootGeo->FromVTLocalToGlobal(pos);
             
             x1 = posG(0); y1 = posG(1); z1 = posG(2);
             
