@@ -11,15 +11,16 @@
 #include <TString.h>
 #include <TROOT.h>
 #include <TStopwatch.h>
-
+#include <iostream>
+#include <map>
+#include <TGeoManager.h>
+#include <TGeoVolume.h>
+#include "Evento.hxx"
 #include "TAGaction.hxx"
 #include "TAGroot.hxx"
 #include "TAGactTreeWriter.hxx"
-
 #include "TASTparMap.hxx"
-
 #include "TASTdatRaw.hxx"
-
 #include "TAGdaqEvent.hxx"
 #include "TAGactDaqReader.hxx"
 #include "TASTactDatRaw.hxx"
@@ -36,12 +37,13 @@ void FillST()
    TAGparaDsc* stMap = new TAGparaDsc("stMap", new TASTparMap());
    TAGdataDsc* stDaq    = new TAGdataDsc("stDaq", new TAGdaqEvent());
    TAGdataDsc* stDat    = new TAGdataDsc("stDat", new TASTdatRaw());
+   TAGparaDsc* stTime   = new TAGparaDsc("stTime", new TASTparTime());
 
    daqActReader  = new TAGactDaqReader("daqActReader", stDaq);
+   stActRaw  = new TASTactDatRaw("stActRaw", stDat, stDaq, stMap, stTime);
+   //   stActRaw->CreateHistogram();
 
-   stActRaw  = new TASTactDatRaw("stActRaw", stDat, stDaq, stMap);
-   stActRaw->CreateHistogram();
-
+   
 }
 
 void ReadStRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",
@@ -89,8 +91,10 @@ void ReadStRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
    }
    
    tagr.EndEventLoop();
+   
    outFile->Print();
    outFile->Close();
+   
    watch.Print();
 
 }
