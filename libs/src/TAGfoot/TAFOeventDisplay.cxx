@@ -345,7 +345,7 @@ void TAFOeventDisplay::ReadParFiles()
       
       fpParMapTw = new TAGparaDsc("twMap", new TATWparMap());
       TATWparMap* parMap = (TATWparMap*)fpParMapTw->Object();
-      parFileName = Form("./geomaps/TATWdetector%s.map", fExpName.Data());
+      parFileName = Form("./config/TATWChannelMap%s.xml", fExpName.Data());
       parMap->FromFile(parFileName.Data());
 
    }
@@ -1150,11 +1150,20 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
             TVector3 A0 = track->GetMylar1Pos();
             TVector3 A1 = track->GetMylar2Pos();
             
+            A0[2] *= 1.1;
+            A1[2] *= 1.1;
+            
+            if (GlobalPar::GetPar()->IncludeTG()) {
+               Float_t posZtg = fpFootGeo->FromTGLocalToGlobal(TVector3(0,0,0)).Z();
+               posZtg = fpFootGeo->FromGlobalToBMLocal(TVector3(0, 0, posZtg)).Z();
+               A1 = track->PointAtLocalZ(posZtg);
+            }
+            
             TVector3 A0G = fpFootGeo->FromBMLocalToGlobal(A0);
             TVector3 A1G = fpFootGeo->FromBMLocalToGlobal(A1);
             
-            x  = A0G(0); y  = A0G(1); z  = A0G(2)*1.1;
-            x1 = A1G(0); y1 = A1G(1); z1 = A1G(2)*0.9;
+            x  = A0G(0); y  = A0G(1); z  = A0G(2);
+            x1 = A1G(0); y1 = A1G(1); z1 = A1G(2);
             
             Int_t nHits = track->GetNhit();
             // inverse view ??
