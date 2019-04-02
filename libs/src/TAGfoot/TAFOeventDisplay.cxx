@@ -76,6 +76,9 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fpParGeoTw(0x0),
    fpParGeoCa(0x0),
 
+   fpParTimeSt(0x0),
+   fpParTimeTw(0x0),
+
    fpParMapSt(0x0),
    fpParMapBm(0x0),
 
@@ -562,8 +565,9 @@ void TAFOeventDisplay::CreateRawAction()
    }
    
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
+      fpParTimeSt   = new TAGparaDsc("stTime", new TASTparTime());
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
-      fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDaqEvent, fpParMapSt);
+      fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDaqEvent, fpParMapSt, fpParTimeSt);
       fActDatRawSt->CreateHistogram();
    }
 

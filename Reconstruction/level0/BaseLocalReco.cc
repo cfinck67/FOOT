@@ -40,6 +40,8 @@ ClassImp(BaseLocalReco)
 BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
  : TNamed(fileNameIn.Data(), fileNameout.Data()),
    fExpName(""),
+   fpParTimeSt(0x0),
+   fpParTimeTw(0x0),
    fpParMapSt(0x0),
    fpParGeoSt(0x0),
    fpParGeoBm(0x0),

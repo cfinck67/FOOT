@@ -23,11 +23,14 @@
 #include "TATWparGeo.hxx"
 #include "TACAparGeo.hxx"
 
+#include "TASTparTime.hxx"
+
 #include "TASTparMap.hxx"
 #include "TABMparMap.hxx"
 #include "TATWparMap.hxx"
 
 #include "TATWparCal.hxx"
+#include "TATWparTime.hxx"
 
 #include "TABMparCon.hxx"
 #include "TAVTparConf.hxx"
@@ -180,6 +183,9 @@ protected:
    TAGparaDsc*           fpParGeoTw;
    TAGparaDsc*           fpParGeoCa;
    
+   TAGparaDsc*           fpParTimeSt;
+   TAGparaDsc*           fpParTimeTw;
+
    TAGparaDsc*           fpParMapSt;
    TAGparaDsc*           fpParMapBm;
    TAGparaDsc*           fpParMapTw;

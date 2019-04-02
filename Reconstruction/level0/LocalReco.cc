@@ -66,8 +66,9 @@ void LocalReco::CreateRawAction()
    }
 
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
+      fpParTimeSt  = new TAGparaDsc("stTime", new TASTparTime());
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
-      fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDaqEvent, fpParMapSt);
+      fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDaqEvent, fpParTimeSt);
       fActDatRawSt->CreateHistogram();
    }
 
