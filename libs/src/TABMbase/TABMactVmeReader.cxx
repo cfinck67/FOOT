@@ -58,6 +58,22 @@ TABMactVmeReader::~TABMactVmeReader()
 //! Action.
 //----------------------------------------------------------------------------------------------------
 
+void TABMactVmeReader::CreateHistogram(){
+   
+   DeleteHistogram();
+
+   fpRawMapX=new TH2I( "cell_raw_occupancy_2d_x", "Cell occupancy for raw hits; z; x", 11, -5.5, 5.5,7, -3.5,3.5);
+   fpRawMapY=new TH2I( "cell_raw_occupancy_2d_y", "Cell occupancy for raw hits; z; y", 11, -5.5, 5.5,7, -3.5,3.5);
+   for(Int_t i=0;i<77;i++){//necessary to use addbincontent
+     fpRawMapX->SetBinContent(i,1);
+     fpRawMapY->SetBinContent(i,1);
+   }
+   AddHistogram(fpRawMapX);   
+   AddHistogram(fpRawMapY);   
+   
+   SetValidHistogram(kTRUE);
+}
+
 
 Bool_t TABMactVmeReader::Process() {
   
@@ -99,11 +115,23 @@ Bool_t TABMactVmeReader::Process() {
     cout<<"I'm in TABMactVmeReader::Process, event number: data_num_ev="<<data_num_ev<<endl;  
     
   Double_t i_time, i_rdrift;
-  Int_t lay, view, cell;
+  Int_t lay, view, cell, up, cellid;
   for (Int_t i = 0; i < fpEvtStruct->tdc_hitnum[0]; i++) {
-    if(fpEvtStruct->tdc_meas[i]!=-10000 && bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))!=-1000 &&  bmmap->tdc2cell(fpEvtStruct->tdc_id[i])>=0 && ((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - fpEvtStruct->tdc_sync[0]/10.)<bmcon->GetHitTimecut()){
-      bmgeo->GetBMNlvc(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]), lay, view, cell);
-      p_datraw->SetHitData(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]),lay,view,cell,fpEvtStruct->tdc_meas[i]/10.);
+    cellid=bmmap->tdc2cell(fpEvtStruct->tdc_id[i]);
+    if(fpEvtStruct->tdc_meas[i]!=-10000 && bmcon->GetT0(cellid)!=-1000 &&  cellid>=0 && ((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(cellid) - fpEvtStruct->tdc_sync[0]/10.)<bmcon->GetHitTimecut()){
+      bmgeo->GetBMNlvc(cellid, lay, view, cell);
+      p_datraw->SetHitData(cellid,lay,view,cell,fpEvtStruct->tdc_meas[i]/10.);
+      if (ValidHistogram()){
+        if(view==0){
+          up=(lay%2==0) ? 1:0;
+          fpRawMapY->AddBinContent(fpRawMapY->GetBin(lay*2+1,cell*2+up+1),1);
+          fpRawMapY->AddBinContent(fpRawMapY->GetBin(lay*2+1,cell*2+up+2),1);
+        }else{
+          up=(lay%2==0) ? 0:1;
+          fpRawMapX->AddBinContent(fpRawMapX->GetBin(lay*2+1,cell*2+up+1),1);
+          fpRawMapX->AddBinContent(fpRawMapX->GetBin(lay*2+1,cell*2+up+2));
+        }  
+      }    
       if(bmcon->GetBMdebug()>10)
         cout<<"hit charged: i="<<i<<"  tdc_id="<<fpEvtStruct->tdc_id[i]<<"  tdc2cell="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"  tdc_meas/10.="<<fpEvtStruct->tdc_meas[i]/10.<<"  T0="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<"  trigtime="<<fpEvtStruct->tdc_sync[0]/10.<<"  timecut="<<bmcon->GetHitTimecut()<<"  hittime="<<((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - fpEvtStruct->tdc_sync[0]/10.)<<endl;
     }else{

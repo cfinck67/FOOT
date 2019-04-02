@@ -11,6 +11,7 @@
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
 #include "BM_struct.h"
+#include "TH2.h"
 #include <fstream>
 
 class TABMactVmeReader : public TAGaction {
@@ -28,12 +29,15 @@ class TABMactVmeReader : public TAGaction {
     virtual Int_t   Open(const TString& name);
     virtual void    Close();
     virtual Bool_t  Process();
+    virtual  void   CreateHistogram();
     //~ virtual Bool_t  Action();
     
     void clear_bmstruct(Bool_t forced);
     Bool_t read_event(Bool_t evt0);    
     void PrintBMstruct();
     void monitorQDC(vector<Int_t>& adc792_words);
+
+
 
     ClassDef(TABMactVmeReader,0)
 
@@ -49,6 +53,10 @@ class TABMactVmeReader : public TAGaction {
     Int_t track_ok;  //-2=maxnhit_cut; -1=minhit_cut; otherwise=track_status     
     Long64_t data_num_ev; //current number of events
     Long64_t data_sync_num_ev; //current number of events + number of sync
+    
+        //histos
+    TH2I*            fpRawMapX;  //raw hit map    
+    TH2I*            fpRawMapY;  //raw hit map    
 
 };
 
