@@ -26,10 +26,10 @@
 
 #include "TASTdatRaw.hxx"
 #include "TABMdatRaw.hxx"
+#include "TATWdatRaw.hxx"
 
 #include "TABMactVmeReader.hxx"
 #include "TABMactDatRaw.hxx"
-
 
 #include "TAVTntuCluster.hxx"
 #include "TAITntuCluster.hxx"
@@ -338,10 +338,16 @@ void TAFOeventDisplay::ReadParFiles()
       TString parFileName = Form("./geomaps/TATWdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName);
       
-      fpParCalTw = new TAGparaDsc("itConf", new TATWparCal());
+      fpParCalTw = new TAGparaDsc("twCal", new TATWparCal());
       TATWparCal* parCal = (TATWparCal*)fpParCalTw->Object();
       parFileName = Form("./config/TATWdetector%s.cal", fExpName.Data());
       parCal->FromFile(parFileName.Data());
+      
+      fpParMapBm = new TAGparaDsc("twMap", new TATWparMap());
+      TATWparMap* parMap = (TATWparMap*)fpParMapTw->Object();
+      parFileName = Form("./geomaps/TATWdetector%s.map", fExpName.Data());
+      parMap->FromFile(parFileName.Data());
+
    }
    
    // initialise par files for caloriomter
@@ -595,12 +601,12 @@ void TAFOeventDisplay::CreateRawAction()
       fActNtuRawMsd->CreateHistogram();
    }
    
-//   if(GlobalPar::GetPar()->IncludeTW()) {
-//      fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
-//      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
-//      fActNtuRawTw = new TAVTactNtuRaw("twActNtu", fpNtuRawTw, fpNtuRawTw, fpParGeoTw);
-//      fActNtuRawTw->CreateHistogram();
-//   }
+   if(GlobalPar::GetPar()->IncludeTW()) {
+      fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
+      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
+      fActDatRawTw = new TATWactDatRaw("twActNtu", fpNtuRawTw, fpDaqEvent, fpParMapTw);
+      fActDatRawTw->CreateHistogram();
+   }
    
 //   if(GlobalPar::GetPar()->IncludeCA()) {
 //      fpDatRawCa   = new TAGdataDsc("cadDat", new TACAdatRaw());
