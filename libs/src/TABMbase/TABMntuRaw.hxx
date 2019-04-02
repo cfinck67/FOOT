@@ -45,6 +45,17 @@ class TABMntuRaw : public TAGdata {
     virtual void      Clear(Option_t* opt="");
 
     virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
+    
+    //cell_occupy
+    void ClearCellOccupy();
+    Bool_t AddCellOccupyHit(Int_t pos);
+    Int_t GetCellOccupy(Int_t pos){return (pos<36 && pos>=0) ? cell_occupy.at(pos) : -1;};
+    void PrintCellOccupy();
+    
+    //efficieny paoloni's method
+    void Efficiency_paoloni(vector<Int_t> &pivot, vector<Int_t> &probe);
+    void SetEffPaoloni(Double_t eff_in){eff_paoloni=eff_in;return;};
+    Double_t GetEffPaoloni(){return eff_paoloni;};
 
   public:
    static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
@@ -54,7 +65,10 @@ class TABMntuRaw : public TAGdata {
    
   private:
    static TString fgkBranchName;    // Branch name in TTree
-
+   
+   vector<Int_t>   cell_occupy;    //occupancy of the BM cell
+   Double_t        eff_paoloni;    //value of the efficiency calculated with the Paoloni's method
+   
    ClassDef(TABMntuRaw,1)
 };
 

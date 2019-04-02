@@ -18,11 +18,12 @@ class TABMrawHit {
     TABMrawHit();
     virtual         ~TABMrawHit();
 
-    void            SetData(Int_t view, Int_t lay, Int_t cell, Double_t time);
+    void            SetData(Int_t id, Int_t lay, Int_t view, Int_t cell, Double_t time);
     Int_t           Cell() const;
     Int_t           Plane() const;
     Int_t           View() const;
     Double_t        Time() const;
+    Int_t           Idcell() const;
 
     ClassDef(TABMrawHit,1)
 
@@ -30,6 +31,7 @@ class TABMrawHit {
     Int_t iview;    
     Int_t ilayer;    
     Int_t icell;
+    Int_t idcell;
     Double_t tdctime;//ns
 };
 

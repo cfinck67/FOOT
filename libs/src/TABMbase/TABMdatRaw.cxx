@@ -17,6 +17,8 @@
 
 ClassImp(TABMdatRaw);
 
+TString TABMdatRaw::fgkBranchName   = "bmdat.";
+
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
@@ -31,13 +33,13 @@ TABMdatRaw::~TABMdatRaw() {}
 //------------------------------------------+-----------------------------------
 //! Setup mapping data for a single slat.
 
-void TABMdatRaw::SetHitData(Int_t lay, Int_t view, Int_t cell, Double_t time)
+void TABMdatRaw::SetHitData(Int_t id, Int_t lay, Int_t view, Int_t cell, Double_t time)
 {
 
   Int_t i_ind = (Int_t) fHitList.size();
   fHitList.push_back(TABMrawHit());
  
-  fHitList[i_ind].SetData(lay,view,cell,time);
+  fHitList[i_ind].SetData(id, lay,view,cell,time);
   
   return;
 }
