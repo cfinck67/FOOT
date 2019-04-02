@@ -345,6 +345,12 @@ void BaseLocalReco::CreateRecActionVtx()
          if (fFlagHisto)
             fActVtx->CreateHistogram();
       }
+      
+      if (GlobalPar::GetPar()->IncludeTG() && GlobalPar::GetPar()->IncludeBM()) {
+         fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG, fpNtuTrackBm);
+         if (fFlagHisto)
+            fActVtx->CreateHistogram();
+      }
    }
 }
 
