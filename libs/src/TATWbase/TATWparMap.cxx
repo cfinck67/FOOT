@@ -27,18 +27,14 @@ ClassImp(TATWparMap);
 
 TATWparMap::TATWparMap() {
 
+  cMap = new CChannelMap();
+
   vector<int> tdchaID;             tdchaID.clear();   
   vector<int> tdboaID;             tdboaID.clear();   
-  vector<int> adchaID;             adchaID.clear();   
-  vector<int> adcboaID;             adcboaID.clear();   
   vector<int> deID;                deID.clear();   
-  vector<int> dechaID;             dechaID.clear();   
 
   TDchaID =    tdchaID;   
   TDboaID =    tdboaID;   
-  ADchaID =    adchaID;   
-  ADboaID =    adcboaID;   
-  DetchaID =   dechaID;   
   DetID    =   deID;   
   
 }
@@ -60,13 +56,15 @@ Bool_t TATWparMap::FromFile(const TString& name) {
   TString name_exp = name;
   gSystem->ExpandPathName(name_exp);
 
+  cMap->LoadChannelMap(name_exp.Data());
+  /*
   char bufConf[1024];
   int myArg1(0), myArg2(0), myArg3(0), myArg4(0), myArg5(0), myArg6(0); 
  
   ifstream incF;
   incF.open(name_exp.Data());
   if (!incF) {
-    Error("FromFile()", "failed to open file '%s'", name_exp.Data());
+    Error("FromFile()", "failed to open file '%s'", );
     return kTRUE;
   }
 
@@ -89,7 +87,7 @@ Bool_t TATWparMap::FromFile(const TString& name) {
       }
     }
   }
-
+  */
   return kFALSE;
 }
 
@@ -101,14 +99,11 @@ void TATWparMap::Clear(Option_t*)
   TAGpara::Clear();
   TDchaID.clear();   
   TDboaID.clear();   
-  ADchaID.clear();   
-  ADboaID.clear();   
-  DetchaID.clear();   
   DetID.clear();   
   return;
 }
 
-/*------------------------------------------+---------------------------------*/
+/*
 bool TATWparMap::GetIDFromTDC(int channel, int board, int &detID, int &chaID) {
 
   bool found = kFALSE;
@@ -125,20 +120,4 @@ bool TATWparMap::GetIDFromTDC(int channel, int board, int &detID, int &chaID) {
 
 }
 
-/*------------------------------------------+---------------------------------*/
-bool TATWparMap::GetIDFromADC(int channel, int board, int &detID, int &chaID) {
-
-  bool found = kFALSE;
-  for(int iw=0; iw<(int)TDchaID.size(); iw++) {
-    if(getADID(iw) == channel && getADboaID(iw) == board)  { 
-      chaID = getDetChaID(iw);	
-      detID = getDetID(iw);    
-      found = kTRUE;
-      break;
-    }
-  }
-  
-  return found;
-
-}
-
+*/
