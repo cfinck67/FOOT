@@ -24,6 +24,7 @@
 #include "TACAparGeo.hxx"
 
 #include "TATWparCal.hxx"
+#include "TATWparMap.hxx"
 
 #include "TABMparCon.hxx"
 #include "TAVTparConf.hxx"
@@ -126,6 +127,7 @@ protected:
 
    TAGparaDsc*           fpParMapSt;
    TAGparaDsc*           fpParMapBm;
+   TAGparaDsc*           fpParMapTw;
 
    TAGparaDsc*           fpParGeoSt;
    TAGparaDsc*           fpParGeoG;
