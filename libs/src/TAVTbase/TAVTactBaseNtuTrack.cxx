@@ -252,7 +252,7 @@ void TAVTactBaseNtuTrack::CheckBM()
 	  if (ValidHistogram())
 		 fpHisBmChi2->Fill(chi2);
 	  
-	  if (chi2 < pConfig->GetAnalysisPar().BmTrackChi2Limit && chi2 > 0) 
+	//  if (chi2 < pConfig->GetAnalysisPar().BmTrackChi2Limit && chi2 > 0) // for the moment
 		 fBmTrackOk = true;
    }   
 }
@@ -576,18 +576,19 @@ void TAVTactBaseNtuTrack::FillHistogramm()
 //_____________________________________________________________________________
 //  
 void TAVTactBaseNtuTrack::FillBmHistogramm(TVector3 bmTrackPos)
-{   
+{
    TAVTntuTrack* pNtuTrack = (TAVTntuTrack*) fpNtuTrack->Object();
-   bmTrackPos  = fpFootGeo->FromBMLocalToGlobal(bmTrackPos*TAGgeoTrafo::MuToCm());
-   bmTrackPos *=  TAGgeoTrafo::CmToMu();
+   bmTrackPos  = fpFootGeo->FromBMLocalToGlobal(bmTrackPos);
    fpHisBmBeamProf->Fill(bmTrackPos.X(), bmTrackPos.Y());
    
+   Float_t posZtg = fpFootGeo->FromTGLocalToGlobal(TVector3(0,0,0)).Z();
+   posZtg = fpFootGeo->FromGlobalToVTLocal(TVector3(0, 0, posZtg)).Z();
+
    for (Int_t i = 0; i < pNtuTrack->GetTracksN(); ++i) {
 	  TAVTtrack* track  = pNtuTrack->GetTrack(i);
-	  TVector3   origin = track->GetTrackLine().GetOrigin();
+     TVector3   origin = track->Intersection(posZtg);
 	  
-	  origin  = fpFootGeo->FromVTLocalToGlobal(origin*TAGgeoTrafo::MuToCm());
-	  origin *=  TAGgeoTrafo::CmToMu();
+	  origin  = fpFootGeo->FromVTLocalToGlobal(origin);
 	  TVector3 res = origin - bmTrackPos;
 	  fpHisVtxResX->Fill(res.X());
 	  fpHisVtxResY->Fill(res.Y());
