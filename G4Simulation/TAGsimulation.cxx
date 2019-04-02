@@ -60,7 +60,7 @@ int main(int argc,char** argv)
    G4bool batchMode(false);
    
    // initialise physics list
-   TString physListName("BIC");
+   TString physListName("INCL");
 
    // select the output type (Evento tree or TAMCevent tree)
     G4bool kEvento(0);

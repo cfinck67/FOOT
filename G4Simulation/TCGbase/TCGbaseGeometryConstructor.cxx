@@ -89,6 +89,7 @@ TCGbaseGeometryConstructor::TCGbaseGeometryConstructor(const TString expName)
 TCGbaseGeometryConstructor::~TCGbaseGeometryConstructor()
 {
 	delete fTarget;
+    delete fpParGeoG;
 }
 
 

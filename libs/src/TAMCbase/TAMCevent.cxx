@@ -121,7 +121,7 @@ void TAMCevent::AddCAL(Int_t aCALid, Int_t aCALicry,
 void TAMCevent::SetBranches(TTree *RootTree){
 
     RootTree->Branch("EventNumber",&fEventNumber,"EventNumber/I");
-    RootTree->Branch("Track",&fTrack);
+    RootTree->Branch("mctrack.",&fTrack);
     RootTree->Branch(fHitSTC->GetStcBranchName(),&fHitSTC);
     RootTree->Branch(fHitBMN->GetBmBranchName(),&fHitBMN);
     RootTree->Branch(fHitVTX->GetVtxBranchName(),&fHitVTX);

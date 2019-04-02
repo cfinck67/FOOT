@@ -32,6 +32,7 @@
 
 #include "TString.h"
 #include "G4String.hh"
+#include "TCGmaterials.hxx"
 
 #include "TNamed.h"
 
@@ -57,11 +58,13 @@ public:
    
    virtual void             DefineMaterial()               { return;                     }
 
+   TCGmaterials* GetParMaterials() { return fpMaterials;      }
    
 protected:
    G4LogicalVolume*    fLogMother;
    G4VPhysicalVolume*  fPhysMother;
-   
+    TCGmaterials*      fpMaterials;
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

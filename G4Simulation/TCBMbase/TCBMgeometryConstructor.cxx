@@ -4,7 +4,6 @@
 #include "G4NistManager.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
-#include "G4SubtractionSolid.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4Material.hh"
@@ -19,6 +18,7 @@
 #include "TAGroot.hxx"
 #include "TAGgeoTrafo.hxx"
 
+#include "TCGmaterials.hxx"
 #include "TCBMsensitiveDetector.hxx"
 
 #include "TMath.h"
@@ -46,7 +46,7 @@ TCBMgeometryConstructor::~TCBMgeometryConstructor()
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-Int_t TCBMgeometryConstructor::GetNlayers()
+void TCBMgeometryConstructor::GetNlayers()
 {
     fpParGeo->GetLayersN();
 }
@@ -62,9 +62,9 @@ G4LogicalVolume* TCBMgeometryConstructor::Construct()
       fSizeBoxBm[i] = (fMaxPosition[i] - fMinPosition[i]) + shieldThick;
    
    // BM box
-   G4Material* matSense = G4NistManager::Instance()->FindOrBuildMaterial("Tungsten");
-   G4Material* matField = G4NistManager::Instance()->FindOrBuildMaterial("Aluminium");
-   G4Material* matGas   = G4NistManager::Instance()->FindOrBuildMaterial("ArCO2");
+   G4Material* matSense = G4NistManager::Instance()->FindOrBuildMaterial("W");
+   G4Material* matField = G4NistManager::Instance()->FindOrBuildMaterial("Al");
+   G4Material* matGas   = G4NistManager::Instance()->FindOrBuildMaterial("Ar/CO2");
    G4Material* matFoil  = G4NistManager::Instance()->FindOrBuildMaterial("Mylar");
 
    Float_t senseRad     = fpParGeo->GetSenseRad()*cm;
@@ -84,8 +84,7 @@ G4LogicalVolume* TCBMgeometryConstructor::Construct()
    //logical
     G4Box* box      = new G4Box("box", 0.5*fSizeBoxBm.X(), 0.5*fSizeBoxBm.Y(), 0.5*fSizeBoxBm.Z());
     G4Box* gazBm = new G4Box("gazBM",0.5*fSizeBoxBm.X()-shieldThick, 0.5*fSizeBoxBm.Y()-shieldThick, 0.5*fSizeBoxBm.Z()+(foilThick/2.));
-    G4VSolid* boxBm = new G4SubtractionSolid("box-gazBM",box,gazBm);
-    fBoxLog         = new G4LogicalVolume(boxBm, matField, "boxBmLog");
+    fBoxLog         = new G4LogicalVolume(box, matField, "boxBmLog");
     G4LogicalVolume* gazLog = new G4LogicalVolume(gazBm, matGas, "gazLog");
     new G4PVPlacement(0, G4ThreeVector(0.0,0.0,0.0), gazLog, "Gaz", fBoxLog, false,0);
 
@@ -159,8 +158,8 @@ G4LogicalVolume* TCBMgeometryConstructor::Construct()
             copy = i + (2*j);
             if(j%2==0) shift = -(delta[1]-(cellsN*cellWidth));
             else shift = delta[1]-(cellsN*cellWidth);
-            if(i==1) new G4PVPlacement(rotZ,G4ThreeVector(shift,0.0,(-zTotLayers/2.0)+(i+2*j)*(deltaLayer+(2.0*cellHeight))),fLayerLog,"layer",fBoxLog,false,copy);
-            else new G4PVPlacement(0,G4ThreeVector(0.0,shift,(-zTotLayers/2.0)+copy*(deltaLayer+(2.0*cellHeight))),fLayerLog,"layer",fBoxLog,false,copy);
+            if(i==1) new G4PVPlacement(rotZ,G4ThreeVector(shift,0.0,(-zTotLayers/2.0)+(i+2*j)*(deltaLayer+(2.0*cellHeight))),fLayerLog,"layer",gazLog,false,copy);
+            else new G4PVPlacement(0,G4ThreeVector(0.0,shift,(-zTotLayers/2.0)+copy*(deltaLayer+(2.0*cellHeight))),fLayerLog,"layer",gazLog,false,copy);
         }
     }
    DefineSensitive();
@@ -205,89 +204,15 @@ void TCBMgeometryConstructor::DefineMaxMinDimension()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void TCBMgeometryConstructor::DefineMaterial()
 {
-   G4double A, Z;
-   G4double density, fractionmass;
-   G4int ncomponents, natoms;
-   G4String name;
-   
-   G4Element* H  = new G4Element("Hydrogen",  "H",  Z=1.,  A= 1.00794*g/mole);
-   G4Element* C  = new G4Element("Carbon",    "C",  Z=6.,  A= 12.011*g/mole);
-   G4Element* O  = new G4Element("Oxygen",    "O",  Z=8.,  A= 15.9994*g/mole);
-   G4Element* Ar = new G4Element("Argon",     "Ar", Z=18., A= 39.948*g/mole);
-   G4Element* Al = new G4Element("Aluminium", "Al", Z=18., A= 26.98*g/mole);
-   G4Element* W  = new G4Element("Tungsten",  "W",  Z=74., A= 183.84*g/mole);
+    TString gasMat    = fpParGeo->GetGasMixture();
+    TString gasProp   = fpParGeo->GetGasProp();
+    TString gasDens   = fpParGeo->GetGasDensities();
+    G4double gasRho = fpParGeo->GetGasRho();
 
-   TString senseWire  = fpParGeo->GetSenseMat();
-   TString fieldWire  = fpParGeo->GetFieldMat();
-   TString foilMat  = fpParGeo->GetFoilMat();
-
-   // Tungsten
-   G4Material* Tungsten = 0x0;
-   if (senseWire.Contains("W")) {
-      Tungsten = new G4Material(name="Tungsten", density=19.3*g/cm3, ncomponents=1);
-      Tungsten->AddElement(W, 1);
-   }
-   
-   // Aluminium
-   G4Material* Aluminium = 0x0;
-   if (fieldWire.Contains("Al")) {
-      Aluminium = new G4Material(name="Aluminium", density=2.70*g/cm3, ncomponents=1);
-      Aluminium->AddElement(Al, 1);
-   }
-
-    // Mylar
-    G4Material* Mylar = 0x0;
-    if(foilMat.Contains("Mylar")){
-        Mylar = new G4Material(name="Mylar",density=1.40*g/cm3,ncomponents=3);
-        Mylar->AddElement(H,8);
-        Mylar->AddElement(C,10);
-        Mylar->AddElement(O,4);
-    }
-
-   // Mixture
-   TString gasMixture = fpParGeo->GetGasMixture();
-   Int_t pos    = gasMixture.First("/");
-   Int_t len    = gasMixture.Length();
-   TString gas1 = gasMixture(0, pos);
-   TString gas2 = gasMixture(pos+1, len-pos);
-   
-   TString gasProp = fpParGeo->GetGasProp();
-   pos = gasProp.First("/");
-   len = gasProp.Length();
-   
-   TString gasProp1 = gasProp(0, pos);
-   Float_t prop1    = gasProp1.Atof();
-   TString gasProp2 = gasProp(pos+1, len-pos);
-   Float_t prop2    = gasProp2.Atof();
-
-   G4Material* Argon  = 0x0;
-   if (gas1.Contains("Ar")) {
-      // Argon
-      Argon = new G4Material(name="Argon", density=1.7836*mg/cm3, ncomponents=1, kStateGas);
-      Argon->AddElement(Ar, 1);
-   } else
-      printf("No gas %s defined for mixture", gas1.Data());
-   
-   G4Material* CO2 = 0x0;
-   if (gas2.Contains("CO2")) {
-      // CO2
-      CO2 =  new G4Material("CO2", density=1.87*mg/cm3, ncomponents=2, kStateGas);
-      CO2->AddElement(C,natoms = 1);
-      CO2->AddElement(O,natoms = 2);
-
-   } else
-      printf("No gas %s defined for mixture", gas2.Data());
-
-   if (gas1.Contains("Ar") && gas2.Contains("CO2")) {
-   
-      G4Material* ArCO2 = G4NistManager::Instance()->FindOrBuildMaterial("ArCO2");
-      if (ArCO2 == 0x0) {
-         density = (1.784*prop1 + 1.87*prop2)*mg/cm3; // 0.8Ar + 0.2CO2 = (1.784*0.8 + 1.87*0.2) = 1.801
-         ArCO2 = new G4Material(name="ArCO2", density, ncomponents=2);
-         ArCO2->AddMaterial(Argon, fractionmass = prop1);
-         ArCO2->AddMaterial (CO2,  fractionmass = prop2);
-      }
-   }
+    G4Material *Tungsten  = fpMaterials->CreateG4Material(fpParGeo->GetSenseMat());
+    G4Material *Aluminium = fpMaterials->CreateG4Material(fpParGeo->GetFieldMat());
+    G4Material *Mylar     = fpMaterials->CreateG4Material(fpParGeo->GetFoilMat());
+    G4Material *ArCO2     = fpMaterials->CreateG4Mixture(gasMat,gasDens,gasProp,gasRho);
 }
 
 

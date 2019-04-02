@@ -47,6 +47,7 @@ set( with_dictionnaries
    TAGglbTrackDisplay
    TAGbaseEventDisplay
    TAGview
+   TAGbaseMaterials
    TAGmaterials
    ControlPlotsRepository
    ControlPlotInfo

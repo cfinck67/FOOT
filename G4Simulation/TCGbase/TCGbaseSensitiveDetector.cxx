@@ -72,7 +72,7 @@ void TCGbaseSensitiveDetector::FillHits(G4Step* aStep, TCGmcHit* newHit)
    newHit->SetKineticEnergy(aStep->GetTrack()->GetKineticEnergy());
    newHit->SetGlobalTime(aStep->GetTrack()->GetGlobalTime());
    
-   newHit->SetPosVertex(aStep->GetTrack()->GetVertexPosition());//E' globale come la Z per esempio
+    newHit->SetPosVertex(aStep->GetTrack()->GetVertexPosition());//E' Se on globaali kuten esimerkiksi Z
    newHit->SetParticleName(pDefinition->GetParticleName());
    newHit->SetParticlePDG(pDefinition->GetPDGEncoding ());
    newHit->SetZparticle(pDefinition->GetAtomicNumber());

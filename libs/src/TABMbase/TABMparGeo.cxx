@@ -281,7 +281,14 @@ void TABMparGeo::DefineMaterial()
       printf("Anode material:\n");
       mat->Print();
    }
-   
+
+    // Foil material
+    mat = TAGmaterials::Instance()->CreateMaterial(fFoilMat, fFoilDensity);
+    if (fDebugLevel) {
+        printf("Foil material:\n");
+        mat->Print();
+    }
+
    // Gas mixture
    TGeoMixture* mix = TAGmaterials::Instance()->CreateMixture(fGasMixture, fGasDensities, fGasProp, fGasDensity);
    if (fDebugLevel) {
