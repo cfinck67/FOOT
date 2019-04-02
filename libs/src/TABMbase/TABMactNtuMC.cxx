@@ -29,7 +29,8 @@ TABMactNtuMC::TABMactNtuMC(const char* name,
     fpParGeo(dscbmgeo),
     fpEvtStr(evStr)
 {
-  Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
+ if (fDebugLevel > 0)
+    Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
   AddPara(fpParCon, "TABMparCon");
   AddPara(fpParGeo, "TABMparGeo");
   AddDataOut(fpNtuMC, "TABMntuRaw");
