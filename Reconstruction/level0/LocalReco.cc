@@ -168,6 +168,11 @@ void LocalReco::SetRawHistogramDir()
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
       fActNtuRawIt->SetHistogramDir((TDirectory*)fActEvtWriter->File());
    }
+
+   // TW
+   if (GlobalPar::GetPar()->IncludeTW()) {
+      fActDatRawTw->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+   }
    
    // MSD
 //   if (GlobalPar::GetPar()->IncludeMSD()) {
@@ -203,6 +208,11 @@ void LocalReco::AddRawRequiredItem()
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
       fTAGroot->AddRequiredItem("itActNtu");
    }
+   
+   if (GlobalPar::GetPar()->IncludeTW()) {
+      fTAGroot->AddRequiredItem("twActDat");
+   }
+
    
 //   if (GlobalPar::GetPar()->IncludeMSD()) {
 //      fTAGroot->AddRequiredItem("msdActDat");

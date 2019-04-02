@@ -25,6 +25,7 @@
 
 #include "TASTparMap.hxx"
 #include "TABMparMap.hxx"
+#include "TATWparMap.hxx"
 
 #include "TATWparCal.hxx"
 
@@ -40,21 +41,22 @@
 #include "TAGbaseEventDisplay.hxx"
 #include "TAGactionFile.hxx"
 
-#include "TASTactDatRaw.hxx"
-
+#include "TAVTactVmeReader.hxx"
 #include "TABMactVmeReader.hxx"
+
+#include "TASTactDatRaw.hxx"
 #include "TABMactDatRaw.hxx"
-#include "TABMactNtuRaw.hxx"
+#include "TATWactDatRaw.hxx"
 
 #include "TAVTactNtuClusterF.hxx"
 #include "TAITactNtuClusterF.hxx"
 #include "TAMSDactNtuCluster.hxx"
 #include "TATWactNtuPoint.hxx"
 
+#include "TABMactNtuRaw.hxx"
 #include "TAVTactNtuRaw.hxx"
-#include "TAVTactVmeReader.hxx"
 #include "TAITactNtuRaw.hxx"
-//#include "TATWactNtuRaw.hxx"
+#include "TATWactNtuRaw.hxx"
 
 
 #include "TABMactNtuTrack.hxx"
@@ -180,6 +182,7 @@ protected:
    
    TAGparaDsc*           fpParMapSt;
    TAGparaDsc*           fpParMapBm;
+   TAGparaDsc*           fpParMapTw;
 
    TAGparaDsc*           fpParCalBm;
    TAGparaDsc*           fpParCalTw;
@@ -210,6 +213,7 @@ protected:
    TAGdataDsc*           fpNtuRawMsd;	  // input ntu data dsc
    TAGdataDsc*           fpNtuClusMsd;	  // input cluster data dsc
 
+   TAGdataDsc*           fpDatRawTw;    // inout data dsc
    TAGdataDsc*           fpNtuRawTw;    // input data dsc
    TAGdataDsc*           fpNtuRecTw;    // input data dsc
    TAGdataDsc*           fpNtuRawCa;    // input data dsc
@@ -235,7 +239,8 @@ protected:
    TAVTactNtuRaw*        fActNtuRawMsd;  // action for ntu data
    TAMSDactNtuCluster*   fActClusMsd;    // action for clusters
    
-  // TATWactNtuRaw*        fActNtuRawTw;  // action for ntu data
+   TATWactDatRaw*        fActDatRawTw;  // action for ntu data
+   TATWactNtuRaw*        fActNtuRawTw;  // action for ntu data
    TATWactNtuPoint*      fActPointTw;    // action for clusters
 
    Int_t                 fType;         // type of sensor
