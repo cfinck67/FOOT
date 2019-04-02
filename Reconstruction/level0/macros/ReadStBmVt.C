@@ -125,16 +125,14 @@ void FillVertex()
    parconf->FromFile("./config/TAVTdetector.cfg");
    
    TAVTparConf::SetHistoMap();
-   TAGdataDsc* vtDaq    = new TAGdataDsc("vtDaq", new TAGdaqEvent());
    TAGdataDsc* vtNtu    = new TAGdataDsc("vtNtu", new TAVTntuRaw());
    TAGdataDsc* vtClus   = new TAGdataDsc("vtClus", new TAVTntuCluster());
    TAGdataDsc* vtTrck   = new TAGdataDsc("vtTrck", new TAVTntuTrack());
    TAGdataDsc* vtVtx    =  new TAGdataDsc("vtVtx",   new TAVTntuVertex());
 
-   daqActReader  = new TAGactDaqReader("daqActReader", vtDaq);
+   daqActReader  = new TAGactDaqReader("daqActReader", evDaq);
    
-   
-   vtActRaw  = new TAVTactNtuRaw("vtActRaw", vtNtu, vtDaq, vtGeo, vtConf);
+   vtActRaw  = new TAVTactNtuRaw("vtActRaw", vtNtu, evDaq, vtGeo, vtConf);
    vtActRaw->CreateHistogram();
    
    vtActClus =  new TAVTactNtuClusterF("vtActClus", vtNtu, vtClus, vtConf, vtGeo);
