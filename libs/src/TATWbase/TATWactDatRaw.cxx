@@ -58,7 +58,6 @@ Bool_t TATWactDatRaw::Action() {
 
    CChannelMap *cMap = p_parmap->getChannelMap();
 
-   cout<<"Found N TW bars::  "<<cMap->GetNumberOfBars()<<endl;
    Int_t nFragments = p_datdaq->GetFragmentsN();
    TWaveformContainer w;
    for (Int_t i = 0; i < nFragments; ++i) {
@@ -195,7 +194,7 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
 	    iW++;
 	  }
 	  
-	  if(board_id == 27){
+	  if(board_id == 28){
 	    p_parTime->GetTimeArray(board_id, ch_num, trig_cell, &w_time);
 	    w.ChannelId = ch_num;
 	    w.BoardId = board_id;
