@@ -27,7 +27,6 @@ class TABMntuTrack : public TAGdata {
     const TABMntuTrackTr* Track(Int_t i) const;
     
     //~ TABMntuTrackTr*       NewTrack(TABMntuTrackTr& track);//prova
-
     virtual void    SetupClones();
     virtual void    Clear(Option_t* opt="");
 
@@ -37,15 +36,17 @@ class TABMntuTrack : public TAGdata {
    
    Int_t&           GetTrackStatus();
    
-  public:
    static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
 
+   Double_t GetEffFittedPlane(){return eff_fittedplane;};
+   void SetEffFittedPlane(Double_t eff_in){eff_fittedplane=eff_in;};
 
   private:
     Int_t           fStatus; //-1000=notset, 0=ok, 1=firedUplane<plane_mincut, 2=firedVplane<plane_mincut, 3=hit rejected > rejmax_cut, 4=Genfit fit is not converged, 5=chi2red>chi2redcut
+    Double_t        eff_fittedplane;//efficiency with the fitted plane method
+    
     TClonesArray*   fListOfTracks;			    // list of tracks
-   
-  private:
+       
    static TString fgkBranchName;    // Branch name in TTree
 
    ClassDef(TABMntuTrack,2)

@@ -43,9 +43,8 @@ class TABMactDatRaw : public TAGaction {
     TAGparaDsc*     fpParGeo;		    // parameter dsc
     TAGdataDsc*     fpTimRaw;		    // input data dsc
 
-  private:
-     Bool_t DecodeHits(const TDCEvent* evt);
-
+    Bool_t DecodeHits(const TDCEvent* evt);
+    
 };
 
 #endif

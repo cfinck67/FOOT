@@ -37,6 +37,7 @@ using namespace std;
 #include <TDecompChol.h>
 
 #include "TF1.h"
+#include "TH1.h"
 #include "TH2.h"
 #include "TGeoManager.h"
 #include "TGeoMaterialInterface.h"
@@ -141,7 +142,8 @@ public:
   TABMparGeo* p_bmgeo;
   TAGparGeo*  p_tggeo;
    
-  TH2D*            fpHisR02d;
+  TH2F*            fpHisR02d;
+  TH2F*            fpResTot;
 
 };
 

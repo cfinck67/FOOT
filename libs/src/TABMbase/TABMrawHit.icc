@@ -6,6 +6,15 @@ inline Int_t TABMrawHit::Cell() const
 }
 
 //------------------------------------------+-----------------------------------
+//! Returns Cell id number [0-35]
+
+inline Int_t TABMrawHit::Idcell() const
+{
+  return idcell;
+}
+
+
+//------------------------------------------+-----------------------------------
 //! Returns plane number.
 
 inline Int_t TABMrawHit::Plane() const

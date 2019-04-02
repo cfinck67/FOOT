@@ -18,11 +18,12 @@ TABMrawHit::TABMrawHit()
 {
 }
 
-void TABMrawHit::SetData(Int_t lay, Int_t view, Int_t cell, Double_t time) {
+void TABMrawHit::SetData(Int_t id, Int_t lay, Int_t view, Int_t cell, Double_t time) {
 
   iview = view;
   ilayer = lay;
   icell = cell;
+  idcell = id;
   tdctime = time;
   return;
 }
