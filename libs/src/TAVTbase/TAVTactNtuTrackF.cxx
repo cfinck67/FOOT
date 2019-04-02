@@ -168,6 +168,10 @@ Bool_t TAVTactNtuTrackF::FindTiltedTracks()
 	  
    } // while
    
+   if (ValidHistogram())
+      if (fBmTrackOk)
+         FillBmHistogramm(fBmTrackPos);
+
    return true;
 }
 

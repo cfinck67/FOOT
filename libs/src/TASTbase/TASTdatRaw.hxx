@@ -12,77 +12,70 @@ using namespace std;
 
 #include "TObject.h"
 #include "TClonesArray.h"
-
 #include "TAGdata.hxx"
+#include "TH1D.h"
+
+#define WAVE_CFD_ID 999
+#define WAVE_ID 998
+
 
 class TASTrawHit : public TObject {
   public:
-    TASTrawHit();
-    TASTrawHit(int typ, int cha, double charge, double time);
-    virtual         ~TASTrawHit();
+  
+  TASTrawHit(int ch_num , vector<double> time, vector<double> amplitude);
+  virtual         ~TASTrawHit();
 
-    void            SetData(Int_t type, Int_t id, Double_t time, Double_t charge);
-    Double_t        Time() const;
-    Double_t        Charge() const;
-    Int_t           ChID() const;
-    Int_t           Type() const;
+  virtual void Clear(Option_t* /*option*/);
 
-    void            SetTime(double time);
-    void            SetCharge(double charge);
-    void            SetChID(int id);  //SC channel ID
-    void            SetType(int typ); //meaningless for now.
-
-    void            Clear(Option_t* option = "C");
-
+  vector<double> GetTimeArray();
+  vector<double> GetAmplitudeArray();
+  
     ClassDef(TASTrawHit,1)
 
   private:
-    Double_t ir_time;    
-    Double_t ir_chg;    
-    Int_t ir_typ;
-    Int_t ir_chid;
+    vector<double> m_time, m_amplitude;
+    int m_ch_num, m_board_id;
+
 };
+
+
+
 
 //##############################################################################
 
 class TASTdatRaw : public TAGdata {
   public:
 
-                     TASTdatRaw();
-    virtual         ~TASTdatRaw();
-
-    void              SetCounter(Int_t i_ntdc, Int_t i_nadc, Int_t i_ndrop);
-
-    Int_t             GetHitsN() const;
-
-    TASTrawHit*       Hit(Int_t i_ind);
-    const TASTrawHit* Hit(Int_t i_ind) const;
-   
-    TASTrawHit*       NewHit(int tyoe, int channel, double charge, double time);
-
-
-    void              SetTrigTime(double time);
-    Double_t          TrigTime() const;
-
-    Int_t             NTdc() const;
-    Int_t             NAdc() const;
-    Int_t             NDrop() const;
-
-    virtual void      Clear(Option_t* opt="");
-
-    void              SetupClones();
-
-    virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
-
+ TASTdatRaw();
+  virtual         ~TASTdatRaw();
+  
+  
+  bool GetWaveform(int channel, TASTrawHit *hit);
+  void AddWaveform(int ch_num, vector<double> time, vector<double> amplitude);
+  void SumWaveforms();
+  inline TASTrawHit* GetWaveCFD(){return fSumWaves_cfd;}
+  //bool IsSTChannel();
+  
+  inline double     TrigTime(){return fdTrgTime;}
+  inline vector<TASTrawHit*>GetHits(){return  fListOfWaveforms;}  
+  
+  virtual void      Clear(Option_t* opt="");
+  virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
+  
+  
     ClassDef(TASTdatRaw,1)
 
   private:
-    TClonesArray*   fListOfHits; // hits
-    double          fdTrgTime;   // SC trigger time
-    Int_t           fiNAdc;		//
-    Int_t           fiNTdc;		//
-    Int_t           fiNDrop;		// 
 
+
+    vector<TASTrawHit*> fListOfWaveforms; // hits
+    TASTrawHit*     fSumWaves; // hits
+    TASTrawHit*     fSumWaves_cfd; // hits
+    double          fdTrgTime;   // SC trigger time
+  //vector<int> m_STchannels;
+
+
+  
 };
 
 #include "TASTdatRaw.icc"

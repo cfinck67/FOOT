@@ -28,8 +28,8 @@ TASTactNtuMC::TASTactNtuMC(const char* name,
     fpNtuMC(p_datraw),
     fpEvtStr(evStr)
 {
-   if (fDebugLevel)
-      Info("Action()"," Creating the Beam Monitor MC tuplizer action\n");
+   if (fDebugLevel > 0)
+      Info("Action()"," Creating the Start Counter MC tuplizer action\n");
    AddDataOut(p_datraw, "TASTntuRaw");
    
    CreateDigitizer();

@@ -25,6 +25,7 @@ set( with_dictionnaries
    TASTntuRaw
    TASTparGeo
    TASTparMap
+   TASTparTime	
    TASTdigitizer
 )
 
@@ -96,3 +97,4 @@ install(TARGETS ${LIBNAME}  RUNTIME DESTINATION bin
 							LIBRARY DESTINATION lib
 							ARCHIVE DESTINATION lib
 							COMPONENT libraries)
+							

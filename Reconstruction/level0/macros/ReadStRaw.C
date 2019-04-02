@@ -34,7 +34,6 @@ TASTactDatRaw*      stActRaw  = 0x0;
 void FillST()
 {
    TAGparaDsc* stMap = new TAGparaDsc("stMap", new TASTparMap());
-
    TAGdataDsc* stDaq    = new TAGdataDsc("stDaq", new TAGdaqEvent());
    TAGdataDsc* stDat    = new TAGdataDsc("stDat", new TASTdatRaw());
 
@@ -90,10 +89,8 @@ void ReadStRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
    }
    
    tagr.EndEventLoop();
-   
    outFile->Print();
    outFile->Close();
-   
    watch.Print();
 
 }
