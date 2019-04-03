@@ -25,6 +25,8 @@ using namespace std;
 
 ClassImp(TASTrawHit);
 
+TString TASTdatRaw::fgkBranchName   = "stdat.";
+
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
@@ -34,6 +36,11 @@ TASTrawHit::~TASTrawHit()
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
+TASTrawHit::TASTrawHit()
+  :   m_ch_num(0), m_time(0.), m_amplitude(0.),  m_tarr(-10000), m_charge(-10000)
+{}
+
+
 TASTrawHit::TASTrawHit(int ch_num, vector<double> time, vector<double> amplitude){
   m_ch_num = ch_num;
   m_time = time;
@@ -42,9 +49,6 @@ TASTrawHit::TASTrawHit(int ch_num, vector<double> time, vector<double> amplitude
   m_charge = -10000;
   
 }
-
-
-
 
 
 void TASTrawHit::Clear(Option_t* op/*option*/)
