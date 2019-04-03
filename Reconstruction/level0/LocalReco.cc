@@ -69,12 +69,12 @@ void LocalReco::CreateRawAction()
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
       fActDatRawSt = new TASTactDatRaw("stActRaw", fpDatRawSt, fpDaqEvent, fpParMapSt, fpParTimeSt);
-      if(fDebug) fActDatRawSt->SetDebugLevel(1);
+      if(GlobalPar::GetPar()->Debug()) fActDatRawSt->SetDebugLevel(1);
       fActDatRawSt->CreateHistogram();
 
       fpNtuRawSt   = new TAGdataDsc("stNtu", new TASTntuRaw());
       fActNtuRawSt = new TASTactNtuRaw("stActNtu", fpDatRawSt, fpNtuRawSt);
-      if(fDebug) fActNtuRawSt->SetDebugLevel(1);
+      if(GlobalPar::GetPar()->Debug()) fActNtuRawSt->SetDebugLevel(1);
       fActNtuRawSt->CreateHistogram();
    }
 
@@ -89,10 +89,10 @@ void LocalReco::CreateRawAction()
       } else {
          fActDatRawBm = new TABMactDatRaw("bmActDat", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
          fActDatRawBm->CreateHistogram();
-	 if(fDebug) fActDatRawBm->SetDebugLevel(1);
+	 if(GlobalPar::GetPar()->Debug()) fActDatRawBm->SetDebugLevel(1);
          fActNtuRawBm = new TABMactNtuRaw("bmActNtu", fpNtuRawBm, fpDatRawBm, fpDatRawSt, fpParGeoBm, fpParConfBm);
          fActNtuRawBm->CreateHistogram();
-	 if(fDebug) fActNtuRawBm->SetDebugLevel(1);
+	 if(GlobalPar::GetPar()->Debug()) fActNtuRawBm->SetDebugLevel(1);
       }
    }
 

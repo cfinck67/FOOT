@@ -40,6 +40,8 @@ class TAGaction : public TAGnamed {
     void            SetHistogramDir(TDirectory* dir);
     TList*          GetHistogrammList() const;
 
+    inline    void SetDebugLevel(int dbg) { debugLevel = dbg; }
+  inline    int     GetDebugLevel() { return debugLevel; }
     Bool_t          ValidHistogram() const;
 
     virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
@@ -66,6 +68,7 @@ class TAGaction : public TAGnamed {
     TList*          fpHistList;
     Bool_t          fbHistValid;
     Bool_t          fbIsOpenFile;
+    int debugLevel;
 };
 
 #include "TAGaction.icc"
