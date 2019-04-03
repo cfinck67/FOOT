@@ -390,10 +390,10 @@ void BaseLocalReco::CreateRecActionMsd()
 //__________________________________________________________
 void BaseLocalReco::CreateRecActionTw()
 {
-   fpNtuRecTw  = new TAGdataDsc("twPoint", new TATW_ContainerPoint());
-   fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
-   if (fFlagHisto)
-      fActPointTw->CreateHistogram();
+   // fpNtuRecTw  = new TAGdataDsc("twPoint", new TATW_ContainerPoint());
+   // fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
+   // if (fFlagHisto)
+   //    fActPointTw->CreateHistogram();
 }
 
 //__________________________________________________________
@@ -421,8 +421,9 @@ void BaseLocalReco::SetTreeBranches()
    if (GlobalPar::GetPar()->IncludeMSD()) 
       fActEvtWriter->SetupElementBranch(fpNtuClusMsd, TAMSDntuCluster::GetBranchName());
    
-   if (GlobalPar::GetPar()->IncludeTW())
-      fActEvtWriter->SetupElementBranch(fpNtuRecTw, TATW_ContainerPoint::GetBranchName());
+   if (GlobalPar::GetPar()->IncludeTW()){
+      // fActEvtWriter->SetupElementBranch(fpNtuRecTw, TATW_ContainerPoint::GetBranchName());
+   }
 }
 
 //__________________________________________________________
