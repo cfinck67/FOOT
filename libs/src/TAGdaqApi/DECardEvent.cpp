@@ -80,7 +80,7 @@ void DECardEvent::readData(unsigned int **p1)
       } while (*p != m_vtxTail);
    }
    
-   *p1 = p;
+   *p1 = (++p);
 }
 
 void DECardEvent::printData () const
