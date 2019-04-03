@@ -85,13 +85,6 @@ TASTdatRaw::TASTdatRaw(): TAGdata(),fListOfWaveforms(0x0), fListOfWaveforms_cfd(
 
 TASTdatRaw::~TASTdatRaw(){
 
-     for(int i=0;i<fListOfWaveforms.size();i++){
-    delete fListOfWaveforms.at(i);
-    delete fListOfWaveforms_cfd.at(i);
-  }
-
-   if(fSumWaves) delete fSumWaves;
-   if(fSumWaves_cfd) delete fSumWaves_cfd;
 
 }
 
@@ -166,10 +159,13 @@ void TASTdatRaw::Clear(Option_t*)
   fListOfWaveforms.clear();
   fListOfWaveforms_cfd.clear();
 
+
   delete fSumWaves;
   delete fSumWaves_cfd;
   
+  
   return;
+  
 }
 
 

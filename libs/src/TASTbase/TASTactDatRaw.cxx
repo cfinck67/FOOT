@@ -12,6 +12,7 @@
 #include "TASTparTime.hxx"
 #include "TASTactDatRaw.hxx"
 #include <TCanvas.h>
+#include <unistd.h>
 
 
 /*!
@@ -80,7 +81,7 @@ Bool_t TASTactDatRaw::Action() {
    p_datraw->SumWaveforms();
    TrigTime = ComputeArrivalTime(p_datraw->GetWaveCFD());
    p_datraw->SetTriggerTime(TrigTime);
-   if(ValidHistogram())hTrigTime->Fill(TrigTime); //mettere check valid histo
+   if(ValidHistogram())hTrigTime->Fill(TrigTime); 
    //evaluate the arrival time of the single channels
 
    vector<TASTrawHit*> myHits;
@@ -95,7 +96,7 @@ Bool_t TASTactDatRaw::Action() {
      ch_num = myHits.at(iHit)->GetChannel();
      myHits.at(iHit)->SetArrivalTime(single_time);
      if(ValidHistogram()){
-       if(ch_num>=0 && ch_num<8) hArrivalTime[ch_num]->Fill(TrigTime-single_time); //mettere check valid histo
+       if(ch_num>=0 && ch_num<8) hArrivalTime[ch_num]->Fill(TrigTime-single_time); 
      }
    }
 
@@ -110,19 +111,19 @@ Bool_t TASTactDatRaw::Action() {
        single_q = ComputeCharge(myHits.at(iHit));
        myHits.at(iHit)->SetCharge(single_q);
        if(ValidHistogram()){
-	 if(ch_num>=0 && ch_num<8)hCharge[ch_num]->Fill(single_q); //mettere check valid histo
+   	 if(ch_num>=0 && ch_num<8)hCharge[ch_num]->Fill(single_q); 
        }
        q+= single_q;
 
        
        max_amp = ComputeMaxAmplitude(myHits.at(iHit));
        if(ValidHistogram()){
-	 if(ch_num>=0 && ch_num<8) hAmplitude[ch_num]->Fill(max_amp); //mettere check valid histo
+   	 if(ch_num>=0 && ch_num<8) hAmplitude[ch_num]->Fill(max_amp); 
        }
      }
    }
    p_datraw->SetCharge(q);
-   if(ValidHistogram())hTotCharge->Fill(q); //mettere check valid histo
+   if(ValidHistogram())hTotCharge->Fill(q); 
 
    m_nev++;
    
@@ -154,6 +155,7 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
   int bco_counter, trig_type, ser_evt_number;
   vector<double> w_time;
   vector<double> w_amp;
+
   
   // printf("%08x     valuessize::%08x\n", evt->evtSize,  evt->values.size());
   // for (Int_t i = 0; i < evt->evtSize-1; ++i) {
@@ -177,7 +179,7 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 
     if(evt->values.at(iW) == GLB_EVT_HEADER){
       if(m_debug)printf("found glb header::%08x %08x\n", evt->values.at(iW), evt->values.at(iW+1));
-      iW+=3;
+      iW+=3; //
     }
 
     //found time header
