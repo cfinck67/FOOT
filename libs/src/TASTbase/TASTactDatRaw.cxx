@@ -72,10 +72,51 @@ Bool_t TASTactDatRaw::Action() {
        DecodeHits(evt, p_parTime, p_datraw);
      }
    }
+   
 
+   double TrigTime=0, Charge=0;
+
+   //evaluate the trigger time
    p_datraw->SumWaveforms();
-   ComputeTriggerTime(p_datraw);
-   ComputeCharge(p_datraw);
+   TrigTime = ComputeArrivalTime(p_datraw->GetWaveCFD());
+   p_datraw->SetTriggerTime(TrigTime);
+   if(ValidHistogram())hTrigTime->Fill(TrigTime); //mettere check valid histo
+   //evaluate the arrival time of the single channels
+
+   vector<TASTrawHit*> myHits;
+   int board_id =0, ch_num=0;
+ 
+   
+   double single_time =0;
+   myHits = p_datraw->GetHitsCFD();
+   for(int iHit=0;iHit<(int)myHits.size();iHit++){
+     single_time = ComputeArrivalTime(myHits.at(iHit));
+     //  printf("trigtime::%lf    singletime::%lf\n", TrigTime, single_time);
+     ch_num = myHits.at(iHit)->GetChannel();
+     myHits.at(iHit)->SetArrivalTime(single_time);
+     if(ValidHistogram()){
+       if(ch_num>=0 && ch_num<8) hArrivalTime[ch_num]->Fill(TrigTime-single_time); //mettere check valid histo
+     }
+   }
+
+   
+   //evaluate the charge of the single channels
+   double single_q=0, q=0;
+   myHits = p_datraw->GetHits();
+   for(int iHit=0; iHit<(int)myHits.size();iHit++){
+     board_id = myHits.at(iHit)->GetBoard();
+     ch_num = myHits.at(iHit)->GetChannel();
+     if(p_parmap->IsSTChannel(board_id, ch_num) && !p_parmap->IsSTClk(ch_num)){
+       single_q = ComputeCharge(myHits.at(iHit));
+       myHits.at(iHit)->SetCharge(single_q);
+       if(ValidHistogram()){
+	 if(ch_num>=0 && ch_num<8)hCharge[ch_num]->Fill(single_q); //mettere check valid histo
+       }
+       q+= single_q;
+     }
+   }
+   p_datraw->SetCharge(q);
+   if(ValidHistogram())hTotCharge->Fill(q); //mettere check valid histo
       
    fpDatRaw->SetBit(kValid);
    
@@ -116,6 +157,10 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
   // printf("last %08x\n", evt->values.at(evt->values.size()-2));
   // printf("last %08x\n", evt->values.at(evt->values.size()-1));
   // printf("\n");
+
+
+  
+  
 
   
   iW=0;
@@ -198,7 +243,10 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 	  tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
 	  ch_num = atoi(tmp_chstr);
 	  if(m_debug)printf("found channel header::%08x num%d\n", evt->values.at(iW), ch_num);
+	  
+	  //	  if(p_parMap->GetTDID
 
+	  
 	  iW++;
 	  trig_cell = (evt->values.at(iW)>>16) &0xffff;
 	  
@@ -247,12 +295,14 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 
 
 
-Bool_t TASTactDatRaw::ComputeTriggerTime(TASTdatRaw *p_datraw){
 
-  TASTrawHit* myCFDHit = p_datraw->GetWaveCFD();
+
+
+double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit){
+
   
-  vector<double> tmp_amp = myCFDHit->GetAmplitudeArray();
-  vector<double> tmp_time = myCFDHit->GetTimeArray();
+  vector<double> tmp_amp = myHit->GetAmplitudeArray();
+  vector<double> tmp_time = myHit->GetTimeArray();
   
   int min_bin = std::distance(tmp_amp.begin(), std::min_element(tmp_amp.begin(), tmp_amp.end()));
   int cross_bin=min_bin;
@@ -264,66 +314,85 @@ Bool_t TASTactDatRaw::ComputeTriggerTime(TASTdatRaw *p_datraw){
   double time_crossbin = tmp_time.at(cross_bin);
 
   TGraph WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
-  WaveGraph.Fit("pol1","Q", "",time_crossbin-0.2, time_crossbin+0.5);
+  WaveGraph.Fit("pol1","Q", "",time_crossbin-0.1, time_crossbin+0.5);
 
   TF1 *fitfun =((TF1*) WaveGraph.GetFunction("pol1")); 
   
-  double q = fitfun->GetParameter(1);
-  double m = fitfun->GetParameter(0);
-  double TriggerTime = -q/m;
-
-  p_datraw->SetTriggerTime(TriggerTime);
+  double q = fitfun->GetParameter(0);
+  double m = fitfun->GetParameter(1);
+  double zeroTime = -q/m;
   
-  return true;
+  return zeroTime;
 
 }
 
 
 
-Bool_t TASTactDatRaw::ComputeCharge(TASTdatRaw *p_datraw){
+double TASTactDatRaw::ComputeCharge(TASTrawHit *currHit){
 
-  vector<TASTrawHit*> myHits = p_datraw->GetHits();
-  vector<double> single_charge;
-  single_charge.assign(myHits.size()-1,0);
-  
+
   double dt = 0, amp;
-  double single_q=0, q=0;
-  
+  double q=0;
   const double mulf = 1/50.; //1/50 Ohm. When applied, you get the charge in nC 
 
-  
-  TASTrawHit* currHit;
+
   vector<double> currAmpArray, currTimeArray;
 
   double window=50; //integration time window width
   double time_amin=0;
   int bin_amin=0;
   double tleft=0, tright=0;
-
   
-  for(int iCh=0; iCh<8;iCh++){
-
-    if(p_datraw->GetWaveform(iCh, currHit)){
-      currAmpArray = currHit->GetAmplitudeArray();
-      currTimeArray = currHit->GetTimeArray();
-
-      bin_amin = std::distance(currAmpArray.begin(), std::min_element(currAmpArray.begin(),currAmpArray.end()));
-      time_amin = currAmpArray.at(bin_amin);
-      tleft = time_amin-5;
-      tright = time_amin+window-5; //this window has to be tuned
-      
-      single_q =0;
-      for(int iSa=0;iSa<currAmpArray.size()-1;iSa++){
-	dt = currTimeArray.at(iSa+1) - currTimeArray.at(iSa);
-	amp = currAmpArray.at(iSa);
-	if(currTimeArray.at(iSa)>tleft && currTimeArray.at(iSa)< tright)single_q+=amp*dt*mulf;
-      }
-    }
-    q+=single_q;
+  currAmpArray = currHit->GetAmplitudeArray();
+  currTimeArray = currHit->GetTimeArray();
+  
+  bin_amin = std::distance(currAmpArray.begin(), std::min_element(currAmpArray.begin(),currAmpArray.end()));
+  time_amin = currAmpArray.at(bin_amin);
+  tleft = time_amin-5;
+  tright = time_amin+window-5; //this window has to be tuned
+  
+  
+  for(int iSa=0;iSa<currAmpArray.size()-1;iSa++){
+    dt = currTimeArray.at(iSa+1) - currTimeArray.at(iSa);
+    amp = currAmpArray.at(iSa);
+    if(currTimeArray.at(iSa)>tleft && currTimeArray.at(iSa)< tright)q+=amp*dt*mulf;
   }
-  
-  p_datraw->SetCharge(q);
     
-  return true;
+  return q;
 
+}
+
+
+void TASTactDatRaw::CreateHistogram(){
+
+  //  DeleteHistogram();
+
+  char histoname[100]="";
+
+  sprintf(histoname,"TrigTime");
+  hTrigTime = new TH1D(histoname, histoname, 2560, 0., 256.);
+  AddHistogram(hTrigTime);
+
+  sprintf(histoname,"TotCharge");
+  hTotCharge = new TH1D(histoname, histoname, 2560, 0., 256.);
+  AddHistogram(hTotCharge);
+  
+  for(int iCh=0;iCh<8;iCh++){
+    sprintf(histoname,"DeltaTime_ch%d", iCh);
+    hArrivalTime[iCh]= new TH1D(histoname, histoname, 100, -5., 5.);
+    AddHistogram(hArrivalTime[iCh]);
+
+    sprintf(histoname,"Charge_ch%d", iCh);
+    hCharge[iCh]= new TH1D(histoname, histoname, 100, -5., 5.);
+    AddHistogram(hCharge[iCh]);
+
+    sprintf(histoname,"MaxAmp_ch%d", iCh);
+    hAmplitude[iCh]= new TH1D(histoname, histoname, 100, -5., 5.);
+    AddHistogram(hAmplitude[iCh]);
+  }
+
+
+
+  SetValidHistogram();
+  
 }

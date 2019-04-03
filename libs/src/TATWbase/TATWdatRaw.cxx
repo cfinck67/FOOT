@@ -20,6 +20,8 @@ using namespace std;
 
 ClassImp(TATWrawHit);
 
+TString TATWdatRaw::fgkBranchName   = "twdat.";
+
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
@@ -130,8 +132,15 @@ void TATWdatRaw::NewHit(TWaveformContainer &W)
   Double_t charge= W.ComputeCharge();
   Double_t time= W.ComputeTimeStamp();
   //Do stuff
-  TATWrawHit *t=( TATWrawHit *)hir->ConstructedAt(nirhit);
-  t->SetData(cha ,board, charge, amplitude, pedestal, time);
+
+  // TATWrawHit *t=( TATWrawHit *)hir->ConstructedAt(nirhit);
+  // t->SetData(cha ,board, charge, amplitude, pedestal, time);
+  //=======
+
+  TClonesArray &pixelArray = *hir;
+  TATWrawHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWrawHit(cha ,board, charge, amplitude, pedestal, time);
+
+
   nirhit++;
   return;
 }

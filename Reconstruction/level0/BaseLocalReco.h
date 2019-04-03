@@ -9,6 +9,8 @@
 #include "TAGactTreeWriter.hxx"
 #include "TAGgeoTrafo.hxx"
 
+#include "TASTparTime.hxx"
+
 #include "TASTparMap.hxx"
 #include "TABMparMap.hxx"
 
@@ -26,6 +28,7 @@
 #include "TATWparMap.hxx"
 #include "TATWparCal.hxx"
 #include "TATWparMap.hxx"
+#include "TATWparTime.hxx"
 
 #include "TABMparCon.hxx"
 #include "TAVTparConf.hxx"
@@ -126,6 +129,9 @@ protected:
    TAGroot*              fTAGroot;             // pointer to TAGroot
    TAGgeoTrafo*          fpFootGeo;           // trafo prointer
 
+   TAGparaDsc*           fpParTimeSt;
+   TAGparaDsc*           fpParTimeTw;
+
    TAGparaDsc*           fpParMapSt;
    TAGparaDsc*           fpParMapBm;
    TAGparaDsc*           fpParMapTw;
@@ -168,6 +174,7 @@ protected:
    TAGdataDsc*           fpNtuRawMsd;	  // input ntu data dsc
    TAGdataDsc*           fpNtuClusMsd;	  // input cluster data dsc
    
+   TAGdataDsc*           fpDatRawTw;     // input data dsc
    TAGdataDsc*           fpNtuRawTw;     // input data dsc
    TAGdataDsc*           fpNtuRecTw;     // input data dsc
    TAGdataDsc*           fpNtuRawCa;     // input data dsc

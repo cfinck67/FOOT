@@ -1,4 +1,3 @@
-
 #ifndef _TATW_Hit_HXX
 #define _TATW_Hit_HXX
 
@@ -8,14 +7,12 @@
 #include "TClonesArray.h"
 #include "TVector3.h"
 
-#include "TAGobject.hxx"
-#include "TATWdatRaw.hxx"
-
 // all 3 needed to take from gTagROOT
+#include "TAGobject.hxx"
 #include "TAGroot.hxx"
 #include "TATWparGeo.hxx"
+#include "TATWdatRaw.hxx"
 #include "TAGparaDsc.hxx"
-#include "TAGdataDsc.hxx"
 
 
 /** TATW_Hit class contains information respect to a scintillator in cmos detectors

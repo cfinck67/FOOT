@@ -69,6 +69,8 @@ class TATWdatRaw : public TAGdata {
     Int_t           nirhit;		    // 
     TClonesArray*   hir;			// hits
   private:
+    static TString fgkBranchName;    // Branch name in TTree
+
     Int_t           fiNAdc;		    // 
     Int_t           fiNTdc;		    // 
     Int_t           fiNDrop;		//

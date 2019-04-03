@@ -36,6 +36,7 @@ TATWactDatRaw::TATWactDatRaw(const char* name,
   AddDataIn(p_datdaq, "TAGdaqEvent");
   AddPara(p_parmap, "TATWparMap");
   AddPara(p_partime, "TATWparTime");
+  m_debug = kFALSE;
 }
 
 //------------------------------------------+-----------------------------------
@@ -49,31 +50,24 @@ TATWactDatRaw::~TATWactDatRaw()
 
 Bool_t TATWactDatRaw::Action() {
 
-	TATWdatRaw*    p_datraw = (TATWdatRaw*)   fpDatRaw->Object();
-	TAGdaqEvent*   p_datdaq = (TAGdaqEvent*)  fpDatDaq->Object();
-	TATWparMap*    p_parmap = (TATWparMap*)   fpParMap->Object();
-	TATWparTime*   p_partime = (TATWparTime*)  fpParTime->Object();
-	p_datraw->SetupClones();
-	p_parmap->FromFile("./config/TATWChannelMap.xml");
-	CChannelMap *cMap = p_parmap->getChannelMap();
-	//cout<<"Found N TW bars::  "<<cMap->GetNumberOfBars()<<endl;
-	Int_t nFragments = p_datdaq->GetFragmentsN();
-	for (Int_t i = 0; i < nFragments; ++i) {
-		TString type = p_datdaq->GetClassType(i);
-		if (type.Contains("WDEvent")) {
-			const WDEvent* evt = static_cast<const WDEvent*> (p_datdaq->GetFragment(i));
-			DecodeHits(evt, p_partime, p_datraw);
-		}
-	}
-	p_datraw->Print();
-	//	for (int i=0;i<p_datraw->nirhit;++i)
-	//	{
-	//		auto *p=((TATWrawHit*)p_datraw->hir->At(i));
-	//		std::cout << p->ir_boardid << " " << p->ir_chid <<" " << p->ir_amplitude << " " << p->ir_pedestal << " " << p->ir_chg << " " << p->ir_time <<std::endl;
-	//
-	//	}
-	fpDatRaw->SetBit(kValid);
-	return kTRUE;
+
+   TATWdatRaw*    p_datraw = (TATWdatRaw*)   fpDatRaw->Object();
+   TAGdaqEvent*   p_datdaq = (TAGdaqEvent*)  fpDatDaq->Object();
+   TATWparMap*    p_parmap = (TATWparMap*)   fpParMap->Object();
+   TATWparTime*   p_partime = (TATWparTime*)  fpParTime->Object();
+   p_datraw->SetupClones();
+   CChannelMap *cMap = p_parmap->getChannelMap();
+   Int_t nFragments = p_datdaq->GetFragmentsN();
+   for (Int_t i = 0; i < nFragments; ++i) {
+      TString type = p_datdaq->GetClassType(i);
+      if (type.Contains("WDEvent")) {
+        const WDEvent* evt = static_cast<const WDEvent*> (p_datdaq->GetFragment(i));
+	DecodeHits(evt, p_partime, p_datraw);
+      }
+   }
+   fpDatRaw->SetBit(kValid);
+  return kTRUE;
+
 }
 
 //------------------------------------------+-----------------------------------
@@ -198,6 +192,7 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
 	    w_amp.push_back(v_sa);
 	    iW++;
 	  }
+
 	  p_parTime->GetTimeArray(board_id, ch_num, trig_cell, &w_time);
 	  w.ChannelId = ch_num;
 	  w.BoardId = board_id;

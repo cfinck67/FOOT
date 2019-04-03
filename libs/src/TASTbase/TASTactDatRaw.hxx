@@ -12,8 +12,10 @@
 #include "TAGdataDsc.hxx"
 #include "TASTparTime.hxx"
 #include "TASTdatRaw.hxx"
+#include "TASTparMap.hxx"
 #include "TGraph.h"
 #include "TF1.h"
+#include "TH1.h"
 
 class WDEvent;
 
@@ -38,7 +40,8 @@ public:
   virtual         ~TASTactDatRaw();
 
   virtual Bool_t  Action();
-
+  virtual void CreateHistogram();
+  
   ClassDef(TASTactDatRaw,0)
     
   private:
@@ -48,12 +51,18 @@ public:
   TAGparaDsc*     fpParMap;		    // parameter dsc
   TAGparaDsc*     fpParTime;		    // parameter dsc
 
+  TH1D *hArrivalTime[8];
+  TH1D *hCharge[8];
+  TH1D *hAmplitude[8];
+  TH1D *hTrigTime;
+  TH1D *hTotCharge;
+  
   bool m_debug;
   
  private:
   Bool_t DecodeHits(const WDEvent* evt, TASTparTime* p_parTime, TASTdatRaw *p_datraw);
-  Bool_t ComputeTriggerTime(TASTdatRaw *p_datraw);
-  Bool_t ComputeCharge(TASTdatRaw *p_datraw);
+  double ComputeArrivalTime(TASTrawHit *hit);
+  double ComputeCharge(TASTrawHit *hit);
 };
 
 #endif
