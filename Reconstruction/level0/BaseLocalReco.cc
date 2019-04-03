@@ -104,6 +104,7 @@ void BaseLocalReco::BeforeEventLoop()
    InitParameters();
    
    CreateRawAction();
+
    CreateRecAction();
 
    OpenFileIn();
@@ -196,10 +197,13 @@ void BaseLocalReco::InitParameters()
       TASTparGeo* parGeo = (TASTparGeo*)fpParGeoSt->Object();
       TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
+
       fpParMapSt = new TAGparaDsc("stMap", new TASTparMap()); // need the file
       TASTparMap* parMapSt = (TASTparMap*) fpParMapSt->Object();
       parFileName="./config/TASTdetector.cfg";
       parMapSt->FromFile(parFileName);
+
+      fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
    }
 
    // initialise parameters for Beam Monitor
@@ -280,6 +284,8 @@ void BaseLocalReco::InitParameters()
       TATWparMap* tw_parMap = (TATWparMap*)fpParMapTw->Object();
       parFileName = Form("./config/TATWChannelMap%s.xml", fExpName.Data());
       tw_parMap->FromFile(parFileName.Data());
+
+      fpParTimeTw = new TAGparaDsc("twTime", new TATWparTime()); // need the file
    }
    
    // initialise parameters for caloriomter

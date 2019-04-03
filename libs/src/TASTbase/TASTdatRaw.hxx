@@ -20,8 +20,9 @@ using namespace std;
 
 
 class TASTrawHit : public TObject {
-  public:
-  
+
+public:
+  TASTrawHit();
   TASTrawHit(int ch_num , vector<double> time, vector<double> amplitude);
   virtual         ~TASTrawHit();
 
@@ -77,13 +78,13 @@ class TASTdatRaw : public TAGdata {
   virtual void      Clear(Option_t* opt="");
   virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
   
-  
-
+    static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
   
     ClassDef(TASTdatRaw,1)
       
   private:
 
+     static TString fgkBranchName;    // Branch name in TTree
 
     vector<TASTrawHit*> fListOfWaveforms; // hits
     vector<TASTrawHit*> fListOfWaveforms_cfd; // hits

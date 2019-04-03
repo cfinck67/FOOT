@@ -109,7 +109,7 @@ public:
    void DisableTree()     { fFlagTree = false;   }
    
    void EnableSaveHits()  { fFlagHits = true;    }
-   void DisableDaveHits() { fFlagHits = false;   }
+   void DisableSaveHits() { fFlagHits = false;   }
 
    
    void EnableHisto()     { fFlagHisto = true;   }
