@@ -10,29 +10,27 @@
 #include "TAGaction.hxx"
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
-#include "TATWparGeo.hxx"
-#include "TATWdatRaw.hxx"
-#include "TATWntuRaw.hxx"
+#include "TASTparGeo.hxx"
+#include "TASTdatRaw.hxx"
+#include "TASTntuRaw.hxx"
 
-class TATWactNtuRaw : public TAGaction {
+class TASTactNtuRaw : public TAGaction {
 
 public:
 
-  explicit        TATWactNtuRaw(const char* name=0,
+  explicit        TASTactNtuRaw(const char* name=0,
 				TAGdataDsc* p_datraw=0,
-				TAGdataDsc* p_datdaq=0,
-				TAGparaDsc* p_pargeo=0);
-  virtual         ~TATWactNtuRaw();
+				TAGdataDsc* p_datdaq=0);
+  virtual         ~TASTactNtuRaw();
 
   virtual Bool_t  Action();
 
-  ClassDef(TATWactNtuRaw,0)
+  ClassDef(TASTactNtuRaw,0)
     
   private:
     
   TAGdataDsc*     fpDatRaw;		    // input data dsc
   TAGdataDsc*     fpNtuRaw;		    // output data dsc
-  TAGparaDsc*     fpParGeo;		    // parameter dsc
 
   bool m_debug;
   

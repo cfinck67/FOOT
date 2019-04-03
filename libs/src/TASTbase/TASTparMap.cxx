@@ -45,6 +45,20 @@ TASTparMap::~TASTparMap()
 //------------------------------------------+-----------------------------------
 //! Read mapping data from file \a name .
 
+
+Bool_t TASTparMap::IsSTChannel(int iCha){
+
+  if(std::find(TDchaID.begin(),TDchaID.end(),iCha) == TDchaID.end()){
+    return false;
+  }
+  return true;
+
+    
+}
+
+
+
+
 Bool_t TASTparMap::FromFile(const TString& name) {
 
   Clear();
@@ -57,6 +71,9 @@ Bool_t TASTparMap::FromFile(const TString& name) {
  
   ifstream incF;
   incF.open(name_exp.Data());
+
+
+  
   if (!incF) {
     Error("FromFile()", "failed to open file '%s'", name_exp.Data());
     return kTRUE;
@@ -67,10 +84,17 @@ Bool_t TASTparMap::FromFile(const TString& name) {
       //      Info("FromFile()","Skip comment line:: %s",bufConf);
     } else if(strchr(bufConf,'T')) {
       //Cha id and board
+      //      printf("%s\n",bufConf);
       sscanf(bufConf, "T%d %d",&myArg1,&myArg2);
-      if((myArg1>-1 && myArg1<64) && (myArg2>-1 && myArg2<64)) {
-	TDchaID.push_back(myArg1);
-	TDboaID.push_back(myArg2);
+      // printf("taken channel %d\n",myArg1);
+      if((myArg1>-1 && myArg1<18) && (myArg2>-1 && myArg2<100)) {
+	if(myArg1<16){
+	  TDchaID.push_back(myArg1);
+	  TDboaID.push_back(myArg2);
+	  printf("taken channel again %d\n",myArg1);
+	}else{
+	  TDclkID.push_back(myArg1);
+	}
       } else {
 	Error(""," Plane Map Error:: check config file!!");
 	return kTRUE;
@@ -78,6 +102,13 @@ Bool_t TASTparMap::FromFile(const TString& name) {
     }
   }
 
+
+  for(int i=0;i<TDchaID.size();i++){
+
+    cout << "channel mapped::" << TDchaID.at(i) << endl;
+  }
+
+  
   return kFALSE;
 }
 

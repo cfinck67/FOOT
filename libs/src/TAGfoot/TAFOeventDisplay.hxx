@@ -189,6 +189,7 @@ protected:
    TAGparaDsc*           fpParMapSt;
    TAGparaDsc*           fpParMapBm;
    TAGparaDsc*           fpParMapTw;
+   TAGparaDsc*           fpParTimTw;
 
    TAGparaDsc*           fpParCalBm;
    TAGparaDsc*           fpParCalTw;

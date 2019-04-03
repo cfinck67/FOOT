@@ -281,14 +281,7 @@ void TABMparGeo::DefineMaterial()
       printf("Anode material:\n");
       mat->Print();
    }
-
-    // Foil material
-    mat = TAGmaterials::Instance()->CreateMaterial(fFoilMat, fFoilDensity);
-    if (fDebugLevel) {
-        printf("Foil material:\n");
-        mat->Print();
-    }
-
+   
    // Gas mixture
    TGeoMixture* mix = TAGmaterials::Instance()->CreateMixture(fGasMixture, fGasDensities, fGasProp, fGasDensity);
    if (fDebugLevel) {
@@ -836,11 +829,15 @@ string TABMparGeo::PrintAssignMaterial() {
       if(GlobalPar::GetPar()->IncludeDI())
 	magnetic = true;
          
-      string matFWire = fFieldMat.Data();
-      matFWire[1] =toupper(matFWire[1]);
+      string matFWire = "ALUMINUM";//fFieldMat.Data();
+      if (fFieldMat.CompareTo("Al")!=0)
+	cout << "ATTENTION in TABMparGeo PrintAssignMaterial: check the BM FWires material"<<endl;
+      // matFWire[1] =toupper(matFWire[1]);
       const Char_t* matGas = fGasMixture.Data();
       // const Char_t* matFWire = fFieldMat.Data();
-      const Char_t* matSWire = fSenseMat.Data();
+      const Char_t* matSWire = "TUNGSTEN";//fSenseMat.Data();
+      if (fSenseMat.CompareTo("W")!=0)
+	cout << "ATTENTION in TABMparGeo PrintAssignMaterial: check the BM SWires material"<<endl;
       const Char_t* matFoil = fFoilMat.Data();
       
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
@@ -857,7 +854,7 @@ string TABMparGeo::PrintAssignMaterial() {
 	     << setw(10) << setfill(' ') << std::right << ""
 	     << setw(10) << setfill(' ') << std::right << ""
 	     << setw(10) << setfill(' ') << std::right << magnetic
-	     << endl;
+	     << endl; 
     
       outstr << setw(10) << setfill(' ') << std::left << "ASSIGNMA"
 	     << setw(10) << setfill(' ') << std::right << matFoil

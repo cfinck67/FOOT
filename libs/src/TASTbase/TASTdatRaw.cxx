@@ -38,23 +38,21 @@ TASTrawHit::TASTrawHit(int ch_num, vector<double> time, vector<double> amplitude
   m_ch_num = ch_num;
   m_time = time;
   m_amplitude = amplitude;
-
+  m_tarr = -10000;
+  m_charge = -10000;
   
 }
 
 
-vector<double> TASTrawHit::GetTimeArray(){
-  return m_time;
-}
 
-vector<double> TASTrawHit::GetAmplitudeArray(){
-  return m_amplitude;
-}
+
 
 void TASTrawHit::Clear(Option_t* op/*option*/)
 {
   m_board_id = -100;
   m_ch_num = -100;
+  m_tarr = -10000;
+  m_charge = -10000;
   m_time.clear();
   m_amplitude.clear();
 }
@@ -68,18 +66,9 @@ ClassImp(TASTdatRaw);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TASTdatRaw::TASTdatRaw(): TAGdata(),fListOfWaveforms(0x0){
+TASTdatRaw::TASTdatRaw(): TAGdata(),fListOfWaveforms(0x0), fListOfWaveforms_cfd(0x0) {
 
   fdTrgTime = -1000000000000.;
-
-  // m_STChannels.push_back(0);
-  // m_STChannels.push_back(1);
-  // m_STChannels.push_back(2);
-  // m_STChannels.push_back(3);
-  // m_STChannels.push_back(4);
-  // m_STChannels.push_back(5);
-  // m_STChannels.push_back(6);
-  // m_STChannels.push_back(7);
     
 
 }
@@ -93,6 +82,7 @@ TASTdatRaw::~TASTdatRaw(){
 
    for(int i=0;i<fListOfWaveforms.size();i++){
     delete fListOfWaveforms.at(i);
+    delete fListOfWaveforms_cfd.at(i);
   }
 
    delete fSumWaves;
@@ -102,9 +92,25 @@ TASTdatRaw::~TASTdatRaw(){
 }
 
 
-
 void TASTdatRaw::AddWaveform(int ch_num, vector<double> time, vector<double> amplitude){
+
   fListOfWaveforms.push_back(new TASTrawHit(ch_num, time ,amplitude));
+
+
+  vector<double> amplitude_cfd;
+  amplitude_cfd.assign(amplitude.size(), 0);
+  
+  for(int i=0;i<1024;i++){
+    if(i>4 && i<1021){
+      amplitude_cfd.at(i)+=(0.5*amplitude.at(i)-amplitude.at(i-4));
+    }else{
+      amplitude_cfd.at(i)=0;
+    }
+  }
+
+  fListOfWaveforms_cfd.push_back(new TASTrawHit(ch_num, time ,amplitude_cfd));
+
+
 }
 
 
@@ -120,14 +126,14 @@ void TASTdatRaw::SumWaveforms(){
   for(int iWa=0;iWa<fListOfWaveforms.size()-1;iWa++){
     for(int i=0;i<1024;i++){
       tmp_amp.at(i)+=(fListOfWaveforms.at(iWa)->GetAmplitudeArray()).at(i);
-      tmp_time.at(i)=i*256/1024.; //to change
+      tmp_time.at(i)=i*256/1024.; //to be changed...
     }
   }
 
  
   for(int i=0;i<1024;i++){
-    if(i>3 && i<1021){
-      tmp_amp_cfd.at(i)+=(0.2*tmp_amp.at(i)-tmp_amp.at(i-3));
+    if(i>4 && i<1021){
+      tmp_amp_cfd.at(i)+=(0.5*tmp_amp.at(i)-tmp_amp.at(i-4));
     }else{
       tmp_amp_cfd.at(i)=0;
     }
@@ -141,26 +147,17 @@ void TASTdatRaw::SumWaveforms(){
   
 
 
-
-bool TASTdatRaw::GetWaveform(int ich, TASTrawHit *hit){
-
-  if(fListOfWaveforms.size() && ich >0 && ich <8){//puttanata ... da correggere (giacomo)
-    fListOfWaveforms.at(ich);
-    return true;
-  }else{
-    return false;
-  }
-}
-
-
 //------------------------------------------+-----------------------------------
 //! Clear event.
 
 void TASTdatRaw::Clear(Option_t*)
 {
   TAGdata::Clear();
+
   fListOfWaveforms.clear();
-    
+  fListOfWaveforms_cfd.clear();
+
+  
   return;
 }
 

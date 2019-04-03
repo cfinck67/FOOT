@@ -13,6 +13,7 @@
 #pragma link C++ class TATWparTime+;
 #pragma link C++ class TATWparCal+;
 #pragma link C++ class TATWactDatRaw+;
+#pragma link C++ class TATWactNtuRaw+;
 #pragma link C++ class TATWactNtuMC+;
 #pragma link C++ class TATWactNtuPoint+;
 #pragma link C++ class TATWparGeo+;
