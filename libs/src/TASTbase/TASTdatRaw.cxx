@@ -70,10 +70,11 @@ ClassImp(TASTdatRaw);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TASTdatRaw::TASTdatRaw(): TAGdata(),fListOfWaveforms(0x0), fListOfWaveforms_cfd(0x0) {
+TASTdatRaw::TASTdatRaw(): TAGdata(),fListOfWaveforms(0x0), fListOfWaveforms_cfd(0x0),
+			  fSumWaves(0x0), fSumWaves_cfd(0x0) {
 
   fdTrgTime = -1000000000000.;
-    
+  
 
 }
 
@@ -84,22 +85,20 @@ TASTdatRaw::TASTdatRaw(): TAGdata(),fListOfWaveforms(0x0), fListOfWaveforms_cfd(
 
 TASTdatRaw::~TASTdatRaw(){
 
-   for(int i=0;i<fListOfWaveforms.size();i++){
+     for(int i=0;i<fListOfWaveforms.size();i++){
     delete fListOfWaveforms.at(i);
     delete fListOfWaveforms_cfd.at(i);
   }
 
-   delete fSumWaves;
-   delete fSumWaves_cfd;
-   
-   
+   if(fSumWaves) delete fSumWaves;
+   if(fSumWaves_cfd) delete fSumWaves_cfd;
+
 }
 
 
 void TASTdatRaw::AddWaveform(int ch_num, vector<double> time, vector<double> amplitude){
 
   fListOfWaveforms.push_back(new TASTrawHit(ch_num, time ,amplitude));
-
 
   vector<double> amplitude_cfd;
   amplitude_cfd.assign(amplitude.size(), 0);
@@ -145,7 +144,8 @@ void TASTdatRaw::SumWaveforms(){
 
   fSumWaves = new TASTrawHit(WAVE_ID,tmp_time, tmp_amp);
   fSumWaves_cfd = new TASTrawHit(WAVE_CFD_ID,tmp_time, tmp_amp_cfd);
-  
+
+  return;
 }
 
   
@@ -158,9 +158,16 @@ void TASTdatRaw::Clear(Option_t*)
 {
   TAGdata::Clear();
 
+  for(int i=0;i<fListOfWaveforms.size();i++){
+    delete fListOfWaveforms.at(i);
+    delete fListOfWaveforms_cfd.at(i);
+  }
+
   fListOfWaveforms.clear();
   fListOfWaveforms_cfd.clear();
 
+  delete fSumWaves;
+  delete fSumWaves_cfd;
   
   return;
 }
