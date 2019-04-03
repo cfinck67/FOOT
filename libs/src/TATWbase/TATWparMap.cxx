@@ -55,8 +55,7 @@ Bool_t TATWparMap::FromFile(const TString& name) {
   
   TString name_exp = name;
   gSystem->ExpandPathName(name_exp);
-
-  cMap->LoadChannelMap(name_exp.Data());
+  cMap->LoadChannelMap(name_exp.Data(),0);
 
   /*
   char bufConf[1024];

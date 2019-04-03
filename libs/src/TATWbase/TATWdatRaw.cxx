@@ -5,14 +5,11 @@
 */
 
 #include <string.h>
-
 #include <fstream>
 #include <bitset>
 using namespace std;
 #include <algorithm>
-
 #include "TString.h"
-
 #include "TATWdatRaw.hxx"
 #include "TGraph.h"
 #include "TF1.h"
@@ -41,8 +38,6 @@ TATWrawHit::TATWrawHit(TWaveformContainer &W)
 	ir_chg= W.ComputeCharge();
 	ir_time= W.ComputeTimeStamp();
 }
-
-
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
@@ -79,7 +74,6 @@ ClassImp(TATWdatRaw);
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
-
 TATWdatRaw::TATWdatRaw() :
   nirhit(0), hir(0) {
 }
@@ -127,7 +121,6 @@ void TATWdatRaw::Clear(Option_t*)
 
 void TATWdatRaw::NewHit(TWaveformContainer &W)
 {
-
   // set channel/board id
   Int_t cha =W.ChannelId;
   Int_t board =W.BoardId;
@@ -136,9 +129,9 @@ void TATWdatRaw::NewHit(TWaveformContainer &W)
   Double_t amplitude=W.ComputeAmplitude();
   Double_t charge= W.ComputeCharge();
   Double_t time= W.ComputeTimeStamp();
-
   //Do stuff
-  hir->AddLast(new TATWrawHit(cha ,board, charge, amplitude, pedestal, time));
+  TATWrawHit *t=( TATWrawHit *)hir->ConstructedAt(nirhit);
+  t->SetData(cha ,board, charge, amplitude, pedestal, time);
   nirhit++;
   return;
 }
