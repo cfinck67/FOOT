@@ -27,6 +27,7 @@
 #include "TASTdatRaw.hxx"
 #include "TABMdatRaw.hxx"
 #include "TATWdatRaw.hxx"
+#include "TATWntuRaw.hxx"
 
 #include "TABMactVmeReader.hxx"
 #include "TABMactDatRaw.hxx"
@@ -81,6 +82,9 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
 
    fpParMapSt(0x0),
    fpParMapBm(0x0),
+   fpParMapTw(0x0),
+
+   fpParTimTw(0x0),
 
    fpParCalBm(0x0),
    fpParCalTw(0x0),
@@ -351,6 +355,7 @@ void TAFOeventDisplay::ReadParFiles()
       parFileName = Form("./config/TATWChannelMap%s.xml", fExpName.Data());
       parMap->FromFile(parFileName.Data());
 
+      fpParTimTw = new TAGparaDsc("twTim", new TATWparTime());
    }
    
    // initialise par files for caloriomter
@@ -618,9 +623,15 @@ void TAFOeventDisplay::CreateRawAction()
    if(GlobalPar::GetPar()->IncludeTW()) {
       fpParTimeTw   = new TAGparaDsc("twTime", new TATWparTime());
       fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
-      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
-      fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimeTw);
+      //      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
+      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
+      fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimTw);
       fActDatRawTw->CreateHistogram();
+
+      //      fActNtuRawTw = new TATWactNtuRaw("twActNtu", fpDatRawTw, fpNtuRawTw);
+      //      fActNtuRawTw->CreateHistogram();
+
+
    }
    
 //   if(GlobalPar::GetPar()->IncludeCA()) {
