@@ -355,14 +355,16 @@ string TAVTparGeo::PrintAssignMaterial()
   
   if(GlobalPar::GetPar()->IncludeVertex()){
 
-    string matMod = fEpiMat.Data();
-    matMod[1] =toupper(matMod[1]);
+    string matMod = "SILICON";//fEpiMat.Data();
+    if (fEpiMat.CompareTo("Si")!=0)
+      cout << "ATTENTION in TAVTparGeo PrintAssignMaterial: check the VT material"<<endl;
+    // matMod[1] =toupper(matMod[1]);
     // const Char_t* matMod = fEpiMat.Data();
     const Char_t* matPix = fPixMat.Data();
     bool magnetic = false;
     if(GlobalPar::GetPar()->IncludeDI())
       magnetic = true;
-
+    
     if (vEpiRegion.size()==0 || vModRegion.size()==0 || vPixRegion.size()==0 )
       cout << "Error: VT regions vector not correctly filled!"<<endl;
     
