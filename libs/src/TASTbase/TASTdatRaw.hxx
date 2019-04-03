@@ -27,15 +27,22 @@ class TASTrawHit : public TObject {
 
   virtual void Clear(Option_t* /*option*/);
 
-  vector<double> GetTimeArray();
-  vector<double> GetAmplitudeArray();
   
+  inline int GetChannel(){return m_ch_num;}
+  inline int GetBoard(){return m_board_id;}
+  inline vector<double> GetTimeArray(){return m_time;}
+  inline vector<double> GetAmplitudeArray(){return m_amplitude;}
+  inline void SetArrivalTime(double value){m_tarr = value;}
+  inline void SetCharge(double value){m_charge = value;}
+
     ClassDef(TASTrawHit,1)
 
   private:
     vector<double> m_time, m_amplitude;
     int m_ch_num, m_board_id;
-
+    double m_tarr;
+    double m_charge;
+  
 };
 
 
@@ -50,7 +57,7 @@ class TASTdatRaw : public TAGdata {
   virtual         ~TASTdatRaw();
   
   
-  bool GetWaveform(int channel, TASTrawHit *hit);
+ 
   void AddWaveform(int ch_num, vector<double> time, vector<double> amplitude);
   void SumWaveforms();
   inline TASTrawHit* GetWaveCFD(){return fSumWaves_cfd;}
@@ -63,7 +70,8 @@ class TASTdatRaw : public TAGdata {
 
   inline double     TrigTime(){return fdTrgTime;}
   inline double     Charge(){return fdCharge;}
-  inline vector<TASTrawHit*>GetHits(){return  fListOfWaveforms;}  
+  inline vector<TASTrawHit*>GetHits(){return  fListOfWaveforms;}
+  inline vector<TASTrawHit*>GetHitsCFD(){return  fListOfWaveforms_cfd;}  
   
   virtual void      Clear(Option_t* opt="");
   virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
@@ -72,17 +80,18 @@ class TASTdatRaw : public TAGdata {
 
   
     ClassDef(TASTdatRaw,1)
-
+      
   private:
 
 
     vector<TASTrawHit*> fListOfWaveforms; // hits
+    vector<TASTrawHit*> fListOfWaveforms_cfd; // hits
     TASTrawHit*     fSumWaves; // hits
     TASTrawHit*     fSumWaves_cfd; // hits
     double          fdTrgTime;   // SC trigger time
     double          fdCharge;   // SC total charge
-  //vector<int> m_STchannels;
-
+   
+ 
 
   
 };

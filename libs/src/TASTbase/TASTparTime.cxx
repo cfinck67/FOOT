@@ -51,8 +51,7 @@ TASTparTime::TASTparTime() {
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
-TASTparTime::~TASTparTime()
-{}
+TASTparTime::~TASTparTime(){}
 
 
 
