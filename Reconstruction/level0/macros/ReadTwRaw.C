@@ -79,6 +79,7 @@ void ReadTwRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
    
    tagr.AddRequiredItem(daqActReader);
    tagr.AddRequiredItem(twActRaw);
+
    tagr.AddRequiredItem(twActNtu);
    tagr.AddRequiredItem(outFile);
 
@@ -92,8 +93,6 @@ void ReadTwRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
    outFileName.Append(".root");
    if (outFile->Open(outFileName.Data(), "RECREATE")) return;
 
-
-   tagr.Print();
 
    cout<<" Beginning the Event Loop "<<endl;
    tagr.BeginEventLoop();

@@ -26,8 +26,8 @@ TATWactNtuRaw::TATWactNtuRaw(const char* name,
     fpNtuRaw(p_nturaw),
     fpParGeo(p_pargeo)
 {
-  AddDataOut(p_nturaw, "TATWdatRaw");
-  AddDataIn(p_datraw, "TATWntuRaw");
+  AddDataIn(p_datraw, "TATWdatRaw");
+  AddDataOut(p_nturaw, "TATWntuRaw");
   AddPara(p_pargeo, "TATWparGeo");
 }
 
@@ -49,7 +49,7 @@ Bool_t TATWactNtuRaw::Action() {
    p_nturaw->SetupClones();
 
    int nhit = p_datraw->nirhit;
-
+   cout<<" nhit "<<nhit<<endl;
    for(int ih = 0; ih< nhit; ih++) {
      TATWrawHit *aHi = p_datraw->Hit(ih);
      //Use mapping to retrieve the layer and bar ID
@@ -57,6 +57,8 @@ Bool_t TATWactNtuRaw::Action() {
      //If needed convert the charge into an eloss
      double pos(0);
      //Use geoMap to retrieve the position
+
+     cout<<" Creating a new hit "<<lay<<" "<<bar<<" "<<pos<<endl;
      p_nturaw->NewHit(lay, bar, aHi->Charge(), aHi->Time(), pos);
      
    }
