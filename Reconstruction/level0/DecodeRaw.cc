@@ -18,6 +18,7 @@ int main (int argc, char *argv[])  {
    Bool_t his = false;
    Bool_t hit = false;
    Bool_t trk = false;
+   Bool_t dbg = false;
    
    Int_t nTotEv = 1e7;
    
@@ -27,6 +28,7 @@ int main (int argc, char *argv[])  {
       if(strcmp(argv[i],"-nev") == 0)   { nTotEv = atoi(argv[++i]); }   // Number of events to be analized
   
       
+      if(strcmp(argv[i],"-dbg") == 0)   { dbg = true;   } // enable tree filling
       if(strcmp(argv[i],"-ntu") == 0)   { ntu = true;   } // enable tree filling
       if(strcmp(argv[i],"-his") == 0)   { his = true;   } // enable histograming
       if(strcmp(argv[i],"-hit") == 0)   { hit = true;   } // enable hits saving
@@ -55,6 +57,9 @@ int main (int argc, char *argv[])  {
    LocalReco* locRec = new LocalReco(in, out);
    
    // global setting
+   if (dbg)
+      locRec->EnableDebugMode();
+
    if (ntu)
       locRec->EnableTree();
    if(his)

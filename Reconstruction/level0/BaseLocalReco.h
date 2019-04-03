@@ -105,6 +105,9 @@ public:
    virtual void SetExpName(const Char_t* name) { fExpName = name; }
    
    // Enable global
+   void EnableDebugMode()      { fDebug = 1;    }
+   void DisableDebugMode()     { fDebug = 0;   }
+   
    void EnableTree()      { fFlagTree = true;    }
    void DisableTree()     { fFlagTree = false;   }
    
@@ -201,7 +204,7 @@ protected:
    Bool_t                fFlagHisto;     // flag for histo generatiom
    Bool_t                fFlagTrack;     // flag for tracking
    TString               fgTrackingAlgo; // tracking algorithm ("std" with BM, "Full" combinatory)
-
+   Int_t                  fDebug;
 protected:
    void CreateRecActionBm();
    void CreateRecActionVtx();

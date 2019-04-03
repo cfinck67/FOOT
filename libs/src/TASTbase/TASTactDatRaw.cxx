@@ -39,8 +39,6 @@ TASTactDatRaw::TASTactDatRaw(const char* name,
   AddDataIn(p_datdaq, "TAGdaqEvent");
   AddPara(p_parmap, "TASTparMap");
   AddPara(p_parTime, "TASTparTime");
-
-  
   
   m_debug = false;
   m_nev=0;
@@ -58,12 +56,13 @@ TASTactDatRaw::~TASTactDatRaw()
 
 Bool_t TASTactDatRaw::Action() {
 
+  if(GetDebugLevel()) { cout<<" Entering the TASTactDatRaw action "<<endl; }
+  
    TASTdatRaw*    p_datraw = (TASTdatRaw*)   fpDatRaw->Object();
    TAGdaqEvent*   p_datdaq = (TAGdaqEvent*)  fpDatDaq->Object();
    TASTparMap*    p_parmap = (TASTparMap*)   fpParMap->Object();
    TASTparTime*    p_parTime = (TASTparTime*)   fpParTime->Object();
   
-   
    Int_t nFragments = p_datdaq->GetFragmentsN();
 
    for (Int_t i = 0; i < nFragments; ++i) {
