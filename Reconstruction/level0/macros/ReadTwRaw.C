@@ -35,8 +35,8 @@ TAGactDaqReader*    daqActReader = 0x0;
 TATWactDatRaw*      twActRaw  = 0x0;
 TATWactNtuRaw*      twActNtu  = 0x0;
 TAGdataDsc* twDat  ;
-
 TAGdataDsc* twNtu  ;
+
 void FillTW()
 {
    TAGparaDsc* twMap = new TAGparaDsc("twMap", new TATWparMap());
@@ -73,11 +73,13 @@ void ReadTwRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
    FillTW();
 
    outFile->SetupElementBranch(twDat,"twraw.");
+   outFile->SetupElementBranch(twNtu,"twntu.");
 
    daqActReader->Open(filename);
    
    tagr.AddRequiredItem(daqActReader);
    tagr.AddRequiredItem(twActRaw);
+   tagr.AddRequiredItem(twActNtu);
    tagr.AddRequiredItem(outFile);
 
    tagr.Print();
@@ -89,7 +91,10 @@ void ReadTwRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
 
    outFileName.Append(".root");
    if (outFile->Open(outFileName.Data(), "RECREATE")) return;
-   twActRaw->SetHistogramDir(outFile->File());
+
+
+   tagr.Print();
+
    cout<<" Beginning the Event Loop "<<endl;
    tagr.BeginEventLoop();
    TStopwatch watch;
