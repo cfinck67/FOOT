@@ -25,6 +25,7 @@
 #include "TAGdaqEvent.hxx"
 #include "TAGactDaqReader.hxx"
 #include "TATWactDatRaw.hxx"
+#include "TATWactNtuRaw.hxx"
 
 #endif
 
@@ -32,18 +33,30 @@
 TAGactTreeWriter*   outFile   = 0x0;
 TAGactDaqReader*    daqActReader = 0x0;
 TATWactDatRaw*      twActRaw  = 0x0;
+TATWactNtuRaw*      twActNtu  = 0x0;
+TAGdataDsc* twDat  ;
 
+TAGdataDsc* twNtu  ;
 void FillTW()
 {
    TAGparaDsc* twMap = new TAGparaDsc("twMap", new TATWparMap());
    TAGdataDsc* twDaq    = new TAGdataDsc("twDaq", new TAGdaqEvent());
-   TAGdataDsc* twDat    = new TAGdataDsc("twDat", new TATWdatRaw());
+   twDat  = new TAGdataDsc("twDat", new TATWdatRaw());
    TAGparaDsc* twTim    = new TAGparaDsc("twTim", new TATWparTime());
 
    daqActReader  = new TAGactDaqReader("daqActReader", twDaq);
 
    twActRaw  = new TATWactDatRaw("twActRaw", twDat, twDaq, twMap, twTim);
    twActRaw->CreateHistogram();
+
+   TAGparaDsc* twGeo    = new TAGparaDsc("twGeo", new TATWparGeo());
+   TATWparGeo* parGeo = (TATWparGeo*)twGeo->Object();
+   TString parFileName = Form("./geomaps/TATWdetector.map");
+   parGeo->FromFile(parFileName);
+
+   twNtu  = new TAGdataDsc("twNtu", new TATWntuRaw());
+   twActNtu  = new TATWactNtuRaw("twNtuRaw", twDat, twNtu, twGeo);
+   twActNtu->CreateHistogram();
 
 }
 
@@ -58,6 +71,9 @@ void ReadTwRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
    outFile = new TAGactTreeWriter("outFile");
 
    FillTW();
+
+   outFile->SetupElementBranch(twDat,"twraw.");
+
    daqActReader->Open(filename);
    
    tagr.AddRequiredItem(daqActReader);
@@ -74,7 +90,6 @@ void ReadTwRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
    outFileName.Append(".root");
    if (outFile->Open(outFileName.Data(), "RECREATE")) return;
    twActRaw->SetHistogramDir(outFile->File());
-
    cout<<" Beginning the Event Loop "<<endl;
    tagr.BeginEventLoop();
    TStopwatch watch;
