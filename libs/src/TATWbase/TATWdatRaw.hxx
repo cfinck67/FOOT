@@ -42,6 +42,7 @@ class TATWrawHit : public TObject {
     void            SetMCID(int id);  //WD mc ID
     ClassDef(TATWrawHit,1);
     //
+  private:
     Double_t ir_time;    
     Double_t ir_chg;
     Double_t ir_pedestal;

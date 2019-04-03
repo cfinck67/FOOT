@@ -21,7 +21,8 @@ public:
   explicit        TATWactNtuRaw(const char* name=0,
 				TAGdataDsc* p_datraw=0,
 				TAGdataDsc* p_datdaq=0,
-				TAGparaDsc* p_pargeo=0);
+				TAGparaDsc* p_pargeo=0,
+				TAGparaDsc* p_parmap=0);
   virtual         ~TATWactNtuRaw();
 
   virtual Bool_t  Action();
@@ -33,10 +34,14 @@ public:
   TAGdataDsc*     fpDatRaw;		    // input data dsc
   TAGdataDsc*     fpNtuRaw;		    // output data dsc
   TAGparaDsc*     fpParGeo;		    // parameter dsc
+  TAGparaDsc*     fpParMap;
 
   bool m_debug;
   
+
  private:
+  Double_t GetEnergy(TATWrawHit*a,TATWrawHit*b);
+  Double_t GetTime(TATWrawHit*a,TATWrawHit*b);
 
 };
 

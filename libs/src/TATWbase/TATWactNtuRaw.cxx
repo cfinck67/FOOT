@@ -6,7 +6,7 @@
 
 #include "TATWparMap.hxx"
 #include "TATWactNtuRaw.hxx"
-
+#include "TMath.h"
 /*!
   \class TATWactNtuRaw TATWactNtuRaw.hxx "TATWactNtuRaw.hxx"
   \brief Get Beam Monitor raw data from WD. **
@@ -20,15 +20,18 @@ ClassImp(TATWactNtuRaw);
 TATWactNtuRaw::TATWactNtuRaw(const char* name,
 			     TAGdataDsc* p_datraw, 
 			     TAGdataDsc* p_nturaw,
-			     TAGparaDsc* p_pargeo)
+			     TAGparaDsc* p_pargeom,
+				 TAGparaDsc* p_parmap )
   : TAGaction(name, "TATWactNtuRaw - Unpack TW raw data"),
     fpDatRaw(p_datraw),
     fpNtuRaw(p_nturaw),
-    fpParGeo(p_pargeo)
+    fpParGeo(p_pargeom),
+	fpParMap(p_parmap)
 {
   AddDataIn(p_datraw, "TATWdatRaw");
   AddDataOut(p_nturaw, "TATWntuRaw");
-  AddPara(p_pargeo, "TATWparGeo");
+  AddPara(p_pargeom, "TATWparGeo");
+  AddPara(p_parmap,"TATWparMap");
 }
 
 //------------------------------------------+-----------------------------------
@@ -42,27 +45,69 @@ TATWactNtuRaw::~TATWactNtuRaw()
 
 Bool_t TATWactNtuRaw::Action() {
 
-   TATWdatRaw*    p_datraw = (TATWdatRaw*)   fpDatRaw->Object();
+   TATWdatRaw*    p_datraw = (TATWdatRaw*) fpDatRaw->Object();
    TATWntuRaw*   p_nturaw = (TATWntuRaw*)  fpNtuRaw->Object();
    TATWparGeo*   p_pargeo = (TATWparGeo*)  fpParGeo->Object();
-
+   TATWparMap*   p_parmap = (TATWparMap*)  fpParMap->Object();
    p_nturaw->SetupClones();
-
+   CChannelMap *c=p_parmap->getChannelMap();
    int nhit = p_datraw->nirhit;
    cout<<" nhit "<<nhit<<endl;
-   for(int ih = 0; ih< nhit; ih++) {
-     TATWrawHit *aHi = p_datraw->Hit(ih);
-     //Use mapping to retrieve the layer and bar ID
-     int lay(0), bar(0);
-     //If needed convert the charge into an eloss
-     double pos(0);
-     //Use geoMap to retrieve the position
-
-     cout<<" Creating a new hit "<<lay<<" "<<bar<<" "<<pos<<endl;
-     p_nturaw->NewHit(lay, bar, aHi->Charge(), aHi->Time(), pos);
-     
+   //
+   std::map<int, std::vector<TATWrawHit*> > PMap;
+   //
+   for(int ih = 0; ih< nhit; ih++)
+   {
+	   TATWrawHit *aHi = p_datraw->Hit(ih);
+	   //
+	   if (PMap.find(aHi->BoardId())==PMap.end())
+	   {
+		   PMap[aHi->BoardId()].resize(NUMBEROFCHANNELS);
+		   for (int ch=0;ch<NUMBEROFCHANNELS;++ch)
+		   {
+			   PMap[aHi->BoardId()][ch]=nullptr;
+		   }
+	   }
+	   PMap[aHi->BoardId()][aHi->ChID()]=aHi;
    }
-   
+   std::cout << " Number of bars" << c->GetNumberOfBars() <<std::endl;
+   for (auto it=c->begin();it!=c->end();++it)
+   {
+	   Int_t boardid=std::get<0>(it->second);
+	   int channelA=std::get<1>(it->second);
+	   int channelB=std::get<2>(it->second);
+	   int BarId=it->first;
+	   if (PMap.find(boardid)!=PMap.end())
+	   {
+		   //
+		   TATWrawHit* hita=PMap[boardid][channelA];
+		   TATWrawHit* hitb=PMap[boardid][channelB];
+		   if (hita!=nullptr && hitb!=nullptr )
+		   {
+			   //
+			   Double_t Energy=GetEnergy(hita,hitb);
+			   Double_t Time=GetTime(hita,hitb);
+			   p_nturaw->NewHit(c->GetBarLayer(BarId),BarId, Energy,Time,0);
+		   }
+	   }
+   }
    fpNtuRaw->SetBit(kValid);
    return kTRUE;
 }
+
+
+Double_t TATWactNtuRaw::GetEnergy(TATWrawHit*a,TATWrawHit*b)
+{
+	if (a->Charge()<0|| b->Charge()<0)
+	{
+		return -1;
+	}
+	return TMath::Sqrt(a->Charge()*b->Charge());
+}
+
+Double_t TATWactNtuRaw::GetTime(TATWrawHit*a,TATWrawHit*b)
+{
+	return (a->Time()+b->Time())/2;
+
+}
+

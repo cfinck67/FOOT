@@ -12,6 +12,10 @@ inline Int_t TATWrawHit::ChID() const
 {
   return ir_chid;
 }
+inline Int_t TATWrawHit::BoardId() const
+{
+ return ir_boardid;
+}
 
 inline void TATWrawHit::SetAmplitdue(double amplitude)
 {
@@ -27,6 +31,8 @@ inline void TATWrawHit::SetBoardId(Int_t boardid)
 {
 	ir_boardid=boardid;
 }
+
+
     
 //------------------------------------------+-----------------------------------
 //! Returns MC ID
