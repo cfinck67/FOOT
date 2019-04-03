@@ -58,11 +58,13 @@ public:
   TH1D *hTotCharge;
   
   bool m_debug;
+  int m_nev;
   
  private:
   Bool_t DecodeHits(const WDEvent* evt, TASTparTime* p_parTime, TASTdatRaw *p_datraw);
   double ComputeArrivalTime(TASTrawHit *hit);
   double ComputeCharge(TASTrawHit *hit);
+  double ComputeMaxAmplitude(TASTrawHit *hit);
 };
 
 #endif

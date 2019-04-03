@@ -101,8 +101,8 @@ void TASTdatRaw::AddWaveform(int ch_num, vector<double> time, vector<double> amp
   amplitude_cfd.assign(amplitude.size(), 0);
   
   for(int i=0;i<1024;i++){
-    if(i>3 && i<1021){
-      amplitude_cfd.at(i)+=(0.5*amplitude.at(i)-amplitude.at(i-3));
+    if(i>4 && i<1021){
+      amplitude_cfd.at(i)+=(0.5*amplitude.at(i)-amplitude.at(i-4));
     }else{
       amplitude_cfd.at(i)=0;
     }
@@ -126,14 +126,14 @@ void TASTdatRaw::SumWaveforms(){
   for(int iWa=0;iWa<fListOfWaveforms.size()-1;iWa++){
     for(int i=0;i<1024;i++){
       tmp_amp.at(i)+=(fListOfWaveforms.at(iWa)->GetAmplitudeArray()).at(i);
-      tmp_time.at(i)=i*256/1024.; //to change
+      tmp_time.at(i)=i*256/1024.; //to be changed...
     }
   }
 
  
   for(int i=0;i<1024;i++){
-    if(i>3 && i<1021){
-      tmp_amp_cfd.at(i)+=(0.5*tmp_amp.at(i)-tmp_amp.at(i-3));
+    if(i>4 && i<1021){
+      tmp_amp_cfd.at(i)+=(0.5*tmp_amp.at(i)-tmp_amp.at(i-4));
     }else{
       tmp_amp_cfd.at(i)=0;
     }

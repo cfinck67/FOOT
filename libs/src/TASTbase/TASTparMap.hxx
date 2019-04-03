@@ -29,8 +29,7 @@ class TASTparMap : public TAGpara {
   inline int getTDID(int add) { return TDchaID.at(add); }
   inline int getTDboaID(int add) { return TDboaID.at(add); }
 
-  Bool_t IsSTChannel(int ibo, int iCha);
-  Bool_t IsSTClk(int iCha);
+  Bool_t IsSTChannel(int iCha);
   
     ClassDef(TASTparMap,1)
 

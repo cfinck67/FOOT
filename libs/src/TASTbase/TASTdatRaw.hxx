@@ -29,7 +29,8 @@ class TASTrawHit : public TObject {
 
   
   inline int GetChannel(){return m_ch_num;}
-  inline int GetBoard(){return m_board_id;}
+  inline int GetCharge(){return m_charge;}
+  inline int GetArrivalTime(){return m_tarr;}
   inline vector<double> GetTimeArray(){return m_time;}
   inline vector<double> GetAmplitudeArray(){return m_amplitude;}
   inline void SetArrivalTime(double value){m_tarr = value;}
