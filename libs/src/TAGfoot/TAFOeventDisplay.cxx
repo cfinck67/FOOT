@@ -27,6 +27,7 @@
 #include "TASTdatRaw.hxx"
 #include "TABMdatRaw.hxx"
 #include "TATWdatRaw.hxx"
+#include "TATWntuRaw.hxx"
 
 #include "TABMactVmeReader.hxx"
 #include "TABMactDatRaw.hxx"
@@ -76,8 +77,14 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fpParGeoTw(0x0),
    fpParGeoCa(0x0),
 
+   fpParTimeSt(0x0),
+   fpParTimeTw(0x0),
+
    fpParMapSt(0x0),
    fpParMapBm(0x0),
+   fpParMapTw(0x0),
+
+   fpParTimTw(0x0),
 
    fpParCalBm(0x0),
    fpParCalTw(0x0),
@@ -348,6 +355,7 @@ void TAFOeventDisplay::ReadParFiles()
       parFileName = Form("./config/TATWChannelMap%s.xml", fExpName.Data());
       parMap->FromFile(parFileName.Data());
 
+      fpParTimTw = new TAGparaDsc("twTim", new TATWparTime());
    }
    
    // initialise par files for caloriomter
@@ -562,8 +570,9 @@ void TAFOeventDisplay::CreateRawAction()
    }
    
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
+      fpParTimeSt   = new TAGparaDsc("stTime", new TASTparTime());
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
-      fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDaqEvent, fpParMapSt);
+      fActDatRawSt = new TASTactDatRaw("stActDat", fpDatRawSt, fpDaqEvent, fpParMapSt, fpParTimeSt);
       fActDatRawSt->CreateHistogram();
    }
 
@@ -612,10 +621,17 @@ void TAFOeventDisplay::CreateRawAction()
    }
    
    if(GlobalPar::GetPar()->IncludeTW()) {
+      fpParTimeTw   = new TAGparaDsc("twTime", new TATWparTime());
       fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
-      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
-      fActDatRawTw = new TATWactDatRaw("twActNtu", fpNtuRawTw, fpDaqEvent, fpParMapTw);
+      //      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
+      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
+      fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimTw);
       fActDatRawTw->CreateHistogram();
+
+      //      fActNtuRawTw = new TATWactNtuRaw("twActNtu", fpDatRawTw, fpNtuRawTw);
+      //      fActNtuRawTw->CreateHistogram();
+
+
    }
    
 //   if(GlobalPar::GetPar()->IncludeCA()) {
@@ -670,9 +686,17 @@ void TAFOeventDisplay::AddRequiredRawItem()
 {
    if (!fgStdAloneFlag)
       fTAGroot->AddRequiredItem("daqActReader");
+
+   if (GlobalPar::GetPar()->IncludeST())
+      fTAGroot->AddRequiredItem("stActDat");
+
    
    if (GlobalPar::GetPar()->IncludeBM())
       fTAGroot->AddRequiredItem("bmActDat");
+   
+   if (GlobalPar::GetPar()->IncludeTW())
+      fTAGroot->AddRequiredItem("twActDat");
+
 }
 
 
@@ -714,10 +738,10 @@ void TAFOeventDisplay::AddRequiredRecItem()
       }
    }
    
-   if (GlobalPar::GetPar()->IncludeTW()) {
-      fTAGroot->AddRequiredItem("twActNtu");
-      fTAGroot->AddRequiredItem("twActPoint");
-   }
+//   if (GlobalPar::GetPar()->IncludeTW()) {
+//      fTAGroot->AddRequiredItem("twActNtu");
+//      fTAGroot->AddRequiredItem("twActPoint");
+//   }
    
    if (GlobalPar::GetPar()->IncludeCA()) {
       fTAGroot->AddRequiredItem("caActNtu");

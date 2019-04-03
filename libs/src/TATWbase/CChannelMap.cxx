@@ -17,7 +17,7 @@ TChannelBoardTuple CChannelMap::GetChannelABar(TBarId BarId)
 	return _ChannelBarMap[BarId];
 }
 
-void CChannelMap::LoadChannelMap(std::string FileName)
+void CChannelMap::LoadChannelMap(std::string FileName,int verbose)
 {
 	if (gSystem->AccessPathName(FileName.c_str()))
 		{
@@ -31,9 +31,9 @@ void CChannelMap::LoadChannelMap(std::string FileName)
 		// create a verctor containing the "BAR" nodes
 		std::vector<XMLNodePointer_t> BarVector=x.GetChildNodesByName(x.GetMainNode(),"BAR");
 		// print some info about the channel map
-		Message::DisplayMessageWithEmphasys(" Channel map ");
-		Message::DisplayMessage(" Description: "+x.GetContentAsString("DESCRIPTION",x.GetMainNode()));
-		Message::DisplayMessage(" Creation date: "+x.GetContentAsString("DATE",x.GetMainNode()));
+		Message::DisplayMessageWithEmphasys(" Channel map ",std::cout,verbose);
+		Message::DisplayMessage(" Description: "+x.GetContentAsString("DESCRIPTION",x.GetMainNode()),std::cout,verbose);
+		Message::DisplayMessage(" Creation date: "+x.GetContentAsString("DATE",x.GetMainNode()),std::cout,verbose);
 		//
 		for (std::vector<XMLNodePointer_t>::iterator it=BarVector.begin();it!=BarVector.end();++it)
 		{
@@ -49,7 +49,7 @@ void CChannelMap::LoadChannelMap(std::string FileName)
 			}
 			_ChannelBarMap[BarId]=TChannelBoardTuple(BoardId,ChannelA,ChannelB);
 			_BarLayer[BarId]=Layer;
-			Message::DisplayMessage(TString::Format("BAR_ID %d BOARD ID %d Channel A %d Channel B %d Layer Id %d",BarId,BoardId,ChannelA,ChannelB,Layer));
+			Message::DisplayMessage(TString::Format("BAR_ID %d BOARD ID %d Channel A %d Channel B %d Layer Id %d",BarId,BoardId,ChannelA,ChannelB,Layer),std::cout,verbose);
 		}
 		// check if the same combination board,channel appears twice in the map
 		std::map<std::pair<Int_t,Int_t>, Int_t> ChannelOccurrenceMap;

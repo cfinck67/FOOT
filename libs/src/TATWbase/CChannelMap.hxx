@@ -21,7 +21,7 @@ class CChannelMap
 public:
     CChannelMap();
     bool Exists(TBarId BarId);
-	void LoadChannelMap(std::string Filename);
+	void LoadChannelMap(std::string Filename,int verbose=0);
 	TLayer GetBarLayer(TBarId BarId);
 	TChannelBoardTuple GetChannelABar(TBarId BarId);
 	TChannelPairMapType::iterator begin();

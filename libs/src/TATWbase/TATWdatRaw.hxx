@@ -23,7 +23,7 @@ class TATWrawHit : public TObject {
     virtual         ~TATWrawHit();
     TATWrawHit( TWaveformContainer &w);
     TATWrawHit(Int_t cha ,Int_t board, Double_t charge, Double_t amplitude, Double_t pedestal, Double_t time);
-  void            SetData(Int_t cha ,Int_t board, Double_t charge, Double_t amplitude, Double_t pedestal, Double_t time);
+    void  SetData(Int_t cha ,Int_t board, Double_t charge, Double_t amplitude, Double_t pedestal, Double_t time);
     //
     Double_t        Time() const;
     Double_t        Charge() const;
@@ -32,7 +32,6 @@ class TATWrawHit : public TObject {
     Int_t           ChID() const;
     Int_t 			BoardId() const;
     Int_t           IDMC() const;
-
     //
     void            SetTime(double time); // waveform timestamp
     void            SetCharge(double charge); // waveform charge
@@ -41,8 +40,7 @@ class TATWrawHit : public TObject {
     void            SetChID(int id);  //WD  channel ID [0,16]
     void 			SetBoardId(int id); // WD board ID
     void            SetMCID(int id);  //WD mc ID
-    ClassDef(TATWrawHit,1)
-  private:
+    ClassDef(TATWrawHit,1);
     //
     Double_t ir_time;    
     Double_t ir_chg;
@@ -63,15 +61,16 @@ class TATWdatRaw : public TAGdata {
     TATWrawHit*       Hit(Int_t i_ind);
     const TATWrawHit* Hit(Int_t i_ind) const;
   void       NewHit(TWaveformContainer &W);
-  
   virtual void    Clear(Option_t* opt="");
     void SetupClones();
     virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
-    ClassDef(TATWdatRaw,1)
+    ClassDef(TATWdatRaw,1);
   public:
     Int_t           nirhit;		    // 
     TClonesArray*   hir;			// hits
   private:
+    static TString fgkBranchName;    // Branch name in TTree
+
     Int_t           fiNAdc;		    // 
     Int_t           fiNTdc;		    // 
     Int_t           fiNDrop;		//

@@ -1,6 +1,49 @@
 #include "TWaveformContainer.hxx"
 #include "TGraph.h"
+#include "TAxis.h"
 
+
+
+
+
+TWaveformContainer::TWaveformContainer()
+{
+	ChannelId=0;
+	BoardId=0;
+	ir_time=0;
+	ir_chg=0;
+	ir_pedestal=0;
+	ir_amplitude=0;
+	T=(Double_t *)malloc(sizeof(Double_t)*WAVEFORMBINS);
+	W=(Double_t *)malloc(sizeof(Double_t)*WAVEFORMBINS);
+}
+
+void TWaveformContainer::Clear()
+{
+	ChannelId=0;
+	BoardId=0;
+	ir_time=0;
+	ir_chg=0;
+	ir_pedestal=0;
+	ir_amplitude=0;
+	memset((void *)T,0,sizeof(Double_t)* WAVEFORMBINS);
+	memset((void *)W,0,sizeof(Double_t)* WAVEFORMBINS);
+
+}
+
+TWaveformContainer::TWaveformContainer(const TWaveformContainer &other)
+{
+    std::memcpy(T, other.T, sizeof(Double_t)*WAVEFORMBINS);
+    std::memcpy(W, other.W, sizeof(Double_t)*WAVEFORMBINS);
+
+	ChannelId=other.ChannelId;
+	BoardId=other.BoardId;
+	ir_time=other.ir_time;
+	ir_chg=other.ir_chg;
+	ir_pedestal=other.ir_pedestal;
+	ir_amplitude=other.ir_amplitude;
+
+}
 
 Double_t TWaveformContainer::ComputeCharge()
 {
@@ -58,4 +101,13 @@ Double_t TWaveformContainer::ComputePedestal()
 		 }
 	 }
 	 return -1.;
+ }
+
+ void TWaveformContainer::PlotWaveForm()
+ {
+	 TGraph *g=new TGraph(WAVEFORMBINS,T,W);
+	 g->GetXaxis()->SetTitle("t (s)");
+	 g->GetYaxis()->SetTitle("Amplitude (V)");
+	 g->SetTitle(TString::Format(" Board %d Channel %d",BoardId,ChannelId));
+	 g->Draw("AC");
  }

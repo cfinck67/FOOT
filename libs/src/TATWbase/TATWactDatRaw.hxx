@@ -51,7 +51,7 @@ public:
   
  private:
 
-  Bool_t DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TATWdatRaw *p_datraw, TWaveformContainer &w);
+  Bool_t DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TATWdatRaw *p_datraw);
 
 };
 

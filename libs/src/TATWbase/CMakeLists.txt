@@ -20,11 +20,13 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 #
 set( with_dictionnaries
    TATWdatRaw
+   TATWntuRaw
    TATWparTime
    TATWparMap
    TATWparCal
    TATWactNtuMC
    TATWactDatRaw
+   TATWactNtuRaw
    TATWactNtuPoint
    TATWparGeo
    TATW_ContainerHit

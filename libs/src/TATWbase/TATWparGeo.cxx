@@ -387,18 +387,6 @@ string TATWparGeo::PrintRotations()
     TVector3  fAngle = fpFootGeo->GetTWAngles();
     TVector3 pos;
     
-    if(fAngle.Z()!=0){
-      ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
-	 << setw(10) << setfill(' ') << std::right << "300."
-	 << setw(10) << setfill(' ') << std::right << " "
-	 << setw(10) << setfill(' ') << std::right << fAngle.Z()
-	 << setw(10) << setfill(' ') << std::right << " "
-	 << setw(10) << setfill(' ') << std::right << " "
-	 << setw(10) << setfill(' ') << std::right << " "
-	 << setfill(' ') << std::left << "twZ"
-	 << endl;
-    }
-    
     int c=0;
     
     for (int i=0; i<GetNLayers(); i++){
@@ -414,7 +402,7 @@ string TATWparGeo::PrintRotations()
 	     << setw(10) << setfill(' ') << std::right << " "
 	     << setw(10) << setfill(' ') << std::right << " "
 	     << setw(10) << setfill(' ') << std::right << " "
-	     << setw(10) << setfill(' ') << std::right << -pos.Y()
+	     << setw(10) << setfill(' ') << std::right << fCenter.Y()-pos.Y()
 	     << setw(10) << setfill(' ') << std::right << " "
 	     << setfill(' ') << std::left << Form("twZ_%d",c) 
 	     << endl;
@@ -432,7 +420,7 @@ string TATWparGeo::PrintRotations()
 	     << setw(10) << setfill(' ') << std::right << " "
 	     << setw(10) << setfill(' ') << std::right << " "
 	     << setw(10) << setfill(' ') << std::right << " "
-	     << setw(10) << setfill(' ') << std::right << pos.Y()
+	     << setw(10) << setfill(' ') << std::right << fCenter.Y()+pos.Y()
 	     << setw(10) << setfill(' ') << std::right << " "
 	     << setfill(' ') << std::left << Form("twZ_%d",c) 
 	     << endl;
@@ -471,7 +459,8 @@ string TATWparGeo::PrintBodies()
     if(fAngle.Y()!=0)
       cout << "TW rotation around y found: ATTENTION not implemented in fluka" << endl;
     if(fAngle.Z()!=0)
-      ss << "$start_transform " << "twZ" << endl;
+      cout << "TW rotation around z found: ATTENTION not implemented in fluka" << endl;
+    //   ss << "$start_transform " << "twZ" << endl;
     
     int c=0;
     
@@ -513,8 +502,8 @@ string TATWparGeo::PrintBodies()
       }
     }
     
-    if(fAngle.Z()!=0)
-      ss << "$end_transform " << endl;
+    // if(fAngle.Z()!=0)
+    //   ss << "$end_transform " << endl;
     
   }
 

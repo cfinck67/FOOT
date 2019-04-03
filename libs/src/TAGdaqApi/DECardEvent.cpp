@@ -75,12 +75,11 @@ void DECardEvent::readData(unsigned int **p1)
       do {
          p++;
          evtSize++;
-         values.push_back(*p);
+         if(*p != m_vtxTail)values.push_back(*p);
          
       } while (*p != m_vtxTail);
    }
-   
-   *p1 = p;
+   *p1 = (++p);
 }
 
 void DECardEvent::printData () const

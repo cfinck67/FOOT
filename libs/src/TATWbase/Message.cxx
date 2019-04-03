@@ -2,19 +2,25 @@
 
 void Message::DisplayWarning(TString Message, std::ostream &os)
 {
-  os << "WARNING: " << Message <<std::endl;
+		os << "WARNING: " << Message <<std::endl;
 }
 void Message::DisplayFatalError(TString Message,std::ostream &os)
 {
-  os << "FATAL ERROR: " << Message <<std::endl;
-  throw -1;
+	os << "FATAL ERROR: " << Message <<std::endl;
+	throw -1;
 }
-void Message::DisplayMessage(TString Message,std::ostream &os)
+void Message::DisplayMessage(TString Message,std::ostream &os,int verbose)
 {
-  os << Message <<std::endl;
+	if (verbose>0)
+	{
+		os << Message <<std::endl;
+	}
 }
 
-void Message::DisplayMessageWithEmphasys(TString Message,std::ostream &os)
+void Message::DisplayMessageWithEmphasys(TString Message,std::ostream &os,int verbose)
 {
-  os << "=> " << Message <<std::endl;
+	if (verbose>0)
+	{
+		os << "=> " << Message <<std::endl;
+	}
 }
