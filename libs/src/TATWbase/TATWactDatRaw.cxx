@@ -36,6 +36,7 @@ TATWactDatRaw::TATWactDatRaw(const char* name,
   AddDataIn(p_datdaq, "TAGdaqEvent");
   AddPara(p_parmap, "TATWparMap");
   AddPara(p_partime, "TATWparTime");
+  m_debug = kFALSE;
 }
 
 //------------------------------------------+-----------------------------------
