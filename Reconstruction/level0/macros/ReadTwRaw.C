@@ -105,7 +105,14 @@ void ReadTwRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
      // printf("\n");
       if (++nEvents % 100 == 0)
 		printf("Event: %d\n", nEvents); 
-	  
+
+      
+         TATWntuRaw* myNtu = (TATWntuRaw*)twNtu->Object();
+	 cout<<"Hit number:: "<<myNtu->GetHitN(0)<<endl;
+	 for(int iH = 0; iH<myNtu->GetHitN(0); iH++){
+	   TATWntuHit *aHi = myNtu->GetHit(0,iH);
+	   cout<<aHi->GetTime()<<endl;
+	 }
 	  if (nEvents == nMaxEvts)
 		 break;
    }
