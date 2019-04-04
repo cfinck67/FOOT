@@ -667,11 +667,12 @@ void BmBooter::evaluateT0() {
   h=new TH1D("rate_xevent_beam_hz","Beam Rate with the trigger rate and the coincidence scaler meas as function of the event number ;Event num scaled; Hz",rate_xevent_max,0.,rate_xevent_max);
   //~ h=new TH1D("rate_timeacq","Rate of the events, from bmstruct.time_acq;Hz; Number of events",1000,0.,10000.);
   h=new TH1D("rate_readev","time occurred to read the data for each event, from bmsturct.time_read;[micro seconds]; Number of events",500,0.,1000.);
-  h2=new TH2D("adc_vs_numhit","Sum of the margherita Adc counts vs number of BM hits;Sum of margherita Adc counts; Number of BM hits",adc_maxbin,0.,adc_maxbin,30,0,30.);
   
-  if(bmmap->GetAdc792Ch()>0 && bmmap->GetAdcPetNum()>0)
+  if(bmmap->GetAdc792Ch()>0 && bmmap->GetAdcPetNum()>0){
+    h2=new TH2D("adc_vs_numhit","Sum of the margherita Adc counts vs number of BM hits;Sum of margherita Adc counts; Number of BM hits",adc_maxbin,0.,adc_maxbin,30,0,30.);
     h=new TH1D("rate_adc_up","Rate of the event with a qdc value > adc_double;Hz; Number of events",1000,0.,20000.);
-        
+  }
+  
   f_out->mkdir("TDC");
   f_out->cd("TDC");
   gDirectory->mkdir("TDC_raw");
@@ -811,15 +812,15 @@ void BmBooter::evaluateT0() {
       tmp_int++;
     }    
     if(bmstruct.tot_status==0 && bmstruct.tdc_status==-1000){ 
-      tmp_int=0;
-      while(bmstruct.tdc_id[tmp_int]!=-1 && tmp_int<MAXHITTDC){
-        if(bmmap->tdc2cell(bmstruct.tdc_id[tmp_int])!=-1){
-          only_bm_signal++;
-          cout<<"only_bm_signal++  tmp_int="<<tmp_int<<"  tdc_id="<<bmstruct.tdc_id[tmp_int]<<"  bmmap->tdc2cell(bmstruct.tdc_id[tmp_int])="<<bmmap->tdc2cell(bmstruct.tdc_id[tmp_int])<<"  maxhittdc="<<MAXHITTDC<<endl;
+      if(bmmap->GetAdc792Ch()>0 && bmmap->GetAdcPetNum()>0){
+        tmp_int=0;
+        if(bmstruct.tdc_id[tmp_int]!=-10000 && tmp_int<MAXHITTDC){
+          if(bmmap->tdc2cell(bmstruct.tdc_id[tmp_int])!=-1)
+            only_bm_signal++;
+          tmp_int++;
         }
-        tmp_int++;
-      };
-        ((TH2D*)gDirectory->Get("adc_vs_numhit"))->Fill(bmstruct.adc792_sum, bmstruct.tdc_hitnum[0]);
+        ((TH2D*)gDirectory->Get("adc_vs_numhit"))->Fill(bmstruct.adc792_sum, only_bm_signal);
+      }
       if(bmstruct.tdcev==1 && bmstruct.tdc_sync[0]!=-10000 && bmstruct.tdc_sync[1]==-10000){
         ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(0);//no error
         ((TH1D*)gDirectory->Get("TDC/TDC_meas/all_tdc_cha_meas"))->Fill(bmmap->GetTrefCh());   
@@ -841,7 +842,7 @@ void BmBooter::evaluateT0() {
           ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(4);//no synctime
         }
         else if(bmstruct.tdc_sync[1]!=-10000){      
-          if(bmcon->GetBMdebug()>0)
+          if(bmcon->GetBMdebug()>3)
             cout<<"BmBooter::evaluateT0::ERROR multisync in the TDC data at data_num_ev="<<data_num_ev<<endl;
           ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(5);//multi synctime   
         }else if(bmstruct.tdcev!=1){
@@ -855,8 +856,6 @@ void BmBooter::evaluateT0() {
     }else if(bmstruct.tot_status!=0){
       ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(9);//other tdc error  
     }
-    ((TH2D*)gDirectory->Get("adc_vs_numhit"))->Fill(bmstruct.adc792_sum, only_bm_signal);
-
     
     if(bmcon->GetBMdebug()>11 && bmcon->GetBMdebug()!=99)
       cout<<"Fill the scaler:"<<endl;    
@@ -1329,6 +1328,10 @@ void BmBooter::monitorQDC(vector<Int_t>& adc792_words) {
           }
         }else if(bmmap->GetAdcPetNum()==2){
           if(chan==bmmap->GetAdcPetBegin() || chan==(bmmap->GetAdcPetBegin()+1)){
+            bmstruct.adc792_sum+=qdc_cnt-bmcon->GetADCped(chan);
+          }
+        }else if(bmmap->GetAdcPetNum()==1){
+          if(chan==bmmap->GetAdcPetBegin()){
             bmstruct.adc792_sum+=qdc_cnt-bmcon->GetADCped(chan);
           }
         }
