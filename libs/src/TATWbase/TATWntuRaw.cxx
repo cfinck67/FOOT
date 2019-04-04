@@ -138,6 +138,11 @@ int TATWntuRaw::GetHitN(int layer) {
 
 }
 
+int TATWntuRaw::GetHitN()
+{
+	return m_hitlay1+m_hitlay2;
+}
+
 //------------------------------------------+-----------------------------------
 //! return a pixel for a given sensor
 TATWntuHit* TATWntuRaw::GetHit( int hitID, int layer ) {
