@@ -65,6 +65,9 @@ class TATWdatRaw : public TAGdata {
     void SetupClones();
     virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
     ClassDef(TATWdatRaw,1);
+
+    static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
+  
   public:
     Int_t           nirhit;		    // 
     TClonesArray*   hir;			// hits

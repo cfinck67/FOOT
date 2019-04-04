@@ -8,8 +8,7 @@
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
 #include "TATWdatRaw.hxx"
-#include "TATW_ContainerHit.hxx"
-#include "TATW_ContainerPoint.hxx"
+#include "TATWntuRaw.hxx"
 #include "TACAntuRaw.hxx"
 
 #include "TASTdatRaw.hxx"
@@ -53,6 +52,8 @@ void LocalReco::LoopEvent(Int_t nEvents)
       
       if(ientry % 100 == 0)
          cout<<" Loaded Event:: " << ientry << endl;
+      if(GlobalPar::GetPar()->Debug())
+	cout<<dec<<" Event:: "<<ientry<<endl;
       
       if (!fTAGroot->NextEvent()) break;;
    }
@@ -126,8 +127,9 @@ void LocalReco::CreateRawAction()
    
    if(GlobalPar::GetPar()->IncludeTW()) {
       fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
-      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
+      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
       fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimeTw);
+      if(GlobalPar::GetPar()->Debug()) fActDatRawTw->SetDebugLevel(1);
       fActDatRawTw->CreateHistogram();
    }
    
@@ -263,7 +265,7 @@ void LocalReco::SetTreeBranches()
    
    if (GlobalPar::GetPar()->IncludeTW()) {
       if (fFlagHits)
-         fActEvtWriter->SetupElementBranch(fpNtuRawTw, TATW_ContainerHit::GetBranchName());
+         fActEvtWriter->SetupElementBranch(fpDatRawTw, TATWdatRaw::GetBranchName());
    }
    
    if (GlobalPar::GetPar()->IncludeCA()) {
