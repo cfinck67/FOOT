@@ -171,10 +171,10 @@ c
             elseif(REGNAM(1:3).eq.'SCN') then
                read(REGNAM(4:5),*) strip
                if (strip.lt.nstripSCN)then
-                  ireg2viewSCN(ii) = 1
+                  ireg2viewSCN(ii) = -1
                   ireg2stripSCN(ii) = strip
                elseif(strip.ge.nstripSCN) then
-                  ireg2viewSCN(ii) = -1
+                  ireg2viewSCN(ii) = 1
                   ireg2stripSCN(ii) = strip - nstripSCN
                endif
                if(ic.eq.1) then

@@ -29,7 +29,7 @@
 //##############################################################################
 
 ClassImp(TATW_ContainerHit);
-TString TATW_ContainerHit::fgkBranchName   = "twrh.";
+TString TATW_ContainerHit::fgkBranchName   = "containerHit.";
 
 
 

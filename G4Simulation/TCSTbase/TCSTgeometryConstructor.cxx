@@ -112,27 +112,7 @@ void TCSTgeometryConstructor::DefineMaxMinDimension()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void TCSTgeometryConstructor::DefineMaterial()
 {
-   G4double density;
-   G4int    ncomponents, natoms;
-   G4String name;
-   
-   G4double z, a;
-   if (fpParGeo->GetMaterial().Contains("EJ228")) {
-      
-      G4Material* EJ228 =  G4NistManager::Instance()->FindOrBuildMaterial("EJ228");
-      
-      if (EJ228 == 0x0) {
-         G4Element* C  = new G4Element("Carbon"  , "C",  z= 6, a= 12.00*g/mole);
-         G4Element* H  = new G4Element("Hydrogen", "H",  z= 1, a= 1.008*g/mole);
-         
-         // EJ-212 Scintillator material from eljen technology
-         EJ228 =  new G4Material(name = "EJ228", density=1.023*g/cm3, ncomponents=2);
-         EJ228->AddElement(C, natoms=9);
-         EJ228->AddElement(H, natoms=10);
-      }
-   } else
-      printf("\n Start counter material %s not defined !!! \n\n",fpParGeo->GetMaterial().Data());
-   
+    fpMaterials->CreateG4Material(fpParGeo->GetMaterial());   
 }
 
 

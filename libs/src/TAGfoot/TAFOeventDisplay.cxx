@@ -27,6 +27,7 @@
 #include "TASTdatRaw.hxx"
 #include "TABMdatRaw.hxx"
 #include "TATWdatRaw.hxx"
+#include "TATWntuRaw.hxx"
 
 #include "TABMactVmeReader.hxx"
 #include "TABMactDatRaw.hxx"
@@ -76,8 +77,14 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fpParGeoTw(0x0),
    fpParGeoCa(0x0),
 
+   fpParTimeSt(0x0),
+   fpParTimeTw(0x0),
+
    fpParMapSt(0x0),
    fpParMapBm(0x0),
+   fpParMapTw(0x0),
+
+   fpParTimTw(0x0),
 
    fpParCalBm(0x0),
    fpParCalTw(0x0),
@@ -345,9 +352,10 @@ void TAFOeventDisplay::ReadParFiles()
       
       fpParMapTw = new TAGparaDsc("twMap", new TATWparMap());
       TATWparMap* parMap = (TATWparMap*)fpParMapTw->Object();
-      parFileName = Form("./geomaps/TATWdetector%s.map", fExpName.Data());
+      parFileName = Form("./config/TATWChannelMap%s.xml", fExpName.Data());
       parMap->FromFile(parFileName.Data());
 
+      fpParTimTw = new TAGparaDsc("twTim", new TATWparTime());
    }
    
    // initialise par files for caloriomter
@@ -500,17 +508,27 @@ void TAFOeventDisplay::CreateRecActionVtx()
    fActClusVtx->CreateHistogram();
    
    if (fgTrackFlag) {
-      if (fgTrackingAlgo.Contains("Std") )
-         fActTrackVtx  = new TAVTactNtuTrack("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
-      else if (fgTrackingAlgo.Contains("Full"))
-         fActTrackVtx  = new TAVTactNtuTrackF("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
-      else {
+      if (fgTrackingAlgo.Contains("Std") ) {
+         if (GlobalPar::GetPar()->IncludeBM())
+            fActTrackVtx  = new TAVTactNtuTrack("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx, 0, fpNtuTrackBm);
+         else
+            fActTrackVtx  = new TAVTactNtuTrack("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
+      } else if (fgTrackingAlgo.Contains("Full")) {
+         if (GlobalPar::GetPar()->IncludeBM())
+            fActTrackVtx  = new TAVTactNtuTrackF("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx, 0, fpNtuTrackBm);
+         else
+            fActTrackVtx  = new TAVTactNtuTrackF("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
+      } else {
          Error("CreateRecActionVtx()", "No Tracking algorithm defined !");
       }
       fActTrackVtx->CreateHistogram();
       
       if (GlobalPar::GetPar()->IncludeTG()) {
          fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG);
+         fActVtx->CreateHistogram();
+         
+      } else if (GlobalPar::GetPar()->IncludeTG() && GlobalPar::GetPar()->IncludeBM()) {
+         fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG, fpNtuTrackBm);
          fActVtx->CreateHistogram();
       }
    }
@@ -552,8 +570,9 @@ void TAFOeventDisplay::CreateRawAction()
    }
    
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
+      fpParTimeSt   = new TAGparaDsc("stTime", new TASTparTime());
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
-      fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDaqEvent, fpParMapSt);
+      fActDatRawSt = new TASTactDatRaw("stActDat", fpDatRawSt, fpDaqEvent, fpParMapSt, fpParTimeSt);
       fActDatRawSt->CreateHistogram();
    }
 
@@ -602,10 +621,17 @@ void TAFOeventDisplay::CreateRawAction()
    }
    
    if(GlobalPar::GetPar()->IncludeTW()) {
+      fpParTimeTw   = new TAGparaDsc("twTime", new TATWparTime());
       fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
-      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
-      fActDatRawTw = new TATWactDatRaw("twActNtu", fpNtuRawTw, fpDaqEvent, fpParMapTw);
+      //      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
+      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
+      fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimTw);
       fActDatRawTw->CreateHistogram();
+
+      //      fActNtuRawTw = new TATWactNtuRaw("twActNtu", fpDatRawTw, fpNtuRawTw);
+      //      fActNtuRawTw->CreateHistogram();
+
+
    }
    
 //   if(GlobalPar::GetPar()->IncludeCA()) {
@@ -660,9 +686,17 @@ void TAFOeventDisplay::AddRequiredRawItem()
 {
    if (!fgStdAloneFlag)
       fTAGroot->AddRequiredItem("daqActReader");
+
+   if (GlobalPar::GetPar()->IncludeST())
+      fTAGroot->AddRequiredItem("stActDat");
+
    
    if (GlobalPar::GetPar()->IncludeBM())
       fTAGroot->AddRequiredItem("bmActDat");
+   
+   if (GlobalPar::GetPar()->IncludeTW())
+      fTAGroot->AddRequiredItem("twActDat");
+
 }
 
 
@@ -704,10 +738,10 @@ void TAFOeventDisplay::AddRequiredRecItem()
       }
    }
    
-   if (GlobalPar::GetPar()->IncludeTW()) {
-      fTAGroot->AddRequiredItem("twActNtu");
-      fTAGroot->AddRequiredItem("twActPoint");
-   }
+//   if (GlobalPar::GetPar()->IncludeTW()) {
+//      fTAGroot->AddRequiredItem("twActNtu");
+//      fTAGroot->AddRequiredItem("twActPoint");
+//   }
    
    if (GlobalPar::GetPar()->IncludeCA()) {
       fTAGroot->AddRequiredItem("caActNtu");
@@ -1145,11 +1179,20 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
             TVector3 A0 = track->GetMylar1Pos();
             TVector3 A1 = track->GetMylar2Pos();
             
+            A0[2] *= 1.1;
+            A1[2] *= 1.1;
+            
+            if (GlobalPar::GetPar()->IncludeTG()) {
+               Float_t posZtg = fpFootGeo->FromTGLocalToGlobal(TVector3(0,0,0)).Z();
+               posZtg = fpFootGeo->FromGlobalToBMLocal(TVector3(0, 0, posZtg)).Z();
+               A1 = track->PointAtLocalZ(posZtg);
+            }
+            
             TVector3 A0G = fpFootGeo->FromBMLocalToGlobal(A0);
             TVector3 A1G = fpFootGeo->FromBMLocalToGlobal(A1);
             
-            x  = A0G(0); y  = A0G(1); z  = A0G(2)*1.1;
-            x1 = A1G(0); y1 = A1G(1); z1 = A1G(2)*0.9;
+            x  = A0G(0); y  = A0G(1); z  = A0G(2);
+            x1 = A1G(0); y1 = A1G(1); z1 = A1G(2);
             
             Int_t nHits = track->GetNhit();
             // inverse view ??

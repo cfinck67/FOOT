@@ -40,6 +40,8 @@ ClassImp(BaseLocalReco)
 BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
  : TNamed(fileNameIn.Data(), fileNameout.Data()),
    fExpName(""),
+   fpParTimeSt(0x0),
+   fpParTimeTw(0x0),
    fpParMapSt(0x0),
    fpParGeoSt(0x0),
    fpParGeoBm(0x0),
@@ -63,13 +65,14 @@ BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
    fActTrackVtx(0x0),
    fActVtx(0x0),
    fActClusIt(0x0),
-   fFlagOut(false),
+   fFlagOut(true),
    fFlagTree(false),
    fFlagHits(false),
    fFlagHisto(false),
    fFlagTrack(false),
    fgTrackingAlgo("Full")
 {
+
    if (fileNameout == "")
       fFlagOut = false;
 
@@ -101,6 +104,7 @@ void BaseLocalReco::BeforeEventLoop()
    InitParameters();
    
    CreateRawAction();
+
    CreateRecAction();
 
    OpenFileIn();
@@ -193,10 +197,13 @@ void BaseLocalReco::InitParameters()
       TASTparGeo* parGeo = (TASTparGeo*)fpParGeoSt->Object();
       TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
+
       fpParMapSt = new TAGparaDsc("stMap", new TASTparMap()); // need the file
       TASTparMap* parMapSt = (TASTparMap*) fpParMapSt->Object();
       parFileName="./config/TASTdetector.cfg";
       parMapSt->FromFile(parFileName);
+
+      fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
    }
 
    // initialise parameters for Beam Monitor
@@ -277,6 +284,8 @@ void BaseLocalReco::InitParameters()
       TATWparMap* tw_parMap = (TATWparMap*)fpParMapTw->Object();
       parFileName = Form("./config/TATWChannelMap%s.xml", fExpName.Data());
       tw_parMap->FromFile(parFileName.Data());
+
+      fpParTimeTw = new TAGparaDsc("twTime", new TATWparTime()); // need the file
    }
    
    // initialise parameters for caloriomter
@@ -335,20 +344,33 @@ void BaseLocalReco::CreateRecActionVtx()
       fActClusVtx->CreateHistogram();
    
    if (fFlagTrack) {
-      if (fgTrackingAlgo.Contains("Std") )
-         fActTrackVtx  = new TAVTactNtuTrack("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
-      else if (fgTrackingAlgo.Contains("Full"))
-         fActTrackVtx  = new TAVTactNtuTrackF("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
-      else {
+      if (fgTrackingAlgo.Contains("Std") ) {
+         if (GlobalPar::GetPar()->IncludeBM())
+            fActTrackVtx  = new TAVTactNtuTrack("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx, 0, fpNtuTrackBm);
+         else
+            fActTrackVtx  = new TAVTactNtuTrack("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
+      } else if (fgTrackingAlgo.Contains("Full")) {
+         if (GlobalPar::GetPar()->IncludeBM())
+            fActTrackVtx  = new TAVTactNtuTrackF("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx, 0, fpNtuTrackBm);
+         else
+            fActTrackVtx  = new TAVTactNtuTrackF("vtActTrack", fpNtuClusVtx, fpNtuTrackVtx, fpParConfVtx, fpParGeoVtx);
+      } else {
          Error("CreateRecActionVtx()", "No Tracking algorithm defined !");
       }
+      
       if (fFlagHisto)
          fActTrackVtx->CreateHistogram();
       
       if (GlobalPar::GetPar()->IncludeTG()) {
-         fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG);
-         if (fFlagHisto)
-            fActVtx->CreateHistogram();
+	  if(GlobalPar::GetPar()->IncludeBM()) {
+	    fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG);
+	    if (fFlagHisto)
+	      fActVtx->CreateHistogram();
+	  } else {
+	    fActVtx    = new TAVTactNtuVertexPD("vtActVtx", fpNtuTrackVtx, fpNtuVtx, fpParConfVtx, fpParGeoVtx, fpParGeoG, fpNtuTrackBm);
+	    if (fFlagHisto)
+	      fActVtx->CreateHistogram();
+	  }
       }
    }
 }
@@ -374,10 +396,10 @@ void BaseLocalReco::CreateRecActionMsd()
 //__________________________________________________________
 void BaseLocalReco::CreateRecActionTw()
 {
-   fpNtuRecTw  = new TAGdataDsc("twPoint", new TATW_ContainerPoint());
-   fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
-   if (fFlagHisto)
-      fActPointTw->CreateHistogram();
+   // fpNtuRecTw  = new TAGdataDsc("twPoint", new TATW_ContainerPoint());
+   // fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
+   // if (fFlagHisto)
+   //    fActPointTw->CreateHistogram();
 }
 
 //__________________________________________________________
@@ -405,8 +427,9 @@ void BaseLocalReco::SetTreeBranches()
    if (GlobalPar::GetPar()->IncludeMSD()) 
       fActEvtWriter->SetupElementBranch(fpNtuClusMsd, TAMSDntuCluster::GetBranchName());
    
-   if (GlobalPar::GetPar()->IncludeTW())
-      fActEvtWriter->SetupElementBranch(fpNtuRecTw, TATW_ContainerPoint::GetBranchName());
+   if (GlobalPar::GetPar()->IncludeTW()){
+      // fActEvtWriter->SetupElementBranch(fpNtuRecTw, TATW_ContainerPoint::GetBranchName());
+   }
 }
 
 //__________________________________________________________
@@ -482,8 +505,8 @@ void BaseLocalReco::AddRequiredItemMsd()
 //__________________________________________________________
 void BaseLocalReco::AddRequiredItemTw()
 {
-   fTAGroot->AddRequiredItem("twActNtu");
-   fTAGroot->AddRequiredItem("twActPoint");
+//   fTAGroot->AddRequiredItem("twActNtu");
+//   fTAGroot->AddRequiredItem("twActPoint");
 }
 
 //__________________________________________________________

@@ -19,6 +19,7 @@ set( Qapivi_file
    TCGbaseConstructor
    TCGtargetConstructor
    TCGbaseGeometryConstructor
+   TCGmaterials
    TCGmcHit
    TCGbaseSensitiveDetector
 )

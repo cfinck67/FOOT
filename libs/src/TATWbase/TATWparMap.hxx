@@ -32,6 +32,8 @@ class TATWparMap : public TAGpara {
     inline int getTDboaID(int add) { return TDboaID.at(add); }
     inline int getDetID(int add) { return DetID.at(add); }
 
+    inline CChannelMap* getChannelMap() { return cMap; }
+  
     ClassDef(TATWparMap,1)
 
   private:

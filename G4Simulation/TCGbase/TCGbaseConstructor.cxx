@@ -33,10 +33,12 @@
 TCGbaseConstructor::TCGbaseConstructor(const Char_t* name, const Char_t* version)
  : TNamed(name, version),
    fLogMother(0x0),
-   fPhysMother(0x0)
+   fPhysMother(0x0),
+   fpMaterials(new TCGmaterials())
 {
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 TCGbaseConstructor::~TCGbaseConstructor()
 {
+    delete fpMaterials;
 }

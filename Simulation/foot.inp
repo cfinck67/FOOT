@@ -13,10 +13,10 @@ RADDECAY          2.                  1.
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * @@@START GENERATED, DO NOT MODIFY:GENERAL@@@ *********************************
-PHYSICS           1.                                                  COALESCE  
-BEAM       -0.200000            0.000000 -0.480000 -0.480000       1.0HEAVYION  
-HI-PROPE           6 12.000000                                                  
+BEAM       -0.200000            0.000000  0.480000 -0.480000       1.0HEAVYION  
+HI-PROPE           8        16                                                  
 BEAMPOS        0.000     0.000   -30.000                                        
+PHYSICS           1.                                                  COALESCE  
 EMFCUT           -1.        1.               BLACK  @LASTREG       1.0          
 EMFCUT           -1.        1.        1.  BLCKHOLE  @LASTMAT       1.0PROD-CUT  
 DELTARAY          1.                      BLCKHOLE  @LASTMAT       1.0          
@@ -28,136 +28,6 @@ PAIRBREM         -3.                      BLCKHOLE  @LASTMAT
 GEOBEGIN                             15.                              COMBNAME
 foot.geo
 GEOEND
-* ******************************************************************************
-*                          MEDIA                                               *
-* ******************************************************************************
-* -------1---------2---------3---------4---------5---------6---------7---------8
-* command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
-* -------1---------2---------3---------4---------5---------6---------7---------8
-* *** Aggiunte manuali
-MATERIAL         0.0       0.0       0.0                              BLCKHOLE
-MATERIAL         0.0       0.0       0.0                              VACUUM
-MATERIAL          1.   1.00794 8.3748E-5                              HYDROGEN
-MATERIAL          2.  4.002602 1.6632E-4                              HELIUM
-MATERIAL          4.  9.012182     1.848                              BERYLLIU
-MATERIAL          6.   12.0107        2.                              CARBON
-MATERIAL          7.   14.0067 0.0011653                              NITROGEN
-MATERIAL          8.   15.9994 0.0013315                              OXYGEN
-MATERIAL         12.   24.3050      1.74                              MAGNESIU
-MATERIAL         13. 26.981538    2.6989                              ALUMINUM
-MATERIAL         26.    55.845     7.874                              IRON
-MATERIAL         29.    63.546      8.96                              COPPER
-MATERIAL         47.  107.8682      10.5                              SILVER
-MATERIAL         14.   28.0855      2.33                              SILICON
-MATERIAL         79. 196.96655     19.32                              GOLD
-MATERIAL         80.    200.59    13.546                              MERCURY
-MATERIAL         82.     207.2     11.35                              LEAD
-MATERIAL         73.  180.9479    16.654                              TANTALUM
-MATERIAL         11. 22.989770     0.971                              SODIUM
-MATERIAL         18.    39.948  0.001662                              ARGON
-MATERIAL         20.    40.078      1.55                              CALCIUM
-MATERIAL         50.   118.710      7.31                              TIN
-MATERIAL         74.    183.84      19.3                              TUNGSTEN
-MATERIAL         22.    47.867      4.54                              TITANIUM
-MATERIAL         28.   58.6934     8.902                              NICKEL
-* *** Samario-Cobalto permanent magnet
-MATERIAL         62.                7.46                              SAMARIUM
-MATERIAL         27.                 8.9                              COBALT
-MATERIAL                             8.3                              SmCo
-COMPOUND          2.  SAMARIUM       17.    COBALT                    SmCo
-* *** Altro magnete permanente
-MATERIAL         60.                 6.9                              NEODYMIU
-MATERIAL          5.                2.37                              BORON
-MATERIAL         66.                8.55                              DYSPROSI
-MATERIAL         41.                8.57                              NIOBIUM
-MATERIAL                             7.6                              NdFeB
-COMPOUND        -30.  NEODYMIU      -66.      IRON       -1.     BORONNdFeB
-COMPOUND        -0.5  ALUMINUM       -1.  DYSPROSI       -1.   NIOBIUMNdFeB
-*  Bismuto
-MATERIAL         83.               9.747                              BISMUTH
-* Germanio
-MATERIAL         32.               5.323                              GERMANIU
-* BGO
-MATERIAL                            7.13                              BGO
-COMPOUND          4.   BISMUTH        3.  GERMANIU       12.    OXYGENBGO
-* Scintillator - EJ-232
-*
-MATERIAL                           1.023                              EJ232
-COMPOUND         10.  HYDROGEN        9.    CARBON                    EJ232
-* Scintillator - EJ228
-*
-MATERIAL                           1.023                              EJ228
-COMPOUND         10.  HYDROGEN        9.    CARBON                    EJ228
-*EMFRAY            4.   BLKBODY  @LASTREG
-* Barium sulfate Ba_S_O4
-MATERIAL         16.                2.07                              SULFUR
-MATERIAL         56.                 3.5                              BARIUM
-MATERIAL                             4.5                              BaSO4
-COMPOUND   -0.274212    OXYGEN -0.137368    SULFUR  -0.58842    BARIUMBaSO4
-* 221 Polyethylene, Marlex
-* Density variation of polyethylene is 0.91 - 1.05 g/cm3. "Low" density is
-*  0.920, "medium" is .93, and "high" is .95. Special polyethelene is made
-* for nuclear shielding, and this has loaded densities up to 1.08.
-* Chemical                    H    H
-* Formula :                   |    |
-*           |C H |       ---- C -- C ----
-*           | 2 4|n           |    |
-*                             H    H
-MATERIAL                            0.94                              Polyethy
-COMPOUND          4.  HYDROGEN        2.    CARBON                    Polyethy
-* Grafite
-MATERIAL          6.                2.26                              Graphite
-LOW-MAT     Graphite        6.       -3.      296.                    CARBON
-* 222 Mylar, Melinex
-* Chemical Formula :  H-C = C-H            H   H
-*                     /       \            |   |
-*       ---- O - C - C         C - C - O - C - C -------
-*                ||   \\     //    ||      |   |
-*  C  H 0        O    H-C - C-H    O       H   H
-*   10 8 4
-MATERIAL                             1.4                              Mylar
-COMPOUND          8.  HYDROGEN       10.    CARBON        4.    OXYGENMylar
-* 104 Air dry (near sea level)
-*
-MATERIAL                       .00120484                              AIR
-COMPOUND   -1.248E-4    CARBON -0.755267  NITROGEN -0.231781    OXYGENAIR
-COMPOUND   -0.012827     ARGON                                        AIR
-* Bakelite
-MATERIAL                            1.45                              BAKELITE
-COMPOUND          9.  HYDROGEN        9.    CARBON        1.    OXYGENBAKELITE
-* 134 Carbon Dioxide
-* Formula           O == C == O
-MATERIAL                        0.001842                              CO2
-COMPOUND          1.    CARBON        2.    OXYGEN                    CO2
-MAT-PROP         0.2                           CO2
-MATERIAL                      .001677136                              Ar-CO2
-COMPOUND        -0.8    -ARGON      -0.2      -CO2                    Ar-CO2
-MAT-PROP          1.                        Ar-CO2
-MATERIAL         18.            0.001662                              ARGON
-* Kapton polyimide film (C22_H10_N2_O5)n
-*
-MATERIAL                            1.42                              KAPTON
-COMPOUND   -0.026362  HYDROGEN -0.691133    CARBON  -0.07327  NITROGENKAPTON
-COMPOUND   -0.209235    OXYGEN                                        KAPTON
-MAT-PROP         0.8                188.     ARGON
-MATERIAL          9.           0.0015803                              FLUORINE
-* TEDLAR
-MATERIAL                             1.5                              TEDLAR
-COMPOUND          3.  HYDROGEN        2.    CARBON        1.  FLUORINETEDLAR
-* Epoxy (cast)
-* Chemical           H-C - C-H     CH3  H-C - C-H        H   H   H
-* Formula             //    \\     |     //    \\        |   |   |
-*          ----- O - C        C -- C -- C        C - O - C - C - C ---
-*  C  H  0            \     /      |     \     /         |   |   |
-*   18 19 3          H-C = C-H     CH3  H-C = C-H        H   O   H
-* If epoxy has silica filler, density will be in range of 1.6 - 2.0 g/cm3.
-MATERIAL                            1.18                              Epoxy
-COMPOUND         19.  HYDROGEN       18.    CARBON        3.    OXYGENEpoxy
-* *** Silicon carbide
-MATERIAL                            3.22                              SiC
-COMPOUND         -1.   SILICON       -1.    CARBON                    SiC
-MATERIAL                          0.1288                              SiCFoam
-COMPOUND         -4.       SiC      -96.       AIR                    SiCFoam
 *
 * ******************************************************************************
 *                         MEDIA & MAGFIELD                                     *
@@ -165,95 +35,142 @@ COMPOUND         -4.       SiC      -96.       AIR                    SiCFoam
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| what(1) | what(2) | what(3) | what(4) | what(5) | what(6) | SDUM    |
 * -------1---------2---------3---------4---------5---------6---------7---------8
+MATERIAL         0.0       0.0       0.0                              BLCKHOLE
+MAT-PROP         0.2                           CO2
+MAT-PROP          1.                        Ar/CO2
+MAT-PROP         0.8                188.     ARGON
 * @@@START GENERATED, DO NOT MODIFY:MATERIAL&MAGFIELD@@@ ***********************
-ASSIGNMA    BLCKHOLE     BLACK
+MATERIAL          0.        0.        0.                              VACUUM
+MATERIAL          8.   15.9994 0.0013315                              OXYGEN
+MATERIAL          7.   14.0067 0.0011653                              NITROGEN
+MATERIAL                         0.00129                              AIR
+COMPOUND  -7.900e-01    OXYGEN-2.100e-01  NITROGEN                    AIR
+MATERIAL         13.   26.9815    2.6989                              ALUMINUM
+MATERIAL         62.    150.36      7.46                              SAMARIUM
+MATERIAL         27.   58.9332       8.9                              COBALT
+MATERIAL                             8.3                              SmCo
+COMPOUND          2.  SAMARIUM       17.    COBALT                    SmCo
+MATERIAL          6.   12.0107        2.                              CARBON
+MATERIAL          1.   1.007948.3748e-05                              HYDROGEN
+MATERIAL                           1.023                              EJ228
+COMPOUND          9.    CARBON       10.  HYDROGEN                    EJ228
+MATERIAL         74.    183.84      19.3                              TUNGSTEN
+MATERIAL         18.    39.948  0.001662                              ARGON
+MATERIAL                      0.00167714                              Ar/CO2
+COMPOUND  -8.000e-01     ARGON-5.458e-02    CARBON-1.454e-01    OXYGENAr/CO2
+MATERIAL                         0.00187                              CO2
+COMPOUND          1.    CARBON        2.    OXYGEN                    CO2
+MATERIAL                             1.4                              Mylar
+COMPOUND         10.    CARBON        8.  HYDROGEN        4.    OXYGENMylar
+MATERIAL         14.   28.0855     2.329                              SILICON
+MATERIAL                             2.3                              SiO2/Al
+COMPOUND  -4.160e-01   SILICON-4.740e-01    OXYGEN-1.100e-01  ALUMINUMSiO2/Al
+MATERIAL                            2.65                              SiO2
+COMPOUND          1.   SILICON        2.    OXYGEN                    SiO2
+MATERIAL                          0.1288                              SiC/AIR
+COMPOUND  -2.802e-02   SILICON-1.198e-02    CARBON-7.584e-01    OXYGENSiC/AIR
+COMPOUND  -2.016e-01  NITROGEN                                        SiC/AIR
+MATERIAL                            3.22                              SiC
+COMPOUND          1.   SILICON        1.    CARBON                    SiC
+MATERIAL                            1.42                              Kapton
+COMPOUND         22.    CARBON       10.  HYDROGEN        2.  NITROGENKapton
+COMPOUND          5.    OXYGEN                                        Kapton
+MATERIAL                            1.18                              Epoxy
+COMPOUND         18.    CARBON       19.  HYDROGEN        3.    OXYGENEpoxy
+MATERIAL                           1.023                              EJ232
+COMPOUND          9.    CARBON       10.  HYDROGEN                    EJ232
+MATERIAL         83.    208.98     9.747                              BISMUTH
+MATERIAL         32.     72.61     5.323                              GERMANIU
+MATERIAL                           1.023                              BGO
+COMPOUND          4.   BISMUTH        3.  GERMANIU       12.    OXYGENBGO
+ASSIGNMA    BLCKHOLE     BLACK                                                  
 ASSIGNMA         AIR       AIR                             0                    
 ASSIGNMA       EJ228       STC                             0
 ASSIGNMA       Mylar   STCMYL1   STCMYL2        1.         0
 ASSIGNMA    ALUMINUM   BMN_SHI                             0
 ASSIGNMA       Mylar  BMN_MYL0                             0
 ASSIGNMA       Mylar  BMN_MYL1                             0
-ASSIGNMA      Ar-CO2  BMN_C000  BMN_C017        1.         0
-ASSIGNMA      Ar-CO2  BMN_C100  BMN_C117        1.         0
-ASSIGNMA      Ar-CO2   BMN_GAS                             0
+ASSIGNMA      Ar/CO2  BMN_C000  BMN_C017        1.         0
+ASSIGNMA      Ar/CO2  BMN_C100  BMN_C117        1.         0
+ASSIGNMA      Ar/CO2   BMN_GAS                             0
 ASSIGNMA    ALUMINUM   BMN_FWI                             0
-ASSIGNMA    ALUMINUM   BMN_SWI                             0
+ASSIGNMA    TUNGSTEN   BMN_SWI                             0
 ASSIGNMA      CARBON    TARGET                             0
 ASSIGNMA     SILICON     VTXE0     VTXE3        1.         0
 ASSIGNMA     SILICON     VTXM0     VTXM3        1.         0
-ASSIGNMA     SILICON     VTXP0     VTXP3        1.         0
+ASSIGNMA     SiO2/Al     VTXP0     VTXP3        1.         0
 ASSIGNMA       EJ232     SCN00     SCN39        1.         0
 ROT-DEFI        300.                  90                              vtZ_0
 ROT-DEFI        300.                  90                              vtZ_1
 ROT-DEFI        300.                  90                              vtZ_2
 ROT-DEFI        300.                  90                              vtZ_3
-ROT-DEFI        300.                                      19          twZ_20
-ROT-DEFI        300.                  90                              twZ_20
-ROT-DEFI        300.                                     -19          twZ_20
-ROT-DEFI        300.                                      17          twZ_21
-ROT-DEFI        300.                  90                              twZ_21
-ROT-DEFI        300.                                     -17          twZ_21
-ROT-DEFI        300.                                      15          twZ_22
-ROT-DEFI        300.                  90                              twZ_22
-ROT-DEFI        300.                                     -15          twZ_22
-ROT-DEFI        300.                                      13          twZ_23
-ROT-DEFI        300.                  90                              twZ_23
-ROT-DEFI        300.                                     -13          twZ_23
-ROT-DEFI        300.                                      11          twZ_24
-ROT-DEFI        300.                  90                              twZ_24
-ROT-DEFI        300.                                     -11          twZ_24
-ROT-DEFI        300.                                       9          twZ_25
-ROT-DEFI        300.                  90                              twZ_25
-ROT-DEFI        300.                                      -9          twZ_25
-ROT-DEFI        300.                                       7          twZ_26
-ROT-DEFI        300.                  90                              twZ_26
-ROT-DEFI        300.                                      -7          twZ_26
-ROT-DEFI        300.                                       5          twZ_27
-ROT-DEFI        300.                  90                              twZ_27
-ROT-DEFI        300.                                      -5          twZ_27
-ROT-DEFI        300.                                       3          twZ_28
-ROT-DEFI        300.                  90                              twZ_28
-ROT-DEFI        300.                                      -3          twZ_28
-ROT-DEFI        300.                                       1          twZ_29
-ROT-DEFI        300.                  90                              twZ_29
-ROT-DEFI        300.                                      -1          twZ_29
-ROT-DEFI        300.                                      -1          twZ_30
-ROT-DEFI        300.                  90                              twZ_30
-ROT-DEFI        300.                                       1          twZ_30
-ROT-DEFI        300.                                      -3          twZ_31
-ROT-DEFI        300.                  90                              twZ_31
-ROT-DEFI        300.                                       3          twZ_31
-ROT-DEFI        300.                                      -5          twZ_32
-ROT-DEFI        300.                  90                              twZ_32
-ROT-DEFI        300.                                       5          twZ_32
-ROT-DEFI        300.                                      -7          twZ_33
-ROT-DEFI        300.                  90                              twZ_33
-ROT-DEFI        300.                                       7          twZ_33
-ROT-DEFI        300.                                      -9          twZ_34
-ROT-DEFI        300.                  90                              twZ_34
-ROT-DEFI        300.                                       9          twZ_34
-ROT-DEFI        300.                                     -11          twZ_35
-ROT-DEFI        300.                  90                              twZ_35
-ROT-DEFI        300.                                      11          twZ_35
-ROT-DEFI        300.                                     -13          twZ_36
-ROT-DEFI        300.                  90                              twZ_36
-ROT-DEFI        300.                                      13          twZ_36
-ROT-DEFI        300.                                     -15          twZ_37
-ROT-DEFI        300.                  90                              twZ_37
-ROT-DEFI        300.                                      15          twZ_37
-ROT-DEFI        300.                                     -17          twZ_38
-ROT-DEFI        300.                  90                              twZ_38
-ROT-DEFI        300.                                      17          twZ_38
-ROT-DEFI        300.                                     -19          twZ_39
-ROT-DEFI        300.                  90                              twZ_39
-ROT-DEFI        300.                                      19          twZ_39
+ROT-DEFI        300.                                     -19          twZ_0
+ROT-DEFI        300.                  90                              twZ_0
+ROT-DEFI        300.                                      17          twZ_0
+ROT-DEFI        300.                                     -17          twZ_1
+ROT-DEFI        300.                  90                              twZ_1
+ROT-DEFI        300.                                      15          twZ_1
+ROT-DEFI        300.                                     -15          twZ_2
+ROT-DEFI        300.                  90                              twZ_2
+ROT-DEFI        300.                                      13          twZ_2
+ROT-DEFI        300.                                     -13          twZ_3
+ROT-DEFI        300.                  90                              twZ_3
+ROT-DEFI        300.                                      11          twZ_3
+ROT-DEFI        300.                                     -11          twZ_4
+ROT-DEFI        300.                  90                              twZ_4
+ROT-DEFI        300.                                       9          twZ_4
+ROT-DEFI        300.                                      -9          twZ_5
+ROT-DEFI        300.                  90                              twZ_5
+ROT-DEFI        300.                                       7          twZ_5
+ROT-DEFI        300.                                      -7          twZ_6
+ROT-DEFI        300.                  90                              twZ_6
+ROT-DEFI        300.                                       5          twZ_6
+ROT-DEFI        300.                                      -5          twZ_7
+ROT-DEFI        300.                  90                              twZ_7
+ROT-DEFI        300.                                       3          twZ_7
+ROT-DEFI        300.                                      -3          twZ_8
+ROT-DEFI        300.                  90                              twZ_8
+ROT-DEFI        300.                                       1          twZ_8
+ROT-DEFI        300.                                      -1          twZ_9
+ROT-DEFI        300.                  90                              twZ_9
+ROT-DEFI        300.                                      -1          twZ_9
+ROT-DEFI        300.                                       1          twZ_10
+ROT-DEFI        300.                  90                              twZ_10
+ROT-DEFI        300.                                      -3          twZ_10
+ROT-DEFI        300.                                       3          twZ_11
+ROT-DEFI        300.                  90                              twZ_11
+ROT-DEFI        300.                                      -5          twZ_11
+ROT-DEFI        300.                                       5          twZ_12
+ROT-DEFI        300.                  90                              twZ_12
+ROT-DEFI        300.                                      -7          twZ_12
+ROT-DEFI        300.                                       7          twZ_13
+ROT-DEFI        300.                  90                              twZ_13
+ROT-DEFI        300.                                      -9          twZ_13
+ROT-DEFI        300.                                       9          twZ_14
+ROT-DEFI        300.                  90                              twZ_14
+ROT-DEFI        300.                                     -11          twZ_14
+ROT-DEFI        300.                                      11          twZ_15
+ROT-DEFI        300.                  90                              twZ_15
+ROT-DEFI        300.                                     -13          twZ_15
+ROT-DEFI        300.                                      13          twZ_16
+ROT-DEFI        300.                  90                              twZ_16
+ROT-DEFI        300.                                     -15          twZ_16
+ROT-DEFI        300.                                      15          twZ_17
+ROT-DEFI        300.                  90                              twZ_17
+ROT-DEFI        300.                                     -17          twZ_17
+ROT-DEFI        300.                                      17          twZ_18
+ROT-DEFI        300.                  90                              twZ_18
+ROT-DEFI        300.                                     -19          twZ_18
+ROT-DEFI        300.                                      19          twZ_19
+ROT-DEFI        300.                  90                              twZ_19
+ROT-DEFI        300.                                     -21          twZ_19
 * @@@END GENERATED:MATERIAL&MAGFIELD@@@ ****************************************
 *
 * ******************************************************************************
 * -------1---------2---------3---------4---------5---------6---------7---------8
 * command| idbflg  | FragTrg |Eth(Mev) |unused   |unused   |unused | SDUM      |
 * -------1---------2---------3---------4---------5---------6---------7---------8
-USRICALL         0.0        6.        0.       0.0       0.0       0.0
+USRICALL         0.0        6.       0.1       0.0       0.0       0.0
 USERDUMP        100.       69.       0.0        1.                    Opt
 USROCALL
 RANDOMIZ          1.   593585.

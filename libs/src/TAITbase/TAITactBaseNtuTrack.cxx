@@ -578,16 +578,14 @@ void TAITactBaseNtuTrack::FillHistogramm()
 void TAITactBaseNtuTrack::FillBmHistogramm(TVector3 bmTrackPos)
 {   
    TAITntuTrack* pNtuTrack = (TAITntuTrack*) fpNtuTrack->Object();
-   bmTrackPos  = fpFirstGeo->FromBMLocalToGlobal(bmTrackPos*TAGgeoTrafo::MuToCm());
-   bmTrackPos *=  TAGgeoTrafo::CmToMu();
+   bmTrackPos  = fpFirstGeo->FromBMLocalToGlobal(bmTrackPos);
    fpHisBmBeamProf->Fill(bmTrackPos.X(), bmTrackPos.Y());
    
    for (Int_t i = 0; i < pNtuTrack->GetTracksN(); ++i) {
 	  TAITtrack* track  = pNtuTrack->GetTrack(i);
 	  TVector3   origin = track->GetTrackLine().GetOrigin();
 	  
-	  origin  = fpFirstGeo->FromVTLocalToGlobal(origin*TAGgeoTrafo::MuToCm());
-	  origin *=  TAGgeoTrafo::CmToMu();
+	  origin  = fpFirstGeo->FromVTLocalToGlobal(origin);
 	  TVector3 res = origin - bmTrackPos;
 	  fpHisVtxResX->Fill(res.X());
 	  fpHisVtxResY->Fill(res.Y());

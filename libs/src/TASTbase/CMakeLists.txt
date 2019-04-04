@@ -20,11 +20,12 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 set( with_dictionnaries
    TASTactDatRaw
    TASTactNtuMC
-   TASTactNtuMC
+   TASTactNtuRaw
    TASTdatRaw
    TASTntuRaw
    TASTparGeo
    TASTparMap
+   TASTparTime	
    TASTdigitizer
 )
 
@@ -96,3 +97,4 @@ install(TARGETS ${LIBNAME}  RUNTIME DESTINATION bin
 							LIBRARY DESTINATION lib
 							ARCHIVE DESTINATION lib
 							COMPONENT libraries)
+							

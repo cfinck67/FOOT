@@ -62,19 +62,23 @@ public:
    
    TASTntuHit*       Hit(Int_t i_ind);
    const TASTntuHit* Hit(Int_t i_ind) const;
-   
    TASTntuHit*        NewHit(int channel, double charge, double time);
-      
    virtual void      Clear(Option_t* opt="");
-   
    void              SetupClones();
-   
+   inline void SetCharge(double value){m_Charge = value;}
+   inline void SetTriggerTime(double value){m_TrigTime = value;}
+   inline double GetCharge(){return m_Charge;}
+   inline double GetTriggerTime(){return m_TrigTime;}
+  
+
+  
 public:
    static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
    
 private:
    TClonesArray*     fListOfHits;			    // hits
-   
+   double m_TrigTime;
+   double m_Charge;
 private:
    static TString fgkBranchName;    // Branch name in TTree
    

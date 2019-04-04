@@ -120,24 +120,7 @@ void TCCAgeometryConstructor::DefineMaxMinDimension()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void TCCAgeometryConstructor::DefineMaterial()
 {
-   G4double density;
-   G4int    ncomponents;
-   G4String name;
-   
-   G4double z, a;
-
-   // BGO
-   if (fpParGeo->GetCrystalMat().Contains("BGO")) {
-      G4Element* O  = new G4Element("Oxygen"  , "O",  z= 8, a= 16.00*g/mole);
-      G4Element* Ge = new G4Element("Germanum", "Ge", z=32, a= 72.64*g/mole);
-      G4Element* Bi = new G4Element("Bismuth",  "Bi", z=83, a= 208.98*g/mole);
-
-      G4Material* BGO = new G4Material(name = "BGO", density=7.13*g/cm3, ncomponents=3);
-      BGO->AddElement(O,12);
-      BGO->AddElement(Bi,4);
-      BGO->AddElement(Ge,3);
-   } else
-      printf("\n\nCalorimeter crystal material %s not defined !!! \n\n",fpParGeo->GetCrystalMat().Data());
+    fpMaterials->CreateG4Material(fpParGeo->GetCrystalMat());
 }
 
 

@@ -12,77 +12,90 @@ using namespace std;
 
 #include "TObject.h"
 #include "TClonesArray.h"
-
 #include "TAGdata.hxx"
+#include "TH1D.h"
+
+#define WAVE_CFD_ID 999
+#define WAVE_ID 998
+
 
 class TASTrawHit : public TObject {
-  public:
-    TASTrawHit();
-    TASTrawHit(int typ, int cha, double charge, double time);
-    virtual         ~TASTrawHit();
 
-    void            SetData(Int_t type, Int_t id, Double_t time, Double_t charge);
-    Double_t        Time() const;
-    Double_t        Charge() const;
-    Int_t           ChID() const;
-    Int_t           Type() const;
+public:
+  TASTrawHit();
+  TASTrawHit(int ch_num , vector<double> time, vector<double> amplitude);
+  virtual         ~TASTrawHit();
 
-    void            SetTime(double time);
-    void            SetCharge(double charge);
-    void            SetChID(int id);  //SC channel ID
-    void            SetType(int typ); //meaningless for now.
+  virtual void Clear(Option_t* /*option*/);
 
-    void            Clear(Option_t* option = "C");
+  
+  inline int GetChannel(){return m_ch_num;}
+  inline int GetCharge(){return m_charge;}
+  inline int GetArrivalTime(){return m_tarr;}
+  inline vector<double> GetTimeArray(){return m_time;}
+  inline vector<double> GetAmplitudeArray(){return m_amplitude;}
+  inline void SetArrivalTime(double value){m_tarr = value;}
+  inline void SetCharge(double value){m_charge = value;}
 
     ClassDef(TASTrawHit,1)
 
   private:
-    Double_t ir_time;    
-    Double_t ir_chg;    
-    Int_t ir_typ;
-    Int_t ir_chid;
+    vector<double> m_time, m_amplitude;
+    int m_ch_num, m_board_id;
+    double m_tarr;
+    double m_charge;
+  
 };
+
+
+
 
 //##############################################################################
 
 class TASTdatRaw : public TAGdata {
   public:
 
-                     TASTdatRaw();
-    virtual         ~TASTdatRaw();
+ TASTdatRaw();
+  virtual         ~TASTdatRaw();
+  
+  
+ 
+  void AddWaveform(int ch_num, vector<double> time, vector<double> amplitude);
+  void SumWaveforms();
+  inline TASTrawHit* GetWaveCFD(){return fSumWaves_cfd;}
+  inline TASTrawHit* GetWaveSum(){return fSumWaves;}
+  //bool IsSTChannel();
 
-    void              SetCounter(Int_t i_ntdc, Int_t i_nadc, Int_t i_ndrop);
 
-    Int_t             GetHitsN() const;
+  inline void SetTriggerTime(double value){fdTrgTime = value;}
+  inline void SetCharge(double value){fdCharge = value;}
 
-    TASTrawHit*       Hit(Int_t i_ind);
-    const TASTrawHit* Hit(Int_t i_ind) const;
-   
-    TASTrawHit*       NewHit(int tyoe, int channel, double charge, double time);
-
-
-    void              SetTrigTime(double time);
-    Double_t          TrigTime() const;
-
-    Int_t             NTdc() const;
-    Int_t             NAdc() const;
-    Int_t             NDrop() const;
-
-    virtual void      Clear(Option_t* opt="");
-
-    void              SetupClones();
-
-    virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
-
+  inline double     TrigTime(){return fdTrgTime;}
+  inline double     Charge(){return fdCharge;}
+  inline vector<TASTrawHit*>GetHits(){return  fListOfWaveforms;}
+  inline vector<TASTrawHit*>GetHitsCFD(){return  fListOfWaveforms_cfd;}  
+  
+  virtual void      Clear(Option_t* opt="");
+  virtual void      ToStream(ostream& os=cout, Option_t* option="") const;
+  
+    static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
+  
     ClassDef(TASTdatRaw,1)
-
+      
   private:
-    TClonesArray*   fListOfHits; // hits
-    double          fdTrgTime;   // SC trigger time
-    Int_t           fiNAdc;		//
-    Int_t           fiNTdc;		//
-    Int_t           fiNDrop;		// 
 
+     static TString fgkBranchName;    // Branch name in TTree
+
+    vector<TASTrawHit*> fListOfWaveforms; // hits
+    vector<TASTrawHit*> fListOfWaveforms_cfd; // hits
+    TASTrawHit*     fSumWaves; // hits
+    TASTrawHit*     fSumWaves_cfd; // hits
+    double          fdTrgTime;   // SC trigger time
+    double          fdCharge;   // SC total charge
+   
+ 
+
+  
 };
 
 #include "TASTdatRaw.icc"

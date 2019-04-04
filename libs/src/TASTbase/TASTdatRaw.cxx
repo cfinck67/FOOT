@@ -14,6 +14,9 @@ using namespace std;
 #include "TString.h"
 
 #include "TASTdatRaw.hxx"
+#include "TF1.h"
+
+
 
 /*!
   \class TASTdatRaw TASTdatRaw.hxx "TASTdatRaw.hxx"
@@ -21,6 +24,8 @@ using namespace std;
 */
 
 ClassImp(TASTrawHit);
+
+TString TASTdatRaw::fgkBranchName   = "stdat.";
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
@@ -32,91 +37,119 @@ TASTrawHit::~TASTrawHit()
 //! Default constructor.
 
 TASTrawHit::TASTrawHit()
-  : ir_time(999999.), ir_chg(0.), ir_typ(0), ir_chid(0)
+  :   m_ch_num(0), m_time(0.), m_amplitude(0.),  m_tarr(-10000), m_charge(-10000)
+{}
+
+
+TASTrawHit::TASTrawHit(int ch_num, vector<double> time, vector<double> amplitude){
+  m_ch_num = ch_num;
+  m_time = time;
+  m_amplitude = amplitude;
+  m_tarr = -10000;
+  m_charge = -10000;
+  
+}
+
+
+void TASTrawHit::Clear(Option_t* op/*option*/)
 {
-}
-
-TASTrawHit::TASTrawHit(int typ, int cha, double charge, double time) {
-
-  ir_time = time;
-  ir_chg  = charge;
-  ir_typ  = typ;
-  ir_chid   = cha;
-
-}
-
-void TASTrawHit::SetData(Int_t type, Int_t id, Double_t time, Double_t charge) {
-
-  ir_time = time;
-  ir_chg  = charge;
-  ir_typ  = type;
-  ir_chid   = id;
-  return;
-}
-
-
-void TASTrawHit::Clear(Option_t* /*option*/)
-{
-   ir_time = 0.;
-   ir_chg  = 0.;
-   ir_typ  = 0;
-   ir_chid = 0;
+  m_board_id = -100;
+  m_ch_num = -100;
+  m_tarr = -10000;
+  m_charge = -10000;
+  m_time.clear();
+  m_amplitude.clear();
 }
 
 //##############################################################################
+
+
 
 ClassImp(TASTdatRaw);
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TASTdatRaw::TASTdatRaw()
-: TAGdata(),
-  fListOfHits(0)
-{
+TASTdatRaw::TASTdatRaw(): TAGdata(),fListOfWaveforms(0x0), fListOfWaveforms_cfd(0x0),
+			  fSumWaves(0x0), fSumWaves_cfd(0x0) {
+
+  fdTrgTime = -1000000000000.;
+  
+
 }
+
 
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
-TASTdatRaw::~TASTdatRaw()
-{
-  delete fListOfHits;
+TASTdatRaw::~TASTdatRaw(){
+
+     for(int i=0;i<fListOfWaveforms.size();i++){
+    delete fListOfWaveforms.at(i);
+    delete fListOfWaveforms_cfd.at(i);
+  }
+
+   if(fSumWaves) delete fSumWaves;
+   if(fSumWaves_cfd) delete fSumWaves_cfd;
+
 }
 
-//------------------------------------------+-----------------------------------
-//! Setup clones.
 
-void TASTdatRaw::SetupClones()
-{
-  if (!fListOfHits) fListOfHits = new TClonesArray("TASTrawHit");
+void TASTdatRaw::AddWaveform(int ch_num, vector<double> time, vector<double> amplitude){
+
+  fListOfWaveforms.push_back(new TASTrawHit(ch_num, time ,amplitude));
+
+  vector<double> amplitude_cfd;
+  amplitude_cfd.assign(amplitude.size(), 0);
+  
+  for(int i=0;i<1024;i++){
+    if(i>4 && i<1021){
+      amplitude_cfd.at(i)+=(0.5*amplitude.at(i)-amplitude.at(i-4));
+    }else{
+      amplitude_cfd.at(i)=0;
+    }
+  }
+
+  fListOfWaveforms_cfd.push_back(new TASTrawHit(ch_num, time ,amplitude_cfd));
+
+
+}
+
+
+void TASTdatRaw::SumWaveforms(){
+
+  //fSumWaves
+
+  vector<double> tmp_time, tmp_amp, tmp_amp_cfd;
+  tmp_time.assign(1024,0);
+  tmp_amp.assign(1024,0);
+  tmp_amp_cfd.assign(1024,0);
+  
+  for(int iWa=0;iWa<fListOfWaveforms.size()-1;iWa++){
+    for(int i=0;i<1024;i++){
+      tmp_amp.at(i)+=(fListOfWaveforms.at(iWa)->GetAmplitudeArray()).at(i);
+      tmp_time.at(i)=i*256/1024.; //to be changed...
+    }
+  }
+
+ 
+  for(int i=0;i<1024;i++){
+    if(i>4 && i<1021){
+      tmp_amp_cfd.at(i)+=(0.5*tmp_amp.at(i)-tmp_amp.at(i-4));
+    }else{
+      tmp_amp_cfd.at(i)=0;
+    }
+  }
+
+  fSumWaves = new TASTrawHit(WAVE_ID,tmp_time, tmp_amp);
+  fSumWaves_cfd = new TASTrawHit(WAVE_CFD_ID,tmp_time, tmp_amp_cfd);
+
   return;
 }
 
-//______________________________________________________________________________
-//
-TASTrawHit* TASTdatRaw::NewHit(int type, int channel, double charge, double time)
-{
-   TClonesArray &pixelArray = *fListOfHits;
-   
-   TASTrawHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TASTrawHit(type, channel, charge, time);
-   
-   return hit;
-   
-}
+  
 
-
-/*------------------------------------------+---------------------------------*/
-//! Set statistics counters.
-
-void TASTdatRaw::SetCounter(Int_t i_ntdc, Int_t i_nadc, Int_t i_ndrop)
-{
-  fiNTdc  = i_ntdc;
-  fiNAdc  = i_nadc;
-  fiNDrop = i_ndrop;
-  return;
-}
 
 //------------------------------------------+-----------------------------------
 //! Clear event.
@@ -124,17 +157,28 @@ void TASTdatRaw::SetCounter(Int_t i_ntdc, Int_t i_nadc, Int_t i_ndrop)
 void TASTdatRaw::Clear(Option_t*)
 {
   TAGdata::Clear();
-  if (fListOfHits) fListOfHits->Clear("C");
 
+  for(int i=0;i<fListOfWaveforms.size();i++){
+    delete fListOfWaveforms.at(i);
+    delete fListOfWaveforms_cfd.at(i);
+  }
+
+  fListOfWaveforms.clear();
+  fListOfWaveforms_cfd.clear();
+
+  delete fSumWaves;
+  delete fSumWaves_cfd;
+  
   return;
 }
+
 
 /*------------------------------------------+---------------------------------*/
 //! ostream insertion.
 
 void TASTdatRaw::ToStream(ostream& os, Option_t* option) const
 {
-  os << "TASTdatRaw " << GetName()
-     << endl;
   return;
 }
+
+

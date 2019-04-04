@@ -26,15 +26,20 @@ class TASTparMap : public TAGpara {
 
     virtual void    Clear(Option_t* opt="");
 
-    inline int getTDID(int add) { return TDchaID.at(add); }
-    inline int getTDboaID(int add) { return TDboaID.at(add); }
+  inline int getTDID(int add) { return TDchaID.at(add); }
+  inline int getTDboaID(int add) { return TDboaID.at(add); }
 
+  Bool_t IsSTChannel(int iCha);
+  
     ClassDef(TASTparMap,1)
 
   private:
 
-    vector<int> TDchaID;
-    vector<int> TDboaID;
+   vector<int> TDclkID;
+   vector<int> TDchaID;
+   vector<int> TDboaID;
+
+
 };
 
 #endif

@@ -116,13 +116,17 @@ TABMactNtuTrack::~TABMactNtuTrack()
 //! Setup all histograms.
 void TABMactNtuTrack::CreateHistogram()
 {
-   
    DeleteHistogram();
    
    fpHisR02d = new TH2F("bmR02d","BM - Position of the track on the BM center plane", 500, -3., 3.,500 , -3., 3.);
    AddHistogram(fpHisR02d);   
+
+   fpHisMap = new TH2F("bmMap","BM - Position of the track at target center", 250, -3., 3.,250 , -3, 3);
+   AddHistogram(fpHisMap);
+
    fpResTot = new TH2F("bm_residual_tot","Residual vs Rdrift; Residual [cm]; Measured rdrift [cm]", 6000, -0.3, 0.3,250 , 0., 1.);
    AddHistogram(fpResTot);  
+
    SetValidHistogram(kTRUE);
 }
 
@@ -576,6 +580,11 @@ Bool_t TABMactNtuTrack::Action()
     p_ntutrk->SetEffFittedPlane( (eff_fittedplane_pivot==0) ?  -1 : (Double_t) eff_fittedplane_probe/eff_fittedplane_pivot);
     if (ValidHistogram()){
        fpHisR02d->Fill(trk->GetR0()[0],trk->GetR0()[1]);
+       TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+       Float_t posZ = geoTrafo->FromGlobalToBMLocal(TVector3(0,0,0)).Z();
+       
+       TVector3 pos = trk->PointAtLocalZ(posZ);
+       fpHisMap->Fill(pos[0], pos[1]);
      }
   }else if(converged==false)
     p_ntutrk->GetTrackStatus()=4;

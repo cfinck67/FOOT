@@ -29,7 +29,7 @@ public:
    
 public:
    static const Char_t* GetSDname()  { return fgkBmSDname.Data();}
-   Int_t GetNlayers();
+   void GetNlayers();
    
 private:
    G4LogicalVolume* fBoxLog;

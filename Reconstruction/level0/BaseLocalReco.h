@@ -9,6 +9,8 @@
 #include "TAGactTreeWriter.hxx"
 #include "TAGgeoTrafo.hxx"
 
+#include "TASTparTime.hxx"
+
 #include "TASTparMap.hxx"
 #include "TABMparMap.hxx"
 
@@ -26,6 +28,7 @@
 #include "TATWparMap.hxx"
 #include "TATWparCal.hxx"
 #include "TATWparMap.hxx"
+#include "TATWparTime.hxx"
 
 #include "TABMparCon.hxx"
 #include "TAVTparConf.hxx"
@@ -106,7 +109,7 @@ public:
    void DisableTree()     { fFlagTree = false;   }
    
    void EnableSaveHits()  { fFlagHits = true;    }
-   void DisableDaveHits() { fFlagHits = false;   }
+   void DisableSaveHits() { fFlagHits = false;   }
 
    
    void EnableHisto()     { fFlagHisto = true;   }
@@ -125,6 +128,9 @@ protected:
    TString               fExpName;
    TAGroot*              fTAGroot;             // pointer to TAGroot
    TAGgeoTrafo*          fpFootGeo;           // trafo prointer
+
+   TAGparaDsc*           fpParTimeSt;
+   TAGparaDsc*           fpParTimeTw;
 
    TAGparaDsc*           fpParMapSt;
    TAGparaDsc*           fpParMapBm;
@@ -168,6 +174,7 @@ protected:
    TAGdataDsc*           fpNtuRawMsd;	  // input ntu data dsc
    TAGdataDsc*           fpNtuClusMsd;	  // input cluster data dsc
    
+   TAGdataDsc*           fpDatRawTw;     // input data dsc
    TAGdataDsc*           fpNtuRawTw;     // input data dsc
    TAGdataDsc*           fpNtuRecTw;     // input data dsc
    TAGdataDsc*           fpNtuRawCa;     // input data dsc
@@ -195,7 +202,7 @@ protected:
    Bool_t                fFlagTrack;     // flag for tracking
    TString               fgTrackingAlgo; // tracking algorithm ("std" with BM, "Full" combinatory)
 
-protected:
+ protected:
    void CreateRecActionBm();
    void CreateRecActionVtx();
    void CreateRecActionIt();
