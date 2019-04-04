@@ -51,21 +51,21 @@ Bool_t TATWactDatRaw::Action() {
 
   if(GetDebugLevel()) { cout<<" Entering the TATWactDatRaw action "<<endl; }
   
-   TATWdatRaw*    p_datraw = (TATWdatRaw*)   fpDatRaw->Object();
-   TAGdaqEvent*   p_datdaq = (TAGdaqEvent*)  fpDatDaq->Object();
-   TATWparMap*    p_parmap = (TATWparMap*)   fpParMap->Object();
-   TATWparTime*   p_partime = (TATWparTime*)  fpParTime->Object();
-   p_datraw->SetupClones();
-   CChannelMap *cMap = p_parmap->getChannelMap();
-   Int_t nFragments = p_datdaq->GetFragmentsN();
-   for (Int_t i = 0; i < nFragments; ++i) {
-      TString type = p_datdaq->GetClassType(i);
-      if (type.Contains("WDEvent")) {
-        const WDEvent* evt = static_cast<const WDEvent*> (p_datdaq->GetFragment(i));
-	DecodeHits(evt, p_partime, p_datraw);
-      }
-   }
-   fpDatRaw->SetBit(kValid);
+  TATWdatRaw*    p_datraw = (TATWdatRaw*)   fpDatRaw->Object();
+  TAGdaqEvent*   p_datdaq = (TAGdaqEvent*)  fpDatDaq->Object();
+  TATWparMap*    p_parmap = (TATWparMap*)   fpParMap->Object();
+  TATWparTime*   p_partime = (TATWparTime*)  fpParTime->Object();
+  p_datraw->SetupClones();
+  CChannelMap *cMap = p_parmap->getChannelMap();
+  Int_t nFragments = p_datdaq->GetFragmentsN();
+  for (Int_t i = 0; i < nFragments; ++i) {
+    TString type = p_datdaq->GetClassType(i);
+    if (type.Contains("WDEvent")) {
+      const WDEvent* evt = static_cast<const WDEvent*> (p_datdaq->GetFragment(i));
+      DecodeHits(evt, p_partime, p_datraw);
+    }
+  }
+  fpDatRaw->SetBit(kValid);
   return kTRUE;
 
 }
@@ -92,6 +92,7 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
   double tmo_signal;
   int bco_counter, trig_type, ser_evt_number;
   vector<double> w_time;
+  vector<float> w_tcal;
   vector<double> w_amp;
   TWaveformContainer w;
   m_debug=false;
@@ -107,30 +108,32 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
     //found time header
     if(evt->values.at(iW) == FILE_HEADER && evt->values.at(iW+1) == TIME_HEADER){
 
-    	if(m_debug)printf("found time calibration header::%08x %08x\n", evt->values.at(iW), evt->values.at(iW+1));
-    	iW+=2;
+      if(m_debug)printf("found time calibration header::%08x %08x\n", evt->values.at(iW), evt->values.at(iW+1));
+      iW+=2;
 
-    	while((evt->values.at(iW) & 0xffff)== BOARD_HEADER){
+      while((evt->values.at(iW) & 0xffff)== BOARD_HEADER){
 
-    		board_id = (evt->values.at(iW)>>16)  & 0xffff;
-    		if(m_debug)printf("found board header::%08x num%d\n", evt->values.at(iW), board_id);
-    		iW++;
+	board_id = (evt->values.at(iW)>>16)  & 0xffff;
+	if(m_debug)printf("found board header::%08x num%d\n", evt->values.at(iW), board_id);
+	iW++;
 
-    		while((evt->values.at(iW) & 0xffff)== CH_HEADER){
-    			char tmp_chstr[2]={'0','0'};
-    			tmp_chstr[1] = (evt->values.at(iW)>>24)  & 0xff;
-    			tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
-    			ch_num = atoi(tmp_chstr);
-    			if(m_debug)printf("found channel header::%08x num%d\n", evt->values.at(iW), ch_num);
-    			iW++;
+	while((evt->values.at(iW) & 0xffff)== CH_HEADER){
+	  char tmp_chstr[2]={'0','0'};
+	  tmp_chstr[1] = (evt->values.at(iW)>>24)  & 0xff;
+	  tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
+	  ch_num = atoi(tmp_chstr);
+	  if(m_debug)printf("found channel header::%08x num%d\n", evt->values.at(iW), ch_num);
+	  iW++;
 
-    			for(int iCal=0;iCal<1024;iCal++){
-    				time_bin = *((float*)&evt->values.at(iW));
-    				p_parTime->SetTimeCal(board_id, ch_num, iCal,(double)time_bin);
-    				iW++;
-    			}
-    		}
-    	}
+	  w_tcal.clear();
+	  for(int iCal=0;iCal<1024;iCal++){
+	    time_bin = *((float*)&evt->values.at(iW));
+	    w_tcal.push_back(time_bin);
+	    iW++;
+	  }
+	  p_parTime->SetTimeCal(board_id, ch_num, w_tcal);
+	}
+      }
     }
 
   
@@ -197,8 +200,8 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
 	  w.ChannelId = ch_num;
 	  w.BoardId = board_id;
 	  for(int iw = 0; iw<w_amp.size(); iw++) {
-		  w.T[iw] = w_time.at(iw);
-		  w.W[iw] = w_amp.at(iw);
+	    w.T[iw] = w_time.at(iw);
+	    w.W[iw] = w_amp.at(iw);
 	  }
 	  p_datraw->NewHit(w);
 	  w_amp.clear();
@@ -221,6 +224,6 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
   }
 
 
-   return true;
+  return true;
 }
 

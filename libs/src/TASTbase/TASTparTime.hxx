@@ -41,7 +41,7 @@ class TASTparTime : public TAGpara {
 
     map<int, vector<double>> time_parcal;
     map<int, bool> m_GotCalib;
-   TASTparMap *fpParMap;
+   
 };
 
 #endif
