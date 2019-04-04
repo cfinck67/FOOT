@@ -444,6 +444,9 @@ void BmBooter::PrintProjections(){
   TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histoc=new TH2D( "R0_xy", "R0 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histod=new TH2D( "target_xy", "target projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
+  TH2D* histoe=new TH2D( "projecta", "Projection of the selected tracks on the first shift; x[cm]; y[cm]", 200, -10., 10.,200, -10.,10.);
+  TH2D* histof=new TH2D( "projectb", "Projection of the selected tracks on the second shift; x[cm]; y[cm]", 200, -10., 10.,200, -10.,10.);
+  TH2D* histog=new TH2D( "projectc", "Projection of the selected tracks on the third shift; x[cm]; y[cm]", 200, -10., 10.,200, -10.,10.);
   //~ TH2D* histoe=new TH2D( "pvers_mx_MCvsFitted", "mx for the MC and fitted tracks; mx tracks; mx MC", 500,-0.05,0.05,500,-0.05,0.05);
   
   TVector3 projection;
@@ -456,6 +459,19 @@ void BmBooter::PrintProjections(){
     histoc->Fill(tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4));
     projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmgeo->GetTarget().Z());
     histod->Fill(projection.X(), projection.Y());
+    if(bmcon->GetMeas_shift().X()!=0 && bmcon->GetCalibro()<0){
+      projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmcon->GetMeas_shift().X());
+      histoe->Fill(projection.X(), projection.Y());
+    }
+    if(bmcon->GetMeas_shift().Y()!=0 && bmcon->GetCalibro()<0){
+      projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmcon->GetMeas_shift().Y());
+      histof->Fill(projection.X(), projection.Y());
+    }
+    if(bmcon->GetMeas_shift().Z()!=0 && bmcon->GetCalibro()<0){
+      projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmcon->GetMeas_shift().Z());
+      histog->Fill(projection.X(), projection.Y());
+    }
+
     //~ for(Int_t k=mcindex;k<mcxevent.size();k++){
       //~ if(mcxevent.at(k).at(0)==tracktr2dprojects.at(i).at(0)){
         //~ histoe->Fill(tracktr2dprojects.at(i).at(1), (mcxevent.at(k).at(3)-mcxevent.at(k).at(1))/(bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z()));
@@ -656,7 +672,7 @@ void BmBooter::evaluateT0() {
   TH2D* h2=nullptr;
   Int_t tmp_int, trash;
   char tmp_char[200];
-  Int_t adc_maxbin=4200, rate_xevent_max=1000, sca_cha_maxbin=1000;
+  Int_t adc_maxbin=4200, rate_xevent_max=200000, sca_cha_maxbin=1000;
 
   //book histos
   //general histos
@@ -667,11 +683,6 @@ void BmBooter::evaluateT0() {
   h=new TH1D("rate_xevent_beam_hz","Beam Rate with the trigger rate and the coincidence scaler meas as function of the event number ;Event num scaled; Hz",rate_xevent_max,0.,rate_xevent_max);
   //~ h=new TH1D("rate_timeacq","Rate of the events, from bmstruct.time_acq;Hz; Number of events",1000,0.,10000.);
   h=new TH1D("rate_readev","time occurred to read the data for each event, from bmsturct.time_read;[micro seconds]; Number of events",500,0.,1000.);
-  
-  if(bmmap->GetAdc792Ch()>0 && bmmap->GetAdcPetNum()>0){
-    h2=new TH2D("adc_vs_numhit","Sum of the margherita Adc counts vs number of BM hits;Sum of margherita Adc counts; Number of BM hits",adc_maxbin,0.,adc_maxbin,30,0,30.);
-    h=new TH1D("rate_adc_up","Rate of the event with a qdc value > adc_double;Hz; Number of events",1000,0.,20000.);
-  }
   
   f_out->mkdir("TDC");
   f_out->cd("TDC");
@@ -717,7 +728,8 @@ void BmBooter::evaluateT0() {
       }
     gDirectory->cd("..");
   
-  h=new TH1D("tdc_error","Number of tdc signals with errors; Event number; counts",10,0.,10);//distinguish the type of error!
+  h=new TH1D("tdc_error","0=ok 1=evnum 2=ch_out 3=wordnum 4=nosync 5=multisync 6=multievent; Number of tdc signals with errors; counts",10,0.,10);//distinguish the type of error!
+  h2=new TH2D("bmhitnum_vs_tdcsyncnum","number of bmhits vs tdc sync;number of bmhits; tdc number of sync",30,0.,30,5,0,5);
   f_out->cd("..");
   if(bmmap->GetSca830Ch()>0){
     f_out->mkdir("SCA");
@@ -739,6 +751,9 @@ void BmBooter::evaluateT0() {
     h=new TH1D("adc_pedrms","Adc pedestals rms ;channel; Counts rms",bmmap->GetAdc792Ch(),0.,bmmap->GetAdc792Ch());   
     if(bmmap->GetAdcPetNum()>0){
       h=new TH1D("adc_petals_sum_meas","Adc sum of the petals measurement - pedestal;Adc measurement; Number of events",adc_maxbin*4,0.,adc_maxbin*4);   
+      h2=new TH2D("adc_vs_numhit","Sum of the margherita Adc counts vs number of BM hits;Sum of margherita Adc counts; Number of BM hits",adc_maxbin,0.,adc_maxbin,30,0,30.);
+      h2=new TH2D("adc_vs_tdcsyncnum","Sum of the margherita Adc counts vs number of BM sync;Sum of margherita Adc counts; Number of BM sync",adc_maxbin,0.,adc_maxbin,5,0,5.);
+      h=new TH1D("rate_adc_up","Rate of the event with a qdc value > adc_double;Hz; Number of events",1000,0.,20000.);
     }
     gDirectory->mkdir("ADC_meas");
     gDirectory->cd("ADC_meas");
@@ -781,7 +796,7 @@ void BmBooter::evaluateT0() {
   //charge the tdc_cha_* TH1D graph of the tdc signals
   vector<vector<Double_t>> rate_evtoev_vecvec; //vector of evtoevstuff_vec for each event
   vector<Double_t> evtoevstuff_vec(4,0.);  //0=time_evtoev; 1=scaler counter of the coincidance; 2=qdc sum of the 4 petals; 3= time of the acquisition  
-  Int_t only_bm_signal=0;
+  Int_t only_bm_signal, tdc_syncnum;
   while(read_event(kTRUE)) {
     if(bmcon->GetBMdebug()>11 && bmcon->GetBMdebug()!=99)
       cout<<"data_num_ev="<<data_num_ev<<endl<<"Fill the general graph and tdc"<<endl;
@@ -794,6 +809,7 @@ void BmBooter::evaluateT0() {
     //TDC  
     tmp_int=0;
     only_bm_signal=0;
+    tdc_syncnum=0;
     sprintf(tmp_char,"TDC/TDC_raw/tdc_rawsynccha_%d",bmmap->GetTrefCh());
     while(bmstruct.tdc_sync[tmp_int]!=-10000){
       ((TH1D*)gDirectory->Get("TDC/TDC_raw/all_tdc_rawcha"))->Fill(bmmap->GetTrefCh());       
@@ -812,15 +828,23 @@ void BmBooter::evaluateT0() {
       tmp_int++;
     }    
     if(bmstruct.tot_status==0 && bmstruct.tdc_status==-1000){ 
-      if(bmmap->GetAdc792Ch()>0 && bmmap->GetAdcPetNum()>0){
-        tmp_int=0;
-        if(bmstruct.tdc_id[tmp_int]!=-10000 && tmp_int<MAXHITTDC){
-          if(bmmap->tdc2cell(bmstruct.tdc_id[tmp_int])!=-1)
-            only_bm_signal++;
-          tmp_int++;
-        }
-        ((TH2D*)gDirectory->Get("adc_vs_numhit"))->Fill(bmstruct.adc792_sum, only_bm_signal);
+      tmp_int=0;
+      while(bmstruct.tdc_id[tmp_int]!=-10000 && tmp_int<MAXHITTDC){
+        if(bmmap->tdc2cell(bmstruct.tdc_id[tmp_int])!=-1)
+          only_bm_signal++;
+        tmp_int++;
       }
+      tmp_int=0;
+      while(bmstruct.tdc_sync[tmp_int]!=-10000 && tmp_int<MAXHITTDC){
+        if(bmmap->tdc2cell(bmstruct.tdc_id[tmp_int])!=-1)
+          tdc_syncnum++;
+        tmp_int++;
+      }
+      if(bmmap->GetAdc792Ch()>0 && bmmap->GetAdcPetNum()>0){
+        ((TH2D*)gDirectory->Get("ADC/adc_vs_numhit"))->Fill(bmstruct.adc792_sum, only_bm_signal);
+        ((TH2D*)gDirectory->Get("ADC/adc_vs_tdcsyncnum"))->Fill(bmstruct.adc792_sum, tdc_syncnum);
+      }
+      ((TH2D*)gDirectory->Get("TDC/bmhitnum_vs_tdcsyncnum"))->Fill(only_bm_signal, tdc_syncnum);
       if(bmstruct.tdcev==1 && bmstruct.tdc_sync[0]!=-10000 && bmstruct.tdc_sync[1]==-10000){
         ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(0);//no error
         ((TH1D*)gDirectory->Get("TDC/TDC_meas/all_tdc_cha_meas"))->Fill(bmmap->GetTrefCh());   
@@ -908,14 +932,14 @@ void BmBooter::evaluateT0() {
   data_num_ev--;
 
   if(bmcon->GetBMdebug()>3)
-    cout<<"BMbooter::evaluatet0 step end of the while loop on readevent"<<endl;
+    cout<<"BMbooter::evaluatet0 step: end of the while loop on readevent"<<endl;
 
   //fill rate and other graphs
   for(Int_t i=0;i<bmmap->GetSca830Ch();i++)
     ((TH1D*)gDirectory->Get("SCA/sca_allcounts_allch"))->SetBinContent(i+1,bmstruct.sca830_counts[i]);
 
   if(rate_evtoev_vecvec.size()<rate_xevent_max){
-    for(Int_t i=0;i<rate_evtoev_vecvec.size();i++){
+    for(Int_t i=1;i<rate_evtoev_vecvec.size();i++){
       ((TH1D*)gDirectory->Get("rate_xevent_evtoev"))->SetBinContent(i+1,1000000./rate_evtoev_vecvec.at(i).at(0));
       if(bmmap->GetSca830Ch()>0 && bmmap->GetScaCoinc()>=0){
         ((TH1D*)gDirectory->Get("rate_xevent_beam_hz"))->SetBinContent(i+1,1000000./rate_evtoev_vecvec.at(i).at(0)*rate_evtoev_vecvec.at(i).at(1));
@@ -925,9 +949,9 @@ void BmBooter::evaluateT0() {
       ((TH1D*)gDirectory->Get("rate_xevent_beam_hz"))->SetBinContent(i+1,0);
     }
   }else{
-    Int_t lastvecpos=0, step=rate_evtoev_vecvec.size()/rate_xevent_max;//step has to be an Int_t
+    Int_t lastvecpos=1, step=rate_evtoev_vecvec.size()/rate_xevent_max;//step has to be an Int_t
     Double_t mean_trigger, mean_beam;
-    for(Int_t i=0; i<rate_xevent_max;i++){
+    for(Int_t i=1; i<rate_xevent_max;i++){
       mean_trigger=0.;
       mean_beam=0.;
       for(Int_t k=0;k<step;k++){
@@ -950,7 +974,7 @@ void BmBooter::evaluateT0() {
         if(time_last==-1000.)
           time_last=rate_evtoev_vecvec.at(i).at(3);
         else{
-          ((TH1D*)gDirectory->Get("rate_adc_up"))->Fill(1000000./(rate_evtoev_vecvec.at(i).at(3)-time_last));
+          ((TH1D*)gDirectory->Get("ADC/rate_adc_up"))->Fill(1000000./(rate_evtoev_vecvec.at(i).at(3)-time_last));
           time_last=rate_evtoev_vecvec.at(i).at(3);
         }
       }
