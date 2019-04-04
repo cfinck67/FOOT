@@ -44,6 +44,16 @@ TATWntuHit::TATWntuHit(const TATWntuHit& aHit)
    
 }
 
+
+//------------------------------------------+-----------------------------------
+//! Default constructor.
+
+TATWntuHit::TATWntuHit()
+  : m_layer(-1), m_bar(-1), m_de(0.),m_time(0.),m_coordinate(0.),m_z(0.)
+{
+}
+
+
 //______________________________________________________________________________
 // Build the hit from its sensor, line and column// constructor of a Pixel with column and line 
 TATWntuHit::TATWntuHit ( int aView, int aBar, Double_t aDe, Double_t aTime, Double_t pos)
@@ -88,7 +98,9 @@ TATWntuRaw::TATWntuRaw()
 : TAGdata(),
     m_listOfHits(0x0)
 {
-   m_twGeo = (TATWparGeo*) gTAGroot->FindParaDsc(TATWparGeo::GetDefParaName(), "TATWparGeo")->Object();
+  m_hitlay1 = 0;
+  m_hitlay2 = 0;
+  
    SetupClones();
 }
 
@@ -103,62 +115,46 @@ TATWntuRaw::~TATWntuRaw()
 //  standard 
 TATWntuHit* TATWntuRaw::NewHit( int layer, int bar, double energyLoss, double atime, double pos ) {
 
-    if ( layer >= 0  && layer < m_twGeo->GetNLayers() ) {
+  TClonesArray &pixelArray = *m_listOfHits;
+  if(layer == 0) m_hitlay1++;
+  else   if(layer == 1) m_hitlay2++;
 
-        TClonesArray &pixelArray = *GetListOfHits(layer);
-        TATWntuHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWntuHit( layer, bar, energyLoss, atime, pos);
+  TATWntuHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWntuHit( layer, bar, energyLoss, atime, pos);
        
-        return hit;
-    } else {
-       Error("NewHit()", "Required layer not allowed: %d\n", layer);
-       return 0x0;
-    }
-   
-    return 0x0;  // never happens, but compiler doesn't complain
+  return hit;
 }
 
 //------------------------------------------+-----------------------------------
 //! return number of hits for a given sensor.  
-int TATWntuRaw::GetHitN( int layer ) {
+int TATWntuRaw::GetHitN(int layer) {
 
-    if ( layer >= 0  && layer < m_twGeo->GetNLayers()) {
-        TClonesArray*list = GetListOfHits(layer);
-        return list->GetEntries();
-    } else  {
-       Error("GetHitN()", "Required layer not allowed: %d\n", layer);
-       return 0x0;
-    }
-   
-    return 0x0;
+  if(layer == 0) return m_hitlay1;
+  else if(layer == 1) return m_hitlay2;
+  else  return -1;
+
 }
 
 //------------------------------------------+-----------------------------------
 //! return a pixel for a given sensor
-TATWntuHit* TATWntuRaw::GetHit(  int layer, int hitID ) {
-
-    if ( layer < 0  || layer > m_twGeo->GetNLayers()) {
-       Error("GetHitN()", "Required layer not allowed: %d\n", layer);
-       return 0x0;
+TATWntuHit* TATWntuRaw::GetHit( int hitID, int layer ) {
+  int tmpId(0);
+  for(int iD; iD<m_listOfHits->GetSize(); iD++) {
+    if(((TATWntuHit*)m_listOfHits->At(iD))->GetLayer() == layer) {
+      if(tmpId == hitID)
+	return (TATWntuHit*)(m_listOfHits->At(iD));
+      else 
+	tmpId++;
     }
-    if ( hitID < 0 || hitID >= GetHitN(layer) ) {
-       Error("GetHitN()", "number of hit %d required is wrong. Max num %d", hitID, GetHitN(layer));
-       return 0x0;
-    }
-
-    TClonesArray* list = GetListOfHits( layer );
-    return (TATWntuHit*)list->At( hitID );
+  }
+    
+  return nullptr;
+    
 }
 
 //------------------------------------------+-----------------------------------
-TClonesArray* TATWntuRaw::GetListOfHits( int layer ) {
+TClonesArray* TATWntuRaw::GetListOfHits() {
 
-   if ( layer >= 0  && layer < m_twGeo->GetNLayers() ) {
-	  TClonesArray* list = (TClonesArray*)m_listOfHits->At(layer);
-	  return list;
-   } else {
-      Error("GetHitN()", "Required layer not allowed: %d required is wrong. Max num %d\n", layer,  m_twGeo->GetNLayers());
-      return 0x0;
-   }
+  return m_listOfHits;
 }
 
 //------------------------------------------+-----------------------------------
@@ -167,14 +163,9 @@ void TATWntuRaw::SetupClones()   {
 
     if (m_listOfHits) return;
     
-    m_listOfHits = new TObjArray();
+    m_listOfHits = new TClonesArray("TATWntuHit");
+    //    m_listOfHits->SetOwner(true);
 
-    for ( int i = 0; i < m_twGeo->GetNLayers(); ++i ) {
-        TClonesArray* arr = new TClonesArray("TATWntuHit", 500);
-        arr->SetOwner(true);
-        m_listOfHits->AddAt(arr, i);
-    }
-    m_listOfHits->SetOwner(true);
 }
 
 
@@ -182,10 +173,9 @@ void TATWntuRaw::SetupClones()   {
 //! Clear event.
 void TATWntuRaw::Clear(Option_t*) {
 
-    for ( int i = 0; i < m_twGeo->GetNLayers(); ++i ) {
-        TClonesArray* list = GetListOfHits(i);
-        list->Delete();   
-    }
+  TAGdata::Clear();
+  m_listOfHits->Clear();   
+
 }
 
 //------------------------------------------+-----------------------------------
