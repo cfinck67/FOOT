@@ -22,12 +22,13 @@ public:
 				TAGdataDsc* p_datraw=0,
 				TAGdataDsc* p_datdaq=0,
 				TAGparaDsc* p_pargeo=0,
-				TAGparaDsc* p_parmap=0);
+				TAGparaDsc* p_parmap=0,
+				TAGparaDsc* p_calmap=0);
   virtual         ~TATWactNtuRaw();
 
   virtual Bool_t  Action();
 
-  ClassDef(TATWactNtuRaw,0)
+  ClassDef(TATWactNtuRaw,0);
     
   private:
     
@@ -35,13 +36,16 @@ public:
   TAGdataDsc*     fpNtuRaw;		    // output data dsc
   TAGparaDsc*     fpParGeo;		    // parameter dsc
   TAGparaDsc*     fpParMap;
+  TAGparaDsc*     fpCalPar;
 
   bool m_debug;
   
 
  private:
-  Double_t GetEnergy(TATWrawHit*a,TATWrawHit*b);
+  Double_t GetRawEnergy(TATWrawHit*a,TATWrawHit*b);
   Double_t GetTime(TATWrawHit*a,TATWrawHit*b);
+  Double_t GetEnergy(Double_t RawEnergy,Int_t BarId);
+
 
 };
 

@@ -35,8 +35,8 @@ TWaveformContainer::TWaveformContainer(const TWaveformContainer &other)
 	ir_chg=other.ir_chg;
 	ir_pedestal=other.ir_pedestal;
 	ir_amplitude=other.ir_amplitude;
-	std::memcpy(T, other.T, sizeof(Double_t)*WAVEFORMBINS);
-	std::memcpy(W, other.W, sizeof(Double_t)*WAVEFORMBINS);
+	memcpy(T, other.T, sizeof(Double_t)*WAVEFORMBINS);
+	memcpy(W, other.W, sizeof(Double_t)*WAVEFORMBINS);
 }
 
 Double_t TWaveformContainer::ComputeCharge()
@@ -135,8 +135,6 @@ Double_t TWaveformContainer::ComputePedestal()
 	 ampl->Draw();
 	 c->SaveAs(TString::Format("Test%d.png",i));
 	 c->Close();
-	 std::cout << ir_pedestal << " " << ir_amplitude <<std::endl;
-
 	 gSystem->ProcessEvents();
  }
 

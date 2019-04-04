@@ -36,6 +36,7 @@ set( with_dictionnaries
    TATWdigitizer
    TWaveformContainer
    CChannelMap
+   CCalibrationMap
    Message
    XmlParser
 )

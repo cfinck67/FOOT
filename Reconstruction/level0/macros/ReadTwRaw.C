@@ -18,6 +18,7 @@
 #include "TAGactTreeWriter.hxx"
 
 #include "TATWparMap.hxx"
+#include "TATWparCal.hxx"
 #include "TATWparTime.hxx"
 
 #include "TATWdatRaw.hxx"
@@ -40,6 +41,8 @@ TAGdataDsc* twNtu  ;
 void FillTW()
 {
    TAGparaDsc* twMap = new TAGparaDsc("twMap", new TATWparMap());
+   TAGparaDsc* twcalMap = new TAGparaDsc("twcalMap", new TATWparCal());
+
    TAGdataDsc* twDaq    = new TAGdataDsc("twDaq", new TAGdaqEvent());
    twDat  = new TAGdataDsc("twDat", new TATWdatRaw());
    TAGparaDsc* twTim    = new TAGparaDsc("twTim", new TATWparTime());
@@ -54,7 +57,11 @@ void FillTW()
    TString parFileName = Form("./geomaps/TATWdetector.map");
    parGeo->FromFile(parFileName);
    TATWparMap *twParMap =  (TATWparMap*)twMap->Object();
-   twParMap->FromFile("./config/TATWChannelMap.xml");
+   twParMap->FromFile("./config/TATWCalibrationMap.xml.xml");
+   TATWparCal *twParCal =  (TATWparCal*)twcalMap->Object();
+   twParCal->FromFile("./config/.xml");
+
+
    twNtu  = new TAGdataDsc("twNtu", new TATWntuRaw());
    twActNtu  = new TATWactNtuRaw("twNtuRaw", twDat, twNtu, twGeo, twMap);
    twActNtu->CreateHistogram();

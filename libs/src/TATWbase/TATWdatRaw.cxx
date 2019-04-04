@@ -29,10 +29,6 @@ TATWrawHit::~TATWrawHit()
 {}
 
 
-
-
-
-
 TATWrawHit::TATWrawHit(TWaveformContainer &W)
 {
 	// set channel/board id

@@ -8,7 +8,9 @@
 #include "TATWactNtuRaw.hxx"
 #include "TMath.h"
 #include <map>
-#include "CCalibrationMap.h"
+#include "TATWparCal.hxx"
+#include "CCalibrationMap.hxx"
+
 /*!
   \class TATWactNtuRaw TATWactNtuRaw.hxx "TATWactNtuRaw.hxx"
   \brief Get Beam Monitor raw data from WD. **
@@ -23,17 +25,23 @@ TATWactNtuRaw::TATWactNtuRaw(const char* name,
 			     TAGdataDsc* p_datraw, 
 			     TAGdataDsc* p_nturaw,
 			     TAGparaDsc* p_pargeom,
-				 TAGparaDsc* p_parmap )
+				 TAGparaDsc* p_parmap,
+				 TAGparaDsc* p_calmap
+)
   : TAGaction(name, "TATWactNtuRaw - Unpack TW raw data"),
     fpDatRaw(p_datraw),
     fpNtuRaw(p_nturaw),
     fpParGeo(p_pargeom),
-	fpParMap(p_parmap)
+	fpParMap(p_parmap),
+	fpCalPar(p_calmap)
+
 {
   AddDataIn(p_datraw, "TATWdatRaw");
   AddDataOut(p_nturaw, "TATWntuRaw");
   AddPara(p_pargeom, "TATWparGeo");
   AddPara(p_parmap,"TATWparMap");
+  AddPara(p_calmap,"TATWparCal");
+
 }
 
 //------------------------------------------+-----------------------------------
@@ -51,6 +59,7 @@ Bool_t TATWactNtuRaw::Action() {
    TATWntuRaw*   p_nturaw = (TATWntuRaw*)  fpNtuRaw->Object();
    TATWparGeo*   p_pargeo = (TATWparGeo*)  fpParGeo->Object();
    TATWparMap*   p_parmap = (TATWparMap*)  fpParMap->Object();
+
    p_nturaw->SetupClones();
    CChannelMap *c=p_parmap->getChannelMap();
    int nhit = p_datraw->nirhit;
@@ -71,6 +80,7 @@ Bool_t TATWactNtuRaw::Action() {
 	   }
 	   PMap[aHi->BoardId()][aHi->ChID()]=aHi;
    }
+   //
    for (auto it=c->begin();it!=c->end();++it)
    {
 	   Int_t boardid=get<0>(it->second);
@@ -84,8 +94,10 @@ Bool_t TATWactNtuRaw::Action() {
 		   TATWrawHit* hitb=PMap[boardid][channelB];
 		   if (hita!=nullptr && hitb!=nullptr )
 		   {
-			   Double_t Energy=GetEnergy(hita,hitb);
+			   Double_t RawEnergy=GetRawEnergy(hita,hitb);
+			   Double_t Energy=GetEnergy(RawEnergy,BarId);
 			   Double_t Time=GetTime(hita,hitb);
+
 			   p_nturaw->NewHit(c->GetBarLayer(BarId),BarId, Energy,Time,0);
 		   }
 	   }
@@ -95,7 +107,7 @@ Bool_t TATWactNtuRaw::Action() {
 }
 
 
-Double_t TATWactNtuRaw::GetEnergy(TATWrawHit*a,TATWrawHit*b)
+Double_t TATWactNtuRaw::GetRawEnergy(TATWrawHit*a,TATWrawHit*b)
 {
 	if (a->Charge()<0|| b->Charge()<0)
 	{
@@ -103,6 +115,15 @@ Double_t TATWactNtuRaw::GetEnergy(TATWrawHit*a,TATWrawHit*b)
 	}
 	return TMath::Sqrt(a->Charge()*b->Charge());
 }
+Double_t TATWactNtuRaw::GetEnergy(Double_t RawEnergy,Int_t BarId)
+{
+	TATWparCal*   p_calmap = (TATWparCal*)    fpCalPar->Object();
+	Double_t p0=p_calmap->getCalibrationMap()->GetBarParameter(BarId,0);
+	Double_t p1=p_calmap->getCalibrationMap()->GetBarParameter(BarId,1);
+	// correct using the Birk's Law
+	return RawEnergy/(p0-RawEnergy*p1);
+}
+
 
 Double_t TATWactNtuRaw::GetTime(TATWrawHit*a,TATWrawHit*b)
 {
