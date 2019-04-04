@@ -1,6 +1,7 @@
 #ifndef CCALIBRATIONMAP_H
 #define CCALIBRATIONMAP_H
 #include <string>
+#include <map>
 #include <TSystem.h>
 
 #define NUMBEROFCALIBRATIONPARAMETERS 2
