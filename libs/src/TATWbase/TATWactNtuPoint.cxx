@@ -138,8 +138,8 @@ Bool_t TATWactNtuPoint::FindPoints()
       
          TATW_Point* point = pNtuPoint->NewPoint(xmin, hit1, ymin, hitmin);
          
-         Int_t Z = pCalMap->GetChargeZ(point->GetEnergyLoss1());
-         point->SetChargeZ(Z);
+//         Int_t Z = pCalMap->GetChargeZ(point->GetEnergyLoss1());
+//         point->SetChargeZ(Z);
 	 
 	 if (ValidHistogram()) {
 	   fpHisDist->Fill(minDist);
