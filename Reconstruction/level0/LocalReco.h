@@ -21,6 +21,7 @@
 //#include "TAMSDactDatRaw.hxx"
 
 #include "TATWactDatRaw.hxx"
+#include "TATWactNtuRaw.hxx"
 
 #include "TAGdaqEvent.hxx"
 #include "TAGactDaqReader.hxx"
@@ -77,6 +78,7 @@ private:
 //   TAMSDactNtuRaw*       fActNtuRawMsd;  // action for ntu data
 
    TATWactDatRaw*        fActDatRawTw;
+   TATWactNtuRaw*        fActNtuRawTw;
 
    TAGactDaqReader*      fActEvtReader; // reader for real data (DAQ)
   
