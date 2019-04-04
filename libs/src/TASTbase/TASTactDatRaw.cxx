@@ -44,7 +44,7 @@ TASTactDatRaw::TASTactDatRaw(const char* name,
 
   
   
-  m_debug = false;
+  m_debug = true;
   m_nev=0;
 }
 
