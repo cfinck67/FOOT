@@ -4,6 +4,7 @@
 #include "TLine.h"
 #include "TCanvas.h"
 #include "TSystem.h"
+#include "Parameters.h"
 
 
 
@@ -140,15 +141,21 @@ Double_t TWaveformContainer::ComputePedestal()
 
  void TWaveformContainer::SanitizeWaveform()
  {
-	 Double_t old=W[0];
-	 for (int bin=0;bin<WAVEFORMBINS;++bin)
+	 Double_t old=W[WAVEFORMBINS-1];
+	 if (old<-0.8)
+	 {
+		 old+=1;
+		 W[WAVEFORMBINS-1]+=1;
+	 }
+	 for (int bin=WAVEFORMBINS-2;bin>0;--bin)
 	 {
 		 Double_t derivative=(W[bin]-old);
 		 if (fabs(derivative)>VOLTAGE_TS)
 		 {
-			 W[bin]-=TMath::Sign(1,derivative);
+			W[bin]-=TMath::Sign(1,derivative);
 		 }
 		 old=W[bin];
+
 	 }
  }
 

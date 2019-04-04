@@ -30,6 +30,9 @@ typedef Int_t TChannelId;
 typedef Int_t TBarId;
 typedef Int_t TBoardId;
 
+#define VOLTAGE_TS 0.5
+#define CFD_THREHSOLD 0.3
+
 #define NUMBEROFCALIBRATIONPARAMETERS 2
 #define NUMBEROFPARTICLES 2
 

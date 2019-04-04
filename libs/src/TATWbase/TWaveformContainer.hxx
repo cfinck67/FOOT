@@ -3,22 +3,7 @@
 #ifndef TWAVEFORM_CONTAINER
 #define TWAVEFORM_CONTAINER
 
-#define WAVEFORMBINS 1024
-// define  some parameters
-#define PEDESTALSTARTBIN 10
-#define PEDESTALSTOPBIN 60
 
-#define AMPLITUDESTARTBIN 61
-#define AMPLITUDESTOPBIN  800
-
-#define CHARGESTARTBIN 0
-#define CHARGESTOPBIN  1023
-
-#define TIMESTAMPSTARTBIN 61
-#define TIMESTAMPSTOPBIN  800
-
-#define VOLTAGE_TS 0.5
-#define CFD_THREHSOLD 0.3
 // this class holds the waveform, channel id of the WD and the BoardId
 class TWaveformContainer
 {

@@ -26,8 +26,7 @@ TATWactNtuRaw::TATWactNtuRaw(const char* name,
 			     TAGdataDsc* p_nturaw,
 			     TAGparaDsc* p_pargeom,
 				 TAGparaDsc* p_parmap,
-				 TAGparaDsc* p_calmap
-)
+				 TAGparaDsc* p_calmap)
   : TAGaction(name, "TATWactNtuRaw - Unpack TW raw data"),
     fpDatRaw(p_datraw),
     fpNtuRaw(p_nturaw),
@@ -94,10 +93,12 @@ Bool_t TATWactNtuRaw::Action() {
 		   TATWrawHit* hitb=PMap[boardid][channelB];
 		   if (hita!=nullptr && hitb!=nullptr )
 		   {
+			   //
 			   Double_t RawEnergy=GetRawEnergy(hita,hitb);
 			   Double_t Energy=GetEnergy(RawEnergy,BarId);
-			   Double_t Time=GetTime(hita,hitb);
-
+			   //
+			   Double_t RawTime=GetRawTime(hita,hitb);
+			   Double_t Time=GetTime(RawTime,BarId);
 			   p_nturaw->NewHit(c->GetBarLayer(BarId),BarId, Energy,Time,0);
 		   }
 	   }
@@ -111,12 +112,17 @@ Double_t TATWactNtuRaw::GetRawEnergy(TATWrawHit*a,TATWrawHit*b)
 {
 	if (a->Charge()<0|| b->Charge()<0)
 	{
+		std::cout <<std::dec<< a->ChID() << " " << b->ChID() << " " << a->BoardId() << " " << b->BoardId() <<std::endl;
 		return -1;
 	}
 	return TMath::Sqrt(a->Charge()*b->Charge());
 }
 Double_t TATWactNtuRaw::GetEnergy(Double_t RawEnergy,Int_t BarId)
 {
+	if (RawEnergy<0)
+	{
+		return -1;
+	}
 	TATWparCal*   p_calmap = (TATWparCal*)    fpCalPar->Object();
 	Double_t p0=p_calmap->getCalibrationMap()->GetBarParameter(BarId,0);
 	Double_t p1=p_calmap->getCalibrationMap()->GetBarParameter(BarId,1);
@@ -124,8 +130,12 @@ Double_t TATWactNtuRaw::GetEnergy(Double_t RawEnergy,Int_t BarId)
 	return RawEnergy/(p0-RawEnergy*p1);
 }
 
+Double_t  TATWactNtuRaw::GetTime(Double_t RawTime, Int_t BarId)
+{
+	return RawTime;
+}
 
-Double_t TATWactNtuRaw::GetTime(TATWrawHit*a,TATWrawHit*b)
+Double_t TATWactNtuRaw::GetRawTime(TATWrawHit*a,TATWrawHit*b)
 {
 	return (a->Time()+b->Time())/2;
 

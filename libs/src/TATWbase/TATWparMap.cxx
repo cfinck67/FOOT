@@ -43,7 +43,12 @@ TATWparMap::TATWparMap() {
 //! Destructor.
 
 TATWparMap::~TATWparMap()
-{}
+{
+	if (cMap!=nullptr)
+	{
+		free(cMap);
+	}
+}
 
 
 //------------------------------------------+-----------------------------------

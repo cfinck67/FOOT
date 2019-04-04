@@ -42,8 +42,11 @@ public:
   
 
  private:
+  //
   Double_t GetRawEnergy(TATWrawHit*a,TATWrawHit*b);
-  Double_t GetTime(TATWrawHit*a,TATWrawHit*b);
+  Double_t GetRawTime(TATWrawHit*a,TATWrawHit*b);
+  //
+  Double_t GetTime(Double_t Time,Int_t BarId);
   Double_t GetEnergy(Double_t RawEnergy,Int_t BarId);
 
 

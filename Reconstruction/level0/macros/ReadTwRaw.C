@@ -57,13 +57,13 @@ void FillTW()
    TString parFileName = Form("./geomaps/TATWdetector.map");
    parGeo->FromFile(parFileName);
    TATWparMap *twParMap =  (TATWparMap*)twMap->Object();
-   twParMap->FromFile("./config/TATWCalibrationMap.xml.xml");
+   twParMap->FromFile("./config/TATWChannelMap.xml");
    TATWparCal *twParCal =  (TATWparCal*)twcalMap->Object();
-   twParCal->FromFile("./config/.xml");
+   twParCal->FromFile("./config/TATWCalibrationMap.xml");
 
 
    twNtu  = new TAGdataDsc("twNtu", new TATWntuRaw());
-   twActNtu  = new TATWactNtuRaw("twNtuRaw", twDat, twNtu, twGeo, twMap);
+   twActNtu  = new TATWactNtuRaw("twNtuRaw", twDat, twNtu, twGeo, twMap,twcalMap);
    twActNtu->CreateHistogram();
 
 }
@@ -121,7 +121,7 @@ void ReadTwRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
 	 cout<<"Hit number:: "<<myNtu->GetHitN(0)<<endl;
 	 for(int iH = 0; iH<myNtu->GetHitN(0); iH++){
 	   TATWntuHit *aHi = myNtu->GetHit(0,iH);
-	   if (aHi->GetBar())
+	   std::cout << aHi->GetBar() <<std::endl;
 		   histo->Fill(aHi->GetEnergyLoss());
 	 }
 	  if (nEvents == nMaxEvts)
