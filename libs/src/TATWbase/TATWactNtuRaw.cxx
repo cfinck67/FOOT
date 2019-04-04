@@ -4,6 +4,8 @@
   \brief   Implementation of TATWactNtuRaw.
 */
 
+
+
 #include "TATWparMap.hxx"
 #include "TATWactNtuRaw.hxx"
 #include "TMath.h"
@@ -55,7 +57,7 @@ TATWactNtuRaw::~TATWactNtuRaw()
 
 Bool_t TATWactNtuRaw::Action() {
 
-   TATWdatRaw*    p_datraw = (TATWdatRaw*) fpDatRaw->Object();
+   TATWdatRaw*   p_datraw = (TATWdatRaw*) fpDatRaw->Object();
    TATWntuRaw*   p_nturaw = (TATWntuRaw*)  fpNtuRaw->Object();
    TATWparGeo*   p_pargeo = (TATWparGeo*)  fpParGeo->Object();
    TATWparMap*   p_parmap = (TATWparMap*)  fpParMap->Object();
@@ -65,7 +67,7 @@ Bool_t TATWactNtuRaw::Action() {
    int nhit = p_datraw->nirhit;
    //
    map<int, vector<TATWrawHit*> > PMap;
-   //
+   // loop over the hits to populate a map with key boardid and value std::vector of TATWrawHit  pointer
    for(int ih = 0; ih< nhit; ih++)
    {
 	   TATWrawHit *aHi = p_datraw->Hit(ih);
@@ -80,28 +82,36 @@ Bool_t TATWactNtuRaw::Action() {
 	   }
 	   PMap[aHi->BoardId()][aHi->ChID()]=aHi;
    }
-   //
+   // loop over all the bars
    for (auto it=c->begin();it!=c->end();++it)
    {
+	   //
 	   Int_t boardid=get<0>(it->second);
 	   int channelA=get<1>(it->second);
 	   int channelB=get<2>(it->second);
 	   int BarId=it->first;
+	   //
 	   if (PMap.find(boardid)!=PMap.end())
 	   {
-		   //
 		   TATWrawHit* hita=PMap[boardid][channelA];
 		   TATWrawHit* hitb=PMap[boardid][channelB];
+		   // if one of the channels was not acquired
+		   // not present, do not create the Hit
 		   if (hita!=nullptr && hitb!=nullptr )
 		   {
-			   //
+			   // get raw energy
 			   Double_t RawEnergy=GetRawEnergy(hita,hitb);
+			   // calibrated the energy to MeV
 			   Double_t Energy=GetEnergy(RawEnergy,BarId);
-			   //
+			   //get raw time in ns
 			   Double_t RawTime=GetRawTime(hita,hitb);
+			   // get calibrated time in ns
 			   Double_t Time=GetTime(RawTime,BarId);
-            Double_t rawPos=GetPosition(hita,hitb);
-			   p_nturaw->NewHit(c->GetBarLayer(BarId),BarId, Energy,Time,rawPos);
+			   // get position from the TOF between the two channels
+			   Double_t rawPos=GetPosition(hita,hitb);
+			   Double_t chargeCOM=GetChargeCenterofMass(hita,hitb);
+			   //
+			   p_nturaw->NewHit(c->GetBarLayer(BarId),BarId, Energy,Time,rawPos,chargeCOM);
 		   }
 	   }
    }
@@ -112,9 +122,9 @@ Bool_t TATWactNtuRaw::Action() {
 
 Double_t TATWactNtuRaw::GetRawEnergy(TATWrawHit*a,TATWrawHit*b)
 {
+	// if the waveform is strange/corrupted it is likely that the charge is <0
 	if (a->Charge()<0|| b->Charge()<0)
 	{
-		std::cout <<std::dec<< a->ChID() << " " << b->ChID() << " " << a->BoardId() << " " << b->BoardId() <<std::endl;
 		return -1;
 	}
 	return TMath::Sqrt(a->Charge()*b->Charge());
@@ -145,4 +155,9 @@ Double_t TATWactNtuRaw::GetRawTime(TATWrawHit*a,TATWrawHit*b)
 Double_t TATWactNtuRaw::GetPosition(TATWrawHit*a,TATWrawHit*b)
 {
    return (a->Time()-b->Time())/fTofPropAlpha;
+}
+
+Double_t TATWactNtuRaw::GetChargeCenterofMass(TATWrawHit*a,TATWrawHit*b)
+{
+	return TMath::Log(a->Charge()/b->Charge());
 }

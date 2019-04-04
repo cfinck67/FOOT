@@ -123,7 +123,7 @@ void TATWdatRaw::Clear(Option_t*)
 
 void TATWdatRaw::NewHit(TWaveformContainer &W)
 {
-  // set channel/board id
+  // get channel/board id
   Int_t cha =W.ChannelId;
   Int_t board =W.BoardId;
   W.SanitizeWaveform();

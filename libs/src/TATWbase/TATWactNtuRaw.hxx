@@ -52,6 +52,7 @@ public:
   Double_t GetTime(Double_t Time,Int_t BarId);
   Double_t GetEnergy(Double_t RawEnergy,Int_t BarId);
   Double_t GetPosition(TATWrawHit*a,TATWrawHit*b);
+  Double_t GetChargeCenterofMass(TATWrawHit*a,TATWrawHit*b);
 
 };
 

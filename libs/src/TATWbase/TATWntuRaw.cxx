@@ -26,7 +26,9 @@ TATWntuHit::TATWntuHit( TATWrawHit* hit )
     m_de(0),
     m_time(0),
     m_coordinate(0),
-    m_z(0)
+    m_z(0),
+	m_chargeCOM(0)
+
 {
 }
 
@@ -39,7 +41,8 @@ TATWntuHit::TATWntuHit(const TATWntuHit& aHit)
    m_de(aHit.m_de),
    m_time(aHit.m_time),
    m_coordinate(aHit.m_coordinate),
-   m_z(aHit.m_z)
+   m_z(aHit.m_z),
+   m_chargeCOM(aHit.m_chargeCOM)
 {
    
 }
@@ -56,14 +59,15 @@ TATWntuHit::TATWntuHit()
 
 //______________________________________________________________________________
 // Build the hit from its sensor, line and column// constructor of a Pixel with column and line 
-TATWntuHit::TATWntuHit ( int aView, int aBar, Double_t aDe, Double_t aTime, Double_t pos)
+TATWntuHit::TATWntuHit ( int aView, int aBar, Double_t aDe, Double_t aTime, Double_t pos,Double_t chargeCOM)
 : TAGobject(),
   m_layer(aView),
   m_bar(aBar),
   m_de(aDe),
   m_time(aTime),
   m_coordinate(pos),
-  m_z(0)
+  m_z(0),
+  m_chargeCOM(chargeCOM)
 {
 }
 
@@ -113,13 +117,13 @@ TATWntuRaw::~TATWntuRaw()
 
 //______________________________________________________________________________
 //  standard 
-TATWntuHit* TATWntuRaw::NewHit( int layer, int bar, double energyLoss, double atime, double pos ) {
+TATWntuHit* TATWntuRaw::NewHit( int layer, int bar, double energyLoss, double atime, double pos,double chargeCOM) {
 
   TClonesArray &pixelArray = *m_listOfHits;
   if(layer == 0) m_hitlay1++;
   else   if(layer == 1) m_hitlay2++;
 
-  TATWntuHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWntuHit( layer, bar, energyLoss, atime, pos);
+  TATWntuHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWntuHit( layer, bar, energyLoss, atime, pos,chargeCOM);
        
   return hit;
 }
