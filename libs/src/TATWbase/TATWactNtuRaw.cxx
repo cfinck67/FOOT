@@ -7,6 +7,7 @@
 #include "TATWparMap.hxx"
 #include "TATWactNtuRaw.hxx"
 #include "TMath.h"
+#include <map>
 /*!
   \class TATWactNtuRaw TATWactNtuRaw.hxx "TATWactNtuRaw.hxx"
   \brief Get Beam Monitor raw data from WD. **
@@ -52,9 +53,8 @@ Bool_t TATWactNtuRaw::Action() {
    p_nturaw->SetupClones();
    CChannelMap *c=p_parmap->getChannelMap();
    int nhit = p_datraw->nirhit;
-   cout<<" nhit "<<nhit<<endl;
    //
-   std::map<int, std::vector<TATWrawHit*> > PMap;
+   map<int, vector<TATWrawHit*> > PMap;
    //
    for(int ih = 0; ih< nhit; ih++)
    {
@@ -70,12 +70,11 @@ Bool_t TATWactNtuRaw::Action() {
 	   }
 	   PMap[aHi->BoardId()][aHi->ChID()]=aHi;
    }
-   std::cout << " Number of bars" << c->GetNumberOfBars() <<std::endl;
    for (auto it=c->begin();it!=c->end();++it)
    {
-	   Int_t boardid=std::get<0>(it->second);
-	   int channelA=std::get<1>(it->second);
-	   int channelB=std::get<2>(it->second);
+	   Int_t boardid=get<0>(it->second);
+	   int channelA=get<1>(it->second);
+	   int channelB=get<2>(it->second);
 	   int BarId=it->first;
 	   if (PMap.find(boardid)!=PMap.end())
 	   {
