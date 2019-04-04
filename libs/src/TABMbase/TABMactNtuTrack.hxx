@@ -142,9 +142,16 @@ public:
   TABMparGeo* p_bmgeo;
   TAGparGeo*  p_tggeo;
    
-   TH2F*            fpHisR02d;
-   TH2F*            fpHisMap;
-   TH2F*            fpResTot;
+  //histos 
+  TH2F*            fpHisR02d;
+  TH2F*            fpHisMap;
+  TH2F*            fpResTot;
+  TH2F*            fpHisR02d;
+  TH2F*            fpHisMylar12d;
+  TH2F*            fpHisMylar22d;
+  TH2F*            fpResTot;
+
+>>>>>>> Stashed changes
 };
 
 

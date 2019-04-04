@@ -135,6 +135,7 @@ Bool_t TABMactVmeReader::Process() {
       if(bmcon->GetBMdebug()>10)
         cout<<"hit charged: i="<<i<<"  tdc_id="<<fpEvtStruct->tdc_id[i]<<"  tdc2cell="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"  tdc_meas/10.="<<fpEvtStruct->tdc_meas[i]/10.<<"  T0="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<"  trigtime="<<fpEvtStruct->tdc_sync[0]/10.<<"  timecut="<<bmcon->GetHitTimecut()<<"  hittime="<<((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - fpEvtStruct->tdc_sync[0]/10.)<<endl;
     }else{
+      p_datraw->AddDischarged();
       if(bmcon->GetBMdebug()>10)
         cout<<"hit NOT charged: i="<<i<<"  tdc_id="<<fpEvtStruct->tdc_id[i]<<"  tdc2cell="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"  tdc_meas/10.="<<fpEvtStruct->tdc_meas[i]/10.<<"  T0="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<"  trigtime="<<fpEvtStruct->tdc_sync[0]/10.<<"  timecut="<<bmcon->GetHitTimecut()<<"  hittime="<<((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - fpEvtStruct->tdc_sync[0]/10.)<<endl;
       continue;
