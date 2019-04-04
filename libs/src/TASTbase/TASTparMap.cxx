@@ -58,6 +58,16 @@ Bool_t TASTparMap::IsSTChannel(int iCha){
 
 
 
+Bool_t TASTparMap::IsSTBoard(int iBo){
+
+  if(std::find(TDboaID.begin(),TDboaID.end(),iBo) == TDboaID.end()){
+    return false;
+  }
+  return true;
+
+    
+}
+
 
 Bool_t TASTparMap::FromFile(const TString& name) {
 
@@ -66,6 +76,8 @@ Bool_t TASTparMap::FromFile(const TString& name) {
   TString name_exp = name;
   gSystem->ExpandPathName(name_exp);
 
+
+  
   char bufConf[1024];
   int myArg1(0), myArg2(0); 
  
@@ -103,10 +115,6 @@ Bool_t TASTparMap::FromFile(const TString& name) {
   }
 
 
-  for(int i=0;i<TDchaID.size();i++){
-
-    cout << "channel mapped::" << TDchaID.at(i) << endl;
-  }
 
   
   return kFALSE;

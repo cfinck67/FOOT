@@ -61,7 +61,7 @@ public:
   int m_nev;
   
  private:
-  Bool_t DecodeHits(const WDEvent* evt, TASTparTime* p_parTime, TASTdatRaw *p_datraw);
+  Bool_t DecodeHits(const WDEvent* evt, TASTparTime* p_parTime, TASTdatRaw *p_datraw, TASTparMap *p_parmap);
   double ComputeArrivalTime(TASTrawHit *hit);
   double ComputeCharge(TASTrawHit *hit);
   double ComputeMaxAmplitude(TASTrawHit *hit);
