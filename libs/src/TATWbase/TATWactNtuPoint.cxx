@@ -13,8 +13,8 @@
 
 #include "TATWparGeo.hxx"
 #include "TATWparCal.hxx"
-#include "TATW_ContainerHit.hxx"
-#include "TATW_ContainerPoint.hxx"
+#include "TATWntuRaw.hxx"
+#include "TATWntuPoint.hxx"
 
 #include "TATWactNtuPoint.hxx"
 
@@ -35,8 +35,8 @@ TATWactNtuPoint::TATWactNtuPoint(const char* name,
    fpGeoMap(pGeoMap),
    fpCalMap(pCalMap)
 {
-   AddDataIn(pNtuRaw,   "TATW_ContainerHit");
-   AddDataOut(pNtuPoint, "TATW_ContainerPoint");
+   AddDataIn(pNtuRaw,   "TATWntuRaw");
+   AddDataOut(pNtuPoint, "TATWntuPoint");
 }
 
 //------------------------------------------+-----------------------------------
@@ -82,10 +82,10 @@ Bool_t TATWactNtuPoint::Action()
 //  
 Bool_t TATWactNtuPoint::FindPoints()
 {
-   TATW_ContainerHit* pNtuHit      = (TATW_ContainerHit*) fpNtuRaw->Object();
-   TATW_ContainerPoint* pNtuPoint  = (TATW_ContainerPoint*) fpNtuPoint->Object();
-   TATWparGeo* pGeoMap             = (TATWparGeo*) fpGeoMap->Object();
-   TATWparCal* pCalMap             = (TATWparCal*) fpCalMap->Object();
+   TATWntuRaw* pNtuHit      = (TATWntuRaw*) fpNtuRaw->Object();
+   TATWntuPoint* pNtuPoint  = (TATWntuPoint*) fpNtuPoint->Object();
+   TATWparGeo* pGeoMap      = (TATWparGeo*) fpGeoMap->Object();
+   TATWparCal* pCalMap      = (TATWparCal*) fpCalMap->Object();
 
    Float_t minDist = 99999;
    Int_t minId = -1;
@@ -102,7 +102,7 @@ Bool_t TATWactNtuPoint::FindPoints()
    for (Int_t i = 0; i < nHits1; ++i) {
       minDist = 99999; // should put a given value (2*BarWidth ?)
       
-      TATW_Hit* hit1 = pNtuHit->GetHit(layer1, i);
+      TATWntuHit* hit1 = pNtuHit->GetHit(layer1, i);
       
       Int_t bar1 = hit1->GetBar();
       Float_t x  = pGeoMap->GetBarPosition(layer1, bar1)[0];
@@ -113,7 +113,7 @@ Bool_t TATWactNtuPoint::FindPoints()
       best = false;
       for (Int_t j = 0; j < nHits2; ++j) {
          
-         TATW_Hit* hit2 = pNtuHit->GetHit(layer2, j);
+         TATWntuHit* hit2 = pNtuHit->GetHit(layer2, j);
          
          Int_t bar2 = hit2->GetBar();
          Float_t y  = pGeoMap->GetBarPosition(layer2, bar2)[1];
@@ -130,13 +130,13 @@ Bool_t TATWactNtuPoint::FindPoints()
       }
       
       if (best) {
-         TATW_Hit* hitmin = pNtuHit->GetHit(1, minId);
+         TATWntuHit* hitmin = pNtuHit->GetHit(1, minId);
          
          Int_t bar2   = hitmin->GetBar();
          Float_t xmin = pGeoMap->GetBarPosition(0, bar1)[0];
          Float_t ymin = pGeoMap->GetBarPosition(1, bar2)[1];
       
-         TATW_Point* point = pNtuPoint->NewPoint(xmin, hit1, ymin, hitmin);
+         TATWpoint* point = pNtuPoint->NewPoint(xmin, hit1, ymin, hitmin);
          
 //         Int_t Z = pCalMap->GetChargeZ(point->GetEnergyLoss1());
 //         point->SetChargeZ(Z);

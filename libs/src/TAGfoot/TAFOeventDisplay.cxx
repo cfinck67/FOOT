@@ -21,7 +21,7 @@
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
 #include "TATWntuRaw.hxx"
-#include "TATW_ContainerPoint.hxx"
+#include "TATWntuPoint.hxx"
 #include "TACAntuRaw.hxx"
 
 #include "TASTdatRaw.hxx"
@@ -347,7 +347,7 @@ void TAFOeventDisplay::ReadParFiles()
       
       fpParCalTw = new TAGparaDsc("twCal", new TATWparCal());
       TATWparCal* parCal = (TATWparCal*)fpParCalTw->Object();
-      parFileName = Form("./config/TATWdetector%s.cal", fExpName.Data());
+      parFileName = Form("./config/TATWCalibrationMap%s.xml", fExpName.Data());
       parCal->FromFile(parFileName.Data());
       
       fpParMapTw = new TAGparaDsc("twMap", new TATWparMap());
@@ -554,7 +554,7 @@ void TAFOeventDisplay::CreateRecActionMsd()
 //__________________________________________________________
 void TAFOeventDisplay::CreateRecActionTw()
 {
-   fpNtuRecTw  = new TAGdataDsc("twPoint", new TATW_ContainerPoint());
+   fpNtuRecTw  = new TAGdataDsc("twPoint", new TATWntuPoint());
    fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
    fActPointTw->CreateHistogram();
 }
@@ -628,7 +628,7 @@ void TAFOeventDisplay::CreateRawAction()
       fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimTw);
       fActDatRawTw->CreateHistogram();
 
-      fActNtuRawTw = new TATWactNtuRaw("twActNtu", fpDatRawTw, fpNtuRawTw, fpParMapTw, fpParCalTw);
+      fActNtuRawTw = new TATWactNtuRaw("twActNtu", fpDatRawTw, fpNtuRawTw, fpParGeoTw, fpParMapTw, fpParCalTw);
       fActNtuRawTw->CreateHistogram();
    }
    
@@ -862,7 +862,7 @@ void TAFOeventDisplay::UpdateHitInfo(TEveDigitSet* qs, Int_t idx)
       fInfoView->AddLine( Form("Time: %.3g ps \n", hit->GetTime()) );
 
    } else if (obj->InheritsFrom("TATW_Point")) {
-      TATW_Point* point = (TATW_Point*)obj;
+      TATWpoint* point = (TATWpoint*)obj;
       if (point == 0x0) return;
       TVector3 pos = point->GetPosition();
       fInfoView->AddLine( Form("Point# %d at position:\n", idx) );
@@ -1256,13 +1256,13 @@ void TAFOeventDisplay::UpdateBarElements()
 
    
    // Draw Quad
-   TATW_ContainerPoint* pNtuPoint = (TATW_ContainerPoint*) fpNtuRecTw->Object();
+   TATWntuPoint* pNtuPoint = (TATWntuPoint*) fpNtuRecTw->Object();
 
    Int_t nPoints = pNtuPoint->GetPointN();
    
    for (Int_t iPoint = 0; iPoint < nPoints; ++iPoint) {
       
-      TATW_Point *point = pNtuPoint->GetPoint(iPoint);
+      TATWpoint *point = pNtuPoint->GetPoint(iPoint);
       
       TVector3 posG = point->GetPosition();
       posG = fpFootGeo->FromTWLocalToGlobal(posG);
