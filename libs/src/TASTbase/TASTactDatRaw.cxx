@@ -80,10 +80,11 @@ Bool_t TASTactDatRaw::Action() {
    
 
    double TrigTime=0, Charge=0;
-
+   bool fitOk=false;
+   
    //evaluate the trigger time
    p_datraw->SumWaveforms();
-   TrigTime = ComputeArrivalTime(p_datraw->GetWaveCFD());
+   TrigTime = ComputeArrivalTime(p_datraw->GetWaveSum(),&fitOk);
    p_datraw->SetTriggerTime(TrigTime);
    if(ValidHistogram())hTrigTime->Fill(TrigTime); 
    //evaluate the arrival time of the single channels
@@ -93,17 +94,21 @@ Bool_t TASTactDatRaw::Action() {
  
    
    double single_time =0;
-   myHits = p_datraw->GetHitsCFD();
+   //   myHits = p_datraw->GetHitsCFD();
+   myHits = p_datraw->GetHits();
    for(int iHit=0;iHit<(int)myHits.size();iHit++){
-     single_time = ComputeArrivalTime(myHits.at(iHit));
-     
-     ch_num = myHits.at(iHit)->GetChannel();
-     myHits.at(iHit)->SetArrivalTime(single_time);
-     if(ValidHistogram()){
-       if(ch_num>=0 && ch_num<8) hArrivalTime[ch_num]->Fill(TrigTime-single_time); 
+     if(ComputeMaxAmplitude(myHits.at(iHit)) > 0.1 && ComputeMaxAmplitude(myHits.at(iHit)) < 0.9){
+       fitOk=false;
+       single_time = ComputeArrivalTime(myHits.at(iHit), &fitOk);
+       ch_num = myHits.at(iHit)->GetChannel();
+       myHits.at(iHit)->SetArrivalTime(single_time);
+       if(fitOk){
+	 if(ValidHistogram()){
+	   if(ch_num>=0 && ch_num<8) hArrivalTime[ch_num]->Fill(TrigTime-single_time); 
+	 }
+       }
      }
    }
-
    
    //evaluate the charge of the single channels
    double single_q=0, q=0,max_amp=0;
@@ -328,71 +333,6 @@ double TASTactDatRaw::ComputeMaxAmplitude(TASTrawHit*myHit){
 
 
 
-double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit){
-
-  
-  vector<double> tmp_amp = myHit->GetAmplitudeArray();
-  vector<double> tmp_time = myHit->GetTimeArray();
-  
-  int min_bin = std::distance(tmp_amp.begin(), std::min_element(tmp_amp.begin(), tmp_amp.end()));
-  int max_bin = std::distance(tmp_amp.begin(), std::max_element(tmp_amp.begin(), tmp_amp.end()));
-  int cross_bin=min_bin;
-  
-  while(tmp_amp.at(cross_bin) <0 && cross_bin<tmp_amp.size()){
-    cross_bin++;
-  }
-  
-  double time_crossbin = tmp_time.at(cross_bin);
-  double time_binmin = tmp_time.at(min_bin);
-  double time_binmax = tmp_time.at(max_bin);
-
-  double amp_crossbin = tmp_amp.at(cross_bin);
-  double amp_binmin = tmp_amp.at(min_bin);
-  double amp_binmax = tmp_amp.at(max_bin);
-
-  int bin_fit_l= min_bin;
-  int bin_fit_r= max_bin;
-  while(tmp_amp.at(bin_fit_l) < amp_binmin*0.8 && bin_fit_l<tmp_amp.size() && bin_fit_l>=0){
-    bin_fit_l++;
-  }
-  while(tmp_amp.at(bin_fit_r) > amp_binmax*0.5 && bin_fit_r<tmp_amp.size() && bin_fit_r>=0){
-    bin_fit_r--;
-  }
-
-  
-  double tleft= tmp_time.at(bin_fit_l);
-  double tright= tmp_time.at(bin_fit_r);
-  
-  // TCanvas c("c","",600,600);
-  // c.cd();
-  TGraph *aWave = new TGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
-  //WaveGraph.Draw("APL");
-  // WaveGraph.SetMarkerSize(0.5);
-  // WaveGraph.SetMarkerStyle(22);
-  // WaveGraph.SetMarkerColor(kBlue);
-  // WaveGraph.GetXaxis()->SetRangeUser(20,40);
-  aWave->Fit("pol1","Q", "",tleft, tright);
-  // c.Print(Form("waveform_ch%d_nev%d.png", myHit->GetChannel(), m_nev));
-  
-  TF1 *fitfun =((TF1*) aWave->GetFunction("pol1")); 
-  
-  double q = fitfun->GetParameter(0);
-  double m = fitfun->GetParameter(1);
-  double zeroTime = -q/m;
-
-  delete fitfun;
-  delete aWave;
-  
-  return zeroTime;
-
-}
-
-
-
-
-
-
-
 // double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit){
 
   
@@ -403,6 +343,10 @@ double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit){
 //   int max_bin = std::distance(tmp_amp.begin(), std::max_element(tmp_amp.begin(), tmp_amp.end()));
 //   int cross_bin=min_bin;
   
+//   while(tmp_amp.at(cross_bin) <0 && cross_bin<tmp_amp.size()){
+//     cross_bin++;
+//   }
+  
 //   double time_crossbin = tmp_time.at(cross_bin);
 //   double time_binmin = tmp_time.at(min_bin);
 //   double time_binmax = tmp_time.at(max_bin);
@@ -411,14 +355,21 @@ double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit){
 //   double amp_binmin = tmp_amp.at(min_bin);
 //   double amp_binmax = tmp_amp.at(max_bin);
 
+//   int bin_fit_l= min_bin;
+//   int bin_fit_r= max_bin;
+//   while(tmp_amp.at(bin_fit_l) < amp_binmin*0.8 && bin_fit_l<tmp_amp.size() && bin_fit_l>=0){
+//     bin_fit_l++;
+//   }
+//   while(tmp_amp.at(bin_fit_r) > amp_binmax*0.5 && bin_fit_r<tmp_amp.size() && bin_fit_r>=0){
+//     bin_fit_r--;
+//   }
+
+  
 //   double tleft= tmp_time.at(bin_fit_l);
 //   double tright= tmp_time.at(bin_fit_r);
-
-
-//   TF1 f("f", "[0]/(1+TMath::Exp(-(x-[1])/[1])/(1+TMath::Exp((x-[3])/[4]))+[5]",0,200);
   
-//   TCanvas c("c","",600,600);
-//   c.cd();
+//   // TCanvas c("c","",600,600);
+//   // c.cd();
 //   TGraph WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
 //   //WaveGraph.Draw("APL");
 //   // WaveGraph.SetMarkerSize(0.5);
@@ -437,6 +388,82 @@ double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit){
 //   return zeroTime;
 
 // }
+
+
+
+
+
+
+
+double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, bool *isOk){
+
+  
+  vector<double> tmp_amp = myHit->GetAmplitudeArray();
+  vector<double> tmp_time = myHit->GetTimeArray();
+  
+  int min_bin = std::distance(tmp_amp.begin(), std::min_element(tmp_amp.begin(), tmp_amp.end()));
+  int max_bin = std::distance(tmp_amp.begin(), std::max_element(tmp_amp.begin(), tmp_amp.end()));
+  int cross_bin=min_bin;
+  
+  double time_crossbin = tmp_time.at(cross_bin);
+  double time_binmin = tmp_time.at(min_bin);
+  double time_binmax = tmp_time.at(max_bin);
+
+  double amp_crossbin = tmp_amp.at(cross_bin);
+  double amp_binmin = tmp_amp.at(min_bin);
+  double amp_binmax = tmp_amp.at(max_bin);
+
+
+  double tleft= time_crossbin-15;
+  double tright= time_crossbin+2;
+
+ 
+  TF1 f("f", "-[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[5]",10,80);
+  TF1 f1("f1", "-0.2*[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[0]/(1+TMath::Exp(-(x-[1]-2)/[2]))/(1+TMath::Exp((x-[3]-2)/[4]))",10,80);
+
+  f.SetParameter(0,1);
+  f.SetParameter(1,30);
+  f.SetParameter(2,1);
+  f.SetParameter(3,30);
+  f.SetParameter(4,2);
+  f.SetParameter(5,0.05);
+  
+  // TCanvas c("c","",600,600);
+  // c.cd();
+  TGraph WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
+  // WaveGraph.Draw("APL");
+  // WaveGraph.SetMarkerSize(0.5);
+  // WaveGraph.SetMarkerStyle(22);
+  // WaveGraph.SetMarkerColor(kBlue);
+  // WaveGraph.GetXaxis()->SetRangeUser(0,100);
+  WaveGraph.Fit("f","Q", "",tleft, tright);
+
+  f1.SetLineColor(kGreen);
+  f1.FixParameter(0, f.GetParameter(0));
+  f1.FixParameter(1, f.GetParameter(1));
+  f1.FixParameter(2, f.GetParameter(2));
+  f1.FixParameter(3, f.GetParameter(3));
+  f1.FixParameter(4, f.GetParameter(4));
+  f1.FixParameter(5, f.GetParameter(5));
+
+  tleft = f1.GetX(f1.GetMinimum());
+  tright = f1.GetX(f1.GetMaximum());
+
+  // f1.SetNpx(10000);
+  // f1.Draw("same");
+  // c.Print(Form("waveform_ch%d_nev%d.png", myHit->GetChannel(), m_nev));
+
+  double t1=f1.GetX(0.0,tleft,tright);
+  //cout << "time1::" << t1 << "   t2::" << t2  << endl; 
+
+  if(t1>tleft && t1<tright){
+    *isOk = true;
+    return t1;
+  }else{
+    *isOk = false;
+    return -100000;
+  }
+}
 
 
 

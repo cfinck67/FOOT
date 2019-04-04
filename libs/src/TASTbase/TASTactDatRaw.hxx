@@ -62,7 +62,7 @@ public:
   
  private:
   Bool_t DecodeHits(const WDEvent* evt, TASTparTime* p_parTime, TASTdatRaw *p_datraw, TASTparMap *p_parmap);
-  double ComputeArrivalTime(TASTrawHit *hit);
+  double ComputeArrivalTime(TASTrawHit *hit, bool *isok);
   double ComputeCharge(TASTrawHit *hit);
   double ComputeMaxAmplitude(TASTrawHit *hit);
 };
