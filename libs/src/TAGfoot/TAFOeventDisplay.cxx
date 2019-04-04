@@ -20,7 +20,7 @@
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
-#include "TATW_ContainerHit.hxx"
+#include "TATWntuRaw.hxx"
 #include "TATW_ContainerPoint.hxx"
 #include "TACAntuRaw.hxx"
 
@@ -140,7 +140,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fActNtuRawMsd(0x0),
    fActClusMsd(0x0),
 
-   //fActNtuRawTw(0x0),
+   fActNtuRawTw(0x0),
    fActPointTw(0x0),
    fType(type),
    fStClusDisplay(new TAGclusterDisplay("Start counter hit")),
@@ -628,10 +628,8 @@ void TAFOeventDisplay::CreateRawAction()
       fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimTw);
       fActDatRawTw->CreateHistogram();
 
-      //      fActNtuRawTw = new TATWactNtuRaw("twActNtu", fpDatRawTw, fpNtuRawTw);
-      //      fActNtuRawTw->CreateHistogram();
-
-
+      fActNtuRawTw = new TATWactNtuRaw("twActNtu", fpDatRawTw, fpNtuRawTw, fpParMapTw, fpParCalTw);
+      fActNtuRawTw->CreateHistogram();
    }
    
 //   if(GlobalPar::GetPar()->IncludeCA()) {
@@ -738,10 +736,10 @@ void TAFOeventDisplay::AddRequiredRecItem()
       }
    }
    
-//   if (GlobalPar::GetPar()->IncludeTW()) {
-//      fTAGroot->AddRequiredItem("twActNtu");
-//      fTAGroot->AddRequiredItem("twActPoint");
-//   }
+   if (GlobalPar::GetPar()->IncludeTW()) {
+      fTAGroot->AddRequiredItem("twActNtu");
+      fTAGroot->AddRequiredItem("twActPoint");
+   }
    
    if (GlobalPar::GetPar()->IncludeCA()) {
       fTAGroot->AddRequiredItem("caActNtu");
@@ -1234,7 +1232,7 @@ void TAFOeventDisplay::UpdateBarElements()
 
    fFiredTofBar.clear();
 
-   TATW_ContainerHit* pNtuHit = (TATW_ContainerHit*) fpNtuRawTw->Object();
+   TATWntuRaw* pNtuHit = (TATWntuRaw*) fpNtuRawTw->Object();
    
    for( Int_t iLayer = 0; iLayer < parGeo->GetNLayers(); iLayer++) {
       
@@ -1243,7 +1241,7 @@ void TAFOeventDisplay::UpdateBarElements()
 
       for (Int_t iHit = 0; iHit < nHits; ++iHit) {
          
-         TATW_Hit *hit = pNtuHit->GetHit(iLayer, iHit);
+         TATWntuHit *hit = pNtuHit->GetHit(iLayer, iHit);
 
          Int_t iBar = hit->GetBar();
 
