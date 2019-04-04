@@ -65,6 +65,7 @@ public:
   double ComputeArrivalTime(TASTrawHit *hit, bool *isok);
   double ComputeCharge(TASTrawHit *hit);
   double ComputeMaxAmplitude(TASTrawHit *hit);
+  void   SavePlot(TGraph g,TF1 f1, TF1 f2, TASTrawHit *hit);
 };
 
 #endif

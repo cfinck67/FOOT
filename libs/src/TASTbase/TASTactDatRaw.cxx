@@ -44,7 +44,7 @@ TASTactDatRaw::TASTactDatRaw(const char* name,
 
   
   
-  m_debug = false;
+  m_debug = true;
   m_nev=0;
 }
 
@@ -391,7 +391,31 @@ double TASTactDatRaw::ComputeMaxAmplitude(TASTrawHit*myHit){
 
 
 
+void TASTactDatRaw::SavePlot(TGraph WaveGraph, TF1 fun1, TF1 fun2, TASTrawHit *myHit){
 
+
+  TCanvas c("c","",600,600);
+  c.cd();
+
+  WaveGraph.Draw("APL");
+  WaveGraph.SetMarkerSize(0.5);
+  WaveGraph.SetMarkerStyle(22);
+  WaveGraph.SetMarkerColor(kBlue);
+  WaveGraph.GetXaxis()->SetRangeUser(0,100);
+
+  fun1.SetLineColor(kRed);
+  fun2.SetLineColor(kGreen);
+
+  fun1.SetNpx(10000);
+  fun2.SetNpx(10000);
+  
+  fun1.Draw("same");
+  fun2.Draw("same");
+
+  c.Print(Form("waveform_ch%d_nev%d.png", myHit->GetChannel(), m_nev));
+  
+
+}
 
 
 
@@ -417,27 +441,19 @@ double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, bool *isOk){
   double tleft= time_crossbin-15;
   double tright= time_crossbin+2;
 
- 
+  //to be commented...
   TF1 f("f", "-[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[5]",10,80);
-  TF1 f1("f1", "-0.2*[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[0]/(1+TMath::Exp(-(x-[1]-2)/[2]))/(1+TMath::Exp((x-[3]-2)/[4]))",10,80);
-
   f.SetParameter(0,1);
-  f.SetParameter(1,30);
+  f.SetParameter(1,time_crossbin);
   f.SetParameter(2,1);
-  f.SetParameter(3,30);
+  f.SetParameter(3,time_crossbin+2);
   f.SetParameter(4,2);
   f.SetParameter(5,0.05);
   
-  // TCanvas c("c","",600,600);
-  // c.cd();
   TGraph WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
-  // WaveGraph.Draw("APL");
-  // WaveGraph.SetMarkerSize(0.5);
-  // WaveGraph.SetMarkerStyle(22);
-  // WaveGraph.SetMarkerColor(kBlue);
-  // WaveGraph.GetXaxis()->SetRangeUser(0,100);
   WaveGraph.Fit("f","Q", "",tleft, tright);
 
+  TF1 f1("f1", "-0.2*[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[0]/(1+TMath::Exp(-(x-[1]-1.5)/[2]))/(1+TMath::Exp((x-[3]-1.5)/[4]))",10,80);
   f1.SetLineColor(kGreen);
   f1.FixParameter(0, f.GetParameter(0));
   f1.FixParameter(1, f.GetParameter(1));
@@ -446,16 +462,15 @@ double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, bool *isOk){
   f1.FixParameter(4, f.GetParameter(4));
   f1.FixParameter(5, f.GetParameter(5));
 
+
+  if(m_debug)SavePlot(WaveGraph,f,f1, myHit);
+  
   tleft = f1.GetX(f1.GetMinimum());
   tright = f1.GetX(f1.GetMaximum());
 
-  // f1.SetNpx(10000);
-  // f1.Draw("same");
-  // c.Print(Form("waveform_ch%d_nev%d.png", myHit->GetChannel(), m_nev));
-
+  
   double t1=f1.GetX(0.0,tleft,tright);
-  //cout << "time1::" << t1 << "   t2::" << t2  << endl; 
-
+  
   if(t1>tleft && t1<tright){
     *isOk = true;
     return t1;
