@@ -118,7 +118,7 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
 	iW++;
 
 	while((evt->values.at(iW) & 0xffff)== CH_HEADER){
-	  char tmp_chstr[2]={'0','0'};
+	  char tmp_chstr[3]={'0','0','\0'};
 	  tmp_chstr[1] = (evt->values.at(iW)>>24)  & 0xff;
 	  tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
 	  ch_num = atoi(tmp_chstr);
@@ -173,7 +173,7 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
 	
 	while((evt->values.at(iW) & 0xffff)== CH_HEADER){
 
-	  char tmp_chstr[2]={'0','0'};
+	  char tmp_chstr[3]={'0','0','\0'};
 	  tmp_chstr[1] = (evt->values.at(iW)>>24)  & 0xff;
 	  tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
 	  ch_num = atoi(tmp_chstr);
