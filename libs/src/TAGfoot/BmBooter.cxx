@@ -431,7 +431,6 @@ void BmBooter::PrintEFFpp(){
   }
   histo10->SetBinContent(1,mean_planeff/4.);  
   
-  
 return;
 }
 
@@ -654,15 +653,24 @@ void BmBooter::evaluateT0() {
   TFile *f_out = new TFile(tmp_tstring.Data(),"RECREATE");
   f_out->cd();
   TH1D* h=nullptr;
+  TH2D* h2=nullptr;
   Int_t tmp_int, trash;
   char tmp_char[200];
-  Int_t adc_maxbin=4200;
+  Int_t adc_maxbin=4200, rate_xevent_max=1000, sca_cha_maxbin=1000;
 
   //book histos
   //general histos
-  h=new TH1D("rate_evtoev","Rate of the events, from bmstruct.time_evtoev;Hz; Number of events",1000,0.,20000.);
+  h=new TH1D("rate_evtoev","Trigger rate, from bmstruct.time_evtoev;Hz; Number of events",1000,0.,20000.);
+  h=new TH1D("rate_xevent_evtoev","trigger rate as function of the event number (from bmsturct.time_read);Event num scaled; Hz",rate_xevent_max,0.,rate_xevent_max);
+  h=new TH1D("rate_beam_khz","Beam Rate with the trigger rate and the coincidence scaler meas;kHz; Number of events",1000,0.,20000.);
+  h=new TH1D("rate_beam_hz","Beam Rate with the trigger rate and the coincidence scaler meas;Hz; Number of events",1000,0.,20000.);
+  h=new TH1D("rate_xevent_beam_hz","Beam Rate with the trigger rate and the coincidence scaler meas as function of the event number ;Event num scaled; Hz",rate_xevent_max,0.,rate_xevent_max);
   //~ h=new TH1D("rate_timeacq","Rate of the events, from bmstruct.time_acq;Hz; Number of events",1000,0.,10000.);
   h=new TH1D("rate_readev","time occurred to read the data for each event, from bmsturct.time_read;[micro seconds]; Number of events",500,0.,1000.);
+  h2=new TH2D("adc_vs_numhit","Sum of the margherita Adc counts vs number of BM hits;Sum of margherita Adc counts; Number of BM hits",adc_maxbin,0.,adc_maxbin,30,0,30.);
+  
+  if(bmmap->GetAdc792Ch()>0 && bmmap->GetAdcPetNum()>0)
+    h=new TH1D("rate_adc_up","Rate of the event with a qdc value > adc_double;Hz; Number of events",1000,0.,20000.);
         
   f_out->mkdir("TDC");
   f_out->cd("TDC");
@@ -678,6 +686,15 @@ void BmBooter::evaluateT0() {
     }
     gDirectory->cd("..");
     
+  gDirectory->mkdir("TDC_raw-sync");
+    gDirectory->cd("TDC_raw-sync");
+    for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
+      if(i!=bmmap->GetTrefCh())
+        sprintf(tmp_char,"tdc_raw-sync_cha_%d",i);
+      h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",3000,-1000.,2000.);
+    }
+    gDirectory->cd("..");
+    
   gDirectory->mkdir("TDC_meas");
     gDirectory->cd("TDC_meas");
     for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
@@ -687,6 +704,7 @@ void BmBooter::evaluateT0() {
         sprintf(tmp_char,"tdc_synccha_%d",i);  
       h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",3000,-1000.,2000.);
     }
+    h=new TH1D("all_tdc_cha_meas","Number of tdc signals from meas; TDC channel; counts",bmmap->GetTdcMaxcha(),0.,bmmap->GetTdcMaxcha());
     gDirectory->cd("..");
     
   gDirectory->mkdir("TDC_meas_less_sync");
@@ -698,7 +716,6 @@ void BmBooter::evaluateT0() {
       }
     gDirectory->cd("..");
   
-  h=new TH1D("all_tdc_cha","Number of tdc signals; TDC channel; counts",bmmap->GetTdcMaxcha(),0.,bmmap->GetTdcMaxcha());
   h=new TH1D("tdc_error","Number of tdc signals with errors; Event number; counts",10,0.,10);//distinguish the type of error!
   f_out->cd("..");
   if(bmmap->GetSca830Ch()>0){
@@ -706,9 +723,10 @@ void BmBooter::evaluateT0() {
     f_out->cd("SCA");
     for(Int_t i=0;i<bmmap->GetSca830Ch();i++){
       sprintf(tmp_char,"sca_cha_%d",i);  
-      h=new TH1D(tmp_char,"Scaler counts;Scaler counts; Number of events",1000,0.,1000.);
+      h=new TH1D(tmp_char,"Scaler counts;Scaler counts; Number of events",sca_cha_maxbin,0.,sca_cha_maxbin);
     }    
     h=new TH1D("sca_allch","Scaler channel with at least 1 count x event;Scaler channel; Number of events",bmmap->GetSca830Ch(),0.,bmmap->GetSca830Ch());
+    h=new TH1D("sca_allcounts_allch","Scaler channel final counts;Scaler channel; Counts",bmmap->GetSca830Ch(),0.,bmmap->GetSca830Ch());
     h=new TH1D("sca_error","Scaler Error;0=no_error    1=error; Number of events",2,0.,2);
     f_out->cd("..");
   }
@@ -718,6 +736,9 @@ void BmBooter::evaluateT0() {
     h=new TH1D("adc_error","Adc Error;0=no_error  1=read data error  2=overflow channels  3=channel overflow not set; Number of events",3,0.,3);
     h=new TH1D("adc_pedmeas","Adc pedestals level ;channel; Number of counts",bmmap->GetAdc792Ch(),0.,bmmap->GetAdc792Ch());
     h=new TH1D("adc_pedrms","Adc pedestals rms ;channel; Counts rms",bmmap->GetAdc792Ch(),0.,bmmap->GetAdc792Ch());   
+    if(bmmap->GetAdcPetNum()>0){
+      h=new TH1D("adc_petals_sum_meas","Adc sum of the petals measurement - pedestal;Adc measurement; Number of events",adc_maxbin*4,0.,adc_maxbin*4);   
+    }
     gDirectory->mkdir("ADC_meas");
     gDirectory->cd("ADC_meas");
       for(Int_t i=0;i<bmmap->GetAdc792Ch();i++){
@@ -756,16 +777,22 @@ void BmBooter::evaluateT0() {
     //~ f_out->cd("..");
   //~ }
   
-  //charge the tdc_cha_* TH1D graph of the tdc signals    
+  //charge the tdc_cha_* TH1D graph of the tdc signals
+  vector<vector<Double_t>> rate_evtoev_vecvec; //vector of evtoevstuff_vec for each event
+  vector<Double_t> evtoevstuff_vec(4,0.);  //0=time_evtoev; 1=scaler counter of the coincidance; 2=qdc sum of the 4 petals; 3= time of the acquisition  
+  Int_t only_bm_signal=0;
   while(read_event(kTRUE)) {
     if(bmcon->GetBMdebug()>11 && bmcon->GetBMdebug()!=99)
       cout<<"data_num_ev="<<data_num_ev<<endl<<"Fill the general graph and tdc"<<endl;
     //General Graphs
     ((TH1D*)gDirectory->Get("rate_evtoev"))->Fill(1000000./bmstruct.time_evtoev);
     ((TH1D*)gDirectory->Get("rate_readev"))->Fill(bmstruct.time_read);
+    ((TH1D*)gDirectory->Get("rate_beam_hz"))->Fill(1000000./bmstruct.time_evtoev*bmstruct.sca830_meas[bmmap->GetScaCoinc()]);
+    ((TH1D*)gDirectory->Get("rate_beam_khz"))->Fill(1000./bmstruct.time_evtoev*bmstruct.sca830_meas[bmmap->GetScaCoinc()]);
     
     //TDC  
     tmp_int=0;
+    only_bm_signal=0;
     sprintf(tmp_char,"TDC/TDC_raw/tdc_rawsynccha_%d",bmmap->GetTrefCh());
     while(bmstruct.tdc_sync[tmp_int]!=-10000){
       ((TH1D*)gDirectory->Get("TDC/TDC_raw/all_tdc_rawcha"))->Fill(bmmap->GetTrefCh());       
@@ -775,14 +802,27 @@ void BmBooter::evaluateT0() {
     tmp_int=0;
     while(bmstruct.tdc_meas[tmp_int]!=-10000){
       sprintf(tmp_char,"TDC/TDC_raw/tdc_rawcha_%d",bmstruct.tdc_id[tmp_int]);
-      ((TH1D*)gDirectory->Get("TDC/TDC_raw/all_tdc_rawcha"))->Fill(bmstruct.tdc_id[tmp_int]);            
       ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[tmp_int])/10.);    
+      ((TH1D*)gDirectory->Get("TDC/TDC_raw/all_tdc_rawcha"))->Fill(bmstruct.tdc_id[tmp_int]);            
+      if(bmstruct.tdc_id[tmp_int]!=bmmap->GetTrefCh() && bmstruct.tdc_sync[0]!=-10000){    
+        sprintf(tmp_char,"TDC/TDC_raw-sync/tdc_raw-sync_cha_%d",bmstruct.tdc_id[tmp_int]);
+        ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[tmp_int]-bmstruct.tdc_sync[0])/10.);    
+      }
       tmp_int++;
     }    
     if(bmstruct.tot_status==0 && bmstruct.tdc_status==-1000){ 
+      tmp_int=0;
+      while(bmstruct.tdc_id[tmp_int]!=-1 && tmp_int<MAXHITTDC){
+        if(bmmap->tdc2cell(bmstruct.tdc_id[tmp_int])!=-1){
+          only_bm_signal++;
+          cout<<"only_bm_signal++  tmp_int="<<tmp_int<<"  tdc_id="<<bmstruct.tdc_id[tmp_int]<<"  bmmap->tdc2cell(bmstruct.tdc_id[tmp_int])="<<bmmap->tdc2cell(bmstruct.tdc_id[tmp_int])<<"  maxhittdc="<<MAXHITTDC<<endl;
+        }
+        tmp_int++;
+      };
+        ((TH2D*)gDirectory->Get("adc_vs_numhit"))->Fill(bmstruct.adc792_sum, bmstruct.tdc_hitnum[0]);
       if(bmstruct.tdcev==1 && bmstruct.tdc_sync[0]!=-10000 && bmstruct.tdc_sync[1]==-10000){
         ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(0);//no error
-        ((TH1D*)gDirectory->Get("TDC/all_tdc_cha"))->Fill(bmmap->GetTrefCh());   
+        ((TH1D*)gDirectory->Get("TDC/TDC_meas/all_tdc_cha_meas"))->Fill(bmmap->GetTrefCh());   
         sprintf(tmp_char,"TDC/TDC_meas/tdc_synccha_%d",bmmap->GetTrefCh());  
         ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_sync[0])/10.);    
         for(Int_t i=0;i<bmstruct.tdc_hitnum[0];i++){
@@ -792,7 +832,7 @@ void BmBooter::evaluateT0() {
             ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[i])/10.);    
             sprintf(tmp_char,"TDC/TDC_meas_less_sync/tdc_cha-sync_%d",bmstruct.tdc_id[i]);
             ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[i]-bmstruct.tdc_sync[0])/10.);    
-            ((TH1D*)gDirectory->Get("TDC/all_tdc_cha"))->Fill(bmstruct.tdc_id[i]);    
+            ((TH1D*)gDirectory->Get("TDC/TDC_meas/all_tdc_cha_meas"))->Fill(bmstruct.tdc_id[i]);    
           }   
         } 
       }else{
@@ -815,6 +855,8 @@ void BmBooter::evaluateT0() {
     }else if(bmstruct.tot_status!=0){
       ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(9);//other tdc error  
     }
+    ((TH2D*)gDirectory->Get("adc_vs_numhit"))->Fill(bmstruct.adc792_sum, only_bm_signal);
+
     
     if(bmcon->GetBMdebug()>11 && bmcon->GetBMdebug()!=99)
       cout<<"Fill the scaler:"<<endl;    
@@ -832,9 +874,9 @@ void BmBooter::evaluateT0() {
     }
     //ADC
     if(bmmap->GetAdc792Ch()>0){
-      Double_t mulf_qdc = 400./4095;// perchè c'è fattore di conversione?
       ((TH1D*)gDirectory->Get("ADC/adc_error"))->Fill(bmstruct.adc_status);
-      if(bmstruct.sca_status!=1){
+      ((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Fill(bmstruct.adc792_sum);
+      if(bmstruct.adc_status!=1){
         for(Int_t i=0;i<bmmap->GetAdc792Ch();i++){
           sprintf(tmp_char,"ADC/ADC_meas/adc_meas_cha_%d",i);
           ((TH1D*)gDirectory->Get(tmp_char))->Fill(bmstruct.adc792_meas[i]);
@@ -848,9 +890,77 @@ void BmBooter::evaluateT0() {
           }
       }
     }
+      
+    //fill evtoevstuff_vec and rate_evtoev_vecvec
+    if(bmstruct.tot_status==0){
+      for(Int_t i=0;i<evtoevstuff_vec.size();i++)
+        evtoevstuff_vec.at(i)=0;
+      evtoevstuff_vec.at(0)=bmstruct.time_evtoev;  //to transform in hz: 1000000./bmstruct.time_evtoev
+      if(bmmap->GetSca830Ch()>0 && bmmap->GetScaCoinc()>=0)
+        evtoevstuff_vec.at(1)=bmstruct.sca830_meas[bmmap->GetScaCoinc()];
+      if(bmmap->GetAdc792Ch()>0 && bmmap->GetAdcPetNum()>0)
+        evtoevstuff_vec.at(2)=bmstruct.adc792_sum;
+      evtoevstuff_vec.at(3)=bmstruct.time_acq;
+      
+      rate_evtoev_vecvec.push_back(evtoevstuff_vec);
+    }
     data_num_ev++;
-  }
+  }//end of the while readevent loop
   data_num_ev--;
+
+  if(bmcon->GetBMdebug()>3)
+    cout<<"BMbooter::evaluatet0 step end of the while loop on readevent"<<endl;
+
+  //fill rate and other graphs
+  for(Int_t i=0;i<bmmap->GetSca830Ch();i++)
+    ((TH1D*)gDirectory->Get("SCA/sca_allcounts_allch"))->SetBinContent(i+1,bmstruct.sca830_counts[i]);
+
+  if(rate_evtoev_vecvec.size()<rate_xevent_max){
+    for(Int_t i=0;i<rate_evtoev_vecvec.size();i++){
+      ((TH1D*)gDirectory->Get("rate_xevent_evtoev"))->SetBinContent(i+1,1000000./rate_evtoev_vecvec.at(i).at(0));
+      if(bmmap->GetSca830Ch()>0 && bmmap->GetScaCoinc()>=0){
+        ((TH1D*)gDirectory->Get("rate_xevent_beam_hz"))->SetBinContent(i+1,1000000./rate_evtoev_vecvec.at(i).at(0)*rate_evtoev_vecvec.at(i).at(1));
+      }
+    }
+    for(Int_t i=rate_evtoev_vecvec.size();i<rate_xevent_max;i++){
+      ((TH1D*)gDirectory->Get("rate_xevent_beam_hz"))->SetBinContent(i+1,0);
+    }
+  }else{
+    Int_t lastvecpos=0, step=rate_evtoev_vecvec.size()/rate_xevent_max;//step has to be an Int_t
+    Double_t mean_trigger, mean_beam;
+    for(Int_t i=0; i<rate_xevent_max;i++){
+      mean_trigger=0.;
+      mean_beam=0.;
+      for(Int_t k=0;k<step;k++){
+        mean_trigger+=1000000./rate_evtoev_vecvec.at(lastvecpos).at(0);
+        if(bmmap->GetSca830Ch()>0 && bmmap->GetScaCoinc()>=0)
+          mean_beam+=1000000./rate_evtoev_vecvec.at(lastvecpos).at(0)*rate_evtoev_vecvec.at(lastvecpos).at(1);
+        lastvecpos++;
+      }
+      ((TH1D*)gDirectory->Get("rate_xevent_evtoev"))->SetBinContent(i+1,mean_trigger/step);
+      if(bmmap->GetSca830Ch()>0 && bmmap->GetScaCoinc()>=0){
+        ((TH1D*)gDirectory->Get("rate_xevent_beam_hz"))->SetBinContent(i+1,mean_beam/step);
+      }
+    }
+  }
+  
+  if(bmmap->GetAdc792Ch()>0 && bmmap->GetAdcPetNum()>0){
+    Double_t time_last=-1000.;
+    for(Int_t i=0;i<rate_evtoev_vecvec.size();i++){
+      if(rate_evtoev_vecvec.at(i).at(2)>bmmap->GetAdcDouble()){
+        if(time_last==-1000.)
+          time_last=rate_evtoev_vecvec.at(i).at(3);
+        else{
+          ((TH1D*)gDirectory->Get("rate_adc_up"))->Fill(1000000./(rate_evtoev_vecvec.at(i).at(3)-time_last));
+          time_last=rate_evtoev_vecvec.at(i).at(3);
+        }
+      }
+    }
+  }
+
+
+  
+  
   //I created the TDC signal histograms
   
   //fit the tdc signals with a function to evaluate the T0, for the moment I take the shoresidual_distancertest signal close to the peak
@@ -1209,6 +1319,19 @@ void BmBooter::monitorQDC(vector<Int_t>& adc792_words) {
         cout<<"BMbooter::monitorQDC::chan="<<chan<<" meas="<<qdc_cnt<<endl;
       if(chan>=0 && chan<bmmap->GetAdc792Ch()){
         bmstruct.adc792_meas[chan] = qdc_cnt;
+        if(bmmap->GetAdcPetNum()==4){
+          if(chan==bmmap->GetAdcPetBegin() || chan==(bmmap->GetAdcPetBegin()+1) || chan==(bmmap->GetAdcPetBegin()+2) || chan==(bmmap->GetAdcPetBegin()+3)){
+            bmstruct.adc792_sum+=qdc_cnt-bmcon->GetADCped(chan);
+          }
+        }else if(bmmap->GetAdcPetNum()==3){
+          if(chan==bmmap->GetAdcPetBegin() || chan==(bmmap->GetAdcPetBegin()+1) || chan==(bmmap->GetAdcPetBegin()+2)){
+            bmstruct.adc792_sum+=qdc_cnt-bmcon->GetADCped(chan);
+          }
+        }else if(bmmap->GetAdcPetNum()==2){
+          if(chan==bmmap->GetAdcPetBegin() || chan==(bmmap->GetAdcPetBegin()+1)){
+            bmstruct.adc792_sum+=qdc_cnt-bmcon->GetADCped(chan);
+          }
+        }
       }
     } 
    
@@ -1322,7 +1445,7 @@ void BmBooter::efficiency_fittedplane(){
         hit_fittedplane.at(bmntuhit->Plane()+6)++;
     }  
   }  
-  
+
   //view==0
   if(hit_fittedplane.at(0)>0 && hit_fittedplane.at(2)>0 && hit_fittedplane.at(4)>0){
     eff_fittedplane.at(0).at(0)++;
@@ -1344,8 +1467,14 @@ void BmBooter::efficiency_fittedplane(){
     eff_fittedplane.at(3).at(0)++;
     if(hit_fittedplane.at(8)>0 && hit_fittedplane.at(10)>0)
       eff_fittedplane.at(3).at(1)++;
-  }  
-
+  }
+  
+  //~ for(Int_t i=0;i<4;i++){
+    //~ sum_pivot+=eff_fittedplane.at(i).at(0);
+    //~ sum_probe+=eff_fittedplane.at(i).at(1);    
+  //~ }
+  //~ cout<<"sum_pivot="<<sum_pivot<<"  sum_probe="<<sum_probe<<"  data_num_ev="<<data_num_ev<<endl;
+    
 return;
 }
 
@@ -1652,6 +1781,7 @@ void BmBooter::clear_bmstruct(Bool_t forced){
   bmstruct.time_read=0;
   bmstruct.time_acq=0;
   bmstruct.tdc_numsync=0;
+  bmstruct.adc792_sum=0;
   if(forced){
     for(Int_t i=0;i<MAXHITTDC;i++){
      bmstruct.tdc_id[i]=-10000;
@@ -1697,21 +1827,21 @@ void BmBooter::clear_bmstruct(Bool_t forced){
     bmstruct.tdc_hitnum[tmp_int]=0;
     tmp_int++;
   }
-  tmp_int=0;
-  while(bmstruct.sca830_meas[tmp_int]!=-10000){
-    bmstruct.sca830_meas[tmp_int]=-10000;
-    tmp_int++;
-  }
-  tmp_int=0;
-  while(bmstruct.adc792_meas[tmp_int]!=-10000){
-    bmstruct.adc792_meas[tmp_int]=-10000;
-    tmp_int++;
-  }
-  tmp_int=0;
-  while(bmstruct.adc792_over[tmp_int]!=-10000){
-    bmstruct.adc792_over[tmp_int]=-10000;
-    tmp_int++;
-  }
+  //~ tmp_int=0;
+  //~ while(bmstruct.sca830_meas[tmp_int]!=-10000){
+    //~ bmstruct.sca830_meas[tmp_int]=-10000;
+    //~ tmp_int++;
+  //~ }
+  //~ tmp_int=0;
+  //~ while(bmstruct.adc792_meas[tmp_int]!=-10000){
+    //~ bmstruct.adc792_meas[tmp_int]=-10000;
+    //~ tmp_int++;
+  //~ }
+  //~ tmp_int=0;
+  //~ while(bmstruct.adc792_over[tmp_int]!=-10000){
+    //~ bmstruct.adc792_over[tmp_int]=-10000;
+    //~ tmp_int++;
+  //~ }
 return;
 }
 

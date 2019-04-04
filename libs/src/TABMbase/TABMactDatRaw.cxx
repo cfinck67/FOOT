@@ -86,7 +86,10 @@ Bool_t TABMactDatRaw::Action() {
     //~ if(p_parmap->tdc2cell(bmstruct->tdc_id[i])>=0){//-1000=syncTime, -1=not set
       p_pargeo->GetBMNlvc(p_parmap->tdc2cell(bmstruct->tdc_id[i]),plane,view,cell);
       p_datraw->SetHitData(plane,view,cell,(Double_t) (bmstruct->tdc_meas[i])/10.);
-    }
+      if(p_parcon->GetBMdebug()>10)
+        cout<<"hit charged: i="<<i<<"  bmstruct->tdc_id[i]="<<bmstruct->tdc_id[i]<<"  tdc2cell="<<p_parmap->tdc2cell(bmstruct->tdc_id[i])<<"  bmstruct->tdc_meas[i])/10.="<<bmstruct->tdc_meas[i]/10.<<"  T0="<<p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))<<"  p_timraw->TrigTime()="<<p_timraw->TrigTime()<<"  timecut="<<p_parcon->GetHitTimecut()<<"  hittime="<<(((Double_t) (bmstruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))-p_timraw->TrigTime())<<endl;
+    }else if(p_parcon->GetBMdebug()>10)
+      cout<<"hit NOT charged: i="<<i<<"  bmstruct->tdc_id[i]="<<bmstruct->tdc_id[i]<<"  tdc2cell="<<p_parmap->tdc2cell(bmstruct->tdc_id[i])<<"  bmstruct->tdc_meas[i])/10.="<<bmstruct->tdc_meas[i]/10.<<"  T0="<<p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))<<"  p_timraw->TrigTime()="<<p_timraw->TrigTime()<<"  timecut="<<p_parcon->GetHitTimecut()<<"  hittime="<<(((Double_t) (bmstruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))-p_timraw->TrigTime())<<endl;
   }
   
   //OLD FIRST STUFF

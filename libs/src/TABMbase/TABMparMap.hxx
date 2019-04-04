@@ -38,7 +38,11 @@ class TABMparMap : public TAGpara {
     Int_t GetTrefCh(){return trefCh;}
     Int_t GetTdcMaxcha(){return tdc_maxcha;};
     Int_t GetSca830Ch(){return sca830ch;};
+    Int_t GetScaCoinc(){return sca_coinc;};
     Int_t GetAdc792Ch(){return adc792ch;};
+    Int_t GetAdcPetBegin(){return adc_petal_begin;};
+    Int_t GetAdcPetNum(){return adc_petal_num;};
+    Int_t GetAdcDouble(){return adc_double;};
     Int_t GetHmEvRead(){return hm_ev_read;};
     Int_t GetBoardNum(){return board_num;};
     Int_t tdc2cell(Int_t tdccha){return (tdccha>=0 && tdccha<tdc_maxcha) ? tdc2cell_vec[tdccha] : -1;};
@@ -66,7 +70,11 @@ class TABMparMap : public TAGpara {
     vector<Int_t> tdc2cell_vec;//each position of this vector correspond to a tdc channel, the value stored correspond to the bm cell index (0-35) or -1000 if is the trefCh, otherwise is -1
     vector<Int_t> cell2tdc_vec;//each position of this vector correspond to a bm cell index (0-35), the value stored correspond to the tdc channel if settled, otherwise =-1, the last element (index=36 stores the trefCh)
     Int_t sca830ch;//number of the scaler channel read
+    Int_t sca_coinc;//scaler channel of the sync
     Int_t adc792ch;//number of the adc channel read
+    Int_t adc_petal_num;//adc begin of the 4 margherita petals channels
+    Int_t adc_petal_begin;//adc begin of the 4 margherita petals channels
+    Int_t adc_double;//adc double particles cut
     Int_t hm_ev_read;//read the scaler each hm_ev_read
     Int_t board_num;//board_num of the BM acquisition software
 
