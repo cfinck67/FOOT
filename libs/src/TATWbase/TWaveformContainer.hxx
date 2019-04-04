@@ -26,6 +26,7 @@ class TWaveformContainer
 
 public:
   TWaveformContainer();
+  ~TWaveformContainer();
   TWaveformContainer(const TWaveformContainer &other);
   Double_t ComputeCharge();
   Double_t ComputePedestal();

@@ -8,6 +8,7 @@
 #include "TATWactNtuRaw.hxx"
 #include "TMath.h"
 #include <map>
+#include "CCalibrationMap.h"
 /*!
   \class TATWactNtuRaw TATWactNtuRaw.hxx "TATWactNtuRaw.hxx"
   \brief Get Beam Monitor raw data from WD. **
@@ -83,7 +84,6 @@ Bool_t TATWactNtuRaw::Action() {
 		   TATWrawHit* hitb=PMap[boardid][channelB];
 		   if (hita!=nullptr && hitb!=nullptr )
 		   {
-			   //
 			   Double_t Energy=GetEnergy(hita,hitb);
 			   Double_t Time=GetTime(hita,hitb);
 			   p_nturaw->NewHit(c->GetBarLayer(BarId),BarId, Energy,Time,0);

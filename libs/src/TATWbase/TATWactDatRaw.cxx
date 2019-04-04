@@ -5,7 +5,6 @@
 */
 
 #include "TATWparMap.hxx"
-
 #include "CChannelMap.hxx"
 #include "WDEvent.hh"
 #include "TAGdaqEvent.hxx"

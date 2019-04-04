@@ -153,3 +153,15 @@ Double_t TWaveformContainer::ComputePedestal()
 		 old=W[bin];
 	 }
  }
+
+ TWaveformContainer::~TWaveformContainer()
+ {
+	 if (T!=nullptr)
+	 {
+		 free(T);
+	 }
+	 if (W!=nullptr)
+	 {
+		 free(W);
+	 }
+ }
