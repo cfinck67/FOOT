@@ -89,8 +89,23 @@ TASTdatRaw::~TASTdatRaw(){
 }
 
 
+
+
 void TASTdatRaw::AddWaveform(int ch_num, vector<double> time, vector<double> amplitude){
 
+  // vector<double> clean_amplitude;
+  // clean_amplitude.assign(1024,0);
+
+  Double_t old=amplitude.at(0);
+  for (int bin=0;bin<1024;++bin){
+    Double_t derivative=(amplitude.at(bin)-old);
+    if (fabs(derivative)>0.5){
+      amplitude.at(bin)-=TMath::Sign(1,derivative);
+    }
+    old=amplitude.at(bin);
+  }
+  
+  
   fListOfWaveforms.push_back(new TASTrawHit(ch_num, time ,amplitude));
 
   vector<double> amplitude_cfd;

@@ -7,6 +7,7 @@
 #include "TASTparMap.hxx"
 
 #include "WDEvent.hh"
+#include "WDEvent.hh"
 #include "TAGdaqEvent.hxx"
 #include "TASTdatRaw.hxx"
 #include "TASTparTime.hxx"
@@ -40,6 +41,8 @@ TASTactDatRaw::TASTactDatRaw(const char* name,
   AddDataIn(p_datdaq, "TAGdaqEvent");
   AddPara(p_parmap, "TASTparMap");
   AddPara(p_parTime, "TASTparTime");
+
+  
   
   m_debug = false;
   m_nev=0;
@@ -57,20 +60,21 @@ TASTactDatRaw::~TASTactDatRaw()
 
 Bool_t TASTactDatRaw::Action() {
 
-  if(GetDebugLevel()) { cout<<" Entering the TASTactDatRaw action "<<endl; }
-  
    TASTdatRaw*    p_datraw = (TASTdatRaw*)   fpDatRaw->Object();
    TAGdaqEvent*   p_datdaq = (TAGdaqEvent*)  fpDatDaq->Object();
    TASTparMap*    p_parmap = (TASTparMap*)   fpParMap->Object();
    TASTparTime*    p_parTime = (TASTparTime*)   fpParTime->Object();
   
+   
    Int_t nFragments = p_datdaq->GetFragmentsN();
 
+
+   //decoding fragment and fillin the datRaw class
    for (Int_t i = 0; i < nFragments; ++i) {
      TString type = p_datdaq->GetClassType(i);
      if (type.Contains("WDEvent")) {
        const WDEvent* evt = static_cast<const WDEvent*> (p_datdaq->GetFragment(i));
-       DecodeHits(evt, p_parTime, p_datraw);
+       DecodeHits(evt, p_parTime, p_datraw, p_parmap);
      }
    }
    
@@ -92,7 +96,7 @@ Bool_t TASTactDatRaw::Action() {
    myHits = p_datraw->GetHitsCFD();
    for(int iHit=0;iHit<(int)myHits.size();iHit++){
      single_time = ComputeArrivalTime(myHits.at(iHit));
-     //  printf("trigtime::%lf    singletime::%lf\n", TrigTime, single_time);
+     
      ch_num = myHits.at(iHit)->GetChannel();
      myHits.at(iHit)->SetArrivalTime(single_time);
      if(ValidHistogram()){
@@ -135,7 +139,7 @@ Bool_t TASTactDatRaw::Action() {
 //------------------------------------------+-----------------------------------
 //! Decoding
 
-Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TASTdatRaw *p_datraw)
+Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TASTdatRaw *p_datraw, TASTparMap *p_parMap)
 {
   
 
@@ -155,6 +159,7 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
   int bco_counter, trig_type, ser_evt_number;
   vector<double> w_time;
   vector<double> w_amp;
+  vector<float> w_tcal;
 
   
   // printf("%08x     valuessize::%08x\n", evt->evtSize,  evt->values.size());
@@ -169,10 +174,7 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
   // printf("\n");
 
 
-  
-  
-
-  
+ 
   iW=0;
   bool foundFooter = false;
   while(iW < evt->evtSize && !foundFooter){
@@ -195,19 +197,23 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
   	iW++;
 	
   	while((evt->values.at(iW) & 0xffff)== CH_HEADER){
-	  char tmp_chstr[2]={'0','0'};
+	  char tmp_chstr[3]={'0','0','\0'};
 	  tmp_chstr[1] = (evt->values.at(iW)>>24)  & 0xff;
 	  tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
 	  ch_num = atoi(tmp_chstr);
   	  if(m_debug)printf("found channel header::%08x num%d\n", evt->values.at(iW), ch_num);
   	  iW++;
-	  
+
+	  w_tcal.clear();
   	  for(int iCal=0;iCal<1024;iCal++){
 	    time_bin = *((float*)&evt->values.at(iW));
-	    p_parTime->SetTimeCal(board_id, ch_num, iCal,(double)time_bin);
+	    w_tcal.push_back(time_bin);
   	    iW++;
-  	  }
-  	}
+	  }
+	  if(p_parMap->IsSTChannel(ch_num) && p_parMap->IsSTBoard(board_id)){
+	    p_parTime->SetTimeCal(board_id, ch_num, w_tcal);
+	  }
+	}
       }
     }
   
@@ -248,14 +254,11 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 	
 	while((evt->values.at(iW) & 0xffff)== CH_HEADER){
 
-	  char tmp_chstr[2]={'0','0'};
+	  char tmp_chstr[3]={'0','0','\0'};
 	  tmp_chstr[1] = (evt->values.at(iW)>>24)  & 0xff;
 	  tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
 	  ch_num = atoi(tmp_chstr);
 	  if(m_debug)printf("found channel header::%08x num%d\n", evt->values.at(iW), ch_num);
-	  
-	  //	  if(p_parMap->GetTDID
-
 	  
 	  iW++;
 	  trig_cell = (evt->values.at(iW)>>16) &0xffff;
@@ -273,8 +276,7 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 	    w_amp.push_back(v_sa);
 	    iW++;
 	  }
-	  
-	  if(board_id == 27){
+	  if(p_parMap->IsSTChannel(ch_num) && p_parMap->IsSTBoard(board_id)){
 	    p_parTime->GetTimeArray(board_id, ch_num, trig_cell, &w_time);
 	    p_datraw->AddWaveform(ch_num, w_time ,w_amp);
 	  }
@@ -288,7 +290,7 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 
     
     if(evt->values.at(iW) == EVT_FOOTER){
-      //      printf("found footer\n");
+      if(m_debug)printf("found footer\n");
       iW++;
       foundFooter = true;
     }else{
@@ -363,24 +365,93 @@ double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit){
   
   // TCanvas c("c","",600,600);
   // c.cd();
-  TGraph WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
+  TGraph *aWave = new TGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
   //WaveGraph.Draw("APL");
-  WaveGraph.SetMarkerSize(0.5);
-  WaveGraph.SetMarkerStyle(22);
-  WaveGraph.SetMarkerColor(kBlue);
-  WaveGraph.GetXaxis()->SetRangeUser(20,40);
-  WaveGraph.Fit("pol1","Q", "",tleft, tright);
-  //  c.Print(Form("waveform_ch%d_nev%d.png", myHit->GetChannel(), m_nev));
+  // WaveGraph.SetMarkerSize(0.5);
+  // WaveGraph.SetMarkerStyle(22);
+  // WaveGraph.SetMarkerColor(kBlue);
+  // WaveGraph.GetXaxis()->SetRangeUser(20,40);
+  aWave->Fit("pol1","Q", "",tleft, tright);
+  // c.Print(Form("waveform_ch%d_nev%d.png", myHit->GetChannel(), m_nev));
   
-  TF1 *fitfun =((TF1*) WaveGraph.GetFunction("pol1")); 
+  TF1 *fitfun =((TF1*) aWave->GetFunction("pol1")); 
   
   double q = fitfun->GetParameter(0);
   double m = fitfun->GetParameter(1);
   double zeroTime = -q/m;
+
+  delete fitfun;
+  delete aWave;
   
   return zeroTime;
 
 }
+
+
+
+
+
+
+
+// double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit){
+
+  
+//   vector<double> tmp_amp = myHit->GetAmplitudeArray();
+//   vector<double> tmp_time = myHit->GetTimeArray();
+  
+//   int min_bin = std::distance(tmp_amp.begin(), std::min_element(tmp_amp.begin(), tmp_amp.end()));
+//   int max_bin = std::distance(tmp_amp.begin(), std::max_element(tmp_amp.begin(), tmp_amp.end()));
+//   int cross_bin=min_bin;
+  
+//   double time_crossbin = tmp_time.at(cross_bin);
+//   double time_binmin = tmp_time.at(min_bin);
+//   double time_binmax = tmp_time.at(max_bin);
+
+//   double amp_crossbin = tmp_amp.at(cross_bin);
+//   double amp_binmin = tmp_amp.at(min_bin);
+//   double amp_binmax = tmp_amp.at(max_bin);
+
+//   double tleft= tmp_time.at(bin_fit_l);
+//   double tright= tmp_time.at(bin_fit_r);
+
+
+//   TF1 f("f", "[0]/(1+TMath::Exp(-(x-[1])/[1])/(1+TMath::Exp((x-[3])/[4]))+[5]",0,200);
+  
+//   TCanvas c("c","",600,600);
+//   c.cd();
+//   TGraph WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
+//   //WaveGraph.Draw("APL");
+//   // WaveGraph.SetMarkerSize(0.5);
+//   // WaveGraph.SetMarkerStyle(22);
+//   // WaveGraph.SetMarkerColor(kBlue);
+//   // WaveGraph.GetXaxis()->SetRangeUser(20,40);
+//   WaveGraph.Fit("pol1","Q", "",tleft, tright);
+//   // c.Print(Form("waveform_ch%d_nev%d.png", myHit->GetChannel(), m_nev));
+  
+//   TF1 *fitfun =((TF1*) WaveGraph.GetFunction("pol1")); 
+  
+//   double q = fitfun->GetParameter(0);
+//   double m = fitfun->GetParameter(1);
+//   double zeroTime = -q/m;
+  
+//   return zeroTime;
+
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
