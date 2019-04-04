@@ -50,7 +50,8 @@ TATWactDatRaw::~TATWactDatRaw()
 
 Bool_t TATWactDatRaw::Action() {
 
-
+  if(GetDebugLevel()) { cout<<" Entering the TATWactDatRaw action "<<endl; }
+  
    TATWdatRaw*    p_datraw = (TATWdatRaw*)   fpDatRaw->Object();
    TAGdaqEvent*   p_datdaq = (TAGdaqEvent*)  fpDatDaq->Object();
    TATWparMap*    p_parmap = (TATWparMap*)   fpParMap->Object();

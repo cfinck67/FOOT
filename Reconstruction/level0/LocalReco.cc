@@ -8,8 +8,7 @@
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
 #include "TATWdatRaw.hxx"
-#include "TATW_ContainerHit.hxx"
-#include "TATW_ContainerPoint.hxx"
+#include "TATWntuRaw.hxx"
 #include "TACAntuRaw.hxx"
 
 #include "TASTdatRaw.hxx"
@@ -53,6 +52,8 @@ void LocalReco::LoopEvent(Int_t nEvents)
       
       if(ientry % 100 == 0)
          cout<<" Loaded Event:: " << ientry << endl;
+      if(GlobalPar::GetPar()->Debug())
+	cout<<dec<<" Event:: "<<ientry<<endl;
       
       if (!fTAGroot->NextEvent()) break;;
    }
@@ -67,10 +68,15 @@ void LocalReco::CreateRawAction()
    }
 
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
-      fpParTimeSt  = new TAGparaDsc("stTime", new TASTparTime());
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
-      fActDatRawSt = new TASTactDatRaw("stActNtu", fpDatRawSt, fpDaqEvent, fpParTimeSt);
+      fActDatRawSt = new TASTactDatRaw("stActRaw", fpDatRawSt, fpDaqEvent, fpParMapSt, fpParTimeSt);
+      if(GlobalPar::GetPar()->Debug()) fActDatRawSt->SetDebugLevel(1);
       fActDatRawSt->CreateHistogram();
+
+      fpNtuRawSt   = new TAGdataDsc("stNtu", new TASTntuRaw());
+      fActNtuRawSt = new TASTactNtuRaw("stActNtu", fpDatRawSt, fpNtuRawSt);
+      if(GlobalPar::GetPar()->Debug()) fActNtuRawSt->SetDebugLevel(1);
+      fActNtuRawSt->CreateHistogram();
    }
 
    if (GlobalPar::GetPar()->IncludeBM()) {
@@ -84,8 +90,10 @@ void LocalReco::CreateRawAction()
       } else {
          fActDatRawBm = new TABMactDatRaw("bmActDat", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
          fActDatRawBm->CreateHistogram();
+	 if(GlobalPar::GetPar()->Debug()) fActDatRawBm->SetDebugLevel(1);
          fActNtuRawBm = new TABMactNtuRaw("bmActNtu", fpNtuRawBm, fpDatRawBm, fpDatRawSt, fpParGeoBm, fpParConfBm);
          fActNtuRawBm->CreateHistogram();
+	 if(GlobalPar::GetPar()->Debug()) fActNtuRawBm->SetDebugLevel(1);
       }
    }
 
@@ -118,10 +126,10 @@ void LocalReco::CreateRawAction()
 //   }
    
    if(GlobalPar::GetPar()->IncludeTW()) {
-      fpParTimeTw   = new TAGparaDsc("twTime", new TATWparTime());
       fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
-      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
+      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
       fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimeTw);
+      if(GlobalPar::GetPar()->Debug()) fActDatRawTw->SetDebugLevel(1);
       fActDatRawTw->CreateHistogram();
    }
    
@@ -229,11 +237,13 @@ void LocalReco::SetTreeBranches()
    BaseLocalReco::SetTreeBranches();
    
    if (GlobalPar::GetPar()->IncludeST()) {
+      fActEvtWriter->SetupElementBranch(fpDatRawSt, TASTdatRaw::GetBranchName());
       fActEvtWriter->SetupElementBranch(fpNtuRawSt, TASTntuRaw::GetBranchName());
    }
    
    if (GlobalPar::GetPar()->IncludeBM()) {
       if (fFlagHits) {
+         fActEvtWriter->SetupElementBranch(fpDatRawBm, TABMdatRaw::GetBranchName());
          fActEvtWriter->SetupElementBranch(fpNtuRawBm, TABMntuRaw::GetBranchName());
       }
    }
@@ -255,7 +265,7 @@ void LocalReco::SetTreeBranches()
    
    if (GlobalPar::GetPar()->IncludeTW()) {
       if (fFlagHits)
-         fActEvtWriter->SetupElementBranch(fpNtuRawTw, TATW_ContainerHit::GetBranchName());
+         fActEvtWriter->SetupElementBranch(fpDatRawTw, TATWdatRaw::GetBranchName());
    }
    
    if (GlobalPar::GetPar()->IncludeCA()) {

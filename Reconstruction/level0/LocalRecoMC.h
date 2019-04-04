@@ -26,6 +26,9 @@
 #include "TAMCactNtuCal.hxx"
 #include "TAMCactNtuEve.hxx"
 
+#include "TATW_ContainerHit.hxx"
+#include "TATW_ContainerPoint.hxx"
+
 #include "Evento.hxx"
 
 class TTree;
@@ -87,6 +90,9 @@ private:
    TAGdataDsc*           fpNtuMcMsd;    // input data dsc
    TAGdataDsc*           fpNtuMcTw;    // input data dsc
    TAGdataDsc*           fpNtuMcCa;    // input data dsc
+
+   TAGdataDsc*           containerHit;    // input data dsc
+   TAGdataDsc*           containerPoint;    // input data dsc
    
    TAMCactNtuEve*        fActNtuMcEve;
    TAMCactNtuStc*        fActNtuMcSt;

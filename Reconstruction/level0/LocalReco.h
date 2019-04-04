@@ -7,6 +7,7 @@
 #include "TAGdataDsc.hxx"
 
 #include "TASTactDatRaw.hxx"
+#include "TASTactNtuRaw.hxx"
 #include "TABMactVmeReader.hxx"
 #include "TABMactDatRaw.hxx"
 #include "TABMactNtuRaw.hxx"
@@ -63,6 +64,7 @@ private:
  //  TAGdataDsc*           fpDatRawMsd;    // input data dsc
 
    TASTactDatRaw*        fActDatRawSt;  // action for ntu data
+   TASTactNtuRaw*        fActNtuRawSt;  // action for ntu data
    
    TABMactVmeReader*     fActVmeReaderBm; // action for stand alone reader BM
    TABMactDatRaw*        fActDatRawBm;

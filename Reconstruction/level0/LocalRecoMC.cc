@@ -1,5 +1,3 @@
-
-
 #include "TTree.h"
 
 #include "LocalRecoMC.h"
@@ -14,12 +12,7 @@
 #include "TATW_ContainerHit.hxx"
 #include "TACAntuRaw.hxx"
 
-
-
-
-
 ClassImp(LocalRecoMC)
-
 
 //__________________________________________________________
 LocalRecoMC::LocalRecoMC(TString fileNameIn, TString fileNameout)
@@ -119,13 +112,28 @@ void LocalRecoMC::CreateRawAction()
    }
    
    if(GlobalPar::GetPar()->IncludeTW()) {
-      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
-      fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fEvtStruct);
-      if (fFlagHisto)
-         fActNtuRawTw->CreateHistogram();
+
+      containerHit    = new TAGdataDsc("containerHit", new TATW_ContainerHit());
+      containerPoint  = new TAGdataDsc("containerPoint", new TATW_ContainerPoint());
+      new TATWactNtuMC("an_twraw", containerHit, fEvtStruct);
+
+      // fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
+      // if (fFlagHisto)
+      //    fActPointTw->CreateHistogram();
+
+      gTAGroot->AddRequiredItem("containerHit");
+      gTAGroot->AddRequiredItem("containerPoint");
+      gTAGroot->AddRequiredItem("an_twraw");   // prova --> funge!!!
+
       
-      fpNtuMcTw   = new TAGdataDsc("twMc", new TAMCntuHit());
-      fActNtuMcTw = new TAMCactNtuTof("twActNtuMc", fpNtuMcTw, fEvtStruct);
+
+      // fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
+      // fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fEvtStruct);
+      // if (fFlagHisto)
+      //    fActNtuRawTw->CreateHistogram();
+      
+      // fpNtuMcTw   = new TAGdataDsc("twMc", new TAMCntuHit());
+      // fActNtuMcTw = new TAMCactNtuTof("twActNtuMc", fpNtuMcTw, fEvtStruct);
    }
    
    if(GlobalPar::GetPar()->IncludeCA()) {
@@ -174,7 +182,7 @@ void LocalRecoMC::SetRawHistogramDir()
    
    // TOF
    if (GlobalPar::GetPar()->IncludeTW())
-      fActNtuRawTw->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+      // fActNtuRawTw->SetHistogramDir((TDirectory*)fActEvtWriter->File());
    
    // CAL
    if (GlobalPar::GetPar()->IncludeCA())
@@ -291,9 +299,11 @@ void LocalRecoMC::SetTreeBranches()
    }
    
    if (GlobalPar::GetPar()->IncludeTW()) {
-      if (fFlagHits)
-         fActEvtWriter->SetupElementBranch(fpNtuRawTw, TATW_ContainerHit::GetBranchName());
-      fActEvtWriter->SetupElementBranch(fpNtuMcTw, TAMCntuHit::GetTofBranchName());
+      fActEvtWriter->SetupElementBranch(containerHit, TATW_ContainerHit::GetBranchName());
+      fActEvtWriter->SetupElementBranch(containerPoint, TATW_ContainerPoint::GetBranchName());
+      // if (fFlagHits)
+      //    fActEvtWriter->SetupElementBranch(fpNtuRawTw, TATW_ContainerHit::GetBranchName());
+      // fActEvtWriter->SetupElementBranch(fpNtuMcTw, TAMCntuHit::GetTofBranchName());
    }
    
    if (GlobalPar::GetPar()->IncludeCA()) {
