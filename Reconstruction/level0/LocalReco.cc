@@ -131,6 +131,10 @@ void LocalReco::CreateRawAction()
       fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimeTw);
       if(GlobalPar::GetPar()->Debug()) fActDatRawTw->SetDebugLevel(1);
       fActDatRawTw->CreateHistogram();
+
+      fActNtuRawTw = new TATWactNtuRaw("twActNtu", fpDatRawTw, fpNtuRawTw, fpParGeoTw, fpParMapTw, fpParCalTw);
+      if(GlobalPar::GetPar()->Debug()) fActNtuRawTw->SetDebugLevel(1);
+      fActNtuRawTw->CreateHistogram();
    }
    
    //   if(GlobalPar::GetPar()->IncludeCA()) {
@@ -183,6 +187,7 @@ void LocalReco::SetRawHistogramDir()
    // TW
    if (GlobalPar::GetPar()->IncludeTW()) {
       fActDatRawTw->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+      fActNtuRawTw->SetHistogramDir((TDirectory*)fActEvtWriter->File());
    }
    
    // MSD
@@ -222,6 +227,7 @@ void LocalReco::AddRawRequiredItem()
    
    if (GlobalPar::GetPar()->IncludeTW()) {
       fTAGroot->AddRequiredItem("twActDat");
+      fTAGroot->AddRequiredItem("twActNtu");
    }
 
    
@@ -264,8 +270,10 @@ void LocalReco::SetTreeBranches()
    }
    
    if (GlobalPar::GetPar()->IncludeTW()) {
-      if (fFlagHits)
+     if (fFlagHits) {
          fActEvtWriter->SetupElementBranch(fpDatRawTw, TATWdatRaw::GetBranchName());
+         fActEvtWriter->SetupElementBranch(fpNtuRawTw, TATWntuRaw::GetBranchName());
+     }
    }
    
    if (GlobalPar::GetPar()->IncludeCA()) {
