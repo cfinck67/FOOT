@@ -32,8 +32,9 @@ TATWactNtuRaw::TATWactNtuRaw(const char* name,
     fpNtuRaw(p_nturaw),
     fpParGeo(p_pargeom),
 	fpParMap(p_parmap),
-	fpCalPar(p_calmap)
-
+	fpCalPar(p_calmap),
+   fTofPropAlpha(0.280/2.), // velocity of the difference need to divide by 2 (ps/cm)
+   fTofErrPropAlpha(2.5)
 {
   AddDataIn(p_datraw, "TATWdatRaw");
   AddDataOut(p_nturaw, "TATWntuRaw");
@@ -99,7 +100,8 @@ Bool_t TATWactNtuRaw::Action() {
 			   //
 			   Double_t RawTime=GetRawTime(hita,hitb);
 			   Double_t Time=GetTime(RawTime,BarId);
-			   p_nturaw->NewHit(c->GetBarLayer(BarId),BarId, Energy,Time,0);
+            Double_t rawPos=GetPosition(hita,hitb);
+			   p_nturaw->NewHit(c->GetBarLayer(BarId),BarId, Energy,Time,rawPos);
 		   }
 	   }
    }
@@ -138,6 +140,9 @@ Double_t  TATWactNtuRaw::GetTime(Double_t RawTime, Int_t BarId)
 Double_t TATWactNtuRaw::GetRawTime(TATWrawHit*a,TATWrawHit*b)
 {
 	return (a->Time()+b->Time())/2;
-
 }
 
+Double_t TATWactNtuRaw::GetPosition(TATWrawHit*a,TATWrawHit*b)
+{
+   return (a->Time()-b->Time())/fTofPropAlpha;
+}

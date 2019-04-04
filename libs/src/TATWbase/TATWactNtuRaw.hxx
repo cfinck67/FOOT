@@ -38,6 +38,9 @@ public:
   TAGparaDsc*     fpParMap;
   TAGparaDsc*     fpCalPar;
 
+  Float_t         fTofPropAlpha; // inverse of light propagation velocity
+  Float_t         fTofErrPropAlpha;
+
   bool m_debug;
   
 
@@ -48,7 +51,7 @@ public:
   //
   Double_t GetTime(Double_t Time,Int_t BarId);
   Double_t GetEnergy(Double_t RawEnergy,Int_t BarId);
-
+  Double_t GetPosition(TATWrawHit*a,TATWrawHit*b);
 
 };
 
