@@ -7,6 +7,7 @@
 #include "TASTparMap.hxx"
 
 #include "WDEvent.hh"
+#include "WDEvent.hh"
 #include "TAGdaqEvent.hxx"
 #include "TASTdatRaw.hxx"
 #include "TASTparTime.hxx"
@@ -364,20 +365,23 @@ double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit){
   
   // TCanvas c("c","",600,600);
   // c.cd();
-  TGraph WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
+  TGraph *aWave = new TGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
   //WaveGraph.Draw("APL");
   // WaveGraph.SetMarkerSize(0.5);
   // WaveGraph.SetMarkerStyle(22);
   // WaveGraph.SetMarkerColor(kBlue);
   // WaveGraph.GetXaxis()->SetRangeUser(20,40);
-  WaveGraph.Fit("pol1","Q", "",tleft, tright);
+  aWave->Fit("pol1","Q", "",tleft, tright);
   // c.Print(Form("waveform_ch%d_nev%d.png", myHit->GetChannel(), m_nev));
   
-  TF1 *fitfun =((TF1*) WaveGraph.GetFunction("pol1")); 
+  TF1 *fitfun =((TF1*) aWave->GetFunction("pol1")); 
   
   double q = fitfun->GetParameter(0);
   double m = fitfun->GetParameter(1);
   double zeroTime = -q/m;
+
+  delete fitfun;
+  delete aWave;
   
   return zeroTime;
 
