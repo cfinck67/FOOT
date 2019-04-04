@@ -1,9 +1,9 @@
-#ifndef _TATWactNtuRaw_HXX
-#define _TATWactNtuRaw_HXX
+#ifndef _TASTactNtuRaw_HXX
+#define _TASTactNtuRaw_HXX
 /*!
   \file
-  \version $Id: TATWactNtuRaw.hxx,v 1.3 2003/06/15 18:27:04 mueller Exp $
-  \brief   Declaration of TATWactNtuRaw.
+  \version $Id: TASTactNtuRaw.hxx,v 1.3 2003/06/15 18:27:04 mueller Exp $
+  \brief   Declaration of TASTactNtuRaw.
 */
 /*------------------------------------------+---------------------------------*/
 
