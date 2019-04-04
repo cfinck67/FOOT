@@ -277,7 +277,7 @@ void BaseLocalReco::InitParameters()
       
       fpParCalTw = new TAGparaDsc("twConf", new TATWparCal());
       TATWparCal* parCal = (TATWparCal*)fpParCalTw->Object();
-      parFileName = Form("./config/TATWdetector%s.cal", fExpName.Data());
+      parFileName = Form("./config/TATWCalibrationMap%s.xml", fExpName.Data());
       parCal->FromFile(parFileName.Data());
       
       fpParMapTw = new TAGparaDsc("twMap", new TATWparMap());
