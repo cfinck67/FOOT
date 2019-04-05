@@ -39,6 +39,9 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evS
   if(isdata)
     bmmap = (TABMparMap*) (gTAGroot->FindParaDsc("myp_bmmap", "TABMparMap")->Object());
 
+  //~ if(isdata)
+    //~ f.open("recoinfo.txt",ios::in)
+
   cell_occupy.resize(36);
   vector<Int_t> row(16,0);
   eff_pp.push_back(row);
@@ -715,6 +718,8 @@ void BmBooter::PrintMCxEvent(){
 
 
 void BmBooter::evaluateT0() {
+  
+  Int_t petal1ch=46, petal2ch=45, petal3ch=44, petal4ch=43, sync_petal_gate=50, majodelay=-60;
   //~ TABMparCon* bmcon = (TABMparCon*) myp_bmcon->Object();  
   TString tmp_tstring="bmraw.root";
   m_nopath_instr="bmraw.root";
@@ -724,7 +729,7 @@ void BmBooter::evaluateT0() {
       m_nopath_instr.Remove(0,m_nopath_instr.Last('/')+1);
     tmp_tstring="bmraw_"+m_nopath_instr;
     m_nopath_instr.Remove(m_nopath_instr.Last('.')+1,m_nopath_instr.Last('.')+3);
-    tmp_tstring.Replace(m_nopath_instr.Last('.')+1,3,"root",4);
+    tmp_tstring.Replace(tmp_tstring.Last('.')+1,3,"root",4);
   }
   TFile *f_out = new TFile(tmp_tstring.Data(),"RECREATE");
   f_out->cd();
@@ -788,6 +793,7 @@ void BmBooter::evaluateT0() {
       }
     gDirectory->cd("..");
   
+  h=new TH1D("tdc_majo","Number of events with the 4 petals majority; majority; events",5,0.,5);
   h=new TH1D("tdc_error","0=ok 1=evnum 2=ch_out 3=wordnum 4=nosync 5=multisync 6=multievent; Number of tdc signals with errors; counts",10,0.,10);//distinguish the type of error!
   h2=new TH2D("bmhitnum_vs_tdcsyncnum","number of bmhits vs tdc sync;number of bmhits; tdc number of sync",30,0.,30,5,0,5);
   f_out->cd("..");
@@ -877,6 +883,7 @@ void BmBooter::evaluateT0() {
       tmp_int++;
     }
     tmp_int=0;
+    vector<Int_t> hitpetals(4,0);
     while(bmstruct.tdc_meas[tmp_int]!=-10000){
       sprintf(tmp_char,"TDC/TDC_raw/tdc_rawcha_%d",bmstruct.tdc_id[tmp_int]);
       ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[tmp_int])/10.);    
@@ -885,8 +892,26 @@ void BmBooter::evaluateT0() {
         sprintf(tmp_char,"TDC/TDC_raw-sync/tdc_raw-sync_cha_%d",bmstruct.tdc_id[tmp_int]);
         ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[tmp_int]-bmstruct.tdc_sync[0])/10.);    
       }
+      if(bmstruct.tdc_id[tmp_int]==petal1ch && bmstruct.tdc_sync[0]!=-10000)
+        if(fabs(bmstruct.tdc_meas[tmp_int]/10.-bmstruct.tdc_sync[0]/10.-majodelay)<sync_petal_gate)
+          hitpetals.at(0)=1;
+      if(bmstruct.tdc_id[tmp_int]==petal2ch && bmstruct.tdc_sync[0]!=-10000)
+        if(fabs(bmstruct.tdc_meas[tmp_int]/10.-bmstruct.tdc_sync[0]/10.-majodelay)<sync_petal_gate)
+          hitpetals.at(1)=1;
+      if(bmstruct.tdc_id[tmp_int]==petal3ch && bmstruct.tdc_sync[0]!=-10000)
+        if(fabs(bmstruct.tdc_meas[tmp_int]/10.-bmstruct.tdc_sync[0]/10.-majodelay)<sync_petal_gate)
+          hitpetals.at(2)=1;
+      if(bmstruct.tdc_id[tmp_int]==petal4ch && bmstruct.tdc_sync[0]!=-10000)
+        if(fabs(bmstruct.tdc_meas[tmp_int]/10.-bmstruct.tdc_sync[0]/10.-majodelay)<sync_petal_gate)
+          hitpetals.at(3)=1;
       tmp_int++;
-    }    
+    }
+    Int_t majo_soft=0;
+    for(Int_t i=0;i<4;i++)
+      majo_soft+=hitpetals.at(i);
+    for(Int_t i=1;i<=majo_soft;i++)
+      ((TH1D*)gDirectory->Get("TDC/tdc_majo"))->Fill(i);            
+          
     if(bmstruct.tot_status==0 && bmstruct.tdc_status==-1000){ 
       tmp_int=0;
       while(bmstruct.tdc_id[tmp_int]!=-10000 && tmp_int<MAXHITTDC){
@@ -940,6 +965,7 @@ void BmBooter::evaluateT0() {
     }else if(bmstruct.tot_status!=0){
       ((TH1D*)gDirectory->Get("TDC/tdc_error"))->Fill(9);//other tdc error  
     }
+    
     
     if(bmcon->GetBMdebug()>11 && bmcon->GetBMdebug()!=99)
       cout<<"Fill the scaler:"<<endl;    

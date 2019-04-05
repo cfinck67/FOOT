@@ -100,12 +100,13 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
         return kTRUE;
       }
     } else if(strchr(bufConf,'T')) {
-        sscanf(bufConf, "T %d",&myArg1);
+        sscanf(bufConf, "T %d &d",&myArg1, &myArg2);
       if(myArg1<0 || myArg1>tdc_maxcha) {
         Error("FromFile()","TABMparMap::Reference Tr channel:: check config file!!(T)");
         return kTRUE;
       }else{
         trefCh=myArg1;
+        tdc_nobusytrch=myArg2;
         tdc2cell_vec[trefCh]=-1000;
         cell2tdc_vec[36]=trefCh;
       }

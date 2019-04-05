@@ -159,6 +159,7 @@ private:
   vector<vector<Double_t>> tracktr2dprojects;//projections of tracks:0=data_num_ev, 1=pvers.X, 2=R0.X, 3=pvers.Y, 4=R0.Y
   vector<vector<Double_t>> residual_distance;//if(isSelected): 0=data_num_ev, 1=cell_index, 2=drift_time, 3=distance, 4=residual;  otherwise 0=data_num_ev 1=cellindex, 2=drift_time, 3=dist,
   vector<vector<Double_t>> mcxevent;//data from mc:0=data_num_ev, 1=mylar1.X, 2=mylar1.Y, 3=mylar2.X, 4=mylar2.Y
+  ifstream f;//txt output
 };
 
 #endif

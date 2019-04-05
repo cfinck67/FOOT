@@ -36,6 +36,7 @@ class TABMparMap : public TAGpara {
     
     //getters
     Int_t GetTrefCh(){return trefCh;}
+    Int_t GetNoBusyCh(){return tdc_nobusytrch;}
     Int_t GetTdcMaxcha(){return tdc_maxcha;};
     Int_t GetSca830Ch(){return sca830ch;};
     Int_t GetScaCoinc(){return sca_coinc;};
@@ -66,6 +67,7 @@ class TABMparMap : public TAGpara {
 
   private:
     Int_t trefCh;  //trigger reference channel
+    Int_t tdc_nobusytrch;//tdc nobusy trigger channel
     Int_t    tdc_maxcha;//tdc number of channel
     vector<Int_t> tdc2cell_vec;//each position of this vector correspond to a tdc channel, the value stored correspond to the bm cell index (0-35) or -1000 if is the trefCh, otherwise is -1
     vector<Int_t> cell2tdc_vec;//each position of this vector correspond to a bm cell index (0-35), the value stored correspond to the tdc channel if settled, otherwise =-1, the last element (index=36 stores the trefCh)
