@@ -538,24 +538,24 @@ void TASTactDatRaw::CreateHistogram(){
 
   char histoname[100]="";
 
-  sprintf(histoname,"TrigTime");
+  sprintf(histoname,"stTrigTime");
   hTrigTime = new TH1D(histoname, histoname, 2560, 0., 256.);
   AddHistogram(hTrigTime);
 
-  sprintf(histoname,"TotCharge");
+  sprintf(histoname,"stTotCharge");
   hTotCharge = new TH1D(histoname, histoname, 100, 0., 5.);
   AddHistogram(hTotCharge);
   
   for(int iCh=0;iCh<8;iCh++){
-    sprintf(histoname,"DeltaTime_ch%d", iCh);
+    sprintf(histoname,"stDeltaTime_ch%d", iCh);
     hArrivalTime[iCh]= new TH1D(histoname, histoname, 100, -5., 5.);
     AddHistogram(hArrivalTime[iCh]);
 
-    sprintf(histoname,"Charge_ch%d", iCh);
+    sprintf(histoname,"stCharge_ch%d", iCh);
     hCharge[iCh]= new TH1D(histoname, histoname, 100, 0., 5.);
     AddHistogram(hCharge[iCh]);
 
-    sprintf(histoname,"MaxAmp_ch%d", iCh);
+    sprintf(histoname,"stMaxAmp_ch%d", iCh);
     hAmplitude[iCh]= new TH1D(histoname, histoname, 120, -0.1, 1.1);
     AddHistogram(hAmplitude[iCh]);
   }
