@@ -50,6 +50,7 @@ class TABMparCon : public TAGpara {
     Int_t GetPrefitEnable(){return prefit_enable;};
     Int_t GetBMdebug(){return bm_debug;};
     Int_t GetBMvietrack(){return bm_vietrack;};
+    Int_t GetBMvieproj(){return bm_vieproj;};
     //~ string GetBMdataFileName(){return datafile_name;};
     Int_t GetBMcharge(){return part_in_charge;};
     Double_t GetBMmom(){return part_in_mom;};
@@ -134,6 +135,7 @@ class TABMparCon : public TAGpara {
     Int_t    fitter_index;
     Int_t    bm_debug;//index for the bm_debug, (it is set at least to the global debug level)
     Int_t    bm_vietrack;//every bm_vietrack events SHOE will plot the BM track
+    Int_t    bm_vieproj;//print and save the projections
     //~ string   datafile_name;//name of the input data file 
     Int_t    part_in_charge;//for BM Genfit tracking
     Double_t part_in_mom;//for BM Genfit tracking

@@ -136,6 +136,7 @@ private:
   string plot_name;
   vector<vector<Int_t>> cell_occupy;// occupancy of the cell for a given event, first index is the cellid, the value stored is the position of the hit in the bmnturaw vector
   TString m_instr;   //input file name
+  TString m_nopath_instr;   //input file name without path
   Bool_t isdata;     //to separate MC and data
   Bool_t isallign;   //true if the allign parameters can be shown
   ifstream datafile;

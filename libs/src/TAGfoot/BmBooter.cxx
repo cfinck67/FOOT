@@ -444,9 +444,15 @@ void BmBooter::PrintProjections(){
   TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histoc=new TH2D( "R0_xy", "R0 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histod=new TH2D( "target_xy", "target projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
-  TH2D* histoe=new TH2D( "projecta", "Projection of the selected tracks on the first shift; x[cm]; y[cm]", 200, -10., 10.,200, -10.,10.);
-  TH2D* histof=new TH2D( "projectb", "Projection of the selected tracks on the second shift; x[cm]; y[cm]", 200, -10., 10.,200, -10.,10.);
-  TH2D* histog=new TH2D( "projectc", "Projection of the selected tracks on the third shift; x[cm]; y[cm]", 200, -10., 10.,200, -10.,10.);
+  TH2D* histoe=new TH2D( "project_2d_a", "2d Projection of the selected tracks on the first shift; x[cm]; y[cm]", 200, -10., 10.,200, -10.,10.);
+  TH2D* histof=new TH2D( "project_2d_b", "2d Projection of the selected tracks on the second shift; x[cm]; y[cm]", 200, -10., 10.,200, -10.,10.);
+  TH2D* histog=new TH2D( "project_2d_c", "2d Projection of the selected tracks on the third shift; x[cm]; y[cm]", 200, -10., 10.,200, -10.,10.);
+  TH1D* histoex=new TH1D( "project_x_a", "X view Projection of the selected tracks on the first shift; x[cm]; track num", 200, -10., 10.);
+  TH1D* histofx=new TH1D( "project_x_b", "X view Projection of the selected tracks on the second shift; x[cm]; track num", 200, -10., 10.);
+  TH1D* histogx=new TH1D( "project_x_c", "X view Projection of the selected tracks on the third shift; x[cm]; track num", 200, -10., 10.);
+  TH1D* histoey=new TH1D( "project_y_a", "Y view Projection of the selected tracks on the first shift; track num; y[cm]", 200, -10., 10.);
+  TH1D* histofy=new TH1D( "project_y_b", "Y view Projection of the selected tracks on the second shift; track num; y[cm]", 200, -10., 10.);
+  TH1D* histogy=new TH1D( "project_y_c", "Y view Projection of the selected tracks on the third shift; track num; y[cm]", 200, -10., 10.);
   //~ TH2D* histoe=new TH2D( "pvers_mx_MCvsFitted", "mx for the MC and fitted tracks; mx tracks; mx MC", 500,-0.05,0.05,500,-0.05,0.05);
   
   TVector3 projection;
@@ -462,24 +468,76 @@ void BmBooter::PrintProjections(){
     if(bmcon->GetMeas_shift().X()!=0 && bmcon->GetCalibro()<0){
       projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmcon->GetMeas_shift().X());
       histoe->Fill(projection.X(), projection.Y());
+      histoex->Fill(projection.X());
+      histoey->Fill(projection.Y());
     }
     if(bmcon->GetMeas_shift().Y()!=0 && bmcon->GetCalibro()<0){
       projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmcon->GetMeas_shift().Y());
       histof->Fill(projection.X(), projection.Y());
+      histofx->Fill(projection.X());
+      histofy->Fill(projection.Y());
     }
     if(bmcon->GetMeas_shift().Z()!=0 && bmcon->GetCalibro()<0){
       projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmcon->GetMeas_shift().Z());
       histog->Fill(projection.X(), projection.Y());
+      histogx->Fill(projection.X());
+      histogy->Fill(projection.Y());
     }
-
-    //~ for(Int_t k=mcindex;k<mcxevent.size();k++){
-      //~ if(mcxevent.at(k).at(0)==tracktr2dprojects.at(i).at(0)){
-        //~ histoe->Fill(tracktr2dprojects.at(i).at(1), (mcxevent.at(k).at(3)-mcxevent.at(k).at(1))/(bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z()));
-        //~ mcindex=k;
-        //~ break;
-      //~ }else if(mcxevent.at(k).at(0)>tracktr2dprojects.at(i).at(0))
-        //~ break;
-    //~ }
+    
+  }
+  if(bmcon->GetBMvieproj()>0){
+    TString tmp_tstring;
+    if(bmcon->GetMeas_shift().X()!=0 && bmcon->GetCalibro()<0){  
+      TCanvas *canvas_a = new TCanvas("canvas_a", "BM projects",20,20,800,900);
+      canvas_a->cd();
+      histoe->Draw();
+      tmp_tstring="project_a2d_"+m_nopath_instr+"pdf";
+      canvas_a->SaveAs(tmp_tstring.Data(), "pdf");
+      TCanvas *canvas_ax = new TCanvas("canvas_ax", "BM projects",20,20,800,900);
+      canvas_ax->cd();
+      histoex->Draw();
+      tmp_tstring="project_ax_"+m_nopath_instr+"pdf";
+      canvas_ax->SaveAs(tmp_tstring.Data(), "pdf");
+      TCanvas *canvas_ay = new TCanvas("canvas_ay", "BM projects",20,20,800,900);
+      canvas_ay->cd();
+      histoey->Draw();
+      tmp_tstring="project_ay_"+m_nopath_instr+"pdf";
+      canvas_ay->SaveAs(tmp_tstring.Data(), "pdf");
+    }      
+    if(bmcon->GetMeas_shift().Y()!=0 && bmcon->GetCalibro()<0){  
+      TCanvas *canvas_b = new TCanvas("canvas_b", "BM projecta",20,20,800,900);
+      canvas_b->cd();
+      histof->Draw();
+      tmp_tstring="project_b2d_"+m_nopath_instr+"pdf";
+      canvas_b->SaveAs(tmp_tstring.Data(), "pdf");
+      TCanvas *canvas_bx = new TCanvas("canvas_b", "BM projecta",20,20,800,900);
+      canvas_bx->cd();
+      histofx->Draw();
+      tmp_tstring="project_bx_"+m_nopath_instr+"pdf";
+      canvas_bx->SaveAs(tmp_tstring.Data(), "pdf");
+      TCanvas *canvas_by = new TCanvas("canvas_b", "BM projecta",20,20,800,900);
+      canvas_by->cd();
+      histofy->Draw();
+      tmp_tstring="project_by_"+m_nopath_instr+"pdf";
+      canvas_by->SaveAs(tmp_tstring.Data(), "pdf");
+    }      
+    if(bmcon->GetMeas_shift().Z()!=0 && bmcon->GetCalibro()<0){  
+      TCanvas *canvas_c = new TCanvas("canvas_a", "BM projects",20,20,800,900);
+      canvas_c->cd();
+      histog->Draw();
+      tmp_tstring="project_c2d_"+m_nopath_instr+"pdf";
+      canvas_c->SaveAs(tmp_tstring.Data(), "pdf");
+      TCanvas *canvas_cx = new TCanvas("canvas_a", "BM projects",20,20,800,900);
+      canvas_cx->cd();
+      histogx->Draw();
+      tmp_tstring="project_cx_"+m_nopath_instr+"pdf";
+      canvas_cx->SaveAs(tmp_tstring.Data(), "pdf");
+      TCanvas *canvas_cy = new TCanvas("canvas_a", "BM projects",20,20,800,900);
+      canvas_cy->cd();
+      histogy->Draw();
+      tmp_tstring="project_cy_"+m_nopath_instr+"pdf";
+      canvas_cy->SaveAs(tmp_tstring.Data(), "pdf");
+    }      
   }
 
 return;
@@ -658,13 +716,15 @@ void BmBooter::PrintMCxEvent(){
 
 void BmBooter::evaluateT0() {
   //~ TABMparCon* bmcon = (TABMparCon*) myp_bmcon->Object();  
-  TString tmp_tstring("bmraw.root");
+  TString tmp_tstring="bmraw.root";
+  m_nopath_instr="bmraw.root";
   if(m_instr.EndsWith(".dat")){
-    tmp_tstring=m_instr;
-    if(tmp_tstring.Last('/'))  
-      tmp_tstring.Remove(0,tmp_tstring.Last('/')+1);
-    tmp_tstring.Replace(tmp_tstring.Last('.')+1,3,"root",4);
-    tmp_tstring="bmraw_"+tmp_tstring;
+    m_nopath_instr=m_instr;
+    if(m_instr.Last('/'))  
+      m_nopath_instr.Remove(0,m_nopath_instr.Last('/')+1);
+    tmp_tstring="bmraw_"+m_nopath_instr;
+    m_nopath_instr.Remove(m_nopath_instr.Last('.')+1,m_nopath_instr.Last('.')+3);
+    tmp_tstring.Replace(m_nopath_instr.Last('.')+1,3,"root",4);
   }
   TFile *f_out = new TFile(tmp_tstring.Data(),"RECREATE");
   f_out->cd();

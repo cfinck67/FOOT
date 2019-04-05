@@ -103,10 +103,11 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         }
       bm_debug=max(bm_debug,GlobalPar::GetPar()->Debug());
     }else if(strchr(bufConf,'P')) {
-      sscanf(bufConf, "P %d",&myArgInt);
-      if(myArgInt>=0) 
+      sscanf(bufConf, "P %d %d",&myArgInt, &myArgIntmax);
+      if(myArgInt>=0 && myArgIntmax<4 && myArgIntmax>=0){ 
         bm_vietrack = myArgInt;
-      else {
+        bm_vieproj = myArgIntmax;
+      }else {
 	      Error(""," Plane Map Error:: check config file!! (P)");
 	      return kTRUE;
         }
@@ -440,6 +441,7 @@ void TABMparCon::Clear(Option_t*)
   fitter_index = 0;
   bm_debug=0;
   bm_vietrack=0;
+  bm_vieproj=0;
   manageT0BM=0;
   minnhit_cut=0;
   maxnhit_cut=20;
