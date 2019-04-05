@@ -113,7 +113,7 @@ Bool_t TABMparMap::FromFile(const TString& name, TABMparGeo *bmgeo) {
     } else if(strchr(bufConf,'S')) {
         sscanf(bufConf, "S %d %d",&sca830ch, &sca_coinc);
     } else if(strchr(bufConf,'A')) {
-        sscanf(bufConf, "A %d %d %d",&adc792ch, &adc_petal_num, &adc_petal_begin, &adc_double);
+        sscanf(bufConf, "A %d %d %d %d",&adc792ch, &adc_petal_num, &adc_petal_begin, &adc_double);
     } else if(strchr(bufConf,'H')) {
         sscanf(bufConf, "H %d",&myArg1);
       if(myArg1<0) {

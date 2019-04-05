@@ -23,6 +23,7 @@ BmBooter::BmBooter() {
 
 //----------------------------------------------------------------------------------------------------
 void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evStr_in ) {  
+  txt_outputname="gsi_out.txt";
   isdata=isdata_in;
   m_instr=instr_in;
   evStr=evStr_in;
@@ -38,9 +39,6 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evS
   bmgeo = (TABMparGeo*) (gTAGroot->FindParaDsc("myp_bmgeo", "TABMparGeo")->Object());
   if(isdata)
     bmmap = (TABMparMap*) (gTAGroot->FindParaDsc("myp_bmmap", "TABMparMap")->Object());
-
-  //~ if(isdata)
-    //~ f.open("recoinfo.txt",ios::in)
 
   cell_occupy.resize(36);
   vector<Int_t> row(16,0);
@@ -257,10 +255,6 @@ void BmBooter::Finalize() {
   if (bmcon->GetBMdebug()>10)
     cout<<"I finished BmBooter::Finalize"<<endl;
     
-  //provo  
-  //~ outTree->Print();
-  //~ outTree->Close();  
-    
 return;
 }
 
@@ -442,20 +436,29 @@ void BmBooter::PrintProjections(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();
-
+  TString tmp_tstring;
   TH2D* histoa=new TH2D( "mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histoc=new TH2D( "R0_xy", "R0 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histod=new TH2D( "target_xy", "target projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
-  TH2D* histoe=new TH2D( "project_2d_a", "2d Projection of the selected tracks on the first shift; x[cm]; y[cm]", 200, -10., 10.,200, -10.,10.);
-  TH2D* histof=new TH2D( "project_2d_b", "2d Projection of the selected tracks on the second shift; x[cm]; y[cm]", 200, -10., 10.,200, -10.,10.);
-  TH2D* histog=new TH2D( "project_2d_c", "2d Projection of the selected tracks on the third shift; x[cm]; y[cm]", 200, -10., 10.,200, -10.,10.);
-  TH1D* histoex=new TH1D( "project_x_a", "X view Projection of the selected tracks on the first shift; x[cm]; track num", 200, -10., 10.);
-  TH1D* histofx=new TH1D( "project_x_b", "X view Projection of the selected tracks on the second shift; x[cm]; track num", 200, -10., 10.);
-  TH1D* histogx=new TH1D( "project_x_c", "X view Projection of the selected tracks on the third shift; x[cm]; track num", 200, -10., 10.);
-  TH1D* histoey=new TH1D( "project_y_a", "Y view Projection of the selected tracks on the first shift; track num; y[cm]", 200, -10., 10.);
-  TH1D* histofy=new TH1D( "project_y_b", "Y view Projection of the selected tracks on the second shift; track num; y[cm]", 200, -10., 10.);
-  TH1D* histogy=new TH1D( "project_y_c", "Y view Projection of the selected tracks on the third shift; track num; y[cm]", 200, -10., 10.);
+  tmp_tstring="project_2d_a"+m_nopath_instr+";x[cm];y[cm]";
+  TH2D* histoe=new TH2D( "project_2d_a", tmp_tstring, 200, -10., 10.,200, -10.,10.);
+  tmp_tstring="project_2d_b"+m_nopath_instr+";x[cm];y[cm]";
+  TH2D* histof=new TH2D( "project_2d_b", tmp_tstring, 200, -10., 10.,200, -10.,10.);
+  tmp_tstring="project_2d_c"+m_nopath_instr+";x[cm];y[cm]";
+  TH2D* histog=new TH2D( "project_2d_c", tmp_tstring, 200, -10., 10.,200, -10.,10.);
+  tmp_tstring="project_x_a"+m_nopath_instr+"; x[cm]; track num";
+  TH1D* histoex=new TH1D( "project_x_a", tmp_tstring, 200, -10., 10.);
+  tmp_tstring="project_x_b"+m_nopath_instr+"; x[cm]; track num";
+  TH1D* histofx=new TH1D( "project_x_b", tmp_tstring, 200, -10., 10.);
+  tmp_tstring="project_x_c"+m_nopath_instr+"; x[cm]; track num";
+  TH1D* histogx=new TH1D( "project_x_c", tmp_tstring, 200, -10., 10.);
+  tmp_tstring="project_y_a"+m_nopath_instr+"; track num; y[cm]";
+  TH1D* histoey=new TH1D( "project_y_a", tmp_tstring, 200, -10., 10.);
+  tmp_tstring="project_y_b"+m_nopath_instr+"; track num; y[cm]";
+  TH1D* histofy=new TH1D( "project_y_b", tmp_tstring, 200, -10., 10.);
+  tmp_tstring="project_y_c"+m_nopath_instr+"; track num; y[cm]";
+  TH1D* histogy=new TH1D( "project_y_c", tmp_tstring, 200, -10., 10.);
   //~ TH2D* histoe=new TH2D( "pvers_mx_MCvsFitted", "mx for the MC and fitted tracks; mx tracks; mx MC", 500,-0.05,0.05,500,-0.05,0.05);
   
   TVector3 projection;
@@ -486,8 +489,13 @@ void BmBooter::PrintProjections(){
       histogx->Fill(projection.X());
       histogy->Fill(projection.Y());
     }
-    
   }
+
+  //evaluate uniformity:
+  //~ Double_t min_x_unif=-1., max_x_unif=1.,min_y_unif=-1., max_y_unif=1.;
+
+  //~ ofstream outtxt;
+  //~ outtxt.open(txt_outputname.Data(),ios::app);
   if(bmcon->GetBMvieproj()>0){
     TString tmp_tstring;
     if(bmcon->GetMeas_shift().X()!=0 && bmcon->GetCalibro()<0){  
@@ -506,6 +514,14 @@ void BmBooter::PrintProjections(){
       histoey->Draw();
       tmp_tstring="project_ay_"+m_nopath_instr+"pdf";
       canvas_ay->SaveAs(tmp_tstring.Data(), "pdf");
+      //~ histoex->GetXaxis()->SetRange(min_x_unif, max_x_unif);
+      //~ histoex->GetYaxis()->SetRange(min_y_unif, max_y_unif);
+      //~ outtxt<<"uniformity evaluation="<<EvalUnif(histoex->GetMinimum(),histoex->GetMaximum())<<endl;
+      //~ cout<<"uniformity evaluation="<<EvalUnif(histoex->GetMinimum(),histoex->GetMaximum())<<endl;
+      //~ cout<<"minimum="<<histoex->GetMinimum()<<"  max="<<histoex->GetMaximum()<<endl;
+      //~ cout<<"maxbin="<<histoex->GetMaximumBin()<<"  bincenter="<<histoex->GetXaxis()->GetBinCenter(histoex->GetMaximumBin())<<"  value="<<histoex->GetBinContent(histoex->GetXaxis()->GetBinCenter(histoex->GetMaximumBin()))<<endl;
+      //~ cout<<"maxbin="<<histoex->GetMinimumBin()<<"  bincenter="<<histoex->GetXaxis()->GetBinCenter(histoex->GetMinimumBin())<<"  value="<<histoex->GetXaxis()->GetBinCenter(histoex->GetMinimumBin())<<endl;
+    
     }      
     if(bmcon->GetMeas_shift().Y()!=0 && bmcon->GetCalibro()<0){  
       TCanvas *canvas_b = new TCanvas("canvas_b", "BM projecta",20,20,800,900);
@@ -542,6 +558,8 @@ void BmBooter::PrintProjections(){
       canvas_cy->SaveAs(tmp_tstring.Data(), "pdf");
     }      
   }
+  
+  //~ outtxt.close();  
 
 return;
 }
@@ -693,8 +711,8 @@ void BmBooter::LegendrePoly(){
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/Legendre_poly")))->cd("..");  
   return;
 }
-
-
+  
+  
 void BmBooter::PrintMCxEvent(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
@@ -1067,7 +1085,17 @@ void BmBooter::evaluateT0() {
     }
   }
 
-
+//write to output_txt
+  if(bmmap->GetAdc792Ch()>0 && bmmap->GetAdcPetNum()>0){
+    Double_t adcratio=((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Integral(bmmap->GetAdcDouble(),adc_maxbin)/((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Integral(0,bmmap->GetAdcDouble());
+    ofstream outtxt;
+    outtxt.open(txt_outputname.Data(),ios::app);
+    outtxt<<"file name: "<<m_nopath_instr<<"  analized at:"<<std::time(0)<<endl;
+    outtxt<<"busy trigger rate="<<((TH1D*)gDirectory->Get("rate_evtoev"))->GetMean()<<"  nobusy rate="<<((TH1D*)gDirectory->Get("rate_beam_hz"))->GetMean()<<endl;
+    outtxt<<"adc threshold="<<bmmap->GetAdcDouble()<<"  adc under="<<((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Integral(0,bmmap->GetAdcDouble())<<"  adc over="<<((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Integral(bmmap->GetAdcDouble(),adc_maxbin)<<"  adc: double/single="<<adcratio<<endl;
+    cout<<"rescaled the rate of the beam="<<((TH1D*)gDirectory->Get("rate_beam_hz"))->GetMean()*(adcratio+1.)<<endl;
+    outtxt.close();
+  }
   
   
   //I created the TDC signal histograms
