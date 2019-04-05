@@ -87,6 +87,7 @@ Bool_t TATWactNtuPoint::FindPoints()
    TATWparGeo* pGeoMap      = (TATWparGeo*) fpGeoMap->Object();
    TATWparCal* pCalMap      = (TATWparCal*) fpCalMap->Object();
 
+   std::cout << " NTUHIT "<< pNtuHit <<std::endl;
    Float_t minDist = 99999;
    Int_t minId = -1;
    Bool_t best = false;
@@ -109,7 +110,6 @@ Bool_t TATWactNtuPoint::FindPoints()
       Int_t bar1 = hit1->GetBar();
       Float_t x  = pGeoMap->GetBarPosition(layer1, bar1)[0];
       Float_t y  = hit1->GetPosition();
-      
       TVector2 pos1(x, y);
       
       best = false;
