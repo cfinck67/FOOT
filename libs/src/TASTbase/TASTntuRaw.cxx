@@ -122,7 +122,7 @@ const TASTntuHit* TASTntuRaw::Hit(Int_t i) const
    return (const TASTntuHit*) ((*fListOfHits)[i]);;
 }
 
-
+   
 //------------------------------------------+-----------------------------------
 //! Setup clones.
 
@@ -132,7 +132,7 @@ void TASTntuRaw::SetupClones()
    
   return;
 }
-
+   
 
 //------------------------------------------+-----------------------------------
 //! Clear event.

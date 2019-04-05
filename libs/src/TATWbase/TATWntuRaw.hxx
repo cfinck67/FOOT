@@ -36,12 +36,13 @@ private:
     TArrayC   m_McTrackId;                // Id of the track created in the simulation
    
 public:
-   TATWntuHit();
-   TATWntuHit( TATWrawHit* hit );
-   TATWntuHit ( Int_t aView, Int_t aBar, Double_t aDe, Double_t aTime, Double_t pos,Double_t chargeCOM);
-   TATWntuHit(const TATWntuHit& aHit);
-   ~TATWntuHit() {};
+  TATWntuHit();
+  TATWntuHit( TATWrawHit* hit );
 
+  TATWntuHit ( Int_t aView, Int_t aBar, Double_t aDe, Double_t aTime, Double_t pos,Double_t chargeCOM);
+   TATWntuHit(const TATWntuHit& aHit);
+  ~TATWntuHit() {};
+  
    void   Clear(Option_t* option = "C");
   
    bool IsColumn() { return ( m_layer == 0 ? true : false ); };
@@ -80,7 +81,8 @@ private:
 public:
     TATWntuRaw();
     virtual          ~TATWntuRaw();
-
+  TATWntuHit* Hit(Int_t i_ind);
+  
     TATWntuHit*         NewHit( int layer, int bar, double energyLoss, double time, double pos,double m_chargeCOM);
     int               GetHitN(int layer); 
     int 			  GetHitN();

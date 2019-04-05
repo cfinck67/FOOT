@@ -140,7 +140,16 @@ int TATWntuRaw::GetHitN(int layer) {
 
 int TATWntuRaw::GetHitN()
 {
-	return m_hitlay1+m_hitlay2;
+  return m_hitlay1+m_hitlay2;
+  // return m_listOfHits->GetEntries();
+  
+}
+//------------------------------------------+-----------------------------------
+//! Access \a i 'th hit
+
+TATWntuHit* TATWntuRaw::Hit(Int_t i)
+{
+  return (TATWntuHit*) ((*m_listOfHits)[i]);;
 }
 
 //------------------------------------------+-----------------------------------
@@ -184,6 +193,8 @@ void TATWntuRaw::Clear(Option_t*) {
 
   TAGdata::Clear();
   m_listOfHits->Clear();   
+  m_hitlay1=0;
+  m_hitlay2=0;
 
 }
 
