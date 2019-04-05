@@ -257,6 +257,8 @@ void TAFOeventDisplay::ReadParFiles()
       TASTparMap* parMapSt = (TASTparMap*) fpParMapSt->Object();
       parFileName="./config/TASTdetector.cfg";
       parMapSt->FromFile(parFileName);
+
+      fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
    }
 
    // initialise par files for Beam Monitor
@@ -570,7 +572,6 @@ void TAFOeventDisplay::CreateRawAction()
    }
    
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
-      fpParTimeSt   = new TAGparaDsc("stTime", new TASTparTime());
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
       fActDatRawSt = new TASTactDatRaw("stActDat", fpDatRawSt, fpDaqEvent, fpParMapSt, fpParTimeSt);
       fActDatRawSt->CreateHistogram();
@@ -690,22 +691,26 @@ void TAFOeventDisplay::AddRequiredRawItem()
    if (!fgStdAloneFlag)
       fTAGroot->AddRequiredItem("daqActReader");
 
-   if (GlobalPar::GetPar()->IncludeST())
+   if (GlobalPar::GetPar()->IncludeST()) {
       fTAGroot->AddRequiredItem("stActDat");
-
+   }
    
    if (GlobalPar::GetPar()->IncludeBM())
       fTAGroot->AddRequiredItem("bmActDat");
    
-   if (GlobalPar::GetPar()->IncludeTW())
+   if (GlobalPar::GetPar()->IncludeTW()) {
       fTAGroot->AddRequiredItem("twActDat");
-
+   }
 }
 
 
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredRecItem()
 {
+   if (GlobalPar::GetPar()->IncludeST()) {
+      fTAGroot->AddRequiredItem("stActNtu");
+   }
+   
    if (GlobalPar::GetPar()->IncludeBM()) {
       fTAGroot->AddRequiredItem("bmActNtu");
       if (fgTrackFlag)
@@ -1247,6 +1252,8 @@ void TAFOeventDisplay::UpdateBarElements()
       for (Int_t iHit = 0; iHit < nHits; ++iHit) {
          
          TATWntuHit *hit = pNtuHit->GetHit(iLayer, iHit);
+
+	 if(!hit) continue;
 
          Int_t iBar = hit->GetBar();
 

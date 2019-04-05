@@ -103,6 +103,8 @@ Bool_t TATWactNtuPoint::FindPoints()
       minDist = 99999; // should put a given value (2*BarWidth ?)
       
       TATWntuHit* hit1 = pNtuHit->GetHit(layer1, i);
+
+      if(!hit1) continue;
       
       Int_t bar1 = hit1->GetBar();
       Float_t x  = pGeoMap->GetBarPosition(layer1, bar1)[0];
@@ -114,7 +116,9 @@ Bool_t TATWactNtuPoint::FindPoints()
       for (Int_t j = 0; j < nHits2; ++j) {
          
          TATWntuHit* hit2 = pNtuHit->GetHit(layer2, j);
-         
+
+	 if(!hit2) continue;      
+	 
          Int_t bar2 = hit2->GetBar();
          Float_t y  = pGeoMap->GetBarPosition(layer2, bar2)[1];
          Float_t x  = hit2->GetPosition();
@@ -131,7 +135,9 @@ Bool_t TATWactNtuPoint::FindPoints()
       
       if (best) {
          TATWntuHit* hitmin = pNtuHit->GetHit(1, minId);
-         
+
+	 if(!hitmin) continue;
+	 
          Int_t bar2   = hitmin->GetBar();
          Float_t xmin = pGeoMap->GetBarPosition(0, bar1)[0];
          Float_t ymin = pGeoMap->GetBarPosition(1, bar2)[1];
