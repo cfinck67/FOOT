@@ -255,7 +255,7 @@ void TAFOeventDisplay::ReadParFiles()
       parGeo->FromFile(parFileName.Data());
       fpParMapSt = new TAGparaDsc("stMap", new TASTparMap()); // need the file
       TASTparMap* parMapSt = (TASTparMap*) fpParMapSt->Object();
-      parFileName="./geomaps/tr_ch.map";
+      parFileName="./config/TASTdetector.cfg";
       parMapSt->FromFile(parFileName);
    }
 
@@ -574,6 +574,11 @@ void TAFOeventDisplay::CreateRawAction()
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
       fActDatRawSt = new TASTactDatRaw("stActDat", fpDatRawSt, fpDaqEvent, fpParMapSt, fpParTimeSt);
       fActDatRawSt->CreateHistogram();
+
+      fpNtuRawSt   = new TAGdataDsc("stNtu", new TASTntuRaw());
+      fActNtuRawSt = new TASTactNtuRaw("stActNtu", fpDatRawSt, fpNtuRawSt);
+      if(GlobalPar::GetPar()->Debug()) fActNtuRawSt->SetDebugLevel(1);
+      fActNtuRawSt->CreateHistogram();
    }
 
    if (GlobalPar::GetPar()->IncludeBM()) {
@@ -1338,8 +1343,9 @@ void TAFOeventDisplay::UpdateStcElements()
    Int_t       nHits  = pSTntu->GetHitsN();
 
    //hits
+   cout<<" TAFO:: nHits ST "<<nHits<<endl;
    for (Int_t i = 0; i < nHits; i++) {
-      
+
       TASTntuHit* hit = pSTntu->Hit(i);
       Float_t charge = hit->GetCharge();
    
