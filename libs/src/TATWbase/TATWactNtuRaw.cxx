@@ -115,8 +115,8 @@ Bool_t TATWactNtuRaw::Action() {
 			   // this to be consistent with the the bar id of  TATWdetector.map
 			   Int_t ShoeBarId=(BarId)%NumberOfBarsPerLayer;
 			   //
-			   std::cout << std::dec <<  "HIT " <<  channelA << " " <<channelB << " "  <<  c->GetBarLayer(BarId) << " " << BarId << " "<< ShoeBarId << " " << RawEnergy <<std::endl;
-			   p_nturaw->NewHit((int)c->GetBarLayer(BarId),ShoeBarId, Energy,Time,rawPos,chargeCOM);
+			   p_nturaw->NewHit((int)c->GetBarLayer(BarId),ShoeBarId, Energy,Time,rawPos,chargeCOM,
+			   hita->Charge(),hitb->Charge(),hita->Time(),hitb->Time());
 		   }
 	   }
    }

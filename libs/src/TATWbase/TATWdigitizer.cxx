@@ -266,7 +266,7 @@ Bool_t TATWdigitizer::Process(Double_t edep, Double_t x0, Double_t y0, Double_t 
    pos = (timeR-timeL)/fTofPropAlpha;
    
    // no threshold ??
-   fCurrentHit = (TATWntuHit*)fpNtuRaw->NewHit(view, id, energy, tof, pos, 0); // save time in ns, Class TATW_Hit not compatible with real data)
+   fCurrentHit = (TATWntuHit*)fpNtuRaw->NewHit(view, id, energy, tof, pos, 0 ,0 ,0 ,0 ,0); // save time in ns, Class TATW_Hit not compatible with real data)
    
    return true;
 }
