@@ -1251,9 +1251,9 @@ void TAFOeventDisplay::UpdateBarElements()
 
       for (Int_t iHit = 0; iHit < nHits; ++iHit) {
          
-         TATWntuHit *hit = pNtuHit->GetHit(iLayer, iHit);
+         TATWntuHit *hit = pNtuHit->GetHit(iHit, iLayer);
 
-	 if(!hit) continue;
+         if(!hit) continue;
 
          Int_t iBar = hit->GetBar();
 
