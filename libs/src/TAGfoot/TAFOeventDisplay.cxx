@@ -871,7 +871,7 @@ void TAFOeventDisplay::UpdateHitInfo(TEveDigitSet* qs, Int_t idx)
       fInfoView->AddLine( Form("Charge: %.3g u.a.\n", hit->GetCharge()) );
       fInfoView->AddLine( Form("Time: %.3g ps \n", hit->GetTime()) );
 
-   } else if (obj->InheritsFrom("TATW_Point")) {
+   } else if (obj->InheritsFrom("TATWpoint")) {
       TATWpoint* point = (TATWpoint*)obj;
       if (point == 0x0) return;
       TVector3 pos = point->GetPosition();
