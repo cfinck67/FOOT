@@ -868,6 +868,7 @@ void TAFOeventDisplay::UpdateHitInfo(TEveDigitSet* qs, Int_t idx)
       
    } else if (obj->InheritsFrom("TASTntuHit")) {
       TASTntuHit* hit = (TASTntuHit*)obj;
+      if (hit == 0x0) return;
       fInfoView->AddLine( Form("Charge: %.3g u.a.\n", hit->GetCharge()) );
       fInfoView->AddLine( Form("Time: %.3g ps \n", hit->GetTime()) );
 
