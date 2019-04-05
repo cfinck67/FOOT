@@ -436,6 +436,12 @@ void BmBooter::PrintProjections(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();
+
+  Double_t min_xa_unif=-2., max_xa_unif=2.,min_ya_unif=-2., max_ya_unif=2.;
+  Double_t min_xb_unif=-2., max_xb_unif=2.,min_yb_unif=-2., max_yb_unif=2.;
+  Double_t min_xc_unif=-2., max_xc_unif=2.,min_yc_unif=-2., max_yc_unif=2.;
+  Int_t binaunif=100, binbunif=100, bincunif=100;
+
   TString tmp_tstring;
   TH2D* histoa=new TH2D( "mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
@@ -459,6 +465,24 @@ void BmBooter::PrintProjections(){
   TH1D* histofy=new TH1D( "project_y_b", tmp_tstring, 200, -10., 10.);
   tmp_tstring="project_y_c"+m_nopath_instr+"; track num; y[cm]";
   TH1D* histogy=new TH1D( "project_y_c", tmp_tstring, 200, -10., 10.);
+  tmp_tstring="project_2d_aunif"+m_nopath_instr+";x[cm];y[cm]";
+  TH2D* histoeunif=new TH2D( "project_2d_aunif", tmp_tstring, binaunif, min_xa_unif, max_xa_unif,binaunif, min_ya_unif,max_ya_unif);
+  tmp_tstring="project_2d_b"+m_nopath_instr+";x[cm];y[cm]";
+  TH2D* histofunif=new TH2D( "project_2d_bunif", tmp_tstring, binbunif, min_xb_unif, max_xb_unif,binbunif, min_yb_unif,max_yb_unif);
+  tmp_tstring="project_2d_c"+m_nopath_instr+";x[cm];y[cm]";
+  TH2D* histogunif=new TH2D( "project_2d_cunif", tmp_tstring, bincunif, min_xc_unif, max_xc_unif,bincunif, min_yc_unif,max_yc_unif);
+  tmp_tstring="project_x_a"+m_nopath_instr+"; x[cm]; track num";
+  TH1D* histoexunif=new TH1D( "project_x_aunif", tmp_tstring, binaunif, min_xa_unif, max_xa_unif);
+  tmp_tstring="project_x_b"+m_nopath_instr+"; x[cm]; track num";
+  TH1D* histofxunif=new TH1D( "project_x_bunif", tmp_tstring, binbunif, min_xb_unif, max_xb_unif);
+  tmp_tstring="project_x_c"+m_nopath_instr+"; x[cm]; track num";
+  TH1D* histogxunif=new TH1D( "project_x_cunif", tmp_tstring, bincunif, min_xc_unif, max_xc_unif);
+  tmp_tstring="project_y_a"+m_nopath_instr+"; track num; y[cm]";
+  TH1D* histoeyunif=new TH1D( "project_y_aunif", tmp_tstring, binaunif, min_ya_unif, max_ya_unif);
+  tmp_tstring="project_y_b"+m_nopath_instr+"; track num; y[cm]";
+  TH1D* histofyunif=new TH1D( "project_y_bunif", tmp_tstring, binbunif, min_yb_unif, max_yb_unif);
+  tmp_tstring="project_y_c"+m_nopath_instr+"; track num; y[cm]";
+  TH1D* histogyunif=new TH1D( "project_y_cunif", tmp_tstring, bincunif, min_yc_unif, max_yc_unif);
   //~ TH2D* histoe=new TH2D( "pvers_mx_MCvsFitted", "mx for the MC and fitted tracks; mx tracks; mx MC", 500,-0.05,0.05,500,-0.05,0.05);
   
   TVector3 projection;
@@ -476,26 +500,36 @@ void BmBooter::PrintProjections(){
       histoe->Fill(projection.X(), projection.Y());
       histoex->Fill(projection.X());
       histoey->Fill(projection.Y());
+      histoeunif->Fill(projection.X(), projection.Y());
+      histoexunif->Fill(projection.X());
+      histoeyunif->Fill(projection.Y());
     }
     if(bmcon->GetMeas_shift().Y()!=0 && bmcon->GetCalibro()<0){
       projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmcon->GetMeas_shift().Y());
       histof->Fill(projection.X(), projection.Y());
+      histof->Fill(projection.X(), projection.Y());
       histofx->Fill(projection.X());
       histofy->Fill(projection.Y());
+      histofunif->Fill(projection.X(), projection.Y());
+      histofxunif->Fill(projection.X());
+      histofyunif->Fill(projection.Y());
     }
     if(bmcon->GetMeas_shift().Z()!=0 && bmcon->GetCalibro()<0){
       projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmcon->GetMeas_shift().Z());
       histog->Fill(projection.X(), projection.Y());
       histogx->Fill(projection.X());
       histogy->Fill(projection.Y());
+      histogunif->Fill(projection.X(), projection.Y());
+      histogxunif->Fill(projection.X());
+      histogyunif->Fill(projection.Y());
     }
   }
 
   //evaluate uniformity:
-  //~ Double_t min_x_unif=-1., max_x_unif=1.,min_y_unif=-1., max_y_unif=1.;
 
-  //~ ofstream outtxt;
-  //~ outtxt.open(txt_outputname.Data(),ios::app);
+
+  ofstream outtxt;
+  outtxt.open(txt_outputname.Data(),ios::app);
   if(bmcon->GetBMvieproj()>0){
     TString tmp_tstring;
     if(bmcon->GetMeas_shift().X()!=0 && bmcon->GetCalibro()<0){  
@@ -504,21 +538,32 @@ void BmBooter::PrintProjections(){
       histoe->Draw();
       tmp_tstring="project_a2d_"+m_nopath_instr+"pdf";
       canvas_a->SaveAs(tmp_tstring.Data(), "pdf");
+      outtxt<<tmp_tstring.Data()<<"  min="<<histoeunif->GetMinimum()<<"  max="<<histoeunif->GetMaximum()<<endl;
+      outtxt<<"uniformity evaluation="<<EvalUnif(histoeunif->GetMinimum(),histoeunif->GetMaximum())<<endl;
+      cout<<tmp_tstring.Data()<<"  min="<<histoeunif->GetMinimum()<<"  max="<<histoeunif->GetMaximum()<<endl;
+      cout<<"uniformity evaluation="<<EvalUnif(histoeunif->GetMinimum(),histoeunif->GetMaximum())<<endl;
+         
       TCanvas *canvas_ax = new TCanvas("canvas_ax", "BM projects",20,20,800,900);
       canvas_ax->cd();
       histoex->Draw();
       tmp_tstring="project_ax_"+m_nopath_instr+"pdf";
       canvas_ax->SaveAs(tmp_tstring.Data(), "pdf");
+      outtxt<<tmp_tstring.Data()<<"  min="<<histoexunif->GetMinimum()<<"  max="<<histoexunif->GetMaximum()<<endl;
+      outtxt<<"uniformity evaluation="<<EvalUnif(histoexunif->GetMinimum(),histoexunif->GetMaximum())<<endl;
+      cout<<tmp_tstring.Data()<<"  min="<<histoexunif->GetMinimum()<<"  max="<<histoexunif->GetMaximum()<<endl;
+      cout<<"uniformity evaluation="<<EvalUnif(histoexunif->GetMinimum(),histoexunif->GetMaximum())<<endl;
+    
       TCanvas *canvas_ay = new TCanvas("canvas_ay", "BM projects",20,20,800,900);
       canvas_ay->cd();
       histoey->Draw();
       tmp_tstring="project_ay_"+m_nopath_instr+"pdf";
       canvas_ay->SaveAs(tmp_tstring.Data(), "pdf");
-      //~ histoex->GetXaxis()->SetRange(min_x_unif, max_x_unif);
-      //~ histoex->GetYaxis()->SetRange(min_y_unif, max_y_unif);
+      outtxt<<tmp_tstring.Data()<<"  min="<<histoeyunif->GetMinimum()<<"  max="<<histoeyunif->GetMaximum()<<endl;
+      outtxt<<"uniformity evaluation="<<EvalUnif(histoeyunif->GetMinimum(),histoeyunif->GetMaximum())<<endl;
+      cout<<tmp_tstring.Data()<<"  min="<<histoeyunif->GetMinimum()<<"  max="<<histoeyunif->GetMaximum()<<endl;
+      cout<<"uniformity evaluation="<<EvalUnif(histoeyunif->GetMinimum(),histoeyunif->GetMaximum())<<endl;     
       //~ outtxt<<"uniformity evaluation="<<EvalUnif(histoex->GetMinimum(),histoex->GetMaximum())<<endl;
       //~ cout<<"uniformity evaluation="<<EvalUnif(histoex->GetMinimum(),histoex->GetMaximum())<<endl;
-      //~ cout<<"minimum="<<histoex->GetMinimum()<<"  max="<<histoex->GetMaximum()<<endl;
       //~ cout<<"maxbin="<<histoex->GetMaximumBin()<<"  bincenter="<<histoex->GetXaxis()->GetBinCenter(histoex->GetMaximumBin())<<"  value="<<histoex->GetBinContent(histoex->GetXaxis()->GetBinCenter(histoex->GetMaximumBin()))<<endl;
       //~ cout<<"maxbin="<<histoex->GetMinimumBin()<<"  bincenter="<<histoex->GetXaxis()->GetBinCenter(histoex->GetMinimumBin())<<"  value="<<histoex->GetXaxis()->GetBinCenter(histoex->GetMinimumBin())<<endl;
     
@@ -529,16 +574,30 @@ void BmBooter::PrintProjections(){
       histof->Draw();
       tmp_tstring="project_b2d_"+m_nopath_instr+"pdf";
       canvas_b->SaveAs(tmp_tstring.Data(), "pdf");
+      outtxt<<tmp_tstring.Data()<<"  min="<<histofunif->GetMinimum()<<"  max="<<histofunif->GetMaximum()<<endl;
+      outtxt<<"uniformity evaluation="<<EvalUnif(histofunif->GetMinimum(),histofunif->GetMaximum())<<endl;
+      cout<<tmp_tstring.Data()<<"  min="<<histofunif->GetMinimum()<<"  max="<<histofunif->GetMaximum()<<endl;
+      cout<<"uniformity evaluation="<<EvalUnif(histofunif->GetMinimum(),histofunif->GetMaximum())<<endl;      
+    
       TCanvas *canvas_bx = new TCanvas("canvas_b", "BM projecta",20,20,800,900);
       canvas_bx->cd();
       histofx->Draw();
       tmp_tstring="project_bx_"+m_nopath_instr+"pdf";
       canvas_bx->SaveAs(tmp_tstring.Data(), "pdf");
+      outtxt<<tmp_tstring.Data()<<"  min="<<histofxunif->GetMinimum()<<"  max="<<histofxunif->GetMaximum()<<endl;
+      outtxt<<"uniformity evaluation="<<EvalUnif(histofxunif->GetMinimum(),histofxunif->GetMaximum())<<endl;
+      cout<<tmp_tstring.Data()<<"  min="<<histofxunif->GetMinimum()<<"  max="<<histofxunif->GetMaximum()<<endl;
+      cout<<"uniformity evaluation="<<EvalUnif(histofxunif->GetMinimum(),histofxunif->GetMaximum())<<endl;
+    
       TCanvas *canvas_by = new TCanvas("canvas_b", "BM projecta",20,20,800,900);
       canvas_by->cd();
       histofy->Draw();
       tmp_tstring="project_by_"+m_nopath_instr+"pdf";
       canvas_by->SaveAs(tmp_tstring.Data(), "pdf");
+      outtxt<<tmp_tstring.Data()<<"  min="<<histofyunif->GetMinimum()<<"  max="<<histofyunif->GetMaximum()<<endl;
+      outtxt<<"uniformity evaluation="<<EvalUnif(histofyunif->GetMinimum(),histofyunif->GetMaximum())<<endl;
+      cout<<tmp_tstring.Data()<<"  min="<<histofyunif->GetMinimum()<<"  max="<<histofyunif->GetMaximum()<<endl;
+      cout<<"uniformity evaluation="<<EvalUnif(histofyunif->GetMinimum(),histofyunif->GetMaximum())<<endl;
     }      
     if(bmcon->GetMeas_shift().Z()!=0 && bmcon->GetCalibro()<0){  
       TCanvas *canvas_c = new TCanvas("canvas_a", "BM projects",20,20,800,900);
@@ -546,20 +605,34 @@ void BmBooter::PrintProjections(){
       histog->Draw();
       tmp_tstring="project_c2d_"+m_nopath_instr+"pdf";
       canvas_c->SaveAs(tmp_tstring.Data(), "pdf");
+      outtxt<<tmp_tstring.Data()<<"  min="<<histogunif->GetMinimum()<<"  max="<<histogunif->GetMaximum()<<endl;
+      outtxt<<"uniformity evaluation="<<EvalUnif(histogunif->GetMinimum(),histogunif->GetMaximum())<<endl;
+      cout<<tmp_tstring.Data()<<"  min="<<histogunif->GetMinimum()<<"  max="<<histogunif->GetMaximum()<<endl;
+      cout<<"uniformity evaluation="<<EvalUnif(histogunif->GetMinimum(),histogunif->GetMaximum())<<endl;
+    
       TCanvas *canvas_cx = new TCanvas("canvas_a", "BM projects",20,20,800,900);
       canvas_cx->cd();
       histogx->Draw();
       tmp_tstring="project_cx_"+m_nopath_instr+"pdf";
       canvas_cx->SaveAs(tmp_tstring.Data(), "pdf");
+      outtxt<<tmp_tstring.Data()<<"  min="<<histogxunif->GetMinimum()<<"  max="<<histogxunif->GetMaximum()<<endl;
+      outtxt<<"uniformity evaluation="<<EvalUnif(histogxunif->GetMinimum(),histogxunif->GetMaximum())<<endl;
+      cout<<tmp_tstring.Data()<<"  min="<<histogxunif->GetMinimum()<<"  max="<<histogxunif->GetMaximum()<<endl;
+      cout<<"uniformity evaluation="<<EvalUnif(histogxunif->GetMinimum(),histogxunif->GetMaximum())<<endl;
+    
       TCanvas *canvas_cy = new TCanvas("canvas_a", "BM projects",20,20,800,900);
       canvas_cy->cd();
       histogy->Draw();
       tmp_tstring="project_cy_"+m_nopath_instr+"pdf";
       canvas_cy->SaveAs(tmp_tstring.Data(), "pdf");
+      outtxt<<tmp_tstring.Data()<<"  min="<<histogyunif->GetMinimum()<<"  max="<<histogyunif->GetMaximum()<<endl;
+      outtxt<<"uniformity evaluation="<<EvalUnif(histogyunif->GetMinimum(),histogyunif->GetMaximum())<<endl;
+      cout<<tmp_tstring.Data()<<"  min="<<histogyunif->GetMinimum()<<"  max="<<histogyunif->GetMaximum()<<endl;
+      cout<<"uniformity evaluation="<<EvalUnif(histogyunif->GetMinimum(),histogyunif->GetMaximum())<<endl;     
     }      
   }
   
-  //~ outtxt.close();  
+  outtxt.close();  
 
 return;
 }

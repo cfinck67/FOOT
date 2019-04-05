@@ -67,7 +67,7 @@ public:
   void Projecttracktr(); //to save the tracktr2dprojects matrix
   void ResidualDistance();//to save the residual_distance matrix
   Bool_t MCxEvent();// to save the mcxevent matrix
-  Double_t EvalUnif(Double_t min, Double_t max){return 100.*(1.-(max-min)/(max+min));};//evaluate the uniformity
+  Double_t EvalUnif(Double_t min, Double_t max){return 100.*(1.-((max-min)/(max+min)));};//evaluate the uniformity
   
   //read data event
   Bool_t read_event(Bool_t);//read an event from the datafile and charge bmstruct, it returns true if it read the event, false if the file is end
