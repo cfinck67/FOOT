@@ -21,6 +21,8 @@
 #include "TAGactTreeWriter.hxx"
 #include "TASTparMap.hxx"
 #include "TASTdatRaw.hxx"
+#include "TASTntuRaw.hxx"
+#include "TASTactNtuRaw.hxx"
 #include "TAGdaqEvent.hxx"
 #include "TAGactDaqReader.hxx"
 #include "TASTactDatRaw.hxx"
@@ -31,19 +33,35 @@
 TAGactTreeWriter*   outFile   = 0x0;
 TAGactDaqReader*    daqActReader = 0x0;
 TASTactDatRaw*      stActRaw  = 0x0;
+TASTactNtuRaw*      stActNtuRaw  = 0x0;
+TASTparMap *parMap;
+TAGdataDsc* stNtu;
 
-void FillST()
-{
-   TAGparaDsc* stMap = new TAGparaDsc("stMap", new TASTparMap());
-   TAGdataDsc* stDaq    = new TAGdataDsc("stDaq", new TAGdaqEvent());
-   TAGdataDsc* stDat    = new TAGdataDsc("stDat", new TASTdatRaw());
-   TAGparaDsc* stTime   = new TAGparaDsc("stTime", new TASTparTime());
+void FillST(){
 
-   daqActReader  = new TAGactDaqReader("daqActReader", stDaq);
-   stActRaw  = new TASTactDatRaw("stActRaw", stDat, stDaq, stMap, stTime);
-   //   stActRaw->CreateHistogram();
+  
+  TAGparaDsc* stMap;
+  TAGdataDsc* stDaq;
+  TAGdataDsc* stDat;
+  TAGparaDsc* stTime;
+  
 
+   stMap    = new TAGparaDsc("stMap", new TASTparMap());
+   stDaq    = new TAGdataDsc("stDaq", new TAGdaqEvent());
+   stDat    = new TAGdataDsc("stDat", new TASTdatRaw());
+   stTime   = new TAGparaDsc("stTime", new TASTparTime());
+   stNtu    = new TAGdataDsc("stNtu", new TASTntuRaw());
    
+   daqActReader  = new TAGactDaqReader("daqActReader", stDaq);
+
+   stActRaw  = new TASTactDatRaw("stActRaw", stDat, stDaq, stMap, stTime);
+   stActNtuRaw  = new TASTactNtuRaw("stActNtuRaw", stDat, stNtu);
+   //stNtuRaw->CreateHistogram();
+   //   stActNtuRaw->SetHistogramDir(outFile->File());
+   
+   parMap = (TASTparMap*)stMap->Object();
+   parMap->FromFile("config/TASTdetector.cfg");
+
 }
 
 void ReadStRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",
@@ -55,25 +73,34 @@ void ReadStRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
    tagr.SetRunNumber(1);
    
    outFile = new TAGactTreeWriter("outFile");
+   
 
    FillST();
+
+   outFile->SetupElementBranch(stNtu,"stNtu");
+   
    daqActReader->Open(filename);
+
+
    
    tagr.AddRequiredItem(daqActReader);
    tagr.AddRequiredItem(stActRaw);
+   tagr.AddRequiredItem(stActNtuRaw);
    tagr.AddRequiredItem(outFile);
 
    tagr.Print();
-   
+
+
+   stActRaw->CreateHistogram();
+ 
+
    Int_t pos = filename.First(".");
-   
    TString outFileName = filename(pos+1, 8);
    outFileName.Prepend("run.");
-
    outFileName.Append(".root");
    if (outFile->Open(outFileName.Data(), "RECREATE")) return;
    stActRaw->SetHistogramDir(outFile->File());
-
+   
    cout<<" Beginning the Event Loop "<<endl;
    tagr.BeginEventLoop();
    TStopwatch watch;

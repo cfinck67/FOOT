@@ -27,24 +27,22 @@ class TATWntuHit : public TAGobject {
 private:
     Int_t m_layer;
     Int_t m_bar;
-	
-    Double32_t m_de;                     // energy loss in the scintillator bar
-    Double32_t m_time;                   // time of flight
-
-    Double32_t m_coordinate;                // x or y coordinate in the local detector frame, depending on the layer
-    Float_t m_z;                         // z coordinate in the local detector frame
-
-   TArrayC   m_MCindex;                  // Id of the hit created in the simulation
-   TArrayC   m_McTrackId;                // Id of the track created in the simulation
+    Double_t m_de;                     // energy loss in the scintillator bar
+    Double_t m_time;                   // timestamp
+    Double_t m_coordinate;             // x or y coordinate in the local detector frame, depending on the layer
+    Double_t m_z;                         // z coordinate in the local detector frame
+    Double_t m_chargeCOM;                  // Center of Mass evaluated with the charge
+    TArrayC   m_MCindex;                  // Id of the hit created in the simulation
+    TArrayC   m_McTrackId;                // Id of the track created in the simulation
    
 public:
-   TATWntuHit() {};
-   TATWntuHit( TATWrawHit* hit );
-   TATWntuHit ( Int_t aView, Int_t aBar, Double_t aDe, Double_t aTime, Double_t pos);
-   TATWntuHit(const TATWntuHit& aHit);
+  TATWntuHit();
+  TATWntuHit( TATWrawHit* hit );
 
-   ~TATWntuHit() {};
-   
+  TATWntuHit ( Int_t aView, Int_t aBar, Double_t aDe, Double_t aTime, Double_t pos,Double_t chargeCOM);
+   TATWntuHit(const TATWntuHit& aHit);
+  ~TATWntuHit() {};
+  
    void   Clear(Option_t* option = "C");
   
    bool IsColumn() { return ( m_layer == 0 ? true : false ); };
@@ -69,7 +67,7 @@ public:
    // Add MC track Id
    void       AddMcTrackId(Int_t trackId, Int_t mcId = -1);
 
-    ClassDef(TATWntuHit,3)                            // Pixel or Pixel of a Detector Plane
+    ClassDef(TATWntuHit,1)                            // Pixel or Pixel of a Detector Plane
 };
 
 //##############################################################################
@@ -77,22 +75,22 @@ public:
 class TATWntuRaw : public TAGdata {
    
 private:
-    TObjArray*        m_listOfHits;
-    TATWparGeo*       m_twGeo;       //! do not save
-
+    TClonesArray*        m_listOfHits;
+    int m_hitlay1;
+    int m_hitlay2;
 public:
     TATWntuRaw();
     virtual          ~TATWntuRaw();
-
-    TATWntuHit*         NewHit( int layer, int bar, double energyLoss, double time, double pos);
-    TATWntuHit*         NewHit( TATWrawHit* hit );
-    
-    int               GetHitN(  int layer  ); 
-    TATWntuHit*         GetHit(  int layer, int hitID );
+  TATWntuHit* Hit(Int_t i_ind);
+  
+    TATWntuHit*         NewHit( int layer, int bar, double energyLoss, double time, double pos,double m_chargeCOM);
+    int               GetHitN(int layer); 
+    int 			  GetHitN();
+    TATWntuHit*         GetHit( int hitID , int layer);
     
     
     virtual void      SetupClones();
-    TClonesArray*     GetListOfHits( int layer );
+    TClonesArray*     GetListOfHits();
 
     virtual void      Clear(Option_t* opt="");
 
@@ -109,4 +107,3 @@ public:
 };
 
 #endif
-

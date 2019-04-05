@@ -42,6 +42,7 @@ class TATWrawHit : public TObject {
     void            SetMCID(int id);  //WD mc ID
     ClassDef(TATWrawHit,1);
     //
+  private:
     Double_t ir_time;    
     Double_t ir_chg;
     Double_t ir_pedestal;
@@ -65,6 +66,9 @@ class TATWdatRaw : public TAGdata {
     void SetupClones();
     virtual void    ToStream(ostream& os=cout, Option_t* option="") const;
     ClassDef(TATWdatRaw,1);
+
+    static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
+  
   public:
     Int_t           nirhit;		    // 
     TClonesArray*   hir;			// hits

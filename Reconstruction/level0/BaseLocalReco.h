@@ -109,7 +109,7 @@ public:
    void DisableTree()     { fFlagTree = false;   }
    
    void EnableSaveHits()  { fFlagHits = true;    }
-   void DisableDaveHits() { fFlagHits = false;   }
+   void DisableSaveHits() { fFlagHits = false;   }
 
    
    void EnableHisto()     { fFlagHisto = true;   }
@@ -202,7 +202,7 @@ protected:
    Bool_t                fFlagTrack;     // flag for tracking
    TString               fgTrackingAlgo; // tracking algorithm ("std" with BM, "Full" combinatory)
 
-protected:
+ protected:
    void CreateRecActionBm();
    void CreateRecActionVtx();
    void CreateRecActionIt();

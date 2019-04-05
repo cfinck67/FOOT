@@ -46,25 +46,28 @@ TASTparMap::~TASTparMap()
 //! Read mapping data from file \a name .
 
 
-Bool_t TASTparMap::IsSTChannel(int iBo, int iCha){
+Bool_t TASTparMap::IsSTChannel(int iCha){
 
-  
-  if(std::find(TDboaID.begin(),TDboaID.end(),iBo) == TDboaID.end())return false;
-  if(std::find(TDchaID.begin(),TDchaID.end(),iCha) == TDchaID.end())return false;
-
+  if(std::find(TDchaID.begin(),TDchaID.end(),iCha) == TDchaID.end()){
+    return false;
+  }
   return true;
+
     
 }
 
 
 
-Bool_t TASTparMap::IsSTClk(int iCha){
-  
-  if(std::find(TDclkID.begin(),TDclkID.end(),iCha) == TDclkID.end())return false;
+Bool_t TASTparMap::IsSTBoard(int iBo){
 
+  if(std::find(TDboaID.begin(),TDboaID.end(),iBo) == TDboaID.end()){
+    return false;
+  }
   return true;
+
     
 }
+
 
 Bool_t TASTparMap::FromFile(const TString& name) {
 
@@ -73,13 +76,16 @@ Bool_t TASTparMap::FromFile(const TString& name) {
   TString name_exp = name;
   gSystem->ExpandPathName(name_exp);
 
+
+  
   char bufConf[1024];
   int myArg1(0), myArg2(0); 
  
   ifstream incF;
   incF.open(name_exp.Data());
 
-    
+
+  
   if (!incF) {
     Error("FromFile()", "failed to open file '%s'", name_exp.Data());
     return kTRUE;
@@ -106,6 +112,9 @@ Bool_t TASTparMap::FromFile(const TString& name) {
     }
   }
 
+
+
+  
   return kFALSE;
 }
 

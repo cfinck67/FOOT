@@ -56,6 +56,7 @@
 #include "TAMSDactNtuCluster.hxx"
 #include "TATWactNtuPoint.hxx"
 
+#include "TASTactNtuRaw.hxx"
 #include "TABMactNtuRaw.hxx"
 #include "TAVTactNtuRaw.hxx"
 #include "TAITactNtuRaw.hxx"
@@ -228,6 +229,7 @@ protected:
    TAGactionFile*        fActEvtReader;
 
    TASTactDatRaw*        fActDatRawSt;   // action for dat raw ST
+   TASTactNtuRaw*        fActNtuRawSt;   // action for dat raw ST
 
    TABMactVmeReader*     fActVmeReaderBm; // action for stand alone reader BM
    TABMactDatRaw*        fActDatRawBm;   // action for dat raw BM

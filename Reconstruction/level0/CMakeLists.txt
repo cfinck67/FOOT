@@ -36,7 +36,6 @@ set( with_dictionnaries
    BaseLocalReco
    LocalRecoMC
    LocalReco
-   LocalRecoData
 )
 
 # add includes : root + current + dependencies
@@ -101,18 +100,6 @@ if (!ROOT6_USED)
   ROOT_GENERATE_ROOTMAP(${LIBNAME} LINKDEF ${linkdefs} DEPENDENCIES ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES})
 endif()
 
-
-#----------------------------------------------------------------------------
-# Add the executable, and link it to the Genfit and root libraries
-#
-add_executable(DecodeData DecodeData.cpp)
-#
-target_link_libraries(DecodeData ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} ${LIBNAME} )
-
-#----------------------------------------------------------------------------
-# Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
-#
-install(TARGETS DecodeData DESTINATION bin)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Genfit and root libraries

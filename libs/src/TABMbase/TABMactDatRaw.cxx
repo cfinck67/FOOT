@@ -59,7 +59,9 @@ TABMactDatRaw::~TABMactDatRaw()
 //------------------------------------------+-----------------------------------
 //! Action.
 Bool_t TABMactDatRaw::Action() {
-  
+
+  if(GetDebugLevel()) { cout<<" Entering the TABMactDatRaw action "<<endl; }
+    
    TAGdaqEvent*   p_datdaq = (TAGdaqEvent*)  fpDatDaq->Object();
 
    Int_t nFragments = p_datdaq->GetFragmentsN();

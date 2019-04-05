@@ -1,5 +1,3 @@
-
-
 #include "TTree.h"
 
 #include "LocalRecoMC.h"
@@ -14,12 +12,7 @@
 #include "TATW_ContainerHit.hxx"
 #include "TACAntuRaw.hxx"
 
-
-
-
-
 ClassImp(LocalRecoMC)
-
 
 //__________________________________________________________
 LocalRecoMC::LocalRecoMC(TString fileNameIn, TString fileNameout)

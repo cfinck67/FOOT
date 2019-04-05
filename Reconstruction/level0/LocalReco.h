@@ -7,6 +7,7 @@
 #include "TAGdataDsc.hxx"
 
 #include "TASTactDatRaw.hxx"
+#include "TASTactNtuRaw.hxx"
 #include "TABMactVmeReader.hxx"
 #include "TABMactDatRaw.hxx"
 #include "TABMactNtuRaw.hxx"
@@ -20,6 +21,7 @@
 //#include "TAMSDactDatRaw.hxx"
 
 #include "TATWactDatRaw.hxx"
+#include "TATWactNtuRaw.hxx"
 
 #include "TAGdaqEvent.hxx"
 #include "TAGactDaqReader.hxx"
@@ -63,6 +65,7 @@ private:
  //  TAGdataDsc*           fpDatRawMsd;    // input data dsc
 
    TASTactDatRaw*        fActDatRawSt;  // action for ntu data
+   TASTactNtuRaw*        fActNtuRawSt;  // action for ntu data
    
    TABMactVmeReader*     fActVmeReaderBm; // action for stand alone reader BM
    TABMactDatRaw*        fActDatRawBm;
@@ -75,6 +78,7 @@ private:
 //   TAMSDactNtuRaw*       fActNtuRawMsd;  // action for ntu data
 
    TATWactDatRaw*        fActDatRawTw;
+   TATWactNtuRaw*        fActNtuRawTw;
 
    TAGactDaqReader*      fActEvtReader; // reader for real data (DAQ)
   

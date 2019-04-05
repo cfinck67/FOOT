@@ -9,6 +9,8 @@
 #pragma link C++ class TATWrawHit+;
 #pragma link C++ class TATWntuHit+;
 #pragma link C++ class TATWntuRaw+;
+#pragma link C++ class TATWpoint+;
+#pragma link C++ class TATWntuPoint+;
 #pragma link C++ class TATWparMap+;
 #pragma link C++ class TATWparTime+;
 #pragma link C++ class TATWparCal+;

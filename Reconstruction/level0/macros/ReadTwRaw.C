@@ -18,6 +18,7 @@
 #include "TAGactTreeWriter.hxx"
 
 #include "TATWparMap.hxx"
+#include "TATWparCal.hxx"
 #include "TATWparTime.hxx"
 
 #include "TATWdatRaw.hxx"
@@ -40,6 +41,8 @@ TAGdataDsc* twNtu  ;
 void FillTW()
 {
    TAGparaDsc* twMap = new TAGparaDsc("twMap", new TATWparMap());
+   TAGparaDsc* twcalMap = new TAGparaDsc("twcalMap", new TATWparCal());
+
    TAGdataDsc* twDaq    = new TAGdataDsc("twDaq", new TAGdaqEvent());
    twDat  = new TAGdataDsc("twDat", new TATWdatRaw());
    TAGparaDsc* twTim    = new TAGparaDsc("twTim", new TATWparTime());
@@ -53,9 +56,14 @@ void FillTW()
    TATWparGeo* parGeo = (TATWparGeo*)twGeo->Object();
    TString parFileName = Form("./geomaps/TATWdetector.map");
    parGeo->FromFile(parFileName);
+   TATWparMap *twParMap =  (TATWparMap*)twMap->Object();
+   twParMap->FromFile("./config/TATWChannelMap.xml");
+   TATWparCal *twParCal =  (TATWparCal*)twcalMap->Object();
+   twParCal->FromFile("./config/TATWCalibrationMap.xml");
+
 
    twNtu  = new TAGdataDsc("twNtu", new TATWntuRaw());
-   twActNtu  = new TATWactNtuRaw("twNtuRaw", twDat, twNtu, twGeo);
+   twActNtu  = new TATWactNtuRaw("twNtuRaw", twDat, twNtu, twGeo, twMap,twcalMap);
    twActNtu->CreateHistogram();
 
 }
@@ -100,6 +108,8 @@ void ReadTwRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
    watch.Start();
    
    Int_t nEvents = 0;
+
+   TH1D *histo=new TH1D("energy","energy",200,0,0);
    while (tagr.NextEvent() ){
       
      // printf("\n");
@@ -111,12 +121,13 @@ void ReadTwRaw(TString filename = "data_test.00001313.physics_foot.daq.RAW._lb00
 	 cout<<"Hit number:: "<<myNtu->GetHitN(0)<<endl;
 	 for(int iH = 0; iH<myNtu->GetHitN(0); iH++){
 	   TATWntuHit *aHi = myNtu->GetHit(0,iH);
-	   cout<<aHi->GetTime()<<endl;
+	   std::cout << aHi->GetBar() <<std::endl;
+		   histo->Fill(aHi->GetEnergyLoss());
 	 }
 	  if (nEvents == nMaxEvts)
 		 break;
    }
-   
+   histo->Draw();
    tagr.EndEventLoop();
    outFile->Print();
    outFile->Close();

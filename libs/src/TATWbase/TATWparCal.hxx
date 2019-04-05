@@ -12,8 +12,8 @@
 #include "TObject.h"
 #include "TArrayF.h"
 #include "TF1.h"
-
 #include "TAGparTools.hxx"
+#include "CCalibrationMap.hxx"
 
 //##############################################################################
 
@@ -27,10 +27,11 @@ private:
    };
    
    ChargeParameter_t  fChargeParameter[8];
-
 private: 
+
    static Int_t   fgkChargesN;       // number of charge states
    static TString fgkDefaultCalName; // default detector charge calibration file
+   CCalibrationMap *cMapCal;
    
 public:
 
@@ -39,23 +40,24 @@ public:
 
    //! Read from file
    Bool_t             FromFile(const TString& name = "");
-   
-   //! Get charge
+   inline CCalibrationMap* getCalibrationMap() {return cMapCal;}
+   //
+   //   //! Get charge
    Int_t              GetChargeZ(Float_t edep) const;
-    
+   //
    //! Clear
    virtual void       Clear(Option_t* opt="");
-   
+
    //! Stream output
    virtual void       ToStream(ostream& os = cout, Option_t* option = "") const;
-   
-   //! Get charge parameter
-   ChargeParameter_t& GetChargePar(Int_t idx) {return fChargeParameter[idx];}
-   
-   Int_t              GetCharge(Int_t idx) const { return fChargeParameter[idx].Charge; }
-   Float_t            GetCutLow(Int_t idx) const { return fChargeParameter[idx].CutLow; }
-   Float_t            GetCutUp(Int_t idx)  const { return fChargeParameter[idx].CutUp; }
-   
+
+   //   //! Get charge parameter
+   //   ChargeParameter_t& GetChargePar(Int_t idx) {return fChargeParameter[idx];}
+   //
+   //   Int_t              GetCharge(Int_t idx) const { return fChargeParameter[idx].Charge; }
+   //   Float_t            GetCutLow(Int_t idx) const { return fChargeParameter[idx].CutLow; }
+   //   Float_t            GetCutUp(Int_t idx)  const { return fChargeParameter[idx].CutUp; }
+
 public:
    static const Char_t* GetDefaultCalName()      { return fgkDefaultCalName.Data(); }
 
