@@ -37,7 +37,8 @@ TATWpoint::TATWpoint( double x, TATWntuHit* colHit, double y, TATWntuHit* rowHit
 : TAGobject(),
    m_position(x, y, 0),
    m_columnHit(new TATWntuHit(*colHit)),
-   m_rowHit(new TATWntuHit(*rowHit))
+   m_rowHit(new TATWntuHit(*rowHit)),
+   m_chargeZ(0)
 {
    m_column = m_columnHit->GetBar();
    m_row    = m_rowHit->GetBar();
