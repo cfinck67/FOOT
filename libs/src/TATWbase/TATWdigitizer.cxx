@@ -38,7 +38,7 @@ ClassImp(TATWdigitizer)
 Float_t TATWdigitizer::fgHfactor = 1.45;
 
 // --------------------------------------------------------------------------------------
-TATWdigitizer::TATWdigitizer(TATW_ContainerHit* pNtuRaw)
+TATWdigitizer::TATWdigitizer(TATWntuRaw* pNtuRaw)
  : TAGbaseDigitizer(),
    fpNtuRaw(pNtuRaw),
    fDeResECst(680e4),
@@ -266,7 +266,7 @@ Bool_t TATWdigitizer::Process(Double_t edep, Double_t x0, Double_t y0, Double_t 
    pos = (timeR-timeL)/fTofPropAlpha;
    
    // no threshold ??
-   fCurrentHit = (TATW_Hit*)fpNtuRaw->NewHit(view, id, energy, tof, pos); // save time in ns, Class TATW_Hit not compatible with real data)
+   fCurrentHit = (TATWntuHit*)fpNtuRaw->NewHit(view, id, energy, tof, pos, 0); // save time in ns, Class TATW_Hit not compatible with real data)
    
    return true;
 }

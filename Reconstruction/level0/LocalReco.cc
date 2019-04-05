@@ -166,6 +166,7 @@ void LocalReco::SetRawHistogramDir()
    // ST
    if (GlobalPar::GetPar()->IncludeST()) {
       fActDatRawSt->SetHistogramDir((TDirectory*)fActEvtWriter->File());
+      fActNtuRawSt->SetHistogramDir((TDirectory*)fActEvtWriter->File());
    }
    
    // BM
@@ -209,6 +210,7 @@ void LocalReco::AddRawRequiredItem()
    fTAGroot->AddRequiredItem("daqActReader");
 
    if (GlobalPar::GetPar()->IncludeST() || GlobalPar::GetPar()->IncludeBM()) {
+      fTAGroot->AddRequiredItem("stActRaw");
       fTAGroot->AddRequiredItem("stActNtu");
    }
 

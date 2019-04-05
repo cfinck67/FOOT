@@ -868,10 +868,11 @@ void TAFOeventDisplay::UpdateHitInfo(TEveDigitSet* qs, Int_t idx)
       
    } else if (obj->InheritsFrom("TASTntuHit")) {
       TASTntuHit* hit = (TASTntuHit*)obj;
+      if (hit == 0x0) return;
       fInfoView->AddLine( Form("Charge: %.3g u.a.\n", hit->GetCharge()) );
       fInfoView->AddLine( Form("Time: %.3g ps \n", hit->GetTime()) );
 
-   } else if (obj->InheritsFrom("TATW_Point")) {
+   } else if (obj->InheritsFrom("TATWpoint")) {
       TATWpoint* point = (TATWpoint*)obj;
       if (point == 0x0) return;
       TVector3 pos = point->GetPosition();
@@ -1251,9 +1252,9 @@ void TAFOeventDisplay::UpdateBarElements()
 
       for (Int_t iHit = 0; iHit < nHits; ++iHit) {
          
-         TATWntuHit *hit = pNtuHit->GetHit(iLayer, iHit);
+         TATWntuHit *hit = pNtuHit->GetHit(iHit, iLayer);
 
-	 if(!hit) continue;
+         if(!hit) continue;
 
          Int_t iBar = hit->GetBar();
 

@@ -13,7 +13,7 @@
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
-#include "TATW_ContainerHit.hxx"
+#include "TATWntuRaw.hxx"
 #include "TACAntuRaw.hxx"
 
 ClassImp(TAFOeventDisplay)
@@ -127,7 +127,7 @@ void TAFOeventDisplayMC::CreateRawAction()
    }
    
    if(GlobalPar::GetPar()->IncludeTW()) {
-      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
+      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
       fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fEvtStruct);
       fActNtuRawTw->CreateHistogram();
       

@@ -83,10 +83,10 @@ public:
     virtual          ~TATWntuRaw();
   TATWntuHit* Hit(Int_t i_ind);
   
-    TATWntuHit*         NewHit( int layer, int bar, double energyLoss, double time, double pos,double m_chargeCOM);
+    TATWntuHit*       NewHit( int layer, int bar, double energyLoss, double time, double pos,double m_chargeCOM);
     int               GetHitN(int layer); 
     int 			  GetHitN();
-    TATWntuHit*         GetHit( int hitID , int layer);
+    TATWntuHit*       GetHit( int hitID , int layer);
     
     
     virtual void      SetupClones();

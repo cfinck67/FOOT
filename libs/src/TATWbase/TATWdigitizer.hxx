@@ -3,8 +3,7 @@
 
 #include "TAGbaseDigitizer.hxx"
 
-#include "TATW_Hit.hxx"
-#include "TATW_ContainerHit.hxx"
+#include "TATWntuRaw.hxx"
 
 /*!
  \file
@@ -21,7 +20,7 @@ class TF1;
 class TATWdigitizer : public TAGbaseDigitizer {
    
 public:
-   TATWdigitizer(TATW_ContainerHit* pNtuRaw);
+   TATWdigitizer(TATWntuRaw* pNtuRaw);
    ~TATWdigitizer();
    
    void           SetFunctions();
@@ -45,12 +44,12 @@ public:
    Float_t        GetTofRight(Float_t pos, Float_t time, Float_t edep);
    
    void           SetGain(Float_t g)   { fGain = g; }
-   TATW_Hit*      GetCurrentHit()      { return fCurrentHit; }
+   TATWntuHit*      GetCurrentHit()      { return fCurrentHit; }
 
    
 private:
-   TATW_ContainerHit*   fpNtuRaw;
-   TATW_Hit*     fCurrentHit;
+   TATWntuRaw*   fpNtuRaw;
+   TATWntuHit*     fCurrentHit;
    TATWparGeo*   fpParGeo;
    
    // deltaE
