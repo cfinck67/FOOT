@@ -67,7 +67,7 @@ ClassImp(TATWntuPoint);
 
 //##############################################################################
 
-TString TATWntuPoint::fgkBranchName   = "containerPoint.";
+TString TATWntuPoint::fgkBranchName   = "twpt.";
 
 //------------------------------------------+-----------------------------------
 //! 
