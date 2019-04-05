@@ -86,6 +86,7 @@ Bool_t TASTactDatRaw::Action() {
    p_datraw->SumWaveforms();
    TrigTime = ComputeArrivalTime(p_datraw->GetWaveSum(),&fitOk);
    p_datraw->SetTriggerTime(TrigTime);
+
    if(ValidHistogram())hTrigTime->Fill(TrigTime); 
    //evaluate the arrival time of the single channels
 
@@ -331,66 +332,6 @@ double TASTactDatRaw::ComputeMaxAmplitude(TASTrawHit*myHit){
 }
 
 
-
-
-// double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit){
-
-  
-//   vector<double> tmp_amp = myHit->GetAmplitudeArray();
-//   vector<double> tmp_time = myHit->GetTimeArray();
-  
-//   int min_bin = std::distance(tmp_amp.begin(), std::min_element(tmp_amp.begin(), tmp_amp.end()));
-//   int max_bin = std::distance(tmp_amp.begin(), std::max_element(tmp_amp.begin(), tmp_amp.end()));
-//   int cross_bin=min_bin;
-  
-//   while(tmp_amp.at(cross_bin) <0 && cross_bin<tmp_amp.size()){
-//     cross_bin++;
-//   }
-  
-//   double time_crossbin = tmp_time.at(cross_bin);
-//   double time_binmin = tmp_time.at(min_bin);
-//   double time_binmax = tmp_time.at(max_bin);
-
-//   double amp_crossbin = tmp_amp.at(cross_bin);
-//   double amp_binmin = tmp_amp.at(min_bin);
-//   double amp_binmax = tmp_amp.at(max_bin);
-
-//   int bin_fit_l= min_bin;
-//   int bin_fit_r= max_bin;
-//   while(tmp_amp.at(bin_fit_l) < amp_binmin*0.8 && bin_fit_l<tmp_amp.size() && bin_fit_l>=0){
-//     bin_fit_l++;
-//   }
-//   while(tmp_amp.at(bin_fit_r) > amp_binmax*0.5 && bin_fit_r<tmp_amp.size() && bin_fit_r>=0){
-//     bin_fit_r--;
-//   }
-
-  
-//   double tleft= tmp_time.at(bin_fit_l);
-//   double tright= tmp_time.at(bin_fit_r);
-  
-//   // TCanvas c("c","",600,600);
-//   // c.cd();
-//   TGraph WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
-//   //WaveGraph.Draw("APL");
-//   // WaveGraph.SetMarkerSize(0.5);
-//   // WaveGraph.SetMarkerStyle(22);
-//   // WaveGraph.SetMarkerColor(kBlue);
-//   // WaveGraph.GetXaxis()->SetRangeUser(20,40);
-//   WaveGraph.Fit("pol1","Q", "",tleft, tright);
-//   // c.Print(Form("waveform_ch%d_nev%d.png", myHit->GetChannel(), m_nev));
-  
-//   TF1 *fitfun =((TF1*) WaveGraph.GetFunction("pol1")); 
-  
-//   double q = fitfun->GetParameter(0);
-//   double m = fitfun->GetParameter(1);
-//   double zeroTime = -q/m;
-  
-//   return zeroTime;
-
-// }
-
-
-
 void TASTactDatRaw::SavePlot(TGraph WaveGraph, TF1 fun1, TF1 fun2, TASTrawHit *myHit){
 
 
@@ -480,23 +421,6 @@ double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, bool *isOk){
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 double TASTactDatRaw::ComputeCharge(TASTrawHit *currHit){
 
 
@@ -534,32 +458,32 @@ double TASTactDatRaw::ComputeCharge(TASTrawHit *currHit){
 
 void TASTactDatRaw::CreateHistogram(){
 
-  //  DeleteHistogram();
+  DeleteHistogram();
 
   char histoname[100]="";
-
+  cout<<"I have created the ST histo. "<<endl;
   sprintf(histoname,"stTrigTime");
-  hTrigTime = new TH1D(histoname, histoname, 2560, 0., 256.);
+  hTrigTime = new TH1F(histoname, histoname, 2560, 0., 256.);
   AddHistogram(hTrigTime);
 
   sprintf(histoname,"stTotCharge");
-  hTotCharge = new TH1D(histoname, histoname, 100, 0., 5.);
+  hTotCharge = new TH1F(histoname, histoname, 100, 0., 5.);
   AddHistogram(hTotCharge);
   
   for(int iCh=0;iCh<8;iCh++){
     sprintf(histoname,"stDeltaTime_ch%d", iCh);
-    hArrivalTime[iCh]= new TH1D(histoname, histoname, 100, -5., 5.);
+    hArrivalTime[iCh]= new TH1F(histoname, histoname, 100, -5., 5.);
     AddHistogram(hArrivalTime[iCh]);
 
     sprintf(histoname,"stCharge_ch%d", iCh);
-    hCharge[iCh]= new TH1D(histoname, histoname, 100, 0., 5.);
+    hCharge[iCh]= new TH1F(histoname, histoname, 100, 0., 5.);
     AddHistogram(hCharge[iCh]);
 
     sprintf(histoname,"stMaxAmp_ch%d", iCh);
-    hAmplitude[iCh]= new TH1D(histoname, histoname, 120, -0.1, 1.1);
+    hAmplitude[iCh]= new TH1F(histoname, histoname, 120, -0.1, 1.1);
     AddHistogram(hAmplitude[iCh]);
   }
 
-  SetValidHistogram();
+  SetValidHistogram(kTRUE);
   
 }
