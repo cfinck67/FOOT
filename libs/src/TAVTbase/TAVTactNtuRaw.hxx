@@ -36,7 +36,7 @@ private:
    Bool_t GetSensorHeader(Int_t iSensor);
    
    //! Get frame and returns frameRaw
-   Bool_t GetFrame(MI26_FrameRaw* data);
+   Bool_t GetFrame(Int_t iSensor, MI26_FrameRaw* data);
    
    ClassDef(TAVTactNtuRaw,0)
 };
