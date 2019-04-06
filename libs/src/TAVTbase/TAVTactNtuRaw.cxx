@@ -133,11 +133,13 @@ Bool_t TAVTactNtuRaw::GetSensorHeader(Int_t iSensor)
          fEventNumber   = fData[++fIndex];
          fTriggerNumber = fData[++fIndex];
          fTimeStamp     = fData[++fIndex];
+         
+         FillHistoEvt(iSensor);
+
          return true;
       }
    } while (fIndex++ < fEventSize);
    
-   FillHistoEvt(iSensor);
 
    return false;
 }
@@ -145,8 +147,6 @@ Bool_t TAVTactNtuRaw::GetSensorHeader(Int_t iSensor)
 // --------------------------------------------------------------------------------------
 Bool_t TAVTactNtuRaw::GetFrame(MI26_FrameRaw* data)
 {
-   Bool_t ok = false;
-   
    // check frame header
    if ((fData[++fIndex] & 0xFFF) ==  (GetFrameHeader() & 0xFFF)) { // protection against wrong header !!!
       memcpy(data, &fData[fIndex], sizeof(MI26_FrameRaw));
@@ -175,6 +175,6 @@ Bool_t TAVTactNtuRaw::GetFrame(MI26_FrameRaw* data)
       printf("%08x\n", data->Trailer);
    }
    
-   return ok;
+   return true;
 }
 
