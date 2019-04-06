@@ -24,6 +24,7 @@ BmBooter::BmBooter() {
 //----------------------------------------------------------------------------------------------------
 void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evStr_in ) {  
   txt_outputname="gsi_out.txt";
+  reference.SetXYZ(-0.04168, 0.1632,0.);
   isdata=isdata_in;
   m_instr=instr_in;
   evStr=evStr_in;
@@ -474,6 +475,8 @@ void BmBooter::PrintProjections(){
   TH2D* histoxtime=new TH2D( "xpos_vs_numev", "x on mylar1 vs numev; ev number; x[cm]", (int)tot_num_ev, 0, tot_num_ev,600, -3.,3.);
   TH2D* histoytime=new TH2D( "ypos_vs_numev", "y on mylar1 vs numev; ev number; y[cm]", (int)tot_num_ev, 0, tot_num_ev,600, -3.,3.);
   TH2D* histoa=new TH2D( "mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
+  TH1D* histoax=new TH1D( "mylar1_xpro", "mylar1 projected tracks on x; x[cm]; evnum", 600, -3., 3.);
+  TH1D* histoay=new TH1D( "mylar1_ypro", "mylar1 projected tracks on y; y[cm]; evnum", 600, -3., 3.);
   TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histoc=new TH2D( "R0_xy", "R0 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histod=new TH2D( "target_xy", "target projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
@@ -520,6 +523,8 @@ void BmBooter::PrintProjections(){
   for(Int_t i=0;i<tracktr2dprojects.size();i++){
     projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmgeo->GetMylar1().Z());
     histoa->Fill(projection.X(), projection.Y());
+    histoax->Fill(projection.X());
+    histoay->Fill(projection.Y());
     if(bmcon->GetSmearrdrift()>0){
       histoxtime->Fill(tracktr2dprojects.at(i).at(0),projection.X());
       histoytime->Fill(tracktr2dprojects.at(i).at(0),projection.Y());
@@ -563,7 +568,10 @@ void BmBooter::PrintProjections(){
       histogyunif->Fill(projection.Y());
     }
   }
-
+  
+  cout<<endl<<endl<<"REFERENCE POSITION: X="<<reference.X()<<"  Y="<<reference.Y()<<endl;
+  cout<<"NEW BEAM POSITION: X="<<histoax->GetMean()<<"  Y="<<histoay->GetMean()<<endl;
+  cout<<"AHO TE DEVI SPOSTA DE: X="<<reference.X()-histoax->GetMean()<<"  Y="<<reference.Y()-histoay->GetMean()<<endl<<endl<<endl;
   //evaluate uniformity:
 
 
@@ -1205,7 +1213,13 @@ void BmBooter::evaluateT0() {
     outtxt<<"file name: "<<m_nopath_instr<<"  analized at:"<<std::time(0)<<endl;
     outtxt<<"busy trigger rate="<<((TH1D*)gDirectory->Get("rate_evtoev"))->GetMean()<<"  nobusy rate="<<((TH1D*)gDirectory->Get("rate_beam_hz"))->GetMean()<<endl;
     outtxt<<"adc threshold="<<bmmap->GetAdcDouble()<<"  adc under="<<((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Integral(0,bmmap->GetAdcDouble())<<"  adc over="<<((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Integral(bmmap->GetAdcDouble(),adc_maxbin)<<"  adc: double/single="<<adcratio<<endl;
+    outtxt<<"rescaled the rate of the beam="<<((TH1D*)gDirectory->Get("rate_beam_hz"))->GetMean()*(adcratio+1.)<<endl;
+    
+    cout<<endl<<endl<<"file name: "<<m_nopath_instr<<"  analized at:"<<std::time(0)<<endl;
+    cout<<"busy trigger rate="<<((TH1D*)gDirectory->Get("rate_evtoev"))->GetMean()<<"  nobusy rate="<<((TH1D*)gDirectory->Get("rate_beam_hz"))->GetMean()<<endl;
+    cout<<"adc threshold="<<bmmap->GetAdcDouble()<<"  adc under="<<((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Integral(0,bmmap->GetAdcDouble())<<"  adc over="<<((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Integral(bmmap->GetAdcDouble(),adc_maxbin)<<"  adc: double/single="<<adcratio<<endl;
     cout<<"rescaled the rate of the beam="<<((TH1D*)gDirectory->Get("rate_beam_hz"))->GetMean()*(adcratio+1.)<<endl;
+    
     outtxt.close();
   }
   

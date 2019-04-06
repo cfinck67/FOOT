@@ -167,6 +167,7 @@ private:
   double mylar1onlinez;
   int counter_fast;
   int counter_track;
+  TVector3  reference;
 };
 
 #endif
