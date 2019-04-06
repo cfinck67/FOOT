@@ -6,7 +6,7 @@ T          47                 46
 !SCALER830 readed channel (sca830ch) (-1 if scaler not included); coincidance_channel_of the_scaler(sca_coinc)
 S 32  2
 !ADC792 readed channel (adc792ch)  (-1 if adc not included); adc_petal_num=number of_petals;adc_begin of the 4 petals channel(adc_begin_ch); adc_double_particle cut(adc_double) 
-A 16 4 0 20  
+A 16 3 2 20  
 !read scaler each hm_evt_read event (hm_evt_read)
 H 10 
 !TDCcha (chaBoID); CellID; Plane [0-5]; View 0==U, 1==V; Idsense: 0,1,2 (a,b,c)   

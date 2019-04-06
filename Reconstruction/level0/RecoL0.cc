@@ -42,7 +42,7 @@ int main (int argc, char *argv[]) {
   TString in("../data/mc/MC_ID040_Evt1k.root");
   TString wdir(".");
   int nTotEv = 0;
-  int debug = 0; int pl_freq(100);
+  int debug = 0; int pl_freq(1000);
   int ke_display = 0;
   int evstart=0;
   TString outH("DecodeMC_histo.root");

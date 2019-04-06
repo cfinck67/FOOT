@@ -133,6 +133,7 @@ class TABMntuTrackTr : public TObject {
     void SetIsConverged(Int_t conv) {isConverged = conv;};
     void SetPrefitStatus(Int_t status){prefit_status=status;};
     void SetR0(Double_t x,Double_t y, Double_t z){R0.SetXYZ(x,y,z);};
+    void SetR0(TVector3 rin){R0=rin;};
     void SetPvers(Double_t x,Double_t y, Double_t z){Pvers.SetXYZ(x,y,z);};
     void SetPvers(TVector3 pin){Pvers=pin;};
     void SetMyChi2Red(Double_t chi2red_in){mychi2Red=chi2red_in;};

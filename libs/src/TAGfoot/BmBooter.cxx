@@ -74,7 +74,8 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evS
     datafile.open(m_instr.Data(), ios::in | ios::binary);
     if(!datafile.is_open())
       cout<<"ERROR in BmBooter::CalculateT0: cannot open the datafile="<<m_instr.Data()<<endl;
-    evaluateT0();
+    if(bmcon->GetSmearrdrift()>0)
+      evaluateT0();
     datafile.close();
     //T0
     if(bmcon->GetmanageT0BM()==0)
@@ -129,10 +130,10 @@ void BmBooter::Process() {
       stdatraw = (TAIRdatRaw*) (gTAGroot->FindDataDsc("myn_stdatraw", "TAIRdatRaw")->GenerateObject());
      
       //loop on dat hit, only for data
-      for(Int_t i=0;i<bmdatraw->NHit();i++){
-        bmdathit=&bmdatraw->Hit(i);
+      //~ for(Int_t i=0;i<bmdatraw->NHit();i++){
+        //~ bmdathit=&bmdatraw->Hit(i);
         //~ cout<<"evento numero="<<data_num_ev<<"  numero hit"<<i<<"raw hit time="<<bmdathit->Time()<<endl;
-      }
+      //~ }
     }else{
       data_num_ev++;
       data_sync_num_ev+=bmstruct.tdc_numsync;
@@ -172,10 +173,20 @@ void BmBooter::Process() {
   
   //~ if (bmcon->GetBMdebug()>10)
     //~ cout<<"in BmBooter::Process, I finished to printout BM hits"<<endl;
-  
-  if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok>=0)
+  if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok>=0){
+    if(track_ok==0){
+      bmntutracktr=bmntutrack->Track(0);
+      TVector3 tmp_tvector=bmntutracktr->GetPvers();
+      tmp_tvector.RotateX(bmcon->GetMeas_tilt().X()*DEG2RAD);
+      tmp_tvector.RotateY(bmcon->GetMeas_tilt().Y()*DEG2RAD);    
+      bmntutracktr->SetPvers(tmp_tvector);
+      tmp_tvector=bmntutracktr->GetR0();
+      bmntutracktr->SetR0(tmp_tvector+bmcon->GetMeas_shift());
+      bmntutracktr->CalculateFromFirstPar(bmcon, bmgeo);
+    }
     if(m_controlPlotter->BM_setntutrack_info("BM_output", bmgeo, bmntutrack, bmnturaw, bmcon)==0)
       isallign=kTRUE;      
+  }
       
   if(!isdata){
     MC_track=MCxEvent();  
@@ -187,11 +198,28 @@ void BmBooter::Process() {
   }
   
   //temporary ttree output
+  Int_t eventratefast=100;
+  counter_fast++;
   if( GlobalPar::GetPar()->IsPrintOutputNtuple() && track_ok==0 ){        
       ControlPlotsRepository::GetControlObject( "BooterFinalize" )->BM_setTTree_output(bmnturaw, bmntutrack, data_num_ev,bmstruct.time_acq, isdata);
     if(!isdata)
       ControlPlotsRepository::GetControlObject( "BooterFinalize" )->BM_setMCTTree_output(mylar1realpos, mylar2realpos);
+    bmntutracktr=bmntutrack->Track(0);
+    if(counter_fast<eventratefast){
+      mylar1onlinex+=bmntutracktr->GetMylar1Pos().X();  
+      mylar1onliney+=bmntutracktr->GetMylar1Pos().Y();  
+      mylar1onlinez+=bmntutracktr->GetMylar1Pos().Z();
+      counter_track++;
+    }else if(counter_track>0){
+      cout<<"                             X="<<mylar1onlinex/counter_track<<"   y="<<mylar1onliney/counter_track<<"  z="<<mylar1onlinez/counter_track<<endl;
+      counter_fast=0;
+      counter_track=0;
+      mylar1onlinex=0;
+      mylar1onliney=0;
+      mylar1onlinez=0;
+    }
   }
+    
   //draw and save tracks
   if(bmcon->GetBMvietrack()>0 && data_num_ev%bmcon->GetBMvietrack()==0){
     TCanvas *c_bmhview = new TCanvas("bmhview", "BM_tracks",20,20,800,900);
@@ -275,7 +303,7 @@ void BmBooter::Allign_estimate(){
     
   Double_t ytr_err=sqrt(pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetEntries()),2.)  +  pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetEntries()),2.));  
     
-  if(bmcon->GetBMdebug()>0){  
+  if(true){  
     cout<<"Beam Monitor allignment parameters"<<endl;
     cout<<"estimated rotation around X axis= "<<xrot<<endl;
     cout<<"estimated rotation around Y axis= "<<yrot<<endl;
@@ -443,6 +471,8 @@ void BmBooter::PrintProjections(){
   Int_t binaunif=100, binbunif=100, bincunif=100;
 
   TString tmp_tstring;
+  TH2D* histoxtime=new TH2D( "xpos_vs_numev", "x on mylar1 vs numev; ev number; x[cm]", (int)tot_num_ev, 0, tot_num_ev,600, -3.,3.);
+  TH2D* histoytime=new TH2D( "ypos_vs_numev", "y on mylar1 vs numev; ev number; y[cm]", (int)tot_num_ev, 0, tot_num_ev,600, -3.,3.);
   TH2D* histoa=new TH2D( "mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histoc=new TH2D( "R0_xy", "R0 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
@@ -490,9 +520,18 @@ void BmBooter::PrintProjections(){
   for(Int_t i=0;i<tracktr2dprojects.size();i++){
     projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmgeo->GetMylar1().Z());
     histoa->Fill(projection.X(), projection.Y());
+    if(bmcon->GetSmearrdrift()>0){
+      histoxtime->Fill(tracktr2dprojects.at(i).at(0),projection.X());
+      histoytime->Fill(tracktr2dprojects.at(i).at(0),projection.Y());
+    }
     projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmgeo->GetMylar2().Z());
     histob->Fill(projection.X(), projection.Y());
     histoc->Fill(tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4));
+    
+    //~ pversout.SetXYZ(tracktr2dprojects.at(i).at(1), tracktr2dprojects.at(i).at(3),1.);
+    //~ pversout.RotateX(bmcon->GetMeas_tilt().X()*DEG2RAD);
+    //~ pversout.RotateY(bmcon->GetMeas_tilt().Y()*DEG2RAD);    
+    //~ projection=bmgeo->ProjectFromPversR0(pversout.X(),pversout.Y(), tracktr2dprojects.at(i).at(2)-bmcon->GetMeas_shift().X(), tracktr2dprojects.at(i).at(4)-bmcon->GetMeas_shift().Y(), bmgeo->GetTarget().Z());
     projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmgeo->GetTarget().Z());
     histod->Fill(projection.X(), projection.Y());
     if(bmcon->GetMeas_shift().X()!=0 && bmcon->GetCalibro()<0){
