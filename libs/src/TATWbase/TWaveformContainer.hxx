@@ -19,6 +19,9 @@ public:
   void Clear();
   void PlotWaveForm(int i);
   void SanitizeWaveform();
+  bool IsAClock();
+  Double_t FindFirstRaisingEdgeTime();
+
   Int_t ChannelId;
   Int_t BoardId;
   Double_t ir_time;    

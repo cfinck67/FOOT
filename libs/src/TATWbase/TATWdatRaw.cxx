@@ -132,7 +132,6 @@ void TATWdatRaw::NewHit(TWaveformContainer &W)
   Double_t amplitude=W.ComputeAmplitude();
   Double_t charge= W.ComputeCharge();
   Double_t time= W.ComputeTimeStamp();
-  //W.PlotWaveForm(nirhit);
   TClonesArray &pixelArray = *hir;
   TATWrawHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWrawHit(cha ,board, charge, amplitude, pedestal, time);
   nirhit++;

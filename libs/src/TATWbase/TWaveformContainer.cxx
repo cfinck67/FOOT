@@ -150,6 +150,25 @@ Double_t TWaveformContainer::ComputePedestal()
 	 }
  }
 
+ bool TWaveformContainer::IsAClock()
+ {
+	 if (ChannelId==16 || ChannelId==17)
+	 {
+		 return true;
+	 }
+	 return false;
+ }
+
+ Double_t TWaveformContainer::FindFirstRaisingEdgeTime()
+ {
+	 TGraph Clock(WAVEFORMBINS,T,W);
+	 Double_t RootT,RootW;
+	 Int_t k;
+	 Clock.Zero(k,T[0],T[WAVEFORMBINS-1],1e-2,RootT,RootW,100);
+
+ }
+
+
  TWaveformContainer::~TWaveformContainer()
  {
 	 if (T!=nullptr)
