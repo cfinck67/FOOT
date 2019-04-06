@@ -118,14 +118,26 @@ void TABMactNtuTrack::CreateHistogram()
 {
    DeleteHistogram();
    
-   fpHisR02d = new TH2F("bmR02d","BM - Position of the track on the BM center plane", 500, -3., 3.,500 , -3., 3.);
-   AddHistogram(fpHisR02d);   
-
-   fpHisMap = new TH2F("bmMap","BM - Position of the track at target center", 250, -3., 3.,250 , -3, 3);
+   //~ fpHisR02d = new TH2F("bmR02d","BM - Position of the track on the BM center plane", 500, -3., 3.,500 , -3., 3.);
+   //~ AddHistogram(fpHisR02d);   
+   fpHisMap = new TH2F("BM_Track_bmMap","BM - Position of the track at target center", 250, -3., 3.,250 , -3, 3);
    AddHistogram(fpHisMap);
-
-   fpResTot = new TH2F("bm_residual_tot","Residual vs Rdrift; Residual [cm]; Measured rdrift [cm]", 6000, -0.3, 0.3,250 , 0., 1.);
+   fpHisMylar12d = new TH2F("BM_Track_bmmylar1_2d","BM - Position of the track on the BM center plane", 500, -3., 3.,500 , -3., 3.);
+   AddHistogram(fpHisMylar12d);   
+   fpHisMylar22d = new TH2F("BM_Track_bmmylar2_2d","BM - Position of the track on the BM center plane", 500, -3., 3.,500 , -3., 3.);
+   AddHistogram(fpHisMylar22d);   
+   fpResTot = new TH2F("BM_Track_bm_residual_tot","Residual vs Rdrift; Residual [cm]; Measured rdrift [cm]", 6000, -0.3, 0.3,250 , 0., 1.);
    AddHistogram(fpResTot);  
+   fpHisTrackStatus = new TH1I("BM_Track_track_status","Track status; -2=maxhitcut__-1=minhitcut__0=ok__1/2=firedV/Uplane__3=hitrejected__4=noconv__5=chi2cut; Events", 10, 0, 10);
+   AddHistogram(fpHisTrackStatus);  
+   fpHisNhitTrack = new TH1I("BM_Trak_nhitsxtrack","number of hits x track; ; Events", 30, 0, 30);
+   AddHistogram(fpHisNhitTrack);  
+   fpHisPrefitStatus = new TH1I("BM_Track_prefit_status","bm prefit status; ; Events", 3, 0, 3);
+   AddHistogram(fpHisPrefitStatus);  
+   fpHisNite = new TH1I("BM_Track_nite","Number of iteration of the tracking method; Number of iteration; Events", p_bmcon->GetNumIte(), 0,p_bmcon->GetNumIte() );
+   AddHistogram(fpHisNite);  
+   fpHisChi2Red = new TH1F("BM_Track_chi2red","chi2red", 100, 0., 100.);
+   AddHistogram(fpHisChi2Red);   
 
    SetValidHistogram(kTRUE);
 }
@@ -579,12 +591,16 @@ Bool_t TABMactNtuTrack::Action()
     
     p_ntutrk->SetEffFittedPlane( (eff_fittedplane_pivot==0) ?  -1 : (Double_t) eff_fittedplane_probe/eff_fittedplane_pivot);
     if (ValidHistogram()){
-       fpHisR02d->Fill(trk->GetR0()[0],trk->GetR0()[1]);
+       //~ fpHisR02d->Fill(trk->GetR0()[0],trk->GetR0()[1]);
        TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
        Float_t posZ = geoTrafo->FromGlobalToBMLocal(TVector3(0,0,0)).Z();
-       
        TVector3 pos = trk->PointAtLocalZ(posZ);
        fpHisMap->Fill(pos[0], pos[1]);
+       fpHisMylar12d->Fill(trk->GetMylar1Pos().X(),trk->GetMylar1Pos().Y());
+       fpHisMylar22d->Fill(trk->GetMylar2Pos().X(),trk->GetMylar2Pos().Y());
+       fpHisChi2Red->Fill(trk->GetMyChi2Red());
+       fpHisNhitTrack->Fill(trk->GetNhit());
+       fpHisNite->Fill(trk->GetNite());
      }
   }else if(converged==false)
     p_ntutrk->GetTrackStatus()=4;
@@ -595,7 +611,9 @@ Bool_t TABMactNtuTrack::Action()
   //~ delete fitTrack;
   //~ delete rep; //included in fitTrack delete
   delete tmp_trackTr;    
-    
+  
+  if(ValidHistogram())
+    fpHisTrackStatus->Fill(p_ntutrk->GetTrackStatus());  
 
   if(p_bmcon->GetBMdebug()>10)
     cout<<"end of TABMactNtuTrack"<<endl;

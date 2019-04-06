@@ -40,7 +40,7 @@ while (<INF>) {
 	print OUTF "#SBATCH --array=1-${myFiles}\n";
     } elsif ($_ =~ /processSingleRun/) {
 	#data_test.00002034.physics_foot.daq.RAW._lb0000._EB-RCD._0003.data
-	$runStr = "0000${myRun}";
+	$runStr = sprintf("%08d",${myRun});
 	$outFile = "${dirO}/physics_foot.daq.RAW._lb0000._EB-RCD_R${myRun}";
 	print OUTF "./processSingleRun ${runStr} ${outFile}\n";
     } else {

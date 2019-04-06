@@ -33,6 +33,7 @@ class TABMparCon : public TAGpara {
     void SetIsMC(Bool_t ism){m_isMC=ism; return;};
     void SetRdriftCut(Double_t Rdcut){rdrift_cut=Rdcut; return;};
     void SetEnxcellcut(Double_t Encut){enxcell_cut=Encut; return;};
+    void SetBmt0filename(string filename_in){bmt0file=filename_in;};
     
     //getters
     Bool_t   IsMC(){return m_isMC;};

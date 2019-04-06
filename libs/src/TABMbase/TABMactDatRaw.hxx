@@ -12,6 +12,7 @@
 #include "TAGdataDsc.hxx"
 #include "TABMparCon.hxx"
 #include "BM_struct.h"
+#include "TH2.h"
 #include <fstream>
 
 
@@ -31,6 +32,7 @@ class TABMactDatRaw : public TAGaction {
                                   TAGdataDsc* p_timraw=0);
     virtual         ~TABMactDatRaw();
 
+    virtual  void   CreateHistogram();
     virtual Bool_t  Action();
 
     ClassDef(TABMactDatRaw,0)
@@ -44,6 +46,12 @@ class TABMactDatRaw : public TAGaction {
     TAGdataDsc*     fpTimRaw;		    // input data dsc
 
     Bool_t DecodeHits(const TDCEvent* evt);
+    
+    //histos
+    TH2I*            fpRawMapX;  //raw hit map    
+    TH2I*            fpRawMapY;  //raw hit map    
+    TH1I*            fpRawHitNum;  //raw hit map    
+    TH1I*            fpRawDiscAccept;  //raw hit map    
     
 };
 

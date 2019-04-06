@@ -55,12 +55,22 @@ void TABMactNtuRaw::CreateHistogram(){
    
    DeleteHistogram();
    
-   fpHisPivot_paoloni = new TH1F( "eff_paoloni_pivot", "pivot counter for the plane efficiency method; index; Counter", 8, 0., 8.);
+   fpHisPivot_paoloni = new TH1F( "BM_Raw_eff_paoloni_pivot", "pivot counter for the plane efficiency method; index; Counter", 8, 0., 8.);
    AddHistogram(fpHisPivot_paoloni);   
-   fpHisProbe_paoloni = new TH1F( "eff_paoloni_probe", "probe counter for the plane efficiency method; index; Counter", 8, 0., 8.);
+   fpHisProbe_paoloni = new TH1F( "BM_Raw_eff_paoloni_probe", "probe counter for the plane efficiency method; index; Counter", 8, 0., 8.);
    AddHistogram(fpHisProbe_paoloni);   
-   //~ fpHisEval_paoloni = new TH1F( "eff_paoloni_eval", "efficiency for the paoloni plane method; index; Counter", 8, 0., 8.);
-   //~ AddHistogram(fpHisEval_paoloni);   
+   fpHisEval_paoloni = new TH1F( "BM_Raw_eff_paoloni_eval", "efficiency for the paoloni plane method; index; Counter", 8, 0., 8.);
+   AddHistogram(fpHisEval_paoloni);   
+   fpHisCell = new TH1I( "BM_Raw_hit_cell", "cell index; index; Counter", 4, 0., 4.);
+   AddHistogram(fpHisCell);   
+   fpHisView = new TH1I( "BM_Raw_hit_view", "view index; index; Counter", 3, 0., 3.);
+   AddHistogram(fpHisView);   
+   fpHisPlane = new TH1I( "BM_Raw_hit_plane", "plane index; index; Counter", 7, 0., 7.);
+   AddHistogram(fpHisPlane);   
+   fpHisRdrift = new TH1F( "BM_Raw_hit_rdrift", "Rdrift; Rdrift [cm]; numevent", 100, 0., 1.);
+   AddHistogram(fpHisRdrift);   
+   fpHisTdrift = new TH1F( "BM_Raw_hit_tdrift", "Tdrift; Tdrift [s]; numevent", 400, 0., 400.);
+   AddHistogram(fpHisTdrift);   
 
 
    
@@ -112,6 +122,13 @@ Bool_t TABMactNtuRaw::Action()
     //create the hit (no selection of hit)
     TABMntuHit *mytmp = p_nturaw->NewHit(0, hit.View(), hit.Plane(), hit.Cell(), i_drift, i_time, p_parcon->ResoEval(i_drift));
     p_nturaw->AddCellOccupyHit(hit.Idcell());
+    if (ValidHistogram()){
+      fpHisCell->Fill(hit.Cell()); 
+      fpHisView->Fill(hit.View()); 
+      fpHisPlane->Fill(hit.Plane()); 
+      fpHisRdrift->Fill(i_drift);
+      fpHisTdrift->Fill(i_time);
+    }    
   }
   
   //print cell_occupy
@@ -125,7 +142,8 @@ Bool_t TABMactNtuRaw::Action()
     for(Int_t i=0;i<8;i++){
       fpHisProbe_paoloni->Fill(probe.at(i));
       fpHisPivot_paoloni->Fill(pivot.at(i));
-      //~ fpHisEval_paoloni->SetBinContent(i+1, (Double_t) fpHisProbe_paoloni->GetBinContent(i+1)/fpHisPivot_paoloni->GetBinContent(i+1));
+      if(fpHisPivot_paoloni->GetBinContent(i+1)>0)
+        fpHisEval_paoloni->SetBinContent(i+1, (Double_t) fpHisProbe_paoloni->GetBinContent(i+1)/fpHisPivot_paoloni->GetBinContent(i+1));
     }
   } 
   
