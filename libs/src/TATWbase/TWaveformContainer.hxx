@@ -8,7 +8,6 @@
 class TWaveformContainer
 {
 
-
 public:
   TWaveformContainer();
   ~TWaveformContainer();
@@ -25,8 +24,8 @@ public:
   Double_t ir_time;    
   Double_t ir_chg;
   Double_t ir_pedestal;
+  Double_t ir_pedestalstd;
   Double_t ir_amplitude;
-  
   Double_t *T;
   Double_t *W;
 
