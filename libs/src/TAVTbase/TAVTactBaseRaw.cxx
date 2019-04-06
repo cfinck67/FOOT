@@ -107,17 +107,17 @@ void TAVTactBaseRaw::CreateHistogram()
       
      fpHisTimeStampEvt[i] = new TH1F(Form("vtTimeStampEvt%d", i+1), Form("Vertex -  Time stamp difference per event sensor %d", i+1), 1000, -20000, 20000);
      AddHistogram(fpHisTimeStampEvt[i]);
+  
+      fpHisTriggerFrame[i] = new TH1F(Form("vtTriggerFrame%d", i+1), Form("Vertex - Trigger difference in sensor %d", i+1),  20, -9.5, 10.5);
+      AddHistogram(fpHisTriggerFrame[i]);
+      
+      fpHisTimeStampFrame[i] = new TH1F(Form("vtTimeStampFrame%d", i+1), Form("Vertex - Time stamp difference in sensor% d", i+1),  1000, -20000, 20000);
+      AddHistogram(fpHisTimeStampFrame[i]);
+      
+      fpHisFrameCnt[i] = new TH1F(Form("vtFrameCnt%d", i+1), Form("Vertex - Frame cnt difference in sensor %d", i+1),  510, -9.5, 500.5);
+      AddHistogram(fpHisFrameCnt[i]);
+
    }
-
-   fpHisTriggerFrame = new TH1F("vtTriggerFrame", "Vertex - Trigger difference in sensor",  20, -9.5, 10.5);
-   AddHistogram(fpHisTriggerFrame);
-   
-   fpHisTimeStampFrame = new TH1F("vtTimeStampFrame", "Vertex - Time stamp difference in sensor",  1000, -20000, 20000);
-   AddHistogram(fpHisTimeStampFrame);
-
-   fpHisFrameCnt = new TH1F("vtFrameCnt", "Vertex - Frame cnt difference in sensor",  20, -9.5, 10.5);
-   AddHistogram(fpHisFrameCnt);
-
 
    SetValidHistogram(kTRUE);
    return;
@@ -137,25 +137,19 @@ Int_t TAVTactBaseRaw::GetSensor(UInt_t key)
 }
 
 // --------------------------------------------------------------------------------------
-void TAVTactBaseRaw::FillHistoFrame(MI26_FrameRaw* data)
+void TAVTactBaseRaw::FillHistoFrame(Int_t iSensor, MI26_FrameRaw* data)
 {
    UInt_t trigger   = data->TriggerCnt;
    UInt_t timeStamp = data->TimeStamp;
    UInt_t frameCnt  = data->FrameCnt;
    
-   if (fFirstFrame) {
-      fTriggerNumberFrame = trigger;
-      fFirstFrame         = false;
+   fpHisTriggerFrame[iSensor]->Fill(trigger - fTriggerNumberFrame);
+   fpHisTimeStampFrame[iSensor]->Fill(timeStamp - fTimeStampFrame);
+   fpHisFrameCnt[iSensor]->Fill(frameCnt - fFrameCount);
    
-   } else
-      fpHisTriggerFrame->Fill(trigger - fTriggerNumberFrame);
-   
-   
-   fpHisTimeStampFrame->Fill(timeStamp - fTimeStampFrame);
-   fpHisFrameCnt->Fill(frameCnt - fFrameCount);
-   
-   fFrameCount     = frameCnt;
-   fTimeStampFrame = timeStamp;
+   fTriggerNumberFrame = trigger;
+   fFrameCount         = frameCnt;
+   fTimeStampFrame     = timeStamp;
 }
 
 // --------------------------------------------------------------------------------------
