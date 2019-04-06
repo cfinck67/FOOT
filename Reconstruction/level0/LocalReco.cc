@@ -107,6 +107,8 @@ void LocalReco::CreateRawAction()
       } else {
          fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDaqEvent, fpParGeoVtx, fpParConfVtx);
          fActNtuRawVtx->CreateHistogram();
+	 if(GlobalPar::GetPar()->Debug()) fActNtuRawVtx->SetDebugLevel(1);
+
       }
    }
    
@@ -245,15 +247,14 @@ void LocalReco::SetTreeBranches()
    BaseLocalReco::SetTreeBranches();
    
    if (GlobalPar::GetPar()->IncludeST()) {
-      fActEvtWriter->SetupElementBranch(fpDatRawSt, TASTdatRaw::GetBranchName());
+      if (fFlagHits)
+	fActEvtWriter->SetupElementBranch(fpDatRawSt, TASTdatRaw::GetBranchName());
       fActEvtWriter->SetupElementBranch(fpNtuRawSt, TASTntuRaw::GetBranchName());
    }
    
    if (GlobalPar::GetPar()->IncludeBM()) {
-      if (fFlagHits) {
-         fActEvtWriter->SetupElementBranch(fpDatRawBm, TABMdatRaw::GetBranchName());
-         fActEvtWriter->SetupElementBranch(fpNtuRawBm, TABMntuRaw::GetBranchName());
-      }
+     fActEvtWriter->SetupElementBranch(fpDatRawBm, TABMdatRaw::GetBranchName());
+     fActEvtWriter->SetupElementBranch(fpNtuRawBm, TABMntuRaw::GetBranchName());
    }
    
    if (GlobalPar::GetPar()->IncludeVertex()) {
@@ -274,8 +275,8 @@ void LocalReco::SetTreeBranches()
    if (GlobalPar::GetPar()->IncludeTW()) {
      if (fFlagHits) {
          fActEvtWriter->SetupElementBranch(fpDatRawTw, TATWdatRaw::GetBranchName());
-         fActEvtWriter->SetupElementBranch(fpNtuRawTw, TATWntuRaw::GetBranchName());
      }
+     fActEvtWriter->SetupElementBranch(fpNtuRawTw, TATWntuRaw::GetBranchName());
    }
    
    if (GlobalPar::GetPar()->IncludeCA()) {
