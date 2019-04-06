@@ -4,9 +4,8 @@
 #include "TLine.h"
 #include "TCanvas.h"
 #include "TSystem.h"
+#include "TLegend.h"
 #include "Parameters.h"
-
-
 
 
 TWaveformContainer::TWaveformContainer()
@@ -24,6 +23,7 @@ void TWaveformContainer::Clear()
 	ir_chg=0;
 	ir_pedestal=0;
 	ir_amplitude=0;
+	ir_pedestalstd=0;
 	memset((void *)T,0,sizeof(Double_t)* WAVEFORMBINS);
 	memset((void *)W,0,sizeof(Double_t)* WAVEFORMBINS);
 }
@@ -48,32 +48,25 @@ Double_t TWaveformContainer::ComputeCharge()
 		ir_chg+=W[bin]-ir_pedestal;
 	}
 	// the minus is to return a positive charge
-	return -ir_chg;
+	ir_chg*=-1;
+	return ir_chg;
 
 }
 Double_t TWaveformContainer::ComputePedestal()
 {
 	ir_pedestal=0;
-	int NumberOfBins=0;
-	for (int bin=PEDESTALSTARTBIN;bin<PEDESTALSTOPBIN;++bin)
-	{
-		ir_pedestal+=W[bin];
-		NumberOfBins++;
-	}
-	return ir_pedestal/(NumberOfBins);
+	// this could be useful to flag pileup events
+	ir_pedestalstd=TMath::RMS(PEDESTALSTOPBIN-PEDESTALSTARTBIN+1,&W[PEDESTALSTARTBIN]);
+	ir_pedestal=TMath::Mean(PEDESTALSTOPBIN-PEDESTALSTARTBIN+1,&W[PEDESTALSTARTBIN]);
+	return ir_pedestal;
 }
  Double_t TWaveformContainer::ComputeAmplitude()
  {
-	 ir_amplitude=W[0];
-	 // rember negative signals
-	 for(int bin=AMPLITUDESTARTBIN;bin<AMPLITUDESTOPBIN;bin++)
-	 {
-		 if(W[bin] <ir_amplitude)
-		 {
-			 ir_amplitude=W[bin];
-		 }
-	 }
-	 return ir_amplitude-ir_pedestal;
+	 ir_amplitude=W[AMPLITUDESTARTBIN];
+	 // rember TW => negative signals
+	 ir_amplitude=TMath::MinElement(AMPLITUDESTOPBIN-AMPLITUDESTARTBIN+1,&W[AMPLITUDESTARTBIN]);
+	 ir_amplitude-=ir_pedestal;
+	 return ir_amplitude;
 
  }
  Double_t TWaveformContainer::ComputeTimeStamp()
@@ -81,7 +74,7 @@ Double_t TWaveformContainer::ComputePedestal()
 	 TGraph gcfd = TGraph(5);
 	 // evaluate the absolute threshold
 	 Double_t AbsoluteThreshold=CFD_THREHSOLD*ir_amplitude+ir_pedestal;
-	 for(int bin=TIMESTAMPSTARTBIN;bin<TIMESTAMPSTOPBIN;bin++)
+	 for(int bin=TIMESTAMPSTARTBIN;bin<TIMESTAMPSTOPBIN;++bin)
 	 {
 		 if(W[bin]<AbsoluteThreshold)
 		 {
@@ -95,17 +88,16 @@ Double_t TWaveformContainer::ComputePedestal()
 			 Double_t cfdp0=gcfd.GetFunction("pol1")->GetParameter(0);
 			 Double_t cfdp1=gcfd.GetFunction("pol1")->GetParameter(1);
 			 // extract the time from the parameters estimated by the fit
-			 return (AbsoluteThreshold-cfdp0)/cfdp1;
+			 ir_time=(AbsoluteThreshold-cfdp0)/cfdp1;
+			 return ir_time;
 		 }
 	 }
 	 return -1.;
  }
 
  // DEBUG ONLY
-
  void TWaveformContainer::PlotWaveForm(int i)
  {
-
 	 Double_t max=W[0];
 	 Double_t min=W[0];
 	 for (int bin=0;bin<WAVEFORMBINS;++bin)
@@ -155,7 +147,6 @@ Double_t TWaveformContainer::ComputePedestal()
 			W[bin]-=TMath::Sign(1,derivative);
 		 }
 		 old=W[bin];
-
 	 }
  }
 

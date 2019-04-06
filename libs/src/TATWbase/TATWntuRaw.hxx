@@ -41,22 +41,17 @@ private:
 public:
   TATWntuHit();
   TATWntuHit( TATWrawHit* hit );
-
   TATWntuHit ( Int_t aView, Int_t aBar, Double_t aDe, Double_t aTime,
 		  	   Double_t pos,Double_t chargeCOM,Double_t ChargeA,
 			   Double_t ChargeB,Double_t TimeA,Double_t TimeB );
    TATWntuHit(const TATWntuHit& aHit);
   ~TATWntuHit() {};
-  
    void   Clear(Option_t* option = "C");
-  
    bool IsColumn() { return ( m_layer == 0 ? true : false ); };
    bool IsRow()    { return ( m_layer == 1 ? true : false ); };
-  
    //    All the Get methods
    Int_t     GetBar()                  const   { return  m_bar;              }
    Int_t     GetLayer()                const   { return  m_layer;            }
-   
    Double_t  GetEnergyLoss()           const   { return m_de;                }
    Double_t  GetTime()                 const   { return m_time;              }
    Double_t  GetPosition()             const   { return m_coordinate;        }
@@ -67,15 +62,12 @@ public:
    Double_t  GetChargeTimeB() const {return m_TimeB;}
    Float_t   GetHitCoordinate_detectorFrame() const   { return m_coordinate; }
    Float_t   GetHitZ_detectorFrame()          const   { return m_z;          }
-
    // MC track id
    Int_t      GetMcIndex(Int_t index)   const   { return m_MCindex[index];      }
    Int_t      GetMcTrackId(Int_t index) const   { return m_McTrackId[index];    }
    Int_t      GetMcTrackCount()         const   { return m_McTrackId.GetSize(); }
-   
    // Add MC track Id
    void       AddMcTrackId(Int_t trackId, Int_t mcId = -1);
-
     ClassDef(TATWntuHit,1)                            // Pixel or Pixel of a Detector Plane
 };
 
