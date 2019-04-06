@@ -51,20 +51,21 @@ public:
   TAGparaDsc*     fpParMap;		    // parameter dsc
   TAGparaDsc*     fpParTime;		    // parameter dsc
 
-  TH1D *hArrivalTime[8];
-  TH1D *hCharge[8];
-  TH1D *hAmplitude[8];
-  TH1D *hTrigTime;
-  TH1D *hTotCharge;
+  TH1F *hArrivalTime[8];
+  TH1F *hCharge[8];
+  TH1F *hAmplitude[8];
+  TH1F *hTrigTime;
+  TH1F *hTotCharge;
   
   bool m_debug;
   int m_nev;
   
  private:
-  Bool_t DecodeHits(const WDEvent* evt, TASTparTime* p_parTime, TASTdatRaw *p_datraw);
-  double ComputeArrivalTime(TASTrawHit *hit);
+  Bool_t DecodeHits(const WDEvent* evt, TASTparTime* p_parTime, TASTdatRaw *p_datraw, TASTparMap *p_parmap);
+  double ComputeArrivalTime(TASTrawHit *hit, bool *isok);
   double ComputeCharge(TASTrawHit *hit);
   double ComputeMaxAmplitude(TASTrawHit *hit);
+  void   SavePlot(TGraph g,TF1 f1, TF1 f2, TASTrawHit *hit);
 };
 
 #endif

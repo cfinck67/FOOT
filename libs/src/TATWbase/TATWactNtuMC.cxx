@@ -27,7 +27,7 @@ TATWactNtuMC::TATWactNtuMC(const char* name,
    m_hitContainer(p_hitraw),
     m_eventStruct(evStr)
 {
-  AddDataOut(p_hitraw, "TATW_ContainerHit");
+  AddDataOut(p_hitraw, "TATWntuRaw");
   CreateDigitizer();
 }
 
@@ -74,7 +74,7 @@ void TATWactNtuMC::CreateHistogram()
 //! Create digitizer
 void TATWactNtuMC::CreateDigitizer()
 {
-   TATW_ContainerHit* pNtuRaw = (TATW_ContainerHit*) m_hitContainer->Object();
+   TATWntuRaw* pNtuRaw = (TATWntuRaw*) m_hitContainer->Object();
    
    m_Digitizer = new TATWdigitizer(pNtuRaw);
 }
@@ -88,7 +88,7 @@ bool TATWactNtuMC::Action() {
 
    TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
 
-   TATW_ContainerHit* containerHit = (TATW_ContainerHit*) m_hitContainer->Object();
+   TATWntuRaw* containerHit = (TATWntuRaw*) m_hitContainer->Object();
    TATWparGeo* geoMap = (TATWparGeo*) gTAGroot->FindParaDsc(TATWparGeo::GetDefParaName(), "TATWparGeo")->Object();
 
     //The number of hits inside the Start Counter is stn
@@ -118,7 +118,7 @@ bool TATWactNtuMC::Action() {
        TVector3 posInLoc = geoTrafo->FromGlobalToTWLocal(posIn);
 
        m_Digitizer->Process(edep, posInLoc[0], posInLoc[1], z0, z1, time, id+TATWparGeo::GetLayerOffset()*view);
-       TATW_Hit* hit = m_Digitizer->GetCurrentHit();
+       TATWntuHit* hit = m_Digitizer->GetCurrentHit();
        hit->AddMcTrackId(trackId, i);
 
        if (ValidHistogram()) {

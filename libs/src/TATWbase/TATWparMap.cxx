@@ -43,7 +43,12 @@ TATWparMap::TATWparMap() {
 //! Destructor.
 
 TATWparMap::~TATWparMap()
-{}
+{
+	if (cMap!=nullptr)
+	{
+		free(cMap);
+	}
+}
 
 
 //------------------------------------------+-----------------------------------
@@ -55,8 +60,7 @@ Bool_t TATWparMap::FromFile(const TString& name) {
   
   TString name_exp = name;
   gSystem->ExpandPathName(name_exp);
-  cMap->LoadChannelMap(name_exp.Data(),0);
-
+  cMap->LoadChannelMap(name_exp.Data(),1);
   /*
   char bufConf[1024];
   int myArg1(0), myArg2(0), myArg3(0), myArg4(0), myArg5(0), myArg6(0); 
@@ -121,3 +125,26 @@ bool TATWparMap::GetIDFromTDC(int channel, int board, int &detID, int &chaID) {
 }
 
 */
+
+
+Bool_t TATWparMap::IsSTChannel(int iCha){
+
+  if(std::find(TDchaID.begin(),TDchaID.end(),iCha) == TDchaID.end()){
+    return false;
+  }
+  return true;
+
+    
+}
+
+
+
+Bool_t TATWparMap::IsSTBoard(int iBo){
+
+  if(std::find(TDboaID.begin(),TDboaID.end(),iBo) == TDboaID.end()){
+    return false;
+  }
+  return true;
+
+    
+}

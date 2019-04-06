@@ -85,19 +85,27 @@ TASTdatRaw::TASTdatRaw(): TAGdata(),fListOfWaveforms(0x0), fListOfWaveforms_cfd(
 
 TASTdatRaw::~TASTdatRaw(){
 
-     for(int i=0;i<fListOfWaveforms.size();i++){
-    delete fListOfWaveforms.at(i);
-    delete fListOfWaveforms_cfd.at(i);
-  }
-
-   if(fSumWaves) delete fSumWaves;
-   if(fSumWaves_cfd) delete fSumWaves_cfd;
 
 }
 
 
+
+
 void TASTdatRaw::AddWaveform(int ch_num, vector<double> time, vector<double> amplitude){
 
+  // vector<double> clean_amplitude;
+  // clean_amplitude.assign(1024,0);
+
+  Double_t old=amplitude.at(0);
+  for (int bin=0;bin<1024;++bin){
+    Double_t derivative=(amplitude.at(bin)-old);
+    if (fabs(derivative)>0.5){
+      amplitude.at(bin)-=TMath::Sign(1,derivative);
+    }
+    old=amplitude.at(bin);
+  }
+  
+  
   fListOfWaveforms.push_back(new TASTrawHit(ch_num, time ,amplitude));
 
   vector<double> amplitude_cfd;
@@ -166,10 +174,13 @@ void TASTdatRaw::Clear(Option_t*)
   fListOfWaveforms.clear();
   fListOfWaveforms_cfd.clear();
 
+
   delete fSumWaves;
   delete fSumWaves_cfd;
   
+  
   return;
+  
 }
 
 

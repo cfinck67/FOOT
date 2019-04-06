@@ -20,8 +20,8 @@
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
-#include "TATW_ContainerHit.hxx"
-#include "TATW_ContainerPoint.hxx"
+#include "TATWntuRaw.hxx"
+#include "TATWntuPoint.hxx"
 #include "TACAntuRaw.hxx"
 
 #include "TASTdatRaw.hxx"
@@ -140,7 +140,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fActNtuRawMsd(0x0),
    fActClusMsd(0x0),
 
-   //fActNtuRawTw(0x0),
+   fActNtuRawTw(0x0),
    fActPointTw(0x0),
    fType(type),
    fStClusDisplay(new TAGclusterDisplay("Start counter hit")),
@@ -255,8 +255,10 @@ void TAFOeventDisplay::ReadParFiles()
       parGeo->FromFile(parFileName.Data());
       fpParMapSt = new TAGparaDsc("stMap", new TASTparMap()); // need the file
       TASTparMap* parMapSt = (TASTparMap*) fpParMapSt->Object();
-      parFileName="./geomaps/tr_ch.map";
+      parFileName="./config/TASTdetector.cfg";
       parMapSt->FromFile(parFileName);
+
+      fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
    }
 
    // initialise par files for Beam Monitor
@@ -347,7 +349,7 @@ void TAFOeventDisplay::ReadParFiles()
       
       fpParCalTw = new TAGparaDsc("twCal", new TATWparCal());
       TATWparCal* parCal = (TATWparCal*)fpParCalTw->Object();
-      parFileName = Form("./config/TATWdetector%s.cal", fExpName.Data());
+      parFileName = Form("./config/TATWCalibrationMap%s.xml", fExpName.Data());
       parCal->FromFile(parFileName.Data());
       
       fpParMapTw = new TAGparaDsc("twMap", new TATWparMap());
@@ -554,7 +556,7 @@ void TAFOeventDisplay::CreateRecActionMsd()
 //__________________________________________________________
 void TAFOeventDisplay::CreateRecActionTw()
 {
-   fpNtuRecTw  = new TAGdataDsc("twPoint", new TATW_ContainerPoint());
+   fpNtuRecTw  = new TAGdataDsc("twPoint", new TATWntuPoint());
    fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
    fActPointTw->CreateHistogram();
 }
@@ -570,10 +572,14 @@ void TAFOeventDisplay::CreateRawAction()
    }
    
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
-      fpParTimeSt   = new TAGparaDsc("stTime", new TASTparTime());
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
       fActDatRawSt = new TASTactDatRaw("stActDat", fpDatRawSt, fpDaqEvent, fpParMapSt, fpParTimeSt);
       fActDatRawSt->CreateHistogram();
+
+      fpNtuRawSt   = new TAGdataDsc("stNtu", new TASTntuRaw());
+      fActNtuRawSt = new TASTactNtuRaw("stActNtu", fpDatRawSt, fpNtuRawSt);
+      if(GlobalPar::GetPar()->Debug()) fActNtuRawSt->SetDebugLevel(1);
+      fActNtuRawSt->CreateHistogram();
    }
 
    if (GlobalPar::GetPar()->IncludeBM()) {
@@ -628,10 +634,8 @@ void TAFOeventDisplay::CreateRawAction()
       fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimTw);
       fActDatRawTw->CreateHistogram();
 
-      //      fActNtuRawTw = new TATWactNtuRaw("twActNtu", fpDatRawTw, fpNtuRawTw);
-      //      fActNtuRawTw->CreateHistogram();
-
-
+      fActNtuRawTw = new TATWactNtuRaw("twActNtu", fpDatRawTw, fpNtuRawTw, fpParGeoTw, fpParMapTw, fpParCalTw);
+      fActNtuRawTw->CreateHistogram();
    }
    
 //   if(GlobalPar::GetPar()->IncludeCA()) {
@@ -687,22 +691,26 @@ void TAFOeventDisplay::AddRequiredRawItem()
    if (!fgStdAloneFlag)
       fTAGroot->AddRequiredItem("daqActReader");
 
-   if (GlobalPar::GetPar()->IncludeST())
+   if (GlobalPar::GetPar()->IncludeST()) {
       fTAGroot->AddRequiredItem("stActDat");
-
+   }
    
    if (GlobalPar::GetPar()->IncludeBM())
       fTAGroot->AddRequiredItem("bmActDat");
    
-   if (GlobalPar::GetPar()->IncludeTW())
+   if (GlobalPar::GetPar()->IncludeTW()) {
       fTAGroot->AddRequiredItem("twActDat");
-
+   }
 }
 
 
 //__________________________________________________________
 void TAFOeventDisplay::AddRequiredRecItem()
 {
+   if (GlobalPar::GetPar()->IncludeST()) {
+      fTAGroot->AddRequiredItem("stActNtu");
+   }
+   
    if (GlobalPar::GetPar()->IncludeBM()) {
       fTAGroot->AddRequiredItem("bmActNtu");
       if (fgTrackFlag)
@@ -738,10 +746,10 @@ void TAFOeventDisplay::AddRequiredRecItem()
       }
    }
    
-//   if (GlobalPar::GetPar()->IncludeTW()) {
-//      fTAGroot->AddRequiredItem("twActNtu");
-//      fTAGroot->AddRequiredItem("twActPoint");
-//   }
+   if (GlobalPar::GetPar()->IncludeTW()) {
+      fTAGroot->AddRequiredItem("twActNtu");
+      fTAGroot->AddRequiredItem("twActPoint");
+   }
    
    if (GlobalPar::GetPar()->IncludeCA()) {
       fTAGroot->AddRequiredItem("caActNtu");
@@ -860,11 +868,12 @@ void TAFOeventDisplay::UpdateHitInfo(TEveDigitSet* qs, Int_t idx)
       
    } else if (obj->InheritsFrom("TASTntuHit")) {
       TASTntuHit* hit = (TASTntuHit*)obj;
+      if (hit == 0x0) return;
       fInfoView->AddLine( Form("Charge: %.3g u.a.\n", hit->GetCharge()) );
       fInfoView->AddLine( Form("Time: %.3g ps \n", hit->GetTime()) );
 
-   } else if (obj->InheritsFrom("TATW_Point")) {
-      TATW_Point* point = (TATW_Point*)obj;
+   } else if (obj->InheritsFrom("TATWpoint")) {
+      TATWpoint* point = (TATWpoint*)obj;
       if (point == 0x0) return;
       TVector3 pos = point->GetPosition();
       fInfoView->AddLine( Form("Point# %d at position:\n", idx) );
@@ -1234,7 +1243,7 @@ void TAFOeventDisplay::UpdateBarElements()
 
    fFiredTofBar.clear();
 
-   TATW_ContainerHit* pNtuHit = (TATW_ContainerHit*) fpNtuRawTw->Object();
+   TATWntuRaw* pNtuHit = (TATWntuRaw*) fpNtuRawTw->Object();
    
    for( Int_t iLayer = 0; iLayer < parGeo->GetNLayers(); iLayer++) {
       
@@ -1243,7 +1252,9 @@ void TAFOeventDisplay::UpdateBarElements()
 
       for (Int_t iHit = 0; iHit < nHits; ++iHit) {
          
-         TATW_Hit *hit = pNtuHit->GetHit(iLayer, iHit);
+         TATWntuHit *hit = pNtuHit->GetHit(iHit, iLayer);
+
+         if(!hit) continue;
 
          Int_t iBar = hit->GetBar();
 
@@ -1258,13 +1269,13 @@ void TAFOeventDisplay::UpdateBarElements()
 
    
    // Draw Quad
-   TATW_ContainerPoint* pNtuPoint = (TATW_ContainerPoint*) fpNtuRecTw->Object();
+   TATWntuPoint* pNtuPoint = (TATWntuPoint*) fpNtuRecTw->Object();
 
    Int_t nPoints = pNtuPoint->GetPointN();
    
    for (Int_t iPoint = 0; iPoint < nPoints; ++iPoint) {
       
-      TATW_Point *point = pNtuPoint->GetPoint(iPoint);
+      TATWpoint *point = pNtuPoint->GetPoint(iPoint);
       
       TVector3 posG = point->GetPosition();
       posG = fpFootGeo->FromTWLocalToGlobal(posG);
@@ -1340,8 +1351,9 @@ void TAFOeventDisplay::UpdateStcElements()
    Int_t       nHits  = pSTntu->GetHitsN();
 
    //hits
+   cout<<" TAFO:: nHits ST "<<nHits<<endl;
    for (Int_t i = 0; i < nHits; i++) {
-      
+
       TASTntuHit* hit = pSTntu->Hit(i);
       Float_t charge = hit->GetCharge();
    

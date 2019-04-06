@@ -9,7 +9,8 @@
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
-#include "TATW_ContainerHit.hxx"
+#include "TATWntuRaw.hxx"
+#include "TATWntuPoint.hxx"
 #include "TACAntuRaw.hxx"
 
 ClassImp(LocalRecoMC)
@@ -113,27 +114,11 @@ void LocalRecoMC::CreateRawAction()
    
    if(GlobalPar::GetPar()->IncludeTW()) {
 
-      containerHit    = new TAGdataDsc("containerHit", new TATW_ContainerHit());
-      containerPoint  = new TAGdataDsc("containerPoint", new TATW_ContainerPoint());
-      new TATWactNtuMC("an_twraw", containerHit, fEvtStruct);
+      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
+      fActNtuRawTw = new TATWactNtuMC("twActNtuMc", fpNtuRawTw, fEvtStruct);
+      if (fFlagHisto)
+        fActNtuRawTw->CreateHistogram();
 
-      // fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
-      // if (fFlagHisto)
-      //    fActPointTw->CreateHistogram();
-
-      gTAGroot->AddRequiredItem("containerHit");
-      gTAGroot->AddRequiredItem("containerPoint");
-      gTAGroot->AddRequiredItem("an_twraw");   // prova --> funge!!!
-
-      
-
-      // fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
-      // fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fEvtStruct);
-      // if (fFlagHisto)
-      //    fActNtuRawTw->CreateHistogram();
-      
-      // fpNtuMcTw   = new TAGdataDsc("twMc", new TAMCntuHit());
-      // fActNtuMcTw = new TAMCactNtuTof("twActNtuMc", fpNtuMcTw, fEvtStruct);
    }
    
    if(GlobalPar::GetPar()->IncludeCA()) {
@@ -256,6 +241,7 @@ void LocalRecoMC::AddRequiredMcItemMs()
 void LocalRecoMC::AddRequiredMcItemTw()
 {
    fTAGroot->AddRequiredItem("twActNtuMc");
+   fTAGroot->AddRequiredItem("twActPointMc");
 }
 
 //__________________________________________________________
@@ -299,11 +285,8 @@ void LocalRecoMC::SetTreeBranches()
    }
    
    if (GlobalPar::GetPar()->IncludeTW()) {
-      fActEvtWriter->SetupElementBranch(containerHit, TATW_ContainerHit::GetBranchName());
-      fActEvtWriter->SetupElementBranch(containerPoint, TATW_ContainerPoint::GetBranchName());
-      // if (fFlagHits)
-      //    fActEvtWriter->SetupElementBranch(fpNtuRawTw, TATW_ContainerHit::GetBranchName());
-      // fActEvtWriter->SetupElementBranch(fpNtuMcTw, TAMCntuHit::GetTofBranchName());
+      fActEvtWriter->SetupElementBranch(fpNtuRawTw, TATWntuRaw::GetBranchName());
+      fActEvtWriter->SetupElementBranch(fpNtuRecTw, TATWntuPoint::GetBranchName());
    }
    
    if (GlobalPar::GetPar()->IncludeCA()) {

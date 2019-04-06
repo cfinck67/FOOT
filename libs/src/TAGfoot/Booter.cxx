@@ -73,6 +73,7 @@
 #include "TATWparGeo.hxx"
 #include "TATWparMap.hxx"
 #include "TATWdatRaw.hxx"
+#include "TATW_ContainerHit.hxx"
 #include "TATWactNtuMC.hxx"
 
 //Calorimeter

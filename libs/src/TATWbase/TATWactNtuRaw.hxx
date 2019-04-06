@@ -21,22 +21,38 @@ public:
   explicit        TATWactNtuRaw(const char* name=0,
 				TAGdataDsc* p_datraw=0,
 				TAGdataDsc* p_datdaq=0,
-				TAGparaDsc* p_pargeo=0);
+				TAGparaDsc* p_pargeo=0,
+				TAGparaDsc* p_parmap=0,
+				TAGparaDsc* p_calmap=0);
   virtual         ~TATWactNtuRaw();
 
   virtual Bool_t  Action();
 
-  ClassDef(TATWactNtuRaw,0)
+  ClassDef(TATWactNtuRaw,0);
     
   private:
     
   TAGdataDsc*     fpDatRaw;		    // input data dsc
   TAGdataDsc*     fpNtuRaw;		    // output data dsc
   TAGparaDsc*     fpParGeo;		    // parameter dsc
+  TAGparaDsc*     fpParMap;
+  TAGparaDsc*     fpCalPar;
+
+  Float_t         fTofPropAlpha; // inverse of light propagation velocity
+  Float_t         fTofErrPropAlpha;
 
   bool m_debug;
   
+
  private:
+  //
+  Double_t GetRawEnergy(TATWrawHit*a,TATWrawHit*b);
+  Double_t GetRawTime(TATWrawHit*a,TATWrawHit*b);
+  //
+  Double_t GetTime(Double_t Time,Int_t BarId);
+  Double_t GetEnergy(Double_t RawEnergy,Int_t BarId);
+  Double_t GetPosition(TATWrawHit*a,TATWrawHit*b);
+  Double_t GetChargeCenterofMass(TATWrawHit*a,TATWrawHit*b);
 
 };
 

@@ -38,7 +38,7 @@ IncludeTG:			    y
 IncludeVertex:			y
 IncludeInnerTracker:	n
 IncludeMSD:				n
-IncludeTW:				n
+IncludeTW:				y
 IncludeCA:				n
 
 IncludeEvent:			n

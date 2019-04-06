@@ -1,7 +1,7 @@
 /*!
   \class TATWntuRaw TATWntuRaw.hxx "TATWntuRaw.hxx"
   \brief Container class for VTX ntu hit **
-*/
+ */
 
 ////////////////////////////////////////////////////////////
 // Class Description of TATWntuHit                        //
@@ -20,13 +20,19 @@ ClassImp(TATWntuHit) // Description of Single Detector TATWntuHit
 //______________________________________________________________________________
 //  build a hit from a rawHit
 TATWntuHit::TATWntuHit( TATWrawHit* hit )
-   : TAGobject(),
-    m_layer(0),
-    m_bar(0),
-    m_de(0),
-    m_time(0),
-    m_coordinate(0),
-    m_z(0)
+: TAGobject(),
+  m_layer(0),
+  m_bar(0),
+  m_de(0),
+  m_time(0),
+  m_coordinate(0),
+  m_z(0),
+  m_chargeCOM(0),
+  m_ChargeA(0),
+  m_ChargeB(0),
+  m_TimeA(0),
+  m_TimeB(0)
+
 {
 }
 
@@ -39,21 +45,47 @@ TATWntuHit::TATWntuHit(const TATWntuHit& aHit)
    m_de(aHit.m_de),
    m_time(aHit.m_time),
    m_coordinate(aHit.m_coordinate),
-   m_z(aHit.m_z)
+   m_z(aHit.m_z),
+   m_chargeCOM(aHit.m_chargeCOM),
+   m_ChargeA(aHit.m_ChargeA),
+   m_ChargeB(aHit.m_ChargeB),
+   m_TimeA(aHit.m_TimeA),
+   m_TimeB(aHit.m_TimeB)
+
+
 {
-   
+
 }
+
+
+//------------------------------------------+-----------------------------------
+//! Default constructor.
+
+TATWntuHit::TATWntuHit()
+: m_layer(-1), m_bar(-1), m_de(0.),m_time(0.),m_coordinate(0.),m_z(0.)
+{
+}
+
 
 //______________________________________________________________________________
 // Build the hit from its sensor, line and column// constructor of a Pixel with column and line 
-TATWntuHit::TATWntuHit ( int aView, int aBar, Double_t aDe, Double_t aTime, Double_t pos)
-: TAGobject(),
+TATWntuHit::TATWntuHit (Int_t aView, Int_t aBar, Double_t aDe, Double_t aTime,
+		  	   Double_t pos,Double_t chargeCOM,Double_t ChargeA,
+			   Double_t ChargeB,Double_t TimeA,Double_t TimeB ):
+  TAGobject(),
   m_layer(aView),
   m_bar(aBar),
   m_de(aDe),
   m_time(aTime),
   m_coordinate(pos),
-  m_z(0)
+  m_z(0),
+  m_chargeCOM(chargeCOM),
+  m_ChargeA(ChargeA),
+  m_ChargeB(ChargeB),
+  m_TimeA(TimeA),
+  m_TimeB(TimeB)
+
+
 {
 }
 
@@ -61,19 +93,29 @@ TATWntuHit::TATWntuHit ( int aView, int aBar, Double_t aDe, Double_t aTime, Doub
 //
 void TATWntuHit::AddMcTrackId(Int_t trackId, Int_t mcId)
 {
-   m_MCindex.Set(m_MCindex.GetSize()+1);
-   m_MCindex[m_MCindex.GetSize()-1]   = mcId;
-   
-   m_McTrackId.Set(m_McTrackId.GetSize()+1);
-   m_McTrackId[m_McTrackId.GetSize()-1] = trackId;
+	m_MCindex.Set(m_MCindex.GetSize()+1);
+	m_MCindex[m_MCindex.GetSize()-1]   = mcId;
+	m_McTrackId.Set(m_McTrackId.GetSize()+1);
+	m_McTrackId[m_McTrackId.GetSize()-1] = trackId;
 }
 
 //______________________________________________________________________________
 //
 void TATWntuHit::Clear(Option_t* /*option*/)
 {
-   m_MCindex.Set(0);
-   m_McTrackId.Set(0);
+	m_MCindex.Set(0);
+	m_McTrackId.Set(0);
+	m_layer=0;
+	m_bar=0;
+	m_de=0;
+	m_time=0;
+	m_coordinate=0;
+	m_z=0;
+	m_chargeCOM=0;
+	m_ChargeA=0;
+	m_ChargeB=0;
+	m_TimeA=0;
+	m_TimeB=0;
 }
 
 //##############################################################################
@@ -86,95 +128,88 @@ TString TATWntuRaw::fgkBranchName   = "twrh.";
 //! 
 TATWntuRaw::TATWntuRaw() 
 : TAGdata(),
-    m_listOfHits(0x0)
+  m_listOfHits(0x0)
 {
-   m_twGeo = (TATWparGeo*) gTAGroot->FindParaDsc(TATWparGeo::GetDefParaName(), "TATWparGeo")->Object();
-   SetupClones();
+	m_hitlay1 = 0;
+	m_hitlay2 = 0;
+	SetupClones();
 }
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 TATWntuRaw::~TATWntuRaw()
 {
-    delete m_listOfHits;
+	delete m_listOfHits;
 }
 
 //______________________________________________________________________________
 //  standard 
-TATWntuHit* TATWntuRaw::NewHit( int layer, int bar, double energyLoss, double atime, double pos ) {
+TATWntuHit* TATWntuRaw::NewHit( int layer, int bar, double energyLoss, double atime, double pos,double chargeCOM,
+		                       double ChargeA, double ChargeB, double TimeA, double TimeB) {
 
-    if ( layer >= 0  && layer < m_twGeo->GetNLayers() ) {
-
-        TClonesArray &pixelArray = *GetListOfHits(layer);
-        TATWntuHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWntuHit( layer, bar, energyLoss, atime, pos);
-       
-        return hit;
-    } else {
-       Error("NewHit()", "Required layer not allowed: %d\n", layer);
-       return 0x0;
-    }
-   
-    return 0x0;  // never happens, but compiler doesn't complain
+	TClonesArray &pixelArray = *m_listOfHits;
+	if(layer == 0) m_hitlay1++;
+	else   if(layer == 1) m_hitlay2++;
+	TATWntuHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWntuHit( layer, bar, energyLoss, atime, pos,
+																	chargeCOM,ChargeA, ChargeB, TimeA, TimeB);
+	return hit;
 }
 
 //------------------------------------------+-----------------------------------
 //! return number of hits for a given sensor.  
-int TATWntuRaw::GetHitN( int layer ) {
+int TATWntuRaw::GetHitN(int layer) {
 
-    if ( layer >= 0  && layer < m_twGeo->GetNLayers()) {
-        TClonesArray*list = GetListOfHits(layer);
-        return list->GetEntries();
-    } else  {
-       Error("GetHitN()", "Required layer not allowed: %d\n", layer);
-       return 0x0;
-    }
-   
-    return 0x0;
+	if(layer == 0) return m_hitlay1;
+	else if(layer == 1) return m_hitlay2;
+	else  return -1;
+
+}
+
+int TATWntuRaw::GetHitN()
+{
+	return m_hitlay1+m_hitlay2;
+}
+//------------------------------------------+-----------------------------------
+//! Access \a i 'th hit
+
+TATWntuHit* TATWntuRaw::Hit(Int_t i)
+{
+	return (TATWntuHit*) ((*m_listOfHits)[i]);;
 }
 
 //------------------------------------------+-----------------------------------
 //! return a pixel for a given sensor
-TATWntuHit* TATWntuRaw::GetHit(  int layer, int hitID ) {
+TATWntuHit* TATWntuRaw::GetHit( int hitID, int layer ) {
+	int tmpId(0);
+	for(int iD=0; iD<m_listOfHits->GetEntries(); iD++)
+	{
+		int CurrentLayer=((TATWntuHit*)m_listOfHits->At(iD))->GetLayer();
+		if(CurrentLayer == layer)
+		{
+			if(tmpId == hitID)
+				return (TATWntuHit*)(m_listOfHits->At(iD));
+			tmpId++;
 
-    if ( layer < 0  || layer > m_twGeo->GetNLayers()) {
-       Error("GetHitN()", "Required layer not allowed: %d\n", layer);
-       return 0x0;
-    }
-    if ( hitID < 0 || hitID >= GetHitN(layer) ) {
-       Error("GetHitN()", "number of hit %d required is wrong. Max num %d", hitID, GetHitN(layer));
-       return 0x0;
-    }
+		}
+	}
+	return nullptr;
 
-    TClonesArray* list = GetListOfHits( layer );
-    return (TATWntuHit*)list->At( hitID );
 }
 
 //------------------------------------------+-----------------------------------
-TClonesArray* TATWntuRaw::GetListOfHits( int layer ) {
+TClonesArray* TATWntuRaw::GetListOfHits() {
 
-   if ( layer >= 0  && layer < m_twGeo->GetNLayers() ) {
-	  TClonesArray* list = (TClonesArray*)m_listOfHits->At(layer);
-	  return list;
-   } else {
-      Error("GetHitN()", "Required layer not allowed: %d required is wrong. Max num %d\n", layer,  m_twGeo->GetNLayers());
-      return 0x0;
-   }
+	return m_listOfHits;
 }
 
 //------------------------------------------+-----------------------------------
 //! Setup clones. Crate and initialise the list of pixels
 void TATWntuRaw::SetupClones()   {
 
-    if (m_listOfHits) return;
-    
-    m_listOfHits = new TObjArray();
+	if (m_listOfHits) return;
+	m_listOfHits = new TClonesArray("TATWntuHit");
+	//    m_listOfHits->SetOwner(true);
 
-    for ( int i = 0; i < m_twGeo->GetNLayers(); ++i ) {
-        TClonesArray* arr = new TClonesArray("TATWntuHit", 500);
-        arr->SetOwner(true);
-        m_listOfHits->AddAt(arr, i);
-    }
-    m_listOfHits->SetOwner(true);
 }
 
 
@@ -182,29 +217,30 @@ void TATWntuRaw::SetupClones()   {
 //! Clear event.
 void TATWntuRaw::Clear(Option_t*) {
 
-    for ( int i = 0; i < m_twGeo->GetNLayers(); ++i ) {
-        TClonesArray* list = GetListOfHits(i);
-        list->Delete();   
-    }
+	TAGdata::Clear();
+	m_listOfHits->Clear();
+	m_hitlay1=0;
+	m_hitlay2=0;
+
 }
 
 //------------------------------------------+-----------------------------------
 //! ostream insertion.
 void TATWntuRaw::ToStream(ostream& os, Option_t* option) const
 {
-   // for (Int_t i = 0; i < m_vtxGeo->GetNSensors(); ++i) {
-	  
-	  // os << "TATWntuRaw " << GetName()
-	  // << Form("  nPixels=%3d", GetPixelsN(i))
-	  // << endl;
-	  
-	  // //TODO properly
-	  // //os << "slat stat    adct    adcb    tdct    tdcb" << endl;
-	  // for (Int_t j = 0; j < GetPixelsN(i); j++) {  // all by default
-		 // const TATWntuHit*  pixel = GetPixel(i,j, "all");
-		 // if (pixel)
-			// os << Form("%4d", pixel->GetPixelIndex());
-		 // os << endl;
-	  // }
-   // }
+	// for (Int_t i = 0; i < m_vtxGeo->GetNSensors(); ++i) {
+
+	// os << "TATWntuRaw " << GetName()
+	// << Form("  nPixels=%3d", GetPixelsN(i))
+	// << endl;
+
+	// //TODO properly
+	// //os << "slat stat    adct    adcb    tdct    tdcb" << endl;
+	// for (Int_t j = 0; j < GetPixelsN(i); j++) {  // all by default
+	// const TATWntuHit*  pixel = GetPixel(i,j, "all");
+	// if (pixel)
+	// os << Form("%4d", pixel->GetPixelIndex());
+	// os << endl;
+	// }
+	// }
 }

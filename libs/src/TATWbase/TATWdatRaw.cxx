@@ -123,24 +123,18 @@ void TATWdatRaw::Clear(Option_t*)
 
 void TATWdatRaw::NewHit(TWaveformContainer &W)
 {
-  // set channel/board id
+  // get channel/board id
   Int_t cha =W.ChannelId;
   Int_t board =W.BoardId;
+  W.SanitizeWaveform();
   // do not change the order of these methods
   Double_t pedestal=W.ComputePedestal();
   Double_t amplitude=W.ComputeAmplitude();
   Double_t charge= W.ComputeCharge();
   Double_t time= W.ComputeTimeStamp();
-  //Do stuff
-
-  // TATWrawHit *t=( TATWrawHit *)hir->ConstructedAt(nirhit);
-  // t->SetData(cha ,board, charge, amplitude, pedestal, time);
-  //=======
-
+  //W.PlotWaveForm(nirhit);
   TClonesArray &pixelArray = *hir;
   TATWrawHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWrawHit(cha ,board, charge, amplitude, pedestal, time);
-
-
   nirhit++;
   return;
 }

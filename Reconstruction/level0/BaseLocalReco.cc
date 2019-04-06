@@ -15,8 +15,7 @@
 #include "TAVTntuRaw.hxx"
 #include "TAITntuRaw.hxx"
 #include "TAMSDntuRaw.hxx"
-#include "TATW_ContainerHit.hxx"
-#include "TATW_ContainerPoint.hxx"
+#include "TATWntuPoint.hxx"
 #include "TACAntuRaw.hxx"
 
 #include "TAVTntuCluster.hxx"
@@ -277,7 +276,7 @@ void BaseLocalReco::InitParameters()
       
       fpParCalTw = new TAGparaDsc("twConf", new TATWparCal());
       TATWparCal* parCal = (TATWparCal*)fpParCalTw->Object();
-      parFileName = Form("./config/TATWdetector%s.cal", fExpName.Data());
+      parFileName = Form("./config/TATWCalibrationMap%s.xml", fExpName.Data());
       parCal->FromFile(parFileName.Data());
       
       fpParMapTw = new TAGparaDsc("twMap", new TATWparMap());
@@ -396,10 +395,10 @@ void BaseLocalReco::CreateRecActionMsd()
 //__________________________________________________________
 void BaseLocalReco::CreateRecActionTw()
 {
-   // fpNtuRecTw  = new TAGdataDsc("twPoint", new TATW_ContainerPoint());
-   // fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
-   // if (fFlagHisto)
-   //    fActPointTw->CreateHistogram();
+   fpNtuRecTw  = new TAGdataDsc("twPoint", new TATWntuPoint());
+   fActPointTw = new TATWactNtuPoint("twActPointMc", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
+   if (fFlagHisto)
+     fActPointTw->CreateHistogram();
 }
 
 //__________________________________________________________
@@ -427,9 +426,6 @@ void BaseLocalReco::SetTreeBranches()
    if (GlobalPar::GetPar()->IncludeMSD()) 
       fActEvtWriter->SetupElementBranch(fpNtuClusMsd, TAMSDntuCluster::GetBranchName());
    
-   if (GlobalPar::GetPar()->IncludeTW()){
-      // fActEvtWriter->SetupElementBranch(fpNtuRecTw, TATW_ContainerPoint::GetBranchName());
-   }
 }
 
 //__________________________________________________________

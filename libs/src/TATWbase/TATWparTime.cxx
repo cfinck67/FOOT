@@ -72,36 +72,39 @@ void TATWparTime::ToStream(ostream& os, Option_t*) const
 }
 
 //set time calibration (get from first event)
-void TATWparTime::SetTimeCal(int iBo, int iCha, int iSa, double tbin){
+void TATWparTime::SetTimeCal(int iBo, int iCha, vector<float> tvec){
 
   int key = iBo+100*iCha;
-  time_parcal[key].at(iSa) = tbin*sec2Nano;
+  for(int i=0;i<tvec.size();i++){
+    time_parcal[key].at(i) = (double)tvec.at(i)*sec2Nano;
+  }
   m_GotCalib[key] = true;
-  
   
   
   return;
 }
 
 //get time array
-void TATWparTime::GetTimeArray(int iBo, int iCha, int TrigCell, vector<double> *timecal){
+bool TATWparTime::GetTimeArray(int iBo, int iCha, int TrigCell, vector<double> *timecal){
 
-  int key = iBo+iCha*100;
+ 
+int key = iBo+iCha*100;
+    
+  if(!m_GotCalib.find(key)->second){
+    printf("calibration not found for channel %d board %d!!!\n", iCha, iBo);
+    return false;
+  }
+  
+  
   double t=0;
-
   vector<double> tmp_calib = time_parcal.find(key)->second;
-
-  if(m_GotCalib.find(key)->second){
   
   //the sampling time is retreived summing the time bin starting from the trigger cell
   for(int i=0;i<1024;i++){
     timecal->push_back(t);
     t+=tmp_calib.at((i+TrigCell)%1024);
   }
-  }else{
-    printf("calibration not found for board %d   channel %d\n", iBo, iCha);
-  }
-
   
-  return;
+  
+  return true;;
 }
