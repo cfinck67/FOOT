@@ -50,6 +50,8 @@ class TABMactDatRaw : public TAGaction {
     //histos
     TH2I*            fpRawMapX;  //raw hit map    
     TH2I*            fpRawMapY;  //raw hit map    
+    TH1I*            fpRawHitNum;  //raw hit map    
+    TH1I*            fpRawDiscAccept;  //raw hit map    
     
 };
 

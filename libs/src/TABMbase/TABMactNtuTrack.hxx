@@ -143,15 +143,17 @@ public:
   TAGparGeo*  p_tggeo;
    
   //histos 
-  TH2F*            fpHisR02d;
+  //~ TH2F*            fpHisR02d;
   TH2F*            fpHisMap;
   TH2F*            fpResTot;
-  TH2F*            fpHisR02d;
   TH2F*            fpHisMylar12d;
   TH2F*            fpHisMylar22d;
-  TH2F*            fpResTot;
+  TH1I*            fpHisTrackStatus;
+  TH1I*            fpHisPrefitStatus;
+  TH1I*            fpHisNhitTrack;
+  TH1I*            fpHisNite;
+  TH1F*            fpHisChi2Red;
 
->>>>>>> Stashed changes
 };
 
 
