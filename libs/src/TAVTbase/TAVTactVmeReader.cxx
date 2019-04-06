@@ -188,7 +188,7 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
       }
       
       memcpy(data, &fData[0], sizeof(MI26_FrameRaw));
-      FillHistoFrame(data);
+      FillHistoFrame(iSensor, data);
       
    } else {
       return false;;

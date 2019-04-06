@@ -79,9 +79,9 @@ protected:
    TH1F*             fpHisEvtNumber[8]; //
    TH1F*             fpHisTriggerEvt[8]; //
    TH1F*             fpHisTimeStampEvt[8]; //
-   TH1F*             fpHisTriggerFrame;
-   TH1F*             fpHisTimeStampFrame;
-   TH1F*             fpHisFrameCnt;
+   TH1F*             fpHisTriggerFrame[8];
+   TH1F*             fpHisTimeStampFrame[8];
+   TH1F*             fpHisFrameCnt[8];
    
 protected:
    static const UInt_t  fgkKeyHeader[];
@@ -103,7 +103,7 @@ protected:
    Bool_t DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame);
 
    //! Fill histogram frame
-   void FillHistoFrame(MI26_FrameRaw* data);
+   void FillHistoFrame(Int_t iSensor, MI26_FrameRaw* data);
    
    //! Fill histogram frame
    void FillHistoEvt(Int_t iSensor);
