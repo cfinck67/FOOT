@@ -223,12 +223,13 @@ void BaseLocalReco::InitParameters()
       
       fpParConfBm = new TAGparaDsc("bmConf", new TABMparCon());
       TABMparCon* parConf = (TABMparCon*)fpParConfBm->Object();
+
       parFileName = Form("./config/beammonitor%s.cfg", fExpName.Data());
       parConf->FromFile(parFileName.Data());
       
       parFileName = "./config/bmreso_vs_r.root";
       parConf->LoadReso(parFileName);
-      
+
       fpParMapBm = new TAGparaDsc("bmMap", new TABMparMap());
       TABMparMap*  parMapBm = (TABMparMap*)fpParMapBm->Object();
       
