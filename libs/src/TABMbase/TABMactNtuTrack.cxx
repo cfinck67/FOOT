@@ -128,7 +128,7 @@ void TABMactNtuTrack::CreateHistogram()
    AddHistogram(fpHisMylar22d);   
    fpResTot = new TH2F("BM_Track_bm_residual_tot","Residual vs Rdrift; Residual [cm]; Measured rdrift [cm]", 6000, -0.3, 0.3,250 , 0., 1.);
    AddHistogram(fpResTot);  
-   fpHisTrackStatus = new TH1I("BM_Track_track_status","Track status; -2=maxhitcut__-1=minhitcut__0=ok__1/2=firedV/Uplane__3=hitrejected__4=noconv__5=chi2cut; Events", 10, 0, 10);
+   fpHisTrackStatus = new TH1I("BM_Track_track_status","Track status; -3=prefitstatuscut -2=maxhitcut__-1=minhitcut__0=ok__1/2=firedV/Uplane__3=hitrejected__4=noconv__5=chi2cut; Events", 10, 0, 10);
    AddHistogram(fpHisTrackStatus);  
    fpHisNhitTrack = new TH1I("BM_Trak_nhitsxtrack","number of hits x track; ; Events", 30, 0, 30);
    AddHistogram(fpHisNhitTrack);  
@@ -354,6 +354,13 @@ Bool_t TABMactNtuTrack::Action()
       if((firedSingleUview+firedSingleVview)<(firedUview+firedVview)){  //tracks with more hit on the same view and plane
         SortFirstDoubleHits(tmp_trackTr, hitxplane, hitxtrack);
         prefit_status=1;
+        if(p_bmcon->GetOnlyprefit()!=0){
+          p_ntutrk->GetTrackStatus()=-3;
+          if(ValidHistogram())
+            fpHisTrackStatus->Fill(p_ntutrk->GetTrackStatus());  
+          fpNtuTrk->SetBit(kValid);
+          return kTRUE;
+        }
       }else{
         hitxtrack.push_back(singlehittrack);//no double hits
         prefit_status=0;
@@ -361,6 +368,13 @@ Bool_t TABMactNtuTrack::Action()
     }else{
       prefit_status=-1;
       ChargeAllTracks(hitxtrack,hitxplane, tracknum, firedPlane);
+      if(p_bmcon->GetOnlyprefit()!=0){
+        p_ntutrk->GetTrackStatus()=-3;
+        if(ValidHistogram())
+          fpHisTrackStatus->Fill(p_ntutrk->GetTrackStatus());  
+        fpNtuTrk->SetBit(kValid);
+        return kTRUE;
+      }
     }
     
     if(p_bmcon->GetBMdebug()>10)
@@ -448,9 +462,10 @@ Bool_t TABMactNtuTrack::Action()
       p_ntutrk->GetTrackStatus()=3;
       //~ delete fitTrack;
       //~ delete tmp_trackTr;      
-      fpNtuTrk->SetBit(kValid);
       if(p_bmcon->GetBMdebug()>0)
         cout<<"TABMactNtuTrack:: no track given the rejmax_cut="<<p_bmcon->GetRejmaxcut()<<"  i_nhit="<<i_nhit<<"  firedPlane="<<firedPlane<<endl;
+      if(ValidHistogram())
+        fpHisTrackStatus->Fill(p_ntutrk->GetTrackStatus());  
       fpNtuTrk->SetBit(kValid);
       return kTRUE;    
     }

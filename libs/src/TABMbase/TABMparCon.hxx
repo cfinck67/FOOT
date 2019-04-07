@@ -34,6 +34,7 @@ class TABMparCon : public TAGpara {
     void SetRdriftCut(Double_t Rdcut){rdrift_cut=Rdcut; return;};
     void SetEnxcellcut(Double_t Encut){enxcell_cut=Encut; return;};
     void SetBmt0filename(string filename_in){bmt0file=filename_in;};
+    void SetOnlyprefit(Int_t in){onlyprefit=in;};
     
     //getters
     Bool_t   IsMC(){return m_isMC;};
@@ -73,6 +74,7 @@ class TABMparCon : public TAGpara {
     TVector3 GetMeas_tilt(){return meas_tilt;};
     TRandom3* GetRand(){return rand;};
     Double_t GetRdrift_err(){return rdrift_err;};
+    Int_t GetOnlyprefit(){return onlyprefit;};
 
     //T0 stuff
     void        PrintT0s(TString &input_file_name, Long64_t);
@@ -163,6 +165,7 @@ class TABMparCon : public TAGpara {
     Double_t mceff_sigma;//sigma for the number of primary hits (only MC)
     TRandom3 *rand;
     Double_t rdrift_err;  //rdrift default error (used if from parcon file the error isn't loaded)
+    Int_t    onlyprefit; //0=false, 1=true
     
     //~ TF1* f_mypol;
     //~ TF1* f_mypol2;

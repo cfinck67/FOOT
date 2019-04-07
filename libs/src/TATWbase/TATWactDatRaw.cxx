@@ -102,7 +102,7 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
 
     if(evt->values.at(iW) == GLB_EVT_HEADER){
       if(m_debug)printf("found glb header::%08x %08x\n", evt->values.at(iW), evt->values.at(iW+1));
-      iW+=3;
+      iW+=6;
     }
 
     //found time header
