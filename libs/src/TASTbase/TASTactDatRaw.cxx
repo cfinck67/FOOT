@@ -43,8 +43,7 @@ TASTactDatRaw::TASTactDatRaw(const char* name,
   AddPara(p_parmap, "TASTparMap");
   AddPara(p_parTime, "TASTparTime");
 
-  
-  m_debug = false;
+  m_debug = true;
   m_nev=0;
 }
 
@@ -99,7 +98,8 @@ Bool_t TASTactDatRaw::Action() {
    }
    if(nvalid)TrigTime = TrigTime/(double)nvalid;
    p_datraw->SetTriggerTime(TrigTime);
-
+   p_datraw->SetTrigType(myHits.at(0)->GetTrigType());
+   
    if(ValidHistogram()){
      hTrigTime->Fill(TrigTime);
      for(int iHit=0;iHit<(int)myHits.size();iHit++){
@@ -188,8 +188,8 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 	if(m_debug)printf("found evt header::%08x   %08x   %08x\n", evt->values.at(iW),evt->values.at(iW+1),evt->values.at(iW+2));
       
 	iW++;
-	trig_type = evt->values.at(iW) & 0xffff;
-	ser_evt_number = (evt->values.at(iW) >> 16) & 0xffff;
+	trig_type = (evt->values.at(iW)>>16) & 0xffff;
+	ser_evt_number =  evt->values.at(iW)& 0xffff;
       
 	iW++;
 	bco_counter = (int)evt->values.at(iW);
@@ -260,7 +260,7 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 	    	    
 	    if(p_parMap->IsSTChannel(ch_num) && p_parMap->IsSTBoard(board_id)){
 	      p_parTime->GetTimeArray(board_id, ch_num, trig_cell, &w_time);
-	      p_datraw->AddWaveform(ch_num, w_time ,w_amp);
+	      p_datraw->AddWaveform(ch_num, w_time ,w_amp, trig_type);
 	    }
 	    w_amp.clear();
 	    w_time.clear();

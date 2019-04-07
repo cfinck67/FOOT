@@ -57,6 +57,7 @@ Bool_t TASTactNtuRaw::Action() {
 
    p_nturaw->SetCharge(p_datraw->Charge());
    p_nturaw->SetTriggerTime(p_datraw->TrigTime());
+   p_nturaw->SetTrigType(p_datraw->GetTrigType());
    
    fpNtuRaw->SetBit(kValid);
    return kTRUE;

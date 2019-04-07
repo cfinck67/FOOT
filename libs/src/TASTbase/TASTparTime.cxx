@@ -92,14 +92,13 @@ bool TASTparTime::FromFile(const char *filename){
   //  int runname = atoi(chunks_runname.at(1).c_str());
   
   string tcal_filename("");
-  tcal_filename+="tcal";
+  tcal_filename+=path;
+  tcal_filename+="tcalib";
   tcal_filename+=(chunks_runname.at(1));
-
+  tcal_filename+=".dat";
   
   FILE *stream = fopen(tcal_filename.c_str(), "r");
-  
-
-  // printf("opening WD time calibration file::%s\n", tcal_filename.c_str());
+  printf("opening WD time calibration file::%s\n", tcal_filename.c_str());
 
   if(stream==NULL){
     return false;
@@ -144,6 +143,9 @@ bool TASTparTime::FromFile(const char *filename){
     }
     fseek(stream, -4, SEEK_CUR);
   }
+
+
+  return true;
   
 }
 

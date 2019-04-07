@@ -76,7 +76,10 @@ TASTntuRaw::TASTntuRaw()
 : TAGdata(),
  fListOfHits(0)
 {
-   SetupClones();
+  m_Charge=-1000;
+  m_TrigTime=-1000;
+  m_TrigType=-1000;
+  SetupClones();
 }
 
 

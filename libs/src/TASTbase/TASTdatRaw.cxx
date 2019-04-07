@@ -37,16 +37,18 @@ TASTrawHit::~TASTrawHit()
 //! Default constructor.
 
 TASTrawHit::TASTrawHit()
-  :   m_ch_num(0), m_time(0.), m_amplitude(0.),  m_tarr(-10000), m_charge(-10000)
+  :   m_ch_num(0), m_time(0.), m_amplitude(0.),  m_tarr(-10000), m_charge(-10000), m_trig_type(-1000)
 {}
 
 
-TASTrawHit::TASTrawHit(int ch_num, vector<double> time, vector<double> amplitude){
+TASTrawHit::TASTrawHit(int ch_num, vector<double> time, vector<double> amplitude, int type){
   m_ch_num = ch_num;
   m_time = time;
   m_amplitude = amplitude;
   m_tarr = -10000;
   m_charge = -10000;
+  m_trig_type=type;
+  
 }
 
 
@@ -59,6 +61,7 @@ void TASTrawHit::Clear(Option_t* op/*option*/)
   m_max_amp=-1000;
   m_time.clear();
   m_amplitude.clear();
+  m_trig_type=-1000;
 }
 
 //##############################################################################
@@ -91,7 +94,7 @@ TASTdatRaw::~TASTdatRaw(){
 
 
 
-void TASTdatRaw::AddWaveform(int ch_num, vector<double> time, vector<double> amplitude){
+void TASTdatRaw::AddWaveform(int ch_num, vector<double> time, vector<double> amplitude, int type){
 
   // vector<double> clean_amplitude;
   // clean_amplitude.assign(1024,0);
@@ -106,7 +109,7 @@ void TASTdatRaw::AddWaveform(int ch_num, vector<double> time, vector<double> amp
   }
   
   
-  fListOfWaveforms.push_back(new TASTrawHit(ch_num, time ,amplitude));
+  fListOfWaveforms.push_back(new TASTrawHit(ch_num, time ,amplitude, type));
 
   vector<double> amplitude_cfd;
   amplitude_cfd.assign(amplitude.size(), 0);
@@ -119,7 +122,7 @@ void TASTdatRaw::AddWaveform(int ch_num, vector<double> time, vector<double> amp
     }
   }
 
-  fListOfWaveforms_cfd.push_back(new TASTrawHit(ch_num, time ,amplitude_cfd));
+  fListOfWaveforms_cfd.push_back(new TASTrawHit(ch_num, time ,amplitude_cfd, type));
 
 
 }
@@ -150,8 +153,8 @@ void TASTdatRaw::SumWaveforms(){
     }
   }
 
-  fSumWaves = new TASTrawHit(WAVE_ID,tmp_time, tmp_amp);
-  fSumWaves_cfd = new TASTrawHit(WAVE_CFD_ID,tmp_time, tmp_amp_cfd);
+  fSumWaves = new TASTrawHit(WAVE_ID,tmp_time, tmp_amp, -100);
+  fSumWaves_cfd = new TASTrawHit(WAVE_CFD_ID,tmp_time, tmp_amp_cfd,-100);
 
   return;
 }
