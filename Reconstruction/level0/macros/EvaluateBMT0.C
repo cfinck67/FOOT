@@ -113,14 +113,26 @@ void FillBm(TString name) {
 
   TAGparaDsc*  stMap  = new TAGparaDsc("stMap", new TASTparMap());
   TASTparMap*  stparMap = (TASTparMap*)stMap->Object();
-  parFileName = "./geomaps/tr_ch.map";
+  parFileName = "./config/TASTdetector.cfg";
   stparMap->FromFile(parFileName.Data());
  
   //TAGdataDsc
   TAGdataDsc* bmDaq    = new TAGdataDsc("bmDaq", new TAGdaqEvent());
   daqActReader  = new TAGactDaqReader("daqActReader", bmDaq); 
   TAGdataDsc* stDatRaw    = new TAGdataDsc("stDatRaw", new TASTdatRaw());
-  stActDatRaw  = new TASTactDatRaw("stActDatRaw", stDatRaw,bmDaq,stMap);
+  //  stActDatRaw  = new TASTactDatRaw("stActDatRaw", stDatRaw,bmDaq,stMap);
+  
+  TAGparaDsc *fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
+  TASTparTime* parTimeSt = (TASTparTime*) fpParTimeSt->Object();
+  //GetName() return the input file name
+  // if(!parTimeSt->FromFile(GetName())){
+  
+  if(!parTimeSt->FromFile("data/tcalib2190.dat")){
+    printf("WD calibration time ot found!!\n");
+  }
+  
+  stActDatRaw = new TASTactDatRaw("stActDatRaw", stDatRaw, bmDaq, stMap, fpParTimeSt);
+
   TAGdataDsc* bmDatRaw    = new TAGdataDsc("bmDat", new TABMdatRaw());
   bmActDatRaw  = new TABMactDatRaw("bmActDatRaw", bmDatRaw, bmDaq, bmMap, bmConf, bmGeo,stDatRaw);  
   return;
@@ -178,7 +190,7 @@ void EvaluateBMT0(TString in_filename = "data_test.00001201.physics_foot.daq.RAW
    for (ientry = 0; ; ientry++) {
     if(ientry % 100 == 0)
        cout<<" Loaded Event:: " << ientry << endl;
-    if (ientry == 100)
+    if (ientry == 1000)
        break;
     tagr.NextEvent();
     p_datdaq = (TAGdaqEvent*)(tagr.FindDataDsc("bmDaq","TAGdaqEvent")->Object());
@@ -267,9 +279,9 @@ void EvaluateBMT0(TString in_filename = "data_test.00001201.physics_foot.daq.RAW
         cout<<"WARNING IN BmBooter::EvaluateT0! channel not considered in tdc map tdc_cha=i="<<i<<"  cellid="<<bmmap->tdc2cell(i)<<" T0 for this channel will set to -10000"<<endl;
   }  
   
-  if(bmcon->GetBMdebug()>3)
+  //  if(bmcon->GetBMdebug()>3)
     bmcon->CoutT0();
-  //~ bmcon->SetBmt0filename("T0_beammonitor.cfg");
+  bmcon->SetBmt0filename("T0_beammonitor.cfg");
   bmcon->PrintT0s(in_filename,ientry);
   
   f_out->Write();
