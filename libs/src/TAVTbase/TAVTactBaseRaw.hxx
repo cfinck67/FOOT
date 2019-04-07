@@ -52,9 +52,15 @@ protected:
    vector<UInt_t>    fData;             // data array to fill
 
    Int_t             fEventNumber;      // number of the event
+   Int_t             fPrevEventNumber;      // previous number of the event
    Int_t             fTriggerNumber;    // number of the trigger
+   Int_t             fPrevTriggerNumber;    // previous number of the trigger
    Int_t             fTimeStamp;        // time stamp per frame
+   Int_t             fPrevTimeStamp;        // time stamp per frame
    Int_t             fFrameCount;       // number of frame
+   Int_t             fTriggerNumberFrame;    // number of the trigger
+   Int_t             fTimeStampFrame;        // time stamp per frame
+   Bool_t            fFirstFrame;
 
    Int_t             fNSensors;
    Int_t             fIndex;
@@ -70,6 +76,12 @@ protected:
    TH1F*             fpHisRateMap[8];   // pixel map per sensor
    TH1F*             fpHisRateMapQ[8];  // pixel map per sensor quadrant
    TH1F*             fpHisEvtLength[8]; // event data length for each sensor (all 3 frames)
+   TH1F*             fpHisEvtNumber[8]; //
+   TH1F*             fpHisTriggerEvt[8]; //
+   TH1F*             fpHisTimeStampEvt[8]; //
+   TH1F*             fpHisTriggerFrame[8];
+   TH1F*             fpHisTimeStampFrame[8];
+   TH1F*             fpHisFrameCnt[8];
    
 protected:
    static const UInt_t  fgkKeyHeader[];
@@ -90,8 +102,11 @@ protected:
    //! decode frame
    Bool_t DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame);
 
-   //! Get next frames with same trigger
-   Bool_t CheckTrigger(MI26_FrameRaw* data);
+   //! Fill histogram frame
+   void FillHistoFrame(Int_t iSensor, MI26_FrameRaw* data);
+   
+   //! Fill histogram frame
+   void FillHistoEvt(Int_t iSensor);
 
    ClassDef(TAVTactBaseRaw,0)
 

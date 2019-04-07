@@ -60,6 +60,8 @@ TASTactDatRaw::~TASTactDatRaw()
 
 Bool_t TASTactDatRaw::Action() {
 
+    if(GetDebugLevel()) { cout<<" Entering the TASTactDatRaw action "<<endl; }
+
    TASTdatRaw*    p_datraw = (TASTdatRaw*)   fpDatRaw->Object();
    TAGdaqEvent*   p_datdaq = (TAGdaqEvent*)  fpDatDaq->Object();
    TASTparMap*    p_parmap = (TASTparMap*)   fpParMap->Object();

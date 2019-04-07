@@ -133,7 +133,7 @@ Bool_t TATWactNtuPoint::FindPoints()
       }
       
       if (best) {
-         TATWntuHit* hitmin = pNtuHit->GetHit(1, minId);
+         TATWntuHit* hitmin = pNtuHit->GetHit(minId, 1);
 
 	 if(!hitmin) continue;
 	 

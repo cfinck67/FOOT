@@ -103,7 +103,7 @@ Bool_t TAVTactVmeReader::Process()
       
       if (GetSensorHeader(i)) {
          
-         fTriggerNumber = -1;
+         fFirstFrame = true;
          // loop over frame (3 max)
          while (GetFrame(i, data)) {
             DecodeFrame(i, data);
@@ -119,6 +119,10 @@ Bool_t TAVTactVmeReader::Process()
    SetBit(kValid);
    fpNtuRaw->SetBit(kValid);
 
+   fPrevEventNumber   = fEventNumber;
+   fPrevTriggerNumber = fTriggerNumber;
+   fPrevTimeStamp     = fTimeStamp;
+   
    return true;
 }
 
@@ -127,9 +131,6 @@ Bool_t TAVTactVmeReader::Process()
 // --------------------------------------------------------------------------------------
 Bool_t TAVTactVmeReader::GetSensorHeader(Int_t iSensor)
 {
-   Int_t fakeTrigger;;
-   UInt_t fakeTimeStamp = 0;
-
    Char_t tmp[255];
 
    do {
@@ -145,13 +146,18 @@ Bool_t TAVTactVmeReader::GetSensorHeader(Int_t iSensor)
          
          // fake trigger
          fRawFileAscii[iSensor] >> tmp;
+         sscanf(tmp, "%x", &fTriggerNumber);
 
          // fake time stamp
          fRawFileAscii[iSensor] >> tmp;
+         
+         FillHistoEvt(iSensor);
+
          return true;
       }
    } while (!fRawFileAscii[iSensor].eof());
    
+
    return false;
 }
 
@@ -160,8 +166,6 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
 {
    Char_t tmp[255];
    fIndex = 0;
-   
-   Bool_t ok = false;
    
    // check frame header
    fRawFileAscii[iSensor] >> tmp;
@@ -184,8 +188,7 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
       }
       
       memcpy(data, &fData[0], sizeof(MI26_FrameRaw));
-      if (fTriggerNumber == -1) fTriggerNumber = data->TriggerCnt;
-      ok = CheckTrigger(data);
+      FillHistoFrame(iSensor, data);
       
    } else {
       return false;;
@@ -208,7 +211,7 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
       for (Int_t i = 0; i < fEventSize; ++i)
          printf("Data %08x\n", fData[i]);
 
-   return ok;;
+   return true;;
    
 }
 

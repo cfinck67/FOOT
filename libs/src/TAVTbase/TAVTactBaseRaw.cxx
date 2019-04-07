@@ -38,10 +38,16 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc
   fpGeoMap(pGeoMap),
   fpConfig(pConfig),
   fData(0x0),
-  fEventNumber(-1),
-  fTriggerNumber(-1),
-  fTimeStamp(-1),
-  fFrameCount(-1),
+  fEventNumber(0),
+  fPrevEventNumber(0),
+  fTriggerNumber(0),
+  fPrevTriggerNumber(0),
+  fTimeStamp(0),
+  fPrevTimeStamp(0),
+  fFrameCount(0),
+  fTriggerNumberFrame(0),
+  fTimeStampFrame(0),
+  fFirstFrame(false),
   fNSensors(-1),
   fIndex(0),
   fCurrentTriggerCnt(0),
@@ -58,7 +64,7 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc
    TAVTparGeo* parGeo = (TAVTparGeo*) fpGeoMap->Object();
    fNSensors = parGeo->GetNSensors();
    
-   Int_t size = parGeo->GetNSensors()*sizeof(MI26_FrameRaw);
+   Int_t size = parGeo->GetNSensors()*sizeof(MI26_FrameRaw)*4;
    fData.resize(size);
 }
 
@@ -82,19 +88,37 @@ void TAVTactBaseRaw::CreateHistogram()
 		 fpHisPixelMap[i]->SetStats(kFALSE);
 		 AddHistogram(fpHisPixelMap[i]);
 	  }
+      
 	  fpHisRateMap[i] = new TH1F(Form("vtRateMap%d", i+1), Form("Vertex - rate per line for sensor %d", i+1), 
 								 pGeoMap->GetNPixelX(), 0, pGeoMap->GetNPixelX());
 	  AddHistogram(fpHisRateMap[i]);
 
-	  fpHisRateMapQ[i] = new TH1F(Form("vtRateMapQ%d", i+1), Form("Vertex - rate per quadrant for sensor %d", i+1), 
-								 10, 0, 5);
+	  fpHisRateMapQ[i] = new TH1F(Form("vtRateMapQ%d", i+1), Form("Vertex - rate per quadrant for sensor %d", i+1), 10, 0, 5);
 	  AddHistogram(fpHisRateMapQ[i]);
 	  
-	  fpHisEvtLength[i] = new TH1F(Form("vtEvtLength%d", i+1), Form("Vertex - event length sensor %d", i+1), 
-								   1000, 0, 1000);
+	  fpHisEvtLength[i] = new TH1F(Form("vtEvtLength%d", i+1), Form("Vertex - event length sensor %d", i+1), 1000, 0, 1000);
 	  AddHistogram(fpHisEvtLength[i]);
+      
+     fpHisTriggerEvt[i] = new TH1F(Form("vtTriggerEvt%d", i+1), Form("Vertex - Trigger difference in event sensor %d", i+1),  20, -9.5, 10.5);
+     AddHistogram(fpHisTriggerEvt[i]);
+      
+     fpHisEvtNumber[i] = new TH1F(Form("vtNumberEvt%d", i+1), Form("Vertex -  Event number difference per event sensor %d", i+1), 20, -9.5, 10.5);
+     AddHistogram(fpHisEvtNumber[i]);
+      
+     fpHisTimeStampEvt[i] = new TH1F(Form("vtTimeStampEvt%d", i+1), Form("Vertex -  Time stamp difference per event sensor %d", i+1), 1000, -20000, 20000);
+     AddHistogram(fpHisTimeStampEvt[i]);
+  
+      fpHisTriggerFrame[i] = new TH1F(Form("vtTriggerFrame%d", i+1), Form("Vertex - Trigger difference in sensor %d", i+1),  20, -9.5, 10.5);
+      AddHistogram(fpHisTriggerFrame[i]);
+      
+      fpHisTimeStampFrame[i] = new TH1F(Form("vtTimeStampFrame%d", i+1), Form("Vertex - Time stamp difference in sensor% d", i+1),  1000, -20000, 20000);
+      AddHistogram(fpHisTimeStampFrame[i]);
+      
+      fpHisFrameCnt[i] = new TH1F(Form("vtFrameCnt%d", i+1), Form("Vertex - Frame cnt difference in sensor %d", i+1),  510, -9.5, 500.5);
+      AddHistogram(fpHisFrameCnt[i]);
+
    }
-   
+
    SetValidHistogram(kTRUE);
    return;
 }
@@ -113,12 +137,27 @@ Int_t TAVTactBaseRaw::GetSensor(UInt_t key)
 }
 
 // --------------------------------------------------------------------------------------
-Bool_t TAVTactBaseRaw::CheckTrigger(MI26_FrameRaw* data)
+void TAVTactBaseRaw::FillHistoFrame(Int_t iSensor, MI26_FrameRaw* data)
 {
-   if (data->TriggerCnt != fTriggerNumber)
-      return false;
+   UInt_t trigger   = data->TriggerCnt;
+   UInt_t timeStamp = data->TimeStamp;
+   UInt_t frameCnt  = data->FrameCnt;
    
-   return true;
+   fpHisTriggerFrame[iSensor]->Fill(trigger - fTriggerNumberFrame);
+   fpHisTimeStampFrame[iSensor]->Fill(timeStamp - fTimeStampFrame);
+   fpHisFrameCnt[iSensor]->Fill(frameCnt - fFrameCount);
+   
+   fTriggerNumberFrame = trigger;
+   fFrameCount         = frameCnt;
+   fTimeStampFrame     = timeStamp;
+}
+
+// --------------------------------------------------------------------------------------
+void TAVTactBaseRaw::FillHistoEvt(Int_t iSensor)
+{
+   fpHisEvtNumber[iSensor]->Fill(fEventNumber - fPrevEventNumber);
+   fpHisTriggerEvt[iSensor]->Fill(fTriggerNumber - fPrevTriggerNumber);
+   fpHisTimeStampEvt[iSensor]->Fill(fTimeStamp - fPrevTimeStamp);
 }
 
 // --------------------------------------------------------------------------------------
@@ -140,13 +179,10 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
    TAVTntuRaw*  pNtuRaw = (TAVTntuRaw*)  fpNtuRaw->Object();
    TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
    TAVTparGeo*  pGeoPar = (TAVTparGeo*)  fpGeoMap->Object();
-   
-   if (!CheckTriggerCnt(frame->TriggerCnt)) {
-      Warning("DecodeFrame()", "Wrong trigger number %x instead of %x for sensor %d, re-synchrnizing", frame->TriggerCnt, fgCurrentTriggerCnt, iSensor);
-      fgCurrentTriggerCnt = frame->TriggerCnt;
-   }
-   
+
    Int_t dataLength    = ((frame->DataLength & 0xFFFF0000)>>16);
+   if (dataLength > 140) return false;
+   
    UShort_t *frameData = (UShort_t*)frame->ADataW16;
    dataLength         *= 2; // go to short
    

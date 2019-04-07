@@ -81,11 +81,9 @@ Bool_t TAVTactNtuRaw::DecodeEvent(const DECardEvent* evt)
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
       
       if (!GetSensorHeader(i)) return false;
-      
-      fTriggerNumber = -1;
-      
+      fFirstFrame = true;
       // loop over frame (3 max)
-      while (GetFrame(data)) {
+      while (GetFrame(i, data)) {
          DecodeFrame(i, data);
       }
    }
@@ -104,6 +102,10 @@ Bool_t TAVTactNtuRaw::DecodeEvent(const DECardEvent* evt)
   }
    
    delete data;
+
+   fPrevEventNumber   = fEventNumber;
+   fPrevTriggerNumber = fTriggerNumber;
+   fPrevTimeStamp     = fTimeStamp;
 
    return true;
 }
@@ -125,31 +127,30 @@ Bool_t TAVTactNtuRaw::GetVtxHeader()
 // --------------------------------------------------------------------------------------
 Bool_t TAVTactNtuRaw::GetSensorHeader(Int_t iSensor)
 {
-   UInt_t fakeTrigger   = 0;
-   UInt_t fakeTimeStamp = 0;
    
    do {
       if (fData[fIndex] == GetKeyHeader(iSensor)) {
-         fEventNumber  = fData[++fIndex];
-         fakeTrigger   = fData[++fIndex];
-         fakeTimeStamp = fData[++fIndex];
+         fEventNumber   = fData[++fIndex];
+         fTriggerNumber = fData[++fIndex];
+         fTimeStamp     = fData[++fIndex];
+         
+         FillHistoEvt(iSensor);
+
          return true;
       }
    } while (fIndex++ < fEventSize);
    
+
    return false;
 }
 
 // --------------------------------------------------------------------------------------
-Bool_t TAVTactNtuRaw::GetFrame(MI26_FrameRaw* data)
+Bool_t TAVTactNtuRaw::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
 {
-   Bool_t ok = false;
-   
    // check frame header
    if ((fData[++fIndex] & 0xFFF) ==  (GetFrameHeader() & 0xFFF)) { // protection against wrong header !!!
       memcpy(data, &fData[fIndex], sizeof(MI26_FrameRaw));
-      if (fTriggerNumber == -1) fTriggerNumber = data->TriggerCnt;
-      ok =  CheckTrigger(data);
+      FillHistoFrame(iSensor, data);
       
    } else
       return false;
@@ -174,6 +175,6 @@ Bool_t TAVTactNtuRaw::GetFrame(MI26_FrameRaw* data)
       printf("%08x\n", data->Trailer);
    }
    
-   return ok;
+   return true;
 }
 
