@@ -43,7 +43,7 @@ TASTactDatRaw::TASTactDatRaw(const char* name,
   AddPara(p_parmap, "TASTparMap");
   AddPara(p_parTime, "TASTparTime");
 
-  m_debug = true;
+  m_debug = false;
   m_nev=0;
 }
 
