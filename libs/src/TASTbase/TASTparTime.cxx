@@ -94,7 +94,8 @@ bool TASTparTime::FromFile(const char *filename){
   string tcal_filename("");
   tcal_filename+=path;
   tcal_filename+="tcalib";
-  tcal_filename+=(chunks_runname.at(1));
+  //  tcal_filename+=(chunks_runname.at(1)); //we choose just the 2190 for the moment
+  tcal_filename+="2190";
   tcal_filename+=".dat";
   
   FILE *stream = fopen(tcal_filename.c_str(), "r");

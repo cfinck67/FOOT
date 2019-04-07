@@ -207,6 +207,8 @@ void BaseLocalReco::InitParameters()
       fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
       TASTparTime* parTimeSt = (TASTparTime*) fpParTimeSt->Object();
       //GetName() return the input file name
+      // if(!parTimeSt->FromFile(GetName())){
+
       if(!parTimeSt->FromFile(GetName())){
 	printf("WD calibration time ot found!!\n");
       }
