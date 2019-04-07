@@ -21,7 +21,7 @@ void RemoteEvent::readData(unsigned int **p1){
   ++p;
   evtSize= *p;
   ++p;
-  std::cout<<"EvtSize::  "<<evtSize<<std::endl;
+ 
   if( evtSize!=0){
     for (unsigned int i=0; i<evtSize-1; i++){
       //      uint32_t WORD= *p;

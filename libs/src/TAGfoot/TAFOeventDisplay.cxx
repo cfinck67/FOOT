@@ -275,7 +275,7 @@ void TAFOeventDisplay::ReadParFiles()
       
       parFileName = "./config/bmreso_vs_r.root";
       parConf->LoadReso(parFileName);
-      
+
       fpParMapBm = new TAGparaDsc("bmMap", new TABMparMap());
       TABMparMap*  parMapBm = (TABMparMap*)fpParMapBm->Object();
 
