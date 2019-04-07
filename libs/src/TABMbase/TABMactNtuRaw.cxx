@@ -61,11 +61,11 @@ void TABMactNtuRaw::CreateHistogram(){
    AddHistogram(fpHisProbe_paoloni);   
    fpHisEval_paoloni = new TH1F( "BM_Raw_eff_paoloni_eval", "efficiency for the paoloni plane method; index; Counter", 8, 0., 8.);
    AddHistogram(fpHisEval_paoloni);   
-   fpHisCell = new TH1I( "BM_Raw_hit_cell", "cell index; index; Counter", 4, 0., 4.);
+   fpHisCell = new TH1I( "BM_Raw_hit_cell", "cell index; index; Counter", 3, 0., 3.);
    AddHistogram(fpHisCell);   
-   fpHisView = new TH1I( "BM_Raw_hit_view", "view index; index; Counter", 3, 0., 3.);
+   fpHisView = new TH1I( "BM_Raw_hit_view", "view index; index; Counter", 2, 0., 2.);
    AddHistogram(fpHisView);   
-   fpHisPlane = new TH1I( "BM_Raw_hit_plane", "plane index; index; Counter", 7, 0., 7.);
+   fpHisPlane = new TH1I( "BM_Raw_hit_plane", "plane index; index; Counter", 6, 0., 6.);
    AddHistogram(fpHisPlane);   
    fpHisRdrift = new TH1F( "BM_Raw_hit_rdrift", "Rdrift; Rdrift [cm]; numevent", 100, 0., 1.);
    AddHistogram(fpHisRdrift);   
