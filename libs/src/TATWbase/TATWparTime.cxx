@@ -91,13 +91,14 @@ bool TATWparTime::FromFile(const char *filename){
 
   //  int runname = atoi(chunks_runname.at(1).c_str());
   
-  string tcal_filename("");
-  tcal_filename+=path;
-  tcal_filename+="tcalib";
-  //  tcal_filename+=(chunks_runname.at(1));
-  tcal_filename+=("2190");
-  tcal_filename+=".dat";
-  
+  // string tcal_filename("");
+  // tcal_filename+=path;
+  // tcal_filename+="tcalib";
+  // tcal_filename+=(chunks_runname.at(1));
+  // tcal_filename+=".dat";
+
+
+  string tcal_filename("../../../Reconstruction/level0/data/tcalib2190.dat");
   FILE *stream = fopen(tcal_filename.c_str(), "r");
   
 

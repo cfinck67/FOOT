@@ -77,7 +77,6 @@ bool TASTparTime::FromFile(const char *filename){
   string runname="";
   runname+=chunks.at(chunks.size()-1);
   
-
   token=NULL;
   const char *delim2 = ".";
   vector<string> chunks_runname;
@@ -89,14 +88,13 @@ bool TASTparTime::FromFile(const char *filename){
     token = strtok(NULL, delim2);
   }
 
-  //  int runname = atoi(chunks_runname.at(1).c_str());
-  
-  string tcal_filename("");
-  tcal_filename+=path;
-  tcal_filename+="tcalib";
+   
+  //string tcal_filename("");
+  //tcal_filename+=path;
   //  tcal_filename+=(chunks_runname.at(1)); //we choose just the 2190 for the moment
-  tcal_filename+="2190";
-  tcal_filename+=".dat";
+  //tcal_filename+=".dat";
+
+  string tcal_filename("../../../Reconstruction/level0/data/tcalib2190.dat");
   
   FILE *stream = fopen(tcal_filename.c_str(), "r");
   printf("opening WD time calibration file::%s\n", tcal_filename.c_str());
