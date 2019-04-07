@@ -79,7 +79,7 @@ BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
    fTAGroot = new TAGroot();
    if (fFlagOut)
       fActEvtWriter = new TAGactTreeWriter("locRecFile");
-   
+
    // Read Trafo file
    fpFootGeo = new TAGgeoTrafo();
    fpFootGeo->FromFile();
@@ -100,6 +100,7 @@ BaseLocalReco::~BaseLocalReco()
 //__________________________________________________________
 void BaseLocalReco::BeforeEventLoop()
 {
+
    InitParameters();
    
    CreateRawAction();
@@ -202,7 +203,13 @@ void BaseLocalReco::InitParameters()
       parFileName="./config/TASTdetector.cfg";
       parMapSt->FromFile(parFileName);
 
+
       fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
+      TASTparTime* parTimeSt = (TASTparTime*) fpParTimeSt->Object();
+      //GetName() return the input file name
+      if(!parTimeSt->FromFile(GetName())){
+	printf("WD calibration time ot found!!\n");
+      }
    }
 
    // initialise parameters for Beam Monitor
