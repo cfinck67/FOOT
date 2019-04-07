@@ -169,18 +169,19 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
   vector<double> w_amp;
   vector<float> w_tcal;
 
-  
-  // printf("%08x     valuessize::%08x\n", evt->evtSize,  evt->values.size());
-  // for (Int_t i = 0; i < evt->evtSize-1; ++i) {
-
-  //   if(i<10)printf("first::%08x\n",  evt->values[i]);
-  //   if(i>evt->evtSize-5)printf("last::%08x\n",  evt->values[i]);
-  // }
-
-  // printf("last %08x\n", evt->values.at(evt->values.size()-2));
-  // printf("last %08x\n", evt->values.at(evt->values.size()-1));
-  // printf("\n");
-
+  if(GetDebugLevel()) { 
+    /*
+    printf("%08x     valuessize::%08x\n", evt->evtSize,  evt->values.size());
+    for (Int_t i = 0; i < evt->evtSize-1; ++i) {
+      if(i<30)printf("first::%08x\n",  evt->values[i]);
+      if(i>evt->evtSize-5)printf("last::%08x\n",  evt->values[i]);
+    }
+    
+    printf("last %08x\n", evt->values.at(evt->values.size()-2));
+    printf("last %08x\n", evt->values.at(evt->values.size()-1));
+    printf("\n");
+    */
+  }
 
  
   iW=0;
@@ -189,7 +190,7 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 
     if(evt->values.at(iW) == GLB_EVT_HEADER){
       if(m_debug)printf("found glb header::%08x %08x\n", evt->values.at(iW), evt->values.at(iW+1));
-      iW+=3; //
+      iW+=6; //
     }
 
     //found time header

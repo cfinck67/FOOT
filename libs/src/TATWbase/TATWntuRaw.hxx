@@ -92,6 +92,7 @@ public:
     int               GetHitN(int layer); 
     int 			  GetHitN();
     TATWntuHit*       GetHit( int hitID , int layer);
+  TATWntuHit* GetHit( int hitID); //Return the hitID hit without looking for expl layer
     
     
     virtual void      SetupClones();

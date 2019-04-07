@@ -35,10 +35,12 @@ TATWparTime::TATWparTime() {
   for(int iBo=0;iBo<100;iBo++){
     for(int iCh=0;iCh<18;iCh++){
       key = iBo+iCh*100;
-      m_GotCalib[key] = false;
+      //AS      m_GotCalib[key] = false;
+      m_GotCalib[key] = true;
       for(int i=0;i<1024;i++){
-	time_parcal[key].push_back(0);
-      }
+	//AS time_parcal[key].push_back(0);
+	time_parcal[key].push_back(1.e-9*256./1024);
+     }
     }
   }
 
