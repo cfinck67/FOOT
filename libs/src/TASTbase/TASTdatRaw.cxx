@@ -47,7 +47,6 @@ TASTrawHit::TASTrawHit(int ch_num, vector<double> time, vector<double> amplitude
   m_amplitude = amplitude;
   m_tarr = -10000;
   m_charge = -10000;
-  
 }
 
 
@@ -57,6 +56,7 @@ void TASTrawHit::Clear(Option_t* op/*option*/)
   m_ch_num = -100;
   m_tarr = -10000;
   m_charge = -10000;
+  m_max_amp=-1000;
   m_time.clear();
   m_amplitude.clear();
 }

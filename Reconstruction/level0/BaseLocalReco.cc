@@ -291,7 +291,14 @@ void BaseLocalReco::InitParameters()
       parFileName = Form("./config/TATWChannelMap%s.xml", fExpName.Data());
       tw_parMap->FromFile(parFileName.Data());
 
+
       fpParTimeTw = new TAGparaDsc("twTime", new TATWparTime()); // need the file
+      TATWparTime* parTimeTw = (TATWparTime*) fpParTimeTw->Object();
+      //GetName() return the input file name
+      if(!parTimeTw->FromFile(GetName())){
+	printf("WD calibration time ot found!!\n");
+      }
+      
    }
    
    // initialise parameters for caloriomter

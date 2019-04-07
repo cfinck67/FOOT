@@ -274,8 +274,7 @@ char* EventReader::readInEvent(){
   m_errorOnRead = false;
   unsigned int size = readWord();
 
-  std::cout << "sizeof allevent::" << size << std::endl;
-  
+   
   if( m_buffer!=NULL ) free(m_buffer);
   m_buffer = (char*) malloc((size)*4);
   unsigned int * p = (unsigned int *)m_buffer;

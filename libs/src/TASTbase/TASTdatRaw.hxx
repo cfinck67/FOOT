@@ -32,16 +32,18 @@ public:
   inline int GetChannel(){return m_ch_num;}
   inline int GetCharge(){return m_charge;}
   inline int GetArrivalTime(){return m_tarr;}
+  inline int GetAmplitude(){return m_max_amp;}
   inline vector<double> GetTimeArray(){return m_time;}
   inline vector<double> GetAmplitudeArray(){return m_amplitude;}
   inline void SetArrivalTime(double value){m_tarr = value;}
+  inline void SetAmplitude(double value){m_max_amp = value;}
   inline void SetCharge(double value){m_charge = value;}
 
     ClassDef(TASTrawHit,1)
 
   private:
     vector<double> m_time, m_amplitude;
-    int m_ch_num, m_board_id;
+  int m_ch_num, m_board_id, m_max_amp;
     double m_tarr;
     double m_charge;
   

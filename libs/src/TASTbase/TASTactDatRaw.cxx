@@ -92,6 +92,7 @@ Bool_t TASTactDatRaw::Action() {
      ch_num = myHits.at(iHit)->GetChannel();
      if(ComputeArrivalTime(myHits.at(iHit), &single_time, &max_amp)){
        myHits.at(iHit)->SetArrivalTime(single_time);
+       myHits.at(iHit)->SetAmplitude(max_amp);
        TrigTime+=single_time;
        nvalid++;
      }
@@ -102,35 +103,28 @@ Bool_t TASTactDatRaw::Action() {
    if(ValidHistogram()){
      hTrigTime->Fill(TrigTime);
      for(int iHit=0;iHit<(int)myHits.size();iHit++){
-       if(ch_num>=0 && ch_num<8) hArrivalTime[ch_num]->Fill(TrigTime-myHits.at(iHit)->GetArrivalTime()); 
+       if(ch_num>=0 && ch_num<8) hArrivalTime[ch_num]->Fill(TrigTime-myHits.at(iHit)->GetArrivalTime());
+       if(ch_num>=0 && ch_num<8) hAmplitude[ch_num]->Fill(myHits.at(iHit)->GetAmplitude()); 
      }
    }
      
+   //evaluate the charge of the single channels
+   double single_q=0, q=0;
+   myHits = p_datraw->GetHits();
+   for(int iHit=0; iHit<(int)myHits.size();iHit++){
+     ch_num = myHits.at(iHit)->GetChannel();
 
-
-   // //evaluate the charge of the single channels
-   // double single_q=0, q=0,max_amp=0;
-   // myHits = p_datraw->GetHits();
-   // for(int iHit=0; iHit<(int)myHits.size();iHit++){
-   //   ch_num = myHits.at(iHit)->GetChannel();
-
-   //   if(p_parmap->IsSTChannel(ch_num)){
-   //     single_q = ComputeCharge(myHits.at(iHit));
-   //     myHits.at(iHit)->SetCharge(single_q);
-   //     if(ValidHistogram()){
-   // 	 if(ch_num>=0 && ch_num<8)hCharge[ch_num]->Fill(single_q); 
-   //     }
-   //     q+= single_q;
-
-       
-   //     max_amp = ComputeMaxAmplitude(myHits.at(iHit));
-   //     if(ValidHistogram()){
-   // 	 if(ch_num>=0 && ch_num<8) hAmplitude[ch_num]->Fill(max_amp); 
-   //     }
-   //   }
-   // }
-   // p_datraw->SetCharge(q);
-   // if(ValidHistogram())hTotCharge->Fill(q); 
+     if(p_parmap->IsSTChannel(ch_num)){
+       single_q = ComputeCharge(myHits.at(iHit));
+       myHits.at(iHit)->SetCharge(single_q);
+       if(ValidHistogram()){
+   	 if(ch_num>=0 && ch_num<8)hCharge[ch_num]->Fill(single_q); 
+       }
+       q+= single_q;
+     }
+   }
+   p_datraw->SetCharge(q);
+   if(ValidHistogram())hTotCharge->Fill(q); 
 
    m_nev++;
    
@@ -363,8 +357,8 @@ bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *a
   double amp_binmax = tmp_amp.at(max_bin);
 
 
-  double tleft= time_crossbin-10;
-  double tright= time_crossbin+5;
+  double tleft= time_crossbin-8;
+  double tright= time_crossbin+4;
 
   //to be commented...
   TF1 f("f", "-[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[5]",tleft,tright);
@@ -378,7 +372,7 @@ bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *a
   TGraphErrors WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0], 0, &tmp_unc[0]);
   WaveGraph.Fit("f","Q", "",tleft, tright);
 
-  TF1 f1("f1", "-0.2*[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[0]/(1+TMath::Exp(-(x-[1]-1.5)/[2]))/(1+TMath::Exp((x-[3]-1.5)/[4]))",0,80);
+  TF1 f1("f1", "-0.2*[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[0]/(1+TMath::Exp(-(x-[1]-1.5)/[2]))/(1+TMath::Exp((x-[3]-1.5)/[4]))",0,50);
   f1.SetLineColor(kGreen);
   f1.FixParameter(0, f.GetParameter(0));
   f1.FixParameter(1, f.GetParameter(1));

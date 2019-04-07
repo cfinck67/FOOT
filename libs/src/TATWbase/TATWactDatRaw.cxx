@@ -103,124 +103,91 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
     if(evt->values.at(iW) == GLB_EVT_HEADER){
       if(m_debug)printf("found glb header::%08x %08x\n", evt->values.at(iW), evt->values.at(iW+1));
       iW+=6;
-    }
+      
+      //found evt_header
+      if(evt->values.at(iW) == EVT_HEADER){
+	if(m_debug)printf("found evt header::%08x   %08x   %08x\n", evt->values.at(iW),evt->values.at(iW+1),evt->values.at(iW+2));
 
-    //found time header
-    if(evt->values.at(iW) == FILE_HEADER && evt->values.at(iW+1) == TIME_HEADER){
-
-      if(m_debug)printf("found time calibration header::%08x %08x\n", evt->values.at(iW), evt->values.at(iW+1));
-      iW+=2;
-
-      while((evt->values.at(iW) & 0xffff)== BOARD_HEADER){
-
-	board_id = (evt->values.at(iW)>>16)  & 0xffff;
-	if(m_debug)printf("found board header::%08x num%d\n", evt->values.at(iW), board_id);
 	iW++;
-
-	while((evt->values.at(iW) & 0xffff)== CH_HEADER){
-	  char tmp_chstr[3]={'0','0','\0'};
-	  tmp_chstr[1] = (evt->values.at(iW)>>24)  & 0xff;
-	  tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
-	  ch_num = atoi(tmp_chstr);
-	  if(m_debug)printf("found channel header::%08x num%d\n", evt->values.at(iW), ch_num);
+	trig_type = evt->values.at(iW) & 0xffff;
+	ser_evt_number = (evt->values.at(iW) >> 16) & 0xffff;
+      
+	iW++;
+	bco_counter = (int)evt->values.at(iW);
+      
+	iW++;
+	while((evt->values.at(iW) & 0xffff)== BOARD_HEADER){
+	  board_id = (evt->values.at(iW)>>16)  & 0xffff;
+	  if(m_debug)printf("found board header::%08x num%d\n", evt->values.at(iW), board_id);
 	  iW++;
+	  temperature = *((float*)&evt->values.at(iW));
+	  if(m_debug)printf("temperatrue::%08x num%d\n", evt->values.at(iW), board_id);
 
-	  w_tcal.clear();
-	  for(int iCal=0;iCal<1024;iCal++){
-	    time_bin = *((float*)&evt->values.at(iW));
-	    w_tcal.push_back(time_bin);
+	
+	  iW++;
+	  range = *((float*)&evt->values.at(iW));
+	
+	  if(m_debug)printf("range::%08x num%d\n", evt->values.at(iW), board_id);
+	
+	  iW++;
+	  sampling_freq = (float)(( evt->values.at(iW)>> 16)&0xffff);
+	  flags = evt->values.at(iW) & 0xffff;
+	  if(m_debug)printf("sampling::%08x    %08x   %08x    num%d\n", evt->values.at(iW),evt->values.at(iW+1),evt->values.at(iW+2), board_id);
+
+	
+	  iW++;
+	
+	  while((evt->values.at(iW) & 0xffff)== CH_HEADER){
+
+	    char tmp_chstr[3]={'0','0','\0'};
+	    tmp_chstr[1] = (evt->values.at(iW)>>24)  & 0xff;
+	    tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
+	    ch_num = atoi(tmp_chstr);
+	    if(m_debug)printf("found channel header::%08x num%d\n", evt->values.at(iW), ch_num);
+
 	    iW++;
-	  }
-	  p_parTime->SetTimeCal(board_id, ch_num, w_tcal);
-	}
-      }
-    }
-
-  
-  
-    //found evt_header
-    if(evt->values.at(iW) == EVT_HEADER){
-      if(m_debug)printf("found evt header::%08x   %08x   %08x\n", evt->values.at(iW),evt->values.at(iW+1),evt->values.at(iW+2));
-
-      iW++;
-      trig_type = evt->values.at(iW) & 0xffff;
-      ser_evt_number = (evt->values.at(iW) >> 16) & 0xffff;
-      
-      iW++;
-      bco_counter = (int)evt->values.at(iW);
-      
-      iW++;
-      while((evt->values.at(iW) & 0xffff)== BOARD_HEADER){
-  	board_id = (evt->values.at(iW)>>16)  & 0xffff;
-  	if(m_debug)printf("found board header::%08x num%d\n", evt->values.at(iW), board_id);
-  	iW++;
-	temperature = *((float*)&evt->values.at(iW));
-	if(m_debug)printf("temperatrue::%08x num%d\n", evt->values.at(iW), board_id);
-
-	
-  	iW++;
-	range = *((float*)&evt->values.at(iW));
-	
-	if(m_debug)printf("range::%08x num%d\n", evt->values.at(iW), board_id);
-	
-  	iW++;
-  	sampling_freq = (float)(( evt->values.at(iW)>> 16)&0xffff);
-  	flags = evt->values.at(iW) & 0xffff;
-	if(m_debug)printf("sampling::%08x    %08x   %08x    num%d\n", evt->values.at(iW),evt->values.at(iW+1),evt->values.at(iW+2), board_id);
-
-	
-	iW++;
-	
-	while((evt->values.at(iW) & 0xffff)== CH_HEADER){
-
-	  char tmp_chstr[3]={'0','0','\0'};
-	  tmp_chstr[1] = (evt->values.at(iW)>>24)  & 0xff;
-	  tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
-	  ch_num = atoi(tmp_chstr);
-	  if(m_debug)printf("found channel header::%08x num%d\n", evt->values.at(iW), ch_num);
-
-	  iW++;
-	  trig_cell = (evt->values.at(iW)>>16) &0xffff;
+	    trig_cell = (evt->values.at(iW)>>16) &0xffff;
 	  
-	  fe_settings = ((evt->values.at(iW))&0xffff);
-	  iW++;
-
-	  w_amp.clear();
-	  for(int iSa=0;iSa<512;iSa++){
-	    if(m_debug)printf("found sample isa::%d    ::%08x\n", iSa, evt->values.at(iW));
-	    adc_sa = evt->values.at(iW);
-	    v_sa = ((adc_sa >> 16) & 0xffff)/65536.-0.5+range;
-	    w_amp.push_back(v_sa);
-	    v_sa = (adc_sa & 0xffff)/65536.-0.5+range;
-	    w_amp.push_back(v_sa);
+	    fe_settings = ((evt->values.at(iW))&0xffff);
 	    iW++;
-	  }
 
-	  p_parTime->GetTimeArray(board_id, ch_num, trig_cell, &w_time);
-	  w.ChannelId = ch_num;
-	  w.BoardId = board_id;
-	  for(int iw = 0; iw<w_amp.size(); iw++) {
-	    w.T[iw] = w_time.at(iw);
-	    w.W[iw] = w_amp.at(iw);
-	  }
-	  p_datraw->NewHit(w);
-	  w_amp.clear();
-	  w_time.clear();
+	    w_amp.clear();
+	    for(int iSa=0;iSa<512;iSa++){
+	      if(m_debug)printf("found sample isa::%d    ::%08x\n", iSa, evt->values.at(iW));
+	      adc_sa = evt->values.at(iW);
+	      v_sa = ((adc_sa >> 16) & 0xffff)/65536.-0.5+range;
+	      w_amp.push_back(v_sa);
+	      v_sa = (adc_sa & 0xffff)/65536.-0.5+range;
+	      w_amp.push_back(v_sa);
+	      iW++;
+	    }
 
+	    p_parTime->GetTimeArray(board_id, ch_num, trig_cell, &w_time);
+	    w.ChannelId = ch_num;
+	    w.BoardId = board_id;
+	    for(int iw = 0; iw<w_amp.size(); iw++) {
+	      w.T[iw] = w_time.at(iw);
+	      w.W[iw] = w_amp.at(iw);
+	    }
+	    p_datraw->NewHit(w);
+	    w_amp.clear();
+	    w_time.clear();
+
+	  }
 	}
       }
+
+      
+      
+      if(evt->values.at(iW) == EVT_FOOTER){
+	//      printf("found footer\n");
+	iW++;
+	foundFooter = true;
+      }else{
+	printf("warining:: footer not found, event corrupted, iW::%d   last word::%08x!!\n",iW, evt->values.at(iW));
+	break;
+      }  
     }
-
-
-    
-    if(evt->values.at(iW) == EVT_FOOTER){
-      //      printf("found footer\n");
-      iW++;
-      foundFooter = true;
-    }else{
-      printf("warining:: footer not found, event corrupted, iW::%d   last word::%08x!!\n",iW, evt->values.at(iW));
-      break;
-    }  
   }
 
 
