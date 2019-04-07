@@ -25,6 +25,9 @@ TString TATWdatRaw::fgkBranchName   = "twdat.";
 //------------------------------------------+-----------------------------------
 //! Destructor.
 
+
+
+
 TATWrawHit::~TATWrawHit()
 {}
 
@@ -45,11 +48,14 @@ TATWrawHit::TATWrawHit(TWaveformContainer &W)
 //! Default constructor.
 
 TATWrawHit::TATWrawHit()
-  : ir_time(999999.), ir_chg(0.), ir_chid(0),ir_pedestal(0),ir_amplitude(0),ir_boardid(0)
+  : ir_time(999999.), ir_chg(0.), ir_chid(0),ir_pedestal(0),
+	ir_amplitude(0),ir_boardid(0), ir_isclock(0),ir_clock_time(0)
 {
 }
 
-TATWrawHit::TATWrawHit(Int_t cha ,Int_t board, Double_t charge, Double_t amplitude, Double_t pedestal, Double_t time)
+TATWrawHit::TATWrawHit(Int_t cha ,Int_t board, Double_t charge,
+					   Double_t amplitude, Double_t pedestal,
+					   Double_t time,Int_t isclock,Double_t clock_time )
 {
   ir_time = time;
   ir_chg  = charge;
@@ -57,10 +63,14 @@ TATWrawHit::TATWrawHit(Int_t cha ,Int_t board, Double_t charge, Double_t amplitu
   ir_amplitude=amplitude;
   ir_chid   = cha;
   ir_boardid=board;
+  ir_isclock=isclock;
+  ir_clock_time=clock_time;
 }
 
 
-  void TATWrawHit::SetData(Int_t cha ,Int_t board, Double_t charge, Double_t amplitude, Double_t pedestal, Double_t time) {
+  void TATWrawHit::SetData(Int_t cha ,Int_t board, Double_t charge,
+		  	  	  	  	   Double_t amplitude, Double_t pedestal, Double_t time,
+						   Int_t isclock,Double_t clock_time) {
 
 	ir_time = time;
 	ir_chg  = charge;
@@ -68,8 +78,23 @@ TATWrawHit::TATWrawHit(Int_t cha ,Int_t board, Double_t charge, Double_t amplitu
 	ir_amplitude=amplitude;
 	ir_chid   = cha;
 	ir_boardid=board;
+	ir_isclock=isclock;
+	ir_clock_time=clock_time;
 	return;
 }
+
+  Int_t  TATWrawHit::IsClock()
+  {
+	  return ir_isclock;
+  }
+  Double_t TATWrawHit::Clocktime()
+  {
+	  if (IsClock())
+	  {
+		  return ir_clock_time;
+	  }
+	  return -1;
+  }
 //##############################################################################
 
 ClassImp(TATWdatRaw);
@@ -116,6 +141,7 @@ void TATWdatRaw::Clear(Option_t*)
 {
   TAGdata::Clear();
   nirhit = 0;
+
   if (hir) hir->Clear();
   return;
 }
@@ -132,8 +158,13 @@ void TATWdatRaw::NewHit(TWaveformContainer &W)
   Double_t amplitude=W.ComputeAmplitude();
   Double_t charge= W.ComputeCharge();
   Double_t time= W.ComputeTimeStamp();
+  Double_t ClockRaisingTime=-1;
+  if (W.IsAClock())
+  {
+	  ClockRaisingTime=W.FindFirstRaisingEdgeTime();
+  }
   TClonesArray &pixelArray = *hir;
-  TATWrawHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWrawHit(cha ,board, charge, amplitude, pedestal, time);
+  TATWrawHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWrawHit(cha ,board, charge, amplitude, pedestal, time,W.IsAClock(),ClockRaisingTime);
   nirhit++;
   return;
 }

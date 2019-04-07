@@ -22,8 +22,12 @@ class TATWrawHit : public TObject {
     TATWrawHit();
     virtual         ~TATWrawHit();
     TATWrawHit( TWaveformContainer &w);
-    TATWrawHit(Int_t cha ,Int_t board, Double_t charge, Double_t amplitude, Double_t pedestal, Double_t time);
-    void  SetData(Int_t cha ,Int_t board, Double_t charge, Double_t amplitude, Double_t pedestal, Double_t time);
+    TATWrawHit(Int_t cha ,Int_t board, Double_t charge,
+			   Double_t amplitude, Double_t pedestal,
+			   Double_t time,Int_t isclock,Double_t clock_time );
+    void  SetData(Int_t cha ,Int_t board, Double_t charge,
+    			  Double_t amplitude, Double_t pedestal,
+				  Double_t time,Int_t isclock,Double_t clock_time );
     //
     Double_t        Time() const;
     Double_t        Charge() const;
@@ -32,6 +36,8 @@ class TATWrawHit : public TObject {
     Int_t           ChID() const;
     Int_t 			BoardId() const;
     Int_t           IDMC() const;
+    Double_t 		Clocktime();
+    Int_t 			IsClock();
     //
     void            SetTime(double time); // waveform timestamp
     void            SetCharge(double charge); // waveform charge
@@ -50,6 +56,8 @@ class TATWrawHit : public TObject {
     Int_t ir_chid;
     Int_t ir_boardid;
     Int_t ir_mcid;
+    Int_t ir_isclock;
+    Double_t ir_clock_time;
 };
 
 //##############################################################################
