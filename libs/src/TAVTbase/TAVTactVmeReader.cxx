@@ -103,7 +103,8 @@ Bool_t TAVTactVmeReader::Process()
       
       if (GetSensorHeader(i)) {
          
-         fFirstFrame = true;
+         fFirstFrame = 0;
+       //  printf("\nsensor %d\n", i);
          // loop over frame (3 max)
          while (GetFrame(i, data)) {
             DecodeFrame(i, data);

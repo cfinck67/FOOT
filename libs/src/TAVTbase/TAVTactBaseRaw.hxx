@@ -60,7 +60,7 @@ protected:
    Int_t             fFrameCount;       // number of frame
    Int_t             fTriggerNumberFrame;    // number of the trigger
    Int_t             fTimeStampFrame;        // time stamp per frame
-   Bool_t            fFirstFrame;
+   Int_t             fFirstFrame;
 
    Int_t             fNSensors;
    Int_t             fIndex;
