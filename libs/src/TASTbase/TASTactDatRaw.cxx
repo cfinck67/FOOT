@@ -245,12 +245,12 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 	      iW++;
 	    }
 
-	    int adcold=w_adc.at(0);
-	    for(int iSa=0;iSa<w_adc.size();iSa++){
-	      if(w_adc.at(iSa)-adcold>30000){
-		w_adc.at(iSa) -= 65536;
+	    int adcold=w_adc.at(5);
+	    for(int iSa=5;iSa<w_adc.size();iSa++){
+	      if(fabs(w_adc.at(iSa)-adcold)>30000){
+		if(w_adc.at(iSa)-adcold<30000)w_adc.at(iSa) += 65536;
+		if(w_adc.at(iSa)-adcold>30000)w_adc.at(iSa) -= 65536;
 	      }
-	      adcold = w_adc.at(iSa);
 	    }
 	    	    
 	    for(int iSa=0;iSa<w_adc.size();iSa++){
@@ -372,7 +372,7 @@ bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *a
   TGraphErrors WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0], 0, &tmp_unc[0]);
   WaveGraph.Fit("f","Q", "",tleft, tright);
 
-  TF1 f1("f1", "-0.2*[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[0]/(1+TMath::Exp(-(x-[1]-1.5)/[2]))/(1+TMath::Exp((x-[3]-1.5)/[4]))",0,50);
+  TF1 f1("f1", "-0.2*[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[0]/(1+TMath::Exp(-(x-[1]-1.5)/[2]))/(1+TMath::Exp((x-[3]-1.5)/[4]))",0,100);
   f1.SetLineColor(kGreen);
   f1.FixParameter(0, f.GetParameter(0));
   f1.FixParameter(1, f.GetParameter(1));
@@ -389,7 +389,7 @@ bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *a
   double t1=f1.GetX(0.0,tleft,tright);
   
   *tarr = t1;
-  *ampl = -f.GetMinimum();
+  *ampl = fabs(f.GetParameter(5)-f.GetMinimum());
   
   if(t1>tleft && t1<tright){
     return true;
