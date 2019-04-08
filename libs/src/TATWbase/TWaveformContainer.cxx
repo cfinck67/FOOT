@@ -1,5 +1,4 @@
 #include "TWaveformContainer.hxx"
-#include "TGraph.h"
 #include "TAxis.h"
 #include "TLine.h"
 #include "TCanvas.h"
@@ -139,6 +138,23 @@ Double_t TWaveformContainer::ComputePedestal()
 	 c->SaveAs(TString::Format("Test%d.pdf",i));
 	 c->Close();
 	 gSystem->ProcessEvents();
+ }
+
+ // DEBUG ONLY
+ void TWaveformContainer::GraphWaveForm(TH1D *wv0)
+ {
+   wv0->Clear();
+   double min = TMath::MinElement(WAVEFORMBINS,T);
+   double max = TMath::MaxElement(WAVEFORMBINS,T);
+   wv0->SetBins(WAVEFORMBINS,min,max);
+   for (int bin=0;bin<WAVEFORMBINS;++bin)
+   {
+     wv0->SetBinContent(bin+1,W[bin]);
+   }
+   wv0->GetXaxis()->SetTitle("t (ns)");
+   wv0->GetYaxis()->SetTitle("Amplitude (V)");
+   wv0->SetTitle(TString::Format(" Board %d Channel %d",BoardId,ChannelId));
+   return ; 
  }
 
  void TWaveformContainer::SanitizeWaveform()

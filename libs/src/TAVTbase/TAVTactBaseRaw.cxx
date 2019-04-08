@@ -47,7 +47,7 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc
   fFrameCount(0),
   fTriggerNumberFrame(0),
   fTimeStampFrame(0),
-  fFirstFrame(false),
+  fFirstFrame(-1),
   fNSensors(-1),
   fIndex(0),
   fCurrentTriggerCnt(0),
@@ -143,13 +143,19 @@ void TAVTactBaseRaw::FillHistoFrame(Int_t iSensor, MI26_FrameRaw* data)
    UInt_t timeStamp = data->TimeStamp;
    UInt_t frameCnt  = data->FrameCnt;
    
-   fpHisTriggerFrame[iSensor]->Fill(trigger - fTriggerNumberFrame);
-   fpHisTimeStampFrame[iSensor]->Fill(timeStamp - fTimeStampFrame);
-   fpHisFrameCnt[iSensor]->Fill(frameCnt - fFrameCount);
-   
-   fTriggerNumberFrame = trigger;
-   fFrameCount         = frameCnt;
-   fTimeStampFrame     = timeStamp;
+   //printf("%u\n", frameCnt);
+   if (fFirstFrame == 0) {
+      fTriggerNumberFrame = trigger;
+      fFrameCount         = frameCnt;
+      fTimeStampFrame     = timeStamp;
+      fFirstFrame++;
+      
+   } else if (fFirstFrame == 2){
+      fpHisTriggerFrame[iSensor]->Fill(trigger - fTriggerNumberFrame);
+      fpHisTimeStampFrame[iSensor]->Fill(timeStamp - fTimeStampFrame);
+      fpHisFrameCnt[iSensor]->Fill(frameCnt - fFrameCount);
+   } else
+      fFirstFrame++;
 }
 
 // --------------------------------------------------------------------------------------
