@@ -30,6 +30,7 @@ void TWaveformContainer::Clear()
 
 TWaveformContainer::TWaveformContainer(const TWaveformContainer &other)
 {
+
 	ChannelId=other.ChannelId;
 	BoardId=other.BoardId;
 	ir_time=other.ir_time;
@@ -151,7 +152,7 @@ Double_t TWaveformContainer::ComputePedestal()
    {
      wv0->SetBinContent(bin+1,W[bin]);
    }
-   wv0->GetXaxis()->SetTitle("t (ns)");
+   wv0->GetXaxis()->SetTitle("t (s)");
    wv0->GetYaxis()->SetTitle("Amplitude (V)");
    wv0->SetTitle(TString::Format(" Board %d Channel %d",BoardId,ChannelId));
    return ; 

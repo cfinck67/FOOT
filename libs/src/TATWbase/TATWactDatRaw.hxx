@@ -49,8 +49,8 @@ public:
   TAGparaDsc*     fpParMap;		    // parameter dsc
   TAGparaDsc*     fpParTime;		    // parameter dsc
 
-  TH1D *wv0;
-  
+  vector<TH1D *> wv0;
+
   bool m_debug;
   
  private:
