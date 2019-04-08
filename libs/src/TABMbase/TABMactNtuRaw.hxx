@@ -49,7 +49,12 @@ class TABMactNtuRaw : public TAGaction {
     //histos
     TH1F*            fpHisPivot_paoloni;  //Pivots of the Paoloni's method
     TH1F*            fpHisProbe_paoloni;  //Probes of the Paoloni's method
-    //~ TH1F*            fpHisEval_paoloni;   //efficiency evaluation of the Paoloni's method for all the different configuration
+    TH1F*            fpHisEval_paoloni;   //efficiency evaluation of the Paoloni's method for all the different configuration
+    TH1I*            fpHisCell;    //hits cell
+    TH1I*            fpHisView;    //hits view
+    TH1I*            fpHisPlane;   //hits plane
+    TH1F*            fpHisRdrift;  //hits rdrift
+    TH1F*            fpHisTdrift;  //hits tdrift
 };
 
 #endif

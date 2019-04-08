@@ -248,6 +248,9 @@ Bool_t TABMparCon::FromFile(const TString& name) {
     part_in_mom=(Double_t)PRIM_A*PRIM_T;
   }
 
+  //Load the t0s
+  loadT0s(10000);
+      
   return kFALSE;
 }
 
@@ -266,8 +269,7 @@ void TABMparCon::PrintT0s(TString &input_file_name, Long64_t tot_num_ev){
 
 Bool_t TABMparCon::loadT0s(Long64_t tot_num_ev) {
   ifstream infile;
-  TString name="./config/"+bmt0file;
-  infile.open(name.Data(),ios::in);
+  infile.open(bmt0file,ios::in);
   Int_t file_evnum, old_t0switch;
   char tmp_char[200], dataset[200];
   vector<Double_t> fileT0(36,-10000.);
@@ -299,12 +301,13 @@ Bool_t TABMparCon::loadT0s(Long64_t tot_num_ev) {
   }
 
   //check if the T0 are ok 
-  for(Int_t i=0;i<36;i++)
+  for(Int_t i=0;i<36;i++) {
+    //    cout<<"--> "<<v_t0s[i]<<endl;
     if(v_t0s[i]==-10000)
       cout<<"WARNING IN BmBooter::EvaluateT0! channel not considered in tdc map tdc_cha=i="<<i<<" T0 for this channel is set to -10000"<<endl;
     else if(v_t0s[i]==-20000)
       cout<<"WARNING IN BmBooter::EvaluateT0! channel with too few elements to evaluate T0: tdc_cha=i="<<i<<" T0 for this channel is set to -20000"<<endl;
-
+  }
   return kFALSE;
 }
 

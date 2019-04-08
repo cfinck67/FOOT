@@ -84,6 +84,8 @@ Bool_t TASTdigitizer::Process(Double_t edep, Double_t x0, Double_t y0, Double_t 
 {
    time += gRandom->Gaus(0, fResTime);
    Float_t charge = GetPhotonsN(x0, y0, edep)*fGain;
+   //time should be stored in the hit in ns:
+   time /= 1000.;
    fCurrentHit = (TASTntuHit*)fpNtuRaw->NewHit(id, charge, time);
    
    return true;

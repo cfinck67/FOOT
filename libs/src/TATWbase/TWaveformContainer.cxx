@@ -112,22 +112,31 @@ Double_t TWaveformContainer::ComputePedestal()
 			 min=W[bin];
 		 }
 	 }
+	 std::cout << " max " << max << " min "<< min <<std::endl;
 	 TCanvas *c = new TCanvas;
 	 c->Range(T[0],min,T[WAVEFORMBINS-1],max);
 	 TGraph *g=new TGraph(WAVEFORMBINS,T,W);
 	 g->GetXaxis()->SetTitle("t (ns)");
 	 g->GetYaxis()->SetTitle("Amplitude (V)");
 	 g->SetTitle(TString::Format(" Board %d Channel %d",BoardId,ChannelId));
+
 	 TLine *ped = new TLine(T[0],ir_pedestal,T[WAVEFORMBINS-1],ir_pedestal);
 	 ped->SetLineWidth(2);
 	 ped->SetLineColor(kGreen);
 	 TLine *ampl = new TLine(T[0],ir_amplitude+ir_pedestal,T[WAVEFORMBINS-1],ir_pedestal+ir_amplitude);
-	 ampl->SetLineColor(kRed);
-	 ampl->SetLineWidth(2);
+	 Double_t clocktime=FindFirstRaisingEdgeTime();
+	 std::cout  <<"Tempo " << clocktime << std::endl;
+	 TLine *clock = new TLine(clocktime,min,clocktime,max);
+	 ped->SetLineWidth(2);
+	 ped->SetLineColor(kRed);
+
+	 clock->SetLineColor(kBlue);
+	 clock->SetLineWidth(2);
 	 g->Draw("AC");
 	 ped->Draw();
 	 ampl->Draw();
-	 c->SaveAs(TString::Format("Test%d.png",i));
+	 clock->Draw();
+	 c->SaveAs(TString::Format("Test%d.pdf",i));
 	 c->Close();
 	 gSystem->ProcessEvents();
  }
@@ -150,6 +159,40 @@ Double_t TWaveformContainer::ComputePedestal()
 		 old=W[bin];
 	 }
  }
+
+ bool TWaveformContainer::IsAClock()
+ {
+	 if (ChannelId==16 || ChannelId==17)
+	 {
+		 return true;
+	 }
+	 return false;
+ }
+
+ Double_t TWaveformContainer::FindFirstRaisingEdgeTime()
+ {
+	 // find the first positive zero crossing
+	 int zero_crossbin=-1;
+	 for (int bin=10; bin<WAVEFORMBINS;++bin)
+	 {
+		 // find the first point where the 0 is crossed
+		 if (W[bin]<0 && W[bin+1]>0)
+		 {
+			 zero_crossbin=bin;
+			 break;
+		 }
+	 }
+	 //
+	 TGraph gcfd = TGraph(2);
+	 //define  5 points to perform the linear fit
+	 gcfd.SetPoint(0,T[zero_crossbin],W[zero_crossbin]);
+	 gcfd.SetPoint(1,T[zero_crossbin+1],W[zero_crossbin+1]);
+	 gcfd.Fit("pol1","Q","Q");
+	 Double_t p0=gcfd.GetFunction("pol1")->GetParameter(0);
+	 Double_t p1=gcfd.GetFunction("pol1")->GetParameter(1);
+	 return -p0/p1;
+ }
+
 
  TWaveformContainer::~TWaveformContainer()
  {

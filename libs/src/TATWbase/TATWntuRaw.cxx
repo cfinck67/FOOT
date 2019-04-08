@@ -193,6 +193,16 @@ TATWntuHit* TATWntuRaw::GetHit( int hitID, int layer ) {
 		}
 	}
 	return nullptr;
+}
+
+//------------------------------------------+-----------------------------------
+//! return a pixel for a given sensor
+TATWntuHit* TATWntuRaw::GetHit( int hitID) {
+
+  if(hitID<m_listOfHits->GetEntries())
+    return (TATWntuHit*)(m_listOfHits->At(hitID));
+  else
+    return nullptr;
 
 }
 

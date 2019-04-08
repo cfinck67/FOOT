@@ -23,27 +23,34 @@ class TASTrawHit : public TObject {
 
 public:
   TASTrawHit();
-  TASTrawHit(int ch_num , vector<double> time, vector<double> amplitude);
+  TASTrawHit(int ch_num , vector<double> time, vector<double> amplitude, int type);
   virtual         ~TASTrawHit();
 
   virtual void Clear(Option_t* /*option*/);
 
   
   inline int GetChannel(){return m_ch_num;}
-  inline int GetCharge(){return m_charge;}
-  inline int GetArrivalTime(){return m_tarr;}
+  inline double GetCharge(){return m_charge;}
+  inline double GetArrivalTime(){return m_tarr;}
+  inline double GetAmplitude(){return m_max_amp;}
+  inline int GetTrigType(){return m_trig_type;}
   inline vector<double> GetTimeArray(){return m_time;}
   inline vector<double> GetAmplitudeArray(){return m_amplitude;}
-  inline void SetArrivalTime(double value){m_tarr = value;}
-  inline void SetCharge(double value){m_charge = value;}
 
+  inline void SetArrivalTime(double value){m_tarr = value;}
+  inline void SetTrigType(int value){m_trig_type = value;}
+  inline void SetAmplitude(double value){m_max_amp = value;}
+  inline void SetCharge(double value){m_charge = value;}
+  
     ClassDef(TASTrawHit,1)
 
   private:
     vector<double> m_time, m_amplitude;
-    int m_ch_num, m_board_id;
+    int m_ch_num, m_board_id, m_max_amp;
     double m_tarr;
     double m_charge;
+    int m_trig_type;
+   
   
 };
 
@@ -60,7 +67,7 @@ class TASTdatRaw : public TAGdata {
   
   
  
-  void AddWaveform(int ch_num, vector<double> time, vector<double> amplitude);
+  void AddWaveform(int ch_num, vector<double> time, vector<double> amplitude, int type);
   void SumWaveforms();
   inline TASTrawHit* GetWaveCFD(){return fSumWaves_cfd;}
   inline TASTrawHit* GetWaveSum(){return fSumWaves;}
@@ -69,7 +76,9 @@ class TASTdatRaw : public TAGdata {
 
   inline void SetTriggerTime(double value){fdTrgTime = value;}
   inline void SetCharge(double value){fdCharge = value;}
-
+  inline int GetTrigType(){return m_trig_type;}
+  inline void SetTrigType(int value){m_trig_type = value;}
+  
   inline double     TrigTime(){return fdTrgTime;}
   inline double     Charge(){return fdCharge;}
   inline vector<TASTrawHit*>GetHits(){return  fListOfWaveforms;}
@@ -92,7 +101,7 @@ class TASTdatRaw : public TAGdata {
     TASTrawHit*     fSumWaves_cfd; // hits
     double          fdTrgTime;   // SC trigger time
     double          fdCharge;   // SC total charge
-   
+    int m_trig_type;
  
 
   
