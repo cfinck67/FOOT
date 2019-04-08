@@ -104,19 +104,19 @@ Bool_t TABMactNtuRaw::Action()
     
     //retrive hit parameters
     //~ Double_t t0_corr = (p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) > -10000) ? p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) : 0.; //to avoid not settled T0
-    i_time = hit.Time()- p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) -p_timraw->TrigTime();
+    i_time = hit.Time()- p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) - p_datraw->GetTrigtime();
     
     if(i_time<0){ 
       if(p_parcon->GetT0switch()!=2 && p_parcon->GetT0sigma()==0)
         i_time=0.;
       else if(p_parcon->GetT0sigma()>0)
         while(i_time<0)
-          i_time=p_parcon->GetRand()->Gaus(hit.Time()- p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) - p_timraw->TrigTime(), p_parcon->GetT0sigma());  
+          i_time=p_parcon->GetRand()->Gaus(hit.Time()- p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) - p_datraw->GetTrigtime(), p_parcon->GetT0sigma());  
     }
     
     Double_t i_drift = p_parcon->FirstSTrel(i_time);
     if(p_parcon->GetBMdebug()>10)
-      cout<<"TABMactNtuRaw:: charging hit i_time="<<i_time<<"  i_drift="<<i_drift<<"  cell="<<hit.Cell()<<"  view="<<hit.View()<<"  Plane="<<hit.Plane()<<"   hit.time="<<hit.Time()<<"  T0="<<p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell())<<"  trigtime="<<p_timraw->TrigTime()<<endl;
+      cout<<"TABMactNtuRaw:: charging hit i_time="<<i_time<<"  i_drift="<<i_drift<<"  cell="<<hit.Cell()<<"  view="<<hit.View()<<"  Plane="<<hit.Plane()<<"   hit.time="<<hit.Time()<<"  T0="<<p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell())<<"  trigtime="<<p_datraw->GetTrigtime()<<endl;
     
     
     //create the hit (no selection of hit)

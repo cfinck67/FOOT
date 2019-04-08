@@ -33,8 +33,9 @@ class TABMparCon : public TAGpara {
     void SetIsMC(Bool_t ism){m_isMC=ism; return;};
     void SetRdriftCut(Double_t Rdcut){rdrift_cut=Rdcut; return;};
     void SetEnxcellcut(Double_t Encut){enxcell_cut=Encut; return;};
-    void SetBmt0filename(string filename_in){bmt0file=filename_in;};
+    void SetBmt0filename(TString filename_in){bmt0file=filename_in;};
     void SetOnlyprefit(Int_t in){onlyprefit=in;};
+    void SetT0choice(Int_t in){t0choice=in;};
     
     //getters
     Bool_t   IsMC(){return m_isMC;};
@@ -75,10 +76,11 @@ class TABMparCon : public TAGpara {
     TRandom3* GetRand(){return rand;};
     Double_t GetRdrift_err(){return rdrift_err;};
     Int_t GetOnlyprefit(){return onlyprefit;};
+    Int_t GetT0choice(){return t0choice;};
 
     //T0 stuff
     void        PrintT0s(TString &input_file_name, Long64_t);
-    Bool_t      loadT0s(Long64_t); 
+    Bool_t      loadT0s(); 
     void        SetT0s(vector<Double_t> t0s);
     void        SetT0(Int_t cha, Double_t t0in);   
     Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+view*3+plane*6);};
@@ -148,7 +150,7 @@ class TABMparCon : public TAGpara {
     Double_t t0_sigma;//t0 with the gaussian shift for the negative T0 hits
     Double_t hit_timecut;//timecut on the lenght of the signal (ns)
     Int_t    manageADCped; //0=calculate and save ADCped in bmpedfile, 1=loadadcped from bmpedfile
-    string   bmt0file; //name of the T0 value file to be charged or to be written 
+    TString  bmt0file; //name of the T0 value file to be charged or to be written 
     string   bmpedfile; //name of the ped value file to be charged or to be written 
     string   parmapfile; //name of the file with the tdc channel map for TABMparMap 
     vector<Double_t> v_t0s;//T0 in ns
@@ -166,6 +168,7 @@ class TABMparCon : public TAGpara {
     TRandom3 *rand;
     Double_t rdrift_err;  //rdrift default error (used if from parcon file the error isn't loaded)
     Int_t    onlyprefit; //0=false, 1=true
+    Int_t    t0choice; //0=wd, 1=internal
     
     //~ TF1* f_mypol;
     //~ TF1* f_mypol2;
