@@ -178,6 +178,7 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
 								w.GraphWaveForm(wv0[nhitsA]);
 						}
 						nhitsA++;
+						w.Clear();
 						w_amp.clear();
 						w_time.clear();
 
@@ -211,7 +212,7 @@ void TATWactDatRaw::CreateHistogram()
 	//
 	for (int i=0;i<MaxHist0;++i)
 	{
-		wv0[i] = new TH1D();
+		wv0[i] = new TH1F();
 		wv0[i]->SetName("WD"+TString::Format("%d",i));
 		wv0[i]->SetTitle("WD graph"+TString::Format("%d",i));
 		AddHistogram(wv0[i]);

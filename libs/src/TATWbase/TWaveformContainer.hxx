@@ -20,7 +20,7 @@ public:
   Double_t ComputeTimeStamp();
   void Clear();
   void PlotWaveForm(int i);
-  void GraphWaveForm(TH1D *wv0);
+  void GraphWaveForm(TH1F *wv0);
   void SanitizeWaveform();
   bool IsAClock();
   Double_t FindFirstRaisingEdgeTime();
