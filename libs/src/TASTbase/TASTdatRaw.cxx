@@ -74,7 +74,7 @@ ClassImp(TASTdatRaw);
 //! Default constructor.
 
 TASTdatRaw::TASTdatRaw(): TAGdata(),fListOfWaveforms(0x0), fListOfWaveforms_cfd(0x0),
-			  fSumWaves(0x0), fSumWaves_cfd(0x0) {
+			  fSumWaves(0x0), fSumWaves_cfd(0x0), m_run_time(0x0) {
 
   fdTrgTime = -1000000000000.;
   

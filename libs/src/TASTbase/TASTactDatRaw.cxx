@@ -173,7 +173,7 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
     */
   }
   
-
+  int nmicro=0;
  
   iW=0;
   bool foundFooter = false;
@@ -181,7 +181,13 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 
     if(evt->values.at(iW) == GLB_EVT_HEADER){
       if(m_debug)printf("found glb header::%08x %08x\n", evt->values.at(iW), evt->values.at(iW+1));
-      iW+=6; //
+
+      iW+=5;
+      nmicro = evt->values.at(iW);
+      nmicro = 1000;
+      p_datraw->UpdateRunTime(nmicro);
+      
+      iW++; //
       
       //found evt_header
       if(evt->values.at(iW) == EVT_HEADER){
@@ -439,7 +445,12 @@ void TASTactDatRaw::CreateHistogram(){
 
   char histoname[100]="";
   cout<<"I have created the ST histo. "<<endl;
-  sprintf(histoname,"stTrigTime");
+
+  sprintf(histoname,"EvtTime");
+  hEventTime = new TH1F(histoname, histoname, 6000, 0., 60.);
+  AddHistogram(hEventTime);
+
+  sprintf(histoname,"TrigTime");
   hTrigTime = new TH1F(histoname, histoname, 256, 0., 256.);
   AddHistogram(hTrigTime);
 

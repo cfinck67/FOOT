@@ -67,8 +67,8 @@ void TABMactDatRaw::CreateHistogram(){
    fpRawHitNum=new TH1I( "BM_Dat_Raw_hit_distribution", "Number of accepted hits x event; Number of hits; Events", 30, 0, 30);
    fpRawDiscAccept=new TH1I( "BM_Dat_Accepted and discharged hits", "Number of hits accepted/discharged in the time cut; -1=discharged 0=accepted; Events", 3, -1, 1);
    for(Int_t i=0;i<77;i++){//necessary to use addbincontent
-     fpRawMapX->SetBinContent(i,1);
-     fpRawMapY->SetBinContent(i,1);
+     fpRawMapX->SetBinContent(i+1,1);
+     fpRawMapY->SetBinContent(i+1,1);
    }
    AddHistogram(fpRawMapX);   
    AddHistogram(fpRawMapY);   
@@ -146,7 +146,7 @@ Bool_t TABMactDatRaw::DecodeHits(const TDCEvent* evt) {
          }else{
            up=(plane%2==0) ? 0:1;
            fpRawMapX->AddBinContent(fpRawMapX->GetBin(plane*2+1,cell*2+up+1),1);
-           fpRawMapX->AddBinContent(fpRawMapX->GetBin(plane*2+1,cell*2+up+2));
+           fpRawMapX->AddBinContent(fpRawMapX->GetBin(plane*2+1,cell*2+up+2),1);
          }  
        }    
        if(p_parcon->GetBMdebug()>10)

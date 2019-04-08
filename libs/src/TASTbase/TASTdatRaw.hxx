@@ -50,7 +50,7 @@ public:
     double m_tarr;
     double m_charge;
     int m_trig_type;
-   
+
   
 };
 
@@ -72,6 +72,9 @@ class TASTdatRaw : public TAGdata {
   inline TASTrawHit* GetWaveCFD(){return fSumWaves_cfd;}
   inline TASTrawHit* GetWaveSum(){return fSumWaves;}
   //bool IsSTChannel();
+
+
+    inline void UpdateRunTime(int value){m_run_time+=value;}
 
 
   inline void SetTriggerTime(double value){fdTrgTime = value;}
@@ -102,7 +105,8 @@ class TASTdatRaw : public TAGdata {
     double          fdTrgTime;   // SC trigger time
     double          fdCharge;   // SC total charge
     int m_trig_type;
- 
+     int m_run_time;
+  
 
   
 };

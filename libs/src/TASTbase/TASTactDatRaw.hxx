@@ -56,6 +56,7 @@ public:
   TH1F *hAmplitude[8];
   TH1F *hTrigTime;
   TH1F *hTotCharge;
+  TH1F *hEventTime;
   
   bool m_debug;
   int m_nev;
