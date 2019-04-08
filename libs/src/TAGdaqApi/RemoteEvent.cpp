@@ -32,7 +32,7 @@ void RemoteEvent::readData(unsigned int **p1){
     }
   } else {
     std::cout<<"Size of RemoteEvent " << std::hex << channelID << " is zero!"<<std::endl;
-    ++p;
+    ++p; //to check
   }
   *p1 = p;
 }

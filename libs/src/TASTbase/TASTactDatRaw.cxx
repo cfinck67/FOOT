@@ -357,8 +357,8 @@ bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *a
   double amp_binmax = tmp_amp.at(max_bin);
 
 
-  double tleft= time_crossbin-8;
-  double tright= time_crossbin+4;
+  double tleft= time_crossbin-20;
+  double tright= time_crossbin+3;
 
   //to be commented...
   TF1 f("f", "-[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[5]",tleft,tright);
@@ -367,7 +367,7 @@ bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *a
   f.SetParameter(2,1);
   f.SetParameter(3,time_crossbin+2);
   f.SetParameter(4,2);
-  f.SetParameter(5,0.05);
+  f.SetParameter(5,0.5);
   
   TGraphErrors WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0], 0, &tmp_unc[0]);
   WaveGraph.Fit("f","Q", "",tleft, tright);
