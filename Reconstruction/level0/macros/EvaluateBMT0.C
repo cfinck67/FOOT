@@ -140,7 +140,8 @@ void FillBm(TString name) {
 
 
 //~ void ReadBmRaw(TString name = "data_test.00001462.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data")
-void EvaluateBMT0(TString in_filename = "data_test.00001201.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data.moved")
+//~ void EvaluateBMT0(TString in_filename = "data_built.2205.physics_foot.daq.WD.full.dat")//not working: it crashes after 1200 events and prob in datas
+void EvaluateBMT0(TString in_filename = "data_built.2212.physics_foot.daq.WD.1.dat")
 {  
    int tmp_int = in_filename.Last('.');
    TString out_filename=in_filename(0,tmp_int);
@@ -187,55 +188,66 @@ void EvaluateBMT0(TString in_filename = "data_test.00001201.physics_foot.daq.RAW
    Booking(f_out, bmmap);
    f_out->cd();
    //event loop
-   for (ientry = 0; ; ientry++) {
+   for (ientry = 0; ientry<12300; ientry++) {
     if(ientry % 100 == 0)
-       cout<<" Loaded Event:: " << ientry << endl;
-    if (ientry == 1000)
-       break;
-    tagr.NextEvent();
-    p_datdaq = (TAGdaqEvent*)(tagr.FindDataDsc("bmDaq","TAGdaqEvent")->Object());
-    pbmdatraw = (TABMdatRaw*)(tagr.FindDataDsc("bmDat", "TABMdatRaw")->Object());
-    pstdatraw = (TASTdatRaw*)(tagr.FindDataDsc("stDatRaw", "TASTdatRaw")->Object());
-    nFragments = p_datdaq->GetFragmentsN();
-    for (Int_t i = 0; i < nFragments; i++) {       
-      type=p_datdaq->GetClassType(i);
-      if (type.Contains("TDCEvent")){ 
-        const TDCEvent* evt = static_cast<const TDCEvent*> (p_datdaq->GetFragment(i));
-        for(Int_t k = 0; k < evt->measurement.size();k++){
-          measurement=evt->measurement.at(k) & 0x7ffff;
-          channel=(evt->measurement.at(k)>>19) & 0x7f;
-          if(channel<bmmap->GetTdcMaxcha()){
-            sprintf(tmp_char,"TDC/TDC_raw/tdc_rawcha_%d",channel);
-            ((TH1D*)gDirectory->Get(tmp_char))->Fill(measurement/10.);    
-            ((TH1D*)gDirectory->Get("TDC/TDC_raw/all_tdc_rawcha"))->Fill(channel);            
-            sprintf(tmp_char,"TDC/TDC_raw_less_sync/tdc_cha-sync_%d",channel);
-            ((TH1D*)gDirectory->Get(tmp_char))->Fill(measurement/10.-pstdatraw->TrigTime());    
-          
-          }else{
-            cout<<"ERROR IN TDCEVENT: CHANNEL="<<channel<<"  bmmap->GetTdcMaxcha()="<<bmmap->GetTdcMaxcha()<<"  event number="<<ientry<<"  the program will be finished"<<endl;
-            tagr.EndEventLoop();
-            return;
+       cout<<" Loaded Event:: " <<std::dec<< ientry << endl;
+      if(tagr.NextEvent()) {
+        p_datdaq = (TAGdaqEvent*)(tagr.FindDataDsc("bmDaq","TAGdaqEvent")->Object());
+        pbmdatraw = (TABMdatRaw*)(tagr.FindDataDsc("bmDat", "TABMdatRaw")->Object());
+        pstdatraw = (TASTdatRaw*)(tagr.FindDataDsc("stDatRaw", "TASTdatRaw")->Object());
+        nFragments = p_datdaq->GetFragmentsN();
+        Int_t mytrigger;
+        for (Int_t i = 0; i < nFragments; i++) {       
+          type=p_datdaq->GetClassType(i);
+          if (type.Contains("TDCEvent")){ 
+            const TDCEvent* evt = static_cast<const TDCEvent*> (p_datdaq->GetFragment(i));
+            for(Int_t k = 0; k < evt->measurement.size();k++){
+              channel=(evt->measurement.at(k)>>19) & 0x7f;
+              measurement=evt->measurement.at(k) & 0x7ffff;
+              if(channel==bmmap->GetTrefCh()){
+              mytrigger=measurement;
+              break;
+              }
+            }
+            for(Int_t k = 0; k < evt->measurement.size();k++){
+              measurement=evt->measurement.at(k) & 0x7ffff;
+              channel=(evt->measurement.at(k)>>19) & 0x7f;
+              if(channel<bmmap->GetTdcMaxcha()){
+              //~ cout<<"meas="<<std::dec<<measurement/10.<<"  ch="<<std::dec<<channel<<"  time="<<measurement/10.-pstdatraw->TrigTime()<<endl;
+                //~ if(channel==47)
+                  //~ cout<<"trigtime="<<pstdatraw->TrigTime()<<"   ch47="<<measurement/10.<<"  diff="<<pstdatraw->TrigTime()-measurement/10.<<endl;
+                sprintf(tmp_char,"TDC/TDC_raw/tdc_rawcha_%d",channel);
+                ((TH1D*)gDirectory->Get(tmp_char))->Fill(measurement/10.);    
+                ((TH1D*)gDirectory->Get("TDC/TDC_raw/all_tdc_rawcha"))->Fill(channel);            
+                sprintf(tmp_char,"TDC/TDC_raw_less_sync/tdc_cha-sync_%d",channel);
+                //~ ((TH1D*)gDirectory->Get(tmp_char))->Fill(measurement/10.-pstdatraw->TrigTime());    //use the ST triggertime
+                ((TH1D*)gDirectory->Get(tmp_char))->Fill(measurement/10.-mytrigger/10.);    
+              }else{
+                cout<<"ERROR IN TDCEVENT: CHANNEL="<<channel<<"  bmmap->GetTdcMaxcha()="<<bmmap->GetTdcMaxcha()<<"  event number="<<ientry<<"  the program will be finished"<<endl;
+                tagr.EndEventLoop();
+                return;
+              }
+            }
           }
+        }//end of loop on p_datdaq, now loop on bmdatraw
+        for(int i=0;i<pbmdatraw->NHit();i++){
+          TABMrawHit pbmrawhit=pbmdatraw->Hit(i);
+          sprintf(tmp_char,"TDC/TDC_charged/tdc_cha-t0-sync_%d",bmmap->cell2tdc(pbmrawhit.Idcell()));
+          ((TH1D*)gDirectory->Get(tmp_char))->Fill(pbmrawhit.Time());    
+          ((TH1D*)gDirectory->Get("TDC/tdc_error_xhit"))->Fill(0);            
+          ((TH1D*)gDirectory->Get("TDC/TDC_charged/all_tdc_charged"))->Fill(bmmap->cell2tdc(pbmrawhit.Idcell()));            
         }
+        if(pbmdatraw->NDrop()>0){
+          ((TH1D*)gDirectory->Get("TDC/tdc_error_xevent"))->Fill(1);
+          for(int i=0;i<pbmdatraw->NDrop();i++)
+            ((TH1D*)gDirectory->Get("TDC/tdc_error_xhit"))->Fill(1);
+        }else            
+          ((TH1D*)gDirectory->Get("TDC/tdc_error_xevent"))->Fill(0);
+        ((TH1D*)gDirectory->Get("TDC/tdc_sync"))->Fill(mytrigger/10.);            
       }
-    }//end of loop on p_datdaq, now loop on bmdatraw
-    for(int i=0;i<pbmdatraw->NHit();i++){
-      TABMrawHit pbmrawhit=pbmdatraw->Hit(i);
-      sprintf(tmp_char,"TDC/TDC_charged/tdc_cha-t0-sync_%d",bmmap->cell2tdc(pbmrawhit.Idcell()));
-      ((TH1D*)gDirectory->Get(tmp_char))->Fill(pbmrawhit.Time());    
-      ((TH1D*)gDirectory->Get("TDC/tdc_error_xhit"))->Fill(0);            
-      ((TH1D*)gDirectory->Get("TDC/TDC_charged/all_tdc_charged"))->Fill(bmmap->cell2tdc(pbmrawhit.Idcell()));            
-    }
-    if(pbmdatraw->NDrop()>0){
-      ((TH1D*)gDirectory->Get("TDC/tdc_error_xevent"))->Fill(1);
-      for(int i=0;i<pbmdatraw->NDrop();i++)
-        ((TH1D*)gDirectory->Get("TDC/tdc_error_xhit"))->Fill(1);
-    }else            
-      ((TH1D*)gDirectory->Get("TDC/tdc_error_xevent"))->Fill(0);
-    ((TH1D*)gDirectory->Get("TDC/tdc_sync"))->Fill(pstdatraw->TrigTime());            
-  }//end of the event loop
+    }//end of the event loop
    
-  tagr.EndEventLoop();
+    tagr.EndEventLoop();
   
   //*****************************************************************EVALUATE T0****************************************************
   int tdc_peak, start_bin, peak_bin;
@@ -280,7 +292,7 @@ void EvaluateBMT0(TString in_filename = "data_test.00001201.physics_foot.daq.RAW
   }  
   
   //  if(bmcon->GetBMdebug()>3)
-    bmcon->CoutT0();
+  bmcon->CoutT0();
   bmcon->SetBmt0filename("T0_beammonitor.cfg");
   bmcon->PrintT0s(in_filename,ientry);
   

@@ -29,6 +29,8 @@ class TABMdatRaw : public TAGdata {
     void            SetCounter(Int_t i_ntdc, Int_t i_ndrop);
     void            AddDischarged();
     static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
+    Double_t        GetTrigtime(){return trigtime;};
+    void            SetTrigtime(Double_t trigin){trigtime=trigin;};
   
     Int_t           NHit() const;
     const TABMrawHit& Hit(Int_t i_ind) const;
@@ -47,6 +49,7 @@ class TABMdatRaw : public TAGdata {
     //~ Int_t           fiNTdc;		      //number of accepted tdc values
     Int_t           fiNDrop;		    //number of discharged tdc values
     vector<TABMrawHit> fHitList;		//list of TABMrawHit ATTENZIONE!! NON È UN TCLONESARRAY COME GLI ALTRI!!!
+    Double_t        trigtime;
 };
 
 #include "TABMdatRaw.icc"
