@@ -42,6 +42,7 @@ TATWrawHit::TATWrawHit(TWaveformContainer &W)
 	ir_amplitude=W.ComputeAmplitude();
 	ir_chg= W.ComputeCharge();
 	ir_time= W.ComputeTimeStamp();
+	ir_triggertype=W.TrigType;
 }
 
 //------------------------------------------+-----------------------------------
@@ -49,13 +50,14 @@ TATWrawHit::TATWrawHit(TWaveformContainer &W)
 
 TATWrawHit::TATWrawHit()
   : ir_time(999999.), ir_chg(0.), ir_chid(0),ir_pedestal(0),
-	ir_amplitude(0),ir_boardid(0), ir_isclock(0),ir_clock_time(0)
+	ir_amplitude(0),ir_boardid(0), ir_isclock(0),ir_clock_time(0),ir_triggertype(0)
 {
 }
 
 TATWrawHit::TATWrawHit(Int_t cha ,Int_t board, Double_t charge,
 					   Double_t amplitude, Double_t pedestal,
-					   Double_t time,Int_t isclock,Double_t clock_time )
+					   Double_t time,Int_t isclock,Double_t clock_time,
+					   Int_t TriggerType )
 {
   ir_time = time;
   ir_chg  = charge;
@@ -65,12 +67,14 @@ TATWrawHit::TATWrawHit(Int_t cha ,Int_t board, Double_t charge,
   ir_boardid=board;
   ir_isclock=isclock;
   ir_clock_time=clock_time;
+  ir_triggertype=TriggerType;
 }
 
 
   void TATWrawHit::SetData(Int_t cha ,Int_t board, Double_t charge,
 		  	  	  	  	   Double_t amplitude, Double_t pedestal, Double_t time,
-						   Int_t isclock,Double_t clock_time) {
+						   Int_t isclock,Double_t clock_time,
+						   Int_t TriggerType) {
 
 	ir_time = time;
 	ir_chg  = charge;
@@ -80,6 +84,7 @@ TATWrawHit::TATWrawHit(Int_t cha ,Int_t board, Double_t charge,
 	ir_boardid=board;
 	ir_isclock=isclock;
 	ir_clock_time=clock_time;
+	ir_triggertype=TriggerType;
 	return;
 }
 
@@ -159,12 +164,13 @@ void TATWdatRaw::NewHit(TWaveformContainer &W)
   Double_t charge= W.ComputeCharge();
   Double_t time= W.ComputeTimeStamp();
   Double_t ClockRaisingTime=-1;
+  Int_t TriggerType= W.TrigType;
   if (W.IsAClock())
   {
 	  ClockRaisingTime=W.FindFirstRaisingEdgeTime();
   }
   TClonesArray &pixelArray = *hir;
-  TATWrawHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWrawHit(cha ,board, charge, amplitude, pedestal, time,W.IsAClock(),ClockRaisingTime);
+  TATWrawHit* hit = new(pixelArray[pixelArray.GetEntriesFast()]) TATWrawHit(cha ,board, charge, amplitude, pedestal, time,W.IsAClock(),ClockRaisingTime,TriggerType);
   nirhit++;
   return;
 }

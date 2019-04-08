@@ -24,10 +24,10 @@ class TATWrawHit : public TObject {
     TATWrawHit( TWaveformContainer &w);
     TATWrawHit(Int_t cha ,Int_t board, Double_t charge,
 			   Double_t amplitude, Double_t pedestal,
-			   Double_t time,Int_t isclock,Double_t clock_time );
+			   Double_t time,Int_t isclock,Double_t clock_time,Int_t TriggerType);
     void  SetData(Int_t cha ,Int_t board, Double_t charge,
     			  Double_t amplitude, Double_t pedestal,
-				  Double_t time,Int_t isclock,Double_t clock_time );
+				  Double_t time,Int_t isclock,Double_t clock_time,Int_t TriggerType);
     //
     Double_t        Time() const;
     Double_t        Charge() const;
@@ -57,6 +57,7 @@ class TATWrawHit : public TObject {
     Int_t ir_boardid;
     Int_t ir_mcid;
     Int_t ir_isclock;
+    Int_t ir_triggertype;
     Double_t ir_clock_time;
 };
 

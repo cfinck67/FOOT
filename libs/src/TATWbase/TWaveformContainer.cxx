@@ -144,7 +144,6 @@ Double_t TWaveformContainer::ComputePedestal()
  // DEBUG ONLY
  void TWaveformContainer::GraphWaveForm(TH1F *wv0)
  {
-   //wv0->Clear();
    double min = TMath::MinElement(WAVEFORMBINS,T);
    double max = TMath::MaxElement(WAVEFORMBINS,T);
    wv0->SetBins(WAVEFORMBINS,min,max);

@@ -25,6 +25,8 @@ public:
   bool IsAClock();
   Double_t FindFirstRaisingEdgeTime();
 
+
+  int TrigType;
   Int_t ChannelId;
   Int_t BoardId;
   Double_t ir_time;    

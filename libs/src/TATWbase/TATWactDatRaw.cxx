@@ -76,10 +76,7 @@ Bool_t TATWactDatRaw::Action() {
 
 Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TATWdatRaw *p_datraw)
 {
-
-
 	u_int word;
-
 	int iW=0;
 	int board_id=0, ch_num=0;
 	float time_bin=0;
@@ -111,9 +108,10 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
 				if(m_debug)printf("found evt header::%08x   %08x   %08x\n", evt->values.at(iW),evt->values.at(iW+1),evt->values.at(iW+2));
 
 				iW++;
-				trig_type = evt->values.at(iW) & 0xffff;
-				ser_evt_number = (evt->values.at(iW) >> 16) & 0xffff;
-
+				trig_type = (evt->values.at(iW)>>16) & 0xffff;
+				//trig_type = evt->values.at(iW) & 0xffff;
+				//ser_evt_number = (evt->values.at(iW) >> 16) & 0xffff;
+				ser_evt_number =  evt->values.at(iW)& 0xffff;
 				iW++;
 				bco_counter = (int)evt->values.at(iW);
 
@@ -171,6 +169,7 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
 							w.T[iw] = w_time.at(iw);
 							w.W[iw] = w_amp.at(iw);
 						}
+						w.TrigType=trig_type;
 						p_datraw->NewHit(w);
 
 						if(ValidHistogram()) {
