@@ -7,6 +7,7 @@
 #include "TATWparMap.hxx"
 #include "CChannelMap.hxx"
 #include "WDEvent.hh"
+#include "TWaveformContainer.hxx"
 #include "TAGdaqEvent.hxx"
 #include "TATWactDatRaw.hxx"
 
@@ -97,6 +98,7 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
   TWaveformContainer w;
   m_debug=false;
   iW=0;
+  int nhitsA = 0;
   bool foundFooter = false;
   while(iW < evt->evtSize && !foundFooter){
 
@@ -170,6 +172,16 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
 	      w.W[iw] = w_amp.at(iw);
 	    }
 	    p_datraw->NewHit(w);
+
+	    if(!nhitsA) {
+	      if(ValidHistogram()) {
+		cout<<" Updating"<<endl;
+		w.GraphWaveForm(wv0);
+		cout<<" "<<wv0->GetRMS()<<" "<<wv0->GetMaximumBin()<<" "<<wv0->GetEntries()<<endl;
+	      }
+	    }
+	    nhitsA++;
+
 	    w_amp.clear();
 	    w_time.clear();
 
@@ -177,8 +189,6 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
 	}
       }
 
-      
-      
       if(evt->values.at(iW) == EVT_FOOTER){
 	//      printf("found footer\n");
 	iW++;
@@ -186,11 +196,25 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
       }else{
 	printf("warining:: footer not found, event corrupted, iW::%d   last word::%08x!!\n",iW, evt->values.at(iW));
 	break;
-      }  
+      }
     }
   }
 
 
   return true;
+}
+
+//------------------------------------------+-----------------------------------
+//! Setup all histograms.
+void TATWactDatRaw::CreateHistogram()
+{
+   DeleteHistogram();
+
+   wv0 = new TH1D();
+   wv0->SetName("wv0");
+   wv0->SetTitle("wv0 graph");
+   AddHistogram(wv0);
+  
+   SetValidHistogram(kTRUE);
 }
 

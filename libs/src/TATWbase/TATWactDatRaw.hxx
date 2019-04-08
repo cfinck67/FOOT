@@ -7,6 +7,7 @@
 */
 /*------------------------------------------+---------------------------------*/
 
+#include "TH1D.h"
 #include "TAGaction.hxx"
 #include "TAGparaDsc.hxx"
 #include "TAGdataDsc.hxx"
@@ -36,6 +37,7 @@ public:
 				TAGparaDsc* p_parTime=0);
   virtual         ~TATWactDatRaw();
 
+  void CreateHistogram();
   virtual Bool_t  Action();
 
   ClassDef(TATWactDatRaw,0)
@@ -47,6 +49,8 @@ public:
   TAGparaDsc*     fpParMap;		    // parameter dsc
   TAGparaDsc*     fpParTime;		    // parameter dsc
 
+  TH1D *wv0;
+  
   bool m_debug;
   
  private:
