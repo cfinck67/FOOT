@@ -63,7 +63,7 @@ public:
   
  private:
   Bool_t DecodeHits(const WDEvent* evt, TASTparTime* p_parTime, TASTdatRaw *p_datraw, TASTparMap *p_parmap);
-  bool ComputeArrivalTime(TASTrawHit *hit, double *tarr, double *ampl);
+  bool ComputeArrivalTime(TASTrawHit *hit, double *tarr, double *ampl, double *charge);
   double ComputeCharge(TASTrawHit *hit);
   double ComputeMaxAmplitude(TASTrawHit *hit);
   void   SavePlot(TGraph g,TF1 f1, TF1 f2, TASTrawHit *hit);

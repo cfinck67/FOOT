@@ -80,51 +80,57 @@ Bool_t TASTactDatRaw::Action() {
    }
    
 
-   double TrigTime=0, Charge=0, max_amp=0;
+   double TrigTime=0, Charge=0, max_amp=0 ;
    vector<TASTrawHit*> myHits;
    int board_id =0, ch_num=0;
    double single_time =0;
    int nvalid=0;
-   
+   double single_q=0;
+  
    myHits = p_datraw->GetHits();
    for(int iHit=0;iHit<(int)myHits.size();iHit++){
      ch_num = myHits.at(iHit)->GetChannel();
-     if(ComputeArrivalTime(myHits.at(iHit), &single_time, &max_amp)){
+     if(ComputeArrivalTime(myHits.at(iHit), &single_time, &max_amp, &single_q)){
        myHits.at(iHit)->SetArrivalTime(single_time);
+       myHits.at(iHit)->SetCharge(single_q);
        myHits.at(iHit)->SetAmplitude(max_amp);
        TrigTime+=single_time;
+       Charge+=single_q;
        nvalid++;
      }
    }
    if(nvalid)TrigTime = TrigTime/(double)nvalid;
    p_datraw->SetTriggerTime(TrigTime);
    p_datraw->SetTrigType(myHits.at(0)->GetTrigType());
+   p_datraw->SetCharge(Charge);
    
+     
    if(ValidHistogram()){
      hTrigTime->Fill(TrigTime);
+     hTotCharge->Fill(Charge);
      for(int iHit=0;iHit<(int)myHits.size();iHit++){
+       ch_num = myHits.at(iHit)->GetChannel();
        if(ch_num>=0 && ch_num<8) hArrivalTime[ch_num]->Fill(TrigTime-myHits.at(iHit)->GetArrivalTime());
-       if(ch_num>=0 && ch_num<8) hAmplitude[ch_num]->Fill(myHits.at(iHit)->GetAmplitude()); 
+       if(ch_num>=0 && ch_num<8) hAmplitude[ch_num]->Fill(myHits.at(iHit)->GetAmplitude());
+       if(ch_num>=0 && ch_num<8) hCharge[ch_num]->Fill(myHits.at(iHit)->GetCharge());
      }
    }
      
    //evaluate the charge of the single channels
-   double single_q=0, q=0;
-   myHits = p_datraw->GetHits();
-   for(int iHit=0; iHit<(int)myHits.size();iHit++){
-     ch_num = myHits.at(iHit)->GetChannel();
+     // myHits = p_datraw->GetHits();
+   // for(int iHit=0; iHit<(int)myHits.size();iHit++){
+   //   ch_num = myHits.at(iHit)->GetChannel();
 
-     if(p_parmap->IsSTChannel(ch_num)){
-       single_q = ComputeCharge(myHits.at(iHit));
-       myHits.at(iHit)->SetCharge(single_q);
-       if(ValidHistogram()){
-   	 if(ch_num>=0 && ch_num<8)hCharge[ch_num]->Fill(single_q); 
-       }
-       q+= single_q;
-     }
-   }
-   p_datraw->SetCharge(q);
-   if(ValidHistogram())hTotCharge->Fill(q); 
+   //   if(p_parmap->IsSTChannel(ch_num)){
+   //     single_q = ComputeCharge(myHits.at(iHit));
+   //     myHits.at(iHit)->SetCharge(single_q);
+   //     if(ValidHistogram()){
+   // 	 if(ch_num>=0 && ch_num<8)hCharge[ch_num]->Fill(single_q); 
+   //     }
+   //     q+= single_q;
+   //   }
+   // }
+  
 
    m_nev++;
    
@@ -341,7 +347,7 @@ void TASTactDatRaw::SavePlot(TGraph WaveGraph, TF1 fun1, TF1 fun2, TASTrawHit *m
 
 
 
-bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *ampl){
+bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *ampl, double *charge){
 
   vector<double> tmp_amp = myHit->GetAmplitudeArray();
   tmp_amp.erase(tmp_amp.begin(),tmp_amp.begin()+2);
@@ -377,7 +383,10 @@ bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *a
   
   TGraphErrors WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0], 0, &tmp_unc[0]);
   WaveGraph.Fit("f","Q", "",tleft, tright);
+  
 
+
+  
   TF1 f1("f1", "-0.2*[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[0]/(1+TMath::Exp(-(x-[1]-1.5)/[2]))/(1+TMath::Exp((x-[3]-1.5)/[4]))",0,100);
   f1.SetLineColor(kGreen);
   f1.FixParameter(0, f.GetParameter(0));
@@ -387,15 +396,23 @@ bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *a
   f1.FixParameter(4, f.GetParameter(4));
   f1.FixParameter(5, f.GetParameter(5));
 
+
+
+  
   if(m_debug)SavePlot(WaveGraph, f,f1, myHit);
   
   tleft = f1.GetMinimumX();
   tright = f1.GetMaximumX();
   
   double t1=f1.GetX(0.0,tleft,tright);
-  
+
+
+  f.SetParameter(5,0.0);
+  *charge = -f.Integral(f.GetMinimumX()-10, f.GetMinimumX()+10);
   *tarr = t1;
   *ampl = fabs(f.GetParameter(5)-f.GetMinimum());
+
+  cout << "charge"<< *charge << endl;
   
   if(t1>tleft && t1<tright){
     return true;
@@ -455,7 +472,7 @@ void TASTactDatRaw::CreateHistogram(){
   AddHistogram(hTrigTime);
 
   sprintf(histoname,"stTotCharge");
-  hTotCharge = new TH1F(histoname, histoname, 100, 0., 5.);
+  hTotCharge = new TH1F(histoname, histoname, 400, -0.1, 3.9);
   AddHistogram(hTotCharge);
   
   for(int iCh=0;iCh<8;iCh++){
@@ -464,7 +481,7 @@ void TASTactDatRaw::CreateHistogram(){
     AddHistogram(hArrivalTime[iCh]);
 
     sprintf(histoname,"stCharge_ch%d", iCh);
-    hCharge[iCh]= new TH1F(histoname, histoname, 100, 0., 5.);
+    hCharge[iCh]= new TH1F(histoname, histoname, 200, -0.1, 1.9);
     AddHistogram(hCharge[iCh]);
 
     sprintf(histoname,"stMaxAmp_ch%d", iCh);
