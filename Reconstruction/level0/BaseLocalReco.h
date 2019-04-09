@@ -35,6 +35,14 @@
 #include "TAITparConf.hxx"
 #include "TAMSDparConf.hxx"
 
+#include "TASTntuRaw.hxx"
+#include "TABMntuRaw.hxx"
+#include "TAVTntuRaw.hxx"
+#include "TAITntuRaw.hxx"
+#include "TAMSDntuRaw.hxx"
+#include "TATWntuPoint.hxx"
+#include "TACAntuRaw.hxx"
+
 #include "TAGclusterDisplay.hxx"
 #include "TAGtrackDisplay.hxx"
 #include "TAGwireDisplay.hxx"
@@ -51,6 +59,8 @@
 #include "TAVTactBaseNtuTrack.hxx"
 #include "TAVTactNtuVertex.hxx"
 
+class TAMCntuHit;
+class TAMCntuEve;
 class BaseLocalReco : public TNamed // using TNamed for the in/out files
 {
 public:
@@ -121,6 +131,47 @@ public:
    //! Set Tracking algorithm
    void SetTrackingAlgo(char c);
   
+   //! Par geo getters
+   TAGgeoTrafo*         GetGeoTrafo()       const { return fpFootGeo;                                }
+   TASTparGeo*          GetParGeoSt()       const { return (TASTparGeo*)fpParGeoSt->Object();        }
+   TAGparGeo*           GetParGeoG()        const { return (TAGparGeo*)fpParGeoG->Object();          }
+   TABMparGeo*          GetParGeoBm()       const { return (TABMparGeo*)fpParGeoBm->Object();        }
+   TAVTparGeo*          GetParGeoVtx()      const { return (TAVTparGeo*)fpParGeoVtx->Object();       }
+   TAITparGeo*          GetParGeoIt()       const { return (TAITparGeo*)fpParGeoIt->Object();        }
+   TAMSDparGeo*         GetParGeoMsd()      const { return (TAMSDparGeo*)fpParGeoMsd->Object();      }
+   TATWparGeo*          GetParGeoTw()       const { return (TATWparGeo*)fpParGeoTw->Object();        }
+   TACAparGeo*          GetParGeoCa()       const { return (TACAparGeo*)fpParGeoCa->Object();        }
+   
+   //! Containers getters
+   TASTntuRaw*          GetNtuHitSt()       const { return (TASTntuRaw*) fpNtuRawSt->Object();       }
+   TABMntuRaw*          GetNtuRawBm()       const { return (TABMntuRaw*)fpNtuRawBm->Object();        }
+   TABMntuTrack*        GetNtuTrackBm()     const { return (TABMntuTrack*)fpNtuTrackBm->Object();    }
+   
+   TAVTntuCluster*      GetNtuClusterVtx()  const { return (TAVTntuCluster*)fpNtuClusVtx->Object();  }
+   TAVTntuTrack*        GetNtuTrackVtx()    const { return (TAVTntuTrack*)fpNtuTrackVtx->Object();   }
+   TAVTntuVertex*       GetNtuVertexVtx()   const { return (TAVTntuVertex*)fpNtuVtx->Object();       }
+   TAGdataDsc*          GetDscVertexVtx()   const { return fpNtuVtx;                                 }
+   
+   TAITntuCluster*      GetNtuClusterIt()   const { return (TAITntuCluster*)fpNtuClusIt->Object();   }
+   TAMSDntuCluster*     GetNtuClusterMsd()  const { return (TAMSDntuCluster*)fpNtuClusMsd->Object(); }
+   
+   TATWntuHit*          GetNtuHitTw()       const { return (TATWntuHit*) fpNtuRawTw->Object();       }
+   TATWpoint*           GetNtuPointTw()     const { return (TATWpoint*) fpNtuRecTw->Object();        }
+   
+   TACAntuRaw*          GetNtuHitCa()       const { return (TACAntuRaw*) fpNtuRawCa->Object();       }
+
+   //! MC container Getter (virtual)
+   virtual TAMCntuEve*  GetNtuMcEve()       const { return 0x0; }
+   virtual TAMCntuHit*  GetNtuMcSt()        const { return 0x0; }
+   virtual TAMCntuHit*  GetNtuMcBm()        const { return 0x0; }
+   virtual TAMCntuHit*  GetNtuMcVtx()       const { return 0x0; }
+   virtual TAMCntuHit*  GetNtuMcIt()        const { return 0x0; }
+   virtual TAMCntuHit*  GetNtuMcMsd()       const { return 0x0; }
+   virtual TAMCntuHit*  GetNtuMcTw()        const { return 0x0; }
+   virtual TAMCntuHit*  GetNtuMcCa()        const { return 0x0; }
+   virtual TTree*       GetTree()                 { return 0x0; }
+   
+
 private:
    void InitParameters();
 

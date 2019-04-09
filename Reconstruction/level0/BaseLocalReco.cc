@@ -10,14 +10,6 @@
 #include "TAGgeoTrafo.hxx"
 #include "TAGparGeo.hxx"
 
-#include "TASTntuRaw.hxx"
-#include "TABMntuRaw.hxx"
-#include "TAVTntuRaw.hxx"
-#include "TAITntuRaw.hxx"
-#include "TAMSDntuRaw.hxx"
-#include "TATWntuPoint.hxx"
-#include "TACAntuRaw.hxx"
-
 #include "TAVTntuCluster.hxx"
 #include "TAITntuCluster.hxx"
 #include "TAMSDntuCluster.hxx"
