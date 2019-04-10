@@ -33,6 +33,8 @@ BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
    fpParTimeSt(0x0),
    fpParTimeTw(0x0),
    fpParMapSt(0x0),
+   fpParMapVtx(0x0),
+   fpParMapIt(0x0),
    fpParGeoSt(0x0),
    fpParGeoBm(0x0),
    fpParGeoIt(0x0),
@@ -201,7 +203,7 @@ void BaseLocalReco::InitParameters()
       // if(!parTimeSt->FromFile(GetName())){
 
       if(!parTimeSt->FromFile(GetName())){
-	printf("WD calibration time ot found!!\n");
+         printf("WD calibration time ot found!!\n");
       }
    }
 
@@ -240,6 +242,11 @@ void BaseLocalReco::InitParameters()
       TAVTparConf* parConf = (TAVTparConf*)fpParConfVtx->Object();
       parVtxFileName = Form("./config/TAVTdetector%s.cfg", fExpName.Data());
       parConf->FromFile(parVtxFileName.Data());
+      
+      fpParMapVtx = new TAGparaDsc("vtMap", new TAVTparMap());
+      TAVTparMap* parMap = (TAVTparMap*)fpParMapVtx->Object();
+      parVtxFileName = Form("./config/TAVTdetector%s.map", fExpName.Data());
+      parMap->FromFile(parVtxFileName.Data());
    }
    
    // initialise parameters for inner tracker
@@ -253,6 +260,11 @@ void BaseLocalReco::InitParameters()
       TAITparConf* parConf = (TAITparConf*)fpParConfIt->Object();
       parItFileName = Form("./config/TAITdetector%s.cfg", fExpName.Data());
       parConf->FromFile(parItFileName.Data());
+      
+      fpParMapIt = new TAGparaDsc("itMap", new TAITparMap());
+      TAVTparMap* parMap = (TAVTparMap*)fpParMapIt->Object();
+      parItFileName = Form("./config/TAITdetector%s.map", fExpName.Data());
+      parMap->FromFile(parItFileName.Data());
    }
    
    // initialise parameters for multi strip detector

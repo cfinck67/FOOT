@@ -101,11 +101,11 @@ void LocalReco::CreateRawAction()
       fpNtuRawVtx   = new TAGdataDsc("vtRaw", new TAVTntuRaw());
       
       if (fgStdAloneFlag) {
-         fActVmeReaderVtx  = new TAVTactVmeReader("vtActNtu", fpNtuRawVtx, fpParGeoVtx, fpParConfVtx);
+         fActVmeReaderVtx  = new TAVTactVmeReader("vtActNtu", fpNtuRawVtx, fpParGeoVtx, fpParConfVtx, fpParMapVtx);
          fActVmeReaderVtx->CreateHistogram();
          
       } else {
-         fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDaqEvent, fpParGeoVtx, fpParConfVtx);
+         fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDaqEvent, fpParGeoVtx, fpParConfVtx, fpParMapVtx);
          fActNtuRawVtx->CreateHistogram();
 	 if(GlobalPar::GetPar()->Debug()) fActNtuRawVtx->SetDebugLevel(1);
 
@@ -114,7 +114,7 @@ void LocalReco::CreateRawAction()
    
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
       fpNtuRawIt   = new TAGdataDsc("itRaw", new TAITntuRaw());
-      fActNtuRawIt = new TAITactNtuRaw("itActNtu", fpNtuRawIt, fpDaqEvent, fpParGeoIt, fpParConfIt);
+      fActNtuRawIt = new TAITactNtuRaw("itActNtu", fpNtuRawIt, fpDaqEvent, fpParGeoIt, fpParConfIt, fpParMapIt);
       fActNtuRawIt->CreateHistogram();
    }
    
