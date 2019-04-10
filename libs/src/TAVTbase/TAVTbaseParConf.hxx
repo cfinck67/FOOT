@@ -37,8 +37,6 @@ protected:
 	  Int_t      PlanesForTrackMinimum;  // min # planes to build a track in an event
 	  Float_t    SearchHitDistance;      // max distance hit-track to add hit to track
 	  Float_t    TrackChi2Limit;         // chi2 limit on the track
-	  Int_t      TracksForAlignmentFit;  // minimum number of tracks to fit alignement parameters
-	  Float_t    MaxSlopeForAlignment;   // maximum slope value in track for alignment
 	  Float_t    BmTrackChi2Limit;       // chi2 limit on the BM track
    };
    

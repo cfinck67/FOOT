@@ -149,7 +149,7 @@ TAVTalign::TAVTalign(const TString name, Int_t type)
    fdiftiltW  = new Float_t[fSecArray.GetSize()];
    fTiltWold  = new Float_t[fSecArray.GetSize()];
    
-   fAlignTracks = parconf->GetAnalysisPar().TracksForAlignmentFit;
+   fAlignTracks = 1000; // hardcoded to simplify config file
    //fTinyBound = parconf->GetAnalysisPar().SearchHitDistance;
    for (Int_t i = 0; i < fSecArray.GetSize(); ++i) {
 	  fAlign[i] = new TAVTntuAlign(fSecArray[i]);
@@ -610,7 +610,7 @@ Bool_t TAVTalign::IsForAlignment(TAVTtrack* track)
    }
    
    TAVTparConf* parconf = (TAVTparConf*) fpConfig->Object();
-   Float_t maxSlope = parconf->GetAnalysisPar().MaxSlopeForAlignment;
+   Float_t maxSlope = 0.01;
    TAVTline line  = track->GetTrackLine();
    Float_t slopeX = line.GetSlopeZ()(0);
    Float_t slopeY = line.GetSlopeZ()(1);

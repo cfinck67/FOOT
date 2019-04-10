@@ -72,15 +72,7 @@ Bool_t TAVTbaseParConf::FromFile(const TString& name)
    ReadItem(fAnalysisParameter.TrackChi2Limit);  
    if(fDebugLevel)
      cout << "Limit of Chi2 for tracks: "<< fAnalysisParameter.TrackChi2Limit << endl;
-   
-   ReadItem(fAnalysisParameter.TracksForAlignmentFit);  
-   if(fDebugLevel)
-     cout << "Number of tracks for alignment: "<< fAnalysisParameter.TracksForAlignmentFit << endl;
-   
-   ReadItem(fAnalysisParameter.MaxSlopeForAlignment);  
-   if(fDebugLevel)
-	  cout << "Maximum slope for alignment: "<< fAnalysisParameter.MaxSlopeForAlignment << endl;
-   
+      
    ReadItem(fAnalysisParameter.BmTrackChi2Limit);  
    if(fDebugLevel)
 	  cout << "Limit of Chi2 for BM tracks: "<< fAnalysisParameter.BmTrackChi2Limit << endl;
