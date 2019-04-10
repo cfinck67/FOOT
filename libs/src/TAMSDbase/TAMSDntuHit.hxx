@@ -15,9 +15,6 @@
 #include "TAGdataDsc.hxx"
 
 
-
-// class TAVTrawHit;
-
 /** TAMSDntuHit class contains information respect to a pixel in cmos detectors
  index, position, noise, pulse height, size, etc...
  
