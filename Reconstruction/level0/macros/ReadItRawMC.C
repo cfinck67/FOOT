@@ -23,7 +23,6 @@
 #include "TAITparGeo.hxx"
 #include "TAITparMap.hxx"
 #include "TAITparConf.hxx"
-#include "TAITdatRaw.hxx"
 #include "TAITntuRaw.hxx"
 #include "TAITntuCluster.hxx"
 #include "TAITntuTrack.hxx"
