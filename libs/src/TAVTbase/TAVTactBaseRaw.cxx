@@ -258,7 +258,6 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
                AddPixel(planeId, 1, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
                if(fDebugLevel>3)
                   printf("sensor %d, line %d, col %d\n", iSensor, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
-               if (pNtuRaw->GetPixelsN(planeId) > pConfig->GetAnalysisPar().HitsInPlaneMaximum) return false;
             }
          }
          

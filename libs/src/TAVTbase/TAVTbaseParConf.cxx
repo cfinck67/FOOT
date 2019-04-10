@@ -69,10 +69,6 @@ Bool_t TAVTbaseParConf::FromFile(const TString& name)
    if(fDebugLevel)
      cout << "Maximum distance between cluster and corresponding track: "<< fAnalysisParameter.SearchHitDistance << endl;
    
-   ReadItem(fAnalysisParameter.HitsInPlaneMaximum);  
-   if(fDebugLevel)
-     cout << "Maximum number of clusters per plane: "<< fAnalysisParameter.HitsInPlaneMaximum << endl;
-   
    ReadItem(fAnalysisParameter.TrackChi2Limit);  
    if(fDebugLevel)
      cout << "Limit of Chi2 for tracks: "<< fAnalysisParameter.TrackChi2Limit << endl;

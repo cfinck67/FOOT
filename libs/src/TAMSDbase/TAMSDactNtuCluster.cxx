@@ -93,7 +93,6 @@ Bool_t TAMSDactNtuCluster::Action()
    
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
       fListOfStrips = pNtuHit->GetListOfStrips(i);
-      //if (fListOfStrips->GetEntries() > pConfig->GetAnalysisPar().HitsInPlaneMaximum) continue; // no config
       if (fListOfStrips->GetEntries() == 0) continue;
       ok += FindClusters(i);
    }
