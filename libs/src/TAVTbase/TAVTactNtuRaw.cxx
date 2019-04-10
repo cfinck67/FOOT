@@ -23,8 +23,8 @@ ClassImp(TAVTactNtuRaw);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TAVTactNtuRaw::TAVTactNtuRaw(const char* name, TAGdataDsc* pNtuRaw, TAGdataDsc* pDatDaq, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig)
-: TAVTactBaseRaw(name, pNtuRaw, pGeoMap, pConfig),
+TAVTactNtuRaw::TAVTactNtuRaw(const char* name, TAGdataDsc* pNtuRaw, TAGdataDsc* pDatDaq, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig, TAGparaDsc* pParMap)
+: TAVTactBaseRaw(name, pNtuRaw, pGeoMap, pConfig, pParMap),
   fpDatDaq(pDatDaq)
 {
    AddDataIn(pDatDaq, "TAGdaqEvent");

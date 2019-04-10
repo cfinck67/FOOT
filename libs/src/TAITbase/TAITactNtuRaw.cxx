@@ -1,21 +1,21 @@
 /*!
  \file
- \version $Id: TAITactNtuRaw.cxx,v 1.9 2003/06/22 10:35:48 mueller Exp $
+ \version $Id: TAITactNtuRaw.cxx,v 1.5 2003/06/22 10:35:47 mueller Exp $
  \brief   Implementation of TAITactNtuRaw.
  */
-#include "TH2F.h"
-#include "TClonesArray.h"
 
-#include "TAITdatRaw.hxx"
+#include "TH2F.h"
+
+#include "DECardEvent.hh"
+#include "TAGdaqEvent.hxx"
 #include "TAITparGeo.hxx"
-#include "TAITparMap.hxx"
 #include "TAITparConf.hxx"
-#include "TAITntuRaw.hxx"
+
 #include "TAITactNtuRaw.hxx"
 
 /*!
- \class TAITactNtuRaw 
- \brief NTuplizer for vertex raw hits. **
+ \class TAITactNtuRaw TAITactNtuRaw.hxx "TAITactNtuRaw.hxx"
+ \brief Get vertex raw data from MBS. **
  */
 
 ClassImp(TAITactNtuRaw);
@@ -23,106 +23,158 @@ ClassImp(TAITactNtuRaw);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TAITactNtuRaw::TAITactNtuRaw(const char* name, TAGdataDsc* p_nturaw, TAGdataDsc* p_datraw,
-							 TAGparaDsc* p_parmap, TAGparaDsc* p_geomap)
-: TAGaction(name, "TAITactNtuRaw - NTuplize vertex raw data"),
-  fpNtuRaw(p_nturaw),
-  fpDatRaw(p_datraw),
-  fpParMap(p_parmap),
-  fpGeoMap(p_geomap)
+TAITactNtuRaw::TAITactNtuRaw(const char* name, TAGdataDsc* pNtuRaw, TAGdataDsc* pDatDaq, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig, TAGparaDsc* pParMap)
+: TAITactBaseRaw(name, pNtuRaw, pGeoMap, pConfig, pParMap),
+  fpDatDaq(pDatDaq)
 {
-   AddDataOut(p_nturaw, "TAITntuRaw");
-   AddDataIn(p_datraw, "TAITdatRaw");
-   AddPara(p_geomap, "TAITparGeo");
-   AddPara(p_parmap, "TAITparMap");
+   AddDataIn(pDatDaq, "TAGdaqEvent");
 }
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
-
 TAITactNtuRaw::~TAITactNtuRaw()
-{}
-
-//------------------------------------------+-----------------------------------
-//! Setup all histograms.
-void TAITactNtuRaw::CreateHistogram()
-{
-   // DeleteHistogram();
-   // TAITparGeo* pGeoMap  = (TAITparGeo*) fpGeoMap->Object();
-   // for (Int_t i = 0; i < pGeoMap->GetSensorsN(); ++i) {
-	  // if (TAITparConf::IsMapHistOn()) {
-		 // fpHisPosMap[i] = new TH2F(Form("vtPosMap%d", i+1), Form("Vertex - position map for sensor %d", i+1), 
-			// 						 pGeoMap->GetPixelsNv(), -pGeoMap->GetPitchV()/2*pGeoMap->GetPixelsNv(), pGeoMap->GetPitchV()/2*pGeoMap->GetPixelsNv(),
-			// 						 pGeoMap->GetPixelsNu(), -pGeoMap->GetPitchU()/2*pGeoMap->GetPixelsNu(), pGeoMap->GetPitchU()/2*pGeoMap->GetPixelsNu());
-		 // fpHisPosMap[i]->SetStats(kFALSE);
-		 // AddHistogram(fpHisPosMap[i]);
-	  // }
-   // }
-   
-   // SetValidHistogram(kTRUE);
-   // return;
+{   
 }
 
 //------------------------------------------+-----------------------------------
 //! Action.
 Bool_t TAITactNtuRaw::Action()
 {
-   TAITdatRaw* pDatRaw = (TAITdatRaw*) fpDatRaw->Object();
-   TAITntuRaw* pNtuRaw = (TAITntuRaw*) fpNtuRaw->Object();
-   TAITparGeo* pGeoMap = (TAITparGeo*) fpGeoMap->Object();
-   TAITparMap* pParMap = (TAITparMap*) fpParMap->Object();
    
-   pNtuRaw->SetupClones();
+   TAGdaqEvent* datDaq = (TAGdaqEvent*)  fpDatDaq->Object();
    
-   // for (Int_t iSensor = 0; iSensor < pGeoMap->GetSensorsN(); ++iSensor) {
-	  // //Sort List of pixels
-	  // TClonesArray* myList = pDatRaw->GetPixels(iSensor); 
-	  // myList->Sort(myList->GetEntriesFast());
-	  // DeleteDoublet(iSensor);
-	  	  
-	  // Int_t nPixels = pDatRaw->GetPixelsN(iSensor);
-	  // for (Int_t iPixel = 0; iPixel < nPixels; ++iPixel) {
-		 // TAITrawHit* rawPixel =  pDatRaw->GetPixel(iSensor, iPixel);
-		 // TAITntuHit* pixel= pNtuRaw->NewPixel(iSensor, rawPixel);
-		 // Float_t u = pParMap->GetPositionU(rawPixel->GetColumnNumber());
-		 // Float_t v = pParMap->GetPositionV(rawPixel->GetLineNumber());
-		 // Float_t w = 0;
-		 // TVector3 pos(v,u,w);
-		 // pixel->SetPosition(pos);
-		 // if (ValidHistogram()) {
-			// if (TAITparConf::IsMapHistOn()) 
-			//    fpHisPosMap[iSensor]->Fill(v, u);
-		 // }
-	  // }
-   // }
+   Int_t nFragments = datDaq->GetFragmentsN();
    
+   for (Int_t i = 0; i < nFragments; ++i) {
+      
+       TString type = datDaq->GetClassType(i);
+       if (type.Contains("DECardEvent")) {
+         const DECardEvent* evt = static_cast<const DECardEvent*> (datDaq->GetFragment(i));
+          DecodeEvent(evt);
+       }
+   }
+   
+   SetBit(kValid);
    fpNtuRaw->SetBit(kValid);
+   
    return kTRUE;
 }
 
-//----------------------------------------------------------------
-//! Delete the pixel that have the same line and the same column
-void TAITactNtuRaw::DeleteDoublet(Int_t iSens)
+// --------------------------------------------------------------------------------------
+Bool_t TAITactNtuRaw::DecodeEvent(const DECardEvent* evt)
 {
-   TAITdatRaw* pDatRaw = (TAITdatRaw*) fpDatRaw->Object();
-   TClonesArray* myList = pDatRaw->GetPixels(iSens); 
+   fData      = evt->values;
+   fEventSize = evt->evtSize;
    
-   //loop on pixel
-   for(int iPix = 0; iPix<myList->GetEntries(); iPix++) {
-	  
-	  if (myList->GetEntries() == 1)return;
-	  
-	  TAITrawHit* apixel = (TAITrawHit*)myList->At(iPix);
-	  TAITrawHit* npixel = (iPix == myList->GetEntries()-1) ? (TAITrawHit*)myList->At(iPix-1) : (TAITrawHit*)myList->At(iPix+1);
-	  
-	  Int_t aline = apixel->GetLineNumber();
-	  Int_t acolumn = apixel->GetColumnNumber();
-	  Int_t nline = npixel->GetLineNumber();
-	  Int_t ncolumn = npixel->GetColumnNumber();
-	  
-	  if (aline == nline && acolumn == ncolumn) {
-		 myList->Remove(npixel);
-		 myList->Compress();
-	  }
+   if (fEventSize == 0) return true;
+
+   fIndex     = 0;
+   MI26_FrameRaw* data = new MI26_FrameRaw;
+
+   
+   TAITparGeo*  pGeoMap = (TAITparGeo*)  fpGeoMap->Object();
+   
+   // Vertex header
+   if (!GetVtxHeader()) return false;
+   
+   // loop over boards
+   for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
+      
+      if (!GetSensorHeader(i)) return false;
+      fFirstFrame = true;
+      // loop over frame (3 max)
+      while (GetFrame(i, data)) {
+         DecodeFrame(i, data);
+      }
    }
+   
+   if(fDebugLevel > 3) {
+      printf("%08x ", fEventSize);
+      for (Int_t i = 0; i < (fEventSize)/2; ++i) {
+         if (i == 9) {
+            printf("\n");
+         } else {
+            if ((i+1) % 10 == 0) printf("\n");
+         }
+         printf("%08x ", fData[i]);
+      }
+      printf("\n");
+  }
+   
+   delete data;
+
+   fPrevEventNumber   = fEventNumber;
+   fPrevTriggerNumber = fTriggerNumber;
+   fPrevTimeStamp     = fTimeStamp;
+
+   return true;
 }
+
+
+// private method
+// --------------------------------------------------------------------------------------
+Bool_t TAITactNtuRaw::GetVtxHeader()
+{
+   do {
+      if (fData[fIndex] == DECardEvent::GetVertexHeader()) {
+         return true;
+      }
+   } while (fIndex++ < fEventSize);
+   
+   return false;
+}
+
+// --------------------------------------------------------------------------------------
+Bool_t TAITactNtuRaw::GetSensorHeader(Int_t iSensor)
+{
+   
+   do {
+      if (fData[fIndex] == GetKeyHeader(iSensor)) {
+         fEventNumber   = fData[++fIndex];
+         fTriggerNumber = fData[++fIndex];
+         fTimeStamp     = fData[++fIndex];
+         
+         FillHistoEvt(iSensor);
+
+         return true;
+      }
+   } while (fIndex++ < fEventSize);
+   
+
+   return false;
+}
+
+// --------------------------------------------------------------------------------------
+Bool_t TAITactNtuRaw::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
+{
+   // check frame header
+   if ((fData[++fIndex] & 0xFFF) ==  (GetFrameHeader() & 0xFFF)) { // protection against wrong header !!!
+      memcpy(data, &fData[fIndex], sizeof(MI26_FrameRaw));
+      FillHistoFrame(iSensor, data);
+      
+   } else
+      return false;
+ 
+   // go to frame trailer
+   do {
+      if ((fData[fIndex] & 0xFFF) == (GetFrameTail() & 0xFFF)) {
+         data->Trailer = fData[fIndex];
+         break;
+      }
+   } while (fIndex++ < fEventSize);
+   
+   if (fDebugLevel > 3) {
+      printf("%08x\n", data->Header);
+      printf("%08x\n", data->TriggerCnt);
+      printf("%08x\n", data->TimeStamp);
+      printf("%08x\n", data->FrameCnt);
+      printf("%08x\n", data->DataLength);
+      Int_t dataLength    = ((data->DataLength & 0xFFFF0000)>>16);
+      for (Int_t i = 0; i < dataLength; ++i)
+         printf("%08x\n", data->ADataW16[i]);
+      printf("%08x\n", data->Trailer);
+   }
+   
+   return true;
+}
+

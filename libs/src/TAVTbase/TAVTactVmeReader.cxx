@@ -24,8 +24,8 @@ TString TAVTactVmeReader::fgDefaultExtName    = ".ZS";
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
-TAVTactVmeReader::TAVTactVmeReader(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig)
-: TAVTactBaseRaw(name, pDatRaw, pGeoMap, pConfig),
+TAVTactVmeReader::TAVTactVmeReader(const char* name, TAGdataDsc* pDatRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig, TAGparaDsc* pParMap)
+: TAVTactBaseRaw(name, pDatRaw, pGeoMap, pConfig, pParMap),
   fRunNumber(-1)
 {
    SetTitle("TAVTactVmeReader - reader for VME reader");
@@ -64,7 +64,9 @@ Int_t TAVTactVmeReader::Open(const TString& name, Option_t* opt)
 		 isOk = true;
 	  } else {
 		 fRawFileAscii[i].close();
-		 inputFileName = Form("%s/%s%04d/800%d_%s%d%s", fPrefixName.Data(), fgDefaultFolderName.Data(), fRunNumber, i, fBaseName.Data(), i, fgDefaultExtName.Data());
+//		 inputFileName = Form("%s/%s%04d/800%d_%s%d%s", fPrefixName.Data(), fgDefaultFolderName.Data(), fRunNumber, i, fBaseName.Data(), i, fgDefaultExtName.Data());
+        inputFileName = Form("%s/%s%04d/192.168.1.11_%s%d%s", fPrefixName.Data(), fgDefaultFolderName.Data(), fRunNumber, fBaseName.Data(), i, fgDefaultExtName.Data());
+
 		 fRawFileAscii[i].open(inputFileName.Data());
 		 if( fRawFileAscii[i].fail() ) { // end the reading if file opening failed
 			cout << endl << "TAVTactVmeReader::Open(), cannot open file " << inputFileName.Data() << endl;
@@ -113,6 +115,12 @@ Bool_t TAVTactVmeReader::Process()
          SetBit(kEof);
          SetBitAllDataOut(kEof);
       }
+      
+      if (i == 1) {
+         fPrevEventNumber   = fEventNumber;
+         fPrevTriggerNumber = fTriggerNumber;
+         fPrevTimeStamp     = fTimeStamp;
+      }
    }
 
    delete data;
@@ -120,9 +128,6 @@ Bool_t TAVTactVmeReader::Process()
    SetBit(kValid);
    fpNtuRaw->SetBit(kValid);
 
-   fPrevEventNumber   = fEventNumber;
-   fPrevTriggerNumber = fTriggerNumber;
-   fPrevTimeStamp     = fTimeStamp;
    
    return true;
 }
@@ -152,7 +157,8 @@ Bool_t TAVTactVmeReader::GetSensorHeader(Int_t iSensor)
          // fake time stamp
          fRawFileAscii[iSensor] >> tmp;
          
-         FillHistoEvt(iSensor);
+         if (iSensor == 1)
+            FillHistoEvt(iSensor);
 
          return true;
       }

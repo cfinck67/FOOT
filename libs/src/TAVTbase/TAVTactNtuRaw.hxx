@@ -17,7 +17,7 @@ using namespace std;
 class TAVTactNtuRaw : public TAVTactBaseRaw {
 public:
    
-   explicit TAVTactNtuRaw(const char* name=0, TAGdataDsc* p_datraw=0, TAGdataDsc* p_datmbs=0, TAGparaDsc* p_pargeo=0, TAGparaDsc* p_parconf=0);
+   explicit TAVTactNtuRaw(const char* name=0, TAGdataDsc* p_datraw=0, TAGdataDsc* p_datmbs=0, TAGparaDsc* p_pargeo=0, TAGparaDsc* p_parconf=0, TAGparaDsc* pParMap=0);
    virtual  ~TAVTactNtuRaw();
    
    virtual Bool_t  Action();

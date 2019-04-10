@@ -1,44 +1,44 @@
 #ifndef _TAITactNtuRaw_HXX
 #define _TAITactNtuRaw_HXX
+
+#include "TAITactBaseRaw.hxx"
+
 /*!
  \file
- \version $Id: TAITactNtuRaw.hxx,v 1.4 2003/06/09 18:17:14 mueller Exp $
+ \version $Id: TAITactNtuRaw.hxx $
  \brief   Declaration of TAITactNtuRaw.
  */
+
 /*------------------------------------------+---------------------------------*/
+class TAGdataDsc;
+class DECardEvent;
 
-#include "TAGaction.hxx"
-#include "TAGdataDsc.hxx"
-#include "TAGparaDsc.hxx"
-class TH2F;
-
-class TAITactNtuRaw : public TAGaction {
+using namespace std;
+class TAITactNtuRaw : public TAITactBaseRaw {
 public:
-   explicit  TAITactNtuRaw(const char* name=0,
-						   TAGdataDsc* p_nturaw=0, 
-						   TAGdataDsc* p_datraw=0, 
-						   TAGparaDsc* p_parmap=0,
-						   TAGparaDsc* p_geomap=0);
-   virtual ~TAITactNtuRaw();
    
-   //! Base action 
+   explicit TAITactNtuRaw(const char* name=0, TAGdataDsc* p_datraw=0, TAGdataDsc* p_datmbs=0, TAGparaDsc* p_pargeo=0, TAGparaDsc* p_parconf=0, TAGparaDsc* pParMap=0);
+   virtual  ~TAITactNtuRaw();
+   
    virtual Bool_t  Action();
    
-   //! Base creation of histogram
-   virtual  void   CreateHistogram();
+private:
+   TAGdataDsc*     fpDatDaq;		    // input data dsc
    
-   //! Delete
-   virtual void DeleteDoublet(Int_t iSensor);
+private:   
+   //! Find vertex data
+   Bool_t DecodeEvent(const DECardEvent* evt);
+      
+   //! Get the starting point of each event
+   Bool_t GetVtxHeader();
+   
+   //! Get the starting point of each frame
+   Bool_t GetSensorHeader(Int_t iSensor);
+   
+   //! Get frame and returns frameRaw
+   Bool_t GetFrame(Int_t iSensor, MI26_FrameRaw* data);
    
    ClassDef(TAITactNtuRaw,0)
-   
-private:
-   TAGdataDsc*     fpNtuRaw;		    // output data dsc
-   TAGdataDsc*     fpDatRaw;		    // input data dsc
-   TAGparaDsc*     fpParMap;		    // map para dsc
-   TAGparaDsc*     fpGeoMap;		    // geometry para dsc
-      
-   TH2F*           fpHisPosMap[8];    // pixel map per sensor   
 };
 
 #endif

@@ -26,16 +26,10 @@ public:
    //! Read from file
    Bool_t       FromFile(const TString& name = "");
 
-public:   
-   static Int_t GetSensorsN() { return fgkSensorsN; }
-
 protected:
    Int_t              fSensorsN;
    std::vector<int>   fPlaneId;
    TString            fkDefaultMapName; // default detector mapping file
-
-private:
-   static const Int_t fgkSensorsN;          // number of sensors
    
    ClassDef(TAVTbaseParMap,1)
   

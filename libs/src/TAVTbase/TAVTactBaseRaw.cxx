@@ -10,6 +10,7 @@
 
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
+#include "TAVTparMap.hxx"
 
 #include "TAVTntuRaw.hxx"
 #include "TAVTactBaseRaw.hxx"
@@ -32,11 +33,12 @@ const UInt_t TAVTactBaseRaw::fgkKeyTail[]        = {0x8bb08bb0, 0x8bb18bb1, 0x8b
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig)
+TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig, TAGparaDsc* pParMap)
 : TAGactionFile(name, "TAVTactBaseRaw - Base action for unpack vertex raw data"),
   fpNtuRaw(pNtuRaw),
   fpGeoMap(pGeoMap),
   fpConfig(pConfig),
+  fpParMap(pParMap),
   fData(0x0),
   fEventNumber(0),
   fPrevEventNumber(0),
@@ -105,7 +107,7 @@ void TAVTactBaseRaw::CreateHistogram()
      fpHisEvtNumber[i] = new TH1F(Form("vtNumberEvt%d", i+1), Form("Vertex -  Event number difference per event sensor %d", i+1), 20, -9.5, 10.5);
      AddHistogram(fpHisEvtNumber[i]);
       
-     fpHisTimeStampEvt[i] = new TH1F(Form("vtTimeStampEvt%d", i+1), Form("Vertex -  Time stamp difference per event sensor %d", i+1), 1000, -20000, 20000);
+     fpHisTimeStampEvt[i] = new TH1F(Form("vtTimeStampEvt%d", i+1), Form("Vertex -  Time stamp difference per event sensor %d", i+1), 1000, -200, 200);
      AddHistogram(fpHisTimeStampEvt[i]);
   
       fpHisTriggerFrame[i] = new TH1F(Form("vtTriggerFrame%d", i+1), Form("Vertex - Trigger difference in sensor %d", i+1),  20, -9.5, 10.5);
@@ -161,6 +163,7 @@ void TAVTactBaseRaw::FillHistoFrame(Int_t iSensor, MI26_FrameRaw* data)
 // --------------------------------------------------------------------------------------
 void TAVTactBaseRaw::FillHistoEvt(Int_t iSensor)
 {
+   //if (fEventNumber - fPrevEventNumber > 1) printf("trig %d evt %d diffevt %d\n", fEventNumber, fTriggerNumber, fEventNumber - fPrevEventNumber );
    fpHisEvtNumber[iSensor]->Fill(fEventNumber - fPrevEventNumber);
    fpHisTriggerEvt[iSensor]->Fill(fTriggerNumber - fPrevTriggerNumber);
    fpHisTimeStampEvt[iSensor]->Fill(fTimeStamp - fPrevTimeStamp);

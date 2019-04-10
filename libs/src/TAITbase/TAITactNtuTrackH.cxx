@@ -18,7 +18,6 @@
 //First
 #include "TAGgeoTrafo.hxx"
 
-#include "TAITdatRaw.hxx"
 #include "TAITparGeo.hxx"
 #include "TAITparConf.hxx"
 #include "TAITparMap.hxx"

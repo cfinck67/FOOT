@@ -25,7 +25,7 @@ using namespace std;
 class TAVTactBaseRaw : public TAGactionFile {
 public:
    
-   explicit TAVTactBaseRaw(const char* name=0, TAGdataDsc* p_datraw=0, TAGparaDsc* p_geomap=0, TAGparaDsc* p_config=0);
+   explicit TAVTactBaseRaw(const char* name=0, TAGdataDsc* p_datraw=0, TAGparaDsc* p_geomap=0, TAGparaDsc* p_config=0, TAGparaDsc* pParMap=0);
    virtual  ~TAVTactBaseRaw();
    
    //! Get number of sensors
@@ -48,6 +48,7 @@ protected:
    TAGdataDsc*       fpNtuRaw;		    // output data dsc
    TAGparaDsc*       fpGeoMap;		    // geo para dsc
    TAGparaDsc*       fpConfig;		    // config para dsc
+   TAGparaDsc*       fpParMap;		    // map para dsc
    
    vector<UInt_t>    fData;             // data array to fill
 

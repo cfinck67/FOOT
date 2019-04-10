@@ -15,7 +15,6 @@
 
 ClassImp(TAVTbaseParMap);
 
-const Int_t TAVTbaseParMap::fgkSensorsN = 4;
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
@@ -24,7 +23,6 @@ TAVTbaseParMap::TAVTbaseParMap()
    fSensorsN(0),
    fkDefaultMapName("")
 {
-   fPlaneId.reserve(fgkSensorsN);
 }
 
 //------------------------------------------+-----------------------------------
@@ -49,8 +47,8 @@ Bool_t TAVTbaseParMap::FromFile(const TString& name)
       return false;
    
    ReadItem(fSensorsN);
+   fPlaneId.reserve(fSensorsN);
    
-   printf("%d\n", fSensorsN);
    Int_t tmp;
 
    for (Int_t i = 0; i < fSensorsN; ++i) { // Loop on each charge
