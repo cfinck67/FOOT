@@ -81,6 +81,8 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
 
    fpParMapSt(0x0),
    fpParMapBm(0x0),
+   fpParMapVtx(0x0),
+   fpParMapIt(0x0),
    fpParMapTw(0x0),
 
    fpParTimTw(0x0),
@@ -294,6 +296,11 @@ void TAFOeventDisplay::ReadParFiles()
       TAVTparConf* parConf = (TAVTparConf*)fpParConfVtx->Object();
       parVtxFileName = Form("./config/TAVTdetector%s.cfg", fExpName.Data());
       parConf->FromFile(parVtxFileName.Data());
+      
+      fpParMapVtx = new TAGparaDsc("vtMap", new TAVTparMap());
+      TAVTparMap* parMap = (TAVTparMap*)fpParMapVtx->Object();
+      parVtxFileName = Form("./config/TAVTdetector%s.map", fExpName.Data());
+      parMap->FromFile(parVtxFileName.Data());
    }
    
    // initialise par files for Magnet
@@ -324,6 +331,11 @@ void TAFOeventDisplay::ReadParFiles()
       TAITparConf* parConf = (TAITparConf*)fpParConfIt->Object();
       parItFileName = Form("./config/TAITdetector%s.cfg", fExpName.Data());
       parConf->FromFile(parItFileName.Data());
+      
+      fpParMapIt = new TAGparaDsc("itMap", new TAITparMap());
+      TAVTparMap* parMap = (TAVTparMap*)fpParMapIt->Object();
+      parItFileName = Form("./config/TAITdetector%s.map", fExpName.Data());
+      parMap->FromFile(parItFileName.Data());
    }
    
    // initialise par files for multi strip detector
@@ -602,18 +614,18 @@ void TAFOeventDisplay::CreateRawAction()
       fpNtuRawVtx   = new TAGdataDsc("vtRaw", new TAVTntuRaw());
       
       if (fgStdAloneFlag) {
-         fActVmeReaderVtx  = new TAVTactVmeReader("vtActNtu", fpNtuRawVtx, fpParGeoVtx, fpParConfVtx);
+         fActVmeReaderVtx  = new TAVTactVmeReader("vtActNtu", fpNtuRawVtx, fpParGeoVtx, fpParConfVtx, fpParMapVtx);
          fActVmeReaderVtx->CreateHistogram();
 
       } else {
-         fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDaqEvent, fpParGeoVtx, fpParConfVtx);
+         fActNtuRawVtx = new TAVTactNtuRaw("vtActNtu", fpNtuRawVtx, fpDaqEvent, fpParGeoVtx, fpParConfVtx, fpParMapVtx);
          fActNtuRawVtx->CreateHistogram();
       }
    }
    
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
       fpNtuRawIt   = new TAGdataDsc("itRaw", new TAITntuRaw());
-      fActNtuRawIt = new TAITactNtuRaw("itActNtu", fpNtuRawIt, fpDatRawIt, fpParGeoIt);
+      fActNtuRawIt = new TAITactNtuRaw("itActNtu", fpNtuRawIt, fpDatRawIt, fpParGeoIt, fpParMapIt);
       fActNtuRawIt->CreateHistogram();
    }
    
@@ -803,7 +815,7 @@ void TAFOeventDisplay::AddElements()
       gEve->AddElement(fCaClusDisplay);
    }
 
-   if (GlobalPar::GetPar()->IncludeKalman()) {
+   if (GlobalPar::GetPar()->IncludeKalman() && GlobalPar::GetPar()->IncludeDI()) {
       fGlbTrackDisplay->ResetTracks();
       gEve->AddElement(fGlbTrackDisplay);
    }
