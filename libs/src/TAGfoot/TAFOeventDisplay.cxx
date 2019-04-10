@@ -39,7 +39,6 @@
 #include "TAVTntuTrack.hxx"
 #include "TAVTntuVertex.hxx"
 
-#include "TAVTdatRaw.hxx"
 #include "TAVTactNtuRaw.hxx"
 #include "TAVTactVmeReader.hxx"
 #include "TAVTactNtuTrackF.hxx"
@@ -613,14 +612,12 @@ void TAFOeventDisplay::CreateRawAction()
    }
    
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
-      fpDatRawIt   = new TAGdataDsc("itDat", new TAVTdatRaw());
       fpNtuRawIt   = new TAGdataDsc("itRaw", new TAITntuRaw());
       fActNtuRawIt = new TAITactNtuRaw("itActNtu", fpNtuRawIt, fpDatRawIt, fpParGeoIt);
       fActNtuRawIt->CreateHistogram();
    }
    
    if (GlobalPar::GetPar()->IncludeMSD()) {
-      fpDatRawMsd   = new TAGdataDsc("msdDat", new TAVTdatRaw());
       fpNtuRawMsd   = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
       fActNtuRawMsd = new TAVTactNtuRaw("msdActNtu", fpNtuRawMsd, fpDatRawMsd, fpParGeoMsd);
       fActNtuRawMsd->CreateHistogram();
@@ -1022,6 +1019,9 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
    else if (prefix == "ms")
       parGeo = (TAMSDparGeo*) fpParGeoMsd->Object();
 
+   // known bug if first event is empty
+      fVtxClusDisplay->AddHit(-1, 0, 0, 0);
+   
    
    Int_t nPlanes = parGeo->GetNSensors();
    
@@ -1061,9 +1061,7 @@ void TAFOeventDisplay::UpdateQuadElements(const TString prefix)
       
       Int_t nclus = pNtuClus->GetClustersN(iPlane);
       
-      if (fTAGroot->CurrentRunInfo().RunNumber() == -1 && nclus == 0) // known bug if first event is empty
-         fVtxClusDisplay->AddHit(50, 0, 0, 0);
-      else if (nclus == 0) continue;
+     if (nclus == 0) continue;
       
       for (Int_t iClus = 0; iClus < nclus; ++iClus) {
          TAVTcluster *clus = pNtuClus->GetCluster(iPlane, iClus);

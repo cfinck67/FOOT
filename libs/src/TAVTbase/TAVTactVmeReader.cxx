@@ -8,7 +8,6 @@
 #include "TAGroot.hxx"
 #include "TAVTparConf.hxx"
 #include "TAVTparGeo.hxx"
-#include "TAVTdatRaw.hxx"
 #include "TAVTactVmeReader.hxx"
 
 /*!

@@ -23,8 +23,6 @@
 
 #include "TAGroot.hxx"
 #include "TAITparGeo.hxx"
-#include "TAVTdatRaw.hxx"
-#include "TAVTdatRaw.hxx"
 
 
 //##############################################################################

@@ -20,7 +20,6 @@
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
 #include "TAVTparCal.hxx"
-#include "TAVTdatRaw.hxx"
 #include "TAVTntuRaw.hxx"
 #include "TAVTntuCluster.hxx"
 

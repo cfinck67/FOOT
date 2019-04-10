@@ -9,8 +9,6 @@
 #include "TClonesArray.h"
 #include "TVector3.h"
 
-#include "TAVTdatRaw.hxx"
-
 // all 3 needed to take from gTagROOT
 #include "TAGroot.hxx"
 #include "TAVTparGeo.hxx"
