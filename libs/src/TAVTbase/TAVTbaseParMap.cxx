@@ -63,3 +63,13 @@ Bool_t TAVTbaseParMap::FromFile(const TString& name)
 
    return true;
 }
+
+//------------------------------------------+-----------------------------------
+Int_t TAVTbaseParMap::GetPlaneId(Int_t sensorId)
+{
+   if (sensorId >= fSensorsN)
+      return -1;
+   else
+      return fPlaneId[sensorId];
+}
+
