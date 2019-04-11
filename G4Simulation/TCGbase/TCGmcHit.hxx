@@ -23,20 +23,20 @@ public:
    void Print();
    
 private:
-   G4double        fEdep; //EnergyDeposed
+   G4double        fEdep; //EnergyDeposited
    G4double        fEnergyInput; //EnergyInput
    G4int           fZparticle; //Z of particle
    G4int           fNumberNucleon; //Number of nucleons
    G4double        fMass; //mass of particle
    G4double        fCharge; // charge of particle
    G4int           fSensorId; //id of the touched sensor
-   G4ThreeVector   flocalPos; //position of sensitive part in the CMOS container
+   G4ThreeVector   flocalPos; //position of sensitive part
    G4int           fTrackId; //id of the track
    G4int           fParentId; //id of ParentTrack
    G4String        fParticleName; //name of Particle
    G4int           fParticlePDG; //particle on PDG
    G4int           fFlagUsed; //set to 1 if the step in the hit has been used
-   G4ThreeVector   fPosOut; //position after step (out posizion)
+   G4ThreeVector   fPosOut; //position after step (out position)
    G4ThreeVector   fPosIn; //position before step (in position)
    G4ThreeVector   fPosVertex; //vertex position in case of interaction
    G4ThreeVector   fMomentumOut; //momentum Out case of interaction
@@ -46,6 +46,7 @@ private:
    G4double        fGlobalTime; // global time
    
 public:
+   void AddEdep(G4double de)               { fEdep  += de;               }
    void SetEdep(G4double de)               { fEdep = de;                 } //keV
    G4double GetEdep()                      { return fEdep;               }
    void SetEinput(G4double de)             { fEnergyInput = de;          } //keV
@@ -97,6 +98,7 @@ public:
    
 	void SetFlagUsed(G4int flag)            { fFlagUsed = flag;           }
 	G4int GetFlagUsed()                     { return fFlagUsed;           }
+
 };
 
 

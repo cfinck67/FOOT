@@ -393,7 +393,9 @@ TVector3 TABMparGeo::GetPlaneInfo(TVector3 pos, Int_t& view, Int_t& layer, Int_t
    
    layer = (pos[2]/width)/2;
    view  = int(pos[2]/width) % 2;
-   
+
+//    printf("(%d,%d) \t pos=%.3e \n",layer,view,pos[2]);
+
    Float_t minDist = 999;
 
    for(Int_t i = 0; i < fSensesN; ++i) {
@@ -457,6 +459,29 @@ TVector3 TABMparGeo::GetWireDir(Int_t view) const
 {
    return (view == 0) ? TVector3(1, 0, 0) : TVector3(0, 1, 0);
 }
+
+//______________________________________________________________________________
+/// Get cell id from position of the hit, layer and view
+Int_t TABMparGeo::GetCellId(TVector3 pos, int layer, int view)
+{
+    Int_t cell = -1 ;
+    Float_t shift = fBmDeltaDch[1]-fSensesN*fBmCellWide ;
+    if(layer%2==0) shift = -shift;
+    Float_t limit = -fSensesN*fBmCellWide + shift;
+
+    int axis ;
+    if(view==0) axis = 1 ;  /// view 0 along y axis
+    else axis = 0 ;         /// view 1 along x axis
+
+    for(int i=0 ; i<fSensesN ; ++i){
+        if((pos[axis]>= limit) && (pos[axis]<(limit+2.0*fBmCellWide))){
+            cell = i ;
+        }
+        limit = limit+(2.0*fBmCellWide) ;
+    }
+    return cell ;
+}
+
 
 //------------------------------------------+-----------------------------------
 //! Clear geometry info.

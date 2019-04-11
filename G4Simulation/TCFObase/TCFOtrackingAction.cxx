@@ -25,6 +25,7 @@ map<TString, Int_t> TCFOtrackingAction::fgkGeantToFlukaID = {{"alpha",-6}, {"He3
 TCFOtrackingAction::TCFOtrackingAction(TCFObaseEventAction* aEventAction)
 {
     fEventAction = aEventAction ;
+    fmcHits = new TCGmcHit(); ;
 }
 
 //
@@ -33,6 +34,7 @@ TCFOtrackingAction::TCFOtrackingAction(TCFObaseEventAction* aEventAction)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 TCFOtrackingAction::~TCFOtrackingAction()
 {
+    delete fmcHits ;
 }
 
 //
@@ -82,6 +84,8 @@ void TCFOtrackingAction::PostUserTrackingAction(const G4Track* aTrack){
     TVector3 xposparent(0,0,0);  /// position of the parent particle - not needed, so initialized to zero
 
     fEventAction->GetTrackMc()->NewHit(flukaID,charge,trackID,-1,baryon,-1,mass,parentID,time,tof,length,vtxpos,finpos,vtxmom,finmom,xposparent,xposparent,-1);
+
+
 }
 
 
