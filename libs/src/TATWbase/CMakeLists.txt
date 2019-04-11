@@ -30,10 +30,6 @@ set( with_dictionnaries
    TATWactNtuRaw
    TATWactNtuPoint
    TATWparGeo
-   TATW_ContainerHit
-   TATW_ContainerPoint
-   TATW_Hit
-   TATW_Point
    TATWdigitizer
    TWaveformContainer
    CChannelMap
