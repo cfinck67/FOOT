@@ -22,8 +22,8 @@
 
 #include "TATWparGeo.hxx"
 #include "TATWparCal.hxx"
-#include "TATW_ContainerHit.hxx"
-#include "TATW_ContainerPoint.hxx"
+#include "TATWntuRaw.hxx"
+#include "TATWntuPoint.hxx"
 
 #include "TATWactNtuMC.hxx"
 #include "TATWactNtuPoint.hxx"
@@ -48,8 +48,8 @@ void FillMCTw(EVENT_STRUCT *myStr) {
    TATWparCal* calmap   = (TATWparCal*) twCal->Object();
    calmap->FromFile();
 
-   TAGdataDsc* twRec = new TAGdataDsc("containerPoint", new TATW_ContainerPoint());
-   TAGdataDsc* twRaw = new TAGdataDsc("containerHit", new TATW_ContainerHit());
+   TAGdataDsc* twRec = new TAGdataDsc("containerPoint", new TATWntuPoint());
+   TAGdataDsc* twRaw = new TAGdataDsc("containerHit", new TATWntuRaw());
    
    twActRaw  = new TATWactNtuMC("twActRaw", twRaw, myStr);
    twActRaw->CreateHistogram();
@@ -58,7 +58,7 @@ void FillMCTw(EVENT_STRUCT *myStr) {
    twActRec->CreateHistogram();
 
    
-   //outFile->SetupElementBranch(twRaw, TATW_ContainerHit::GetBranchName());
+   //outFile->SetupElementBranch(twRaw, TATWntuRaw::GetBranchName());
 }
 
 void ReadTwRawMC(TString name = "16O_C2H4_200_15.root")

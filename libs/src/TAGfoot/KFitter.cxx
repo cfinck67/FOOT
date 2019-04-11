@@ -196,7 +196,7 @@ int KFitter::UploadHitsMSD() {
 int KFitter::UploadHitsTW() {
 	
 	// take the ntuple object already filled
-	TATW_ContainerPoint* ntup = (TATW_ContainerPoint*) gTAGroot->FindDataDsc("containerPoint", "TATW_ContainerPoint")->Object();
+	TATWntuPoint* ntup = (TATWntuPoint*) gTAGroot->FindDataDsc("containerPoint", "TATWntuPoint")->Object();
 	if ( m_debug > 0 )		cout << "N point read: " << ntup->GetPointN() << endl;
 
 	// save hits in the collection
@@ -390,7 +390,7 @@ void KFitter::Prepare4TofWall( Track* fitTrack ) {
 	TVectorD hitCoords(3);
     for (unsigned int i = 0; i < m_TW_hitCollection.size(); i++) {
         
-        TATW_Point* p_hit = m_TW_hitCollection.at(i);
+        TATWpoint* p_hit = m_TW_hitCollection.at(i);
 
         // get pixel coord// should used TAGgeoTrafo
         TVector3 hitPos = p_hit->GetPosition();

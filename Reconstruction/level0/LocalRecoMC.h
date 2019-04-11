@@ -26,8 +26,8 @@
 #include "TAMCactNtuCal.hxx"
 #include "TAMCactNtuEve.hxx"
 
-#include "TATW_ContainerHit.hxx"
-#include "TATW_ContainerPoint.hxx"
+#include "TATWntuRaw.hxx"
+#include "TATWntuPoint.hxx"
 
 #include "Evento.hxx"
 

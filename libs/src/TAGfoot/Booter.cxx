@@ -71,7 +71,7 @@
 #include "TATWparGeo.hxx"
 #include "TATWparMap.hxx"
 #include "TATWdatRaw.hxx"
-#include "TATW_ContainerHit.hxx"
+#include "TATWntuRaw.hxx"
 #include "TATWactNtuMC.hxx"
 
 //Calorimeter
@@ -652,7 +652,7 @@ void Booter::FillMCTofWall(EVENT_STRUCT *myStr) {
   //  top->AddNode( ((TATWparGeo*) myp_twgeo->Object())->GetVolume(), 0, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation("Scint",0,0,0)) );
 
     /*Ntupling the MC Tof Wall information*/
-    containerHit    = new TAGdataDsc("containerHit", new TATW_ContainerHit());
+    containerHit    = new TAGdataDsc("containerHit", new TATWntuRaw());
    
 
     new TATWactNtuMC("an_twraw", containerHit, myStr);

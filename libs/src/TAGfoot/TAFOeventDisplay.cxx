@@ -638,7 +638,6 @@ void TAFOeventDisplay::CreateRawAction()
    if(GlobalPar::GetPar()->IncludeTW()) {
       fpParTimeTw   = new TAGparaDsc("twTime", new TATWparTime());
       fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
-      //      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATW_ContainerHit());
       fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
       fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimTw);
       fActDatRawTw->CreateHistogram();

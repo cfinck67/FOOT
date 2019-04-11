@@ -57,7 +57,7 @@
 #include "TAMSDntuRaw.hxx"
 
 #include "TATWparGeo.hxx"
-#include "TATW_ContainerPoint.hxx"
+#include "TATWntuPoint.hxx"
 
 #include "TAMCntuEve.hxx"
 
@@ -213,7 +213,7 @@ private:
 	vector<TAVTntuHit*> m_VT_hitCollection;
 	vector<TAITntuHit*> m_IT_hitCollection;
 	vector<TAMSDntuHit*> m_MSD_hitCollection;
-	vector<TATW_Point*> m_TW_hitCollection;
+	vector<TATWpoint*> m_TW_hitCollection;
 
 	vector<TVector3> m_MSD_posVectorSmearedHit;
 	vector<TVector3> m_MSD_momVectorSmearedHit;
