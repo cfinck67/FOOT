@@ -24,7 +24,8 @@ public:
    
     G4Material* CreateG4Material(TString name, G4double density=1.0, G4State state=kStateUndefined, G4double temperature=273.15, G4double pressure=1.013e5);
     G4Material* CreateG4Mixture(TString formula, const TString densities, const TString prop, G4double density);
-   G4Material* ConvertGeoMaterial(const TGeoMaterial *mat);
+    G4Material* ConvertGeoMaterial(const TGeoMaterial *mat);
+    void CreateG4DefaultMaterials();
 
 public:
    static TCGmaterials* Instance();

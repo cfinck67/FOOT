@@ -171,6 +171,18 @@ G4Material* TCGmaterials::ConvertGeoMaterial(const TGeoMaterial *mat)
 }
 
 
+//______________________________________________________________________________
+void TCGmaterials::CreateG4DefaultMaterials()
+{
+    G4Element* N = new G4Element("Nitrogen", "N", 7, 14.01*g/mole);
+    G4Element* O = new G4Element("Oxygen"  , "O", 8, 16.00*g/mole);
+
+    G4Material *air = new G4Material("Air",1.29e-3*g/cm3,2);
+    air->AddElement(O,0.21);
+    air->AddElement(N,0.79);
+
+    new G4Material("Vacuum", 1, 1.008*g/mole, 1.0e-25*g/cm3, kStateGas, 2.73*kelvin, 3.e-18*pascal);
+}
 
 
 
