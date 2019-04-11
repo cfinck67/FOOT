@@ -80,7 +80,7 @@ void FillBm(TString name) {
 
    TAGparaDsc*  stMap  = new TAGparaDsc("stMap", new TASTparMap());
    TASTparMap*  stparMap = (TASTparMap*)stMap->Object();
-   parFileName = "./geomaps/tr_ch.map";
+   parFileName="./config/TASTdetector.cfg";
    stparMap->FromFile(parFileName.Data());
   
   //TAGdataDsc
