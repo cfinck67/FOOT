@@ -115,7 +115,10 @@ void FillBM()
 
 void FillVertex()
 {
-   
+   TAGparaDsc* vtMap    = new TAGparaDsc("vtMap", new TAVTparMap());
+   TAVTparMap* map   = (TAVTparMap*) vtMap->Object();
+   map->FromFile("./config/TAVTdetector.map");
+
    TAGparaDsc* vtGeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());
    TAVTparGeo* geomap   = (TAVTparGeo*) vtGeo->Object();
    geomap->FromFile("./geomaps/TAVTdetector.map");
@@ -132,7 +135,7 @@ void FillVertex()
 
    daqActReader  = new TAGactDaqReader("daqActReader", evDaq);
    
-   vtActRaw  = new TAVTactNtuRaw("vtActRaw", vtNtu, evDaq, vtGeo, vtConf);
+   vtActRaw  = new TAVTactNtuRaw("vtActRaw", vtNtu, evDaq, vtGeo, vtConf, vtMap);
    vtActRaw->CreateHistogram();
    
    vtActClus =  new TAVTactNtuClusterF("vtActClus", vtNtu, vtClus, vtConf, vtGeo);

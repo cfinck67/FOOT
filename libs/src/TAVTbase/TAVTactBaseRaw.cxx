@@ -10,6 +10,7 @@
 
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
+#include "TAVTparMap.hxx"
 
 #include "TAVTntuRaw.hxx"
 #include "TAVTactBaseRaw.hxx"
@@ -32,11 +33,12 @@ const UInt_t TAVTactBaseRaw::fgkKeyTail[]        = {0x8bb08bb0, 0x8bb18bb1, 0x8b
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig)
+TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig, TAGparaDsc* pParMap)
 : TAGactionFile(name, "TAVTactBaseRaw - Base action for unpack vertex raw data"),
   fpNtuRaw(pNtuRaw),
   fpGeoMap(pGeoMap),
   fpConfig(pConfig),
+  fpParMap(pParMap),
   fData(0x0),
   fEventNumber(0),
   fPrevEventNumber(0),
@@ -47,7 +49,7 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc
   fFrameCount(0),
   fTriggerNumberFrame(0),
   fTimeStampFrame(0),
-  fFirstFrame(false),
+  fFirstFrame(-1),
   fNSensors(-1),
   fIndex(0),
   fCurrentTriggerCnt(0),
@@ -105,7 +107,7 @@ void TAVTactBaseRaw::CreateHistogram()
      fpHisEvtNumber[i] = new TH1F(Form("vtNumberEvt%d", i+1), Form("Vertex -  Event number difference per event sensor %d", i+1), 20, -9.5, 10.5);
      AddHistogram(fpHisEvtNumber[i]);
       
-     fpHisTimeStampEvt[i] = new TH1F(Form("vtTimeStampEvt%d", i+1), Form("Vertex -  Time stamp difference per event sensor %d", i+1), 1000, -20000, 20000);
+     fpHisTimeStampEvt[i] = new TH1F(Form("vtTimeStampEvt%d", i+1), Form("Vertex -  Time stamp difference per event sensor %d", i+1), 1000, -200, 200);
      AddHistogram(fpHisTimeStampEvt[i]);
   
       fpHisTriggerFrame[i] = new TH1F(Form("vtTriggerFrame%d", i+1), Form("Vertex - Trigger difference in sensor %d", i+1),  20, -9.5, 10.5);
@@ -143,18 +145,25 @@ void TAVTactBaseRaw::FillHistoFrame(Int_t iSensor, MI26_FrameRaw* data)
    UInt_t timeStamp = data->TimeStamp;
    UInt_t frameCnt  = data->FrameCnt;
    
-   fpHisTriggerFrame[iSensor]->Fill(trigger - fTriggerNumberFrame);
-   fpHisTimeStampFrame[iSensor]->Fill(timeStamp - fTimeStampFrame);
-   fpHisFrameCnt[iSensor]->Fill(frameCnt - fFrameCount);
-   
-   fTriggerNumberFrame = trigger;
-   fFrameCount         = frameCnt;
-   fTimeStampFrame     = timeStamp;
+   //printf("%u\n", frameCnt);
+   if (fFirstFrame == 0) {
+      fTriggerNumberFrame = trigger;
+      fFrameCount         = frameCnt;
+      fTimeStampFrame     = timeStamp;
+      fFirstFrame++;
+      
+   } else if (fFirstFrame == 2){
+      fpHisTriggerFrame[iSensor]->Fill(trigger - fTriggerNumberFrame);
+      fpHisTimeStampFrame[iSensor]->Fill(timeStamp - fTimeStampFrame);
+      fpHisFrameCnt[iSensor]->Fill(frameCnt - fFrameCount);
+   } else
+      fFirstFrame++;
 }
 
 // --------------------------------------------------------------------------------------
 void TAVTactBaseRaw::FillHistoEvt(Int_t iSensor)
 {
+   //if (fEventNumber - fPrevEventNumber > 1) printf("trig %d evt %d diffevt %d\n", fEventNumber, fTriggerNumber, fEventNumber - fPrevEventNumber );
    fpHisEvtNumber[iSensor]->Fill(fEventNumber - fPrevEventNumber);
    fpHisTriggerEvt[iSensor]->Fill(fTriggerNumber - fPrevTriggerNumber);
    fpHisTimeStampEvt[iSensor]->Fill(fTimeStamp - fPrevTimeStamp);
@@ -179,7 +188,8 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
    TAVTntuRaw*  pNtuRaw = (TAVTntuRaw*)  fpNtuRaw->Object();
    TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
    TAVTparGeo*  pGeoPar = (TAVTparGeo*)  fpGeoMap->Object();
-
+   TAVTparMap*  pParMap = (TAVTparMap*) fpParMap->Object();
+   
    Int_t dataLength    = ((frame->DataLength & 0xFFFF0000)>>16);
    if (dataLength > 140) return false;
    
@@ -244,11 +254,10 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
             // create a new pixel only if we are reading an event
             // and if the line is in the proper limit
             if (!lineStatus->F.Ovf) {
-               AddPixel(iSensor, 1, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
+               Int_t planeId = pParMap->GetPlaneId(iSensor);
+               AddPixel(planeId, 1, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
                if(fDebugLevel>3)
                   printf("sensor %d, line %d, col %d\n", iSensor, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
-               if (pNtuRaw->GetPixelsN(iSensor) > pConfig->GetAnalysisPar().HitsInPlaneMaximum) return false;
-               
             }
          }
          

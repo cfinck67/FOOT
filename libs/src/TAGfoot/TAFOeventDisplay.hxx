@@ -27,6 +27,8 @@
 
 #include "TASTparMap.hxx"
 #include "TABMparMap.hxx"
+#include "TAVTparMap.hxx"
+#include "TAITparMap.hxx"
 #include "TATWparMap.hxx"
 
 #include "TATWparCal.hxx"
@@ -189,6 +191,8 @@ protected:
 
    TAGparaDsc*           fpParMapSt;
    TAGparaDsc*           fpParMapBm;
+   TAGparaDsc*           fpParMapVtx;
+   TAGparaDsc*           fpParMapIt;
    TAGparaDsc*           fpParMapTw;
    TAGparaDsc*           fpParTimTw;
 

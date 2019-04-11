@@ -14,7 +14,8 @@
 #include "TASTactDatRaw.hxx"
 #include <TCanvas.h>
 #include <unistd.h>
-
+#include "TGraphErrors.h"
+#include <stdint.h>
 
 /*!
   \class TASTactDatRaw TASTactDatRaw.hxx "TASTactDatRaw.hxx"
@@ -42,8 +43,6 @@ TASTactDatRaw::TASTactDatRaw(const char* name,
   AddPara(p_parmap, "TASTparMap");
   AddPara(p_parTime, "TASTparTime");
 
-  
-  
   m_debug = false;
   m_nev=0;
 }
@@ -81,61 +80,57 @@ Bool_t TASTactDatRaw::Action() {
    }
    
 
-   double TrigTime=0, Charge=0;
-   bool fitOk=false;
-   
-   //evaluate the trigger time
-   p_datraw->SumWaveforms();
-   TrigTime = ComputeArrivalTime(p_datraw->GetWaveSum(),&fitOk);
-   p_datraw->SetTriggerTime(TrigTime);
-
-   if(ValidHistogram())hTrigTime->Fill(TrigTime); 
-   //evaluate the arrival time of the single channels
-
+   double TrigTime=0, Charge=0, max_amp=0 ;
    vector<TASTrawHit*> myHits;
    int board_id =0, ch_num=0;
- 
-   
    double single_time =0;
-   //   myHits = p_datraw->GetHitsCFD();
+   int nvalid=0;
+   double single_q=0;
+  
    myHits = p_datraw->GetHits();
    for(int iHit=0;iHit<(int)myHits.size();iHit++){
-     if(ComputeMaxAmplitude(myHits.at(iHit)) > 0.1 && ComputeMaxAmplitude(myHits.at(iHit)) < 0.9){
-       fitOk=false;
-       single_time = ComputeArrivalTime(myHits.at(iHit), &fitOk);
-       ch_num = myHits.at(iHit)->GetChannel();
-       myHits.at(iHit)->SetArrivalTime(single_time);
-       if(fitOk){
-	 if(ValidHistogram()){
-	   if(ch_num>=0 && ch_num<8) hArrivalTime[ch_num]->Fill(TrigTime-single_time); 
-	 }
-       }
-     }
-   }
-   
-   //evaluate the charge of the single channels
-   double single_q=0, q=0,max_amp=0;
-   myHits = p_datraw->GetHits();
-   for(int iHit=0; iHit<(int)myHits.size();iHit++){
      ch_num = myHits.at(iHit)->GetChannel();
-
-     if(p_parmap->IsSTChannel(ch_num)){
-       single_q = ComputeCharge(myHits.at(iHit));
+     if(ComputeArrivalTime(myHits.at(iHit), &single_time, &max_amp, &single_q)){
+       myHits.at(iHit)->SetArrivalTime(single_time);
        myHits.at(iHit)->SetCharge(single_q);
-       if(ValidHistogram()){
-   	 if(ch_num>=0 && ch_num<8)hCharge[ch_num]->Fill(single_q); 
-       }
-       q+= single_q;
-
-       
-       max_amp = ComputeMaxAmplitude(myHits.at(iHit));
-       if(ValidHistogram()){
-   	 if(ch_num>=0 && ch_num<8) hAmplitude[ch_num]->Fill(max_amp); 
-       }
+       myHits.at(iHit)->SetAmplitude(max_amp);
+       TrigTime+=single_time;
+       Charge+=single_q;
+       nvalid++;
      }
    }
-   p_datraw->SetCharge(q);
-   if(ValidHistogram())hTotCharge->Fill(q); 
+   if(nvalid)TrigTime = TrigTime/(double)nvalid;
+   p_datraw->SetTriggerTime(TrigTime);
+   p_datraw->SetTrigType(myHits.at(0)->GetTrigType());
+   p_datraw->SetCharge(Charge);
+   
+     
+   if(ValidHistogram()){
+     hTrigTime->Fill(TrigTime);
+     hTotCharge->Fill(Charge);
+     for(int iHit=0;iHit<(int)myHits.size();iHit++){
+       ch_num = myHits.at(iHit)->GetChannel();
+       if(ch_num>=0 && ch_num<8) hArrivalTime[ch_num]->Fill(TrigTime-myHits.at(iHit)->GetArrivalTime());
+       if(ch_num>=0 && ch_num<8) hAmplitude[ch_num]->Fill(myHits.at(iHit)->GetAmplitude());
+       if(ch_num>=0 && ch_num<8) hCharge[ch_num]->Fill(myHits.at(iHit)->GetCharge());
+     }
+   }
+     
+   //evaluate the charge of the single channels
+     // myHits = p_datraw->GetHits();
+   // for(int iHit=0; iHit<(int)myHits.size();iHit++){
+   //   ch_num = myHits.at(iHit)->GetChannel();
+
+   //   if(p_parmap->IsSTChannel(ch_num)){
+   //     single_q = ComputeCharge(myHits.at(iHit));
+   //     myHits.at(iHit)->SetCharge(single_q);
+   //     if(ValidHistogram()){
+   // 	 if(ch_num>=0 && ch_num<8)hCharge[ch_num]->Fill(single_q); 
+   //     }
+   //     q+= single_q;
+   //   }
+   // }
+  
 
    m_nev++;
    
@@ -169,19 +164,22 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
   vector<double> w_amp;
   vector<float> w_tcal;
 
+
+  if(GetDebugLevel()) { 
+    /*
+    printf("%08x     valuessize::%08x\n", evt->evtSize,  evt->values.size());
+    for (Int_t i = 0; i < evt->evtSize-1; ++i) {
+      if(i<30)printf("first::%08x\n",  evt->values[i]);
+      if(i>evt->evtSize-5)printf("last::%08x\n",  evt->values[i]);
+    }
+    
+    printf("last %08x\n", evt->values.at(evt->values.size()-2));
+    printf("last %08x\n", evt->values.at(evt->values.size()-1));
+    printf("\n");
+    */
+  }
   
-  // printf("%08x     valuessize::%08x\n", evt->evtSize,  evt->values.size());
-  // for (Int_t i = 0; i < evt->evtSize-1; ++i) {
-
-  //   if(i<10)printf("first::%08x\n",  evt->values[i]);
-  //   if(i>evt->evtSize-5)printf("last::%08x\n",  evt->values[i]);
-  // }
-
-  // printf("last %08x\n", evt->values.at(evt->values.size()-2));
-  // printf("last %08x\n", evt->values.at(evt->values.size()-1));
-  // printf("\n");
-
-
+  int nmicro=0;
  
   iW=0;
   bool foundFooter = false;
@@ -189,122 +187,109 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 
     if(evt->values.at(iW) == GLB_EVT_HEADER){
       if(m_debug)printf("found glb header::%08x %08x\n", evt->values.at(iW), evt->values.at(iW+1));
-      iW+=3; //
-    }
 
-    //found time header
-    if(evt->values.at(iW) == FILE_HEADER && evt->values.at(iW+1) == TIME_HEADER){
-
-      if(m_debug)printf("found time calibration header::%08x %08x\n", evt->values.at(iW), evt->values.at(iW+1));
-      iW+=2;
+      iW+=5;
+      nmicro = evt->values.at(iW);
+      nmicro = 1000;
+      p_datraw->UpdateRunTime(nmicro);
       
-      while((evt->values.at(iW) & 0xffff)== BOARD_HEADER){
-
-  	board_id = (evt->values.at(iW)>>16)  & 0xffff;
-  	if(m_debug)printf("found board header::%08x num%d\n", evt->values.at(iW), board_id);
-  	iW++;
-	
-  	while((evt->values.at(iW) & 0xffff)== CH_HEADER){
-	  char tmp_chstr[3]={'0','0','\0'};
-	  tmp_chstr[1] = (evt->values.at(iW)>>24)  & 0xff;
-	  tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
-	  ch_num = atoi(tmp_chstr);
-  	  if(m_debug)printf("found channel header::%08x num%d\n", evt->values.at(iW), ch_num);
-  	  iW++;
-
-	  w_tcal.clear();
-  	  for(int iCal=0;iCal<1024;iCal++){
-	    time_bin = *((float*)&evt->values.at(iW));
-	    w_tcal.push_back(time_bin);
-  	    iW++;
-	  }
-	  if(p_parMap->IsSTChannel(ch_num) && p_parMap->IsSTBoard(board_id)){
-	    p_parTime->SetTimeCal(board_id, ch_num, w_tcal);
-	  }
-	}
-      }
-    }
-  
-  
-  
-    //found evt_header
-    if(evt->values.at(iW) == EVT_HEADER){
-      if(m_debug)printf("found evt header::%08x   %08x   %08x\n", evt->values.at(iW),evt->values.at(iW+1),evt->values.at(iW+2));
-
-      iW++;
-      trig_type = evt->values.at(iW) & 0xffff;
-      ser_evt_number = (evt->values.at(iW) >> 16) & 0xffff;
+      iW++; //
       
-      iW++;
-      bco_counter = (int)evt->values.at(iW);
+      //found evt_header
+      if(evt->values.at(iW) == EVT_HEADER){
+	if(m_debug)printf("found evt header::%08x   %08x   %08x\n", evt->values.at(iW),evt->values.at(iW+1),evt->values.at(iW+2));
       
-      iW++;
-      while((evt->values.at(iW) & 0xffff)== BOARD_HEADER){
-  	board_id = (evt->values.at(iW)>>16)  & 0xffff;
-  	if(m_debug)printf("found board header::%08x num%d\n", evt->values.at(iW), board_id);
-  	iW++;
-	temperature = *((float*)&evt->values.at(iW));
-	if(m_debug)printf("temperatrue::%08x num%d\n", evt->values.at(iW), board_id);
-
-	
-  	iW++;
-	range = *((float*)&evt->values.at(iW));
-	
-	if(m_debug)printf("range::%08x num%d\n", evt->values.at(iW), board_id);
-	
-  	iW++;
-  	sampling_freq = (float)(( evt->values.at(iW)>> 16)&0xffff);
-  	flags = evt->values.at(iW) & 0xffff;
-	if(m_debug)printf("sampling::%08x    %08x   %08x    num%d\n", evt->values.at(iW),evt->values.at(iW+1),evt->values.at(iW+2), board_id);
-
-	
 	iW++;
+	trig_type = (evt->values.at(iW)>>16) & 0xffff;
+	ser_evt_number =  evt->values.at(iW)& 0xffff;
+      
+	iW++;
+	bco_counter = (int)evt->values.at(iW);
+      
+	iW++;
+	while((evt->values.at(iW) & 0xffff)== BOARD_HEADER){
+	  board_id = (evt->values.at(iW)>>16)  & 0xffff;
+	  if(m_debug)printf("found board header::%08x num%d\n", evt->values.at(iW), board_id);
+	  iW++;
+	  temperature = *((float*)&evt->values.at(iW));
+	  if(m_debug)printf("temperatrue::%08x num%d\n", evt->values.at(iW), board_id);
+
 	
-	while((evt->values.at(iW) & 0xffff)== CH_HEADER){
-
-	  char tmp_chstr[3]={'0','0','\0'};
-	  tmp_chstr[1] = (evt->values.at(iW)>>24)  & 0xff;
-	  tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
-	  ch_num = atoi(tmp_chstr);
-	  if(m_debug)printf("found channel header::%08x num%d\n", evt->values.at(iW), ch_num);
-	  
 	  iW++;
-	  trig_cell = (evt->values.at(iW)>>16) &0xffff;
-	  
-	  fe_settings = ((evt->values.at(iW))&0xffff);
+	  range = *((float*)&evt->values.at(iW));
+	
+	  if(m_debug)printf("range::%08x num%d\n", evt->values.at(iW), board_id);
+	
 	  iW++;
+	  sampling_freq = (float)(( evt->values.at(iW)>> 16)&0xffff);
+	  flags = evt->values.at(iW) & 0xffff;
+	  if(m_debug)printf("sampling::%08x    %08x   %08x    num%d\n", evt->values.at(iW),evt->values.at(iW+1),evt->values.at(iW+2), board_id);
+	
+	  iW++;
+	
+	  while((evt->values.at(iW) & 0xffff)== CH_HEADER){
 
-	  w_amp.clear();
-	  for(int iSa=0;iSa<512;iSa++){
-	    if(m_debug)printf("found sample isa::%d    ::%08x\n", iSa, evt->values.at(iW));
-	    adc_sa = evt->values.at(iW);
-	    v_sa = ((adc_sa >> 16) & 0xffff)/65536.-0.5+range;
-	    w_amp.push_back(v_sa);
-	    v_sa = (adc_sa & 0xffff)/65536.-0.5+range;
-	    w_amp.push_back(v_sa);
+	    char tmp_chstr[3]={'0','0','\0'};
+	    tmp_chstr[1] = (evt->values.at(iW)>>24)  & 0xff;
+	    tmp_chstr[0] = (evt->values.at(iW)>>16)  & 0xff;
+	    ch_num = atoi(tmp_chstr);
+	    if(m_debug)printf("found channel header::%08x num%d\n", evt->values.at(iW), ch_num);
+	  
 	    iW++;
-	  }
-	  if(p_parMap->IsSTChannel(ch_num) && p_parMap->IsSTBoard(board_id)){
-	    p_parTime->GetTimeArray(board_id, ch_num, trig_cell, &w_time);
-	    p_datraw->AddWaveform(ch_num, w_time ,w_amp);
-	  }
-	  w_amp.clear();
-	  w_time.clear();
+	    trig_cell = (evt->values.at(iW)>>16) &0xffff;
 	  
+	    fe_settings = ((evt->values.at(iW))&0xffff);
+	    iW++;
+	    
+	    int adctmp=0;
+	    int delta=0,deltaold=0;
+	    bool jump_up=false;
+	    vector<double> w_adc;
+	    w_amp.clear();
+	    
+	    for(int iSa=0;iSa<512;iSa++){
+	      // if(m_debug)printf("found sample isa::%d    ::%08x\n", iSa, word);
+	      adc_sa = evt->values.at(iW);
+	      adctmp = ((adc_sa >> 16) & 0xffff);
+	      w_adc.push_back(adctmp);
+	      adctmp  = (adc_sa & 0xffff);
+	      w_adc.push_back(adctmp);
+	      iW++;
+	    }
+
+	    int adcold=w_adc.at(5);
+	    for(int iSa=5;iSa<w_adc.size();iSa++){
+	      if(fabs(w_adc.at(iSa)-adcold)>30000){
+		if(w_adc.at(iSa)-adcold<30000)w_adc.at(iSa) += 65536;
+		if(w_adc.at(iSa)-adcold>30000)w_adc.at(iSa) -= 65536;
+	      }
+	    }
+	    	    
+	    for(int iSa=0;iSa<w_adc.size();iSa++){
+	      v_sa = w_adc.at(iSa)/65536.+range;
+	      w_amp.push_back(v_sa);
+	    }
+	    	    
+	    if(p_parMap->IsSTChannel(ch_num) && p_parMap->IsSTBoard(board_id)){
+	      p_parTime->GetTimeArray(board_id, ch_num, trig_cell, &w_time);
+	      p_datraw->AddWaveform(ch_num, w_time ,w_amp, trig_type);
+	    }
+	    w_amp.clear();
+	    w_time.clear();
+	  
+	  }
 	}
       }
+      
+      if(evt->values.at(iW) == EVT_FOOTER){
+	if(m_debug)printf("found footer\n");
+	iW++;
+	foundFooter = true;
+      }else{
+	printf("warining:: footer not found, event corrupted, iW::%d   last word::%08x!!\n",iW, evt->values.at(iW));
+	break;
+      }  
     }
-
-
-    
-    if(evt->values.at(iW) == EVT_FOOTER){
-      if(m_debug)printf("found footer\n");
-      iW++;
-      foundFooter = true;
-    }else{
-      printf("warining:: footer not found, event corrupted, iW::%d   last word::%08x!!\n",iW, evt->values.at(iW));
-      break;
-    }  
   }
 
 
@@ -362,11 +347,14 @@ void TASTactDatRaw::SavePlot(TGraph WaveGraph, TF1 fun1, TF1 fun2, TASTrawHit *m
 
 
 
-double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, bool *isOk){
+bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *ampl, double *charge){
 
-  
   vector<double> tmp_amp = myHit->GetAmplitudeArray();
+  tmp_amp.erase(tmp_amp.begin(),tmp_amp.begin()+2);
   vector<double> tmp_time = myHit->GetTimeArray();
+  tmp_time.erase(tmp_time.begin(),tmp_time.begin()+2);
+  vector<double> tmp_unc;
+  tmp_unc.assign(1022,0.01);
   
   int min_bin = std::distance(tmp_amp.begin(), std::min_element(tmp_amp.begin(), tmp_amp.end()));
   int max_bin = std::distance(tmp_amp.begin(), std::max_element(tmp_amp.begin(), tmp_amp.end()));
@@ -381,22 +369,25 @@ double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, bool *isOk){
   double amp_binmax = tmp_amp.at(max_bin);
 
 
-  double tleft= time_crossbin-15;
-  double tright= time_crossbin+2;
+  double tleft= time_crossbin-20;
+  double tright= time_crossbin+3;
 
   //to be commented...
-  TF1 f("f", "-[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[5]",10,80);
+  TF1 f("f", "-[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[5]",tleft,tright);
   f.SetParameter(0,1);
   f.SetParameter(1,time_crossbin);
   f.SetParameter(2,1);
   f.SetParameter(3,time_crossbin+2);
   f.SetParameter(4,2);
-  f.SetParameter(5,0.05);
+  f.SetParameter(5,0.5);
   
-  TGraph WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0]);
+  TGraphErrors WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0], 0, &tmp_unc[0]);
   WaveGraph.Fit("f","Q", "",tleft, tright);
+  
 
-  TF1 f1("f1", "-0.2*[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[0]/(1+TMath::Exp(-(x-[1]-1.5)/[2]))/(1+TMath::Exp((x-[3]-1.5)/[4]))",10,80);
+
+  
+  TF1 f1("f1", "-0.2*[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[0]/(1+TMath::Exp(-(x-[1]-1.5)/[2]))/(1+TMath::Exp((x-[3]-1.5)/[4]))",0,100);
   f1.SetLineColor(kGreen);
   f1.FixParameter(0, f.GetParameter(0));
   f1.FixParameter(1, f.GetParameter(1));
@@ -406,21 +397,28 @@ double TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, bool *isOk){
   f1.FixParameter(5, f.GetParameter(5));
 
 
-  if(m_debug)SavePlot(WaveGraph,f,f1, myHit);
-  
-  tleft = f1.GetX(f1.GetMinimum());
-  tright = f1.GetX(f1.GetMaximum());
 
   
+  if(m_debug)SavePlot(WaveGraph, f,f1, myHit);
+  
+  tleft = f1.GetMinimumX();
+  tright = f1.GetMaximumX();
+  
   double t1=f1.GetX(0.0,tleft,tright);
+
+
+  f.SetParameter(5,0.0);
+  *charge = -f.Integral(f.GetMinimumX()-10, f.GetMinimumX()+10);
+  *tarr = t1;
+  *ampl = fabs(f.GetParameter(5)-f.GetMinimum());
+
+  cout << "charge"<< *charge << endl;
   
   if(t1>tleft && t1<tright){
-    *isOk = true;
-    return t1;
+    return true;
   }else{
-    *isOk = false;
-    return -100000;
-  }
+    return false;
+ }
 }
 
 double TASTactDatRaw::ComputeCharge(TASTrawHit *currHit){
@@ -464,12 +462,17 @@ void TASTactDatRaw::CreateHistogram(){
 
   char histoname[100]="";
   cout<<"I have created the ST histo. "<<endl;
-  sprintf(histoname,"stTrigTime");
-  hTrigTime = new TH1F(histoname, histoname, 2560, 0., 256.);
+
+  sprintf(histoname,"EvtTime");
+  hEventTime = new TH1F(histoname, histoname, 6000, 0., 60.);
+  AddHistogram(hEventTime);
+
+  sprintf(histoname,"TrigTime");
+  hTrigTime = new TH1F(histoname, histoname, 256, 0., 256.);
   AddHistogram(hTrigTime);
 
   sprintf(histoname,"stTotCharge");
-  hTotCharge = new TH1F(histoname, histoname, 100, 0., 5.);
+  hTotCharge = new TH1F(histoname, histoname, 400, -0.1, 3.9);
   AddHistogram(hTotCharge);
   
   for(int iCh=0;iCh<8;iCh++){
@@ -478,7 +481,7 @@ void TASTactDatRaw::CreateHistogram(){
     AddHistogram(hArrivalTime[iCh]);
 
     sprintf(histoname,"stCharge_ch%d", iCh);
-    hCharge[iCh]= new TH1F(histoname, histoname, 100, 0., 5.);
+    hCharge[iCh]= new TH1F(histoname, histoname, 200, -0.1, 1.9);
     AddHistogram(hCharge[iCh]);
 
     sprintf(histoname,"stMaxAmp_ch%d", iCh);

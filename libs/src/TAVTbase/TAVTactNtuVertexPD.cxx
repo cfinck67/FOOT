@@ -7,7 +7,6 @@
 #include "TMath.h"
 #include "TH2F.h"
 
-#include "TAVTdatRaw.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
 

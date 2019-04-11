@@ -1,4 +1,6 @@
 #include "TF1.h"
+#include "TH1D.h"
+#include "TGraph.h"
 
 #ifndef TWAVEFORM_CONTAINER
 #define TWAVEFORM_CONTAINER
@@ -18,7 +20,13 @@ public:
   Double_t ComputeTimeStamp();
   void Clear();
   void PlotWaveForm(int i);
+  void GraphWaveForm(TH1F *wv0);
   void SanitizeWaveform();
+  bool IsAClock();
+  Double_t FindFirstRaisingEdgeTime();
+
+
+  int TrigType;
   Int_t ChannelId;
   Int_t BoardId;
   Double_t ir_time;    

@@ -4,8 +4,6 @@
 
 #include "TAVTbaseNtuHit.hxx"
 
-// class TAVTrawHit;
-
 /** TAITntuHit class interface to base class
 */
 /*------------------------------------------+---------------------------------*/

@@ -4,15 +4,12 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-
-#pragma link C++ class TAVTdatRaw+;
-
 #pragma link C++ class TAVTntuRaw+;
-#pragma link C++ class TAVTrawHit+;
 
 #pragma link C++ class TAVTbaseNtuHit+;
 #pragma link C++ class TAVTntuHit+;
 
+#pragma link C++ class TAVTbaseParMap+;
 #pragma link C++ class TAVTparMap+;
 
 #pragma link C++ class TAVTbaseParGeo+;

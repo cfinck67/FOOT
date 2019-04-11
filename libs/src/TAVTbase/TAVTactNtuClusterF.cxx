@@ -10,7 +10,6 @@
 
 #include "TAGgeoTrafo.hxx"
 
-#include "TAVTdatRaw.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
 #include "TAVTntuRaw.hxx"
@@ -55,7 +54,6 @@ Bool_t TAVTactNtuClusterF::Action()
    
    for (Int_t i = 0; i < pConfig->GetSensorsN(); ++i) {
       fListOfPixels = pNtuHit->GetListOfPixels(i);
-      if (fListOfPixels->GetEntries() > pConfig->GetAnalysisPar().HitsInPlaneMaximum) continue;
       if (fListOfPixels->GetEntries() == 0) continue;
       ok += FindClusters(i);
    }
@@ -131,11 +129,19 @@ Bool_t TAVTactNtuClusterF::CreateClusters(Int_t iSensor, TAVTntuCluster* pNtuClu
                }
             }
          }
+         cluster->SetValid(true);
       } else {
-         pNtuClus->GetListOfClusters(iSensor)->Remove(cluster);
-         pNtuClus->GetListOfClusters(iSensor)->Compress();
+         cluster->SetValid(false);
       }
    }
+   for (Int_t i = pNtuClus->GetClustersN(iSensor)-1; i >= 0; --i) {
+      cluster = pNtuClus->GetCluster(iSensor, i);
+      if (!cluster->IsValid())
+         pNtuClus->GetListOfClusters(iSensor)->Remove(cluster);
+   }
+
+   pNtuClus->GetListOfClusters(iSensor)->Compress();
+
    if (pNtuClus->GetClustersN(iSensor))
       return true;
    

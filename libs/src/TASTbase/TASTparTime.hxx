@@ -32,6 +32,8 @@ class TASTparTime : public TAGpara {
   virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
   
   bool GetTimeArray(int iBo, int iCha, int TrigCell,  vector<double> *time);
+  void InitMap();
+  bool FromFile(const char*);
   void SetTimeCal(int iBo, int iCha, vector<float> tvec);
   ClassDef(TASTparTime,1)
 
@@ -41,7 +43,7 @@ class TASTparTime : public TAGpara {
 
     map<int, vector<double>> time_parcal;
     map<int, bool> m_GotCalib;
-   
+  bool m_debug;
 };
 
 #endif

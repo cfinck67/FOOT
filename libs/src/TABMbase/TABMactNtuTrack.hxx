@@ -85,7 +85,7 @@ public:
   void ChargePrunedTrack(vector<Int_t> &prunedhit, Int_t &firedUview, Int_t &firedVview, vector< vector<Int_t> > &hitxtrack, Int_t index);  
   void ChargeHits4GenfitTrack(vector<Int_t> &singlehittrack,Int_t &firedUview,Int_t &firedVview, vector<Double_t> &hit_res, TMatrixDSym &hitCov, TVectorD &hitCoords, Track *&fitTrack, Double_t &wire_a_x, Double_t &wire_a_y, Double_t &rdrift_a_x, Double_t &rdrift_a_y);
   void PrefitTracking(Int_t &prefit_status,Int_t &firedUview,Int_t &firedVview, vector<Int_t> singlehittrack, vector< vector<Int_t> > &hitxtrack, vector< vector<Int_t> > &hitxplane, vector<Double_t> &hit_res, TMatrixDSym &hitCov, TVectorD &hitCoords, TABMntuTrackTr &best_trackTr, Track *&fitTrack, AbsTrackRep *&rep);
-  void MyGenfitFitting(vector<Int_t> &singlehittrack,Int_t &firedUview,Int_t &firedVview, vector<Double_t> &hit_res, TMatrixDSym &hitCov, TVectorD &hitCoords, Track *&fitTrack, AbsTrackRep *&rep);
+  //~ void MyGenfitFitting(vector<Int_t> &singlehittrack,Int_t &firedUview,Int_t &firedVview, vector<Double_t> &hit_res, TMatrixDSym &hitCov, TVectorD &hitCoords, Track *&fitTrack, AbsTrackRep *&rep);
   Int_t EstimateFIRSTTrackPar(vector<Int_t> &singlehittrack, Int_t &firedSingleUview, Int_t &firedSingleVview,TABMntuTrackTr *&tmp_trackTr);
   TG_STRUCT Circles2Tangents(Double_t xc1, Double_t yc1, Double_t r1, Double_t xc2, Double_t yc2, Double_t r2);
   void Chi2Fit(vector<Int_t> &singlehittrack, vector<vector<Int_t>> &prunedhit, TABMntuTrackTr *&tmp_trackTr,Bool_t converged);
@@ -113,16 +113,16 @@ public:
   private:
   
   //~ TABMntuTrackTr tmp_trackTr;          //traccia provvisoria, così almeno non me lo cancella...
-  AbsKalmanFitter*  simpleFitter;    	 //KalmanFitterRefTrack()
-  AbsKalmanFitter*  refFitter;    	 //KalmanFitterRefTrack()
-  AbsKalmanFitter*  dafRefFitter;    	 //DAF with kalman ref
-  AbsKalmanFitter*  dafSimpleFitter;     //DAF with simple kalman
+  //~ AbsKalmanFitter*  simpleFitter;    	 //KalmanFitterRefTrack()
+  //~ AbsKalmanFitter*  refFitter;    	 //KalmanFitterRefTrack()
+  //~ AbsKalmanFitter*  dafRefFitter;    	 //DAF with kalman ref
+  //~ AbsKalmanFitter*  dafSimpleFitter;     //DAF with simple kalman
   //~ Track* 	    fitTrack;
   //~ AbsTrackRep* 	    rep;
-  SharedPlanePtr  mylar1_plane; //mylar1 plane, adopted by Genfit to extrapolate track      
-  SharedPlanePtr  central_plane; //central plane, adopted by Genfit to extrapolate track      
-  SharedPlanePtr  mylar2_plane; //mylar2 plane, adopted by Genfit to extrapolate track     
-  SharedPlanePtr  target_plane; //target plane, adopted by Genfit to extrapolate track
+  //~ SharedPlanePtr  mylar1_plane; //mylar1 plane, adopted by Genfit to extrapolate track      
+  //~ SharedPlanePtr  central_plane; //central plane, adopted by Genfit to extrapolate track      
+  //~ SharedPlanePtr  mylar2_plane; //mylar2 plane, adopted by Genfit to extrapolate track     
+  //~ SharedPlanePtr  target_plane; //target plane, adopted by Genfit to extrapolate track
   
   //~ Int_t             nIter;    		 // max number of iterations (for Genfit)
   //~ Double_t 	    dPVal;      	 // convergence criterion (for Genfit)

@@ -64,7 +64,7 @@ TATWdigitizer::TATWdigitizer(TATWntuRaw* pNtuRaw)
    fTofPropAlpha(280/2.), // velocity of the difference need to divide by 2 (ps/cm)
    fTofErrPropAlpha(2.5), // old 5 ?
    fSlatLength(0),
-   fGain(3e4)
+   fGain(1)
 {
    SetFunctions();
    SetInitParFunction();
@@ -163,7 +163,6 @@ Float_t TATWdigitizer::GetDeAttRight(Float_t pos, Float_t edep)
 {
    Float_t energy = edep*fGain; // share equitable
    energy *= (1+fDeAttAsymSmear);
-   
    Float_t lambda = gRandom->Gaus(fDeAttLambdaRight, fDeErrAttLambdaRight);
    
    fDeAttRight->SetParameter(0, energy);
@@ -178,7 +177,8 @@ Float_t TATWdigitizer::GetResEnergy(Float_t energy)
    Float_t C = gRandom->Gaus(fDeResEC, fDeErrResEC);
    fDeResE->SetParameter(1, C);
    
-   return fDeResE->Eval(energy);
+   //   return fDeResE->Eval(energy);
+   return energy*0.1;
 }
 
 //___________________________________________________________________________________________
@@ -195,7 +195,6 @@ Float_t TATWdigitizer::GetTofLeft(Float_t pos, Float_t time, Float_t edep)
    Float_t alpha  = gRandom->Gaus(fTofPropAlpha, fTofErrPropAlpha);
    Float_t timeL  = time + (fSlatLength/2. - pos)*alpha;
    Float_t resToF = GetResToF(edep)*TMath::Sqrt(2.); // share same way L/R
-   
    timeL += gRandom->Gaus(0, resToF);
    
    return timeL;
@@ -235,15 +234,20 @@ Bool_t TATWdigitizer::Process(Double_t edep, Double_t x0, Double_t y0, Double_t 
       view = 1;
       id -= TATWparGeo::GetLayerOffset();
    }
-   
+
+   /*
    Float_t energyL = GetDeAttLeft(pos, edep);
    Float_t energyR = GetDeAttRight(pos, edep);
+   */
+   Float_t energyL = edep;
+   Float_t energyR = edep;
    
    Float_t resEnergyL = GetResEnergy(energyL);
-   energyL += energyL*gRandom->Gaus(0, resEnergyL);
+   //   energyL += energyL*gRandom->Gaus(0, resEnergyL);
+   energyL += gRandom->Gaus(0, resEnergyL);
    
    Float_t resEnergyR = GetResEnergy(energyR);
-   energyR += energyR*gRandom->Gaus(0, resEnergyR);
+   energyR += gRandom->Gaus(0, resEnergyR);
 
    if (fDebugLevel) {
       printf("pos %.1f\n", pos);
@@ -262,10 +266,13 @@ Bool_t TATWdigitizer::Process(Double_t edep, Double_t x0, Double_t y0, Double_t 
    
    Double_t tof = (timeL+timeR)/2.;
    Double_t energy = (energyL+energyR)/2.;
-   
+   if(energy<0) 
+     cout<<"--> "<<energy<<endl;
    pos = (timeR-timeL)/fTofPropAlpha;
    
    // no threshold ??
+   //Time should be stored in ns
+   tof /= 1000.;
    fCurrentHit = (TATWntuHit*)fpNtuRaw->NewHit(view, id, energy, tof, pos, 0 ,0 ,0 ,0 ,0); // save time in ns, Class TATW_Hit not compatible with real data)
    
    return true;

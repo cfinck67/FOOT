@@ -39,10 +39,10 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
   const Int_t nIter = 20; // max number of iterations
   const Double_t dPVal = 1.E-3; // convergence criterion used by GenFit
 
-  simpleFitter = new KalmanFitter(nIter, dPVal);
-  refFitter = new KalmanFitterRefTrack(nIter, dPVal);   
-  dafRefFitter = new DAF(true, nIter, dPVal);
-  dafSimpleFitter = new DAF(false, nIter, dPVal);
+  //~ simpleFitter = new KalmanFitter(nIter, dPVal);
+  //~ refFitter = new KalmanFitterRefTrack(nIter, dPVal);   
+  //~ dafRefFitter = new DAF(true, nIter, dPVal);
+  //~ dafSimpleFitter = new DAF(false, nIter, dPVal);
   
   //~ const double BField = 0.;       // kGauss [ --> Eq. to 0.1 T]
 
@@ -59,8 +59,8 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
   
   //Bfield is along Y in our case.
   
-  FieldManager::getInstance()->init(new ConstField(0.,0.,0.)); //one day the magnetic field map will be load here, but now there isn't any accurate magnetic field... 
-  MaterialEffects::getInstance()->init(new TGeoMaterialInterface());//it is necessary
+  //~ FieldManager::getInstance()->init(new ConstField(0.,0.,0.)); //one day the magnetic field map will be load here, but now there isn't any accurate magnetic field... 
+  //~ MaterialEffects::getInstance()->init(new TGeoMaterialInterface());//it is necessary
   
   p_bmcon = (TABMparCon*) fpBMCon->Object();
   p_bmgeo = (TABMparGeo*) fpBMGeo->Object();
@@ -77,15 +77,15 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
    p_bmgeo->SetTarget(targetPos);
 
    
-  TVector3 Xvers(1.,0,0), Yvers(0.,1.,0.), central(0.,0.,0.);
-  SharedPlanePtr tmp_mylar1_plane(new DetPlane(p_bmgeo->GetMylar1(), Xvers, Yvers));
-  SharedPlanePtr tmp_central_plane(new DetPlane(central, Xvers, Yvers));
-  SharedPlanePtr tmp_mylar2_plane(new DetPlane(p_bmgeo->GetMylar2(), Xvers, Yvers));
-  SharedPlanePtr tmp_target_plane(new DetPlane(p_bmgeo->GetTarget(), Xvers, Yvers));
-  mylar1_plane=tmp_mylar1_plane;
-  central_plane=tmp_central_plane;
-  mylar2_plane=tmp_mylar2_plane;
-  target_plane=tmp_target_plane;
+  //~ TVector3 Xvers(1.,0,0), Yvers(0.,1.,0.), central(0.,0.,0.);
+  //~ SharedPlanePtr tmp_mylar1_plane(new DetPlane(p_bmgeo->GetMylar1(), Xvers, Yvers));
+  //~ SharedPlanePtr tmp_central_plane(new DetPlane(central, Xvers, Yvers));
+  //~ SharedPlanePtr tmp_mylar2_plane(new DetPlane(p_bmgeo->GetMylar2(), Xvers, Yvers));
+  //~ SharedPlanePtr tmp_target_plane(new DetPlane(p_bmgeo->GetTarget(), Xvers, Yvers));
+  //~ mylar1_plane=tmp_mylar1_plane;
+  //~ central_plane=tmp_central_plane;
+  //~ mylar2_plane=tmp_mylar2_plane;
+  //~ target_plane=tmp_target_plane;
 
   //~ mylar1_detplane=new DetPlane(p_bmgeo->GetMylar1(), Xvers, Yvers);
   //~ mylar2_detplane=new DetPlane(p_bmgeo->GetMylar2(), Xvers, Yvers);
@@ -102,10 +102,10 @@ TABMactNtuTrack::TABMactNtuTrack(const char* name,
 
 TABMactNtuTrack::~TABMactNtuTrack()
 { 
-  delete simpleFitter;
-  delete refFitter;
-  delete dafSimpleFitter;
-  delete dafRefFitter;
+  //~ delete simpleFitter;
+  //~ delete refFitter;
+  //~ delete dafSimpleFitter;
+  //~ delete dafRefFitter;
   //~ delete mylar1_detplane;
   //~ delete mylar2_detplane;
   //~ delete target_detplane;
@@ -128,7 +128,7 @@ void TABMactNtuTrack::CreateHistogram()
    AddHistogram(fpHisMylar22d);   
    fpResTot = new TH2F("BM_Track_bm_residual_tot","Residual vs Rdrift; Residual [cm]; Measured rdrift [cm]", 6000, -0.3, 0.3,250 , 0., 1.);
    AddHistogram(fpResTot);  
-   fpHisTrackStatus = new TH1I("BM_Track_track_status","Track status; -3=prefitstatuscut -2=maxhitcut__-1=minhitcut__0=ok__1/2=firedV/Uplane__3=hitrejected__4=noconv__5=chi2cut; Events", 10, 0, 10);
+   fpHisTrackStatus = new TH1I("BM_Track_track_status","Track status; -3=prefitstatuscut -2=maxhitcut__-1=minhitcut__0=ok__1/2=firedV/Uplane__3=hitrejected__4=noconv__5=chi2cut; Events", 15, -5, 10);
    AddHistogram(fpHisTrackStatus);  
    fpHisNhitTrack = new TH1I("BM_Trak_nhitsxtrack","number of hits x track; ; Events", 30, 0, 30);
    AddHistogram(fpHisNhitTrack);  
@@ -273,75 +273,7 @@ Bool_t TABMactNtuTrack::Action()
   vector<vector<Int_t>> prunedhit;//it is calculated for each hitxtrack row; each prunedhit row represent a possible new track, columns represent the hit position of hitxtrack that have to be pruned 
   Int_t prefit_status=-5;
 //*************************************************NEW LEAST CHI2 TRACKING*************************************
-  if(p_bmcon->GetFitterIndex()==6){
-    
-    
-    
-    //NOT FINISHED!!!! 
-    
-    
-    
-    prunedhit.resize(1);
-    //prefit only on the single hits
-    if(firedSingleUview>2 && firedSingleVview>2){
-      tmp_trackTr->Clean();
-      EstimateFIRSTTrackPar(singlehittrack, firedSingleUview, firedSingleVview, tmp_trackTr);
-      NewChi2MyFit(singlehittrack, prunedhit, tmp_trackTr, converged);
-      if((firedSingleUview+firedSingleVview)<(firedUview+firedVview)){  //tracks with more hit on the same view and plane
-        SortFirstDoubleHits(tmp_trackTr, hitxplane, hitxtrack);
-        prefit_status=1;
-      }else{
-        hitxtrack.push_back(singlehittrack);//no double hits
-        prefit_status=0;
-      }
-    }else{
-      prefit_status=-1;
-      ChargeAllTracks(hitxtrack,hitxplane, tracknum, firedPlane);
-    }
-   
-    if(p_bmcon->GetBMdebug()>10)
-      cout<<"TABMactNtuTrack:: End of prefit_status="<<prefit_status<<endl;
-        
-    best_index=0;
-    for(Int_t i=0;i<hitxtrack.size();i++){
-      
-     if(p_bmcon->GetBMdebug()>10)
-      cout<<"TABMactNtuTrack:: loop on hitxtrack: i="<<i<<endl; 
-      
-      if(prefit_status!=0 || (prefit_status==0 && i>0)){
-        tmp_trackTr->Clean();
-        EstimateFIRSTTrackPar(hitxtrack.at(i), firedUview, firedVview, tmp_trackTr);
-        NewChi2MyFit(hitxtrack.at(i),prunedhit,tmp_trackTr, converged);
-      }else{
-        best_trackTr=*tmp_trackTr;
-        best_index=i;        
-      }
-      
-      if((tmp_trackTr->GetMyChi2Red() < best_trackTr.GetMyChi2Red()) || i==0){
-        best_trackTr=*tmp_trackTr;
-        best_index=i;
-      }
-      
-      if(prunedhit.at(0).size()>0){//prune hits
-        ChargePrunedTrack(prunedhit.at(0), firedUview, firedVview, hitxtrack, i);
-        prunedhit.at(0).clear();
-      }
-      
-    }//end of the loop on hitxtrack
-    
-    //save and update the best_track
-    best_trackTr.CalculateFromFirstPar(p_bmcon, p_bmgeo);
-    best_trackTr.SetPrefitStatus(prefit_status);
-    //~ delete tmp_atrackTr;
-    //~ delete tmp_btrackTr;
-    //~ UpdateHitsFromTrack(best_mysqrtchi2, best_trackTr, hitxtrack.at(best_index));//useless    
-    
-    
-    
-    
-    
-    // *********************************** FIRST LEAST CHI2 TRACKING *************************************************
-  }else if(p_bmcon->GetFitterIndex()==5) {
+ if(p_bmcon->GetFitterIndex()!=0) {
     //~ TABMntuTrackTr *tmp_atrackTr=new TABMntuTrackTr();    
     //~ TABMntuTrackTr *tmp_btrackTr=new TABMntuTrackTr();
         
@@ -417,7 +349,8 @@ Bool_t TABMactNtuTrack::Action()
     //~ delete tmp_btrackTr;
     //~ UpdateHitsFromTrack(best_mysqrtchi2, best_trackTr, hitxtrack[best_index]);//useless
 
-  }else if(p_bmcon->GetFitterIndex()<5){   //************************* GENFIT TRACKING***********************************
+  }
+/* else if(p_bmcon->GetFitterIndex()<5){   //************************* GENFIT TRACKING***********************************
     //provv check
     //~ if(singlehittrack.size()!=firedSingleVview+firedSingleUview){
       //~ cout<<"TABMactNtuTrack::ERROR in PrefitTracking:: singlehittrack.size()="<<singlehittrack.size()<<" firedSingleUview="<<firedSingleUview<<"  firedSingleVview="<<firedSingleVview<<endl;
@@ -494,14 +427,12 @@ Bool_t TABMactNtuTrack::Action()
       tmp_trackTr->Clean(); 
       tmp_trackTr->SetNhit(hitxtrack.at(i).size()); 
       tmp_trackTr->SetPrefitStatus(prefit_status);
-      /*
       //~ delete fitTrack;
       //~ delete rep;
       //~ fitTrack = nullptr;
       //~ rep=nullptr;
       //~ AbsTrackRep* rep = new RKTrackRep(sign*pdg);
       //~ AbsTrackRep* rep = new RKTrackRep(1006661212120);//provv
-      */
         
       //~ AbsTrackRep *rep = new RKTrackRep(2212);//protons for the moment  
       //~ Track* fitTrack = new Track(rep, init_pos, init_mom);
@@ -553,8 +484,9 @@ Bool_t TABMactNtuTrack::Action()
       }
     }//end of loop on all possible track
     
+ 
   }//***********************************************END OF GENFIT TRACKING*************************  
-    
+*/    
   if(p_bmcon->GetBMdebug()>10)  
     cout<<"TABMactNtuTrack:end of tracking"<<endl;
   
@@ -616,6 +548,7 @@ Bool_t TABMactNtuTrack::Action()
        fpHisChi2Red->Fill(trk->GetMyChi2Red());
        fpHisNhitTrack->Fill(trk->GetNhit());
        fpHisNite->Fill(trk->GetNite());
+       fpHisPrefitStatus->Fill(prefit_status);
      }
   }else if(converged==false)
     p_ntutrk->GetTrackStatus()=4;
@@ -810,6 +743,7 @@ void TABMactNtuTrack::ChargeHits4GenfitTrack(vector<Int_t> &singlehittrack,Int_t
 }
 
 
+/*
 //prefit
 void TABMactNtuTrack::PrefitTracking(Int_t &prefit_status,Int_t &firedUview,Int_t &firedVview, vector<Int_t> singlehittrack, vector< vector<Int_t> > &hitxtrack, vector< vector<Int_t> > &hitxplane, vector<Double_t> &hit_res, TMatrixDSym &hitCov, TVectorD &hitCoords, TABMntuTrackTr &best_trackTr,Track *&fitTrack, AbsTrackRep *&rep){
    
@@ -875,49 +809,50 @@ void TABMactNtuTrack::PrefitTracking(Int_t &prefit_status,Int_t &firedUview,Int_
   hitxtrack.push_back(singlehittrack); 
   return;
 }
+*/
 
 //fitting with genfit
-void TABMactNtuTrack::MyGenfitFitting(vector<Int_t> &singlehittrack,Int_t &firedUview,Int_t &firedVview, vector<Double_t> &hit_res, TMatrixDSym &hitCov, TVectorD &hitCoords, Track *&fitTrack, AbsTrackRep *&rep){
+//~ void TABMactNtuTrack::MyGenfitFitting(vector<Int_t> &singlehittrack,Int_t &firedUview,Int_t &firedVview, vector<Double_t> &hit_res, TMatrixDSym &hitCov, TVectorD &hitCoords, Track *&fitTrack, AbsTrackRep *&rep){
 
-   TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
-   TVector3 bmCenter = geoTrafo->GetBMCenter();
+   //~ TAGgeoTrafo* geoTrafo = (TAGgeoTrafo*)gTAGroot->FindAction(TAGgeoTrafo::GetDefaultActName().Data());
+   //~ TVector3 bmCenter = geoTrafo->GetBMCenter();
 
-  TVector3 init_mom(0.,0.,p_bmcon->GetBMmom());//initial momentum for tracking, for BM porpouse the primary track should always have these inital values
-  TVector3 init_pos(0.,0.,bmCenter.z()-p_bmgeo->GetLength()/2. -3.);
+  //~ TVector3 init_mom(0.,0.,p_bmcon->GetBMmom());//initial momentum for tracking, for BM porpouse the primary track should always have these inital values
+  //~ TVector3 init_pos(0.,0.,bmCenter.z()-p_bmgeo->GetLength()/2. -3.);
   
-  rep = new RKTrackRep(2212);//protons for the moment  
-  fitTrack = new Track(rep, init_pos, init_mom);
-  //charge hits
-  Double_t wire_a_x=-1000., wire_a_y=-1000., rdrift_a_x, rdrift_a_y;
-  ChargeHits4GenfitTrack(singlehittrack, firedUview, firedVview, hit_res, hitCov, hitCoords, fitTrack,wire_a_x, wire_a_y, rdrift_a_x, rdrift_a_y);
-  fitTrack->checkConsistency();
-  Int_t fit_index=0;
-  do{
-    fitTrack->deleteFitterInfo();
-    SetInitPos(init_pos, fit_index, wire_a_x, rdrift_a_x, wire_a_y, rdrift_a_y, bmCenter.z()-p_bmgeo->GetLength()/2. -3.);
-    fitTrack->setStateSeed(init_pos, init_mom);
-    switch(p_bmcon->GetFitterIndex()){
-      case 1:
-        simpleFitter->processTrack(fitTrack);
-        break;
-      case 2:
-        refFitter->processTrack(fitTrack);
-        break;
-      case 3:
-        dafSimpleFitter->processTrack(fitTrack);
-        break;
-      case 4:
-        dafRefFitter->processTrack(fitTrack);
-        break;
-    }
-    fit_index++;
-  }while(!fitTrack->getFitStatus(rep)->isFitConverged() && fit_index<5);
-  fitTrack->checkConsistency();
-  if(p_bmcon->GetBMdebug()>10)
-    cout<<"TABMactNtuTrack::TABMactNtuTrack::end of fitting"<<endl;
+  //~ rep = new RKTrackRep(2212);//protons for the moment  
+  //~ fitTrack = new Track(rep, init_pos, init_mom);
+  //~ //charge hits
+  //~ Double_t wire_a_x=-1000., wire_a_y=-1000., rdrift_a_x, rdrift_a_y;
+  //~ ChargeHits4GenfitTrack(singlehittrack, firedUview, firedVview, hit_res, hitCov, hitCoords, fitTrack,wire_a_x, wire_a_y, rdrift_a_x, rdrift_a_y);
+  //~ fitTrack->checkConsistency();
+  //~ Int_t fit_index=0;
+  //~ do{
+    //~ fitTrack->deleteFitterInfo();
+    //~ SetInitPos(init_pos, fit_index, wire_a_x, rdrift_a_x, wire_a_y, rdrift_a_y, bmCenter.z()-p_bmgeo->GetLength()/2. -3.);
+    //~ fitTrack->setStateSeed(init_pos, init_mom);
+    //~ switch(p_bmcon->GetFitterIndex()){
+      //~ case 1:
+        //~ simpleFitter->processTrack(fitTrack);
+        //~ break;
+      //~ case 2:
+        //~ refFitter->processTrack(fitTrack);
+        //~ break;
+      //~ case 3:
+        //~ dafSimpleFitter->processTrack(fitTrack);
+        //~ break;
+      //~ case 4:
+        //~ dafRefFitter->processTrack(fitTrack);
+        //~ break;
+    //~ }
+    //~ fit_index++;
+  //~ }while(!fitTrack->getFitStatus(rep)->isFitConverged() && fit_index<5);
+  //~ fitTrack->checkConsistency();
+  //~ if(p_bmcon->GetBMdebug()>10)
+    //~ cout<<"TABMactNtuTrack::TABMactNtuTrack::end of fitting"<<endl;
 
-return;
-}
+//~ return;
+//~ }
 
 
 //not used:

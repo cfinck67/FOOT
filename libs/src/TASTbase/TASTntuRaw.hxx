@@ -69,6 +69,8 @@ public:
    inline void SetTriggerTime(double value){m_TrigTime = value;}
    inline double GetCharge(){return m_Charge;}
    inline double GetTriggerTime(){return m_TrigTime;}
+   inline int GetTrigType(){return m_TrigType;}
+   inline void SetTrigType(int value){m_TrigType=value;}
   
 
   
@@ -79,6 +81,7 @@ private:
    TClonesArray*     fListOfHits;			    // hits
    double m_TrigTime;
    double m_Charge;
+  int m_TrigType;
 private:
    static TString fgkBranchName;    // Branch name in TTree
    

@@ -151,13 +151,16 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'Z')) {
-      sscanf(bufConf, "Z %d %d %lf %lf %s",&myArgInt, &myArgIntmax, &myArg1, &myArg2, tmp_char);
+      sscanf(bufConf, "Z %d %d %lf %d %lf %s",&myArgInt, &myArgIntmax, &myArg1,&myArgIntmin, &myArg2, tmp_char);
       if((myArgInt==0 || myArgInt==1) && (myArgIntmax==1 || myArgIntmax==0 || myArgIntmax==2 || myArgIntmax==3)  &&  myArg1>=0 && myArg2>=0){
         manageT0BM = myArgInt;
         t0_switch=myArgIntmax;
         t0_sigma=myArg1;
+        t0choice=myArgIntmin;
         hit_timecut=myArg2;
         bmt0file=tmp_char;
+        if(manageT0BM>0)
+          loadT0s();
       }else {
 	      Error(""," Plane Map Error:: check config file!! (Z)");
 	      return kTRUE;
@@ -206,9 +209,10 @@ Bool_t TABMparCon::FromFile(const TString& name) {
       sscanf(bufConf, "W %d",&myArgInt);
       strel_switch = myArgInt;        
     }else if(strchr(bufConf,'J')) {
-      sscanf(bufConf, "J %d",&myArgInt);
+      sscanf(bufConf, "J %d %d ",&myArgInt, &myArgIntmax);
       if(myArgInt>=0){
         rejmax_cut = myArgInt;
+        onlyprefit=myArgIntmax;
       }else {
 	      Error(""," Plane Map Error:: check config file!! (J)");
 	      return kTRUE;
@@ -247,7 +251,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
     part_in_charge=PRIM_Z;
     part_in_mom=(Double_t)PRIM_A*PRIM_T;
   }
-
+      
   return kFALSE;
 }
 
@@ -263,9 +267,10 @@ void TABMparCon::PrintT0s(TString &input_file_name, Long64_t tot_num_ev){
   return;
 }
 
-
-Bool_t TABMparCon::loadT0s(Long64_t tot_num_ev) {
+ 
+Bool_t TABMparCon::loadT0s() {
   ifstream infile;
+  gSystem->ExpandPathName(bmt0file);
   infile.open(bmt0file,ios::in);
   Int_t file_evnum, old_t0switch;
   char tmp_char[200], dataset[200];
@@ -276,8 +281,6 @@ Bool_t TABMparCon::loadT0s(Long64_t tot_num_ev) {
   else
     status=1;
 
-  if(file_evnum<tot_num_ev)
-    cout<<"TABMparCon::loadT0s::WARNING!!!!!! you load a T0 file calculated from "<<dataset<<" which have only "<<file_evnum<<" events, while the input file have a larger number of events="<<tot_num_ev<<endl;  
   if(old_t0switch!=t0_switch){
     cout<<"TABMparCon::loadT0s::ERROR!!!!!! you load a T0 file calculated from "<<dataset<<" in which the t0 were calculated with a t0_switch="<<old_t0switch<<", now your t0_switch is "<<t0_switch<<endl;
     status=1;  
@@ -298,12 +301,13 @@ Bool_t TABMparCon::loadT0s(Long64_t tot_num_ev) {
   }
 
   //check if the T0 are ok 
-  for(Int_t i=0;i<36;i++)
+  for(Int_t i=0;i<36;i++) {
+    cout<<"BM T0: "<<v_t0s[i]<<endl;
     if(v_t0s[i]==-10000)
-      cout<<"WARNING IN BmBooter::EvaluateT0! channel not considered in tdc map tdc_cha=i="<<i<<" T0 for this channel is set to -10000"<<endl;
+      cout<<"WARNING IN TABMparCon::loadT0s: channel not considered in tdc map tdc_cha=i="<<i<<" T0 for this channel is set to -10000"<<endl;
     else if(v_t0s[i]==-20000)
-      cout<<"WARNING IN BmBooter::EvaluateT0! channel with too few elements to evaluate T0: tdc_cha=i="<<i<<" T0 for this channel is set to -20000"<<endl;
-
+      cout<<"WARNING IN TABMparCon::loadT0s! channel with too few elements to evaluate T0: tdc_cha=i="<<i<<" T0 for this channel is set to -20000"<<endl;
+  }
   return kFALSE;
 }
 
@@ -438,7 +442,7 @@ void TABMparCon::Clear(Option_t*)
   fitter_index = 0;
   bm_debug=0;
   bm_vietrack=0;
-  manageT0BM=0;
+  manageT0BM=-1;
   minnhit_cut=0;
   maxnhit_cut=20;
   rejmax_cut=36;

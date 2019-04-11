@@ -16,7 +16,7 @@ class TH1F;
 //##############################################################################
 class TAVTactVmeReader : public TAVTactBaseRaw  {
 public:
-   explicit        TAVTactVmeReader(const char* name=0, TAGdataDsc* pDatRaw = 0, TAGparaDsc* p_geomap=0, TAGparaDsc* p_config=0);
+   explicit        TAVTactVmeReader(const char* name=0, TAGdataDsc* pDatRaw = 0, TAGparaDsc* p_geomap=0, TAGparaDsc* p_config=0, TAGparaDsc* pParMap=0);
    virtual         ~TAVTactVmeReader();
       
    //! Open file with a given prefix and suffix for the files

@@ -63,15 +63,15 @@ Bool_t TASTactNtuMC::Action()
   //The number of hits inside the Start Counter is stn
    if (fDebugLevel > 0)
       Info("Action()","Processing n Onion :: %2d hits", fpEvtStr->STCn);
-   
-  for (Int_t i = 0; i < fpEvtStr->STCn; i++) {
+   Float_t edep, trigtime;
+   for (Int_t i = 0; i < fpEvtStr->STCn; i++) {
      Int_t id      = fpEvtStr->STCid[i];
      Int_t trackId = fpEvtStr->STCid[i] - 1;
      Float_t x0    = fpEvtStr->STCxin[i];
      Float_t y0    = fpEvtStr->STCyin[i];
      Float_t z0    = fpEvtStr->STCzin[i];
      Float_t z1    = fpEvtStr->STCzout[i];
-     Float_t edep  = fpEvtStr->STCde[i]*TAGgeoTrafo::GevToMev();
+     edep  = fpEvtStr->STCde[i]*TAGgeoTrafo::GevToMev();
      Float_t time  = fpEvtStr->STCtim[i]*TAGgeoTrafo::SecToPs();
      
      
@@ -80,11 +80,15 @@ Bool_t TASTactNtuMC::Action()
      
      // don't use z for the moment
      fDigitizer->Process(edep, posInLoc[0], posInLoc[1], z0, z1, time, id);
+
+
      TASTntuHit* hit = fDigitizer->GetCurrentHit();
+     trigtime = hit->GetTime();
      hit->AddMcTrackId(trackId, i);
   }
   
-
+  p_nturaw->SetCharge(edep);
+  p_nturaw->SetTriggerTime(trigtime);
   fpNtuMC->SetBit(kValid);
    
   return kTRUE;

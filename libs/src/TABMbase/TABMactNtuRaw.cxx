@@ -61,11 +61,11 @@ void TABMactNtuRaw::CreateHistogram(){
    AddHistogram(fpHisProbe_paoloni);   
    fpHisEval_paoloni = new TH1F( "BM_Raw_eff_paoloni_eval", "efficiency for the paoloni plane method; index; Counter", 8, 0., 8.);
    AddHistogram(fpHisEval_paoloni);   
-   fpHisCell = new TH1I( "BM_Raw_hit_cell", "cell index; index; Counter", 4, 0., 4.);
+   fpHisCell = new TH1I( "BM_Raw_hit_cell", "cell index; index; Counter", 3, 0., 3.);
    AddHistogram(fpHisCell);   
-   fpHisView = new TH1I( "BM_Raw_hit_view", "view index; index; Counter", 3, 0., 3.);
+   fpHisView = new TH1I( "BM_Raw_hit_view", "view index; index; Counter", 2, 0., 2.);
    AddHistogram(fpHisView);   
-   fpHisPlane = new TH1I( "BM_Raw_hit_plane", "plane index; index; Counter", 7, 0., 7.);
+   fpHisPlane = new TH1I( "BM_Raw_hit_plane", "plane index; index; Counter", 6, 0., 6.);
    AddHistogram(fpHisPlane);   
    fpHisRdrift = new TH1F( "BM_Raw_hit_rdrift", "Rdrift; Rdrift [cm]; numevent", 100, 0., 1.);
    AddHistogram(fpHisRdrift);   
@@ -104,19 +104,19 @@ Bool_t TABMactNtuRaw::Action()
     
     //retrive hit parameters
     //~ Double_t t0_corr = (p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) > -10000) ? p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) : 0.; //to avoid not settled T0
-    i_time = hit.Time()- p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) -p_timraw->TrigTime();
+    i_time = hit.Time()- p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) - p_datraw->GetTrigtime();
     
     if(i_time<0){ 
       if(p_parcon->GetT0switch()!=2 && p_parcon->GetT0sigma()==0)
         i_time=0.;
       else if(p_parcon->GetT0sigma()>0)
         while(i_time<0)
-          i_time=p_parcon->GetRand()->Gaus(hit.Time()- p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) - p_timraw->TrigTime(), p_parcon->GetT0sigma());  
+          i_time=p_parcon->GetRand()->Gaus(hit.Time()- p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) - p_datraw->GetTrigtime(), p_parcon->GetT0sigma());  
     }
     
     Double_t i_drift = p_parcon->FirstSTrel(i_time);
     if(p_parcon->GetBMdebug()>10)
-      cout<<"TABMactNtuRaw:: charging hit i_time="<<i_time<<"  i_drift="<<i_drift<<"  cell="<<hit.Cell()<<"  view="<<hit.View()<<"  Plane="<<hit.Plane()<<"   hit.time="<<hit.Time()<<"  T0="<<p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell())<<"  trigtime="<<p_timraw->TrigTime()<<endl;
+      cout<<"TABMactNtuRaw:: charging hit i_time="<<i_time<<"  i_drift="<<i_drift<<"  cell="<<hit.Cell()<<"  view="<<hit.View()<<"  Plane="<<hit.Plane()<<"   hit.time="<<hit.Time()<<"  T0="<<p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell())<<"  trigtime="<<p_datraw->GetTrigtime()<<endl;
     
     
     //create the hit (no selection of hit)

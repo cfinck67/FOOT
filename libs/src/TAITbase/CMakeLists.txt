@@ -9,7 +9,7 @@ set(LIBNAME ${PROJECT_NAME})
 #
 # internal and external dependencies
 #
-set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TAVT} ${TAMC} ${GENFIT_LIBRARIES})
+set( EXTRA_INTERNAL_LIBRARIES ${TAG} ${TAVT} ${TADAQ} ${TAAPI} ${TABM} ${GENFIT_LIBRARIES})
 set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 
 #
@@ -19,7 +19,6 @@ set( EXTRA_EXTERNAL_LIBRARIES ${ROOT_LIBRARIES})
 # manual method : base file name separated in two lists with different treatment.
 #
 set( with_dictionnaries
-   TAITdatRaw
    TAITntuRaw
    TAITntuHit
    TAITparMap
@@ -27,6 +26,7 @@ set( with_dictionnaries
    TAITparGeo
    TAITparConf
    TAITdigitizerE
+   TAITactBaseRaw
    TAITactNtuRaw
    TAITactNtuMC
    TAITntuCluster
@@ -42,6 +42,8 @@ set( without_dictionnaries
 include_directories(${ROOT_INCLUDE_DIR})
 include_directories(${GENFIT_INCLUDE_DIR})
 include_directories(${TAG_INCLUDE_DIR})
+include_directories(${TADAQ_INCLUDE_DIR})
+include_directories(${TAAPI_INCLUDE_DIR})
 include_directories(${TAMC_INCLUDE_DIR})
 include_directories(${TAVT_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

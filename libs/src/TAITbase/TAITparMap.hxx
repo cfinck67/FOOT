@@ -17,9 +17,6 @@ class TAITparMap : public TAVTparMap {
 public:
    TAITparMap();
    virtual ~TAITparMap();
-
-public:
-   static Int_t GetRealId(Int_t mcSensorId);
    
    ClassDef(TAITparMap,1)
   

@@ -12,8 +12,12 @@
 using namespace std;
 
 #include "TString.h"
-
 #include "TAGpara.hxx"
+#include "TATWparMap.hxx"
+
+
+#define NMAX_BO_ID 100
+#define NMAX_CH_ID 18
 
 //##############################################################################
 
@@ -28,6 +32,8 @@ class TATWparTime : public TAGpara {
   virtual void    ToStream(ostream& os = cout, Option_t* option = "") const;
   
   bool GetTimeArray(int iBo, int iCha, int TrigCell,  vector<double> *time);
+  void InitMap();
+  bool FromFile(const char*);
   void SetTimeCal(int iBo, int iCha, vector<float> tvec);
   ClassDef(TATWparTime,1)
 
@@ -37,6 +43,7 @@ class TATWparTime : public TAGpara {
 
     map<int, vector<double>> time_parcal;
     map<int, bool> m_GotCalib;
+  bool m_debug;
 };
 
 #endif

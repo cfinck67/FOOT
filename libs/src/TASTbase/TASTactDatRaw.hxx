@@ -56,13 +56,14 @@ public:
   TH1F *hAmplitude[8];
   TH1F *hTrigTime;
   TH1F *hTotCharge;
+  TH1F *hEventTime;
   
   bool m_debug;
   int m_nev;
   
  private:
   Bool_t DecodeHits(const WDEvent* evt, TASTparTime* p_parTime, TASTdatRaw *p_datraw, TASTparMap *p_parmap);
-  double ComputeArrivalTime(TASTrawHit *hit, bool *isok);
+  bool ComputeArrivalTime(TASTrawHit *hit, double *tarr, double *ampl, double *charge);
   double ComputeCharge(TASTrawHit *hit);
   double ComputeMaxAmplitude(TASTrawHit *hit);
   void   SavePlot(TGraph g,TF1 f1, TF1 f2, TASTrawHit *hit);

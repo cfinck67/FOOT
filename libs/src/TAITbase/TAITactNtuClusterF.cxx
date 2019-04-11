@@ -8,7 +8,6 @@
 #include "TH2F.h"
 #include "TMath.h"
 
-#include "TAVTdatRaw.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
 #include "TAITntuRaw.hxx"
@@ -54,7 +53,6 @@ Bool_t TAITactNtuClusterF::Action()
    
    for (Int_t i = 0; i < pConfig->GetSensorsN(); ++i) {
       fListOfPixels = pNtuHit->GetListOfPixels(i);
-      if (fListOfPixels->GetEntries() > pConfig->GetAnalysisPar().HitsInPlaneMaximum) continue;
       if (fListOfPixels->GetEntries() == 0) continue;
       ok += FindClusters(i);
    }

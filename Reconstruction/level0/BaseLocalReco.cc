@@ -10,14 +10,6 @@
 #include "TAGgeoTrafo.hxx"
 #include "TAGparGeo.hxx"
 
-#include "TASTntuRaw.hxx"
-#include "TABMntuRaw.hxx"
-#include "TAVTntuRaw.hxx"
-#include "TAITntuRaw.hxx"
-#include "TAMSDntuRaw.hxx"
-#include "TATWntuPoint.hxx"
-#include "TACAntuRaw.hxx"
-
 #include "TAVTntuCluster.hxx"
 #include "TAITntuCluster.hxx"
 #include "TAMSDntuCluster.hxx"
@@ -25,7 +17,6 @@
 #include "TAVTntuTrack.hxx"
 #include "TAVTntuVertex.hxx"
 
-#include "TAVTdatRaw.hxx"
 #include "TAVTactNtuRaw.hxx"
 #include "TAVTactNtuTrackF.hxx"
 #include "TAVTactNtuTrack.hxx"
@@ -42,6 +33,8 @@ BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
    fpParTimeSt(0x0),
    fpParTimeTw(0x0),
    fpParMapSt(0x0),
+   fpParMapVtx(0x0),
+   fpParMapIt(0x0),
    fpParGeoSt(0x0),
    fpParGeoBm(0x0),
    fpParGeoIt(0x0),
@@ -79,7 +72,7 @@ BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
    fTAGroot = new TAGroot();
    if (fFlagOut)
       fActEvtWriter = new TAGactTreeWriter("locRecFile");
-   
+
    // Read Trafo file
    fpFootGeo = new TAGgeoTrafo();
    fpFootGeo->FromFile();
@@ -100,6 +93,7 @@ BaseLocalReco::~BaseLocalReco()
 //__________________________________________________________
 void BaseLocalReco::BeforeEventLoop()
 {
+
    InitParameters();
    
    CreateRawAction();
@@ -202,7 +196,15 @@ void BaseLocalReco::InitParameters()
       parFileName="./config/TASTdetector.cfg";
       parMapSt->FromFile(parFileName);
 
+
       fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
+      TASTparTime* parTimeSt = (TASTparTime*) fpParTimeSt->Object();
+      //GetName() return the input file name
+      // if(!parTimeSt->FromFile(GetName())){
+
+      if(!parTimeSt->FromFile(GetName())){
+         printf("WD calibration time ot found!!\n");
+      }
    }
 
    // initialise parameters for Beam Monitor
@@ -214,12 +216,13 @@ void BaseLocalReco::InitParameters()
       
       fpParConfBm = new TAGparaDsc("bmConf", new TABMparCon());
       TABMparCon* parConf = (TABMparCon*)fpParConfBm->Object();
+
       parFileName = Form("./config/beammonitor%s.cfg", fExpName.Data());
       parConf->FromFile(parFileName.Data());
       
       parFileName = "./config/bmreso_vs_r.root";
       parConf->LoadReso(parFileName);
-      
+
       fpParMapBm = new TAGparaDsc("bmMap", new TABMparMap());
       TABMparMap*  parMapBm = (TABMparMap*)fpParMapBm->Object();
       
@@ -239,6 +242,11 @@ void BaseLocalReco::InitParameters()
       TAVTparConf* parConf = (TAVTparConf*)fpParConfVtx->Object();
       parVtxFileName = Form("./config/TAVTdetector%s.cfg", fExpName.Data());
       parConf->FromFile(parVtxFileName.Data());
+      
+      fpParMapVtx = new TAGparaDsc("vtMap", new TAVTparMap());
+      TAVTparMap* parMap = (TAVTparMap*)fpParMapVtx->Object();
+      parVtxFileName = Form("./config/TAVTdetector%s.map", fExpName.Data());
+      parMap->FromFile(parVtxFileName.Data());
    }
    
    // initialise parameters for inner tracker
@@ -252,6 +260,11 @@ void BaseLocalReco::InitParameters()
       TAITparConf* parConf = (TAITparConf*)fpParConfIt->Object();
       parItFileName = Form("./config/TAITdetector%s.cfg", fExpName.Data());
       parConf->FromFile(parItFileName.Data());
+      
+      fpParMapIt = new TAGparaDsc("itMap", new TAITparMap());
+      TAVTparMap* parMap = (TAVTparMap*)fpParMapIt->Object();
+      parItFileName = Form("./config/TAITdetector%s.map", fExpName.Data());
+      parMap->FromFile(parItFileName.Data());
    }
    
    // initialise parameters for multi strip detector
@@ -284,7 +297,14 @@ void BaseLocalReco::InitParameters()
       parFileName = Form("./config/TATWChannelMap%s.xml", fExpName.Data());
       tw_parMap->FromFile(parFileName.Data());
 
+
       fpParTimeTw = new TAGparaDsc("twTime", new TATWparTime()); // need the file
+      TATWparTime* parTimeTw = (TATWparTime*) fpParTimeTw->Object();
+      //GetName() return the input file name
+      if(!parTimeTw->FromFile(GetName())){
+	printf("WD calibration time ot found!!\n");
+      }
+      
    }
    
    // initialise parameters for caloriomter
