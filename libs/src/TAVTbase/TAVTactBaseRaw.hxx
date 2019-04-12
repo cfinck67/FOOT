@@ -45,23 +45,25 @@ public:
 
 protected:
       
-   TAGdataDsc*       fpNtuRaw;		    // output data dsc
-   TAGparaDsc*       fpGeoMap;		    // geo para dsc
-   TAGparaDsc*       fpConfig;		    // config para dsc
-   TAGparaDsc*       fpParMap;		    // map para dsc
+   TAGdataDsc*       fpNtuRaw;		     // output data dsc
+   TAGparaDsc*       fpGeoMap;		     // geo para dsc
+   TAGparaDsc*       fpConfig;		     // config para dsc
+   TAGparaDsc*       fpParMap;		     // map para dsc
    
-   vector<UInt_t>    fData;             // data array to fill
+   vector<UInt_t>    fData;              // data array to fill
 
-   Int_t             fEventNumber;      // number of the event
-   Int_t             fPrevEventNumber;      // previous number of the event
-   Int_t             fTriggerNumber;    // number of the trigger
-   Int_t             fPrevTriggerNumber;    // previous number of the trigger
-   Int_t             fTimeStamp;        // time stamp per frame
-   Int_t             fPrevTimeStamp;        // time stamp per frame
-   Int_t             fFrameCount;       // number of frame
-   Int_t             fTriggerNumberFrame;    // number of the trigger
-   Int_t             fTimeStampFrame;        // time stamp per frame
-   Int_t             fFirstFrame;
+   Int_t             fEventNumber;        // number of the event
+   Int_t             fPrevEventNumber;    // previous number of the event
+   Int_t             fTriggerNumber;      // number of the trigger
+   Int_t             fPrevTriggerNumber;  // previous number of the trigger
+   Int_t             fTimeStamp;          // time stamp per frame
+   Int_t             fPrevTimeStamp;      // time stamp per frame
+   Int_t             fFrameCount;         // number of frame
+   Int_t             fTriggerNumberFrame; // number of the trigger
+   Int_t             fTimeStampFrame;     // time stamp per frame
+   Int_t             fFirstFrame;         // first frame flag
+   Bool_t            fFrameOk;         // first frame flag
+   
 
    Int_t             fNSensors;
    Int_t             fIndex;
@@ -93,6 +95,9 @@ protected:
    static const UInt_t  fgkFrameTail;
    
 protected:
+   
+   // Reset frame counters
+   void  ResetFrames();
    
    //! Add pixel to list
    void  AddPixel( Int_t input, Int_t value, Int_t aLine, Int_t aColumn);

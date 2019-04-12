@@ -81,7 +81,9 @@ Bool_t TAVTactNtuRaw::DecodeEvent(const DECardEvent* evt)
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
       
       if (!GetSensorHeader(i)) return false;
-      fFirstFrame = true;
+      
+      ResetFrames();
+      
       // loop over frame (3 max)
       while (GetFrame(i, data)) {
          DecodeFrame(i, data);

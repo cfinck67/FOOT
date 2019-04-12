@@ -109,6 +109,7 @@ void TAVTactBaseNtuCluster::FillMaps()
    for (Int_t i = 0; i < fListOfPixels->GetEntries(); i++) { // loop over hit pixels
       
       TAVTbaseNtuHit* pixel = (TAVTbaseNtuHit*)fListOfPixels->At(i);
+      if (!pixel->IsValidFrames()) continue;
       Int_t line = pixel->GetPixelLine();
       Int_t col  = pixel->GetPixelColumn();
       if (!CheckLine(line)) continue;

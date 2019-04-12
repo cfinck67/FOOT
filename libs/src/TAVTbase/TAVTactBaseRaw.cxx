@@ -50,6 +50,7 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc
   fTriggerNumberFrame(0),
   fTimeStampFrame(0),
   fFirstFrame(-1),
+  fFrameOk(true),
   fNSensors(-1),
   fIndex(0),
   fCurrentTriggerCnt(0),
@@ -139,25 +140,44 @@ Int_t TAVTactBaseRaw::GetSensor(UInt_t key)
 }
 
 // --------------------------------------------------------------------------------------
+void TAVTactBaseRaw::ResetFrames()
+{
+   fFirstFrame = 0;
+   fFrameOk = true;
+}
+
+// --------------------------------------------------------------------------------------
 void TAVTactBaseRaw::FillHistoFrame(Int_t iSensor, MI26_FrameRaw* data)
 {
+   Bool_t ok = true;
    UInt_t trigger   = data->TriggerCnt;
    UInt_t timeStamp = data->TimeStamp;
    UInt_t frameCnt  = data->FrameCnt;
    
-   //printf("%u\n", frameCnt);
    if (fFirstFrame == 0) {
       fTriggerNumberFrame = trigger;
       fFrameCount         = frameCnt;
       fTimeStampFrame     = timeStamp;
       fFirstFrame++;
       
-   } else if (fFirstFrame == 2){
+   } else if (fFirstFrame == 1){
       fpHisTriggerFrame[iSensor]->Fill(trigger - fTriggerNumberFrame);
       fpHisTimeStampFrame[iSensor]->Fill(timeStamp - fTimeStampFrame);
       fpHisFrameCnt[iSensor]->Fill(frameCnt - fFrameCount);
    } else
       fFirstFrame++;
+   
+   if (fFirstFrame == 1) {
+   if( ((frameCnt - fFrameCount) == 0) || ((frameCnt - fFrameCount) == 1) || ((frameCnt - fFrameCount) == 2))
+      ok = true;
+   else
+      ok = false;
+   }
+   
+   fFrameOk *= ok;
+   
+ //  printf("frame %d framePrev %d ok %d\n",  frameCnt, fFrameCount, fFrameOk);
+
 }
 
 // --------------------------------------------------------------------------------------
@@ -289,7 +309,7 @@ void TAVTactBaseRaw::AddPixel( Int_t iSensor, Int_t value, Int_t aLine, Int_t aC
    double u = pGeoMap->GetPositionU(aColumn);
    TVector3 pos(u,v,0);
    pixel->SetPosition(pos);
-
+   pixel->SetValidFrames(fFrameOk);
    
    if (ValidHistogram()) {
 	  if (TAVTparConf::IsMapHistOn()) 
