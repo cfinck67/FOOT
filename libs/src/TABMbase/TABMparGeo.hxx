@@ -63,8 +63,7 @@ public:
    
    //Id sense as function of cell
    Int_t          GetSenseId(int cell) { return fBmIdSense[cell]; }
-
-
+   
    //X,Y,Z as a function of wire, layer, view
    Float_t        GetWireX(int wire, int layer, int view)  const { return fPosX[wire][layer][view]; }
    Float_t        GetWireY(int wire, int layer, int view)  const { return fPosY[wire][layer][view]; }
@@ -79,9 +78,7 @@ public:
 
    TVector3       GetWirePos(Int_t view, Int_t layer, Int_t wire) const;
    TVector3       GetWireDir(Int_t view) const;
-
-    Int_t         GetCellId(TVector3 pos, int layer, int view) ;
-
+   
    void           GetCellInfo(Int_t view, Int_t plane, Int_t cellID,
                               Double_t& h_x, Double_t& h_y, Double_t& h_z,
                               Double_t& h_cx, Double_t& h_cy, Double_t& h_cz);

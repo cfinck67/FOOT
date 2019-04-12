@@ -51,9 +51,8 @@ int main(int argc,char** argv)
    G4RunManager* runManager = new G4RunManager;
    
    // initialize root file name
-   TString rootFileName("ionO16.root");
-//    TString rootFileName("footO16beam200MeVC12tgt.root");
-
+   TString rootFileName("ionCa1000.root");
+   
    // initialise seed
    UInt_t seed = 0;
    
