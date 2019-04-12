@@ -43,6 +43,7 @@ protected:
 
 	Double32_t         fRawValue;                 // the rawvalue
 	Double32_t         fPulseHeight;              // pulseheight on pixel
+   Bool_t             fValidFrames;              // ok when 3 consecutive frame numbers 
 
    TArrayC            fMCindex;                  // Id of the hit created in the simulation
    TArrayC            fMcTrackId;                // Id of the track created in the simulation
@@ -58,10 +59,13 @@ public:
 
     Bool_t	           IsEqual(const TObject* obj) const;
    
+    // Setter methods
     void               SetRawValue(Double_t aRV)       { fRawValue = aRV;         }
     void               SetPulseHeight(Double_t aPH)    { fPulseHeight = aPH;      }
-   
-    //    All the Get methods
+    void               SetPosition(TVector3 aPosition) { fPosition = aPosition;   }
+    void               SetValidFrames(Bool_t ok)       { fValidFrames = ok;       }
+
+    // Getter methods
     Int_t              GetPixelIndex()   const         { return  fPixelIndex;     }
     Int_t              GetPixelLine()    const         { return  fPixelLine;      }
     Int_t              GetPixelColumn()  const         { return  fPixelColumn;    }
@@ -72,13 +76,9 @@ public:
     Double_t           GetRawValue()     const         { return  fRawValue;       }
     Double_t           GetPulseHeight()  const         { return  fPulseHeight;    }
 
-    // TVector3&          GetSize()                       { return  fSize;           }
+    Bool_t             IsValidFrames()   const         { return fValidFrames;     }
    
-   
-    TVector3          GetPixelPosition_detectorFrame()      { return fPosition; };
-    TVector3&         GetPosition()                         { return fPosition; };
-
-    void              SetPosition(TVector3 aPosition)       { fPosition = aPosition;   }
+    TVector3&          GetPosition()                   { return fPosition;        }
    
     //! Compute distance from a given pixel
     Double_t           Distance( TAVTbaseNtuHit&         aPixel);
@@ -102,7 +102,7 @@ public:
    // Add MC track Id
    void       AddMcTrackId(Int_t trackId, Int_t mcId = -1);
 
-    ClassDef(TAVTbaseNtuHit,3)                            // Pixel or Pixel of a Detector Plane
+    ClassDef(TAVTbaseNtuHit,4)                            // Pixel or Pixel of a Detector Plane
 };
 
 //##############################################################################

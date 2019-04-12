@@ -30,7 +30,8 @@ TAVTbaseNtuHit::TAVTbaseNtuHit( Int_t aSensorNumber, Double_t aValue, Int_t aLin
   fPixelIndex(0),
   fPixelLine(aLine),
   fPixelColumn(aColumn),
-  fRawValue(aValue)
+  fRawValue(aValue),
+  fValidFrames(false)
 {
     fPulseHeight = fRawValue;
 }
