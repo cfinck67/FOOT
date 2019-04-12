@@ -7,7 +7,7 @@ CChannelMap::CChannelMap():_ChannelMapIsOk(false)
 
 }
 
-TALayer CChannelMap::GetBarLayer(TBarId BarId)
+TLayer CChannelMap::GetBarLayer(TBarId BarId)
 {
 	return _BarLayer[BarId];
 }
@@ -38,7 +38,7 @@ void CChannelMap::LoadChannelMap(std::string FileName,int verbose)
 	for (std::vector<XMLNodePointer_t>::iterator it=BarVector.begin();it!=BarVector.end();++it)
 	{
 		TBarId BarId=x.GetContentAsInt("BAR_ID",*it);
-		TALayer  Layer=(TALayer)x.GetContentAsInt("LAYER",*it);
+		TLayer  Layer=(TLayer)x.GetContentAsInt("LAYER",*it);
 		TChannelId ChannelA=x.GetContentAsInt("CHANNEL_A",*it);
 		TChannelId ChannelB=x.GetContentAsInt("CHANNEL_B",*it);
 		TChannelId BoardId=x.GetContentAsInt("BOARD_ID",*it);
