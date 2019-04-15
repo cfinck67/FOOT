@@ -17,7 +17,6 @@
 #include <vector>
 
 #include "TAGpara.hxx"
-#include "foot_geo.h"
 #include "TABMparMap.hxx"
 
 

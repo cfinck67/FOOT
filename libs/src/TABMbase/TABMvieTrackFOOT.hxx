@@ -18,7 +18,6 @@
 #include "TABMntuRaw.hxx"
 #include "TABMntuHit.hxx"
 #include "TABMparGeo.hxx"
-#include "foot_geo.h"
 
 #include "TPad.h"
 #include "TROOT.h"

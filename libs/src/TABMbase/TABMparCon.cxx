@@ -248,8 +248,8 @@ Bool_t TABMparCon::FromFile(const TString& name) {
       }
   }//end of readline
   if(m_isMC){
-    part_in_charge=PRIM_Z;
-    part_in_mom=(Double_t)PRIM_A*PRIM_T;
+    part_in_charge=8;
+    part_in_mom=3200.;
   }
       
   return kFALSE;
