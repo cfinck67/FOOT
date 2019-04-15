@@ -180,10 +180,10 @@ Bool_t TABMactNtuTrack::Action()
   Int_t hit_view, tmp_int, tmp_cellx=1, tmp_celly=1, tracknum=1;
   TMatrixDSym hitCov(7);
   TVectorD hitCoords(7);
-  vector<vector<Int_t>> hitxplane(BMN_NLAY*2); //number of hit for every bm plane (plane should be 12 in BM)
-  Int_t firedPlane=BMN_NLAY*2; //number of plane fired
-  Int_t firedUview=BMN_NLAY;//number of U view plane fired
-  Int_t firedVview=BMN_NLAY;//number of V view plane fired
+  vector<vector<Int_t>> hitxplane(p_bmgeo->GetLayersN()*2); //number of hit for every bm plane (plane should be 12 in BM)
+  Int_t firedPlane=p_bmgeo->GetLayersN()*2; //number of plane fired
+  Int_t firedUview=p_bmgeo->GetLayersN();//number of U view plane fired
+  Int_t firedVview=p_bmgeo->GetLayersN();//number of V view plane fired
   Int_t firedSingleUview=0;//number of U view plane fired with only 1 hit
   Int_t firedSingleVview=0;//number of V view plane fired with only 1 hit
   TDecompChol fitTrack_cov;  
@@ -660,7 +660,7 @@ void TABMactNtuTrack::ChargeAllTracks(vector< vector<Int_t> > &hitxtrack,vector<
     hitxtrack.at(j).resize(firedPlane);  
   
   Int_t block=1, planeindex=0, shift, tmp_int;
-  for(Int_t i=0;i<BMN_NLAY*2;i++){
+  for(Int_t i=0;i<p_bmgeo->GetLayersN()*2;i++){
     if(hitxplane.at(i).size()>0){
       tmp_int=0;
       shift=0;
@@ -1030,10 +1030,10 @@ void TABMactNtuTrack::NewCircles2Tan(Double_t xc1, Double_t yc1, Double_t r1, Do
   Double_t gamma= -atan((yc2-yc1)/(xc2-xc1));   
   Double_t beta= asin((r2-r1)/sqrt((xc2-xc1)*(xc2-xc1)+(yc2-yc1)*(yc2-yc1)));
   Double_t alfa= gamma-beta;
-  Double_t xn=xc1+r1*cos(PI/2.-alfa);
-  Double_t yn=yc1+r1*sin(PI/2.-alfa);
-  Double_t xz=xc2+r2*cos(PI/2.-alfa);
-  Double_t yz=yc2+r2*sin(PI/2.-alfa);
+  Double_t xn=xc1+r1*cos(M_PI_2-alfa);
+  Double_t yn=yc1+r1*sin(M_PI_2-alfa);
+  Double_t xz=xc2+r2*cos(M_PI_2-alfa);
+  Double_t yz=yc2+r2*sin(M_PI_2-alfa);
   cout<<"xc1="<<xc1<<"  yc1="<<yc1<<" r1="<<r1<<"  xc2="<<xc2<<"  yc2="<<yc2<<"  r2="<<r2<<endl;
   cout<<"m="<<(yz-yn)/(xz-xn)<<"  q="<<yz-(yz-yn)/(xz-xn)*xz<<endl;
  
