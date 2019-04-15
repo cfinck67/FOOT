@@ -97,13 +97,14 @@ Bool_t TAVTactVmeReader::Process()
    TAVTparGeo*  pGeoMap = (TAVTparGeo*)  fpGeoMap->Object();
    TAVTparConf* pConfig = (TAVTparConf*) fpConfig->Object();
    
+   Bool_t neof = false;
    // loop over boards
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
       Int_t planeStatus = pConfig->GetStatus(i);
       if (planeStatus == -1) continue;
       
       if (GetSensorHeader(i)) {
-         
+         neof |= true;
          ResetFrames();
          //printf("\nsensor %d\n", i);
       
@@ -129,7 +130,11 @@ Bool_t TAVTactVmeReader::Process()
    fpNtuRaw->SetBit(kValid);
 
    
-   return true;
+   if (neof)
+      return true;
+   else
+      return false;
+      
 }
 
 // private method
@@ -157,14 +162,12 @@ Bool_t TAVTactVmeReader::GetSensorHeader(Int_t iSensor)
          // fake time stamp
          fRawFileAscii[iSensor] >> tmp;
          
-         if (iSensor == 1)
-            FillHistoEvt(iSensor);
+         FillHistoEvt(iSensor);
 
          return true;
       }
    } while (!fRawFileAscii[iSensor].eof());
    
-
    return false;
 }
 
