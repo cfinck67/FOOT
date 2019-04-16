@@ -78,6 +78,8 @@ public:
 
    TVector3       GetWirePos(Int_t view, Int_t layer, Int_t wire) const;
    TVector3       GetWireDir(Int_t view) const;
+
+   int         GetCellId(TVector3 pos, int layer, int view) ;
    
    void           GetCellInfo(Int_t view, Int_t plane, Int_t cellID,
                               Double_t& h_x, Double_t& h_y, Double_t& h_z,

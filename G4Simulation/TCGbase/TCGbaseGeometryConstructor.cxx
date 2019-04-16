@@ -64,8 +64,8 @@ using namespace CLHEP;
 TCGbaseGeometryConstructor::TCGbaseGeometryConstructor(const TString expName)
 : G4VUserDetectorConstruction(),
   fExpName(expName),
-  fWorldSizeZ(121*cm),
-  fWorldSizeXY(20*cm),
+  fWorldSizeZ(120*cm),
+  fWorldSizeXY(30*cm),
   fWorldMaterial(0x0),
   fLogWorld(0x0),
   fTarget(0x0),

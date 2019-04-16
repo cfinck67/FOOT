@@ -52,7 +52,8 @@ G4LogicalVolume* TCTWgeometryConstructor::Construct()
       fSizeBoxTof[i] = (fMaxPosition[i] - fMinPosition[i]);
    
    // Vtx box
-   G4Material* vacuum = G4NistManager::Instance()->FindOrBuildMaterial("Vacuum");
+   // G4Material* vacuum = G4NistManager::Instance()->FindOrBuildMaterial("Vacuum");
+   G4Material* vacuum = G4NistManager::Instance()->FindOrBuildMaterial("Air");
    G4Material* matEJ232 = G4NistManager::Instance()->FindOrBuildMaterial("EJ232");
    G4Box* boxTof = new G4Box("boxMag", 0.5*fSizeBoxTof.X(), 0.5*fSizeBoxTof.Y(), 0.5*fSizeBoxTof.Z());
    
