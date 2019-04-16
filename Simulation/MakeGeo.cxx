@@ -21,9 +21,6 @@
 #include "TAGmaterials.hxx"
 #include "TAGroot.hxx"
 
-#include "foot_geo.h"
-//#include "Materials.hxx"
-
 #include "GlobalPar.hxx"
 #include "FootField.hxx"
 #include <FieldManager.h>
