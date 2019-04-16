@@ -8,7 +8,6 @@
 #include "TAGroot.hxx"
 #include "TAGgeoTrafo.hxx"
 #include "TATntuRaw.hxx"
-#include "foot_geo.h"
 
 using namespace std;
 
