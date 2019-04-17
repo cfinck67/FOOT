@@ -53,7 +53,7 @@ G4LogicalVolume* TCEMgeometryConstructor::Construct()
       fSizeBoxMg[i] = (fMaxPosition[i] - fMinPosition[i]);
    
    // Vtx box
-   G4Material* vacuum = G4NistManager::Instance()->FindOrBuildMaterial("Vacuum");
+   G4Material* vacuum = G4NistManager::Instance()->FindOrBuildMaterial("Air");
    G4Box* boxMag = new G4Box("boxMag", 0.5*fSizeBoxMg.X(), 0.5*fSizeBoxMg.Y(), 0.5*fSizeBoxMg.Z());
    
    fBoxLog = new G4LogicalVolume(boxMag, vacuum, "boxMagLog");

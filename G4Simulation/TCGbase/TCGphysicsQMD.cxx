@@ -1,5 +1,5 @@
 
-#include "TCGphysicsQMD.hh"
+#include "TCGphysicsQMD.hxx"
 
 #include "G4IonElasticPhysics.hh"
 #include "G4IonQMDPhysics.hh"
@@ -93,6 +93,7 @@ void TCGphysicsQMD::ConstructProcess()
     decay->ConstructProcess();
     radioactiveDecay->ConstructProcess();
 
+    ///// NB : this lines must be uncommented if you want to use G4HadronPhysicsQGSP_BIC_AllHP + G4IonPhysicsPHP
     //    // Get Models
     //    //
     //    G4ProcessManager* pManager = G4Neutron::Neutron()->GetProcessManager();
@@ -130,6 +131,14 @@ void TCGphysicsQMD::ConstructParticle()
 
 void TCGphysicsQMD::SetCuts()
 {
-    // Use default cut values gamma and e processes
-    SetCutsWithDefault();   
+    G4double cutGammas = 1.0*m;
+    G4double cutElectrons = 1.0*m;
+    G4double cutPositrons = 1.0*m;
+
+    SetCutValue(cutGammas,"gamma");
+    SetCutValue(cutElectrons,"e-");
+    SetCutValue(cutPositrons,"e+");
+
+//    // Use default cut values gamma and e processes
+//    SetCutsWithDefault();   
 }

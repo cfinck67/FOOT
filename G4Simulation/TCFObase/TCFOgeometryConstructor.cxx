@@ -136,7 +136,7 @@ TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
    // initialise map file for magnet
    if (GlobalPar::GetPar()->IncludeDI()) {
       fpParGeoEm = new TADIparGeo();
-      TString mapFileName = Form("./geomaps/TAEMdetector%s.map", fExpName.Data());
+      TString mapFileName = Form("./geomaps/TADIdetector%s.map", fExpName.Data());
       fpParGeoEm->FromFile(mapFileName.Data());
       
       fFieldImpl  = new FootField(fpParGeoEm->GetMapName().Data(), fpParGeoEm);

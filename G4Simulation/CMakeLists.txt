@@ -78,6 +78,7 @@ set(TCFO_INCLUDE_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/${TCFO}")
 #
 file(COPY ${FOOT_LEVEL0}/geomaps/ DESTINATION ${CMAKE_BINARY_DIR}/G4Simulation/geomaps/)
 file(COPY ${FOOT_LEVEL0}/config/  DESTINATION ${CMAKE_BINARY_DIR}/G4Simulation/config/)
+file(COPY ${FOOT_FULLREC}/data/  DESTINATION ${CMAKE_BINARY_DIR}/G4Simulation/data/)
 
 #
 file(COPY ${CMAKE_SOURCE_DIR}/G4Simulation/macros/ DESTINATION ${CMAKE_BINARY_DIR}/G4Simulation/)

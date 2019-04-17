@@ -25,7 +25,6 @@ map<TString, Int_t> TCFOtrackingAction::fgkGeantToFlukaID = {{"alpha",-6}, {"He3
 TCFOtrackingAction::TCFOtrackingAction(TCFObaseEventAction* aEventAction)
 {
     fEventAction = aEventAction ;
-    fmcHits = new TCGmcHit();
 }
 
 //
@@ -34,7 +33,6 @@ TCFOtrackingAction::TCFOtrackingAction(TCFObaseEventAction* aEventAction)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 TCFOtrackingAction::~TCFOtrackingAction()
 {
-     delete fmcHits ;
 }
 
 //

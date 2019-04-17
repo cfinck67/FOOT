@@ -121,7 +121,8 @@ int main(int argc,char** argv)
    printf("Geant4 v9 not supported");
    exit(0);
 #else
-   G4VUserPhysicsList* physics = 0x0;
+//   G4VUserPhysicsList* physics = 0x0;
+    G4VModularPhysicsList* physics = 0x0;
    physListName.ToLower();
    if (physListName.Contains("bert"))
       physics = new QGSP_BERT();
@@ -129,6 +130,8 @@ int main(int argc,char** argv)
       physics = new QGSP_BIC();
    else if (physListName.Contains("incl"))
       physics = new QGSP_INCLXX();
+    else if (physListName.Contains("qmd"))
+        physics = new TCGphysicsQMD();
    else
       printf("\n\n No physics list defined !!\n\n");
 #endif
