@@ -4,7 +4,10 @@
 #include "G4IonElasticPhysics.hh"
 #include "G4IonQMDPhysics.hh"
 #include "G4IonINCLXXPhysics.hh"
-#include "G4IonPhysicsPHP.hh"
+#if G4VERSION_NUMBER > 1003
+  #include "G4IonPhysicsPHP.hh"
+#endif
+
 #include "G4IonPhysics.hh"
 
 #include "G4EmStandardPhysics_option3.hh"
