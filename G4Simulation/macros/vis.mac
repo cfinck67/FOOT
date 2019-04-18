@@ -73,4 +73,7 @@
 #/hits/inactivate detector_name 
 /vis/viewer/set/upVector 1 1 1
 
+/run/setCutForAGivenParticle e- 1.0 m
+/run/setCutForAGivenParticle e+ 1.0 m
+/run/setCutForAGivenParticle gamma 1.0 m
 /run/beamOn 1

@@ -68,7 +68,8 @@ void TCFOfield::GetFieldValue(const G4double point[4], G4double* fieldB) const
    TVector3 field = fMagField->get(pos);
    
    for (Int_t i = 0; i < 3; ++i) {
-      field[i] *= 1e-7; // gauss -> to ??
+//      field[i] *= 1e-7; // gauss -> to ??
+       field[i] *= 1e-4; // gauss -> to Tesla
    }
    
    fieldB[0] = field[0];

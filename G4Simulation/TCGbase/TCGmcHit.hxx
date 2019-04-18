@@ -46,6 +46,7 @@ private:
    G4double        fGlobalTime; // global time
    
 public:
+   void AddEdep(G4double de)               { fEdep  += de;               }
    void SetEdep(G4double de)               { fEdep = de;                 } //keV
    G4double GetEdep()                      { return fEdep;               }
    void SetEinput(G4double de)             { fEnergyInput = de;          } //keV

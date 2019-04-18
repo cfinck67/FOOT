@@ -19,8 +19,7 @@ class TAMCeveTrack : public TAGobject
 public:
    TAMCeveTrack();
 
-  // VM changed 17/11/13 to add information for simulate pile-up events
-  TAMCeveTrack(Int_t i_id, Int_t i_chg, Int_t i_type,
+   TAMCeveTrack(Int_t i_id, Int_t i_chg, Int_t i_type,
                Int_t i_reg, Int_t i_bar, Int_t i_dead,
                Double_t i_mass, Int_t i_moth,
                Double_t i_time,
@@ -41,12 +40,13 @@ public:
    Int_t            GetRegion()       const { return fRegion;         }
    Int_t            GetBaryon()       const { return fBaryon;         }
    Int_t            GetFlukaID()      const { return fFlukaId;        }
-	Int_t            GetMotherID()     const { return fMotherId;       }
+   Int_t            GetMotherID()     const { return fMotherId;       }
    Int_t            GetCharge()       const { return fCharge;         }
    Int_t            GetDead()         const { return fDead;           }
    Double32_t       GetTime()         const { return fTime;           }
    Double32_t       GetTrkLength()    const { return fTrkLength;      }
    Double32_t       GetTof()          const { return fTof;            }
+   Double32_t       GetDeltaE()       const { return fDeltaE;         }
    TVector3         GetMotherInitP()  const { return fMotherInitMom;  }
    TVector3         GetMotherFinalP() const { return fMotherFinalMom; }
    Int_t            GetPileUp()       const { return fPileUp;         }
@@ -65,15 +65,16 @@ public:
    void  SetType(int atyp)                  { fType = atyp;           }
    void  SetCharge(int achg)                { fCharge = achg;         }
    void  SetMotherID(int aid)               { fMotherId = aid;        }
-   void  SetTime(int atime)                 { fTime = atime;          }
-   void  SetTof(int atof)                   { fTof = atof;            }
-   void  SetTrkLength(int atrlen)           { fTrkLength = atrlen;    }
+   void  SetTime(double atime)              { fTime = atime;          }
+   void  SetDeltaE(double adE)              { fDeltaE = adE;          }
+   void  SetTof(double atof)                { fTof = atof;            }
+   void  SetTrkLength(double atrlen)        { fTrkLength = atrlen;    }
    void  SetPileUp(int pup)                 { fPileUp = pup;          }
 
  private:
 	Int_t         fFlukaId;                 // fluka identity
 	Int_t         fCharge;                  // charge
-	Int_t         fType;                    // yype
+	Int_t         fType;                    // type
 	Int_t         fRegion;                  // region
 	Int_t         fBaryon;                  // baryonic number
 	Int_t         fDead;                    // region in which it dies
@@ -82,6 +83,7 @@ public:
 	Double32_t    fTime;                    // time of production
 	Double_t      fTof;                     // time of flight
 	Double_t      fTrkLength;               // track length
+    Double32_t    fDeltaE;                  // deposited energy
 	TVector3      fInitPos;		            // initial position
 	TVector3      fFinalPos;		        // final position
 	TVector3      fInitMom;	          	    // initial momentum
@@ -97,7 +99,7 @@ public:
 
 class TAMCntuEve : public TAGdata {
   public:
-					       TAMCntuEve();
+                       TAMCntuEve();
 	virtual           ~TAMCntuEve();
 
 	TAMCeveTrack*       Hit(Int_t i);
