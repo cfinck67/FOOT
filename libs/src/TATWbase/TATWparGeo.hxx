@@ -103,7 +103,8 @@ private:
   // map<string, vector<string> > m_bodyName;
   // map<string, int > m_magneticRegion;
   vector<string> vBody, vRegion;
-  vector<TVector3> vTilt;
+  // TVector3 vTilt[200][200];
+  vector< vector<TVector3> > vTilt;
    
 private:
    static TString       fgkDefParaName;
