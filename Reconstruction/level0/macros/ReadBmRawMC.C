@@ -67,11 +67,11 @@ void FillMCMsd(EVENT_STRUCT *myStr) {
    bmActTrack  = new TABMactNtuTrack("bmActTrack", bmTrack, bmRaw, bmGeo, bmConf, tgGeo);
    bmActTrack->CreateHistogram();
 
-   // outFile->SetupElementBranch(bmRaw, TABMntuRaw::GetBranchName());
-   // outFile->SetupElementBranch(bmTrck, TABMntuTrack::GetBranchName());
+   outFile->SetupElementBranch(bmRaw, TABMntuRaw::GetBranchName());
+   outFile->SetupElementBranch(bmTrack, TABMntuTrack::GetBranchName());
 }
 
-void ReadBmRawMC(TString name = "16O_C2H4_200_15.root")
+void ReadBmRawMC(TString name = "./data/footC200_C2H4.root")
 //void ReadMsdRawMC(TString name = "p_80_vtx.root")
 //void ReadMsdRawMC(TString name = "12C_80_vtx.root")
 //void ReadMsdRawMC(TString name = "12C_400_vtx.root")
@@ -107,9 +107,12 @@ void ReadBmRawMC(TString name = "16O_C2H4_200_15.root")
    tagr.AddRequiredItem("outFile");
    tagr.Print();
    
-   Int_t pos = name.Last('.');
-   TString nameOut = name(0, pos);
-   nameOut.Append("_Out.root");
+   Int_t posend = name.Last('.');
+   Int_t posinit = name.Last('/');
+   TString nameOut = name;
+   nameOut.Replace(posend,5,"_Out.root");
+   if(posinit)
+     nameOut.Remove(0,posinit+1);
    
    if (outFile->Open(nameOut.Data(), "RECREATE")) return;
    bmActRaw->SetHistogramDir(outFile->File());

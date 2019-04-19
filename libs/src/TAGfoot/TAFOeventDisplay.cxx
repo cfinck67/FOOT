@@ -1194,8 +1194,8 @@ void TAFOeventDisplay::UpdateTrackElements(const TString prefix)
             
             TABMntuTrackTr* track = pNtuTrack->Track(iTrack);
 
-            TVector3 A0 = track->GetMylar1Pos();
-            TVector3 A1 = track->GetMylar2Pos();
+            TVector3 A0 = track->PointAtLocalZ(parGeo->GetMylar1().Z());
+            TVector3 A1 = track->PointAtLocalZ(parGeo->GetMylar2().Z());
             
             A0[2] *= 1.1;
             A1[2] *= 1.1;

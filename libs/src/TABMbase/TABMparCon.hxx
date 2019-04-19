@@ -33,7 +33,6 @@ class TABMparCon : public TAGpara {
     void SetRdriftCut(Double_t Rdcut){rdrift_cut=Rdcut; return;};
     void SetEnxcellcut(Double_t Encut){enxcell_cut=Encut; return;};
     void SetBmt0filename(TString filename_in){bmt0file=filename_in;};
-    void SetOnlyprefit(Int_t in){onlyprefit=in;};
     void SetT0choice(Int_t in){t0choice=in;};
     
     //getters
@@ -44,16 +43,12 @@ class TABMparCon : public TAGpara {
     Int_t GetPlanehitcut(){return planehit_cut;};
     Int_t GetMinnhit_cut(){return minnhit_cut;};
     Int_t GetMaxnhit_cut(){return maxnhit_cut;};
-    Double_t GetAngZCut(){return angz_cut;};
-    Double_t GetAngZRescut(){return angzres_cut;};
     Int_t GetRejmaxcut(){return rejmax_cut;};
     Int_t GetFitterIndex(){return fitter_index;};
     Int_t GetPrefitEnable(){return prefit_enable;};
     Int_t GetBMdebug(){return bm_debug;};
     Int_t GetBMvietrack(){return bm_vietrack;};
     //~ string GetBMdataFileName(){return datafile_name;};
-    Int_t GetBMcharge(){return part_in_charge;};
-    Double_t GetBMmom(){return part_in_mom;};
     Int_t GetmanageT0BM(){return manageT0BM;};
     Int_t GetT0switch(){return t0_switch;};
     Double_t GetT0sigma(){return t0_sigma;};
@@ -74,7 +69,6 @@ class TABMparCon : public TAGpara {
     TVector3 GetMeas_tilt(){return meas_tilt;};
     TRandom3* GetRand(){return rand;};
     Double_t GetRdrift_err(){return rdrift_err;};
-    Int_t GetOnlyprefit(){return onlyprefit;};
     Int_t GetT0choice(){return t0choice;};
 
     //T0 stuff
@@ -130,15 +124,11 @@ class TABMparCon : public TAGpara {
     Int_t    planehit_cut;
     Int_t    minnhit_cut;
     Int_t    maxnhit_cut;
-    Double_t angz_cut;
-    Double_t angzres_cut;
     Int_t    rejmax_cut;
     Int_t    fitter_index;
     Int_t    bm_debug;//index for the bm_debug, (it is set at least to the global debug level)
     Int_t    bm_vietrack;//every bm_vietrack events SHOE will plot the BM track
     //~ string   datafile_name;//name of the input data file 
-    Int_t    part_in_charge;//for BM Genfit tracking
-    Double_t part_in_mom;//for BM Genfit tracking
     Int_t    calibro;//flag for the calibration
     Int_t    strel_switch;//flag to choose the st relations (1=garfield, 0=FIRST embedded)
     Int_t    prefit_enable;//flag to enable or disable the prefit
@@ -166,7 +156,6 @@ class TABMparCon : public TAGpara {
     Double_t mceff_sigma;//sigma for the number of primary hits (only MC)
     TRandom3 *rand;
     Double_t rdrift_err;  //rdrift default error (used if from parcon file the error isn't loaded)
-    Int_t    onlyprefit; //0=false, 1=true
     Int_t    t0choice; //0=wd, 1=internal
     
     //~ TF1* f_mypol;
