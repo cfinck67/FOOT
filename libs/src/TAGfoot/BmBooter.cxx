@@ -1165,7 +1165,7 @@ void BmBooter::evaluateT0() {
   if(rate_evtoev_vecvec.size()<rate_xevent_max){
     for(Int_t i=1;i<rate_evtoev_vecvec.size();i++){
       ((TH1D*)gDirectory->Get("rate_xevent_evtoev"))->SetBinContent(i+1,1000000./rate_evtoev_vecvec.at(i).at(0));
-      if(bmmap->GetSca830Ch()>0 && bmmap->GetScaCoinc()>=0){
+      if(bmmap->GetSca830Ch()>0 && bmmap->GetScaCoinc()>=0 && rate_evtoev_vecvec.at(i).at(1)>0){
         ((TH1D*)gDirectory->Get("rate_xevent_beam_hz"))->SetBinContent(i+1,1000000./rate_evtoev_vecvec.at(i).at(0)*rate_evtoev_vecvec.at(i).at(1));
       }
     }

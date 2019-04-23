@@ -1181,8 +1181,9 @@ void TABMactNtuTrack::Chi2Fit(vector<Int_t> &singlehittrack, vector<vector<Int_t
       if(p_bmcon->GetBMdebug()>2)
         cout<<"TABMactNtuTrack::Chi2Fit::iterazione numero="<<hh<<"  chi2red="<<tmp_atrackTr->GetMyChi2Red()<<"  old_chi2="<<old_chi2<<endl;
       if(tmp_atrackTr->GetMyChi2Red()>old_chi2){
+        //~ cout<<" oldchi2="<<old_chi2<<"   newchi2="<<tmp_atrackTr->GetMyChi2Red()<<endl;
         tmp_atrackTr->SetNite(hh);
-	break;
+        break;
       }
     }else if(p_bmcon->GetBMdebug()>0)
       cout<<"TABMactNtuTrack::Chi2Fit:: Mini not possible"<<hh<<endl;
