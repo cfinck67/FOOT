@@ -580,7 +580,6 @@ void TABMparCon::LoadReso(TString sF) {
   f = new TFile(sF.Data(),"READ");
   f->cd();
   my_hreso = ((TH1D*)gDirectory->Get("myHp"));
-  my_hreso->Draw();
   
   return;
   

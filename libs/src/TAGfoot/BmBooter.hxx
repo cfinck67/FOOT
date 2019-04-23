@@ -67,7 +67,7 @@ public:
   void Projecttracktr(); //to save the tracktr2dprojects matrix
   void ResidualDistance();//to save the residual_distance matrix
   Bool_t MCxEvent();// to save the mcxevent matrix
-  Double_t EvalUnif(Double_t min, Double_t max){return 100.*(1.-((max-min)/(max+min)));};//evaluate the uniformity
+  Double_t EvalUnif(Double_t min, Double_t max){return 100.*(1.-(max-min)/(max+min));};//evaluate the uniformity
   
   //read data event
   Bool_t read_event(Bool_t);//read an event from the datafile and charge bmstruct, it returns true if it read the event, false if the file is end
@@ -162,12 +162,6 @@ private:
   vector<vector<Double_t>> residual_distance;//if(isSelected): 0=data_num_ev, 1=cell_index, 2=drift_time, 3=distance, 4=residual;  otherwise 0=data_num_ev 1=cellindex, 2=drift_time, 3=dist,
   vector<vector<Double_t>> mcxevent;//data from mc:0=data_num_ev, 1=mylar1.X, 2=mylar1.Y, 3=mylar2.X, 4=mylar2.Y
   TString txt_outputname;//txt output
-  double mylar1onlinex;
-  double mylar1onliney;
-  double mylar1onlinez;
-  int counter_fast;
-  int counter_track;
-  TVector3  reference;
 };
 
 #endif

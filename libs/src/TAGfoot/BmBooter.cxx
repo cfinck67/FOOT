@@ -24,7 +24,6 @@ BmBooter::BmBooter() {
 //----------------------------------------------------------------------------------------------------
 void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evStr_in ) {  
   txt_outputname="gsi_out.txt";
-  reference.SetXYZ(-0.04168, 0.1632,0.);
   isdata=isdata_in;
   m_instr=instr_in;
   evStr=evStr_in;
@@ -75,8 +74,7 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evS
     datafile.open(m_instr.Data(), ios::in | ios::binary);
     if(!datafile.is_open())
       cout<<"ERROR in BmBooter::CalculateT0: cannot open the datafile="<<m_instr.Data()<<endl;
-    if(bmcon->GetSmearrdrift()>0)
-      evaluateT0();
+    evaluateT0();
     datafile.close();
     //T0
     if(bmcon->GetmanageT0BM()==0)
@@ -131,10 +129,10 @@ void BmBooter::Process() {
       stdatraw = (TAIRdatRaw*) (gTAGroot->FindDataDsc("myn_stdatraw", "TAIRdatRaw")->GenerateObject());
      
       //loop on dat hit, only for data
-      //~ for(Int_t i=0;i<bmdatraw->NHit();i++){
-        //~ bmdathit=&bmdatraw->Hit(i);
+      for(Int_t i=0;i<bmdatraw->NHit();i++){
+        bmdathit=&bmdatraw->Hit(i);
         //~ cout<<"evento numero="<<data_num_ev<<"  numero hit"<<i<<"raw hit time="<<bmdathit->Time()<<endl;
-      //~ }
+      }
     }else{
       data_num_ev++;
       data_sync_num_ev+=bmstruct.tdc_numsync;
@@ -174,20 +172,10 @@ void BmBooter::Process() {
   
   //~ if (bmcon->GetBMdebug()>10)
     //~ cout<<"in BmBooter::Process, I finished to printout BM hits"<<endl;
-  if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok>=0){
-    if(track_ok==0){
-      bmntutracktr=bmntutrack->Track(0);
-      TVector3 tmp_tvector=bmntutracktr->GetPvers();
-      tmp_tvector.RotateX(bmcon->GetMeas_tilt().X()*DEG2RAD);
-      tmp_tvector.RotateY(bmcon->GetMeas_tilt().Y()*DEG2RAD);    
-      bmntutracktr->SetPvers(tmp_tvector);
-      tmp_tvector=bmntutracktr->GetR0();
-      bmntutracktr->SetR0(tmp_tvector+bmcon->GetMeas_shift());
-      bmntutracktr->CalculateFromFirstPar(bmcon, bmgeo);
-    }
+  
+  if (GlobalPar::GetPar()->IsPrintOutputFile() && track_ok>=0)
     if(m_controlPlotter->BM_setntutrack_info("BM_output", bmgeo, bmntutrack, bmnturaw, bmcon)==0)
       isallign=kTRUE;      
-  }
       
   if(!isdata){
     MC_track=MCxEvent();  
@@ -199,28 +187,11 @@ void BmBooter::Process() {
   }
   
   //temporary ttree output
-  Int_t eventratefast=100;
-  counter_fast++;
   if( GlobalPar::GetPar()->IsPrintOutputNtuple() && track_ok==0 ){        
       ControlPlotsRepository::GetControlObject( "BooterFinalize" )->BM_setTTree_output(bmnturaw, bmntutrack, data_num_ev,bmstruct.time_acq, isdata);
     if(!isdata)
       ControlPlotsRepository::GetControlObject( "BooterFinalize" )->BM_setMCTTree_output(mylar1realpos, mylar2realpos);
-    bmntutracktr=bmntutrack->Track(0);
-    if(counter_fast<eventratefast){
-      mylar1onlinex+=bmntutracktr->GetMylar1Pos().X();  
-      mylar1onliney+=bmntutracktr->GetMylar1Pos().Y();  
-      mylar1onlinez+=bmntutracktr->GetMylar1Pos().Z();
-      counter_track++;
-    }else if(counter_track>0){
-      cout<<"                             X="<<mylar1onlinex/counter_track<<"   y="<<mylar1onliney/counter_track<<"  z="<<mylar1onlinez/counter_track<<endl;
-      counter_fast=0;
-      counter_track=0;
-      mylar1onlinex=0;
-      mylar1onliney=0;
-      mylar1onlinez=0;
-    }
   }
-    
   //draw and save tracks
   if(bmcon->GetBMvietrack()>0 && data_num_ev%bmcon->GetBMvietrack()==0){
     TCanvas *c_bmhview = new TCanvas("bmhview", "BM_tracks",20,20,800,900);
@@ -304,7 +275,7 @@ void BmBooter::Allign_estimate(){
     
   Double_t ytr_err=sqrt(pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar2_y")))->GetEntries()),2.)  +  pow(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetMean()/sqrt(((TH1D*)(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->Get("BM_output__tracksel_mylar1_y")))->GetEntries()),2.));  
     
-  if(true){  
+  if(bmcon->GetBMdebug()>0){  
     cout<<"Beam Monitor allignment parameters"<<endl;
     cout<<"estimated rotation around X axis= "<<xrot<<endl;
     cout<<"estimated rotation around Y axis= "<<yrot<<endl;
@@ -465,18 +436,8 @@ void BmBooter::PrintProjections(){
   if(((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))==nullptr)
     return;
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();
-
-  Double_t min_xa_unif=-2., max_xa_unif=2.,min_ya_unif=-2., max_ya_unif=2.;
-  Double_t min_xb_unif=-2., max_xb_unif=2.,min_yb_unif=-2., max_yb_unif=2.;
-  Double_t min_xc_unif=-2., max_xc_unif=2.,min_yc_unif=-2., max_yc_unif=2.;
-  Int_t binaunif=100, binbunif=100, bincunif=100;
-
   TString tmp_tstring;
-  TH2D* histoxtime=new TH2D( "xpos_vs_numev", "x on mylar1 vs numev; ev number; x[cm]", (int)tot_num_ev, 0, tot_num_ev,600, -3.,3.);
-  TH2D* histoytime=new TH2D( "ypos_vs_numev", "y on mylar1 vs numev; ev number; y[cm]", (int)tot_num_ev, 0, tot_num_ev,600, -3.,3.);
   TH2D* histoa=new TH2D( "mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
-  TH1D* histoax=new TH1D( "mylar1_xpro", "mylar1 projected tracks on x; x[cm]; evnum", 600, -3., 3.);
-  TH1D* histoay=new TH1D( "mylar1_ypro", "mylar1 projected tracks on y; y[cm]; evnum", 600, -3., 3.);
   TH2D* histob=new TH2D( "mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histoc=new TH2D( "R0_xy", "R0 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histod=new TH2D( "target_xy", "target projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
@@ -498,24 +459,6 @@ void BmBooter::PrintProjections(){
   TH1D* histofy=new TH1D( "project_y_b", tmp_tstring, 200, -10., 10.);
   tmp_tstring="project_y_c"+m_nopath_instr+"; track num; y[cm]";
   TH1D* histogy=new TH1D( "project_y_c", tmp_tstring, 200, -10., 10.);
-  tmp_tstring="project_2d_aunif"+m_nopath_instr+";x[cm];y[cm]";
-  TH2D* histoeunif=new TH2D( "project_2d_aunif", tmp_tstring, binaunif, min_xa_unif, max_xa_unif,binaunif, min_ya_unif,max_ya_unif);
-  tmp_tstring="project_2d_b"+m_nopath_instr+";x[cm];y[cm]";
-  TH2D* histofunif=new TH2D( "project_2d_bunif", tmp_tstring, binbunif, min_xb_unif, max_xb_unif,binbunif, min_yb_unif,max_yb_unif);
-  tmp_tstring="project_2d_c"+m_nopath_instr+";x[cm];y[cm]";
-  TH2D* histogunif=new TH2D( "project_2d_cunif", tmp_tstring, bincunif, min_xc_unif, max_xc_unif,bincunif, min_yc_unif,max_yc_unif);
-  tmp_tstring="project_x_a"+m_nopath_instr+"; x[cm]; track num";
-  TH1D* histoexunif=new TH1D( "project_x_aunif", tmp_tstring, binaunif, min_xa_unif, max_xa_unif);
-  tmp_tstring="project_x_b"+m_nopath_instr+"; x[cm]; track num";
-  TH1D* histofxunif=new TH1D( "project_x_bunif", tmp_tstring, binbunif, min_xb_unif, max_xb_unif);
-  tmp_tstring="project_x_c"+m_nopath_instr+"; x[cm]; track num";
-  TH1D* histogxunif=new TH1D( "project_x_cunif", tmp_tstring, bincunif, min_xc_unif, max_xc_unif);
-  tmp_tstring="project_y_a"+m_nopath_instr+"; track num; y[cm]";
-  TH1D* histoeyunif=new TH1D( "project_y_aunif", tmp_tstring, binaunif, min_ya_unif, max_ya_unif);
-  tmp_tstring="project_y_b"+m_nopath_instr+"; track num; y[cm]";
-  TH1D* histofyunif=new TH1D( "project_y_bunif", tmp_tstring, binbunif, min_yb_unif, max_yb_unif);
-  tmp_tstring="project_y_c"+m_nopath_instr+"; track num; y[cm]";
-  TH1D* histogyunif=new TH1D( "project_y_cunif", tmp_tstring, bincunif, min_yc_unif, max_yc_unif);
   //~ TH2D* histoe=new TH2D( "pvers_mx_MCvsFitted", "mx for the MC and fitted tracks; mx tracks; mx MC", 500,-0.05,0.05,500,-0.05,0.05);
   
   TVector3 projection;
@@ -523,20 +466,9 @@ void BmBooter::PrintProjections(){
   for(Int_t i=0;i<tracktr2dprojects.size();i++){
     projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmgeo->GetMylar1().Z());
     histoa->Fill(projection.X(), projection.Y());
-    histoax->Fill(projection.X());
-    histoay->Fill(projection.Y());
-    if(bmcon->GetSmearrdrift()>0){
-      histoxtime->Fill(tracktr2dprojects.at(i).at(0),projection.X());
-      histoytime->Fill(tracktr2dprojects.at(i).at(0),projection.Y());
-    }
     projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmgeo->GetMylar2().Z());
     histob->Fill(projection.X(), projection.Y());
     histoc->Fill(tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4));
-    
-    //~ pversout.SetXYZ(tracktr2dprojects.at(i).at(1), tracktr2dprojects.at(i).at(3),1.);
-    //~ pversout.RotateX(bmcon->GetMeas_tilt().X()*DEG2RAD);
-    //~ pversout.RotateY(bmcon->GetMeas_tilt().Y()*DEG2RAD);    
-    //~ projection=bmgeo->ProjectFromPversR0(pversout.X(),pversout.Y(), tracktr2dprojects.at(i).at(2)-bmcon->GetMeas_shift().X(), tracktr2dprojects.at(i).at(4)-bmcon->GetMeas_shift().Y(), bmgeo->GetTarget().Z());
     projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmgeo->GetTarget().Z());
     histod->Fill(projection.X(), projection.Y());
     if(bmcon->GetMeas_shift().X()!=0 && bmcon->GetCalibro()<0){
@@ -544,39 +476,26 @@ void BmBooter::PrintProjections(){
       histoe->Fill(projection.X(), projection.Y());
       histoex->Fill(projection.X());
       histoey->Fill(projection.Y());
-      histoeunif->Fill(projection.X(), projection.Y());
-      histoexunif->Fill(projection.X());
-      histoeyunif->Fill(projection.Y());
     }
     if(bmcon->GetMeas_shift().Y()!=0 && bmcon->GetCalibro()<0){
       projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmcon->GetMeas_shift().Y());
       histof->Fill(projection.X(), projection.Y());
-      histof->Fill(projection.X(), projection.Y());
       histofx->Fill(projection.X());
       histofy->Fill(projection.Y());
-      histofunif->Fill(projection.X(), projection.Y());
-      histofxunif->Fill(projection.X());
-      histofyunif->Fill(projection.Y());
     }
     if(bmcon->GetMeas_shift().Z()!=0 && bmcon->GetCalibro()<0){
       projection=bmgeo->ProjectFromPversR0(tracktr2dprojects.at(i).at(1),tracktr2dprojects.at(i).at(3), tracktr2dprojects.at(i).at(2), tracktr2dprojects.at(i).at(4), bmcon->GetMeas_shift().Z());
       histog->Fill(projection.X(), projection.Y());
       histogx->Fill(projection.X());
       histogy->Fill(projection.Y());
-      histogunif->Fill(projection.X(), projection.Y());
-      histogxunif->Fill(projection.X());
-      histogyunif->Fill(projection.Y());
     }
   }
-  
-  cout<<endl<<endl<<"REFERENCE POSITION: X="<<reference.X()<<"  Y="<<reference.Y()<<endl;
-  cout<<"NEW BEAM POSITION: X="<<histoax->GetMean()<<"  Y="<<histoay->GetMean()<<endl;
-  cout<<"AHO TE DEVI SPOSTA DE: X="<<reference.X()-histoax->GetMean()<<"  Y="<<reference.Y()-histoay->GetMean()<<endl<<endl<<endl;
+
   //evaluate uniformity:
+  //~ Double_t min_x_unif=-1., max_x_unif=1.,min_y_unif=-1., max_y_unif=1.;
 
-
-  ofstream outtxt;
-  outtxt.open(txt_outputname.Data(),ios::app);
+  //~ ofstream outtxt;
+  //~ outtxt.open(txt_outputname.Data(),ios::app);
   if(bmcon->GetBMvieproj()>0){
     TString tmp_tstring;
     if(bmcon->GetMeas_shift().X()!=0 && bmcon->GetCalibro()<0){  
@@ -585,35 +504,16 @@ void BmBooter::PrintProjections(){
       histoe->Draw();
       tmp_tstring="project_a2d_"+m_nopath_instr+"pdf";
       canvas_a->SaveAs(tmp_tstring.Data(), "pdf");
-      outtxt<<tmp_tstring.Data()<<"  min="<<histoeunif->GetMinimum()<<"  max="<<histoeunif->GetMaximum()<<endl;
-      outtxt<<"uniformity evaluation="<<EvalUnif(histoeunif->GetMinimum(),histoeunif->GetMaximum())<<endl;
-      cout<<tmp_tstring.Data()<<"  min="<<histoeunif->GetMinimum()<<"  max="<<histoeunif->GetMaximum()<<endl;
-      cout<<"uniformity evaluation="<<EvalUnif(histoeunif->GetMinimum(),histoeunif->GetMaximum())<<endl;
-         
       TCanvas *canvas_ax = new TCanvas("canvas_ax", "BM projects",20,20,800,900);
       canvas_ax->cd();
       histoex->Draw();
       tmp_tstring="project_ax_"+m_nopath_instr+"pdf";
       canvas_ax->SaveAs(tmp_tstring.Data(), "pdf");
-      outtxt<<tmp_tstring.Data()<<"  min="<<histoexunif->GetMinimum()<<"  max="<<histoexunif->GetMaximum()<<endl;
-      outtxt<<"uniformity evaluation="<<EvalUnif(histoexunif->GetMinimum(),histoexunif->GetMaximum())<<endl;
-      cout<<tmp_tstring.Data()<<"  min="<<histoexunif->GetMinimum()<<"  max="<<histoexunif->GetMaximum()<<endl;
-      cout<<"uniformity evaluation="<<EvalUnif(histoexunif->GetMinimum(),histoexunif->GetMaximum())<<endl;
-    
       TCanvas *canvas_ay = new TCanvas("canvas_ay", "BM projects",20,20,800,900);
       canvas_ay->cd();
       histoey->Draw();
       tmp_tstring="project_ay_"+m_nopath_instr+"pdf";
       canvas_ay->SaveAs(tmp_tstring.Data(), "pdf");
-      outtxt<<tmp_tstring.Data()<<"  min="<<histoeyunif->GetMinimum()<<"  max="<<histoeyunif->GetMaximum()<<endl;
-      outtxt<<"uniformity evaluation="<<EvalUnif(histoeyunif->GetMinimum(),histoeyunif->GetMaximum())<<endl;
-      cout<<tmp_tstring.Data()<<"  min="<<histoeyunif->GetMinimum()<<"  max="<<histoeyunif->GetMaximum()<<endl;
-      cout<<"uniformity evaluation="<<EvalUnif(histoeyunif->GetMinimum(),histoeyunif->GetMaximum())<<endl;     
-      //~ outtxt<<"uniformity evaluation="<<EvalUnif(histoex->GetMinimum(),histoex->GetMaximum())<<endl;
-      //~ cout<<"uniformity evaluation="<<EvalUnif(histoex->GetMinimum(),histoex->GetMaximum())<<endl;
-      //~ cout<<"maxbin="<<histoex->GetMaximumBin()<<"  bincenter="<<histoex->GetXaxis()->GetBinCenter(histoex->GetMaximumBin())<<"  value="<<histoex->GetBinContent(histoex->GetXaxis()->GetBinCenter(histoex->GetMaximumBin()))<<endl;
-      //~ cout<<"maxbin="<<histoex->GetMinimumBin()<<"  bincenter="<<histoex->GetXaxis()->GetBinCenter(histoex->GetMinimumBin())<<"  value="<<histoex->GetXaxis()->GetBinCenter(histoex->GetMinimumBin())<<endl;
-    
     }      
     if(bmcon->GetMeas_shift().Y()!=0 && bmcon->GetCalibro()<0){  
       TCanvas *canvas_b = new TCanvas("canvas_b", "BM projecta",20,20,800,900);
@@ -621,30 +521,16 @@ void BmBooter::PrintProjections(){
       histof->Draw();
       tmp_tstring="project_b2d_"+m_nopath_instr+"pdf";
       canvas_b->SaveAs(tmp_tstring.Data(), "pdf");
-      outtxt<<tmp_tstring.Data()<<"  min="<<histofunif->GetMinimum()<<"  max="<<histofunif->GetMaximum()<<endl;
-      outtxt<<"uniformity evaluation="<<EvalUnif(histofunif->GetMinimum(),histofunif->GetMaximum())<<endl;
-      cout<<tmp_tstring.Data()<<"  min="<<histofunif->GetMinimum()<<"  max="<<histofunif->GetMaximum()<<endl;
-      cout<<"uniformity evaluation="<<EvalUnif(histofunif->GetMinimum(),histofunif->GetMaximum())<<endl;      
-    
       TCanvas *canvas_bx = new TCanvas("canvas_b", "BM projecta",20,20,800,900);
       canvas_bx->cd();
       histofx->Draw();
       tmp_tstring="project_bx_"+m_nopath_instr+"pdf";
       canvas_bx->SaveAs(tmp_tstring.Data(), "pdf");
-      outtxt<<tmp_tstring.Data()<<"  min="<<histofxunif->GetMinimum()<<"  max="<<histofxunif->GetMaximum()<<endl;
-      outtxt<<"uniformity evaluation="<<EvalUnif(histofxunif->GetMinimum(),histofxunif->GetMaximum())<<endl;
-      cout<<tmp_tstring.Data()<<"  min="<<histofxunif->GetMinimum()<<"  max="<<histofxunif->GetMaximum()<<endl;
-      cout<<"uniformity evaluation="<<EvalUnif(histofxunif->GetMinimum(),histofxunif->GetMaximum())<<endl;
-    
       TCanvas *canvas_by = new TCanvas("canvas_b", "BM projecta",20,20,800,900);
       canvas_by->cd();
       histofy->Draw();
       tmp_tstring="project_by_"+m_nopath_instr+"pdf";
       canvas_by->SaveAs(tmp_tstring.Data(), "pdf");
-      outtxt<<tmp_tstring.Data()<<"  min="<<histofyunif->GetMinimum()<<"  max="<<histofyunif->GetMaximum()<<endl;
-      outtxt<<"uniformity evaluation="<<EvalUnif(histofyunif->GetMinimum(),histofyunif->GetMaximum())<<endl;
-      cout<<tmp_tstring.Data()<<"  min="<<histofyunif->GetMinimum()<<"  max="<<histofyunif->GetMaximum()<<endl;
-      cout<<"uniformity evaluation="<<EvalUnif(histofyunif->GetMinimum(),histofyunif->GetMaximum())<<endl;
     }      
     if(bmcon->GetMeas_shift().Z()!=0 && bmcon->GetCalibro()<0){  
       TCanvas *canvas_c = new TCanvas("canvas_a", "BM projects",20,20,800,900);
@@ -652,34 +538,20 @@ void BmBooter::PrintProjections(){
       histog->Draw();
       tmp_tstring="project_c2d_"+m_nopath_instr+"pdf";
       canvas_c->SaveAs(tmp_tstring.Data(), "pdf");
-      outtxt<<tmp_tstring.Data()<<"  min="<<histogunif->GetMinimum()<<"  max="<<histogunif->GetMaximum()<<endl;
-      outtxt<<"uniformity evaluation="<<EvalUnif(histogunif->GetMinimum(),histogunif->GetMaximum())<<endl;
-      cout<<tmp_tstring.Data()<<"  min="<<histogunif->GetMinimum()<<"  max="<<histogunif->GetMaximum()<<endl;
-      cout<<"uniformity evaluation="<<EvalUnif(histogunif->GetMinimum(),histogunif->GetMaximum())<<endl;
-    
       TCanvas *canvas_cx = new TCanvas("canvas_a", "BM projects",20,20,800,900);
       canvas_cx->cd();
       histogx->Draw();
       tmp_tstring="project_cx_"+m_nopath_instr+"pdf";
       canvas_cx->SaveAs(tmp_tstring.Data(), "pdf");
-      outtxt<<tmp_tstring.Data()<<"  min="<<histogxunif->GetMinimum()<<"  max="<<histogxunif->GetMaximum()<<endl;
-      outtxt<<"uniformity evaluation="<<EvalUnif(histogxunif->GetMinimum(),histogxunif->GetMaximum())<<endl;
-      cout<<tmp_tstring.Data()<<"  min="<<histogxunif->GetMinimum()<<"  max="<<histogxunif->GetMaximum()<<endl;
-      cout<<"uniformity evaluation="<<EvalUnif(histogxunif->GetMinimum(),histogxunif->GetMaximum())<<endl;
-    
       TCanvas *canvas_cy = new TCanvas("canvas_a", "BM projects",20,20,800,900);
       canvas_cy->cd();
       histogy->Draw();
       tmp_tstring="project_cy_"+m_nopath_instr+"pdf";
       canvas_cy->SaveAs(tmp_tstring.Data(), "pdf");
-      outtxt<<tmp_tstring.Data()<<"  min="<<histogyunif->GetMinimum()<<"  max="<<histogyunif->GetMaximum()<<endl;
-      outtxt<<"uniformity evaluation="<<EvalUnif(histogyunif->GetMinimum(),histogyunif->GetMaximum())<<endl;
-      cout<<tmp_tstring.Data()<<"  min="<<histogyunif->GetMinimum()<<"  max="<<histogyunif->GetMaximum()<<endl;
-      cout<<"uniformity evaluation="<<EvalUnif(histogyunif->GetMinimum(),histogyunif->GetMaximum())<<endl;     
     }      
   }
   
-  outtxt.close();  
+  //~ outtxt.close();  
 
 return;
 }
@@ -1165,7 +1037,7 @@ void BmBooter::evaluateT0() {
   if(rate_evtoev_vecvec.size()<rate_xevent_max){
     for(Int_t i=1;i<rate_evtoev_vecvec.size();i++){
       ((TH1D*)gDirectory->Get("rate_xevent_evtoev"))->SetBinContent(i+1,1000000./rate_evtoev_vecvec.at(i).at(0));
-      if(bmmap->GetSca830Ch()>0 && bmmap->GetScaCoinc()>=0 && rate_evtoev_vecvec.at(i).at(1)>0){
+      if(bmmap->GetSca830Ch()>0 && bmmap->GetScaCoinc()>=0){
         ((TH1D*)gDirectory->Get("rate_xevent_beam_hz"))->SetBinContent(i+1,1000000./rate_evtoev_vecvec.at(i).at(0)*rate_evtoev_vecvec.at(i).at(1));
       }
     }
@@ -1213,13 +1085,7 @@ void BmBooter::evaluateT0() {
     outtxt<<"file name: "<<m_nopath_instr<<"  analized at:"<<std::time(0)<<endl;
     outtxt<<"busy trigger rate="<<((TH1D*)gDirectory->Get("rate_evtoev"))->GetMean()<<"  nobusy rate="<<((TH1D*)gDirectory->Get("rate_beam_hz"))->GetMean()<<endl;
     outtxt<<"adc threshold="<<bmmap->GetAdcDouble()<<"  adc under="<<((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Integral(0,bmmap->GetAdcDouble())<<"  adc over="<<((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Integral(bmmap->GetAdcDouble(),adc_maxbin)<<"  adc: double/single="<<adcratio<<endl;
-    outtxt<<"rescaled the rate of the beam="<<((TH1D*)gDirectory->Get("rate_beam_hz"))->GetMean()*(adcratio+1.)<<endl;
-    
-    cout<<endl<<endl<<"file name: "<<m_nopath_instr<<"  analized at:"<<std::time(0)<<endl;
-    cout<<"busy trigger rate="<<((TH1D*)gDirectory->Get("rate_evtoev"))->GetMean()<<"  nobusy rate="<<((TH1D*)gDirectory->Get("rate_beam_hz"))->GetMean()<<endl;
-    cout<<"adc threshold="<<bmmap->GetAdcDouble()<<"  adc under="<<((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Integral(0,bmmap->GetAdcDouble())<<"  adc over="<<((TH1D*)gDirectory->Get("ADC/adc_petals_sum_meas"))->Integral(bmmap->GetAdcDouble(),adc_maxbin)<<"  adc: double/single="<<adcratio<<endl;
     cout<<"rescaled the rate of the beam="<<((TH1D*)gDirectory->Get("rate_beam_hz"))->GetMean()*(adcratio+1.)<<endl;
-    
     outtxt.close();
   }
   
