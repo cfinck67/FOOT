@@ -21,21 +21,18 @@ TABMactNtuRaw::TABMactNtuRaw(const char* name,
 			   TAGdataDsc* p_nturaw, 
 			   TAGdataDsc* p_datraw, 
 			   TAGdataDsc* p_timraw, 
-			   //~ TAGdataDsc* p_triraw, 
 			   TAGparaDsc* p_geomap, 
 			   TAGparaDsc* p_parcon)
   : TAGaction(name, "TABMactNtuRaw - NTuplize BM raw data"),
     fpNtuRaw(p_nturaw),
     fpDatRaw(p_datraw),
     fpTimRaw(p_timraw),
-    //~ fpTriRaw(p_triraw),
     fpGeoMap(p_geomap),
     fpParCon(p_parcon)
 {
   AddDataOut(p_nturaw, "TABMntuRaw");
   AddDataIn(p_datraw, "TABMdatRaw");
   AddDataIn(p_timraw, "TASTdatRaw");
-  //~ AddDataIn(p_triraw, "TASTdatRaw");
   AddPara(p_geomap, "TABMparGeo");
   AddPara(p_parcon, "TABMparCon");
 }
@@ -81,7 +78,6 @@ Bool_t TABMactNtuRaw::Action()
 {
   TABMdatRaw* p_datraw = (TABMdatRaw*) fpDatRaw->Object();
   TASTdatRaw* p_timraw = (TASTdatRaw*) fpTimRaw->Object();
-  //~ TASTdatRaw* p_triraw = (TASTdatRaw*) fpTriRaw->Object();//è l'equivalente del BM...
   TABMntuRaw* p_nturaw = (TABMntuRaw*) fpNtuRaw->Object();
   TABMparGeo* p_pargeo = (TABMparGeo*) fpGeoMap->Object();
   TABMparCon* p_parcon = (TABMparCon*) fpParCon->Object();
@@ -103,7 +99,6 @@ Bool_t TABMactNtuRaw::Action()
     const TABMrawHit& hit = p_datraw->Hit(i);
     
     //retrive hit parameters
-    //~ Double_t t0_corr = (p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) > -10000) ? p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) : 0.; //to avoid not settled T0
     i_time = hit.Time()- p_parcon->GetT0(hit.View(),hit.Plane(),hit.Cell()) - p_datraw->GetTrigtime();
     
     if(i_time<0){ 

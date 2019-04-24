@@ -5,7 +5,7 @@
   \version $Id: TABMntuTrack.hxx,v 1.9 2003/07/07 18:42:17 mueller Exp $
   \brief   Declaration of TABMntuTrack.
 */
-#define RAD2DEG 57.2957795130823208768
+
 /*------------------------------------------+---------------------------------*/
 
 #include "TAGroot.hxx"

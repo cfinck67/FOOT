@@ -58,7 +58,7 @@ Bool_t TABMactNtuMC::Action()
   vector<Double_t> rdriftxcell(fpEvtStr->BMNn, 99.);
   Int_t nhits=0;
    
-  TVector3 loc, gmom, mom, A0, Wvers, glo;;
+  TVector3 loc, gmom, mom,  glo;
   p_nturaw->SetupClones();//se non c'è l'array di h, lo crea
    
    if (fDebugLevel > 0)
@@ -87,16 +87,16 @@ Bool_t TABMactNtuMC::Action()
       loc = geoTrafo->FromGlobalToBMLocal(glo);
       gmom.SetXYZ(fpEvtStr->BMNpxin[i],fpEvtStr->BMNpyin[i],fpEvtStr->BMNpzin[i]);
        
-      A0.SetXYZ(p_bmgeo->GetWireX(p_bmgeo->GetSenseId(cell),lay,view),    //sarebbe più elegante mettere questa roba in FindRdrift,
-                p_bmgeo->GetWireY(p_bmgeo->GetSenseId(cell),lay,view),    //ma in FindRdrift dovrei caricare p_bmgeo, e forse non conviene
-                p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(cell),lay,view));
+      //~ A0.SetXYZ(p_bmgeo->GetWireX(p_bmgeo->GetSenseId(cell),lay,view),    
+                //~ p_bmgeo->GetWireY(p_bmgeo->GetSenseId(cell),lay,view),   
+                //~ p_bmgeo->GetWireZ(p_bmgeo->GetSenseId(cell),lay,view));
        
-      Wvers.SetXYZ(p_bmgeo->GetWireCX(p_bmgeo->GetSenseId(cell),lay,view),
-                   p_bmgeo->GetWireCY(p_bmgeo->GetSenseId(cell),lay,view),
-                   p_bmgeo->GetWireCZ(p_bmgeo->GetSenseId(cell),lay,view));
+      //~ Wvers.SetXYZ(p_bmgeo->GetWireCX(p_bmgeo->GetSenseId(cell),lay,view),
+                   //~ p_bmgeo->GetWireCY(p_bmgeo->GetSenseId(cell),lay,view),
+                   //~ p_bmgeo->GetWireCZ(p_bmgeo->GetSenseId(cell),lay,view));
        
-      Wvers.SetMag(1.);
-      rdriftxcell.at(i) = FindRdrift(loc, gmom, A0, Wvers);
+      //~ Wvers.SetMag(1.);
+      rdriftxcell.at(i) = FindRdrift(loc, gmom, p_bmgeo->GetWirePos(view, lay,p_bmgeo->GetSenseId(cell)), p_bmgeo->GetWireDir(view));
       
       if(rdriftxcell.at(i)==99) //FindRdrift return 99 if a particle is born without energy, so it shouldn't release energy for a hit.
         tobecharged[i]=false;
@@ -265,12 +265,13 @@ Double_t TABMactNtuMC::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVect
 
   Double_t tp = 0., tf= 0., rdrift; 
   TVector3 D0, R0, Pvers;
+  Wvers.SetMag(1.);
 
   //~ if (dir.Mag()!=0.)
     //~ dir.SetMag(1.);
   //~ else{
   if(dir.Mag()==0.){
-    cout<<"WARNING: FindRdrift: momentum is 0 and the hit shouldn't be charged because this hit is from a fragmentated particle with zero momentum"<<endl;
+    //~ cout<<"WARNING: FindRdrift: momentum is 0 and the hit shouldn't be charged because this hit is from a fragmentated particle with zero momentum"<<endl;
     return 99;//fake value
     }
     

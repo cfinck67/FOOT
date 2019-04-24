@@ -35,8 +35,6 @@ TABMparCon::TABMparCon() {
   //~ rdrift_cut = 10.;
   //~ enxcell_cut = 0.00000001;
   //~ chi2red_cut = 5.;
-  //~ angz_cut = 5.;
-  //~ angzres_cut=5.;
   //~ fitter_index = 0;
   //~ bm_debug=0;
   //~ bm_vietrack=0;
@@ -109,18 +107,11 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      Error(""," Plane Map Error:: check config file!! (P)");
 	      return kTRUE;
         }
-    }else if(strchr(bufConf,'N')) {
-      sscanf(bufConf, "N %lf",&myArg1);
-      if(myArg1>0) 
-        angzres_cut = myArg1;
-      else {
-	      Error(""," Plane Map Error:: check config file!! (N)");
-	      return kTRUE;
-        }
     }else if(strchr(bufConf,'H')) {
-      sscanf(bufConf, "H %d %d",&myArgInt, &myArgIntmax);
-      if(myArgInt>=0 && myArgIntmax>0 && myArgIntmax>=myArgInt){ 
-        minnhit_cut = myArgInt;
+      sscanf(bufConf, "H %d %d %d", &myArgInt, &myArgIntmin, &myArgIntmax);
+      if( myArgInt>0 && myArgInt<7 && myArgIntmin>=0 && myArgIntmax>0 && myArgIntmax>=myArgInt){ 
+        planehit_cut= myArgInt;
+        minnhit_cut = myArgIntmin;
         maxnhit_cut = myArgIntmax;
       }else {
 	      Error(""," Plane Map Error:: check config file!! (H)");
@@ -132,22 +123,6 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         enxcell_cut = myArg1;
       else {
 	      Error(""," Plane Map Error:: check config file!! (E)");
-	      return kTRUE;
-        }
-    }else if(strchr(bufConf,'C')) {
-      sscanf(bufConf, "C %lf",&myArg1);
-      if(myArg1>0)
-        chi2red_cut = myArg1;
-      else {
-	      Error(""," Plane Map Error:: check config file!! (C)");
-	      return kTRUE;
-        }
-    }else if(strchr(bufConf,'L')) {
-      sscanf(bufConf, "L %d",&myArgInt);
-      if(myArgInt>0 && myArgInt<7)
-        planehit_cut = myArgInt;
-      else {
-	      Error(""," Plane Map Error:: check config file!! (L)");
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'Z')) {
@@ -174,14 +149,6 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      Error(""," Plane Map Error:: check config file!! (B)");
 	      return kTRUE;
         }
-    }else if(strchr(bufConf,'A')) {
-      sscanf(bufConf, "A %lf",&myArg1);
-      if(myArg1>0)
-        angz_cut = myArg1;
-      else {
-	      Error(""," Plane Map Error:: check config file!! (A)");
-	      return kTRUE;
-        }
     }else if(strchr(bufConf,'M')) {
       sscanf(bufConf, "M %d %lf %lf %lf %lf %lf %d",&myArgInt, &myArg1, &myArg2, &myArg3, &myArg4, &myArg5, &myArgIntmax);
       if((myArgInt==0 || myArgInt==1) && myArg1>=0 && myArg2>=0 && myArg3>=0 && myArg4>=0 && myArg5>=0 && myArgIntmax>=0 && myArgIntmax<6){
@@ -196,23 +163,14 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      Error(""," Plane Map Error:: check config file!! (M)");
 	      return kTRUE;
         }
-    }else if(strchr(bufConf,'T')) {
-      sscanf(bufConf, "T %d %lf",&myArgInt, &myArg1);
-      if(myArgInt>0 || myArg1>0.){
-        part_in_charge = myArgInt;
-        part_in_mom=myArg1;
-      }else {
-	      Error(""," Plane Map Error:: check config file!! (T)");
-	      return kTRUE;
-        }
     }else if(strchr(bufConf,'W')) {
       sscanf(bufConf, "W %d",&myArgInt);
       strel_switch = myArgInt;        
     }else if(strchr(bufConf,'J')) {
-      sscanf(bufConf, "J %d %d ",&myArgInt, &myArgIntmax);
-      if(myArgInt>=0){
+      sscanf(bufConf, "J %d %lf ",&myArgInt, &myArg1);
+      if(myArgInt>=0 && myArg1>0){
         rejmax_cut = myArgInt;
-        onlyprefit=myArgIntmax;
+        chi2red_cut=myArg1;
       }else {
 	      Error(""," Plane Map Error:: check config file!! (J)");
 	      return kTRUE;
@@ -236,7 +194,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         parmapfile=tmp_char;
     }else if(strchr(bufConf,'F')) {
       sscanf(bufConf, "F %d %d %d %lf",&myArgInt, &myArgIntmax, &myArgIntmin, &myArg1);
-      if(myArgInt>=0 && myArgIntmax>=0 && myArgIntmin>=0 && myArg1>=0.){
+      if(myArgInt>=0 && (myArgIntmax==0 || myArgIntmax==1 || myArgIntmax==2) && myArgIntmin>=0 && myArg1>=0.){
         fitter_index = myArgInt;
         prefit_enable=myArgIntmax;
         num_ite=myArgIntmin;
@@ -247,10 +205,6 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         }
       }
   }//end of readline
-  if(m_isMC){
-    part_in_charge=8;
-    part_in_mom=3200.;
-  }
       
   return kFALSE;
 }
@@ -260,7 +214,7 @@ void TABMparCon::PrintT0s(TString &input_file_name, Long64_t tot_num_ev){
   ofstream outfile;
   TString name="./config/"+bmt0file;
   outfile.open(name.Data(),ios::out);
-  outfile<<"calculated_from: "<<input_file_name.Data()<<"    number_of_events= "<<tot_num_ev<<"  t0_switch= "<<t0_switch<<endl;
+  outfile<<"calculated_from: "<<input_file_name.Data()<<"    number_of_events= "<<tot_num_ev<<"     t0_switch= "<<t0_switch<<"    t0choice= "<<t0choice<<endl;
   for(Int_t i=0;i<36;i++)
     outfile<<"cellid= "<<i<<"  T0_time= "<<v_t0s[i]<<endl;
   outfile.close();
@@ -272,18 +226,22 @@ Bool_t TABMparCon::loadT0s() {
   ifstream infile;
   gSystem->ExpandPathName(bmt0file);
   infile.open(bmt0file,ios::in);
-  Int_t file_evnum, old_t0switch;
+  Int_t file_evnum, file_t0switch, file_t0choice;
   char tmp_char[200], dataset[200];
   vector<Double_t> fileT0(36,-10000.);
   Int_t tmp_int=-1, status=0;  
   if(infile.is_open() && infile.good())
-    infile>>tmp_char>>dataset>>tmp_char>>file_evnum>>tmp_char>>old_t0switch;
+    infile>>tmp_char>>dataset>>tmp_char>>file_evnum>>tmp_char>>file_t0switch>>tmp_char>>file_t0choice;
   else
     status=1;
 
-  if(old_t0switch!=t0_switch){
-    cout<<"TABMparCon::loadT0s::ERROR!!!!!! you load a T0 file calculated from "<<dataset<<" in which the t0 were calculated with a t0_switch="<<old_t0switch<<", now your t0_switch is "<<t0_switch<<endl;
-    status=1;  
+  if(file_t0switch!=t0_switch){
+    cout<<"TABMparCon::loadT0s::WARNING!!: the t0_switch given by the config file is:"<<t0_switch<<", but you load a T0 file calculated from "<<dataset<<" in which the t0's were calculated with a t0_switch="<<file_t0switch<<", now the t0_switch will be adjusted to "<<file_t0switch<<endl;
+    t0_switch=file_t0switch;
+  }
+  if(file_t0choice!=t0choice){
+    cout<<"TABMparCon::loadT0s::WARNING!!: the t0choice given by the config file is:"<<t0choice<<", but you load a T0 file calculated from "<<dataset<<" in which the t0's were calculated with a t0choice="<<file_t0choice<<", now the t0choice will be adjusted to "<<file_t0choice<<endl;
+    t0choice=file_t0choice;
   }
   for(Int_t i=0;i<36;i++)
     if(!infile.eof() && tmp_int==i-1)
@@ -437,8 +395,6 @@ void TABMparCon::Clear(Option_t*)
   rdrift_cut = 10.;
   enxcell_cut = 0.00000001;
   chi2red_cut = 5.;
-  angz_cut = 5.;
-  angzres_cut=5.;
   fitter_index = 0;
   bm_debug=0;
   bm_vietrack=0;

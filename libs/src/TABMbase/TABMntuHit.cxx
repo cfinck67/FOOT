@@ -28,8 +28,6 @@ TABMntuHit::TABMntuHit()
   sigma = 0;
   A0.SetXYZ(0,0,0);
   Wvers.SetXYZ(0,0,0);
-  rho = 0;
-  pca.SetXYZ(0,0,0);
   realRdrift=100.;
   residual=100.;
   isSelected=false;
@@ -44,8 +42,6 @@ TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t r, Doubl
   ichi2 = 999;
   A0.SetXYZ(0,0,0);
   Wvers.SetXYZ(0,0,0);
-  rho = 0;
-  pca.SetXYZ(0,0,0);
   realRdrift=100.;
   residual=100.;
   isSelected=false;

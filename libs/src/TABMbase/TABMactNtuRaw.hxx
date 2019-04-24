@@ -25,7 +25,6 @@ class TABMactNtuRaw : public TAGaction {
 				 TAGdataDsc* p_nturaw=0, 
 				 TAGdataDsc* p_datraw=0, 
 				 TAGdataDsc* p_timraw=0, 
-				 //~ TAGdataDsc* p_triraw=0, 
 				 TAGparaDsc* p_geomap=0, 
 				 TAGparaDsc* p_parcon=0);
     virtual         ~TABMactNtuRaw();
@@ -39,12 +38,9 @@ class TABMactNtuRaw : public TAGaction {
     TAGdataDsc*     fpNtuRaw;		    // output data dsc
     TAGdataDsc*     fpDatRaw;		    // input data dsc
     TAGdataDsc*     fpTimRaw;		    // input time dsc
-    //~ TAGdataDsc*     fpTriRaw;		    // input time dsc
     TAGparaDsc*     fpGeoMap;		    // geometry para dsc
     TAGparaDsc*     fpParCon;		    // BM config params.
     
-    //~ vector<Int_t>   cell_occupy;    //occupancy of the BM cell
-    //~ Double_t        eff_paoloni;    //value of the efficiency calculated with the Paoloni's method
     
     //histos
     TH1F*            fpHisPivot_paoloni;  //Pivots of the Paoloni's method

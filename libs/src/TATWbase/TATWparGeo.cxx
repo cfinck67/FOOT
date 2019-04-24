@@ -13,6 +13,8 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TGeoMatrix.h"
+#include "TMatrixD.h"
+#include "TArrayD.h"
 
 #include "TAGmaterials.hxx"
 #include "TAGgeoTrafo.hxx"
@@ -88,6 +90,9 @@ Bool_t TATWparGeo::FromFile(const TString& name)
    
    // Read transformtion info
    for (Int_t iLayer = 0; iLayer < fLayersN; ++iLayer) {
+
+     vector<TVector3> mytilt;
+       
       for (Int_t iBar = 0; iBar < fBarsN; ++iBar) {
 
          ReadItem(layerId);
@@ -109,8 +114,11 @@ Bool_t TATWparGeo::FromFile(const TString& name)
             cout  << "   Tilt: "
             << Form("%f %f %f", tilt[0], tilt[1], tilt[2]) << endl;
 
-	 vTilt.push_back(tilt);
-         
+	 mytilt.push_back(tilt);
+
+	 // vTilt[iLayer][iBar].SetXYZ(tilt[0], tilt[1], tilt[2]);
+	 
+	 
          TGeoRotation rot;
          rot.RotateX(tilt[0]);
          rot.RotateY(tilt[1]);
@@ -124,6 +132,8 @@ Bool_t TATWparGeo::FromFile(const TString& name)
          Int_t idx = iLayer*fBarsN + iBar;
          AddTransMatrix(new TGeoHMatrix(transfo), idx);
       }
+      
+      vTilt.push_back(mytilt);
    }
    
    Close();
@@ -141,6 +151,7 @@ TGeoHMatrix* TATWparGeo::GetTransfo(Int_t iLayer, Int_t iBar)
 //_____________________________________________________________________________
 TVector3 TATWparGeo::GetBarPosition(Int_t iLayer, Int_t iBar)
 {
+
    Int_t idx = iLayer*fBarsN + iBar;
 
    TGeoHMatrix* hm = TAGparTools::GetTransfo(idx);
@@ -387,8 +398,6 @@ string TATWparGeo::PrintRotations()
     TVector3  fAngle = fpFootGeo->GetTWAngles();
     TVector3 pos;
     
-    int c=0;
-    
     for (int i=0; i<GetNLayers(); i++){
       for (int j=0; j<GetNBars(); j++){      
   
@@ -396,7 +405,7 @@ string TATWparGeo::PrintRotations()
 		    fCenter.Y() + GetBarPosition(i,j).Y(),
 		    fCenter.Z() + GetBarPosition(i,j).Z());
 
-	if(vTilt.at(c).Z()!=0){  
+	if(vTilt.at(i).at(j).Z()!=0){  
 	  ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
 	     << setw(10) << setfill(' ') << std::right << "300."
 	     << setw(10) << setfill(' ') << std::right << " "
@@ -404,16 +413,16 @@ string TATWparGeo::PrintRotations()
 	     << setw(10) << setfill(' ') << std::right << " "
 	     << setw(10) << setfill(' ') << std::right << fCenter.Y()-pos.Y()
 	     << setw(10) << setfill(' ') << std::right << " "
-	     << setfill(' ') << std::left << Form("twZ_%d",c) 
+	     << setfill(' ') << std::left << Form("twZ_%d%02d",i,j) 
 	     << endl;
 	  ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
 	     << setw(10) << setfill(' ') << std::right << "300."
 	     << setw(10) << setfill(' ') << std::right << " "
-	     << setw(10) << setfill(' ') << std::right << vTilt.at(c).Z()
+	     << setw(10) << setfill(' ') << std::right << vTilt.at(i).at(j).Z()
 	     << setw(10) << setfill(' ') << std::right << " "
 	     << setw(10) << setfill(' ') << std::right << " "
 	     << setw(10) << setfill(' ') << std::right << " "
-	     << setfill(' ') << std::left << Form("twZ_%d",c) 
+	     << setfill(' ') << std::left << Form("twZ_%d%02d",i,j) 
 	     << endl;
 	  ss << setw(10) << setfill(' ') << std::left << "ROT-DEFI"
 	     << setw(10) << setfill(' ') << std::right << "300."
@@ -422,12 +431,11 @@ string TATWparGeo::PrintRotations()
 	     << setw(10) << setfill(' ') << std::right << " "
 	     << setw(10) << setfill(' ') << std::right << fCenter.Y()+pos.Y()
 	     << setw(10) << setfill(' ') << std::right << " "
-	     << setfill(' ') << std::left << Form("twZ_%d",c) 
+	     << setfill(' ') << std::left << Form("twZ_%d%02d",i,j) 
 	     << endl;
 
 	}
 	
-	c++;
       }
     }
   }
@@ -461,23 +469,47 @@ string TATWparGeo::PrintBodies()
     if(fAngle.Z()!=0)
       cout << "TW rotation around z found: ATTENTION not implemented in fluka" << endl;
     //   ss << "$start_transform " << "twZ" << endl;
-    
-    int c=0;
-    
+        
     for (int i=0; i<GetNLayers(); i++){
       for (int j=0; j<GetNBars(); j++){
-    
-	// Double_t *rot = TATWparGeo::GetTransfo(i,j)->GetRotationMatrix();
+	
+  // TGeoHMatrix gm; //global matrix
+  // gm = *node->GetMatrix();
+  // Double_t *tr  = gm.GetTranslation();
+  // Double_t *rot = gm.GetRotationMatrix();
+	
+	// Double_t *mat = TATWparGeo::GetTransfo(i,j)->GetRotationMatrix();
+	// TMatrixD p(3,3);
+	// TArrayD a(9);
+	// if(j==0&&i==0){
+	//   for(int m=0; m<9; m++){
+	    // a[m]=mat[m];
+	    // cout<<i<<"  "<<rot[m]<<endl;
+	    // mat[0]=rot->XX();
+	    // mat[1]=rot->XY();
+	    // mat[2]=rot->XZ();
+	    // mat[3]=rot->YX();
+	    // mat[4]=rot->YY();
+	    // mat[5]=rot->YZ();
+	    // mat[6]=rot->ZX();
+	    // mat[7]=rot->ZY();
+	    // mat[8]=rot->ZZ();
+	//   }
+	// }
+	// p.SetMatrixArray(a.GetArray());
+	// cout<<rot->GetXPhi()<<" "<<rot->GetXPsi()<<" "<<rot->GetXTheta()<<endl;
+	// TRotation rot(p);
 
- 	if (vTilt.at(c).X()!=0)
+
+ 	if (vTilt.at(i).at(j).X()!=0)
 	  cout << "TW bar rotation around x found: ATTENTION not implemented in fluka" << endl;
- 	if (vTilt.at(c).Y()!=0)
+ 	if (vTilt.at(i).at(j).Y()!=0)
 	  cout << "TW bar rotation around y found: ATTENTION not implemented in fluka" << endl;
- 	if (vTilt.at(c).Z()!=0)
-	  ss << "$start_transform " << Form("twZ_%d",c) << endl;
+ 	if (vTilt.at(i).at(j).Z()!=0)
+	  ss << "$start_transform " << Form("twZ_%d%02d",i,j) << endl;
       	
-	bodyname = Form("scn%02d",c);
-	regionname = Form("SCN%02d",c);
+	bodyname = Form("scn%d%02d",i,j);
+	regionname = Form("SCN%d%02d",i,j);
 	pos.SetXYZ( fCenter.X() + GetBarPosition(i,j).X(),
 		    fCenter.Y() + GetBarPosition(i,j).Y(),
 		    fCenter.Z() + GetBarPosition(i,j).Z());
@@ -491,20 +523,12 @@ string TATWparGeo::PrintBodies()
 	vBody.push_back(bodyname);
 	vRegion.push_back(regionname);
 
-	// if (vTilt.at(c).X()!=0)
-	//   ss << "$end_transform " << endl;
-	// if (vTilt.at(c).Y()!=0)
-	//   ss << "$end_transform " << endl;
-	if (vTilt.at(c).Z()!=0)
+	if (vTilt.at(i).at(j).Z()!=0)
 	  ss << "$end_transform " << endl;
 
-	c++;
       }
     }
-    
-    // if(fAngle.Z()!=0)
-    //   ss << "$end_transform " << endl;
-    
+       
   }
 
   return ss.str();

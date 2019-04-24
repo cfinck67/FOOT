@@ -248,7 +248,7 @@ void TAVTactBaseNtuTrack::CheckBM()
    
    if (fBmTrack) {
 	  fBmTrackPos  = fBmTrack->PointAtLocalZ(zDiff);
-	  Float_t chi2 = fBmTrack->GetChi2New();
+	  Float_t chi2 = fBmTrack->GetChi2Red();
 	  if (ValidHistogram())
 		 fpHisBmChi2->Fill(chi2);
 	  

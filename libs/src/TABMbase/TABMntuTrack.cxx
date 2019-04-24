@@ -6,8 +6,6 @@
 
 #include "TABMntuTrack.hxx"
 
-using namespace genfit;
-
 
 //########################################   TABMntuTrack   ######################################
 
@@ -68,7 +66,6 @@ void TABMntuTrack::Clear(Option_t*)
 /*------------------------------------------+---------------------------------*/
 //! ostream insertion.
 
-//da modificare
 void TABMntuTrack::ToStream(ostream& os, Option_t* option) const
 {
   //~ os << "TABMntuTrack" << Form("  ntrk=%3d", ntrk) << endl;
@@ -89,9 +86,6 @@ void TABMntuTrack::ToStream(ostream& os, Option_t* option) const
 
   return;
 }
-
-//------------------------------------------+-----------------------------------
-//! Setup clones.
 
 
 

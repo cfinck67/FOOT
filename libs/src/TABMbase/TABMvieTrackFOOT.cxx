@@ -75,34 +75,10 @@ void TABMvieTrackFOOT::ExecuteEvent(Int_t i_event, Int_t i_px, Int_t i_py)
 
 void TABMvieTrackFOOT::Paint(Option_t* option)
 {
-  //~ TABMntuTrack* p_ntutrk  =(TABMntuTrack*) fpNtuTrk->GenerateObject();//non serve più il generate ma il find nel caso!
-  //~ TABMntuRaw*   p_nturaw = (TABMntuRaw*)   fpNtuRaw->GenerateObject();
-  //~ TABMparGeo*   p_bmgeo = (TABMparGeo*) fpParBMGeo->Object();
-
-  //~ cout<<"TABMvieTrackFoot::evaluate_cell_occupy: print cell_occupy"<<endl;
-  //~ for(Int_t i=0;i<36;i++){
-  //~ cout<<endl;
-    //~ for(Int_t j=0;j<cell_occupy->at(i).size();j++)
-      //~ cout<<cell_occupy->at(i)[j]<<" ";
-  //~ }
-
+  
   if (IsZombie() || !gPad) return;
 
   TAttFill attfill_box(0, 1);	    // (col,sty) = empty, solidline for box
-
-  //~ TAttLine attline_black_soli_fat(1, 1, 2); // (color, style, width)
-  //~ TAttLine attline_black_dash_nor(1, 2, 1);
-  //~ TAttLine attline_black_dot_nor(1, 3, 1);
-  //~ TAttLine attline_trk_4(1, 1, 1);	    // (col,sty,wid) = bla,sol,1
-  //~ TAttLine attline_trk_3(1, 2, 1);	    // (col,sty,wid) = bla,das,1
-  //~ TAttLine attline_hit_b(3, 1, 1);	    // (col,sty,wid) = gre,sol,1  bad
-  //~ TAttFill attfill_tof(1, 1001);	    // (col,sty) = bla, solid  ???
-  //~ TAttFill attfill_tof_us(6, 1001);	    // (col,sty) = red, solid  use sea
-  //~ TAttFill attfill_tof_b(3, 1001);	    // (col,sty) = gre, solid  bad
-  //~ TAttText atttext_small_hcvb(21, 0., 1, 83, 10);   //allign, angle, color, font, size
-  //~ TAttText atttext_small_hcvt(23, 0., 1, 83, 10);
-  //~ TAttText atttext_small_hcvb_v(21, 90., 1, 83, 15);
-  //~ TAttLine attline_hit_m(4, 1, 1);	    // (col,sty,wid) = blu,sol,1  mis
 
   TAttLine attline_black_soli_nor(1, 1, 1); // to draw the cell side
   TAttLine attline_trk(2, 1, 1);	    // (col,sty,wid) = red,sol,1  used for track
@@ -150,49 +126,19 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
   }
   
   //Beam Monitor tracks 
+  TVector3 mylar1posTrack, mylar2posTrack;
   if (track_ok==0 || track_ok==5) {
     //Displays the fitted tracks
     Info("Viewer()","Displaying the BM Tracks");
 
     for (Int_t i_t = 0; i_t < p_ntutrk->GetTracksN(); i_t++) {
       p_trk = p_ntutrk->Track(i_t);
-      sprintf(text,"MyChi2Red: %lf",p_trk->GetMyChi2Red());
+      sprintf(text,"MyChi2Red: %lf",p_trk->GetChi2Red());
       gPad->PaintText(-0.6*p_bmgeo->GetWidth(), +0.40*p_bmgeo->GetLength(),text);
-
-      //~ x_target = p_trk->GetX0();//yun: sono arrivato qua
-      //~ y_target = p_trk->GetY0();
-      //~ pversx = p_trk->GetUx();
-      //~ pversy = p_trk->GetUy();
-
-      //~ double ptra2 = pversx*pversx + pversy*pversy;
-      //~ if(ptra2>1.){
-        //~ ptra2 = 1.;
-        //~ cout <<"warning : wrong output from the fit"<<endl;
-      //~ }
-      //~ double pversz = sqrt(1. - ptra2);
-      
-      //~ /* 
-       //~ use parametric equation for track : 
-       //~ ti, tf = parameter at 2 Z edges of the BM
-      //~ */
-      //~ zmin = - p_bmgeo->GetLength()/2;
-      //~ zmax = + p_bmgeo->GetLength()/2;
-      //~ t_i = (zmin)/pversz;
-      //~ t_f = (zmax)/pversz;
-      
-      //~ xch_i = x_target + pversx*t_i ;
-      //~ xch_f = x_target + pversx*t_f ;
-      //~ ych_i = y_target + pversy*t_i ;
-      //~ ych_f = y_target + pversy*t_f ;
-      
-      //~ attline_trk_4.Modify();
-
-      //X,Z (view V, TOP view)   
-      //(X needs to be reversed SINCE TOP view has x increasing towards left)... ma perchè?
-      //~ gPad->PaintLine(-xch_i-0.5*p_bmgeo->GetWidth(),zmin,-xch_f-0.5*p_bmgeo->GetWidth(),zmax);
       attline_trk.Modify();
-      gPad->PaintLine(-p_trk->GetMylar1Pos().X()-p_bmgeo->GetWidth()/2.,p_trk->GetMylar1Pos().Z(),-p_trk->GetMylar2Pos().X()-p_bmgeo->GetWidth()/2.,p_trk->GetMylar2Pos().Z());
-      //~ cout<<"zmin="<<p_trk->GetMylar1Pos().Z()<<"  zmax="<<p_trk->GetMylar2Pos().Z()<<endl;
+      mylar1posTrack=p_trk->PointAtLocalZ(p_bmgeo->GetMylar1().Z());
+      mylar2posTrack=p_trk->PointAtLocalZ(p_bmgeo->GetMylar2().Z());
+      gPad->PaintLine(-mylar1posTrack.X()-p_bmgeo->GetWidth()/2.,mylar1posTrack.Z(),-mylar2posTrack.X()-p_bmgeo->GetWidth()/2.,mylar2posTrack.Z());
     }
   }
   
@@ -270,38 +216,10 @@ void TABMvieTrackFOOT::Paint(Option_t* option)
 
     for (Int_t i_t = 0; i_t < p_ntutrk->GetTracksN(); i_t++) {
       p_trk = p_ntutrk->Track(i_t);
-      //~ x_target = p_trk->GetX0();
-      //~ y_target = p_trk->GetY0();
-      //~ pversx = p_trk->GetUx();
-      //~ pversy = p_trk->GetUy();
-
-      //~ double ptra2 = pversx*pversx + pversy*pversy;
-      //~ if(ptra2>1.){
-        //~ ptra2 = 1.;
-        //~ cout <<"warning : wrong output from the fit"<<endl;
-      //~ }
-      //~ double pversz = sqrt(1. - ptra2);
-      
-      //~ /* 
-	 //~ use parametric equation for track : 
-	 //~ ti, tf = parameter at 2 Z edges of the BM
-      //~ */
-      //~ zmin = - p_bmgeo->GetLength()/2;
-      //~ zmax = + p_bmgeo->GetLength()/2;
-      //~ t_i = (zmin)/pversz;
-      //~ t_f = (zmax)/pversz;
-      
-      //~ xch_i = x_target + pversx*t_i ;
-      //~ xch_f = x_target + pversx*t_f ;
-      //~ ych_i = y_target + pversy*t_i ;
-      //~ ych_f = y_target + pversy*t_f ;
-      
-      //~ attline_trk_4.Modify();
       attline_trk.Modify();
-
       //Y,Z (view U, Side view)   
       //~ gPad->PaintLine(-ych_i+0.5*p_bmgeo->GetWidth(),zmin,-ych_f+0.5*p_bmgeo->GetWidth(),zmax);
-      gPad->PaintLine(-p_trk->GetMylar1Pos().Y()+p_bmgeo->GetWidth()/2.,p_trk->GetMylar1Pos().Z(),-p_trk->GetMylar2Pos().Y()+p_bmgeo->GetWidth()/2.,p_trk->GetMylar2Pos().Z());
+      gPad->PaintLine(-mylar1posTrack.Y()+p_bmgeo->GetWidth()/2.,mylar1posTrack.Z(),-mylar2posTrack.Y()+p_bmgeo->GetWidth()/2.,mylar2posTrack.Z());
     }
   }
 
