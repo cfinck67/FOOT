@@ -16,6 +16,7 @@
 #include "TAGroot.hxx"
 #include "TAGactTreeWriter.hxx"
 
+#include "TAVTparMap.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
 #include "TAVTntuRaw.hxx"
@@ -41,6 +42,10 @@ TAVTactNtuTrackF*   vtActTrck = 0x0;
 
 void FillVertex()
 {
+   TAGparaDsc* vtMap    = new TAGparaDsc("vtMap", new TAVTparMap());
+   TAVTparMap* map   = (TAVTparMap*) vtMap->Object();
+   map->FromFile("./config/TAVTdetector.map");
+   
    
    TAGparaDsc* vtGeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());
    TAVTparGeo* geomap   = (TAVTparGeo*) vtGeo->Object();
@@ -57,9 +62,9 @@ void FillVertex()
    TAGdataDsc* vtTrck   = new TAGdataDsc("vtTrck", new TAVTntuTrack());
 
    daqActReader  = new TAGactDaqReader("daqActReader", vtDaq);
-
    
-   vtActRaw  = new TAVTactNtuRaw("vtActRaw", vtNtu, vtDaq, vtGeo, vtConf);
+   
+   vtActRaw  = new TAVTactNtuRaw("vtActRaw", vtNtu, vtDaq, vtGeo, vtConf, vtMap);
    vtActRaw->CreateHistogram();
 
    vtActClus =  new TAVTactNtuClusterF("vtActClus", vtNtu, vtClus, vtConf, vtGeo);
@@ -88,9 +93,9 @@ void ReadVtxRaw(TString filename = "data_test.00001431.physics_foot.daq.RAW._lb0
    daqActReader->Open(filename);
    
    tagr.AddRequiredItem(daqActReader);
- //  tagr.AddRequiredItem(vtActRaw);
-//   tagr.AddRequiredItem(vtActClus);
-//   tagr.AddRequiredItem(vtActTrck);
+   tagr.AddRequiredItem(vtActRaw);
+   tagr.AddRequiredItem(vtActClus);
+   //   tagr.AddRequiredItem(vtActTrck);
    tagr.AddRequiredItem(outFile);
 
    tagr.Print();
