@@ -4,73 +4,22 @@
 
 #include "TAGbaseEventDisplay.hxx"
 
-/** TAFOeventDisplay HIT class to work on event display
+/** TAFOeventDisplay FOOT class to work on event display
+ 
+ */
+#include "TAGbaseEventDisplay.hxx"
+
+/** TAFOeventnDisplay FOOT class to work on event display
  
  */
 #include <map>
 
 #include "TVirtualMagField.h"
 
-#include "TAGdaqEvent.hxx"
-#include "TASTparGeo.hxx"
-#include "TABMparGeo.hxx"
-#include "TAGparGeo.hxx"
-#include "TAVTparGeo.hxx"
-#include "TAVTparGeo.hxx"
-#include "TAITparGeo.hxx"
-#include "TADIparGeo.hxx"
-#include "TAMSDparGeo.hxx"
-#include "TATWparGeo.hxx"
-#include "TACAparGeo.hxx"
-
-#include "TASTparTime.hxx"
-
-#include "TASTparMap.hxx"
-#include "TABMparMap.hxx"
-#include "TAVTparMap.hxx"
-#include "TAITparMap.hxx"
-#include "TATWparMap.hxx"
-
-#include "TATWparCal.hxx"
-#include "TATWparTime.hxx"
-
-#include "TABMparCon.hxx"
-#include "TAVTparConf.hxx"
-#include "TAITparConf.hxx"
-#include "TAMSDparConf.hxx"
-
-#include "TAGclusterDisplay.hxx"
-#include "TAGtrackDisplay.hxx"
-#include "TAGwireDisplay.hxx"
-#include "TAGglbTrackDisplay.hxx"
-#include "TAGbaseEventDisplay.hxx"
-#include "TAGactionFile.hxx"
-
-#include "TAVTactVmeReader.hxx"
-#include "TABMactVmeReader.hxx"
-
-#include "TASTactDatRaw.hxx"
-#include "TABMactDatRaw.hxx"
-#include "TATWactDatRaw.hxx"
-
-#include "TAVTactNtuClusterF.hxx"
-#include "TAITactNtuClusterF.hxx"
-#include "TAMSDactNtuCluster.hxx"
-#include "TATWactNtuPoint.hxx"
-
-#include "TASTactNtuRaw.hxx"
-#include "TABMactNtuRaw.hxx"
-#include "TAVTactNtuRaw.hxx"
-#include "TAITactNtuRaw.hxx"
-#include "TATWactNtuRaw.hxx"
-
-
-#include "TABMactNtuTrack.hxx"
-#include "TAVTactBaseNtuTrack.hxx"
-#include "TAVTactNtuVertex.hxx"
-
 #include "TADIeveField.hxx"
 #include "FootField.hxx"
+
+#include "LocalReco.hxx"
 
 class TEveDigitSet;
 class TGCheckButton;
@@ -103,6 +52,9 @@ public:
    //! Update normal Canvases
    virtual void UpdateDefCanvases();
 
+   //! Set local reconstruction
+   virtual void SetLocalReco();
+   
    //! Add required items
    virtual void AddRequiredItem();
 
@@ -176,88 +128,12 @@ public:
    static void EnableStdAlone()    { fgStdAloneFlag = true;   }
 
 protected:
-   TAGparaDsc*           fpParGeoSt;
-   TAGparaDsc*           fpParGeoG;
-   TAGparaDsc*           fpParGeoDi;
-   TAGparaDsc*           fpParGeoBm;
-   TAGparaDsc*           fpParGeoVtx;
-   TAGparaDsc*           fpParGeoIt;
-   TAGparaDsc*           fpParGeoMsd;
-   TAGparaDsc*           fpParGeoTw;
-   TAGparaDsc*           fpParGeoCa;
-   
-   TAGparaDsc*           fpParTimeSt;
-   TAGparaDsc*           fpParTimeTw;
-
-   TAGparaDsc*           fpParMapSt;
-   TAGparaDsc*           fpParMapBm;
-   TAGparaDsc*           fpParMapVtx;
-   TAGparaDsc*           fpParMapIt;
-   TAGparaDsc*           fpParMapTw;
-   TAGparaDsc*           fpParTimTw;
-
-   TAGparaDsc*           fpParCalBm;
-   TAGparaDsc*           fpParCalTw;
-   
-   TAGparaDsc*           fpParConfBm;
-   TAGparaDsc*           fpParConfVtx;
-   TAGparaDsc*           fpParConfIt;
-   TAGparaDsc*           fpParConfMsd;
-   
-   TAGdataDsc*           fpDaqEvent;    // input data dsc
-   TAGdataDsc*           fpDatRawSt;    // input data dsc
-   TAGdataDsc*           fpNtuRawSt;    // input data dsc
-   
-   TAGdataDsc*           fpDatRawBm;    // input data dsc
-   TAGdataDsc*           fpNtuRawBm;    // input data dsc
-   TAGdataDsc*           fpNtuTrackBm;  // input track data dsc
-
-   TAGdataDsc*           fpNtuRawVtx;	  // input ntu data dsc
-   TAGdataDsc*           fpNtuClusVtx;	  // input cluster data dsc
-   TAGdataDsc*           fpNtuTrackVtx;  // input track data dsc
-   TAGdataDsc*           fpNtuVtx;		  // input Vtx data dsc
-   
-   TAGdataDsc*           fpDatRawIt;    // input data dsc
-   TAGdataDsc*           fpNtuRawIt;	  // input ntu data dsc
-   TAGdataDsc*           fpNtuClusIt;	  // input cluster data dsc
-   
-   TAGdataDsc*           fpDatRawMsd;    // input data dsc
-   TAGdataDsc*           fpNtuRawMsd;	  // input ntu data dsc
-   TAGdataDsc*           fpNtuClusMsd;	  // input cluster data dsc
-
-   TAGdataDsc*           fpDatRawTw;    // inout data dsc
-   TAGdataDsc*           fpNtuRawTw;    // input data dsc
-   TAGdataDsc*           fpNtuRecTw;    // input data dsc
-   TAGdataDsc*           fpNtuRawCa;    // input data dsc
-
-   TAGactionFile*        fActEvtReader;
-
-   TASTactDatRaw*        fActDatRawSt;   // action for dat raw ST
-   TASTactNtuRaw*        fActNtuRawSt;   // action for dat raw ST
-
-   TABMactVmeReader*     fActVmeReaderBm; // action for stand alone reader BM
-   TABMactDatRaw*        fActDatRawBm;   // action for dat raw BM
-   TABMactNtuRaw*        fActNtuRawBm;   // action for ntu raw BM
-   TABMactNtuTrack*      fActTrackBm;   // action for tracks
-
-   TAVTactVmeReader*     fActVmeReaderVtx; // action for stand alone reader VTX
-   TAVTactNtuRaw*        fActNtuRawVtx;  // action for ntu data
-   TAVTactNtuClusterF*   fActClusVtx;    // action for clusters
-   TAVTactBaseNtuTrack*  fActTrackVtx;   // action for tracks
-   TAVTactBaseNtuVertex* fActVtx;        // action for vertex
-   
-   TAITactNtuRaw*        fActNtuRawIt;  // action for ntu data
-   TAITactNtuClusterF*   fActClusIt;    // action for clusters
-   
-   TAVTactNtuRaw*        fActNtuRawMsd;  // action for ntu data
-   TAMSDactNtuCluster*   fActClusMsd;    // action for clusters
-   
-   TATWactDatRaw*        fActDatRawTw;  // action for ntu data
-   TATWactNtuRaw*        fActNtuRawTw;  // action for ntu data
-   TATWactNtuPoint*      fActPointTw;    // action for clusters
+   BaseLocalReco*        fLocalReco;    // local reco
 
    Int_t                 fType;         // type of sensor
    
+   TAGparaDsc*            fpParGeoDi;
+
    //Display
    TAGclusterDisplay*    fStClusDisplay;  // list of quad to display hits
 

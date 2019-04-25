@@ -53,7 +53,7 @@ void LocalReco::LoopEvent(Int_t nEvents)
       if(ientry % 100 == 0)
          cout<<" Loaded Event:: " << ientry << endl;
       if(GlobalPar::GetPar()->Debug())
-	cout<<dec<<" Event:: "<<ientry<<endl;
+         cout<<dec<<" Event:: "<<ientry<<endl;
       
       if (!fTAGroot->NextEvent()) break;;
    }
@@ -90,10 +90,10 @@ void LocalReco::CreateRawAction()
       } else {
          fActDatRawBm = new TABMactDatRaw("bmActDat", fpDatRawBm, fpDaqEvent, fpParMapBm, fpParConfBm, fpParGeoBm, fpDatRawSt);
          fActDatRawBm->CreateHistogram();
-	 if(GlobalPar::GetPar()->Debug()) fActDatRawBm->SetDebugLevel(1);
+         if(GlobalPar::GetPar()->Debug()) fActDatRawBm->SetDebugLevel(1);
          fActNtuRawBm = new TABMactNtuRaw("bmActNtu", fpNtuRawBm, fpDatRawBm, fpDatRawSt, fpParGeoBm, fpParConfBm);
          fActNtuRawBm->CreateHistogram();
-	 if(GlobalPar::GetPar()->Debug()) fActNtuRawBm->SetDebugLevel(1);
+         if(GlobalPar::GetPar()->Debug()) fActNtuRawBm->SetDebugLevel(1);
       }
    }
 

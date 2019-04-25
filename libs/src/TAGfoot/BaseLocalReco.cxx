@@ -93,11 +93,7 @@ BaseLocalReco::~BaseLocalReco()
 //__________________________________________________________
 void BaseLocalReco::BeforeEventLoop()
 {
-
-   InitParameters();
-   
    CreateRawAction();
-
    CreateRecAction();
 
    OpenFileIn();
@@ -174,7 +170,7 @@ void BaseLocalReco::CloseFileOut()
 }
 
 //__________________________________________________________
-void BaseLocalReco::InitParameters()
+void BaseLocalReco::ReadParFiles()
 {
    // initialise parameters for target
    if (GlobalPar::GetPar()->IncludeTG() || GlobalPar::GetPar()->IncludeBM()) {
@@ -452,83 +448,45 @@ void BaseLocalReco::SetTreeBranches()
 void BaseLocalReco::AddRecRequiredItem()
 {
    if (fFlagOut)
-      fTAGroot->AddRequiredItem("locRecFile");
+      gTAGroot->AddRequiredItem("locRecFile");
    
-   if (GlobalPar::GetPar()->IncludeST())
-      AddRequiredItemSt();
+   if (GlobalPar::GetPar()->IncludeST() || GlobalPar::GetPar()->IncludeBM())
+      gTAGroot->AddRequiredItem("stActNtu");
    
-   if (GlobalPar::GetPar()->IncludeBM())
-      AddRequiredItemBm();
-   
-   if (GlobalPar::GetPar()->IncludeVertex())
-      AddRequiredItemVtx();
-   
-   if (GlobalPar::GetPar()->IncludeInnerTracker())
-      AddRequiredItemIt();
-   
-   if (GlobalPar::GetPar()->IncludeMSD())
-      AddRequiredItemMsd();
-   
-   if (GlobalPar::GetPar()->IncludeTW())
-      AddRequiredItemTw();
-   
-   if (GlobalPar::GetPar()->IncludeCA())
-      AddRequiredItemCa();
-}
-
-//__________________________________________________________
-void BaseLocalReco::AddRequiredItemSt()
-{
-   fTAGroot->AddRequiredItem("stActNtu");
-}
-
-//__________________________________________________________
-void BaseLocalReco::AddRequiredItemBm()
-{
-   fTAGroot->AddRequiredItem("bmActNtu");
-   if (fFlagTrack)
-      fTAGroot->AddRequiredItem("bmActTrack");
-}
-
-//__________________________________________________________
-void BaseLocalReco::AddRequiredItemVtx()
-{
-   fTAGroot->AddRequiredItem("vtActNtu");
-   
-   fTAGroot->AddRequiredItem("vtActClus");
-   if (fFlagTrack) {
-      fTAGroot->AddRequiredItem("vtActTrack");
-      if (GlobalPar::GetPar()->IncludeTG())
-         fTAGroot->AddRequiredItem("vtActVtx");
+   if (GlobalPar::GetPar()->IncludeBM()) {
+      gTAGroot->AddRequiredItem("bmActNtu");
+      if (fFlagTrack)
+         gTAGroot->AddRequiredItem("bmActTrack");
    }
    
-}
-
-//__________________________________________________________
-void BaseLocalReco::AddRequiredItemIt()
-{
-   fTAGroot->AddRequiredItem("itActNtu");
-   fTAGroot->AddRequiredItem("itActClus");
-}
-
-//__________________________________________________________
-void BaseLocalReco::AddRequiredItemMsd()
-{
-   fTAGroot->AddRequiredItem("msdActNtu");
-   fTAGroot->AddRequiredItem("msdActClus");
-}
-
-//__________________________________________________________
-void BaseLocalReco::AddRequiredItemTw()
-{
-//   fTAGroot->AddRequiredItem("twActNtu");
-//   fTAGroot->AddRequiredItem("twActPoint");
-}
-
-//__________________________________________________________
-void BaseLocalReco::AddRequiredItemCa()
-{
-   fTAGroot->AddRequiredItem("caActNtu");
+   if (GlobalPar::GetPar()->IncludeVertex()) {
+      gTAGroot->AddRequiredItem("vtActNtu");
+      gTAGroot->AddRequiredItem("vtActClus");
+      if (fFlagTrack) {
+         gTAGroot->AddRequiredItem("vtActTrack");
+         if (GlobalPar::GetPar()->IncludeTG())
+            gTAGroot->AddRequiredItem("vtActVtx");
+      }
+   }
+   
+   if (GlobalPar::GetPar()->IncludeInnerTracker()) {
+      gTAGroot->AddRequiredItem("itActNtu");
+      gTAGroot->AddRequiredItem("itActClus");
+   }
+   
+   if (GlobalPar::GetPar()->IncludeMSD()) {
+      gTAGroot->AddRequiredItem("msdActNtu");
+      gTAGroot->AddRequiredItem("msdActClus");
+   }
+   
+   if (GlobalPar::GetPar()->IncludeTW()) {
+      gTAGroot->AddRequiredItem("twActNtu");
+      gTAGroot->AddRequiredItem("twActPoint");
+   }
+   
+   if (GlobalPar::GetPar()->IncludeCA()) {
+      gTAGroot->AddRequiredItem("caActNtu");
+   }
 }
 
 //__________________________________________________________

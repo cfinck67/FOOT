@@ -71,6 +71,9 @@ public:
    
    virtual ~BaseLocalReco();
    
+   //! Read parameters
+   void ReadParFiles();
+
    //! Create raw action
    virtual void CreateRecAction();
    
@@ -157,8 +160,8 @@ public:
    TAITntuCluster*      GetNtuClusterIt()   const { return (TAITntuCluster*)fpNtuClusIt->Object();   }
    TAMSDntuCluster*     GetNtuClusterMsd()  const { return (TAMSDntuCluster*)fpNtuClusMsd->Object(); }
    
-   TATWntuHit*          GetNtuHitTw()       const { return (TATWntuHit*) fpNtuRawTw->Object();       }
-   TATWpoint*           GetNtuPointTw()     const { return (TATWpoint*) fpNtuRecTw->Object();        }
+   TATWntuRaw*          GetNtuHitTw()       const { return (TATWntuRaw*) fpNtuRawTw->Object();       }
+   TATWntuPoint*        GetNtuPointTw()     const { return (TATWntuPoint*) fpNtuRecTw->Object();      }
    
    TACAntuRaw*          GetNtuHitCa()       const { return (TACAntuRaw*) fpNtuRawCa->Object();       }
 
@@ -172,10 +175,6 @@ public:
    virtual TAMCntuHit*  GetNtuMcTw()        const { return 0x0; }
    virtual TAMCntuHit*  GetNtuMcCa()        const { return 0x0; }
    virtual TTree*       GetTree()                 { return 0x0; }
-   
-
-private:
-   void InitParameters();
 
 protected:
    TString               fExpName;
@@ -263,14 +262,6 @@ protected:
    void CreateRecActionIt();
    void CreateRecActionMsd();
    void CreateRecActionTw();
-   
-   void AddRequiredItemSt();
-   void AddRequiredItemBm();
-   void AddRequiredItemVtx();
-   void AddRequiredItemIt();
-   void AddRequiredItemMsd();
-   void AddRequiredItemTw();
-   void AddRequiredItemCa();
    
    ClassDef(BaseLocalReco, 1); // Base class for event display
 };

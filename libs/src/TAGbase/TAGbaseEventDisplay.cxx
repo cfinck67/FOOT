@@ -72,9 +72,7 @@ TAGbaseEventDisplay::TAGbaseEventDisplay(const TString expName)
   fWorldSizeZ(120),
   fWorldSizeXY(25),
   fWorldMedium(0x0),
-  fTAGroot(0x0),
   fTopVolume(0x0),
-  fpFootGeo(0x0),
   fCurrentEventId(0),
   fFirstEventDone(false),
   fMaxEnergy(1024),
@@ -92,9 +90,6 @@ TAGbaseEventDisplay::TAGbaseEventDisplay(const TString expName)
 
    fListOfCanvases->SetOwner(false);
    
-   // define TAGroot
-   fTAGroot = new TAGroot();
-
    // check geometry manager
    if ( gGeoManager == NULL )  // a new Geo Manager is created if needed
       new TGeoManager(expName.Data(), "Creating Geometry");
@@ -105,10 +100,6 @@ TAGbaseEventDisplay::TAGbaseEventDisplay(const TString expName)
    // default parameter values
    TGeoMedium* med = gGeoManager->GetMedium("Vacuum");
 	if (med) fWorldMedium = med;
-   
-   // Read Trafo file
-   fpFootGeo = new TAGgeoTrafo();
-   fpFootGeo->FromFile();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -132,11 +123,8 @@ TAGbaseEventDisplay::~TAGbaseEventDisplay()
    if (frmMain)
       frmMain->Delete();
    
-   fTAGroot->EndEventLoop();
-   delete fTAGroot;
+   gTAGroot->EndEventLoop();
    delete fTopVolume;
-   delete fpFootGeo;
-
 }
 
 
@@ -425,7 +413,7 @@ void TAGbaseEventDisplay::LoopEvent(Int_t nEvts)
       
    for (Int_t i = 0; i < nEvts; ++i) {
       if (! GetEntry(fCurrentEventId)) return;
-      if (!fTAGroot->NextEvent()) return;
+      if (!gTAGroot->NextEvent()) return;
       fCurrentEventId++;
       UpdateEventBar();
       
