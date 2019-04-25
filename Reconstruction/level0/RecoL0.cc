@@ -38,19 +38,21 @@ int main (int argc, char *argv[]) {
   gROOT->SetStyle("Plain"); 
   
   char name[200];
-  TString out("DecodedMC.root");
+  TString out("DecodeMC.root");
+  TString reco("Recohistos.root");
+  TString bmconfile("/config/beammonitor.cfg");
   TString in("../data/mc/MC_ID040_Evt1k.root");
   TString wdir(".");
   int nTotEv = 0;
   int debug = 0; int pl_freq(100);
   int ke_display = 0;
   int evstart=0;
-  TString outH("DecodeMC_histo.root");
   bool isdata(kFALSE); //0=MC, 1=real data analysis 
   bool alist(kFALSE);
   for (int i = 0; i < argc; i++){
+    if(strcmp(argv[i],"-bmconfile") == 0)  { bmconfile =TString(argv[++i]);  }              // file name for the beammonitor config file
+    if(strcmp(argv[i],"-reco") == 0)  { reco =TString(argv[++i]);  }                       // Root file name for recohistos output
     if(strcmp(argv[i],"-out") == 0)   { out =TString(argv[++i]);  }                        // Root file name for output
-    if(strcmp(argv[i],"-outh") == 0)  { outH =TString(argv[++i]);  }                      // Root file name for histo output
     if(strcmp(argv[i],"-in") == 0)    { in = TString(argv[++i]);  }                        // Root file in input
     if(strcmp(argv[i],"-wd") == 0)    { wdir = TString(argv[++i]);  }                      // Working dir
     if(strcmp(argv[i],"-deb") == 0)   { debug = atoi(argv[++i]);      }                    // Enables debugging
@@ -79,9 +81,10 @@ int main (int argc, char *argv[]) {
   TApplication::CreateApplication();
 
   TAGroot tagroot;
-
   GlobalPar::Instance();
-  GlobalPar::GetPar()->Print();
+  string outputfilename=reco.Data();
+  GlobalPar::GetPar()->SetOutputFile(outputfilename);
+  //~ GlobalPar::GetPar()->Print();
 
   ControlPlotsRepository::Instance();
 
@@ -95,22 +98,16 @@ int main (int argc, char *argv[]) {
     exit(0); 
   }
 
-  cout<<"Opening:  outp file:: "<<out.Data()<<" input file:: "<<in.Data()<<endl;
+  cout<<endl<<endl<<"Input file="<<in.Data()<<"   output file="<<reco.Data()<<endl;
   
   /*
     ------------------- init the Decoder class -------------------
   */
 
-  TFile *hF = new TFile(outH.Data(),"RECREATE"); hF->cd();
+  RecoTools d(debug,in,alist,out,wdir,nTotEv, evstart, isdata, bmconfile);
 
-  RecoTools d(debug,in,alist,out,wdir,nTotEv, hF, evstart, isdata);
+  d.RecoLoop(&tagroot,pl_freq);
 
-  //~ if(isdata)
-    //~ d.RecoBMcal(&tagroot);
-  //~ else
-    d.RecoLoop(&tagroot,pl_freq);
-
-  hF->Close();
 
   // stop time
   end_tot = clock();

@@ -62,12 +62,13 @@ KFitter::KFitter () {
 	if (m_debug > 0)	cout << "Detector systems for Kalman:  " << m_systemsON << endl;
 
 	// print-out of the particle hypothesis used for the fit
+  if (m_debug > 0){
     cout << "GlobalPar::GetPar()->MCParticles()";
-	for (unsigned int i=0; i<GlobalPar::GetPar()->MCParticles().size(); i++ ) {
-		cout << "   " << GlobalPar::GetPar()->MCParticles().at(i);
-	}
-	cout << endl;
-
+    for (unsigned int i=0; i<GlobalPar::GetPar()->MCParticles().size(); i++ ) {
+      cout << "   " << GlobalPar::GetPar()->MCParticles().at(i);
+    }
+    cout << endl;
+  }
 	
 	// initialise the kalman method selected from param file
 	if ( GlobalPar::GetPar()->KalMode() == 1 )

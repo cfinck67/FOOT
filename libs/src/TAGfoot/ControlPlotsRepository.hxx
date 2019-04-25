@@ -184,16 +184,16 @@ public:
 	}
 
   //Beam Monitor OutputFile
-  void BM_setnturaw_info(string hitSampleName, TABMntuRaw* bmnturaw, TABMparGeo* bmgeo, TABMparCon* bmcon, TABMparMap* bmmap, vector< vector<Int_t> > &cell_occupy){
+  void BM_setnturaw_info(string hitSampleName, TABMntuRaw* bmnturaw, TABMparGeo* bmgeo, TABMparCon* bmcon, TABMparMap* bmmap, vector< vector<Int_t> > &cell_occupy, Int_t track_ok){
 
     //~ char tmp_char[200];
 
+    FillMap( hitSampleName + "__track_error", track_ok);
+    //track_error code meaning:-5=not set; -4=no sync; -3= multisync; 0=ok, -1=nhit<minnhit_cut, -2=nhit>nmaxhit, 1=firedUview<planehit_cut, 2=firedVview<planehit_cut, 3=fit not converged, 4=track_chi2red>bmcon_chi2redcut
+    if(track_ok==-4 || track_ok==-3)
+      return;
+    
     FillMap( hitSampleName + "__raw_nhitsxevent", bmnturaw->nhit);
-    if(bmnturaw->nhit <= bmcon->GetMinnhit_cut())
-      FillMap( hitSampleName + "__track_error", -1);
-    if(bmnturaw->nhit >= bmcon->GetMaxnhit_cut())
-      FillMap( hitSampleName + "__track_error", -2);
-    //track_error code meaning: 0=ok, -1=nhit<minnhit_cut, -2=nhit>nmaxhit, 1=firedUview<planehit_cut, 2=firedVview<planehit_cut, 3=fit not converged, 4=track_chi2red>bmcon_chi2redcut
 
     //loop on hits
     for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
@@ -229,11 +229,8 @@ public:
   
   Bool_t BM_setntutrack_info(string hitSampleName, TABMparGeo* bmgeo, TABMntuTrack* bmntutrack,TABMntuRaw* bmnturaw, TABMparCon* bmcon){
     
-    FillMap( hitSampleName + "__track_error", bmntutrack->trk_status);
     FillMap( hitSampleName + "__track_tracknumxevent", bmntutrack->ntrk);
-    
-    //__track_error code meaning: 0=ok, -1=nhit<minnhit_cut, -2=nhit>nmaxhit, 1=firedUview<planehit_cut, 2=firedVview<planehit_cut, 3=number of hit rejected > rejmax_cut ,4=fit not converged, 5=track_chi2red>bmcon_chi2redcut
-    
+        
     //loop on ntrk (it should be only one for the moment)  
     for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
       bmntutracktr = bmntutrack->Track(i);

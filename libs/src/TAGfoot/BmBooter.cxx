@@ -156,9 +156,13 @@ void BmBooter::Process() {
   bmnturaw = (TABMntuRaw*) (gTAGroot->FindDataDsc("myn_bmraw", "TABMntuRaw")->GenerateObject());
   //~ bmnturaw=(TABMntuRaw*) myn_bmraw->GenerateObject();
   evaluate_cell_occupy();
-  track_ok=-3;
+  track_ok=-5;
   
-  if(bmnturaw->nhit >= bmcon->GetMaxnhit_cut())
+  if(bmstruct.tdc_sync[0]==-10000)
+    track_ok=-4;
+  else if(bmstruct.tdc_sync[1]!=-10000)
+    track_ok=-3;
+  else if(bmnturaw->nhit >= bmcon->GetMaxnhit_cut())
     track_ok=-2;
   else if(bmnturaw->nhit <= bmcon->GetMinnhit_cut())
     track_ok=-1;  
@@ -171,7 +175,7 @@ void BmBooter::Process() {
     cout<<"in BmBooter::Process, I finished to create the BM hits and tracks"<<endl<<"Now I'll printout BM hits if enable"<<endl;
 
   if (GlobalPar::GetPar()->IsPrintOutputFile())
-    m_controlPlotter->BM_setnturaw_info("BM_output",bmnturaw, bmgeo, bmcon, bmmap, cell_occupy); 
+    m_controlPlotter->BM_setnturaw_info("BM_output",bmnturaw, bmgeo, bmcon, bmmap, cell_occupy, track_ok); 
   
   //~ if (bmcon->GetBMdebug()>10)
     //~ cout<<"in BmBooter::Process, I finished to printout BM hits"<<endl;

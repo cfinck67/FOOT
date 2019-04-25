@@ -52,6 +52,7 @@ public:
 
     bool IsPrintOutputFile() { return m_printoutfile; };
     string OutputFile() { return m_outputfilename; };
+    void SetOutputFile(string filename_in) { m_outputfilename=filename_in; return;};
  
     bool IsPrintOutputNtuple() { return m_printoutntuple; };
     string OutputNtuple() { return m_outputntuplename; };

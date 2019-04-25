@@ -399,7 +399,8 @@ void Materials::ReadFile(){
 	}
 
 	proofinput.close();
-	cout <<"Found "<< count << " compounds" << endl;
+  if ( GlobalPar::GetPar()->Debug() > 1 )
+    cout <<"Found "<< count << " compounds" << endl;
 }
 
 

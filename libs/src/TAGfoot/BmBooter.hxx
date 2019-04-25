@@ -148,7 +148,7 @@ private:
   TVector3 mylar1realpos; //only for MC 
   TVector3 mylar2realpos; //only for MC
   Int_t MC_track; //0=no MC track; 1=ok 1 MC track 
-  Int_t track_ok;  //-2=maxnhit_cut; -1=minhit_cut; otherwise=track_status 
+  Int_t track_ok;  //-5=not set; -4=no sync; -3= multisync; -2=maxnhit_cut; -1=minhit_cut; otherwise=track_status 
   
   Long64_t tot_num_ev;  //total number of events
   Long64_t data_num_ev; //current number of events

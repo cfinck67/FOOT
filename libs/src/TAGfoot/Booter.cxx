@@ -118,7 +118,7 @@ Booter::Booter() {
 
 
 
-void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in, Bool_t isdata_in ) {
+void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in, Bool_t isdata_in, TString bmconfile) {
     // debug fie
     if ( GlobalPar::GetPar()->Debug() > 1 ) {
         eventListFile.open( ((string)getenv("FOOTLEVEL0")+"/"+"eventListFile.dat").c_str(), fstream::trunc | fstream::out );
@@ -147,12 +147,14 @@ void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in, Bool_t isdata_in ) 
       if( GlobalPar::GetPar()->IncludeCA() )              FillMCCalorimeter(evStr);
     }
 
-  	cout << "Make Geo" << endl;
+  	//~ cout << "Make Geo" << endl;
     TGeoManager *masterGeo = new TGeoManager("genfitGeom", "GENFIT geometry");
     
   	Materials* listMaterials = new Materials() ;
-    listMaterials->PrintCompMap();
-	  listMaterials->PrintMatMap();
+    if ( GlobalPar::GetPar()->Debug() > 1 ){
+      listMaterials->PrintCompMap();
+      listMaterials->PrintMatMap();
+    }
 
     top = gGeoManager->MakeBox("TOPPER", gGeoManager->GetMedium("AIR"), 25., 25., 120.);
     gGeoManager->SetTopVolume(top); // mandatory !
@@ -176,7 +178,7 @@ void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in, Bool_t isdata_in ) 
       if(isdata)
         myp_bmmap = new TAGparaDsc("myp_bmmap", new TABMparMap());
       initBMGeo();
-      initBMCon();
+      initBMCon(bmconfile);
       if(isdata)
         initBMMap();
       //~ bmcon = (TABMparCon*) myp_bmcon->Object();
@@ -334,7 +336,7 @@ void Booter::MagFieldTest() {
     FootField * ff = new FootField( GlobalPar::GetPar()->MagFieldInputMapName().c_str() );
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 1,1,14.7 ) ).Print();
     if ( GlobalPar::GetPar()->Debug() > 1 )       cout << endl << "Magnetic no Field test  ", genfit::FieldManager::getInstance()->getFieldVal( TVector3( 0,0,2 ) ).Print();
-    cout << "Total mag field on the FOOT axis (from 0 to 40 cm) = " << ff->IntegralField( 4000, 0, 40 ) << endl;
+    if ( GlobalPar::GetPar()->Debug() > 1 ) cout << "Total mag field on the FOOT axis (from 0 to 40 cm) = " << ff->IntegralField( 4000, 0, 40 ) << endl;
 
 
     // print out of the magnetic field
@@ -670,12 +672,10 @@ void Booter::FillMCInnerTracker(EVENT_STRUCT *myStr) {
 
 
 //----------------------------------------------------------------------------------------------------
-void Booter::initBMCon()  {
+void Booter::initBMCon(TString bmconfile)  {
 
   Int_t i_run = gTAGroot->CurrentRunNumber();
   Int_t i_cam = gTAGroot->CurrentCampaignNumber();
-
-  cout << "Loading beamcon for cam/run = " << i_cam << "/" << i_run << endl;
 
   TABMparCon* o_beamcon = (TABMparCon*) myp_bmcon->Object();
 
@@ -683,13 +683,13 @@ void Booter::initBMCon()  {
 
   Bool_t b_bad = kTRUE;
 
-  TString filename = m_wd + "/config/beammonitor.cfg";
+  TString filename = m_wd + bmconfile;
 
-  cout << "   from file " << filename << endl;
+  cout << "Load BM config from file " << filename << endl;
 
   b_bad = o_beamcon->FromFile(filename);
 
-  filename = m_wd + "/config/beammonitor_t0s.cfg";
+  //~ filename = m_wd + "/config/beammonitor_t0s.cfg";
 
   //~ o_beamcon->loadT0s(filename);
 

@@ -1,3 +1,3 @@
 BM_output__MC_raw_hitselection*  0=ok__1=SelectedWrong__-1=LostPrimaryHit
-BM_output__track_error*  -2=maxhitcut__-1=minhitcut__0=ok__1/2=firedV/Uplane__3=hitrejected__4=noconv__5=chi2cut
+BM_output__track_error*  -5=not_set_-4=no_sync_-3=_multisync_-2=maxhit__-1=minhit__0=ok__1/2=firedV/Uplane__3=hitrejected__4=noconv__5=chi2cut
 BM_output__MC_raw_fakehits*    0=realhits__1=fakehits

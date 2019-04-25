@@ -34,8 +34,7 @@ class RecoTools {
   
  public :
 
-  RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev,
-      TFile *hf, int evStart, int isdata);
+  RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev, int evStart, int isdata, TString bmconfile);
   ~RecoTools() {};
 
   //Reconstructions
@@ -84,10 +83,10 @@ class RecoTools {
   int m_isdata;
   int m_evstart;
   TFile* m_of;
-  TFile* m_hf;
   TString m_oustr;
   TString m_instr;
   TString m_wd;
+  TString m_bmconfile;
 
   //MC block
   // TAGdataDsc* myn_mceve;

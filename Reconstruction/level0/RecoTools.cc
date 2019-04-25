@@ -10,9 +10,9 @@ using namespace std;
 
 
 //----------------------------------------------------------------------------------------------------
-RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev, TFile *hf, int evstart, int isdata) {
+RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, int nev, int evstart, int isdata, TString bmconfile) {
 
-    cout << "\tstart Constructor RecoTools\n";
+    //~ cout << "\tstart Constructor RecoTools\n";
 
     my_files.clear();
     m_debug = GlobalPar::GetPar()->Debug();
@@ -21,6 +21,7 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
     m_wd = wd;
     m_tempo_kal=0;
     m_isdata=isdata;
+    m_bmconfile=bmconfile;
 
     // take input file list
     ifstream inS;
@@ -39,8 +40,8 @@ RecoTools::RecoTools(int d, TString istr, bool list, TString ostr, TString wd, i
 
     m_nev = nev;
     gErrorIgnoreLevel = kError;
-    m_hf = hf;
-    cout << "\end Constructor RecoTools\n";
+    //~ m_hf = hf;
+    //~ cout << "\end Constructor RecoTools\n";
 }
 
 
@@ -86,7 +87,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
 
     booter = new Booter();
     bmbooter = new BmBooter();
-    booter->Initialize( &evStr, m_wd, m_isdata);
+    booter->Initialize( &evStr, m_wd, m_isdata, m_bmconfile);
     if (GlobalPar::GetPar()->IncludeBM())
       if(bmbooter->Initialize( m_instr, m_isdata, &evStr))
         return;
@@ -97,7 +98,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     tagr->BeginEventLoop();
     Long64_t nentries; 
     if(m_isdata && GlobalPar::GetPar()->IncludeBM()){
-      cout<<"Total number of Beam Monitor events="<<bmbooter->GetTotnumev()<<endl;
+      cout<<"Total number of Beam Monitor events="<<bmbooter->GetTotnumev()<<endl<<endl;
       nentries=(m_nev==0) ? bmbooter->GetTotnumev()-bmbooter->GetAcqStartEv()+1 : m_nev;
     }else {
       nentries = tree->GetEntries(); 
@@ -107,7 +108,7 @@ void RecoTools::RecoLoop(TAGroot *tagr, int fr) {
     Long64_t nbytes = 0, nb = 0;
     char flag[200]; bool tobedrawn = kFALSE;
 
-    if(m_debug)         cout<<" Starting Event Loop "<<endl;
+    cout<<" Starting Event Loop "<<endl;
     int skip_event=0;
     for (Long64_t jentry=0; jentry<nentries;jentry++) {
         if(m_debug) cout<<" New Eve "<<endl;

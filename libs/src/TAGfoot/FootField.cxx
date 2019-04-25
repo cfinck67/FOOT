@@ -15,8 +15,8 @@ FootField::FootField ( string fileName ) {
 	ifstream ifile;
 	string fullFileName = (string)getenv("FOOTSIMU")+"/"+fileName;
     ifile.open( fullFileName.c_str() );
-
-    cout << "\tB center =  " << MAG_AIR_X <<"  "<< MAG_AIR_Y << "  "<< MAG_AIR_Z << endl;
+    if ( GlobalPar::GetPar()->Debug() > 1 )
+      cout << "\tB center =  " << MAG_AIR_X <<"  "<< MAG_AIR_Y << "  "<< MAG_AIR_Z << endl;
 
     if ( !ifile.is_open() )        
     	cout<< "ERROR >> FootField::FootField  ::  cannot open magnetic map for file " << fullFileName << endl, exit(0);
