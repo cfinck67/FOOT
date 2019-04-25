@@ -22,7 +22,7 @@ BmBooter::BmBooter() {
 
 
 //----------------------------------------------------------------------------------------------------
-void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evStr_in ) {  
+Bool_t BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evStr_in ) {  
   txt_outputname="gsi_out.txt";
   isdata=isdata_in;
   m_instr=instr_in;
@@ -80,7 +80,7 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evS
     if(bmcon->GetmanageT0BM()==0)
       bmcon->PrintT0s(m_instr, data_num_ev);
     else if(bmcon->loadT0s(data_num_ev))
-      return;
+      return kTRUE;
     
     if(bmcon->GetBMdebug()>1 || bmcon->GetmanageT0BM()>1)
       bmcon->CoutT0();
@@ -96,6 +96,9 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evS
     if(!datafile.is_open())
       cout<<"ERROR in BmBooter::CalculateT0: cannot open the datafile="<<m_instr.Data()<<endl;
     FillDataBeamMonitor();
+    if(bmcon->GetAutstrel()>0)
+      if(autocalibstrel_readfile())
+        return kTRUE;    
   }
   
   //provo
@@ -112,7 +115,7 @@ void BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evS
   data_sync_num_ev=0;
 
    
-return;
+return kFALSE;
 }
 
 
@@ -238,13 +241,15 @@ void BmBooter::Finalize() {
   if (bmcon->GetBMdebug()>10)
     cout<<"I'm in BmBooter::Finalize"<<endl;
 
-  PrintSTrel();      //strel
   PrintEFFpp();      //efficiency
   PrintProjections();//tracktr2dprojects  matrix
   PrintResDist();    //residual_distance matrix
+  PrintSTrel();      //strel must be used after printresdist
   PrintFromControlPlots(); //other plots from contrloplots 
   //~ LegendrePoly(); //create the legendre poly plots
   //~ fit_histos();   //to be fixed!!!! 
+  if(bmcon->GetAutstrel()>0)
+    autocalibstrel_writefile();  
     
   if(!isdata)
     PrintMCxEvent();  
@@ -329,6 +334,50 @@ void BmBooter::PrintSTrel(){
       tmp_int++;
     }
   }
+  
+  if(bmcon->GetAutstrel()>0){
+    TH2D* oldstrel2d=new TH2D( "oldstrel2d", "Space time relation;time [ns];distance [cm]", numpoints, 0., bmcon->GetHitTimecut()+10.,numpoints,0.,1.);
+    TH1D* newvsoldstrel=new TH1D( "newvsoldstrel", "difference between last and new strel iteration;Time [s]; distance[cm]", strelresiduals.size(), 0., bmcon->GetHitTimecut());
+    TH2D* newstrel2d=new TH2D( "newstrel2d", "Space time relation;time [ns];distance [cm]", numpoints, 0., bmcon->GetHitTimecut()+10.,numpoints,0.,1.);
+    TH2D* histo2newres_dis=new TH2D( "newhitres_dis", "New  Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
+
+    for(Int_t i=0;i<residual_distance.size();i++){
+      oldstrel2d->Fill(residual_distance.at(i).at(2), residual_distance.at(i).at(3));
+      tmp_int=(Int_t) (residual_distance.at(i).at(2)/bmcon->GetHitTimecut()*bmcon->GetResnbin());      
+      newstrel2d->Fill(residual_distance.at(i).at(2), residual_distance.at(i).at(3)-strelresiduals.at(tmp_int).at(0));
+      if(residual_distance.at(i).size()>4)
+        histo2newres_dis->Fill(residual_distance.at(i).at(4), residual_distance.at(i).at(3)-strelresiduals.at(tmp_int).at(0));
+    }
+    for(Int_t i=0;i<strelresiduals.size();i++){
+      newvsoldstrel->SetBinContent(i+1,strelresiduals.at(i).at(0));
+      newvsoldstrel->SetBinError(i+1,strelresiduals.at(i).at(1));
+    }
+    //fit the new strel
+    TProfile *prof_newstrel=newstrel2d->ProfileX();;
+    TF1 poly ("poly","pol5", 0, bmcon->GetHitTimecut());
+    prof_newstrel->Fit("poly","Q+");
+    prof_newstrel->SetLineColor(2);
+    prof_newstrel->Draw();
+    vector<Double_t> parin;
+    for(Int_t i=0;i<6;i++)
+      parin.push_back(poly.GetParameter(i));
+    bmcon->AddStrelparameters(parin);
+  
+    //create and fill the old strel history
+    char tmp_char[200];
+    TF1* oldtf1strel;
+    for(Int_t i=0;i<bmcon->GetStrelparSize();i++){
+      sprintf(tmp_char,"old_strel_ite_%d",i);
+      oldtf1strel=new TF1(tmp_char,"pol5",0.,bmcon->GetHitTimecut());  
+      for(Int_t k=0;k<6;k++)
+        oldtf1strel->SetParameter(k,bmcon->GetStrelPar(i,k));
+      oldtf1strel->Write();
+    }
+  }
+  
+
+  
+  
   
 return;
 }
@@ -575,11 +624,21 @@ void BmBooter::PrintResDist(){
   //create ResxDist graphs
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("ResxDist");
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("ResxDist");
-  for(Int_t i=0;i<20;i++){
+  for(Int_t i=0;i<bmcon->GetResnbin();i++){
     sprintf(tmp_char,"hitres_x_dist_%d",i);  
-    TH1D* histo1d=new TH1D( tmp_char, "Residual; ; Residual [cm]", 600, -0.3, 0.3);
+    TH1D* histo1d=new TH1D( tmp_char, "Residual x dist bin; Residual [cm];", 600, -0.3, 0.3);
   }
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/ResxDist")))->cd("..");
+  
+  //create ResxTime graphs
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("ResxTime");
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("ResxTime");
+  for(Int_t i=0;i<bmcon->GetResnbin();i++){
+    sprintf(tmp_char,"hitres_x_time_%d",i);  
+    TH1D* histo1d=new TH1D( tmp_char, "Residual x time bin; Residual [cm];", 600, -0.3, 0.3);
+  }
+  ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/ResxTime")))->cd("..");
+  
   
   //create TDC_dist
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("TDC_time");
@@ -591,32 +650,45 @@ void BmBooter::PrintResDist(){
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/TDC_time")))->cd("..");  
 
   TH2D* histo2da=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
-  TH2D* histo2db=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]", 600, -0.3, 0.3,350,0.,350.);
+  TH2D* histo2db=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]",bmcon->GetHitTimecut(),0.,bmcon->GetHitTimecut()+10.,600, -0.3, 0.3);
+       
+  if(bmcon->GetBMdebug()>10)
+    cout<<"BmBooter::PrintResDist: fill the histos"<<endl;      
         
   //fill the histos
   for(Int_t i=0;i<residual_distance.size();i++){
     if(residual_distance.at(i).size()>4){
       histo2da->Fill(residual_distance.at(i).at(4), residual_distance.at(i).at(3));
-      histo2db->Fill(residual_distance.at(i).at(4), residual_distance.at(i).at(2));
+      histo2db->Fill(residual_distance.at(i).at(2), residual_distance.at(i).at(4));
       sprintf(tmp_char,"BM_output/ResVsDist_perCell/hitres_dis_perCell_%d",(Int_t) (residual_distance.at(i).at(1)+0.5));  
       ((TH2D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance.at(i).at(4), residual_distance.at(i).at(3));    
-      if(residual_distance.at(i).at(3)<0.8){
-        sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",(Int_t) (residual_distance.at(i).at(3)/0.04));      
-        ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance.at(i).at(4));
-      }
+      sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",(Int_t) (residual_distance.at(i).at(3)/0.945*bmcon->GetResnbin()));
+      ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance.at(i).at(4));
+      sprintf(tmp_char,"BM_output/ResxTime/hitres_x_time_%d",(Int_t) (residual_distance.at(i).at(2)/bmcon->GetHitTimecut()*bmcon->GetResnbin()));      
+      ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance.at(i).at(4));
     }
     sprintf(tmp_char,"BM_output/TDC_time/tdc_cha_%d",(Int_t) (residual_distance.at(i).at(1)+0.5));      
     ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance.at(i).at(2));
   }
   
+  if(bmcon->GetBMdebug()>10)
+    cout<<"BmBooter::PrintResDist: fit hitres_x_dist"<<endl;
+  
   //fit hitres_x_dist
   TF1 *fb = new TF1("fb","gaus", -0.3,0.3);
   TH1D *histo1d=new TH1D( "resolution", "Resolution evaluation; Distance from cell center [cm];Spatial Resolution[#mum]", 20, 0., 0.8);
-  for(Int_t i=0;i<20;i++){
+  vector<Double_t> streleachbin(3,0);
+  for(Int_t i=0;i<bmcon->GetResnbin();i++){
     sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",i);      
     //~ ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution")))->SetBinContent(i+1,((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetStdDev()*10000);    
     ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "Q");
     ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution")))->SetBinContent(i+1,fb->GetParameter(2)*10000);    
+    sprintf(tmp_char,"BM_output/ResxTime/hitres_x_time_%d",i);      
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "Q");
+    streleachbin.at(0)=fb->GetParameter(1);
+    streleachbin.at(1)=fb->GetParameter(2);
+    streleachbin.at(2)=((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetEntries();
+    strelresiduals.push_back(streleachbin);
   }
     
 return;
@@ -1844,6 +1916,97 @@ void BmBooter::fit_histos(){
   
   return;
 }
+
+
+Bool_t BmBooter::autocalibstrel_readfile(){
+  //read the shiftsfile
+  Int_t tmp_int;
+  Double_t tmp_double;
+  char tmp_char[200];
+  ifstream infile;
+  TString name="./config/"+bmcon->GetShiftsfile();
+  infile.open(name.Data(),ios::in);
+  vector<Double_t>parin(6,0);
+  stnite=1;
+  if(infile.is_open()){
+    while(!infile.eof()){
+      if(!(infile>>tmp_char))
+        break;
+      infile>>stnite>>tmp_char>>tmp_char;
+      stnite++;
+      //~ if(tmp_char!=m_nopath_instr){
+        //~ cout<<"BmBooter::autocalibstrel: wrong file!! file analyzed now="<<m_nopath_instr<<"  file from "<<bmcon->GetShiftsfile()<<"="<<tmp_char<<endl<<"The program will be finished"<<endl;
+        //~ infile.close();
+        //~ return;
+      //~ }
+      bmcon->SetAutostrel(stnite);
+      infile>>tmp_char>>tmp_int; 
+      if(tmp_int!=bmcon->GetT0switch()){
+        cout<<"BmBooter::autocalibstrel_readfile: wrong T0switch!! now t0switch="<<bmcon->GetT0switch()<<"  t0switch form the file="<<tmp_int<<endl<<"The program will be finished"<<endl;
+        infile.close();
+        return kTRUE;
+      }
+      infile>>tmp_char>>tmp_double; 
+      if(fabs(tmp_double-bmcon->GetT0sigma())>1){
+        cout<<"BmBooter::autocalibstrel_readfile: wrong T0sigma!! now t0sigma="<<bmcon->GetT0sigma()<<"  t0sigma form the file="<<tmp_double<<endl<<"The program will be finished"<<endl;
+        infile.close();
+        return kTRUE;
+      }
+      infile>>tmp_char>>tmp_double; 
+      if(fabs(tmp_double-bmcon->GetHitTimecut())>1){
+        cout<<"BmBooter::autocalibstrel_readfile: wrong T0timecut!! now hit_timecut="<<bmcon->GetHitTimecut()<<"  hit_timecut form the file="<<tmp_double<<endl<<"The program will be finished"<<endl;
+        infile.close();
+        return kTRUE;
+      }
+      infile>>tmp_char>>tmp_int; 
+      if(tmp_int!=bmcon->GetResnbin()){
+        cout<<"BmBooter::autocalibstrel_readfile: wrong resnbin!! now resnbin="<<bmcon->GetResnbin()<<"  resnbin form the file="<<tmp_int<<endl<<"The program will be finished"<<endl;
+        infile.close();
+        return kTRUE;
+      }
+      for(Int_t i=0; i<bmcon->GetResnbin();i++)
+        infile>>tmp_char>>tmp_char>>tmp_char>>tmp_char>>tmp_char>>tmp_char;
+      infile>>tmp_char;
+      for(Int_t i=0;i<6;i++){
+        infile>>tmp_double;
+        parin.at(i)=tmp_double;
+        if(tmp_double==-999){
+          cout<<"BmBooter::autocalibstrel_readfile: wrong strel parameter!! parin.at("<<i<<")=-999, something wrong happend"<<endl;
+          return kTRUE;
+        }          
+      }
+      bmcon->AddStrelparameters(parin);
+      //~ return kTRUE;
+    }
+  infile.close();
+  }else
+    cout<<"BmBooter::autocalibstrel_readfile::FIRST ITERATION, file does not exist yet"<<endl;
+ 
+ return kFALSE; 
+}
+
+
+void BmBooter::autocalibstrel_writefile(){
+  ofstream outfile;
+  TString name="./config/"+bmcon->GetShiftsfile();
+  outfile.open(name.Data(),ios::app);
+  outfile<<"Number_of_iteration= "<<stnite<<"  input_file= "<<m_nopath_instr<<"  t0_switch= "<<bmcon->GetT0switch()<<" t0sigma= "<<bmcon->GetT0sigma()<<" hit_timecut= "<<bmcon->GetHitTimecut()<<"  resnbin= "<<bmcon->GetResnbin()<<endl;
+  for(Int_t i=0;i<bmcon->GetResnbin();i++){
+    outfile<<"mean= "<<strelresiduals.at(i).at(0)<<"   sigma= "<<strelresiduals.at(i).at(1)<<" number_of_hits= "<<strelresiduals.at(i).at(2)<<endl;
+  }
+  outfile<<"New_strel_parameters:"<<endl;
+  for(Int_t i=0;i<6;i++){
+    if(bmcon->GetLastStrelpar(i)!=-999)
+      outfile<<bmcon->GetLastStrelpar(i)<<"  ";
+    else
+      cout<<"ERROR in BmBooter::autocalibstrel_writefile:: bmcon->GetLastStrelpar not setted!! i="<<i<<"  bmcon->GetLastStrelpar(i)="<<bmcon->GetLastStrelpar(i)<<endl;
+  }
+  outfile<<endl;
+  outfile.close(); 
+return;
+}
+
+
 
 void BmBooter::PrintBMstruct(){
   cout<<"PrintBMstruct:"<<endl;

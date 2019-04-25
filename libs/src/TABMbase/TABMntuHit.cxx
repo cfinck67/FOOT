@@ -91,10 +91,7 @@ if(smear_type==4) //gaussian not truncated
 if(smear_type==5) //flat smearing
   smeared=rdrift+p_bmcon->GetRand()->Uniform(-sigma*sqrt(12.)/2.,sigma*sqrt(12.)/2.);
 
-
-if (smeared<0)
-  smeared=0.;
-rdrift=smeared;
+rdrift= (smeared<0) ? 0. : ((smeared>0.944) ? 0.944 : smeared);
 return;  
 } 
 

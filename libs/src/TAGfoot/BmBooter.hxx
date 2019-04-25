@@ -21,6 +21,7 @@
 // #include "TAGdataDsc.hxx"
 #include "TCanvas.h"
 #include "TH1F.h"
+#include "TProfile.h"
 #include "TVector3.h"
 #include "TObjString.h"
 #include "TNamed.h"
@@ -57,7 +58,7 @@ BmBooter();
 public:
   
   //initialize
-  void Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evStr_in);
+  Bool_t Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* evStr_in);
   void evaluateT0();//evaluate the T0 from datafile
   Int_t GetNentries(Int_t m_nev);
     
@@ -92,7 +93,8 @@ public:
   void efficiency_fittedplane();//evaluation of the efficiency with the "Paoloni" method on fitted tracks
   void efficiency_fittedtracks();//evaluate the efficiency on the fitted tracks
   void fit_histos(); //to fit the Recohistos output
-  
+  Bool_t autocalibstrel_readfile();//read from the shiftsfile the residuals before the fitting procedure  
+  void autocalibstrel_writefile();//print in the shiftsfile the residuals after the fitting procedure  
 
   //getters
   Long64_t GetTotnumev(){return tot_num_ev;};
@@ -152,6 +154,7 @@ private:
   Long64_t data_num_ev; //current number of events
   Long64_t data_sync_num_ev; //current number of events + number of sync
   Int_t    acq_start_ev;//acquisition start event
+  Int_t    stnite;//used in the strel autocalibration mode 
   
   vector<vector<Int_t>> eff_pp; //efficiency calculation with the pivot-probe method, eff_pp[0]=pivot counter row, eff_pp[1]=probe counter row, each row is made by 16 elements, ordered as the cellindex, wihtout the non probe cells 
   vector<vector<Int_t>> eff_plane;//efficieny with the "Paoloni" method 
@@ -162,6 +165,7 @@ private:
   vector<vector<Double_t>> residual_distance;//if(isSelected): 0=data_num_ev, 1=cell_index, 2=drift_time, 3=distance, 4=residual;  otherwise 0=data_num_ev 1=cellindex, 2=drift_time, 3=dist,
   vector<vector<Double_t>> mcxevent;//data from mc:0=data_num_ev, 1=mylar1.X, 2=mylar1.Y, 3=mylar2.X, 4=mylar2.Y
   TString txt_outputname;//txt output
+  vector<vector<Double_t>> strelresiduals;//used for the strel autocalibration; 0=mean, 1=sigma, 2=number of hits
 };
 
 #endif

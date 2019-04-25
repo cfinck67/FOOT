@@ -34,6 +34,7 @@ class TABMparCon : public TAGpara {
     void SetIsMC(Bool_t ism){m_isMC=ism; return;};
     void SetRdriftCut(Double_t Rdcut){rdrift_cut=Rdcut; return;};
     void SetEnxcellcut(Double_t Encut){enxcell_cut=Encut; return;};
+    void SetAutostrel(Int_t parin){autostrel=parin;return;};
     
     //getters
     Bool_t   IsMC(){return m_isMC;};
@@ -44,7 +45,6 @@ class TABMparCon : public TAGpara {
     Int_t GetMinnhit_cut(){return minnhit_cut;};
     Int_t GetMaxnhit_cut(){return maxnhit_cut;};
     Double_t GetAngZCut(){return angz_cut;};
-    Double_t GetAngZRescut(){return angzres_cut;};
     Int_t GetRejmaxcut(){return rejmax_cut;};
     Int_t GetFitterIndex(){return fitter_index;};
     Int_t GetPrefitEnable(){return prefit_enable;};
@@ -74,7 +74,12 @@ class TABMparCon : public TAGpara {
     TVector3 GetMeas_tilt(){return meas_tilt;};
     TRandom3* GetRand(){return rand;};
     Double_t GetRdrift_err(){return rdrift_err;};
-
+    Int_t GetAutstrel(){return autostrel;};
+    Int_t GetResnbin(){return resnbin;};
+    string GetShiftsfile(){return shiftsfile;};
+    Double_t GetLastStrelpar(Int_t pos){return (pos<=strelparameters.back().size()) ? strelparameters.back().at(pos) : -999;};
+    Double_t GetStrelPar(Int_t ite, Int_t pos);
+    Int_t GetStrelparSize(){return strelparameters.size();};
 
     //T0 stuff
     void        PrintT0s(TString &input_file_name, Long64_t);
@@ -96,6 +101,7 @@ class TABMparCon : public TAGpara {
     
     //strel stuff
     void LoadSTrel(TString sF);
+    void AddStrelparameters(vector<Double_t> parin);
     Double_t FirstSTrel(Double_t tdrift);
     Double_t InverseStrel(Double_t rdrift);
     Double_t FirstSTrelMC(Double_t tdrift, Int_t mc_switch);    
@@ -130,7 +136,6 @@ class TABMparCon : public TAGpara {
     Int_t    minnhit_cut;
     Int_t    maxnhit_cut;
     Double_t angz_cut;
-    Double_t angzres_cut;
     Int_t    rejmax_cut;
     Int_t    fitter_index;
     Int_t    bm_debug;//index for the bm_debug, (it is set at least to the global debug level)
@@ -166,6 +171,10 @@ class TABMparCon : public TAGpara {
     Double_t mceff_sigma;//sigma for the number of primary hits (only MC)
     TRandom3 *rand;
     Double_t rdrift_err;  //rdrift default error (used if from parcon file the error isn't loaded)
+    Int_t autostrel;   //flag to enable the strel autocalibration method: <0: not enable; >=0: enabled and the number is the iteration number
+    Int_t resnbin;     //number of bins in the evaluation of the residuals
+    string shiftsfile; //file in which the strel autoalibration method will write the residual shifts
+    vector<vector<Double_t>>  strelparameters;//store the strel parameters, 6 params for each iteration
 
     //~ TF1* f_mypol;
     //~ TF1* f_mypol2;

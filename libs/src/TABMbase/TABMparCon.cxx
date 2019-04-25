@@ -50,6 +50,8 @@ TABMparCon::TABMparCon() {
 
   //~ f_mypol = new TF1("mymcpol","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.003);
   //~ f_mypol2 = new TF1("mymcpol2","[0]+[1]*pow(x,1)+[2]*pow(x,2)+[3]*pow(x,3)+[4]*pow(x,4)+[5]*pow(x,5)",-0.01,-0.004);
+  autostrel=-1;
+  resnbin=20;
   rand= new TRandom3();
   rdrift_err=0.015;  
 }
@@ -109,14 +111,6 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         bm_vieproj = myArgIntmax;
       }else {
 	      Error(""," Plane Map Error:: check config file!! (P)");
-	      return kTRUE;
-        }
-    }else if(strchr(bufConf,'N')) {
-      sscanf(bufConf, "N %lf",&myArg1);
-      if(myArg1>0) 
-        angzres_cut = myArg1;
-      else {
-	      Error(""," Plane Map Error:: check config file!! (N)");
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'H')) {
@@ -195,6 +189,16 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      Error(""," Plane Map Error:: check config file!! (M)");
 	      return kTRUE;
         }
+    }else if(strchr(bufConf,'N')) {
+      sscanf(bufConf, "N %d %d %s",&myArgInt, &myArgIntmax, tmp_char);
+      if(myArgIntmax>0){
+        autostrel = myArgInt;
+        resnbin=myArgIntmax;
+        shiftsfile=tmp_char;
+      }else{
+	      Error(""," Plane Map Error:: check config file!! (N)");
+	      return kTRUE;        
+      }
     }else if(strchr(bufConf,'T')) {
       sscanf(bufConf, "T %d %lf",&myArgInt, &myArg1);
       if(myArgInt>0 || myArg1>0.){
@@ -437,7 +441,6 @@ void TABMparCon::Clear(Option_t*)
   enxcell_cut = 0.00000001;
   chi2red_cut = 5.;
   angz_cut = 5.;
-  angzres_cut=5.;
   fitter_index = 0;
   bm_debug=0;
   bm_vietrack=0;
@@ -448,6 +451,9 @@ void TABMparCon::Clear(Option_t*)
   rejmax_cut=36;
   num_ite=0;
   par_move=0.0001;
+  autostrel=-1;
+  resnbin=20;  
+  strelparameters.clear();
   
   vector<Double_t> myt0s(36,-10000);
   //~ myt0s.resize(36);
@@ -498,6 +504,24 @@ void TABMparCon::LoadSTrel(TString sF) {
   
 }
 
+void TABMparCon::AddStrelparameters(vector<Double_t> parin){
+  if(parin.size()!=6){
+    cout<<"TABMparCon::AddStrelparameters::Error: parin size!=6; parin.size()="<<parin.size()<<endl;
+    return;
+  }
+  strelparameters.push_back(parin);
+  return;
+}
+
+
+Double_t TABMparCon::GetStrelPar(Int_t ite, Int_t pos){
+if(ite<=strelparameters.size())
+  if(pos<=strelparameters.at(ite).size())
+    return strelparameters.at(ite).at(pos);
+
+return -999;
+}
+
  /*-------------------------------------------------*/
 
 Double_t TABMparCon::FirstSTrel(Double_t tdrift){
@@ -505,9 +529,13 @@ Double_t TABMparCon::FirstSTrel(Double_t tdrift){
   if(tdrift<0 && t0_switch==2)
     return 0.03289 + 0.008*tdrift;
   
-  Double_t rdrift;
+  Double_t rdrift=0;
   
-  if(strel_switch==1){ //garfield strel
+  
+  if(autostrel>1){
+    if(strelparameters.size()>0 && strelparameters.back().size()==6)
+      rdrift=strelparameters.back().at(0)+strelparameters.back().at(1)*tdrift+strelparameters.back().at(2)*tdrift*tdrift+strelparameters.back().at(3)*tdrift*tdrift*tdrift+strelparameters.back().at(4)*tdrift*tdrift*tdrift*tdrift+strelparameters.back().at(5)*tdrift*tdrift*tdrift*tdrift*tdrift;
+  }else if(strel_switch==1){ //garfield strel
     rdrift=0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
   }else if(strel_switch==2){//
     rdrift= 0.00972903*tdrift-8.21676e-05*tdrift*tdrift+3.66446e-07*tdrift*tdrift*tdrift-5.85882e-10*tdrift*tdrift*tdrift*tdrift;  
@@ -527,7 +555,7 @@ Double_t TABMparCon::FirstSTrel(Double_t tdrift){
     rdrift= 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift;
   }
   
-  return rdrift<0 ? 0.:rdrift;
+  return (rdrift<0) ? 0. : ((rdrift>0.944) ? 0.944 : rdrift);
   
 }
 
@@ -553,20 +581,23 @@ Double_t TABMparCon::FirstSTrelMC(Double_t tdrift, Int_t mc_switch){
   
   if(tdrift<0 && t0_switch==2)
       return 0.03289 + 0.008*tdrift;
-  
+  Double_t rdrift=0.;
+    
   if(mc_switch==1){ //garfield strel
-    return 0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
+    rdrift= 0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
   }else if(mc_switch==2){//
-    return 0.00972903*tdrift-8.21676e-05*tdrift*tdrift+3.66446e-07*tdrift*tdrift*tdrift-5.85882e-10*tdrift*tdrift*tdrift*tdrift;  
+    rdrift= 0.00972903*tdrift-8.21676e-05*tdrift*tdrift+3.66446e-07*tdrift*tdrift*tdrift-5.85882e-10*tdrift*tdrift*tdrift*tdrift;  
   }else if(mc_switch==3){//
-    return 0.0087776*tdrift-6.41845e-05*tdrift*tdrift+2.4946e-07*tdrift*tdrift*tdrift-3.48422e-10*tdrift*tdrift*tdrift*tdrift;  
+    rdrift= 0.0087776*tdrift-6.41845e-05*tdrift*tdrift+2.4946e-07*tdrift*tdrift*tdrift-3.48422e-10*tdrift*tdrift*tdrift*tdrift;  
   }else if(mc_switch==4){//HIT 2014
-    return 0.0092254*tdrift-7.1192e-5*tdrift*tdrift+3.01951e-7*tdrift*tdrift*tdrift-4.66646e-10*tdrift*tdrift*tdrift*tdrift;  
+    rdrift= 0.0092254*tdrift-7.1192e-5*tdrift*tdrift+3.01951e-7*tdrift*tdrift*tdrift-4.66646e-10*tdrift*tdrift*tdrift*tdrift;  
   }else if (mc_switch==5)
-    return (0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift)/0.78; 
+    rdrift= (0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift)/0.78; 
 
   //FIRST strel embedded in old Framework
-  return 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift; 
+  rdrift= 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift; 
+
+  return (rdrift<0) ? 0. : ((rdrift>0.944) ? 0.944 : rdrift);
   
 }
 
