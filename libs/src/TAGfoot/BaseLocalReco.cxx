@@ -1,6 +1,6 @@
 
 
-#include "BaseLocalReco.h"
+#include "BaseLocalReco.hxx"
 
 // root include
 

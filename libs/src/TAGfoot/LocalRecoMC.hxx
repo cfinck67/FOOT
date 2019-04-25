@@ -2,7 +2,7 @@
 #ifndef _LocalRecoMC_HXX_
 #define _LocalRecoMC_HXX_
 
-#include "BaseLocalReco.h"
+#include "BaseLocalReco.hxx"
 
 #include "TFile.h"
 

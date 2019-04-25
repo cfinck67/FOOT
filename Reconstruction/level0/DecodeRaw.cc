@@ -3,7 +3,7 @@
 #include <TApplication.h>
 
 #include "GlobalPar.hxx"
-#include "LocalReco.h"
+#include "LocalReco.hxx"
 
 int main (int argc, char *argv[])  {
 

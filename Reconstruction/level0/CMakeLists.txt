@@ -62,51 +62,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 #
 link_directories(${ROOT_LIBRARY_DIR})
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-#
-# headers / linkdef etc ... 
-#
-set(headers "")
-set(all_headers "")
-set(sources "")
-set(dictionnaries "")
-set(linkdefs "")
-#
-# set headers/ etc and generate dictionnary for the files which require it 
-#
-foreach( f ${with_dictionnaries} )
-  set(sources ${sources} ${CMAKE_CURRENT_SOURCE_DIR}/${f}.cc)
-  set(headers ${headers} ${CMAKE_CURRENT_SOURCE_DIR}/${f}.h)
-endforeach()
-
-file(GLOB all_headers ${TAG_INCLUDE_DIR}/*.hxx)
-set(all_headers ${all_headers} ${headers})
-
-
-if (ROOT6_USED)
-  ROOT6_GENERATE_DICTIONARY(G_${LIBNAME} ${headers} MODULE ${LIBNAME} LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/${LIBNAME}.LinkDef.h OPTIONS "")
-else()
-  ROOT5_GENERATE_DICTIONARY(G_${LIBNAME} ${all_headers} LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/${LIBNAME}.LinkDef.h OPTIONS "")
-endif()
-
-set(sources ${sources} ${PROJECT_BINARY_DIR}/G_${LIBNAME}.cxx)
-
-#----------------------------------------------------------------------------
-#
-# Use root functions to generate the library and the root map file 
-#
-
-ROOT_LINKER_LIBRARY(${LIBNAME} ${sources} CMAKENOEXPORT LIBRARIES ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES})
-if (!ROOT6_USED)
-  ROOT_GENERATE_ROOTMAP(${LIBNAME} LINKDEF ${linkdefs} DEPENDENCIES ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES})
-endif()
-
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Genfit and root libraries
 #
 add_executable(DecodeRaw DecodeRaw.cc)
 #
-target_link_libraries(DecodeRaw ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} ${LIBNAME} )
+target_link_libraries(DecodeRaw ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} )
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
@@ -118,7 +80,7 @@ install(TARGETS DecodeRaw DESTINATION bin)
 #
 add_executable(DecodeMC DecodeMC.cc)
 #
-target_link_libraries(DecodeMC ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} ${LIBNAME} )
+target_link_libraries(DecodeMC ${EXTRA_INTERNAL_LIBRARIES} ${EXTRA_EXTERNAL_LIBRARIES} )
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX

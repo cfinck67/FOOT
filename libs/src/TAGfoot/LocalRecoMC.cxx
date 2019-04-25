@@ -1,6 +1,6 @@
 #include "TTree.h"
 
-#include "LocalRecoMC.h"
+#include "LocalRecoMC.hxx"
 
 #include "GlobalPar.hxx"
 #include "TAGgeoTrafo.hxx"

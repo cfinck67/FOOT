@@ -19,5 +19,8 @@
 #pragma link C++ class TADIeveField;
 #pragma link C++ class TADIparGeo;
 
+#pragma link C++ class  BaseLocalReco;
+#pragma link C++ class  LocalRecoMC;
+#pragma link C++ class  LocalReco;
 
 #endif

@@ -31,6 +31,9 @@ set( with_dictionnaries
    MultiTrackCheck
    TAFOeventDisplay
    TAFOeventDisplayMC
+   BaseLocalReco
+   LocalRecoMC
+   LocalReco
 )
 
 set( without_dictionnaries

@@ -2,7 +2,7 @@
 #ifndef _LocalReco_HXX_
 #define _LocalReco_HXX_
 
-#include "BaseLocalReco.h"
+#include "BaseLocalReco.hxx"
 
 #include "TAGdataDsc.hxx"
 
