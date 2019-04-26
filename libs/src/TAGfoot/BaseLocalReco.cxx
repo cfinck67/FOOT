@@ -172,38 +172,29 @@ void BaseLocalReco::CloseFileOut()
 //__________________________________________________________
 void BaseLocalReco::ReadParFiles()
 {
-   // initialise parameters for target
+   // initialise par files for target
    if (GlobalPar::GetPar()->IncludeTG() || GlobalPar::GetPar()->IncludeBM()) {
       fpParGeoG = new TAGparaDsc(TAGparGeo::GetDefParaName(), new TAGparGeo());
       TAGparGeo* parGeo = (TAGparGeo*)fpParGeoG->Object();
       TString parFileName = Form("./geomaps/TAGdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
    }
-
-   // initialise parameters for start counter
+   
+   // initialise par files for start counter
    if (GlobalPar::GetPar()->IncludeST() || GlobalPar::GetPar()->IncludeBM()) {
       fpParGeoSt = new TAGparaDsc(TASTparGeo::GetDefParaName(), new TASTparGeo());
       TASTparGeo* parGeo = (TASTparGeo*)fpParGeoSt->Object();
       TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
-
       fpParMapSt = new TAGparaDsc("stMap", new TASTparMap()); // need the file
       TASTparMap* parMapSt = (TASTparMap*) fpParMapSt->Object();
       parFileName="./config/TASTdetector.cfg";
       parMapSt->FromFile(parFileName);
-
-
+      
       fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
-      TASTparTime* parTimeSt = (TASTparTime*) fpParTimeSt->Object();
-      //GetName() return the input file name
-      // if(!parTimeSt->FromFile(GetName())){
-
-      if(!parTimeSt->FromFile(GetName())){
-         printf("WD calibration time ot found!!\n");
-      }
    }
-
-   // initialise parameters for Beam Monitor
+   
+   // initialise par files for Beam Monitor
    if (GlobalPar::GetPar()->IncludeBM()) {
       fpParGeoBm = new TAGparaDsc("bmGeo", new TABMparGeo());
       TABMparGeo* parGeo = (TABMparGeo*)fpParGeoBm->Object();
@@ -212,13 +203,12 @@ void BaseLocalReco::ReadParFiles()
       
       fpParConfBm = new TAGparaDsc("bmConf", new TABMparCon());
       TABMparCon* parConf = (TABMparCon*)fpParConfBm->Object();
-
       parFileName = Form("./config/beammonitor%s.cfg", fExpName.Data());
       parConf->FromFile(parFileName.Data());
       
       parFileName = "./config/bmreso_vs_r.root";
       parConf->LoadReso(parFileName);
-
+      
       fpParMapBm = new TAGparaDsc("bmMap", new TABMparMap());
       TABMparMap*  parMapBm = (TABMparMap*)fpParMapBm->Object();
       
@@ -226,8 +216,8 @@ void BaseLocalReco::ReadParFiles()
       parFileName += parConf->GetParmapfile();
       parMapBm->FromFile(parFileName.Data(), parGeo);
    }
-
-   // initialise parameters for vertex
+   
+   // initialise par files for vertex
    if (GlobalPar::GetPar()->IncludeVertex()) {
       fpParGeoVtx = new TAGparaDsc(TAVTparGeo::GetDefParaName(), new TAVTparGeo());
       TAVTparGeo* parGeo = (TAVTparGeo*)fpParGeoVtx->Object();
@@ -245,7 +235,7 @@ void BaseLocalReco::ReadParFiles()
       parMap->FromFile(parVtxFileName.Data());
    }
    
-   // initialise parameters for inner tracker
+   // initialise par files for inner tracker
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
       fpParGeoIt = new TAGparaDsc(TAITparGeo::GetItDefParaName(), new TAITparGeo());
       TAITparGeo* parGeo = (TAITparGeo*)fpParGeoIt->Object();
@@ -263,7 +253,7 @@ void BaseLocalReco::ReadParFiles()
       parMap->FromFile(parItFileName.Data());
    }
    
-   // initialise parameters for multi strip detector
+   // initialise par files for multi strip detector
    if (GlobalPar::GetPar()->IncludeMSD()) {
       fpParGeoMsd = new TAGparaDsc(TAMSDparGeo::GetDefParaName(), new TAMSDparGeo());
       TAMSDparGeo* parGeo = (TAMSDparGeo*)fpParGeoMsd->Object();
@@ -272,38 +262,31 @@ void BaseLocalReco::ReadParFiles()
       
       fpParConfMsd = new TAGparaDsc("msdConf", new TAMSDparConf());
       TAMSDparConf* parConf = (TAMSDparConf*)fpParConfMsd->Object();
-      // parMsdFileName = Form("./config/TAMSDdetector%s.cfg", fExpName.Data());
+      parMsdFileName = Form("./config/TAMSDdetector%s.cfg", fExpName.Data());
       // parConf->FromFile(parMsdFileName.Data());
    }
    
-   // initialise parameters for Tof Wall
+   // initialise par files for Tof Wall
    if (GlobalPar::GetPar()->IncludeTW()) {
       fpParGeoTw = new TAGparaDsc(TATWparGeo::GetDefParaName(), new TATWparGeo());
       TATWparGeo* parGeo = (TATWparGeo*)fpParGeoTw->Object();
       TString parFileName = Form("./geomaps/TATWdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName);
       
-      fpParCalTw = new TAGparaDsc("twConf", new TATWparCal());
+      fpParCalTw = new TAGparaDsc("twCal", new TATWparCal());
       TATWparCal* parCal = (TATWparCal*)fpParCalTw->Object();
       parFileName = Form("./config/TATWCalibrationMap%s.xml", fExpName.Data());
       parCal->FromFile(parFileName.Data());
       
       fpParMapTw = new TAGparaDsc("twMap", new TATWparMap());
-      TATWparMap* tw_parMap = (TATWparMap*)fpParMapTw->Object();
+      TATWparMap* parMap = (TATWparMap*)fpParMapTw->Object();
       parFileName = Form("./config/TATWChannelMap%s.xml", fExpName.Data());
-      tw_parMap->FromFile(parFileName.Data());
-
-
-      fpParTimeTw = new TAGparaDsc("twTime", new TATWparTime()); // need the file
-      TATWparTime* parTimeTw = (TATWparTime*) fpParTimeTw->Object();
-      //GetName() return the input file name
-      if(!parTimeTw->FromFile(GetName())){
-	printf("WD calibration time ot found!!\n");
-      }
+      parMap->FromFile(parFileName.Data());
       
+      fpParTimeTw = new TAGparaDsc("twTim", new TATWparTime());
    }
    
-   // initialise parameters for caloriomter
+   // initialise par files for caloriomter
    if (GlobalPar::GetPar()->IncludeCA()) {
       fpParGeoCa = new TAGparaDsc(TACAparGeo::GetDefParaName(), new TACAparGeo());
       TACAparGeo* parGeo = (TACAparGeo*)fpParGeoCa->Object();
@@ -412,7 +395,7 @@ void BaseLocalReco::CreateRecActionMsd()
 void BaseLocalReco::CreateRecActionTw()
 {
    fpNtuRecTw  = new TAGdataDsc("twPoint", new TATWntuPoint());
-   fActPointTw = new TATWactNtuPoint("twActPointMc", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
+   fActPointTw = new TATWactNtuPoint("twActPoint", fpNtuRawTw, fpNtuRecTw, fpParGeoTw, fpParCalTw);
    if (fFlagHisto)
      fActPointTw->CreateHistogram();
 }

@@ -169,7 +169,7 @@ protected:
    TGCheckButton*       fRawDataButton;    // toggle rawdata plots
    TGCheckButton*       fRateButton;       // toggle recompute parameters at each plane
    
-private:
+protected:
    static Bool_t         fgTrackFlag;      // flag for tracking
    static Bool_t         fgStdAloneFlag;   // flag for standalone DAQ
    static TString        fgTrackingAlgo;   // tracking algorithm ("std" with BM, "Full" combinatory and "Hough" Hough transformation)

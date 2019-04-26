@@ -3,38 +3,12 @@
 #define _TAFOeventDisplayMC_HXX_
 
 
-/** TAFOeventDisplay HIT class to work on event display
+/** TAFOeventDisplay FOOT class to work on MC event display
  
  */
 
 #include "TAFOeventDisplay.hxx"
-
-#include "TFile.h"
-#include "TTree.h"
-
-#include "TAGdataDsc.hxx"
-#include "TASTactNtuMC.hxx"
-#include "TABMactNtuMC.hxx"
-#include "TAVTactNtuMC.hxx"
-#include "TAITactNtuMC.hxx"
-#include "TAMSDactNtuMC.hxx"
-#include "TATWactNtuMC.hxx"
-#include "TACAactNtuMC.hxx"
-
-#include "TAMCntuHit.hxx"
-#include "TAMCntuEve.hxx"
-#include "TAMCactNtuStc.hxx"
-#include "TAMCactNtuBm.hxx"
-#include "TAMCactNtuVtx.hxx"
-#include "TAMCactNtuItr.hxx"
-#include "TAMCactNtuMsd.hxx"
-#include "TAMCactNtuTof.hxx"
-#include "TAMCactNtuCal.hxx"
-#include "TAMCactNtuEve.hxx"
-
 #include "TAGpointDisplay.hxx"
-
-#include "Evento.hxx"
 
 class TTree;
 
@@ -57,6 +31,9 @@ public:
    //! Create raw data action
    void CreateRawAction();
 
+   //! Set local reconstruction
+   void SetLocalReco();
+   
    //! Add required items
    void AddRequiredItem();
 
@@ -82,37 +59,6 @@ public:
    void UpdateCaInfo(Int_t idx);
    
 private:
-   EVENT_STRUCT*         fEvtStruct;
-   
-   TASTactNtuMC*         fActNtuRawSt;  // action for ntu data
-   TABMactNtuMC*         fActNtuRawBm;  // action for ntu data
-   TAVTactNtuMC*         fActNtuRawVtx;  // action for ntu data
-   TAITactNtuMC*         fActNtuRawIt;  // action for ntu data
-   TAMSDactNtuMC*        fActNtuRawMsd;  // action for ntu data
-   TATWactNtuMC*         fActNtuRawTw;  // action for ntu data
-   TACAactNtuMC*         fActNtuRawCa;  // action for ntu data
-   
-   TAGdataDsc*           fpNtuMcEve;    // input data dsc
-   TAGdataDsc*           fpNtuMcSt;    // input data dsc
-   TAGdataDsc*           fpNtuMcBm;    // input data dsc
-   TAGdataDsc*           fpNtuMcVt;    // input data dsc
-   TAGdataDsc*           fpNtuMcIt;    // input data dsc
-   TAGdataDsc*           fpNtuMcMsd;    // input data dsc
-   TAGdataDsc*           fpNtuMcTw;    // input data dsc
-   TAGdataDsc*           fpNtuMcCa;    // input data dsc
-
-   TAMCactNtuEve*        fActNtuMcEve;
-   TAMCactNtuStc*        fActNtuMcSt;
-   TAMCactNtuBm*         fActNtuMcBm;
-   TAMCactNtuVtx*        fActNtuMcVt;
-   TAMCactNtuItr*        fActNtuMcIt;
-   TAMCactNtuMsd*        fActNtuMcMsd;
-   TAMCactNtuTof*        fActNtuMcTw;
-   TAMCactNtuCal*        fActNtuMcCa;
-   
-   TTree*                fTree;         // tree for MC
-   TFile*                fActEvtFile; // file for MC
-
    //Display
    TAGpointDisplay*      fStMcDisplay;
    TAGpointDisplay*      fBmMcDisplay;

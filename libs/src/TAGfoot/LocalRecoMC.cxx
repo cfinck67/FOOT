@@ -115,10 +115,11 @@ void LocalRecoMC::CreateRawAction()
    if(GlobalPar::GetPar()->IncludeTW()) {
 
       fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
-      fActNtuRawTw = new TATWactNtuMC("twActNtuMc", fpNtuRawTw, fEvtStruct);
-      if (fFlagHisto)
-        fActNtuRawTw->CreateHistogram();
-
+      fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fEvtStruct);
+      fActNtuRawTw->CreateHistogram();
+      
+      fpNtuMcTw   = new TAGdataDsc("twMc", new TAMCntuHit());
+      fActNtuMcTw = new TAMCactNtuTof("twActNtuMc", fpNtuMcTw, fEvtStruct);
    }
    
    if(GlobalPar::GetPar()->IncludeCA()) {
@@ -241,7 +242,6 @@ void LocalRecoMC::AddRequiredMcItemMs()
 void LocalRecoMC::AddRequiredMcItemTw()
 {
    fTAGroot->AddRequiredItem("twActNtuMc");
-   fTAGroot->AddRequiredItem("twActPointMc");
 }
 
 //__________________________________________________________

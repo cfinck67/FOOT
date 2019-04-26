@@ -7,14 +7,7 @@
 #include "TGeoManager.h"
 
 #include "GlobalPar.hxx"
-#include "TAGgeoTrafo.hxx"
-#include "TASTntuRaw.hxx"
-#include "TABMntuRaw.hxx"
-#include "TAVTntuRaw.hxx"
-#include "TAITntuRaw.hxx"
-#include "TAMSDntuRaw.hxx"
-#include "TATWntuRaw.hxx"
-#include "TACAntuRaw.hxx"
+#include "LocalRecoMC.hxx"
 
 ClassImp(TAFOeventDisplay)
 
@@ -31,13 +24,6 @@ TAFOeventDisplay* TAFOeventDisplayMC::Instance(Int_t type, const TString name)
 //__________________________________________________________
 TAFOeventDisplayMC::TAFOeventDisplayMC(Int_t type, const TString expName)
  : TAFOeventDisplay(type, expName),
-   fActNtuRawVtx(0x0),
-   fActNtuRawIt(0x0),
-   fActNtuRawMsd(0x0),
-   fActNtuRawTw(0x0),
-   fActNtuRawCa(0x0),
-   fTree(0x0),
-   fActEvtFile(0x0),
    fCaMcDisplay(new TAGpointDisplay("Cal MC hit")),
    fTwMcDisplay(new TAGpointDisplay("ToF MC hit")),
    fMsdMcDisplay(new TAGpointDisplay("MSD MC hit")),
@@ -46,15 +32,14 @@ TAFOeventDisplayMC::TAFOeventDisplayMC(Int_t type, const TString expName)
    fBmMcDisplay(new TAGpointDisplay("STC MC hit")),
    fStMcDisplay(new TAGpointDisplay("STC MC hit"))
 {
-   fEvtStruct = new EVENT_STRUCT;
+   // local reco
+   SetLocalReco();
 }
 
 //__________________________________________________________
 TAFOeventDisplayMC::~TAFOeventDisplayMC()
 {
-   // default destructor
-   if (fActEvtFile) delete fActEvtFile;
-   
+   // default destructor   
    delete fCaMcDisplay;
    delete fTwMcDisplay;
    delete fMsdMcDisplay;
@@ -65,9 +50,28 @@ TAFOeventDisplayMC::~TAFOeventDisplayMC()
 }
 
 //__________________________________________________________
+void TAFOeventDisplayMC::SetLocalReco()
+{
+   if (fType != 1) return;
+   
+   // local reco
+   fLocalReco = new LocalRecoMC();
+   
+   fLocalReco->DisableTree();
+   fLocalReco->DisableSaveHits();
+   
+   if (fgTrackFlag) {
+      fLocalReco->SetTrackingAlgo(fgTrackingAlgo[0]);
+      fLocalReco->EnableTracking();
+   }
+   
+   fpFootGeo = fLocalReco->GetGeoTrafo();
+}
+
+//__________________________________________________________
 Bool_t TAFOeventDisplayMC::GetEntry(Int_t entry)
 {
-   if (!fTree->GetEntry(entry)) return false;
+   if (!fLocalReco->GetTree()->GetEntry(entry)) return false;
    
    return true;
 }
@@ -76,154 +80,25 @@ Bool_t TAFOeventDisplayMC::GetEntry(Int_t entry)
 void TAFOeventDisplayMC::CreateRawAction()
 {
    ReadParFiles();
-
-   fpNtuMcEve = new TAGdataDsc("eveMc", new TAMCntuEve());
-   fActNtuMcEve = new TAMCactNtuEve("eveActNtuMc", fpNtuMcEve, fEvtStruct);
-
-   
-   if (GlobalPar::GetPar()->IncludeST()) {
-      fpNtuRawSt = new TAGdataDsc("stRaw", new TASTntuRaw());
-      fActNtuRawSt = new TASTactNtuMC("stActNtu", fpNtuRawSt, fEvtStruct);
-      fActNtuRawSt->CreateHistogram();
-      
-      fpNtuMcSt   = new TAGdataDsc("stMc", new TAMCntuHit());
-      fActNtuMcSt = new TAMCactNtuStc("stActNtuMc", fpNtuMcSt, fEvtStruct);
-   }
-
-   if (GlobalPar::GetPar()->IncludeBM()) {
-      fpNtuRawBm = new TAGdataDsc("bmRaw", new TABMntuRaw());
-      fActNtuRawBm = new TABMactNtuMC("bmActNtu", fpNtuRawBm, fpParConfBm, fpParGeoBm, fEvtStruct);
-      fActNtuRawBm->CreateHistogram();
-      
-      fpNtuMcBm   = new TAGdataDsc("bmMc", new TAMCntuHit());
-      fActNtuMcBm = new TAMCactNtuBm("bmActNtuMc", fpNtuMcBm, fEvtStruct);
-   }
-
-   if (GlobalPar::GetPar()->IncludeVertex()) {
-      fpNtuRawVtx = new TAGdataDsc("vtRaw", new TAVTntuRaw());
-      fActNtuRawVtx = new TAVTactNtuMC("vtActNtu", fpNtuRawVtx, fpParGeoVtx, fEvtStruct);
-      fActNtuRawVtx->CreateHistogram();
-      
-      fpNtuMcVt   = new TAGdataDsc("vtMc", new TAMCntuHit());
-      fActNtuMcVt = new TAMCactNtuVtx("vtActNtuMc", fpNtuMcVt, fEvtStruct);
-   }
-
-   if (GlobalPar::GetPar()->IncludeInnerTracker()) {
-      fpNtuRawIt = new TAGdataDsc("itRaw", new TAITntuRaw());
-      fActNtuRawIt = new TAITactNtuMC("itActNtu", fpNtuRawIt, fpParGeoIt, fEvtStruct);
-      fActNtuRawIt->CreateHistogram();
-      
-      fpNtuMcIt   = new TAGdataDsc("itMc", new TAMCntuHit());
-      fActNtuMcIt = new TAMCactNtuItr("itActNtuMc", fpNtuMcIt, fEvtStruct);
-   }
-   
-   if (GlobalPar::GetPar()->IncludeMSD()) {
-      fpNtuRawMsd = new TAGdataDsc("msdRaw", new TAMSDntuRaw());
-      fActNtuRawMsd = new TAMSDactNtuMC("msdActNtu", fpNtuRawMsd, fpParGeoMsd, fEvtStruct);
-      fActNtuRawMsd->CreateHistogram();
-      
-      fpNtuMcMsd   = new TAGdataDsc("msdMc", new TAMCntuHit());
-      fActNtuMcMsd = new TAMCactNtuMsd("msdActNtuMc", fpNtuMcMsd, fEvtStruct);
-   }
-   
-   if(GlobalPar::GetPar()->IncludeTW()) {
-      fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
-      fActNtuRawTw = new TATWactNtuMC("twActNtu", fpNtuRawTw, fEvtStruct);
-      fActNtuRawTw->CreateHistogram();
-      
-      fpNtuMcTw   = new TAGdataDsc("twMc", new TAMCntuHit());
-      fActNtuMcTw = new TAMCactNtuTof("twActNtuMc", fpNtuMcTw, fEvtStruct);
-   }
-   
-   if(GlobalPar::GetPar()->IncludeCA()) {
-      fpNtuRawCa   = new TAGdataDsc("caRaw", new TACAntuRaw());
-      fActNtuRawCa = new TACAactNtuMC("caActNtu", fpNtuRawCa, fpParGeoCa, fEvtStruct);
-      fActNtuRawCa->CreateHistogram();
-      
-      fpNtuMcCa   = new TAGdataDsc("caMc", new TAMCntuHit());
-      fActNtuMcCa = new TAMCactNtuCal("caActNtuMc", fpNtuMcCa, fEvtStruct);
-   }
+   fLocalReco->CreateRawAction();
 }
 
 //__________________________________________________________
 void TAFOeventDisplayMC::AddRequiredItem()
 {
-   fTAGroot->AddRequiredItem("eveActNtuMc");
-
-   if (GlobalPar::GetPar()->IncludeST())
-      AddRequiredMcItemSt();
+   fLocalReco->AddRawRequiredItem();
+   fLocalReco->AddRecRequiredItem();
    
-   if (GlobalPar::GetPar()->IncludeBM())
-      AddRequiredMcItemBm();
-
-   if (GlobalPar::GetPar()->IncludeVertex())
-      AddRequiredMcItemVt();
-
-   if (GlobalPar::GetPar()->IncludeInnerTracker())
-      AddRequiredMcItemIt();
-
-   if (GlobalPar::GetPar()->IncludeMSD())
-      AddRequiredMcItemMs();
-   
-   if (GlobalPar::GetPar()->IncludeTW())
-      AddRequiredMcItemTw();
-
-   if (GlobalPar::GetPar()->IncludeCA())
-      AddRequiredMcItemCa();
-   
-   TAFOeventDisplay::AddRequiredRecItem();
+   gTAGroot->BeginEventLoop();
+   gTAGroot->Print();
 }
 
-//__________________________________________________________
-void TAFOeventDisplayMC::AddRequiredMcItemSt()
-{
-   fTAGroot->AddRequiredItem("stActNtuMc");
-}
-
-//__________________________________________________________
-void TAFOeventDisplayMC::AddRequiredMcItemBm()
-{
-   fTAGroot->AddRequiredItem("bmActNtuMc");
-}
-
-//__________________________________________________________
-void TAFOeventDisplayMC::AddRequiredMcItemVt()
-{
-   fTAGroot->AddRequiredItem("vtActNtuMc");
-}
-
-//__________________________________________________________
-void TAFOeventDisplayMC::AddRequiredMcItemIt()
-{
-   fTAGroot->AddRequiredItem("itActNtuMc");
-}
-
-//__________________________________________________________
-void TAFOeventDisplayMC::AddRequiredMcItemMs()
-{
-   fTAGroot->AddRequiredItem("msdActNtuMc");
-}
-
-//__________________________________________________________
-void TAFOeventDisplayMC::AddRequiredMcItemTw()
-{
-   fTAGroot->AddRequiredItem("twActNtuMc");
-}
-
-//__________________________________________________________
-void TAFOeventDisplayMC::AddRequiredMcItemCa()
-{
-   fTAGroot->AddRequiredItem("caActNtuMc");
-}
 
 //__________________________________________________________
 void TAFOeventDisplayMC::OpenFile(const TString fileName)
 {
-   fActEvtFile = new TFile(fileName.Data());
-   fTree = (TTree*)fActEvtFile->Get("EventTree");
-   
-   Evento *ev  = new Evento();
-   ev->FindBranches(fTree, fEvtStruct);
+   fLocalReco->SetName(fileName);
+   fLocalReco->OpenFileIn();
 }
 
 //__________________________________________________________
@@ -375,7 +250,7 @@ void TAFOeventDisplayMC::UpdateMcInfo(TString prefix, Int_t idx)
    fInfoView->AddLine( Form("eLoss: %.3g MeV time: %.3g ns\n", point->GetDeltaE()*TAGgeoTrafo::GevToMev(), point->GetTof()*TAGgeoTrafo::SecToNs()) );
    
    Int_t trackId       = point->GetTrackId();
-   TAMCntuEve* pNtuHit = (TAMCntuEve*) fpNtuMcEve->Object();
+   TAMCntuEve* pNtuHit = fLocalReco->GetNtuMcEve();
    TAMCeveTrack* track   = pNtuHit->GetHit(trackId);
    
    fInfoView->AddLine( Form("Generated from track # %d\n", trackId) );
@@ -438,25 +313,25 @@ void TAFOeventDisplayMC::UpdateMcElements(const TString prefix)
    TAMCntuHit* pNtuHit = 0x0;
    
    if (prefix == "st")
-      pNtuHit = (TAMCntuHit*) fpNtuMcSt->Object();
+      pNtuHit = fLocalReco->GetNtuMcSt();
    
    if (prefix == "bm")
-      pNtuHit = (TAMCntuHit*) fpNtuMcBm->Object();
-
+      pNtuHit = fLocalReco->GetNtuMcBm();
+   
    if (prefix == "vt")
-      pNtuHit = (TAMCntuHit*) fpNtuMcVt->Object();
-
+      pNtuHit = fLocalReco->GetNtuMcVtx();
+   
    if (prefix == "it")
-      pNtuHit = (TAMCntuHit*) fpNtuMcIt->Object();
+      pNtuHit = fLocalReco->GetNtuMcIt();
    
    if (prefix == "ms")
-      pNtuHit = (TAMCntuHit*) fpNtuMcMsd->Object();
-
+      pNtuHit = fLocalReco->GetNtuMcMsd();
+   
    if (prefix == "tw")
-      pNtuHit = (TAMCntuHit*) fpNtuMcTw->Object();
+      pNtuHit = fLocalReco->GetNtuMcTw();
    
    if (prefix == "ca")
-      pNtuHit = (TAMCntuHit*) fpNtuMcCa->Object();
+      pNtuHit = fLocalReco->GetNtuMcCa();
    
    Int_t nHits = pNtuHit->GetHitsN();
    if (nHits == 0) return;

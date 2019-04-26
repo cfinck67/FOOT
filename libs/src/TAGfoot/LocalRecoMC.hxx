@@ -37,7 +37,7 @@ class LocalRecoMC : public BaseLocalReco
 {
 public:
    //! default constructor
-   LocalRecoMC(TString fileNameIn, TString fileNameout);
+   LocalRecoMC(TString fileNameIn = "", TString fileNameout = "");
    
    virtual ~LocalRecoMC();
    
@@ -62,6 +62,17 @@ public:
    //! Loop events
    virtual void LoopEvent(Int_t nEvents);
    
+   //! MC container Getter
+   TAMCntuEve*  GetNtuMcEve() const { return (TAMCntuEve*)fpNtuMcEve->Object();}
+   TAMCntuHit*  GetNtuMcSt()  const { return (TAMCntuHit*)fpNtuMcSt->Object(); }
+   TAMCntuHit*  GetNtuMcBm()  const { return (TAMCntuHit*)fpNtuMcBm->Object(); }
+   TAMCntuHit*  GetNtuMcVtx() const { return (TAMCntuHit*)fpNtuMcVt->Object(); }
+   TAMCntuHit*  GetNtuMcIt()  const { return (TAMCntuHit*)fpNtuMcIt->Object(); }
+   TAMCntuHit*  GetNtuMcMsd() const { return (TAMCntuHit*)fpNtuMcMsd->Object();}
+   TAMCntuHit*  GetNtuMcTw()  const { return (TAMCntuHit*)fpNtuMcTw->Object(); }
+   TAMCntuHit*  GetNtuMcCa()  const { return (TAMCntuHit*)fpNtuMcCa->Object(); }
+   TTree*       GetTree()           { return fTree;                            }
+
 private:
    void AddRequiredMcItemSt();
    void AddRequiredMcItemBm();

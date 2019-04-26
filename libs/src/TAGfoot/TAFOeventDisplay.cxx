@@ -50,7 +50,6 @@ TAFOeventDisplay* TAFOeventDisplay::Instance(Int_t type, const TString name)
 //__________________________________________________________
 TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
  : TAGbaseEventDisplay(expName),
-
    fType(type),
    fStClusDisplay(new TAGclusterDisplay("Start counter hit")),
    fBmClusDisplay(new TAGwireDisplay("Beam Monitoring Wires")),
@@ -78,7 +77,7 @@ TAFOeventDisplay::TAFOeventDisplay(Int_t type, const TString expName)
    fBmTrackDisplay->SetDefWidth(fBoxDefWidth);
    fBmTrackDisplay->SetDefHeight(fBoxDefHeight);
    fBmTrackDisplay->SetPickable(true);
-    fBmDriftCircleDisplay->SetPickable(true);
+   fBmDriftCircleDisplay->SetPickable(true);
 
    
    fVtxClusDisplay->SetMaxEnergy(fMaxEnergy);
@@ -142,6 +141,9 @@ TAFOeventDisplay::~TAFOeventDisplay()
 //__________________________________________________________
 void TAFOeventDisplay::SetLocalReco()
 {
+   if (fType != 0) return;
+   
+   printf("titi\n\n");
    // local reco
    fLocalReco = new LocalReco();
    
