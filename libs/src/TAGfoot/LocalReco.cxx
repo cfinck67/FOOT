@@ -209,7 +209,8 @@ void LocalReco::CloseFileIn()
 //__________________________________________________________
 void LocalReco::AddRawRequiredItem()
 {
-   fTAGroot->AddRequiredItem("daqActReader");
+   if (!fgStdAloneFlag)
+      fTAGroot->AddRequiredItem("daqActReader");
 
    if (GlobalPar::GetPar()->IncludeST() || GlobalPar::GetPar()->IncludeBM()) {
       fTAGroot->AddRequiredItem("stActRaw");
