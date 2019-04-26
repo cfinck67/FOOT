@@ -201,10 +201,10 @@ Bool_t TABMactNtuMC::Action()
         
       //X,Y and Z needs to be placed in Local coordinates.
       //~ mytmp->SetAW(p_bmgeo);
-      if(p_bmcon->ResoEval(rdriftxcell.at(i))>0)
-        mytmp->SetSigma(p_bmcon->ResoEval(rdriftxcell.at(i)));
+      if(p_bmcon->ResoEvalTime(p_bmcon->InverseStrel(realrdrift))>0)
+        mytmp->SetSigma(p_bmcon->ResoEvalTime(p_bmcon->InverseStrel(realrdrift)));
       else{  
-        cout<<"WARNING: error from config resoEval! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<rdriftxcell.at(i)<<endl;
+        cout<<"WARNING: error from config ResoEvalTime(p_bmcon->InverseStrel(realrdrift))! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<p_bmcon->InverseStrel(realrdrift)<<endl;
         mytmp->SetSigma(p_bmcon->GetRdrift_err());
         }
       mytmp->SetRealRdrift(realrdrift);  
@@ -244,8 +244,8 @@ void TABMactNtuMC::CreateFakeHits(Int_t nfake, Int_t &nhits){
                     -100.,-100.,-100.,  //mom @ entrance in cell
                     rdrift, p_bmcon->InverseStrel(rdrift), -1., p_bmgeo);     //tdrift has no meaning for MC (now)
     //~ mytmp->SetAW(p_bmgeo);
-    if(p_bmcon->ResoEval(rdrift)>0)
-      mytmp->SetSigma(p_bmcon->ResoEval(rdrift));
+    if(p_bmcon->ResoEvalTime(p_bmcon->InverseStrel(rdrift))>0)
+      mytmp->SetSigma(p_bmcon->ResoEvalTime(p_bmcon->InverseStrel(rdrift)));
     else
       mytmp->SetSigma(p_bmcon->GetRdrift_err());
     mytmp->SetRealRdrift(rdrift);  

@@ -90,7 +90,7 @@ Bool_t TABMactNtuRaw::Action()
     p_pargeo->GetCellInfo(hit.View(), hit.Plane(), hit.Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz);
 
     //create the hit (no selection of hit)
-    TABMntuHit *mytmp = new((*(p_nturaw->h))[i]) TABMntuHit(0, hit.View(), hit.Plane(), hit.Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz, i_drift, i_time, p_parcon->ResoEval(i_drift),p_pargeo);
+    TABMntuHit *mytmp = new((*(p_nturaw->h))[i]) TABMntuHit(0, hit.View(), hit.Plane(), hit.Cell(), h_x, h_y, h_z, h_cx, h_cy, h_cz, i_drift, i_time, p_parcon->ResoEvalTime(i_time),p_pargeo);
     //~ mytmp->SetAW(p_pargeo);
     p_nturaw->nhit++;
   }

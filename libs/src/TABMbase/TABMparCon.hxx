@@ -114,9 +114,16 @@ class TABMparCon : public TAGpara {
     //~ TF1* GetCalibY();
     //~ TF1* GetCalibX();
     //~ void ConfigureTrkCalib();
-  
+    
+    //new resolution
+    void SetTimeReso(TF1 tfin){TimeReso=tfin;return;};
+    Double_t ResoEvalTime(Double_t tin){return TimeReso.Eval(tin);};
+    Int_t GetTimeResoNumPar(){return TimeReso.GetNpar();};
+    Double_t GetTimeResoPar(Int_t parnum){return TimeReso.GetParameter(parnum);};
+      
+    //old resolution  
     void LoadReso(TString sF);
-    Double_t ResoEval(Double_t dist);
+    Double_t ResoEvalDist(Double_t dist);
 
     Bool_t FromFile(const TString& name);
 
@@ -183,6 +190,7 @@ class TABMparCon : public TAGpara {
     TF1 *m_myFunSpl;
     vector <TF1*> m_myVFunSpl;
     TH1D *my_hreso;
+    TF1 TimeReso;
   
 };
 

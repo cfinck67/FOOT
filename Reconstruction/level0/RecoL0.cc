@@ -124,8 +124,7 @@ int main (int argc, char *argv[]) {
   int t_s2 = trunc( fmod(fmod(tempoKal, 3600), 60) );
   cout<< "Execution Time: "<< tempoKal << " seconds" << endl;
   cout<< "Execution Time in human units: "<< t_h2 <<" : "<< t_m2 <<" : "<< t_s2 << endl;
-  
-
+  cout<<" your reconstruction output file is:  "<<reco.Data()<<endl;
   cout<<" Job done! "<<endl;
   return 0;
 } 

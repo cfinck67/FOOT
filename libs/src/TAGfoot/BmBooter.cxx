@@ -113,7 +113,6 @@ Bool_t BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* e
   tot_num_ev=data_num_ev;  
   data_num_ev= (isdata==true) ? -1000:0;
   data_sync_num_ev=0;
-
    
 return kFALSE;
 }
@@ -357,7 +356,7 @@ void BmBooter::PrintSTrel(){
       newvsoldstrel->SetBinError(i+1,strelresiduals.at(i).at(1));
     }
     //fit the new strel
-    TProfile *prof_newstrel=newstrel2d->ProfileX();;
+    TProfile *prof_newstrel=newstrel2d->ProfileX();
     TF1 poly ("poly","pol5", 0, bmcon->GetHitTimecut());
     prof_newstrel->Fit("poly","Q+");
     prof_newstrel->SetLineColor(2);
@@ -615,13 +614,16 @@ void BmBooter::PrintResDist(){
     return;
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();
   
+  TH1D* histo1d;
+  TH2D* histo2d;
+  
   //create ResVsDist_perCell graphs
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->mkdir("ResVsDist_perCell");
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("ResVsDist_perCell");
   char tmp_char[200];
   for(Int_t i=0;i<36;i++){
     sprintf(tmp_char,"hitres_dis_perCell_%d",i);  
-    TH2D* histo2d=new TH2D( tmp_char, "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 6000, -0.3, 0.3,250,0.,1.);
+    histo2d=new TH2D( tmp_char, "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 6000, -0.3, 0.3,250,0.,1.);
   }
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/ResVsDist_perCell")))->cd("..");
   
@@ -630,7 +632,7 @@ void BmBooter::PrintResDist(){
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("ResxDist");
   for(Int_t i=0;i<bmcon->GetResnbin();i++){
     sprintf(tmp_char,"hitres_x_dist_%d",i);  
-    TH1D* histo1d=new TH1D( tmp_char, "Residual x dist bin; Residual [cm];", 600, -0.3, 0.3);
+    histo1d=new TH1D( tmp_char, "Residual x dist bin; Residual [cm];", 600, -0.3, 0.3);
   }
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/ResxDist")))->cd("..");
   
@@ -639,7 +641,7 @@ void BmBooter::PrintResDist(){
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd("ResxTime");
   for(Int_t i=0;i<bmcon->GetResnbin();i++){
     sprintf(tmp_char,"hitres_x_time_%d",i);  
-    TH1D* histo1d=new TH1D( tmp_char, "Residual x time bin; Residual [cm];", 600, -0.3, 0.3);
+    histo1d=new TH1D( tmp_char, "Residual x time bin; Residual [cm];", 600, -0.3, 0.3);
   }
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/ResxTime")))->cd("..");
   
@@ -653,8 +655,8 @@ void BmBooter::PrintResDist(){
   }
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/TDC_time")))->cd("..");  
 
-  TH2D* histo2da=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
-  TH2D* histo2db=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]",bmcon->GetHitTimecut(),0.,bmcon->GetHitTimecut()+10.,600, -0.3, 0.3);
+  histo2d=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
+  histo2d=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]",bmcon->GetHitTimecut(),0.,bmcon->GetHitTimecut()+10.,600, -0.3, 0.3);
        
   if(bmcon->GetBMdebug()>10)
     cout<<"BmBooter::PrintResDist: fill the histos"<<endl;      
@@ -662,8 +664,8 @@ void BmBooter::PrintResDist(){
   //fill the histos
   for(Int_t i=0;i<residual_distance.size();i++){
     if(residual_distance.at(i).size()>4){
-      histo2da->Fill(residual_distance.at(i).at(4), residual_distance.at(i).at(3));
-      histo2db->Fill(residual_distance.at(i).at(2), residual_distance.at(i).at(4));
+      ((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/hitres_dis")))->Fill(residual_distance.at(i).at(4), residual_distance.at(i).at(3));
+      ((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/hitres_time")))->Fill(residual_distance.at(i).at(2), residual_distance.at(i).at(4));
       sprintf(tmp_char,"BM_output/ResVsDist_perCell/hitres_dis_perCell_%d",(Int_t) (residual_distance.at(i).at(1)+0.5));  
       ((TH2D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance.at(i).at(4), residual_distance.at(i).at(3));    
       sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",(Int_t) (residual_distance.at(i).at(3)/0.945*bmcon->GetResnbin()));
@@ -680,20 +682,27 @@ void BmBooter::PrintResDist(){
   
   //fit hitres_x_dist
   TF1 *fb = new TF1("fb","gaus", -0.3,0.3);
-  TH1D *histo1d=new TH1D( "resolution", "Resolution evaluation; Distance from cell center [cm];Spatial Resolution[#mum]", 20, 0., 0.8);
+  histo1d=new TH1D( "resolution_dist", "Resolution evaluation; Distance from cell center [cm];Spatial Resolution[#mum]", bmcon->GetResnbin(), 0., 0.945);
+  histo1d=new TH1D( "resolution_time_old", "Resolution evaluation; Time [ns];Spatial Resolution[#mum]", bmcon->GetResnbin(), 0., bmcon->GetHitTimecut());
+  histo1d=new TH1D( "resolution_time_new", "Resolution evaluation; Time [ns];Spatial Resolution[#mum]", bmcon->GetResnbin(), 0., bmcon->GetHitTimecut());
   vector<Double_t> streleachbin(3,0);
   for(Int_t i=0;i<bmcon->GetResnbin();i++){
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_old")))->SetBinContent(i+1,bmcon->ResoEvalTime(((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_old")))->GetBinCenter(i+1)));    
     sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",i);      
     //~ ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution")))->SetBinContent(i+1,((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetStdDev()*10000);    
-    ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "Q");
-    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution")))->SetBinContent(i+1,fb->GetParameter(2)*10000);    
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "Q+");
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_dist")))->SetBinContent(i+1,fb->GetParameter(2)*10000);    
     sprintf(tmp_char,"BM_output/ResxTime/hitres_x_time_%d",i);      
-    ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "Q");
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "Q+");
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_new")))->SetBinContent(i+1,fb->GetParameter(2)*10000);    
     streleachbin.at(0)=fb->GetParameter(1);
     streleachbin.at(1)=fb->GetParameter(2);
     streleachbin.at(2)=((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetEntries();
     strelresiduals.push_back(streleachbin);
   }
+  TF1 tfpoly("tfpoly","pol10", 0.,bmcon->GetHitTimecut());
+  ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_new")))->Fit("tfpoly", "Q+");
+  bmcon->SetTimeReso(tfpoly);
     
 return;
 }
@@ -1931,6 +1940,7 @@ Bool_t BmBooter::autocalibstrel_readfile(){
   TString name="./config/"+bmcon->GetShiftsfile();
   infile.open(name.Data(),ios::in);
   vector<Double_t>parin(6,0);
+  vector<Double_t>resoin(11,0);
   stnite=1;
   if(infile.is_open()){
     while(!infile.eof()){
@@ -1980,11 +1990,20 @@ Bool_t BmBooter::autocalibstrel_readfile(){
         }          
       }
       bmcon->AddStrelparameters(parin);
-      //~ return kTRUE;
+      infile>>tmp_char;
+      for(Int_t i=0;i<11;i++){
+        infile>>tmp_double;
+        resoin.at(i)=tmp_double;
+      }
     }
   infile.close();
+  TF1 readrespoly("readrespoly","pol10", 0.,bmcon->GetHitTimecut());
+  for(Int_t i=0;i<resoin.size();i++)
+    readrespoly.SetParameter(i,resoin.at(i));
+  bmcon->SetTimeReso(readrespoly);  
   }else
     cout<<"BmBooter::autocalibstrel_readfile::FIRST ITERATION, file does not exist yet"<<endl;
+  
  
  return kFALSE; 
 }
@@ -2004,6 +2023,16 @@ void BmBooter::autocalibstrel_writefile(){
       outfile<<bmcon->GetLastStrelpar(i)<<"  ";
     else
       cout<<"ERROR in BmBooter::autocalibstrel_writefile:: bmcon->GetLastStrelpar not setted!! i="<<i<<"  bmcon->GetLastStrelpar(i)="<<bmcon->GetLastStrelpar(i)<<endl;
+  }
+  outfile<<endl;
+  outfile<<"New_timereso_parameters:"<<endl;
+  if(bmcon->GetTimeResoNumPar()!=11)
+    cout<<"ERROR in BmBooter::autocalibstrel_writefile:: bmcon->GetTimeResoNumPar()!=11!!!  bmcon->GetTimeResoNumPar()="<<bmcon->GetTimeResoNumPar()<<endl;
+  for(Int_t i=0;i<11;i++){
+    if(i<bmcon->GetTimeResoNumPar())
+      outfile<<bmcon->GetTimeResoPar(i)<<"  ";
+    else
+      outfile<<"  0  ";
   }
   outfile<<endl;
   outfile.close(); 
