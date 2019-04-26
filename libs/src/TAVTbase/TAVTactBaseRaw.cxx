@@ -201,7 +201,7 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
     3) TimeStamp;
     4) FrameCnt;
     5) DataLength;
-    6) ADataW16[140]; //data MI26
+    6) ADataW16[1140]; //data MI26
     7) Trailer;
     */
    
@@ -211,7 +211,7 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
    TAVTparMap*  pParMap = (TAVTparMap*) fpParMap->Object();
    
    Int_t dataLength    = ((frame->DataLength & 0xFFFF0000)>>16);
-   if (dataLength > 140) return false;
+   if (dataLength > 1140) return false;
    
    UShort_t *frameData = (UShort_t*)frame->ADataW16;
    dataLength         *= 2; // go to short
