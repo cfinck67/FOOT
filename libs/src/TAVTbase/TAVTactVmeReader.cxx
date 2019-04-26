@@ -155,7 +155,7 @@ Bool_t TAVTactVmeReader::GetSensorHeader(Int_t iSensor)
          fRawFileAscii[iSensor] >> tmp;
          sscanf(tmp, "%x", &fEventNumber);
          
-         // fake trigger
+         // trigger
          fRawFileAscii[iSensor] >> tmp;
          sscanf(tmp, "%x", &fTriggerNumber);
 
@@ -180,7 +180,7 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
    // check frame header
    fRawFileAscii[iSensor] >> tmp;
    TString line = tmp;
-   TString key  = Form("%x", (GetFrameHeader() & 0xFFF)); // protection against wrong header !!!
+   TString key  = Form("%x", GetFrameHeader()); // protection against wrong header !!!
 
    if (line.Contains(key)) {
       TString key1  = Form("%x", GetFrameHeader() );
@@ -191,7 +191,11 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
          sscanf(tmp, "%x", &fData[fIndex++]);
       }
       
-      UInt_t dataLength  =  ((fData[fIndex-1] & 0xFFFF0000)>>16);
+      UInt_t dataLength1  =  ((fData[fIndex-1] & 0xFFFF0000)>>16);
+      UInt_t dataLength  =  ((fData[fIndex-1] & 0xFFFF));
+      
+      dataLength = min(dataLength, dataLength1);
+      
       for (UInt_t i = 0; i < dataLength; ++i) {
          fRawFileAscii[iSensor] >> tmp;
          sscanf(tmp, "%x", &fData[fIndex++]);
@@ -208,9 +212,10 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
    do {
       fRawFileAscii[iSensor] >> tmp;
       TString line = tmp;
-      TString key  = Form("%x", (GetFrameTail() & 0xFFF));
+      TString key1  = Form("%x", (GetFrameTail() & 0xFFFF));
+      TString key2  = Form("%x", (GetFrameTail() & 0xFFFF0000) >> 16);
       sscanf(tmp, "%x", &fData[fIndex++]);
-      if (line.Contains(key))
+      if (line.Contains(key1) || line.Contains(key2))
          break;
 
    } while (!fRawFileAscii[iSensor].eof());
