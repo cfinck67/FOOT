@@ -254,9 +254,11 @@ Bool_t TABMparCon::FromFile(const TString& name) {
     part_in_mom=(Double_t)PRIM_A*PRIM_T;
   }
 
+  //bm default values
   TimeReso=TF1 ("default_timeresopol10","[0]+[1]*x*[8]+[2]*x*x*[8]*[8]+[3]*x*x*x*[8]*[8]*[8]+[4]*x*x*x*x*[8]*[8]*[8]*[8]+[5]*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]+[6]*x*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]*[8]+[7]*x*x*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]*[8]*[8]", 0.,hit_timecut);
   TimeReso.SetParameters(148.217,2.27112,-0.259329,0.00619644,-6.73284e-05,3.73334e-07,-1.02493e-09,1.10453e-12,hit_timecut/300.);//default parameters
-
+  meantimereso=145.;
+  
   return kFALSE;
 }
 

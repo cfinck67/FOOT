@@ -117,6 +117,8 @@ class TABMparCon : public TAGpara {
     
     //new resolution
     void SetTimeReso(TF1 tfin){TimeReso=tfin;return;};
+    void SetMeanTimeReso(Double_t timein){meantimereso=timein;return;};
+    Double_t GetMeanTimeReso(){return meantimereso;};
     Double_t ResoEvalTime(Double_t tin){return TimeReso.Eval(tin);};
     Int_t GetTimeResoNumPar(){return TimeReso.GetNpar();};
     Double_t GetTimeResoPar(Int_t parnum){return TimeReso.GetParameter(parnum);};
@@ -182,6 +184,8 @@ class TABMparCon : public TAGpara {
     Int_t resnbin;     //number of bins in the evaluation of the residuals
     string shiftsfile; //file in which the strel autoalibration method will write the residual shifts
     vector<vector<Double_t>>  strelparameters;//store the strel parameters, 6 params for each iteration
+    TF1 TimeReso; //function used to evaluate the hit resolution
+    Double_t meantimereso;//mean time resolution value
 
     //~ TF1* f_mypol;
     //~ TF1* f_mypol2;
@@ -190,7 +194,6 @@ class TABMparCon : public TAGpara {
     TF1 *m_myFunSpl;
     vector <TF1*> m_myVFunSpl;
     TH1D *my_hreso;
-    TF1 TimeReso;
   
 };
 

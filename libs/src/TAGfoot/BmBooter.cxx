@@ -686,15 +686,17 @@ void BmBooter::PrintResDist(){
   histo1d=new TH1D( "resolution_time_old", "Resolution evaluation; Time [ns];Spatial Resolution[#mum]", bmcon->GetResnbin(), 0., bmcon->GetHitTimecut());
   histo1d=new TH1D( "resolution_time_new", "Resolution evaluation; Time [ns];Spatial Resolution[#mum]", bmcon->GetResnbin(), 0., bmcon->GetHitTimecut());
   vector<Double_t> streleachbin(3,0);
+  Double_t meantimeresolution=0.;
   for(Int_t i=0;i<bmcon->GetResnbin();i++){
     ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_old")))->SetBinContent(i+1,bmcon->ResoEvalTime(((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_old")))->GetBinCenter(i+1)));    
     sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",i);      
     //~ ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution")))->SetBinContent(i+1,((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetStdDev()*10000);    
     ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "Q+");
-    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_dist")))->SetBinContent(i+1,fb->GetParameter(2)*10000);    
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_dist")))->SetBinContent(i+1,fb->GetParameter(2)*10000.);    
     sprintf(tmp_char,"BM_output/ResxTime/hitres_x_time_%d",i);      
     ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "Q+");
-    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_new")))->SetBinContent(i+1,fb->GetParameter(2)*10000);    
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_new")))->SetBinContent(i+1,fb->GetParameter(2)*10000.); 
+    meantimeresolution+=fb->GetParameter(2)*10000;   
     streleachbin.at(0)=fb->GetParameter(1);
     streleachbin.at(1)=fb->GetParameter(2);
     streleachbin.at(2)=((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetEntries();
@@ -703,6 +705,7 @@ void BmBooter::PrintResDist(){
   TF1 tfpoly("tfpoly","pol10", 0.,bmcon->GetHitTimecut());
   ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_new")))->Fit("tfpoly", "Q+");
   bmcon->SetTimeReso(tfpoly);
+  bmcon->SetMeanTimeReso(meantimeresolution/bmcon->GetResnbin());
     
 return;
 }
@@ -1995,12 +1998,14 @@ Bool_t BmBooter::autocalibstrel_readfile(){
         infile>>tmp_double;
         resoin.at(i)=tmp_double;
       }
+      infile>>tmp_char>>tmp_double;
+      bmcon->SetMeanTimeReso(tmp_double);
     }
-  infile.close();
-  TF1 readrespoly("readrespoly","pol10", 0.,bmcon->GetHitTimecut());
-  for(Int_t i=0;i<resoin.size();i++)
-    readrespoly.SetParameter(i,resoin.at(i));
-  bmcon->SetTimeReso(readrespoly);  
+    infile.close();
+    TF1 readrespoly("readrespoly","pol10", 0.,bmcon->GetHitTimecut());
+    for(Int_t i=0;i<resoin.size();i++)
+      readrespoly.SetParameter(i,resoin.at(i));
+    bmcon->SetTimeReso(readrespoly);  
   }else
     cout<<"BmBooter::autocalibstrel_readfile::FIRST ITERATION, file does not exist yet"<<endl;
   
@@ -2035,6 +2040,7 @@ void BmBooter::autocalibstrel_writefile(){
       outfile<<"  0  ";
   }
   outfile<<endl;
+  outfile<<"Mean_time_reso_value= "<<bmcon->GetMeanTimeReso()<<endl;
   outfile.close(); 
 return;
 }
