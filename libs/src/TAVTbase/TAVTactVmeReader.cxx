@@ -106,7 +106,6 @@ Bool_t TAVTactVmeReader::Process()
       if (GetSensorHeader(i)) {
          neof |= true;
          ResetFrames();
-         //printf("\nsensor %d\n", i);
       
          // loop over frame (3 max)
          while (GetFrame(i, data)) {
@@ -116,12 +115,6 @@ Bool_t TAVTactVmeReader::Process()
          SetBit(kEof);
          SetBitAllDataOut(kEof);
       }
-      
-      if (i == 1) {
-         fPrevEventNumber   = fEventNumber;
-         fPrevTriggerNumber = fTriggerNumber;
-         fPrevTimeStamp     = fTimeStamp;
-      }
    }
 
    delete data;
@@ -129,6 +122,9 @@ Bool_t TAVTactVmeReader::Process()
    SetBit(kValid);
    fpNtuRaw->SetBit(kValid);
 
+   fPrevEventNumber   = fEventNumber;
+   fPrevTriggerNumber = fTriggerNumber;
+   fPrevTimeStamp     = fTimeStamp;
    
    if (neof)
       return true;

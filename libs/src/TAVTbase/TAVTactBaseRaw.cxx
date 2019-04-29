@@ -92,24 +92,24 @@ void TAVTactBaseRaw::CreateHistogram()
 		 AddHistogram(fpHisPixelMap[i]);
 	  }
       
-	  fpHisRateMap[i] = new TH1F(Form("vtRateMap%d", i+1), Form("Vertex - rate per line for sensor %d", i+1), 
-								 pGeoMap->GetNPixelX(), 0, pGeoMap->GetNPixelX());
-	  AddHistogram(fpHisRateMap[i]);
-
-	  fpHisRateMapQ[i] = new TH1F(Form("vtRateMapQ%d", i+1), Form("Vertex - rate per quadrant for sensor %d", i+1), 10, 0, 5);
-	  AddHistogram(fpHisRateMapQ[i]);
+      fpHisRateMap[i] = new TH1F(Form("vtRateMap%d", i+1), Form("Vertex - rate per line for sensor %d", i+1),
+                                 pGeoMap->GetNPixelX(), 0, pGeoMap->GetNPixelX());
+      AddHistogram(fpHisRateMap[i]);
+      
+      fpHisRateMapQ[i] = new TH1F(Form("vtRateMapQ%d", i+1), Form("Vertex - rate per quadrant for sensor %d", i+1), 10, 0, 5);
+      AddHistogram(fpHisRateMapQ[i]);
 	  
-	  fpHisEvtLength[i] = new TH1F(Form("vtEvtLength%d", i+1), Form("Vertex - event length sensor %d", i+1), 1000, 0, 1000);
-	  AddHistogram(fpHisEvtLength[i]);
+      fpHisEvtLength[i] = new TH1F(Form("vtEvtLength%d", i+1), Form("Vertex - event length sensor %d", i+1), 1000, 0, 1000);
+      AddHistogram(fpHisEvtLength[i]);
       
-     fpHisTriggerEvt[i] = new TH1F(Form("vtTriggerEvt%d", i+1), Form("Vertex - Trigger difference in event sensor %d", i+1),  20, -9.5, 10.5);
-     AddHistogram(fpHisTriggerEvt[i]);
+      fpHisTriggerEvt[i] = new TH1F(Form("vtTriggerEvt%d", i+1), Form("Vertex - Trigger difference in event sensor %d vs sensor 1", i+1),  40, -19.5, 20.5);
+      AddHistogram(fpHisTriggerEvt[i]);
       
-     fpHisEvtNumber[i] = new TH1F(Form("vtNumberEvt%d", i+1), Form("Vertex -  Event number difference per event sensor %d", i+1), 20, -9.5, 10.5);
-     AddHistogram(fpHisEvtNumber[i]);
+      fpHisEvtNumber[i] = new TH1F(Form("vtNumberEvt%d", i+1), Form("Vertex -  Event number difference per event sensor %d", i+1), 40, -19.5, 20.5);
+      AddHistogram(fpHisEvtNumber[i]);
       
-     fpHisTimeStampEvt[i] = new TH1F(Form("vtTimeStampEvt%d", i+1), Form("Vertex -  Time stamp difference per event sensor %d", i+1), 1000, -200, 200);
-     AddHistogram(fpHisTimeStampEvt[i]);
+      fpHisTimeStampEvt[i] = new TH1F(Form("vtTimeStampEvt%d", i+1), Form("Vertex -  Time stamp difference per event sensor %d", i+1), 1000, -200, 200);
+      AddHistogram(fpHisTimeStampEvt[i]);
   
       fpHisTriggerFrame[i] = new TH1F(Form("vtTriggerFrame%d", i+1), Form("Vertex - Trigger difference in sensor %d", i+1),  20, -9.5, 10.5);
       AddHistogram(fpHisTriggerFrame[i]);
