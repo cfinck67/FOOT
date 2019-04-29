@@ -158,7 +158,9 @@ Bool_t TAVTactVmeReader::GetSensorHeader(Int_t iSensor)
          // trigger
          fRawFileAscii[iSensor] >> tmp;
          sscanf(tmp, "%x", &fTriggerNumber);
-
+         if(fDebugLevel>3)
+            printf("sensor %d: %d %d\n", iSensor, fTriggerNumber, fEventNumber);
+         
          // fake time stamp
          fRawFileAscii[iSensor] >> tmp;
          
@@ -180,26 +182,32 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
    // check frame header
    fRawFileAscii[iSensor] >> tmp;
    TString line = tmp;
-   TString key  = Form("%x", GetFrameHeader()); // protection against wrong header !!!
+   TString key  = Form("%x", GetFrameHeader());
 
    if (line.Contains(key)) {
       TString key1  = Form("%x", GetFrameHeader() );
       sscanf(key1.Data(), "%x", &fData[fIndex++]);
       
-      for (UInt_t i = 0; i < 4; ++i) {
+      // go to frame trailer
+      do {
          fRawFileAscii[iSensor] >> tmp;
+         TString line = tmp;
+         TString key1  = Form("%x", (GetFrameTail() & 0xFFFF));
+         TString key2  = Form("%x", (GetFrameTail() & 0xFFFF0000) >> 16);
+         
+         TString key3  = Form("%x", GetKeyTail(iSensor));
+         if (line.Contains(key3)) {
+            Int_t pos =  (int) fRawFileAscii[iSensor].tellg();
+            fRawFileAscii[iSensor].seekg(pos-1);
+            break;
+         }
+         
          sscanf(tmp, "%x", &fData[fIndex++]);
-      }
-      
-      UInt_t dataLength1  =  ((fData[fIndex-1] & 0xFFFF0000)>>16);
-      UInt_t dataLength  =  ((fData[fIndex-1] & 0xFFFF));
-      
-      dataLength = min(dataLength, dataLength1);
-      
-      for (UInt_t i = 0; i < dataLength; ++i) {
-         fRawFileAscii[iSensor] >> tmp;
-         sscanf(tmp, "%x", &fData[fIndex++]);
-      }
+         if (line.Contains(key1) || line.Contains(key2))
+            break;
+         
+      } while (!fRawFileAscii[iSensor].eof());
+
       
       memcpy(data, &fData[0], sizeof(MI26_FrameRaw));
       FillHistoFrame(iSensor, data);
@@ -208,23 +216,15 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
       return false;;
    }
    
-   // go to frame trailer
-   do {
-      fRawFileAscii[iSensor] >> tmp;
-      TString line = tmp;
-      TString key1  = Form("%x", (GetFrameTail() & 0xFFFF));
-      TString key2  = Form("%x", (GetFrameTail() & 0xFFFF0000) >> 16);
-      sscanf(tmp, "%x", &fData[fIndex++]);
-      if (line.Contains(key1) || line.Contains(key2))
-         break;
-
-   } while (!fRawFileAscii[iSensor].eof());
    
    fEventSize = fIndex;
-   
-   if(fDebugLevel>3)
+   if(fDebugLevel > 3) {
+      if (fTriggerNumber == 2030 || fTriggerNumber == 2032) {
       for (Int_t i = 0; i < fEventSize; ++i)
          printf("Data %08x\n", fData[i]);
+         printf("\n");
+      }
+   }
 
    return true;;
    

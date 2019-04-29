@@ -211,7 +211,10 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
    TAVTparMap*  pParMap = (TAVTparMap*) fpParMap->Object();
    
    Int_t dataLength    = ((frame->DataLength & 0xFFFF0000)>>16);
-   if (dataLength > 1140) return false;
+   if (dataLength > MI26__FFRAME_RAW_MAX_W16) return false;
+   
+   Int_t eventSize = fEventSize*2;
+   
    
    UShort_t *frameData = (UShort_t*)frame->ADataW16;
    dataLength         *= 2; // go to short
@@ -232,6 +235,9 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
    
    Int_t index = 0;
    while( index < dataLength) { // Loop over usefull data
+      
+      if (index > eventSize) return false;
+      
       // first 16 bits word is the Status/Line
       lineStatus = (MI26__TStatesLine*)frameData;
       
