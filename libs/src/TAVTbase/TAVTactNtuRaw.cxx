@@ -136,6 +136,9 @@ Bool_t TAVTactNtuRaw::GetSensorHeader(Int_t iSensor)
          fTriggerNumber = fData[++fIndex];
          fTimeStamp     = fData[++fIndex];
          
+         if(fDebugLevel>3)
+            printf("sensor %d: %d %d\n", iSensor, fTriggerNumber, fEventNumber);
+         
          FillHistoEvt(iSensor);
 
          return true;
@@ -150,7 +153,7 @@ Bool_t TAVTactNtuRaw::GetSensorHeader(Int_t iSensor)
 Bool_t TAVTactNtuRaw::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
 {
    // check frame header
-   if ((fData[++fIndex] & 0xFFF) ==  (GetFrameHeader() & 0xFFF)) { // protection against wrong header !!!
+   if (fData[++fIndex] ==  GetFrameHeader()) {
       memcpy(data, &fData[fIndex], sizeof(MI26_FrameRaw));
       FillHistoFrame(iSensor, data);
       
@@ -159,10 +162,16 @@ Bool_t TAVTactNtuRaw::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
  
    // go to frame trailer
    do {
-      if ((fData[fIndex] & 0xFFF) == (GetFrameTail() & 0xFFF)) {
+      if (((fData[fIndex] & 0xFFF) == (GetFrameTail() & 0xFFF)) || ((fData[fIndex] >> 16 & 0xFFF) == (GetFrameTail() >>16  & 0xFFF)) ) {
          data->Trailer = fData[fIndex];
          break;
       }
+      
+      if (fData[fIndex] == GetKeyTail(iSensor)) {
+         fIndex--;
+         break;
+      }
+      
    } while (fIndex++ < fEventSize);
    
    if (fDebugLevel > 3) {
