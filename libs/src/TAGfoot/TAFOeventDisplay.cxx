@@ -143,7 +143,6 @@ void TAFOeventDisplay::SetLocalReco()
 {
    if (fType != 0) return;
    
-   printf("titi\n\n");
    // local reco
    fLocalReco = new LocalReco();
    
