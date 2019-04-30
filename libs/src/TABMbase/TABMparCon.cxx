@@ -543,7 +543,7 @@ Double_t TABMparCon::FirstSTrel(Double_t tdrift){
   }else if(strel_switch==1){ //garfield strel
     rdrift=0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
   }else if(strel_switch==2){//
-    rdrift= 0.00972903*tdrift-8.21676e-05*tdrift*tdrift+3.66446e-07*tdrift*tdrift*tdrift-5.85882e-10*tdrift*tdrift*tdrift*tdrift;  
+    rdrift= 0.190889 + (0.00384639*tdrift) + (-1.27256e-05*tdrift*tdrift) + (-5.32281e-09*tdrift*tdrift*tdrift) + (1.99638e-10*tdrift*tdrift*tdrift*tdrift) + (-3.49034e-13*tdrift*tdrift*tdrift*tdrift*tdrift);  
   }else if(strel_switch==3){//
     rdrift= 0.0087776*tdrift-6.41845e-05*tdrift*tdrift+2.4946e-07*tdrift*tdrift*tdrift-3.48422e-10*tdrift*tdrift*tdrift*tdrift;  
   }else if(strel_switch==4){//HIT 2014
@@ -627,7 +627,7 @@ Double_t TABMparCon::ResoEvalDist(Double_t dist) {
   Int_t mybin(-1);
   if(my_hreso) {
     mybin = my_hreso->FindBin(dist);
-    sigma = my_hreso->GetBinContent(mybin)/10000;
+    sigma = my_hreso->GetBinContent(mybin)/10000.;
   }
   return sigma>0 ? sigma:0.12;
   

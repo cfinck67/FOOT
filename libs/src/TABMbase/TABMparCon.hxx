@@ -119,7 +119,7 @@ class TABMparCon : public TAGpara {
     void SetTimeReso(TF1 tfin){TimeReso=tfin;return;};
     void SetMeanTimeReso(Double_t timein){meantimereso=timein;return;};
     Double_t GetMeanTimeReso(){return meantimereso;};
-    Double_t ResoEvalTime(Double_t tin){return TimeReso.Eval(tin);};
+    Double_t ResoEvalTime(Double_t tin){return TimeReso.Eval(tin)/10000.;};
     Int_t GetTimeResoNumPar(){return TimeReso.GetNpar();};
     Double_t GetTimeResoPar(Int_t parnum){return TimeReso.GetParameter(parnum);};
       

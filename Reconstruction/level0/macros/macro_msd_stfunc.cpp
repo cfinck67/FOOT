@@ -20,6 +20,7 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
     h = new TH1D("vtx_azimuth_angle","vtx azimuth angle distribution ;Phi(deg);Events",180,0.,180.);
     h2 = new TH2D("vtx_isoplane_vtxsys","VTX tracks projection on ISO plane in VTX sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
     h2 = new TH2D("vtx_isoplane_isosys","VTX tracks projection on ISO plane in ISO sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
+    h2 = new TH2D("vtx_isoplane_bmsys","VTX tracks projection on ISO plane in BM sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
     
     if(onlyVTX){
       f_out->cd("..");
@@ -45,6 +46,8 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
     h = new TH1D("track_iso_diff_total","Difference for bm tracks and vtx tracks on isocenter plane;diff[cm];Events",500,0.,5.);
     h = new TH1D("track_iso_diff_x","Difference for bm tracks and vtx tracks on isocenter plane;x diff[cm];Events",500,-5.,5.);
     h = new TH1D("track_iso_diff_y","Difference for bm tracks and vtx tracks on isocenter plane;y diff[cm];Events",500,-5.,5.);
+    h2 = new TH2D("comb_bmisoproISO","Combined BM tracks on isocenter projections in ISO sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
+    h2 = new TH2D("comb_vtxisoproISO","Combined MSD tracks on isocenter projections in ISO sys;X[cm];Y[cm]",600,-3.,3., 600, -3., 3);
   }    
   
   //combined stuff also for merging
@@ -60,10 +63,12 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
   h2 = new TH2D("pvers_my_bmvtx","pvers my angle for bm and vertex for selected tracks;BM Pvers mx;vtx Pverse my ",500,-0.05,0.05,500,-0.05,0.05);
   h2 = new TH2D("r0x_bmvtx","R0x for bm and vtx tracks correlation;BM r0x;vtx r0x",600,-3.,3.,600,-3.,3.);
   h2 = new TH2D("r0y_bmvtx","R0y for bm and vtx tracks correlation;BM r0y;vtx r0y",600,-3.,3.,600,-3.,3.);
-  h = new TH1D("pvers_angle_diff","angle difference bm_track - vtx_track ;Angle(bm_track-vtx_track);Events",2000,-0.1,0.1);
+  h = new TH1D("pvers_angle_diff","angle difference bm_track - vtx_track ;Angle(bm_track-vtx_track);Events",2000,0.,0.2);
   h = new TH1D("space_residual_numev","number of events for each bin in strel residual graph;bin;events",STBIN,0.,STBIN);
   h = new TH1D("space_residual_total","total space residual;x[cm];events",200,-1.,1.);
   h = new TH1D("time_residual_total","total time residual;x[cm];events",200,-1.,1.);
+  h = new TH1D("chi2_msd_combined","chi2 of the msd combined tracks;chi2;events",100,0.,20.);
+  h = new TH1D("chi2_bm_combined","chi2 of the BM combined tracks;chi2;events",100,0.,20.);
   
   h2 = new TH2D("old_strel_data","old FIRST strel from data ;time;rdrift",400,0.,400.,1000, 0., 1.);
   h2 = new TH2D("new_strel_rdrift","new strel ;time;rdrift",300,0.,400., 1000, 0., 1.);
@@ -103,7 +108,7 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
     cout<<"I'm in Printoutput:: allbmeventin.size():"<<allbmeventin.size()<<"  allvtxeventin.size()="<<allvtxeventin.size()<<endl;
     
   f_out->cd();
-  TVector3 tmp_tvector3;
+  TVector3 tmp_tvector3, tmp2_tvector3;
   char tmp_char[200];
   double tmp_double;
 
@@ -130,8 +135,10 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
     ((TH1D*)gDirectory->Get("vtx_polar_angle"))->Fill(allvtxeventin.at(i).vtx_track_pvers.Theta()*RAD2DEG);
     ((TH1D*)gDirectory->Get("vtx_azimuth_angle"))->Fill(allvtxeventin.at(i).vtx_track_pvers.Phi()*RAD2DEG);
     ((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys"))->Fill(allvtxeventin.at(i).vtx_track_r0pos.X(), allvtxeventin.at(i).vtx_track_r0pos.Y());
-    tmp_tvector3=ExtrapolateZ(allvtxeventin.at(i).vtx_track_pvers, allvtxeventin.at(i).vtx_track_r0pos, -VTXISOZ, true, true);
-    ((TH2D*)gDirectory->Get("vtx_isoplane_isosys"))->Fill(allvtxeventin.at(i).vtx_track_r0pos.X(),allvtxeventin.at(i).vtx_track_r0pos.y());
+    tmp_tvector3=ExtrapolateZ(allvtxeventin.at(i).vtx_track_pvers, allvtxeventin.at(i).vtx_track_r0pos, -VTXISOZ, true, false);
+    ((TH2D*)gDirectory->Get("vtx_isoplane_isosys"))->Fill(tmp_tvector3.X(),tmp_tvector3.Y());
+    vtxpversr02global(allvtxeventin.at(i).vtx_track_pvers,allvtxeventin.at(i).vtx_track_r0pos, tmp_tvector3, tmp2_tvector3);
+    ((TH2D*)gDirectory->Get("vtx_isoplane_bmsys"))->Fill(tmp2_tvector3.X(),tmp2_tvector3.Y());
   }
   
   if(debug)
@@ -179,32 +186,27 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
   for(int i=0;i<selected_index.size();i++){
     //~ cout<<"i="<<i<<"  selected_index.size()="<<selected_index.size()<<"  selected_index.at(i).size()="<<selected_index.at(i).size()<<"  selected_index.at(i).at(2)="<<selected_index.at(i).at(2)<<endl;
     if(selected_index.at(i).at(2)==0){//both bm and vtx track
-      //~ cout<<"provo a fillare questo:"<<allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()<<"    e questo:    "<<allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.X()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z()<<"  in pvers_mx_bmvtx"<<endl;
       ((TH2D*)gDirectory->Get("pvers_mx_bmvtx"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z(), allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.X()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z());        
-      //~ cout<<"provo a filalre:"<<allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Y()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()<<" e questo:"<<allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Y()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z()<<"  in pvers_my_bmvtx"<<endl;
       ((TH2D*)gDirectory->Get("pvers_my_bmvtx"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Y()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z(), allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Y()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z());   
-      //~ cout<<"provo a fillare:"<<allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.X()<<"   fe questo:"<<allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.X()<<"  in r0x_bmvtx"<<endl;     
       ((TH2D*)gDirectory->Get("r0x_bmvtx"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.X(), allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.X());        
-      //~ cout<<"provo a fillare:"<<allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.Y()<<"   fe questo:"<<allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.Y()<<"  in r0y_bmvtx"<<endl;           
       ((TH2D*)gDirectory->Get("r0y_bmvtx"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.Y(), allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.Y());        
-      //~ cout<<"provo a fillare:"<<(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) - (allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.X()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z())<<"   qua "<<allbmeventin.at(selected_index.at(i).at(0)).evnum*1000./allbmeventin.size() <<"  in pvers_diff_vs_xevent_mx"<<endl;           
       ((TH1D*)gDirectory->Get("pvers_diff_vs_xevent_mx"))->AddBinContent((int)(allbmeventin.at(selected_index.at(i).at(0)).evnum*1000./allbmeventin.back().evnum) , (allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) - (allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.X()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z()));        
-      //~ cout<<"provo a fillare:"<<(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Y()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) - (allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Y()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z())<<"  qua"<<allbmeventin.at(selected_index.at(i).at(0)).evnum*1000./allbmeventin.size()<<"  pvers_diff_vs_xevent_my"<<endl;           
       ((TH1D*)gDirectory->Get("pvers_diff_vs_xevent_my"))->AddBinContent((int)(allbmeventin.at(selected_index.at(i).at(0)).evnum*1000./allbmeventin.back().evnum) , (allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Y()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) - (allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Y()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z()));
-      //~ cout<<"provo a fillare:"<<allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.X() - allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.X()<<"  qua:"<<allbmeventin.at(selected_index.at(i).at(0)).evnum*1000./allbmeventin.size() <<"  r0x_diff_vs_xevent"<<endl;          
       ((TH1D*)gDirectory->Get("r0x_diff_vs_xevent"))->AddBinContent((int)(allbmeventin.at(selected_index.at(i).at(0)).evnum*1000./allbmeventin.back().evnum) , allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.X() - allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.X());        
-      //~ cout<<"provo a fillare:"<<allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.Y() - allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.Y()<<"  qua:"<<allbmeventin.at(selected_index.at(i).at(0)).evnum*1000./allbmeventin.size()<<"  r0y_diff_vs_xevent"<<endl;           
       ((TH1D*)gDirectory->Get("r0y_diff_vs_xevent"))->AddBinContent((int)(allbmeventin.at(selected_index.at(i).at(0)).evnum*1000./allbmeventin.back().evnum) , allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.Y() - allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.Y());        
-      //~ cout<<"provo a fillare:"<<allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Angle(allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers)<<"  pvers_angle_diff"<<endl;           
       ((TH1D*)gDirectory->Get("pvers_angle_diff"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Angle(allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers));        
+      ((TH1D*)gDirectory->Get("chi2_msd_combined"))->Fill(allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_chi2tot);        
+      ((TH1D*)gDirectory->Get("chi2_bm_combined"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_chi2);        
       bmproject=ExtrapolateZ(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers, allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos, -BMISOZ,true, true);
       vtxproject=ExtrapolateZ(allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers, allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos, -VTXISOZ,true, false);
       if(bmproject.Z()!=vtxproject.Z())
         cout<<"ERROR on bm/msd iso projection::bmproject.Z()="<<bmproject.Z()<<"   vtxproject.Z()="<<vtxproject.Z()<<endl;
       else{
-        ((TH1D*)gDirectory->Get("track_iso_diff_y"))->Fill((bmproject-vtxproject).X());    
-        ((TH1D*)gDirectory->Get("track_iso_diff_x"))->Fill((bmproject-vtxproject).Y());    
+        ((TH1D*)gDirectory->Get("track_iso_diff_y"))->Fill((bmproject-vtxproject).Y());    
+        ((TH1D*)gDirectory->Get("track_iso_diff_x"))->Fill((bmproject-vtxproject).X());    
         ((TH1D*)gDirectory->Get("track_iso_diff_total"))->Fill((bmproject-vtxproject).Mag());
+        ((TH2D*)gDirectory->Get("comb_bmisoproISO"))->Fill(bmproject.X(), bmproject.Y());
+        ((TH2D*)gDirectory->Get("comb_vtxisoproISO"))->Fill(vtxproject.X(), vtxproject.Y());
       }    
     }
   }
@@ -220,6 +222,7 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
   fitStrel(f_out, 0,first_strel_tf1_1, first_strel_tf1_08, garfield_strel_tf1);
 
   if(((TH2D*)gDirectory->Get("r0x_bmvtx"))->GetCorrelationFactor()>CORRMINIMUM || ((TH2D*)gDirectory->Get("r0y_bmvtx"))->GetCorrelationFactor()>CORRMINIMUM){
+    
     //try to estimate the new strel with space_residual
     for(int i=0; i<STBIN;i++){
       ((TH1D*)gDirectory->Get("space_residual_numev"))->AddBinContent(i+1,space_residual.at(i).size());
@@ -277,8 +280,6 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
     
     if(debug)
       cout<<"I'm in Printoutput:: estimate of the strel with the time residual finished, Printout finished"<<endl;  
-  
-  
   
   }else
     cout<<endl<<"Printoutput: THE DATA ARE NOT CORRELATED ENOUGH, the program will be finished"<<endl<<endl;
@@ -356,31 +357,34 @@ void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<
   double residual;
   TVector3 pversout, r0posout;
   for(int i=0;i<bmevent.hitnum;i++){
-    binpos=(int)(bmevent.bm_hit_rdrift[i]*STBIN);
-    timepos=(int)(bmevent.bm_hit_time[i]*STBIN/300.);
-    if(binpos>STBIN-1) 
-      binpos=STBIN;
-    if(timepos>STBIN-1) 
-      timepos=STBIN;
-    vtxpversr02global(vtxevent.vtx_track_pvers, vtxevent.vtx_track_r0pos,  pversout, r0posout);    
-    residual=FindRdrift(pversout, r0posout, wire_pos.at(bmevent.bm_hit_cellid[i]), wire_dir.at(bmevent.bm_hit_cellid[i]))-bmevent.bm_hit_rdrift[i];
-    if(debug>2)
-      cout<<"residual="<<residual<<"  original_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  fitted_rdrift="<<FindRdrift(pversout, r0posout, wire_pos.at(bmevent.bm_hit_cellid[i]), wire_dir.at(bmevent.bm_hit_cellid[i]))<<endl;
-    //~ if(fabs(residual)<0.8 && binpos!=STBIN){
-    if(binpos!=STBIN){
-      space_residual.at(binpos).push_back(residual);
-    }else{
-      if(debug>0)
-        cout<<"possible ERROR in EvaluateSpaceResidual space_residual??? residual="<<residual<<"  hit_id="<<bmevent.bm_hit_cellid[i]<<"  hit_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  hit time="<<bmevent.bm_hit_time[i]<<endl;
-      space_residual.at(STBIN).push_back(bmevent.bm_hit_rdrift[i]);
-    }  
-    if(timepos!=STBIN){
-      time_residual.at(timepos).push_back(residual);
-    }else{
-      if(debug>0)
-        cout<<"possible ERROR in EvaluateSpaceResidual time_residual??? residual="<<residual<<"  hit_id="<<bmevent.bm_hit_cellid[i]<<"  hit_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  hit time="<<bmevent.bm_hit_time[i]<<endl;
-      time_residual.at(STBIN).push_back(bmevent.bm_hit_time[i]);
-    }  
+    if(CellId2view(bmevent.bm_hit_cellid[i])==1){  //METTO TAGLIO SOLO SU X!!!! PROVVISORIO PER VEDERE SE MIGLIORA LE COSE
+      binpos=(int)(bmevent.bm_hit_rdrift[i]*STBIN);
+      timepos=(int)(bmevent.bm_hit_time[i]*STBIN/300.);
+      if(binpos>STBIN-1) 
+        binpos=STBIN;
+      if(timepos>STBIN-1) 
+        timepos=STBIN;
+      vtxpversr02global(vtxevent.vtx_track_pvers, vtxevent.vtx_track_r0pos,  pversout, r0posout);    
+      residual=FindRdrift(pversout, r0posout, wire_pos.at(bmevent.bm_hit_cellid[i]), wire_dir.at(bmevent.bm_hit_cellid[i]))-bmevent.bm_hit_rdrift[i];
+      if(debug>2)
+        cout<<"residual="<<residual<<"  original_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  fitted_rdrift="<<FindRdrift(pversout, r0posout, wire_pos.at(bmevent.bm_hit_cellid[i]), wire_dir.at(bmevent.bm_hit_cellid[i]))<<endl;
+      //~ if(fabs(residual)<0.8 && binpos!=STBIN){
+      if(binpos!=STBIN){
+        space_residual.at(binpos).push_back(residual);
+      }else{
+        if(debug>0)
+          cout<<"possible ERROR in EvaluateSpaceResidual space_residual??? residual="<<residual<<"  hit_id="<<bmevent.bm_hit_cellid[i]<<"  hit_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  hit time="<<bmevent.bm_hit_time[i]<<endl;
+        space_residual.at(STBIN).push_back(bmevent.bm_hit_rdrift[i]);
+      }  
+      if(timepos!=STBIN){
+        time_residual.at(timepos).push_back(residual);
+      }else{
+        if(debug>0)
+          cout<<"possible ERROR in EvaluateSpaceResidual time_residual??? residual="<<residual<<"  hit_id="<<bmevent.bm_hit_cellid[i]<<"  hit_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  hit time="<<bmevent.bm_hit_time[i]<<endl;
+        time_residual.at(STBIN).push_back(bmevent.bm_hit_time[i]);
+      }  
+    
+    }
   }
   
   if(debug>2)
@@ -413,21 +417,20 @@ TVector3 ExtrapolateZ(TVector3 pvers, TVector3 r0pos, double proposz, bool globa
   return projection;
 }
 
-//to set the pvers and r0 from vtx to global coordinate
+//to set the pvers and r0 from vtx to bm coordinate
 void vtxpversr02global(const TVector3 vtxpvers, const TVector3 vtxr0pos, TVector3 &pversout, TVector3 &r0posout ){
-  TVector3 VTXshift(VTXISOX, VTXISOY, 0.);
+  TVector3 VTXshift(vtxr0pos.X()+VTXISOX, vtxr0pos.Y()+VTXISOY, 0.);
   double proposz=BMISOZ-VTXISOZ;
   pversout=vtxpvers;
-  r0posout=vtxr0pos+VTXshift;
   pversout.RotateX((BMISOYZANGLE-VTXYZANGLE)*DEG2RAD);
   pversout.RotateY((BMISOXZANGLE-VTXXZANGLE)*DEG2RAD);    
-  r0posout.SetXYZ(pversout.X()/pversout.Z()*proposz+r0posout.X(),  pversout.Y()/pversout.Z()*proposz+r0posout.Y(), proposz);
+  r0posout.SetXYZ(pversout.X()/pversout.Z()*proposz+VTXshift.X(),  pversout.Y()/pversout.Z()*proposz+VTXshift.Y(), proposz);
   return;
 }
 
 //estimate allign with projections on mylars 
 //da sistemare!!!!
-void Allign_estimate(){
+void Allign_estimate(TString bmin_filename, TString vtxin_filename,TString out_filename){
 
   if(debug>0)
     cout<<"I'm in Allign_estimate"<<endl;  
@@ -440,15 +443,26 @@ void Allign_estimate(){
   Double_t BMytra=-(((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetMean(2)+((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetMean(2))/2.;
   Double_t BMytr_err=sqrt(pow(((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetMean(2)/sqrt(((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetEntries()),2.)  +  pow(((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetMean(2)/sqrt(((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetEntries()),2.));  
     
+  //MSD par  
+  Double_t MSDxtra=-((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys"))->GetMean(1);  
+  Double_t MSDytra=-((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys"))->GetMean(2);  
+    
   cout<<"Beam Monitor allignment parameters:"<<endl;
   cout<<"estimated rotation around X axis= "<<BMxrot<<endl;
   cout<<"estimated rotation around Y axis= "<<BMyrot<<endl;
   cout<<"estimated translation in X="<<BMxtra<<"   +-   "<<BMxtr_err<<endl;
   cout<<"estimated translation in Y="<<BMytra<<"   +-   "<<BMytr_err<<endl<<endl;
+  
+  cout<<"MSD allignment parameters:"<<endl;
+  cout<<"estimated translation in X="<<MSDxtra<<"    estimated translation in Y="<<MSDytra<<endl;
       
-  TString tmp_str("BM allign par: xrot="); tmp_str+= BMxrot; tmp_str+="  yrot="; tmp_str+=BMyrot;
+  TString tmp_str("BM_infile="); tmp_str+=bmin_filename;
+  tmp_str+="    MSD_infile=";tmp_str+=vtxin_filename;    
+  tmp_str+="    OUTfile=";tmp_str+=out_filename;    
+  tmp_str+="    BM allign par: xrot="; tmp_str+= BMxrot; tmp_str+="  yrot="; tmp_str+=BMyrot;
   tmp_str+="  x_tra="; tmp_str+=BMxtra; tmp_str+=" +- ";  tmp_str+=BMxtr_err;
   tmp_str+="  y_tra="; tmp_str+=BMytra; tmp_str+=" +- ";  tmp_str+=BMytr_err;
+  tmp_str+="    MSD_xtra=";tmp_str+=MSDxtra; tmp_str+="   MSD_ytra="; tmp_str+=MSDytra;
   TNamed n("BM_MSD_allign_par",tmp_str.Data());
   n.Write();
   
@@ -547,7 +561,7 @@ void merge_graphics(TFile* infile, TFile* f_out){
 
 
 //*************************************************** MSD STUFF  ***************************************** 
-bool msdreadevent(vtx_evstruct &vtxevent, TTreeReader &msdReader, TTreeReaderValue<int> &evnumMSDreader, TTreeReaderValue<double> &trackchi2MSDreader, TTreeReaderValue<double> &thetaMSDreader,   TTreeReaderValue<double> &thetaerrMSDreader, TTreeReaderValue<double> &phiMSDreader,   TTreeReaderValue<double> &phierrMSDreader,   TTreeReaderValue<double> &r0xMSDreader,   TTreeReaderValue<double> &r0xerrMSDreader,   TTreeReaderValue<double> &r0yMSDreader,   TTreeReaderValue<double> &r0yerrMSDreader,   TTreeReaderValue<double> &r0zMSDreader,  TTreeReaderValue<double> &r0zerrMSDreader){
+bool msdreadevent(vtx_evstruct &vtxevent, TTreeReader &msdReader, TTreeReaderValue<double> &trackchi2MSDreader, TTreeReaderValue<double> &thetaMSDreader, TTreeReaderValue<double> &phiMSDreader,   TTreeReaderValue<double> &r0xMSDreader,   TTreeReaderValue<double> &r0yMSDreader){
   
   if(debug)
     cout<<"I'm in MSDreadevent"<<endl;
@@ -556,9 +570,9 @@ bool msdreadevent(vtx_evstruct &vtxevent, TTreeReader &msdReader, TTreeReaderVal
   msdReader.Next(); 
    
   if(debug)
-    cout<<"msdreadevent::  old evnum="<<vtxevent.evnum<<",  new evnum="<<*evnumMSDreader<<endl;  
+    cout<<"msdreadevent::  old evnum="<<vtxevent.evnum<<",  new evnum="<<msdReader.GetCurrentEntry()<<endl;  
    
-  vtxevent.evnum=*evnumMSDreader;
+  vtxevent.evnum=msdReader.GetCurrentEntry();
   //~ vtxevent.timeacq=*timeacqMSDreader;
   vtxevent.tracknum=1;
   vtxevent.vtx_track_chi2tot=*trackchi2MSDreader;
@@ -568,9 +582,14 @@ bool msdreadevent(vtx_evstruct &vtxevent, TTreeReader &msdReader, TTreeReaderVal
   vtxevent.vtx_track_pvers.SetXYZ(0.,0.,1.);
   vtxevent.vtx_track_pvers.SetTheta(*thetaMSDreader);
   vtxevent.vtx_track_pvers.SetPhi(*phiMSDreader);
+  vtxevent.vtx_track_pvers.SetX(-1.*vtxevent.vtx_track_pvers.X());
+  vtxevent.vtx_track_pvers.SetY(-1.*vtxevent.vtx_track_pvers.Y());
 
-  vtxevent.vtx_track_r0pos.SetXYZ(*r0xMSDreader,*r0yMSDreader,VTXR0Z);
-  
+  vtxevent.vtx_track_r0pos.SetXYZ(-*r0xMSDreader/10.,-*r0yMSDreader/10.,VTXR0Z);
+  if(vtxevent.tracknum!=-999 && vtxevent.vtx_track_chi2tot!=-999 && *thetaMSDreader!=-999 && *phiMSDreader!=-999 && *r0xMSDreader!=-999 && *r0yMSDreader!=-999)
+    vtxevent.status=1;
+  else
+    vtxevent.status=-1;
   
   if(debug)
     cout<<"msdreadevent finished, current event="<<msdReader.GetCurrentEntry()<<"/"<<msdReader.GetEntries(true)<<endl;
@@ -624,8 +643,9 @@ void clean_vtxevstruct(vtx_evstruct &vtxevstruct){
   vtxevstruct.vtx_track_chi2tot=-999;
   vtxevstruct.vtx_track_chi2uview=-999;
   vtxevstruct.vtx_track_chi2vview=-999;
-  vtxevstruct.vtx_track_pvers.SetXYZ(0,0,0);
-  vtxevstruct.vtx_track_r0pos.SetXYZ(0,0,0);
+  vtxevstruct.vtx_track_pvers.SetXYZ(-999,-999,-999);
+  vtxevstruct.vtx_track_r0pos.SetXYZ(-999,-999,-999);
+  vtxevstruct.status=0;
 
 return;
 }
@@ -637,6 +657,7 @@ void print_vtxevstruct(vtx_evstruct &vtxevstruct){
   cout<<"vtx evnum="<<vtxevstruct.evnum<<"  tracknum="<<vtxevstruct.tracknum<<endl;
   cout<<"vtx_track_chi2tot="<<vtxevstruct.vtx_track_chi2tot<<"  vtx_track_chi2uview="<<vtxevstruct.vtx_track_chi2uview<<"  vtx_track_chi2vview="<<vtxevstruct.vtx_track_chi2vview<<endl;
   cout<<"pvers=("<<vtxevstruct.vtx_track_pvers.X()<<", "<<vtxevstruct.vtx_track_pvers.Y()<<", "<<vtxevstruct.vtx_track_pvers.Z()<<")  r0=("<<vtxevstruct.vtx_track_r0pos.X()<<", "<<vtxevstruct.vtx_track_r0pos.Y()<<", "<<vtxevstruct.vtx_track_r0pos.Z()<<")"<<endl;
+  cout<<"status="<<vtxevstruct.status<<endl;
 
 return;
 }  
@@ -678,7 +699,7 @@ return;
 
 //read the next bm event, return false if the file is finished, otherwise true
 //at the end bmReader is on the new event
-bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<int> &evnumreader,   TTreeReaderValue<int> &timeacqreader, TTreeReaderValue<double> &trackchi2reader, TTreeReaderValue<double> &pversxreader,   TTreeReaderValue<double> &pversyreader, TTreeReaderValue<double> &pverszreader,   TTreeReaderValue<double> &r0xreader,   TTreeReaderValue<double> &r0yreader,   TTreeReaderValue<double> &rdriftreader,   TTreeReaderValue<double> &residualreader,   TTreeReaderValue<double> &hittimereader,   TTreeReaderValue<int> &planereader,  TTreeReaderValue<int> &viewreader,   TTreeReaderValue<int> &cellreader, TTreeReaderValue<double> &realrdriftreader){
+bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<int> &evnumreader,   TTreeReaderValue<int> &timeacqreader, TTreeReaderValue<double> &trackchi2reader, TTreeReaderValue<double> &pversxreader,   TTreeReaderValue<double> &pversyreader, TTreeReaderValue<double> &pverszreader,   TTreeReaderValue<double> &r0xreader,   TTreeReaderValue<double> &r0yreader,   TTreeReaderValue<double> &rdriftreader,   TTreeReaderValue<double> &residualreader,   TTreeReaderValue<double> &hittimereader,   TTreeReaderValue<int> &planereader,  TTreeReaderValue<int> &viewreader,   TTreeReaderValue<int> &cellreader){
   
   if(debug>2)
     cout<<"I'm in bmreadevent, current entry="<<bmReader.GetCurrentEntry()<<endl;
@@ -708,8 +729,6 @@ bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<i
     bmevent.bm_hit_residual[evhitnum]=*residualreader;
     bmevent.bm_hit_time[evhitnum]=*hittimereader;
     bmevent.bm_hit_cellid[evhitnum]=GetBMNcell(*planereader, *viewreader,*cellreader);
-    if(bmmcstudy==0)
-      bmevent.bm_hit_realrdrift[evhitnum]=*realrdriftreader;
     evhitnum++;
   }while(bmReader.Next() && bmevent.evnum==*evnumreader);
   bmevent.hitnum=evhitnum;
