@@ -83,6 +83,7 @@ void TAVTactBaseRaw::CreateHistogram()
 {
    DeleteHistogram();
    TAVTparGeo* pGeoMap = (TAVTparGeo*) fpGeoMap->Object();
+   
    for (Int_t i = 0; i < pGeoMap->GetNSensors(); ++i) {
 	  if (TAVTparConf::IsMapHistOn()) {
 		 fpHisPixelMap[i] = new TH2F(Form("vtPixelMap%d", i+1), Form("Vertex - pixel map for sensor %d", i+1), 
@@ -119,7 +120,9 @@ void TAVTactBaseRaw::CreateHistogram()
       
       fpHisFrameCnt[i] = new TH1F(Form("vtFrameCnt%d", i+1), Form("Vertex - Frame cnt difference in sensor %d", i+1),  510, -9.5, 500.5);
       AddHistogram(fpHisFrameCnt[i]);
-
+   
+      fpHisFrameErrors[i] = new TH1F(Form("vtErrorsFrame%d", i+1), Form("Vertex - Frame errors in sensor %d", i+1), 3, 0.5, 3.5);
+      AddHistogram(fpHisFrameErrors[i]);
    }
 
    SetValidHistogram(kTRUE);
@@ -211,6 +214,8 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
    TAVTparMap*  pParMap = (TAVTparMap*) fpParMap->Object();
    
    Int_t dataLength    = ((frame->DataLength & 0xFFFF0000)>>16);
+   if (dataLength != fEventSize)
+      fpHisFrameErrors[iSensor]->Fill(3);
    if (dataLength > MI26__FFRAME_RAW_MAX_W16) return false;
    
    Int_t eventSize = fEventSize*2;
