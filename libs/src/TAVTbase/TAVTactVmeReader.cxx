@@ -122,9 +122,6 @@ Bool_t TAVTactVmeReader::Process()
    SetBit(kValid);
    fpNtuRaw->SetBit(kValid);
 
-   fPrevEventNumber   = fEventNumber;
-   fPrevTriggerNumber = fTriggerNumber;
-   fPrevTimeStamp     = fTimeStamp;
    
    if (neof)
       return true;
@@ -162,6 +159,10 @@ Bool_t TAVTactVmeReader::GetSensorHeader(Int_t iSensor)
          
          FillHistoEvt(iSensor);
 
+         fPrevEventNumber[iSensor]   = fEventNumber;
+         fPrevTriggerNumber[iSensor] = fTriggerNumber;
+         fPrevTimeStamp[iSensor]     = fTimeStamp;
+         
          return true;
       }
    } while (!fRawFileAscii[iSensor].eof());

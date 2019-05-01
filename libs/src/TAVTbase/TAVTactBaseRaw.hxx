@@ -53,11 +53,11 @@ protected:
    vector<UInt_t>    fData;              // data array to fill
 
    Int_t             fEventNumber;        // number of the event
-   Int_t             fPrevEventNumber;    // previous number of the event
+   Int_t             fPrevEventNumber[8];    // previous number of the event
    Int_t             fTriggerNumber;      // number of the trigger
-   Int_t             fPrevTriggerNumber;  // previous number of the trigger
+   Int_t             fPrevTriggerNumber[8];  // previous number of the trigger
    Int_t             fTimeStamp;          // time stamp per frame
-   Int_t             fPrevTimeStamp;      // time stamp per frame
+   Int_t             fPrevTimeStamp[8];      // time stamp per frame
    Int_t             fFrameCount;         // number of frame
    Int_t             fTriggerNumberFrame; // number of the trigger
    Int_t             fTimeStampFrame;     // time stamp per frame

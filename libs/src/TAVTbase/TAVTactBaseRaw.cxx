@@ -41,11 +41,8 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc
   fpParMap(pParMap),
   fData(0x0),
   fEventNumber(0),
-  fPrevEventNumber(0),
   fTriggerNumber(0),
-  fPrevTriggerNumber(0),
   fTimeStamp(0),
-  fPrevTimeStamp(0),
   fFrameCount(0),
   fTriggerNumberFrame(0),
   fTimeStampFrame(0),
@@ -66,6 +63,12 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc
    
    TAVTparGeo* parGeo = (TAVTparGeo*) fpGeoMap->Object();
    fNSensors = parGeo->GetNSensors();
+   
+   for (Int_t i = 0; i < fNSensors; ++i) {
+      fPrevEventNumber[i]   = 0;
+      fPrevTriggerNumber[i] = 0;
+      fPrevTimeStamp[i]     = 0;
+   }
    
    Int_t size = parGeo->GetNSensors()*sizeof(MI26_FrameRaw)*4;
    fData.resize(size);
@@ -121,7 +124,7 @@ void TAVTactBaseRaw::CreateHistogram()
       fpHisFrameCnt[i] = new TH1F(Form("vtFrameCnt%d", i+1), Form("Vertex - Frame cnt difference in sensor %d", i+1),  510, -9.5, 500.5);
       AddHistogram(fpHisFrameCnt[i]);
    
-      fpHisFrameErrors[i] = new TH1F(Form("vtErrorsFrame%d", i+1), Form("Vertex - Frame errors in sensor %d", i+1), 3, 0.5, 3.5);
+      fpHisFrameErrors[i] = new TH1F(Form("vtErrorsFrame%d", i+1), Form("Vertex - Frame errors in sensor %d", i+1), 4, 0.5, 4.5);
       AddHistogram(fpHisFrameErrors[i]);
    }
 
@@ -186,10 +189,12 @@ void TAVTactBaseRaw::FillHistoFrame(Int_t iSensor, MI26_FrameRaw* data)
 // --------------------------------------------------------------------------------------
 void TAVTactBaseRaw::FillHistoEvt(Int_t iSensor)
 {
-   //if (fEventNumber - fPrevEventNumber > 1) printf("trig %d evt %d diffevt %d\n", fEventNumber, fTriggerNumber, fEventNumber - fPrevEventNumber );
-   fpHisEvtNumber[iSensor]->Fill(fEventNumber - fPrevEventNumber);
-   fpHisTriggerEvt[iSensor]->Fill(fTriggerNumber - fPrevTriggerNumber);
-   fpHisTimeStampEvt[iSensor]->Fill(fTimeStamp - fPrevTimeStamp);
+   //if (fEventNumber - fPrevEventNumber > 1)printf("trig %d  prev %d\n", fTriggerNumber, fPrevTriggerNumber);
+   fpHisEvtNumber[iSensor]->Fill(fEventNumber - fPrevEventNumber[iSensor]);
+   fpHisTriggerEvt[iSensor]->Fill(fTriggerNumber - fPrevTriggerNumber[iSensor]);
+   if (fTriggerNumber - fPrevTriggerNumber[iSensor] != 1)
+      fpHisFrameErrors[iSensor]->Fill(4);
+   fpHisTimeStampEvt[iSensor]->Fill(fTimeStamp - fPrevTimeStamp[iSensor]);
 }
 
 // --------------------------------------------------------------------------------------

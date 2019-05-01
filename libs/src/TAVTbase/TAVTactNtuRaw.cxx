@@ -88,6 +88,10 @@ Bool_t TAVTactNtuRaw::DecodeEvent(const DECardEvent* evt)
       while (GetFrame(i, data)) {
          DecodeFrame(i, data);
       }
+      
+      fPrevEventNumber[i]   = fEventNumber;
+      fPrevTriggerNumber[i] = fTriggerNumber;
+      fPrevTimeStamp[i]     = fTimeStamp;
    }
    
    if(fDebugLevel > 3) {
@@ -105,9 +109,6 @@ Bool_t TAVTactNtuRaw::DecodeEvent(const DECardEvent* evt)
    
    delete data;
 
-   fPrevEventNumber   = fEventNumber;
-   fPrevTriggerNumber = fTriggerNumber;
-   fPrevTimeStamp     = fTimeStamp;
 
    return true;
 }
