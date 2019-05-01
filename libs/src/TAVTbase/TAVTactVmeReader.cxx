@@ -216,7 +216,7 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
       return false;;
    }
    
-   fDataSize = fIndex-6;
+   fDataSize = fIndex - fgkFrameHeaderSize;
    
    if(fDebugLevel > 3) {
       if (fTriggerNumber == 2030 || fTriggerNumber == 2032) {

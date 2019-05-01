@@ -24,7 +24,7 @@
 ClassImp(TAVTactBaseRaw);
 
 const UInt_t TAVTactBaseRaw::fgkKeyHeader[]      = {0x80008000, 0x80018001, 0x80028002, 0x80038003};
-const Int_t  TAVTactBaseRaw::fgkFrameHeaderSize  = 5;
+const Int_t  TAVTactBaseRaw::fgkFrameHeaderSize  = 6;
 const Int_t  TAVTactBaseRaw::fgkLineWidth        = 9;
 const UInt_t TAVTactBaseRaw::fgkFrameHeader      = 0x80088007;
 const UInt_t TAVTactBaseRaw::fgkFrameTail        = 0xaaa8aaa7;
