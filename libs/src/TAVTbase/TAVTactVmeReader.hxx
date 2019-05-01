@@ -8,6 +8,7 @@
 #include <fstream>
 
 #include "TString.h"
+#include "TH1F.h"
 
 #include "TAVTactBaseRaw.hxx"
 

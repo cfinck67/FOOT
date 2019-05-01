@@ -190,18 +190,21 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
          TString line = tmp;
          TString key1  = Form("%x", (GetFrameTail() & 0xFFFF));
          TString key2  = Form("%x", (GetFrameTail() & 0xFFFF0000) >> 16);
-         
          TString key3  = Form("%x", GetKeyTail(iSensor));
+         
          if (line.Contains(key3)) {
             Int_t pos =  (int) fRawFileAscii[iSensor].tellg();
             fRawFileAscii[iSensor].seekg(pos-1);
+            fpHisFrameErrors[iSensor]->Fill(2);
             break;
          }
          
          sscanf(tmp, "%x", &fData[fIndex++]);
-         if (line.Contains(key1) || line.Contains(key2))
+         if (line.Contains(key1) || line.Contains(key2)) {
+            if (line != Form("%x", GetFrameTail()))
+               fpHisFrameErrors[iSensor]->Fill(1);
             break;
-         
+         }
       } while (!fRawFileAscii[iSensor].eof());
 
       
@@ -212,8 +215,8 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
       return false;;
    }
    
+   fEventSize = fIndex-6;
    
-   fEventSize = fIndex;
    if(fDebugLevel > 3) {
       if (fTriggerNumber == 2030 || fTriggerNumber == 2032) {
       for (Int_t i = 0; i < fEventSize; ++i)
