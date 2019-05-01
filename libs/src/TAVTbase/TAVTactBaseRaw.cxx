@@ -52,6 +52,7 @@ TAVTactBaseRaw::TAVTactBaseRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc
   fIndex(0),
   fCurrentTriggerCnt(0),
   fEventSize(0),
+  fDataSize(0),
   fReadingEvent(0),
   fOverflow(0),
   fEventsOverflow(0), 
@@ -219,11 +220,11 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
    TAVTparMap*  pParMap = (TAVTparMap*) fpParMap->Object();
    
    Int_t dataLength    = ((frame->DataLength & 0xFFFF0000)>>16);
-   if (dataLength != fEventSize)
+   if (dataLength != fDataSize)
       fpHisFrameErrors[iSensor]->Fill(3);
    if (dataLength > MI26__FFRAME_RAW_MAX_W16) return false;
    
-   Int_t eventSize = fEventSize*2;
+   Int_t dataSize = fDataSize*2;
    
    
    UShort_t *frameData = (UShort_t*)frame->ADataW16;
@@ -246,7 +247,7 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
    Int_t index = 0;
    while( index < dataLength) { // Loop over usefull data
       
-      if (index > eventSize) return false;
+      if (index >= dataSize) return false;
       
       // first 16 bits word is the Status/Line
       lineStatus = (MI26__TStatesLine*)frameData;

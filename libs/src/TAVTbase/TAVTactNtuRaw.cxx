@@ -175,6 +175,8 @@ Bool_t TAVTactNtuRaw::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
       
    } while (fIndex++ < fEventSize);
    
+   fDataSize = fIndex-6;
+
    if (fDebugLevel > 3) {
       printf("%08x\n", data->Header);
       printf("%08x\n", data->TriggerCnt);

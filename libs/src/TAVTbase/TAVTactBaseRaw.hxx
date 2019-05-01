@@ -69,6 +69,7 @@ protected:
    Int_t             fIndex;
    UInt_t            fCurrentTriggerCnt;
    Int_t             fEventSize;
+   Int_t             fDataSize;
    Bool_t            fReadingEvent;
    Bool_t            fOverflow;
    

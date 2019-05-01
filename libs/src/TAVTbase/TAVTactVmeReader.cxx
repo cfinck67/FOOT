@@ -216,11 +216,11 @@ Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
       return false;;
    }
    
-   fEventSize = fIndex-6;
+   fDataSize = fIndex-6;
    
    if(fDebugLevel > 3) {
       if (fTriggerNumber == 2030 || fTriggerNumber == 2032) {
-      for (Int_t i = 0; i < fEventSize; ++i)
+      for (Int_t i = 0; i < fDataSize; ++i)
          printf("Data %08x\n", fData[i]);
          printf("\n");
       }
