@@ -7,12 +7,21 @@ using namespace TMath;
 void macro_msd_strel(){
   gROOT->SetBatch(kTRUE);//turn off graphical output on screen
   
-  TString out_filename("combined/combo_3points_1551900359.root");
+  //80Mev, no tilt
   //~ TString out_filename("combined/combo_2points_1551900359.root");
-
-  TString bmin_filename("recotrees/RecoTree_1551900359.root");
-  TString vtxin_filename("msddata/80MeV/out_3points_1551900359.root");
+  //~ TString bmin_filename("recotrees/recotree_1551900359.root");
   //~ TString vtxin_filename("msddata/80MeV/out_2points_1551900359.root");
+
+  //~ TString out_filename("combined/combo_3points_1551900359.root");
+  TString out_filename("combined/combo_3points_1551900359.root");
+  TString bmin_filename("recotrees/recotree_1551900359.root");
+  TString vtxin_filename("msddata/80MeV/out_3points_1551900359.root");
+
+  //~ //80Mev, tilt 5
+  //~ TString out_filename("combined/combo_3points_1551904521.root");
+  //~ TString bmin_filename("recotrees/recotree_1551904521.root");
+  //~ TString vtxin_filename("msddata/80MeV/out_3points_1551904521.root");
+    
     
   TFile *f_out = new TFile(out_filename.Data(),"RECREATE");  
   TFile *bminfile = new TFile(bmin_filename.Data(),"READ");  
@@ -59,6 +68,7 @@ void macro_msd_strel(){
   TTreeReaderValue<double> rdriftreader(bmReader, "BM_hitrdrift");
   TTreeReaderValue<double> residualreader(bmReader, "BM_hitresidual");
   TTreeReaderValue<double> hittimereader(bmReader, "BM_hittime");
+  TTreeReaderValue<double> hitchi2reader(bmReader, "BM_hitchi2");
   TTreeReaderValue<int> planereader(bmReader, "BM_hitplane");
   TTreeReaderValue<int> viewreader(bmReader, "BM_hitview");
   TTreeReaderValue<int> cellreader(bmReader, "BM_hitcell");
@@ -70,7 +80,7 @@ void macro_msd_strel(){
   
   
   //read BM loop
-  while(bmreadevent(bmReader, bmevent, evnumreader, timeacqreader, trackchi2reader, pversxreader, pversyreader, pverszreader, r0xreader, r0yreader, rdriftreader, residualreader, hittimereader, planereader, viewreader, cellreader)){
+  while(bmreadevent(bmReader, bmevent, evnumreader, timeacqreader, trackchi2reader, pversxreader, pversyreader, pverszreader, r0xreader, r0yreader, rdriftreader, residualreader, hittimereader, planereader, viewreader, cellreader,hitchi2reader)){
     allbmeventin.push_back(bmevent);
   };
   
@@ -123,8 +133,9 @@ void macro_msd_strel(){
   }
   
   //****************************************************** evaluate strel *************************************
-  vector<vector<double>> space_residual(STBIN+1);
-  vector<vector<double>> time_residual(STBIN+1);
+  f_out->cd();
+  vector<vector<double>> space_residual(STBIN);
+  vector<vector<double>> time_residual(STBIN);
   vector<vector<int>> selected_index;//matrix with the two index in allbmeventin and allvtxeventin that are correlated
   vector<int> event_index(3,-1);//0=allbmeventin index, 1=allvtxeventin index, 2=combine code(0=bm && msd, 1=only msd1, 2=only msd2)
   int last_vtxindex=0;

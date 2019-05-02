@@ -655,8 +655,8 @@ void BmBooter::PrintResDist(){
   }
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output/TDC_time")))->cd("..");  
 
-  histo2d=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 250, -0.3, 0.3,250,0.,1.);
-  histo2d=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]",bmcon->GetHitTimecut(),0.,bmcon->GetHitTimecut()+10.,600, -0.3, 0.3);
+  histo2d=new TH2D( "hitres_dis", "Residual vs rdrift; Residual[cm]; Measured rdrift[cm]", 600, -0.3, 0.3,250,0.,1.);
+  histo2d=new TH2D( "hitres_time", "Residual vs drift time; Time[ns]; Residual[cm]",600, -0.3, 0.3,bmcon->GetHitTimecut(),0.,bmcon->GetHitTimecut()+10.);
        
   if(bmcon->GetBMdebug()>10)
     cout<<"BmBooter::PrintResDist: fill the histos"<<endl;      
@@ -665,7 +665,7 @@ void BmBooter::PrintResDist(){
   for(Int_t i=0;i<residual_distance.size();i++){
     if(residual_distance.at(i).size()>4){
       ((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/hitres_dis")))->Fill(residual_distance.at(i).at(4), residual_distance.at(i).at(3));
-      ((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/hitres_time")))->Fill(residual_distance.at(i).at(2), residual_distance.at(i).at(4));
+      ((TH2D*)(m_controlPlotter->GetTFile()->Get("BM_output/hitres_time")))->Fill(residual_distance.at(i).at(4),residual_distance.at(i).at(2));
       sprintf(tmp_char,"BM_output/ResVsDist_perCell/hitres_dis_perCell_%d",(Int_t) (residual_distance.at(i).at(1)+0.5));  
       ((TH2D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance.at(i).at(4), residual_distance.at(i).at(3));    
       sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",(Int_t) (residual_distance.at(i).at(3)/0.945*bmcon->GetResnbin()));
@@ -688,7 +688,7 @@ void BmBooter::PrintResDist(){
   vector<Double_t> streleachbin(3,0);
   Double_t meantimeresolution=0.;
   for(Int_t i=0;i<bmcon->GetResnbin();i++){
-    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_old")))->SetBinContent(i+1,bmcon->ResoEvalTime(((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_old")))->GetBinCenter(i+1)));    
+    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_old")))->SetBinContent(i+1,bmcon->ResoEvalTime(((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_old")))->GetBinCenter(i+1))*10000.);    
     sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",i);      
     //~ ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution")))->SetBinContent(i+1,((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetStdDev()*10000);    
     ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "Q+");

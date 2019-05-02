@@ -10,21 +10,25 @@
 #define VTXNEV           0    //number of msd events to analyze (0=till the end of the file)
 #define STBIN          100    //strel binning on rdrift/tdrift
 #define BMNCUT          10.   //cut on bm track chi2 
+#define BMNHITCUT       1.   //cut on bm hit chi2 
 #define VTXCUT          10.   //cut on bm track chi2 
 #define MAXBMHITNUM     40    //number of maximum bm hit 
 #define NUMEVTSHIFT      1    //shift of the MSD evnum with respect to BM evnum (to be checked carefully!!)     
 #define NUMEVT2SHIFT     0    //shift of the MSD evnum with respect to BM evnum after changeshift 
 #define CHANGESHIFT      999999999 //event number in which numevtshift change to numevt2shift      
 #define CORRMINIMUM      0.8 //minimum value of the correlation factor between the pvers of the BM and the vtx to evaluate the new strel      
+#define ONLY1VIEW        0   //-1=take both the views, 0=only view 0 (filo lungo x, coordinata y(la migliore)), 1=only view 1 (filo lungo y, coordinata lungo x)  
 
 //~ #include "../../../Simulation/foot_geo.h"
 
 //bm theorical geo par
 #define BMISOZ         11.5   //position of the BM with respect to ISO 
-#define BMISOX         0.305015             
-#define BMISOY         0.0625284            
-#define BMISOXZANGLE   0.378815     //rotation of the BM with respect to ISO        
-#define BMISOYZANGLE   0.00354755             
+#define BMISOX         0.0904599             
+#define BMISOY         0.0273689            
+
+#define BMISOYANGLE   0.378815     //rotation of the BM with respect to ISO        
+//~ #define BMISOYANGLE   -7.64696     //rotation of the BM with respect to ISO        
+#define BMISOXANGLE   0.00595161             
 
 //bm residual calculated shift & rotation
 //~ #define BMSHIFTX       0.
@@ -36,8 +40,8 @@
 //VTX residual calculated shift & rotation (a tentative)
 #define VTXR0Z        0.
 #define VTXISOZ       0.
-#define VTXISOX       0.80633583666404263
-#define VTXISOY       0.024396448699163468
+#define VTXISOX       0.716146
+#define VTXISOY       -0.0146415
 //~ #define VTXSHIFTX       0.
 //~ #define VTXSHIFTY       0.
 //~ #define VTXSHIFTZ       0.
@@ -62,6 +66,7 @@ typedef struct BM_evstruct {
   double bm_hit_time[MAXBMHITNUM];
   int bm_hit_cellid[MAXBMHITNUM];
   double bm_hit_realrdrift[MAXBMHITNUM];
+  double bm_hit_chi2[MAXBMHITNUM];
 
 } BM_evstruct;
 
@@ -89,7 +94,7 @@ void merge_graphics(TFile* infile, TFile* f_out);
 //bm functions
 TVector3 BMlocaltoiso(TVector3 local);//from local to labo syst of ref., including the shift
 void clean_bmevstruct(BM_evstruct &bmevstruct, bool forced);
-bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<int> &evnumreader,   TTreeReaderValue<int> &timeacqreader, TTreeReaderValue<double> &trackchi2reader, TTreeReaderValue<double> &pversxreader,   TTreeReaderValue<double> &pversyreader, TTreeReaderValue<double> &pverszreader,   TTreeReaderValue<double> &r0xreader,   TTreeReaderValue<double> &r0yreader,   TTreeReaderValue<double> &rdriftreader,   TTreeReaderValue<double> &residualreader,   TTreeReaderValue<double> &hittimereader,   TTreeReaderValue<int> &planereader,  TTreeReaderValue<int> &viewreader,   TTreeReaderValue<int> &cellreader);
+bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<int> &evnumreader,   TTreeReaderValue<int> &timeacqreader, TTreeReaderValue<double> &trackchi2reader, TTreeReaderValue<double> &pversxreader,   TTreeReaderValue<double> &pversyreader, TTreeReaderValue<double> &pverszreader,   TTreeReaderValue<double> &r0xreader,   TTreeReaderValue<double> &r0yreader,   TTreeReaderValue<double> &rdriftreader,   TTreeReaderValue<double> &residualreader,   TTreeReaderValue<double> &hittimereader,   TTreeReaderValue<int> &planereader,  TTreeReaderValue<int> &viewreader,   TTreeReaderValue<int> &cellreader, TTreeReaderValue<double> &hitchi2reader);
 TVector3 ExtrapolateZ(TVector3 pvers, TVector3 r0pos, double proposz, bool global,  bool beammonitor);
 void setbmgeo(vector<TVector3> &wire_pos, vector<TVector3> &wire_dir);
 bool Getlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_t& icell);
