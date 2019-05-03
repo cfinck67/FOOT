@@ -157,9 +157,9 @@ void BmBooter::Process() {
   evaluate_cell_occupy();
   track_ok=-5;
   
-  if(bmstruct.tdc_sync[0]==-10000)
+  if(bmstruct.tdc_sync[0]==-10000 && isdata)
     track_ok=-4;
-  else if(bmstruct.tdc_sync[1]!=-10000)
+  else if(bmstruct.tdc_sync[1]!=-10000 && isdata)
     track_ok=-3;
   else if(bmnturaw->nhit >= bmcon->GetMaxnhit_cut())
     track_ok=-2;
