@@ -906,12 +906,12 @@ void TAIRalignC::UpdateGeoMapsUVW(fstream &fileIn, fstream &fileOut, Int_t idx)
       if (key.Contains("AlignementU:")) {
          key = "AlignementU:";
          TString sIdx;
-         sIdx = Form("   %8.2f\n", alignU);
+         sIdx = Form("      %7.4f\n", alignU);
          TString line = key+sIdx;
          fileOut << line.Data();
          fileIn.getline(tmp, 255);
          key = "AlignementV:";
-         sIdx = Form("   %8.2f\n", alignV);
+         sIdx = Form("      %7.4f\n", alignV);
          line = key + sIdx;
          fileOut << line.Data();
          fileIn.getline(tmp, 255);
