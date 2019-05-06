@@ -388,7 +388,8 @@ void TAGbaseEventDisplay::UpdateEventBar()
    if( max > 100000)      frequency = 10000;
    else if( max > 10000)  frequency = 1000;
    else if( max > 1000)   frequency = 100;
-   else if( max > 10)     frequency = 10;
+   else if( max > 100)    frequency = 10;
+   else if( max > 10)     frequency = 1;
    
    if( fCurrentEventId % frequency == 0) {
       fEventProgress->Increment(frequency);
