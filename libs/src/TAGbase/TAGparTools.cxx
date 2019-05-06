@@ -25,8 +25,7 @@ TAGparTools::TAGparTools()
   fFileStream(),
   fFileName(),
   fMatrixList(0x0),
-  fCurrentPosition(0,0,0),
-  fDebugLevel(0)
+  fCurrentPosition(0,0,0)
 {
    // Standard constructor
 }
@@ -123,12 +122,17 @@ void TAGparTools::FillArray(TString& s, TArrayC& array)
 }
 
 //_____________________________________________________________________________
-void TAGparTools::ReadItem(TArrayC& arrayLine, TArrayC& arrayCol, const Char_t delimiter1, const Char_t delimiter2)
+void TAGparTools::ReadItem(map<pair<int, int>, int>& map, const Char_t delimiter1, const Char_t delimiter2)
 {
-   // From a string of the form "i;j,k;l,m;n" returns an integer array
+   // From a string of the form "i,j; k,l; m,n" returns an integer array
    // containing the pixel line i / col j, line k / col l, line m / col n
    
-   arrayLine.Reset(0);   
+   TArrayC arrayLine;
+   arrayLine.Set(960);
+   arrayLine.Reset(0);
+   
+   TArrayC arrayCol;
+   arrayCol.Set(960);
    arrayCol.Reset(0);
    
    TString key;
@@ -153,6 +157,17 @@ void TAGparTools::ReadItem(TArrayC& arrayLine, TArrayC& arrayCol, const Char_t d
       TString& sc    = ((TObjString*)pixel->At(1))->String();
       FillArray(sl, arrayLine);
       FillArray(sc, arrayCol);
+      
+      for (Int_t l = 0; l < arrayLine.GetSize(); ++l) {
+         for (Int_t c = 0; c < arrayCol.GetSize(); ++c) {
+            if (arrayLine[l] == 1 && arrayCol[c] == 1) {
+               pair<Int_t, Int_t> deadPixel(l, c);
+               map[deadPixel] = 1;
+            }
+         }
+      }
+      arrayLine.Reset(0);
+      arrayCol.Reset(0);
       
       delete pixel;
    }

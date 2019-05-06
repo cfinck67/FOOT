@@ -8,6 +8,7 @@
 */
 /*------------------------------------------+---------------------------------*/
 
+#include <map>
 #include "Riostream.h"
 
 #include "TObject.h"
@@ -17,6 +18,7 @@
 #include "TObjArray.h"
 
 #include "TAGpara.hxx"
+using namespace std;
 
 class TGeoHMatrix;
 //##############################################################################
@@ -29,8 +31,6 @@ protected:
 
    TObjArray* fMatrixList;       //! list of transformation matrices  (rotation+translation for each crystal)
    TVector3   fCurrentPosition;  // current position
-
-   Int_t    fDebugLevel; // debug level
    
 public:
    TAGparTools();
@@ -44,7 +44,7 @@ public:
    void    ReadItem(Float_t &arg);
    void    ReadItem(TArrayC& array, const Char_t delimiter = ';');
    void    ReadItem(Float_t* coeff, Int_t size, const Char_t delimiter = ' ');
-   void    ReadItem(TArrayC& arrayLine, TArrayC& arrayCol, const Char_t delimiter1 = ',', const Char_t delimiter2 = ';');
+   void    ReadItem(map< pair<int, int>, int>& map, const Char_t delimiter1 = ',', const Char_t delimiter2 = ';');
    void    ReadVector3(TVector3 &arg);
    void    ReadStrings(TString& aString);
    void    GetRange(const char* str, Int_t& begin, Int_t& end, Int_t& incr, Int_t& n);
@@ -80,7 +80,7 @@ public:
    //! Get matrix transformation
    TGeoHMatrix*    GetTransfo(Int_t idx);
 
-   ClassDef(TAGparTools,1)
+   ClassDef(TAGparTools,2)
 };
 
 #endif

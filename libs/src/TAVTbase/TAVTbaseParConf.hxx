@@ -7,6 +7,7 @@
 */
 /*------------------------------------------+---------------------------------*/
 
+#include <map>
 #include "Riostream.h"
 
 #include "TObject.h"
@@ -14,6 +15,8 @@
 #include "TVector3.h"
 
 #include "TAGparTools.hxx"
+
+using namespace std;
 
 //##############################################################################
 
@@ -29,7 +32,7 @@ protected:
 	  Int_t     Status;                 // Status flag: Primary Reference = 1., Secondary Reference = 2. DeviceUunderTest = 3. Out = -1.
 	  Int_t     MinNofPixelsInCluster;  // minimum pixels in a cluster
 	  Int_t     MaxNofPixelsInCluster;  // maximum pixels in a cluster
-
+     map< pair<int, int>, int > DeadPixelMap;    // dead pixel map
    };
    
    struct AnalysisParameter_t : public  TObject {
@@ -76,7 +79,7 @@ public:
    static void   SetHistoMap(Bool_t flag = true) { fgIsMapHist = flag; }
    
 
-   ClassDef(TAVTbaseParConf,1)
+   ClassDef(TAVTbaseParConf,2)
 };
 
 #endif

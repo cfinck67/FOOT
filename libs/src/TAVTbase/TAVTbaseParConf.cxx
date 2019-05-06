@@ -102,6 +102,18 @@ Bool_t TAVTbaseParConf::FromFile(const TString& name)
 	  ReadItem(fSensorParameter[p].MaxNofPixelsInCluster);  
      if(fDebugLevel)
        cout << "Maximum number of pixels per cluster: "<< fSensorParameter[p].MaxNofPixelsInCluster << endl;
+      
+      // read dead pixel map
+      ReadItem(fSensorParameter[p].DeadPixelMap);
+      if(fDebugLevel) {
+         cout << "Dead Pixels: ";
+         map<pair<int, int>, int>::iterator it;
+         for (it = fSensorParameter[p].DeadPixelMap.begin(); it != fSensorParameter[p].DeadPixelMap.end(); it++) {
+            pair<int, int> pair = it->first;
+            cout << "(" << pair.first << ":" << pair.second << ") ";
+         }
+         cout << endl;
+      }
    }	  
    
    return kFALSE;
