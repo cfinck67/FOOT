@@ -39,7 +39,8 @@ int main (int argc, char *argv[]) {
   
   char name[200];
   TString out("DecodeMC.root");
-  TString reco("Recohistos.root");
+  TString reco("recohistos.root");
+  TString treeoutname("bmtree.root");
   TString bmconfile("/config/beammonitor.cfg");
   TString in("../data/mc/MC_ID040_Evt1k.root");
   TString wdir(".");
@@ -49,9 +50,11 @@ int main (int argc, char *argv[]) {
   int evstart=0;
   bool isdata(kFALSE); //0=MC, 1=real data analysis 
   bool alist(kFALSE);
+  bool printtree=false;
   for (int i = 0; i < argc; i++){
     if(strcmp(argv[i],"-bmconfile") == 0)  { bmconfile =TString(argv[++i]);  }              // file name for the beammonitor config file
     if(strcmp(argv[i],"-reco") == 0)  { reco =TString(argv[++i]);  }                       // Root file name for recohistos output
+    if(strcmp(argv[i],"-tree") == 0)  { treeoutname =TString(argv[++i]); printtree=true;}                // Root file name for ttree ntupleout output
     if(strcmp(argv[i],"-out") == 0)   { out =TString(argv[++i]);  }                        // Root file name for output
     if(strcmp(argv[i],"-in") == 0)    { in = TString(argv[++i]);  }                        // Root file in input
     if(strcmp(argv[i],"-wd") == 0)    { wdir = TString(argv[++i]);  }                      // Working dir
@@ -71,6 +74,9 @@ int main (int argc, char *argv[]) {
       cout<<"      -deb value     : [def=0] Enables debugging. Values 1,2 are allowed"<<endl;
       cout<<"      -nev value     : [def=10^7] Numbers of events to process"<<endl;
       cout<<"      -pl_fr value   : [def=100] Produce an event display each _value_ events"<<endl;
+      cout<<"      -reco  filename  : name of the output histograms recohistos.root file"<<endl;
+      cout<<"      -tree  filename  : name of the output ttree recotree.root file"<<endl;
+      cout<<"      -bmconfile  path/filename  : name of the bm config filename, default= /config/beammonitor.cfg"<<endl;
       return 1;
     }
   }
@@ -84,6 +90,9 @@ int main (int argc, char *argv[]) {
   GlobalPar::Instance();
   string outputfilename=reco.Data();
   GlobalPar::GetPar()->SetOutputFile(outputfilename);
+  string outputttreename=treeoutname.Data();
+  GlobalPar::GetPar()->SetOutputntuple(outputttreename);
+  GlobalPar::GetPar()->SetPrintOutputNtuple(printtree);
   //~ GlobalPar::GetPar()->Print();
 
   ControlPlotsRepository::Instance();
@@ -123,9 +132,11 @@ int main (int argc, char *argv[]) {
   int t_m2 = trunc( fmod(tempoKal, 3600)/60 );
   int t_s2 = trunc( fmod(fmod(tempoKal, 3600), 60) );
   cout<< "Execution Time: "<< tempoKal << " seconds" << endl;
-  cout<< "Execution Time in human units: "<< t_h2 <<" : "<< t_m2 <<" : "<< t_s2 << endl;
+  cout<< "Execution Time in human units: "<< t_h2 <<" : "<< t_m2 <<" : "<< t_s2 << endl<<endl;
   cout<<" your reconstruction output file is:  "<<reco.Data()<<endl;
-  cout<<" Job done! "<<endl;
+  if(printtree)
+    cout<<" your ttree output file is:  "<<treeoutname.Data()<<endl;
+  cout<<endl<<" Job done! "<<endl;
   return 0;
 } 
 

@@ -7,7 +7,7 @@ using namespace TMath;
 void macro_mcvertex_strel(){
   gROOT->SetBatch(kTRUE);//turn off graphical output on screen
   
-  TString out_filename("Outstrel_mcvertex.root");
+  TString out_filename("Outstrel_mcvertex_riprovomaggio.root");
   //~ TString bmin_filename("RecoTree_nosmearrdrift_nosmearhits_w0_strel_primZ-40_BM_X0.2_Y0.1_Z_-14_Xang1.5_VTX_Y0.2_Z1.5.root");
   //~ TString vtxin_filename("bmvertex_strel_primZ-40_BM_X0.2_Y0.1_Z_-14_Xang1.5_VTX_Y0.2_Z1.5_Outprovayun.root");
 

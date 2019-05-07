@@ -185,8 +185,12 @@ Bool_t TABMactNtuMC::Action()
 
       //shift the t0 and change the strelations:
       realrdrift=rdriftxcell.at(i);
-      if(p_bmcon->GetCalibro()>0)
-        rdriftxcell.at(i)=p_bmcon->FirstSTrelMC(p_bmcon->InverseStrel(rdriftxcell.at(i)), p_bmcon->GetCalibro());//this is useful if you want to change the strel      
+      if(p_bmcon->GetCalibro()>0){
+        if(p_bmcon->GetAutstrel()==1)
+          rdriftxcell.at(i)=p_bmcon->FirstSTrel(p_bmcon->InverseStrel(rdriftxcell.at(i)), p_bmcon->GetCalibro());//this is useful if you want to change the strel      
+        else
+          rdriftxcell.at(i)=p_bmcon->FirstSTrel(p_bmcon->InverseStrel(rdriftxcell.at(i)));//this is useful if you want to change the strel      
+      }
       //~ if(rdriftxcell.at(i)==0)
         //~ rdriftxcell.at(i)=0.001;
 
@@ -204,7 +208,7 @@ Bool_t TABMactNtuMC::Action()
       if(p_bmcon->ResoEvalTime(p_bmcon->InverseStrel(realrdrift))>0)
         mytmp->SetSigma(p_bmcon->ResoEvalTime(p_bmcon->InverseStrel(realrdrift)));
       else{  
-        cout<<"WARNING: error from config ResoEvalTime(p_bmcon->InverseStrel(realrdrift))! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<p_bmcon->InverseStrel(realrdrift)<<endl;
+        cout<<"WARNING: error from config ResoEvalTime(p_bmcon->InverseStrel(realrdrift))! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<p_bmcon->InverseStrel(realrdrift)<<"   realrdrift="<<realrdrift<<"    ResoEvaltime="<<p_bmcon->ResoEvalTime(p_bmcon->InverseStrel(realrdrift))<<"   Inversestrel="<<p_bmcon->InverseStrel(realrdrift)<<endl;
         mytmp->SetSigma(p_bmcon->GetRdrift_err());
         }
       mytmp->SetRealRdrift(realrdrift);  

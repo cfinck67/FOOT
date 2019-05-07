@@ -73,25 +73,27 @@ if(smear_type==0)
   return;
 
 if(smear_type==1){ //gaussian truncated to 1 sigma
-  do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>sigma);
+  do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>sigma  || (smeared>0.944));
 }
 
 if(smear_type==2){ //gaussian truncated to 2 sigma
-  do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>2.*sigma);
+  do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>2.*sigma || (smeared>0.944));
 }
 
 if(smear_type==3){ //gaussian truncated to 3 sigma
-  do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>3.*sigma);
+  do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>3.*sigma || (smeared>0.944));
 }
   
-if(smear_type==4) //gaussian not truncated
-  smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);
-
+if(smear_type==4){ //gaussian not truncated
+  do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(smeared>0.944);
+}
 
 if(smear_type==5) //flat smearing
   smeared=rdrift+p_bmcon->GetRand()->Uniform(-sigma*sqrt(12.)/2.,sigma*sqrt(12.)/2.);
 
-rdrift= (smeared<0) ? 0. : ((smeared>0.944) ? 0.944 : smeared);
+//~ rdrift= (smeared<0) ? 0. : ((smeared>0.944) ? 0.944 : smeared);
+rdrift= (smeared<0) ? 0. : smeared;
+tdrift=p_bmcon->InverseStrel(rdrift);
 return;  
 } 
 

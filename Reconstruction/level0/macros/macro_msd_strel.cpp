@@ -7,15 +7,17 @@ using namespace TMath;
 void macro_msd_strel(){
   gROOT->SetBatch(kTRUE);//turn off graphical output on screen
   
-  //80Mev, no tilt
+  //80Mev, no tilt 2 points
   //~ TString out_filename("combined/combo_2points_1551900359.root");
   //~ TString bmin_filename("recotrees/recotree_1551900359.root");
   //~ TString vtxin_filename("msddata/80MeV/out_2points_1551900359.root");
 
-  //~ TString out_filename("combined/combo_3points_1551900359.root");
+  //80Mev, no tilt 3 points
   TString out_filename("combined/combo_3points_1551900359.root");
-  TString bmin_filename("recotrees/recotree_1551900359.root");
   TString vtxin_filename("msddata/80MeV/out_3points_1551900359.root");
+  //~ TString bmin_filename("recotrees/recotree_1551900359.root");
+  TString bmin_filename("recotrees/recotree_T0begin_1551900359.root");
+
 
   //~ //80Mev, tilt 5
   //~ TString out_filename("combined/combo_3points_1551904521.root");

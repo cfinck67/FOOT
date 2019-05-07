@@ -10,7 +10,7 @@
 #define VTXNEV           0    //number of msd events to analyze (0=till the end of the file)
 #define STBIN          100    //strel binning on rdrift/tdrift
 #define BMNCUT          10.   //cut on bm track chi2 
-#define BMNHITCUT       1.   //cut on bm hit chi2 
+#define BMNHITCUT       1.5   //cut on bm hit chi2 
 #define VTXCUT          10.   //cut on bm track chi2 
 #define MAXBMHITNUM     40    //number of maximum bm hit 
 #define NUMEVTSHIFT      1    //shift of the MSD evnum with respect to BM evnum (to be checked carefully!!)     
@@ -18,6 +18,7 @@
 #define CHANGESHIFT      999999999 //event number in which numevtshift change to numevt2shift      
 #define CORRMINIMUM      0.8 //minimum value of the correlation factor between the pvers of the BM and the vtx to evaluate the new strel      
 #define ONLY1VIEW        0   //-1=take both the views, 0=only view 0 (filo lungo x, coordinata y(la migliore)), 1=only view 1 (filo lungo y, coordinata lungo x)  
+#define MAXSTRELRES      0.2 //maximum residual allowed for the strel   
 
 //~ #include "../../../Simulation/foot_geo.h"
 

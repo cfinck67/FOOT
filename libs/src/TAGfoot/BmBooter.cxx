@@ -96,10 +96,12 @@ Bool_t BmBooter::Initialize( TString instr_in, Bool_t isdata_in, EVENT_STRUCT* e
     if(!datafile.is_open())
       cout<<"ERROR in BmBooter::CalculateT0: cannot open the datafile="<<m_instr.Data()<<endl;
     FillDataBeamMonitor();
-    if(bmcon->GetAutstrel()>0)
-      if(autocalibstrel_readfile())
-        return kTRUE;    
-  }
+  }else
+    m_nopath_instr=m_instr;
+  
+  if(bmcon->GetAutstrel()>0)
+    if(autocalibstrel_readfile())
+      return kTRUE;    
   
   //provo
   //~ outTree = new TAGactTreeWriter("outTree");
@@ -131,10 +133,10 @@ void BmBooter::Process() {
       stdatraw = (TAIRdatRaw*) (gTAGroot->FindDataDsc("myn_stdatraw", "TAIRdatRaw")->GenerateObject());
      
       //loop on dat hit, only for data
-      for(Int_t i=0;i<bmdatraw->NHit();i++){
-        bmdathit=&bmdatraw->Hit(i);
+      //~ for(Int_t i=0;i<bmdatraw->NHit();i++){
+        //~ bmdathit=&bmdatraw->Hit(i);
         //~ cout<<"evento numero="<<data_num_ev<<"  numero hit"<<i<<"raw hit time="<<bmdathit->Time()<<endl;
-      }
+      //~ }
     }else{
       data_num_ev++;
       data_sync_num_ev+=bmstruct.tdc_numsync;
@@ -249,7 +251,7 @@ void BmBooter::Finalize() {
   PrintResDist();    //residual_distance matrix
   PrintSTrel();      //strel must be used after printresdist
   PrintFromControlPlots(); //other plots from contrloplots 
-  //~ LegendrePoly(); //create the legendre poly plots
+  LegendrePoly(); //create the legendre poly plots
   //~ fit_histos();   //to be fixed!!!! 
   if(bmcon->GetAutstrel()>0)
     autocalibstrel_writefile();  
@@ -321,15 +323,26 @@ void BmBooter::PrintSTrel(){
     return;
   ((TDirectory*)(m_controlPlotter->GetTFile()->Get("BM_output")))->cd();
     
-  Int_t numpoints=4000, tmp_int=1;
+  //draw first, garfield and first stretched strel.    
+  Int_t numpoints=3000, tmp_int=1;
   Double_t pass=0.1;
-  TH1D* histo=new TH1D( "strel", "Space time relation;time [ns];distance [cm]", numpoints, 0., numpoints*pass);
+  TH1D* histostretchedfirst=new TH1D( "strel_stretchedfirst", "stretched First Space time relation;time [ns];distance [cm]", numpoints, 0., numpoints*pass);
+  TH1D* histofirst=new TH1D( "strel_first", "First Space time relation ;time [ns];distance [cm]", numpoints, 0., numpoints*pass);
+  TH1D* histogarfield=new TH1D( "strel_garfield", "Garfield Space time relation ;time [ns];distance [cm]", numpoints, 0., numpoints*pass);
+  TH1D* histoswitch2=new TH1D( "strel_switch2", "Space time relation from switch 2 ;time [ns];distance [cm]", numpoints, 0., numpoints*pass);
+  TH1D* histoswitch3=new TH1D( "strel_switch3", "Space time relation from switch 3 ;time [ns];distance [cm]", numpoints, 0., numpoints*pass);
+  TH1D* histo=new TH1D( "strel_adopted", "Space time relation used for this run;time [ns];distance [cm]", numpoints, 0., numpoints*pass);
   TH1D* histo2=new TH1D( "time_vs_velodrift", "Drift Velocity;Time [s]; velocity[cm/s]", numpoints, 0., numpoints*pass);
   TH1D* histo3=new TH1D( "dist_vs_velodrift", "Drift Velocity;Distance [cm]; velocity[cm/s]", 800, 0.04, 0.8);
   Double_t time=0.;
   for(int i=1;i<numpoints;i++){
     time+=pass;
     histo->SetBinContent(i,bmcon->FirstSTrel(time));
+    histostretchedfirst->SetBinContent(i,bmcon->FirstSTrel(time,5));
+    histofirst->SetBinContent(i,bmcon->FirstSTrel(time,1000));
+    histogarfield->SetBinContent(i,bmcon->FirstSTrel(time,1));
+    histoswitch2->SetBinContent(i,bmcon->FirstSTrel(time,2));
+    histoswitch3->SetBinContent(i,bmcon->FirstSTrel(time,3));
     histo2->SetBinContent(i,bmcon->FirstSTrel(time)/time);
     //~ cout<<"time="<<time<<"  bmcon->FirstSTrel(time)="<<bmcon->FirstSTrel(time)<<"  tmp_int"<<tmp_int<<"  histo3->GetBinCenter(tmp_int)="<<histo3->GetBinCenter(tmp_int)<<endl;
     if(bmcon->FirstSTrel(time)>histo3->GetBinCenter(tmp_int) && bmcon->FirstSTrel(time-pass)<histo3->GetBinCenter(tmp_int)){
@@ -346,7 +359,7 @@ void BmBooter::PrintSTrel(){
 
     for(Int_t i=0;i<residual_distance.size();i++){
       oldstrel2d->Fill(residual_distance.at(i).at(2), residual_distance.at(i).at(3));
-      tmp_int=(Int_t) (residual_distance.at(i).at(2)/bmcon->GetHitTimecut()*bmcon->GetResnbin());      
+      tmp_int=(Int_t) (residual_distance.at(i).at(2)/bmcon->GetHitTimecut()*bmcon->GetResnbin()-0.0001);      
       newstrel2d->Fill(residual_distance.at(i).at(2), residual_distance.at(i).at(3)-strelresiduals.at(tmp_int).at(0));
       if(residual_distance.at(i).size()>4)
         histo2newres_dis->Fill(residual_distance.at(i).at(4), residual_distance.at(i).at(3)-strelresiduals.at(tmp_int).at(0));
@@ -357,12 +370,21 @@ void BmBooter::PrintSTrel(){
     }
     //fit the new strel
     TProfile *prof_newstrel=newstrel2d->ProfileX();
-    TF1 poly ("poly","pol5", 0, bmcon->GetHitTimecut());
-    prof_newstrel->Fit("poly","Q+");
+
+    TF1 poly ("poly","pol10", 0, bmcon->GetHitTimecut());
+    poly.FixParameter(0,0.);
+
+    //try to fix: time=0-->rdrift=0  and time=300-->rdrift=0.8
+    //~ TF1 poly ("poly","[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*x*x*x*x+ (0.8-[5]*[1]-[5]*[5]*[2]-[5]*[5]*[5]*[3]-[5]*[5]*[5]*[5]*[4])/[5]/[5]/[5]/[5]/[5]*x*x*x*x*x", 0., bmcon->GetHitTimecut());
+    //~ poly.FixParameter(0,0.);
+    //~ poly.FixParameter(5,bmcon->GetHitTimecut());
+    
+    prof_newstrel->Fit("poly","QB+");
+    
     prof_newstrel->SetLineColor(2);
     prof_newstrel->Draw();
     vector<Double_t> parin;
-    for(Int_t i=0;i<6;i++)
+    for(Int_t i=0;i<11;i++)
       parin.push_back(poly.GetParameter(i));
     bmcon->AddStrelparameters(parin);
   
@@ -371,8 +393,9 @@ void BmBooter::PrintSTrel(){
     TF1* oldtf1strel;
     for(Int_t i=0;i<bmcon->GetStrelparSize();i++){
       sprintf(tmp_char,"old_strel_ite_%d",i);
-      oldtf1strel=new TF1(tmp_char,"pol5",0.,bmcon->GetHitTimecut());  
-      for(Int_t k=0;k<6;k++)
+      //~ oldtf1strel=new TF1(tmp_char,"[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*x*x*x*x+ (0.8-[5]*[1]-[5]*[5]*[2]-[5]*[5]*[5]*[3]-[5]*[5]*[5]*[5]*[4])/[5]/[5]/[5]/[5]/[5]*x*x*x*x*x", 0., bmcon->GetHitTimecut());  
+      oldtf1strel=new TF1(tmp_char,"pol10", 0., bmcon->GetHitTimecut());  
+      for(Int_t k=0;k<11;k++)
         oldtf1strel->SetParameter(k,bmcon->GetStrelPar(i,k));
       oldtf1strel->Write();
     }
@@ -670,7 +693,7 @@ void BmBooter::PrintResDist(){
       ((TH2D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance.at(i).at(4), residual_distance.at(i).at(3));    
       sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",(Int_t) (residual_distance.at(i).at(3)/0.945*bmcon->GetResnbin()));
       ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance.at(i).at(4));
-      sprintf(tmp_char,"BM_output/ResxTime/hitres_x_time_%d",(Int_t) (residual_distance.at(i).at(2)/bmcon->GetHitTimecut()*bmcon->GetResnbin()));      
+      sprintf(tmp_char,"BM_output/ResxTime/hitres_x_time_%d",(Int_t) (residual_distance.at(i).at(2)/bmcon->GetHitTimecut()*bmcon->GetResnbin()-0.0001));      
       ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fill(residual_distance.at(i).at(4));
     }
     sprintf(tmp_char,"BM_output/TDC_time/tdc_cha_%d",(Int_t) (residual_distance.at(i).at(1)+0.5));      
@@ -685,7 +708,7 @@ void BmBooter::PrintResDist(){
   histo1d=new TH1D( "resolution_dist", "Resolution evaluation; Distance from cell center [cm];Spatial Resolution[#mum]", bmcon->GetResnbin(), 0., 0.945);
   histo1d=new TH1D( "resolution_time_old", "Resolution evaluation; Time [ns];Spatial Resolution[#mum]", bmcon->GetResnbin(), 0., bmcon->GetHitTimecut());
   histo1d=new TH1D( "resolution_time_new", "Resolution evaluation; Time [ns];Spatial Resolution[#mum]", bmcon->GetResnbin(), 0., bmcon->GetHitTimecut());
-  vector<Double_t> streleachbin(3,0);
+  vector<Double_t> streleachbin(6,0);
   Double_t meantimeresolution=0.;
   for(Int_t i=0;i<bmcon->GetResnbin();i++){
     ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_old")))->SetBinContent(i+1,bmcon->ResoEvalTime(((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_old")))->GetBinCenter(i+1))*10000.);    
@@ -700,6 +723,9 @@ void BmBooter::PrintResDist(){
     streleachbin.at(0)=fb->GetParameter(1);
     streleachbin.at(1)=fb->GetParameter(2);
     streleachbin.at(2)=((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetEntries();
+    streleachbin.at(3)=fb->GetParError(1);
+    streleachbin.at(4)=fb->GetChisquare();
+    streleachbin.at(5)=((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetMean();
     strelresiduals.push_back(streleachbin);
   }
   TF1 tfpoly("tfpoly","pol10", 0.,bmcon->GetHitTimecut());
@@ -820,7 +846,6 @@ void BmBooter::evaluateT0() {
   Int_t petal1ch=46, petal2ch=45, petal3ch=44, petal4ch=43, sync_petal_gate=50, majodelay=-60;
   //~ TABMparCon* bmcon = (TABMparCon*) myp_bmcon->Object();  
   TString tmp_tstring="bmraw.root";
-  m_nopath_instr="bmraw.root";
   if(m_instr.EndsWith(".dat")){
     m_nopath_instr=m_instr;
     if(m_instr.Last('/'))  
@@ -828,7 +853,9 @@ void BmBooter::evaluateT0() {
     tmp_tstring="bmraw_"+m_nopath_instr;
     m_nopath_instr.Remove(m_nopath_instr.Last('.')+1,m_nopath_instr.Last('.')+3);
     tmp_tstring.Replace(tmp_tstring.Last('.')+1,3,"root",4);
-  }
+  }else
+    m_nopath_instr="bmraw.root";
+  
   TFile *f_out = new TFile(tmp_tstring.Data(),"RECREATE");
   f_out->cd();
   TH1D* h=nullptr;
@@ -1905,7 +1932,7 @@ void BmBooter::ResidualDistance(){
       selecthit.at(3)=bmntuhit->Dist();
       selecthit.at(4)=bmntuhit->GetResidual();
       residual_distance.push_back(selecthit);
-    }else if(isdata){      
+    }else{      
       rejhit.at(0)=data_num_ev;
       rejhit.at(1)=bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(),bmntuhit->Cell());
       rejhit.at(2)=bmntuhit->Tdrift();
@@ -1942,7 +1969,7 @@ Bool_t BmBooter::autocalibstrel_readfile(){
   ifstream infile;
   TString name="./config/"+bmcon->GetShiftsfile();
   infile.open(name.Data(),ios::in);
-  vector<Double_t>parin(6,0);
+  vector<Double_t>parin(11,0);
   vector<Double_t>resoin(11,0);
   stnite=1;
   if(infile.is_open()){
@@ -1982,9 +2009,9 @@ Bool_t BmBooter::autocalibstrel_readfile(){
         return kTRUE;
       }
       for(Int_t i=0; i<bmcon->GetResnbin();i++)
-        infile>>tmp_char>>tmp_char>>tmp_char>>tmp_char>>tmp_char>>tmp_char;
+        infile>>tmp_char>>tmp_char>>tmp_char>>tmp_char>>tmp_char>>tmp_char>>tmp_char>>tmp_char>>tmp_char>>tmp_char>>tmp_char>>tmp_char;
       infile>>tmp_char;
-      for(Int_t i=0;i<6;i++){
+      for(Int_t i=0;i<11;i++){
         infile>>tmp_double;
         parin.at(i)=tmp_double;
         if(tmp_double==-999){
@@ -1994,7 +2021,7 @@ Bool_t BmBooter::autocalibstrel_readfile(){
       }
       bmcon->AddStrelparameters(parin);
       infile>>tmp_char;
-      for(Int_t i=0;i<11;i++){
+      for(Int_t i=0;i<11;i++){//read resolution
         infile>>tmp_double;
         resoin.at(i)=tmp_double;
       }
@@ -2020,10 +2047,10 @@ void BmBooter::autocalibstrel_writefile(){
   outfile.open(name.Data(),ios::app);
   outfile<<"Number_of_iteration= "<<stnite<<"  input_file= "<<m_nopath_instr<<"  t0_switch= "<<bmcon->GetT0switch()<<" t0sigma= "<<bmcon->GetT0sigma()<<" hit_timecut= "<<bmcon->GetHitTimecut()<<"  resnbin= "<<bmcon->GetResnbin()<<endl;
   for(Int_t i=0;i<bmcon->GetResnbin();i++){
-    outfile<<"mean= "<<strelresiduals.at(i).at(0)<<"   sigma= "<<strelresiduals.at(i).at(1)<<" number_of_hits= "<<strelresiduals.at(i).at(2)<<endl;
+    outfile<<"mean_"<<i<<"= "<<strelresiduals.at(i).at(0)<<"  +-  "<<strelresiduals.at(i).at(3)<<"   sigma= "<<strelresiduals.at(i).at(1)<<"  fitchi2=  "<<strelresiduals.at(i).at(4)<<" number_of_hits= "<<strelresiduals.at(i).at(2)<<"  th1d_mean=  "<<strelresiduals.at(i).at(5)<<endl;
   }
   outfile<<"New_strel_parameters:"<<endl;
-  for(Int_t i=0;i<6;i++){
+  for(Int_t i=0;i<11;i++){
     if(bmcon->GetLastStrelpar(i)!=-999)
       outfile<<bmcon->GetLastStrelpar(i)<<"  ";
     else

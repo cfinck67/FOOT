@@ -510,8 +510,8 @@ void TABMparCon::LoadSTrel(TString sF) {
 }
 
 void TABMparCon::AddStrelparameters(vector<Double_t> parin){
-  if(parin.size()!=6){
-    cout<<"TABMparCon::AddStrelparameters::Error: parin size!=6; parin.size()="<<parin.size()<<endl;
+  if(parin.size()!=11){
+    cout<<"TABMparCon::AddStrelparameters::Error: parin size!=11; parin.size()="<<parin.size()<<endl;
     return;
   }
   strelparameters.push_back(parin);
@@ -529,32 +529,28 @@ return -999;
 
  /*-------------------------------------------------*/
 
-Double_t TABMparCon::FirstSTrel(Double_t tdrift){
+Double_t TABMparCon::FirstSTrel(Double_t tdrift, Int_t myswitch){
   
-  if(tdrift<0 && t0_switch==2)
-    return 0.03289 + 0.008*tdrift;
+  if(tdrift<0)
+    tdrift=0.;
   
   Double_t rdrift=0;
   
-  
-  if(autostrel>1){
-    if(strelparameters.size()>0 && strelparameters.back().size()==6)
-      rdrift=strelparameters.back().at(0)+strelparameters.back().at(1)*tdrift+strelparameters.back().at(2)*tdrift*tdrift+strelparameters.back().at(3)*tdrift*tdrift*tdrift+strelparameters.back().at(4)*tdrift*tdrift*tdrift*tdrift+strelparameters.back().at(5)*tdrift*tdrift*tdrift*tdrift*tdrift;
-  }else if(strel_switch==1){ //garfield strel
+  if(autostrel>1 && myswitch==0){
+    if(strelparameters.size()>0 && strelparameters.back().size()==11)
+      rdrift=strelparameters.back().at(0)+strelparameters.back().at(1)*tdrift+strelparameters.back().at(2)*tdrift*tdrift+strelparameters.back().at(3)*tdrift*tdrift*tdrift+strelparameters.back().at(4)*tdrift*tdrift*tdrift*tdrift+strelparameters.back().at(5)*tdrift*tdrift*tdrift*tdrift*tdrift + strelparameters.back().at(6)*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift+strelparameters.back().at(7)*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift+strelparameters.back().at(8)*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift+strelparameters.back().at(9)*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift+strelparameters.back().at(10)*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;
+    else
+      cout<<"ERROR!!! TABMparCon::FirstSTrel:: strelparameters.size()="<<strelparameters.size()<<"   strelparameters.back().size()="<<strelparameters.back().size()<<endl;
+  }else if((strel_switch==1 && myswitch==0) || myswitch==1){ //garfield strel
     rdrift=0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
-  }else if(strel_switch==2){//
+  }else if((strel_switch==2 && myswitch==0) || myswitch==2){//
     rdrift=0.0877343 + (0.00687207*tdrift) + (-3.44394e-06*tdrift*tdrift) + (-3.93076e-07*tdrift*tdrift*tdrift) + (2.61956e-09*tdrift*tdrift*tdrift*tdrift) + (-5.01483e-12*tdrift*tdrift*tdrift*tdrift*tdrift);
-  }else if(strel_switch==3){//
+  }else if((strel_switch==3 && myswitch==0) || myswitch==3){//
     rdrift= 0.0087776*tdrift-6.41845e-05*tdrift*tdrift+2.4946e-07*tdrift*tdrift*tdrift-3.48422e-10*tdrift*tdrift*tdrift*tdrift;  
-  }else if(strel_switch==4){//HIT 2014
+  }else if((strel_switch==4 && myswitch==0) || myswitch==4){//HIT 2014
     rdrift= 0.0092254*tdrift-7.1192e-5*tdrift*tdrift+3.01951e-7*tdrift*tdrift*tdrift-4.66646e-10*tdrift*tdrift*tdrift*tdrift;  
-  }else if (strel_switch==5){
-    rdrift= (0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift)/0.78;     
-  }else if (strel_switch==6){//from strel calibration
-    rdrift= -0.118715 + (0.0098028*tdrift) + (-0.000119206*tdrift*tdrift) + (8.75103e-07*tdrift*tdrift*tdrift) + (-3.16015e-09*tdrift*tdrift*tdrift*tdrift) + (4.37948e-12*tdrift*tdrift*tdrift*tdrift*tdrift);    
-  }else if (strel_switch==7){//from strel calibration
-    tdrift+=43.7;
-    rdrift= 0.0201024 + (0.00408601*tdrift) + (-4.42738e-05*tdrift*tdrift) + (4.9932e-07*tdrift*tdrift*tdrift) + (-2.45383e-09*tdrift*tdrift*tdrift*tdrift) + (4.08383e-12*tdrift*tdrift*tdrift*tdrift*tdrift);     
+  }else if ((strel_switch==5 && myswitch==0) || myswitch==5){//first stretched
+    rdrift= 1.2875602*(0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift);     
   }else{
     //FIRST strel embedded in old Framework
     rdrift= 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift;
@@ -567,7 +563,7 @@ Double_t TABMparCon::FirstSTrel(Double_t tdrift){
 
 Double_t TABMparCon::InverseStrel(Double_t rdrift){
   //~ if(strel_switch==5){
-    TF1 f1("f1","1./0.78*(0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 320.);
+    TF1 f1("f1","1.2875602*(0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., hit_timecut);
     return f1.GetX(rdrift);
   //~ }else if(strel_switch==0){
     //~ TF1 f1("f1","0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x", 0., 320.);
@@ -581,30 +577,6 @@ Double_t TABMparCon::InverseStrel(Double_t rdrift){
   return 0.;
 }
 
-
-Double_t TABMparCon::FirstSTrelMC(Double_t tdrift, Int_t mc_switch){
-  
-  if(tdrift<0 && t0_switch==2)
-      return 0.03289 + 0.008*tdrift;
-  Double_t rdrift=0.;
-    
-  if(mc_switch==1){ //garfield strel
-    rdrift= 0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
-  }else if(mc_switch==2){//
-    rdrift= 0.00972903*tdrift-8.21676e-05*tdrift*tdrift+3.66446e-07*tdrift*tdrift*tdrift-5.85882e-10*tdrift*tdrift*tdrift*tdrift;  
-  }else if(mc_switch==3){//
-    rdrift= 0.0087776*tdrift-6.41845e-05*tdrift*tdrift+2.4946e-07*tdrift*tdrift*tdrift-3.48422e-10*tdrift*tdrift*tdrift*tdrift;  
-  }else if(mc_switch==4){//HIT 2014
-    rdrift= 0.0092254*tdrift-7.1192e-5*tdrift*tdrift+3.01951e-7*tdrift*tdrift*tdrift-4.66646e-10*tdrift*tdrift*tdrift*tdrift;  
-  }else if (mc_switch==5)
-    rdrift= (0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift)/0.78; 
-
-  //FIRST strel embedded in old Framework
-  rdrift= 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift; 
-
-  return (rdrift<0) ? 0. : ((rdrift>0.944) ? 0.944 : rdrift);
-  
-}
 
 
 

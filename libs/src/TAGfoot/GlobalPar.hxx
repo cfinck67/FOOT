@@ -56,6 +56,8 @@ public:
  
     bool IsPrintOutputNtuple() { return m_printoutntuple; };
     string OutputNtuple() { return m_outputntuplename; };
+    void SetOutputntuple(string namein){m_outputntuplename=namein;return;};
+    void SetPrintOutputNtuple(bool inbool) { m_printoutntuple=inbool; return;};
 	
     bool IncludeBM() { return m_includeBM; };
     bool IncludeIR() { return m_includeIR; };

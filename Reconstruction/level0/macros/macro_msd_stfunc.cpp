@@ -115,9 +115,9 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
   //oldstrel_stuff
   //~ TCanvas *mcstrel=new TCanvas("mcstrel","mcstrel",800,800);
   //~ mcstrel->cd();
-  TF1* first_strel_tf1_1=new TF1("first1_strel_green","1./0.78*(0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 320.);  
-  TF1* first_strel_tf1_08=new TF1("first08_strel_blue","0.8/0.78*(0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 320.);  
-  TF1* garfield_strel_tf1=new TF1("garfield_strel_yellow","0.00915267+0.00634507*x+2.02527e-05*x*x-7.60133e-07*x*x*x+5.55868e-09*x*x*x*x-1.68944e-11*x*x*x*x*x+1.87124e-14*x*x*x*x*x*x", 0., 320.);  
+  TF1* first_strel_tf1_1=new TF1("first1_strel_green","1./0.78*(0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 300.);  
+  TF1* first_strel_tf1_08=new TF1("first08_strel_blue","0.8/0.78*(0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 300.);  
+  TF1* garfield_strel_tf1=new TF1("garfield_strel_yellow","0.00915267+0.00634507*x+2.02527e-05*x*x-7.60133e-07*x*x*x+5.55868e-09*x*x*x*x-1.68944e-11*x*x*x*x*x+1.87124e-14*x*x*x*x*x*x", 0., 300.);  
   first_strel_tf1_1->SetLineColor(3);
   first_strel_tf1_1->Write();
   first_strel_tf1_08->SetLineColor(4);
@@ -244,7 +244,7 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
         ((TH1D*)gDirectory->Get(tmp_char))->Fill(space_residual.at(i).at(k));
         ((TH1D*)gDirectory->Get("space_residual_total"))->Fill(space_residual.at(i).at(k));
       }
-      ((TH1D*)gDirectory->Get(tmp_char))->Fit("strelgaus","Q+","",-0.3,0.3);
+      ((TH1D*)gDirectory->Get(tmp_char))->Fit("strelgaus","Q+","",-MAXSTRELRES,MAXSTRELRES);
       newstrel_spaceresidual.push_back(strelgaus->GetParameter(1));
       //~ newstrel_spaceresidual.push_back(((TH1D*)gDirectory->Get(tmp_char))->GetMean()); //no fit, bad method
     }
@@ -272,7 +272,7 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
         ((TH1D*)gDirectory->Get(tmp_char))->Fill(time_residual.at(i).at(k));
         ((TH1D*)gDirectory->Get("time_residual_total"))->Fill(time_residual.at(i).at(k));
       }
-      ((TH1D*)gDirectory->Get(tmp_char))->Fit("strelgaus","Q+","",-0.3,0.3);
+      ((TH1D*)gDirectory->Get(tmp_char))->Fit("strelgaus","Q+","",-MAXSTRELRES,MAXSTRELRES);
       newstrel_timeresidual.push_back(strelgaus->GetParameter(1));
       //~ newstrel_spaceresidual.push_back(((TH1D*)gDirectory->Get(tmp_char))->GetMean()); //no fit, bad method    
     }
@@ -282,7 +282,7 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
         binpos=(int)(allbmeventin.at(i).bm_hit_time[k]*STBIN/300.);
         if(binpos<STBIN && binpos>=0){
           sprintf(tmp_char,"Res_vs_tdrift/strel_tdrift_%d", binpos);
-          ((TH2D*)gDirectory->Get("new_strel_time"))->Fill(allbmeventin.at(i).bm_hit_rdrift[k]+newstrel_timeresidual.at(binpos), allbmeventin.at(i).bm_hit_time[k]);
+          ((TH2D*)gDirectory->Get("new_strel_time"))->Fill(allbmeventin.at(i).bm_hit_rdrift[k]+ ((newstrel_timeresidual.at(binpos)<MAXSTRELRES && newstrel_timeresidual.at(binpos)>-MAXSTRELRES) ? newstrel_timeresidual.at(binpos) : 0.), allbmeventin.at(i).bm_hit_time[k]);
         }    
       }
     }
@@ -313,7 +313,12 @@ void fitStrel(TFile *f_out, const int index, TF1* first_strel_tf1_1, TF1* first_
   prof_newstrel->SetLineColor(3);
   prof_newstrel->Draw();
   
-  TF1 poly ("poly","pol5", 0, 400);
+    //try to change the parameters
+  //~ TF1 poly ("poly","pol5", 0, 400);
+  //try to fix: time=0-->rdrift=0  and time=300-->rdrift=0.8
+  TF1 poly ("poly","[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*x*x*x*x+ (0.8-300.*[1]-90000.*[2]-27000000.*[3]-8100000000.*[4])/2430000000000.*x*x*x*x*x", 0., 300.);
+  poly.FixParameter(0,0.);
+  
   prof_newstrel->Fit("poly","Q+");
   //~ f_out->SaveObjectAs(strels, f_out->GetName(),"q");
   //~ TF1 first_strel_tf1("first_strel_tf1","0.8/0.78*(0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 320.);  
@@ -353,7 +358,8 @@ void fitStrel(TFile *f_out, const int index, TF1* first_strel_tf1_1, TF1* first_
         ((TH2D*)gDirectory->Get("residual_strel_time"))->Fill( ((TH1D*)gDirectory->Get("residual_strel_time"))->GetXaxis()->GetBinCenter(i) , poly.Eval((double)i)- garfield_strel_tf1->Eval((double)i));     
       }     
   }
-  cout<<poly.GetParameter(0)<<" + ("<<poly.GetParameter(1)<<"*tdrift) + ("<<poly.GetParameter(2)<<"*tdrift*tdrift) + ("<<poly.GetParameter(3)<<"*tdrift*tdrift*tdrift) + ("<<poly.GetParameter(4)<<"*tdrift*tdrift*tdrift*tdrift) + ("<<poly.GetParameter(5)<<"*tdrift*tdrift*tdrift*tdrift*tdrift)"<<endl<<endl;  
+  //~ cout<<poly.GetParameter(0)<<" + ("<<poly.GetParameter(1)<<"*tdrift) + ("<<poly.GetParameter(2)<<"*tdrift*tdrift) + ("<<poly.GetParameter(3)<<"*tdrift*tdrift*tdrift) + ("<<poly.GetParameter(4)<<"*tdrift*tdrift*tdrift*tdrift) + ("<<poly.GetParameter(5)<<"*tdrift*tdrift*tdrift*tdrift*tdrift)"<<endl<<endl;  
+  cout<<poly.GetParameter(0)<<" + ("<<poly.GetParameter(1)<<"*tdrift) + ("<<poly.GetParameter(2)<<"*tdrift*tdrift) + ("<<poly.GetParameter(3)<<"*tdrift*tdrift*tdrift) + ("<<poly.GetParameter(4)<<"*tdrift*tdrift*tdrift*tdrift) + ("<<(0.8-300.*poly.GetParameter(1)-90000.*poly.GetParameter(2)-27000000.*poly.GetParameter(3)-8100000000.*poly.GetParameter(4))/2430000000000.<<"*tdrift*tdrift*tdrift*tdrift*tdrift)"<<endl<<endl;  
   return;
 }
 

@@ -102,9 +102,8 @@ class TABMparCon : public TAGpara {
     //strel stuff
     void LoadSTrel(TString sF);
     void AddStrelparameters(vector<Double_t> parin);
-    Double_t FirstSTrel(Double_t tdrift);
+    Double_t FirstSTrel(Double_t tdrift, Int_t myswitch=0);
     Double_t InverseStrel(Double_t rdrift);
-    Double_t FirstSTrelMC(Double_t tdrift, Int_t mc_switch);    
     //~ Double_t STrelCorr(double time, int ic, int ip, int iv);//old, included in FirstSTrel
     //~ double STrel_Delta1(double time);//old, included in FirstSTrel
     //~ double STrel_Delta2(double time);//old, included in FirstSTrel
@@ -116,7 +115,8 @@ class TABMparCon : public TAGpara {
     //~ void ConfigureTrkCalib();
     
     //new resolution
-    void SetTimeReso(TF1 tfin){TimeReso=tfin;return;};
+    //~ void SetTimeReso(TF1 tfin){TimeReso=tfin;return;};
+    void SetTimeReso(TF1 tfin){TimeReso=tfin; cout<<"timereso settato   resoeval100="<<ResoEvalTime(91.3244)<<endl;return;};
     void SetMeanTimeReso(Double_t timein){meantimereso=timein;return;};
     Double_t GetMeanTimeReso(){return meantimereso;};
     Double_t ResoEvalTime(Double_t tin){return TimeReso.Eval(tin)/10000.;};
