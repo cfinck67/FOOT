@@ -101,7 +101,7 @@ Bool_t TASTactDatRaw::Action() {
    }
    if(nvalid)TrigTime = TrigTime/(double)nvalid;
    p_datraw->SetTriggerTime(TrigTime);
-   p_datraw->SetTrigType(myHits.at(0)->GetTrigType());
+   if(myHits.size()>0) p_datraw->SetTrigType(myHits.at(0)->GetTrigType());
    p_datraw->SetCharge(Charge);
    
      
