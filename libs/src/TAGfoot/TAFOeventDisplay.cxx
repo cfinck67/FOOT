@@ -919,7 +919,9 @@ void TAFOeventDisplay::UpdateStcElements()
    Int_t       nHits  = pSTntu->GetHitsN();
 
    //hits
-   cout<<" TAFO:: nHits ST "<<nHits<<endl;
+   if (fDebugLevel > 0)
+      cout<<" TAFO:: nHits ST "<<nHits<<endl;
+   
    for (Int_t i = 0; i < nHits; i++) {
 
       TASTntuHit* hit = pSTntu->Hit(i);
