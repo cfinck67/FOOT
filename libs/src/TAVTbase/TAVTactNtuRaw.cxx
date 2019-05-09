@@ -1,10 +1,7 @@
 /*!
  \file
- \version $Id: TAVTactNtuRaw.cxx,v 1.5 2003/06/22 10:35:47 mueller Exp $
  \brief   Implementation of TAVTactNtuRaw.
  */
-
-#include "TH2F.h"
 
 #include "DECardEvent.hh"
 #include "TAGdaqEvent.hxx"
@@ -15,7 +12,7 @@
 
 /*!
  \class TAVTactNtuRaw TAVTactNtuRaw.hxx "TAVTactNtuRaw.hxx"
- \brief Get vertex raw data from MBS. **
+ \brief Get vertex raw data from DAQ. **
  */
 
 ClassImp(TAVTactNtuRaw);
