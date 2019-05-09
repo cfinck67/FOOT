@@ -12,6 +12,7 @@
 #include <TROOT.h>
 #include <TStopwatch.h>
 
+#include "TAGgeoTrafo.hxx"
 #include "TAGaction.hxx"
 #include "TAGroot.hxx"
 #include "TAGactTreeWriter.hxx"
@@ -86,6 +87,9 @@ void ReadVtxRaw(TString filename = "data_test.00001431.physics_foot.daq.RAW._lb0
    TAGroot tagr;
    tagr.SetCampaignNumber(100);
    tagr.SetRunNumber(1);
+   
+   TAGgeoTrafo* geoTrafo = new TAGgeoTrafo();
+   geoTrafo->FromFile();
    
    outFile = new TAGactTreeWriter("outFile");
 
