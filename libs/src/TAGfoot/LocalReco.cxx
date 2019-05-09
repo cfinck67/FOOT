@@ -159,18 +159,18 @@ void LocalReco::OpenFileIn()
          fActVmeReaderBm->Open(GetName());
       
    } else {
-      SetRunNumber(GetName());
       fActEvtReader->Open(GetName());
+      SetRunNumber();
    }
 }
 
 // --------------------------------------------------------------------------------------
-void LocalReco::SetRunNumber(const TString& filename)
+void LocalReco::SetRunNumber()
 {
    // Done by hand shoud be given by DAQ header
-   TString name(filename);
-   Int_t pos1 = name.First(".");
-   Int_t len  = name.Length();
+   TString name = fActEvtReader->GetFileHeader()->filename;
+   Int_t pos1   = name.First(".");
+   Int_t len    = name.Length();
    
    TString tmp1 = name(pos1+1, len);
    Int_t pos2   = tmp1.First(".");

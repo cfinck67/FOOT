@@ -56,7 +56,7 @@ public:
    virtual void LoopEvent(Int_t nEvents);
    
    //! Set run number
-   void   SetRunNumber(const TString& name);
+   void   SetRunNumber();
 
 public:
    //! Disable/Enable stand alone DAQ
