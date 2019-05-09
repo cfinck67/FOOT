@@ -158,8 +158,25 @@ void LocalReco::OpenFileIn()
       if (GlobalPar::GetPar()->IncludeBM())
          fActVmeReaderBm->Open(GetName());
       
-   } else
+   } else {
+      SetRunNumber(GetName());
       fActEvtReader->Open(GetName());
+   }
+}
+
+// --------------------------------------------------------------------------------------
+void LocalReco::SetRunNumber(const TString& filename)
+{
+   // Done by hand shoud be given by DAQ header
+   TString name(filename);
+   Int_t pos1 = name.First(".");
+   Int_t len  = name.Length();
+   
+   TString tmp1 = name(pos1+1, len);
+   Int_t pos2   = tmp1.First(".");
+   TString tmp  = tmp1(0, pos2);
+   
+   gTAGroot->SetRunNumber(tmp.Atoi());
 }
 
 //__________________________________________________________
