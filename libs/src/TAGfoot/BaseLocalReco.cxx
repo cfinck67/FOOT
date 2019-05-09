@@ -93,6 +93,7 @@ BaseLocalReco::~BaseLocalReco()
 //__________________________________________________________
 void BaseLocalReco::BeforeEventLoop()
 {
+   ReadParFiles();
    CreateRawAction();
    CreateRecAction();
 
