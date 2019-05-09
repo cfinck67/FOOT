@@ -132,7 +132,7 @@ void TCFObaseEventAction::BeginOfEventAction(const G4Event* evt)
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-void TCFObaseEventAction::EndOfEventAction(const G4Event* evt)
+void TCFObaseEventAction::EndOfEventAction(const G4Event* /*evt*/)
 {
 }
 
