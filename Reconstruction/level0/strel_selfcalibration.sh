@@ -1,16 +1,27 @@
 #!/bin/bash
 #WARNING: check carefully the beammonitor.cfg config file and remember to DELETE or not DELETE the config/shifts.cfg file!!!
+./DecodeMC -in data/largo_dritto.root -reco recohistos_largo_smearrdrift_garftostretchfirst_1.root -nev 100000 &&
+./DecodeMC -in data/largo_dritto.root -reco recohistos_largo_smearrdrift_garftostretchfirst_2.root -nev 100000 &&
+./DecodeMC -in data/largo_dritto.root -reco recohistos_largo_smearrdrift_garftostretchfirst_3.root -nev 100000 &&
+./DecodeMC -in data/largo_dritto.root -reco recohistos_largo_smearrdrift_garftostretchfirst_4.root -nev 100000 &&
+./DecodeMC -in data/largo_dritto.root -reco recohistos_largo_smearrdrift_garftostretchfirst_5.root -nev 100000 &&
+./DecodeMC -in data/largo_dritto.root -reco recohistos_largo_smearrdrift_garftostretchfirst_6.root -nev 100000 &&
+./DecodeMC -in data/largo_dritto.root -reco recohistos_largo_smearrdrift_garftostretchfirst_7.root -nev 100000 &&
+./DecodeMC -in data/largo_dritto.root -reco recohistos_largo_smearrdrift_garftostretchfirst_8.root -nev 100000 &&
+./DecodeMC -in data/largo_dritto.root -reco recohistos_largo_smearrdrift_garftostretchfirst_9.root -nev 100000 &&
+./DecodeMC -in data/largo_dritto.root -reco recohistos_largo_smearrdrift_garftostretchfirst_10.root -nev 100000 &&
+
 
 #~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try1garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
-./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try2garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
-./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try3garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
-./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try4garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
-./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try5garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
-./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try6garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
-./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try7garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
-./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try8garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
-./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try9garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
-./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try10garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
+#~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try2garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
+#~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try3garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
+#~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try4garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
+#~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try5garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
+#~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try6garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
+#~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try7garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
+#~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try8garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
+#~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try9garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
+#~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try10garf_pol10.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
 #~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try11garf.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
 #~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try12garf.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&
 #~ ./DecodeMC -in data/msd_marzo/bmdata/6_March_2019/80MeV_HV2175_100kEv.dat -reco recohistos_try13garf.root -nev 100000 -data -bmconfile /config/beammonitor.cfg  &&

@@ -74,7 +74,7 @@ class TABMparCon : public TAGpara {
     TVector3 GetMeas_tilt(){return meas_tilt;};
     TRandom3* GetRand(){return rand;};
     Double_t GetRdrift_err(){return rdrift_err;};
-    Int_t GetAutstrel(){return autostrel;};
+    Int_t GetAutostrel(){return autostrel;};
     Int_t GetResnbin(){return resnbin;};
     string GetShiftsfile(){return shiftsfile;};
     Double_t GetLastStrelpar(Int_t pos){return (pos<=strelparameters.back().size()) ? strelparameters.back().at(pos) : -999;};
@@ -102,8 +102,9 @@ class TABMparCon : public TAGpara {
     //strel stuff
     void LoadSTrel(TString sF);
     void AddStrelparameters(vector<Double_t> parin);
+    Bool_t SetStrelparameters(Int_t ite=-1); //set the last parameters from strelparameters to the strel_autocalib TF1
     Double_t FirstSTrel(Double_t tdrift, Int_t myswitch=0);
-    Double_t InverseStrel(Double_t rdrift);
+    Double_t InverseStrel(Double_t rdrift, Int_t myswitch=5);
     //~ Double_t STrelCorr(double time, int ic, int ip, int iv);//old, included in FirstSTrel
     //~ double STrel_Delta1(double time);//old, included in FirstSTrel
     //~ double STrel_Delta2(double time);//old, included in FirstSTrel
@@ -116,10 +117,11 @@ class TABMparCon : public TAGpara {
     
     //new resolution
     //~ void SetTimeReso(TF1 tfin){TimeReso=tfin;return;};
-    void SetTimeReso(TF1 tfin){TimeReso=tfin; cout<<"timereso settato   resoeval100="<<ResoEvalTime(91.3244)<<endl;return;};
+    void SetTimeReso(TF1 tfin){TimeReso=tfin; return;};
     void SetMeanTimeReso(Double_t timein){meantimereso=timein;return;};
     Double_t GetMeanTimeReso(){return meantimereso;};
-    Double_t ResoEvalTime(Double_t tin){return TimeReso.Eval(tin)/10000.;};
+    Double_t ResoEvalTime(Double_t tin){return (TimeReso.Eval(tin)>10.) ? TimeReso.Eval(tin)/10000. : 10.;};
+    Double_t MCResoEvalTime(Double_t tin){return (tin<(hit_timecut/10.) || tin>(hit_timecut*0.8)) ? 0.02 : 0.005;}; //200 micron in the lateral and 50 micron in central area
     Int_t GetTimeResoNumPar(){return TimeReso.GetNpar();};
     Double_t GetTimeResoPar(Int_t parnum){return TimeReso.GetParameter(parnum);};
       
@@ -186,6 +188,15 @@ class TABMparCon : public TAGpara {
     vector<vector<Double_t>>  strelparameters;//store the strel parameters, 6 params for each iteration
     TF1 TimeReso; //function used to evaluate the hit resolution
     Double_t meantimereso;//mean time resolution value
+
+    //STREL
+    TF1  strel_1garfield;
+    TF1  strel_2mine;
+    TF1  strel_3mine;
+    TF1  strel_4hit;
+    TF1  strel_5firststretched;
+    TF1  strel_0first;
+    TF1  strel_autocalib;
 
     //~ TF1* f_mypol;
     //~ TF1* f_mypol2;

@@ -98,7 +98,7 @@ const TString  STC_MEDIUM	="EJ-232";
 
 //************************************************************
 // Beam Monitor
-
+//largo_dritto: x=0.2, y=0.1
 const Double_t BMN_X 		=0.;//center x coordinate
 const Double_t BMN_Y 		=0.;//center y coordinate
 const Double_t BMN_Z 		=-14.0;//center z coordinate

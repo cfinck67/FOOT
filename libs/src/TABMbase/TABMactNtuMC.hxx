@@ -31,7 +31,7 @@ class TABMactNtuMC : public TAGaction {
 
     virtual Bool_t  Action();
 
-    Double_t FindRdrift(TVector3 loc, TVector3 mom, TVector3 A0, TVector3 Wvers);
+    Double_t FindRdrift(TVector3 R0, TVector3 Pvers, TVector3 A0, TVector3 Wvers);
     void CreateFakeHits(Int_t nfake, Int_t &nhits);
 
     ClassDef(TABMactNtuMC,0)

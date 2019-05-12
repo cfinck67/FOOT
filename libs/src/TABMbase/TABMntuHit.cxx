@@ -66,34 +66,39 @@ TABMntuHit::TABMntuHit(Int_t id, Int_t iv, Int_t il, Int_t ic, Double_t x, Doubl
 }
 
 
-void TABMntuHit::SmearRdrift(Int_t smear_type, TABMparCon *p_bmcon){
+void TABMntuHit::SmearRdrift(TABMparCon *p_bmcon){
 Double_t smeared;
 
-if(smear_type==0)
+if(rdrift>0.944){
+  cout<<"ERROR in TABMntuHit:: I don't know why, but rdrift is too big: rdrift="<<rdrift<<", now I'll correct it to 0.944"<<endl;
+  rdrift=0.944;
+}
+
+if(p_bmcon->GetSmearrdrift()==0)
   return;
 
-if(smear_type==1){ //gaussian truncated to 1 sigma
+if(p_bmcon->GetSmearrdrift()==1){ //gaussian truncated to 1 sigma
   do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>sigma  || (smeared>0.944));
 }
 
-if(smear_type==2){ //gaussian truncated to 2 sigma
+if(p_bmcon->GetSmearrdrift()==2){ //gaussian truncated to 2 sigma
   do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>2.*sigma || (smeared>0.944));
 }
 
-if(smear_type==3){ //gaussian truncated to 3 sigma
+if(p_bmcon->GetSmearrdrift()==3){ //gaussian truncated to 3 sigma
   do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(fabs(smeared-rdrift)>3.*sigma || (smeared>0.944));
 }
   
-if(smear_type==4){ //gaussian not truncated
+if(p_bmcon->GetSmearrdrift()==4){ //gaussian not truncated
   do{smeared=p_bmcon->GetRand()->Gaus(rdrift,sigma);}while(smeared>0.944);
 }
 
-if(smear_type==5) //flat smearing
+if(p_bmcon->GetSmearrdrift()==5) //flat smearing
   smeared=rdrift+p_bmcon->GetRand()->Uniform(-sigma*sqrt(12.)/2.,sigma*sqrt(12.)/2.);
 
 //~ rdrift= (smeared<0) ? 0. : ((smeared>0.944) ? 0.944 : smeared);
-rdrift= (smeared<0) ? 0. : smeared;
-tdrift=p_bmcon->InverseStrel(rdrift);
+rdrift= (smeared<0.) ? 0. : smeared;
+tdrift=p_bmcon->InverseStrel(rdrift, p_bmcon->GetCalibro());
 return;  
 } 
 

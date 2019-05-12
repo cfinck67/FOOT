@@ -254,11 +254,37 @@ Bool_t TABMparCon::FromFile(const TString& name) {
     part_in_mom=(Double_t)PRIM_A*PRIM_T;
   }
 
+  if(autostrel!=0 && calibro==0){
+    cout<<"WARNING::TABMparCon::FromFile: autostrel="<<autostrel<<"   calibro="<<calibro<<"   since it's useless that calibro=0 and autostrel!=0, I'll set calibro to 1 by default, however be careful with the bmconfig file!"<<endl;
+    calibro=1;
+  }
+  
   //bm default values
   TimeReso=TF1 ("default_timeresopol10","[0]+[1]*x*[8]+[2]*x*x*[8]*[8]+[3]*x*x*x*[8]*[8]*[8]+[4]*x*x*x*x*[8]*[8]*[8]*[8]+[5]*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]+[6]*x*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]*[8]+[7]*x*x*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]*[8]*[8]", 0.,hit_timecut);
-  TimeReso.SetParameters(148.217,2.27112,-0.259329,0.00619644,-6.73284e-05,3.73334e-07,-1.02493e-09,1.10453e-12,hit_timecut/300.);//default parameters
+  TimeReso.SetParameters(148.217,2.27112,-0.259329,0.00619644,-6.73284e-05,3.73334e-07,-1.02493e-09,1.10453e-12,300./hit_timecut);//default parameters
   meantimereso=145.;
-  
+
+  //bm strels
+  strel_1garfield=TF1 ("strel_1garfield","[0]+[1]*x*[8]+[2]*x*x*[8]*[8]+[3]*x*x*x*[8]*[8]*[8]+[4]*x*x*x*x*[8]*[8]*[8]*[8]+[5]*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]+[6]*x*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]*[8]+[7]*x*x*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]*[8]*[8]", 0.,hit_timecut);
+  strel_1garfield.SetParameters(0.10915267,0.00634507,2.02527e-05,-7.60133e-07,5.55868e-09,-1.68944e-11,1.87124e-14,0.,1.);
+  //strel_2mine
+  strel_2mine=TF1 ("strel_2mine","[0]+[1]*x*[8]+[2]*x*x*[8]*[8]+[3]*x*x*x*[8]*[8]*[8]+[4]*x*x*x*x*[8]*[8]*[8]*[8]+[5]*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]+[6]*x*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]*[8]+[7]*x*x*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]*[8]*[8]", 0.,hit_timecut);
+  strel_2mine.SetParameters(0.0877343,0.00687207,-3.44394e-06,-3.93076e-07,2.61956e-09,-5.01483e-12,0.,0.,1.);
+  //strel_3mine
+  strel_3mine=TF1 ("strel_3mine","[0]+[1]*x*[8]+[2]*x*x*[8]*[8]+[3]*x*x*x*[8]*[8]*[8]+[4]*x*x*x*x*[8]*[8]*[8]*[8]+[5]*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]+[6]*x*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]*[8]+[7]*x*x*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]*[8]*[8]", 0.,hit_timecut);
+  strel_3mine.SetParameters(0.,0.0087776,-6.41845e-05,2.4946e-07,-3.48422e-10,0.,0.,0.,1.);
+  //strel_4hit
+  strel_4hit=TF1 ("strel_4hit","[0]+[1]*x*[5]+[2]*x*x*[5]*[5]+[3]*x*x*x*[5]*[5]*[5]+[4]*x*x*x*x*[5]*[5]*[5]*[5]", 0.,hit_timecut);
+  strel_4hit.SetParameters(0.,0.0092254,-7.1192e-5,3.01951e-7,-4.66646e-10,1.);
+  //strel_5firststretched
+  strel_5firststretched=TF1 ("strel_5firststretched","[6]*([0]+[1]*x*[5]+[2]*x*x*[5]*[5]+[3]*x*x*x*[5]*[5]*[5]+[4]*x*x*x*x*[5]*[5]*[5]*[5])", 0.,hit_timecut);
+  strel_5firststretched.SetParameters(0.,0.0075746330,-5.1692440e-05,1.8928600e-07,-2.4652420e-10,1.,1.2875602);
+  //strel_0first
+  strel_0first=TF1 ("strel_0first","[0]+[1]*x*[5]+[2]*x*x*[5]*[5]+[3]*x*x*x*[5]*[5]*[5]+[4]*x*x*x*x*[5]*[5]*[5]*[5]", 0.,hit_timecut);
+  strel_0first.SetParameters(0.032891770,0.0075746330,-5.1692440e-05,1.8928600e-07,-2.4652420e-10,1.);
+  //strel_autocalib
+  strel_autocalib=TF1 ("strel_autocalib","pol10", 0.,hit_timecut);
+    
   return kFALSE;
 }
 
@@ -537,12 +563,29 @@ Double_t TABMparCon::FirstSTrel(Double_t tdrift, Int_t myswitch){
   Double_t rdrift=0;
   
   if(autostrel>1 && myswitch==0){
+    rdrift=strel_autocalib.Eval(tdrift);
+  }else if((strel_switch==1 && myswitch==0) || myswitch==1){ //1garfield strel
+    rdrift=strel_1garfield.Eval(tdrift);  
+  }else if((strel_switch==2 && myswitch==0) || myswitch==2){//2mine
+    rdrift=strel_2mine.Eval(tdrift);
+  }else if((strel_switch==3 && myswitch==0) || myswitch==3){//3mine
+    rdrift=strel_3mine.Eval(tdrift);
+  }else if((strel_switch==4 && myswitch==0) || myswitch==4){//4HIT 2014
+    rdrift=strel_4hit.Eval(tdrift);
+  }else if ((strel_switch==5 && myswitch==0) || myswitch==5){//5first stretched
+    rdrift=strel_5firststretched.Eval(tdrift);
+  }else{// 0 default FIRST strel 
+    rdrift=strel_0first.Eval(tdrift);
+  }
+  
+  /*
+  if(autostrel>1 && myswitch==0){
     if(strelparameters.size()>0 && strelparameters.back().size()==11)
       rdrift=strelparameters.back().at(0)+strelparameters.back().at(1)*tdrift+strelparameters.back().at(2)*tdrift*tdrift+strelparameters.back().at(3)*tdrift*tdrift*tdrift+strelparameters.back().at(4)*tdrift*tdrift*tdrift*tdrift+strelparameters.back().at(5)*tdrift*tdrift*tdrift*tdrift*tdrift + strelparameters.back().at(6)*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift+strelparameters.back().at(7)*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift+strelparameters.back().at(8)*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift+strelparameters.back().at(9)*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift+strelparameters.back().at(10)*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;
     else
       cout<<"ERROR!!! TABMparCon::FirstSTrel:: strelparameters.size()="<<strelparameters.size()<<"   strelparameters.back().size()="<<strelparameters.back().size()<<endl;
   }else if((strel_switch==1 && myswitch==0) || myswitch==1){ //garfield strel
-    rdrift=0.00915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
+    rdrift=0.10915267+0.00634507*tdrift+2.02527e-05*tdrift*tdrift-7.60133e-07*tdrift*tdrift*tdrift+5.55868e-09*tdrift*tdrift*tdrift*tdrift-1.68944e-11*tdrift*tdrift*tdrift*tdrift*tdrift+1.87124e-14*tdrift*tdrift*tdrift*tdrift*tdrift*tdrift;  
   }else if((strel_switch==2 && myswitch==0) || myswitch==2){//
     rdrift=0.0877343 + (0.00687207*tdrift) + (-3.44394e-06*tdrift*tdrift) + (-3.93076e-07*tdrift*tdrift*tdrift) + (2.61956e-09*tdrift*tdrift*tdrift*tdrift) + (-5.01483e-12*tdrift*tdrift*tdrift*tdrift*tdrift);
   }else if((strel_switch==3 && myswitch==0) || myswitch==3){//
@@ -555,28 +598,58 @@ Double_t TABMparCon::FirstSTrel(Double_t tdrift, Int_t myswitch){
     //FIRST strel embedded in old Framework
     rdrift= 0.032891770+0.0075746330*tdrift-(5.1692440e-05)*tdrift*tdrift+(1.8928600e-07)*tdrift*tdrift*tdrift-(2.4652420e-10)*tdrift*tdrift*tdrift*tdrift;
   }
-  
+  */
+      
   return (rdrift<0) ? 0. : ((rdrift>0.944) ? 0.944 : rdrift);
   
 }
 
 
-Double_t TABMparCon::InverseStrel(Double_t rdrift){
-  //~ if(strel_switch==5){
-    TF1 f1("f1","1.2875602*(0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., hit_timecut);
-    return f1.GetX(rdrift);
-  //~ }else if(strel_switch==0){
-    //~ TF1 f1("f1","0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x", 0., 320.);
-    //~ return f1.GetX(rdrift);
-  //~ }else if(strel_switch==4){
-    //~ TF1 f1("f1","0.0092254*x-7.1192e-5*x*x+3.01951e-7*x*x*x-4.66646e-10*x*x*x*x", 0., 320.);
-    //~ return f1.GetX(rdrift);
-  //~ }
+Double_t TABMparCon::InverseStrel(Double_t rdrift, Int_t myswitch){
+  
+  if(rdrift<0){
+    cout<<"ERROR in TABMparCon::InverseStrel:: rdrift<0!!!!  rdrift="<<rdrift<<"  I'll set rdrift=0, but this shouldn't happen!"<<endl;
+    rdrift=0.;
+  }else if (rdrift>0.945){
+    cout<<"ERROR in TABMparCon::InverseStrel:: rdrift>0.945!!!!  rdrift="<<rdrift<<"  I'll set rdrift=0.944, but this shouldn't happen!"<<endl;
+    rdrift=0.944;
+  }
   
   
-  return 0.;
+  if(myswitch==5){
+    return strel_5firststretched.GetX(rdrift);
+  }else if(myswitch==0){
+    return strel_0first.GetX(rdrift);
+  }else if(myswitch==1){
+    return strel_1garfield.GetX(rdrift);
+  }else if(myswitch==2){
+    return strel_2mine.GetX(rdrift);
+  }else if(myswitch==3){
+    return strel_3mine.GetX(rdrift);
+  }else if(myswitch==4){
+    return strel_4hit.GetX(rdrift);
+  }
+  
+  //autocalib
+  return strel_autocalib.GetX(rdrift);
 }
 
+Bool_t TABMparCon::SetStrelparameters(Int_t ite){
+  if(ite>0 && ite>=strelparameters.size()){
+    cout<<"ERROR in TABMparCon::SetStrelparameters::  ite="<<ite<<"   strelparameters.size()="<<strelparameters.size()<<endl;
+    return kTRUE;
+  }else if(ite<0)
+    ite=strelparameters.size()-1;
+
+  if(strelparameters.at(ite).size()!=11){
+    cout<<"ERROR in TABMparCon::SetStrelparameters::  ite="<<ite<<"   strelparameters.size()="<<strelparameters.size()<<"   strelparameters.at(ite).size()="<<strelparameters.at(ite).size()<<endl;
+    return kTRUE;
+  }
+  for(Int_t i=0;i<11;i++)  
+    strel_autocalib.SetParameter(i,strelparameters.at(ite).at(i))  ;
+
+return kFALSE;
+}
 
 
 

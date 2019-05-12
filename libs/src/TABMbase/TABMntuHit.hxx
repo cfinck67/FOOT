@@ -53,7 +53,7 @@ class TABMntuHit : public TAGdata {
     Double_t GetRealRdrift(){return realRdrift;};
     Double_t GetRdriftSmear(){return fabs(realRdrift-rdrift);};
 
-    void SmearRdrift(Int_t smear_type, TABMparCon *p_bmcon); //to smear rdrift with resolution, use it ONLY for MC events!
+    void SmearRdrift(TABMparCon *p_bmcon); //to smear rdrift with resolution, use it ONLY for MC events!
 
     //setters
     void SetRho(Double_t in_rho) { rho = in_rho;};

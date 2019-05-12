@@ -61,7 +61,7 @@ Bool_t TABMactNtuMC::Action()
   vector<bool> tobecharged(fpEvtStr->BMNn, true);
   vector<Double_t> rdriftxcell(fpEvtStr->BMNn, 99.);
   Int_t nhits=0;
-  TVector3 loc, gmom, mom, A0, Wvers;
+  TVector3 loc, gmom, A0, Wvers, dirfrompos;
   if (!p_nturaw->h) p_nturaw->SetupClones();//se non c'è l'array di h, lo crea
   //The number of hits inside the BM is nmon
   Info("Action()","Processing n :: %2d hits \n",fpEvtStr->BMNn);
@@ -87,8 +87,10 @@ Bool_t TABMactNtuMC::Action()
       hitxcell.at(i)=p_bmgeo->GetBMNcell(lay, view, cell);
       loc.SetXYZ(fpEvtStr->BMNxin[i],fpEvtStr->BMNyin[i],fpEvtStr->BMNzin[i]);
       p_bmgeo->Global2Local(&loc);
+      dirfrompos.SetXYZ(fpEvtStr->BMNxout[i]-fpEvtStr->BMNxin[i],fpEvtStr->BMNyout[i]-fpEvtStr->BMNyin[i],fpEvtStr->BMNzout[i]-fpEvtStr->BMNzin[i]);
+      dirfrompos.SetMag(1.);
+      //~ gmom.SetXYZ(fpEvtStr->BMNpxin[i],fpEvtStr->BMNpyin[i],fpEvtStr->BMNpzin[i]);
       
-      gmom.SetXYZ(fpEvtStr->BMNpxin[i],fpEvtStr->BMNpyin[i],fpEvtStr->BMNpzin[i]);
       A0.SetXYZ(p_bmgeo->GetX(p_bmgeo->GetID(cell),lay,view),      
                 p_bmgeo->GetY(p_bmgeo->GetID(cell),lay,view),    
                 p_bmgeo->GetZ(p_bmgeo->GetID(cell),lay,view));  
@@ -96,7 +98,8 @@ Bool_t TABMactNtuMC::Action()
                    p_bmgeo->GetCY(p_bmgeo->GetID(cell),lay,view), 
                    p_bmgeo->GetCZ(p_bmgeo->GetID(cell),lay,view)); 
       Wvers.SetMag(1.);                      
-      rdriftxcell.at(i)=FindRdrift(loc, gmom, A0, Wvers);
+      //~ rdriftxcell.at(i)=FindRdrift(loc, gmom, A0, Wvers);
+      rdriftxcell.at(i)=FindRdrift(loc, dirfrompos, A0, Wvers);
       
       //~ rdriftxcell.at(i)-=0.05;//provv
       //~ if(rdriftxcell.at(i)<0) rdriftxcell.at(i)=0.;
@@ -169,7 +172,7 @@ Bool_t TABMactNtuMC::Action()
       CreateFakeHits(hitsrandtot-remainhitsn, nhits);
   }
     
-  Double_t realrdrift;    
+  Double_t realrdrift, hitsigma;    
   //charge the hits:
   for (Int_t i = 0; i < fpEvtStr->BMNn; i++) {
 
@@ -186,16 +189,16 @@ Bool_t TABMactNtuMC::Action()
       //shift the t0 and change the strelations:
       realrdrift=rdriftxcell.at(i);
       if(p_bmcon->GetCalibro()>0){
-        if(p_bmcon->GetAutstrel()==1)
-          rdriftxcell.at(i)=p_bmcon->FirstSTrel(p_bmcon->InverseStrel(rdriftxcell.at(i)), p_bmcon->GetCalibro());//this is useful if you want to change the strel      
+        if(p_bmcon->GetAutostrel()==1 || p_bmcon->GetAutostrel()==0)
+          rdriftxcell.at(i)=p_bmcon->FirstSTrel(p_bmcon->InverseStrel(realrdrift), p_bmcon->GetCalibro());//this is useful if you want to change the strel    
         else
-          rdriftxcell.at(i)=p_bmcon->FirstSTrel(p_bmcon->InverseStrel(rdriftxcell.at(i)));//this is useful if you want to change the strel      
+          rdriftxcell.at(i)=p_bmcon->FirstSTrel(p_bmcon->InverseStrel(realrdrift));      
       }
       //~ if(rdriftxcell.at(i)==0)
         //~ rdriftxcell.at(i)=0.001;
 
       if(p_bmcon->GetBMdebug()>=3)
-        cout<<"In the charging hits loop: I'm going to charge hit number:"<<i<<"/"<<fpEvtStr->BMNn<<"  tobecharged="<<tobecharged[i]<<"  view="<<view<<"  lay="<<lay<<"  cell="<<cell<<"  rdriftxcell[i]="<<rdriftxcell[i]<<"  time="<<fpEvtStr->BMNtim[i]<<endl;      
+        cout<<"In the charging hits loop: I'm going to charge hit number:"<<i<<"/"<<fpEvtStr->BMNn<<"  tobecharged="<<tobecharged[i]<<"  view="<<view<<"  lay="<<lay<<"  cell="<<cell<<"  rdriftxcell[i]="<<rdriftxcell[i]<<"  realrdrift="<<realrdrift<<"    p_bmcon->InverseStrel(realrdrift)="<<p_bmcon->InverseStrel(realrdrift)<<endl;      
       //create hit
       TABMntuHit *mytmp = new((*(p_nturaw->h))[nhits]) TABMntuHit(    
                           fpEvtStr->BMNid[i],	view, lay, cell,        
@@ -205,15 +208,28 @@ Bool_t TABMactNtuMC::Action()
         
       //X,Y and Z needs to be placed in Local coordinates.
       //~ mytmp->SetAW(p_bmgeo);
+      //hit resolution and smearing
       if(p_bmcon->ResoEvalTime(p_bmcon->InverseStrel(realrdrift))>0)
-        mytmp->SetSigma(p_bmcon->ResoEvalTime(p_bmcon->InverseStrel(realrdrift)));
+        hitsigma=p_bmcon->ResoEvalTime(p_bmcon->InverseStrel(realrdrift));
       else{  
         cout<<"WARNING: error from config ResoEvalTime(p_bmcon->InverseStrel(realrdrift))! sigma on rdrift is zero!!! going to set error=0.015; rdrift="<<p_bmcon->InverseStrel(realrdrift)<<"   realrdrift="<<realrdrift<<"    ResoEvaltime="<<p_bmcon->ResoEvalTime(p_bmcon->InverseStrel(realrdrift))<<"   Inversestrel="<<p_bmcon->InverseStrel(realrdrift)<<endl;
-        mytmp->SetSigma(p_bmcon->GetRdrift_err());
-        }
-      mytmp->SetRealRdrift(realrdrift);  
+        hitsigma=p_bmcon->GetRdrift_err();
+       }
+      if(p_bmcon->GetAutostrel()>0)
+        mytmp->SetSigma(p_bmcon->MCResoEvalTime(p_bmcon->InverseStrel(realrdrift)));
+      else
+        mytmp->SetSigma(hitsigma);
+        
       if(p_bmcon->GetSmearrdrift()>0)
-        mytmp->SmearRdrift(p_bmcon->GetSmearrdrift(), p_bmcon);   //smearing 
+        mytmp->SmearRdrift(p_bmcon);   //smearing
+      if(p_bmcon->GetAutostrel()>0)
+        mytmp->SetSigma(hitsigma);
+        
+      if(p_bmcon->GetBMdebug()>=3)
+        cout<<"TABMactNtuMC: postsmearing:  hitsigma="<<hitsigma<<"   getsigma="<<mytmp->GetSigma()<<"   MCresoEval="<<p_bmcon->MCResoEvalTime(p_bmcon->InverseStrel(realrdrift))<<"    hit_rdrift="<<mytmp->Dist()<<"   tdrift="<<mytmp->Tdrift()<<endl;
+      
+      mytmp->SetRealRdrift(realrdrift);  
+      
       if(fpEvtStr->TRpaid[fpEvtStr->BMNid[i]-1]!=0)
         mytmp->SetIsFake(1);
       else
@@ -260,21 +276,19 @@ void TABMactNtuMC::CreateFakeHits(Int_t nfake, Int_t &nhits){
 }
 
 
-Double_t TABMactNtuMC::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers) {
+Double_t TABMactNtuMC::FindRdrift(TVector3 R0, TVector3 Pvers, TVector3 A0, TVector3 Wvers) {
 
   Double_t tp = 0., tf= 0., rdrift; 
-  TVector3 D0, R0, Pvers;
+  TVector3 D0;
 
   //~ if (dir.Mag()!=0.)
     //~ dir.SetMag(1.);
   //~ else{
-  if(dir.Mag()==0.){
-    cout<<"WARNING: FindRdrift: momentum is 0 and the hit shouldn't be charged because this hit is from a fragmentated particle with zero momentum"<<endl;
+  if(Pvers.Mag()==0.){
+    //~ cout<<"WARNING: FindRdrift: momentum is 0 and the hit shouldn't be charged because this hit is from a fragmentated particle with zero momentum"<<endl;
     return 99;//fake value
-    }
+  }
     
-  R0.SetXYZ(pos.X(),pos.Y(),pos.Z());//set position
-  Pvers=dir;
   Pvers.SetMag(1.);
   
   D0 = R0 - A0;//distance between position of reference point of current wire and current particle position
@@ -291,17 +305,21 @@ Double_t TABMactNtuMC::FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVect
   else  //if they go parallel
     rdrift = sqrt(abs( D0.Mag2() - D0W*D0W)); 
 
-  if(rdrift<0){
-    cout<<"WARNING!!!!! SOMETHING IS WRONG, YOU HAVE A NEGATIVE RDRIFT!!!!!!!!!  look at TABMactNtuMC::FindRdrift   rdrift="<<rdrift<<endl;
-    rdrift=0;
+  if(rdrift<0 || rdrift>0.945){
+    cout<<"ERROR! in TABMactNtuMC::FindRdrift: rdrift is >0.945 or <0: rdrift="<<rdrift<<endl;
     cout<<"rdrift="<<rdrift<<endl;
-    cout<<"pos=("<<pos.X()<<","<<pos.Y()<<","<<pos.Z()<<")  dir=("<<dir.X()<<","<<dir.Y()<<","<<dir.Z()<<")"<<endl;
+    cout<<"R0=("<<R0.X()<<","<<R0.Y()<<","<<R0.Z()<<")  Pvers=("<<Pvers.X()<<","<<Pvers.Y()<<","<<Pvers.Z()<<")"<<endl;
     cout<<"A0=("<<A0.X()<<","<<A0.Y()<<","<<A0.Z()<<")  Wvers=("<<Wvers.X()<<","<<Wvers.Y()<<","<<Wvers.Z()<<")"<<endl;
+    cout<<"Now I'll adjust manually the rdrfit to 0 or 0.944"<<endl;
+    rdrift= (rdrift<0) ? 0. : 0.944;
     }
     
     //~ cout<<"rdrift="<<rdrift<<endl;
     //~ cout<<"pos=("<<pos.X()<<","<<pos.Y()<<","<<pos.Z()<<")  dir=("<<dir.X()<<","<<dir.Y()<<","<<dir.Z()<<")"<<endl;
     //~ cout<<"A0=("<<A0.X()<<","<<A0.Y()<<","<<A0.Z()<<")  Wvers=("<<Wvers.X()<<","<<Wvers.Y()<<","<<Wvers.Z()<<")"<<endl;  
+  
+  //~ if(rdrift>=0.945)
+    //~ cout<<"WARNING:: TABMactNtuMC::FindRdrift: rdrift="<<rdrift<<endl;
     
   return rdrift;
 }

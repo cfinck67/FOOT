@@ -143,7 +143,7 @@ void macro_msd_strel(){
   int last_vtxindex=0;
   for(int i=0;i<allbmeventin.size();i++){
     int k=allbmeventin.at(i).evnum;
-    k+=allbmeventin.at(i).evnum<CHANGESHIFT ? NUMEVTSHIFT : NUMEVT2SHIFT;
+    //~ k+=allbmeventin.at(i).evnum<CHANGESHIFT ? NUMEVTSHIFT : NUMEVT2SHIFT;
     //~ cout<<"i="<<i<<"  allbmeventin.at(i).evnum="<<allbmeventin.at(i).evnum<<"  k="<<k<<endl;
     if(allbmeventin.at(i).bm_track_chi2<BMNCUT && k>=0){
       for(int l=last_vtxindex;l<allvtxeventin.size();l++){
