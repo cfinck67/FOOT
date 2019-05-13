@@ -461,13 +461,14 @@ void TASTactDatRaw::CreateHistogram(){
   DeleteHistogram();
 
   char histoname[100]="";
-  cout<<"I have created the ST histo. "<<endl;
+  if (fDebugLevel > 0)
+     cout<<"I have created the ST histo. "<<endl;
 
-  sprintf(histoname,"EvtTime");
+  sprintf(histoname,"stEvtTime");
   hEventTime = new TH1F(histoname, histoname, 6000, 0., 60.);
   AddHistogram(hEventTime);
 
-  sprintf(histoname,"TrigTime");
+  sprintf(histoname,"stTrigTime");
   hTrigTime = new TH1F(histoname, histoname, 256, 0., 256.);
   AddHistogram(hTrigTime);
 
