@@ -258,13 +258,15 @@ Bool_t TABMparCon::loadT0s() {
     return kTRUE;
   }
 
-  //check if the T0 are ok 
-  for(Int_t i=0;i<36;i++) {
-    cout<<"BM T0: "<<v_t0s[i]<<endl;
-    if(v_t0s[i]==-10000)
-      cout<<"WARNING IN TABMparCon::loadT0s: channel not considered in tdc map tdc_cha=i="<<i<<" T0 for this channel is set to -10000"<<endl;
-    else if(v_t0s[i]==-20000)
-      cout<<"WARNING IN TABMparCon::loadT0s! channel with too few elements to evaluate T0: tdc_cha=i="<<i<<" T0 for this channel is set to -20000"<<endl;
+  //check if the T0 are ok
+  if(GetBMdebug()> 0) {
+     for(Int_t i=0;i<36;i++) {
+        cout<<"BM T0: "<<v_t0s[i]<<endl;
+        if(v_t0s[i]==-10000)
+           cout<<"WARNING IN TABMparCon::loadT0s: channel not considered in tdc map tdc_cha=i="<<i<<" T0 for this channel is set to -10000"<<endl;
+        else if(v_t0s[i]==-20000)
+           cout<<"WARNING IN TABMparCon::loadT0s! channel with too few elements to evaluate T0: tdc_cha=i="<<i<<" T0 for this channel is set to -20000"<<endl;
+     }
   }
   return kFALSE;
 }
