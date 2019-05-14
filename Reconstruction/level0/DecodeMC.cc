@@ -7,8 +7,8 @@
 
 int main (int argc, char *argv[])  {
 
-	
    TString in("12C_400_vtx.root");
+   TString exp("");
    
    Int_t pos = in.Last('.');
    TString out = in(0, pos);
@@ -24,9 +24,9 @@ int main (int argc, char *argv[])  {
    for (int i = 0; i < argc; i++){
       if(strcmp(argv[i],"-out") == 0)   { out =TString(argv[++i]);  }   // Root file name for output
       if(strcmp(argv[i],"-in") == 0)    { in = TString(argv[++i]);  }   // Root file in input
+      if(strcmp(argv[i],"-exp") == 0)   { exp = TString(argv[++i]); }   // extention for config/geomap files
       if(strcmp(argv[i],"-nev") == 0)   { nTotEv = atoi(argv[++i]); }   // Number of events to be analized
   
-      
       if(strcmp(argv[i],"-ntu") == 0)   { ntu = true;   } // enable tree filling
       if(strcmp(argv[i],"-his") == 0)   { his = true;   } // enable histograming
       if(strcmp(argv[i],"-hit") == 0)   { hit = true;   } // enable hits saving
@@ -39,6 +39,7 @@ int main (int argc, char *argv[])  {
          cout<<"      -in path/file  : [def=16O_C2H4_200_1.root] ROOT input file"<<endl;
          cout<<"      -out path/file : [def=6O_C2H4_200_1_Out.root] Root output file"<<endl;
          cout<<"      -nev value     : [def=10^7] Numbers of events to process"<<endl;
+         cout<<"      -exp name      : [def=""] experient name for config/geomap extention"<<endl;
          cout<<"      -trk           : enable tracking actions"<<endl;
          cout<<"      -hit           : enable saving hits in tree (activated ntu option)"<<endl;
          cout<<"      -ntu           : enable tree filling"<<endl;
@@ -53,6 +54,7 @@ int main (int argc, char *argv[])  {
    GlobalPar::GetPar()->Print();
    
    LocalRecoMC* locRec = new LocalRecoMC(in, out);
+   locRec->SetExpName(exp);
    
    // global setting
    if (ntu)
