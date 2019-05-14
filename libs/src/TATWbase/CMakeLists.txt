@@ -58,7 +58,6 @@ link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 # headers / linkdef etc ... 
 #
 set(headers "")
-set(all_headers "")
 set(sources "")
 set(dictionnaries "")
 set(linkdefs "")
@@ -70,14 +69,10 @@ foreach( f ${with_dictionnaries} )
   set(headers ${headers} ${CMAKE_CURRENT_SOURCE_DIR}/${f}.hxx)
 endforeach()
 
-file(GLOB all_headers ${TAG_INCLUDE_DIR}/*.hxx)
-set(all_headers ${all_headers} ${headers})
-
-
 if (ROOT6_USED)
   ROOT6_GENERATE_DICTIONARY(G_${LIBNAME} ${headers} MODULE ${LIBNAME} LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/${LIBNAME}.LinkDef.h OPTIONS "")
 else()
-  ROOT5_GENERATE_DICTIONARY(G_${LIBNAME} ${all_headers} LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/${LIBNAME}.LinkDef.h OPTIONS "")
+  ROOT5_GENERATE_DICTIONARY(G_${LIBNAME} ${headers} LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/${LIBNAME}.LinkDef.h OPTIONS "")
 endif()
 
 set(sources ${sources} ${PROJECT_BINARY_DIR}/G_${LIBNAME}.cxx)

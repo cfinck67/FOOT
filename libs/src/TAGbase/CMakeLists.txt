@@ -72,7 +72,6 @@ link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 # headers / linkdef etc ... 
 #
 set(headers "")
-set(all_headers "")
 set(sources "")
 set(dictionnaries "")
 set(linkdefs "")

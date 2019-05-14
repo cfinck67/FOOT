@@ -44,7 +44,6 @@ link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 # headers etc ... 
 #
 set(headers "")
-set(all_headers "")
 set(sources "")
 #
 foreach( f ${files} )
