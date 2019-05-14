@@ -55,21 +55,23 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
   }    
   
   //combined stuff also for merging
-  h2 = new TH2D("rdrift_vs_residual","residual calculation ;rdrift[cm];residual",STBIN,0.,1.,400, -0.5,0.5 );
   h = new TH1D("residual_error","Events with msd fitted rdrift > 0.945 ;Measured rdrift;Events",400.,0.,1.);
   //~ h = new TH1D("time_diff","bm event timeacq - msd event timeacq ;time;Events",500,0.,100.);
-  h = new TH1D("pvers_diff_vs_xevent_mx","mx diff bm_track-vtx_track;Event;bm_mx-vtx_mx",1000,0.,1000.);
-  h = new TH1D("pvers_diff_vs_xevent_my","my diff bm_track-vtx_track;Event;bm_my-vtx_my",1000,0.,1000.);
-  h = new TH1D("r0x_diff_vs_xevent","r0x diff bm_track-vtx_track;Event;bm_mx-vtx_mx",1000,0.,1000.);
-  h = new TH1D("r0y_diff_vs_xevent","r0y diff bm_track-vtx_track;Event;bm_my-vtx_my",1000,0.,1000.);
+  h = new TH1D("pvers_diff_vs_xevent_mx","mx diff bm_track-vtx_track;Event;bm_mx-vtx_mx",100000,0.,100000.);
+  h = new TH1D("pvers_diff_vs_xevent_my","my diff bm_track-vtx_track;Event;bm_my-vtx_my",100000,0.,100000.);
+  h = new TH1D("r0x_diff_vs_xevent","r0x diff bm_track-vtx_track;Event;bm_mx-vtx_mx",100000,0.,100000.);
+  h = new TH1D("r0y_diff_vs_xevent","r0y diff bm_track-vtx_track;Event;bm_my-vtx_my",100000,0.,100000.);
   h2 = new TH2D("pvers_mx_bmvtx","pvers mx angle for bm and vertex for selected tracks;BM Pvers mx;vtx Pverse mx ",500,-0.05,0.05,500,-0.05,0.05);
   h2 = new TH2D("pvers_my_bmvtx","pvers my angle for bm and vertex for selected tracks;BM Pvers mx;vtx Pverse my ",500,-0.05,0.05,500,-0.05,0.05);
   h2 = new TH2D("r0x_bmvtx","R0x for bm and vtx tracks correlation;BM r0x;vtx r0x",600,-3.,3.,600,-3.,3.);
   h2 = new TH2D("r0y_bmvtx","R0y for bm and vtx tracks correlation;BM r0y;vtx r0y",600,-3.,3.,600,-3.,3.);
   h = new TH1D("pvers_angle_diff","angle difference bm_track - vtx_track ;Angle(bm_track-vtx_track);Events",2000,0.,0.2);
-  h = new TH1D("space_residual_numev","number of events for each bin in strel residual graph;bin;events",STBIN,0.,STBIN);
-  h = new TH1D("space_residual_total","total space residual;x[cm];events",200,-1.,1.);
-  h = new TH1D("time_residual_total","total time residual;x[cm];events",200,-1.,1.);
+  h = new TH1D("residual_space_numev","number of events for each bin in strel residual graph;bin;events",STBIN,0.,STBIN);
+  h = new TH1D("residual_space_total_xhit","total space residual;x[cm];events",200,-1.,1.);
+  h = new TH1D("residual_time_total_xhit","total time residual;x[cm];events",200,-1.,1.);
+  h = new TH1D("residual_total_xtrack","Residual contribution x combined track;res[cm];events",400,-2.,2.);
+  h2 = new TH2D("residual_vs_rdrift","residual vs measured rdrift;Residual [cm];BM hit rdrift [cm]",400,-2.,2.,200,0.,1.);
+  h2 = new TH2D("msdresidual_vs_bmfitresidual","residual vs measured rdrift;Msd residual [cm];BM fitted residual [cm]",200,-0.5,0.5,200,-0.5,0.5);
   
   h2 = new TH2D("old_strel_data","old FIRST strel from data ;time;rdrift",400,0.,400.,1000, 0., 1.);
   h2 = new TH2D("new_strel_rdrift","new strel ;time;rdrift",300,0.,400., 1000, 0., 1.);
@@ -192,10 +194,10 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
       ((TH2D*)gDirectory->Get("pvers_my_bmvtx"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Y()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z(), allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Y()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z());   
       ((TH2D*)gDirectory->Get("r0x_bmvtx"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.X(), allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.X());        
       ((TH2D*)gDirectory->Get("r0y_bmvtx"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.Y(), allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.Y());        
-      ((TH1D*)gDirectory->Get("pvers_diff_vs_xevent_mx"))->AddBinContent((int)(allbmeventin.at(selected_index.at(i).at(0)).evnum*1000./allbmeventin.back().evnum) , (allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) - (allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.X()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z()));        
-      ((TH1D*)gDirectory->Get("pvers_diff_vs_xevent_my"))->AddBinContent((int)(allbmeventin.at(selected_index.at(i).at(0)).evnum*1000./allbmeventin.back().evnum) , (allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Y()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) - (allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Y()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z()));
-      ((TH1D*)gDirectory->Get("r0x_diff_vs_xevent"))->AddBinContent((int)(allbmeventin.at(selected_index.at(i).at(0)).evnum*1000./allbmeventin.back().evnum) , allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.X() - allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.X());        
-      ((TH1D*)gDirectory->Get("r0y_diff_vs_xevent"))->AddBinContent((int)(allbmeventin.at(selected_index.at(i).at(0)).evnum*1000./allbmeventin.back().evnum) , allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.Y() - allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.Y());        
+      ((TH1D*)gDirectory->Get("pvers_diff_vs_xevent_mx"))->SetBinContent(allbmeventin.at(selected_index.at(i).at(0)).evnum , (allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) - (allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.X()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z()));        
+      ((TH1D*)gDirectory->Get("pvers_diff_vs_xevent_my"))->SetBinContent(allbmeventin.at(selected_index.at(i).at(0)).evnum , (allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Y()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()) - (allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Y()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z()));
+      ((TH1D*)gDirectory->Get("r0x_diff_vs_xevent"))->SetBinContent(allbmeventin.at(selected_index.at(i).at(0)).evnum , allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.X() - allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.X());        
+      ((TH1D*)gDirectory->Get("r0y_diff_vs_xevent"))->SetBinContent(allbmeventin.at(selected_index.at(i).at(0)).evnum , allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos.Y() - allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos.Y());        
       ((TH1D*)gDirectory->Get("pvers_angle_diff"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Angle(allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers));        
       ((TH1D*)gDirectory->Get("chi2_msd_combined"))->Fill(allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_chi2tot);        
       ((TH1D*)gDirectory->Get("chi2_bm_combined"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_chi2);        
@@ -237,16 +239,20 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
     
     //try to estimate the new strel with space_residual
     for(int i=0; i<STBIN;i++){
-      ((TH1D*)gDirectory->Get("space_residual_numev"))->AddBinContent(i+1,space_residual.at(i).size());
+      ((TH1D*)gDirectory->Get("residual_space_numev"))->AddBinContent(i+1,space_residual.at(i).size());
       sprintf(tmp_char,"Res_vs_rdrift/strel_rdrift_%d", i);
       for(int k=0; k<space_residual.at(i).size();k++){
-        ((TH2D*)gDirectory->Get("rdrift_vs_residual"))->Fill((double)i/STBIN,space_residual.at(i).at(k));
         ((TH1D*)gDirectory->Get(tmp_char))->Fill(space_residual.at(i).at(k));
-        ((TH1D*)gDirectory->Get("space_residual_total"))->Fill(space_residual.at(i).at(k));
+        ((TH1D*)gDirectory->Get("residual_space_total_xhit"))->Fill(space_residual.at(i).at(k));
       }
-      ((TH1D*)gDirectory->Get(tmp_char))->Fit("strelgaus","Q+","",-MAXSTRELRES,MAXSTRELRES);
-      newstrel_spaceresidual.push_back(strelgaus->GetParameter(1));
-      //~ newstrel_spaceresidual.push_back(((TH1D*)gDirectory->Get(tmp_char))->GetMean()); //no fit, bad method
+      if(((TH1D*)gDirectory->Get(tmp_char))->GetEntries()>100){
+        if(GAUSMEAN==0){
+          ((TH1D*)gDirectory->Get(tmp_char))->Fit("strelgaus","Q+","",-MAXSTRELRES,MAXSTRELRES);
+          newstrel_spaceresidual.push_back(strelgaus->GetParameter(1));
+        }else
+          newstrel_spaceresidual.push_back(((TH1D*)gDirectory->Get(tmp_char))->GetMean());
+      }else
+        newstrel_spaceresidual.push_back(0.);
     }
     
     
@@ -270,11 +276,16 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
       for(int k=0; k<time_residual.at(i).size();k++){
         //~ cout<<"ora riempio in "<<tmp_char<<"    il valore: "<<time_residual.at(i).at(k)<<"   time_residual.size()="<<time_residual.size()<<endl;
         ((TH1D*)gDirectory->Get(tmp_char))->Fill(time_residual.at(i).at(k));
-        ((TH1D*)gDirectory->Get("time_residual_total"))->Fill(time_residual.at(i).at(k));
+        ((TH1D*)gDirectory->Get("residual_time_total_xhit"))->Fill(time_residual.at(i).at(k));
       }
-      ((TH1D*)gDirectory->Get(tmp_char))->Fit("strelgaus","Q+","",-MAXSTRELRES,MAXSTRELRES);
-      newstrel_timeresidual.push_back(strelgaus->GetParameter(1));
-      //~ newstrel_spaceresidual.push_back(((TH1D*)gDirectory->Get(tmp_char))->GetMean()); //no fit, bad method    
+      if(((TH1D*)gDirectory->Get(tmp_char))->GetEntries()>100){
+        if(GAUSMEAN==0){
+          ((TH1D*)gDirectory->Get(tmp_char))->Fit("strelgaus","Q+","",-MAXSTRELRES,MAXSTRELRES);
+          newstrel_timeresidual.push_back(strelgaus->GetParameter(1));
+        }else
+          newstrel_timeresidual.push_back(((TH1D*)gDirectory->Get(tmp_char))->GetMean());
+      }else
+        newstrel_timeresidual.push_back(0.);
     }
     
     for(int i=0; i<allbmeventin.size();i++){
@@ -301,32 +312,28 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
 
 void fitStrel(TFile *f_out, const int index, TF1* first_strel_tf1_1, TF1* first_strel_tf1_08 ,TF1* garfield_strel_tf1){
 
-  //~ TCanvas *strels=new TCanvas("strels","strels",800,800);
-  //~ strels->cd();
+    //try to change the parameters
+  TF1 poly ("poly","pol10", 0, 350);
+  //try to fix: time=0-->rdrift=0  and time=300-->rdrift=0.8
+  //~ TF1 poly ("poly","[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*x*x*x*x+ (0.8-300.*[1]-90000.*[2]-27000000.*[3]-8100000000.*[4])/2430000000000.*x*x*x*x*x", 0., 325.);
+  poly.FixParameter(0,0.);
+  
   TProfile *prof_newstrel;
-  if(index==0) 
+  if(index==0) {
     prof_newstrel=((TH2D*)gDirectory->Get("old_strel_data"))->ProfileX(); 
-  else if(index==1) 
+  }else if(index==1){ 
     prof_newstrel=((TH2D*)gDirectory->Get("new_strel_rdrift"))->ProfileX(); 
-  else if(index==2)
+  }else if(index==2){
     prof_newstrel=((TH2D*)gDirectory->Get("new_strel_time"))->ProfileY(); 
+  }
   prof_newstrel->SetLineColor(3);
   prof_newstrel->Draw();
   
-    //try to change the parameters
-  //~ TF1 poly ("poly","pol5", 0, 400);
-  //try to fix: time=0-->rdrift=0  and time=300-->rdrift=0.8
-  TF1 poly ("poly","[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*x*x*x*x+ (0.8-300.*[1]-90000.*[2]-27000000.*[3]-8100000000.*[4])/2430000000000.*x*x*x*x*x", 0., 300.);
-  poly.FixParameter(0,0.);
+  prof_newstrel->Fit("poly","QRB+");
   
-  prof_newstrel->Fit("poly","Q+");
-  //~ f_out->SaveObjectAs(strels, f_out->GetName(),"q");
-  //~ TF1 first_strel_tf1("first_strel_tf1","0.8/0.78*(0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 320.);  
-  //~ TF1 garfield_strel_tf1("garfield_strel_tf1","0.00915267+0.00634507*x+2.02527e-05*x*x-7.60133e-07*x*x*x+5.55868e-09*x*x*x*x-1.68944e-11*x*x*x*x*x+1.87124e-14*x*x*x*x*x*x", 0., 320.);  
-  //~ first_strel_tf1.SetLineColor(3);
-  //~ garfield_strel_tf1.SetLineColor(4);
-  //~ f_out->cd();
-  if(index==1){
+  if(index==0){
+    cout<<"fit the old strel parameters"<<endl;
+  }else if(index==1){
     cout<<endl<<"new strel parameters from space residuals"<<endl;
     //oldstrel_stuff
     //~ first_strel_tf1.Write();
@@ -359,7 +366,11 @@ void fitStrel(TFile *f_out, const int index, TF1* first_strel_tf1_1, TF1* first_
       }     
   }
   //~ cout<<poly.GetParameter(0)<<" + ("<<poly.GetParameter(1)<<"*tdrift) + ("<<poly.GetParameter(2)<<"*tdrift*tdrift) + ("<<poly.GetParameter(3)<<"*tdrift*tdrift*tdrift) + ("<<poly.GetParameter(4)<<"*tdrift*tdrift*tdrift*tdrift) + ("<<poly.GetParameter(5)<<"*tdrift*tdrift*tdrift*tdrift*tdrift)"<<endl<<endl;  
-  cout<<poly.GetParameter(0)<<" + ("<<poly.GetParameter(1)<<"*tdrift) + ("<<poly.GetParameter(2)<<"*tdrift*tdrift) + ("<<poly.GetParameter(3)<<"*tdrift*tdrift*tdrift) + ("<<poly.GetParameter(4)<<"*tdrift*tdrift*tdrift*tdrift) + ("<<(0.8-300.*poly.GetParameter(1)-90000.*poly.GetParameter(2)-27000000.*poly.GetParameter(3)-8100000000.*poly.GetParameter(4))/2430000000000.<<"*tdrift*tdrift*tdrift*tdrift*tdrift)"<<endl<<endl;  
+  //~ cout<<poly.GetParameter(0)<<" + ("<<poly.GetParameter(1)<<"*tdrift) + ("<<poly.GetParameter(2)<<"*tdrift*tdrift) + ("<<poly.GetParameter(3)<<"*tdrift*tdrift*tdrift) + ("<<poly.GetParameter(4)<<"*tdrift*tdrift*tdrift*tdrift) + ("<<(0.8-300.*poly.GetParameter(1)-90000.*poly.GetParameter(2)-27000000.*poly.GetParameter(3)-8100000000.*poly.GetParameter(4))/2430000000000.<<"*tdrift*tdrift*tdrift*tdrift*tdrift)"<<endl<<endl;  
+  for(int i=0;i<poly.GetNpar();i++)
+    cout<<poly.GetParameter(i)<<" , ";
+  cout<<endl;
+  
   return;
 }
 
@@ -370,6 +381,7 @@ void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<
   if(debug>2)
     cout<<"I'm in EvaluateSpaceResidual"<<endl;
   
+  //evaluate the space and time residuals
   int binpos, timepos;
   double residual, maxres, msd_rdrift;
   TVector3 pversout, r0posout;
@@ -388,22 +400,52 @@ void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<
         cout<<"residual="<<residual<<"  original_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  fitted_rdrift="<<msd_rdrift<<endl;
       //~ if(fabs(residual)<0.8 && binpos!=STBIN){
       if(binpos!=STBIN && msd_rdrift<0.945){
-        space_residual.at(binpos).push_back(residual);
-      }else if(binpos==STBIN)
+        bmevent.bm_msd_space_binpos[i]=binpos;
+        bmevent.bm_msd_space_res[i]=residual;
+        //~ space_residual.at(binpos).push_back(residual);
+      }else if(binpos==STBIN){
         cout<<"possible ERROR in EvaluateSpaceResidual space_residual??? residual="<<residual<<"  hit_id="<<bmevent.bm_hit_cellid[i]<<"  hit_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  hit time="<<bmevent.bm_hit_time[i]<<endl;
+        bmevent.bm_msd_space_binpos[i]=-2;
+      }
       if(timepos!=STBIN && msd_rdrift<0.945){
-        time_residual.at(timepos).push_back(residual);
-      }else if(binpos==STBIN)
+        bmevent.bm_msd_time_binpos[i]=timepos;
+        bmevent.bm_msd_time_res[i]=residual;
+        //~ time_residual.at(timepos).push_back(residual);
+      }else if(binpos==STBIN){
         cout<<"possible ERROR in EvaluateSpaceResidual time_residual??? residual="<<residual<<"  hit_id="<<bmevent.bm_hit_cellid[i]<<"  hit_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  hit time="<<bmevent.bm_hit_time[i]<<endl;
+        bmevent.bm_msd_time_binpos[i]=-2;
+      }
       if(msd_rdrift>0.945){
         ((TH1D*)gDirectory->Get("residual_error"))->Fill(bmevent.bm_hit_rdrift[i]);
         if(debug>10)
           cout<<"msd rdrift too big :: residual="<<residual<<"  hit_id="<<bmevent.bm_hit_cellid[i]<<"  hit_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  hit time="<<bmevent.bm_hit_time[i]<<endl;
+      }else{
+        bmevent.bm_msd_totres+=residual;
       }
     }
   }
   
-  if(debug>2)
+  bmevent.bm_msd_totres+=999;//due to the default value
+  
+  if(bmevent.bm_msd_totres!=0)  
+    ((TH1D*)gDirectory->Get("residual_total_xtrack"))->Fill(bmevent.bm_msd_totres);
+  
+  //charge the space and time residuals applying some cuts
+  if(debug>10)
+    cout<<"EvaluateSpaceResidual: Now I'll charge space_residual and time_residual vectors"<<endl;  
+  if(bmevent.bm_msd_totres!=-999 && bmevent.bm_msd_totres<0.1 && bmevent.bm_msd_totres>-0.05){
+    for(int i=0;i<bmevent.hitnum;i++){
+      if(bmevent.bm_msd_time_binpos[i]!=-1 && bmevent.bm_msd_time_binpos[i]!=-2)
+        time_residual.at(bmevent.bm_msd_time_binpos[i]).push_back(bmevent.bm_msd_time_res[i]);  
+      if(bmevent.bm_msd_space_binpos[i]!=-1 && bmevent.bm_msd_space_binpos[i]!=-2){
+        space_residual.at(bmevent.bm_msd_space_binpos[i]).push_back(bmevent.bm_msd_space_res[i]);  
+        ((TH2D*)gDirectory->Get("residual_vs_rdrift"))->Fill(bmevent.bm_msd_time_res[i],bmevent.bm_hit_rdrift[i]);
+        ((TH2D*)gDirectory->Get("msdresidual_vs_bmfitresidual"))->Fill(bmevent.bm_msd_time_res[i],bmevent.bm_hit_residual[i]);
+      }
+    }
+  }
+  
+  if(debug>3)
     cout<<"EvaluateSpaceResidual finished"<<endl;  
   
   return;
@@ -529,8 +571,6 @@ void merge_graphics(TFile* infile, TFile* f_out){
   char tmp_char[200];
   
   //th2d
-  tmp_tstring="rdrift_vs_residual";
-  h2tstring.push_back(tmp_tstring);
   tmp_tstring="pvers_mx_bmmsd";
   h2tstring.push_back(tmp_tstring);
   tmp_tstring="old_strel";
@@ -542,11 +582,11 @@ void merge_graphics(TFile* infile, TFile* f_out){
   h1tstring.push_back(tmp_tstring);
   tmp_tstring="pvers_total_diff";
   h1tstring.push_back(tmp_tstring);
-  tmp_tstring="space_residual_numev";
+  tmp_tstring="residual_space_numev";
   h1tstring.push_back(tmp_tstring);
-  tmp_tstring="space_residual_total";
+  tmp_tstring="residual_space_total_xhit";
   h1tstring.push_back(tmp_tstring);
-  tmp_tstring="time_residual_total";
+  tmp_tstring="residual_time_total_xhit";
   h1tstring.push_back(tmp_tstring);
   
   //merge h1tstring and h2tstring histograms
@@ -582,7 +622,7 @@ void merge_graphics(TFile* infile, TFile* f_out){
 
 
 //*************************************************** MSD STUFF  ***************************************** 
-bool msdreadevent(vtx_evstruct &vtxevent, TTreeReader &msdReader, TTreeReaderValue<double> &trackchi2MSDreader, TTreeReaderValue<double> &thetaMSDreader, TTreeReaderValue<double> &phiMSDreader,   TTreeReaderValue<double> &r0xMSDreader,   TTreeReaderValue<double> &r0yMSDreader){
+bool msdreadevent(vtx_evstruct &vtxevent, TTreeReader &msdReader, TTreeReaderValue<double> &trackchi2MSDreader, TTreeReaderValue<double> &thetaMSDreader, TTreeReaderValue<double> &phiMSDreader,   TTreeReaderValue<double> &r0xMSDreader,   TTreeReaderValue<double> &r0yMSDreader, vector<int> &vtxin_shifts, int filenum, int lastvtxeventnum){
   
   if(debug)
     cout<<"I'm in MSDreadevent"<<endl;
@@ -591,9 +631,9 @@ bool msdreadevent(vtx_evstruct &vtxevent, TTreeReader &msdReader, TTreeReaderVal
   msdReader.Next(); 
    
   if(debug)
-    cout<<"msdreadevent::  old evnum="<<vtxevent.evnum<<",  new evnum="<<msdReader.GetCurrentEntry()<<endl;  
-   
-  vtxevent.evnum=msdReader.GetCurrentEntry();
+    cout<<"msdreadevent::  old evnum="<<vtxevent.evnum<<",  msdReader.GetCurrentEntry()="<<msdReader.GetCurrentEntry()<<"  filenum="<<filenum<<"   lastvtxeventnum="<<lastvtxeventnum<<endl;  
+  
+  vtxevent.evnum=msdReader.GetCurrentEntry()-vtxin_shifts.at(filenum)+lastvtxeventnum;
   //~ vtxevent.timeacq=*timeacqMSDreader;
   vtxevent.tracknum=1;
   vtxevent.vtx_track_chi2tot=*trackchi2MSDreader;
@@ -618,7 +658,7 @@ bool msdreadevent(vtx_evstruct &vtxevent, TTreeReader &msdReader, TTreeReaderVal
   if(debug>2)
     print_vtxevstruct(vtxevent);
   
-  if((msdReader.GetCurrentEntry()==(msdReader.GetEntries(true)-1)) || (VTXNEV && vtxevent.evnum>=VTXNEV) )
+  if((msdReader.GetCurrentEntry()==(msdReader.GetEntries(true)-3)) || (VTXNEV && vtxevent.evnum>=VTXNEV) )
     return false;
     
   return true;
@@ -634,7 +674,7 @@ bool vtxreadevent(vtx_evstruct &vtxevent,TTreeReader &vtxReader, TTreeReaderValu
   vtxReader.Next(); 
   
   if(debug>2)
-    cout<<"vtxreadevent::  old evnum="<<vtxevent.evnum<<",  new evnum="<<vtxReader.GetCurrentEntry()<<endl;  
+    cout<<"vtxreadevent::  old evnum="<<vtxevent.evnum<<",  vtxReader.GetCurrentEntry()="<<vtxReader.GetCurrentEntry()<<endl;  
   clean_vtxevstruct(vtxevent);
     
   vtxevent.evnum=*evnum;
@@ -720,7 +760,7 @@ return;
 
 //read the next bm event, return false if the file is finished, otherwise true
 //at the end bmReader is on the new event
-bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<int> &evnumreader,   TTreeReaderValue<int> &timeacqreader, TTreeReaderValue<double> &trackchi2reader, TTreeReaderValue<double> &pversxreader,   TTreeReaderValue<double> &pversyreader, TTreeReaderValue<double> &pverszreader,   TTreeReaderValue<double> &r0xreader,   TTreeReaderValue<double> &r0yreader,   TTreeReaderValue<double> &rdriftreader,   TTreeReaderValue<double> &residualreader,   TTreeReaderValue<double> &hittimereader,   TTreeReaderValue<int> &planereader,  TTreeReaderValue<int> &viewreader,   TTreeReaderValue<int> &cellreader, TTreeReaderValue<double> &hitchi2reader){
+bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<int> &evnumreader,   TTreeReaderValue<int> &timeacqreader, TTreeReaderValue<double> &trackchi2reader, TTreeReaderValue<double> &pversxreader,   TTreeReaderValue<double> &pversyreader, TTreeReaderValue<double> &pverszreader,   TTreeReaderValue<double> &r0xreader,   TTreeReaderValue<double> &r0yreader,   TTreeReaderValue<double> &rdriftreader,   TTreeReaderValue<double> &residualreader,   TTreeReaderValue<double> &hittimereader,   TTreeReaderValue<int> &planereader,  TTreeReaderValue<int> &viewreader,   TTreeReaderValue<int> &cellreader, TTreeReaderValue<double> &hitchi2reader, int lastvtxeventnum){
   
   if(debug>2)
     cout<<"I'm in bmreadevent, current entry="<<bmReader.GetCurrentEntry()<<endl;
@@ -730,14 +770,14 @@ bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<i
     bmReader.Next(); 
    
   if(debug>3)
-    cout<<"bmreadevent:: old evnum="<<bmevent.evnum<<",  new evnum="<<*evnumreader<<endl;  
+    cout<<"bmreadevent:: old evnum="<<bmevent.evnum<<",  new evnum="<<*evnumreader<<"   lastvtxeventnum="<<lastvtxeventnum<<endl;  
    
   int evhitnum=0;
   TVector3 tmp_tvector3;
   do{ 
-    if(bmevent.evnum!=*evnumreader && evhitnum!=0)
-      cout<<"bmreadevent:: Something is wrong!!! the old evnum is "<<bmevent.evnum<<", the new evnum is "<<*evnumreader<<endl; 
-    bmevent.evnum=*evnumreader;
+    if(bmevent.evnum!=(*evnumreader+lastvtxeventnum) && evhitnum!=0)
+      cout<<"bmreadevent:: Something is wrong!!! the old evnum is "<<bmevent.evnum<<", the new evnum is "<<*evnumreader<<"  lastvtxeventnum="<<lastvtxeventnum<<endl; 
+    bmevent.evnum=*evnumreader+lastvtxeventnum;
     bmevent.timeacq=*timeacqreader;
     bmevent.bm_track_chi2=*trackchi2reader;
     tmp_tvector3.SetXYZ(*pversxreader,*pversyreader,*pverszreader);
@@ -752,7 +792,7 @@ bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<i
     bmevent.bm_hit_cellid[evhitnum]=GetBMNcell(*planereader, *viewreader,*cellreader);
     bmevent.bm_hit_chi2[evhitnum]=*hitchi2reader;
     evhitnum++;
-  }while(bmReader.Next() && bmevent.evnum==*evnumreader);
+  }while(bmReader.Next() && (bmevent.evnum)==(*evnumreader+lastvtxeventnum));
   bmevent.hitnum=evhitnum;
   
   if(debug>2)
@@ -815,12 +855,17 @@ if(forced){
   bmevstruct.bm_track_chi2=-1;
   bmevstruct.bm_track_pvers.SetXYZ(0,0,0);
   bmevstruct.bm_track_r0pos.SetXYZ(0,0,0);
+  bmevstruct.bm_msd_totres=-999;
   for(int index=0;index<MAXBMHITNUM;index++){
     bmevstruct.bm_hit_rdrift[index]=-1;
     bmevstruct.bm_hit_residual[index]=-1;
     bmevstruct.bm_hit_time[index]=-1;
     bmevstruct.bm_hit_cellid[index]=-1;
     bmevstruct.bm_hit_chi2[index]=-1;
+    bmevstruct.bm_msd_time_binpos[index]=-1;
+    bmevstruct.bm_msd_time_res[index]=-999;
+    bmevstruct.bm_msd_space_binpos[index]=-1;
+    bmevstruct.bm_msd_space_res[index]=-999;
   }
   return;
 }
@@ -831,6 +876,10 @@ while(bmevstruct.bm_hit_rdrift[index]!=-1 && index<MAXBMHITNUM){
   bmevstruct.bm_hit_time[index]=-1;
   bmevstruct.bm_hit_cellid[index]=-1;
   bmevstruct.bm_hit_chi2[index]=-1;
+  bmevstruct.bm_msd_time_binpos[index]=-1;
+  bmevstruct.bm_msd_time_res[index]=-999;
+  bmevstruct.bm_msd_space_binpos[index]=-1;
+  bmevstruct.bm_msd_space_res[index]=-999;
   index++;
 }
 

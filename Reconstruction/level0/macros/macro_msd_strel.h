@@ -13,23 +13,26 @@
 #define BMNHITCUT       1.5   //cut on bm hit chi2 
 #define VTXCUT          10.   //cut on bm track chi2 
 #define MAXBMHITNUM     40    //number of maximum bm hit 
-#define NUMEVTSHIFT      1    //shift of the MSD evnum with respect to BM evnum (to be checked carefully!!)     
-#define NUMEVT2SHIFT     0    //shift of the MSD evnum with respect to BM evnum after changeshift 
-#define CHANGESHIFT      999999999 //event number in which numevtshift change to numevt2shift      
 #define CORRMINIMUM      0.8 //minimum value of the correlation factor between the pvers of the BM and the vtx to evaluate the new strel      
 #define ONLY1VIEW        0   //-1=take both the views, 0=only view 0 (filo lungo x, coordinata y(la migliore)), 1=only view 1 (filo lungo y, coordinata lungo x)  
 #define MAXSTRELRES      0.2 //maximum residual allowed for the strel   
+#define GAUSMEAN         1   //0=use gaus mean fit results on the residual, otherwise use the mean 
 
 //~ #include "../../../Simulation/foot_geo.h"
 
 //bm theorical geo par
 #define BMISOZ         11.5   //position of the BM with respect to ISO 
-#define BMISOX         0.0904599             
-#define BMISOY         0.0273689            
 
-#define BMISOYANGLE   0.378815     //rotation of the BM with respect to ISO        
-//~ #define BMISOYANGLE   -7.64696     //rotation of the BM with respect to ISO        
-#define BMISOXANGLE   0.00595161             
+#define BMISOX         0.305864             
+#define BMISOY         0.0662981            
+#define BMISOYANGLE   0.370773     //rotation of the BM with respect to ISO        
+#define BMISOXANGLE   0.0030416             
+//~ #define BMISOX         0.110474             
+//~ #define BMISOY         -0.0212977            
+//~ #define BMISOYANGLE    -7.61318     //rotation of the BM with respect to ISO        
+//~ #define BMISOXANGLE    0.00966653             
+
+
 
 //bm residual calculated shift & rotation
 //~ #define BMSHIFTX       0.
@@ -41,8 +44,8 @@
 //VTX residual calculated shift & rotation (a tentative)
 #define VTXR0Z        0.
 #define VTXISOZ       0.
-#define VTXISOX       0.716146
-#define VTXISOY       -0.0146415
+#define VTXISOX       0.864401
+#define VTXISOY       0.00876087
 //~ #define VTXSHIFTX       0.
 //~ #define VTXSHIFTY       0.
 //~ #define VTXSHIFTZ       0.
@@ -68,6 +71,12 @@ typedef struct BM_evstruct {
   int bm_hit_cellid[MAXBMHITNUM];
   double bm_hit_realrdrift[MAXBMHITNUM];
   double bm_hit_chi2[MAXBMHITNUM];
+  
+  double bm_msd_totres;  //total residual of the track fitted with msd
+  int bm_msd_time_binpos[MAXBMHITNUM];//position of the residual from msd tracks for time strel 
+  double bm_msd_time_res[MAXBMHITNUM];//residual from msd tracks for time strel
+  int bm_msd_space_binpos[MAXBMHITNUM];//position of the residual from msd tracks for space strel
+  double bm_msd_space_res[MAXBMHITNUM];//residual from msd traks for space strel
 
 } BM_evstruct;
 
@@ -95,7 +104,7 @@ void merge_graphics(TFile* infile, TFile* f_out);
 //bm functions
 TVector3 BMlocaltoiso(TVector3 local);//from local to labo syst of ref., including the shift
 void clean_bmevstruct(BM_evstruct &bmevstruct, bool forced);
-bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<int> &evnumreader,   TTreeReaderValue<int> &timeacqreader, TTreeReaderValue<double> &trackchi2reader, TTreeReaderValue<double> &pversxreader,   TTreeReaderValue<double> &pversyreader, TTreeReaderValue<double> &pverszreader,   TTreeReaderValue<double> &r0xreader,   TTreeReaderValue<double> &r0yreader,   TTreeReaderValue<double> &rdriftreader,   TTreeReaderValue<double> &residualreader,   TTreeReaderValue<double> &hittimereader,   TTreeReaderValue<int> &planereader,  TTreeReaderValue<int> &viewreader,   TTreeReaderValue<int> &cellreader, TTreeReaderValue<double> &hitchi2reader);
+bool bmreadevent(TTreeReader &bmReader, BM_evstruct &bmevent, TTreeReaderValue<int> &evnumreader,   TTreeReaderValue<int> &timeacqreader, TTreeReaderValue<double> &trackchi2reader, TTreeReaderValue<double> &pversxreader,   TTreeReaderValue<double> &pversyreader, TTreeReaderValue<double> &pverszreader,   TTreeReaderValue<double> &r0xreader,   TTreeReaderValue<double> &r0yreader,   TTreeReaderValue<double> &rdriftreader,   TTreeReaderValue<double> &residualreader,   TTreeReaderValue<double> &hittimereader,   TTreeReaderValue<int> &planereader,  TTreeReaderValue<int> &viewreader,   TTreeReaderValue<int> &cellreader, TTreeReaderValue<double> &hitchi2reader, int lastvtxeventnum);
 TVector3 ExtrapolateZ(TVector3 pvers, TVector3 r0pos, double proposz, bool global,  bool beammonitor);
 void setbmgeo(vector<TVector3> &wire_pos, vector<TVector3> &wire_dir);
 bool Getlvc(const Int_t cellid, Int_t& ilay, Int_t& iview, Int_t& icell);
@@ -108,7 +117,7 @@ int CellId2view(Int_t cellid){return (((int)(cellid/3))%2==0) ? 0:1;};
   
 //vtx functions
 void clean_vtxevstruct(vtx_evstruct &vtxevstruct);
-bool msdreadevent(vtx_evstruct &vtxevent, TTreeReader &msdReader, TTreeReaderValue<int> &evnumMSDreader, TTreeReaderValue<double> &trackchi2MSDreader, TTreeReaderValue<double> &thetaMSDreader,   TTreeReaderValue<double> &thetaerrMSDreader, TTreeReaderValue<double> &phiMSDreader,   TTreeReaderValue<double> &phierrMSDreader,   TTreeReaderValue<double> &r0xMSDreader,   TTreeReaderValue<double> &r0xerrMSDreader,   TTreeReaderValue<double> &r0yMSDreader,   TTreeReaderValue<double> &r0yerrMSDreader,   TTreeReaderValue<double> &r0zMSDreader,  TTreeReaderValue<double> &r0zerrMSDreader);
+bool msdreadevent(vtx_evstruct &vtxevent, TTreeReader &msdReader, TTreeReaderValue<int> &evnumMSDreader, TTreeReaderValue<double> &trackchi2MSDreader, TTreeReaderValue<double> &thetaMSDreader,   TTreeReaderValue<double> &thetaerrMSDreader, TTreeReaderValue<double> &phiMSDreader,   TTreeReaderValue<double> &phierrMSDreader,   TTreeReaderValue<double> &r0xMSDreader,   TTreeReaderValue<double> &r0xerrMSDreader,   TTreeReaderValue<double> &r0yMSDreader,   TTreeReaderValue<double> &r0yerrMSDreader,   TTreeReaderValue<double> &r0zMSDreader,  TTreeReaderValue<double> &r0zerrMSDreader, vector<int> &vtxin_shifts, int filenum, int lastvtxeventnum);
 bool vtxreadevent(vtx_evstruct &vtxevent,TTreeReader &vtxReader, TTreeReaderValue<int> &evnum, TTreeReaderValue<int> &tracknum, TTreeReaderValue<double> &chi2tot, TTreeReaderValue<double> &chi2uview, TTreeReaderValue<double> &chi2vview, TTreeReaderValue<double> &r0x, TTreeReaderValue<double> &r0y, TTreeReaderValue<double> &pversx, TTreeReaderValue<double> &pversy);
 void print_vtxevstruct(vtx_evstruct &vtxevstruct);
 void fitVTXgraph();

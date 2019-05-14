@@ -189,7 +189,7 @@ public:
     //~ char tmp_char[200];
 
     FillMap( hitSampleName + "__track_error", track_ok);
-    //track_error code meaning:-5=not set; -4=no sync; -3= multisync; 0=ok, -1=nhit<minnhit_cut, -2=nhit>nmaxhit, 1=firedUview<planehit_cut, 2=firedVview<planehit_cut, 3=fit not converged, 4=track_chi2red>bmcon_chi2redcut
+    //track_error code meaning:-5=not set; -4=no sync; -3= multisync; 0=ok, -1=nhit<minnhit_cut, -2=nhit>nmaxhit, 1=firedUview<planehit_cut, 2=firedVview<planehit_cut, 3=rejhitmax, 4=fit not converged, 5=track_chi2red>bmcon_chi2redcut
     if(track_ok==-4 || track_ok==-3)
       return;
     
@@ -205,6 +205,11 @@ public:
       FillMap( hitSampleName + "__raw_time", bmntuhit->Tdrift());
       FillMap( hitSampleName + "__raw_occupancy", bmgeo->GetBMNcell(bmntuhit->Plane(), bmntuhit->View(), bmntuhit->Cell()));
       FillMap( hitSampleName + "__raw_selected_rejected", (bmntuhit->GetIsSelected()) ? 1:-1);
+      if((track_ok==0 || track_ok==5) && bmntuhit->GetIsSelected()==0){
+        FillMap( hitSampleName + "__raw_rejectedhit_time", bmntuhit->Tdrift());
+        FillMap( hitSampleName + "__raw_rejectedhit_rdrift", bmntuhit->Dist());
+      }
+        
       //~ sprintf(tmp_char,"__tdc_ch_%d",bmmap->cell2tdc(bmgeo->GetBMNcell(bmntuhit->Plane(),bmntuhit->View(), bmntuhit->Cell())));
       //~ FillMap( hitSampleName + tmp_char, bmntuhit->Tdrift());
       if(bmntuhit->GetIsSelected()){
