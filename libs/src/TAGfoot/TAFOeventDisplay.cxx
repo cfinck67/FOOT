@@ -168,14 +168,13 @@ void TAFOeventDisplay::ReadParFiles()
    
    // initialise par files for Magnet
    if (GlobalPar::GetPar()->IncludeDI()) {
-      fpParGeoDi = new TAGparaDsc("diGeo", new TADIparGeo());
+      fpParGeoDi = new TAGparaDsc(TADIparGeo::GetDefParaName(), new TADIparGeo());
       TADIparGeo* parGeo = (TADIparGeo*)fpParGeoDi->Object();
       TString parFileName = Form("./geomaps/TADIdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
       
       if (GlobalPar::GetPar()->IncludeKalman()) {
-         const Char_t* fieldFileName = parGeo->GetMapName().Data();
-         fFieldImpl  = new FootField(fieldFileName);
+         fFieldImpl  = new FootField("", parGeo);
          fField = new TADIeveField(fFieldImpl);
          fGlbTrackDisplay->GetPropagator()->SetMagFieldObj(fField);
          fGlbTrackDisplay->GetPropagator()->SetMaxZ(fWorldSizeZ);
