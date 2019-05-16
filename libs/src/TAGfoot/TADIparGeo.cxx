@@ -25,7 +25,7 @@
 
 ClassImp(TADIparGeo);
 
-const TString TADIparGeo::fgkDefParaName     = "caGeo";
+const TString TADIparGeo::fgkDefParaName     = "diGeo";
       TString TADIparGeo::fgDefaultGeoName = "./geomaps/TADIdetector.map";
 const TString TADIparGeo::fgkDevBaseName   = "DI";
 const Int_t   TADIparGeo::fgkDefMagnetsN   = 2;
