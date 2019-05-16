@@ -104,7 +104,7 @@ void TAVTactBaseRaw::CreateHistogram()
       fpHisRateMapQ[i] = new TH1F(Form("vtRateMapQ%d", i+1), Form("Vertex - rate per quadrant for sensor %d", i+1), 10, 0, 5);
       AddHistogram(fpHisRateMapQ[i]);
 	  
-      fpHisEvtLength[i] = new TH1F(Form("vtEvtLength%d", i+1), Form("Vertex - event length sensor %d", i+1), 1000, 0, 1000);
+      fpHisEvtLength[i] = new TH1F(Form("vtEvtLength%d", i+1), Form("Vertex - event length sensor %d", i+1), 1000, 0, 10000);
       AddHistogram(fpHisEvtLength[i]);
       
       fpHisTriggerEvt[i] = new TH1F(Form("vtTriggerEvt%d", i+1), Form("Vertex - Trigger difference in event sensor %d vs sensor 1", i+1),  40, -19.5, 20.5);
@@ -231,8 +231,8 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
    dataLength         *= 2; // go to short
    
    if (ValidHistogram()) {
-      fpHisEvtLength[iSensor]->Fill(frame->TriggerCnt % 1000, dataLength/2);
-      if (frame->TriggerCnt % 1000 == 0) fpHisEvtLength[iSensor]->Reset();
+      fpHisEvtLength[iSensor]->Fill(frame->TriggerCnt % 10000, fDataSize);
+      if (frame->TriggerCnt % 10000 == 0) fpHisEvtLength[iSensor]->Reset();
    }
    
    if (iSensor == -1) {
