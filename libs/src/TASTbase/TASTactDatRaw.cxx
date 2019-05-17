@@ -412,7 +412,7 @@ bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *a
   *tarr = t1;
   *ampl = fabs(f.GetParameter(5)-f.GetMinimum());
 
-  cout << "charge"<< *charge << endl;
+  // cout << "charge"<< *charge << endl;
   
   if(t1>tleft && t1<tright){
     return true;
