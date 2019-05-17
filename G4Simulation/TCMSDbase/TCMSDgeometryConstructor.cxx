@@ -64,6 +64,6 @@ void TCMSDgeometryConstructor::DefineMaxMinDimension()
    minPosition[1] -= size[1]/2.;  maxPosition[1] += size[1]/2.;
    minPosition[2] -= size[2]/2.;  maxPosition[2] += size[2]/2.;
    
-   fMinPosition = minPosition*micrometer;
-   fMaxPosition = maxPosition*micrometer;
+   fMinPosition = minPosition*cm;
+   fMaxPosition = maxPosition*cm;
 }
