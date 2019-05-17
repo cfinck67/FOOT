@@ -139,8 +139,7 @@ TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
       TString mapFileName = Form("./geomaps/TADIdetector%s.map", fExpName.Data());
       fpParGeoEm->FromFile(mapFileName.Data());
       
-      fFieldImpl  = new FootField(fpParGeoEm->GetMapName().Data(), fpParGeoEm);
-      
+      fFieldImpl  = new FootField("", fpParGeoEm);
       fField      = new TCFOfield(fFieldImpl);
       fFieldSetup = new TCEMfieldSetup(fField);
       fMagnet     = new TCEMgeometryConstructor(fpParGeoEm);
