@@ -322,6 +322,7 @@ public:
     vector<Double_t> hitrdrift;
     vector<Double_t> hitresidual;
     vector<Double_t> hitchi2;
+    vector<Double_t> hitisselected;
     vector<Double_t> realrdrift;
     for (Int_t i = 0; i < bmntutrack->ntrk; i++) {
       bmntutracktr = bmntutrack->Track(i);    
@@ -335,16 +336,21 @@ public:
       ntuple_out.BM_time_acq.push_back(time_acq);
       for (Int_t i = 0; i < bmnturaw->nhit; i++) { 
         bmntuhit = bmnturaw->Hit(i);      
+        hitcell.push_back(bmntuhit->Cell());
+        hitview.push_back(bmntuhit->View());
+        hitplane.push_back(bmntuhit->Plane());
+        hittime.push_back(bmntuhit->Tdrift());
+        hitrdrift.push_back(bmntuhit->Dist());
+        hitisselected.push_back(bmntuhit->GetIsSelected());
         if(bmntuhit->GetIsSelected()){
-          hitcell.push_back(bmntuhit->Cell());
-          hitview.push_back(bmntuhit->View());
-          hitplane.push_back(bmntuhit->Plane());
-          hittime.push_back(bmntuhit->Tdrift());
-          hitrdrift.push_back(bmntuhit->Dist());
           hitresidual.push_back(bmntuhit->GetResidual());
           hitchi2.push_back(bmntuhit->GetChi2());
           if(!isdata)
             realrdrift.push_back(bmntuhit->GetRealRdrift());
+        }else{
+          hitresidual.push_back(-999);
+          hitchi2.push_back(-999);
+        
         }
       }
       ntuple_out.evnum.push_back(data_num_ev);
@@ -356,6 +362,7 @@ public:
       ntuple_out.BM_hit_rdrift.push_back(hitrdrift);
       ntuple_out.BM_hit_residual.push_back(hitresidual);
       ntuple_out.BM_hit_chi2.push_back(hitchi2);
+      ntuple_out.BM_hit_isselected.push_back(hitisselected);
       if(!isdata)
         ntuple_out.BM_MC_hit_realrdrift.push_back(realrdrift);
     }
@@ -389,6 +396,7 @@ public:
     vector<vector< Int_t >>  BM_hit_view;
     vector<vector< Int_t >>  BM_hit_cell;
     vector<vector< Double_t >>  BM_hit_chi2;
+    vector<vector< Double_t >>  BM_hit_isselected;
     vector<vector< Double_t >>  BM_MC_hit_realrdrift;
 		
     vector< Double_t >  BM_track_chi2;
