@@ -23,14 +23,14 @@
 //bm theorical geo par
 #define BMISOZ         11.5   //position of the BM with respect to ISO 
 
-#define BMISOX         0.305864             
-#define BMISOY         0.0662981            
-#define BMISOYANGLE   0.370773     //rotation of the BM with respect to ISO        
-#define BMISOXANGLE   0.0030416             
-//~ #define BMISOX         0.110474             
-//~ #define BMISOY         -0.0212977            
-//~ #define BMISOYANGLE    -7.61318     //rotation of the BM with respect to ISO        
-//~ #define BMISOXANGLE    0.00966653             
+//~ #define BMISOX         0.305864             
+//~ #define BMISOY         0.0662981            
+//~ #define BMISOYANGLE   0.370773     //rotation of the BM with respect to ISO        
+//~ #define BMISOXANGLE   0.0030416             
+#define BMISOX         0.110474             
+#define BMISOY         -0.0212977            
+#define BMISOYANGLE    -7.61318     //rotation of the BM with respect to ISO        
+#define BMISOXANGLE    0.00966653             
 
 
 

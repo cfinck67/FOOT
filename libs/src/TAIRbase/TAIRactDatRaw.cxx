@@ -39,7 +39,7 @@ Bool_t TAIRactDatRaw::Action()
   //~ Double_t meantime(0);
  
   //for the moment only one hit for each event... (det type,channel,charge,time)
-  while(bmstruct->tdc_sync[nhits]!=-1000){
+  while(bmstruct->tdc_sync[nhits]!=-10000){
     new((*(p_nturaw->hir))[nhits]) TAIRrawHit(0,p_parmap->GetTrefCh(),0,bmstruct->tdc_sync[nhits]);
     //~ meantime+=bmstruct->tdc_sync[nhits];
     nhits++;
@@ -57,7 +57,11 @@ Bool_t TAIRactDatRaw::Action()
   //~ if(nhits) meantime /= nhits;
   
   //Set up of the Trigger Time
-  p_nturaw->SetTrigTime((Double_t) bmstruct->tdc_sync[0]/10.);//meantime? isn't used... I'm using the first trigger time...
+  if(bmstruct->tdc_sync[1]==-10000)
+    p_nturaw->SetTrigTime((Double_t) bmstruct->tdc_sync[0]/10.);
+  else
+    p_nturaw->SetTrigTime((Double_t) bmstruct->tdc_sync[1]/10.);//due to a hardware prob., when there are two sync time, I have to take the second one
+    
 
   p_nturaw->nirhit  = nhits;
 

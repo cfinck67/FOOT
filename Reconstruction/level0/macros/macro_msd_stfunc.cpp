@@ -117,9 +117,9 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
   //oldstrel_stuff
   //~ TCanvas *mcstrel=new TCanvas("mcstrel","mcstrel",800,800);
   //~ mcstrel->cd();
-  TF1* first_strel_tf1_1=new TF1("first1_strel_green","1./0.78*(0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 300.);  
-  TF1* first_strel_tf1_08=new TF1("first08_strel_blue","0.8/0.78*(0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 300.);  
-  TF1* garfield_strel_tf1=new TF1("garfield_strel_yellow","0.00915267+0.00634507*x+2.02527e-05*x*x-7.60133e-07*x*x*x+5.55868e-09*x*x*x*x-1.68944e-11*x*x*x*x*x+1.87124e-14*x*x*x*x*x*x", 0., 300.);  
+  TF1* first_strel_tf1_1=new TF1("first1_strel_green","1./0.78*(0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 350.);  
+  TF1* first_strel_tf1_08=new TF1("first08_strel_blue","0.8/0.78*(0.032891770+0.0075746330*x-(5.1692440e-05)*x*x+(1.8928600e-07)*x*x*x-(2.4652420e-10)*x*x*x*x)", 0., 350.);  
+  TF1* garfield_strel_tf1=new TF1("garfield_strel_yellow","0.00915267+0.00634507*x+2.02527e-05*x*x-7.60133e-07*x*x*x+5.55868e-09*x*x*x*x-1.68944e-11*x*x*x*x*x+1.87124e-14*x*x*x*x*x*x", 0., 350.);  
   first_strel_tf1_1->SetLineColor(3);
   first_strel_tf1_1->Write();
   first_strel_tf1_08->SetLineColor(4);

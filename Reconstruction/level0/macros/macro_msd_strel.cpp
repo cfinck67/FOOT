@@ -15,43 +15,48 @@ void macro_msd_strel(){
   
   //**************************************************************  ADD the input files  ******************************************
   //~ TString out_filename("combined/combo_3points_1551900359.root");// output file name
-  TString out_filename("combined/combo_notilt_228mev.root");// output file name
+  TString out_filename("combined/combo_notilt_tcut330.root");// output file name
   
   //80Mev, no tilt 3 points
   //~ vtxin_filename="msddata/80MeV/out_3points_1551900359.root";
   //~ vtxin_filevec.push_back(vtxin_filename);
-  //~ bmin_filename="recotrees/recotree_T0begin_1551900359.root";
+  //bmin_filename="recotrees/recotree_T0begin_1551900359.root";
+  //~ bmin_filename="recotrees/recotree_T0begin_tcut330_1551900359.root";
   //~ bmin_filevec.push_back(bmin_filename);
   //~ vtxin_shifts.push_back(1);
   
-  //~ //80Mev, no tilt second couple with 100004 events:
+  //80Mev, no tilt second couple with 100004 events:
   //~ vtxin_filename="msddata/80MeV/out_3points_1551901240.root";
   //~ vtxin_filevec.push_back(vtxin_filename);
-  //~ bmin_filename="recotrees/recotree_T0begin_1551901240.root";
+  //bmin_filename="recotrees/recotree_T0begin_1551901240.root";
+  //~ bmin_filename="recotrees/recotree_T0begin_tcut330_1551901240.root";
   //~ bmin_filevec.push_back(bmin_filename);
   //~ vtxin_shifts.push_back(2);
 
   //228Mev, notilt 
-  vtxin_filename="msddata/228MeV/out_3points_1551902227.root";
-  vtxin_filevec.push_back(vtxin_filename);
-  bmin_filename="recotrees/recotree_T0begin_1551902227.root";
-  bmin_filevec.push_back(bmin_filename);
-  vtxin_shifts.push_back(1);
+  //~ vtxin_filename="msddata/228MeV/out_3points_1551902227.root";
+  //~ vtxin_filevec.push_back(vtxin_filename);
+  //bmin_filename="recotrees/recotree_T0begin_1551902227.root";
+  //~ bmin_filename="recotrees/recotree_T0begin_tcut330_1551902227.root";
+  //~ bmin_filevec.push_back(bmin_filename);
+  //~ vtxin_shifts.push_back(1);
  
 
   //~ TString out_filename("combined/combo_tilt5deg.root");// output file name
   //80Mev, tilt 5****************
-  //~ vtxin_filename="msddata/80MeV/out_3points_1551904521.root";
-  //~ vtxin_filevec.push_back(vtxin_filename);
-  //~ bmin_filename="recotrees/recotree_T0begin_1551904521.root";
-  //~ bmin_filevec.push_back(bmin_filename);
-  //~ vtxin_shifts.push_back(1);
+  vtxin_filename="msddata/80MeV/out_3points_1551904521.root";
+  vtxin_filevec.push_back(vtxin_filename);
+  //bmin_filename="recotrees/recotree_T0begin_1551904521.root";
+  bmin_filename="recotrees/recotree_T0begin_tcut330_1551904521.root";
+  bmin_filevec.push_back(bmin_filename);
+  vtxin_shifts.push_back(1);
   
-  //~ vtxin_filename="msddata/228MeV/out_3points_1551903443.root";
-  //~ vtxin_filevec.push_back(vtxin_filename);
-  //~ bmin_filename="recotrees/recotree_T0begin_1551903443.root";
-  //~ bmin_filevec.push_back(bmin_filename);
-  //~ vtxin_shifts.push_back(1);
+  vtxin_filename="msddata/228MeV/out_3points_1551903443.root";
+  vtxin_filevec.push_back(vtxin_filename);
+  //bmin_filename="recotrees/recotree_T0begin_1551903443.root";
+  bmin_filename="recotrees/recotree_T0begin_tcut330_1551903443.root";
+  bmin_filevec.push_back(bmin_filename);
+  vtxin_shifts.push_back(1);
   
   
   if(vtxin_filevec.size()!=bmin_filevec.size()){

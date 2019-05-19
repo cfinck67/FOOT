@@ -80,18 +80,17 @@ Bool_t TABMactDatRaw::Action() {
   
   Int_t view,plane,cell;
   
-  if(bmstruct->tdc_sync[1]==-10000)
-    for(Int_t i=0;i<bmstruct->tdc_hitnum[0];i++){
-      //~ cout<<"p_parmap->tdc2cell(bmstruct->tdc_id[i])="<<p_parmap->tdc2cell(bmstruct->tdc_id[i])<<"   (Double_t) (bmstruct->tdc_meas[i])/10.)="<<(Double_t) (bmstruct->tdc_meas[i])/10.<<"   p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))="<<p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))<<"   p_timraw->TrigTime()="<<p_timraw->TrigTime()<<"   differenza="<<(((Double_t) (bmstruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))-p_timraw->TrigTime())<<endl;
-      if(p_parmap->tdc2cell(bmstruct->tdc_id[i])>=0 && (((Double_t) (bmstruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))-p_timraw->TrigTime())<p_parcon->GetHitTimecut()){//-1000=syncTime, -1=not set
-      //~ if(p_parmap->tdc2cell(bmstruct->tdc_id[i])>=0){//-1000=syncTime, -1=not set
-        p_pargeo->GetBMNlvc(p_parmap->tdc2cell(bmstruct->tdc_id[i]),plane,view,cell);
-        p_datraw->SetHitData(plane,view,cell,(Double_t) (bmstruct->tdc_meas[i])/10.);
-        if(p_parcon->GetBMdebug()>10)
-          cout<<"hit charged: i="<<i<<"  bmstruct->tdc_id[i]="<<bmstruct->tdc_id[i]<<"  tdc2cell="<<p_parmap->tdc2cell(bmstruct->tdc_id[i])<<"  bmstruct->tdc_meas[i])/10.="<<bmstruct->tdc_meas[i]/10.<<"  T0="<<p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))<<"  p_timraw->TrigTime()="<<p_timraw->TrigTime()<<"  timecut="<<p_parcon->GetHitTimecut()<<"  hittime="<<(((Double_t) (bmstruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))-p_timraw->TrigTime())<<endl;
-      }else if(p_parcon->GetBMdebug()>10)
-        cout<<"hit NOT charged: i="<<i<<"  bmstruct->tdc_id[i]="<<bmstruct->tdc_id[i]<<"  tdc2cell="<<p_parmap->tdc2cell(bmstruct->tdc_id[i])<<"  bmstruct->tdc_meas[i])/10.="<<bmstruct->tdc_meas[i]/10.<<"  T0="<<p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))<<"  p_timraw->TrigTime()="<<p_timraw->TrigTime()<<"  timecut="<<p_parcon->GetHitTimecut()<<"  hittime="<<(((Double_t) (bmstruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))-p_timraw->TrigTime())<<endl;
-    }
+  for(Int_t i=0;i<bmstruct->tdc_hitnum[0];i++){
+    //~ cout<<"p_parmap->tdc2cell(bmstruct->tdc_id[i])="<<p_parmap->tdc2cell(bmstruct->tdc_id[i])<<"   (Double_t) (bmstruct->tdc_meas[i])/10.)="<<(Double_t) (bmstruct->tdc_meas[i])/10.<<"   p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))="<<p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))<<"   p_timraw->TrigTime()="<<p_timraw->TrigTime()<<"   differenza="<<(((Double_t) (bmstruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))-p_timraw->TrigTime())<<endl;
+    if(p_parmap->tdc2cell(bmstruct->tdc_id[i])>=0 && (((Double_t) (bmstruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))-p_timraw->TrigTime())<p_parcon->GetHitTimecut()){//-1000=syncTime, -1=not set
+    //~ if(p_parmap->tdc2cell(bmstruct->tdc_id[i])>=0){//-1000=syncTime, -1=not set
+      p_pargeo->GetBMNlvc(p_parmap->tdc2cell(bmstruct->tdc_id[i]),plane,view,cell);
+      p_datraw->SetHitData(plane,view,cell,(Double_t) (bmstruct->tdc_meas[i])/10.);
+      if(p_parcon->GetBMdebug()>10)
+        cout<<"hit charged: i="<<i<<"  bmstruct->tdc_id[i]="<<bmstruct->tdc_id[i]<<"  tdc2cell="<<p_parmap->tdc2cell(bmstruct->tdc_id[i])<<"  bmstruct->tdc_meas[i])/10.="<<bmstruct->tdc_meas[i]/10.<<"  T0="<<p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))<<"  p_timraw->TrigTime()="<<p_timraw->TrigTime()<<"  timecut="<<p_parcon->GetHitTimecut()<<"  hittime="<<(((Double_t) (bmstruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))-p_timraw->TrigTime())<<endl;
+    }else if(p_parcon->GetBMdebug()>10)
+      cout<<"hit NOT charged: i="<<i<<"  bmstruct->tdc_id[i]="<<bmstruct->tdc_id[i]<<"  tdc2cell="<<p_parmap->tdc2cell(bmstruct->tdc_id[i])<<"  bmstruct->tdc_meas[i])/10.="<<bmstruct->tdc_meas[i]/10.<<"  T0="<<p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))<<"  p_timraw->TrigTime()="<<p_timraw->TrigTime()<<"  timecut="<<p_parcon->GetHitTimecut()<<"  hittime="<<(((Double_t) (bmstruct->tdc_meas[i])/10.) - p_parcon->GetT0(p_parmap->tdc2cell(bmstruct->tdc_id[i]))-p_timraw->TrigTime())<<endl;
+  }
   
   //OLD FIRST STUFF
   //~ TAGmbsEvent*   p_datmbs = (TAGmbsEvent*)  fpDatMbs->Object();//waiting for the new TAGmbsEvent

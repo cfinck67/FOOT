@@ -161,11 +161,11 @@ void BmBooter::Process() {
   
   if(bmstruct.tdc_sync[0]==-10000 && isdata)
     track_ok=-4;
-  else if(bmstruct.tdc_sync[1]!=-10000 && isdata)
+  else if(bmstruct.tdc_sync[2]!=-10000 && isdata)
     track_ok=-3;
-  else if(bmnturaw->nhit >= bmcon->GetMaxnhit_cut())
+  else if(bmnturaw->nhit > bmcon->GetMaxnhit_cut())
     track_ok=-2;
-  else if(bmnturaw->nhit <= bmcon->GetMinnhit_cut())
+  else if(bmnturaw->nhit < bmcon->GetMinnhit_cut())
     track_ok=-1;  
   else if(bmcon->GetFitterIndex()>0){    
     bmntutrack = (TABMntuTrack*) (gTAGroot->FindDataDsc("myn_bmtrk", "TABMntuTrack")->GenerateObject());
@@ -919,6 +919,33 @@ void BmBooter::evaluateT0() {
     }
     gDirectory->cd("..");
     
+  gDirectory->mkdir("TDC_raw-only1sync");
+    gDirectory->cd("TDC_raw-only1sync");
+    for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
+      if(i!=bmmap->GetTrefCh())
+        sprintf(tmp_char,"tdc_raw-only1sync_cha_%d",i);
+      h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",3000,-1000.,2000.);
+    }
+    gDirectory->cd("..");
+    
+  gDirectory->mkdir("TDC_raw-2_firstsync");
+    gDirectory->cd("TDC_raw-2_firstsync");
+    for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
+      if(i!=bmmap->GetTrefCh())
+        sprintf(tmp_char,"tdc_raw-2_firstsync_cha_%d",i);
+      h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",3000,-1000.,2000.);
+    }
+    gDirectory->cd("..");
+    
+  gDirectory->mkdir("TDC_raw-2_secondsync");
+    gDirectory->cd("TDC_raw-2_secondsync");
+    for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
+      if(i!=bmmap->GetTrefCh())
+        sprintf(tmp_char,"tdc_raw-2_secondsync_cha_%d",i);
+      h=new TH1D(tmp_char,"Registered time;Time [ns]; counts",3000,-1000.,2000.);
+    }
+    gDirectory->cd("..");
+    
   gDirectory->mkdir("TDC_meas");
     gDirectory->cd("TDC_meas");
     for(Int_t i=0;i<bmmap->GetTdcMaxcha();i++){
@@ -1038,6 +1065,15 @@ void BmBooter::evaluateT0() {
       if(bmstruct.tdc_id[tmp_int]!=bmmap->GetTrefCh() && bmstruct.tdc_sync[0]!=-10000){    
         sprintf(tmp_char,"TDC/TDC_raw-sync/tdc_raw-sync_cha_%d",bmstruct.tdc_id[tmp_int]);
         ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[tmp_int]-bmstruct.tdc_sync[0])/10.);    
+        if(bmstruct.tdc_sync[1]!=-10000){
+          sprintf(tmp_char,"TDC/TDC_raw-2_firstsync/tdc_raw-2_firstsync_cha_%d",bmstruct.tdc_id[tmp_int]);
+          ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[tmp_int]-bmstruct.tdc_sync[0])/10.);
+          sprintf(tmp_char,"TDC/TDC_raw-2_secondsync/tdc_raw-2_secondsync_cha_%d",bmstruct.tdc_id[tmp_int]);
+          ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[tmp_int]-bmstruct.tdc_sync[1])/10.);
+        }else{
+          sprintf(tmp_char,"TDC/TDC_raw-only1sync/tdc_raw-only1sync_cha_%d",bmstruct.tdc_id[tmp_int]);
+          ((TH1D*)gDirectory->Get(tmp_char))->Fill((Double_t) (bmstruct.tdc_meas[tmp_int]-bmstruct.tdc_sync[0])/10.);
+        }
       }
       if(bmstruct.tdc_id[tmp_int]==petal1ch && bmstruct.tdc_sync[0]!=-10000)
         if(fabs(bmstruct.tdc_meas[tmp_int]/10.-bmstruct.tdc_sync[0]/10.-majodelay)<sync_petal_gate)
