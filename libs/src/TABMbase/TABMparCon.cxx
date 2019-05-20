@@ -269,7 +269,8 @@ Bool_t TABMparCon::FromFile(const TString& name) {
   strel_1garfield.SetParameters(0.10915267,0.00634507,2.02527e-05,-7.60133e-07,5.55868e-09,-1.68944e-11,1.87124e-14,0.,1.);
   //strel_2mine
   strel_2mine=TF1 ("strel_2mine","pol10", 0.,hit_timecut);
-  strel_2mine.SetParameters(0 , 0.00864306 , -5.63261e-05 , 1.47061e-07 , 1.47637e-10 , -6.16021e-13 , -2.68231e-15 , 9.70659e-19 , 2.1899e-20 , 2.84827e-23 , -1.24328e-25);
+  //~ strel_2mine.SetParameters(0 , 0.00984761 , -8.1849e-05 , 3.61954e-07 , -1.81475e-09 , 1.62818e-11 , -8.15291e-14 , 1.51991e-16 , 1.07607e-19 , -7.36932e-22 , 7.0724e-25);//derived from firststrel, it should be ok up to timecut=380ns 
+  strel_2mine.SetParameters(0 , 0.00972627 , -0.000110322 , 1.00877e-06 , -5.70596e-09 , 1.35428e-11 , 1.76248e-14 , -1.06483e-16 , -1.53562e-19 , 1.08638e-21 , -1.18891e-24);
   //strel_3mine
   //~ strel_3mine=TF1 ("strel_3mine","[0]+[1]*x*[8]+[2]*x*x*[8]*[8]+[3]*x*x*x*[8]*[8]*[8]+[4]*x*x*x*x*[8]*[8]*[8]*[8]+[5]*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]+[6]*x*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]*[8]+[7]*x*x*x*x*x*x*x*[8]*[8]*[8]*[8]*[8]*[8]*[8]", 0.,hit_timecut);
   //~ strel_3mine.SetParameters(0.,0.0087776,-6.41845e-05,2.4946e-07,-3.48422e-10,0.,0.,0.,1.);

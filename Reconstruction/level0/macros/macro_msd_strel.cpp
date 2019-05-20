@@ -15,46 +15,51 @@ void macro_msd_strel(){
   
   //**************************************************************  ADD the input files  ******************************************
   //~ TString out_filename("combined/combo_3points_1551900359.root");// output file name
-  TString out_filename("combined/combo_notilt_tcut330.root");// output file name
+  //~ TString out_filename("combined/prova_onlyview1.root");// output file name
   
-  //80Mev, no tilt 3 points
+  //~ //80Mev, no tilt 3 points
   //~ vtxin_filename="msddata/80MeV/out_3points_1551900359.root";
   //~ vtxin_filevec.push_back(vtxin_filename);
-  //bmin_filename="recotrees/recotree_T0begin_1551900359.root";
-  //~ bmin_filename="recotrees/recotree_T0begin_tcut330_1551900359.root";
+  //~ //bmin_filename="recotrees/recotree_T0begin_1551900359.root";
+  //~ //bmin_filename="recotrees/recotree_T0begin_tcut330_1551900359.root";
+  //~ bmin_filename="recotrees/recotree_tcut380_1551900359.root";
   //~ bmin_filevec.push_back(bmin_filename);
   //~ vtxin_shifts.push_back(1);
   
   //80Mev, no tilt second couple with 100004 events:
   //~ vtxin_filename="msddata/80MeV/out_3points_1551901240.root";
   //~ vtxin_filevec.push_back(vtxin_filename);
-  //bmin_filename="recotrees/recotree_T0begin_1551901240.root";
-  //~ bmin_filename="recotrees/recotree_T0begin_tcut330_1551901240.root";
+  //~ //bmin_filename="recotrees/recotree_T0begin_1551901240.root";
+  //~ //bmin_filename="recotrees/recotree_T0begin_tcut330_1551901240.root";
+  //~ bmin_filename="recotrees/recotree_tcut380_1551901240.root";
   //~ bmin_filevec.push_back(bmin_filename);
   //~ vtxin_shifts.push_back(2);
 
-  //228Mev, notilt 
+  //~ //228Mev, notilt 
   //~ vtxin_filename="msddata/228MeV/out_3points_1551902227.root";
   //~ vtxin_filevec.push_back(vtxin_filename);
-  //bmin_filename="recotrees/recotree_T0begin_1551902227.root";
-  //~ bmin_filename="recotrees/recotree_T0begin_tcut330_1551902227.root";
+  //~ //bmin_filename="recotrees/recotree_T0begin_1551902227.root";
+  //~ //bmin_filename="recotrees/recotree_T0begin_tcut330_1551902227.root";
+  //~ bmin_filename="recotrees/recotree_tcut380_1551902227.root";
   //~ bmin_filevec.push_back(bmin_filename);
   //~ vtxin_shifts.push_back(1);
  
 
-  //~ TString out_filename("combined/combo_tilt5deg.root");// output file name
+  TString out_filename("combined/combo_tilt5deg.root");// output file name
   //80Mev, tilt 5****************
   vtxin_filename="msddata/80MeV/out_3points_1551904521.root";
   vtxin_filevec.push_back(vtxin_filename);
   //bmin_filename="recotrees/recotree_T0begin_1551904521.root";
-  bmin_filename="recotrees/recotree_T0begin_tcut330_1551904521.root";
+  //bmin_filename="recotrees/recotree_T0begin_tcut330_1551904521.root";
+  bmin_filename="recotrees/recotree_tcut380_1551904521.root";
   bmin_filevec.push_back(bmin_filename);
   vtxin_shifts.push_back(1);
   
   vtxin_filename="msddata/228MeV/out_3points_1551903443.root";
   vtxin_filevec.push_back(vtxin_filename);
   //bmin_filename="recotrees/recotree_T0begin_1551903443.root";
-  bmin_filename="recotrees/recotree_T0begin_tcut330_1551903443.root";
+  //bmin_filename="recotrees/recotree_T0begin_tcut330_1551903443.root";
+  bmin_filename="recotrees/recotree_tcut380_1551903443.root";
   bmin_filevec.push_back(bmin_filename);
   vtxin_shifts.push_back(1);
   
@@ -125,12 +130,13 @@ void macro_msd_strel(){
     TTreeReaderValue<int> planereader(bmReader, "BM_hitplane");
     TTreeReaderValue<int> viewreader(bmReader, "BM_hitview");
     TTreeReaderValue<int> cellreader(bmReader, "BM_hitcell");
+    TTreeReaderValue<int> isselectedreader(bmReader, "BM_hitisselected");
     TString tmp_tstring;
     
     clean_bmevstruct(bmevent, true);
     
     //read BM loop
-    while(bmreadevent(bmReader, bmevent, evnumreader, timeacqreader, trackchi2reader, pversxreader, pversyreader, pverszreader, r0xreader, r0yreader, rdriftreader, residualreader, hittimereader, planereader, viewreader, cellreader,hitchi2reader, lastvtxeventnum)){
+    while(bmreadevent(bmReader, bmevent, evnumreader, timeacqreader, trackchi2reader, pversxreader, pversyreader, pverszreader, r0xreader, r0yreader, rdriftreader, residualreader, hittimereader, planereader, viewreader, cellreader,hitchi2reader,isselectedreader, lastvtxeventnum)){
       allbmeventin.push_back(bmevent);
     };
     
@@ -221,9 +227,10 @@ void macro_msd_strel(){
   cout<<"number of combined events="<<selected_index.size()<<endl;
   
   //****************************************************** end of program, print! *********************************
-  Printoutput(f_out, allbmeventin, allvtxeventin, space_residual, time_residual, selected_index, false);
+  TString newstrelstring;
+  Printoutput(f_out, allbmeventin, allvtxeventin, space_residual, time_residual, selected_index, false, newstrelstring);
   //~ fitPositionResidual();
-  Allign_estimate(bmin_filename, vtxin_filename, out_filename);
+  Allign_estimate(bmin_filename, vtxin_filename, out_filename, newstrelstring);
   
   f_out->Write();
   //~ f_out->Close();

@@ -214,6 +214,7 @@ public:
       //~ FillMap( hitSampleName + tmp_char, bmntuhit->Tdrift());
       if(bmntuhit->GetIsSelected()){
         FillMap( hitSampleName + "__rawsel_chi2", bmntuhit->GetChi2());
+        FillMap( hitSampleName + "__rawsel_time", bmntuhit->Tdrift());
         FillMap( hitSampleName + "__rawsel_rdrift", bmntuhit->Dist());
         //~ BM_setntuple_hit(bmntuhit->Dist(), *bmntuhit, *bmnturaw);//provv
         FillMap( hitSampleName + "__rawsel_cell", bmntuhit->Cell());
