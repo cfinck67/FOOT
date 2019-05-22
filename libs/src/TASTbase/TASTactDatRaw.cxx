@@ -43,7 +43,7 @@ TASTactDatRaw::TASTactDatRaw(const char* name,
   AddPara(p_parmap, "TASTparMap");
   AddPara(p_parTime, "TASTparTime");
 
-  m_debug = false;
+  m_debug = GetDebugLevel();
   m_nev=0;
 }
 
@@ -103,8 +103,8 @@ Bool_t TASTactDatRaw::Action() {
    p_datraw->SetTriggerTime(TrigTime);
    if(myHits.size()>0) p_datraw->SetTrigType(myHits.at(0)->GetTrigType());
    p_datraw->SetCharge(Charge);
-   
-     
+
+
    if(ValidHistogram()){
      hTrigTime->Fill(TrigTime);
      hTotCharge->Fill(Charge);
@@ -163,21 +163,6 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
   vector<double> w_time;
   vector<double> w_amp;
   vector<float> w_tcal;
-
-
-  if(GetDebugLevel()) { 
-    /*
-    printf("%08x     valuessize::%08x\n", evt->evtSize,  evt->values.size());
-    for (Int_t i = 0; i < evt->evtSize-1; ++i) {
-      if(i<30)printf("first::%08x\n",  evt->values[i]);
-      if(i>evt->evtSize-5)printf("last::%08x\n",  evt->values[i]);
-    }
-    
-    printf("last %08x\n", evt->values.at(evt->values.size()-2));
-    printf("last %08x\n", evt->values.at(evt->values.size()-1));
-    printf("\n");
-    */
-  }
   
   int nmicro=0;
  
@@ -219,7 +204,7 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 	  range = *((float*)&evt->values.at(iW));
 	
 	  if(m_debug)printf("range::%08x num%d\n", evt->values.at(iW), board_id);
-	
+		
 	  iW++;
 	  sampling_freq = (float)(( evt->values.at(iW)>> 16)&0xffff);
 	  flags = evt->values.at(iW) & 0xffff;
@@ -250,9 +235,9 @@ Bool_t TASTactDatRaw::DecodeHits(const WDEvent* evt, TASTparTime *p_parTime, TAS
 	    for(int iSa=0;iSa<512;iSa++){
 	      // if(m_debug)printf("found sample isa::%d    ::%08x\n", iSa, word);
 	      adc_sa = evt->values.at(iW);
-	      adctmp = ((adc_sa >> 16) & 0xffff);
-	      w_adc.push_back(adctmp);
 	      adctmp  = (adc_sa & 0xffff);
+	      w_adc.push_back(adctmp);
+	      adctmp = ((adc_sa >> 16) & 0xffff);
 	      w_adc.push_back(adctmp);
 	      iW++;
 	    }
@@ -369,9 +354,11 @@ bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *a
   double amp_binmax = tmp_amp.at(max_bin);
 
 
-  double tleft= time_crossbin-20;
+  double tleft= time_crossbin-10;
   double tright= time_crossbin+3;
 
+  double tmp_baseline = tmp_amp.at(5);
+  
   //to be commented...
   TF1 f("f", "-[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[5]",tleft,tright);
   f.SetParameter(0,1);
@@ -379,13 +366,11 @@ bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *a
   f.SetParameter(2,1);
   f.SetParameter(3,time_crossbin+2);
   f.SetParameter(4,2);
-  f.SetParameter(5,0.5);
+  f.SetParameter(5,tmp_baseline);
   
   TGraphErrors WaveGraph(tmp_time.size(), &tmp_time[0], &tmp_amp[0], 0, &tmp_unc[0]);
-  WaveGraph.Fit("f","Q", "",tleft, tright);
+  WaveGraph.Fit(&f,"Q", "",tleft, tright);
   
-
-
   
   TF1 f1("f1", "-0.2*[0]/(1+TMath::Exp(-(x-[1])/[2]))/(1+TMath::Exp((x-[3])/[4]))+[0]/(1+TMath::Exp(-(x-[1]-1.5)/[2]))/(1+TMath::Exp((x-[3]-1.5)/[4]))",0,100);
   f1.SetLineColor(kGreen);
@@ -396,23 +381,22 @@ bool TASTactDatRaw::ComputeArrivalTime(TASTrawHit*myHit, double *tarr, double *a
   f1.FixParameter(4, f.GetParameter(4));
   f1.FixParameter(5, f.GetParameter(5));
 
-
-
   
-  if(m_debug)SavePlot(WaveGraph, f,f1, myHit);
+  //  if(GetDebugLevel())  SavePlot(WaveGraph, f,f1, myHit);
   
   tleft = f1.GetMinimumX();
   tright = f1.GetMaximumX();
   
   double t1=f1.GetX(0.0,tleft,tright);
 
-
   f.SetParameter(5,0.0);
   *charge = -f.Integral(f.GetMinimumX()-10, f.GetMinimumX()+10);
   *tarr = t1;
   *ampl = fabs(f.GetParameter(5)-f.GetMinimum());
 
+
   // cout << "charge"<< *charge << endl;
+
   
   if(t1>tleft && t1<tright){
     return true;

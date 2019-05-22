@@ -183,7 +183,8 @@ void BaseLocalReco::ReadParFiles()
    
    // initialise par files for start counter
    if (GlobalPar::GetPar()->IncludeST() || GlobalPar::GetPar()->IncludeBM()) {
-      fpParGeoSt = new TAGparaDsc(TASTparGeo::GetDefParaName(), new TASTparGeo());
+
+     fpParGeoSt = new TAGparaDsc(TASTparGeo::GetDefParaName(), new TASTparGeo());
       TASTparGeo* parGeo = (TASTparGeo*)fpParGeoSt->Object();
       TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
@@ -193,6 +194,9 @@ void BaseLocalReco::ReadParFiles()
       parMapSt->FromFile(parFileName);
       
       fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
+      TASTparTime* parTimeSt = (TASTparTime*) fpParTimeSt->Object();
+      parTimeSt->FromFile(GetName());
+      
    }
    
    // initialise par files for Beam Monitor
@@ -286,6 +290,8 @@ void BaseLocalReco::ReadParFiles()
       parMap->FromFile(parFileName.Data());
       
       fpParTimeTw = new TAGparaDsc("twTim", new TATWparTime());
+      TATWparTime* parTimeTw = (TATWparTime*) fpParTimeTw->Object();
+      parTimeTw->FromFile(GetName());
    }
    
    // initialise par files for caloriomter

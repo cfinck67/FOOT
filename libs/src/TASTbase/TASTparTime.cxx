@@ -30,7 +30,7 @@ TASTparTime::TASTparTime() {
 
 
   InitMap();
-  m_debug=false;
+  m_debug=GetDebugLevel();
 
 
 
@@ -55,14 +55,12 @@ bool TASTparTime::FromFile(const char *filename){
   char *token=NULL;
   const char *delim = "/";
 
-  // printf("fullname::%s\n", fullname);
 
   vector<string> chunks;
   token = strtok(fullname, delim);
   while(token!=NULL){
     string  str(token);
     chunks.push_back(str);
-    // printf("token::%s\n", token);
     token = strtok(NULL, delim);
   }
 
@@ -87,20 +85,25 @@ bool TASTparTime::FromFile(const char *filename){
     chunks_runname.push_back(str);
     token = strtok(NULL, delim2);
   }
+  
+  string runnumber = chunks_runname.at(1);;
 
-   
-  //string tcal_filename("");
+  
+  string tcal_filename("");
   //tcal_filename+=path;
-  //  tcal_filename+=(chunks_runname.at(1)); //we choose just the 2190 for the moment
-  //tcal_filename+=".dat";
+  tcal_filename+=("../../../Reconstruction/level0/data/tcalib");
+  //tcal_filename+=runnumber;
+  tcal_filename+="2190";
+  tcal_filename+=".dat";
 
-  string tcal_filename("../../../Reconstruction/level0/data/tcalib2190.dat");
   
   FILE *stream = fopen(tcal_filename.c_str(), "r");
-  printf("opening WD time calibration file::%s\n", tcal_filename.c_str());
 
   if(stream==NULL){
+    printf("\n\n WARNING:: ST WD time calibration file %s not found\n\n", tcal_filename.c_str());
     return false;
+  }else{
+    printf("\n\nLoading ST WD time calibration from file::%s \n\n", tcal_filename.c_str());
   }
 
   
@@ -156,7 +159,7 @@ void TASTparTime::InitMap(){
     for(int iCh=0;iCh<NMAX_CH_ID;iCh++){
       key = iBo*18+iCh;
       for(int i=0;i<1024;i++){
-	time_parcal[key].push_back(256E-9/1024.);
+	time_parcal[key].push_back(0.2);
       }
       m_GotCalib[key] = false;
     }

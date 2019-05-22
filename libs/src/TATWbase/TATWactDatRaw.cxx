@@ -155,9 +155,10 @@ Bool_t TATWactDatRaw::DecodeHits(const WDEvent* evt, TATWparTime *p_parTime, TAT
 						for(int iSa=0;iSa<512;iSa++){
 							if(m_debug)printf("found sample isa::%d    ::%08x\n", iSa, evt->values.at(iW));
 							adc_sa = evt->values.at(iW);
-							v_sa = ((adc_sa >> 16) & 0xffff)/65536.-0.5+range;
+							v_sa = (adc_sa & 0xffff)/65536.-0.5+range;						
 							w_amp.push_back(v_sa);
-							v_sa = (adc_sa & 0xffff)/65536.-0.5+range;
+
+							v_sa = ((adc_sa >> 16) & 0xffff)/65536.-0.5+range;
 							w_amp.push_back(v_sa);
 							iW++;
 						}
