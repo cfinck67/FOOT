@@ -686,7 +686,7 @@ void TABMactNtuTrack::Chi2Fit(vector<Int_t> &singlehittrack, vector<vector<Int_t
     }
   }
   if(tmp_atrackTr->GetNite()==0)
-    tmp_atrackTr->SetNite(p_bmcon->GetNumIte());
+    tmp_atrackTr->SetNite(p_bmcon->GetNumIte()-1);
   
 
    if(p_bmcon->GetBMdebug()>0)
