@@ -89,25 +89,28 @@ bool TATWparTime::FromFile(const char *filename){
     token = strtok(NULL, delim2);
   }
 
-  //  int runname = atoi(chunks_runname.at(1).c_str());
+   string runnumber = chunks_runname.at(1);;
+
   
-  // string tcal_filename("");
-  // tcal_filename+=path;
-  // tcal_filename+="tcalib";
-  // tcal_filename+=(chunks_runname.at(1));
-  // tcal_filename+=".dat";
+  string tcal_filename("");
+  //tcal_filename+=path;
+  tcal_filename+=("../../../Reconstruction/level0/data/tcalib");
+  //tcal_filename+=runnumber;
+  tcal_filename+="2190";
+  tcal_filename+=".dat";
 
-
-  string tcal_filename("../../../Reconstruction/level0/data/tcalib2190.dat");
+  
   FILE *stream = fopen(tcal_filename.c_str(), "r");
-  
-
-  // printf("opening WD time calibration file::%s\n", tcal_filename.c_str());
 
   if(stream==NULL){
+    printf("\n\n WARNING:: TW WD time calibration file %s not found\n\n", tcal_filename.c_str());
     return false;
+  }else{
+    printf("\n\nLoading TW WD time calibration from file::%s \n\n", tcal_filename.c_str());
   }
 
+
+ 
   
   u_int word;
   int board_id=0, ch_num=0,ret=0;

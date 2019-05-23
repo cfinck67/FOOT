@@ -183,7 +183,8 @@ void BaseLocalReco::ReadParFiles()
    
    // initialise par files for start counter
    if (GlobalPar::GetPar()->IncludeST() || GlobalPar::GetPar()->IncludeBM()) {
-      fpParGeoSt = new TAGparaDsc(TASTparGeo::GetDefParaName(), new TASTparGeo());
+
+     fpParGeoSt = new TAGparaDsc(TASTparGeo::GetDefParaName(), new TASTparGeo());
       TASTparGeo* parGeo = (TASTparGeo*)fpParGeoSt->Object();
       TString parFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
       parGeo->FromFile(parFileName.Data());
@@ -193,6 +194,9 @@ void BaseLocalReco::ReadParFiles()
       parMapSt->FromFile(parFileName);
       
       fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
+      TASTparTime* parTimeSt = (TASTparTime*) fpParTimeSt->Object();
+      parTimeSt->FromFile(GetName());
+      
    }
    
    // initialise par files for Beam Monitor
@@ -222,12 +226,13 @@ void BaseLocalReco::ReadParFiles()
    if (GlobalPar::GetPar()->IncludeVertex()) {
       fpParGeoVtx = new TAGparaDsc(TAVTparGeo::GetDefParaName(), new TAVTparGeo());
       TAVTparGeo* parGeo = (TAVTparGeo*)fpParGeoVtx->Object();
-      TString parVtxFileName = Form("./geomaps/TAVTdetector%s.map", fExpName.Data());
+      TString parVtxFileName = Form("./geomaps/TAVTdetector_GSI.map", fExpName.Data());
       parGeo->FromFile(parVtxFileName.Data());
       
       fpParConfVtx = new TAGparaDsc("vtConf", new TAVTparConf());
       TAVTparConf* parConf = (TAVTparConf*)fpParConfVtx->Object();
-      parVtxFileName = Form("./config/TAVTdetector%s.cfg", fExpName.Data());
+      parVtxFileName = Form("./config/TAVTdetector_GSI.cfg", fExpName.Data());
+      // parVtxFileName = Form("./config/TAVTdetector%s.cfg", fExpName.Data());
       parConf->FromFile(parVtxFileName.Data());
       
       fpParMapVtx = new TAGparaDsc("vtMap", new TAVTparMap());
@@ -285,6 +290,8 @@ void BaseLocalReco::ReadParFiles()
       parMap->FromFile(parFileName.Data());
       
       fpParTimeTw = new TAGparaDsc("twTim", new TATWparTime());
+      TATWparTime* parTimeTw = (TATWparTime*) fpParTimeTw->Object();
+      parTimeTw->FromFile(GetName());
    }
    
    // initialise par files for caloriomter
