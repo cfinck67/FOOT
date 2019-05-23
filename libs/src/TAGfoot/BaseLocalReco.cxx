@@ -251,7 +251,7 @@ void BaseLocalReco::ReadParFiles()
       fpParMapIt = new TAGparaDsc("itMap", new TAITparMap());
       TAVTparMap* parMap = (TAVTparMap*)fpParMapIt->Object();
       parItFileName = Form("./config/TAITdetector%s.map", fExpName.Data());
-      parMap->FromFile(parItFileName.Data());
+     // parMap->FromFile(parItFileName.Data());
    }
    
    // initialise par files for multi strip detector
