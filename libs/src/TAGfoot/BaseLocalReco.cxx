@@ -226,13 +226,12 @@ void BaseLocalReco::ReadParFiles()
    if (GlobalPar::GetPar()->IncludeVertex()) {
       fpParGeoVtx = new TAGparaDsc(TAVTparGeo::GetDefParaName(), new TAVTparGeo());
       TAVTparGeo* parGeo = (TAVTparGeo*)fpParGeoVtx->Object();
-      TString parVtxFileName = Form("./geomaps/TAVTdetector_GSI.map", fExpName.Data());
+      TString parVtxFileName = Form("./geomaps/TAVTdetector%s.map", fExpName.Data());
       parGeo->FromFile(parVtxFileName.Data());
       
       fpParConfVtx = new TAGparaDsc("vtConf", new TAVTparConf());
       TAVTparConf* parConf = (TAVTparConf*)fpParConfVtx->Object();
-      parVtxFileName = Form("./config/TAVTdetector_GSI.cfg", fExpName.Data());
-      // parVtxFileName = Form("./config/TAVTdetector%s.cfg", fExpName.Data());
+      parVtxFileName = Form("./config/TAVTdetector%s.cfg", fExpName.Data());
       parConf->FromFile(parVtxFileName.Data());
       
       fpParMapVtx = new TAGparaDsc("vtMap", new TAVTparMap());
