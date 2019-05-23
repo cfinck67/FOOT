@@ -94,7 +94,7 @@ bool TATWparTime::FromFile(const char *filename){
   
   string tcal_filename("");
   //tcal_filename+=path;
-  tcal_filename+=("../../../Reconstruction/level0/data/tcalib");
+  tcal_filename+=("./config/tcalib");
   //tcal_filename+=runnumber;
   tcal_filename+="2190";
   tcal_filename+=".dat";
