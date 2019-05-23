@@ -309,13 +309,11 @@ void GlobalPar::SetClassDebugLevel(const char* className, Int_t level)
    // set the debug level for the given class
    
    if (!className) return;
-   if (!m_pInstance)
-      cout << "ERROR::GlobalPar::GetPar()  -->  called a get before GlobalPar object istance." << endl, exit(0);
 
-   TObject* obj = m_pInstance->m_ClassDebugLevels.FindObject(className);
+   TObject* obj = GetPar()->m_ClassDebugLevels.FindObject(className);
    if (!obj) {
       obj = new TNamed(className, className);
-      m_pInstance->m_ClassDebugLevels.Add(obj);
+      GetPar()->m_ClassDebugLevels.Add(obj);
    }
 
    obj->SetUniqueID(level);
@@ -327,10 +325,8 @@ void GlobalPar::ClearClassDebugLevel(const char* className)
    // remove the setting of the debug level for the given class
    
    if (!className) return;
-   if (!m_pInstance)
-      cout << "ERROR::GlobalPar::GetPar()  -->  called a get before GlobalPar object istance." << endl, exit(0);
-   TObject* obj = m_pInstance->m_ClassDebugLevels.FindObject(className);
-   if (obj) delete m_pInstance->m_ClassDebugLevels.Remove(obj);
+     TObject* obj = GetPar()->m_ClassDebugLevels.FindObject(className);
+   if (obj) delete GetPar()->m_ClassDebugLevels.Remove(obj);
 }
 
 //_____________________________________________________________________________
@@ -338,12 +334,9 @@ Bool_t GlobalPar::GetDebugLevel(Int_t level, const char* className)
 {
    // get the logging level for the given module and class
    
-   if (!m_pInstance)
-      cout << "ERROR::GlobalPar::GetPar()  -->  called a get before GlobalPar object istance." << endl, exit(0);
-   
    if (className) {
       Int_t classLevel = -1;
-      TObject* obj = m_pInstance->m_ClassDebugLevels.FindObject(className);
+      TObject* obj = GetPar()->m_ClassDebugLevels.FindObject(className);
       if (obj) classLevel = obj->GetUniqueID();
 
       if ( level <= classLevel)
@@ -351,7 +344,7 @@ Bool_t GlobalPar::GetDebugLevel(Int_t level, const char* className)
    }
    
    // check global debug level
-   if (level <= m_pInstance->Debug())
+   if (level <= GetPar()->Debug())
       return true;
    
    return false;
@@ -363,23 +356,20 @@ Int_t GlobalPar::GetDebugLevel(const char* className)
 {
    // get the logging level for the given module and class
    
-   if (!m_pInstance)
-      cout << "ERROR::GlobalPar::GetPar()  -->  called a get before GlobalPar object istance." << endl, exit(0);
-   
    if (className) {
-      TObject* obj = m_pInstance->m_ClassDebugLevels.FindObject(className);
+      TObject* obj = GetPar()->m_ClassDebugLevels.FindObject(className);
       if (obj) return obj->GetUniqueID();
    }
    
    // return global debug level
-   return m_pInstance->Debug();
+   return GetPar()->Debug();
 }
 
 //_____________________________________________________________________________
 void GlobalPar::Debug(Int_t level, const char* className, const char* funcName, const char* format, const char* file, Int_t line)
 {
    // print the message
-   if (level <= m_pInstance->GetDebugLevel(className)) {
+   if (level <= GetPar()->GetDebugLevel(className)) {
       if (funcName)
          fprintf(stdout, "Debug in <%s:%s>: ", className, funcName);
    
