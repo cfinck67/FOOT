@@ -33,11 +33,11 @@ TAMSDparGeo::~TAMSDparGeo()
 
 
 //_____________________________________________________________________________
-void TAMSDparGeo::DefineMaterial()
-{
-   // material for strip, same as M28 ?
-   TAVTbaseParGeo::DefineMaterial();
-}
+//void TAMSDparGeo::DefineMaterial()
+//{
+//   // material for strip, same as M28 ?
+//   TAVTbaseParGeo::DefineMaterial();
+//}
 
 //_____________________________________________________________________________
 TGeoVolume* TAMSDparGeo::BuildMultiStripDetector(const char* basemoduleName, const char *msdName)

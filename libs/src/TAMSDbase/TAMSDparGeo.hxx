@@ -23,7 +23,7 @@ public:
    virtual ~TAMSDparGeo();
 
    // Define materials
-   void        DefineMaterial();
+//   void        DefineMaterial();
    
    //! Build MSD
    TGeoVolume* BuildMultiStripDetector(const char* basemoduleName = "Module", const char *name = "MSD");
