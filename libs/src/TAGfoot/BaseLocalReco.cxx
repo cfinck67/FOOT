@@ -197,7 +197,6 @@ void BaseLocalReco::ReadParFiles()
       fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
       TASTparTime* parTimeSt = (TASTparTime*) fpParTimeSt->Object();
       parTimeSt->FromFile(GetName());
-      
    }
    
    // initialise par files for Beam Monitor
