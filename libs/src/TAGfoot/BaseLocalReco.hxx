@@ -106,6 +106,9 @@ public:
    
    //! Close File in
    virtual void CloseFileIn() { return; }
+   
+   //! Set Run number
+   virtual void SetRunNumber() { return; }
 
    //! Open File Out
    virtual void OpenFileOut();

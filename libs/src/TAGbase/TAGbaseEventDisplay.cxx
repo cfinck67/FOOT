@@ -222,11 +222,13 @@ void TAGbaseEventDisplay::ShowDisplay(const TString fileName)
       return;
    }
    
+   SetFileName(fileName);
+   ReadParFiles();
    CreateRawAction();
    CreateRecAction();
    AddRequiredItem();
    
-   OpenFile(fileName);
+   OpenFile();
    
    BuildDefaultGeometry();
    

@@ -87,8 +87,14 @@ public:
    //! Create raw reco action
    virtual void CreateRecAction() = 0;
    
+   //! Read parameters files
+   virtual void ReadParFiles() = 0;
+   
    //! Open File
-   virtual void OpenFile(const TString fileName) = 0;
+   virtual void SetFileName(const TString fileName) = 0;
+   
+   //! Open File
+   virtual void OpenFile() = 0;
    
    //! Add elements
    virtual void AddElements() = 0;

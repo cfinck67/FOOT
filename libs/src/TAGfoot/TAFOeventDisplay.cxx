@@ -297,6 +297,7 @@ void TAFOeventDisplay::CreateRawAction()
 void TAFOeventDisplay::SetFileName(const TString fileName)
 {
    fLocalReco->SetName(fileName);
+   fLocalReco->SetRunNumber();
 }
 
 //__________________________________________________________
@@ -304,7 +305,6 @@ void TAFOeventDisplay::OpenFile()
 {
    fLocalReco->OpenFileIn();
 }
-
 
 //__________________________________________________________
 void TAFOeventDisplay::ResetHistogram()
