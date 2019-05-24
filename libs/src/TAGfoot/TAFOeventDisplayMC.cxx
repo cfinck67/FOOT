@@ -80,7 +80,6 @@ Bool_t TAFOeventDisplayMC::GetEntry(Int_t entry)
 //__________________________________________________________
 void TAFOeventDisplayMC::CreateRawAction()
 {
-   ReadParFiles();
    fLocalReco->CreateRawAction();
 }
 
@@ -94,13 +93,6 @@ void TAFOeventDisplayMC::AddRequiredItem()
    gTAGroot->Print();
 }
 
-
-//__________________________________________________________
-void TAFOeventDisplayMC::OpenFile(const TString fileName)
-{
-   fLocalReco->SetName(fileName);
-   fLocalReco->OpenFileIn();
-}
 
 //__________________________________________________________
 void TAFOeventDisplayMC::AddElements()

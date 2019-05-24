@@ -25,10 +25,7 @@ public:
    
    virtual ~TAFOeventDisplayMC();
    
-   //! Open File
-   virtual void OpenFile(const TString fileName);
-
-   //! Create raw data action
+    //! Create raw data action
    void CreateRawAction();
 
    //! Set local reconstruction

@@ -63,9 +63,12 @@ public:
    
    //! Create raw reco action
    virtual void CreateRecAction();
+      
+   //! Open File
+   virtual void SetFileName(const TString fileName);
    
    //! Open File
-   virtual void OpenFile(const TString fileName); 
+   virtual void OpenFile();
    
    //! Add elements
    virtual void AddElements();

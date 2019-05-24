@@ -290,16 +290,21 @@ void TAFOeventDisplay::CreateRecAction()
 //__________________________________________________________
 void TAFOeventDisplay::CreateRawAction()
 {
-   ReadParFiles();
    fLocalReco->CreateRawAction();
 }
 
 //__________________________________________________________
-void TAFOeventDisplay::OpenFile(const TString fileName)
+void TAFOeventDisplay::SetFileName(const TString fileName)
 {
    fLocalReco->SetName(fileName);
+}
+
+//__________________________________________________________
+void TAFOeventDisplay::OpenFile()
+{
    fLocalReco->OpenFileIn();
 }
+
 
 //__________________________________________________________
 void TAFOeventDisplay::ResetHistogram()
