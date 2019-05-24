@@ -75,7 +75,8 @@ BaseLocalReco::BaseLocalReco(TString fileNameIn, TString fileNameout)
 
    // Read Trafo file
    fpFootGeo = new TAGgeoTrafo();
-   fpFootGeo->FromFile();
+   TString parFileName = Form("./geomaps/FOOT_geo%s.map", fExpName.Data());
+   fpFootGeo->FromFile(parFileName);
 }
 
 //__________________________________________________________
@@ -195,7 +196,7 @@ void BaseLocalReco::ReadParFiles()
       
       fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
       TASTparTime* parTimeSt = (TASTparTime*) fpParTimeSt->Object();
-      parTimeSt->FromFile(GetName());
+    //  parTimeSt->FromFile(GetName());
       
    }
    
