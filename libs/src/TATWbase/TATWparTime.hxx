@@ -33,7 +33,7 @@ class TATWparTime : public TAGpara {
   
   bool GetTimeArray(int iBo, int iCha, int TrigCell,  vector<double> *time);
   void InitMap();
-  bool FromFile(const char*);
+  bool FromFile(int iRunNumber = 0);
   void SetTimeCal(int iBo, int iCha, vector<float> tvec);
   ClassDef(TATWparTime,1)
 

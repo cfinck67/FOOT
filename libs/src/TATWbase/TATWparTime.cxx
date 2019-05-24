@@ -11,6 +11,7 @@
 #include "TSystem.h"
 #include "TString.h"
 
+#include "TAGroot.hxx"
 #include "TATWparTime.hxx"
 #include "TATWactDatRaw.hxx"
 
@@ -46,72 +47,31 @@ TATWparTime::~TATWparTime(){}
 
 
 
-bool TATWparTime::FromFile(const char *filename){
-
-
-  char fullname[100]="";
-  strcpy(fullname,filename);
-
-  char *token=NULL;
-  const char *delim = "/";
-
-  // printf("fullname::%s\n", fullname);
-
-  vector<string> chunks;
-  token = strtok(fullname, delim);
-  while(token!=NULL){
-    string  str(token);
-    chunks.push_back(str);
-    // printf("token::%s\n", token);
-    token = strtok(NULL, delim);
-  }
-
-  string path="";
-  for(int i=0;i<chunks.size()-1;i++){
-    path+="/";
-    path+=chunks.at(i);
-  }
-  path+="/";
-
-  
-  string runname="";
-  runname+=chunks.at(chunks.size()-1);
-  
-
-  token=NULL;
-  const char *delim2 = ".";
-  vector<string> chunks_runname;
-  char *tmp = strdup(runname.c_str());
-  token = strtok(tmp, delim2);
-  while(token!=NULL){
-    string  str(token);
-    chunks_runname.push_back(str);
-    token = strtok(NULL, delim2);
-  }
-
-   string runnumber = chunks_runname.at(1);;
-
-  
+bool TATWparTime::FromFile(int iRunNumber){
+   
+  string runnumber;
+   
+  if (iRunNumber == 0)
+     runnumber = Form("%d", gTAGroot->CurrentRunNumber());
+  else
+     runnumber = Form("%d", iRunNumber);
+   
   string tcal_filename("");
-  //tcal_filename+=path;
   tcal_filename+=("./config/tcalib");
-  //tcal_filename+=runnumber;
-  tcal_filename+="2190";
+  tcal_filename+=runnumber;
   tcal_filename+=".dat";
 
   
   FILE *stream = fopen(tcal_filename.c_str(), "r");
 
   if(stream==NULL){
-    printf("\n\n WARNING:: TW WD time calibration file %s not found\n\n", tcal_filename.c_str());
-    return false;
+     printf("\n\n WARNING:: TW WD time calibration file %s not found\n\n", tcal_filename.c_str());
+     return false;
   }else{
-    printf("\n\nLoading TW WD time calibration from file::%s \n\n", tcal_filename.c_str());
+     if (fDebugLevel > 1)
+        printf("\n\nLoading TW WD time calibration from file::%s \n\n", tcal_filename.c_str());
   }
 
-
- 
-  
   u_int word;
   int board_id=0, ch_num=0,ret=0;
   float time_bin=0;
