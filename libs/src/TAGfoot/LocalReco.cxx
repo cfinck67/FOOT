@@ -35,6 +35,7 @@ LocalReco::LocalReco(TString fileNameIn, TString fileNameout)
 //   fpDatRawMsd(0x0),
    fActEvtReader(0x0)
 {
+   SetRunNumber();
 }
 
 //__________________________________________________________
@@ -70,12 +71,12 @@ void LocalReco::CreateRawAction()
    if (GlobalPar::GetPar()->IncludeST() ||GlobalPar::GetPar()->IncludeBM()) {
       fpDatRawSt   = new TAGdataDsc("stDat", new TASTdatRaw());
       fActDatRawSt = new TASTactDatRaw("stActRaw", fpDatRawSt, fpDaqEvent, fpParMapSt, fpParTimeSt);
-      if(GlobalPar::GetPar()->Debug()) fActDatRawSt->SetDebugLevel(1);
+     // if(GlobalPar::GetPar()->Debug()) fActDatRawSt->SetDebugLevel(1);
       fActDatRawSt->CreateHistogram();
 
       fpNtuRawSt   = new TAGdataDsc("stNtu", new TASTntuRaw());
       fActNtuRawSt = new TASTactNtuRaw("stActNtu", fpDatRawSt, fpNtuRawSt);
-      if(GlobalPar::GetPar()->Debug()) fActNtuRawSt->SetDebugLevel(1);
+     // if(GlobalPar::GetPar()->Debug()) fActNtuRawSt->SetDebugLevel(1);
       fActNtuRawSt->CreateHistogram();
    }
 
@@ -131,7 +132,7 @@ void LocalReco::CreateRawAction()
       fpDatRawTw   = new TAGdataDsc("twdDat", new TATWdatRaw());
       fpNtuRawTw   = new TAGdataDsc("twRaw", new TATWntuRaw());
       fActDatRawTw = new TATWactDatRaw("twActDat", fpDatRawTw, fpDaqEvent, fpParMapTw, fpParTimeTw);
-      if(GlobalPar::GetPar()->Debug()) fActDatRawTw->SetDebugLevel(1);
+   //   if(GlobalPar::GetPar()->Debug()) fActDatRawTw->SetDebugLevel(1);
       fActDatRawTw->CreateHistogram();
 
       fActNtuRawTw = new TATWactNtuRaw("twActNtu", fpDatRawTw, fpNtuRawTw, fpParGeoTw, fpParMapTw, fpParCalTw);
@@ -158,17 +159,17 @@ void LocalReco::OpenFileIn()
       if (GlobalPar::GetPar()->IncludeBM())
          fActVmeReaderBm->Open(GetName());
       
-   } else {
+   } else
       fActEvtReader->Open(GetName());
-      SetRunNumber();
-   }
 }
 
 // --------------------------------------------------------------------------------------
 void LocalReco::SetRunNumber()
 {
    // Done by hand shoud be given by DAQ header
-   TString name = fActEvtReader->GetFileHeader()->filename;
+   TString name = GetName();
+   if (name.IsNull()) return;
+      
    Int_t pos1   = name.First(".");
    Int_t len    = name.Length();
    
