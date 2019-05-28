@@ -32,9 +32,10 @@
 
 ClassImp(TAFOeventDisplay)
 
-Bool_t  TAFOeventDisplay::fgTrackFlag    = true;
-TString TAFOeventDisplay::fgTrackingAlgo = "Std";
-Bool_t  TAFOeventDisplay::fgStdAloneFlag = false;
+Bool_t  TAFOeventDisplay::fgTrackFlag       = true;
+TString TAFOeventDisplay::fgVtxTrackingAlgo = "Std";
+Bool_t  TAFOeventDisplay::fgStdAloneFlag    = false;
+Bool_t  TAFOeventDisplay::fgBmSelectHt      = false;
 
 TAFOeventDisplay* TAFOeventDisplay::fgInstance = 0x0;
 
@@ -151,7 +152,7 @@ void TAFOeventDisplay::SetLocalReco()
    fLocalReco->SetExpName(fExpName);
    
    if (fgTrackFlag) {
-      fLocalReco->SetTrackingAlgo(fgTrackingAlgo[0]);
+      fLocalReco->SetTrackingAlgo(fgVtxTrackingAlgo[0]);
       fLocalReco->EnableTracking();
    }
    
@@ -510,8 +511,8 @@ void TAFOeventDisplay::UpdateDriftCircleInfo(TEveDigitSet* qs, Int_t idx)
     
     fInfoView->AddLine( Form("In layer: %d, view: %d\n", hit->Plane(), hit->View()) );
     fInfoView->AddLine( Form("Wire is: %d\n", pbmGeo->GetSenseId( hit->Cell() )) );
-    fInfoView->AddLine( Form("Drift radius is: %f (cm)\n", hit->Dist()) );
-    
+    fInfoView->AddLine( Form("Drift radius is: %g (cm)\n", hit->Dist()) );
+    fInfoView->AddLine( Form("Chi2 is: %g \n", hit->GetChi2()) );
 }
 
 //__________________________________________________________
@@ -960,25 +961,21 @@ void TAFOeventDisplay::UpdateLayerElements()
 
    TABMntuRaw* pBMntu = fLocalReco->GetNtuRawBm();
    Int_t       nHits  = pBMntu->GetHitsN();
-    
+   Double_t bm_h_side = pbmGeo->GetWidth();
    
-  
-   double bm_h_side = pbmGeo->GetWidth();
-    
-    
    //hits
    for (Int_t i = 0; i < nHits; i++) {
       TABMntuHit* hit = pBMntu->Hit(i);
       
+      if (!hit->GetIsSelected() && fgBmSelectHt) continue;
+
       Int_t view  = hit->View();
       Int_t lay  = hit->Plane();
       Int_t cell  = hit->Cell();
        
-
       //layer
        pbmGeo->SetLayerColorOn(lay + view * pbmGeo->GetLayersN());
-       
-       
+      
        //wires
       Float_t x = pbmGeo->GetWireX(pbmGeo->GetSenseId(cell),lay,view);
       Float_t y = pbmGeo->GetWireY(pbmGeo->GetSenseId(cell),lay,view);

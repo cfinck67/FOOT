@@ -62,7 +62,7 @@ void TAFOeventDisplayMC::SetLocalReco()
    fLocalReco->SetExpName(fExpName);
 
    if (fgTrackFlag) {
-      fLocalReco->SetTrackingAlgo(fgTrackingAlgo[0]);
+      fLocalReco->SetTrackingAlgo(fgVtxTrackingAlgo[0]);
       fLocalReco->EnableTracking();
    }
    

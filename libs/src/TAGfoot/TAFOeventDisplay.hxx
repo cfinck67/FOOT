@@ -104,18 +104,18 @@ protected:
    void UpdateElements(const TString prefix);
    
 public:
-   //! Set Tracking algorithm
-   static void SetTrackingAlgo(char c)
+   //! Set VTX Tracking algorithm
+   static void SetVtxTrackingAlgo(char c)
    {
       switch (c) {
          case 'S':
-            fgTrackingAlgo = "Std";
+            fgVtxTrackingAlgo = "Std";
             break;
          case 'F':
-            fgTrackingAlgo = "Full";
+            fgVtxTrackingAlgo = "Full";
             break;
          case 'H':
-            fgTrackingAlgo = "Hough";
+            fgVtxTrackingAlgo = "Hough";
             break;
          default:
             printf("SetTrackingAlgo: Wrongly set tracking algorithm");
@@ -129,6 +129,10 @@ public:
    //! Disable/Enable stand alone DAQ
    static void DisableStdAlone()   { fgStdAloneFlag = false;  }
    static void EnableStdAlone()    { fgStdAloneFlag = true;   }
+
+   //! Disable/Enable stand alone DAQ
+   static void DisableBmSelectHit()   { fgBmSelectHt = false;  }
+   static void EnableBmSelectHit()    { fgBmSelectHt = true;   }
 
 protected:
    BaseLocalReco*        fLocalReco;    // local reco
@@ -173,10 +177,11 @@ protected:
    TGCheckButton*       fRateButton;       // toggle recompute parameters at each plane
    
 protected:
-   static Bool_t         fgTrackFlag;      // flag for tracking
-   static Bool_t         fgStdAloneFlag;   // flag for standalone DAQ
-   static TString        fgTrackingAlgo;   // tracking algorithm ("std" with BM, "Full" combinatory and "Hough" Hough transformation)
- 
+   static Bool_t         fgTrackFlag;       // flag for tracking
+   static Bool_t         fgStdAloneFlag;    // flag for standalone DAQ
+   static TString        fgVtxTrackingAlgo; // tracking algorithm ("std" with BM, "Full" combinatory and "Hough" Hough transformation)
+   static Bool_t         fgBmSelectHt;      // flag BM selected hit
+
    ClassDef(TAFOeventDisplay, 1); // Base class for event display
 };
 
