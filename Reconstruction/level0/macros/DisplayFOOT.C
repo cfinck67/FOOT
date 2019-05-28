@@ -13,7 +13,7 @@
 void DisplayFOOT(TString file = "data_test.00001431.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data")
 //void DisplayFOOT(TString file = "./run_1005")
 {
-   //   TAFOeventDisplay::SetTrackingAlgo('F');
+   //TAFOeventDisplay::SetVtxTrackingAlgo('F');
    //TAFOeventDisplay::EnableStdAlone();
-   TAFOeventDisplay::Instance(0)->ShowDisplay(file);
+   TAFOeventDisplay::Instance(0, "GSI")->ShowDisplay(file);
 }
