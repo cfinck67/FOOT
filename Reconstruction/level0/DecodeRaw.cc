@@ -53,8 +53,7 @@ int main (int argc, char *argv[])  {
    GlobalPar::Instance();
    GlobalPar::GetPar()->Print();
    
-   LocalReco* locRec = new LocalReco(in, out);
-   locRec->SetExpName(exp);
+   LocalReco* locRec = new LocalReco(exp, in, out);
 
    // global setting
    if (ntu)
