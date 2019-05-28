@@ -21,8 +21,8 @@ ClassImp(LocalReco)
 Bool_t  LocalReco::fgStdAloneFlag = false;
 
 //__________________________________________________________
-LocalReco::LocalReco(TString fileNameIn, TString fileNameout)
- : BaseLocalReco(fileNameIn, fileNameout),
+LocalReco::LocalReco(TString expName, TString fileNameIn, TString fileNameout)
+ : BaseLocalReco(expName, fileNameIn, fileNameout),
    fpDaqEvent(0x0),
    fActDatRawSt(0x0),
    fActDatRawBm(0x0),

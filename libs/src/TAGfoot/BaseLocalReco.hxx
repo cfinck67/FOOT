@@ -67,7 +67,7 @@ class BaseLocalReco : public TNamed // using TNamed for the in/out files
 {
 public:
    //! default constructor
-   BaseLocalReco(TString fileNameIn, TString fileNameout);
+   BaseLocalReco(TString expName, TString fileNameIn, TString fileNameout);
    
    virtual ~BaseLocalReco();
    

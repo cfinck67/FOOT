@@ -30,7 +30,7 @@ class LocalReco : public BaseLocalReco
 {
 public:
    //! default constructor
-   LocalReco(TString fileNameIn = "", TString fileNameout = "");
+   LocalReco(TString expName = "", TString fileNameIn = "", TString fileNameout = "");
    
    virtual ~LocalReco();
    
