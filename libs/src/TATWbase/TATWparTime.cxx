@@ -47,7 +47,7 @@ TATWparTime::~TATWparTime(){}
 
 
 
-bool TATWparTime::FromFile(int iRunNumber){
+bool TATWparTime::FromFile(string expName, int iRunNumber){
    
   string runnumber;
    
@@ -57,8 +57,9 @@ bool TATWparTime::FromFile(int iRunNumber){
      runnumber = Form("%d", iRunNumber);
    
   string tcal_filename("");
-  tcal_filename+=("./config/tcalib");
-  tcal_filename+=runnumber;
+  if (expName != "")
+     expName += "/";
+  tcal_filename+=Form("./config/%stcalib", expName.data());  tcal_filename+=runnumber;
   tcal_filename+=".dat";
 
   

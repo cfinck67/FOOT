@@ -47,7 +47,7 @@ TASTparTime::~TASTparTime(){}
 
 
 
-bool TASTparTime::FromFile(int iRunNumber){
+bool TASTparTime::FromFile(string expName, int iRunNumber){
 
   string runnumber;
    
@@ -57,7 +57,9 @@ bool TASTparTime::FromFile(int iRunNumber){
       runnumber = Form("%d", iRunNumber);
 
   string tcal_filename("");
-  tcal_filename+=("./config/tcalib");
+  if (expName != "")
+     expName += "/";
+  tcal_filename+=Form("./config/%stcalib", expName.data());
   tcal_filename+=runnumber;
   tcal_filename+=".dat";
 

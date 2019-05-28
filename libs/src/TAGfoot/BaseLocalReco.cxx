@@ -201,7 +201,7 @@ void BaseLocalReco::ReadParFiles()
       
       fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
       TASTparTime* parTimeSt = (TASTparTime*) fpParTimeSt->Object();
-      parTimeSt->FromFile(2190);
+      parTimeSt->FromFile(fExpName.Data(), 2190);
    }
    
    // initialise par files for Beam Monitor
@@ -298,7 +298,7 @@ void BaseLocalReco::ReadParFiles()
       
       fpParTimeTw = new TAGparaDsc("twTim", new TATWparTime());
       TATWparTime* parTimeTw = (TATWparTime*) fpParTimeTw->Object();
-      parTimeTw->FromFile(2190);
+      parTimeTw->FromFile(fExpName.Data(), 2190);
    }
    
    // initialise par files for caloriomter

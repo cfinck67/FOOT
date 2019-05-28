@@ -55,11 +55,10 @@ void TAFOeventDisplayMC::SetLocalReco()
    if (fType != 1) return;
    
    // local reco
-   fLocalReco = new LocalRecoMC();
+   fLocalReco = new LocalRecoMC(fExpName);
    
    fLocalReco->DisableTree();
    fLocalReco->DisableSaveHits();
-   fLocalReco->SetExpName(fExpName);
 
    if (fgTrackFlag) {
       fLocalReco->SetTrackingAlgo(fgVtxTrackingAlgo[0]);
