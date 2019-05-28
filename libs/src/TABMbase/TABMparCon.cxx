@@ -134,9 +134,7 @@ Bool_t TABMparCon::FromFile(const TString& name) {
         t0choice=myArgIntmin;
         hit_timecut=myArg2;
         bmt0file=tmp_char;
-        if(manageT0BM>0)
-          loadT0s();
-      }else {
+          }else {
 	      Error(""," Plane Map Error:: check config file!! (Z)");
 	      return kTRUE;
         }
@@ -222,9 +220,9 @@ void TABMparCon::PrintT0s(TString &input_file_name, Long64_t tot_num_ev){
 }
 
  
-Bool_t TABMparCon::loadT0s() {
+Bool_t TABMparCon::loadT0s(TString filename) {
   ifstream infile;
-  gSystem->ExpandPathName(bmt0file);
+  gSystem->ExpandPathName(filename);
   infile.open(bmt0file,ios::in);
   Int_t file_evnum, file_t0switch, file_t0choice;
   char tmp_char[200], dataset[200];

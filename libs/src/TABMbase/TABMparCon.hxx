@@ -73,7 +73,7 @@ class TABMparCon : public TAGpara {
 
     //T0 stuff
     void        PrintT0s(TString &input_file_name, Long64_t);
-    Bool_t      loadT0s(); 
+    Bool_t      loadT0s(TString filename); 
     void        SetT0s(vector<Double_t> t0s);
     void        SetT0(Int_t cha, Double_t t0in);   
     Double_t    GetT0(Int_t view, Int_t plane, Int_t cell){return GetT0(cell+view*3+plane*6);};
