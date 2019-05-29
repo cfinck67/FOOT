@@ -62,7 +62,8 @@ BaseLocalReco::BaseLocalReco(TString expName, TString fileNameIn, TString fileNa
    fFlagHits(false),
    fFlagHisto(false),
    fFlagTrack(false),
-   fgTrackingAlgo("Full")
+   fgTrackingAlgo("Full"),
+   fFlagMC(false)
 {
 
    // check folder

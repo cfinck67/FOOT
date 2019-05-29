@@ -258,6 +258,7 @@ protected:
    Bool_t                fFlagHisto;     // flag for histo generatiom
    Bool_t                fFlagTrack;     // flag for tracking
    TString               fgTrackingAlgo; // tracking algorithm ("std" with BM, "Full" combinatory)
+   Bool_t                fFlagMC;        // MC flag
 
  protected:
    void CreateRecActionBm();

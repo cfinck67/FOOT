@@ -25,6 +25,7 @@ LocalRecoMC::LocalRecoMC(TString expName, TString fileNameIn, TString fileNameou
    fActEvtReader(0x0)
 {
    fEvtStruct = new EVENT_STRUCT;
+   fFlagMC = true;
 }
 
 //__________________________________________________________
