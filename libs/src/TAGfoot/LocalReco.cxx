@@ -169,6 +169,10 @@ void LocalReco::SetRunNumber()
    // Done by hand shoud be given by DAQ header
    TString name = GetName();
    if (name.IsNull()) return;
+   
+   // protection about file name starting with .
+   if (name[0] == '.')
+      name.Remove(0,1);
       
    Int_t pos1   = name.First(".");
    Int_t len    = name.Length();
