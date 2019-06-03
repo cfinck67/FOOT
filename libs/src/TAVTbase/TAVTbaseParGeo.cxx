@@ -32,7 +32,8 @@ TAVTbaseParGeo::TAVTbaseParGeo()
  : TAGparTools(),
    fSensorsN(0),
    fkDefaultGeoName(""),
-   fLayersN(fSensorsN)
+   fLayersN(fSensorsN),
+   fFlagMC(false)
 {
    // Standard constructor
 }
@@ -169,6 +170,9 @@ Bool_t TAVTbaseParGeo::FromFile(const TString& name)
       
       // read sensor position
       ReadVector3(fSensorParameter[p].Position);
+      if (fFlagMC)
+         fSensorParameter[p].Position[0] = fSensorParameter[p].Position[1] = 0.;
+   
       if(fDebugLevel)
          cout << "   Position: "
          << Form("%f %f %f", fSensorParameter[p].Position[0], fSensorParameter[p].Position[1], fSensorParameter[p].Position[2]) << endl;
@@ -182,11 +186,17 @@ Bool_t TAVTbaseParGeo::FromFile(const TString& name)
       // read alignment
       ReadItem(fSensorParameter[p].AlignmentU);
       ReadItem(fSensorParameter[p].AlignmentV);
+      if (fFlagMC)
+         fSensorParameter[p].AlignmentU = fSensorParameter[p].AlignmentV = 0.;
+      
       if(fDebugLevel)
          cout  << "   Alignment: " <<  fSensorParameter[p].AlignmentU << " " << fSensorParameter[p].AlignmentV << endl;
       
       // read tiltW
       ReadItem(fSensorParameter[p].TiltW);
+      if (fFlagMC)
+         fSensorParameter[p].TiltW = 0.;
+      
       if(fDebugLevel)
          cout  << "   Rotation tiltW: " << fSensorParameter[p].TiltW << endl;
       

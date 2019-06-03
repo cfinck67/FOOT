@@ -48,6 +48,7 @@ protected:
    Float_t    fPixMatDensity;    // density of pixel material
 
    Int_t      fSupportInfo;      // Boolean for support info (only for IT)
+   Bool_t     fFlagMC;           // MC flag
    
    struct SensorParameter_t : public  TObject {
 	  Int_t     SensorIdx;   // sensor index
@@ -131,6 +132,10 @@ public:
    //! Get pixel density
    Float_t GetPixMatDensity()          const { return fPixMatDensity;  }
    
+   //! Get MC flag
+   Bool_t GetMcFlag()                  const { return fFlagMC;         }
+   //! Set MC flag
+   void   SetMcFlag(Bool_t flag = true)      { fFlagMC = flag;         }
    
    //! Get position from pixel line/column
    virtual Float_t GetPositionU(Int_t column)         const;
