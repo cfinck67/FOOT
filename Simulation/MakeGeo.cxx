@@ -64,7 +64,8 @@ int main (int argc, char *argv[]) {
     TAGmaterials* fTAGmat = new TAGmaterials();
    
     TAGgeoTrafo geoTrafo;
-    geoTrafo.FromFile();
+    TString parFileName = Form("./geomaps/%sFOOT_geo.map", exp.Data());
+    geoTrafo.FromFile(parFileName.Data());
    
     // GlobalFootGeo footGeo;
 
@@ -81,7 +82,7 @@ int main (int argc, char *argv[]) {
     // read geomap files
     dipGeo->FromFile();
     stcGeo->FromFile();
-    TString parFileName = Form("./geomaps/%sTABMdetector.map", exp.Data());
+    parFileName = Form("./geomaps/%sTABMdetector.map", exp.Data());
     bmGeo->FromFile(parFileName.Data());
 
     parFileName = Form("./geomaps/%sTAVTdetector.map", exp.Data());
