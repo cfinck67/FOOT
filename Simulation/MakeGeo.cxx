@@ -31,6 +31,15 @@ using namespace std;
 
 int main (int argc, char *argv[]) {
 
+    TString exp("");
+
+    for (int i = 0; i < argc; i++) {
+       if(strcmp(argv[i],"-exp") == 0)   { exp = TString(argv[++i]); }   // extention for config/geomap files
+    }
+
+    if (!exp.IsNull())
+       exp += "/";
+   
     clock_t start_tot, end_tot;
 
     // start time
@@ -55,9 +64,11 @@ int main (int argc, char *argv[]) {
     TAGmaterials* fTAGmat = new TAGmaterials();
    
     TAGgeoTrafo geoTrafo;
-    geoTrafo.FromFile();
+    TString parFileName = Form("./geomaps/%sFOOT_geo.map", exp.Data());
+    geoTrafo.FromFile(parFileName.Data());
    
     // GlobalFootGeo footGeo;
+
     TADIparGeo* dipGeo = new TADIparGeo();
     TASTparGeo* stcGeo = new TASTparGeo();
     TABMparGeo* bmGeo = new TABMparGeo();
@@ -71,13 +82,20 @@ int main (int argc, char *argv[]) {
     // read geomap files
     dipGeo->FromFile();
     stcGeo->FromFile();
-    bmGeo->FromFile();
-    vtxGeo->FromFile();
+    parFileName = Form("./geomaps/%sTABMdetector.map", exp.Data());
+    bmGeo->FromFile(parFileName.Data());
+
+    parFileName = Form("./geomaps/%sTAVTdetector.map", exp.Data());
+    vtxGeo->SetMcFlag();
+    vtxGeo->FromFile(parFileName.Data());
+
     itrGeo->FromFile();
     msdGeo->FromFile();
     twGeo->FromFile();
     caGeo->FromFile();
-    generalGeo->FromFile();
+   
+    parFileName = Form("./geomaps/%sTAGdetector.map", exp.Data());
+    generalGeo->FromFile(parFileName.Data());
 
     if(GlobalPar::GetPar()->IncludeDI())
       genfit::FieldManager::getInstance()->init(new FootField( GlobalPar::GetPar()->MagFieldInputMapName().data(),dipGeo) ); // variable field
