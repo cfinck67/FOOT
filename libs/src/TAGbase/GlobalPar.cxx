@@ -14,15 +14,10 @@ GlobalPar* GlobalPar::m_pInstance = NULL;
 //_____________________________________________________________________________
 GlobalPar* GlobalPar::Instance( string aparFileName )  {
 
-    if (!m_pInstance) {  // Only allow one instance of class to be generated.
-        // m_parFileName = ;
+    if (!m_pInstance)   // Only allow one instance of class to be generated, only true for multi-thread.
         m_pInstance = new GlobalPar( aparFileName );
-    }
-    else {
-        cout << "ERROR::GlobalPar::Instance  -->  already instanced, cannot instance twice!!!" << endl, exit(0);
-    }
 
-    return m_pInstance;
+   return m_pInstance;
 }
 
 //_____________________________________________________________________________
@@ -310,10 +305,10 @@ void GlobalPar::SetClassDebugLevel(const char* className, Int_t level)
    
    if (!className) return;
 
-   TObject* obj = GetPar()->m_ClassDebugLevels.FindObject(className);
+   TObject* obj = Instance()->m_ClassDebugLevels.FindObject(className);
    if (!obj) {
       obj = new TNamed(className, className);
-      GetPar()->m_ClassDebugLevels.Add(obj);
+      Instance()->m_ClassDebugLevels.Add(obj);
    }
 
    obj->SetUniqueID(level);
@@ -325,8 +320,8 @@ void GlobalPar::ClearClassDebugLevel(const char* className)
    // remove the setting of the debug level for the given class
    
    if (!className) return;
-     TObject* obj = GetPar()->m_ClassDebugLevels.FindObject(className);
-   if (obj) delete GetPar()->m_ClassDebugLevels.Remove(obj);
+     TObject* obj = Instance()->m_ClassDebugLevels.FindObject(className);
+   if (obj) delete Instance()->m_ClassDebugLevels.Remove(obj);
 }
 
 //_____________________________________________________________________________
@@ -336,7 +331,7 @@ Bool_t GlobalPar::GetDebugLevel(Int_t level, const char* className)
    
    if (className) {
       Int_t classLevel = -1;
-      TObject* obj = GetPar()->m_ClassDebugLevels.FindObject(className);
+      TObject* obj = Instance()->m_ClassDebugLevels.FindObject(className);
       if (obj) classLevel = obj->GetUniqueID();
 
       if ( level <= classLevel)
@@ -344,7 +339,7 @@ Bool_t GlobalPar::GetDebugLevel(Int_t level, const char* className)
    }
    
    // check global debug level
-   if (level <= GetPar()->Debug())
+   if (level <= Instance()->Debug())
       return true;
    
    return false;
@@ -357,19 +352,19 @@ Int_t GlobalPar::GetDebugLevel(const char* className)
    // get the logging level for the given module and class
    
    if (className) {
-      TObject* obj = GetPar()->m_ClassDebugLevels.FindObject(className);
+      TObject* obj = Instance()->m_ClassDebugLevels.FindObject(className);
       if (obj) return obj->GetUniqueID();
    }
    
    // return global debug level
-   return GetPar()->Debug();
+   return Instance()->Debug();
 }
 
 //_____________________________________________________________________________
 void GlobalPar::Debug(Int_t level, const char* className, const char* funcName, const char* format, const char* file, Int_t line)
 {
    // print the message
-   if (level <= GetPar()->GetDebugLevel(className)) {
+   if (level <= Instance()->GetDebugLevel(className)) {
       if (funcName)
          fprintf(stdout, "Debug in <%s:%s>: ", className, funcName);
    
