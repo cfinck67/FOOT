@@ -26,6 +26,8 @@ TString TABMntuRaw::fgkBranchName   = "bmrh.";
 TABMntuRaw::TABMntuRaw() :
   fListOfHits(0x0) {
   eff_paoloni=-3;  
+  eff_paolonixview=-3;  
+  eff_paoloniyview=-3;  
     }
 
 //------------------------------------------+-----------------------------------
@@ -126,6 +128,8 @@ void TABMntuRaw::Efficiency_paoloni(vector<Int_t> &pivot, vector<Int_t> &probe){
 
   if(cell_occupy.size()!=36){
     eff_paoloni=-2;
+    eff_paolonixview=-2;
+    eff_paoloniyview=-2;
     return;
   }
 
@@ -173,13 +177,16 @@ void TABMntuRaw::Efficiency_paoloni(vector<Int_t> &pivot, vector<Int_t> &probe){
       probe.at(7)++;
   }
   
-  Int_t total_probes=0, total_pivots=0;
-  for(Int_t i=0;i<8;i++){
-    total_probes+=probe.at(i);
-    total_pivots+=pivot.at(i);
+  Int_t total_probesxview=0, total_pivotsxview=0, total_probesyview=0, total_pivotsyview=0;
+  for(Int_t i=0;i<4;i++){
+    total_probesxview+=probe.at(i);
+    total_pivotsxview+=pivot.at(i);
+    total_probesyview+=probe.at(i+4);
+    total_pivotsyview+=pivot.at(i+4);
   }
-  eff_paoloni= (total_pivots==0) ?  -1 : (Double_t) total_probes/total_pivots;
-
+  eff_paoloni= ((total_pivotsxview+total_pivotsyview)==0) ?  -1 : ((Double_t) (total_probesxview+total_probesyview))/(total_pivotsxview+total_pivotsyview);
+  eff_paolonixview=(total_pivotsxview==0) ? -1: ((Double_t) total_probesxview)/total_pivotsxview;
+  eff_paoloniyview=(total_pivotsyview==0) ? -1: ((Double_t) total_probesyview)/total_pivotsyview;
   
 return;
 }

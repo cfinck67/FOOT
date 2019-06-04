@@ -54,8 +54,10 @@ class TABMntuRaw : public TAGdata {
     
     //efficieny paoloni's method
     void Efficiency_paoloni(vector<Int_t> &pivot, vector<Int_t> &probe);
-    void SetEffPaoloni(Double_t eff_in){eff_paoloni=eff_in;return;};
+    void ResetEffPaoloni(){eff_paoloni=-3;eff_paolonixview=-3;eff_paoloniyview=-3;return;};
     Double_t GetEffPaoloni(){return eff_paoloni;};
+    Double_t GetEffPaolonixview(){return eff_paolonixview;};
+    Double_t GetEffPaoloniyview(){return eff_paoloniyview;};
 
   public:
    static const Char_t* GetBranchName()   { return fgkBranchName.Data();   }
@@ -68,6 +70,8 @@ class TABMntuRaw : public TAGdata {
    
    vector<Int_t>   cell_occupy;    //occupancy of the BM cell
    Double_t        eff_paoloni;    //value of the efficiency calculated with the Paoloni's method
+   Double_t        eff_paolonixview;    //value of the efficiency calculated with the Paoloni's method for the x view
+   Double_t        eff_paoloniyview;    //value of the efficiency calculated with the Paoloni's method for the y view
    
    ClassDef(TABMntuRaw,1)
 };

@@ -48,9 +48,9 @@ TAGactDaqReader*  daqActReader = 0x0;
 TASTactDatRaw* stActDatRaw  = 0x0;
 TABMactDatRaw* bmActDatRaw  = 0x0;
 TABMactNtuRaw* bmActNtuRaw  = 0x0;
-//~ TABMactNtuTrack* bmActTrack = 0x0;
+TABMactNtuTrack* bmActTrack = 0x0;
 
-void FillBm(TString name) {
+void FillBm(TString fExpName) {
    
    cout<<"start FillBm"<<endl;
    
@@ -61,23 +61,27 @@ void FillBm(TString name) {
      
    TAGparaDsc* bmGeo    = new TAGparaDsc("bmGeo", new TABMparGeo());
    TABMparGeo* bmgeomap   = (TABMparGeo*) bmGeo->Object();
-   bmgeomap->FromFile();
+   TString parFileName = Form("./geomaps/%sTABMdetector.map", fExpName.Data());
+   bmgeomap->FromFile(parFileName.Data());
 
    TAGparaDsc*  bmConf  = new TAGparaDsc("bmConf", new TABMparCon());
    TABMparCon* parConf = (TABMparCon*)bmConf->Object();
-   TString parFileName = "./config/beammonitor.cfg";
+   parFileName = "./config/beammonitor.cfg";
    parConf->FromFile(parFileName.Data());
    parFileName = "./config/bmreso_vs_r.root";
    parConf->LoadReso(parFileName);
-   vector<double> fakeT0(36,0.);//only for testing the data_test.00001201.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data.moved file
-   parConf->SetT0s(fakeT0);
+   parFileName = Form("./config/%sT0_beammonitor.cfg", fExpName.Data());
+   parConf->loadT0s(parFileName);
    
    TAGparaDsc*  bmMap  = new TAGparaDsc("bmMap", new TABMparMap());
    TABMparMap*  bmparMap = (TABMparMap*)bmMap->Object();
-   parFileName = "./geomaps/";
-   parFileName += parConf->GetParmapfile();
+   parFileName = Form("./geomaps/%sbeammonitor_geoch.map", fExpName.Data());
    bmparMap->FromFile(parFileName.Data(), bmgeomap);
-
+   
+   TAGparaDsc* fpParTimeSt = new TAGparaDsc("stTime", new TASTparTime()); // need the file
+   TASTparTime* parTimeSt = (TASTparTime*) fpParTimeSt->Object();
+   parTimeSt->FromFile("GSI_", 2190);
+  
    TAGparaDsc*  stMap  = new TAGparaDsc("stMap", new TASTparMap());
    TASTparMap*  stparMap = (TASTparMap*)stMap->Object();
    parFileName="./config/TASTdetector.cfg";
@@ -88,7 +92,7 @@ void FillBm(TString name) {
    daqActReader  = new TAGactDaqReader("daqActReader", bmDaq); 
   
    TAGdataDsc* stDatRaw    = new TAGdataDsc("stDat", new TASTdatRaw());
-   stActDatRaw  = new TASTactDatRaw("stActDatRaw", stDatRaw,bmDaq,stMap);
+   stActDatRaw  = new TASTactDatRaw("stActDatRaw", stDatRaw,bmDaq,stMap, fpParTimeSt);
    
    TAGdataDsc* bmDatRaw    = new TAGdataDsc("bmDat", new TABMdatRaw());
    bmActDatRaw  = new TABMactDatRaw("bmActDatRaw", bmDatRaw, bmDaq, bmMap, bmConf, bmGeo,stDatRaw);
@@ -97,19 +101,23 @@ void FillBm(TString name) {
    bmActNtuRaw  = new TABMactNtuRaw("bmActNtuRaw", bmNtuRaw, bmDatRaw, stDatRaw, bmGeo, bmConf);
    bmActNtuRaw->CreateHistogram();   
    
-   //~ TAGdataDsc* bmTrack = new TAGdataDsc("bmTrack", new TABMntuTrack());
-   //~ bmActTrack  = new TABMactNtuTrack("bmActTrack", bmTrack, bmNtuRaw, bmGeo, bmConf, tgGeo);
-   //~ bmActTrack->CreateHistogram();
+   TAGdataDsc* bmTrack = new TAGdataDsc("bmTrack", new TABMntuTrack());
+   bmActTrack  = new TABMactNtuTrack("bmActTrack", bmTrack, bmNtuRaw, bmGeo, bmConf, tgGeo);
+   bmActTrack->CreateHistogram();
 
    cout<<"end of FillBm"<<endl;
 
-   // outFile->SetupElementBranch(bmNtuRaw, TABMntuRaw::GetBranchName());
-   // outFile->SetupElementBranch(bmTrck, TABMntuTrack::GetBranchName());
+   outFile->SetupElementBranch(bmDatRaw, TABMdatRaw::GetBranchName());
+   outFile->SetupElementBranch(bmNtuRaw, TABMntuRaw::GetBranchName());
+   outFile->SetupElementBranch(bmTrack, TABMntuTrack::GetBranchName());
 }
 
 //~ void ReadBmRaw(TString name = "data_test.00001462.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data")
-void ReadBmRaw(TString name = "data_test.00001201.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data.moved")
-{
+//~ void ReadBmRaw(TString name = "data/GSI_electronic/DataGSI_match/data_built.2212.physics_foot.daq.VTX.1.dat")
+void ReadBmRaw(TString name = "data/GSI_electronic/DataGSI_match/data_built.2242.physics_foot.daq.VTX.1.dat")
+{  
+   Int_t maxevents=1e7;
+   TString fExpName="";
    GlobalPar::Instance();
    GlobalPar::GetPar()->Print();
 
@@ -121,49 +129,36 @@ void ReadBmRaw(TString name = "data_test.00001201.physics_foot.daq.RAW._lb0000._
    tagr.SetRunNumber(1);
 
    outFile = new TAGactTreeWriter("outFile");
-   FillBm(name);
+   FillBm(fExpName);
    daqActReader->Open(name);
-   cout<<"the daq file is open? "<<daqActReader->IsOpen()<<endl;
    
-   tagr.AddRequiredItem("daqActReader");
-   tagr.AddRequiredItem("stActDatRaw");
-   tagr.AddRequiredItem("bmActDatRaw");
-   tagr.AddRequiredItem("bmActNtuRaw");
-   //~ tagr.AddRequiredItem("bmActTrack");
-   tagr.AddRequiredItem("outFile");
+   tagr.AddRequiredItem(daqActReader);
+   tagr.AddRequiredItem(stActDatRaw);
+   tagr.AddRequiredItem(bmActDatRaw);
+   tagr.AddRequiredItem(bmActNtuRaw);
+   tagr.AddRequiredItem(bmActTrack);
+   tagr.AddRequiredItem(outFile);
    tagr.Print();
    
-   Int_t pos = name.Last('.');
-   TString nameOut = name(0, pos);
+   TString nameOut = name(name.Last('/')+1, name.Last('.'));
    nameOut.Append("_readbmraw_Out.root");
    
    if (outFile->Open(nameOut.Data(), "RECREATE")) return;
-   //~ bmActTrack->SetHistogramDir(outFile->File());
+   bmActDatRaw->SetHistogramDir(outFile->File());
    bmActNtuRaw->SetHistogramDir(outFile->File());
+   bmActTrack->SetHistogramDir(outFile->File());
    
    cout<<" Beginning the Event Loop "<<endl;
    tagr.BeginEventLoop();
    TStopwatch watch;
    watch.Start();
    
-   TASTdatRaw* pstdatraw;
    TABMdatRaw* pbmdatraw;
    
-   for (Long64_t ientry = 0; ientry < 1000; ientry++) {
-   
-
-      //~ if(ientry % 100 == 0)
-         cout<<" Loaded Event:: " << ientry << endl;
-      
-      if (ientry == 100)
-//      if (ientry == 20000)
-         break;
-      
-      tagr.NextEvent();
-      //~ pstdatraw = (TASTdatRaw*)(tagr.FindDataDsc("stDatRaw", "TASTdatRaw")->Object());
-      //~ pstdatraw->SetTrigTime(4500.);//only for testing the data_test.00001201.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data.moved file   
-      pbmdatraw = (TABMdatRaw*)(tagr.FindDataDsc("bmDat", "TABMdatRaw")->Object());
-      cout<<"number of hits charged in TABMdatRaw="<<pbmdatraw->NHit()<<"  number of tdc hits discharged due to time cuts="<<pbmdatraw->NDrop()<<endl;
+   for (Long64_t ientry = 0; ientry < maxevents; ientry++) {
+     cout<<" Loaded Event:: " <<std::dec<< ientry << endl;
+     if(!tagr.NextEvent()) 
+       break 
    }
    
    tagr.EndEventLoop();

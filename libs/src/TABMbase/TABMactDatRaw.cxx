@@ -63,13 +63,14 @@ void TABMactDatRaw::CreateHistogram(){
    DeleteHistogram();
    Int_t dim=72;
    fpRawMapX=new TH2I( "BM_Dat_cell_raw_occupancy_2d_x", "Cell occupancy for raw hits; z; x", 11, -5.5, 5.5,7, -3.5,3.5);
-   fpRawMapY=new TH2I( "BM_Dat_cell_raw_occupancy_2d_y", "Cell occupancy for raw hits; z; y", 11, -5.5, 5.5,7, -3.5,3.5);
-   fpRawHitNum=new TH1I( "BM_Dat_Raw_hit_distribution", "Number of accepted hits x event; Number of hits; Events", 30, 0, 30);
-   fpRawDiscAccept=new TH1I( "BM_Dat_Accepted and discharged hits", "Number of hits accepted/discharged in the time cut; -1=discharged 0=accepted; Events", 3, -1, 1);
-      
    AddHistogram(fpRawMapX);   
+   fpRawMapY=new TH2I( "BM_Dat_cell_raw_occupancy_2d_y", "Cell occupancy for raw hits; z; y", 11, -5.5, 5.5,7, -3.5,3.5);
    AddHistogram(fpRawMapY);   
+   fpRawHitNum=new TH1I( "BM_Dat_Raw_hit_distribution", "Number of accepted hits x event; Number of hits; Events", 30, 0, 30);
    AddHistogram(fpRawHitNum);   
+   fpRawDiscAccept=new TH1I( "BM_Dat_Accepted and discharged hits", "Number of hits accepted/discharged in the time cut; -1=discharged 0=accepted; Events", 3, -1, 2);
+   AddHistogram(fpRawDiscAccept);   
+      
    
    SetValidHistogram(kTRUE);
 }

@@ -35,7 +35,7 @@ inline Int_t TABMntuTrack::GetTracksN() const
 
 
 //------------------------------------------+-----------------------------------
-//! return number of tracks
+//! return tracks status
 inline Int_t& TABMntuTrack::GetTrackStatus()
 {
    return fStatus;

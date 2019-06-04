@@ -49,7 +49,6 @@ class TABMparCon : public TAGpara {
     Int_t GetBMdebug(){return bm_debug;};
     Int_t GetBMvietrack(){return bm_vietrack;};
     //~ string GetBMdataFileName(){return datafile_name;};
-    Int_t GetmanageT0BM(){return manageT0BM;};
     Int_t GetT0switch(){return t0_switch;};
     Double_t GetT0sigma(){return t0_sigma;};
     Double_t GetHitTimecut(){return hit_timecut;};
@@ -134,7 +133,6 @@ class TABMparCon : public TAGpara {
     Int_t    prefit_enable;//flag to enable or disable the prefit
     TVector3 meas_shift;//shift for the calibration
     TVector3 meas_tilt;//tilt for the calibration
-    Int_t    manageT0BM; //0=calculate T0 and save v_t0s in bmt0file, 1=loadT0 from bmt0file
     Int_t    t0_switch;//0=t0 from the beginning of the tdc signal, 1=from the peak, 2=negative T0 enabled, 3=peak/2
     Double_t t0_sigma;//t0 with the gaussian shift for the negative T0 hits
     Double_t hit_timecut;//timecut on the lenght of the signal (ns)

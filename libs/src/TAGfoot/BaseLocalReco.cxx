@@ -216,11 +216,8 @@ void BaseLocalReco::ReadParFiles()
       TABMparCon* parConf = (TABMparCon*)fpParConfBm->Object();
       parFileName = "./config/beammonitor.cfg";
       parConf->FromFile(parFileName.Data());
-      
-      if (parConf->GetmanageT0BM()) {
-         parFileName = Form("./config/%sT0_beammonitor.cfg", fExpName.Data());
-         parConf->loadT0s(parFileName);
-      }
+      parFileName = Form("./config/%sT0_beammonitor.cfg", fExpName.Data());
+      parConf->loadT0s(parFileName);
       
       parFileName = "./config/bmreso_vs_r.root";
       parConf->LoadReso(parFileName);
