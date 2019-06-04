@@ -177,8 +177,8 @@ void Booter::Initialize( EVENT_STRUCT* evStr, TString wd_in, Bool_t isdata_in, T
       myp_bmcon  = new TAGparaDsc("myp_bmcon", new TABMparCon());
       if(isdata)
         myp_bmmap = new TAGparaDsc("myp_bmmap", new TABMparMap());
-      initBMGeo();
       initBMCon(bmconfile);
+      initBMGeo();
       if(isdata)
         initBMMap();
       //~ bmcon = (TABMparCon*) myp_bmcon->Object();
@@ -726,6 +726,8 @@ void Booter::initBMGeo()  {
 
   //Initialization of BM parameters
   TABMparGeo* o_bmgeo = (TABMparGeo*) myp_bmgeo->Object();
+  TABMparCon* o_beamcon = (TABMparCon*) myp_bmcon->Object();  
+  o_bmgeo->SetWire_disp(o_beamcon->GetWiredisp());
   o_bmgeo->InitGeo();
     
   TGeoRotation bmxrot ("BM_XANG_rot");

@@ -35,6 +35,7 @@ public:
   void CreateLocalBMGeo();//create an output file LocalBM.root with the geometry of the BM
   void CoutWirePosDir();
   void SetA0Wvers(Int_t cellid, TVector3 &A0, TVector3 &Wvers);//for a given cellid, set A0 and Wvers
+  void SetWire_disp(vector<Double_t> vecin);
   
   //fluka's stuff
   string PrintBodies();
@@ -130,6 +131,8 @@ public:
   Double_t cx_pos[BMN_NWIRELAY][BMN_NLAY][2];
   Double_t cy_pos[BMN_NWIRELAY][BMN_NLAY][2];
   Double_t cz_pos[BMN_NWIRELAY][BMN_NLAY][2];
+  
+  Double_t wire_disp[36]; //wire displacement
 
   TGeoVolume* m_universe;
 

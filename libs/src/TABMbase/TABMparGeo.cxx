@@ -45,6 +45,8 @@ ClassImp(TABMparGeo);
 TABMparGeo::TABMparGeo() {
    
   m_debug = GlobalPar::GetPar()->Debug();
+  for(Int_t i=0;i<36;i++)
+    wire_disp[i]=0.;
 
 }
 
@@ -98,6 +100,27 @@ void  TABMparGeo::SetA0Wvers(Int_t cellid, TVector3 &A0, TVector3 &Wvers){
                cz_pos[bm_idsense[icell]][ilay][iview]);
   Wvers.SetMag(1.);
   return;
+}
+
+void TABMparGeo::SetWire_disp(vector<Double_t> vecin){
+  
+  Int_t tmp_int=0;
+  if(vecin.size()!=36){
+    cout<<"ERROR!!! in TABMparGeo::SetWire_disp:  vecin.size()="<<vecin.size()<<"  the wire displacement will not be settled"<<endl;
+    return;
+  }else{
+    for(Int_t i=0;i<36;i++){
+      if(fabs(vecin.at(i))>0.5){
+        cout<<"WARNING!! TABMparGeo::SetWire_disp:  vecin.at("<<i<<")="<<vecin.at(i)<<",  your wire displacement seems very high!!! are you sure? type 0 if yes, 1 if no (it will not be charged)"<<endl;
+        cin>>tmp_int;
+      }if(tmp_int==0 || fabs(vecin.at(i))<0.5)
+          wire_disp[i]=vecin.at(i);
+      if(tmp_int!=0)
+        tmp_int=0;
+    }
+  }
+
+return;
 }
 
 TVector3 TABMparGeo::ProjectFromTwoPoints(TVector3 inpos, TVector3 outpos, Double_t z){
@@ -184,13 +207,14 @@ void TABMparGeo::InitGeo() {
      2) vettore che da una base arriva all'altra base
      3) raggio
   */
+  
 
   for(int il=0; il<BMN_NLAY;il++){
     for (int kk =0; kk<BMN_NWIRELAY;kk++){       
       /*  U wires -> along x, SIDE view */
       x_pos[kk][il][0] = - bm_SideDch[0]/2;
       z_pos[kk][il][0] = - bm_SideDch[2]/2 + bm_DeltaDch[2] +	aa[kk] + (2*il)*(2*BMN_STEP + BMN_LAYDIST);
-      if( (il==0) || (il==2) || (il==4) ){
+      if( (il==0) || (il==2) || (il==4) ){//anod wires
         y_pos[kk][il][0] = - bm_SideDch[1]/2 + bm_DeltaDch[1] + bb[kk] + BMN_PASSO;
       }
       else{
@@ -203,7 +227,7 @@ void TABMparGeo::InitGeo() {
       /* V wires -> along y, TOP view*/
       y_pos[kk][il][1] = - bm_SideDch[1]/2;
       z_pos[kk][il][1] = - bm_SideDch[2]/2 + bm_DeltaDch[2] + aa[kk] + (2*il+1)*(2*BMN_STEP + BMN_LAYDIST);
-      if( (il==0) || (il==2) || (il==4) ){
+      if( (il==0) || (il==2) || (il==4) ){//anod wires
         x_pos[kk][il][1] = - bm_SideDch[0]/2 + bm_DeltaDch[0] + bb[kk];
       }
       else{
@@ -215,6 +239,24 @@ void TABMparGeo::InitGeo() {
 
     }
   }
+  
+  if(m_debug){
+    cout<<"TABMparGeo::Cout wire displacement:"<<endl;
+    for(Int_t i=0;i<36;i++)
+      cout<<wire_disp[i]<<" , ";
+    cout<<endl;
+  }
+
+  //set the wire displacement
+  //~ Int_t lay, view, cell; 
+  //~ for(Int_t i=0;i<36;i++){
+    //~ GetBMNlvc(i, lay, view, cell);  
+    //~ if(view==0)
+      //~ y_pos[GetID(cell)][lay][0]+=wire_disp[i];
+    //~ else
+      //~ x_pos[GetID(cell)][lay][0]+=wire_disp[i];
+  //~ }
+  
   
   //Create root geometry:
   //create the universe volume

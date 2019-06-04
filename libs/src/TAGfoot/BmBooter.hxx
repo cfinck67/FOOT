@@ -25,7 +25,7 @@
 #include "TVector3.h"
 #include "TObjString.h"
 #include "TNamed.h"
-
+ 
 #include "TAGroot.hxx"
 #include "TAGview.hxx"
 #include "GlobalPar.hxx"
@@ -163,7 +163,7 @@ private:
   //provv!!!!!! this is a very dummy method, to be used provv!!!!
   vector<vector<Double_t>> tracktr2dprojects;//projections of tracks:0=data_num_ev, 1=pvers.X, 2=R0.X, 3=pvers.Y, 4=R0.Y
   vector<vector<Double_t>> residual_distance;//if(isSelected): 0=data_num_ev, 1=cell_index, 2=drift_time, 3=distance, 4=residual;  otherwise 0=data_num_ev 1=cellindex, 2=drift_time, 3=dist,
-  vector<vector<Double_t>> mcxevent;//data from mc:0=data_num_ev, 1=mylar1.X, 2=mylar1.Y, 3=mylar2.X, 4=mylar2.Y
+  vector<vector<TVector3>> mcxevent;//data from mc:0=data_num_ev, 1=mylar1, 2=mylar2, 2=vtx, other=msd
   TString txt_outputname;//txt output
   vector<vector<Double_t>> strelresiduals;//used for the strel autocalibration; 0=fitmean, 1=fitsigma, 2=number of hits, 3=fitmean_error, 4=fit_chi2, 5=th1d mean
 };

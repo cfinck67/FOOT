@@ -9,48 +9,52 @@
 #define BMNEV            0    //number of bm events to analyze (0=till the end of the file)
 #define VTXNEV           0    //number of msd events to analyze (0=till the end of the file)
 #define STBIN          100    //strel binning on rdrift/tdrift
-#define BMNCUT          10.   //cut on bm track chi2 
-#define BMNHITCUT       1.5   //cut on bm hit chi2 
-#define VTXCUT          10.   //cut on bm track chi2 
+#define BMNCUT          2000.   //cut on bm track chi2 
+#define BMNHITCUT       5000.   //cut on bm hit chi2 
+#define VTXCUT          10.   //cut on vtx track chi2 
 #define MAXBMHITNUM     40    //number of maximum bm hit 
 #define CORRMINIMUM      0.8 //minimum value of the correlation factor between the pvers of the BM and the vtx to evaluate the new strel      
 #define ONLY1VIEW        0   //-1=take both the views, 0=only view 0 (filo lungo x, coordinata y(la migliore)), 1=only view 1 (filo lungo y, coordinata lungo x)  
-#define MAXSTRELRES      0.2 //maximum residual allowed for the strel   
-#define GAUSMEAN         1   //0=use gaus mean fit results on the residual, otherwise use the mean 
-#define TIMECUT        380   //BM timecut
+#define MAXSTRELRES      0.4 //maximum residual allowed for the strel   
+#define GAUSMEAN         0   //0=use gaus mean fit results on the residual, otherwise use the mean 
+#define TIMECUT        400   //BM timecut
 
 //~ #include "../../../Simulation/foot_geo.h"
 
 //bm theorical geo par
 #define BMISOZ         11.5   //position of the BM with respect to ISO 
-#define BMISOX         0.305864             
-#define BMISOY         0.0662981            
-#define BMISOYANGLE   0.370773     //rotation of the BM with respect to ISO        
-#define BMISOXANGLE   0.0030416             
-//~ #define BMISOX         0.110474             
-//~ #define BMISOY         -0.0212977            
-//~ #define BMISOYANGLE    -7.61318     //rotation of the BM with respect to ISO        
-//~ #define BMISOXANGLE    0.00966653             
 
+//~ #define BMISOX         0.135175             
+//~ #define BMISOY         0.00720964            
+//~ #define BMISOXANGLE   -0.0309494          
+//~ #define BMISOYANGLE   0.341802     //rotation of the BM with respect to ISO        
+   
+#define BMISOX         0.110474             
+#define BMISOY         -0.0212977            
+#define BMISOXANGLE    0.00966653             
+#define BMISOYANGLE    -7.61318     //rotation of the BM with respect to ISO        
 
-
-//bm residual calculated shift & rotation
-//~ #define BMSHIFTX       0.
-//~ #define BMSHIFTY       0.
-//~ #define BMSHIFTZ       0.
-//~ #define BMYZANGLE      0.     //bm rotation around X axis in deg (provv)        
-//~ #define BMXZANGLE      0.    //bm rotation around Y axis in deg (provv)        
+//new files...
+//~ #define BMISOX         0.388981             
+//~ #define BMISOY         0.0174936            
+//~ #define BMISOXANGLE   0.381333             
+//~ #define BMISOYANGLE   -0.0275306     //rotation of the BM with respect to ISO        
 
 //VTX residual calculated shift & rotation (a tentative)
-#define VTXR0Z        0.
 #define VTXISOZ       0.
-#define VTXISOX       0.864401
-#define VTXISOY       0.054460870
-//~ #define VTXSHIFTX       0.
-//~ #define VTXSHIFTY       0.
-//~ #define VTXSHIFTZ       0.
-#define VTXYZANGLE      0.     //VTX rotation around X axis in deg (provv)        
-#define VTXXZANGLE      0.     //VTX rotation around Y axis in deg (provv)  
+
+//~ #define VTXISOX       0.864284
+//~ #define VTXISOY       -0.000291053
+//~ #define VTXYZANGLE    0.364159     //VTX rotation around X axis in deg (provv)        
+//~ #define VTXXZANGLE    -0.193147     //VTX rotation around Y axis in deg (provv)  
+
+//new files
+#define VTXISOX       0.23801
+#define VTXISOY       1.98864
+#define VTXYZANGLE    0.0420045     //VTX rotation around X axis in deg (provv)        
+#define VTXXZANGLE    0.317091     //VTX rotation around Y axis in deg (provv)  
+
+
 
 //bm FIXED par
 #define BMN_MYLAR1Z	      -10.50125 //mylar1 position with respecto to bm center
@@ -96,12 +100,13 @@ typedef struct vtx_evstruct {
 //general functions
 void readallMSDfile();
 void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging);
-void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evstruct> &allvtxeventin, vector<vector<double>> &space_residual, vector<vector<double>> &time_residual, vector<vector<int>> &selected_index, bool onlyVTX, TString &newstrelstring);
+bool Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evstruct> &allvtxeventin, vector<vector<double>> &space_residual, vector<vector<double>> &time_residual, vector<vector<int>> &selected_index, bool onlyVTX, TString &newstrelstring);
 void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<double>> &time_residual, BM_evstruct &bmevent, vtx_evstruct &vtxevent, vector<TVector3> &wire_pos, vector<TVector3> &wire_dir);
-void Allign_estimate(TString bmin_filename, TString vtxin_filename,TString out_filename, TString &newstrelstring);
+void Allign_estimate(TString bmin_filename, TString vtxin_filename,TString out_filename, TString &newstrelstring, TString &celldisp_tstring);
 void fitPositionResidual();
 void fitStrel(TFile *f_out, const int index, TF1* first_strel_tf1_1, TF1* first_strel_tf1_08 ,TF1* garfield_strel_tf1, TString &newstrelstring);
 void merge_graphics(TFile* infile, TFile* f_out);
+void EstimateWirePos(vector<double> &cellwirepos, vector<double> &cellwiredir, TString &celldisp_tstring);
 
 //bm functions
 TVector3 BMlocaltoiso(TVector3 local);//from local to labo syst of ref., including the shift

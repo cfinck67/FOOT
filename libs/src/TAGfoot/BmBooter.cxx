@@ -724,8 +724,10 @@ void BmBooter::PrintResDist(){
     ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_old")))->SetBinContent(i+1,bmcon->ResoEvalTime(((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_time_old")))->GetBinCenter(i+1))*10000.);    
     sprintf(tmp_char,"BM_output/ResxDist/hitres_x_dist_%d",i);      
     //~ ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution")))->SetBinContent(i+1,((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetStdDev()*10000);    
-    ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "QR+");
-    ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_dist")))->SetBinContent(i+1,fb->GetParameter(2)*10000.);    
+    if(((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->GetEntries()>=100){
+      ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "QR+");
+      ((TH1D*)(m_controlPlotter->GetTFile()->Get("BM_output/resolution_dist")))->SetBinContent(i+1,fb->GetParameter(2)*10000.);  
+    }  
     sprintf(tmp_char,"BM_output/ResxTime/hitres_x_time_%d",i);      
     ((TH1D*)(m_controlPlotter->GetTFile()->Get(tmp_char)))->Fit("fb", "QR+");
     if(!isdata && bmcon->GetAutostrel()){
@@ -848,13 +850,23 @@ void BmBooter::PrintMCxEvent(){
   
   TH2D* histoa=new TH2D( "MC_mylar1_xy", "mylar1 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
   TH2D* histob=new TH2D( "MC_mylar2_xy", "mylar2 projected tracks; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
+  TH2D* histoc=new TH2D( "MC_longdist_xy", "projected tracks on z=100; x[cm]; y[cm]", 600, -3., 3.,600, -3.,3.);
+  TH1D* histocx=new TH1D( "MC_longdist_x", "projected tracks on z=100; x[cm]; Events", 600, -3., 3.);
+  TH1D* histocy=new TH1D( "MC_longdist_y", "projected tracks on z=100; y[cm]; Events", 600, -3., 3.);
   TH1D* hphi=new TH1D("MC_angle_phi","track phi angle;Phi[DEG]; Number of events",360.,-180.,180.);
   TH1D* htheta=new TH1D("MC_angle_theta","track theta angle;Theta[DEG]; Number of events",180.,0.,180.);
   TVector3 mcpvers;
   for(Int_t i=0;i<mcxevent.size();i++){
-    histoa->Fill(mcxevent.at(i).at(1), mcxevent.at(i).at(2));
-    histob->Fill(mcxevent.at(i).at(3), mcxevent.at(i).at(4));
-    mcpvers.SetXYZ(mcxevent.at(i).at(3)-mcxevent.at(i).at(1),mcxevent.at(i).at(4)-mcxevent.at(i).at(2),bmgeo->GetMylar2().Z()-bmgeo->GetMylar1().Z());
+    histoa->Fill(mcxevent.at(i).at(0).X(), mcxevent.at(i).at(0).Y());
+    histob->Fill(mcxevent.at(i).at(1).X(), mcxevent.at(i).at(1).Y());
+    histoc->Fill(mcxevent.at(i).at(2).X(),mcxevent.at(i).at(2).Y());
+    histocx->Fill(mcxevent.at(i).at(2).X());
+    histocy->Fill(mcxevent.at(i).at(2).Y());
+    //~ mcpvers=bmgeo->ProjectFromTwoPoints(mcxevent.at(i).at(0), mcxevent.at(i).at(1), 100.);
+    //~ histoc->Fill(mcpvers.X(), mcpvers.Y());
+    //~ histocx->Fill(mcpvers.X());
+    //~ histocy->Fill(mcpvers.Y());
+    mcpvers=mcxevent.at(i).at(1)-mcxevent.at(i).at(0);
     hphi->Fill(mcpvers.Phi()*RAD2DEG);
     htheta->Fill(mcpvers.Theta()*RAD2DEG);
   }  
@@ -1936,7 +1948,7 @@ return;
   
 Bool_t BmBooter::MCxEvent(){
   
-  vector<Double_t> vec_pro(5);
+  vector<TVector3> vec_pro(3);
   Int_t nuhit=0, nvhit=0;
   for(Int_t i=0;i<bmnturaw->nhit;i++){
     bmntuhit=bmnturaw->Hit(i);
@@ -1948,15 +1960,34 @@ Bool_t BmBooter::MCxEvent(){
   if(nvhit<3 || nuhit<3)
     return kFALSE;
   
-  vec_pro.at(0)=data_num_ev;
-  TVector3 inpos, outpos;
+  //~ vec_pro.at(0)=data_num_ev;
+  TVector3 inpos, outpos, vtxpos;
   inpos.SetZ(99999);
   outpos.SetZ(-99999);
   for(Int_t i=0;i<evStr->BMNn;i++){
     if(evStr->BMNzin[i]<inpos.Z() && evStr->TRpaid[evStr->BMNid[i]-1]==0)
       inpos.SetXYZ(evStr->BMNxin[i], evStr->BMNyin[i], evStr->BMNzin[i]);
-    if(evStr->BMNzout[i]>outpos.Z() && evStr->TRpaid[evStr->CROSSid[i]-1]==0)
+    if(evStr->BMNzout[i]>outpos.Z() && evStr->TRpaid[evStr->BMNid[i]-1]==0)
       outpos.SetXYZ(evStr->BMNxout[i], evStr->BMNyout[i], evStr->BMNzout[i]);
+  }
+  //~ for(Int_t i=0;i<evStr->VTXn;i++){
+    //~ if(evStr->TRpaid[evStr->VTXid[i]-1]==0){
+      //~ vtxpos.SetXYZ(evStr->VTXxin[i], evStr->VTXyin[i],evStr->VTXzin[i]);
+      //~ break;
+    //~ }
+  //~ }
+  //~ for(Int_t i=0;i<evStr->MSDn;i++){
+    //~ if(evStr->TRpaid[evStr->MSDid[i]-1]==0  && evStr->MSDzin[i]<-190.){
+      //~ vtxpos.SetXYZ(evStr->MSDxin[i], evStr->MSDyin[i],evStr->MSDzin[i]);
+      //~ break;
+    //~ }
+  //~ }
+  
+  for(Int_t i=0;i<evStr->STCn;i++){
+    if(evStr->TRpaid[evStr->STCid[i]-1]==0){
+      vtxpos.SetXYZ(evStr->STCxin[i], evStr->STCyin[i],evStr->STCzin[i]);
+      break;
+    }
   }
   
   if(inpos.Z()==99999 || outpos.Z()==-99999)
@@ -1964,12 +1995,13 @@ Bool_t BmBooter::MCxEvent(){
     
   bmgeo->Global2Local(inpos);
   bmgeo->Global2Local(outpos);
-  mylar1realpos=bmgeo->ProjectFromTwoPoints(inpos, outpos, bmgeo->GetMylar1().Z());
-  mylar2realpos=bmgeo->ProjectFromTwoPoints(inpos, outpos, bmgeo->GetMylar2().Z());    
-  vec_pro.at(1)=mylar1realpos.X();
-  vec_pro.at(2)=mylar1realpos.Y();
-  vec_pro.at(3)=mylar2realpos.X();
-  vec_pro.at(4)=mylar2realpos.Y();
+  mylar1realpos=inpos;
+  mylar2realpos=outpos;
+  //~ mylar1realpos=bmgeo->ProjectFromTwoPoints(inpos, outpos, bmgeo->GetMylar1().Z());
+  //~ mylar2realpos=bmgeo->ProjectFromTwoPoints(inpos, outpos, bmgeo->GetMylar2().Z());   
+  vec_pro.at(0)=mylar1realpos;
+  vec_pro.at(1)=mylar2realpos;
+  vec_pro.at(2)=vtxpos;
   
   mcxevent.push_back(vec_pro);
   

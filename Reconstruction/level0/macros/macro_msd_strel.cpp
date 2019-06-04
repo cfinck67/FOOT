@@ -14,55 +14,84 @@ void macro_msd_strel(){
   TString bmin_filename;
   
   //**************************************************************  ADD the input files  ******************************************
-  //~ TString out_filename("combined/combo_3points_1551900359.root");// output file name
-  //~ TString out_filename("combined/prova_onlyview1.root");// output file name
-  
-  //~ //80Mev, no tilt 3 points
+  bool merge=false;
+  TString mergeinfilename="combined/combo_3points_notilt_tcut400_peak.root";
+
+    
+  //~ TString out_filename("combined/combo_4X_3Y_tcut400_peak_80MeV.root");// output file name
+  TString out_filename("combined/prova.root");// output file name
+  //~ TString out_filename("combined/combo_2X_2Y_tcut400_peak_80MeV.root");// output file name
+  //TString out_filename("combined/prova_garfield.root");// output file name
+/*  
+  //80Mev, no tilt 3 points
+  vtxin_filename="msddata/80MeV/out_1551900359_4X_3Y.root";
+  //~ vtxin_filename="msddata/80MeV/out_1551900359_2X_2Y.root";
   //~ vtxin_filename="msddata/80MeV/out_3points_1551900359.root";
-  //~ vtxin_filevec.push_back(vtxin_filename);
-  //~ //bmin_filename="recotrees/recotree_T0begin_1551900359.root";
-  //~ //bmin_filename="recotrees/recotree_T0begin_tcut330_1551900359.root";
+  vtxin_filevec.push_back(vtxin_filename);
+  //~ bmin_filename="recotrees/recotree_T0begin_1551900359.root";
+  //~ bmin_filename="recotrees/recotree_T0begin_tcut330_1551900359.root";
   //~ bmin_filename="recotrees/recotree_tcut380_1551900359.root";
-  //~ bmin_filevec.push_back(bmin_filename);
-  //~ vtxin_shifts.push_back(1);
+  //~ bmin_filename="recotrees/recotree_tcut400_peak_1551900359.root";
+  bmin_filename="recotrees/recotree_tcut400_halfpeak_1551900359.root";
+        //bmin_filename="recotrees/recotree_garfield_t0begin_tcut350_1551900359.root";
+  bmin_filevec.push_back(bmin_filename);
+  vtxin_shifts.push_back(1);
   
-  //80Mev, no tilt second couple with 100004 events:
+  
+  
+  //~ //80Mev, no tilt second couple with 100004 events:
+  //~ vtxin_filename="msddata/80MeV/out_1551901240_2X_2Y.root";
+  vtxin_filename="msddata/80MeV/out_1551901240_4X_3Y.root";
   //~ vtxin_filename="msddata/80MeV/out_3points_1551901240.root";
-  //~ vtxin_filevec.push_back(vtxin_filename);
-  //~ //bmin_filename="recotrees/recotree_T0begin_1551901240.root";
-  //~ //bmin_filename="recotrees/recotree_T0begin_tcut330_1551901240.root";
+  vtxin_filevec.push_back(vtxin_filename);
+  //~ bmin_filename="recotrees/recotree_T0begin_1551901240.root";
+  //~ bmin_filename="recotrees/recotree_T0begin_tcut330_1551901240.root";
   //~ bmin_filename="recotrees/recotree_tcut380_1551901240.root";
-  //~ bmin_filevec.push_back(bmin_filename);
-  //~ vtxin_shifts.push_back(2);
+  //~ bmin_filename="recotrees/recotree_tcut400_peak_1551901240.root";
+  bmin_filename="recotrees/recotree_tcut400_halfpeak_1551901240.root";
+  bmin_filevec.push_back(bmin_filename);
+  vtxin_shifts.push_back(2);
 
-  //~ //228Mev, notilt 
+
+
+  //228Mev, notilt 
+  vtxin_filename="msddata/228MeV/out_1551902227_4X_3Y.root";
+  //~ vtxin_filename="msddata/228MeV/out_1551902227_2X_2Y.root";
   //~ vtxin_filename="msddata/228MeV/out_3points_1551902227.root";
-  //~ vtxin_filevec.push_back(vtxin_filename);
-  //~ //bmin_filename="recotrees/recotree_T0begin_1551902227.root";
-  //~ //bmin_filename="recotrees/recotree_T0begin_tcut330_1551902227.root";
+  vtxin_filevec.push_back(vtxin_filename);
+  //~ bmin_filename="recotrees/recotree_T0begin_1551902227.root";
+  //~ bmin_filename="recotrees/recotree_T0begin_tcut330_1551902227.root";
   //~ bmin_filename="recotrees/recotree_tcut380_1551902227.root";
-  //~ bmin_filevec.push_back(bmin_filename);
-  //~ vtxin_shifts.push_back(1);
+  //~ bmin_filename="recotrees/recotree_tcut400_peak_1551902227.root";
+  //~ bmin_filename="recotrees/recotree_tcut400_halfpeak_1551902227.root";
+  bmin_filename="recotrees/recotree_tcut380_1551902227.root";
+  bmin_filevec.push_back(bmin_filename);
+  vtxin_shifts.push_back(1);
  
+*/
 
-  TString out_filename("combined/combo_tilt5deg.root");// output file name
+  //~ TString out_filename("combined/combo_tilt5deg.root");// output file name
+  out_filename="combined/combo_4X_3Y_tilt5deg_tcut400_peak.root";// output file name
   //80Mev, tilt 5****************
-  vtxin_filename="msddata/80MeV/out_3points_1551904521.root";
+  vtxin_filename="msddata/80MeV/out_1551904521_4X_3Y.root";
   vtxin_filevec.push_back(vtxin_filename);
   //bmin_filename="recotrees/recotree_T0begin_1551904521.root";
   //bmin_filename="recotrees/recotree_T0begin_tcut330_1551904521.root";
-  bmin_filename="recotrees/recotree_tcut380_1551904521.root";
+  //bmin_filename="recotrees/recotree_tcut380_1551904521.root";
+  bmin_filename="recotrees/recotree_tcut400_peak_1551904521.root";
   bmin_filevec.push_back(bmin_filename);
   vtxin_shifts.push_back(1);
   
-  vtxin_filename="msddata/228MeV/out_3points_1551903443.root";
-  vtxin_filevec.push_back(vtxin_filename);
-  //bmin_filename="recotrees/recotree_T0begin_1551903443.root";
-  //bmin_filename="recotrees/recotree_T0begin_tcut330_1551903443.root";
-  bmin_filename="recotrees/recotree_tcut380_1551903443.root";
-  bmin_filevec.push_back(bmin_filename);
-  vtxin_shifts.push_back(1);
-  
+  //~ vtxin_filename="msddata/228MeV/out_3points_1551903443.root";
+  //~ vtxin_filevec.push_back(vtxin_filename);
+  //~ //bmin_filename="recotrees/recotree_T0begin_1551903443.root";
+  //~ //bmin_filename="recotrees/recotree_T0begin_tcut330_1551903443.root";
+  //~ //bmin_filename="recotrees/recotree_tcut380_1551903443.root";
+  //~ bmin_filename="recotrees/recotree_tcut400_peak_1551903443.root";
+  //~ bmin_filevec.push_back(bmin_filename);
+  //~ vtxin_shifts.push_back(1);
+ 
+ 
   
   if(vtxin_filevec.size()!=bmin_filevec.size()){
     cout<<"ERROR: bmin_filevec.size()="<<bmin_filevec.size()<<"  vtxin_filevec.size()="<<vtxin_filevec.size()<<endl;
@@ -74,6 +103,11 @@ void macro_msd_strel(){
   
   //set and initialize few functions and variables
   BookingBMVTX(f_out, false, false);
+  if(merge){
+    TFile *mergeinfile = new TFile(mergeinfilename.Data(),"READ");     
+    merge_graphics(mergeinfile,f_out);
+    mergeinfile->Close();
+  }
   vector<TVector3> wire_pos, wire_dir;//wire position and direction in isocenter system of ref.
   setbmgeo(wire_pos, wire_dir);
   BM_evstruct bmevent;
@@ -227,10 +261,13 @@ void macro_msd_strel(){
   cout<<"number of combined events="<<selected_index.size()<<endl;
   
   //****************************************************** end of program, print! *********************************
-  TString newstrelstring;
-  Printoutput(f_out, allbmeventin, allvtxeventin, space_residual, time_residual, selected_index, false, newstrelstring);
+  TString newstrelstring, celldisp_tstring;
+  vector<double> cellwirepos(36,0.);
+  vector<double> cellwiredir(36,0.);
+  if(Printoutput(f_out, allbmeventin, allvtxeventin, space_residual, time_residual, selected_index, false, newstrelstring))
+    EstimateWirePos(cellwirepos, cellwiredir, celldisp_tstring);
   //~ fitPositionResidual();
-  Allign_estimate(bmin_filename, vtxin_filename, out_filename, newstrelstring);
+  Allign_estimate(bmin_filename, vtxin_filename, out_filename, newstrelstring, celldisp_tstring);
   
   f_out->Write();
   //~ f_out->Close();

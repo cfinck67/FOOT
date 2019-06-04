@@ -18,7 +18,12 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
     h = new TH1D("vtx_yR0_coeff","VTX yz R0 for corrected positions;R0[cm];Events",1000, -5., 5.);
     h = new TH1D("vtx_polar_angle","vtx polar angle distribution ;AngZ(deg);Events",400,0.,10.);
     h = new TH1D("vtx_azimuth_angle","vtx azimuth angle distribution ;Phi(deg);Events",360,-180.,180.);
+    h = new TH1D("vtx_isoplane_vtxsys_xview","VTX tracks projection on ISO plane in VTX sys;X[cm];Events",1000, -5., 5.);
+    h = new TH1D("vtx_isoplane_vtxsys_yview","VTX tracks projection on ISO plane in VTX sys;Y[cm];Events",1000, -5., 5.);
     h2 = new TH2D("vtx_isoplane_vtxsys","VTX tracks projection on ISO plane in VTX sys;X[cm];Y[cm]",1000, -5., 5., 1000, -5., 5.);
+    h2 = new TH2D("vtx_bmmylar1_vtxsys","VTX tracks projection on BM mylar1 plane in VTX sys;X[cm];Y[cm]",1000, -5., 5., 1000, -5., 5.);
+    h2 = new TH2D("vtx_bmmylar2_vtxsys","VTX tracks projection on BM mylar2 plane in VTX sys;X[cm];Y[cm]",1000, -5., 5., 1000, -5., 5.);
+    
     h2 = new TH2D("vtx_isoplane_isosys","VTX tracks projection on ISO plane in ISO sys;X[cm];Y[cm]",1000, -5., 5., 1000, -5., 5.);
     //~ h2 = new TH2D("vtx_isoplane_bmsys","VTX tracks projection on ISO plane in BM sys;X[cm];Y[cm]",1000, -5., 5., 1000, -5., 5.);
     
@@ -37,8 +42,14 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
     h = new TH1D("bm_xR0_coeff","BM R0_X for corrected positions;R0_X[cm];Events",1000, -5., 5.);
     h = new TH1D("bm_yR0_coeff","BM R0_Y for corrected positions;R0_Y[cm];Events",1000, -5., 5.);    
     h2 = new TH2D("bmisoproISOsys","BM tracks on isocenter  projections in ISO sys ;X[cm];Y[cm]",1000, -5., 5., 1000, -5., 5.);
+    h = new TH1D("bmisoproBMsys_xview","BM tracks on isocenter projections in BM sys;X[cm];Events",1000, -5., 5.);
+    h = new TH1D("bmisoproBMsys_yview","BM tracks on isocenter projections in BM sys;Y[cm];Events",1000, -5., 5.);
     h2 = new TH2D("bmisoproBMsys","BM tracks on isocenter projections in BM sys;X[cm];Y[cm]",1000, -5., 5., 1000, -5., 5.);
-    h2 = new TH2D("bmmylar1BMsys","bm tracks on mylar1 projections in BM sys;X[cm];Y[cm]",1000, -5., 5., 1000, -5., 5.);
+    //~ h = new TH1D("bmmylar1BMsys_xview","bm tracks on mylar1 projections in BM sys;X[cm]",1000, -5., 5.);
+    //~ h = new TH1D("bmmylar1BMsys_yview","bm tracks on mylar1 projections in BM sys;Y[cm]",1000, -5., 5.);
+    //~ h2 = new TH2D("bmmylar1BMsys","bm tracks on mylar1 projections in BM sys;X[cm];Y[cm]",1000, -5., 5., 1000, -5., 5.);
+    h = new TH1D("bmmylar2BMsys_xview","bm tracks on mylar2 projections in BM sys;X[cm]",1000, -5., 5.);
+    h = new TH1D("bmmylar2BMsys_yview","bm tracks on mylar2 projections in BM sys;Y[cm]",1000, -5., 5.);
     h2 = new TH2D("bmmylar2BMsys","bm tracks on mylar2 projections in BM sys;X[cm];Y[cm]",1000, -5., 5., 1000, -5., 5.);
     if(bmmcstudy==0)
       h = new TH1D("bm_realrdrift","real bm rdrift;rdrift[cm];Events",1000,0.,1.);    
@@ -54,6 +65,18 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
     h = new TH1D("comb_vtxbmnisoproISO_ydiff","Combined MSD and BM tracks diff. on isocenter projections in ISO sys;Ybm-Ymsd [cm];Events",1000, -1., 1.);
     h = new TH1D("comb_pversISO_mxdiff","mx diff bm_track-vtx_track;Event;bm_mx-vtx_mx",1000,-0.1,0.1);
     h = new TH1D("comb_pversISO_mydiff","my diff bm_track-vtx_track;Event;bm_mx-vtx_mx",1000,-0.1,0.1);
+    h = new TH1D("comb_bm_xslopeBMsys","BM m_x coeff for combined tracks ;mx;Events",1000,-0.5,0.5);
+    h = new TH1D("comb_bm_yslopeBMsys","BM m_y coeff for combined tracks ;my;Events",1000,-0.5,0.5);
+    h = new TH1D("comb_bm_xisoproBMsys","BM X position on iso plane for combined tracks;X[cm];Events",1000, -5., 5.);
+    h = new TH1D("comb_bm_yisoproBMsys","BM Y position on iso plane for combined tracks;Y[cm];Events",1000, -5., 5.);
+    h = new TH1D("comb_vtx_xslopeVTXsys","VTX m_x coeff for combined tracks ;mx;Events",1000,-0.5,0.5);
+    h = new TH1D("comb_vtx_yslopeVTXsys","VTX m_y coeff for combined tracks ;my;Events",1000,-0.5,0.5);
+    h = new TH1D("comb_vtx_xisoproVTXsys","VTX X position on iso plane for combined tracks;X[cm];Events",1000, -5., 5.);
+    h = new TH1D("comb_vtx_yisoproVTXsys","VTX Y position on iso plane for combined tracks;Y[cm];Events",1000, -5., 5.);
+        
+    h = new TH1D("bm_wire_displacement","Cell displacement;Cell id;Displacement[cm]",36,0.,36);
+    h = new TH1D("bm_wire_tilt","Cell tilt;Cell id;tilt [deg]",36,0.,36);
+    h = new TH1D("bm_wire_residual","Cell wire residuals;Cell id;Residual [deg]",36,0.,36);
   }    
   
   //combined stuff also for merging
@@ -66,7 +89,7 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
   h2 = new TH2D("pvers_mx_bmvtx","pvers mx angle for bm and vertex for selected tracks;BM Pvers mx;vtx Pverse mx ",500,-0.05,0.05,500,-0.05,0.05);
   h2 = new TH2D("pvers_my_bmvtx","pvers my angle for bm and vertex for selected tracks;BM Pvers mx;vtx Pverse my ",500,-0.05,0.05,500,-0.05,0.05);
   h2 = new TH2D("r0x_bmvtx","R0x for bm and vtx tracks correlation;BM r0x;vtx r0x",600,-3.,3.,600,-3.,3.);
-  h2 = new TH2D("r0y_bmvtx","R0y for bm and vtx tracks correlation;BM r0y;vtx r0y",600,-3.,3.,600,-3.,3.);
+  h2 = new TH2D("r0y_bmvtx","R0y for bm and vtx tracks correlation;BM r0y;vtx r0y",600,-3.,3.,600,-5.,1.);
   h = new TH1D("pvers_angle_diff","angle difference bm_track - vtx_track ;Angle(bm_track-vtx_track);Events",2000,-0.2,0.2);
   h = new TH1D("residual_space_numev","number of events for each bin in strel residual graph;bin;events",STBIN,0.,STBIN);
   h = new TH1D("residual_space_total_xhit","total space residual;x[cm];events",200,-1.,1.);
@@ -81,7 +104,7 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
   h2 = new TH2D("old_strel_data","old FIRST strel from data ;time;rdrift",TIMECUT,0.,TIMECUT,1000, 0., 1.);
   h2 = new TH2D("new_strel_rdrift","new strel ;time;rdrift",TIMECUT,0.,TIMECUT, 1000, 0., 1.);
   h2 = new TH2D("new_strel_time","new strel ;rdrift;time", 1000, 0., 1., TIMECUT,0.,TIMECUT);
-  h2 = new TH2D("new_strel_frommsd","new strel given by bm time and msd rdrift ;time;rdrift",TIMECUT,0.,TIMECUT, 1000, 0., 1.);
+  h2 = new TH2D("new_strel_frommsd","new strel given by bm time and msd rdrift ;time;rdrift",(int)(TIMECUT/10),0.,TIMECUT, 600, 0., 1.5);
   if(bmmcstudy==0)
     h2 = new TH2D("strel_realrdrift","old FIRST strel from realrdrift ;time;rdrift",TIMECUT,0.,TIMECUT,1000, 0., 1.);
   
@@ -90,6 +113,15 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
   for(int i=0;i<STBIN;i++){
     sprintf(tmp_char,"strel_rdrift_%d", i);
     h = new TH1D(tmp_char,"strel residual ;Residual[cm];Events",600,-1.,1.);
+  }
+  f_out->cd("..");
+  
+  f_out->mkdir("res_xcell");
+  f_out->cd("res_xcell");
+  for(int i=0;i<36;i++){
+    sprintf(tmp_char,"res_xcell_%d", i);
+    //~ h2 = new TH2D(tmp_char,"residual x cell x track position along the wire ;Residual[cm];Track position along the wire[cm]",1000,-0.5,0.5,1000,-5.,5.);
+    h = new TH1D(tmp_char,"residual x cell ;Residual[cm];Events",1000,-1.,1.);
   }
   f_out->cd("..");
   
@@ -109,7 +141,7 @@ void BookingBMVTX(TFile* f_out, bool onlyVTX, bool merging){
 }
 
 
-void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evstruct> &allvtxeventin, vector<vector<double>> &space_residual, vector<vector<double>> &time_residual, vector<vector<int>> &selected_index, bool onlyVTX, TString &newstrelstring){
+bool Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evstruct> &allvtxeventin, vector<vector<double>> &space_residual, vector<vector<double>> &time_residual, vector<vector<int>> &selected_index, bool onlyVTX, TString &newstrelstring) {
   
   if(debug)
     cout<<"I'm in Printoutput:: allbmeventin.size():"<<allbmeventin.size()<<"  allvtxeventin.size()="<<allvtxeventin.size()<<endl;
@@ -140,10 +172,15 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
       ((TH1D*)gDirectory->Get("vtx_yR0_coeff"))->Fill(allvtxeventin.at(i).vtx_track_r0pos.Y());
       ((TH1D*)gDirectory->Get("vtx_polar_angle"))->Fill(allvtxeventin.at(i).vtx_track_pvers.Theta()*RAD2DEG);
       ((TH1D*)gDirectory->Get("vtx_azimuth_angle"))->Fill(allvtxeventin.at(i).vtx_track_pvers.Phi()*RAD2DEG);
+      ((TH1D*)gDirectory->Get("vtx_isoplane_vtxsys_xview"))->Fill(allvtxeventin.at(i).vtx_track_r0pos.X());
+      ((TH1D*)gDirectory->Get("vtx_isoplane_vtxsys_yview"))->Fill(allvtxeventin.at(i).vtx_track_r0pos.Y());
       ((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys"))->Fill(allvtxeventin.at(i).vtx_track_r0pos.X(), allvtxeventin.at(i).vtx_track_r0pos.Y());
       tmp_tvector3=ExtrapolateZ(allvtxeventin.at(i).vtx_track_pvers, allvtxeventin.at(i).vtx_track_r0pos, -VTXISOZ, true, false);
       ((TH2D*)gDirectory->Get("vtx_isoplane_isosys"))->Fill(tmp_tvector3.X(),tmp_tvector3.Y());
-      tmp_tvector3=ExtrapolateZ(allvtxeventin.at(i).vtx_track_pvers, allvtxeventin.at(i).vtx_track_r0pos, -VTXISOZ, true, false);
+      tmp_tvector3=ExtrapolateZ(allvtxeventin.at(i).vtx_track_pvers, allvtxeventin.at(i).vtx_track_r0pos, -VTXISOZ+BMN_MYLAR2Z+BMISOZ, false, false);
+      ((TH2D*)gDirectory->Get("vtx_bmmylar2_vtxsys"))->Fill(tmp_tvector3.X(),tmp_tvector3.Y());
+      tmp_tvector3=ExtrapolateZ(allvtxeventin.at(i).vtx_track_pvers, allvtxeventin.at(i).vtx_track_r0pos, -VTXISOZ+BMN_MYLAR1Z+BMISOZ, false, false);
+      ((TH2D*)gDirectory->Get("vtx_bmmylar1_vtxsys"))->Fill(tmp_tvector3.X(),tmp_tvector3.Y());
       //~ vtxpversr02global(allvtxeventin.at(i).vtx_track_pvers,allvtxeventin.at(i).vtx_track_r0pos, tmp_tvector3, tmp2_tvector3);
       //~ ((TH2D*)gDirectory->Get("vtx_isoplane_bmsys"))->Fill(tmp2_tvector3.X(),tmp2_tvector3.Y());
     }
@@ -153,7 +190,7 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
     cout<<"I'm in Printoutput:: allvtxeventin finished  allvtxeventin.size()="<<allvtxeventin.size()<<endl;
   
   if(onlyVTX)
-    return;
+    return false;
   
   //BM events
   for(int i=0; i<allbmeventin.size();i++){
@@ -167,10 +204,16 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
     tmp_tvector3=ExtrapolateZ(allbmeventin.at(i).bm_track_pvers, allbmeventin.at(i).bm_track_r0pos, -BMISOZ, true, true);
     ((TH2D*)gDirectory->Get("bmisoproISOsys"))->Fill(tmp_tvector3.X(), tmp_tvector3.Y());
     tmp_tvector3=ExtrapolateZ(allbmeventin.at(i).bm_track_pvers, allbmeventin.at(i).bm_track_r0pos, -BMISOZ, false, true);
+    ((TH1D*)gDirectory->Get("bmisoproBMsys_xview"))->Fill(tmp_tvector3.X());
+    ((TH1D*)gDirectory->Get("bmisoproBMsys_yview"))->Fill(tmp_tvector3.Y());
     ((TH2D*)gDirectory->Get("bmisoproBMsys"))->Fill(tmp_tvector3.X(), tmp_tvector3.Y());//dovrebbe essere = a bmisoproISOsys
-     tmp_tvector3=ExtrapolateZ(allbmeventin.at(i).bm_track_pvers, allbmeventin.at(i).bm_track_r0pos, BMN_MYLAR1Z, false, true);
-    ((TH2D*)gDirectory->Get("bmmylar1BMsys"))->Fill(tmp_tvector3.X(), tmp_tvector3.Y());
+     //~ tmp_tvector3=ExtrapolateZ(allbmeventin.at(i).bm_track_pvers, allbmeventin.at(i).bm_track_r0pos, BMN_MYLAR1Z, false, true);
+    //~ ((TH2D*)gDirectory->Get("bmmylar1BMsys_xview"))->Fill(tmp_tvector3.X());
+    //~ ((TH2D*)gDirectory->Get("bmmylar1BMsys_yview"))->Fill(tmp_tvector3.Y());
+    //~ ((TH2D*)gDirectory->Get("bmmylar1BMsys"))->Fill(tmp_tvector3.X(), tmp_tvector3.Y());
     tmp_tvector3=ExtrapolateZ(allbmeventin.at(i).bm_track_pvers, allbmeventin.at(i).bm_track_r0pos, BMN_MYLAR2Z, false, true);
+    ((TH1D*)gDirectory->Get("bmmylar2BMsys_xview"))->Fill(tmp_tvector3.X());
+    ((TH1D*)gDirectory->Get("bmmylar2BMsys_yview"))->Fill(tmp_tvector3.Y());
     ((TH2D*)gDirectory->Get("bmmylar2BMsys"))->Fill(tmp_tvector3.X(), tmp_tvector3.Y());
     
     for(int k=0;k<allbmeventin.at(i).hitnum;k++){
@@ -186,12 +229,8 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
   if(debug)
     cout<<"I'm in Printoutput:: allbmeventin finished allbmeventin.size()="<<allbmeventin.size()<<endl;    
   
-  //~ gDirectory->ls();
-  //~ cout<<"ora faccio crashasre root cercando grafico che non esiste"<<endl;
-  //~ ((TH1D*)gDirectory->Get("fdsjaklflkasjdlk"))->Fill(3.);
-  
   //combined
-  TVector3 bmproject, vtxproject;
+  TVector3 bmproject_isosys, vtxproject_isosys, bmproject_bmsys, vtxproject_vtxsys;
   for(int i=0;i<selected_index.size();i++){
     //~ cout<<"i="<<i<<"  selected_index.size()="<<selected_index.size()<<"  selected_index.at(i).size()="<<selected_index.at(i).size()<<"  selected_index.at(i).at(2)="<<selected_index.at(i).at(2)<<endl;
     if(selected_index.at(i).at(2)==0){//both bm and vtx track
@@ -210,17 +249,28 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
         if(allbmeventin.at(i).bm_hit_chi2[i]<=BMNHITCUT)
           ((TH1D*)gDirectory->Get("chi2_hit_bm_combined"))->Fill(allbmeventin.at(i).bm_hit_chi2[k]);        
       
-      bmproject=ExtrapolateZ(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers, allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos, -BMISOZ,true, true);
-      vtxproject=ExtrapolateZ(allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers, allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos, -VTXISOZ,true, false);
+      bmproject_isosys=ExtrapolateZ(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers, allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos, -BMISOZ,true, true);
+      vtxproject_isosys=ExtrapolateZ(allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers, allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos, -VTXISOZ,true, false);
+      bmproject_bmsys=ExtrapolateZ(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers, allbmeventin.at(selected_index.at(i).at(0)).bm_track_r0pos, -BMISOZ,false, true);
+      vtxproject_vtxsys=ExtrapolateZ(allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers, allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos, -VTXISOZ,false, false);
       //~ vtxpversr02global(allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers,allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_r0pos, tmp_tvector3, tmp2_tvector3);
-      if(bmproject.Z()!=vtxproject.Z())
-        cout<<"ERROR on bm/msd iso projection::bmproject.Z()="<<bmproject.Z()<<"   vtxproject.Z()="<<vtxproject.Z()<<endl;
-      else{
-        ((TH2D*)gDirectory->Get("comb_bmisoproISO"))->Fill(bmproject.X(), bmproject.Y());
-        ((TH2D*)gDirectory->Get("comb_vtxisoproISO"))->Fill(vtxproject.X(), vtxproject.Y());
-        ((TH1D*)gDirectory->Get("comb_vtxbmnisoproISO_xdiff"))->Fill(bmproject.X()-vtxproject.X());
-        ((TH1D*)gDirectory->Get("comb_vtxbmnisoproISO_ydiff"))->Fill(bmproject.Y()-vtxproject.Y());
-        ((TH1D*)gDirectory->Get("comb_vtxbmnisoproISO_xydiff"))->Fill((bmproject-vtxproject).Mag());
+      if(bmproject_isosys.Z()!=vtxproject_isosys.Z())
+        cout<<"ERROR on bm/msd iso projection::bmproject_isosys.Z()="<<bmproject_isosys.Z()<<"   vtxproject_isosys.Z()="<<vtxproject_isosys.Z()<<endl;
+      else{        
+        ((TH1D*)gDirectory->Get("comb_bm_xslopeBMsys"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X());
+        ((TH1D*)gDirectory->Get("comb_bm_yslopeBMsys"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Y());
+        ((TH1D*)gDirectory->Get("comb_bm_xisoproBMsys"))->Fill(bmproject_bmsys.X());
+        ((TH1D*)gDirectory->Get("comb_bm_yisoproBMsys"))->Fill(bmproject_bmsys.Y());
+        ((TH1D*)gDirectory->Get("comb_vtx_xslopeVTXsys"))->Fill(allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.X());
+        ((TH1D*)gDirectory->Get("comb_vtx_yslopeVTXsys"))->Fill(allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Y());
+        ((TH1D*)gDirectory->Get("comb_vtx_xisoproVTXsys"))->Fill(vtxproject_vtxsys.X());
+        ((TH1D*)gDirectory->Get("comb_vtx_yisoproVTXsys"))->Fill(vtxproject_vtxsys.Y());
+
+        ((TH2D*)gDirectory->Get("comb_bmisoproISO"))->Fill(bmproject_isosys.X(), bmproject_isosys.Y());
+        ((TH2D*)gDirectory->Get("comb_vtxisoproISO"))->Fill(vtxproject_isosys.X(), vtxproject_isosys.Y());
+        ((TH1D*)gDirectory->Get("comb_vtxbmnisoproISO_xdiff"))->Fill(bmproject_isosys.X()-vtxproject_isosys.X());
+        ((TH1D*)gDirectory->Get("comb_vtxbmnisoproISO_ydiff"))->Fill(bmproject_isosys.Y()-vtxproject_isosys.Y());
+        ((TH1D*)gDirectory->Get("comb_vtxbmnisoproISO_xydiff"))->Fill((bmproject_isosys-vtxproject_isosys).Mag());
         ((TH1D*)gDirectory->Get("comb_pversISO_mxdiff"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.X()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()-allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.X()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z());
         ((TH1D*)gDirectory->Get("comb_pversISO_mydiff"))->Fill(allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Y()/allbmeventin.at(selected_index.at(i).at(0)).bm_track_pvers.Z()-allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Y()/allvtxeventin.at(selected_index.at(i).at(1)).vtx_track_pvers.Z());
       }    
@@ -238,7 +288,7 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
   fitStrel(f_out, 0,first_strel_tf1_1, first_strel_tf1_08, garfield_strel_tf1, newstrelstring);
 
   if(((TH2D*)gDirectory->Get("r0x_bmvtx"))->GetCorrelationFactor()>CORRMINIMUM || ((TH2D*)gDirectory->Get("r0y_bmvtx"))->GetCorrelationFactor()>CORRMINIMUM){
-    
+        
     // gaussian fit on the slice of rdrift
     TF1  *strelgaus = new TF1("strelgaus","gaus",-1.,1.);  
     strelgaus->SetParameter(1,0.);
@@ -253,9 +303,9 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
         ((TH1D*)gDirectory->Get(tmp_char))->Fill(space_residual.at(i).at(k));
         ((TH1D*)gDirectory->Get("residual_space_total_xhit"))->Fill(space_residual.at(i).at(k));
       }
-      if(((TH1D*)gDirectory->Get(tmp_char))->GetEntries()>100){
+      if(((TH1D*)gDirectory->Get(tmp_char))->GetEntries()>0){
         if(GAUSMEAN==0){
-          ((TH1D*)gDirectory->Get(tmp_char))->Fit("strelgaus","Q+","",-MAXSTRELRES,MAXSTRELRES);
+          ((TH1D*)gDirectory->Get(tmp_char))->Fit("strelgaus","QM+","",-MAXSTRELRES,MAXSTRELRES);
           newstrel_spaceresidual.push_back(strelgaus->GetParameter(1));
         }else
           newstrel_spaceresidual.push_back(((TH1D*)gDirectory->Get(tmp_char))->GetMean());
@@ -288,7 +338,7 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
       }
       if(((TH1D*)gDirectory->Get(tmp_char))->GetEntries()>100){
         if(GAUSMEAN==0){
-          ((TH1D*)gDirectory->Get(tmp_char))->Fit("strelgaus","Q+","",-MAXSTRELRES,MAXSTRELRES);
+          ((TH1D*)gDirectory->Get(tmp_char))->Fit("strelgaus","QM+","",-MAXSTRELRES,MAXSTRELRES);
           newstrel_timeresidual.push_back(strelgaus->GetParameter(1));
         }else
           newstrel_timeresidual.push_back(((TH1D*)gDirectory->Get(tmp_char))->GetMean());
@@ -313,10 +363,12 @@ void Printoutput(TFile* f_out, vector<BM_evstruct> &allbmeventin, vector<vtx_evs
     if(debug)
       cout<<"I'm in Printoutput:: estimate of the strel with the time residual finished, Printout finished"<<endl;  
   
+    return true;
+    
   }else
     cout<<endl<<"Printoutput: THE DATA ARE NOT CORRELATED ENOUGH, the program will be finished"<<endl<<endl;
          
-    return;  
+    return false;  
 }
 
 
@@ -341,7 +393,7 @@ void fitStrel(TFile *f_out, const int index, TF1* first_strel_tf1_1, TF1* first_
   prof_newstrel->SetLineColor(3);
   prof_newstrel->Draw();
   
-  prof_newstrel->Fit("poly","QRB+");
+  prof_newstrel->Fit("poly","QMRB+");
   
   if(index==0){
     cout<<"fit the old strel parameters"<<endl;
@@ -426,12 +478,12 @@ void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<
   if(debug>2)
     cout<<"I'm in EvaluateSpaceResidual"<<endl;
   
-  TVector3 bmproject, vtxprojecta, vtxprojectb;
   
   //evaluate the space and time residuals
+  char tmp_char[200];
   int binpos, timepos;
   double residual, maxres;
-  TVector3 pversout, r0posout;
+  TVector3 pversout, r0posout, bmproject, vtxprojecta, vtxprojectb;
   for(int i=0;i<bmevent.hitnum;i++){
     if((ONLY1VIEW==-1 || (ONLY1VIEW==CellId2view(bmevent.bm_hit_cellid[i]))) && bmevent.bm_hit_chi2[i]<=BMNHITCUT && bmevent.bm_hit_isselected[i]==1){ 
       binpos=(int)(bmevent.bm_hit_rdrift[i]*STBIN);
@@ -443,7 +495,8 @@ void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<
       //~ vtxpversr02global(vtxevent.vtx_track_pvers, vtxevent.vtx_track_r0pos,  pversout, r0posout);    
       
       vtxprojecta=ExtrapolateZ(vtxevent.vtx_track_pvers,vtxevent.vtx_track_r0pos, 0.,true, false); 
-      vtxprojectb=ExtrapolateZ(vtxevent.vtx_track_pvers,vtxevent.vtx_track_r0pos, 1.,true, false); 
+      vtxprojectb=ExtrapolateZ(vtxevent.vtx_track_pvers,vtxevent.vtx_track_r0pos, wire_pos.at(bmevent.bm_hit_cellid[i]).Z(),true, false); 
+      bmproject=ExtrapolateZ(bmevent.bm_track_pvers,bmevent.bm_track_r0pos, wire_pos.at(bmevent.bm_hit_cellid[i]).Z(),true,true);
       r0posout=vtxprojecta;     
       pversout=vtxprojectb-vtxprojecta;  
       pversout.SetMag(1.);
@@ -475,6 +528,18 @@ void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<
           cout<<"msd rdrift too big :: residual="<<residual<<"  hit_id="<<bmevent.bm_hit_cellid[i]<<"  hit_rdrift="<<bmevent.bm_hit_rdrift[i]<<"  hit time="<<bmevent.bm_hit_time[i]<<endl;
       }else{
         bmevent.bm_msd_totres+=residual;
+        if(bmevent.bm_msd_fitted[i]!=-999){
+          ((TH2D*)gDirectory->Get("new_strel_frommsd"))->Fill(bmevent.bm_hit_time[i],bmevent.bm_msd_fitted[i]);
+          sprintf(tmp_char,"res_xcell/res_xcell_%d", bmevent.bm_hit_cellid[i]);
+          //~ ((TH2D*)gDirectory->Get(tmp_char))->Fill(bmevent.bm_msd_fitted[i]-bmevent.bm_hit_rdrift[i], (CellId2view(bmevent.bm_hit_cellid[i])==0) ? ExtrapolateZ(bmevent.bm_track_pvers, bmevent.bm_track_r0pos, wire_pos.at(bmevent.bm_hit_cellid[i]).Z(),true,true).X()  :  ExtrapolateZ(bmevent.bm_track_pvers, bmevent.bm_track_r0pos, wire_pos.at(bmevent.bm_hit_cellid[i]).Z(),true,true).Y());
+          //~ ((TH1D*)gDirectory->Get(tmp_char))->Fill(bmevent.bm_msd_fitted[i]-bmevent.bm_hit_rdrift[i]);
+          if(CellId2view(bmevent.bm_hit_cellid[i])==0)  
+            //~ ((TH1D*)gDirectory->Get(tmp_char))->Fill(vtxprojectb.Y()-bmproject.Y());
+            ((TH1D*)gDirectory->Get(tmp_char))->Fill(vtxprojectb.Y()-bmproject.Y());
+          else
+            //~ ((TH1D*)gDirectory->Get(tmp_char))->Fill(vtxprojectb.X()-bmproject.X());
+            ((TH1D*)gDirectory->Get(tmp_char))->Fill(vtxprojectb.X()-bmproject.X());
+        }          
       }
     }
   }
@@ -487,7 +552,7 @@ void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<
   //charge the space and time residuals applying some cuts
   if(debug>10)
     cout<<"EvaluateSpaceResidual: Now I'll charge space_residual and time_residual vectors"<<endl;  
-  if(bmevent.bm_msd_totres!=-999 && bmevent.bm_msd_totres<0.1 && bmevent.bm_msd_totres>-0.05){
+  if(bmevent.bm_msd_totres!=-999 ){
     for(int i=0;i<bmevent.hitnum;i++){
       if(bmevent.bm_msd_time_binpos[i]!=-1 && bmevent.bm_msd_time_binpos[i]!=-2)
         time_residual.at(bmevent.bm_msd_time_binpos[i]).push_back(bmevent.bm_msd_time_res[i]);  
@@ -496,7 +561,6 @@ void EvaluateSpaceResidual(vector<vector<double>> &space_residual,vector<vector<
         ((TH2D*)gDirectory->Get("residual_vs_rdrift"))->Fill(bmevent.bm_msd_time_res[i],bmevent.bm_hit_rdrift[i]);
         ((TH2D*)gDirectory->Get("msdresidual_vs_bmfitresidual"))->Fill(bmevent.bm_msd_time_res[i],bmevent.bm_hit_residual[i]);
       }
-      ((TH2D*)gDirectory->Get("new_strel_frommsd"))->Fill(bmevent.bm_hit_time[i],bmevent.bm_msd_fitted[i]);
     }
   }
   
@@ -538,7 +602,7 @@ void vtxpversr02global(const TVector3 vtxpvers, const TVector3 vtxr0pos, TVector
   pversout=vtxpvers;
   pversout.RotateX(VTXYZANGLE*DEG2RAD);
   pversout.RotateY(VTXXZANGLE*DEG2RAD);    
-  r0posout.SetXYZ(vtxr0pos.X()+VTXISOX, vtxr0pos.Y()+VTXISOY, vtxr0pos.Z()+VTXR0Z);
+  r0posout.SetXYZ(vtxr0pos.X()+VTXISOX, vtxr0pos.Y()+VTXISOY, vtxr0pos.Z()+VTXISOZ);
   return;
 }
 
@@ -556,50 +620,161 @@ void vtxpversr02global(const TVector3 vtxpvers, const TVector3 vtxr0pos, TVector
 
 //estimate allign with projections on mylars 
 //da sistemare!!!!
-void Allign_estimate(TString bmin_filename, TString vtxin_filename,TString out_filename, TString &newstrelstring){
+void Allign_estimate(TString bmin_filename, TString vtxin_filename,TString out_filename, TString &newstrelstring, TString &celldisp_tstring){
 
   if(debug>0)
     cout<<"I'm in Allign_estimate"<<endl;  
   
+  TF1  *gaus = new TF1("gaus","gaus",-2000.,2000.);  
   //BM par
-  Double_t BMxrot=atan((((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetMean(2) - ((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetMean(2))/(BMN_MYLAR2Z-BMN_MYLAR1Z))*RAD2DEG;    
-  Double_t BMyrot=-atan((((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetMean(1)-((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetMean(1))/(BMN_MYLAR2Z-BMN_MYLAR1Z))*RAD2DEG;
+  
   //~ Double_t BMxtra=-(((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetMean(1)+((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetMean(1))/2.;  
   //~ Double_t BMxtr_err=sqrt(pow(((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetMean(1)/sqrt(((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetEntries()),2.)  + pow(((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetMean(1)/sqrt(((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetEntries()),2.));  
-  Double_t BMxtra=-((TH1D*)gDirectory->Get("bm_xR0_coeff"))->GetMean();  
-  Double_t BMxtr_err=((TH1D*)gDirectory->Get("bm_xR0_coeff"))->GetMean()/sqrt(((TH1D*)gDirectory->Get("bm_xR0_coeff"))->GetEntries()) ;  
   //~ Double_t BMytra=-(((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetMean(2)+((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetMean(2))/2.;
   //~ Double_t BMytr_err=sqrt(pow(((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetMean(2)/sqrt(((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetEntries()),2.)  +  pow(((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetMean(2)/sqrt(((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetEntries()),2.));  
-  Double_t BMytra=-((TH1D*)gDirectory->Get("bm_yR0_coeff"))->GetMean();
-  Double_t BMytr_err=((TH1D*)gDirectory->Get("bm_yR0_coeff"))->GetMean()/sqrt(((TH1D*)gDirectory->Get("bm_xR0_coeff"))->GetEntries()) ;  
-    
-  //MSD par  
-  Double_t MSDxtra=-((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys"))->GetMean(1);  
-  Double_t MSDytra=-((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys"))->GetMean(2);  
-    
-  cout<<"Beam Monitor allignment parameters:"<<endl;
-  cout<<"estimated rotation around X axis= "<<BMxrot<<endl;
-  cout<<"estimated rotation around Y axis= "<<BMyrot<<endl;
+
+  //~ Double_t BMxtra=-((TH1D*)gDirectory->Get("bm_xR0_coeff"))->GetMean();  
+  //~ Double_t BMxtr_err=((TH1D*)gDirectory->Get("bm_xR0_coeff"))->GetMean()/sqrt(((TH1D*)gDirectory->Get("bm_xR0_coeff"))->GetEntries()) ;  
+  //~ Double_t BMytra=-((TH1D*)gDirectory->Get("bm_yR0_coeff"))->GetMean();
+  //~ Double_t BMytr_err=((TH1D*)gDirectory->Get("bm_yR0_coeff"))->GetMean()/sqrt(((TH1D*)gDirectory->Get("bm_xR0_coeff"))->GetEntries()) ;  
+  //~ Double_t BMxrot=atan((((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetMean(2) - ((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetMean(2))/(BMN_MYLAR2Z-BMN_MYLAR1Z))*RAD2DEG;    
+  //~ Double_t BMyrot=-atan((((TH1D*)gDirectory->Get("bmmylar2BMsys"))->GetMean(1)-((TH1D*)gDirectory->Get("bmmylar1BMsys"))->GetMean(1))/(BMN_MYLAR2Z-BMN_MYLAR1Z))*RAD2DEG;
+
+  gaus->SetParameters(((TH2D*)gDirectory->Get("bmisoproBMsys_xview"))->GetEntries(), ((TH2D*)gDirectory->Get("bmisoproBMsys_xview"))->GetMean(), ((TH2D*)gDirectory->Get("bmisoproBMsys_xview"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("bmisoproBMsys_xview"))->Fit("gaus","QBM+");  
+  Double_t BMxtra=-gaus->GetParameter(1);  
+  Double_t BMxtr_err=gaus->GetParError(1);
+  gaus->SetParameters(((TH2D*)gDirectory->Get("bmisoproBMsys_yview"))->GetEntries(), ((TH2D*)gDirectory->Get("bmisoproBMsys_yview"))->GetMean(), ((TH2D*)gDirectory->Get("bmisoproBMsys_yview"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("bmisoproBMsys_yview"))->Fit("gaus","QBM+");  
+  Double_t BMytra=-gaus->GetParameter(1);  
+  Double_t BMytr_err=gaus->GetParError(1);
+  gaus->SetParameters(((TH2D*)gDirectory->Get("bm_xslope_coeff"))->GetEntries(), ((TH2D*)gDirectory->Get("bm_xslope_coeff"))->GetMean(), ((TH2D*)gDirectory->Get("bm_xslope_coeff"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("bm_xslope_coeff"))->Fit("gaus","QBM+");  
+  Double_t BMxrot=-atan(gaus->GetParameter(1))*RAD2DEG;
+  gaus->SetParameters(((TH2D*)gDirectory->Get("bm_yslope_coeff"))->GetEntries(), ((TH2D*)gDirectory->Get("bm_yslope_coeff"))->GetMean(), ((TH2D*)gDirectory->Get("bm_yslope_coeff"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("bm_yslope_coeff"))->Fit("gaus","QBM+");  
+  Double_t BMyrot=-atan(gaus->GetParameter(1))*RAD2DEG;
+  cout<<"Beam Monitor allignment parameters with BM data:"<<endl;
   cout<<"estimated translation in X="<<BMxtra<<"   +-   "<<BMxtr_err<<endl;
-  cout<<"estimated translation in Y="<<BMytra<<"   +-   "<<BMytr_err<<endl<<endl;
+  cout<<"estimated translation in Y="<<BMytra<<"   +-   "<<BMytr_err<<endl;
+  cout<<"estimated rotation around X axis= "<<BMxrot<<endl;
+  cout<<"estimated rotation around Y axis= "<<BMyrot<<endl<<endl;
   
-  cout<<"MSD allignment parameters:"<<endl;
-  cout<<"estimated translation in X="<<MSDxtra<<"    estimated translation in Y="<<MSDytra<<endl;
-  cout<<"used MSD parameters: VTXISOX="<<VTXISOX<<"   VTXISOY="<<VTXISOY<<"   VTXYZANGLE="<<VTXYZANGLE<<"   VTXXZANGLE="<<VTXXZANGLE<<endl<<endl;
   
-  cout<<"BM - MSD X difference on isoplane:"<<((TH1D*)gDirectory->Get("comb_vtxbmnisoproISO_xdiff"))->GetMean()<<"  new VTXISOX="<<VTXISOX+((TH1D*)gDirectory->Get("comb_vtxbmnisoproISO_xdiff"))->GetMean()<<endl;    
-  cout<<"BM - MSD Y difference on isoplane:"<<((TH1D*)gDirectory->Get("comb_vtxbmnisoproISO_ydiff"))->GetMean()<<"  new VTXISOY="<<VTXISOY+((TH1D*)gDirectory->Get("comb_vtxbmnisoproISO_ydiff"))->GetMean()<<endl;    
+  //MSD par
+  //~ Double_t MSDxtra=-((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys_xview"))->GetMean();  
+  //~ Double_t MSDytra=-((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys_yview"))->GetMean();  
+  gaus->SetParameters(((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys_xview"))->GetEntries(), ((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys_xview"))->GetMean(), ((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys_xview"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys_xview"))->Fit("gaus","QBM+");  
+  Double_t MSDxtra=-gaus->GetParameter(1);  
+  gaus->SetParameters(((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys_yview"))->GetEntries(), ((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys_yview"))->GetMean(), ((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys_yview"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys_yview"))->Fit("gaus","QBM+");  
+  Double_t MSDytra=-gaus->GetParameter(1);  
+  gaus->SetParameters(((TH2D*)gDirectory->Get("vtx_xslope_coeff"))->GetEntries(), ((TH2D*)gDirectory->Get("vtx_xslope_coeff"))->GetMean(), ((TH2D*)gDirectory->Get("vtx_xslope_coeff"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("vtx_xslope_coeff"))->Fit("gaus","QBM+");  
+  Double_t MSDxrot=-atan(gaus->GetParameter(1))*RAD2DEG;
+  gaus->SetParameters(((TH2D*)gDirectory->Get("vtx_yslope_coeff"))->GetEntries(), ((TH2D*)gDirectory->Get("vtx_yslope_coeff"))->GetMean(), ((TH2D*)gDirectory->Get("vtx_yslope_coeff"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("vtx_yslope_coeff"))->Fit("gaus","QBM+");  
+  Double_t MSDyrot=-atan(gaus->GetParameter(1))*RAD2DEG;
+  cout<<"MSD allignment parameters with MSD data:"<<endl;
+  cout<<"estimated translation in X="<<MSDxtra<<endl;
+  cout<<"estimated translation in Y="<<MSDytra<<endl;
+  cout<<"estimated rotation around X axis= "<<MSDxrot<<endl;
+  cout<<"estimated rotation around Y axis= "<<MSDyrot<<endl<<endl;
+   
+  
+  //on combined tracks:
+  //bm params:
+  gaus->SetParameters(((TH2D*)gDirectory->Get("comb_bm_xisoproBMsys"))->GetEntries(), ((TH2D*)gDirectory->Get("comb_bm_xisoproBMsys"))->GetMean(), ((TH2D*)gDirectory->Get("comb_bm_xisoproBMsys"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("comb_bm_xisoproBMsys"))->Fit("gaus","QBM+");  
+  Double_t BMcombxtra=-gaus->GetParameter(1);  
+  Double_t BMcombxtr_err=gaus->GetParError(1);
+  gaus->SetParameters(((TH2D*)gDirectory->Get("comb_bm_yisoproBMsys"))->GetEntries(), ((TH2D*)gDirectory->Get("comb_bm_yisoproBMsys"))->GetMean(), ((TH2D*)gDirectory->Get("comb_bm_yisoproBMsys"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("comb_bm_yisoproBMsys"))->Fit("gaus","QBM+");  
+  Double_t BMcombytra=-gaus->GetParameter(1);  
+  Double_t BMcombytr_err=gaus->GetParError(1);
+  gaus->SetParameters(((TH2D*)gDirectory->Get("comb_bm_xslopeBMsys"))->GetEntries(), ((TH2D*)gDirectory->Get("comb_bm_xslopeBMsys"))->GetMean(), ((TH2D*)gDirectory->Get("comb_bm_xslopeBMsys"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("comb_bm_xslopeBMsys"))->Fit("gaus","QBM+");  
+  Double_t BMcombxrot=-atan(gaus->GetParameter(1))*RAD2DEG;
+  gaus->SetParameters(((TH2D*)gDirectory->Get("comb_bm_yslopeBMsys"))->GetEntries(), ((TH2D*)gDirectory->Get("comb_bm_yslopeBMsys"))->GetMean(), ((TH2D*)gDirectory->Get("comb_bm_yslopeBMsys"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("comb_bm_yslopeBMsys"))->Fit("gaus","QBM+");  
+  Double_t BMcombyrot=-atan(gaus->GetParameter(1))*RAD2DEG;
+  cout<<"Beam Monitor allignment parameters with Combined data:"<<endl;
+  cout<<"estimated translation in X="<<BMcombxtra<<"   +-   "<<BMcombxtr_err<<endl;
+  cout<<"estimated translation in Y="<<BMcombytra<<"   +-   "<<BMcombytr_err<<endl;
+  cout<<"estimated rotation around X axis= "<<BMcombxrot<<endl;
+  cout<<"estimated rotation around Y axis= "<<BMcombyrot<<endl<<endl;
+  
+  //MSD par
+  //~ Double_t MSDxtra=-((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys_xview"))->GetMean();  
+  //~ Double_t MSDytra=-((TH2D*)gDirectory->Get("vtx_isoplane_vtxsys_yview"))->GetMean();  
+  gaus->SetParameters(((TH2D*)gDirectory->Get("comb_vtx_xisoproVTXsys"))->GetEntries(), ((TH2D*)gDirectory->Get("comb_vtx_xisoproVTXsys"))->GetMean(), ((TH2D*)gDirectory->Get("comb_vtx_xisoproVTXsys"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("comb_vtx_xisoproVTXsys"))->Fit("gaus","QBM+");  
+  Double_t MSDcombxtra=-gaus->GetParameter(1);  
+  gaus->SetParameters(((TH2D*)gDirectory->Get("comb_vtx_yisoproVTXsys"))->GetEntries(), ((TH2D*)gDirectory->Get("comb_vtx_yisoproVTXsys"))->GetMean(), ((TH2D*)gDirectory->Get("comb_vtx_yisoproVTXsys"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("comb_vtx_yisoproVTXsys"))->Fit("gaus","QBM+");  
+  Double_t MSDcombytra=-gaus->GetParameter(1);  
+  gaus->SetParameters(((TH2D*)gDirectory->Get("comb_vtx_xslopeVTXsys"))->GetEntries(), ((TH2D*)gDirectory->Get("comb_vtx_xslopeVTXsys"))->GetMean(), ((TH2D*)gDirectory->Get("comb_vtx_xslopeVTXsys"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("comb_vtx_xslopeVTXsys"))->Fit("gaus","QBM+");  
+  Double_t MSDcombxrot=-atan(gaus->GetParameter(1))*RAD2DEG;
+  gaus->SetParameters(((TH2D*)gDirectory->Get("comb_vtx_yslopeVTXsys"))->GetEntries(), ((TH2D*)gDirectory->Get("comb_vtx_yslopeVTXsys"))->GetMean(), ((TH2D*)gDirectory->Get("comb_vtx_yslopeVTXsys"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("comb_vtx_yslopeVTXsys"))->Fit("gaus","QBM+");  
+  Double_t MSDcombyrot=-atan(gaus->GetParameter(1))*RAD2DEG;
+  cout<<"MSD allignment parameters with Combined data:"<<endl;
+  cout<<"estimated translation in X="<<MSDcombxtra<<endl;
+  cout<<"estimated translation in Y="<<MSDcombytra<<endl;
+  cout<<"estimated rotation around X axis= "<<MSDcombxrot<<endl;
+  cout<<"estimated rotation around Y axis= "<<MSDcombyrot<<endl<<endl;
+   
+  
+  //BM-MSD diff
+  gaus->SetParameters(((TH2D*)gDirectory->Get("comb_vtxbmnisoproISO_xdiff"))->GetEntries(), ((TH2D*)gDirectory->Get("comb_vtxbmnisoproISO_xdiff"))->GetMean(), ((TH2D*)gDirectory->Get("comb_vtxbmnisoproISO_xdiff"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("comb_vtxbmnisoproISO_xdiff"))->Fit("gaus","QBM+");  
+  Double_t BMMSDxdiff=-gaus->GetParameter(1);  
+  gaus->SetParameters(((TH2D*)gDirectory->Get("comb_vtxbmnisoproISO_ydiff"))->GetEntries(), ((TH2D*)gDirectory->Get("comb_vtxbmnisoproISO_ydiff"))->GetMean(), ((TH2D*)gDirectory->Get("comb_vtxbmnisoproISO_ydiff"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("comb_vtxbmnisoproISO_ydiff"))->Fit("gaus","QBM+");  
+  Double_t BMMSDydiff=-gaus->GetParameter(1);  
+  gaus->SetParameters(((TH2D*)gDirectory->Get("comb_pversISO_mxdiff"))->GetEntries(), ((TH2D*)gDirectory->Get("comb_pversISO_mxdiff"))->GetMean(), ((TH2D*)gDirectory->Get("comb_pversISO_mxdiff"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("comb_pversISO_mxdiff"))->Fit("gaus","QBM+");  
+  Double_t BMMSDmxdiff=-atan(gaus->GetParameter(1))*RAD2DEG;
+  gaus->SetParameters(((TH2D*)gDirectory->Get("comb_pversISO_mydiff"))->GetEntries(), ((TH2D*)gDirectory->Get("comb_pversISO_mydiff"))->GetMean(), ((TH2D*)gDirectory->Get("comb_pversISO_mydiff"))->GetStdDev());
+  ((TH2D*)gDirectory->Get("comb_pversISO_mydiff"))->Fit("gaus","QBM+");  
+  Double_t BMMSDmydiff=-atan(gaus->GetParameter(1))*RAD2DEG;
+  cout<<"BM and MSD differences with Combined data:"<<endl;
+  cout<<"translation diff in X="<<BMMSDxdiff<<endl;
+  cout<<"translation diff in Y="<<BMMSDydiff<<endl;
+  cout<<"rotation diff on X axis angle="<<BMMSDmxdiff<<endl;
+  cout<<"rotation diff on Y axis angle="<<BMMSDmydiff<<endl<<endl;
+   
+  cout<<"BM new cell displacement:"<<celldisp_tstring.Data()<<endl;
       
+  //writing in the output file      
   TString tmp_str("BM_infile="); tmp_str+=bmin_filename;
   tmp_str+="    MSD_infile=";tmp_str+=vtxin_filename;    
   tmp_str+="    OUTfile=";tmp_str+=out_filename;
   tmp_str+="    ONLYVIEW=";tmp_str+=ONLY1VIEW;    
-  tmp_str+="    BM allign par: xrot="; tmp_str+= BMxrot; tmp_str+="  yrot="; tmp_str+=BMyrot;
-  tmp_str+="  x_tra="; tmp_str+=BMxtra; tmp_str+=" +- ";  tmp_str+=BMxtr_err;
-  tmp_str+="  y_tra="; tmp_str+=BMytra; tmp_str+=" +- ";  tmp_str+=BMytr_err;
+  tmp_str+="    Allign par: BMxrot="; tmp_str+= BMxrot; tmp_str+="  BMyrot="; tmp_str+=BMyrot;
+  tmp_str+="  BMx_tra="; tmp_str+=BMxtra; tmp_str+=" +- ";  tmp_str+=BMxtr_err;
+  tmp_str+="  BMy_tra="; tmp_str+=BMytra; tmp_str+=" +- ";  tmp_str+=BMytr_err;
   tmp_str+="    MSD_xtra=";tmp_str+=MSDxtra; tmp_str+="   MSD_ytra="; tmp_str+=MSDytra;
+  tmp_str+="    MSD_xrot=";tmp_str+=MSDxrot; tmp_str+="   MSD_yrot="; tmp_str+=MSDyrot;
+  tmp_str+="    BM allign par: xrot="; tmp_str+= BMxrot; tmp_str+="  yrot="; tmp_str+=BMyrot;
+  tmp_str+="  BMcombx_tra="; tmp_str+=BMcombxtra; tmp_str+=" +- ";  tmp_str+=BMcombxtr_err;
+  tmp_str+="  BMcomby_tra="; tmp_str+=BMcombytra; tmp_str+=" +- ";  tmp_str+=BMcombytr_err;
+  tmp_str+="    MSDcombxtra=";tmp_str+=MSDcombxtra; tmp_str+="   MSDcombytra="; tmp_str+=MSDcombytra;
+  tmp_str+="    MSDcombxrot=";tmp_str+=MSDcombxrot; tmp_str+="   MSDcombyrot="; tmp_str+=MSDcombyrot;
+  tmp_str+="    Adopted Par: TIMECUT="; tmp_str+=TIMECUT;
+  tmp_str+="    Adopted Par: BMISOX="; tmp_str+=BMISOX;
+  tmp_str+="    Adopted Par: BMISOY="; tmp_str+=BMISOY;
+  tmp_str+="    Adopted Par: BMISOYANGLE="; tmp_str+=BMISOYANGLE;
+  tmp_str+="    Adopted Par: BMISOXANGLE="; tmp_str+=BMISOXANGLE;
+  tmp_str+="    Adopted Par: VTXISOX="; tmp_str+=VTXISOX;
+  tmp_str+="    Adopted Par: VTXISOY="; tmp_str+=VTXISOY;
+  tmp_str+="    Adopted Par: VTXYZANGLE="; tmp_str+=VTXYZANGLE;
+  tmp_str+="    Adopted Par: VTXXZANGLE="; tmp_str+=VTXXZANGLE;
 
   tmp_str+=newstrelstring;
+  tmp_str+=celldisp_tstring;
 
   TNamed n("BM_MSD_allign_par",tmp_str.Data());
   n.Write();
@@ -646,16 +821,28 @@ void merge_graphics(TFile* infile, TFile* f_out){
   char tmp_char[200];
   
   //th2d
-  tmp_tstring="pvers_mx_bmmsd";
+  //~ tmp_tstring="pvers_mx_bmvtx";
+  //~ h2tstring.push_back(tmp_tstring);
+  //~ tmp_tstring="old_strel_data";
+  //~ h2tstring.push_back(tmp_tstring);
+  tmp_tstring="new_strel_frommsd";
   h2tstring.push_back(tmp_tstring);
-  tmp_tstring="old_strel";
+  tmp_tstring="comb_bmisoproISO";
+  h2tstring.push_back(tmp_tstring);
+  tmp_tstring="comb_vtxisoproISO";
   h2tstring.push_back(tmp_tstring);
   //th1d
-  tmp_tstring="space_residual_error";
+  tmp_tstring="residual_error";
   h1tstring.push_back(tmp_tstring);
-  tmp_tstring="time_residual_error";
+  tmp_tstring="comb_vtxbmnisoproISO_ydiff";
   h1tstring.push_back(tmp_tstring);
-  tmp_tstring="pvers_total_diff";
+  tmp_tstring="comb_vtxbmnisoproISO_xdiff";
+  h1tstring.push_back(tmp_tstring);
+  tmp_tstring="comb_pversISO_mxdiff";
+  h1tstring.push_back(tmp_tstring);
+  tmp_tstring="comb_pversISO_mydiff";
+  h1tstring.push_back(tmp_tstring);
+  tmp_tstring="pvers_angle_diff";
   h1tstring.push_back(tmp_tstring);
   tmp_tstring="residual_space_numev";
   h1tstring.push_back(tmp_tstring);
@@ -696,6 +883,42 @@ void merge_graphics(TFile* infile, TFile* f_out){
 }
 
 
+void EstimateWirePos(vector<double> &cellwirepos, vector<double> &cellwiredir, TString &celldisp_tstring){
+
+  if(debug)
+    cout<<"I'm in EstimateWirePos"<<endl;
+  
+  char tmp_char[200];
+  TF1  *gausdisp = new TF1("gausdisp","gaus",-1.,1.);
+  TString disptstring="cell_displacement= ";  
+  TString errortstring="displacement_error= ";  
+  for(int i=0;i<36;i++){
+    sprintf(tmp_char,"res_xcell/res_xcell_%d", i);
+    if(((TH1D*)gDirectory->Get(tmp_char))->GetEntries()>100){
+      gausdisp->SetParameter(0,((TH1D*)gDirectory->Get(tmp_char))->GetEntries());
+      gausdisp->SetParameter(1,((TH1D*)gDirectory->Get(tmp_char))->GetMean());
+      gausdisp->SetParameter(2,((TH1D*)gDirectory->Get(tmp_char))->GetStdDev());
+      ((TH1D*)gDirectory->Get(tmp_char))->Fit("gausdisp","QMB+","",-1.,1.);
+      ((TH1D*)gDirectory->Get("bm_wire_residual"))->SetBinContent(i+1, gausdisp->GetParameter(1));
+      ((TH1D*)gDirectory->Get("bm_wire_residual"))->SetBinError(i+1, gausdisp->GetParameter(2)/sqrt((double)((TH2D*)gDirectory->Get(tmp_char))->GetEntries()));    
+      disptstring+=-gausdisp->GetParameter(1);
+      disptstring+=" , ";
+      errortstring+=gausdisp->GetParameter(2)/sqrt((double)((TH2D*)gDirectory->Get(tmp_char))->GetEntries());
+      errortstring+=" , ";
+    }else{
+      disptstring+=" 0 , ";
+      errortstring+=" 0 , ";
+    }
+  }
+  celldisp_tstring=disptstring;
+  celldisp_tstring+=errortstring;
+  
+  if(debug)
+    cout<<"EstimateWirePos finished"<<endl;  
+  
+  return;
+}
+
 //*************************************************** MSD STUFF  ***************************************** 
 bool msdreadevent(vtx_evstruct &vtxevent, TTreeReader &msdReader, TTreeReaderValue<double> &trackchi2MSDreader, TTreeReaderValue<double> &thetaMSDreader, TTreeReaderValue<double> &phiMSDreader,   TTreeReaderValue<double> &r0xMSDreader,   TTreeReaderValue<double> &r0yMSDreader, vector<int> &vtxin_shifts, int filenum, int lastvtxeventnum){
   
@@ -721,7 +944,7 @@ bool msdreadevent(vtx_evstruct &vtxevent, TTreeReader &msdReader, TTreeReaderVal
   vtxevent.vtx_track_pvers.SetX(-1.*vtxevent.vtx_track_pvers.X());
   vtxevent.vtx_track_pvers.SetY(-1.*vtxevent.vtx_track_pvers.Y());
 
-  vtxevent.vtx_track_r0pos.SetXYZ(-*r0xMSDreader/10.,-*r0yMSDreader/10.,VTXR0Z);  
+  vtxevent.vtx_track_r0pos.SetXYZ(-*r0xMSDreader/10.,-*r0yMSDreader/10.,VTXISOZ);  
   if(vtxevent.tracknum!=-999 && vtxevent.vtx_track_chi2tot!=-999 && *thetaMSDreader!=-999 && *phiMSDreader!=-999 && *r0xMSDreader!=-999 && *r0yMSDreader!=-999)
     vtxevent.status=1;
   else

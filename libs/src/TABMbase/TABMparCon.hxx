@@ -80,6 +80,7 @@ class TABMparCon : public TAGpara {
     Double_t GetLastStrelpar(Int_t pos){return (pos<=strelparameters.back().size()) ? strelparameters.back().at(pos) : -999;};
     Double_t GetStrelPar(Int_t ite, Int_t pos);
     Int_t GetStrelparSize(){return strelparameters.size();};
+    vector<Double_t> GetWiredisp(){return bmwire_disp;};
 
     //T0 stuff
     void        PrintT0s(TString &input_file_name, Long64_t);
@@ -188,6 +189,7 @@ class TABMparCon : public TAGpara {
     vector<vector<Double_t>>  strelparameters;//store the strel parameters, 6 params for each iteration
     TF1 TimeReso; //function used to evaluate the hit resolution
     Double_t meantimereso;//mean time resolution value
+    vector<Double_t> bmwire_disp;  //bm wire displacement vector (copy of the wire_disp vector in TABMparGeo, it's provvisory)
 
     //STREL
     TF1  strel_1garfield;
