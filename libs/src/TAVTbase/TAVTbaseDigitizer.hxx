@@ -73,6 +73,8 @@ protected:
    std::map<int, double> fMap;      // map of found pixels
    
    Int_t       fPixelsN;         // number of pixels for a given eloss
+   Double_t    fDe0Par;          // parameter shift in edep for the cluster size function
+   Double_t    fDe0ParErr;       // parameter shift in edep for the cluster size function
    Double_t    fRsPar;           // parameter r_s for the cluster size function
    Double_t    fRsParErr;        // parameter r_s for the cluster size function
    Double_t    fThresPar;        // parameter threshold for cluster size function

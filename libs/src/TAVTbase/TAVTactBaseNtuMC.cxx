@@ -146,8 +146,7 @@ void TAVTactBaseNtuMC::ComputeNoiseLevel()
 	   fNoisyPixelsN = TMath::Nint(fDigitizer->GetNPixelX()*fDigitizer->GetNPixelY()*(1.-fraction));
 	}
 	
-	if (fDebugLevel)
-	   printf("Number of noise pixels %d\n", fNoisyPixelsN);
+   FootDebug(1, "ComputeNoiseLevel()", Form("Number of noise pixels %d\n", fNoisyPixelsN));
 	
 	delete f;
 }

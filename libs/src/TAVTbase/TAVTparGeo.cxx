@@ -73,7 +73,7 @@ void TAVTparGeo::DefineMaterial()
    
   // Pixel material
   TGeoMixture* mix = TAGmaterials::Instance()->CreateMixture(fPixMat, fPixMatDensities, fPixMatProp, fPixMatDensity);
-  if (fDebugLevel) {
+   if(FootDebugLevel(1)) {
     printf("pixels material:\n");
     mix->Print();
   }

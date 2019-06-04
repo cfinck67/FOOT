@@ -11,6 +11,7 @@
 #include "TObjString.h"
 #include "TCanvas.h"
 
+#include "GlobalPar.hxx"
 #include "TAVTparMap.hxx"
 #include "TAVTbaseParCal.hxx"
 
@@ -74,8 +75,8 @@ Bool_t TAVTbaseParCal::FromFile(const TString& name)
 	  fLandauParameter[p].Sigma    = tmp[2];
 	  fLandauParameter[p].Quench   = tmp[3];
 
-	  if(fDebugLevel)
-		 cout << endl << " Landau Parameter: " 
+	  if(FootDebugLevel(1))
+        cout << endl << " Landau Parameter: "
 		      << Form("%d %f %f %f %f", fLandauParameter[p].Charge, fLandauParameter[p].Constant, 
 				 fLandauParameter[p].MPV, fLandauParameter[p].Sigma, fLandauParameter[p].Quench) << endl;
    }	  

@@ -11,6 +11,7 @@
 #include "TStyle.h"
 #include "TRandom2.h"
 
+#include "GlobalPar.hxx"
 #include "TAGgeoTrafo.hxx"
 
 #include "TAVTparGeo.hxx"
@@ -33,9 +34,11 @@ TAVTbaseDigitizer::TAVTbaseDigitizer(TAVTbaseParGeo* parGeo)
 : TAGbaseDigitizer(),
   fpParGeo(parGeo),
   fPixelsN(-1),
-  fRsPar(0.65),
-  fRsParErr(0.05),
-  fThresPar(885),
+  fDe0Par(0),      // old 20
+  fDe0ParErr(0),
+  fRsPar(1.2),     // old 0.65
+  fRsParErr(0.12), // old 0.05
+  fThresPar(1885), // old 885
   fThresParErr(250)
 {
    SetFunctions();
@@ -59,8 +62,10 @@ Bool_t TAVTbaseDigitizer::Process( Double_t edep, Double_t x0, Double_t y0, Doub
    x0 *= TAGgeoTrafo::CmToMu();
    y0 *= TAGgeoTrafo::CmToMu();
    
-   Double_t deltaE = edep*TAGgeoTrafo::GevToKev();
    Double_t  smear = 0;
+
+   smear = gRandom->Gaus(0, fDe0Par);
+   Double_t deltaE = edep*TAGgeoTrafo::GevToKev()+ fDe0Par + fDe0ParErr;
    
    smear = gRandom->Gaus(0, fRsParErr);
    fFuncClusterSize->SetParameter(0, fRsPar+smear);
@@ -72,7 +77,7 @@ Bool_t TAVTbaseDigitizer::Process( Double_t edep, Double_t x0, Double_t y0, Doub
    
    if (fPixelsN <= 0) fPixelsN = 1;
    
-   if (fDebugLevel) {
+   if(FootDebugLevel(1)) {
       printf("\nnext hit:\n");
       printf("eloss %6.1f pixels %d\n", deltaE, fPixelsN);
    }
@@ -112,7 +117,7 @@ Int_t TAVTbaseDigitizer::GetColumn(Float_t x) const
    Float_t xmin = -fPixelsNx*fPitchX/2.;
    
    if (x < xmin || x > -xmin) {
-      if (fDebugLevel)
+      if(FootDebugLevel(1))
          Warning("GetColumn()", "Value of X: %f out of range +/- %f\n", x, xmin);
       return -1;
    }
@@ -128,7 +133,7 @@ Int_t TAVTbaseDigitizer::GetLine(Float_t y) const
    Float_t ymin = -fPixelsNy*fPitchY/2.;
    
    if (y < ymin || y > -ymin) {
-      if (fDebugLevel)
+     if(FootDebugLevel(1))
          Warning("GetLine()", "Value of Y: %f out of range +/- %f\n", y, ymin);
       return -1;
    }
@@ -165,7 +170,7 @@ Float_t TAVTbaseDigitizer::GetColRemainder(Float_t x) const
    Float_t xmin = -fPixelsNx*fPitchX/2.;
    
    if (x < xmin || x > -xmin) {
-      if (fDebugLevel)
+     if(FootDebugLevel(1))
          Warning("GetColumn()", "Value of X: %f out of range +/- %f\n", x, xmin);
       return -1;
    }
@@ -181,7 +186,7 @@ Float_t TAVTbaseDigitizer::GetLineRemainder(Float_t y) const
    Float_t ymin = -fPixelsNy*fPitchY/2.;
    
    if (y < ymin || y > -ymin) {
-      if (fDebugLevel)
+      if(FootDebugLevel(1))
          Warning("GetLine()", "Value of Y: %f out of range +/- %f\n", y, ymin);
       return -1;
    }

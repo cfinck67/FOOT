@@ -51,6 +51,7 @@ protected:
    TAGparaDsc*       fpParMap;		     // map para dsc
    
    vector<UInt_t>    fData;              // data array to fill
+   UInt_t*           fDataEvent;         // data array to fill the whol eevent
 
    Int_t             fEventNumber;        // number of the event
    Int_t             fPrevEventNumber[8];    // previous number of the event

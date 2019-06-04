@@ -56,8 +56,7 @@ TAVTactBaseNtuTrack::TAVTactBaseNtuTrack(const char* name,
   fGraphV(new TGraphErrors()),
   fBmTrackOk(false),
   fBmTrack(0x0),
-  fBmTrackPos(0,0,0),
-  fDebugLevel(0)
+  fBmTrackPos(0,0,0)
 {
    AddDataIn(pNtuClus,   "TAVTntuCluster");
    AddDataOut(pNtuTrack, "TAVTntuTrack");
@@ -205,7 +204,7 @@ Bool_t TAVTactBaseNtuTrack::Action()
    if (FindVertices())
 	  FindTiltedTracks();
    
-   if( fDebugLevel) {
+   if(FootDebugLevel(1)) {
 	  printf(" %d tracks found\n", pNtuTrack->GetTracksN());
 	  for (Int_t i = 0; i < pNtuTrack->GetTracksN(); ++i) {
 		 TAVTtrack* track = pNtuTrack->GetTrack(i);
@@ -443,7 +442,7 @@ void TAVTactBaseNtuTrack::UpdateParam(TAVTtrack* track)
 	  TAVTcluster* cluster0 = track->GetCluster(0);
 	  TAVTcluster* cluster1 = track->GetCluster(1);
 	  
-	  if(fDebugLevel)
+     if(FootDebugLevel(1))
 		 printf("TAVTactNtuTrack::Analyse track with %d cluster taking origin from it and slope 0\n", track->GetClustersN());
 	  Double_t x0 = cluster0->GetPositionG()[0];
 	  Double_t y0 = cluster0->GetPositionG()[1];
@@ -454,7 +453,7 @@ void TAVTactBaseNtuTrack::UpdateParam(TAVTtrack* track)
 	  Double_t z0 = pGeoMap->GetSensorPosition(cluster0->GetPlaneNumber()).Z();
 	  Double_t z1 = pGeoMap->GetSensorPosition(cluster1->GetPlaneNumber()).Z();
 	  
-	  if( fDebugLevel) 
+     if(FootDebugLevel(1))
 		 printf( "TAVTactNtuTrack::Analyze cluster[pl %d]=(%.2f, %.2f, %.2f) cluster[pl %d]=(%.2f, %.2f, %.2f)\n",
 				cluster0->GetPlaneNumber(), x0, y0, z0, 
 				cluster1->GetPlaneNumber(), x1, y1, z1);

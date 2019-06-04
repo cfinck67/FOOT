@@ -6,6 +6,8 @@
 #include "TRandom.h"
 #include "TList.h"
 
+#include "GlobalPar.hxx"
+
 ClassImp(TAVTdigitizerE);
 
 using namespace std;
@@ -46,7 +48,7 @@ Bool_t TAVTdigitizerE::MakeCluster(Double_t x0, Double_t y0, Double_t /*zin*/, D
    Int_t line0 = GetLine(y0);
    Int_t col0  = GetColumn(x0);
 
-   if (fDebugLevel)
+   if(FootDebugLevel(1))
       printf("%d %d %d\n", fPixelsN, line0, col0);
    
    Float_t pitchX  = GetPitchX();
@@ -96,7 +98,7 @@ Bool_t TAVTdigitizerE::MakeCluster(Double_t x0, Double_t y0, Double_t /*zin*/, D
    Float_t x2  = GetPositionU(col2);
    Float_t y2  = GetPositionV(line2);
    
-   if (fDebugLevel) {
+   if(FootDebugLevel(1)) {
       printf("%.1f %.1f %d %d\n", x1, x2, col1, line1);
       printf("%.1f %.1f %d %d\n", y1, y2, col2, line2);
    }
@@ -145,7 +147,7 @@ Bool_t TAVTdigitizerE::MakeCluster(Double_t x0, Double_t y0, Double_t /*zin*/, D
       }
    }
    
-   if (fDebugLevel) {
+   if(FootDebugLevel(1)) {
       printf("pixels input %d\n", fPixelsN);
       printf("shell close  : %d r %4.2f\n", closed, (*fMapRadius)[closed]);
       printf("shell valence: %d r %4.2f\n", valence, (*fMapRadius)[valence]);
@@ -162,7 +164,7 @@ Bool_t TAVTdigitizerE::SetRegion(Double_t x0, Double_t y0)
    Int_t regX  = GetColRegion(x0);
    Int_t regY  = GetLineRegion(y0);
    
-   if (fDebugLevel) {
+   if(FootDebugLevel(1)) {
       printf("regX: %d\n", regX);
       printf("regY: %d\n", regY);
    }

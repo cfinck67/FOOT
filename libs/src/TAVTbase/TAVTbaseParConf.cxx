@@ -16,6 +16,7 @@
 #include "TObjString.h"
 #include "TSystem.h"
 
+#include "GlobalPar.hxx"
 #include "TAVTbaseParConf.hxx"
 
 //##############################################################################
@@ -58,54 +59,54 @@ Bool_t TAVTbaseParConf::FromFile(const TString& name)
    
    // read position algorithme
    ReadItem(fAnalysisParameter.TracksMaximum);  
-   if(fDebugLevel)
-     cout << "Maximum tracks per event: "<< fAnalysisParameter.TracksMaximum << endl;
+   if(FootDebugLevel(1))
+      cout << "Maximum tracks per event: "<< fAnalysisParameter.TracksMaximum << endl;
    
    ReadItem(fAnalysisParameter.PlanesForTrackMinimum);  
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
      cout << "Minimum number of plane for tracking: "<< fAnalysisParameter.PlanesForTrackMinimum << endl;
    
    ReadItem(fAnalysisParameter.SearchHitDistance);  
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
      cout << "Maximum distance between cluster and corresponding track: "<< fAnalysisParameter.SearchHitDistance << endl;
    
    ReadItem(fAnalysisParameter.TrackChi2Limit);  
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
      cout << "Limit of Chi2 for tracks: "<< fAnalysisParameter.TrackChi2Limit << endl;
       
    ReadItem(fAnalysisParameter.BmTrackChi2Limit);  
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
 	  cout << "Limit of Chi2 for BM tracks: "<< fAnalysisParameter.BmTrackChi2Limit << endl;
    
    ReadItem(fSensorsN);  
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
      cout << endl << "Reading Parameters for "<< fSensorsN << " Sensors" << endl;
    
    for (Int_t p = 0; p < fSensorsN; p++) { // Loop on each plane
      
      // read sensor index
 	  ReadItem(fSensorParameter[p].SensorIdx);
-     if(fDebugLevel)
+      if(FootDebugLevel(1))
        cout << endl << " - Reading Parameters of Sensor " <<  fSensorParameter[p].SensorIdx << endl;
      
      // read sensor status
 	  ReadItem(fSensorParameter[p].Status);
-     if(fDebugLevel)
+      if(FootDebugLevel(1))
        cout << "Status: "<< fSensorParameter[p].Status << endl;
      
      // read min of pixel per cluster
 	  ReadItem(fSensorParameter[p].MinNofPixelsInCluster);  
-     if(fDebugLevel)
+      if(FootDebugLevel(1))
        cout << "Minimum number of pixels per cluster: "<< fSensorParameter[p].MinNofPixelsInCluster << endl;
      
      // read max of pixel per cluster
 	  ReadItem(fSensorParameter[p].MaxNofPixelsInCluster);  
-     if(fDebugLevel)
+      if(FootDebugLevel(1))
        cout << "Maximum number of pixels per cluster: "<< fSensorParameter[p].MaxNofPixelsInCluster << endl;
       
       // read dead pixel map
       ReadItem(fSensorParameter[p].DeadPixelMap);
-      if(fDebugLevel) {
+      if(FootDebugLevel(1)) {
          cout << "Dead Pixels: ";
          map<pair<int, int>, int>::iterator it;
          for (it = fSensorParameter[p].DeadPixelMap.begin(); it != fSensorParameter[p].DeadPixelMap.end(); it++) {

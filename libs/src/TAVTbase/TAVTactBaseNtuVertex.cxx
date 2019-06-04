@@ -263,7 +263,7 @@ void TAVTactBaseNtuVertex::ComputeInteractionVertex(TABMntuTrackTr* lbm, TAVTlin
    fVtxPos = pFirstGeo->FromGlobalToVTLocal(fVtxPos*TAGgeoTrafo::MuToCm());
    fVtxPos *= TAGgeoTrafo::CmToMu();
    
-   if (fDebugLevel)
+   if(FootDebugLevel(1))
 	  fVtxPos.Print();
 }
 

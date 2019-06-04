@@ -59,7 +59,7 @@ Bool_t TAVTactNtuVertex::ComputeVertex()
    do {
 	  lowerZdistance  = ComputeDistance(izMin);
 	  higherZdistance = ComputeDistance(izMax);
-	  if(fDebugLevel>0){
+      if(FootDebugLevel(1)) {
 		 cout<<"izMin "<<izMin<<" distance @ low Z value "<<lowerZdistance<<" izMax "<<izMax<<" distance @ high Z value "<<higherZdistance<<endl;
 		 cout<<"distance "<<lowerZdistance-higherZdistance<<endl;
 	  }
@@ -81,7 +81,7 @@ Bool_t TAVTactNtuVertex::ComputeVertex()
    x_coordinate = ComputeFinalCoordinate(0, z_coordinate);
    y_coordinate = ComputeFinalCoordinate(1, z_coordinate);
    
-   if(fDebugLevel > 0) {
+   if(FootDebugLevel(1)) {
 	  cout<<"Distance: "<<minZdistance<<endl;
 	  cout<<"Vertex coordinate: "<<x_coordinate<<" "<<y_coordinate<<" "<<z_coordinate<<" micron "<<endl;
    }
