@@ -38,15 +38,14 @@ private:
 
    TString           fPrefixName;          // prefix folder name
    TString           fBaseName;         // base file name
-   Int_t             fDebugLevel;          // debug level
    
 private:
    static       TString fgDefaultFolderName;
    static       TString fgDefaultExtName;
 
 private:	
-   //! Get the starting point of each frame
-   Bool_t GetSensorHeader(Int_t iSensor);
+   //! Get the event
+   Bool_t GetSensorEvent(Int_t iSensor);
    
    //! Get frame and returns frameRaw
    Bool_t GetFrame(Int_t iSensor, MI26_FrameRaw* data);
