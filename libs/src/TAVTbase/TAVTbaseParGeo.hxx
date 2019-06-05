@@ -49,6 +49,7 @@ protected:
 
    Int_t      fSupportInfo;      // Boolean for support info (only for IT)
    Bool_t     fFlagMC;           // MC flag
+   Bool_t     fFlagIt;           // IT flag
    
    struct SensorParameter_t : public  TObject {
 	  Int_t     SensorIdx;   // sensor index

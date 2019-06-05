@@ -34,7 +34,8 @@ TAVTbaseParGeo::TAVTbaseParGeo()
    fSensorsN(0),
    fkDefaultGeoName(""),
    fLayersN(fSensorsN),
-   fFlagMC(false)
+   fFlagMC(false),
+   fFlagIt(false)
 {
    // Standard constructor
 }
@@ -171,7 +172,7 @@ Bool_t TAVTbaseParGeo::FromFile(const TString& name)
       
       // read sensor position
       ReadVector3(fSensorParameter[p].Position);
-      if (fFlagMC)
+      if (fFlagMC && !fFlagIt)
          fSensorParameter[p].Position[0] = fSensorParameter[p].Position[1] = 0.;
    
       if(FootDebugLevel(1))
