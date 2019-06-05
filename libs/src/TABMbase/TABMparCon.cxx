@@ -38,7 +38,6 @@ TABMparCon::TABMparCon() {
   //~ fitter_index = 0;
   //~ bm_debug=0;
   //~ bm_vietrack=0;
-  //~ manageT0BM=0;
   //~ minnhit_cut=0;
   //~ maxnhit_cut=20;
   //~ rejmax_cut=36;
@@ -126,9 +125,8 @@ Bool_t TABMparCon::FromFile(const TString& name) {
 	      return kTRUE;
         }
     }else if(strchr(bufConf,'Z')) {
-      sscanf(bufConf, "Z %d %d %lf %d %lf %s",&myArgInt, &myArgIntmax, &myArg1,&myArgIntmin, &myArg2, tmp_char);
-      if((myArgInt==0 || myArgInt==1) && (myArgIntmax==1 || myArgIntmax==0 || myArgIntmax==2 || myArgIntmax==3)  &&  myArg1>=0 && myArg2>=0){
-        manageT0BM = myArgInt;
+      sscanf(bufConf, "Z  %d %lf %d %lf %s", &myArgIntmax, &myArg1,&myArgIntmin, &myArg2, tmp_char);
+      if((myArgIntmax==1 || myArgIntmax==0 || myArgIntmax==2 || myArgIntmax==3)  &&  myArg1>=0 && myArg2>=0){
         t0_switch=myArgIntmax;
         t0_sigma=myArg1;
         t0choice=myArgIntmin;
@@ -223,7 +221,11 @@ void TABMparCon::PrintT0s(TString &input_file_name, Long64_t tot_num_ev){
 Bool_t TABMparCon::loadT0s(TString filename) {
   ifstream infile;
   gSystem->ExpandPathName(filename);
-  infile.open(bmt0file,ios::in);
+  infile.open(filename,ios::in);
+  if(infile.is_open()==kFALSE){
+    cout<<"TABMparCon::ERROR: Cannot open T0 file: "<<filename<<endl;
+    return kTRUE;
+  }
   Int_t file_evnum, file_t0switch, file_t0choice;
   char tmp_char[200], dataset[200];
   vector<Double_t> fileT0(36,-10000.);
@@ -398,7 +400,6 @@ void TABMparCon::Clear(Option_t*)
   fitter_index = 0;
   bm_debug=0;
   bm_vietrack=0;
-  manageT0BM=-1;
   minnhit_cut=0;
   maxnhit_cut=20;
   rejmax_cut=36;

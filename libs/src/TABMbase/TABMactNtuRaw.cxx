@@ -52,12 +52,16 @@ void TABMactNtuRaw::CreateHistogram(){
    
    DeleteHistogram();
    
-   fpHisPivot_paoloni = new TH1F( "BM_Raw_eff_paoloni_pivot", "pivot counter for the plane efficiency method; index; Counter", 8, 0., 8.);
+   fpHisPivot_paoloni = new TH1I( "BM_Raw_eff_paoloni_pivot", "pivot counter for the plane efficiency method; index; Counter", 8, 0., 8.);
    AddHistogram(fpHisPivot_paoloni);   
-   fpHisProbe_paoloni = new TH1F( "BM_Raw_eff_paoloni_probe", "probe counter for the plane efficiency method; index; Counter", 8, 0., 8.);
+   fpHisProbe_paoloni = new TH1I( "BM_Raw_eff_paoloni_probe", "probe counter for the plane efficiency method; index; Counter", 8, 0., 8.);
    AddHistogram(fpHisProbe_paoloni);   
-   fpHisEval_paoloni = new TH1F( "BM_Raw_eff_paoloni_eval", "efficiency for the paoloni plane method; index; Counter", 8, 0., 8.);
+   fpHisEval_paoloni = new TH1F( "BM_Raw_eff_paoloni_eval", "efficiency for the paoloni plane method; Efficiency; Events", 110, 0., 1.1);
    AddHistogram(fpHisEval_paoloni);   
+   fpHisEval_paoloni_Xview = new TH1F( "BM_Raw_eff_paoloni_eval_xview", "efficiency for the paoloni plane method for x view; Efficiency; Events", 110, 0., 1.1);
+   AddHistogram(fpHisEval_paoloni_Xview);   
+   fpHisEval_paoloni_Yview = new TH1F( "BM_Raw_eff_paoloni_eval_yview", "efficiency for the paoloni plane method for y view; Efficiency; Events", 110, 0., 1.1);
+   AddHistogram(fpHisEval_paoloni_Yview);   
    fpHisCell = new TH1I( "BM_Raw_hit_cell", "cell index; index; Counter", 3, 0., 3.);
    AddHistogram(fpHisCell);   
    fpHisView = new TH1I( "BM_Raw_hit_view", "view index; index; Counter", 2, 0., 2.);
@@ -84,7 +88,7 @@ Bool_t TABMactNtuRaw::Action()
 
 
   p_nturaw->SetupClones();
-  p_nturaw->SetEffPaoloni(-3);
+  p_nturaw->ResetEffPaoloni();
   
   if(p_timraw->TrigTime() == -10000 || p_timraw->TrigTime()<-9999999999) {
      Info("Action()","Trigger IR Time is Missing!!!");
@@ -135,11 +139,15 @@ Bool_t TABMactNtuRaw::Action()
   p_nturaw->Efficiency_paoloni(pivot, probe); 
   if (ValidHistogram()){
     for(Int_t i=0;i<8;i++){
-      fpHisProbe_paoloni->Fill(probe.at(i));
-      fpHisPivot_paoloni->Fill(pivot.at(i));
-      if(fpHisPivot_paoloni->GetBinContent(i+1)>0)
-        fpHisEval_paoloni->SetBinContent(i+1, (Double_t) fpHisProbe_paoloni->GetBinContent(i+1)/fpHisPivot_paoloni->GetBinContent(i+1));
+      fpHisProbe_paoloni->Fill(i,probe.at(i));
+      fpHisPivot_paoloni->Fill(i,pivot.at(i));
     }
+    if(p_nturaw->GetEffPaoloni()>=0)
+      fpHisEval_paoloni->Fill(p_nturaw->GetEffPaoloni());
+    if(p_nturaw->GetEffPaolonixview()>=0)
+      fpHisEval_paoloni_Xview->Fill(p_nturaw->GetEffPaolonixview());
+    if(p_nturaw->GetEffPaoloniyview()>=0)
+      fpHisEval_paoloni_Yview->Fill(p_nturaw->GetEffPaoloniyview());
   } 
   
   fpNtuRaw->SetBit(kValid);

@@ -121,6 +121,7 @@ public:
   TH1I*            fpHisNhitTrack;
   TH1I*            fpHisNite;
   TH1F*            fpHisChi2Red;
+  TH1F*            fpHisTrackEff;
 
 };
 

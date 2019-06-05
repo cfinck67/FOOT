@@ -62,6 +62,7 @@ class TABMntuTrackTr : public TObject {
     void SetChi2Red(Double_t chi2red_in){chi2Red=chi2red_in;};
     void NewSet(TVectorD ftrackpar);//set Pvers and R0, used for the FIRST tracking
     void SetNite(Int_t intein){nite=intein;};
+    void SetEffFittedPlane(Double_t eff_in){eff_fittedplane=eff_in;};
     
     //Getters
     Int_t  GetNhit() {return nhit;};
@@ -71,6 +72,7 @@ class TABMntuTrackTr : public TObject {
     TVector3 GetPvers(){return Pvers;};
     TVector3 GetR0(){return R0;};
     Int_t GetNite(){return nite;};
+    Double_t GetEffFittedPlane(){return eff_fittedplane;};
 
     Double_t FindRdrift(TVector3 pos, TVector3 dir, TVector3 A0, TVector3 Wvers);    
     void PrintR0Pvers();
@@ -88,6 +90,8 @@ private:
     TVector3      Pvers;           //direction of the track from mylar1_pos to mylar2_pos
     TVector3      R0;              //position of the track on the xy plane at z=0
 
+    Double_t      eff_fittedplane;//efficiency with the pivot-probe method on fitted tracks
+    
     ClassDef(TABMntuTrackTr,2)
 
 };

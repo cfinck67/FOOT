@@ -101,10 +101,10 @@ Bool_t TABMactVmeReader::Process() {
     fpTimRaw->SetBit(kValid);
     return kTRUE;
   }
-  if(fpEvtStruct->tdc_numsync!=1) {
+  if(fpEvtStruct->tdc_numsync>2) {
     data_num_ev++;
     data_sync_num_ev+=fpEvtStruct->tdc_numsync;    
-    Info("Action()","ERROR in TABMactVmeReader process: return ktrue; more than one trigger time!");
+    Info("Action()","ERROR in TABMactVmeReader process: return ktrue; too many trigger time!");
     fpDatRaw->SetBit(kValid);
     fpTimRaw->SetBit(kValid);
     return kTRUE;
@@ -114,11 +114,12 @@ Bool_t TABMactVmeReader::Process() {
   if(bmcon->GetBMdebug()>0)
     cout<<"I'm in TABMactVmeReader::Process, event number: data_num_ev="<<data_num_ev<<endl;  
     
-  Double_t i_time, i_rdrift;
+  Double_t i_time, i_rdrift, synctime;
   Int_t lay, view, cell, up, cellid;
+  synctime=(fpEvtStruct->tdc_numsync==2) ? fpEvtStruct->tdc_sync[1]/10. : fpEvtStruct->tdc_sync[0]/10.;
   for (Int_t i = 0; i < fpEvtStruct->tdc_hitnum[0]; i++) {
     cellid=bmmap->tdc2cell(fpEvtStruct->tdc_id[i]);
-    if(fpEvtStruct->tdc_meas[i]!=-10000 && bmcon->GetT0(cellid)!=-1000 &&  cellid>=0 && ((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(cellid) - fpEvtStruct->tdc_sync[0]/10.)<bmcon->GetHitTimecut()){
+    if(fpEvtStruct->tdc_meas[i]!=-10000 && bmcon->GetT0(cellid)!=-1000 &&  cellid>=0 && ((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(cellid) - synctime)<bmcon->GetHitTimecut()){
       bmgeo->GetBMNlvc(cellid, lay, view, cell);
       p_datraw->SetHitData(cellid,lay,view,cell,fpEvtStruct->tdc_meas[i]/10.);
       if (ValidHistogram()){
@@ -133,17 +134,18 @@ Bool_t TABMactVmeReader::Process() {
         }  
       }    
       if(bmcon->GetBMdebug()>10)
-        cout<<"hit charged: i="<<i<<"  tdc_id="<<fpEvtStruct->tdc_id[i]<<"  tdc2cell="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"  tdc_meas/10.="<<fpEvtStruct->tdc_meas[i]/10.<<"  T0="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<"  trigtime="<<fpEvtStruct->tdc_sync[0]/10.<<"  timecut="<<bmcon->GetHitTimecut()<<"  hittime="<<((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - fpEvtStruct->tdc_sync[0]/10.)<<endl;
+        cout<<"hit charged: i="<<i<<"  tdc_id="<<fpEvtStruct->tdc_id[i]<<"  tdc2cell="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"  tdc_meas/10.="<<fpEvtStruct->tdc_meas[i]/10.<<"  T0="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<"  trigtime="<<synctime<<"  timecut="<<bmcon->GetHitTimecut()<<"  hittime="<<((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - synctime)<<endl;
     }else{
       p_datraw->AddDischarged();
       if(bmcon->GetBMdebug()>10)
-        cout<<"hit NOT charged: i="<<i<<"  tdc_id="<<fpEvtStruct->tdc_id[i]<<"  tdc2cell="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"  tdc_meas/10.="<<fpEvtStruct->tdc_meas[i]/10.<<"  T0="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<"  trigtime="<<fpEvtStruct->tdc_sync[0]/10.<<"  timecut="<<bmcon->GetHitTimecut()<<"  hittime="<<((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - fpEvtStruct->tdc_sync[0]/10.)<<endl;
+        cout<<"hit NOT charged: i="<<i<<"  tdc_id="<<fpEvtStruct->tdc_id[i]<<"  tdc2cell="<<bmmap->tdc2cell(fpEvtStruct->tdc_id[i])<<"  tdc_meas/10.="<<fpEvtStruct->tdc_meas[i]/10.<<"  T0="<<bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i]))<<"  trigtime="<<synctime<<"  timecut="<<bmcon->GetHitTimecut()<<"  hittime="<<((Double_t)  fpEvtStruct->tdc_meas[i]/10. -  bmcon->GetT0(bmmap->tdc2cell(fpEvtStruct->tdc_id[i])) - synctime)<<endl;
       continue;
     }
   }
   
   //set the trigger time
-  p_timraw->SetTriggerTime(fpEvtStruct->tdc_sync[0]/10.);  
+  p_timraw->SetTriggerTime(synctime);  
+  p_datraw->SetTrigtime(synctime);
     
   data_num_ev++;
   data_sync_num_ev+=fpEvtStruct->tdc_numsync;
