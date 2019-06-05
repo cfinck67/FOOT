@@ -924,7 +924,7 @@ void TAFOeventDisplay::UpdateStcElements()
    Int_t       nHits  = pSTntu->GetHitsN();
 
    //hits
-   if (fDebugLevel > 0)
+   if(FootDebugLevel(1))
       cout<<" TAFO:: nHits ST "<<nHits<<endl;
    
    for (Int_t i = 0; i < nHits; i++) {

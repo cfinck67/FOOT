@@ -202,7 +202,6 @@ protected:
    TGListBox*         fHistoListBox;     // list of histograms
    TList*             fSelecHistoList;   // list of slected histograms
    TList*             fHistoList;        // list of slected histograms
-   Int_t              fDebugLevel;       // debug level
    
    //histos
    TList*             fListOfCanvases;   // list of canvases

@@ -12,6 +12,7 @@
 #include "TGeoMatrix.h"
 #include "TGeoMaterial.h"
 
+#include "GlobalPar.hxx"
 #include "TAGmaterials.hxx"
 #include "TAGgeoTrafo.hxx"
 
@@ -48,28 +49,28 @@ void TAITparGeo::DefineMaterial()
    
    // Foam SiC+Air
    mix = TAGmaterials::Instance()->CreateMixture(fFoamMat, fFoamMatDensities, fFoamMatProp, fFoamMatDensity);
-   if (fDebugLevel) {
+   if(FootDebugLevel(1)) {
       printf("Foam material:\n");
       mix->Print();
    }
 
    // Kapton C22_H10_N2_O5
    mat = TAGmaterials::Instance()->CreateMaterial(fKaptonMat, fKaptonMatDensity);
-   if (fDebugLevel) {
+   if(FootDebugLevel(1)) {
       printf("Kapton material:\n");
       mat->Print();
    }
 
    // Epoxy C18_H19_O3
    mat = TAGmaterials::Instance()->CreateMaterial(fEpoxyMat, fEpoxyMatDensity);
-   if (fDebugLevel) {
+   if(FootDebugLevel(1)) {
       printf("Epoxy material:\n");
       mat->Print();
    }
    
    // Aluminum
    mat = TAGmaterials::Instance()->CreateMaterial(fAlMat, fAlMatDensity);
-   if (fDebugLevel) {
+   if(FootDebugLevel(1)) {
       printf("Aluminum material:\n");
       mat->Print();
    }
@@ -79,63 +80,63 @@ void TAITparGeo::DefineMaterial()
 void TAITparGeo::ReadSupportInfo()
 {
    ReadVector3(fFoamSize);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << endl << "  Foam size of support: "<< fFoamSize.X() << " " <<  fFoamSize.Y() << " "
       <<  fFoamSize.Z()  << endl;
    
    ReadStrings(fFoamMat);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout   << "  Foam material: "<< fFoamMat.Data() << endl;
    
    ReadStrings(fFoamMatDensities);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Foam material component densities: "<< fFoamMatDensities.Data() << endl;
    
    ReadStrings(fFoamMatProp);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Foam material proportion: "<< fFoamMatProp.Data() << endl;
    
    ReadItem(fFoamMatDensity);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Foam material density:  "<< fFoamMatDensity << endl;
 
    
    ReadItem(fKaptonThickness);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << endl << "  Kapton thickness: "<< fKaptonThickness << endl;
    
    ReadStrings(fKaptonMat);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout   << "  Kapton material: "<< fKaptonMat.Data() << endl;
    
    ReadItem(fKaptonMatDensity);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Kapton material density:  "<< fKaptonMatDensity << endl;
    
    
    ReadItem(fEpoxyThickness);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << endl << "  Epoxy thickness: "<< fEpoxyThickness << endl;
    
    ReadStrings(fEpoxyMat);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout   << "  Epoxy material: "<< fEpoxyMat.Data() << endl;
    
    ReadItem(fEpoxyMatDensity);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Epoxy material density:  "<< fEpoxyMatDensity << endl;
    
    
    ReadItem(fAlThickness);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << endl << "  Alunimum thickness: "<< fAlThickness << endl;
    
    ReadStrings(fAlMat);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout   << "  Alunimum material: "<< fAlMat.Data() << endl;
    
    ReadItem(fAlMatDensity);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Alunimum material density:  "<< fAlMatDensity << endl;
 
 }

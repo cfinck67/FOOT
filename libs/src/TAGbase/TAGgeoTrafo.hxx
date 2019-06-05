@@ -27,7 +27,6 @@ private:
    TObjArray*   fDeviceList;
    TGeoHMatrix* fIdentity; // dummy matrix
    TString      fExpName; // name of the experiment
-   Int_t        fDebugLevel;
    
 private:
    static TString fgDefaultActName;

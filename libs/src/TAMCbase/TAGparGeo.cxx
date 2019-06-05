@@ -13,6 +13,7 @@
 #include "TObjString.h"
 #include "TSystem.h"
 
+#include "GlobalPar.hxx"
 #include "TAGgeoTrafo.hxx"
 #include "TAGmaterials.hxx"
 
@@ -55,7 +56,7 @@ void TAGparGeo::DefineMaterial()
    
    // Epitaxial material
    TGeoMaterial* mat = TAGmaterials::Instance()->CreateMaterial(fTargetParameter.Material, fTargetParameter.Density);
-   if (fDebugLevel) {
+   if(FootDebugLevel(1)) {
       printf("Target material:\n");
       mat->Print();
    }
@@ -73,96 +74,96 @@ Bool_t TAGparGeo::FromFile(const TString& name)
    
    if (!Open(nameExp)) return false;
    
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout << endl << "Reading Beam Parameters " << endl;
    
    ReadItem(fBeamParameter.Size);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout << "  Beam size:  "<< fBeamParameter.Size << endl;
    
    ReadStrings(fBeamParameter.Shape);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Beam shape:  "<< fBeamParameter.Shape.Data() << endl;
    
    ReadItem(fBeamParameter.Energy);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Beam energy:  "<< fBeamParameter.Energy << endl;
    
    ReadItem(fBeamParameter.AtomicMass);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Beam atomic mass:  "<< fBeamParameter.AtomicMass << endl;
    
    ReadItem(fBeamParameter.AtomicNumber);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Beam atomic number:  "<< fBeamParameter.AtomicNumber << endl;
    
    ReadItem(fBeamParameter.PartNumber);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "   Number of particles:  "<< fBeamParameter.PartNumber << endl;
 	  
    ReadVector3(fBeamParameter.Position);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Position: "
       << Form("%f %f %f", fBeamParameter.Position[0], fBeamParameter.Position[1], fBeamParameter.Position[2]) << endl;
    
    ReadVector3(fBeamParameter.AngSpread);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Angular spread: "
       << Form("%f %f %f", fBeamParameter.AngSpread[0], fBeamParameter.AngSpread[1], fBeamParameter.AngSpread[2]) << endl;
    
    ReadItem(fBeamParameter.AngDiv);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "   Angular divergence:  "<< fBeamParameter.AngDiv << endl;
 
    
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout << endl << "Reading target Parameters " << endl;
    
    ReadStrings(fTargetParameter.Shape);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Target shape:  "<< fTargetParameter.Shape.Data() << endl;
 	  
    ReadVector3(fTargetParameter.Size);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Size: "
       << Form("%f %f %f", fTargetParameter.Size[0], fTargetParameter.Size[1], fTargetParameter.Size[2]) << endl;
 	  
    ReadStrings(fTargetParameter.Material);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Target material:  "<< fTargetParameter.Material.Data() << endl;
    
    ReadItem(fTargetParameter.Density);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "  Target density:  "<< fTargetParameter.Density << endl;
    
    
    ReadItem(fInsertsN);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "Number of inserts:  "<< fInsertsN << endl;
    
    for (Int_t p = 0; p < fInsertsN; p++) { // Loop on each plane
       
       // read sensor index
       ReadItem(fInsertParameter[p].InsertIdx);
-      if(fDebugLevel)
+      if(FootDebugLevel(1))
          cout << endl << " - Parameters of Sensor " <<  fInsertParameter[p].InsertIdx << endl;
       
       ReadStrings(fInsertParameter[p].Material);
-      if(fDebugLevel)
+      if(FootDebugLevel(1))
          cout  << "  Insert material:  "<< fInsertParameter[p].Material.Data() << endl;
       
       ReadStrings(fInsertParameter[p].Shape);
-      if(fDebugLevel)
+      if(FootDebugLevel(1))
          cout  << "  Insert shape:  "<< fInsertParameter[p].Shape.Data() << endl;
       
       ReadVector3(fInsertParameter[p].Size);
-      if(fDebugLevel)
+      if(FootDebugLevel(1))
          cout  << "  Size: "
          << Form("%f %f %f", fInsertParameter[p].Size[0], fInsertParameter[p].Size[1], fInsertParameter[p].Size[2]) << endl;
       
       // read sensor position
       ReadVector3(fInsertParameter[p].Position);
-      if(fDebugLevel)
+      if(FootDebugLevel(1))
          cout << "   Position: "
          << Form("%f %f %f", fInsertParameter[p].Position[0], fInsertParameter[p].Position[1], fInsertParameter[p].Position[2]) << endl;
    }

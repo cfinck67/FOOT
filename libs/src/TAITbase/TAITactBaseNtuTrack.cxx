@@ -205,7 +205,7 @@ Bool_t TAITactBaseNtuTrack::Action()
    if (FindVertices())
 	  FindTiltedTracks();
    
-   if( fDebugLevel) {
+   if(FootDebugLevel(1)) {
 	  printf(" %d tracks found\n", pNtuTrack->GetTracksN());
 	  for (Int_t i = 0; i < pNtuTrack->GetTracksN(); ++i) {
 		 TAITtrack* track = pNtuTrack->GetTrack(i);
@@ -444,7 +444,7 @@ void TAITactBaseNtuTrack::UpdateParam(TAITtrack* track)
 	  TAITcluster* cluster0 = track->GetCluster(0);
 	  TAITcluster* cluster1 = track->GetCluster(1);
 	  
-	  if(fDebugLevel)
+	  if(FootDebugLevel(1))
 		 printf("TAITactNtuTrack::Analyse track with %d cluster taking origin from it and slope 0\n", track->GetClustersN());
 	  Double_t x0 = cluster0->GetPositionG()[0];
 	  Double_t y0 = cluster0->GetPositionG()[1];
@@ -455,7 +455,7 @@ void TAITactBaseNtuTrack::UpdateParam(TAITtrack* track)
 	  Double_t z0 = pGeoMap->GetSensorPar(cluster0->GetPlaneNumber()).Position[2];
 	  Double_t z1 = pGeoMap->GetSensorPar(cluster1->GetPlaneNumber()).Position[2];
 	  
-	  if( fDebugLevel) 
+	  if(FootDebugLevel(1)) 
 		 printf( "TAITactNtuTrack::Analyze cluster[pl %d]=(%.2f, %.2f, %.2f) cluster[pl %d]=(%.2f, %.2f, %.2f)\n",
 				cluster0->GetPlaneNumber(), x0, y0, z0, 
 				cluster1->GetPlaneNumber(), x1, y1, z1);
@@ -592,14 +592,6 @@ void TAITactBaseNtuTrack::FillBmHistogramm(TVector3 bmTrackPos)
    }   
 }
 
-//______________________________________________________________________________
-//  
-void TAITactBaseNtuTrack::SetDebug(Int_t aDebug)
-{
-   // Initialize or update the debug level
-   fDebugLevel = aDebug;   
-   cout << "TAITactBaseNtuTrack debug updated to " << fDebugLevel << endl;
-}
 
 //_____________________________________________________________________________
 //  

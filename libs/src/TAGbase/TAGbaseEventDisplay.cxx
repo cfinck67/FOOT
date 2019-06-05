@@ -83,7 +83,6 @@ TAGbaseEventDisplay::TAGbaseEventDisplay(const TString expName)
   fQuadDefHeight(0.1),
   fInfoView(0x0),
   fEventEntry(0x0),
-  fDebugLevel(0),
   fListOfCanvases(new TList())
 { 
   // default constructor
