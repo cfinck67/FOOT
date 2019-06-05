@@ -106,8 +106,6 @@ private:
    Int_t          fChargeWithMaxProbaNorm;       // charge with maximum probability for normalized charge disttribution
    Float_t        fChargeMaxProbaNorm;           // charge maximum probability for normalized charge disttribution
 
-   Int_t          fDebugLevel;                   // debug level
-
 public:
    TAITtrack();                                 
    ~TAITtrack();

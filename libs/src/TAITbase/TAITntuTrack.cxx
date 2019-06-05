@@ -212,8 +212,7 @@ TAITtrack::TAITtrack(const TAITtrack& aTrack)
    fChargeMaxProba(aTrack.fChargeMaxProba),
    fChargeProbaNorm(new TArrayF(*aTrack.fChargeProbaNorm)),
    fChargeWithMaxProbaNorm(aTrack.fChargeWithMaxProbaNorm),
-   fChargeMaxProbaNorm(aTrack.fChargeMaxProbaNorm),
-   fDebugLevel(aTrack.fDebugLevel)
+   fChargeMaxProbaNorm(aTrack.fChargeMaxProbaNorm)
 {
    fListOfClusters = (TClonesArray*)aTrack.fListOfClusters->Clone();
 }
@@ -345,8 +344,8 @@ void TAITtrack::MakeChiSquare(Float_t dhs)
    fChiSquareU /= ndfU;
    fChiSquareV /= ndfV;
    
-   if(fDebugLevel) 
-	  printf("TAITtrack::MakeChiSquare chi2u=%f, ndfu=%d, chi2v=%f, ndfv=%d, chi2=%f, ndf=%d, resol=%f\n", 
+   if(FootDebugLevel(1))
+	  printf("TAITtrack::MakeChiSquare chi2u=%f, ndfu=%d, chi2v=%f, ndfv=%d, chi2=%f, ndf=%d, resol=%f\n",
 			 fChiSquareU, ndfU, fChiSquareV, ndfV, fChiSquare, 2*GetClustersN()-4, dhs);
 }
 

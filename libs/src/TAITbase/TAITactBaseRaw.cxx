@@ -8,6 +8,7 @@
 
 #include "TH2F.h"
 
+#include "GlobalPar.hxx"
 #include "TAITparGeo.hxx"
 #include "TAITparConf.hxx"
 #include "TAITparMap.hxx"
@@ -214,7 +215,7 @@ Bool_t TAITactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
       // first 16 bits word is the Status/Line
       lineStatus = (MI26__TStatesLine*)frameData;
       
-      if (fDebugLevel > 3)
+      if(FootDebugLevel(3))
          printf("frame %x %x #state %d Line add %d ovf %d\n", frameData[0], frameData[1], lineStatus->F.StateNb,
                 lineStatus->F.LineAddr, lineStatus->F.Ovf);
       
@@ -228,7 +229,7 @@ Bool_t TAITactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
          fOverflow = true;
       }
       
-      if(fDebugLevel>3)
+      if(FootDebugLevel(3))
          printf("  line %d, #states %d, overflow %d, reading event  %d\n",
                 lineStatus->F.LineAddr, lineStatus->F.StateNb, lineStatus->F.Ovf, fReadingEvent);
       
@@ -247,20 +248,20 @@ Bool_t TAITactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
          // the first pixel being on the left at the column ColAddr
          for( Int_t iPixel=0; iPixel < state->F.HitNb+1; iPixel++) { // loop on pixels in the state
             
-            if(fDebugLevel > 3)
+            if(FootDebugLevel(3))
                printf("   line %3d, col %3d\n", lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
             
             // create a new pixel only if we are reading an event
             // and if the line is in the proper limit
             if (!lineStatus->F.Ovf) {
                AddPixel(iSensor, 1, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
-               if(fDebugLevel>3)
+               if(FootDebugLevel(3))
                   printf("sensor %d, line %d, col %d\n", iSensor, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
                
             }
          }
          
-         if(fDebugLevel>3)
+         if(FootDebugLevel(3))
             printf("                  state %d, #pixels %d, column %d at mem.pos %ld\n",
                    iState, state->F.HitNb+1, state->F.ColAddr, (long int)state);
       } // end loop over states

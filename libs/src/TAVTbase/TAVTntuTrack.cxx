@@ -22,6 +22,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "TMath.h"
+#include "GlobalPar.hxx"
 #include "TAGgeoTrafo.hxx" 
 #include "TAVTparGeo.hxx"
 #include "TAVTntuTrack.hxx"
@@ -345,8 +346,8 @@ void TAVTtrack::MakeChiSquare(Float_t dhs)
    fChiSquareU /= ndfU;
    fChiSquareV /= ndfV;
    
-   if(fDebugLevel) 
-	  printf("TAVTtrack::MakeChiSquare chi2u=%f, ndfu=%d, chi2v=%f, ndfv=%d, chi2=%f, ndf=%d, resol=%f\n", 
+   if(FootDebugLevel(1))
+	  printf("TAVTtrack::MakeChiSquare chi2u=%f, ndfu=%d, chi2v=%f, ndfv=%d, chi2=%f, ndf=%d, resol=%f\n",
 			 fChiSquareU, ndfU, fChiSquareV, ndfV, fChiSquare, 2*GetClustersN()-4, dhs);
 }
 

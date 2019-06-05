@@ -4,6 +4,8 @@
  */
 
 #include "DECardEvent.hh"
+
+#include "GlobalPar.hxx"
 #include "TAGdaqEvent.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
@@ -91,7 +93,7 @@ Bool_t TAVTactNtuRaw::DecodeEvent(const DECardEvent* evt)
       fPrevTimeStamp[i]     = fTimeStamp;
    }
    
-   if(fDebugLevel > 3) {
+   if(FootDebugLevel(3)) {
       printf("%08x ", fEventSize);
       for (Int_t i = 0; i < (fEventSize)/2; ++i) {
          if (i == 9) {
@@ -134,7 +136,7 @@ Bool_t TAVTactNtuRaw::GetSensorHeader(Int_t iSensor)
          fTriggerNumber = fData[++fIndex];
          fTimeStamp     = fData[++fIndex];
          
-         if(fDebugLevel>3)
+         if(FootDebugLevel(3))
             printf("sensor %d: %d %d\n", iSensor, fTriggerNumber, fEventNumber);
          
          FillHistoEvt(iSensor);
@@ -174,7 +176,7 @@ Bool_t TAVTactNtuRaw::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
    
    fDataSize = fIndex - fgkFrameHeaderSize;
 
-   if (fDebugLevel > 3) {
+   if(FootDebugLevel(3)) {
       printf("%08x\n", data->Header);
       printf("%08x\n", data->TriggerCnt);
       printf("%08x\n", data->TimeStamp);

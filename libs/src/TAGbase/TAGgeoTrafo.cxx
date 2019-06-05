@@ -3,6 +3,8 @@
 
 #include "TObjArray.h"
 
+#include "GlobalPar.hxx"
+
 //Class that handles the Geometrical transformations in QAPIVI RS
 
 ClassImp(TAGgeoTrafo);
@@ -35,8 +37,7 @@ TAGgeoTrafo::TAGgeoTrafo(const TString expName)
   fFileStream(new TAGparTools()),
   fMatrixList(new TObjArray()),
   fDeviceList(new TObjArray()),
-  fExpName(expName),
-  fDebugLevel(0)
+  fExpName(expName)
 {
    fMatrixList->SetOwner(true);
    fDeviceList->SetOwner(true);
@@ -168,8 +169,8 @@ TVector3 TAGgeoTrafo::Local2GlobalVect(const char* name, TVector3& loc) const
 bool TAGgeoTrafo::FromFile(TString ifile)
 {
   //Initialization of Geom Parameters
-  if (fDebugLevel)
-	 Info("InitGeo()"," Init Geo ");
+   if(FootDebugLevel(1))
+      Info("InitGeo()"," Init Geo ");
 
    if (!fFileStream->Open(ifile)) {
       Error("FromFile()", "failed to open file '%s'", ifile.Data());
@@ -187,7 +188,7 @@ bool TAGgeoTrafo::FromFile(TString ifile)
       fFileStream->ReadVector3(angle);
             
       name = Form("%s%s", fgkTrafoBaseName, baseName.Data());
-      if (fDebugLevel)
+      if(FootDebugLevel(1))
          printf("%s\n", name.Data());
       DeviceParameter_t* device = new DeviceParameter_t;
       device->Center = center;

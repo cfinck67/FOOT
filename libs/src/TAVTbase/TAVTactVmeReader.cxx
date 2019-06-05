@@ -5,6 +5,7 @@
 
 #include "DECardEvent.hh"
 
+#include "GlobalPar.hxx"
 #include "TAGroot.hxx"
 #include "TAVTparConf.hxx"
 #include "TAVTparGeo.hxx"
@@ -29,12 +30,17 @@ TAVTactVmeReader::TAVTactVmeReader(const char* name, TAGdataDsc* pDatRaw, TAGpar
 {
    SetTitle("TAVTactVmeReader - reader for VME reader");
    fBaseName ="data_FPGA_Mouser993P0160_V1_ch";
+   
+   Int_t size = (sizeof(MI26_FrameRaw)/4)*3 + 3; // 3 frame per event and 3 header word for each sensor
+   fDataEvent = new UInt_t[size];
+
 }
 
 //------------------------------------------+-----------------------------------
 //! Destructor.
 TAVTactVmeReader::~TAVTactVmeReader()
 {
+   delete [] fDataEvent;
 }
 
 //------------------------------------------+-----------------------------------
@@ -92,6 +98,8 @@ void TAVTactVmeReader::Close()
 //! Process
 Bool_t TAVTactVmeReader::Process()
 {
+   Int_t size = (sizeof(MI26_FrameRaw)/4)*3 + 3;
+   
    MI26_FrameRaw* data = new MI26_FrameRaw;
    
    TAVTparGeo*  pGeoMap = (TAVTparGeo*)  fpGeoMap->Object();
@@ -103,14 +111,19 @@ Bool_t TAVTactVmeReader::Process()
       Int_t planeStatus = pConfig->GetStatus(i);
       if (planeStatus == -1) continue;
       
-      if (GetSensorHeader(i)) {
+      if (GetSensorEvent(i)) {
          neof |= true;
          ResetFrames();
       
+         fIndex    = 0;
+
          // loop over frame (3 max)
-         while (GetFrame(i, data)) {
-            DecodeFrame(i, data);
+         for (Int_t k = 0; k < 3; ++k) {
+            if (GetFrame(i, data))
+               DecodeFrame(i, data);
          }
+
+         memset(fDataEvent, 0, size);
       } else {
          SetBit(kEof);
          SetBitAllDataOut(kEof);
@@ -133,101 +146,130 @@ Bool_t TAVTactVmeReader::Process()
 // private method
 
 // --------------------------------------------------------------------------------------
-Bool_t TAVTactVmeReader::GetSensorHeader(Int_t iSensor)
+Bool_t TAVTactVmeReader::GetSensorEvent(Int_t iSensor)
 {
    Char_t tmp[255];
-
+   
+   fIndex = 0;
+   UInt_t timestamp = 0;
+   
+   // lokking for header
+   TString key  = Form("%x", GetKeyHeader(iSensor));
+   
    do {
       fRawFileAscii[iSensor] >> tmp;
       TString line = tmp;
-      TString key  = Form("%x", GetKeyHeader(iSensor));
+      
       if (line.Contains(key)) {
-         if (fDebugLevel > 0)
+         if(FootDebugLevel(1))
             printf("sensor header %s %d\n", tmp, (int) fRawFileAscii[iSensor].tellg()/9+1);
+         
+         fDataEvent[fIndex++] = GetKeyHeader(iSensor);
          
          fRawFileAscii[iSensor] >> tmp;
          sscanf(tmp, "%x", &fEventNumber);
+         fDataEvent[fIndex++] = fEventNumber;
          
          // trigger
          fRawFileAscii[iSensor] >> tmp;
          sscanf(tmp, "%x", &fTriggerNumber);
-         if(fDebugLevel>3)
+         fDataEvent[fIndex++] = fTriggerNumber;
+         
+         
+         if(FootDebugLevel(3))
             printf("sensor %d: %d %d\n", iSensor, fTriggerNumber, fEventNumber);
          
          // fake time stamp
          fRawFileAscii[iSensor] >> tmp;
+         sscanf(tmp, "%x", &timestamp);
+         fDataEvent[fIndex++] = timestamp;
          
          FillHistoEvt(iSensor);
-
+         
          fPrevEventNumber[iSensor]   = fEventNumber;
          fPrevTriggerNumber[iSensor] = fTriggerNumber;
          fPrevTimeStamp[iSensor]     = fTimeStamp;
-         
-         return true;
+         break;
       }
    } while (!fRawFileAscii[iSensor].eof());
    
-   return false;
+   if (fRawFileAscii[iSensor].eof()) return false;
+   
+   // look for trailer
+   UInt_t data;
+   TString tail  = Form("%x", GetKeyTail(iSensor));
+   
+   do {
+      fRawFileAscii[iSensor] >> tmp;
+      TString line = tmp;
+      sscanf(tmp, "%x", &data);
+      fDataEvent[fIndex++] = data;
+      
+      if (line.Contains(tail))
+         break;
+      
+   } while (!fRawFileAscii[iSensor].eof());
+   
+   if (fRawFileAscii[iSensor].eof()) return false;
+
+   fEventSize = fIndex;
+   
+   if(FootDebugLevel(3)) {
+      for (Int_t i = 0; i < fEventSize; ++i)
+         printf("Data %08x\n", fDataEvent[i]);
+      printf("\n");
+   }
+   
+   return true;
 }
+
 
 // --------------------------------------------------------------------------------------
 Bool_t TAVTactVmeReader::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
 {
    Char_t tmp[255];
-   fIndex = 0;
+   fDataSize = 0;
    
-   // check frame header
-   fRawFileAscii[iSensor] >> tmp;
-   TString line = tmp;
-   TString key  = Form("%x", GetFrameHeader());
+   if (fIndex >= fEventSize -2) return false;
 
-   if (line.Contains(key)) {
-      TString key1  = Form("%x", GetFrameHeader() );
-      sscanf(key1.Data(), "%x", &fData[fIndex++]);
-      
-      // go to frame trailer
-      do {
-         fRawFileAscii[iSensor] >> tmp;
-         TString line = tmp;
-         TString key1  = Form("%x", (GetFrameTail() & 0xFFFF));
-         TString key2  = Form("%x", (GetFrameTail() & 0xFFFF0000) >> 16);
-         TString key3  = Form("%x", GetKeyTail(iSensor));
-         
-         if (line.Contains(key3)) {
-            Int_t pos =  (int) fRawFileAscii[iSensor].tellg();
-            fRawFileAscii[iSensor].seekg(pos-1);
-            fpHisFrameErrors[iSensor]->Fill(2);
-            break;
-         }
-         
-         sscanf(tmp, "%x", &fData[fIndex++]);
-         if (line.Contains(key1) || line.Contains(key2)) {
-            if (line != Form("%x", GetFrameTail()))
-               fpHisFrameErrors[iSensor]->Fill(1);
-            break;
-         }
-      } while (!fRawFileAscii[iSensor].eof());
-
-      
-      memcpy(data, &fData[0], sizeof(MI26_FrameRaw));
-      FillHistoFrame(iSensor, data);
-      
-   } else {
-      return false;;
-   }
-   
-   fDataSize = fIndex - fgkFrameHeaderSize;
-   
-   if(fDebugLevel > 3) {
-      if (fTriggerNumber == 2030 || fTriggerNumber == 2032) {
-      for (Int_t i = 0; i < fDataSize; ++i)
-         printf("Data %08x\n", fData[i]);
-         printf("\n");
+   // find header
+   do {
+      if (fDataEvent[fIndex] == GetFrameHeader()) {
+         fData[fDataSize++] = fDataEvent[fIndex];
+         break;
       }
+   } while (fIndex++ < fEventSize);
+   
+   if (fIndex >= fEventSize -2) return false;
+
+   fIndex++;
+   
+   // find trailer
+   UInt_t key1  =  GetFrameTail() & 0xFFFF;
+   UInt_t key2  = (GetFrameTail() & 0xFFFF0000) >> 16;
+   
+   do {
+      fData[fDataSize++] = fDataEvent[fIndex];
+      if (( (fDataEvent[fIndex] & 0xFFFF) == key1) || ( (fDataEvent[fIndex] & 0xFFFF0000) >> 16) == key2) {
+         break;
+      }
+      
+   } while (fIndex++ < fEventSize);
+   
+   memcpy(data, &fData[0], sizeof(MI26_FrameRaw));
+   FillHistoFrame(iSensor, data);
+
+   fDataSize -= fgkFrameHeaderSize; // removing header
+   
+   if(FootDebugLevel(2)) {
+      for (Int_t i = 0; i < fDataSize+fgkFrameHeaderSize; ++i)
+         printf("Data %08x\n", fData[i]);
+      printf("\n");
    }
 
-   return true;;
+   if (fIndex >= fEventSize -2) return false;
    
+   return true;
 }
 
 // --------------------------------------------------------------------------------------

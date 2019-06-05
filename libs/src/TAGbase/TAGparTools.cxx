@@ -7,7 +7,7 @@
 #include "TSystem.h"
 #include "TGeoMatrix.h"
 
-
+#include "GlobalPar.hxx"
 #include "TAGparTools.hxx"
 
 //##############################################################################
@@ -52,7 +52,7 @@ void TAGparTools::ReadItem(TString& item)
 	  pos = key.First(":");
    }
    item = key(pos+1, key.Length()-pos);   
-   if (fDebugLevel > 1) cout << item.Data() << endl;
+   if(FootDebugLevel(1)) cout << item.Data() << endl;
 }
 
 //_____________________________________________________________________________
@@ -62,7 +62,7 @@ void TAGparTools::ReadItem(Int_t &arg)
    ReadItem(item);
    arg = item.Atoi();
    
-   if (fDebugLevel > 1) 
+   if(FootDebugLevel(1))
 	  cout << arg << endl;
 }
 
@@ -72,7 +72,7 @@ void TAGparTools::ReadItem(Float_t &arg)
    TString item;
    ReadItem(item);
    arg = item.Atof();
-   if (fDebugLevel > 1) 
+  if(FootDebugLevel(1))
 	  cout << arg << endl;
 }
 
@@ -196,7 +196,7 @@ void TAGparTools::ReadItem(Float_t* coeff, Int_t size,  const Char_t delimiter)
 	  coeff[k] = item.Atof();
    }
    
-   if (fDebugLevel > 1) {
+   if(FootDebugLevel(1)) {
 	  for (Int_t i = 0; i < list->GetEntries(); ++i) {
 		 cout << coeff[i] << " " ;      
 	  }
@@ -234,7 +234,7 @@ void TAGparTools::ReadStrings(TString& aString)
    
     aString = key(pos+1, end-pos-1);
    
-   if (fDebugLevel > 1) 
+   if(FootDebugLevel(1))
 	  cout << aString << endl;
 }
 

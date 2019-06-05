@@ -12,6 +12,7 @@
 #include "TObjString.h"
 #include "TSystem.h"
 
+#include "GlobalPar.hxx"
 #include "TAGgeoTrafo.hxx"
 #include "TAGmaterials.hxx"
 #include "TADIparGeo.hxx"
@@ -60,47 +61,47 @@ Bool_t TADIparGeo::FromFile(const TString& name)
    if (!Open(nameExp)) return false;
    
    ReadItem(fMagnetsN);  
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
 	  cout << endl << "Magnets number "<< fMagnetsN << endl;
    
    // read Magnet index
 	  ReadItem(fType);
-	  if(fDebugLevel)
+	  if(FootDebugLevel(1))
         cout  << "   Type of Magnet: " <<  fType << endl;
    
    if (fType == 2) {
       ReadStrings(fMapName);
-      if(fDebugLevel)
+      if(FootDebugLevel(1))
          cout  << "   Map File Name:  "<< fMapName.Data() << endl;
    }
    
    // Read cover thickness
    ReadItem(fShieldThick);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout << endl << "   Shield thickness: "<< fShieldThick << endl;
    
    // Read cover material
    ReadStrings(fShieldMat);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "   Shield material:  "<< fShieldMat.Data() << endl;
 
    // read cover material density
 	  ReadItem(fShieldDensity);
-	  if(fDebugLevel)
+	  if(FootDebugLevel(1))
         cout  << "   Shield material density: " <<  fShieldDensity << endl;
 
    // Read magnet material
    ReadStrings(fMagMat);
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout  << "   Magnet material:  "<< fMagMat.Data() << endl;
    
    // read magnet material density
 	  ReadItem(fMagDensity);
-	  if(fDebugLevel)
+	  if(FootDebugLevel(1))
         cout  << "   Magnet material density: " <<  fMagDensity << endl;
 
 
-   if(fDebugLevel)
+   if(FootDebugLevel(1))
       cout << endl << "Reading Magnet Parameters " << endl;
    
    SetupMatrices(fMagnetsN);
@@ -109,12 +110,12 @@ Bool_t TADIparGeo::FromFile(const TString& name)
 	  
 	  // read Magnet index
 	  ReadItem(fMagnetParameter[p].MagnetIdx);
-	  if(fDebugLevel)
+	  if(FootDebugLevel(1))
 		 cout << endl << " - Parameters of Magnet " <<  fMagnetParameter[p].MagnetIdx << endl;
       
       // read Magnet size
       ReadVector3(fMagnetParameter[p].Size);
-      if(fDebugLevel)
+      if(FootDebugLevel(1))
          cout << "   Size: "
          << Form("%f %f %f", fMagnetParameter[p].Size[0], fMagnetParameter[p].Size[1], fMagnetParameter[p].Size[2]) << endl;
 
@@ -122,20 +123,20 @@ Bool_t TADIparGeo::FromFile(const TString& name)
       fMagnetParameter[p].ShieldSize[1] = fMagnetParameter[p].Size[1] + fShieldThick;
       fMagnetParameter[p].ShieldSize[2] = fMagnetParameter[p].Size[2] + 2*fShieldThick;
       
-      if(fDebugLevel)
+      if(FootDebugLevel(1))
          cout << "   Shield Size: "
          << Form("%f %f %f", fMagnetParameter[p].ShieldSize[0], fMagnetParameter[p].ShieldSize[1], fMagnetParameter[p].ShieldSize[2]) << endl;
       
 
 	  // read Magnet position
 	  ReadVector3(fMagnetParameter[p].Position);
-	  if(fDebugLevel)
+	  if(FootDebugLevel(1))
 		 cout << "   Position: "
 	         << Form("%f %f %f", fMagnetParameter[p].Position[0], fMagnetParameter[p].Position[1], fMagnetParameter[p].Position[2]) << endl;
 	  
 	  // read Magnet angles
 	  ReadVector3(fMagnetParameter[p].Tilt);
-	  if(fDebugLevel)
+	  if(FootDebugLevel(1))
 		 cout  << "   Tilt: "
 		       << Form("%f %f %f", fMagnetParameter[p].Tilt[0], fMagnetParameter[p].Tilt[1], fMagnetParameter[p].Tilt[2]) << endl;
 	  

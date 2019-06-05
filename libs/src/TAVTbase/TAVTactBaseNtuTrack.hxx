@@ -57,11 +57,6 @@ public:
    //! Get nearest cluster for a given track and plane
    TAVTcluster*     NearestCluster(TAVTtrack *aTrack, Int_t aPlaneNumber); 
    
-   //! Set debug level
-   void             SetDebug(Int_t aDebug);  
-   //! Get debug level
-   Int_t            GetDebug()                         const   { return  fDebugLevel;         }
-   
 public:
    //! Set refit flag
    static void      SetRefit(Bool_t flag)                      { fgRefit = flag;              }
@@ -102,8 +97,6 @@ protected:
    TABMntuTrackTr*  fBmTrack;            // BM track pointer 
    TVector3         fBmTrackPos;         // BM track position 
    
-   Int_t            fDebugLevel;         // debug level
-
    TH1F*            fpHisPixelTot;		 // Total number of pixels per tracked cluster
    TH1F*            fpHisPixel[8];		 // Total number of pixels per tracked cluster for each sensor
    TH2F*            fpHisTrackMap[8];    // track map per sensor
@@ -132,7 +125,7 @@ protected:
 protected:
    static Bool_t    fgRefit;             // flag to update parameter during tracking   
       
-   ClassDef(TAVTactBaseNtuTrack,0)
+   ClassDef(TAVTactBaseNtuTrack,1)
 };
 
 #endif

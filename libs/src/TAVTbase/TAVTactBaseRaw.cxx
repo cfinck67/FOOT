@@ -8,6 +8,7 @@
 
 #include "TH2F.h"
 
+#include "GlobalPar.hxx"
 #include "TAVTparGeo.hxx"
 #include "TAVTparConf.hxx"
 #include "TAVTparMap.hxx"
@@ -247,12 +248,13 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
    Int_t index = 0;
    while( index < dataLength) { // Loop over usefull data
       
+
       if (index >= dataSize) return false;
-      
+
       // first 16 bits word is the Status/Line
       lineStatus = (MI26__TStatesLine*)frameData;
       
-      if (fDebugLevel > 3)
+      if(FootDebugLevel(3))
          printf("frame %x %x #state %d Line add %d ovf %d\n", frameData[0], frameData[1], lineStatus->F.StateNb,
                 lineStatus->F.LineAddr, lineStatus->F.Ovf);
       
@@ -266,7 +268,7 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
          fOverflow = true;
       }
       
-      if(fDebugLevel>3)
+      if(FootDebugLevel(3))
          printf("  line %d, #states %d, overflow %d, reading event  %d\n",
                 lineStatus->F.LineAddr, lineStatus->F.StateNb, lineStatus->F.Ovf, fReadingEvent);
       
@@ -276,7 +278,7 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
          state = (MI26__TState*)frameData;
          frameData += 1; // goto next word
          index++;
-         if(fDebugLevel > 3)
+         if(FootDebugLevel(3))
             printf("                  number of states %d, number of hits %d,\n", lineStatus->F.StateNb, state->F.HitNb+1);
          
          fNStatesInLine++;
@@ -285,7 +287,7 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
          // the first pixel being on the left at the column ColAddr
          for( Int_t iPixel=0; iPixel < state->F.HitNb+1; iPixel++) { // loop on pixels in the state
             
-            if(fDebugLevel > 3)
+            if(FootDebugLevel(3))
                printf("   line %3d, col %3d\n", lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
             
             // create a new pixel only if we are reading an event
@@ -293,12 +295,12 @@ Bool_t TAVTactBaseRaw::DecodeFrame(Int_t iSensor, MI26_FrameRaw *frame)
             if (!lineStatus->F.Ovf) {
                Int_t planeId = pParMap->GetPlaneId(iSensor);
                AddPixel(planeId, 1, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
-               if(fDebugLevel>3)
+               if(FootDebugLevel(3))
                   printf("sensor %d, line %d, col %d\n", iSensor, lineStatus->F.LineAddr, state->F.ColAddr+iPixel);
             }
          }
          
-         if(fDebugLevel>3)
+         if(FootDebugLevel(3))
             printf("                  state %d, #pixels %d, column %d at mem.pos %ld\n",
                    iState, state->F.HitNb+1, state->F.ColAddr, (long int)state);
       } // end loop over states

@@ -64,7 +64,7 @@ void TAVTactNtuMC::CreateDigitizer()
 //! Action.
 bool TAVTactNtuMC::Action()
 {
-	if ( fDebugLevel> 0 )     
+   if(FootDebugLevel(1))
 	  Info("TAVTactNtuMC::Action()", "start  -->  VTn : %d  ", fpEvtStr->VTXn);
 
 	TAVTparGeo* pGeoMap  = (TAVTparGeo*) fpGeoMap->Object();     
@@ -77,7 +77,7 @@ bool TAVTactNtuMC::Action()
 
 	// Loop over all MC hits
 	for (Int_t i = 0; i < fpEvtStr->VTXn; i++) {
-		if ( fDebugLevel> 0 )     cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx[i] << "  "<< fpEvtStr->TRfy[i] << "  "<< fpEvtStr->TRfz[i] << endl;
+      if(FootDebugLevel(1))    cout<< endl << "FLUKA id =   " << fpEvtStr->TRfx[i] << "  "<< fpEvtStr->TRfy[i] << "  "<< fpEvtStr->TRfz[i] << endl;
 
 		// !!  in ntuple, the row and col start from 0  !!!
 		Int_t myTrow, myTcol;
@@ -131,7 +131,7 @@ bool TAVTactNtuMC::Action()
       GeneratePileup();
 
 
-   if(fDebugLevel) {
+   if(FootDebugLevel(1)) {
       std::vector<RawMcHit_t> mcInfo;
       if (fgPileup && storedEvents <= fgPileupEventsN) {
          for (Int_t i = 0; i < fStoredEvents.size(); ++i) {
@@ -173,7 +173,7 @@ void TAVTactNtuMC::FillPixels(Int_t sensorId, Int_t hitId )
          Int_t genPartID = fpEvtStr->VTXid[hitId] - 1;
          pixel->AddMcTrackId(genPartID, hitId);
 
-         if ( fDebugLevel> 0 )
+         if(FootDebugLevel(1))
 				printf("line %d col %d\n", line, col);
 
 			double v = pGeoMap->GetPositionV(line);

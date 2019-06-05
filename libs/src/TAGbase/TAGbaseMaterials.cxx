@@ -8,6 +8,7 @@
 #include "TGeoManager.h"
 #include "TObjString.h"
 
+#include "GlobalPar.hxx"
 #include "TAGgeoTrafo.hxx"
 
 TString TAGbaseMaterials::fgkWhat = "                                                                                            ";
@@ -62,7 +63,7 @@ vector<TString> TAGbaseMaterials::GetStrings(TString key, const Char_t delimiter
       coeff.push_back(TString(value));
    }
    
-   if (fDebugLevel > 1) {
+   if(FootDebugLevel(1)) {
       for (Int_t i = 0; i < list->GetEntries(); ++i) {
          cout << coeff[i] << " ";
       }
@@ -88,7 +89,7 @@ void TAGbaseMaterials::GetCoeff(TString key, Float_t* coeff, Int_t size,  const 
       coeff[k] = item.Atof();
    }
    
-   if (fDebugLevel > 1) {
+   if(FootDebugLevel(1)) {
       for (Int_t i = 0; i < list->GetEntries(); ++i) {
          cout << coeff[i] << " " ;
       }

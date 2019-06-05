@@ -3,7 +3,7 @@
  \version $Id: TAVTbaseParMap.cxx,v 1.5 2003/06/09 18:41:04 mueller Exp $
  \brief   Implementation of TAVTbaseParMap.
  */
-
+#include "GlobalPar.hxx"
 #include "TAVTbaseParMap.hxx"
 
 //##############################################################################
@@ -57,7 +57,7 @@ Bool_t TAVTbaseParMap::FromFile(const TString& name)
       
       fPlaneId.push_back(tmp);
       
-      if(fDebugLevel)
+      if(FootDebugLevel(1))
          printf("SensorId: %d PlaneId: %d\n", i, fPlaneId[i]);
    }
 

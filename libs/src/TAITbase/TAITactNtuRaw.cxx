@@ -6,6 +6,7 @@
 
 #include "TH2F.h"
 
+#include "GlobalPar.hxx"
 #include "DECardEvent.hh"
 #include "TAGdaqEvent.hxx"
 #include "TAITparGeo.hxx"
@@ -88,7 +89,7 @@ Bool_t TAITactNtuRaw::DecodeEvent(const DECardEvent* evt)
       }
    }
    
-   if(fDebugLevel > 3) {
+  if(FootDebugLevel(3)) {
       printf("%08x ", fEventSize);
       for (Int_t i = 0; i < (fEventSize)/2; ++i) {
          if (i == 9) {
@@ -163,7 +164,7 @@ Bool_t TAITactNtuRaw::GetFrame(Int_t iSensor, MI26_FrameRaw* data)
       }
    } while (fIndex++ < fEventSize);
    
-   if (fDebugLevel > 3) {
+   if(FootDebugLevel(3)) {
       printf("%08x\n", data->Header);
       printf("%08x\n", data->TriggerCnt);
       printf("%08x\n", data->TimeStamp);

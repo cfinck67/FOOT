@@ -61,8 +61,7 @@ TAVTalign::TAVTalign(const TString name, Int_t type)
   fAlignTracks(100),
   fTinyBound(150),
   fIsDrawn(false),
-  fIsFullAlignment(true),
-  fDebugLevel(0)
+  fIsFullAlignment(true)
 {
    
    //------ defeinition of actions --------
@@ -332,8 +331,8 @@ Bool_t TAVTalign::Update(){
    Float_t limitShift = 5; // microns, if the shift in position falls under this limit, stop the alignment (microns)
    Float_t limitTilt  = 1*TMath::DegToRad(); // convert degrees in radians 
    
-   if(fDebugLevel) 
-	  printf("\nTAVTalign::AlignTracker ALIGNING tracker (%d planes)\n with %d tracks,    using hits at max distance %.1f of tracks\n    ,stopping when shift changes below %.3f and tilt change below %.3f\n\n", 
+   if(FootDebugLevel(1))
+	  printf("\nTAVTalign::AlignTracker ALIGNING tracker (%d planes)\n with %d tracks,    using hits at max distance %.1f of tracks\n    ,stopping when shift changes below %.3f and tilt change below %.3f\n\n",
 			 fSecArray.GetSize(), fAlignTracks, fTinyBound, limitShift, limitTilt);
    
    Bool_t stop  = false;
@@ -362,7 +361,7 @@ Bool_t TAVTalign::Update(){
 			fdifV[i]     = TMath::Abs(fPosV[i]-fPosVold[i]);
 			fdiftiltW[i] = TMath::Abs(fTiltW[i]-fTiltWold[i]);
 			
-			if(fDebugLevel >= 3) {
+         if(FootDebugLevel(3)) {
 			   cout << " plane " << i << " posU=" << fPposU[i] << " posUold= " << fPposUold[i];
 			   cout << ";  posV=" << fPosV[i] << " posVold= " << fPosVold[i];
 			   cout << ";  tilt W " << fTiltW[i] << "  tilt W old=" << fTiltWold[i] << endl;
@@ -461,12 +460,12 @@ void TAVTalign::Align(Int_t idx, TAVTtrack* aTrack)
 			tMinDistanceV  = tDistanceV;
 		 }
 		 
-		 if( fDebugLevel >= 2 ) 
+        if(FootDebugLevel(2))
 			printf("   TAVTalign::Align plane %d Trying hit %d and distance (%f,%f)=%f\n", iPlane, k, tDistanceU, tDistanceV, tDist2D);
 		 
 	  } // end loop on hits
 	  
-	  if( fDebugLevel >= 1 )
+      if(FootDebugLevel(1))
 		 printf("   TAVTalign::Align plane %d Accumulating with distance (%f,%f)=%f\n",iPlane, tMinDistanceU, tMinDistanceV, tMinDistance2D);
 	  
 	  // Only store the distances if no fit recquired, JB 2009/05/13

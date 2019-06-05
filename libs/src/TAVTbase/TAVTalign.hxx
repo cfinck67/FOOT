@@ -125,7 +125,6 @@ private:
    
    Bool_t fIsDrawn;
    Bool_t fIsFullAlignment;
-   Int_t  fDebugLevel;
    
    ClassDef(TAVTalign,0)
 };
