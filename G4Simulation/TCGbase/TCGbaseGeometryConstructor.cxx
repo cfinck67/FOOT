@@ -64,7 +64,7 @@ using namespace CLHEP;
 TCGbaseGeometryConstructor::TCGbaseGeometryConstructor(const TString expName)
 : G4VUserDetectorConstruction(),
   fExpName(expName),
-  fWorldSizeZ(120*cm),
+  fWorldSizeZ(220*cm),
   fWorldSizeXY(30*cm),
   fWorldMaterial(0x0),
   fLogWorld(0x0),
@@ -80,7 +80,7 @@ TCGbaseGeometryConstructor::TCGbaseGeometryConstructor(const TString expName)
 	if (pttoMaterial) fWorldMaterial = pttoMaterial;
    
    // initialise map file for target/beam
-   TString mapFileName = Form("./geomaps/TAGdetector%s.map", fExpName.Data());
+   TString mapFileName = Form("./geomaps/%sTAGdetector.map", fExpName.Data());
    fpParGeoG->FromFile(mapFileName.Data());
    
    // geometries

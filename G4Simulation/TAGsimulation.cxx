@@ -65,6 +65,9 @@ int main(int argc,char** argv)
    // select the output type (Evento tree or TAMCevent tree)
     G4bool kEvento(0);
 
+   // expriment name
+   TString exp("");
+   
    // looking for arguments
    for (int i = 0; i < argc; i++) {
 	  if(strcmp(argv[i],"-out") == 0) 
@@ -84,21 +87,30 @@ int main(int argc,char** argv)
      if(strcmp(argv[i],"-out") == 0)
         rootFileName  = argv[++i];
 
+     if(strcmp(argv[i],"-exp") == 0)
+        exp = TString(argv[++i]);
+
 	  if(strcmp(argv[i],"-help") == 0) {
 		 printf("Possible arguments are:\n");
 		 printf("  -b batch mode active \n");
-         printf("  -out rootFileName: root output file name \n");
-         printf("  -phys physList: physics list: BIC, BERT or INCL \n");
+       printf("  -out rootFileName: root output file name \n");
+       printf("  -phys physList: physics list: BIC, BERT or INCL \n");
 		 printf("  -seed seedNb: seed number for random initialisation  \n");
+       printf("  -exp name: [def=""] experient name for config/geomap extention");
+
 		 return 1;
 	  }
    }
+
+   // check folder
+   if (!exp.IsNull())
+      exp += "/";
 
    // Global Par
    GlobalPar::Instance();
 
    // initialise geo trafo file
-   TString geoFileName("./geomaps/FOOT_geo.map");
+   TString geoFileName = Form("./geomaps/%sFOOT_geo.map", exp.Data());
 
    // TAG root
    TAGroot tagRoot;
@@ -113,7 +125,7 @@ int main(int argc,char** argv)
    TCFOrunAction::SetRootFileName(rootFileName.Data());
 
    // Detector construction
-   TCGbaseGeometryConstructor* theDetector =  new TCFOgeometryConstructor("");
+   TCGbaseGeometryConstructor* theDetector =  new TCFOgeometryConstructor(exp);
    runManager->SetUserInitialization(theDetector);
    
    // Physics list

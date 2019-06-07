@@ -96,7 +96,7 @@ TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
    // initialise map file for calorimteer
    if (GlobalPar::GetPar()->IncludeCA()) {
       fpParGeoCa = new TACAparGeo();
-      TString mapFileName = Form("./geomaps/TACAdetector%s.map", fExpName.Data());
+      TString mapFileName = Form("./geomaps/%sTACAdetector.map", fExpName.Data());
       fpParGeoCa->FromFile(mapFileName.Data());
       fCalorimeter = new TCCAgeometryConstructor(fpParGeoCa);
    }
@@ -104,7 +104,7 @@ TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
    // initialise map file for TOF
    if (GlobalPar::GetPar()->IncludeTW()) {
       fpParGeoTw = new TATWparGeo();
-      TString mapFileName = Form("./geomaps/TATWdetector%s.map", fExpName.Data());
+      TString mapFileName = "./geomaps/TATWdetector.map";
       fpParGeoTw->FromFile(mapFileName.Data());
       fTofWall = new TCTWgeometryConstructor(fpParGeoTw);
    }
@@ -120,7 +120,7 @@ TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
    // initialise map file for Inner Tracker
    if (GlobalPar::GetPar()->IncludeInnerTracker()) {
       fpParGeoIt = new TAITparGeo();
-      TString mapFileName = Form("./geomaps/TAITdetector%s.map", fExpName.Data());
+      TString mapFileName = Form("./geomaps/%sTAITdetector.map", fExpName.Data());
       fpParGeoIt->FromFile(mapFileName.Data());
       fInnerTracker = new TCITgeometryConstructor(fpParGeoIt);
    }
@@ -128,7 +128,7 @@ TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
    // initialise map file for vertex
    if (GlobalPar::GetPar()->IncludeVertex()) {
       fpParGeoVtx = new TAVTparGeo();
-      TString mapFileName = Form("./geomaps/TAVTdetector%s.map", fExpName.Data());
+      TString mapFileName = Form("./geomaps/%sTAVTdetector.map", fExpName.Data());
       fpParGeoVtx->FromFile(mapFileName.Data());
       fVertex = new TCVTgeometryConstructor(fpParGeoVtx);
    }
@@ -136,7 +136,7 @@ TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
    // initialise map file for magnet
    if (GlobalPar::GetPar()->IncludeDI()) {
       fpParGeoEm = new TADIparGeo();
-      TString mapFileName = Form("./geomaps/TADIdetector%s.map", fExpName.Data());
+      TString mapFileName = "./geomaps/TADIdetector.map";
       fpParGeoEm->FromFile(mapFileName.Data());
       
       fFieldImpl  = new FootField("", fpParGeoEm);
@@ -148,7 +148,7 @@ TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
    // initialise map file for beam monitor
    if (GlobalPar::GetPar()->IncludeBM()) {
       fpParGeoBm = new TABMparGeo();
-      TString mapFileName = Form("./geomaps/TABMdetector%s.map", fExpName.Data());
+      TString mapFileName = Form("./geomaps/%sTABMdetector.map", fExpName.Data());
       fpParGeoBm->FromFile(mapFileName.Data());
       fBeamMonitor = new TCBMgeometryConstructor(fpParGeoBm);
    }
@@ -156,7 +156,7 @@ TCFOgeometryConstructor::TCFOgeometryConstructor(const TString expName)
    // initialise map file for start counter
    if (GlobalPar::GetPar()->IncludeST()) {
       fpParGeoSt = new TASTparGeo();
-      TString mapFileName = Form("./geomaps/TASTdetector%s.map", fExpName.Data());
+      TString mapFileName = "./geomaps/TASTdetector.map";
       fpParGeoSt->FromFile(mapFileName.Data());
       fStartCounter = new TCSTgeometryConstructor(fpParGeoSt);
    }
