@@ -170,7 +170,7 @@ void TAFOeventDisplay::ReadParFiles()
    if (GlobalPar::GetPar()->IncludeDI()) {
       fpParGeoDi = new TAGparaDsc(TADIparGeo::GetDefParaName(), new TADIparGeo());
       TADIparGeo* parGeo = (TADIparGeo*)fpParGeoDi->Object();
-      TString parFileName = Form("./geomaps/TADIdetector%s.map", fExpName.Data());
+      TString parFileName = "./geomaps/TADIdetector.map";
       parGeo->FromFile(parFileName.Data());
       
       if (GlobalPar::GetPar()->IncludeKalman()) {
