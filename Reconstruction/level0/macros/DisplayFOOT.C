@@ -10,8 +10,8 @@
 #include "TAGbaseEventDisplay.hxx"
 #endif
 
-void DisplayFOOT(TString file = "data_test.00001431.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data")
-//void DisplayFOOT(TString file = "./run_1005")
+void DisplayFOOT(TString file = "data/data_built.2211.physics_foot.daq.VTX.1.dat")
+//void DisplayFOOT(TString file = "./run_2211")
 {
    //TAFOeventDisplay::SetVtxTrackingAlgo('F');
    //TAFOeventDisplay::EnableStdAlone();
