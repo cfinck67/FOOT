@@ -45,11 +45,11 @@ void FillVertex()
    
    TAGparaDsc* vtGeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());
    TAVTparGeo* geomap   = (TAVTparGeo*) vtGeo->Object();
-   geomap->FromFile("./geomaps/TAVTdetector.map");
+   geomap->FromFile("./geomaps/GSI/TAVTdetector.map");
    
    TAGparaDsc*  vtConf  = new TAGparaDsc("vtConf", new TAVTparConf());
    TAVTparConf* parconf = (TAVTparConf*) vtConf->Object();
-   parconf->FromFile("./config/TAVTdetector.cfg");
+   parconf->FromFile("./config/GSI/TAVTdetector.cfg");
    
    TAVTparConf::SetHistoMap();
    TAGdataDsc* vtNtu    = new TAGdataDsc("vtNtu", new TAVTntuRaw());
@@ -65,7 +65,7 @@ void FillVertex()
    
    //   outFile->SetupElementBranch(vtNtu, "vtrh.");
    //   outFile->SetupElementBranch(vtClus, "vtclus.");
-   //   outFile->SetupElementBranch(vtTrck, "vtTrack.");
+   //   outFile->SetupElementBranch(vtTrck, "vttrack.");
    
    vmeFile = new TAVTactVmeReader("vmeFile", vtNtu, vtGeo, vtConf, vtMap);
    vmeFile->CreateHistogram();
