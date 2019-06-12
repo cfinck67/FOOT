@@ -50,11 +50,11 @@ void FillVertex()
    
    TAGparaDsc* vtGeo    = new TAGparaDsc("vtGeo", new TAVTparGeo());
    TAVTparGeo* geomap   = (TAVTparGeo*) vtGeo->Object();
-   geomap->FromFile("./geomaps/TAVTdetector.map");
+   geomap->FromFile("./geomaps/GSI/TAVTdetector.map");
    
    TAGparaDsc*  vtConf  = new TAGparaDsc("vtConf", new TAVTparConf());
    TAVTparConf* parconf = (TAVTparConf*) vtConf->Object();
-   parconf->FromFile("./config/TAVTdetector.cfg");
+   parconf->FromFile("./config/GSI/TAVTdetector.cfg");
 
    TAVTparConf::SetHistoMap();
    TAGdataDsc* vtDaq    = new TAGdataDsc("vtDaq", new TAGdaqEvent());
@@ -76,14 +76,12 @@ void FillVertex()
    
 //   outFile->SetupElementBranch(vtNtu, "vtrh.");
 //   outFile->SetupElementBranch(vtClus, "vtclus.");
-//   outFile->SetupElementBranch(vtTrck, "vtTrack.");
+//   outFile->SetupElementBranch(vtTrck, "vttrack.");
 
 }
 
-void ReadVtxRaw(TString filename = "data_test.00001431.physics_foot.daq.RAW._lb0000._EB-RCD._0001.data",
-                Int_t nMaxEvts = 1)
+void ReadVtxRaw(TString filename = "data/data_built.2211.physics_foot.daq.VTX.1.dat", Int_t nMaxEvts = 0)
 {
-
    TAGroot tagr;
    tagr.SetCampaignNumber(100);
    tagr.SetRunNumber(1);
@@ -113,8 +111,8 @@ void ReadVtxRaw(TString filename = "data_test.00001431.physics_foot.daq.RAW._lb0
    outFileName.Append(".root");
    if (outFile->Open(outFileName.Data(), "RECREATE")) return;
    vtActRaw->SetHistogramDir(outFile->File());
-  vtActClus->SetHistogramDir(outFile->File());
-//   vtActTrck->SetHistogramDir(outFile->File());
+   vtActClus->SetHistogramDir(outFile->File());
+   vtActTrck->SetHistogramDir(outFile->File());
 
    cout<<" Beginning the Event Loop "<<endl;
    tagr.BeginEventLoop();
