@@ -980,35 +980,48 @@ void TAFOeventDisplay::UpdateLayerElements()
       Float_t y = pbmGeo->GetWireY(pbmGeo->GetSenseId(cell),lay,view);
       Float_t z = pbmGeo->GetWireZ(pbmGeo->GetSenseId(cell),lay,view);
 
+      // wire pos
       TVector3 posHit(x, y, z);
       TVector3 posHitG = fpFootGeo->FromBMLocalToGlobal(posHit);
-       
-       
-       TEveVector tPosCWG( static_cast<float>( posHitG.X() ),
-                           static_cast<float>( posHitG.Y() ),
-                           static_cast<float>( posHitG.Z() ));
-       TEveVector tDir{0, 0, 0};
+      
+      TVector3 posHit1(x, y+bm_h_side, z);
+      TVector3 posHit1G = fpFootGeo->FromBMLocalToGlobal(posHit1);
+      
+      TVector3 posHit0(x+bm_h_side, y, z);
+      TVector3 posHit0G = fpFootGeo->FromBMLocalToGlobal(posHit0);
+      
+      // radius pos
+      TVector3 tPosCW1(x, y+bm_h_side/2., z);
+      TVector3 tPosCW1G = fpFootGeo->FromBMLocalToGlobal(tPosCW1);
+      
+      TVector3 tPosCW0(x+bm_h_side/2., y, z);
+      TVector3 tPosCW0G = fpFootGeo->FromBMLocalToGlobal(tPosCW0);
+      
+      
+      TEveVector tPosCWG(0, 0, 0);
+      TEveVector tDir{0, 0, 0};
 
       if(view == 1) {
          //X,Z, top view
-         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0), posHitG(1)+bm_h_side, posHitG(2));
+         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHit1G(0), posHit1G(1), posHit1G(2));
           
-          tPosCWG[1]+=bm_h_side/2;
-          tDir[1]=0.01;
-          
+         tPosCWG[0] = tPosCW1G[0];
+         tPosCWG[1] = tPosCW1G[1];
+         tPosCWG[2] = tPosCW1G[2];
+         tDir[1]=0.01;
+         
       } else {
          //Y,Z, side view
-         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHitG(0)+bm_h_side, posHitG(1), posHitG(2));
+         fBmClusDisplay->AddWire(posHitG(0), posHitG(1), posHitG(2), posHit0G(0), posHit0G(1), posHit0G(2));
           
-          tPosCWG[0]+=bm_h_side/2;
-          tDir[0]=0.01;
-          
+         tPosCWG[0] = tPosCW0G[0];
+         tPosCWG[1] = tPosCW0G[1];
+         tPosCWG[2] = tPosCW0G[2];
+         tDir[0]=0.01;
       }
-       
        
        fBmDriftCircleDisplay->AddCone(tPosCWG, tDir, hit->Dist());
        fBmDriftCircleDisplay->DigitId(hit);
-       
    }
    
    fBmClusDisplay->RefitPlex();
