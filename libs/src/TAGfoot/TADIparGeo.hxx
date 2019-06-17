@@ -64,7 +64,9 @@ public:
 public:
    TADIparGeo();
     virtual ~TADIparGeo();
-   
+
+    TString        GetMagMat() const  { return fMagMat; }
+
    //! Transform point from the global reference frame
    //! to the local reference frame of the detection id
    void            Global2Local(Int_t detID,  Double_t xg, Double_t yg, Double_t zg, 
