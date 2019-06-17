@@ -23,14 +23,14 @@ public:
    Int_t         GetLayer()         const  { return fLayer;    }
    Int_t         GetView()          const  { return fView;     }
    Int_t         GetCell()          const  { return fCell;     }
+   Int_t         GetTrackId()       const  { return fTrackId;  }
    TVector3      GetInPosition()    const  { return fInPosition;  }
    TVector3      GetOutPosition()   const  { return fOutPosition; }
    TVector3      GetInMomentum()    const  { return fInMomentum;  }
    TVector3      GetOutMomentum()   const  { return fOutMomentum; }
    Double_t      GetDeltaE()        const  { return fDelatE;   }
    Double_t      GetTof()           const  { return fTof;      }
-   Double_t      GetTrackId()       const  { return fTrackId;  }
-   
+
    
    void          SetID(int aid)            { fID = aid;        }
    void          SetLayer(int aLayer)      { fLayer = aLayer;  }

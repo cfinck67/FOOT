@@ -4,6 +4,7 @@
 #include "G4IonElasticPhysics.hh"
 #include "G4IonQMDPhysics.hh"
 #include "G4IonINCLXXPhysics.hh"
+#include "G4IonBinaryCascadePhysics.hh"
 #if G4VERSION_NUMBER > 1003
   #include "G4IonPhysicsPHP.hh"
 #endif
@@ -48,8 +49,11 @@ radioactiveDecay(nullptr)
     RegisterPhysics(ionElastic);
 
     // Ion Inelastic physics
-    //    ionInelastic = new G4IonPhysicsPHP();
-    ionInelastic = new G4IonQMDPhysics();
+//    ionInelastic = new G4IonPhysics();
+//    ionInelastic = new G4IonPhysicsPHP();
+    ionInelastic = new G4IonBinaryCascadePhysics();
+//    ionInelastic = new G4IonINCLXXPhysics();
+//    ionInelastic = new G4IonQMDPhysics();
     RegisterPhysics(ionInelastic);
 
     // Particle decays
@@ -63,17 +67,17 @@ radioactiveDecay(nullptr)
     electromagnetic = new G4EmStandardPhysics_option3();
     RegisterPhysics(electromagnetic);
 
-//    hadronElastic = new G4HadronElasticPhysicsHP();
-    hadronElastic = new G4HadronElasticPhysics();
+    hadronElastic = new G4HadronElasticPhysicsHP();
+//    hadronElastic = new G4HadronElasticPhysics();
     RegisterPhysics( hadronElastic);
 
     // Hadron Inelastic physics
     //    hadronInelastic = new G4HadronPhysicsQGSP_BIC_AllHP();
     //    RegisterPhysics( new G4HadronPhysicsQGSP_BIC());
+    //    hadronInelastic = new G4HadronInelasticQBBC();
+    //    hadronInelastic = new G4HadronPhysicsINCLXX();
     hadronInelastic = new G4HadronPhysicsQGSP_BIC_HP();
     RegisterPhysics( hadronInelastic);
-
-
 }
 
 TCGphysicsQMD::~TCGphysicsQMD()

@@ -37,6 +37,7 @@ private:
 private:
    void DefineMaxMinDimension();
    void DefineSensitive();
+   void DefineMaterial();
 };
 
 #endif

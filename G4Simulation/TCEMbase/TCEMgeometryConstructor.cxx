@@ -31,6 +31,7 @@ TCEMgeometryConstructor::TCEMgeometryConstructor(TADIparGeo* pParGeo)
   fpParGeo(pParGeo)
 {
    DefineMaxMinDimension();
+   DefineMaterial();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -54,6 +55,7 @@ G4LogicalVolume* TCEMgeometryConstructor::Construct()
    
    // Vtx box
    G4Material* vacuum = G4NistManager::Instance()->FindOrBuildMaterial("Air");
+   G4Material* matMagnet = G4NistManager::Instance()->FindOrBuildMaterial("SmCo");
    G4Box* boxMag = new G4Box("boxMag", 0.5*fSizeBoxMg.X(), 0.5*fSizeBoxMg.Y(), 0.5*fSizeBoxMg.Z());
    
    fBoxLog = new G4LogicalVolume(boxMag, vacuum, "boxMagLog");
@@ -68,8 +70,8 @@ G4LogicalVolume* TCEMgeometryConstructor::Construct()
       G4Tubs* magnet = new G4Tubs(Form("Magnet%d", i+1), size[0], size[1], size[2]/2., 0, 360);
       
       //logical
-      G4LogicalVolume* magnetLog = new G4LogicalVolume(magnet, vacuum, Form("MagnetLog%d", i+1));
-      
+      G4LogicalVolume* magnetLog = new G4LogicalVolume(magnet, matMagnet, Form("MagnetLog%d", i+1));
+
       G4VisAttributes* targetLog_att = new G4VisAttributes(G4Colour(0.,0.6,1)); //light blue
       targetLog_att->SetForceWireframe(true);
       magnetLog->SetVisAttributes(targetLog_att);
@@ -109,5 +111,10 @@ void TCEMgeometryConstructor::DefineMaxMinDimension()
    fMaxPosition = maxPosition*cm;
 }
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+void TCEMgeometryConstructor::DefineMaterial()
+{
+    fpMaterials->CreateG4Material(fpParGeo->GetMagMat());
+}
 
 

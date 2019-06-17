@@ -26,10 +26,13 @@ public:
    TVector3 GetBoxSize()     const { return fSizeBoxVtx;  }
    TVector3 GetMinPoistion() const { return fMinPosition; }
    TVector3 GetMaxPoistion() const { return fMaxPosition; }
-   
+
+   const Char_t* GetEpiName() { return fEpiName.Data();}
+
+    void SetEpiName(TString aEpiName) {fEpiName = aEpiName ; }
+
 public:
    static const Char_t* GetCmosName()      { return fgkCmosName.Data();    }
-   static const Char_t* GetEpiName()       { return fgkEpiName.Data();     }
    static const Char_t* GetPixName()       { return fgkPixName.Data();     }
    static const Char_t* GetSDname()        { return fgkVtxEpiSDname.Data();}
    static const Char_t* GetBmSDname()      { return fgkBmEpiSDname.Data(); }
@@ -45,7 +48,8 @@ protected:
    G4LogicalVolume* fPixLog;
    G4LogicalVolume* fBoxVtxLog;
 
-   
+   TString fEpiName;
+
    //phys volume
    G4VPhysicalVolume* fEpiPhy;
    G4VPhysicalVolume* fPixPhy;
@@ -60,7 +64,6 @@ protected:
    
 protected:
    static TString fgkCmosName;
-   static TString fgkEpiName;
    static TString fgkPixName;
    static TString fgkVtxEpiSDname;
    static TString fgkBmEpiSDname;

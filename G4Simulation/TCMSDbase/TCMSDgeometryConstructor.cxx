@@ -17,7 +17,7 @@ using namespace CLHEP;
 TCMSDgeometryConstructor::TCMSDgeometryConstructor(TAVTparGeo* pParGeo)
 : TCVTgeometryConstructor(pParGeo)
 {
-
+    SetEpiName("msdEpiPhy");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

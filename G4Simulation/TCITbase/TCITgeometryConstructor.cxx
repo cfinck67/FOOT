@@ -11,7 +11,7 @@ TString TCITgeometryConstructor::fgkItEpiSDname = "ItSD";
 TCITgeometryConstructor::TCITgeometryConstructor(TAVTparGeo* pParGeo)
 : TCVTgeometryConstructor(pParGeo)
 {
-
+    SetEpiName("itEpiPhy");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

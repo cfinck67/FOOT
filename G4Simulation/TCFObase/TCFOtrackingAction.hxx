@@ -46,6 +46,7 @@ class TCFOtrackingAction : public G4UserTrackingAction
 
     TCFObaseEventAction* fEventAction ;
     static map<TString, Int_t> fgkGeantToFlukaID;
+    static map<TString, Int_t> fgkVolumeToRegion;
 
    public :
    

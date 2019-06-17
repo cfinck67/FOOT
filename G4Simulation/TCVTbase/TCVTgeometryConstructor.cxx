@@ -24,10 +24,9 @@
 //The origin is the center of target
 
 TString TCVTgeometryConstructor::fgkCmosName    = "cmosDetector"; 
-TString TCVTgeometryConstructor::fgkEpiName     = "epiPhy";
 TString TCVTgeometryConstructor::fgkPixName     = "pixPhy";
 Float_t TCVTgeometryConstructor::fgDefSmearAng  = 0.01;  // in degree
-Float_t TCVTgeometryConstructor::fgDefSmearPos  = 5.0;   // in micron
+Float_t TCVTgeometryConstructor::fgDefSmearPos  = 5.0e-4;   // in micron
 Bool_t  TCVTgeometryConstructor::fgSmearFlag    = false;
 
 TString TCVTgeometryConstructor::fgkVtxEpiSDname = "VtxSD";
@@ -38,6 +37,7 @@ using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 TCVTgeometryConstructor::TCVTgeometryConstructor(TAVTparGeo* pParGeo, Bool_t bmFlag)
 : TCGbaseConstructor("TCVTgeometryConstructor", "1.0"),
+  fEpiName("vtxEpiPhy"),
   fCmosLog(0x0),
   fEpiLog(0x0),
   fPixLog(0x0),
