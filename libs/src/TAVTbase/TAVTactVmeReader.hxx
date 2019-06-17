@@ -6,6 +6,7 @@
 */
 /*------------------------------------------+---------------------------------*/
 #include <fstream>
+#include <map>
 
 #include "TString.h"
 #include "TH1F.h"
@@ -32,6 +33,8 @@ public:
    static void     SetDefaultFolderName(const Char_t* name) { fgDefaultFolderName = name; }
    static TString  GetDefaultFolderName()                   { return fgDefaultFolderName; }
    
+   static void     SettrigJumpMap(Int_t iSensor, Int_t trigger, Int_t jump);
+   
 private:
    ifstream          fRawFileAscii[kSize]; // file streamm
    Int_t             fRunNumber;           // run number
@@ -42,7 +45,11 @@ private:
 private:
    static       TString fgDefaultFolderName;
    static       TString fgDefaultExtName;
-
+   static       map<int, int> fgTrigJumpMap0;
+   static       map<int, int> fgTrigJumpMap1;
+   static       map<int, int> fgTrigJumpMap2;
+   static       map<int, int> fgTrigJumpMap3;
+   
 private:	
    //! Get the event
    Bool_t GetSensorEvent(Int_t iSensor);

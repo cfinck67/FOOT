@@ -19,8 +19,17 @@
 
 ClassImp(TAVTactVmeReader);
 
-TString TAVTactVmeReader::fgDefaultFolderName = "run_";
-TString TAVTactVmeReader::fgDefaultExtName    = ".ZS";
+      TString TAVTactVmeReader::fgDefaultFolderName = "run_";
+      TString TAVTactVmeReader::fgDefaultExtName    = ".ZS";
+// run 221
+//map<int, int> TAVTactVmeReader::fgTrigJumpMap1 = { {18564, 4}, {18674, 2}, {18715, 1}, {37425, 1}, {37482, 5}, {37599, 5},
+//   {38721, 1}, {38834, 1}, {38838, 1}, {39847, 15}, {39956, 1}, {40990, 13}, {40993, 1}, {41008, 1}, {41105, 4}, {41123, 1}, {41145, 1} };
+
+// run 5007
+map<int, int> TAVTactVmeReader::fgTrigJumpMap0 = { {0,0}, {8425, 2} };
+map<int, int> TAVTactVmeReader::fgTrigJumpMap1 = { {4,2}, {9306, 2} };
+map<int, int> TAVTactVmeReader::fgTrigJumpMap2 = { {7,5}, {8424, 1} };
+map<int, int> TAVTactVmeReader::fgTrigJumpMap3 = { {5,1}, {9305, 1} };
 
 //------------------------------------------+-----------------------------------
 //! Default constructor.
@@ -41,6 +50,31 @@ TAVTactVmeReader::TAVTactVmeReader(const char* name, TAGdataDsc* pDatRaw, TAGpar
 TAVTactVmeReader::~TAVTactVmeReader()
 {
    delete [] fDataEvent;
+}
+
+// --------------------------------------------------------------------------------------
+void TAVTactVmeReader::SettrigJumpMap(Int_t iSensor, Int_t trigger, Int_t jump)
+{
+   switch (iSensor) {
+      case 0:
+         fgTrigJumpMap0[trigger] = jump;
+         break;
+         
+      case 1:
+         fgTrigJumpMap1[trigger] = jump;
+         break;
+         
+      case 2:
+         fgTrigJumpMap2[trigger] = jump;
+         break;
+         
+      case 3:
+         fgTrigJumpMap3[trigger] = jump;
+         break;
+         
+      default:
+         break;
+   }
 }
 
 //------------------------------------------+-----------------------------------
@@ -152,13 +186,25 @@ Bool_t TAVTactVmeReader::GetSensorEvent(Int_t iSensor)
    
    fIndex = 0;
    UInt_t timestamp = 0;
+   UInt_t dataPrev = 0;
    
    // lokking for header
    TString key  = Form("%x", GetKeyHeader(iSensor));
-   
+   TString tail = Form("%x", GetKeyTail(iSensor));
+
    do {
       fRawFileAscii[iSensor] >> tmp;
       TString line = tmp;
+      
+      UInt_t data = 0;
+      sscanf(tmp, "%x", &data);
+
+      if(FootDebugLevel(1)) {
+         if (line.Contains(tail))
+            printf("unexpected trailer for sensor %d previous data %08x\n", iSensor, dataPrev);
+      }
+
+      dataPrev = data;
       
       if (line.Contains(key)) {
          if(FootDebugLevel(1))
@@ -175,7 +221,45 @@ Bool_t TAVTactVmeReader::GetSensorEvent(Int_t iSensor)
          sscanf(tmp, "%x", &fTriggerNumber);
          fDataEvent[fIndex++] = fTriggerNumber;
          
+         if (fPrevTriggerNumber[iSensor] != fTriggerNumber-1)
+            printf("Jump sensor %d %d %d\n", iSensor, fPrevTriggerNumber[iSensor], fTriggerNumber);
          
+         if (fgTrigJumpMap0[fTriggerNumber] > 0 && iSensor == 0) {
+            Int_t pos =  (int) fRawFileAscii[iSensor].tellg();
+            fRawFileAscii[iSensor].seekg(pos-3*(8+1));
+            fgTrigJumpMap0[fTriggerNumber]--;
+            if(FootDebugLevel(1))
+               printf("%d\n", fgTrigJumpMap0[fTriggerNumber]);
+            return false;
+         }
+
+         if (fgTrigJumpMap1[fTriggerNumber] > 0 && iSensor == 1) {
+            Int_t pos =  (int) fRawFileAscii[iSensor].tellg();
+            fRawFileAscii[iSensor].seekg(pos-3*(8+1));
+            fgTrigJumpMap1[fTriggerNumber]--;
+            if(FootDebugLevel(1))
+               printf("%d\n", fgTrigJumpMap0[fTriggerNumber]);
+            return false;
+         }
+         
+         if (fgTrigJumpMap2[fTriggerNumber] > 0 && iSensor == 2) {
+            Int_t pos =  (int) fRawFileAscii[iSensor].tellg();
+            fRawFileAscii[iSensor].seekg(pos-3*(8+1));
+            fgTrigJumpMap2[fTriggerNumber]--;
+            if(FootDebugLevel(1))
+               printf("%d\n", fgTrigJumpMap0[fTriggerNumber]);
+            return false;
+         }
+
+         if (fgTrigJumpMap3[fTriggerNumber] > 0 && iSensor == 3) {
+            Int_t pos =  (int) fRawFileAscii[iSensor].tellg();
+            fRawFileAscii[iSensor].seekg(pos-3*(8+1));
+            fgTrigJumpMap3[fTriggerNumber]--;
+            if(FootDebugLevel(1))
+               printf("%d\n", fgTrigJumpMap0[fTriggerNumber]);
+            return false;
+         }
+
          if(FootDebugLevel(3))
             printf("sensor %d: %d %d\n", iSensor, fTriggerNumber, fEventNumber);
          
@@ -197,7 +281,6 @@ Bool_t TAVTactVmeReader::GetSensorEvent(Int_t iSensor)
    
    // look for trailer
    UInt_t data;
-   TString tail  = Form("%x", GetKeyTail(iSensor));
    
    do {
       fRawFileAscii[iSensor] >> tmp;
@@ -205,8 +288,17 @@ Bool_t TAVTactVmeReader::GetSensorEvent(Int_t iSensor)
       sscanf(tmp, "%x", &data);
       fDataEvent[fIndex++] = data;
       
-      if (line.Contains(tail))
+      if (line.Contains(tail)) {
          break;
+      }
+      
+      if (line.Contains(key)) {
+         Int_t pos =  (int) fRawFileAscii[iSensor].tellg();
+         fRawFileAscii[iSensor].seekg(pos-9);
+         fIndex--;
+         if(FootDebugLevel(1))
+            printf("Find unexpected key for sensor %d %s\n", iSensor, line.Data());
+      }
       
    } while (!fRawFileAscii[iSensor].eof());
    
