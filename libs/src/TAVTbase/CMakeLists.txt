@@ -32,6 +32,7 @@ set( with_dictionnaries
    TAVTbaseParCal
    TAVTactBaseRaw
    TAVTactVmeReader
+   TAVTactStdRaw
    TAVTactBaseNtuRaw
    TAVTactNtuRaw
    TAVTactBaseNtuMC
