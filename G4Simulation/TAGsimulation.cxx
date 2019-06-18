@@ -99,14 +99,9 @@ int main(int argc,char** argv)
         if(strcmp(argv[i],"-help") == 0) {
             printf("Possible arguments are:\n");
             printf("  -b batch mode active \n");
-            <<<<<<< Updated upstream
-            printf("  -out rootFileName: root output file name \n");
-            printf("  -phys physList: physics list: BIC, BERT or INCL \n");
-            =======
             printf("  -r run.mac is lauched \n");
             printf("  -out rootFileName: root output file name \n");
             printf("  -phys physList: physics list: BIC, BERT or INCL \n");
-            >>>>>>> Stashed changes
             printf("  -seed seedNb: seed number for random initialisation  \n");
             printf("  -exp name: [def=""] experient name for config/geomap extention");
 
