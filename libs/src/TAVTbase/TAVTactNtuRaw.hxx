@@ -22,6 +22,9 @@ public:
    
    virtual Bool_t  Action();
    
+protected:
+   TAGdataDsc*     fpDatDaq;		    // input data dsc
+   
    
    ClassDef(TAVTactNtuRaw,0)
 };

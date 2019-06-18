@@ -17,12 +17,9 @@ using namespace std;
 class TAVTactBaseNtuRaw : public TAVTactBaseRaw {
 public:
    
-   explicit TAVTactBaseNtuRaw(const char* name=0, TAGdataDsc* p_datraw=0, TAGdataDsc* p_datmbs=0, TAGparaDsc* p_pargeo=0, TAGparaDsc* p_parconf=0, TAGparaDsc* pParMap=0);
+   explicit TAVTactBaseNtuRaw(const char* name=0, TAGdataDsc* p_datraw=0, TAGparaDsc* p_pargeo=0, TAGparaDsc* p_parconf=0, TAGparaDsc* pParMap=0);
    virtual  ~TAVTactBaseNtuRaw();
       
-protected:
-   TAGdataDsc*     fpDatDaq;		    // input data dsc
-   
 protected:
    //! Find vertex data
    Bool_t DecodeEvent();

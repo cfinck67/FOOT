@@ -22,11 +22,9 @@ ClassImp(TAVTactBaseNtuRaw);
 //------------------------------------------+-----------------------------------
 //! Default constructor.
 
-TAVTactBaseNtuRaw::TAVTactBaseNtuRaw(const char* name, TAGdataDsc* pNtuRaw, TAGdataDsc* pDatDaq, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig, TAGparaDsc* pParMap)
-: TAVTactBaseRaw(name, pNtuRaw, pGeoMap, pConfig, pParMap),
-  fpDatDaq(pDatDaq)
+TAVTactBaseNtuRaw::TAVTactBaseNtuRaw(const char* name, TAGdataDsc* pNtuRaw, TAGparaDsc* pGeoMap, TAGparaDsc* pConfig, TAGparaDsc* pParMap)
+: TAVTactBaseRaw(name, pNtuRaw, pGeoMap, pConfig, pParMap)
 {
-   AddDataIn(pDatDaq, "TAGdaqEvent");
 }
 
 //------------------------------------------+-----------------------------------
@@ -38,7 +36,6 @@ TAVTactBaseNtuRaw::~TAVTactBaseNtuRaw()
 // --------------------------------------------------------------------------------------
 Bool_t TAVTactBaseNtuRaw::DecodeEvent()
 {
-   printf("toto\n");
    fIndex     = 0;
    MI26_FrameRaw* data = new MI26_FrameRaw;
 
@@ -65,7 +62,7 @@ Bool_t TAVTactBaseNtuRaw::DecodeEvent()
       fPrevTimeStamp[i]     = fTimeStamp;
    }
    
-   //if(FootDebugLevel(3)) {
+   if(FootDebugLevel(3)) {
       printf("%08x ", fEventSize);
       for (Int_t i = 0; i < (fEventSize)/2; ++i) {
          if (i == 9) {
@@ -76,7 +73,7 @@ Bool_t TAVTactBaseNtuRaw::DecodeEvent()
          printf("%08x ", fData[i]);
       }
       printf("\n");
- // }
+   }
    
    delete data;
 
