@@ -45,10 +45,8 @@ private:
 private:
    static       TString fgDefaultFolderName;
    static       TString fgDefaultExtName;
-   static       map<int, int> fgTrigJumpMap0;
-   static       map<int, int> fgTrigJumpMap1;
-   static       map<int, int> fgTrigJumpMap2;
-   static       map<int, int> fgTrigJumpMap3;
+   static       map< pair<int, int>, int> fgTrigJumpMap;
+
    
 private:	
    //! Get the event
@@ -59,6 +57,9 @@ private:
    
    //! Set run number
    void   SetRunNumber(const TString& name);
+   
+   //! Is part equal
+   Bool_t IsPartEqual(UInt_t data, UInt_t key);
    
    ClassDef(TAVTactVmeReader,0)
 };
