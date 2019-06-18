@@ -164,21 +164,6 @@ Bool_t TAVTactVmeReader::Process()
 // private method
 
 // --------------------------------------------------------------------------------------
-Bool_t TAVTactVmeReader::IsPartEqual(UInt_t data, UInt_t key)
-{
-   UInt_t key1  =  key & 0xFFFF;
-   UInt_t key2  = (key & 0xFFFF0000) >> 16;
-
-   UInt_t data1  =  data & 0xFFFF;
-   UInt_t data2  = (data & 0xFFFF0000) >> 16;
-   
-   if ( (data1 == key1 || data2 == key2) && data != key)
-      return true;
-   else
-      return false;
-}
-
-// --------------------------------------------------------------------------------------
 Bool_t TAVTactVmeReader::GetSensorEvent(Int_t iSensor)
 {
    Char_t tmp[255];

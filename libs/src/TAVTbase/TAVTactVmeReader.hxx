@@ -58,9 +58,6 @@ private:
    //! Set run number
    void   SetRunNumber(const TString& name);
    
-   //! Is part equal
-   Bool_t IsPartEqual(UInt_t data, UInt_t key);
-   
    ClassDef(TAVTactVmeReader,0)
 };
 
